@@ -55,7 +55,7 @@ _MISSION_REQ = re.compile(
 # A pulsatile internal-flow study — the valve opening-angle screen over the
 # cardiac cycle. Routes to the multi-point (cycle-decomposition) workflow.
 _VALVE = re.compile(
-    r"\b(valve|leaflet|cardiac|cycle|pulsatile|systol\w+|orifice)\b", re.I)
+    r"\b(valve|leaflet|cardiac|pulsatile|systol\w+|orifice)\b", re.I)
 
 _OPTIMIZE = re.compile(
     r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
