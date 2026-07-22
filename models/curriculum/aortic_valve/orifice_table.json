@@ -1,0 +1,22 @@
+{
+  "35": {
+    "opening_angle_deg": 35.0,
+    "orifice_area_m2": 0.00013668729722540976,
+    "orifice_radius_m": 0.006596129018037029
+  },
+  "50": {
+    "opening_angle_deg": 50.0,
+    "orifice_area_m2": 0.00024381110709020056,
+    "orifice_radius_m": 0.008809511095868246
+  },
+  "65": {
+    "opening_angle_deg": 65.0,
+    "orifice_area_m2": 0.0003412691072617215,
+    "orifice_radius_m": 0.010422539550921475
+  },
+  "80": {
+    "opening_angle_deg": 80.0,
+    "orifice_area_m2": 0.00040294750529806095,
+    "orifice_radius_m": 0.011325289159640392
+  }
+}

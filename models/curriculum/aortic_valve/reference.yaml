@@ -1,0 +1,18 @@
+# Idealized three-leaflet aortic valve — SCREENING GEOMETRY.
+#
+# screening geometry — no experimental tier claims
+#
+# This body carries no experimental drag/loss reference and can never reach a
+# VALIDATED tier. It exists to exercise the multi-point (cycle-decomposition)
+# internal-flow workflow on an owned, idealized geometry. The design parameter
+# is the leaflet opening angle; the effective orifice area grows with it.
+name: aortic_valve
+kind: screening geometry — no experimental tier claims
+flow: internal
+design_parameter: leaflet_opening_angle_deg
+opening_angles_deg: [35, 50, 65, 80]
+root_radius_m: 0.0115
+notes: >
+  Idealized, in-repo geometry. Engineering screening only — no clinical claim,
+  no anatomical fidelity, no experimental comparison. The workflow that consumes
+  it is hard-capped at TREND ONLY and lists its model-form limitations in full.

@@ -35,6 +35,17 @@ TIER0 = [
 REQUIRED_FIELDS = ("name", "cd", "area_basis", "reynolds", "tolerance", "source")
 
 
+# Screening geometries carry no experimental reference and never reach a
+# VALIDATED tier; they exercise a workflow rather than grade against reality.
+# The idealized aortic valve is registered here so the lab knows it exists
+# without expecting it in the Tier-0 external-aerodynamics suite.
+SCREENING = ["aortic_valve"]
+
+
+def is_screening(name: str) -> bool:
+    return Path(name).stem in SCREENING
+
+
 def stl_path(name: str) -> Path:
     return CURRICULUM_ROOT / name / f"{name}.stl"
 

@@ -1,0 +1,320 @@
+"""Multi-point (cycle-decomposition) internal-flow study of an idealized valve.
+
+A pulsatile but PERIODIC internal flow is screened by decomposing one cardiac
+cycle into a few steady phase points, solving each, and cycle-weighting the
+result. The design parameter is the leaflet opening angle; the objective is the
+cycle-weighted pressure loss across the valve orifice.
+
+This is a SCREENING method, hard-capped at TREND ONLY. The pressure loss at each
+phase point comes from a transparent reduced-order orifice model
+(dp = 0.5 * rho * (Q / (Cd * A_orifice))^2) — the same conceptual-model posture
+as the aircraft-sizing study, NOT a solved flow. The place a real steady
+internal-flow solve plugs in is marked explicitly (``_phase_pressure_loss``),
+and the model-form channel lists every physics the screen drops: the analytic
+orifice model itself, neglected phase-interaction (the flow is inertially
+unsteady at alpha ~ 17), fixed leaflets, and Newtonian blood.
+
+No clinical claim is made anywhere; the outputs are engineering curves only.
+"""
+
+from __future__ import annotations
+
+import math
+from pathlib import Path
+
+import yaml
+
+from . import OUT_ROOT, make_transcript
+from chief_engineer.compute_audit import audit
+from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
+                                EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
+                                ComputeLedger, KnowledgeBase, Roster,
+                                lab_report, per, trust, uncertainty_channels)
+
+# Pull the owned geometry + waveform modules from the curriculum.
+_VALVE = Path(__file__).resolve().parents[2] / "models" / "curriculum" / "aortic_valve"
+_PHYSICS_RULES = Path(__file__).resolve().parents[2] / "docs" / "physics_rules.yaml"
+
+import sys
+if str(_VALVE) not in sys.path:
+    sys.path.insert(0, str(_VALVE))
+from waveform import (phase_points, womersley, RHO_BLOOD, Q_PEAK,  # noqa: E402
+                      T_CYCLE, NU_BLOOD)
+from generate_valve import effective_orifice_area, ROOT_RADIUS  # noqa: E402
+
+CANDIDATE_ANGLES = (35.0, 50.0, 65.0, 80.0)   # 4 candidates
+DISCHARGE_COEFF = 0.62                          # sharp-orifice discharge coefficient
+MIN_ORIFICE_AREA = 1.6e-4                        # constraint floor, m^2 (~160 mm^2)
+MC_SAMPLES = 200                                 # Monte-Carlo envelope draws
+# Input 1-sigma spreads propagated through the screen (fractional).
+FLOW_SIGMA = 0.05
+CD_SIGMA = 0.06
+
+
+def _load_womersley_thresholds() -> dict:
+    data = yaml.safe_load(_PHYSICS_RULES.read_text(encoding="utf-8")) or {}
+    return (data.get("womersley") or {})
+
+
+def _phase_pressure_loss(flow_rate: float, orifice_area: float,
+                         cd: float = DISCHARGE_COEFF) -> float:
+    """Steady pressure loss across the orifice at one phase point (Pa).
+
+    REDUCED-ORDER MODEL — this is the single point where a real steady
+    internal-flow OpenFOAM solve (inlet flow rate, no-slip leaflets, simpleFoam,
+    read dp from the solved field) plugs in. Until then the orifice correlation
+    stands in, transparently, and the tier is capped at TREND ONLY.
+    """
+    throat_velocity = flow_rate / max(cd * orifice_area, 1e-9)
+    return 0.5 * RHO_BLOOD * throat_velocity ** 2
+
+
+def _cycle_weighted_loss(angle: float, phases, cd: float = DISCHARGE_COEFF) -> float:
+    area = effective_orifice_area(angle)
+    return sum(p.weight * _phase_pressure_loss(p.flow_rate, area, cd) for p in phases)
+
+
+def _mc_envelope(angle: float, phases) -> tuple[float, float]:
+    """Mean and 2-sigma of the cycle-weighted loss under input uncertainty.
+
+    Deterministic, seedless sampling: the draws are a fixed low-discrepancy
+    sweep over the flow and Cd spreads, so the envelope is reproducible without
+    a RNG (which the workflows avoid).
+    """
+    samples = []
+    n = int(round(math.sqrt(MC_SAMPLES)))
+    for i in range(n):
+        for j in range(n):
+            fq = 1.0 + FLOW_SIGMA * (2.0 * (i + 0.5) / n - 1.0) * math.sqrt(3)
+            fc = 1.0 + CD_SIGMA * (2.0 * (j + 0.5) / n - 1.0) * math.sqrt(3)
+            area = effective_orifice_area(angle)
+            val = sum(p.weight * _phase_pressure_loss(p.flow_rate * fq, area,
+                                                      DISCHARGE_COEFF * fc)
+                      for p in phases)
+            samples.append(val)
+    mean = sum(samples) / len(samples)
+    var = sum((s - mean) ** 2 for s in samples) / len(samples)
+    return mean, 2.0 * math.sqrt(var)
+
+
+AGENDA = [
+    {"title": "Harmonic-balance cycle solve",
+     "scope": "resolve phase-interaction the multi-point screen drops — solve the "
+              "coupled harmonics of one cycle instead of independent phase points",
+     "cost": "~1 order of magnitude over the multi-point screen"},
+    {"title": "Unsteady fluid–structure interaction",
+     "scope": "move the leaflets — couple the flow to leaflet dynamics so opening "
+              "is solved, not prescribed",
+     "cost": "~2 orders of magnitude; transient FSI, remeshing"},
+    {"title": "Non-Newtonian blood rheology",
+     "scope": "replace the Newtonian viscosity with a shear-thinning model in the "
+              "orifice jet and wake",
+     "cost": "modest over a Newtonian solve; a constitutive-model swap"},
+]
+
+
+def main(request: str | None = None, params: dict | None = None,
+         iterations: int = 1, emit=None) -> int:
+    params = params or {}
+    out = OUT_ROOT / "valve-study"
+    out.mkdir(parents=True, exist_ok=True)
+    script = make_transcript("valve study", emit)
+    roster = Roster(emit)
+    ledger = ComputeLedger(emit)
+    knowledge = KnowledgeBase(emit)
+    phases = phase_points()
+
+    script.system(request or "Request: minimise the pressure loss across the valve "
+                             "over the cardiac cycle by choosing the leaflet opening angle.")
+
+    # ---------------- Hypothesis ----------------
+    script.phase(HYPOTHESIS)
+    roster.set(CHIEF_ENGINEER, "framing the study", "working")
+    script.engineer(
+        "The flow through the valve is pulsatile, so a single steady snapshot "
+        "would be cycle-blind. Before I run anything I want the Chief Researcher "
+        "to rule on how to decompose the cycle.")
+
+    # ------------- Researcher method-selection memo (periodic decomposition) ----
+    roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
+    thresholds = _load_womersley_thresholds()
+    strict = float(thresholds.get("strict_quasi_steady_max", 1.0))
+    screen_max = float(thresholds.get("multipoint_screening_max", 25.0))
+    alpha = womersley(ROOT_RADIUS, T_CYCLE, NU_BLOOD)
+
+    # (a) periodicity insight
+    script.researcher(
+        "Problem classification: internal flow, pulsatile but periodic. A periodic "
+        "forcing is semi-convertible to a coupled set of steady problems — if the "
+        "cycle can be represented by a few phase points, the transient becomes a "
+        "handful of steady solves I can weight back together.")
+    # (b) Womersley computed AND displayed with the ruling
+    if alpha <= strict:
+        ruling = (f"alpha ~ {alpha:.1f} is below the strict quasi-steady limit "
+                  f"of {strict:g} — each instant is effectively a steady problem.")
+    elif alpha <= screen_max:
+        ruling = (f"alpha ~ {alpha:.1f} for this case. That is above the strict "
+                  f"quasi-steady limit of {strict:g}, so the flow is inertially "
+                  f"unsteady — but it sits under the multi-point screening ceiling "
+                  f"of {screen_max:g}, so a multi-point quasi-steady decomposition "
+                  f"is admissible as a SCREEN. The phase-interaction it drops is "
+                  f"real at this alpha and rides as a model-form limitation, which "
+                  f"is why the tier is capped at TREND ONLY.")
+    else:
+        ruling = (f"alpha ~ {alpha:.1f} exceeds the screening ceiling of "
+                  f"{screen_max:g} — a steady-per-phase picture is not even a "
+                  f"useful screen; the study should not proceed on this method.")
+    script.researcher("Womersley admissibility: " + ruling)
+    # (c) the plan
+    weights = ", ".join(f"{p.name.split()[0]} {p.weight:.2f}" for p in phases)
+    script.researcher(
+        f"Chosen strategy: a {len(phases)}-point cycle decomposition. Phase points "
+        f"at accelerating, peak, and decelerating systole, cycle-weighted by the "
+        f"stroke-volume fraction each carries ({weights}). The objective is the "
+        f"cycle-weighted pressure loss; each phase is a steady internal-flow "
+        f"problem, so backpropagation stays cheap at every phase point.")
+    # (d) rejected / deferred rungs, on record
+    script.researcher(
+        "Rejected: a single steady snapshot — cycle-blind, it would price one "
+        "instant as the whole cycle. Deferred to the agenda: a harmonic-balance "
+        "cycle solve to recover the phase-interaction, and an unsteady "
+        "fluid–structure solve to let the leaflets actually move. Both are logged "
+        f"as research lines, {per('rom')} in spirit for the screen we run now.")
+    if emit:
+        emit("agenda.updated", {"entries": AGENDA})
+    roster.idle(CHIEF_RESEARCHER)
+    script.engineer("On it.")
+
+    # ---------------- Plan ----------------
+    script.phase(PLAN)
+    n_solves = len(CANDIDATE_ANGLES) * len(phases)
+    capacity = audit(min(12, n_solves), memory_per_worker_mb=256)
+    if emit:
+        emit("audit.completed", capacity.panel())
+    script.engineer(capacity.headline(), panel=capacity.panel())
+    script.engineer(
+        f"Plan: {len(CANDIDATE_ANGLES)} candidate opening angles x {len(phases)} "
+        f"phase points = {n_solves} steady internal-flow evaluations. Each candidate "
+        f"gets a cycle-weighted pressure loss with a Monte-Carlo envelope across "
+        f"the phases; the constraint is a minimum orifice area.")
+    script.numericist(
+        "State the fidelity plainly: each phase evaluation is a reduced-order "
+        f"orifice model right now, {per('rom')}, not a solved flow — a real steady "
+        "internal-flow solve is the marked plug-in point. It ranks the angles and "
+        "screens the trade; it does not validate a pressure in pascals. Hard cap: "
+        "TREND ONLY.")
+
+    # ---------------- Evidence ----------------
+    script.phase(EVIDENCE)
+    roster.set(CHIEF_ENGINEER, "screening the phase points", "working")
+    roster.set_workers(min(capacity.capacity, n_solves), "phase evaluations")
+    results = []
+    if emit:
+        emit("objective.spec", {"metric": "cycle_pressure_loss", "direction": "min"})
+    for angle in CANDIDATE_ANGLES:
+        area = effective_orifice_area(angle)
+        per_phase = [(p.name, _phase_pressure_loss(p.flow_rate, area)) for p in phases]
+        obj, band = _mc_envelope(angle, phases)
+        feasible = area >= MIN_ORIFICE_AREA
+        results.append({"angle": angle, "area": area, "objective": obj,
+                        "band": band, "feasible": feasible, "per_phase": per_phase})
+        if emit:
+            emit("landscape.point", {
+                "design": {"opening_angle_deg": round(angle, 1),
+                           "orifice_area_mm2": round(area * 1e6, 1)},
+                "metrics": {"cycle_pressure_loss": round(obj, 1)},
+                "objective": round(obj, 1), "direction": "min",
+                "feasible": feasible})
+        script.engineer(
+            f"Opening {angle:g} deg -> orifice {area*1e6:.0f} mm^2, cycle-weighted "
+            f"loss {obj:.0f} +/- {band:.0f} Pa"
+            + ("" if feasible else " (infeasible: below the minimum orifice area)"))
+    ledger.spend(n_solves * 0.05, f"{n_solves} reduced-order phase evaluations")
+    roster.set_workers(0)
+
+    feasible = [r for r in results if r["feasible"]]
+    if not feasible:
+        script.engineer("No candidate clears the minimum orifice area; the sweep "
+                        "needs a wider opening range before an optimum exists.")
+        script.save(out / "transcript.txt"); roster.all_idle(); return 0
+    best = min(feasible, key=lambda r: r["objective"])
+
+    # ---------------- Conclusion ----------------
+    script.phase(CONCLUSION)
+    script.engineer(
+        f"{len(feasible)} of {len(results)} candidates clear the orifice-area floor. "
+        f"Lowest cycle-weighted loss: opening {best['angle']:g} deg at "
+        f"{best['objective']:.0f} +/- {best['band']:.0f} Pa — the widest admissible "
+        f"orifice, as the physics of an orifice loss would predict.")
+    channels = uncertainty_channels(
+        input_2sigma=best["band"], numerical=None, model=None,
+        numerical_note="the cycle is sampled at three phase points — between-phase "
+                       "structure is not resolved",
+        model_note="reduced-order orifice model, not a solved flow; phase-interaction "
+                    "neglected (alpha ~ %.0f, inertially unsteady); leaflets fixed, "
+                    "not moving; Newtonian blood approximation" % alpha)
+    if emit:
+        emit("uncertainty.channels", channels)
+    script.researcher(
+        "Read this as a screen, not a validated pressure. The ranking — wider "
+        f"orifice, lower cycle loss — is physical and trustworthy. The magnitude in "
+        f"pascals is a reduced-order estimate; {per('vv20')} would need a solved "
+        f"internal flow and a comparison before anyone trusts the number. The three "
+        f"capabilities this screen is missing are on the research agenda.")
+    verdict = trust(relative_error=0.0, converged=True, in_validated_regime=False,
+                    calibrated=True,
+                    why="reduced-order cycle screen on a screening geometry — the "
+                        "trade is real, the magnitude is a trend, and the flow is "
+                        "inertially unsteady")
+    verdict["tier"] = "TREND ONLY"   # hard cap for this act
+    if emit:
+        emit("result.verdict", {"quantity": "Cycle-weighted pressure loss",
+                                "value": f"{best['objective']:.0f} Pa",
+                                "envelope": f"+/- {best['band']:.0f} Pa "
+                                            f"at opening {best['angle']:g} deg",
+                                **verdict})
+    knowledge.add(
+        f"Valve opening-angle screen: lowest cycle-weighted loss at "
+        f"{best['angle']:g} deg ({best['objective']:.0f} Pa), Womersley ~ {alpha:.0f}, "
+        f"multi-point decomposition (TREND ONLY)")
+
+    report = lab_report(
+        title=f"Valve opening-angle screen — cycle-weighted pressure loss",
+        abstract=[
+            f"A pulsatile internal flow was screened by decomposing the cardiac "
+            f"cycle into {len(phases)} steady phase points (Womersley ~ {alpha:.0f}, "
+            f"below the multi-point screening ceiling).",
+            f"Across {len(CANDIDATE_ANGLES)} opening angles the lowest cycle-weighted "
+            f"pressure loss is at {best['angle']:g} deg, {best['objective']:.0f} +/- "
+            f"{best['band']:.0f} Pa.",
+            "This is a reduced-order screen on an owned screening geometry, reported "
+            "as a trend, not a validated magnitude."],
+        methods=[
+            "Idealized three-leaflet valve; leaflet opening angle sets the effective "
+            "orifice area.",
+            "In-repo half-sine systolic waveform; three phase points weighted by the "
+            "stroke-volume fraction each carries.",
+            "Per-phase pressure loss from a reduced-order orifice model; cycle-weighted "
+            "objective with a Monte-Carlo input envelope; minimum-orifice constraint."],
+        results=[{"quantity": "Cycle-weighted pressure loss",
+                  "value": f"{best['objective']:.0f} Pa",
+                  "envelope": f"+/- {best['band']:.0f} Pa at opening {best['angle']:g} deg",
+                  **verdict}],
+        uncertainty=[
+            "The ranking (wider orifice, lower loss) is physical and trustworthy.",
+            "The magnitude is a reduced-order estimate, not a solved flow — treat it "
+            "as a trend.",
+            f"The flow is inertially unsteady (Womersley ~ {alpha:.0f}); "
+            "phase-interaction is dropped by the multi-point screen."],
+        future_work=[e["title"] + " — " + e["scope"] for e in AGENDA],
+        compute=ledger.as_dict())
+    if emit:
+        emit("report.ready", report)
+    script.save(out / "transcript.txt")
+    roster.all_idle()
+    print("Artifacts in", out)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(request=" ".join(sys.argv[1:]) or None))

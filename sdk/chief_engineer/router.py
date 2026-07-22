@@ -36,6 +36,7 @@ from typing import Any
 
 SHAPE_OPTIMIZATION = "shape-optimization"
 AIRCRAFT_OPTIMIZATION = "aircraft-optimization"
+VALVE_STUDY = "valve-study"
 TIME_CONSTRAINED = "time-constrained"
 UNSEEN_GEOMETRY = "unseen-geometry"
 UNCERTAINTY_REDUCTION = "uncertainty-reduction"
@@ -50,6 +51,11 @@ _AIRCRAFT = re.compile(
     r"\b(aircraft|airplane|airliner|aeroplane|plane|jet|wing|fuselage|flight)\b", re.I)
 _MISSION_REQ = re.compile(
     r"\b(passengers?|pax|seats?|range|take[\s-]?off|landing|cruise|mtow|payload)\b", re.I)
+
+# A pulsatile internal-flow study — the valve opening-angle screen over the
+# cardiac cycle. Routes to the multi-point (cycle-decomposition) workflow.
+_VALVE = re.compile(
+    r"\b(valve|leaflet|cardiac|cycle|pulsatile|systol\w+|orifice)\b", re.I)
 
 _OPTIMIZE = re.compile(
     r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
@@ -214,6 +220,10 @@ def classify(request: str) -> Route:
     if geometry and not known:
         add(UNSEEN_GEOMETRY, 0.7,
             f"names {geometry!r}, which is absent from case memory")
+    # --- pulsatile internal-flow valve screen (multi-point cycle decomposition) ---
+    if _VALVE.search(text):
+        add(VALVE_STUDY, 1.7,
+            "screens a pulsatile internal flow by decomposing the cycle into phase points")
     # --- aircraft L/D optimization against mission requirements ---
     if _LIFT_DRAG.search(text) and (_AIRCRAFT.search(text) or _MISSION_REQ.search(text)):
         add(AIRCRAFT_OPTIMIZATION, 1.6,
@@ -255,6 +265,11 @@ def classify(request: str) -> Route:
         params["reference_length"] = float(length_match.group(1))
 
     rationale = {
+        VALVE_STUDY: (
+            "Reading this as a pulsatile internal-flow screen. The cycle is "
+            "periodic, so I will decompose it into a few steady phase points, "
+            "solve each, and cycle-weight the result — after the Chief Researcher "
+            "rules the decomposition admissible for this Womersley number."),
         AIRCRAFT_OPTIMIZATION: (
             "Reading this as an aircraft lift-to-drag optimisation against mission "
             "requirements. I will fix the requirements, search a wing design space "
@@ -295,6 +310,7 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                      "output": "geometry-study"},
     SHAPE_OPTIMIZATION: {"module": "workflows.shape_optimization",
                          "output": "shape-optimization"},
+    VALVE_STUDY: {"module": "workflows.valve_study", "output": "valve-study"},
     AIRCRAFT_OPTIMIZATION: {"module": "workflows.aircraft_optimization",
                             "output": "aircraft-optimization"},
     TIME_CONSTRAINED: {"module": "workflows.time_constrained",

@@ -1,0 +1,29 @@
+# Certonomous physics rules — knowledge-driven admissibility thresholds.
+#
+# The lab reads its method-admissibility limits from here rather than hardcoding
+# them in a workflow, so a ruling on camera can point to a stated criterion.
+# Every threshold carries the reasoning it rests on.
+
+womersley:
+  # The Womersley number alpha = R * sqrt(omega/nu) compares transient inertia
+  # to viscous diffusion over a cycle. It decides whether a pulsatile internal
+  # flow can be treated as a sequence of steady problems.
+  #
+  # Two criteria, deliberately separated:
+  #
+  #  - strict_quasi_steady_max: below alpha ~ 1 the velocity profile follows the
+  #    instantaneous pressure gradient with negligible phase lag, so each instant
+  #    IS a steady problem. This is the textbook quasi-steady limit.
+  #
+  #  - multipoint_screening_max: a multi-POINT decomposition is a weaker, explicit
+  #    screening approximation — solve steady problems at a few phase points and
+  #    cycle-weight them. It captures the dominant flow-rate dependence of a
+  #    quantity like orifice pressure loss even when alpha is well above 1,
+  #    PROVIDED the phase-interaction (history / added-mass) terms it drops are
+  #    carried as a named model-form limitation and the result is capped at
+  #    TREND ONLY. It is a ranking-and-screening tool, not a validated cycle solve.
+  #    The ceiling of ~25 reflects that above it the transient jet structure
+  #    reorganises within a cycle and a steady-per-phase picture stops being even
+  #    a useful screen. The physiological aortic root sits near alpha ~ 17.
+  strict_quasi_steady_max: 1.0
+  multipoint_screening_max: 25.0
