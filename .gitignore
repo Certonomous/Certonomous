@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Secrets — never commit
+.env
+*.key
+
+# Runtime output (regenerated each run)
+mission-output/
+sdk/chief-engineer-runs/
+sdk/mission-output/
+**/.sabotage/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,43 @@
+{
+  "name": "cylinder",
+  "returncode": 0,
+  "ok": true,
+  "wall_minutes": 0.57,
+  "cd_measured": "0.5464",
+  "envelope": "\u00b12.1e-05",
+  "tier": "REFERENCE REGIME MISMATCH",
+  "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend",
+  "reference_cd": 0.74,
+  "reference_source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)",
+  "finished_at": "2026-07-21T14:54:27+00:00",
+  "report_results": [
+    {
+      "quantity": "Drag coefficient",
+      "value": "0.5464",
+      "envelope": "\u00b12.1e-05 over the final 50 iterations",
+      "tier": "REFERENCE REGIME MISMATCH",
+      "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend"
+    },
+    {
+      "quantity": "Lift coefficient",
+      "value": "-0.0007118",
+      "envelope": "\u00b10.00033",
+      "tier": "REFERENCE REGIME MISMATCH",
+      "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend"
+    },
+    {
+      "quantity": "Drag vs experiment",
+      "value": "Cd 0.5464 vs 0.74",
+      "envelope": "26% apart, \u00b120% band",
+      "tier": "REFERENCE REGIME MISMATCH",
+      "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend"
+    },
+    {
+      "quantity": "Mesh",
+      "value": "29,470 cells",
+      "envelope": "max non-orthogonality 30.768977, max skewness 0.5495004",
+      "tier": "VALIDATED",
+      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+    }
+  ]
+}

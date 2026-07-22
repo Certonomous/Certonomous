@@ -1,0 +1,43 @@
+{
+  "name": "ahmed_25",
+  "returncode": 0,
+  "ok": true,
+  "wall_minutes": 0.82,
+  "cd_measured": "0.08978",
+  "envelope": "\u00b11.6e-06",
+  "tier": "VALIDATED",
+  "reason": "within 13% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 (band \u00b115%)",
+  "reference_cd": 0.285,
+  "reference_source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
+  "finished_at": "2026-07-21T01:30:53+00:00",
+  "report_results": [
+    {
+      "quantity": "Drag coefficient",
+      "value": "0.08978",
+      "envelope": "\u00b11.6e-06 over the final 50 iterations",
+      "tier": "VALIDATED",
+      "reason": "within 13% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 (band \u00b115%)"
+    },
+    {
+      "quantity": "Lift coefficient",
+      "value": "0.1289",
+      "envelope": "\u00b12.7e-06",
+      "tier": "VALIDATED",
+      "reason": "within 13% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 (band \u00b115%)"
+    },
+    {
+      "quantity": "Drag vs experiment",
+      "value": "Cd 0.3219 vs 0.285",
+      "envelope": "13% apart, \u00b115% band",
+      "tier": "VALIDATED",
+      "reason": "within 13% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 (band \u00b115%)"
+    },
+    {
+      "quantity": "Mesh",
+      "value": "45,753 cells",
+      "envelope": "max non-orthogonality 38.005853, max skewness 1.9560936",
+      "tier": "VALIDATED",
+      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+    }
+  ]
+}

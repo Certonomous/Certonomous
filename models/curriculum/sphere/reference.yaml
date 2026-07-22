@@ -1,0 +1,33 @@
+# Experimental reference for the smooth sphere.
+name: sphere
+title: Smooth sphere
+cd: 0.47
+cd_range: [0.42, 0.51]
+area_basis: frontal          # pi*D^2/4; for a sphere the silhouette is the same in every view
+reynolds: 1.0e5
+reynolds_basis: diameter
+regime:
+  label: subcritical (laminar separation, wide wake)
+  reynolds_valid: [1.0e4, 3.0e5]      # this Cd 0.47 holds below the drag crisis
+  reynolds_independent: false
+  alternates:
+    - label: supercritical (post-drag-crisis)
+      cd: 0.09
+      cd_range: [0.06, 0.14]
+      reynolds_valid: [3.5e5, 2.0e7]
+      source: "Achenbach 1972 (supercritical branch, Cd ~ 0.07-0.10)"
+      cause: >
+        steady fully-turbulent RANS delays boundary-layer separation and
+        reproduces the post-drag-crisis wake, so the coefficient reads
+        supercritical even when the solve Reynolds number is subcritical
+tolerance: 0.20              # steady RANS predicts the sphere wake poorly; band is generous
+confidence: medium
+source: "Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory"
+conditions: "uniform flow, smooth surface, subcritical Reynolds number"
+drag_crisis: "Cd collapses to roughly 0.07-0.10 above Re ~ 3-4e5 as the boundary layer turns turbulent and separation moves aft; the supercritical value is a different regime, not a tolerance miss"
+solve:
+  velocity: 1.5             # with D=1 m and nu=1.5e-5, gives Re_D ~ 1e5, subcritical
+notes: >
+  The sphere is the classic Reynolds-dependent bluff body. Report the
+  subcritical coefficient only when the solve Reynolds number sits below the
+  drag crisis; above it, compare against the supercritical value instead.

@@ -1,0 +1,43 @@
+{
+  "name": "ahmed_35",
+  "returncode": 0,
+  "ok": true,
+  "wall_minutes": 0.79,
+  "cd_measured": "0.0876",
+  "envelope": "\u00b11.8e-06",
+  "tier": "TREND ONLY",
+  "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend",
+  "reference_cd": 0.26,
+  "reference_source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
+  "finished_at": "2026-07-21T01:30:04+00:00",
+  "report_results": [
+    {
+      "quantity": "Drag coefficient",
+      "value": "0.0876",
+      "envelope": "\u00b11.8e-06 over the final 50 iterations",
+      "tier": "TREND ONLY",
+      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend"
+    },
+    {
+      "quantity": "Lift coefficient",
+      "value": "0.1001",
+      "envelope": "\u00b12.6e-05",
+      "tier": "TREND ONLY",
+      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend"
+    },
+    {
+      "quantity": "Drag vs experiment",
+      "value": "Cd 0.3141 vs 0.26",
+      "envelope": "21% apart, \u00b115% band",
+      "tier": "TREND ONLY",
+      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend"
+    },
+    {
+      "quantity": "Mesh",
+      "value": "45,813 cells",
+      "envelope": "max non-orthogonality 37.054876, max skewness 1.4233872",
+      "tier": "VALIDATED",
+      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+    }
+  ]
+}

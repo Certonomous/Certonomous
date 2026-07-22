@@ -1,0 +1,43 @@
+{
+  "name": "naca4412_wing",
+  "returncode": 0,
+  "ok": true,
+  "wall_minutes": 1.81,
+  "cd_measured": "0.02892",
+  "envelope": "\u00b14.6e-07",
+  "tier": "VALIDATED",
+  "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
+  "reference_cd": 0.03,
+  "reference_source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+  "finished_at": "2026-07-21T01:29:16+00:00",
+  "report_results": [
+    {
+      "quantity": "Drag coefficient",
+      "value": "0.02892",
+      "envelope": "\u00b14.6e-07 over the final 50 iterations",
+      "tier": "VALIDATED",
+      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)"
+    },
+    {
+      "quantity": "Lift coefficient",
+      "value": "0.2694",
+      "envelope": "\u00b16.7e-06",
+      "tier": "VALIDATED",
+      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)"
+    },
+    {
+      "quantity": "Drag vs experiment",
+      "value": "Cd 0.0289 vs 0.03",
+      "envelope": "4% apart, \u00b140% band",
+      "tier": "VALIDATED",
+      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)"
+    },
+    {
+      "quantity": "Mesh",
+      "value": "67,826 cells",
+      "envelope": "max non-orthogonality 33.270917, max skewness 1.4609207",
+      "tier": "VALIDATED",
+      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+    }
+  ]
+}

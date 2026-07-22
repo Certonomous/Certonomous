@@ -1,0 +1,43 @@
+{
+  "name": "flat_plate",
+  "returncode": 0,
+  "ok": true,
+  "wall_minutes": 1.75,
+  "cd_measured": "0.03238",
+  "envelope": "\u00b12e-06",
+  "tier": "VALIDATED",
+  "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%)",
+  "reference_cd": 0.03,
+  "reference_source": "thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces",
+  "finished_at": "2026-07-21T01:25:42+00:00",
+  "report_results": [
+    {
+      "quantity": "Drag coefficient",
+      "value": "0.03238",
+      "envelope": "\u00b12e-06 over the final 50 iterations",
+      "tier": "VALIDATED",
+      "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%)"
+    },
+    {
+      "quantity": "Lift coefficient",
+      "value": "0.158",
+      "envelope": "\u00b14.9e-06",
+      "tier": "VALIDATED",
+      "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%)"
+    },
+    {
+      "quantity": "Drag vs experiment",
+      "value": "Cd 0.0324 vs 0.03",
+      "envelope": "8% apart, \u00b135% band",
+      "tier": "VALIDATED",
+      "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%)"
+    },
+    {
+      "quantity": "Mesh",
+      "value": "108,711 cells",
+      "envelope": "max non-orthogonality 30.6102, max skewness 1.5447988",
+      "tier": "VALIDATED",
+      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+    }
+  ]
+}

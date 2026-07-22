@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Certonomous — control room</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      min-height: 100vh; display: grid; place-items: center;
+      background: #0b0f12; color: #e7ecef;
+      font: 15px/1.6 -apple-system, "Segoe UI", system-ui, sans-serif;
+      padding: 32px;
+    }
+    .card { max-width: 560px; text-align: center; }
+    .mark {
+      width: 56px; height: 56px; margin: 0 auto 22px; border-radius: 12px;
+      display: grid; place-items: center; background: #c7ff42; color: #0b0f12;
+      font: 800 30px/1 "Avenir Next Condensed", sans-serif;
+    }
+    h1 { font: 700 22px/1.2 sans-serif; letter-spacing: -.01em; }
+    .sub { color: #8a949b; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; margin-top: 6px; }
+    p { color: #aeb7bd; margin-top: 18px; }
+    code { background: #141a1e; color: #c7ff42; padding: 2px 7px; border-radius: 4px; font-size: 13px; }
+    .apis { margin-top: 22px; text-align: left; display: inline-block; color: #8a949b; font-size: 13px; }
+    .apis b { color: #e7ecef; font-weight: 600; }
+    .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #c7ff42; margin-right: 8px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark">C</div>
+    <h1>Certonomous</h1>
+    <div class="sub">Autonomous CFD laboratory</div>
+    <p>The control room is being rebuilt. The lab is live and answering over its API.</p>
+    <div class="apis">
+      <div><span class="dot"></span><b>GET</b> <code>/health</code> — service status</div>
+      <div><span class="dot"></span><b>GET</b> <code>/api/credentials</code> — the validation wall</div>
+      <div><span class="dot"></span><b>POST</b> <code>/api/ask</code> — ask the lab, grounded in its record</div>
+      <div><span class="dot"></span><b>POST</b> <code>/api/missions</code> — run a solve</div>
+    </div>
+  </div>
+</body>
+</html>

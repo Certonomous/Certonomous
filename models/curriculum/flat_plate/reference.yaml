@@ -1,0 +1,26 @@
+# Experimental reference for the thin flat plate at incidence.
+name: flat_plate
+title: Thin flat plate at 5 degrees incidence
+cd: 0.03
+cd_range: [0.02, 0.05]
+area_basis: planform         # chord*span, the lifting-surface convention
+reynolds: 5.0e5
+reynolds_basis: chord
+regime:
+  label: attached lifting flow at small incidence
+  reynolds_valid: [1.0e5, 2.0e6]
+  reynolds_independent: false
+tolerance: 0.35              # wide: this is chiefly a lift case, drag is small and uncertain
+confidence: low
+source: "thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces"
+conditions: "aspect ratio ~ 1, 5 degrees angle of attack, chord-first into the flow"
+solve:
+  streamwise_axis: 0         # plate chord lies along X; face the flow chord-first
+  velocity: 7.5              # with c=1 m and nu=1.5e-5, gives Re_c ~ 5e5
+notes: >
+  The flat plate at incidence is primarily a lift benchmark, not a drag one:
+  at 5 degrees the drag is a small sum of skin friction and induced drag and is
+  sensitive to Reynolds number and edge treatment. The coefficient here is an
+  order-of-magnitude anchor with a deliberately wide band and low confidence.
+  The more discriminating comparison for this body is its lift coefficient, not
+  its drag.

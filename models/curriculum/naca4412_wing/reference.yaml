@@ -1,0 +1,27 @@
+# Experimental reference for the NACA 4412 finite wing at zero incidence.
+name: naca4412_wing
+title: NACA 4412 wing, zero incidence
+cd: 0.030
+cd_range: [0.008, 0.045]
+area_basis: planform         # chord*span = 1 x 3 = 3 m^2
+reynolds: 1.0e6
+reynolds_basis: chord
+regime:
+  label: attached, cambered section carrying lift at zero incidence
+  reynolds_valid: [3.0e5, 6.0e6]
+  reynolds_independent: false
+tolerance: 0.40              # wide: 3D induced drag on a low-aspect wing dominates and is uncertain
+confidence: low
+source: "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)"
+conditions: "alpha = 0, chord-Reynolds ~ 1e6, aspect ratio ~ 3, extruded straight"
+solve:
+  streamwise_axis: 0         # chord along X; face the flow chord-first
+  velocity: 15.0             # with c=1 m and nu=1.5e-5, gives Re_c ~ 1e6
+notes: >
+  The 4412 is cambered, so at zero incidence it already carries lift
+  (section Cl ~ 0.4). The two-dimensional profile drag is small (~0.006-0.009),
+  but a finite aspect-ratio-3 wing adds substantial induced drag on top of it,
+  so the measured three-dimensional coefficient is expected around 0.02-0.03
+  and is genuinely uncertain. The reference band is wide and the confidence low
+  by design: read this body as a trend case unless a lift-and-induced-drag
+  breakdown is added. Referenced to planform area, so no rebasing.

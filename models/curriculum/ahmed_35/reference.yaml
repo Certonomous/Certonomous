@@ -1,0 +1,25 @@
+# Experimental reference for the Ahmed body, 35 degree rear slant.
+name: ahmed_35
+title: Ahmed reference body, 35 degree slant
+cd: 0.26
+cd_range: [0.24, 0.28]
+area_basis: frontal          # 0.389 x 0.288 = 0.1120 m^2
+reynolds: 2.8e6
+reynolds_basis: model length (1.044 m)
+regime:
+  label: fully separated slant, quasi-two-dimensional wake
+  reynolds_valid: [1.0e6, 5.0e6]
+  reynolds_independent: false
+tolerance: 0.15
+confidence: high
+source: "Ahmed, Ramm & Faltin 1984, SAE 840300"
+conditions: "ground-mounted body, zero yaw; stilts of the wind-tunnel model omitted from this shell"
+solve:
+  streamwise_axis: 0         # nose along +X; face the flow along X
+  velocity: 40.0             # with L=1.044 m and nu=1.5e-5, gives Re_L ~ 2.8e6
+notes: >
+  Past the critical slant angle the flow separates fully at the top of the
+  slant and the drag drops relative to 25 degrees. The wake is closer to
+  two-dimensional and steady RANS reproduces this case more reliably. Drag is
+  referenced to frontal area (0.112 m^2); the comparison rebases from the
+  solver's planform-area coefficient.

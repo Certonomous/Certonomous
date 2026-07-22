@@ -1,0 +1,36 @@
+# Experimental reference for the finite circular cylinder in crossflow.
+name: cylinder
+title: Finite circular cylinder (L/D = 5), crossflow
+cd: 0.74
+cd_range: [0.68, 0.80]
+area_basis: frontal          # L*D, the side silhouette presented to a crossflow
+reynolds: 1.0e5
+reynolds_basis: diameter
+regime:
+  label: subcritical crossflow, free-end relief
+  reynolds_valid: [1.0e4, 2.0e5]      # subcritical finite-cylinder Cd 0.74
+  reynolds_independent: false
+  alternates:
+    - label: supercritical / fully-turbulent
+      cd: 0.50
+      cd_range: [0.40, 0.62]
+      reynolds_valid: [3.0e5, 2.0e7]
+      source: "Hoerner (1965), supercritical branch below the subcritical 0.74"
+      cause: >
+        fully-turbulent steady RANS under-predicts the subcritical base drag of
+        the finite cylinder, landing near the supercritical branch rather than
+        the subcritical reference
+tolerance: 0.20
+confidence: medium
+source: "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)"
+conditions: "crossflow normal to the axis, both ends free, subcritical Reynolds number"
+solve:
+  streamwise_axis: 1         # cylinder axis is along X; face the flow along Y so it is crossflow
+  velocity: 3.75             # with D=0.4 m and nu=1.5e-5, gives Re_D ~ 1e5, subcritical
+notes: >
+  A two-dimensional (infinite) cylinder sits near Cd 1.2 subcritical. The two
+  free ends of a length/diameter = 5 cylinder relieve the base pressure and
+  drop the coefficient to about 0.74. The reference belongs to the crossflow
+  orientation, which is why this body states its streamwise axis explicitly;
+  the geometry as generated has its axis along X. Above Re ~ 2-3e5 the cylinder
+  also passes through a drag crisis, so keep the solve subcritical.

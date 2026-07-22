@@ -1,0 +1,27 @@
+# Experimental reference for the NACA 0012 finite wing at zero incidence.
+name: naca0012_wing
+title: NACA 0012 wing, zero incidence
+cd: 0.009
+cd_range: [0.008, 0.012]
+area_basis: planform         # chord*span = 1 x 3 = 3 m^2
+reynolds: 1.0e6
+reynolds_basis: chord
+regime:
+  label: attached flow, symmetric section, zero lift
+  reynolds_valid: [3.0e5, 6.0e6]
+  reynolds_independent: false
+tolerance: 0.30              # 3D wing plus RANS on a thin body; band is generous
+confidence: medium
+source: "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data"
+conditions: "alpha = 0, chord-Reynolds ~ 1e6, extruded straight (no twist, no taper)"
+solve:
+  streamwise_axis: 0         # chord along X; face the flow chord-first, not spanwise
+  velocity: 15.0             # with c=1 m and nu=1.5e-5, gives Re_c ~ 1e6
+notes: >
+  Symmetric, so at zero incidence the wing carries no lift and therefore no
+  induced drag: the finite-wing drag collapses onto the two-dimensional
+  section's profile drag, roughly 0.008-0.012 at this Reynolds number. The
+  drag is referenced to planform area, which is what the solver already reports
+  on, so no rebasing is needed. The body must be faced chord-first; its span
+  (3 m) is longer than its chord, so the axis heuristic would otherwise put it
+  in spanwise flow.

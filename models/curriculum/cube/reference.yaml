@@ -1,0 +1,22 @@
+# Experimental reference for the cube (sharp-edged bluff body).
+name: cube
+title: Cube, face-normal to the flow
+cd: 1.05
+cd_range: [1.00, 1.10]
+area_basis: frontal          # one face; a cube's frontal and planform silhouettes are equal
+reynolds: 1.0e5
+reynolds_basis: side length
+regime:
+  label: sharp-edged bluff body, fixed separation
+  reynolds_valid: [1.0e3, 1.0e8]      # separation pinned at the edges
+  reynolds_independent: true
+tolerance: 0.15
+confidence: high
+source: "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)"
+conditions: "one face normal to a uniform stream, sharp edges fixing the separation line"
+notes: >
+  Because the separation line is pinned to the leading edges, the cube's drag
+  coefficient is essentially Reynolds-independent above Re ~ 1e4. That makes it
+  the cleanest validation target of the set: no drag crisis, no orientation
+  ambiguity (frontal equals planform area), and a value steady RANS reproduces
+  well. This is the smoke-test body.

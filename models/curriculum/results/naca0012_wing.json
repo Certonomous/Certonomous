@@ -1,0 +1,43 @@
+{
+  "name": "naca0012_wing",
+  "returncode": 0,
+  "ok": true,
+  "wall_minutes": 1.18,
+  "cd_measured": "0.02229",
+  "envelope": "\u00b12.5e-07",
+  "tier": "TREND ONLY",
+  "reason": "measured Cd 0.022 is 148% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data, Cd 0.009 \u2014 outside the \u00b130% band, so it stands as a trend",
+  "reference_cd": 0.009,
+  "reference_source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data",
+  "finished_at": "2026-07-21T01:27:28+00:00",
+  "report_results": [
+    {
+      "quantity": "Drag coefficient",
+      "value": "0.02229",
+      "envelope": "\u00b12.5e-07 over the final 50 iterations",
+      "tier": "TREND ONLY",
+      "reason": "measured Cd 0.022 is 148% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data, Cd 0.009 \u2014 outside the \u00b130% band, so it stands as a trend"
+    },
+    {
+      "quantity": "Lift coefficient",
+      "value": "-0.000795",
+      "envelope": "\u00b15.3e-07",
+      "tier": "TREND ONLY",
+      "reason": "measured Cd 0.022 is 148% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data, Cd 0.009 \u2014 outside the \u00b130% band, so it stands as a trend"
+    },
+    {
+      "quantity": "Drag vs experiment",
+      "value": "Cd 0.0223 vs 0.009",
+      "envelope": "148% apart, \u00b130% band",
+      "tier": "TREND ONLY",
+      "reason": "measured Cd 0.022 is 148% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data, Cd 0.009 \u2014 outside the \u00b130% band, so it stands as a trend"
+    },
+    {
+      "quantity": "Mesh",
+      "value": "67,356 cells",
+      "envelope": "max non-orthogonality 32.182985, max skewness 1.2751485",
+      "tier": "VALIDATED",
+      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+    }
+  ]
+}

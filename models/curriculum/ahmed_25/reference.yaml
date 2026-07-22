@@ -1,0 +1,26 @@
+# Experimental reference for the Ahmed body, 25 degree rear slant.
+name: ahmed_25
+title: Ahmed reference body, 25 degree slant
+cd: 0.285
+cd_range: [0.27, 0.30]
+area_basis: frontal          # 0.389 x 0.288 = 0.1120 m^2
+reynolds: 2.8e6
+reynolds_basis: model length (1.044 m)
+regime:
+  label: separated automotive wake, C-pillar vortices over the slant
+  reynolds_valid: [1.0e6, 5.0e6]
+  reynolds_independent: false
+tolerance: 0.15
+confidence: high
+source: "Ahmed, Ramm & Faltin 1984, SAE 840300"
+conditions: "ground-mounted body, zero yaw; stilts of the wind-tunnel model omitted from this shell"
+solve:
+  streamwise_axis: 0         # nose along +X; face the flow along X
+  velocity: 40.0             # with L=1.044 m and nu=1.5e-5, gives Re_L ~ 2.8e6
+notes: >
+  The 25 degree slant is the harder of the two angles: the flow is on the edge
+  of reattachment and the real wake is bistable, so steady RANS scatters more
+  here than at 35 degrees and may miss the coefficient even with a good mesh.
+  The published drag is referenced to frontal area (0.112 m^2); the solver
+  reports on measured planform area, so the comparison rebases by the ratio of
+  the two silhouettes.
