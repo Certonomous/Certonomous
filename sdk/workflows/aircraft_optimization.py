@@ -22,6 +22,7 @@ import re
 
 from . import OUT_ROOT, make_transcript
 from chief_engineer.compute_audit import audit
+from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
@@ -162,6 +163,21 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
+    # Chief Researcher puts the method choice on the record before anything runs.
+    roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
+    props = MissionProperties(
+        kind="parametric-optimization",
+        objective="maximise the cruise lift-to-drag ratio",
+        dimensionality=2,          # wing span and area are the free variables
+        regime="steady",
+        smoothness="smooth",
+        fidelity="a conceptual sizing model",
+        constraints=("take-off speed", "landing speed", "range"))
+    for line in method_memo(props):
+        script.researcher(line)
+    roster.idle(CHIEF_RESEARCHER)
+    script.engineer(ENGINEER_ACK)
+
     roster.set(CHIEF_ENGINEER, "reading the requirements", "working")
     stated = []
     stated.append(f"{reqs['passengers']} passengers" + ("" if reqs["passengers_stated"] else " (assumed)"))

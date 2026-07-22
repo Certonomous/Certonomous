@@ -26,6 +26,7 @@ from chief_engineer.head_engineer import (FOAM_TUTORIALS, HeadEngineer,
                                           envelope_statistics,
                                           parse_coefficient_history,
                                           plot_with_envelope)
+from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
@@ -177,6 +178,21 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
+    # Chief Researcher records the method choice before the chain runs.
+    roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
+    props = MissionProperties(
+        kind="single-body-study",
+        objective="a trustworthy drag coefficient for this body",
+        dimensionality=0,
+        regime="steady turbulent (RANS)",
+        smoothness="gated",
+        fidelity="a solved field",
+        admissibility_cite="against the standard mesh-quality acceptance band")
+    for line in method_memo(props):
+        script.researcher(line)
+    roster.idle(CHIEF_RESEARCHER)
+    script.engineer(ENGINEER_ACK)
+
     roster.set(CHIEF_ENGINEER, f"reading {surface}", "working")
     announce_geometry(emit, name=surface, label=f"{label} — as supplied")
     script.engineer(

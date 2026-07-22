@@ -20,6 +20,7 @@ from . import (NOMINAL_CYLINDER, OUT_ROOT, RUN_PREFIX, announce_geometry,
                announce_plot, make_transcript)
 from chief_engineer.chief_researcher import select_runs
 from chief_engineer.compute_audit import audit
+from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
@@ -89,6 +90,14 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
+    roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
+    for line in method_memo(MissionProperties(
+            kind="one-parameter-sweep", objective="minimise drag over the body's size",
+            dimensionality=1, regime="steady-laminar", smoothness="smooth",
+            fidelity="a solved field")):
+        script.researcher(line)
+    roster.idle(CHIEF_RESEARCHER)
+    script.engineer(ENGINEER_ACK)
     roster.set(CHIEF_ENGINEER, "framing the study", "working")
     announce_geometry(emit, diameter=NOMINAL_CYLINDER[SWEEP_PARAMETER],
                       label="baseline geometry")
