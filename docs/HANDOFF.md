@@ -45,7 +45,7 @@ Full spec: Sanaa's overnight message (this session). Priority:
    worker-kill isn't wired to a flow yet (shape_optimization solves via OpenFOAM
    directly, not the fleet); "keep it" = wire a fresh worker abstraction into the
    real sweep so kill→reprovision→matched-numbers works on camera.
-5. **R1–R4 runbook** (Acts 1–3, timings, fallback recordings under demo-output/fallbacks/).
+5. **R1–R4 runbook — DONE.** docs/DEMO_RUNBOOK.md rewritten as Acts 1–3 (per-beat trigger/expected/failure/fallback), measured timings (Act1 8.6s, Act3 0.4s compute; Act2 solve-bound — pre-warm mesh cache), preflight checklist, and still-frame fallbacks in demo-output/fallbacks/ (act1_airliner, act1_airliner_report, act3_valve, dormant_wall). Screen-recordings need a human.
 6. **X2 wall (regime-aware — done) · X3 Ask-the-lab (done, deterministic + LLM synth).**
 7. **X4 remaining GUI** (knowledge tick, hierarchy stamps, case-memory map,
    convergence race, boot/finale) then **RL1 DAFoam spike** (time-boxed, Docker).
