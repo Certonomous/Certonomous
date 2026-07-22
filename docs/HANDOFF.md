@@ -40,6 +40,7 @@ Full spec: Sanaa's overnight message (this session). Priority:
    admissible here"). Airliner + a geometry study must produce structurally similar
    but substantively different memos (paste both in morning report).
 3. **X1 presentation mode + X5 layout re-check** (1920×1080, zero overlaps/clips).
+4. **A2.1 autonomy counter** (done) **+ A2.2 worker-kill — DONE, wired to the REAL sweep.** shape_optimization solves each design on a kill-checked worker slot; a mid-sweep kill (scripts/kill_worker.sh) is reported + reprovisioned + re-run. Proven on real OpenFOAM: per-design Cd IDENTICAL clean vs sabotaged, worker.killed/reprovisioned only in the sabotaged run; +2 CI-safe tests (127 total). [superseded plan below]
 4. **A2.1 autonomy counter** (done — verify) **+ A2.2 worker-kill** — NOTE:
    worker-kill isn't wired to a flow yet (shape_optimization solves via OpenFOAM
    directly, not the fleet); "keep it" = wire a fresh worker abstraction into the
