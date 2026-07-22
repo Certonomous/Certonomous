@@ -43,6 +43,31 @@ def _solve(design, work_root, tag):
     return dict(api.evaluate(design, ["aerodynamics"]))
 
 
+def _solve_slot(index, design, work_root, emit=None, script=None):
+    """Solve one design on worker slot ``index``, surviving a mid-sweep kill.
+
+    Before the slot does its work it checks whether that worker was struck down
+    (a kill marker, dropped by scripts/kill_worker.sh and read through the shared
+    fleet mechanism). If so, the loss is reported on the record, the marker is
+    cleared, a fresh worker is stood up, and the design is re-run — so the sweep
+    finishes with exactly the number a clean run would have produced. The design
+    is solved once either way; only the slot that carries it changes.
+    """
+    from chief_engineer.fleet import clear_sabotage, worker_sabotaged
+
+    if worker_sabotaged(index):
+        clear_sabotage(index)
+        lost = (f"Worker {index} stopped responding mid-sweep — reprovisioning a "
+                f"fresh worker and re-running its design so the number still lands.")
+        took_over = f"A fresh worker took over slot {index}; its design is being re-run."
+        if script is not None:
+            script.engineer(lost)
+        if emit is not None:
+            emit("worker.killed", {"worker_index": index, "detail": lost, "pending": 1})
+            emit("worker.reprovisioned", {"worker_index": index, "detail": took_over})
+    return _solve(design, work_root, f"d{index:02d}")
+
+
 def _sweep_designs(n: int) -> list[dict]:
     return [{**NOMINAL_CYLINDER, SWEEP_PARAMETER: LOW + (HIGH - LOW) * i / (n - 1)}
             for i in range(n)]
@@ -137,7 +162,7 @@ def main(request: str | None = None, params: dict | None = None,
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=min(capacity.capacity, len(designs))) as pool:
             metrics = list(pool.map(
-                lambda job: _solve(job[1], out / "sweep", f"d{job[0]:02d}"),
+                lambda job: _solve_slot(job[0], job[1], out / "sweep", emit, script),
                 enumerate(designs)))
         for design, result in zip(designs, metrics):
             evidence.append((design[SWEEP_PARAMETER], result))

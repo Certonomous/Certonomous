@@ -69,5 +69,48 @@ class WorkerRecoveryTests(unittest.TestCase):
         self.assertNotIn("worker.killed", [e for e, _ in events])
 
 
+class ShapeOptimizationSweepRecoveryTests(unittest.TestCase):
+    """The real shape-optimization sweep survives a mid-sweep worker kill and
+    lands the same number a clean run would (proven on the fast path)."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        os.environ["CERTONOMOUS_SABOTAGE_DIR"] = self.dir
+        import workflows.shape_optimization as so
+        self.so = so
+        self._orig_solve = so._solve
+        # Deterministic stand-in for the OpenFOAM cylinder solve, so the test is
+        # CI-safe and the "matched numbers" claim is exact.
+        so._solve = lambda design, root, tag: {"Cd": round(2.0 / design["cylinder_diameter"], 5),
+                                               "converged": 1.0}
+
+    def tearDown(self):
+        self.so._solve = self._orig_solve
+        os.environ.pop("CERTONOMOUS_SABOTAGE_DIR", None)
+
+    def test_sabotaged_slot_matches_clean_and_reports(self):
+        design = {"cylinder_diameter": 1.5}
+        clean = self.so._solve_slot(2, design, self.dir)
+
+        _sabotage_marker(2).parent.mkdir(parents=True, exist_ok=True)
+        _sabotage_marker(2).touch()
+        events = []
+        sabotaged = self.so._solve_slot(2, design, self.dir,
+                                        emit=lambda e, p: events.append((e, p)))
+
+        self.assertEqual(clean, sabotaged)                     # matched numbers
+        kinds = [e for e, _ in events]
+        self.assertIn("worker.killed", kinds)
+        self.assertIn("worker.reprovisioned", kinds)
+        self.assertFalse(_sabotage_marker(2).exists())         # marker consumed
+
+    def test_unsabotaged_slot_reports_nothing(self):
+        clear_sabotage(3)
+        events = []
+        self.so._solve_slot(3, {"cylinder_diameter": 1.0}, self.dir,
+                            emit=lambda e, p: events.append((e, p)))
+        self.assertEqual(events, [])
+
+
 if __name__ == "__main__":
     unittest.main()
