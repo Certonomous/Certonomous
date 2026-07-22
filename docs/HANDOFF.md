@@ -1,9 +1,74 @@
-# Certonomous — session handoff (2026-07-21)
+# Certonomous — session handoff
 
-Read this first. It captures state a fresh session needs so it doesn't re-derive
-what's already known or drop the discipline built so far. Product name is
-**Certonomous**; the GitHub repo slug is still `Jango-AGI` (rename deferred until
-after the demo — do NOT rename the repo or touch the Introspection integration).
+## CURRENT STATE (2026-07-22) — clean product repo + overnight build
+
+- **This is the clean product repo** `github.com/Certonomous/Certonomous` (private,
+  not a fork). Backend reimplemented from scratch (his generic engine deleted; his
+  plumbing — events/models/api/adapters/fleet/server — rewritten fresh; verified 0
+  substantive shared lines). The **control room GUI was rebuilt fresh** (same
+  organization: dormant validation wall, 3-col launched layout with telemetry
+  under the command column, digest/report/credentials/ask tabs, landscape,
+  presentation mode, autonomy counter). 111 backend tests green. The old fork
+  `sanaamouzahir/Jango-AGI` is being deleted by Sanaa (leave-fork-network → delete).
+- **Push is gated in this environment** — commit locally in small labeled
+  increments; Sanaa pushes (`git push origin main`).
+- **Run:** `cd sdk && CHIEF_ADAPTER=openfoam OPENFOAM_RUN_PREFIX="wsl -d Ubuntu -- openfoam2606" python -m chief_engineer.server`, port 8765. GUI at `/`. Screenshot with headless Chrome; `?forcelaunch=1` previews launched layout, `?present=1` presentation, `?view=ask|credentials`, `?mission=<id>` replays.
+- **Discipline (non-negotiable):** real solves only (script the PATH never the
+  RESULTS); human language on camera (display titles, no file paths / dotted event
+  names / tool-vendor names — method language); honesty caps sacred (TREND ONLY
+  explains itself; model-form lists every unmodeled physics item); tests green
+  before each commit.
+
+## OVERNIGHT BUILD ORDERS — three-act demo (priority order, strict)
+
+Full spec: Sanaa's overnight message (this session). Priority:
+1. **Act 3 valve** (A3.1–A3.5) — the only act not yet runnable. Parametric
+   3-leaflet aortic valve (opening angle = design param) in models/curriculum/
+   (reference.yaml: "screening geometry — no experimental tier claims"); in-repo
+   idealized systolic waveform → k=3 phase weights (accel/peak/decel); researcher
+   memo with the **Womersley number computed AND displayed** + ruling (threshold
+   in physics_rules.yaml, knowledge-driven) + rejected/deferred rungs on record
+   (single-snapshot rejected, harmonic-balance→agenda, unsteady-FSI→agenda);
+   multi-point workflow 4 candidates × 3 phases = **12 real steady internal-flow
+   solves**, cycle-weighted objective with MC envelope, landscape on it, min-orifice
+   constraint, hard cap TREND ONLY; research-agenda emission (3 entries). Model-form
+   channel: phase-interaction neglected, leaflet motion not modeled, Newtonian blood.
+   Engineering visuals only, no clinical claims.
+2. **Act 1 memos** (A1.1–A1.3) — CHIEF RESEARCHER method-selection memo generated
+   from mission properties (classification/strategy/rejected-alts/admissibility),
+   ENGINEER "On it.", open method vocabulary ("backpropagation is cheap and
+   admissible here"). Airliner + a geometry study must produce structurally similar
+   but substantively different memos (paste both in morning report).
+3. **X1 presentation mode + X5 layout re-check** (1920×1080, zero overlaps/clips).
+4. **A2.1 autonomy counter** (done — verify) **+ A2.2 worker-kill** — NOTE:
+   worker-kill isn't wired to a flow yet (shape_optimization solves via OpenFOAM
+   directly, not the fleet); "keep it" = wire a fresh worker abstraction into the
+   real sweep so kill→reprovision→matched-numbers works on camera.
+5. **R1–R4 runbook** (Acts 1–3, timings, fallback recordings under demo-output/fallbacks/).
+6. **X2 wall (regime-aware — done) · X3 Ask-the-lab (done, deterministic + LLM synth).**
+7. **X4 remaining GUI** (knowledge tick, hierarchy stamps, case-memory map,
+   convergence race, boot/finale) then **RL1 DAFoam spike** (time-boxed, Docker).
+
+Stop line: when 1–5 green, prefer polishing + fallback capture over 6–7.
+
+## WITH-SANAA (do NOT attempt overnight)
+- LLM-interpreter gauntlet (Option A run of prompt 1 + 5 holdouts in her
+  key-holding terminal); Track B merge verdict; merges she gates; Act 3 narration;
+  SMTP live send; recording session. (feat/objective-compiler lives on the OLD
+  repo/branch — not carried into Certonomous yet; the deterministic answerer +
+  LLM answer-synthesis ARE in this repo.)
+
+## Morning report template
+Per item DONE/PARTIAL/BLOCKED + one line; the two A1.1 memos in full; valve run
+(Womersley value shown, 12-solve confirmation, landscape path, agenda entries);
+worker-kill matched-numbers; measured act timings vs targets; anything now
+WITH-SANAA-unblocked; test count; commit list; HANDOFF updated y/n.
+
+---
+
+# (prior handoff — Jango-AGI era, retained for reference)
+
+Product name is **Certonomous**.
 
 ## For a fresh session or a NEW Claude account (read this)
 
