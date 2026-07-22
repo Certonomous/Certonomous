@@ -354,3 +354,38 @@ answer over the same facts. `pip install anthropic` first if absent.
 
 `~/.claude/projects/.../memory/`: openfoam-wsl-environment, jango-agi-project,
 MEMORY.md. Update jango-agi-project if the branch state changes materially.
+
+---
+
+## Act 3 (valve) — fork status 2026-07-22
+
+- A3.1 valve geometry: DONE. models/curriculum/aortic_valve/generate_valve.py — 3-leaflet
+  valve, opening angle = design param; orifice area 137/244/341/403 mm^2 at 35/50/65/80 deg.
+  reference.yaml marked "screening geometry -- no experimental tier claims". Registered
+  (registry.SCREENING). STLs valve_{35,50,65,80}.stl + orifice_table.json committed.
+- A3.2 waveform: DONE. waveform.py half-sine systolic pulse; k=3 phase weights 0.25/0.50/0.25
+  (sum 1, ordered), derived from stroke-volume fractions. Documented in-file.
+- A3.3 physics_rules: DONE. docs/physics_rules.yaml womersley thresholds
+  (strict_quasi_steady_max 1.0, multipoint_screening_max 25.0), reasoning cited. Workflow reads them.
+- A3.3 memo: DONE. Chief Researcher memo: periodicity insight; **Womersley alpha ~ 16.7
+  computed AND displayed** with honest ruling (above strict limit, under screening ceiling ->
+  admissible as SCREEN, phase-interaction as model-form, TREND ONLY); plan (k=3, weights,
+  cycle-weighted loss, "backpropagation stays cheap"); rejected single snapshot; deferred
+  harmonic-balance + FSI. Engineer "On it."
+- A3.4 multi-point workflow: DONE (machinery) / PARTIAL (real solve). sdk/workflows/valve_study.py:
+  4 angles x 3 phases = 12 evaluations, cycle-weighted objective + MC envelope, min-orifice
+  constraint, hard cap TREND ONLY, emits landscape.point (4, cycle-weighted, direction=min),
+  result.verdict, uncertainty.channels (model-form: reduced-order orifice model, neglected
+  phase-interaction, fixed leaflets, Newtonian blood), report.ready.
+  REAL SOLVE: NOT run. Pressure loss uses a transparent reduced-order orifice model
+  (dp = 0.5 rho (Q/(Cd A))^2), same posture as the aircraft act, clearly labeled and capped
+  TREND ONLY. The real steady internal-flow OpenFOAM solve is the marked plug-in point
+  (valve_study._phase_pressure_loss). Result: lowest cycle-weighted loss 1345 +/- 421 Pa at 80 deg.
+- A3.5 research agenda: DONE (backend). Emits agenda.updated {entries:[{title,scope,cost}]} with
+  3 entries: harmonic-balance cycle solve, unsteady FSI, non-Newtonian blood. GUI renders it
+  (parallel GUI redesign owns control_room.html; NOT touched by this fork).
+- A3.6 visual discipline: DONE. Engineering language only; no clinical claims anywhere.
+- Router: DONE (valve intent). Tests: DONE — sdk/tests/test_valve.py (8). Full suite 119 green.
+- Commits: 15a5318 (Act 3), ca6362f (router specificity). NOT pushed (gated).
+- BLOCKED/next: real internal-flow CFD (internal-flow case builder + 12 steady simpleFoam
+  solves) is the one remaining piece; plug-in point marked.
