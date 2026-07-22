@@ -51,6 +51,18 @@ Full spec: Sanaa's overnight message (this session). Priority:
 
 Stop line: when 1–5 green, prefer polishing + fallback capture over 6–7.
 
+### Overnight progress
+- **Act 1 memos (A1.1–A1.3): DONE.** `chief_engineer/researcher.py` →
+  `method_memo(MissionProperties)` generates the Chief Researcher opening memo
+  (classification / strategy / rejected / admissibility) from mission properties,
+  branching on kind+dimensionality+regime+smoothness (not per-geometry). Open
+  method vocabulary ("the gradient is cheap and admissible", "an ensemble of
+  steady evaluations"); vendor-free (test-enforced). Wired into
+  aircraft_optimization, geometry_study, shape_optimization with the Engineer
+  "On it." Airliner memo = 2-parameter smooth steady design space (ensemble +
+  gradient admissibility); geometry memo = single fixed body, measurement not
+  optimisation, mesh-quality-gated. 125 tests. Commit aa24b10.
+
 ## WITH-SANAA (do NOT attempt overnight)
 - LLM-interpreter gauntlet (Option A run of prompt 1 + 5 holdouts in her
   key-holding terminal); Track B merge verdict; merges she gates; Act 3 narration;
