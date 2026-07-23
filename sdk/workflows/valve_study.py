@@ -20,6 +20,7 @@ No clinical claim is made anywhere; the outputs are engineering curves only.
 from __future__ import annotations
 
 import math
+import time
 from pathlib import Path
 
 import yaml
@@ -206,6 +207,7 @@ def main(request: str | None = None, params: dict | None = None,
     results = []
     if emit:
         emit("objective.spec", {"metric": "cycle_pressure_loss", "direction": "min"})
+    eval_started = time.time()
     for angle in CANDIDATE_ANGLES:
         area = effective_orifice_area(angle)
         per_phase = [(p.name, _phase_pressure_loss(p.flow_rate, area)) for p in phases]
@@ -224,8 +226,10 @@ def main(request: str | None = None, params: dict | None = None,
             f"• Opening {angle:g}° → orifice {area*1e6:.0f} mm², loss "
             f"{obj:.0f} ± {band:.0f} Pa"
             + ("." if feasible else ". • Infeasible: below the minimum orifice area."))
+    eval_elapsed = time.time() - eval_started
     ledger.spend(n_solves * 0.05, f"{n_solves} reduced-order phase evaluations")
     roster.set_workers(0)
+    script.engineer(f"• Phase evaluations — {eval_elapsed:.2f} s — {n_solves} solves.")
 
     feasible = [r for r in results if r["feasible"]]
     if not feasible:

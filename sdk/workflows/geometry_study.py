@@ -27,6 +27,7 @@ from chief_engineer.head_engineer import (FOAM_TUTORIALS, HeadEngineer,
                                           parse_coefficient_history,
                                           plot_with_envelope)
 from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
+from chief_engineer.display_names import display_name
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
@@ -171,6 +172,7 @@ def main(request: str | None = None, params: dict | None = None,
     params = dict(params or {})
     surface, familiar = _resolve_surface(params.get("surface"))
     label = Path(surface).stem
+    shown = display_name(label)  # camera-facing name; `label` stays the file-safe slug
     out = OUT_ROOT / "geometry-study"
     out.mkdir(parents=True, exist_ok=True)
 
@@ -181,13 +183,13 @@ def main(request: str | None = None, params: dict | None = None,
     for key, value in hints.items():
         params.setdefault(key, value)
 
-    script = make_transcript(f"geometry study — {label}", emit)
+    script = make_transcript(f"geometry study — {shown}", emit)
     roster = Roster(emit)
     ledger = ComputeLedger(emit)
     knowledge = KnowledgeBase(emit)
     began = time.monotonic()
 
-    script.system(request or f"Request: mesh and solve {surface}, and report the forces.")
+    script.system(request or f"Request: mesh and solve {shown}, and report the forces.")
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
@@ -206,10 +208,10 @@ def main(request: str | None = None, params: dict | None = None,
     roster.idle(CHIEF_RESEARCHER)
     script.engineer(ENGINEER_ACK)
 
-    roster.set(CHIEF_ENGINEER, f"reading {surface}", "working")
-    announce_geometry(emit, name=surface, label=f"{label} — as supplied")
+    roster.set(CHIEF_ENGINEER, f"reading {shown}", "working")
+    announce_geometry(emit, name=surface, label=f"{shown} — as supplied")
     script.engineer(
-        f"• Full geometry study on {surface} — a measurement, not a sweep. "
+        f"• Full geometry study on {shown} — a measurement, not a sweep. "
         f"• Question: does the chain produce a converged force on a believable mesh? "
         + ("• Prior exists for this body — I will check against it."
            if familiar else
@@ -277,10 +279,13 @@ def main(request: str | None = None, params: dict | None = None,
             report = _build_unfamiliar_case(engineer, script, roster, surface,
                                             params, iterations, emit)
         script.engineer(
-            f"• Surface accepted: {report['surface']}"
+            f"• Surface accepted: {shown}"
             + (", closed" if report.get("closed") else "") + ". "
             + (f"• Issues: {', '.join(report['issues'])}." if report.get("issues")
                else "• No defects reported by the surface check."))
+        script.engineer(
+            "• Selected: k-omega SST, steady RANS — standard closure for "
+            "attached external flow, solved on a quality-gated mesh.")
 
         for step, command, note in (
             ("surfaceFeatureExtract", "surfaceFeatureExtract",
@@ -292,7 +297,7 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(CHIEF_ENGINEER, note, "working")
             result = engineer._run_step(step, command, 5400)
             ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-            script.engineer(f"• {step} finished in {result.seconds:.0f}s — {note}.")
+            script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
 
         if familiar:
             # The tutorial case keeps its fields in 0.orig; a generated case
@@ -302,14 +307,18 @@ def main(request: str | None = None, params: dict | None = None,
         cells = int(stats.get("cells", 0))
         non_ortho = stats.get("max_non_orthogonality")
         skew = stats.get("max_skewness")
+        # Sensible display precision — one decimal on the angle, two on skew —
+        # never the raw many-digit float the checkMesh regex captured.
+        non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "—"
+        skew_s = f"{skew:.2f}" if skew is not None else "—"
         gate_ok = (non_ortho or 0) <= MAX_NON_ORTHOGONALITY
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
-            f"• Mesh: {cells:,} cells; non-ortho {non_ortho}; skew {skew}. "
+            f"• Mesh: {cells:,} cells; non-ortho {non_ortho_s}; skew {skew_s}. "
             + (f"• Non-ortho inside the {MAX_NON_ORTHOGONALITY:.0f}° gate — discretization acceptable. "
                if gate_ok else
                f"• Non-ortho exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate — no validated force from this mesh. ")
-            + (f"• Skew {skew} above the {MAX_SKEWNESS:.0f} guidance — caps trust; not fully validated."
+            + (f"• Skew {skew_s} above the {MAX_SKEWNESS:.0f} guidance — caps trust; not fully validated."
                if (skew or 0) > MAX_SKEWNESS else
                "• Skewness inside guidance as well."))
         roster.idle(CHIEF_RESEARCHER)
@@ -322,7 +331,7 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(CHIEF_ENGINEER, note, "working")
             result = engineer._run_step(step, command, 7200)
             ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-            script.engineer(f"• {step} finished in {result.seconds:.0f}s — {note}.")
+            script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
     except Exception as exc:
         roster.set(CHIEF_ENGINEER, "halted", "blocked")
         script.engineer(f"• The study stopped: {exc}")
@@ -344,7 +353,7 @@ def main(request: str | None = None, params: dict | None = None,
         field="p", name=label)
     if painted:
         announce_field(emit, "geometry-study", painted,
-                       f"{label} — surface pressure from the solve")
+                       f"{shown} — surface pressure from the solve")
         script.engineer(
             "• Body painted with its own solved surface pressure. "
             "• High on leading surfaces, low over the upper wing.")
@@ -369,10 +378,10 @@ def main(request: str | None = None, params: dict | None = None,
     relative = abs(2 * drag["sigma"] / drag["value"]) if drag["value"] else None
     skew_ok = (skew or 0) <= MAX_SKEWNESS
     if not gate_ok:
-        why = (f"max non-orthogonality {non_ortho} exceeds the {MAX_NON_ORTHOGONALITY:.0f}° "
+        why = (f"max non-orthogonality {non_ortho_s} exceeds the {MAX_NON_ORTHOGONALITY:.0f}° "
                f"acceptance gate, so the discretization is not trustworthy here")
     elif not skew_ok:
-        why = (f"max skewness {skew} exceeds the acceptance band of {MAX_SKEWNESS:.0f} "
+        why = (f"max skewness {skew_s} exceeds the acceptance band of {MAX_SKEWNESS:.0f} "
                f"(on a small number of faces), so the magnitude is indicative")
     else:
         why = ""
@@ -415,7 +424,6 @@ def main(request: str | None = None, params: dict | None = None,
         verdict=verdict)
 
     script.numericist(
-        "• The band only shows the solve is steady — read it as a floor. "
         f"• Numerical uncertainty needs refined grids, {per('grid-uncertainty')}; one mesh cannot give it. "
         + ("• Validation: an experimental comparison exists; the verdict is graded against it."
            if reference else
@@ -460,24 +468,24 @@ def main(request: str | None = None, params: dict | None = None,
         f"{ledger.as_dict()['spent_core_minutes']:.0f} core-minutes spent.")
 
     if not familiar:
-        knowledge.add(f"{label} meshed and solved: {cells:,} cells, "
+        knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
         script.numericist(
             f"• Recorded in case memory. "
-            f"• Next question about a body like {label} answers from a real run.")
+            f"• Next question about a body like {shown} answers from a real run.")
 
     report_doc = lab_report(
-        title=f"Geometry study — {label}",
+        title=f"Geometry study — {shown}",
         abstract=[
-            f"We took {surface} through surface check, meshing, and a steady "
+            f"We took {shown} through surface check, meshing, and a steady "
             f"solve to establish whether the chain yields a trustworthy force.",
-            f"The mesh reached {cells:,} cells at max non-orthogonality {non_ortho} "
-            f"and max skewness {skew}; drag settled at {drag['value']:.4g} "
+            f"The mesh reached {cells:,} cells at max non-orthogonality {non_ortho_s} "
+            f"and max skewness {skew_s}; drag settled at {drag['value']:.4g} "
             f"± {2 * drag['sigma']:.2g}.",
             f"The result is reported as {verdict['tier'].lower()} — {verdict['reason']}.",
         ],
         methods=[
-            f"Surface intake and check on {surface}.",
+            f"Surface intake and check on {shown}.",
             f"Background mesh plus snappyHexMesh to {cells:,} cells; quality gated at "
             f"{MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and {MAX_SKEWNESS:.0f} skewness.",
             f"Potential-flow initialisation followed by {iterations} steady iterations.",
@@ -504,15 +512,14 @@ def main(request: str | None = None, params: dict | None = None,
         }] if comparison else []) + [{
             "quantity": "Mesh",
             "value": f"{cells:,} cells",
-            "envelope": f"max non-orthogonality {non_ortho}, max skewness {skew}",
+            "envelope": f"max non-orthogonality {non_ortho_s}, max skewness {skew_s}",
             **trust(relative_error=0.0, in_validated_regime=gate_ok,
                     calibrated=(skew or 0) <= MAX_SKEWNESS),
         }],
         uncertainty=[
-            f"The reported band is the settling spread of the coefficient over the "
-            f"averaging window — it says the solve is steady, not that the physics "
-            f"is right, and it is a floor rather than a bound.",
-            "Numerical uncertainty is not quantified at all: one mesh cannot "
+            "Reported band: settling spread of the coefficient over the "
+            "averaging window — a floor, not a bound.",
+            "Numerical uncertainty is not quantified: one mesh cannot "
             "separate discretization error from the solution, and no refinement "
             "study was run.",
             (f"Compared against {reference['source']}: {verdict['reason']}."
@@ -532,7 +539,7 @@ def main(request: str | None = None, params: dict | None = None,
         from chief_engineer.certificate import build_certificate
         certificate = build_certificate(
             report_doc, out_path=out / "certificate.pdf",
-            geometry=label, objective=(request or f"Geometry study of {label}"),
+            geometry=shown, objective=(request or f"Geometry study of {shown}"),
             mission_id=f"geometry-study-{label}",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels)

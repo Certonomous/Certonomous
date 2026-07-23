@@ -448,6 +448,10 @@ class HeadEngineer:
 
     def report_markdown(self) -> str:
         monitor = self.monitor.summary()
+        non_ortho = self.mesh_stats.get("max_non_orthogonality")
+        skew = self.mesh_stats.get("max_skewness")
+        non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "—"
+        skew_s = f"{skew:.2f}" if skew is not None else "—"
         lines = [
             f"# Certonomous Head Engineer report — {self.case_name}",
             "",
@@ -457,11 +461,11 @@ class HeadEngineer:
             f"{'closed, ' if self.geometry_report.get('closed') else ''}"
             f"{', '.join(self.geometry_report.get('issues', [])) or 'no issues found'} |",
             f"| Mesh | {int(self.mesh_stats.get('cells', 0))} cells, "
-            f"max non-ortho {self.mesh_stats.get('max_non_orthogonality', '—')}, "
-            f"max skew {self.mesh_stats.get('max_skewness', '—')}, "
+            f"max non-ortho {non_ortho_s}, "
+            f"max skew {skew_s}, "
             f"{'OK' if self.mesh_stats.get('mesh_ok') else 'check flags'} |",
             f"| Steps | " + "; ".join(
-                f"{s.name} {'ok' if s.status == 0 else 'FAIL'} ({s.seconds}s)"
+                f"{s.name} — {s.seconds:.0f} s ({'ok' if s.status == 0 else 'FAIL'})"
                 for s in self.steps) + " |",
             f"| Monitor | {monitor['anomalies']} anomalies {monitor['by_kind']} |",
         ]

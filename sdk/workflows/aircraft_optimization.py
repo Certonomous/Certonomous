@@ -240,7 +240,7 @@ def main(request: str | None = None, params: dict | None = None,
         script.numericist(
             "• Screen is conceptual sizing; finalists are solved — induced plus "
             "wing viscous drag. "
-            "• Fuselage and tail stay a stated buildup; the verdict will say so.")
+            "• Fuselage and tail stay a stated buildup.")
     else:
         script.numericist(
             "• Conceptual sizing only — a drag polar, not a solved flow. "
@@ -252,6 +252,7 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, "sizing the design space", "working")
     roster.set_workers(min(capacity.capacity, len(grid)), "sizing wings")
     results = []
+    screen_started = time.time()
     for span, area, sweep in grid:
         r = evaluate_design(span, area, sweep, reqs)
         results.append(r)
@@ -266,8 +267,10 @@ def main(request: str | None = None, params: dict | None = None,
                         f"&sweep={r['sweep_deg']:g}&taper={_TAPER:g}"),
                 "label": f"candidate wing — span {r['span']:.0f} m, "
                          f"area {r['area']:.0f} m²"})
+    screen_elapsed = time.time() - screen_started
     ledger.spend(len(grid) * 0.02, f"{len(grid)} conceptual sizing evaluations")
     roster.set_workers(0)
+    script.engineer(f"• Screening sweep — {screen_elapsed:.2f} s — {len(grid)} designs.")
 
     feasible = [r for r in results if r["feasible"]]
     infeasible = results[:]  # for narration counts
@@ -321,6 +324,8 @@ def main(request: str | None = None, params: dict | None = None,
         roster.set_workers(0)
         ledger.spend(elapsed * len(finalists),
                      f"{len(finalists)} vortex-lattice wing solves")
+        script.engineer(
+            f"• Finalist solves — {elapsed:.1f} s — {len(finalists)} wings in parallel.")
 
         for f, result in zip(finalists, batch):
             if not result:
@@ -381,7 +386,7 @@ def main(request: str | None = None, params: dict | None = None,
         else:
             script.engineer(
                 "• No finalist returned a usable polar. "
-                "• The result stands on the conceptual screen alone, and says so.")
+                "• The result stands on the conceptual screen alone.")
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
@@ -485,7 +490,7 @@ def main(request: str | None = None, params: dict | None = None,
         "The trade — L/D rising with aspect ratio until the landing speed caps "
         "it — is physical and trustworthy.",
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
-         "is a stated buildup, and the tier says so." if won_solved else
+         "is a stated buildup." if won_solved else
          "The absolute L/D is a conceptual estimate from a drag polar, not a "
          "solved flow; treat the magnitude as a trend."),
         "The optimum sits between discrete grid points, so the reported design "
