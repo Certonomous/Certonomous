@@ -30,6 +30,8 @@ STUDIES_DIR = (Path(__file__).resolve().parents[2]
                / "models" / "curriculum" / "uq-studies")
 
 INCONCLUSIVE = "refinement study inconclusive: non-monotone convergence"
+DEGENERATE = ("refinement study inconclusive: refinement parameter did not "
+              "change the mesh between rungs")
 
 
 # --------------------------------------------------------------------------
@@ -69,10 +71,23 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
     (monotone, 0.5 <= p <= 4), and the conservative fallback otherwise
     (Eça and Hoekstra 2014 practice).
     """
-    if len(cells) != 3 or len(values) != 3:
-        raise ValueError("a ladder is exactly three levels, coarse to fine")
-    n1, n2, n3 = (float(c) for c in cells)          # coarse -> fine
-    f1, f2, f3 = (float(v) for v in values)
+    # Collapse rungs whose meshes came out identical (a refinement knob at
+    # its floor); a ladder needs three DISTINCT levels to fit an order.
+    distinct: list[tuple[float, float]] = []
+    for c, v in zip(cells, values):
+        if not distinct or float(c) != distinct[-1][0]:
+            distinct.append((float(c), float(v)))
+    if len(distinct) < 3:
+        vals = [v for _, v in distinct] or [0.0]
+        spread = max(vals) - min(vals)
+        return {"cells": [c for c, _ in distinct],
+                "values": vals, "h": None,
+                "observed_order": None,
+                "band_abs": 3.0 * spread,
+                "monotone": None,
+                "method": DEGENERATE,
+                "conclusive": False}
+    (n1, f1), (n2, f2), (n3, f3) = distinct[-3:]
     if not (n1 < n2 < n3):
         raise ValueError("cell counts must increase coarse to fine")
     h1, h2, h3 = ((1.0 / n) ** (1.0 / 3.0) for n in (n1, n2, n3))
@@ -110,15 +125,18 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
     clean = 0.5 <= p <= 4.0
     if clean:
         gci = 1.25 * abs(e21) / (r21 ** p - 1.0)
+        gci_middle = gci * r21 ** p
         method = (f"3-mesh ladder (r = {r21:.2f}), observed order "
                   f"p = {p:.2f}; GCI band, Fs = 1.25")
     else:
         gci = 3.0 * (max(values) - min(values))
+        gci_middle = gci
         method = (f"3-mesh ladder, observed order p = {p:.2f} outside the "
                   f"credible range; conservative factor-3 band")
     result.update({
         "observed_order": round(p, 3),
         "band_abs": gci,
+        "band_abs_middle": gci_middle,
         "monotone": True,
         "method": method,
         "conclusive": clean,

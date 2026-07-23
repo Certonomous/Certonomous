@@ -40,6 +40,26 @@ class LadderMath(unittest.TestCase):
         self.assertGreaterEqual(out["band_abs"], 3.0 * 0.49)
 
 
+class DegenerateLadder(unittest.TestCase):
+    def test_identical_meshes_collapse_to_the_honest_sentence(self):
+        out = uq.ladder_band([67826, 67826, 137569],
+                             [0.02892, 0.02892, 0.02167])
+        self.assertFalse(out["conclusive"])
+        self.assertEqual(out["method"], uq.DEGENERATE)
+        self.assertAlmostEqual(out["band_abs"], 3.0 * (0.02892 - 0.02167), places=8)
+
+    def test_four_levels_use_last_three_distinct(self):
+        cells = [1000, 1000, 8000, 64000]
+        h = [(1.0 / n) ** (1 / 3) for n in (1000, 8000, 64000)]
+        vals = [1.0 + 4.0 * h[0] ** 2, 1.0 + 4.0 * h[0] ** 2,
+                1.0 + 4.0 * h[1] ** 2, 1.0 + 4.0 * h[2] ** 2]
+        out = uq.ladder_band(cells, vals)
+        self.assertTrue(out["conclusive"])
+        self.assertAlmostEqual(out["observed_order"], 2.0, places=2)
+        self.assertIn("band_abs_middle", out)
+        self.assertGreater(out["band_abs_middle"], out["band_abs"])
+
+
 class Spreads(unittest.TestCase):
     def test_spread_is_half_range_and_labeled(self):
         out = uq.spread_estimate(

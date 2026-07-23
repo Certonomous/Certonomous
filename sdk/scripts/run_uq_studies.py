@@ -101,7 +101,11 @@ def _run_geometry_study(surface: str, refinement: int, tag: str,
 
 
 def ladder_unfamiliar(body: str, stl_name: str, *,
-                      refinements=(1, 2, 3), velocity: float = 100.0) -> None:
+                      refinements=(2, 3, 4), velocity: float = 100.0) -> None:
+    """Three distinct meshes need refinement >= 2: the case builder floors its
+    surface level at 2, so rungs 1 and 2 are the same mesh (the degenerate
+    ladder the first batch produced). The act runs refinement 3, so the act
+    mesh is the MIDDLE rung and its band is the middle-level GCI."""
     registry = _registry()
     src = registry.stl_path(body) if hasattr(registry, "stl_path") else None
     if src and Path(src).exists() and not (GEOMETRY_DIR / stl_name).exists():
@@ -127,20 +131,29 @@ def ladder_unfamiliar(body: str, stl_name: str, *,
     ordered = [levels[k] for k in sorted(levels)]
     band = uq.ladder_band([lv["cells"] for lv in ordered],
                           [lv["cd"] for lv in ordered])
-    fine = ordered[-1]
-    rel = band["band_abs"] / abs(fine["cd"]) if fine["cd"] else None
+    # The act solves at refinement 3. When the ladder's fine rung is coarser
+    # or finer than that, the band reported for the act mesh is the middle-
+    # level GCI (Celik's GCI_med), and the method note says so.
+    act_refinement = 3
+    act_level = levels.get(act_refinement, ordered[-1])
+    use_middle = (band.get("band_abs_middle") is not None
+                  and ordered[-1]["refinement"] != act_refinement)
+    band_abs = band["band_abs_middle"] if use_middle else band["band_abs"]
+    method = band["method"] + (
+        "; band for the working mesh (middle level)" if use_middle else "")
+    rel = band_abs / abs(act_level["cd"]) if act_level.get("cd") else None
     fingerprint = uq.setup_fingerprint(
         body=body, solver="openfoam-simpleFoam", closure="kOmegaSST",
-        velocity=velocity, refinement=max(refinements), iterations=ITERATIONS)
+        velocity=velocity, refinement=act_refinement, iterations=ITERATIONS)
     _checkpoint(
         body, fingerprint=fingerprint,
-        numerical={"band_abs": band["band_abs"],
+        numerical={"band_abs": band_abs,
                    "band_rel": None if rel is None else round(rel, 5),
                    "observed_order": band["observed_order"],
-                   "method": band["method"], "conclusive": band["conclusive"],
-                   "value_fine": fine["cd"]},
+                   "method": method, "conclusive": band["conclusive"],
+                   "value_working": act_level.get("cd")},
         provenance=[lv["mission"] for lv in ordered])
-    _log(f"{body} ladder DONE: {band['method']}, band {band['band_abs']:.4g}")
+    _log(f"{body} ladder DONE: {method}, band {band_abs:.4g}")
 
 
 # --------------------------------------------------------------------------

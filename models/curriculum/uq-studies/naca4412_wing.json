@@ -7,7 +7,36 @@
       "mission": "uq-naca4412_wing-r1",
       "refinement": 1,
       "wall_minutes": 1.7
+    },
+    {
+      "cells": 67826,
+      "cd": 0.02892,
+      "mission": "uq-naca4412_wing-r2",
+      "refinement": 2,
+      "wall_minutes": 1.9
+    },
+    {
+      "cells": 137569,
+      "cd": 0.02167,
+      "mission": "uq-naca4412_wing-r3",
+      "refinement": 3,
+      "wall_minutes": 2.2
     }
   ],
-  "updated_utc": "2026-07-23T06:11:20Z"
+  "updated_utc": "2026-07-23T06:19:31Z",
+  "closures": {
+    "kOmegaSST": 0.02167,
+    "kEpsilon": 0.03389452738333333,
+    "SpalartAllmaras": 0.024160782536
+  },
+  "model": {
+    "band_abs": 0.006112263691666666,
+    "method": "inter-closure spread (screening estimate)",
+    "members": {
+      "kOmegaSST": 0.02167,
+      "kEpsilon": 0.03389452738333333,
+      "SpalartAllmaras": 0.024160782536
+    },
+    "screening_estimate": true
+  }
 }

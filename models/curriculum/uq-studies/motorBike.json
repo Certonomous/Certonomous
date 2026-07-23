@@ -1,0 +1,41 @@
+{
+  "body": "motorBike",
+  "levels": [
+    {
+      "cells": 14714,
+      "cd": 0.47066928,
+      "tag": "coarse",
+      "mission": "uq-motorBike-coarse",
+      "wall_minutes": 0.5
+    },
+    {
+      "cells": 66316,
+      "cd": 0.4201672083333333,
+      "tag": "mid",
+      "mission": "uq-motorBike-mid",
+      "wall_minutes": 1.4
+    },
+    {
+      "cells": 353578,
+      "cd": 0.4155770166666667,
+      "tag": "fine",
+      "mission": "uq-motorBike-fine",
+      "wall_minutes": 7.9
+    }
+  ],
+  "updated_utc": "2026-07-23T06:29:20Z",
+  "fingerprint": "db438daafabf8793",
+  "numerical": {
+    "band_abs": 0.16527679,
+    "band_rel": 0.3977,
+    "observed_order": 4.824,
+    "method": "3-mesh ladder, observed order p = 4.82 outside the credible range; conservative factor-3 band",
+    "conclusive": false,
+    "value_fine": 0.4155770166666667
+  },
+  "provenance": [
+    "uq-motorBike-coarse",
+    "uq-motorBike-mid",
+    "uq-motorBike-fine"
+  ]
+}

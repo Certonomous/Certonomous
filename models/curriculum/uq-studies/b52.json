@@ -1,0 +1,27 @@
+{
+  "body": "b52",
+  "levels": [
+    {
+      "cells": 107489,
+      "cd": 0.04539,
+      "mission": "uq-b52-r1",
+      "refinement": 1,
+      "wall_minutes": 1.9
+    },
+    {
+      "cells": 107489,
+      "cd": 0.04539,
+      "mission": "uq-b52-r2",
+      "refinement": 2,
+      "wall_minutes": 2.1
+    },
+    {
+      "cells": 193815,
+      "cd": 0.0464,
+      "mission": "uq-b52-r3",
+      "refinement": 3,
+      "wall_minutes": 3.8
+    }
+  ],
+  "updated_utc": "2026-07-23T06:37:20Z"
+}

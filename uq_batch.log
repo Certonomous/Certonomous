@@ -1,0 +1,272 @@
+[02:09:40] naca4412_wing ladder rung refinement=1 starting
+SYSTEM: UQ refinement ladder rung naca4412_wing-r1: mesh and solve naca4412_wing.
+== HYPOTHESIS ==
+CHIEF RESEARCHER: • Single fixed body, steady turbulent (RANS) — a measurement, not an optimisation. • One gated solve; the only freedom is mesh and convergence. • Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.
+CHIEF RESEARCHER: • Admissible against the standard mesh-quality acceptance band — a published threshold, not self-grading.
+CHIEF ENGINEER: On it.
+CHIEF ENGINEER: • Full geometry study on NACA 4412 finite wing — a measurement, not a sweep. • Question: does the chain produce a converged force on a believable mesh? • No prior: mesh quality and convergence are the only evidence.
+CHIEF ENGINEER: • Fails if: surface won't mesh; gates exceeded (non-ortho 70°, skew 4); or the force never settles.
+NUMERICIST: • The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. • The mesh is judged against a published threshold, not itself.
+== EXPERIMENT PLAN ==
+CHIEF ENGINEER: Compute audit — YES: requested 1 parallel workers, capacity 3 (11/14 cores free, 6 GB available, 1 other job(s) running). Full fan-out can run in one wave.
+CHIEF ENGINEER: • Plan: features ? background mesh ? snap ? quality gates ? potential init ? 300 steady iterations. • Meshing is the long pole — minutes, not seconds.
+== EVIDENCE ==
+CHIEF ENGINEER: • Surface measured: 712 triangles, streamwise X, span Y. • Working scale: 1.0 m long, 3.0 m across.
+CHIEF ENGINEER: • Scale basis: the file's units are dimensionally plausible, so I am taking them as metres. • Wrong length ? wrong Reynolds ? wrong forces; stated, not buried.
+CHIEF ENGINEER: • Case built: farfield from the body's own bounding box, k-omega SST. • Reference area: measured planform 3 m². • Freestream 15 m/s; Re 1.0e+06.
+CHIEF RESEARCHER: • Reference area is the measured silhouette, not a handbook wing area. • Book comparison needs rebasing first — measure the body, don't borrow numbers.
+CHIEF ENGINEER: • Surface accepted: NACA 4412 finite wing, closed. • No defects reported by the surface check.
+CHIEF ENGINEER: • Selected: k-omega SST, steady RANS — standard closure for attached external flow, solved on a quality-gated mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+CHIEF ENGINEER: • surfaceFeatureExtract — 1 s — extracting the feature edges the mesher snaps to.
+CHIEF ENGINEER: • blockMesh — 1 s — building the background mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning :
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : Displacement (-0.00056433145 -0.00012564139 0.00090695832) at mesh point 21600 coord (0.032805312 -1.4874359 0.026075907) points th
+CHIEF ENGINEER: • snappyHexMesh — 11 s — snapping the mesh to the body — the long stage.
+CHIEF RESEARCHER: • Mesh: 67,826 cells; non-ortho 33.3°; skew 1.46. • Non-ortho inside the 70° gate — discretization acceptable. • Skewness inside guidance as well.
+CHIEF ENGINEER: • potentialFoam — 1 s — initialising the velocity field so the steady solver starts sane.
+CHIEF ENGINEER: • simpleFoam — 77 s — steady solve, 300 iterations.
+CHIEF ENGINEER: • Body painted with its own solved surface pressure. • High on leading surfaces, low over the upper wing.
+CHIEF RESEARCHER: • Solve gives Cd 0.0289; rebased 0.0289 vs Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009) Cd 0.03. • 4% apart, band ±40%.
+CHIEF ENGINEER: • Drag settles at 0.02892 ± 6.5e-07 over 60 iterations. • Lift 0.2694 ± 1.4e-05.
+NUMERICIST: • Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. • Validation: an experimental comparison exists; the verdict is graded against it.
+MONITOR: • Watched every solver line: 279 watch-pattern events {'novel-warning': 3, 'bounding': 276}. • 273 repeats counted, not repeated at you. • Nothing fatal.
+== CONCLUSION ==
+CHIEF ENGINEER: • Confirmed: raw surface ? converged force in 1.7 min, no intervention. • Coefficient history flat over the window — the envelope means something.
+CHIEF ENGINEER: • Confirmed against experiment: inside the published band of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009). • Validated, not merely converged — within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band ±40%).
+CHIEF ENGINEER: • Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. • A refinement study would roughly double the 2 core-minutes spent.
+NUMERICIST: • Recorded in case memory. • Next question about a body like NACA 4412 finite wing answers from a real run.
+Artifacts in C:\Users\mouza\github-cleanup\ct-uq\mission-output\geometry-study
+[02:11:20] naca4412_wing rung r=1: cells 67,826, Cd 0.0289, 1.7 min
+[02:11:20] naca4412_wing ladder rung refinement=2 starting
+SYSTEM: UQ refinement ladder rung naca4412_wing-r2: mesh and solve naca4412_wing.
+== HYPOTHESIS ==
+CHIEF RESEARCHER: • Single fixed body, steady turbulent (RANS) — a measurement, not an optimisation. • One gated solve; the only freedom is mesh and convergence. • Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.
+CHIEF RESEARCHER: • Admissible against the standard mesh-quality acceptance band — a published threshold, not self-grading.
+CHIEF ENGINEER: On it.
+CHIEF ENGINEER: • Full geometry study on NACA 4412 finite wing — a measurement, not a sweep. • Question: does the chain produce a converged force on a believable mesh? • No prior: mesh quality and convergence are the only evidence.
+CHIEF ENGINEER: • Fails if: surface won't mesh; gates exceeded (non-ortho 70°, skew 4); or the force never settles.
+NUMERICIST: • The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. • The mesh is judged against a published threshold, not itself.
+== EXPERIMENT PLAN ==
+CHIEF ENGINEER: Compute audit — YES: requested 1 parallel workers, capacity 2 (10/14 cores free, 5 GB available, 2 other job(s) running). Full fan-out can run in one wave.
+CHIEF ENGINEER: • Plan: features ? background mesh ? snap ? quality gates ? potential init ? 300 steady iterations. • Meshing is the long pole — minutes, not seconds.
+== EVIDENCE ==
+CHIEF ENGINEER: • Surface measured: 712 triangles, streamwise X, span Y. • Working scale: 1.0 m long, 3.0 m across.
+CHIEF ENGINEER: • Scale basis: the file's units are dimensionally plausible, so I am taking them as metres. • Wrong length ? wrong Reynolds ? wrong forces; stated, not buried.
+CHIEF ENGINEER: • Case built: farfield from the body's own bounding box, k-omega SST. • Reference area: measured planform 3 m². • Freestream 15 m/s; Re 1.0e+06.
+CHIEF RESEARCHER: • Reference area is the measured silhouette, not a handbook wing area. • Book comparison needs rebasing first — measure the body, don't borrow numbers.
+CHIEF ENGINEER: • Surface accepted: NACA 4412 finite wing, closed. • No defects reported by the surface check.
+CHIEF ENGINEER: • Selected: k-omega SST, steady RANS — standard closure for attached external flow, solved on a quality-gated mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+CHIEF ENGINEER: • surfaceFeatureExtract — 1 s — extracting the feature edges the mesher snaps to.
+CHIEF ENGINEER: • blockMesh — 1 s — building the background mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning :
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : Displacement (-0.00056433145 -0.00012564139 0.00090695832) at mesh point 21600 coord (0.032805312 -1.4874359 0.026075907) points th
+CHIEF ENGINEER: • snappyHexMesh — 17 s — snapping the mesh to the body — the long stage.
+CHIEF RESEARCHER: • Mesh: 67,826 cells; non-ortho 33.3°; skew 1.46. • Non-ortho inside the 70° gate — discretization acceptable. • Skewness inside guidance as well.
+CHIEF ENGINEER: • potentialFoam — 2 s — initialising the velocity field so the steady solver starts sane.
+CHIEF ENGINEER: • simpleFoam — 81 s — steady solve, 300 iterations.
+CHIEF ENGINEER: • Body painted with its own solved surface pressure. • High on leading surfaces, low over the upper wing.
+CHIEF RESEARCHER: • Solve gives Cd 0.0289; rebased 0.0289 vs Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009) Cd 0.03. • 4% apart, band ±40%.
+CHIEF ENGINEER: • Drag settles at 0.02892 ± 6.5e-07 over 60 iterations. • Lift 0.2694 ± 1.4e-05.
+NUMERICIST: • Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. • Validation: an experimental comparison exists; the verdict is graded against it.
+MONITOR: • Watched every solver line: 279 watch-pattern events {'novel-warning': 3, 'bounding': 276}. • 273 repeats counted, not repeated at you. • Nothing fatal.
+== CONCLUSION ==
+CHIEF ENGINEER: • Confirmed: raw surface ? converged force in 1.8 min, no intervention. • Coefficient history flat over the window — the envelope means something.
+CHIEF ENGINEER: • Confirmed against experiment: inside the published band of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009). • Validated, not merely converged — within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band ±40%).
+CHIEF ENGINEER: • Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. • A refinement study would roughly double the 2 core-minutes spent.
+NUMERICIST: • Recorded in case memory. • Next question about a body like NACA 4412 finite wing answers from a real run.
+Artifacts in C:\Users\mouza\github-cleanup\ct-uq\mission-output\geometry-study
+[02:13:11] naca4412_wing rung r=2: cells 67,826, Cd 0.0289, 1.9 min
+[02:13:11] naca4412_wing ladder rung refinement=3 starting
+SYSTEM: UQ refinement ladder rung naca4412_wing-r3: mesh and solve naca4412_wing.
+== HYPOTHESIS ==
+CHIEF RESEARCHER: • Single fixed body, steady turbulent (RANS) — a measurement, not an optimisation. • One gated solve; the only freedom is mesh and convergence. • Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.
+CHIEF RESEARCHER: • Admissible against the standard mesh-quality acceptance band — a published threshold, not self-grading.
+CHIEF ENGINEER: On it.
+CHIEF ENGINEER: • Full geometry study on NACA 4412 finite wing — a measurement, not a sweep. • Question: does the chain produce a converged force on a believable mesh? • No prior: mesh quality and convergence are the only evidence.
+CHIEF ENGINEER: • Fails if: surface won't mesh; gates exceeded (non-ortho 70°, skew 4); or the force never settles.
+NUMERICIST: • The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. • The mesh is judged against a published threshold, not itself.
+== EXPERIMENT PLAN ==
+CHIEF ENGINEER: Compute audit — YES: requested 1 parallel workers, capacity 2 (9/14 cores free, 5 GB available, 2 other job(s) running). Full fan-out can run in one wave.
+CHIEF ENGINEER: • Plan: features ? background mesh ? snap ? quality gates ? potential init ? 300 steady iterations. • Meshing is the long pole — minutes, not seconds.
+== EVIDENCE ==
+CHIEF ENGINEER: • Surface measured: 712 triangles, streamwise X, span Y. • Working scale: 1.0 m long, 3.0 m across.
+CHIEF ENGINEER: • Scale basis: the file's units are dimensionally plausible, so I am taking them as metres. • Wrong length ? wrong Reynolds ? wrong forces; stated, not buried.
+CHIEF ENGINEER: • Case built: farfield from the body's own bounding box, k-omega SST. • Reference area: measured planform 3 m². • Freestream 15 m/s; Re 1.0e+06.
+CHIEF RESEARCHER: • Reference area is the measured silhouette, not a handbook wing area. • Book comparison needs rebasing first — measure the body, don't borrow numbers.
+CHIEF ENGINEER: • Surface accepted: NACA 4412 finite wing, closed. • No defects reported by the surface check.
+CHIEF ENGINEER: • Selected: k-omega SST, steady RANS — standard closure for attached external flow, solved on a quality-gated mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+CHIEF ENGINEER: • surfaceFeatureExtract — 1 s — extracting the feature edges the mesher snaps to.
+CHIEF ENGINEER: • blockMesh — 1 s — building the background mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning :
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : Displacement (-3.50815e-05 -0.00055019583 5.197369e-05) at mesh point 21600 coord (0.030798941 -1.494498 0.03002638) points through
+CHIEF ENGINEER: • snappyHexMesh — 36 s — snapping the mesh to the body — the long stage.
+CHIEF RESEARCHER: • Mesh: 137,569 cells; non-ortho 45.8°; skew 1.88. • Non-ortho inside the 70° gate — discretization acceptable. • Skewness inside guidance as well.
+CHIEF ENGINEER: • potentialFoam — 3 s — initialising the velocity field so the steady solver starts sane.
+CHIEF ENGINEER: • simpleFoam — 79 s — steady solve, 300 iterations.
+CHIEF ENGINEER: • Body painted with its own solved surface pressure. • High on leading surfaces, low over the upper wing.
+CHIEF RESEARCHER: • Solve gives Cd 0.0217; rebased 0.0217 vs Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009) Cd 0.03. • 28% apart, band ±40%.
+CHIEF ENGINEER: • Drag settles at 0.02167 ± 4.7e-06 over 24 iterations. • Lift 0.2516 ± 2.6e-05.
+NUMERICIST: • Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. • Validation: an experimental comparison exists; the verdict is graded against it.
+MONITOR: • Watched every solver line: 5 watch-pattern events {'novel-warning': 3, 'bounding': 2}. • Nothing fatal.
+== CONCLUSION ==
+CHIEF ENGINEER: • Confirmed: raw surface ? converged force in 2.2 min, no intervention. • Coefficient history flat over the window — the envelope means something.
+CHIEF ENGINEER: • Confirmed against experiment: inside the published band of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009). • Validated, not merely converged — within 28% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band ±40%).
+CHIEF ENGINEER: • Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. • A refinement study would roughly double the 2 core-minutes spent.
+NUMERICIST: • Recorded in case memory. • Next question about a body like NACA 4412 finite wing answers from a real run.
+Artifacts in C:\Users\mouza\github-cleanup\ct-uq\mission-output\geometry-study
+[02:15:23] naca4412_wing rung r=3: cells 137,569, Cd 0.0217, 2.2 min
+[02:15:23] STAGE FAILED naca4412_ladder: ValueError: cell counts must increase coarse to fine
+[02:15:24] naca4412_wing closure kEpsilon starting
+[02:18:32] naca4412_wing kEpsilon: Cd 0.0339 (3.1 min)
+[02:18:32] naca4412_wing closure SpalartAllmaras starting
+[02:19:31] naca4412_wing SpalartAllmaras: Cd 0.0242 (1.0 min)
+[02:19:31] naca4412_wing closures DONE: spread 0.006112
+[02:19:31] motorBike ladder rung coarse starting
+[02:20:01] motorBike coarse: cells 14,714, Cd 0.4707, 0.5 min
+[02:20:01] motorBike ladder rung mid starting
+[02:21:24] motorBike mid: cells 66,316, Cd 0.4202, 1.4 min
+[02:21:24] motorBike ladder rung fine starting
+[02:29:20] motorBike fine: cells 353,578, Cd 0.4156, 7.9 min
+[02:29:20] motorBike ladder DONE: 3-mesh ladder, observed order p = 4.82 outside the credible range; conservative factor-3 band, band 0.1653
+[02:29:20] motorBike closure kEpsilon starting
+[02:29:29] STAGE FAILED motorbike_closures: RuntimeError: step 'simpleFoam' failed (1): 
+file: system/fvSolution/solvers at line 21 to 56.
+
+    From const Foam::dictionary& Foam::dictionary::subDict(const Foam::word&, Foam::keyType::option) const
+    in file db/dictionary/dictionary.C at line 457.
+
+FOAM exiting
+
+
+[02:29:29] b52 ladder rung refinement=1 starting
+SYSTEM: UQ refinement ladder rung b52-r1: mesh and solve b52.
+== HYPOTHESIS ==
+CHIEF RESEARCHER: • Single fixed body, steady turbulent (RANS) — a measurement, not an optimisation. • One gated solve; the only freedom is mesh and convergence. • Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.
+CHIEF RESEARCHER: • Admissible against the standard mesh-quality acceptance band — a published threshold, not self-grading.
+CHIEF ENGINEER: On it.
+CHIEF ENGINEER: • Full geometry study on B-52 Stratofortress-class airframe — a measurement, not a sweep. • Question: does the chain produce a converged force on a believable mesh? • No prior: mesh quality and convergence are the only evidence.
+CHIEF ENGINEER: • Fails if: surface won't mesh; gates exceeded (non-ortho 70°, skew 4); or the force never settles.
+NUMERICIST: • The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. • The mesh is judged against a published threshold, not itself.
+== EXPERIMENT PLAN ==
+CHIEF ENGINEER: Compute audit — YES: requested 1 parallel workers, capacity 3 (12/14 cores free, 6 GB available, 0 other job(s) running). Full fan-out can run in one wave.
+CHIEF ENGINEER: • Plan: features ? background mesh ? snap ? quality gates ? potential init ? 300 steady iterations. • Meshing is the long pole — minutes, not seconds.
+== EVIDENCE ==
+CHIEF ENGINEER: • Surface measured: 13,784 triangles, streamwise Z, span X. • Working scale: 50.0 m long, 57.4 m across.
+CHIEF ENGINEER: • Scale basis: the file's own units would make this body 358 units long, which is not a plausible size for it; I am working to a 50 m reference length instead. • Wrong length ? wrong Reynolds ? wrong forces; stated, not buried.
+CHIEF ENGINEER: • Case built: farfield from the body's own bounding box, k-omega SST. • Reference area: measured planform 638 m². • Freestream 100 m/s; Re 3.3e+08.
+CHIEF RESEARCHER: • Reference area is the measured silhouette, not a handbook wing area. • Book comparison needs rebasing first — measure the body, don't borrow numbers.
+CHIEF ENGINEER: • Surface accepted: B-52 Stratofortress-class airframe, closed. • No defects reported by the surface check.
+CHIEF ENGINEER: • Selected: k-omega SST, steady RANS — standard closure for attached external flow, solved on a quality-gated mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+CHIEF ENGINEER: • surfaceFeatureExtract — 1 s — extracting the feature edges the mesher snaps to.
+CHIEF ENGINEER: • blockMesh — 1 s — building the background mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning :
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : Displacement (-0.0062103026 -0.0085981682 0.0031881767) at mesh point 101131 coord (56.390185 47.213289 36.538569) points through t
+CHIEF ENGINEER: • snappyHexMesh — 16 s — snapping the mesh to the body — the long stage.
+CHIEF RESEARCHER: • Mesh: 107,489 cells; non-ortho 52.3°; skew 3.77. • Non-ortho inside the 70° gate — discretization acceptable. • Skewness inside guidance as well.
+CHIEF ENGINEER: • potentialFoam — 2 s — initialising the velocity field so the steady solver starts sane.
+CHIEF ENGINEER: • simpleFoam — 88 s — steady solve, 300 iterations.
+CHIEF ENGINEER: • Body painted with its own solved surface pressure. • High on leading surfaces, low over the upper wing.
+CHIEF ENGINEER: • Drag settles at 0.04539 ± 2.9e-06 over 60 iterations. • Lift 0.05582 ± 1.1e-05.
+NUMERICIST: • Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. • Not validated — per the ASME V&V 20 validation-uncertainty standard wants an experimental comparison; none was made.
+MONITOR: • Watched every solver line: 435 watch-pattern events {'novel-warning': 3, 'bounding': 432}. • 429 repeats counted, not repeated at you. • Nothing fatal.
+== CONCLUSION ==
+CHIEF ENGINEER: • Confirmed: raw surface ? converged force in 1.9 min, no intervention. • Coefficient history flat over the window — the envelope means something.
+CHIEF ENGINEER: • Magnitude not independently validated. • No prior, no experiment: the number stands on mesh quality and convergence.
+CHIEF ENGINEER: • Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. • A refinement study would roughly double the 2 core-minutes spent.
+NUMERICIST: • Recorded in case memory. • Next question about a body like B-52 Stratofortress-class airframe answers from a real run.
+Artifacts in C:\Users\mouza\github-cleanup\ct-uq\mission-output\geometry-study
+[02:31:23] b52 rung r=1: cells 107,489, Cd 0.0454, 1.9 min
+[02:31:23] b52 ladder rung refinement=2 starting
+SYSTEM: UQ refinement ladder rung b52-r2: mesh and solve b52.
+== HYPOTHESIS ==
+CHIEF RESEARCHER: • Single fixed body, steady turbulent (RANS) — a measurement, not an optimisation. • One gated solve; the only freedom is mesh and convergence. • Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.
+CHIEF RESEARCHER: • Admissible against the standard mesh-quality acceptance band — a published threshold, not self-grading.
+CHIEF ENGINEER: On it.
+CHIEF ENGINEER: • Full geometry study on B-52 Stratofortress-class airframe — a measurement, not a sweep. • Question: does the chain produce a converged force on a believable mesh? • No prior: mesh quality and convergence are the only evidence.
+CHIEF ENGINEER: • Fails if: surface won't mesh; gates exceeded (non-ortho 70°, skew 4); or the force never settles.
+NUMERICIST: • The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. • The mesh is judged against a published threshold, not itself.
+== EXPERIMENT PLAN ==
+CHIEF ENGINEER: Compute audit — YES: requested 1 parallel workers, capacity 3 (11/14 cores free, 6 GB available, 0 other job(s) running). Full fan-out can run in one wave.
+CHIEF ENGINEER: • Plan: features ? background mesh ? snap ? quality gates ? potential init ? 300 steady iterations. • Meshing is the long pole — minutes, not seconds.
+== EVIDENCE ==
+CHIEF ENGINEER: • Surface measured: 13,784 triangles, streamwise Z, span X. • Working scale: 50.0 m long, 57.4 m across.
+CHIEF ENGINEER: • Scale basis: the file's own units would make this body 358 units long, which is not a plausible size for it; I am working to a 50 m reference length instead. • Wrong length ? wrong Reynolds ? wrong forces; stated, not buried.
+CHIEF ENGINEER: • Case built: farfield from the body's own bounding box, k-omega SST. • Reference area: measured planform 638 m². • Freestream 100 m/s; Re 3.3e+08.
+CHIEF RESEARCHER: • Reference area is the measured silhouette, not a handbook wing area. • Book comparison needs rebasing first — measure the body, don't borrow numbers.
+CHIEF ENGINEER: • Surface accepted: B-52 Stratofortress-class airframe, closed. • No defects reported by the surface check.
+CHIEF ENGINEER: • Selected: k-omega SST, steady RANS — standard closure for attached external flow, solved on a quality-gated mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+CHIEF ENGINEER: • surfaceFeatureExtract — 1 s — extracting the feature edges the mesher snaps to.
+CHIEF ENGINEER: • blockMesh — 1 s — building the background mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning :
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : Displacement (-0.0062103026 -0.0085981682 0.0031881767) at mesh point 101131 coord (56.390185 47.213289 36.538569) points through t
+CHIEF ENGINEER: • snappyHexMesh — 18 s — snapping the mesh to the body — the long stage.
+CHIEF RESEARCHER: • Mesh: 107,489 cells; non-ortho 52.3°; skew 3.77. • Non-ortho inside the 70° gate — discretization acceptable. • Skewness inside guidance as well.
+CHIEF ENGINEER: • potentialFoam — 1 s — initialising the velocity field so the steady solver starts sane.
+CHIEF ENGINEER: • simpleFoam — 98 s — steady solve, 300 iterations.
+CHIEF ENGINEER: • Body painted with its own solved surface pressure. • High on leading surfaces, low over the upper wing.
+CHIEF ENGINEER: • Drag settles at 0.04539 ± 2.9e-06 over 60 iterations. • Lift 0.05582 ± 1.1e-05.
+NUMERICIST: • Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. • Not validated — per the ASME V&V 20 validation-uncertainty standard wants an experimental comparison; none was made.
+MONITOR: • Watched every solver line: 435 watch-pattern events {'novel-warning': 3, 'bounding': 432}. • 429 repeats counted, not repeated at you. • Nothing fatal.
+== CONCLUSION ==
+CHIEF ENGINEER: • Confirmed: raw surface ? converged force in 2.1 min, no intervention. • Coefficient history flat over the window — the envelope means something.
+CHIEF ENGINEER: • Magnitude not independently validated. • No prior, no experiment: the number stands on mesh quality and convergence.
+CHIEF ENGINEER: • Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. • A refinement study would roughly double the 2 core-minutes spent.
+NUMERICIST: • Recorded in case memory. • Next question about a body like B-52 Stratofortress-class airframe answers from a real run.
+Artifacts in C:\Users\mouza\github-cleanup\ct-uq\mission-output\geometry-study
+[02:33:29] b52 rung r=2: cells 107,489, Cd 0.0454, 2.1 min
+[02:33:29] b52 ladder rung refinement=3 starting
+SYSTEM: UQ refinement ladder rung b52-r3: mesh and solve b52.
+== HYPOTHESIS ==
+CHIEF RESEARCHER: • Single fixed body, steady turbulent (RANS) — a measurement, not an optimisation. • One gated solve; the only freedom is mesh and convergence. • Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.
+CHIEF RESEARCHER: • Admissible against the standard mesh-quality acceptance band — a published threshold, not self-grading.
+CHIEF ENGINEER: On it.
+CHIEF ENGINEER: • Full geometry study on B-52 Stratofortress-class airframe — a measurement, not a sweep. • Question: does the chain produce a converged force on a believable mesh? • No prior: mesh quality and convergence are the only evidence.
+CHIEF ENGINEER: • Fails if: surface won't mesh; gates exceeded (non-ortho 70°, skew 4); or the force never settles.
+NUMERICIST: • The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. • The mesh is judged against a published threshold, not itself.
+== EXPERIMENT PLAN ==
+CHIEF ENGINEER: Compute audit — YES: requested 1 parallel workers, capacity 3 (10/14 cores free, 6 GB available, 0 other job(s) running). Full fan-out can run in one wave.
+CHIEF ENGINEER: • Plan: features ? background mesh ? snap ? quality gates ? potential init ? 300 steady iterations. • Meshing is the long pole — minutes, not seconds.
+== EVIDENCE ==
+CHIEF ENGINEER: • Surface measured: 13,784 triangles, streamwise Z, span X. • Working scale: 50.0 m long, 57.4 m across.
+CHIEF ENGINEER: • Scale basis: the file's own units would make this body 358 units long, which is not a plausible size for it; I am working to a 50 m reference length instead. • Wrong length ? wrong Reynolds ? wrong forces; stated, not buried.
+CHIEF ENGINEER: • Case built: farfield from the body's own bounding box, k-omega SST. • Reference area: measured planform 638 m². • Freestream 100 m/s; Re 3.3e+08.
+CHIEF RESEARCHER: • Reference area is the measured silhouette, not a handbook wing area. • Book comparison needs rebasing first — measure the body, don't borrow numbers.
+CHIEF ENGINEER: • Surface accepted: B-52 Stratofortress-class airframe, closed. • No defects reported by the surface check.
+CHIEF ENGINEER: • Selected: k-omega SST, steady RANS — standard closure for attached external flow, solved on a quality-gated mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+CHIEF ENGINEER: • surfaceFeatureExtract — 1 s — extracting the feature edges the mesher snaps to.
+CHIEF ENGINEER: • blockMesh — 1 s — building the background mesh.
+MONITOR: • New on an unfamiliar body: --> FOAM Warning :
+MONITOR: • New on an unfamiliar body: --> FOAM Warning : Displacement (-0.013249109 0.0029683588 0.01696222) at mesh point 102655 coord (55.785954 46.71342 20.184269) points through the su
+CHIEF ENGINEER: • snappyHexMesh — 31 s — snapping the mesh to the body — the long stage.
+CHIEF RESEARCHER: • Mesh: 193,815 cells; non-ortho 57.1°; skew 5.06. • Non-ortho inside the 70° gate — discretization acceptable. • Skew 5.06 above the 4 guidance — caps trust; not fully validated.
+CHIEF ENGINEER: • potentialFoam — 2 s — initialising the velocity field so the steady solver starts sane.
+CHIEF ENGINEER: • simpleFoam — 189 s — steady solve, 300 iterations.
+CHIEF ENGINEER: • Body painted with its own solved surface pressure. • High on leading surfaces, low over the upper wing.
+CHIEF ENGINEER: • Drag settles at 0.0464 ± 1.3e-05 over 60 iterations. • Lift 0.04283 ± 2.1e-05.
+NUMERICIST: • Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. • Not validated — per the ASME V&V 20 validation-uncertainty standard wants an experimental comparison; none was made.
+MONITOR: • Watched every solver line: 570 watch-pattern events {'novel-warning': 3, 'bounding': 567}. • 564 repeats counted, not repeated at you. • Nothing fatal.
+== CONCLUSION ==
+CHIEF ENGINEER: • Confirmed: raw surface ? converged force in 3.8 min, no intervention. • Coefficient history flat over the window — the envelope means something.
+CHIEF ENGINEER: • Magnitude not independently validated. • No prior, no experiment: the number stands on mesh quality and convergence. • Skewness above guidance is the specific reason it is not graded.
+CHIEF ENGINEER: • Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. • A refinement study would roughly double the 4 core-minutes spent.
+NUMERICIST: • Recorded in case memory. • Next question about a body like B-52 Stratofortress-class airframe answers from a real run.
+Artifacts in C:\Users\mouza\github-cleanup\ct-uq\mission-output\geometry-study
+[02:37:20] b52 rung r=3: cells 193,815, Cd 0.0464, 3.8 min
+[02:37:20] STAGE FAILED b52_ladder: ValueError: cell counts must increase coarse to fine
+[02:37:21] b52 closure kEpsilon starting
+[02:38:58] STAGE FAILED b52_closures: RuntimeError: step 'simpleFoam' failed (136): #8  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+#9  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+#10  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+#11  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+#12  ? in /usr/lib/x86_64-linux-gnu/libc.so.6
+#13  __libc_start_main in /usr/lib/x86_64-linux-gnu/libc.so.6
+#14  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+=============
+
+[02:38:58] batch finished, 4 failed stage(s)
