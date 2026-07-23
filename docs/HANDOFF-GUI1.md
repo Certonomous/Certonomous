@@ -127,3 +127,64 @@ Overnight work on the control-room GUI + supporting backend emits. All commits o
 1. G8/G2/G10 backend — valve surface + waveform, dispatch + trace events, pacing.
 2. G2/G3/G8/G9 + B1/B2/B4 + A1/G10 GUI — viewport hero, dispatch panel, live trace.
 3. GUI render-correctness — out-of-order geometry fix, TDZ on auto-resume.
+
+---
+
+# ROUND 2 — Sanaa's second feedback pass (all 8 items DONE)
+
+Merged main (fast-forward, clean) then worked the 8 approved intents top to
+bottom. Backend 175 tests green throughout. Proofs in
+`demo-output/gui-proof/round2/`.
+
+- **#1 Geometry too small — DONE.** `drawGeometry()` no longer uses a fixed
+  0.42 fudge factor. It projects every vertex to the model plane, takes the
+  projected bounding box, and scales so the body FILLS ~86% of the stage,
+  centred. Works uniformly for wings, valve, cylinder, motorBike. Proof:
+  `r2_valve_layout.png` (valve now dominates the frame).
+- **#2 Bottom plots invisible — DONE.** Landscape and live-trace stack
+  full-width at 320px canvas each; the viewport column scrolls (owner OK'd
+  multi-page). Fully legible at 1920x1080. Proof: `r2_valve_layout.png`.
+- **#3 Transcript/visual sync — DONE.** ALL viewport/evidence visual events
+  (landscape + trace points, geometry + field swaps, dispatch updates, plots,
+  result card) now drain through the SAME ordered paced queue as transcript
+  entries (`enqueue(kind,p,ts)` / `drainReveal` / `APPLY` map). Exact emission
+  order preserved via the envelope timestamp; narration and the picture it
+  describes appear together. READING pace = 1.5s/entry, 240ms/visual; FAST =
+  real inter-event timing.
+- **#4 PACE toggle RECORDED→FAST — DONE.** Chip reads PACE·READING / PACE·FAST;
+  FAST replays at real event timing.
+- **#5 Presentation mode removed — DONE.** PRESENT button, present-bar,
+  ?present=1, P-key, presenting CSS, and present()/togglePresent() all gone;
+  pace chip restyled to a neutral `.chip-btn`. Layout verified clean without
+  it. Runbook references stripped.
+- **#6 Report PNGs still white (third-flag) — DONE.** `plot_theme.metric_label`
+  added ($C_d$, $C_\ell$, $L/D$). Migrated ALL report generators to the dark
+  GUI theme: `head_engineer.plot_with_envelope` and
+  `monte_carlo.plot_convergence/plot_ab_comparison/plot_estimates` — panel
+  palette, mathtext labels + $\pm\sigma$, LIVE/VALID/TREND colours, titled
+  frame + legend, wide report-column sizing (11.4x4.6). Before/after (same real
+  race.json ensemble) in `round2/before/` vs `round2/after/`.
+- **#7 Live iterations — DONE.** geometry_study streams `trace.point` of the Cd
+  coefficient marching over solver iterations with a rolling ±2σ envelope
+  (`HeadEngineer.histories` exposes the full history from postprocess).
+  `run_ensemble` gained an `emit` param: each completed sample streams the
+  running mean + ±2·SEM band, so the envelope tightens live sample by sample
+  (wired in uncertainty_reduction). Proof: `r2_geo_trace.png`.
+- **#8 Directive truncation — DONE.** `#missionGoal` wraps to two lines and
+  ellipsizes head-first with the FULL directive on hover (title attr set on
+  launch AND resume/replay). Verified the full goal reaches routing untruncated
+  (server passes the whole goal string to classify()).
+
+## Round-2 merge risks
+- `sdk/chief_engineer/control_room.html` — same single file the other GUI
+  agents touch; round-2 rewrote the dispatch switch + queue drain, the
+  drawGeometry projection, evidence-row CSS, and removed presentation mode.
+  Conflicts likely with any concurrent edit — keep the unified queue and the
+  auto-frame projection.
+- `sdk/chief_engineer/monte_carlo.py` + `head_engineer.py` — plot generators
+  restyled AND `run_ensemble`/`postprocess` signatures extended (added `emit`
+  param / `histories` attr, both backward-compatible). A backend agent editing
+  the same solve loops may conflict.
+- `sdk/chief_engineer/plot_theme.py` — added `metric_label` (additive).
+- `sdk/workflows/{geometry_study,uncertainty_reduction}.py` — added trace
+  emission (additive).
