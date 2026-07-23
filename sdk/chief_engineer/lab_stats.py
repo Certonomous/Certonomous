@@ -101,6 +101,117 @@ def _experimental_anchors() -> int:
     return anchors
 
 
+def _uq_studies_root() -> Path:
+    env = os.environ.get("CERTONOMOUS_UQ_STUDIES")
+    if env:
+        return Path(env).resolve()
+    return (_REPO_ROOT / "models" / "curriculum" / "uq-studies").resolve()
+
+
+def _benchmarks_path() -> Path:
+    env = os.environ.get("CERTONOMOUS_BENCHMARKS")
+    if env:
+        return Path(env).resolve()
+    return (_REPO_ROOT / "demo-output" / "website" / "benchmarks.json").resolve()
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+# Geometries surfaced on the discretization-uncertainty card, in display order,
+# each with the human name the lab uses on camera and its honest programme state.
+_UQ_GEOMETRIES = (
+    ("motorBike", "motorBike", "measured"),
+    ("naca4412_wing", "NACA 4412 wing", "measured"),
+    ("b52", "B-52", "in progress"),
+)
+
+
+def _uq_program() -> dict[str, Any]:
+    """Discretization-uncertainty programme, data-driven from the UQ studies.
+
+    Reports the observed order and the conservative band each refinement ladder
+    actually produced. Nothing is invented: a study with no usable order (its
+    mesh did not refine between rungs) is reported as still in progress.
+    """
+    root = _uq_studies_root()
+    geometries: list[dict[str, Any]] = []
+    for slug, label, state in _UQ_GEOMETRIES:
+        data = _load_json(root / f"{slug}.json")
+        num = data.get("numerical", {}) if isinstance(data, dict) else {}
+        levels = data.get("levels", []) if isinstance(data, dict) else []
+        band_rel = num.get("band_rel")
+        geometries.append({
+            "name": label,
+            "state": state,
+            "rungs": len(levels),
+            "observed_order": num.get("observed_order"),
+            "band_abs": num.get("band_abs"),
+            "band_rel": band_rel,
+            "band_pct": round(band_rel * 100.0, 1) if isinstance(band_rel, (int, float)) else None,
+            "value": num.get("value_fine", num.get("value_working")),
+            "method": num.get("method", ""),
+        })
+    return {
+        "title": "Discretization-uncertainty program",
+        "status": "ACTIVE RESEARCH",
+        "summary": "Refinement ladders per geometry: observed orders and "
+                   "conservative uncertainty bands.",
+        "geometries": geometries,
+    }
+
+
+def research_programs() -> dict[str, Any]:
+    """The lab's real research programmes, framed as work in progress.
+
+    Closure-challenge and reduced-order speed figures come from the public
+    benchmarks file; the discretization program is data-driven from the UQ
+    refinement studies; the valve agenda lines are the queued programmes.
+    """
+    bench = _load_json(_benchmarks_path())
+    closure_raw = bench.get("closure_challenge", {})
+    speed_raw = bench.get("speed_benchmark", {})
+
+    closure = {
+        "title": closure_raw.get("name", "Closure-challenge benchmark"),
+        "status": "ACTIVE RESEARCH",
+        "board": closure_raw.get("board", "public leaderboard"),
+        "target_rank": closure_raw.get("target_rank", 4),
+        "target_overall": closure_raw.get("target_overall"),
+        "target_per_case": closure_raw.get("target_per_case", []),
+        "our_entry": "baseline in training",
+        "target": "top 4",
+        "repo": "github.com/rmcconke/closure-challenge-benchmark",
+    }
+    speed = {
+        "title": speed_raw.get("name", "Reduced-order speed program"),
+        "status": "measured",
+        "case": speed_raw.get("case", "NACA 4412"),
+        "full_core_min": speed_raw.get("full_mc_core_min"),
+        "reduced_core_min": speed_raw.get("reduced_core_min"),
+        "speedup_x": speed_raw.get("speedup_x"),
+        "source": speed_raw.get("source", ""),
+    }
+    queued = [
+        {"name": "Harmonic-balance cycle solve",
+         "note": "periodic flow solved in the frequency domain, not marched in time"},
+        {"name": "Unsteady fluid-structure interaction",
+         "note": "leaflet motion coupled to the flow it drives"},
+        {"name": "Non-Newtonian rheology",
+         "note": "shear-thinning blood models for the valve agenda"},
+    ]
+    return {
+        "closure": closure,
+        "uq": _uq_program(),
+        "speed": speed,
+        "queued": queued,
+    }
+
+
 def _persisted_missions() -> int:
     """Demo missions the server has persisted to state (best-effort)."""
     state_dir = os.environ.get("CHIEF_ENGINEER_STATE_DIR")
@@ -132,6 +243,10 @@ def lifetime_counters(ledger_path: Path | None = None) -> dict[str, Any]:
             "persisted_missions": persisted,
             "per_solver": summary["per_solver"],
         },
+        # The active-research programmes the credentials view showcases as
+        # work in progress (R5): closure challenge, discretization uncertainty,
+        # reduced-order speed, and the queued valve agenda.
+        "research": research_programs(),
     }
 
 

@@ -111,6 +111,30 @@ class LabStatsTests(unittest.TestCase):
             self.assertEqual(counters["missions_run"], 2)
             self.assertGreaterEqual(counters["knowledge_entries"], 1)
 
+    def test_research_programs_are_real_and_structured(self):
+        # The credentials ACTIVE RESEARCH section is data-driven (R5): closure
+        # board, discretization ladders, and the reduced-order speed program all
+        # come back structured, with real numbers and no invented "our score".
+        r = lab_stats.research_programs()
+        self.assertEqual(set(r), {"closure", "uq", "speed", "queued"})
+
+        closure = r["closure"]
+        self.assertEqual(closure["target_rank"], 4)
+        self.assertEqual(len(closure["target_per_case"]), 8)
+        self.assertIn("rmcconke/closure-challenge-benchmark", closure["repo"])
+        # Never an invented score: the entry is a status, not a number.
+        self.assertNotIn("our_score", closure)
+        self.assertEqual(closure["our_entry"], "baseline in training")
+
+        names = [g["name"] for g in r["uq"]["geometries"]]
+        self.assertIn("motorBike", names)
+        self.assertIn("B-52", names)
+        in_progress = [g for g in r["uq"]["geometries"] if g["state"] == "in progress"]
+        self.assertTrue(in_progress, "at least one UQ geometry is still in progress")
+
+        self.assertGreater(r["speed"]["speedup_x"], 1.0)
+        self.assertTrue(r["queued"], "the valve agenda seeds the queued research")
+
 
 if __name__ == "__main__":
     unittest.main()
