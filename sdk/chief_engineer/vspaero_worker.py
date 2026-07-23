@@ -47,6 +47,13 @@ def solve(job: dict) -> dict:
     vsp.SetParmVal(wid, "Area", "XSec_1", area / 2.0)
     vsp.SetParmVal(wid, "Taper", "XSec_1", taper)
     vsp.SetParmVal(wid, "Sweep", "XSec_1", sweep)
+    # Optional four-series airfoil shaping (e.g. NACA 4412: camber 0.04 at
+    # 0.4 chord, 12% thickness), applied to root and tip sections when given.
+    for name, parm in (("camber", "Camber"), ("camber_loc", "CamberLoc"),
+                       ("thick_chord", "ThickChord")):
+        if name in job:
+            for group in ("XSecCurve_0", "XSecCurve_1"):
+                vsp.SetParmVal(wid, parm, group, float(job[name]))
     vsp.Update()
 
     built = {
@@ -102,6 +109,13 @@ def solve(job: dict) -> dict:
     # pass if it happens first.
     vsp.ExportFile(os.path.join(os.getcwd(), "wing.stl"), vsp.SET_ALL,
                    vsp.EXPORT_STL)
+
+    if alpha_n == 1 and len(alphas) == 1:
+        # A single-point run is a direct solve, not a sweep: return the solved
+        # point as the polar, with no interpolated cruise point.
+        return {"built": built, "polar": polar, "matched": None,
+                "stl": "wing.stl", "solver": "VSPAERO",
+                "solver_version": vsp.GetVSPVersion()}
 
     if len(alphas) < 2 or max(cls) <= min(cls):
         raise RuntimeError(
