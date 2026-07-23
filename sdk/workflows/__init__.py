@@ -68,8 +68,10 @@ def announce_geometry(emit, *, name: str | None = None,
     if emit is None:
         return
     if name:
+        from chief_engineer.display_names import display_name
+
         emit("geometry.ready", {"url": f"/api/geometry?name={name}",
-                                "label": label or name})
+                                "label": label or display_name(name)})
     else:
         value = float(diameter if diameter is not None else 1.0)
         emit("geometry.ready", {"url": f"/api/geometry?diameter={value:.4f}",
