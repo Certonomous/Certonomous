@@ -14,11 +14,12 @@ $env:OPENVSP_RUN_PREFIX = "wsl -d Ubuntu --"
 python -m chief_engineer.server
 ```
 
-Control room: **http://127.0.0.1:8765**. Toggle **presentation mode** for the
-hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
-(fonts up, rails hidden, one large current-action line). Other params:
+Control room: **http://127.0.0.1:8765**. The full three-column layout is the
+hero take on its own. Use the `PACE` chip to switch between READING (a steady
+reading pace) and FAST (replays at the real event timing). Params:
 `?forcelaunch=1` (preview launched layout), `?view=ask|credentials`,
-`?mission=<id>` (replay a finished mission).
+`?mission=<id>` (replay a finished mission), `&static=1` (deterministic still
+capture).
 
 ---
 
@@ -33,7 +34,7 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | Tests green | `cd sdk && python -m unittest discover tests` | all OK |
 | Mesh cache warm (Act 2) | run the motorBike once so the snapped mesh caches under `~/certonomous-runs/.mesh-cache/motorBike`; later runs say "reusing it, skipping the mesh build" | cache present, mesh skipped |
 | Parallel solve (Act 2 slot) | start the server with `CERTONOMOUS_SOLVE_RANKS=6` on the quiet demo box | warm solve fits ~2 min |
-| Presentation mode | open `/?present=1`, confirm the big action line | renders |
+| Pace chip | `PACE` toggles READING ↔ FAST (real event timing) | toggles |
 | Autonomy counter | fresh page → launch → reads `HUMAN TOUCHPOINTS · 1` | 1 |
 | Kill script armed (Act 1) | `ls scripts/kill_worker.sh`; arm slot 3 during Act 1 screening | present |
 | Validation wall | open `/` dormant → wall shows 8 bodies, 4 VALIDATED | renders |
@@ -82,8 +83,10 @@ in the sabotaged run, 0 clean. Arm the marker during the screening phase so slot
 
 Captures in `demo-output/acts/act1/`: `act1_01_launched` (badge, landscape,
 winner ringed, result card), `act1_02_conversation` (Chief Researcher
-method-memo), `act1_03_report` (figures-first report + fidelity chip), `act1_04_present`
-(presentation mode), `act1_05_worker_kill` (kill + reprovision on the wing).
+method-memo), `act1_03_report` (figures-first report + fidelity chip),
+`act1_05_worker_kill` (kill + reprovision on the wing). (The former
+`act1_04_present` presentation-mode still is retired — presentation mode was
+removed; the standard layout is the hero take.)
 
 ---
 

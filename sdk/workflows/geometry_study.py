@@ -373,6 +373,27 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, "reading the force history", "working")
     results = engineer.postprocess(("Cd", "Cl"))
 
+    # Live iteration trace: stream the drag coefficient as the solver marched it,
+    # so the viewer watches Cd being computed through the run and its ±2σ
+    # envelope form and tighten as the solution settles (#7).
+    cd_hist = engineer.histories.get("Cd")
+    if emit and cd_hist and cd_hist["series"]:
+        iters, series = cd_hist["iterations"], cd_hist["series"]
+        n = len(series)
+        step = max(1, n // 40)          # ~40 points across the whole run
+        win = max(5, n // 10)           # rolling window for the live envelope
+        marks = sorted(set(list(range(0, n, step)) + [n - 1]))
+        for i in marks:
+            chunk = series[max(0, i - win + 1):i + 1]
+            m = sum(chunk) / len(chunk)
+            s = (sum((v - m) ** 2 for v in chunk) / (len(chunk) - 1)) ** 0.5 if len(chunk) > 1 else 0.0
+            emit("trace.point", {
+                "series": "Cd_history", "x": round(iters[i], 0),
+                "y": round(series[i], 5), "lo": round(m - 2 * s, 5),
+                "hi": round(m + 2 * s, 5), "x_label": "solver iteration",
+                "y_label": "Cd", "title": "Drag coefficient — solver iteration history",
+                "feasible": True})
+
     # Paint the geometry with the solved pressure field: the money shot is the
     # body shown carrying its own solution, not a bare wireframe.
     roster.set(CHIEF_ENGINEER, "extracting the surface pressure field", "working")

@@ -64,7 +64,7 @@ def main(request: str | None = None, params: dict | None = None,
     run_a = run_ensemble(
         NOMINAL_CYLINDER, {"inlet_velocity": INLET_SIGMA},
         n=n_a, workers=workers, work_root=out / "run-a",
-        run_prefix=RUN_PREFIX, metric="Cd", label="a")
+        run_prefix=RUN_PREFIX, metric="Cd", emit=emit, label="a")
     plot_a = plot_convergence(run_a, out / "run_a_envelope.png",
                               title=f"Run A: {run_a.n} samples")
     announce_plot(emit, "uncertainty-reduction", plot_a, f"First pass: {run_a.n} samples")
@@ -89,7 +89,7 @@ def main(request: str | None = None, params: dict | None = None,
     run_b = run_ensemble(
         NOMINAL_CYLINDER, {"inlet_velocity": INLET_SIGMA},
         n=n_b, workers=workers, work_root=out / "run-b",
-        run_prefix=RUN_PREFIX, metric="Cd", label="b")
+        run_prefix=RUN_PREFIX, metric="Cd", emit=emit, label="b")
     plot_b = plot_convergence(run_b, out / "run_b_envelope.png",
                               title=f"Run B: {run_b.n} samples")
     announce_plot(emit, "uncertainty-reduction", plot_b, f"Second pass: {run_b.n} samples")

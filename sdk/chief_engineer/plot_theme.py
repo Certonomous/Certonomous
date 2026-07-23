@@ -45,6 +45,19 @@ def _pyplot():
     return plt
 
 
+def metric_label(name: str) -> str:
+    """Mathtext axis label for a coefficient name — $C_d$, $C_\\ell$, $L/D$.
+
+    Report figures label their axes in the same typeset math the live canvases
+    and the memo use, never a bare ``Cd`` string.
+    """
+    key = str(name).strip()
+    return {
+        "Cd": r"$C_d$", "Cl": r"$C_\ell$", "CD": r"$C_D$", "CL": r"$C_L$",
+        "L_D": r"$L/D$", "LD": r"$L/D$", "cd": r"$C_d$", "cl": r"$C_\ell$",
+    }.get(key, key)
+
+
 def style_axes(ax, xlabel: str, ylabel: str, title: str) -> None:
     ax.set_xlabel(xlabel, color=INK, fontsize=13)
     ax.set_ylabel(ylabel, color=INK, fontsize=13)
