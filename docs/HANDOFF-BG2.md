@@ -28,7 +28,9 @@ OPENFOAM_RUN_PREFIX="wsl -d Ubuntu -- openfoam2606" OPENVSP_RUN_PREFIX="wsl -d U
   --ledger ../demo-output/website/mega-batch/ledger.jsonl \
   --work-root ../demo-output/website/mega-batch/work --workers 4 --max-seconds 39600
 ```
-Background task id `bypb2op7j`; live log at `demo-output/website/mega-batch/run.log`.
+Background task id `bypb2op7j`; OS PID **26216** (may recycle — match by
+`CommandLine -like '*mega_batch*'`); live log at
+`demo-output/website/mega-batch/run.log`.
 **To stop gracefully:** `New-Item demo-output/website/mega-batch/STOP` (finishes
 in-flight solves, then exits). **To resume/relaunch:** re-run the command (or the
 `.ps1` driver) — it picks up from the ledger.
