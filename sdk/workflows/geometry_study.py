@@ -454,19 +454,52 @@ def main(request: str | None = None, params: dict | None = None,
     else:
         verdict = trust(relative_error=relative, converged=True,
                         in_validated_regime=gate_ok, calibrated=skew_ok, why=why)
+    # Stored UQ studies (refinement ladder, closure trio) populate the
+    # numerical and model channels when their setup fingerprint matches this
+    # mission; a mismatch says "study pending", never a stale band.
+    from chief_engineer import uq as uq_studies
+    if familiar:
+        study_fp = uq_studies.setup_fingerprint(
+            body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
+            velocity=20.0, refinement="tutorial-5-6", iterations=iterations)
+    else:
+        study_fp = uq_studies.setup_fingerprint(
+            body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
+            velocity=float(params.get("velocity", 100.0)),
+            refinement=int(params.get("refinement", 3)),
+            iterations=iterations)
+    lookup = uq_studies.channels_for(label, study_fp)
+    numerical_val = model_val = None
+    numerical_note = ("one mesh only — discretization error not separated; a "
+                      "grid-refinement study is the marked next step")
+    model_note = "kOmegaSST closure error not estimated for this body"
+    if lookup["numerical"]:
+        numerical_val = lookup["numerical"]["band_abs"]
+        numerical_note = lookup["numerical"]["method"]
+        if lookup["provenance"]:
+            numerical_note += f"; study {', '.join(lookup['provenance'][:3])}"
+    elif lookup["pending"]:
+        numerical_note = ("study pending: no matching refinement study for "
+                          "this setup")
+    if lookup["model"]:
+        model_val = lookup["model"]["band_abs"]
+        model_note = lookup["model"]["method"]
     channels = uncertainty_channels(
-        input_2sigma=2 * drag['sigma'], numerical=None, model=None,
+        input_2sigma=2 * drag['sigma'], numerical=numerical_val,
+        model=model_val,
         input_note="the ± band is the statistical spread of the solved force "
                    "over the averaging window — settled-state scatter; "
                    "freestream speed and fluid properties are taken as "
                    "specified exactly",
-        numerical_note="one mesh only — discretization error not separated; a "
-                       "grid-refinement study is the marked next step",
-        model_note="kOmegaSST closure error not estimated for this body")
+        numerical_note=numerical_note,
+        model_note=model_note)
+    combined = uq_studies.combine_expanded(
+        input_2sigma=2 * drag['sigma'], numerical_abs=numerical_val,
+        model_abs=model_val)["combined_95"]
     if emit:
         emit("result.verdict", {"quantity": "Drag coefficient",
                                 "value": f"{drag['value']:.4g}",
-                                "ci": f"{2 * drag['sigma']:.2g}",
+                                "ci": f"{(combined if combined else 2 * drag['sigma']):.2g}",
                                 "confidence": "95%",
                                 "envelope": f"over the final {drag['window']} iterations",
                                 **verdict})

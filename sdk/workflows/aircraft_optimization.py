@@ -518,20 +518,36 @@ def main(request: str | None = None, params: dict | None = None,
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).
     ci95 = winner_ci95(best, reqs, polar=best.get("_polar"))
+    # Stored anchors study: sizing-model deviation at the solved finalists
+    # feeds the model channel when its fingerprint matches this configuration.
+    from chief_engineer import uq as uq_studies
+    anchors = uq_studies.channels_for(
+        "airliner-wing",
+        uq_studies.setup_fingerprint(body="airliner-wing", solver="vspaero",
+                                     closure="vortex-lattice", velocity=230.0,
+                                     refinement=None, iterations=None))
+    model_band = (anchors["model"]["band_abs"] if anchors["model"] else None)
     input_note = (
         "Monte-Carlo over the stated payload-mass and non-wing-drag spreads; "
         "requirements are held as exact specification, and the remaining "
         "sizing constants (SFC, fuel fraction, cruise altitude) are fixed")
     if won_solved:
+        model_note = ("wing induced and viscous drag are solved (vortex "
+                      "lattice); fuselage, tail, and nacelle parasite drag "
+                      "remain a component buildup")
+        if model_band is not None:
+            model_note = (f"{anchors['model']['method']} "
+                          f"({len(anchors['model'].get('members', {}))} solved "
+                          f"anchors); non-wing drag remains a component buildup")
         channels = uncertainty_channels(
-            input_2sigma=round(ci95, 2), numerical=None, model=None,
+            input_2sigma=round(ci95, 2),
+            numerical=None,
+            model=None if model_band is None else round(model_band, 3),
             input_note=input_note,
             numerical_note="the design grid is discrete — the true optimum lies "
                            "between grid points; the vortex-lattice polar itself "
                            "is converged at the solved panel density",
-            model_note="wing induced and viscous drag are solved (vortex "
-                       "lattice); fuselage, tail, and nacelle parasite drag "
-                       "remain a component buildup")
+            model_note=model_note)
     else:
         channels = uncertainty_channels(
             input_2sigma=round(ci95, 2), numerical=None, model=None,
@@ -560,10 +576,15 @@ def main(request: str | None = None, params: dict | None = None,
         verdict = trust(
             converged=True, solver_backed=False,
             why="drag-polar sizing model; no solve behind the magnitude")
+    headline_ci = ci95
+    if won_solved and model_band is not None:
+        headline_ci = uq_studies.combine_expanded(
+            input_2sigma=ci95, numerical_abs=None,
+            model_abs=model_band)["combined_95"]
     if emit:
         emit("result.verdict", {"quantity": "Best feasible L/D",
                                 "value": f"{best_ld:.1f}",
-                                "ci": f"{ci95:.1f}", "confidence": "95%",
+                                "ci": f"{headline_ci:.1f}", "confidence": "95%",
                                 "envelope": ("solved wing + stated buildup"
                                              if won_solved else
                                              "sizing-model estimate"), **verdict})
@@ -608,7 +629,7 @@ def main(request: str | None = None, params: dict | None = None,
     abstract = [
         f"We searched a {len(grid)}-wing design space for the highest cruise "
         f"L/D meeting the stated mission requirements.",
-        f"The best feasible wing reaches L/D {best_ld:.1f} ± {ci95:.1f} (95%) "
+        f"The best feasible wing reaches L/D {best_ld:.1f} ± {headline_ci:.1f} (95%) "
         f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
         f"{n_infeasible} designs were infeasible on low-speed or range.",
         ("The winner stands on a solved wing polar with a stated non-wing "
@@ -634,7 +655,7 @@ def main(request: str | None = None, params: dict | None = None,
         methods=methods,
         results=[{
             "quantity": "Best feasible L/D",
-            "value": f"{best_ld:.1f} ± {ci95:.1f} (95%)",
+            "value": f"{best_ld:.1f} ± {headline_ci:.1f} (95%)",
             "envelope": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}, "
                         f"range {best['range_km']:.0f} km",
             **verdict,

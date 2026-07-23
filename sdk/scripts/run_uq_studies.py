@@ -446,20 +446,19 @@ def valve_studies() -> None:
     systole = T_CYCLE / 3.0          # half-sine ejection window
 
     def cycle_loss(k: int, cd: float) -> float:
-        """k-segment quadrature of the half-sine ejection, volume-weighted,
-        mirroring the act's 3-point construction (equal-time segments,
-        segment-mean flow, stroke-volume-fraction weights)."""
+        """k-segment quadrature of the half-sine ejection, mirroring the
+        act's exact construction: flows sampled at segment MIDPOINTS,
+        weighted by each segment's stroke-volume fraction. k = 3 reproduces
+        the act's phase_points() to machine precision."""
         total = 0.0
-        volume_total = 2.0 * Q_PEAK * systole / math.pi
+        raw = [(math.cos(math.pi * i / k) - math.cos(math.pi * (i + 1) / k))
+               / math.pi for i in range(k)]
+        weights = [r / sum(raw) for r in raw]
         for i in range(k):
-            t0, t1 = systole * i / k, systole * (i + 1) / k
-            seg_volume = Q_PEAK * systole / math.pi * (
-                math.cos(math.pi * t0 / systole)
-                - math.cos(math.pi * t1 / systole))
-            q_mean = seg_volume / (t1 - t0)
-            weight = seg_volume / volume_total
-            v = q_mean / max(cd * area, 1e-9)
-            total += weight * 0.5 * RHO_BLOOD * v * v
+            tau_mid = (i + 0.5) / k
+            q = Q_PEAK * math.sin(math.pi * tau_mid)
+            v = q / max(cd * area, 1e-9)
+            total += weights[i] * 0.5 * RHO_BLOOD * v * v
         return total
 
     # Quadrature ladder: the numerical channel of the screen is the cycle

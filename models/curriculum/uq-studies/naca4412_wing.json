@@ -1,0 +1,13 @@
+{
+  "body": "naca4412_wing",
+  "levels": [
+    {
+      "cells": 67826,
+      "cd": 0.02892,
+      "mission": "uq-naca4412_wing-r1",
+      "refinement": 1,
+      "wall_minutes": 1.7
+    }
+  ],
+  "updated_utc": "2026-07-23T06:11:20Z"
+}

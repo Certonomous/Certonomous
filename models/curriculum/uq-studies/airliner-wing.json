@@ -1,0 +1,32 @@
+{
+  "body": "airliner-wing",
+  "fingerprint": "6b7c1d7bbb0f655a",
+  "model": {
+    "band_abs": 1.596,
+    "method": "model-form vs solver anchors",
+    "members": {
+      "span46-area240": -1.571,
+      "span64-area300": -1.281,
+      "span58-area300": -1.354,
+      "span52-area300": -1.596,
+      "span64-area360": -1.31,
+      "span58-area360": -1.43
+    },
+    "screening_estimate": true
+  },
+  "provenance": [
+    "wing-area240-re_cref3.18881e+07-span46-sweep27.5",
+    "wing-area240-span46-sweep27.5",
+    "wing-area300-re_cref2.86495e+07-span64-sweep27.5",
+    "wing-area300-re_cref3.16132e+07-span58-sweep27.5",
+    "wing-area300-re_cref3.52609e+07-span52-sweep27.5",
+    "wing-area300-span52-sweep27.5",
+    "wing-area300-span58-sweep27.5",
+    "wing-area300-span64-sweep27.5",
+    "wing-area360-re_cref3.43794e+07-span64-sweep27.5",
+    "wing-area360-re_cref3.79359e+07-span58-sweep27.5",
+    "wing-area360-span58-sweep27.5",
+    "wing-area360-span64-sweep27.5"
+  ],
+  "updated_utc": "2026-07-23T06:08:13Z"
+}

@@ -294,15 +294,42 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Winner: {best['angle']:g}° at {best['objective']:.0f} ± "
         f"{best['band']:.0f} Pa. "
         f"• Widest admissible orifice — exactly what orifice physics predicts.")
+    # Stored valve studies: the phase-quadrature ladder fills the numerical
+    # channel and the correlation-family spread fills the model channel when
+    # the fingerprint matches this screen's setup.
+    from chief_engineer import uq as uq_studies
+    lookup = uq_studies.channels_for(
+        "aortic-valve",
+        uq_studies.setup_fingerprint(body="aortic-valve",
+                                     solver="reduced-order-orifice",
+                                     closure="orifice-correlation",
+                                     velocity=None, refinement=3,
+                                     iterations=None))
+    numerical_val = (lookup["numerical"]["band_abs"]
+                     if lookup["numerical"] else None)
+    numerical_note = ("the cycle is sampled at three phase points; "
+                      "between-phase structure is not resolved")
+    if lookup["numerical"]:
+        numerical_note = lookup["numerical"]["method"]
+    elif lookup["pending"]:
+        numerical_note = "study pending: no matching quadrature study"
+    model_val = lookup["model"]["band_abs"] if lookup["model"] else None
+    model_note = ("reduced-order orifice model, not a solved flow; "
+                  "phase-interaction neglected (alpha ~ %.0f, inertially "
+                  "unsteady); leaflets fixed, not moving; Newtonian blood "
+                  "approximation" % alpha)
+    if lookup["model"]:
+        model_note = (f"{lookup['model']['method']}; unmodeled: "
+                      + ", ".join(lookup["model"].get("unmodeled", [])))
     channels = uncertainty_channels(
-        input_2sigma=best["band"], numerical=None, model=None,
+        input_2sigma=best["band"], numerical=numerical_val, model=model_val,
         input_note="2-sigma Monte-Carlo envelope propagated from the spread in "
                    "phase flow-rate and the orifice discharge coefficient",
-        numerical_note="the cycle is sampled at three phase points — between-phase "
-                       "structure is not resolved",
-        model_note="reduced-order orifice model, not a solved flow; phase-interaction "
-                    "neglected (alpha ~ %.0f, inertially unsteady); leaflets fixed, "
-                    "not moving; Newtonian blood approximation" % alpha)
+        numerical_note=numerical_note,
+        model_note=model_note)
+    combined = uq_studies.combine_expanded(
+        input_2sigma=best["band"], numerical_abs=numerical_val,
+        model_abs=model_val)["combined_95"]
     if emit:
         emit("uncertainty.channels", channels)
     script.researcher(
@@ -315,7 +342,7 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("result.verdict", {"quantity": "Cycle-weighted pressure loss",
                                 "value": f"{best['objective']:.0f}",
-                                "ci": f"{best['band']:.0f} Pa",
+                                "ci": f"{(combined if combined else best['band']):.0f} Pa",
                                 "confidence": "95%",
                                 "envelope": f"at opening {best['angle']:g} deg",
                                 **verdict})
@@ -343,7 +370,8 @@ def main(request: str | None = None, params: dict | None = None,
             "Per-phase pressure loss from a reduced-order orifice model; cycle-weighted "
             "objective with a Monte-Carlo input envelope; minimum-orifice constraint."],
         results=[{"quantity": "Cycle-weighted pressure loss",
-                  "value": f"{best['objective']:.0f} ± {best['band']:.0f} Pa (95%)",
+                  "value": f"{best['objective']:.0f} ± "
+                           f"{(combined if combined else best['band']):.0f} Pa (95%)",
                   "envelope": f"at opening {best['angle']:g} deg",
                   **verdict}],
         uncertainty=[
