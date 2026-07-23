@@ -286,7 +286,8 @@ class Handler(BaseHTTPRequestHandler):
         self._write_json(200, [manifest.as_dict() for manifest in _registry().manifests()])
 
     def _serve_geometry(self, query) -> None:
-        from .geometry import cylinder_surface, load_surface, wing_surface
+        from .geometry import (cylinder_surface, load_surface, valve_surface,
+                               wing_surface)
 
         name = (query.get("name") or [""])[0]
         try:
@@ -297,6 +298,8 @@ class Handler(BaseHTTPRequestHandler):
                     self._fail(404, "unknown geometry")
                     return
                 payload = load_surface(target)
+            elif query.get("valve_angle"):
+                payload = valve_surface(float((query.get("valve_angle") or ["60"])[0]))
             elif query.get("span"):
                 payload = wing_surface(
                     float((query.get("span") or ["40"])[0]),

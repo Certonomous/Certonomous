@@ -20,13 +20,15 @@ No clinical claim is made anywhere; the outputs are engineering curves only.
 from __future__ import annotations
 
 import math
+import os
 import time
 from pathlib import Path
 
 import yaml
 
-from . import OUT_ROOT, make_transcript
+from . import OUT_ROOT, announce_plot, make_transcript
 from chief_engineer.compute_audit import audit
+from chief_engineer.plot_theme import waveform_figure
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
@@ -40,10 +42,13 @@ import sys
 if str(_VALVE) not in sys.path:
     sys.path.insert(0, str(_VALVE))
 from waveform import (phase_points, womersley, RHO_BLOOD, Q_PEAK,  # noqa: E402
-                      T_CYCLE, NU_BLOOD)
+                      T_CYCLE, T_SYSTOLE, NU_BLOOD)
 from generate_valve import effective_orifice_area, ROOT_RADIUS  # noqa: E402
 
 CANDIDATE_ANGLES = (35.0, 50.0, 65.0, 80.0)   # 4 candidates
+# Backend pacing: the four candidate valves visibly cycle in the viewport as
+# each is screened (paces the PATH, never the numbers). Off in CI via env.
+_PACE_S = float(os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "550")) / 1000.0
 DISCHARGE_COEFF = 0.62                          # sharp-orifice discharge coefficient
 MIN_ORIFICE_AREA = 1.6e-4                        # constraint floor, m^2 (~160 mm^2)
 MC_SAMPLES = 200                                 # Monte-Carlo envelope draws
@@ -200,21 +205,47 @@ def main(request: str | None = None, params: dict | None = None,
         "• A real internal-flow solve is the marked plug-in point. "
         "• Ranks angles, screens the trade; grade: CONCEPTUAL MODEL.")
 
+    # The systolic waveform figure — the k=3 weighted phase points on the pulse
+    # the study decomposes. Publication-grade, GUI-themed; reports lead with it.
+    wave_png = waveform_figure(
+        out / "systolic_waveform.png", phases, q_peak=Q_PEAK, t_systole=T_SYSTOLE,
+        t_cycle=T_CYCLE, alpha=alpha,
+        title="Idealized systolic waveform — three weighted phase points")
+    if wave_png:
+        announce_plot(emit, "valve-study", wave_png,
+                      "Systolic waveform — the three weighted phase points solved")
+
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "screening the phase points", "working")
-    roster.set_workers(min(capacity.capacity, n_solves), "phase evaluations")
+    granted = min(capacity.capacity, n_solves)
+    roster.set_workers(granted, "phase evaluations")
     results = []
     if emit:
         emit("objective.spec", {"metric": "cycle_pressure_loss", "direction": "min"})
     eval_started = time.time()
-    for angle in CANDIDATE_ANGLES:
+    trace_x, trace_y, trace_lo, trace_hi = [], [], [], []
+    for slot, angle in enumerate(CANDIDATE_ANGLES):
+        if emit:
+            # The dispatch panel watches this slot pick up the candidate.
+            emit("dispatch.update", {"slot": slot, "state": "solving",
+                                     "label": f"opening {angle:g}°",
+                                     "detail": "phase decomposition"})
+            # The candidate valve appears in the viewport as the surface it is —
+            # the orifice visibly pinches or opens with the angle.
+            emit("geometry.ready", {
+                "url": f"/api/geometry?valve_angle={angle:g}",
+                "label": f"candidate valve — opening {angle:g}°"})
+        if _PACE_S:
+            time.sleep(_PACE_S)
         area = effective_orifice_area(angle)
         per_phase = [(p.name, _phase_pressure_loss(p.flow_rate, area)) for p in phases]
         obj, band = _mc_envelope(angle, phases)
         feasible = area >= MIN_ORIFICE_AREA
         results.append({"angle": angle, "area": area, "objective": obj,
                         "band": band, "feasible": feasible, "per_phase": per_phase})
+        trace_x.append(angle); trace_y.append(obj)
+        trace_lo.append(obj - band); trace_hi.append(obj + band)
         if emit:
             emit("landscape.point", {
                 "design": {"opening_angle_deg": round(angle, 1),
@@ -222,6 +253,17 @@ def main(request: str | None = None, params: dict | None = None,
                 "metrics": {"cycle_pressure_loss": round(obj, 1)},
                 "objective": round(obj, 1), "direction": "min",
                 "feasible": feasible})
+            # Live objective trace — the cycle-weighted loss curve grows as each
+            # candidate lands, envelope forming in real time.
+            emit("trace.point", {
+                "series": "cycle_pressure_loss", "x": round(angle, 1),
+                "y": round(obj, 1), "lo": round(obj - band, 1),
+                "hi": round(obj + band, 1),
+                "x_label": "opening angle [deg]", "y_label": "cycle loss [Pa]",
+                "title": "Cycle-weighted pressure loss", "feasible": feasible})
+            emit("dispatch.update", {"slot": slot, "state": "done",
+                                     "label": f"opening {angle:g}°",
+                                     "detail": f"{obj:.0f} Pa"})
         script.engineer(
             f"• Opening {angle:g}° → orifice {area*1e6:.0f} mm², loss "
             f"{obj:.0f} ± {band:.0f} Pa"
@@ -240,6 +282,13 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
+    if emit:
+        # The winning valve stays on screen after the run — the render the
+        # viewer reads the report beside.
+        emit("geometry.ready", {
+            "url": f"/api/geometry?valve_angle={best['angle']:g}",
+            "label": f"winning valve — opening {best['angle']:g}°, "
+                     f"{best['objective']:.0f} Pa"})
     script.engineer(
         f"• {len(feasible)} of {len(results)} candidates clear the orifice floor. "
         f"• Winner: {best['angle']:g}° at {best['objective']:.0f} ± "

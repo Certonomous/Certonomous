@@ -1,5 +1,6 @@
 """Aircraft L/D optimization: requirement parsing, sizing, and routing (#1)."""
 
+import os
 import unittest
 
 from chief_engineer.router import AIRCRAFT_OPTIMIZATION, classify
@@ -52,6 +53,10 @@ class SizingModelTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def setUp(self):
+        # Keep CI fast: the on-camera pacing (~120 ms/candidate) is off in tests.
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+
     def test_main_runs_and_reports_a_feasible_optimum(self):
         events = {}
         verdict = {}
@@ -68,6 +73,9 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(events.get("report.ready"), 1)
         self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
         self.assertNotEqual(verdict.get("value"), "none")
+        # The dispatch panel and the live trace are fed as the grid is screened.
+        self.assertGreater(events.get("dispatch.update", 0), 20)
+        self.assertGreater(events.get("trace.point", 0), 0)
 
     def test_router_sends_aircraft_ld_prompts_here(self):
         route = classify("optimize the lift-to-drag of this airplane for 250 passengers")

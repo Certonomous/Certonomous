@@ -19,6 +19,7 @@ solved and which were modelled, and the tier is capped accordingly.
 from __future__ import annotations
 
 import math
+import os
 import re
 import shutil
 import time
@@ -56,6 +57,10 @@ _N_FINALISTS = 6         # feasible designs promoted to real solves
 # the aleatory inputs the sizing rests on; they are declared, not discovered.
 _SIGMA_PAYLOAD = 0.025   # passenger + baggage mass, ±5% at 2-sigma
 _SIGMA_CD0_NONWING = 0.04  # non-wing parasite buildup, ±8% at 2-sigma
+# Backend pacing so the landscape points and the candidate wing in the viewport
+# visibly land one by one — the viewer watches the screen fill. Paces the PATH,
+# never the numbers; disabled in CI via CERTONOMOUS_SWEEP_PACE_MS=0.
+_PACE_S = float(os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "120")) / 1000.0
 
 
 def _interp_polar(polar: dict, key: str, cl: float) -> float:
@@ -293,13 +298,21 @@ def main(request: str | None = None, params: dict | None = None,
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "sizing the design space", "working")
-    roster.set_workers(min(capacity.capacity, len(grid)), "sizing wings")
+    n_slots = min(capacity.capacity, len(grid))
+    roster.set_workers(n_slots, "sizing wings")
     results = []
     screen_started = time.time()
-    for span, area, sweep in grid:
+    best_ld_so_far = None
+    for idx, (span, area, sweep) in enumerate(grid):
+        slot = idx % n_slots
         r = evaluate_design(span, area, sweep, reqs)
         results.append(r)
         if emit:
+            # The dispatch panel watches this slot pick the candidate up, then
+            # report it done — the fleet is visibly working through the grid.
+            emit("dispatch.update", {"slot": slot, "state": "solving",
+                                     "label": f"span {r['span']:.0f} m / {r['area']:.0f} m²",
+                                     "detail": "conceptual sizing"})
             emit("landscape.point", {"design": {"span": r["span"], "wing_area": r["area"]},
                                      "metrics": {"L_D": r["L_D"]}, "feasible": r["feasible"],
                                      "why": r["violations"] or None})
@@ -310,6 +323,21 @@ def main(request: str | None = None, params: dict | None = None,
                         f"&sweep={r['sweep_deg']:g}&taper={_TAPER:g}"),
                 "label": f"candidate wing — span {r['span']:.0f} m, "
                          f"area {r['area']:.0f} m²"})
+            # Live best-feasible-L/D trace — the running optimum climbs on screen.
+            if r["feasible"]:
+                best_ld_so_far = (r["L_D"] if best_ld_so_far is None
+                                  else max(best_ld_so_far, r["L_D"]))
+                emit("trace.point", {
+                    "series": "best_L_D", "x": idx + 1, "y": round(best_ld_so_far, 3),
+                    "x_label": "candidates screened", "y_label": "best feasible L/D",
+                    "title": "Best feasible L/D — running optimum", "feasible": True})
+        if _PACE_S:
+            time.sleep(_PACE_S)
+        if emit:
+            emit("dispatch.update", {"slot": slot, "state": "done",
+                                     "label": f"span {r['span']:.0f} m / {r['area']:.0f} m²",
+                                     "detail": (f"L/D {r['L_D']:.1f}" if r["feasible"]
+                                                else "infeasible")})
     screen_elapsed = time.time() - screen_started
     ledger.spend(len(grid) * 0.02, f"{len(grid)} conceptual sizing evaluations")
     roster.set_workers(0)
@@ -360,11 +388,24 @@ def main(request: str | None = None, params: dict | None = None,
             "re_cref": (_RHO_CRUISE * _V_CRUISE
                         * (f["area"] / f["span"]) / _MU_CRUISE),
         } for f in finalists]
+        if emit:
+            # Each finalist takes a worker slot for a real vortex-lattice solve —
+            # the dispatch panel shows the whole fan-out solving at once.
+            for slot, f in enumerate(finalists):
+                emit("dispatch.update", {"slot": slot, "state": "solving",
+                                         "label": f"finalist span {f['span']:.0f} m",
+                                         "detail": "vortex-lattice solve"})
         started = time.time()
         batch = api.evaluate_many(
             designs, max_workers=min(capacity.capacity, len(designs)))
         elapsed = time.time() - started
         roster.set_workers(0)
+        if emit:
+            for slot, (f, result) in enumerate(zip(finalists, batch)):
+                emit("dispatch.update", {
+                    "slot": slot, "state": "done" if result else "lost",
+                    "label": f"finalist span {f['span']:.0f} m",
+                    "detail": "solved" if result else "no polar"})
         ledger.spend(elapsed * len(finalists),
                      f"{len(finalists)} vortex-lattice wing solves")
         script.engineer(
