@@ -366,6 +366,16 @@ def main(request: str | None = None, params: dict | None = None,
         RUN_PREFIX[:-1] if RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
         field="p", name=label)
     if painted:
+        # The field URL is /api/field/geometry-study/<file>, served from the
+        # beat's output root — so the painted JSON has to live directly under
+        # `out`, not in the per-case subdirectory the solve wrote it to (the same
+        # copy-to-out step the envelope plots already take).
+        served = out / Path(painted).name
+        try:
+            served.write_bytes(Path(painted).read_bytes())
+            painted = str(served)
+        except OSError:
+            pass
         announce_field(emit, "geometry-study", painted,
                        f"{label} — surface pressure from the solve")
         script.engineer(
