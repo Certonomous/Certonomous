@@ -68,7 +68,7 @@ def main(request: str | None = None, params: dict | None = None,
                   f"Request: drag for this case within {deadline:.0f} minutes.")
     script.engineer(
         f"• {deadline:.0f}-minute budget rules out the mesh I would choose. "
-        f"• Proposing ~600 cells — meets the clock, carries a known bias. "
+        f"• Proposing ~600 cells: meets the clock, carries a known bias. "
         f"• Re = {reynolds:.0f}; requesting a closure ruling before reporting.",
         citations=(f"{KNOWLEDGE} #2 (coarse-grid bias measured at 1.6%)",))
 
@@ -115,14 +115,14 @@ def main(request: str | None = None, params: dict | None = None,
                                     "value": f"{corrected:.4g}",
                                     "envelope": "±0.01", **verdict})
         script.engineer(
-            f"• VERDICT — {decision.uncertainty_language} "
+            f"• VERDICT: {decision.uncertainty_language} "
             f"• Cd = {corrected:.4g} ± 0.01, inside the {deadline:.0f}-minute "
             f"deadline.", verdict=verdict)
     else:
         # ---------------- Rejected: widen, then measure the uncertainty ----------
         script.engineer(
-            f"• Closure refused — the number will not be dressed up. "
-            f"• VERDICT — {decision.uncertainty_language}")
+            f"• Closure refused: the number will not be dressed up. "
+            f"• VERDICT: {decision.uncertainty_language}")
         script.engineer(
             "• Running the ordered diagnostics. "
             "• Measured uncertainty beats uncertainty I can only warn about.")
@@ -134,7 +134,7 @@ def main(request: str | None = None, params: dict | None = None,
         script.engineer(
             f"• Grid difference {int(coarse['cell_count'])}→{int(probe['cell_count'])} "
             f"cells: Cd {coarse['Cd']:.4g}→{probe['Cd']:.4g}, {grid_percent:.1f}% shift. "
-            f"• A difference, not a verified uncertainty — two meshes cannot give one.",
+            f"• A difference, not a verified uncertainty; two meshes cannot give one.",
             citations=(f"{KNOWLEDGE} #2 (grid convergence method)",))
         script.numericist(
             f"• A real numerical uncertainty needs refined grids and a fitted "
@@ -146,10 +146,10 @@ def main(request: str | None = None, params: dict | None = None,
         unsteady = oscillation > 1e-3
         script.engineer(
             f"• Oscillation diagnostic: {oscillation:.2g}. "
-            + ("• Steady solver is suppressing real shedding — the value is a "
+            + ("• Steady solver is suppressing real shedding: the value is a "
                "branch, not an average."
                if unsteady else
-               "• History flat — the steady solver is at least self-consistent."),
+               "• History flat: the steady solver is at least self-consistent."),
             citations=(f"{KNOWLEDGE} #3 (convergence ≠ physical validity)",))
 
         verdict = trust(relative_error=grid_delta / max(abs(probe["Cd"]), 1e-9),
@@ -160,7 +160,7 @@ def main(request: str | None = None, params: dict | None = None,
              {"label": f"refinement probe, {int(probe['cell_count'])} cells",
               "value": probe["Cd"], "band": grid_delta, "tier": verdict["tier"]}],
             out / "grid_sensitivity.png",
-            title="Grid-sensitivity probe — the discretization band, measured")
+            title="Grid-sensitivity probe: the discretization band, measured")
         announce_plot(emit, "time-constrained", panel,
                       "Grid-sensitivity probe with measured band")
         if emit:
@@ -168,9 +168,9 @@ def main(request: str | None = None, params: dict | None = None,
                                     "value": f"{probe['Cd']:.4g}",
                                     "envelope": f"±{grid_delta:.2g}", **verdict})
         script.engineer(
-            f"• FINAL — Cd = {probe['Cd']:.4g}, grid difference ±{grid_delta:.2g} "
-            f"({grid_percent:.1f}%) — a measured difference, not a verified bound. "
-            f"• Re = {reynolds:.0f} is past the validated steady limit 47 — regime "
+            f"• FINAL: Cd = {probe['Cd']:.4g}, grid difference ±{grid_delta:.2g} "
+            f"({grid_percent:.1f}%), a measured difference, not a verified bound. "
+            f"• Re = {reynolds:.0f} is past the validated steady limit 47, regime "
             f"error unquantified. "
             f"• Direction usable; the magnitude carries the stated grid difference. "
             f"• An unsteady run is the first buy with more time.", verdict=verdict)

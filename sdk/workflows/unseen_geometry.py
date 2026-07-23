@@ -50,13 +50,13 @@ def main(request: str | None = None, params: dict | None = None,
     out = OUT_ROOT / "unseen-geometry"
     out.mkdir(parents=True, exist_ok=True)
     target = TARGETS[target_key]
-    script = make_transcript(f"part 3 — unseen geometry ({target_key})", emit)
+    script = make_transcript(f"part 3: unseen geometry ({target_key})", emit)
 
     script.system(request or
                   f"Request: what drag should I expect for {target['label']}? "
                   f"We have never run this geometry.")
     script.engineer(
-        "• This geometry is not in case memory — no number will be quoted. "
+        "• This geometry is not in case memory, so no number will be quoted. "
         "• Retrieving the nearest cases we have actually solved.")
 
     matches = retrieve(
@@ -66,15 +66,15 @@ def main(request: str | None = None, params: dict | None = None,
 
     for match in matches:
         script.engineer(
-            f"• {match.case.name} (score {match.score:.2f}) — {match.case.results}",
+            f"• {match.case.name} (score {match.score:.2f}): {match.case.results}",
             citations=(match.case.source,))
 
     nearest = matches[0]
     if nearest.case.name.startswith("motorbike"):
         announce_geometry(emit, name="motorBike.obj",
-                          label="nearest solved case — motorBike")
+                          label="nearest solved case, motorBike")
     script.researcher(
-        f"• Nearest neighbour: {nearest.case.name} — weak support, stated precisely. "
+        f"• Nearest neighbour: {nearest.case.name}, weak support, stated precisely. "
         f"• Shared: {', '.join(nearest.shared) or 'little'}. "
         f"• Differing: {'; '.join(nearest.differing) or 'nothing material'}.",
         citations=(nearest.case.source,))
@@ -82,31 +82,31 @@ def main(request: str | None = None, params: dict | None = None,
     # ---- What transfers, what does not: stated as claims, not numbers ----
     if target["body_type"] == "streamlined":
         script.researcher(
-            "• Transfers: the methodology — converged, envelope-bounded Cd "
+            "• Transfers: the methodology, converged, envelope-bounded Cd "
             "on 3D external aero. "
             "• Known mesh-quality band (non-ortho 65, skew 8.94). Process confidence.",
             citations=(f"{KNOWLEDGE} #7 (motorBike benchmark)",))
         script.researcher(
-            "• Does NOT transfer: the coefficient — memory is all bluff bodies. "
+            "• Does NOT transfer: the coefficient, memory is all bluff bodies. "
             "• Streamlined drag is friction-dominated; our records are pressure-dominated. "
             "• Interpolating a magnitude would be inventing evidence.",
             citations=(f"{KNOWLEDGE} #1 (cylinder benchmark, bluff)",))
-        gap = ("attached-flow drag decomposition — we have never validated a "
+        gap = ("attached-flow drag decomposition; we have never validated a "
                "skin-friction-dominated case")
         cheapest = ("a single 2D airfoil run at one angle of attack, meshed with "
                     "the same chain, checked against published section data")
     else:
         script.researcher(
-            "• Transfers: the regime warning — above Re ≈ 47 steady converges "
+            "• Transfers: the regime warning, above Re ≈ 47 steady converges "
             "onto an unphysical branch. "
-            "• Cd 1.181 where the physical time-average is 1.3–1.4. "
+            "• Cd 1.181 where the physical time-average is 1.3-1.4. "
             "• A sphere at Re 200 is the same trap, one dimension up.",
             citations=(f"{KNOWLEDGE} #3, #4 (unstable branch, degradation)",))
         script.researcher(
             "• Does NOT transfer: the 2D magnitudes. "
-            "• 3D relief changes separation and shedding — neither measured.",
+            "• 3D relief changes separation and shedding; neither measured.",
             citations=(f"{KNOWLEDGE} #1",))
-        gap = "3D unsteady wake behaviour — no unsteady solver track exists yet"
+        gap = "3D unsteady wake behaviour, no unsteady solver track exists yet"
         cheapest = ("a pimpleFoam sphere run at Re 200 with time-averaged "
                     "coefficients, compared against the standard drag correlation")
 
@@ -119,7 +119,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"• One solve converts opinion into a citable case-memory record.",
         citations=(f"{LESSONS_FILE} L-001",))
     script.researcher(
-        "• Agreed — approve that single run before any sweep. "
+        "• Agreed: approve that single run before any sweep. "
         "• A sweep on an unvalidated magnitude multiplies error, not information.")
 
     script.save(out / "transcript.txt")

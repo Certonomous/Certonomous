@@ -85,7 +85,7 @@ def select_runs(baseline: dict[str, float],
     budget = max(1, int(capacity))
     runs: list[SelectedRun] = [SelectedRun(
         "anchor", dict(baseline),
-        "Incumbent design — anchors the surrogate and gives every later run a "
+        "Incumbent design, anchors the surrogate and gives every later run a "
         "reference to be compared against.",
     )]
 
@@ -124,7 +124,7 @@ def select_runs(baseline: dict[str, float],
         midpoint = (float(spec.minimum) + float(spec.maximum)) / 2
         runs.append(SelectedRun(
             f"{spec.name}-interior", {**baseline, spec.name: midpoint},
-            f"Interior point on {spec.name} — three levels are the minimum that "
+            f"Interior point on {spec.name}: three levels are the minimum that "
             f"can distinguish curvature from a straight line, which decides "
             f"whether the ensemble may extrapolate or must stay inside the hull.",
         ))
@@ -192,7 +192,7 @@ class ClosureDecision:
     def headline(self) -> str:
         verdict = "APPROVED" if self.approved else "REJECTED"
         model = f" [{self.model.name}]" if self.model else ""
-        return f"Closure {verdict}{model} — {self.rationale}"
+        return f"Closure {verdict}{model}: {self.rationale}"
 
 
 def approve_closure(*, geometry: str, flow: str, reynolds: float,
@@ -226,7 +226,7 @@ def approve_closure(*, geometry: str, flow: str, reynolds: float,
                     "to detect unsteadiness the steady solver is suppressing.",
                 ),
                 uncertainty_language=(
-                    "UNVALIDATED REGIME — the number is reported with a widened "
+                    "UNVALIDATED REGIME: the number is reported with a widened "
                     "envelope and an explicit warning; treat magnitudes as "
                     "bounded by the stated grid difference until an unsteady run "
                     "confirms it."),
@@ -246,7 +246,7 @@ def approve_closure(*, geometry: str, flow: str, reynolds: float,
                     "so the closure becomes usable next time.",
                 ),
                 uncertainty_language=(
-                    "UNCALIBRATED RESOLUTION — envelope widened; the probe result "
+                    "UNCALIBRATED RESOLUTION: envelope widened; the probe result "
                     "will convert this into a measured correction."),
             )
         return ClosureDecision(
@@ -264,7 +264,7 @@ def approve_closure(*, geometry: str, flow: str, reynolds: float,
                     "Report the corrected value with the residual calibration "
                     "spread folded into the envelope."),
             uncertainty_language=(
-                "VALIDATED CLOSURE — corrected value reported with the "
+                "VALIDATED CLOSURE: corrected value reported with the "
                 "calibration residual included in the envelope; the coarse mesh "
                 "costs speed, not trust."),
         )
@@ -279,6 +279,6 @@ def approve_closure(*, geometry: str, flow: str, reynolds: float,
                 "Run the grid-sensitivity probe to begin calibrating a closure "
                 "for this configuration."),
         uncertainty_language=(
-            "NO CALIBRATION AVAILABLE — envelope widened and flagged; this run "
+            "NO CALIBRATION AVAILABLE: envelope widened and flagged; this run "
             "becomes the first calibration point for this configuration."),
     )

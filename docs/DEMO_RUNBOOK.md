@@ -54,9 +54,9 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | Design-space landscape | viewport: solved points coloured by objective, infeasible greyed (stall/range), optimum ringed, fog thinning | landscape absent | `act1_airliner.png` |
 | Finalist solves | top 6 feasible wings promoted to **real vortex-lattice solves in parallel** (workers visible); per-finalist solved lines; winner picked on solved numbers | finalists absent → solver not reachable, check `OPENVSP_RUN_PREFIX` | screen-only path still completes honestly |
 | Result + envelope | EVIDENCE: best feasible **L/D 19.7 (solved)** at span 64 m, AR 13.7; screen said 18.4, same winner | number differs | expected ~19.7 solved / 18.4 screened |
-| Fidelity chip | **SOLVER-BACKED** when finalists solved (wing solved, buildup stated) — **CONCEPTUAL MODEL** on the screen-only path; headline reads value ± CI (95%) | chip over-claims | inspect verdict reason |
+| Fidelity chip | unlabeled (SOLVER-BACKED is the platform's unlabeled default) when finalists solved, buildup stated; **CONCEPTUAL MODEL** shows on the screen-only path; headline reads value ± CI (95%) | chip over-claims | inspect verdict reason |
 | Report + certificate | REPORT tab: figures first, results table with fidelity chips, Next investigations + sealed-certificate link | report empty | `act1_airliner_report.png` |
-| **Worker-kill (resilience)** | arm slot 3 (`scripts/kill_worker.sh 3`) before the finalist wave → transcript: "Worker 3 stopped responding mid-solve — reprovisioning and re-running its wing" → `worker.killed` then `worker.reprovisioned` → **same six polars, same winner L/D 19.7** | no recovery | still `act1_05_worker_kill.png`; matched-numbers proof below |
+| **Worker-kill (resilience)** | arm slot 3 (`scripts/kill_worker.sh 3`) before the finalist wave → transcript: "Worker 3 stopped responding mid-solve; reprovisioning and re-running its wing" → `worker.killed` then `worker.reprovisioned` → **same six polars, same winner L/D 19.7** | no recovery | still `act1_05_worker_kill.png`; matched-numbers proof below |
 | Autonomy counter | masthead `HUMAN TOUCHPOINTS · 1` | >1 with no steer | reset page |
 
 Measured compute (uncontended): **~10 s** (well under 90 s; on-camera time is
@@ -94,19 +94,19 @@ method-memo), `act1_03_report` (figures-first report + fidelity chip), `act1_04_
 (or `Solve the external aerodynamics of the supplied motorcycle-with-rider geometry at highway speed, sea-level conditions. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the drag coefficient with a confidence envelope.` + `motorBike.obj`,
 or `Solve the external aerodynamics of the supplied NACA 4412 finite-wing geometry at cruise Reynolds number. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the lift and drag coefficients with confidence envelopes.` + `naca4412_wing.stl`).
 
-Each directive names the physics and asks the lab to **select** the closure —
+Each directive names the physics and asks the lab to **select** the closure,
 the response must carry the selection with its rationale (`Selected: k-omega
-SST, steady RANS — standard closure for attached external flow…`), not just
+SST, steady RANS, standard closure for attached external flow…`), not just
 run silently.
 
 | Beat | Expected on screen | Failure signature | Fallback |
 |---|---|---|---|
 | Upload → run | surface renders in the viewport as supplied; objective stays natural language (no filename) | upload ignored | re-load surface; check note |
-| Researcher memo | CHIEF RESEARCHER: single fixed body, steady RANS — measurement not optimisation, mesh-quality-gated → "On it." | absent | still frame |
+| Researcher memo | CHIEF RESEARCHER: single fixed body, steady RANS: measurement not optimisation, mesh-quality-gated → "On it." | absent | still frame |
 | Mesh + gates | mesh built; non-orthogonality / skewness reported against the acceptance band | gate not shown | check monitor line |
 | Cp-painted geometry | the body painted by solved surface pressure (coolwarm), legend in Pa | flat / unpainted | `field.ready` didn't fire — check solve |
-| Cache reuse (warm) | on a pre-warmed body: "Snapped mesh found in cache — reusing it, skipping the mesh build" → checkMesh still reports the real gate numbers | re-meshes cold | see pre-warm below |
-| Envelope + chip | drag as value ± CI (95%); **VALIDATED** where a published reference grades it, else **SOLVER-BACKED** | envelope missing | inspect verdict |
+| Cache reuse (warm) | on a pre-warmed body: "Snapped mesh found in cache, reusing it, skipping the mesh build" → checkMesh still reports the real gate numbers | re-meshes cold | see pre-warm below |
+| Envelope + chip | drag as value ± CI (95%); **VALIDATED** where a published reference grades it, else unlabeled (SOLVER-BACKED is the platform's unlabeled default) | envelope missing | inspect verdict |
 | Certificate | sealed-certificate PDF link atop the report | absent | `/api/certificate/geometry-study` |
 
 The worker-kill resilience beat **moved to Act 1** (it now rides the airliner
@@ -163,7 +163,7 @@ audit); painted-field + drag capture added from the completed warm run.
 | Rejected / deferred | single snapshot rejected (cycle-blind); harmonic-balance + unsteady-FSI deferred to the agenda | not on record | check digest |
 | Multi-point run | 4 angles × 3 phases; cycle-weighted loss per candidate with MC envelope; 35° infeasible (min-orifice) | run errors | inspect evidence |
 | Result | best **1345 ± 421 Pa (95%) at 80°**, chip **CONCEPTUAL MODEL** | number differs | expected ~1345 Pa |
-| Model-form honesty | reduced-order orifice model; phase-interaction neglected; leaflets fixed; Newtonian blood — all listed | list incomplete | inspect uncertainty channel |
+| Model-form honesty | reduced-order orifice model; phase-interaction neglected; leaflets fixed; Newtonian blood, all listed | list incomplete | inspect uncertainty channel |
 | Research agenda | agenda panel shows 3 lines: harmonic-balance cycle solve, unsteady FSI, non-Newtonian blood (each scope + rough cost) | agenda empty | `agenda.updated` didn't fire |
 
 Measured compute: **0.4 s** (reduced-order; on-camera time is narration). The real

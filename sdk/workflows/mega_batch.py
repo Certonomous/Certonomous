@@ -288,7 +288,7 @@ def run_batch(
     (work_root / "wing").mkdir(parents=True, exist_ok=True)
 
     done = load_done_indices(ledger_path)
-    log(f"[mega-batch] resuming — {len(done)} indices already in ledger")
+    log(f"[mega-batch] resuming: {len(done)} indices already in ledger")
 
     start = time.time()
     next_index = 0
@@ -345,7 +345,7 @@ def run_batch(
 
     total = len(load_done_indices(ledger_path))
     log(
-        f"[mega-batch] session done — completed {completed_this_session} "
+        f"[mega-batch] session done: completed {completed_this_session} "
         f"(ok {stats['ok']}, failed {stats['failed']}); ledger total {total}"
     )
     stats["ledger_total"] = total

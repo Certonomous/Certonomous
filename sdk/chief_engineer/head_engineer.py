@@ -533,20 +533,20 @@ class HeadEngineer:
         notes = []
         monitor = self.monitor.summary()
         if monitor["fatal"]:
-            notes.append("Fatal numerical anomaly (NaN/FPE) — results untrustworthy; "
+            notes.append("Fatal numerical anomaly (NaN/FPE): results untrustworthy; "
                          "halve relaxation factors or revisit mesh quality before rerun.")
         if monitor["by_kind"].get("residual-spike"):
-            notes.append(f"{monitor['by_kind']['residual-spike']} residual spike(s) — "
+            notes.append(f"{monitor['by_kind']['residual-spike']} residual spike(s): "
                          "inspect the flagged iterations; consider tighter relaxation.")
         if monitor["by_kind"].get("bounding"):
-            notes.append("Bounded turbulence variables observed — normal in startup, "
+            notes.append("Bounded turbulence variables observed: normal in startup, "
                          "suspect if persisting past ~100 iterations.")
         if self.mesh_stats.get("max_non_orthogonality", 0) > 70:
-            notes.append("Max non-orthogonality > 70° — add nonOrthogonalCorrectors "
+            notes.append("Max non-orthogonality > 70°: add nonOrthogonalCorrectors "
                          "or improve the mesh in flagged regions.")
         for name, stats in self.results.items():
             if stats and stats["value"] != 0 and abs(2 * stats["sigma"] / stats["value"]) > 0.05:
-                notes.append(f"{name} envelope exceeds 5% of its value — per lesson "
+                notes.append(f"{name} envelope exceeds 5% of its value; per lesson "
                              "L-001, extend the run or refine the mesh until the "
                              "remaining uncertainty is irreducible.")
         if not notes:
@@ -558,14 +558,14 @@ class HeadEngineer:
         monitor = self.monitor.summary()
         non_ortho = self.mesh_stats.get("max_non_orthogonality")
         skew = self.mesh_stats.get("max_skewness")
-        non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "—"
-        skew_s = f"{skew:.2f}" if skew is not None else "—"
+        non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "n/a"
+        skew_s = f"{skew:.2f}" if skew is not None else "n/a"
         lines = [
-            f"# Certonomous Head Engineer report — {self.case_name}",
+            f"# Certonomous Head Engineer report: {self.case_name}",
             "",
             "| Section | Result |",
             "|---|---|",
-            f"| Geometry | {self.geometry_report.get('surface', 'n/a')} — "
+            f"| Geometry | {self.geometry_report.get('surface', 'n/a')}, "
             f"{'closed, ' if self.geometry_report.get('closed') else ''}"
             f"{', '.join(self.geometry_report.get('issues', [])) or 'no issues found'} |",
             f"| Mesh | {int(self.mesh_stats.get('cells', 0))} cells, "
@@ -573,7 +573,7 @@ class HeadEngineer:
             f"max skew {skew_s}, "
             f"{'OK' if self.mesh_stats.get('mesh_ok') else 'check flags'} |",
             f"| Steps | " + "; ".join(
-                f"{s.name} — {s.seconds:.0f} s ({'ok' if s.status == 0 else 'FAIL'})"
+                f"{s.name}: {s.seconds:.0f} s ({'ok' if s.status == 0 else 'FAIL'})"
                 for s in self.steps) + " |",
             f"| Monitor | {monitor['anomalies']} anomalies {monitor['by_kind']} |",
         ]
@@ -603,7 +603,7 @@ class HeadEngineer:
                     "to enable delivery; report saved to "
                     f"{self.out_root / 'report.md'}")
         message = EmailMessage()
-        message["Subject"] = f"Certonomous report — {self.case_name}"
+        message["Subject"] = f"Certonomous report: {self.case_name}"
         message["From"] = os.environ.get("CERTONOMOUS_SMTP_USER", "certonomous@localhost")
         message["To"] = recipient
         message.set_content(report_text)
