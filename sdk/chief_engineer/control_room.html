@@ -407,6 +407,9 @@ const state = { mission:null, source:null, workers:0, agents:0, finished:false, 
 // path runs during initial evaluation).
 const revealQ = [];
 let revealing = false;
+// Monotonic geometry token — declared up here because the ?mission= resume path
+// runs during initial evaluation, before later `let` declarations initialise.
+let _geomSeq = 0;
 
 setInterval(() => $('clock').textContent = new Date().toISOString().replace('T',' · ').replace(/\.\d+Z/,' UTC'), 500);
 ['workers','cycles'].forEach(id => $(id).addEventListener('input', () => $(id+'Out').value = $(id).value));
@@ -426,7 +429,10 @@ loadRuntime(); loadCredentials();
 const qs = new URLSearchParams(location.search);
 if (qs.get('present') === '1') $('shell').classList.add('presenting');
 if (qs.get('forcelaunch') === '1') { $('shell').classList.add('launched'); setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true); }
-if (qs.get('mission')) resumeMission(qs.get('mission'), qs.get('static') === '1');
+// Defer the auto-resume until the whole script has initialised: it runs during
+// initial evaluation, and the draw helpers reference `const`s (coolwarm, …)
+// declared further down. A rAF also guarantees the canvases are laid out.
+if (qs.get('mission')) requestAnimationFrame(() => resumeMission(qs.get('mission'), qs.get('static') === '1'));
 const dv = qs.get('view'); if (dv && dv !== 'report') { $('shell').classList.add('browsing'); showView(dv); }
 
 async function loadRuntime() {
@@ -500,6 +506,22 @@ async function resumeMission(id, staticReplay) {
       const upto = +new URLSearchParams(location.search).get('upto') || 0;
       const evs = upto ? (snap.events || []).slice(0, upto) : (snap.events || []);
       evs.forEach(e => { try { dispatch(e); } catch {} });
+      // The geometry loads async, and a headless still can fire before it
+      // settles — render the final surface synchronously so the winning body is
+      // always in the frame (still captures only; the live UI is untouched).
+      const lastGeom = [...evs].reverse().find(e => {
+        const t = e.event || e.type; return t === 'geometry.ready' || t === 'field.ready'; });
+      if (lastGeom) {
+        const gp = lastGeom.payload || lastGeom;
+        const gurl = gp.url || (gp.name ? `/api/geometry?name=${encodeURIComponent(gp.name)}` : null);
+        if (gurl) try {
+          const gx = new XMLHttpRequest(); gx.open('GET', gurl, false); gx.send(null);
+          const m = normalizeMesh(JSON.parse(gx.responseText.replace(/\bNaN\b/g, 'null')));
+          _geomSeq++; state.mesh = m; setHidden('viewportEmpty', true);
+          if (gp.label) $('viewportLabel').textContent = gp.label;
+          $('viewportStats').textContent = (m.faces.length).toLocaleString() + ' faces';
+        } catch {}
+      }
       // A completed still shows the end-state: report forward, geometry and
       // evidence plots beside it (B4). A mid-flight still stays on the digest.
       if (!upto && !document.querySelector('.tab[data-view="memo"]').hidden) showView('memo');
@@ -851,7 +873,17 @@ async function loadGeometry(p) {
   try {
     const url = p.url || (p.name ? `/api/geometry?name=${encodeURIComponent(p.name)}` : null);
     if (!url) return;
+    // Candidates stream fast; their fetches can resolve out of order. A
+    // monotonic token guarantees only the NEWEST geometry.ready wins, so the
+    // viewport shows the latest candidate — and the winner stays after the run.
+    // A one-tick defer coalesces bursts (a rapid finalist+winner volley) down to
+    // just the latest fetch, so the winner isn't starved behind stale requests;
+    // paced candidates (~120 ms apart) each still fetch and cycle on screen.
+    const seq = ++_geomSeq;
+    await new Promise(r => setTimeout(r, 0));
+    if (seq !== _geomSeq) return;   // superseded before we even fetched
     const mesh = normalizeMesh(await (await fetch(url)).json()); mesh.field = null;
+    if (seq !== _geomSeq) return;   // a newer geometry superseded this one
     state.mesh = mesh; setHidden('viewportEmpty', true);
     // Viewport labels are display names, never raw filenames/slugs (R1). The
     // workflows already emit human labels; this is the graceful fallback until
@@ -865,7 +897,9 @@ async function loadField(p) {
   try {
     const url = p.url || (p.file ? `/api/field/${p.mission||state.mission}/${p.file}` : null);
     if (!url) return;
+    const seq = ++_geomSeq;   // the painted field is the newest state of the body
     const mesh = normalizeMesh(await (await fetch(url)).json());
+    if (seq !== _geomSeq) return;
     state.mesh = mesh; setHidden('viewportEmpty', true);
     $('viewportLabel').textContent = (p.label || $('viewportLabel').textContent) + ' — solved field';
     if (mesh.field) {
