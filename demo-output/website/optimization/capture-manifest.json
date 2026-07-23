@@ -1,0 +1,46 @@
+{
+  "video": "optimization",
+  "mission_id": "m-cab51c8f7b76",
+  "goal": "Optimize the lift-to-drag ratio of a twin-aisle airliner carrying 300 passengers over a 6000 km range, with take-off at 85 m/s and landing at 72 m/s. Search the wing design space, mark any infeasible designs, and report the best feasible L/D with its envelope.",
+  "surface": null,
+  "server": "http://127.0.0.1:8772",
+  "captured": [
+    {
+      "order": 1,
+      "stem": "01-interpretation",
+      "title": "Interpretation",
+      "present": true
+    },
+    {
+      "order": 2,
+      "stem": "02-researcher-memo",
+      "title": "Method-selection memo",
+      "present": true
+    },
+    {
+      "order": 3,
+      "stem": "03-landscape",
+      "title": "Design-space landscape",
+      "present": true
+    },
+    {
+      "order": 4,
+      "stem": "04-finalists",
+      "title": "Finalists solved for real",
+      "present": true
+    },
+    {
+      "order": 5,
+      "stem": "05-result",
+      "title": "Best feasible L/D",
+      "present": true
+    },
+    {
+      "order": 6,
+      "stem": "06-report",
+      "title": "Report and certificate",
+      "present": true
+    }
+  ],
+  "complete": true
+}

@@ -23,7 +23,7 @@
       "wall_minutes": 7.9
     }
   ],
-  "updated_utc": "2026-07-23T06:29:20Z",
+  "updated_utc": "2026-07-23T18:27:22Z",
   "fingerprint": "db438daafabf8793",
   "numerical": {
     "band_abs": 0.16527679,
@@ -37,5 +37,24 @@
     "uq-motorBike-coarse",
     "uq-motorBike-mid",
     "uq-motorBike-fine"
-  ]
+  ],
+  "closures": {
+    "kOmegaSST": 0.4155770166666667,
+    "kEpsilon": 0.41915239,
+    "SpalartAllmaras": {
+      "excluded": "unconverged at 300 iterations (final-window spread 3.19, Cd still drifting)"
+    }
+  },
+  "model": {
+    "band_abs": 0.001787686666666649,
+    "method": "inter-closure spread (screening estimate); excluded: SpalartAllmaras: unconverged at 300 iterations (final-window spread 3.19, Cd still drifting)",
+    "members": {
+      "kOmegaSST": 0.4155770166666667,
+      "kEpsilon": 0.41915239
+    },
+    "excluded": {
+      "SpalartAllmaras": "unconverged at 300 iterations (final-window spread 3.19, Cd still drifting)"
+    },
+    "screening_estimate": true
+  }
 }

@@ -214,7 +214,7 @@ def polar_plot(mc: dict, out_png: Path) -> str | None:
                 textcoords="offset points", fontsize=10, color=INK)
     ax.scatter([best["alpha"]], [best["l_d"]], s=70, facecolors="none",
                edgecolors=GREEN, linewidths=2, zorder=5)
-    _style(ax, "NACA 4412 finite wing — solved lift-to-drag polar")
+    _style(ax, "NACA 4412 finite wing: solved lift-to-drag polar")
     ax.legend(frameon=False, fontsize=9, loc="lower center")
     fig.tight_layout(); fig.savefig(out_png); plt.close(fig)
     return str(out_png)
@@ -237,7 +237,7 @@ def race_chart(mc: dict, rom: dict, out_png: Path) -> str | None:
     ax.scatter([rom["alpha_star"]], [rom["confirmed"]], s=80, color=GREEN,
                zorder=5, label=f"confirmation solve ($L/D$ = "
                                f"{rom['confirmed']:.1f})")
-    _style(ax, "Same question, two candidate sets — every point a real solve")
+    _style(ax, "Same question, two candidate sets: every point a real solve")
     ax.legend(frameon=False, fontsize=8.5, loc="lower center", ncols=2)
     fig.tight_layout(); fig.savefig(out_png); plt.close(fig)
     return str(out_png)
@@ -264,7 +264,7 @@ def progress_frames(mc: dict, rom: dict, out_dir: Path) -> dict:
                         f"({len(pts)} solves)", (ALPHAS[0], mean),
                         xytext=(4, 6), textcoords="offset points",
                         fontsize=9, color=INK)
-        _style(ax, f"Monte-Carlo path — sample {upto} of {N_SAMPLES}")
+        _style(ax, f"Monte-Carlo path: sample {upto} of {N_SAMPLES}")
         png = out_dir / f"mc_{stage}.png"
         fig.tight_layout(); fig.savefig(png); plt.close(fig)
         frames["mc"].append(str(png))
@@ -278,13 +278,13 @@ def progress_frames(mc: dict, rom: dict, out_dir: Path) -> dict:
         anchors = rom["anchors"][:n_anchor]
         ax.scatter([a["alpha"] for a in anchors],
                    [a["l_d"] for a in anchors], s=52, color=ORANGE, zorder=3)
-        title = f"Reduced-order path — {n_anchor} real anchors"
+        title = f"Reduced-order path: {n_anchor} real anchors"
         if fitted:
             ax.plot(grid, [_predict(rom["coefficients"], x) for x in grid],
                     color=ORANGE, linewidth=2)
             ax.axvline(rom["alpha_star"], color=INK, linewidth=0.8,
                        linestyle=":")
-            title = "Reduced-order path — surface fitted, peak predicted"
+            title = "Reduced-order path: surface fitted, peak predicted"
         if confirmed:
             ax.scatter([rom["alpha_star"]], [rom["confirmed"]], s=80,
                        color=GREEN, zorder=5)
@@ -293,7 +293,7 @@ def progress_frames(mc: dict, rom: dict, out_dir: Path) -> dict:
                         (rom["alpha_star"], rom["confirmed"]),
                         xytext=(-8, -16), textcoords="offset points",
                         ha="right", fontsize=9, color=INK)
-            title = "Reduced-order path — one real solve certifies the peak"
+            title = "Reduced-order path: one real solve certifies the peak"
         _style(ax, title)
         png = out_dir / f"rom_{stage}.png"
         fig.tight_layout(); fig.savefig(png); plt.close(fig)
@@ -340,13 +340,13 @@ def run_race(tag: str = "pass1", *, seed: int | None = None) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     work_root = OUT_ROOT / "race-benchmark" / tag
 
-    safe_print(f"[race:{tag}] reduced-order path — "
+    safe_print(f"[race:{tag}] reduced-order path: "
                f"{len(ANCHOR_ALPHAS)} anchors + surface + confirm")
     rom = run_rom_path(work_root)
     safe_print(f"[race:{tag}] ROM: peak L/D {rom['confirmed']:.2f} at "
                f"{rom['alpha_star']:g} deg in {rom['wall_seconds']:.0f}s "
                f"({rom['core_minutes']:.1f} core-min)")
-    safe_print(f"[race:{tag}] Monte-Carlo path — {N_SAMPLES} samples x "
+    safe_print(f"[race:{tag}] Monte-Carlo path: {N_SAMPLES} samples x "
                f"{len(ALPHAS)} direct solves")
     mc = run_mc_path(work_root, seed=seed)
     safe_print(f"[race:{tag}] MC: peak L/D {mc['peak_mean']:.2f} ± "
@@ -381,7 +381,7 @@ def run_race(tag: str = "pass1", *, seed: int | None = None) -> dict:
 def write_benchmarks(records: list[dict], out_md: Path) -> None:
     first = records[0]
     lines = [
-        "# Speed, certified — NACA 4412 finite wing race (measured)",
+        "# Speed, certified: NACA 4412 finite wing race (measured)",
         "",
         f"Subject: {first['subject']}.",
         f"Question: {first['question']}.",
@@ -436,4 +436,4 @@ if __name__ == "__main__":
         records.append(json.loads(prior.read_text(encoding="utf-8")))
     write_benchmarks(records or [record], RACE_ROOT / "benchmarks.md")
     safe_print(f"[race:{tag}] speedup {record['speedup_core_minutes']}x "
-               f"core-min — artifacts in {RACE_ROOT}")
+               f"core-min, artifacts in {RACE_ROOT}")

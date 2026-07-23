@@ -21,9 +21,16 @@
       "mission": "uq-naca4412_wing-r3",
       "refinement": 3,
       "wall_minutes": 2.2
+    },
+    {
+      "cells": 337334,
+      "cd": 0.01892,
+      "mission": "uq-naca4412_wing-r4",
+      "refinement": 4,
+      "wall_minutes": 9.0
     }
   ],
-  "updated_utc": "2026-07-23T06:19:31Z",
+  "updated_utc": "2026-07-23T17:01:08Z",
   "closures": {
     "kOmegaSST": 0.02167,
     "kEpsilon": 0.03389452738333333,
@@ -38,5 +45,20 @@
       "SpalartAllmaras": 0.024160782536
     },
     "screening_estimate": true
-  }
+  },
+  "fingerprint": "b05956c0233a3828",
+  "numerical": {
+    "band_abs": 0.030000000000000006,
+    "band_rel": 1.3844,
+    "observed_order": 4.625,
+    "method": "3-mesh ladder, observed order p = 4.62 outside the credible range; conservative factor-3 band; band for the working mesh (middle level)",
+    "conclusive": false,
+    "value_working": 0.02167
+  },
+  "provenance": [
+    "uq-naca4412_wing-r1",
+    "uq-naca4412_wing-r2",
+    "uq-naca4412_wing-r3",
+    "uq-naca4412_wing-r4"
+  ]
 }

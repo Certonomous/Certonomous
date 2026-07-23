@@ -1,0 +1,4 @@
+  File "C:\Users\mouza\github-cleanup\ct-uq\sdk\scripts\run_uq_studies.py", line 349
+    (staging / "controlDict").write_text("
+                                         ^
+SyntaxError: unterminated string literal (detected at line 349)

@@ -24,6 +24,26 @@ measured; nothing is invented. Studies live in
   "study pending"; the headline CI is the RSS combined expanded uncertainty.
   Certificates inherit the same channel values (v2 renders the table).
 
+## Per-body truth table (final)
+
+| Body | Numerical channel | Model channel |
+|---|---|---|
+| motorBike | MEASURED (conservative): 3-mesh tutorial ladder 14,714/66,316/353,578 cells, Cd 0.4707/0.4202/0.4156; apparent order 4.82 outside the credible range so the factor-3 band 0.165 stands, honestly labeled | MEASURED: inter-closure spread 0.0018 over kOmegaSST 0.4156 / kEpsilon 0.4192; SpalartAllmaras EXCLUDED (unconverged at 300 iters, window spread 3.19, stated in the label) |
+| naca4412_wing | MEASURED (conservative): ladder 67,826/137,569/337,334 cells, Cd 0.0289/0.0217/0.0189; apparent order 4.62 outside credible range; factor-3 band for the working mesh 0.030 | MEASURED: inter-closure spread 0.0061 (kOmegaSST 0.0217 / kEpsilon 0.0339 / SA 0.0242, all converged) |
+| b52 | INCONCLUSIVE (honest): rungs 1/2 identical meshes (builder floors refinement at 2); sentence per Q5 + factor-3 band 0.0030 on Cd 0.0464 | PENDING (kEpsilon diverged with an FPE on the b52 mesh; not retried) |
+| airliner-wing | n/a (sizing grid; grid note stays) | MEASURED: model-form vs solver anchors, 6 real VSPAERO finalists, max abs dL/D 1.60 |
+| aortic-valve | MEASURED: phase-quadrature ladder k=3/5/9, band 81 Pa (k=3 base 1327 Pa reproduces the act's deterministic objective) | MEASURED: correlation-family spread 105 Pa (ISO 5167 0.60 / Idelchik 0.61 / classic 0.62 / upper literature 0.65) + unmodeled-physics list |
+
+Combined display verified end-to-end on the valve: input 421 / numerical 81 /
+model 105 -> combined 441 Pa (95%), breakdown in the channel table.
+
+Post-mortem notes: the first batch's degenerate ladders came from the case
+builder flooring surface refinement at 2 (rungs 1/2 identical) — ladders now
+run 2/3/4 with the act mesh as the middle level (Celik GCI_med); tutorial
+closure runs strip the streamline/cutting-plane diagnostics (foamDictionary
+expands includes inline, so whole blocks are removed brace-aware); closure
+members are convergence-gated (2*sigma/value > 5% excludes with the reason).
+
 ## Studies completed (measured)
 
 - **aortic-valve**: numerical = phase-quadrature ladder k=3/5/9, band 81 Pa

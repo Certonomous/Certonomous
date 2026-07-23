@@ -233,9 +233,9 @@ def uncertainty_channels(*, input_2sigma: float | None = None,
             channel("input", input_2sigma,
                     input_note or "propagated from the stated input uncertainty (aleatory)"),
             channel("numerical", numerical,
-                    numerical_note or "discretization error — needs a grid-refinement study"),
+                    numerical_note or "discretization error, needs a grid-refinement study"),
             channel("model", model,
-                    model_note or "turbulence/closure model-form error — not yet estimated"),
+                    model_note or "turbulence/closure model-form error, not yet estimated"),
         ],
     }
 
@@ -296,8 +296,8 @@ def _reynolds_mismatch_note(reference: dict, solved_reynolds: float | None) -> s
     lo, hi = float(valid[0]), float(valid[1])
     if lo <= solved_reynolds <= hi:
         return ""
-    return (f" — solved at Re {solved_reynolds:.1e}, reference valid for "
-            f"Re {lo:.0e}–{hi:.0e}")
+    return (f"; solved at Re {solved_reynolds:.1e}, reference valid for "
+            f"Re {lo:.0e}-{hi:.0e}")
 
 
 def validate_against_reference(*, measured_cd: float, reference: dict,
@@ -346,12 +346,12 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
                              "against the reference yet"}
     elif not in_validated_regime:
         verdict = {"tier": SOLVER_BACKED,
-                   "reason": (f"mesh quality outside the acceptance band — agreement "
-                              f"with {source} is not graded")}
+                   "reason": (f"mesh quality outside the acceptance band; the numerical "
+                              f"channel carries the residual, not a comparison with {source}")}
     elif not calibrated:
         verdict = {"tier": SOLVER_BACKED,
-                   "reason": (f"mesh skewness above guidance — agreement with "
-                              f"{source} is not graded")}
+                   "reason": (f"mesh skewness above guidance; the numerical channel "
+                              f"carries the residual, not a comparison with {source}")}
     elif relative_error is not None and relative_error <= tolerance:
         verdict = {"tier": VALIDATED,
                    "reason": (f"within {relative_error * 100:.0f}% of {source}, "
@@ -369,12 +369,12 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
                                   f"{primary} reference Cd {cd_ref:g}"
                                   + re_note
                                   + (f"; {cause}" if cause else "")
-                                  + " — no like-for-like comparison available")}
+                                  + "; no like-for-like comparison available")}
         else:
             pct = "n/a" if relative_error is None else f"{relative_error * 100:.0f}%"
             verdict = {"tier": SOLVER_BACKED,
                        "reason": (f"measured Cd {cd_cmp:.3f} is {pct} from {source}, "
-                                  f"Cd {cd_ref:g} — outside the ±{tolerance * 100:.0f}% band")}
+                                  f"Cd {cd_ref:g}, outside the ±{tolerance * 100:.0f}% band")}
     verdict["comparison"] = comparison
     return verdict
 

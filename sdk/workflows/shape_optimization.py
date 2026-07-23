@@ -62,7 +62,7 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
     if worker_sabotaged(index):
         clear_sabotage(index)
         lost = (f"• Worker {index} stopped responding mid-sweep. "
-                f"• Reprovisioning and re-running its design — the number still lands.")
+                f"• Reprovisioning and re-running its design; the number still lands.")
         took_over = f"• A fresh worker took over slot {index}; its design re-runs."
         if script is not None:
             script.engineer(lost)
@@ -84,7 +84,7 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
 # research-agenda panel and to the report's "Next investigations".
 _AGENDA = [
     {"title": "Beyond the steady regime",
-     "scope": "extend the sweep past Re 47 with an unsteady solver — does the "
+     "scope": "extend the sweep past Re 47 with an unsteady solver, does the "
               "drag trend continue once the wake starts shedding",
      "cost": "transient solves; ~1 order of magnitude over the steady sweep"},
     {"title": "Two-parameter shape family",
@@ -92,7 +92,7 @@ _AGENDA = [
               "joint landscape",
      "cost": "a second sweep dimension; same solver and gates"},
     {"title": "Robust optimum across the operating band",
-     "scope": "optimize against a band of inflow speeds instead of one — the "
+     "scope": "optimize against a band of inflow speeds instead of one, the "
               "design that wins on the whole mission profile",
      "cost": "one sweep per speed; reuses today's machinery"},
 ]
@@ -217,7 +217,7 @@ def main(request: str | None = None, params: dict | None = None,
         for run in selection.runs:
             script.researcher(f"• {run.name}: {run.rationale}")
         script.numericist(
-            "• Endorsed — the standard offline/online split, not a compromise. "
+            "• Endorsed: the standard offline/online split, not a compromise. "
             f"• Pay for a few anchors; evaluate the rest free, {per('rom')}. "
             "• Requirement: anchors span the range. These do.")
 
@@ -260,10 +260,10 @@ def main(request: str | None = None, params: dict | None = None,
                 roster.set(CHIEF_RESEARCHER, "challenging the proposed optimum", "working")
                 script.researcher(
                     "• Pushback: the optimum sits on the fitted range's edge. "
-                    "• A quadratic is least trustworthy at its boundary — no data beyond. "
+                    "• A quadratic is least trustworthy at its boundary, no data beyond. "
                     f"• D={predicted:.4g} is extrapolation dressed as prediction. Not the answer yet.")
                 script.engineer(
-                    "• Fair — and settleable. "
+                    "• Fair, and settleable. "
                     "• One real solve turns the prediction into a measurement. "
                     "• Running it now; if solver and surface disagree, the surface loses.")
                 roster.idle(CHIEF_RESEARCHER)
@@ -280,7 +280,7 @@ def main(request: str | None = None, params: dict | None = None,
                               f"within {error:.2g} in drag coefficient")
             script.engineer(
                 f"• Confirmation solve: Cd={confirm['Cd']:.4g} vs "
-                f"{_predict(coefficients, predicted):.4g} predicted — error {error:.2g}. "
+                f"{_predict(coefficients, predicted):.4g} predicted, error {error:.2g}. "
                 f"• The surface proposes; the solver decides.")
             if at_bound:
                 script.researcher(
@@ -294,7 +294,7 @@ def main(request: str | None = None, params: dict | None = None,
                 if m.get("converged", 0) == 1 and m.get("Re", 0) <= 47]
     rejected = len(evidence) - len(feasible)
     if rejected:
-        script.engineer(f"• {rejected} design(s) failed the contract — excluded.")
+        script.engineer(f"• {rejected} design(s) failed the contract, excluded.")
     if not feasible:
         script.engineer("• No feasible design. "
                         "• Stopping rather than reporting an out-of-contract winner.")
@@ -324,11 +324,11 @@ def main(request: str | None = None, params: dict | None = None,
     ledger.spend(ensemble.n * CORE_SECONDS_PER_SOLVE, f"{ensemble.n}-sample ensemble")
     roster.set_workers(0)
     script.engineer(
-        f"• Uncertainty ensemble — {ensemble.wall_seconds:.1f} s — {ensemble.n} solves.")
+        f"• Uncertainty ensemble: {ensemble.wall_seconds:.1f} s, {ensemble.n} solves.")
     plot = plot_convergence(ensemble, out / "winner_uncertainty.png",
-                            title=f"Winning geometry (D={best_x:.3g} m) — drag with envelope")
+                            title=f"Winning geometry (D={best_x:.3g} m), drag with envelope")
     announce_plot(emit, "shape-optimization", plot,
-                  f"Winning geometry D={best_x:.3g} m — drag with envelope")
+                  f"Winning geometry D={best_x:.3g} m, drag with envelope")
 
     verdict = trust(relative_error=ensemble.relative_error,
                     converged=bool(best_metrics.get("converged", 0)),
@@ -361,11 +361,11 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Confirmed: drag falls as the body grows; optimum at D={best_x:.4g} m, "
         f"as hypothesised. "
         + ("• Monotone at every sampled point. " if monotone
-           else "• Not perfectly monotone — deserves a second look. ")
+           else "• Not perfectly monotone, deserves a second look. ")
         + f"• Improvement vs D={baseline[0]:.3g} m baseline: {improvement:+.1f}%.")
     script.engineer(
         f"• Not confirmed: the predicted flattening near the bound. "
-        f"• Envelope {ensemble.relative_error * 100:.1f}% of value — wider than the "
+        f"• Envelope {ensemble.relative_error * 100:.1f}% of value, wider than the "
         f"gap between the last two designs. "
         f"• Cannot separate them; claiming no curve shape unresolved.")
     script.engineer(
@@ -375,7 +375,7 @@ def main(request: str | None = None, params: dict | None = None,
         knowledge.add(f"Reduced-order surface for cylinder drag, D {LOW}–{HIGH} m")
         script.numericist(
             f"• Worth keeping: {surrogate_note}. "
-            "• Reusable — the next sweep starts from it instead of re-paying anchors.")
+            "• Reusable: the next sweep starts from it instead of re-paying anchors.")
 
     report = lab_report(
         title="Cylinder shape optimization under a converged-solve constraint",
@@ -421,7 +421,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"Estimator uncertainty is at least ±{2 * ensemble.standard_error:.2g} "
             f"({ensemble.relative_error * 100:.1f}% of value) and is reducible: more "
             f"samples narrow it as one over the square root of the count. Treat it "
-            f"as a floor rather than a bound — it is calibrated by cross-validation "
+            f"as a floor rather than a bound; it is calibrated by cross-validation "
             f"over design points that are correlated by construction, which is "
             f"known to run optimistic.",
             f"Irreducible physical spread is ±{2 * ensemble.ensemble_sigma:.2g} at 95%, "
@@ -433,7 +433,7 @@ def main(request: str | None = None, params: dict | None = None,
             "uncertainty to report at all.",
         ],
         next_investigations=[
-            f"{entry['title']} — {entry['scope']}" for entry in _AGENDA],
+            f"{entry['title']}: {entry['scope']}" for entry in _AGENDA],
         compute=ledger.as_dict(),
     )
     if emit:

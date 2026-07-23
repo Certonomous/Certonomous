@@ -122,7 +122,14 @@ def ladder_unfamiliar(body: str, stl_name: str, *,
             continue
         _log(f"{body} ladder rung refinement={r} starting")
         began = time.time()
-        level = _run_geometry_study(stl_name, r, f"{body}-r{r}", extra)
+        try:
+            level = _run_geometry_study(stl_name, r, f"{body}-r{r}", extra)
+        except Exception as exc:
+            # A crashed rung must not lose the study: finalize honestly with
+            # whatever distinct levels exist (Q5 rails handle the shortfall).
+            _log(f"{body} rung r={r} FAILED ({type(exc).__name__}: {exc}); "
+                 f"finalizing with completed levels")
+            break
         level["wall_minutes"] = round((time.time() - began) / 60, 1)
         levels[r] = level
         _checkpoint(body, levels=[levels[k] for k in sorted(levels)])
@@ -242,6 +249,58 @@ def ladder_motorbike() -> None:
 # Closure trios (same fine mesh, three closures) — Q2a
 # --------------------------------------------------------------------------
 
+def _strip_named_blocks(text: str, names: tuple[str, ...]) -> str:
+    """Remove named dict blocks (and bare #include lines) from a FOAM dict.
+
+    foamDictionary rewrites controlDict with includes expanded inline, so the
+    diagnostics appear as full named blocks; removing only their header line
+    orphans the braces. This walks brace depth and drops each whole block.
+    """
+    out: list[str] = []
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+        token = stripped.rstrip("{").strip()
+        if any(f'#include "{n}"' in stripped for n in names):
+            i += 1
+            continue
+        if token in names:
+            # Skip the header, then the block from its opening brace to close.
+            depth = 0
+            j = i + (0 if "{" in stripped else 1)
+            while j < len(lines):
+                depth += lines[j].count("{") - lines[j].count("}")
+                j += 1
+                if depth <= 0 and j > i + 1:
+                    break
+            i = j
+            continue
+        # foamDictionary may also leave ANONYMOUS expanded blocks whose type
+        # line names the diagnostic; detect "{ ... type streamLine; }".
+        if stripped == "{":
+            depth, j, body = 0, i, []
+            while j < len(lines):
+                depth += lines[j].count("{") - lines[j].count("}")
+                body.append(lines[j])
+                j += 1
+                if depth <= 0:
+                    break
+            first = body[1].strip() if len(body) > 1 else ""
+            blob = "\n".join(body)
+            diag_types = tuple({n, n[:-1] if n.endswith("s") else n}
+                               for n in names)
+            if first.startswith("type") and any(
+                    re.search(rf"type\s+{t};", blob)
+                    for group in diag_types for t in group):
+                i = j
+                continue
+        out.append(line)
+        i += 1
+    return "\n".join(out)
+
+
 def _derive_epsilon(omega_text: str, eps_value: float) -> str:
     text = omega_text
     text = re.sub(r"object\s+omega\s*;", "object      epsilon;", text)
@@ -287,10 +346,19 @@ def _closure_files(engineer: HeadEngineer, closure: str, *,
         engineer._wsl(f"cp '{wsl_staging}' {case}/0/nuTilda")
         engineer._wsl(f"sed -i 's/kOmegaSST/SpalartAllmaras/' {case}/constant/turbulenceProperties")
         engineer._wsl(f"sed -i 's/nutkWallFunction/nutUSpaldingWallFunction/' {case}/0/nut")
-    # simpleFoam needs solver entries for the new fields; reuse the k/omega
-    # smoothSolver group by widening its selector.
+    # simpleFoam needs solver, scheme, and relaxation entries for the new
+    # fields. Two dict styles exist: generated cases use a quoted
+    # "(U|k|omega)" selector; the tutorial uses separate k/omega blocks, a
+    # $turbulence macro in fvSchemes, and per-field relaxation. Cover both.
     engineer._wsl(
         f"sed -i 's/\"(U|k|omega)\"/\"(U|k|omega|epsilon|nuTilda)\"/' {case}/system/fvSolution || true")
+    engineer._wsl(
+        "sed -i 's/^    omega$/    \"(omega|epsilon|nuTilda)\"/' "
+        f"{case}/system/fvSolution || true")
+    engineer._wsl(
+        "sed -i 's/^        omega           0.7;/        omega           0.7;"
+        "\\n        epsilon         0.7;\\n        nuTilda         0.7;/' "
+        f"{case}/system/fvSolution || true")
     engineer._wsl(
         f"grep -q 'div(phi,epsilon)' {case}/system/fvSchemes || "
         f"sed -i 's#div(phi,omega)\\(.*\\)#div(phi,omega)\\1\\n    div(phi,epsilon)\\1\\n    div(phi,nuTilda)\\1#' {case}/system/fvSchemes")
@@ -318,21 +386,54 @@ def closures_motorbike() -> None:
         if not engineer.restore_cached_mesh("uq-motorBike-fine"):
             raise RuntimeError("fine mesh cache missing")
         engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && cp -r 0.orig 0")
+        # The tutorial's streamline/cutting-plane diagnostics reference fields
+        # a different closure does not carry; the force coefficients are the
+        # answer, the rest are visual diagnostics and are dropped here.
+        # Pull-edit-push: shell quoting through the WSL seam is unreliable.
+        control = engineer._wsl(
+            f"cat {engineer.remote_case}/system/controlDict").stdout
+        kept = _strip_named_blocks(
+            control, ("streamLines", "wallBoundedStreamLines",
+                      "cuttingPlane", "ensightWrite")).splitlines()
+        staging = OUT / "closure-fields"
+        staging.mkdir(parents=True, exist_ok=True)
+        (staging / "controlDict").write_text("\n".join(kept) + "\n",
+                                             newline="\n")
+        wsl_cd = str(staging / "controlDict").replace("C:", "/mnt/c").replace("\\", "/")
+        engineer._wsl(f"cp '{wsl_cd}' {engineer.remote_case}/system/controlDict")
         _closure_files(engineer, closure, k=0.24, nu=1.5e-5, length=2.0)
         engineer._run_step("potentialFoam", "potentialFoam -writephi", 3600)
         engineer._run_step("simpleFoam", "simpleFoam", 7200)
         results = engineer.postprocess(("Cd", "Cl"))
-        members[closure] = float(results["Cd"]["value"])
+        cd = float(results["Cd"]["value"])
+        sigma = float(results["Cd"].get("sigma") or 0.0)
+        if cd and 2.0 * sigma / abs(cd) > 0.05:
+            # An unconverged solve is not evidence; exclude it, say why.
+            members[closure] = {"excluded": "unconverged at "
+                                f"{ITERATIONS} iterations "
+                                f"(window spread {2*sigma:.2g})"}
+            _log(f"motorBike {closure}: EXCLUDED unconverged "
+                 f"(Cd {cd:.4f} +- {2*sigma:.2g})")
+        else:
+            members[closure] = cd
+            _log(f"motorBike {closure}: Cd {cd:.4f} "
+                 f"({round((time.time()-began)/60, 1)} min)")
         _checkpoint(body, closures=members)
-        _log(f"motorBike {closure}: Cd {members[closure]:.4f} "
-             f"({round((time.time()-began)/60, 1)} min)")
-    spread = uq.spread_estimate(
-        members, label="inter-closure spread (screening estimate)")
+    converged = {k: v for k, v in members.items() if isinstance(v, float)}
+    excluded = {k: v["excluded"] for k, v in members.items()
+                if isinstance(v, dict)}
+    label = "inter-closure spread (screening estimate)"
+    if excluded:
+        label += ("; excluded: "
+                  + "; ".join(f"{k}: {v}" for k, v in excluded.items()))
+    spread = uq.spread_estimate(converged, label=label)
     _checkpoint(body, model={"band_abs": spread["band_abs"],
                              "method": spread["method"],
                              "members": spread["members"],
+                             "excluded": excluded or None,
                              "screening_estimate": True})
-    _log(f"motorBike closures DONE: spread {spread['band_abs']:.4g}")
+    _log(f"motorBike closures DONE: spread {spread['band_abs']:.4g} "
+         f"({len(converged)} converged, {len(excluded)} excluded)")
 
 
 def closures_unfamiliar(body: str, stl_name: str, *,

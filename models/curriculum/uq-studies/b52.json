@@ -23,5 +23,19 @@
       "wall_minutes": 3.8
     }
   ],
-  "updated_utc": "2026-07-23T06:37:20Z"
+  "updated_utc": "2026-07-23T17:34:46Z",
+  "fingerprint": "ed675052cbc1ff14",
+  "numerical": {
+    "band_abs": 0.003029999999999991,
+    "band_rel": 0.0653,
+    "observed_order": null,
+    "method": "refinement study inconclusive: refinement parameter did not change the mesh between rungs",
+    "conclusive": false,
+    "value_working": 0.0464
+  },
+  "provenance": [
+    "uq-b52-r1",
+    "uq-b52-r2",
+    "uq-b52-r3"
+  ]
 }

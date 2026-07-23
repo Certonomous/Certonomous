@@ -172,6 +172,36 @@ class RouterTests(unittest.TestCase):
         route = self._intent("How confident are we in that number? Tighten the error bars")
         self.assertEqual(route.intent, "uncertainty-reduction")
 
+    def test_head_to_head_race_routes_to_race_comparison(self):
+        route = self._intent(
+            "Race a full Monte-Carlo sweep against the reduced-order path on "
+            "the NACA 4412 finite wing: same objective, same tolerance, both "
+            "timed. Report the polar, the agreement, and the measured speedup.")
+        self.assertEqual(route.intent, "race-comparison")
+        self.assertTrue(route.rationale)
+        self.assertTrue(route.evidence)
+
+    def test_race_route_wins_over_the_wing_geometry_signal(self):
+        # "wing" alone is an unseen-geometry candidate; the contest framing plus
+        # the two named methods must dominate it.
+        route = self._intent(
+            "Head-to-head: full Monte-Carlo versus the reduced-order surrogate "
+            "on the wing, both timed.")
+        self.assertEqual(route.intent, "race-comparison")
+
+    def test_race_workflow_is_registered(self):
+        from chief_engineer.router import RACE_COMPARISON, WORKFLOWS
+        self.assertIn(RACE_COMPARISON, WORKFLOWS)
+        self.assertEqual(WORKFLOWS[RACE_COMPARISON]["module"],
+                         "workflows.race_study")
+
+    def test_plain_monte_carlo_uq_does_not_hijack_to_race(self):
+        # Naming Monte-Carlo without a contest frame is a UQ request, not a race.
+        route = self._intent(
+            "Run a Monte-Carlo to reduce the uncertainty on the cylinder drag "
+            "and tighten the error bars.")
+        self.assertNotEqual(route.intent, "race-comparison")
+
     def test_unmatched_request_falls_through_to_the_planner(self):
         from chief_engineer.router import GENERAL_MISSION
         self.assertEqual(self._intent("hello there").intent, GENERAL_MISSION)
@@ -370,3 +400,33 @@ class FieldRenderTests(unittest.TestCase):
         payload = load_field_surface([a, b], field="p")
         self.assertEqual(payload["triangles_total"], 4)
         self.assertEqual(len(payload["field"]["values"]), payload["triangles_shown"])
+
+    def test_domain_patches_are_excluded(self):
+        # The money-shot bug: painting flat domain rectangles instead of the
+        # vehicle. Every wind-tunnel boundary name must be recognised as domain.
+        from chief_engineer.field_render import _is_domain_patch
+        for name in ("inlet", "outlet", "ground", "floor", "sky", "frontAndBack",
+                     "front", "back", "lowerWall", "upperWall", "defaultFaces",
+                     "symPlane", "symFront", "sym", "farfield", "proc0"):
+            self.assertTrue(_is_domain_patch(name), f"{name} should be domain")
+        for name in ("motorBike_frame", "body", "b52", "naca4412_wing", "wing"):
+            self.assertFalse(_is_domain_patch(name), f"{name} should be body")
+
+    def test_body_patch_selection_keeps_only_the_vehicle(self):
+        # motorBike case: a motorBike_* group inside a wind-tunnel box. Selection
+        # must keep the group and drop every domain rectangle.
+        from pathlib import Path
+        from chief_engineer.field_render import _body_patches
+        patches = [Path(f"{n}.vtp") for n in (
+            "inlet", "outlet", "lowerWall", "upperWall", "frontAndBack",
+            "motorBike_frame", "motorBike_seat", "motorBike_windshield")]
+        kept = {p.stem for p in _body_patches(patches)}
+        self.assertEqual(kept, {"motorBike_frame", "motorBike_seat",
+                                "motorBike_windshield"})
+
+    def test_body_patch_selection_single_patch_body(self):
+        # B-52 case: one body patch, no group prefix — it must survive.
+        from pathlib import Path
+        from chief_engineer.field_render import _body_patches
+        patches = [Path(f"{n}.vtp") for n in ("inlet", "outlet", "sky", "body")]
+        self.assertEqual([p.stem for p in _body_patches(patches)], ["body"])

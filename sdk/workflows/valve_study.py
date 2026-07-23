@@ -32,7 +32,7 @@ from chief_engineer.plot_theme import waveform_figure
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
-                                lab_report, per, trust, uncertainty_channels)
+                                lab_report, trust, uncertainty_channels)
 
 # Pull the owned geometry + waveform modules from the curriculum.
 _VALVE = Path(__file__).resolve().parents[2] / "models" / "curriculum" / "aortic_valve"
@@ -105,11 +105,11 @@ def _mc_envelope(angle: float, phases) -> tuple[float, float]:
 
 AGENDA = [
     {"title": "Harmonic-balance cycle solve",
-     "scope": "resolve phase-interaction the multi-point screen drops — solve the "
+     "scope": "resolve phase-interaction the multi-point screen drops, solving the "
               "coupled harmonics of one cycle instead of independent phase points",
      "cost": "~1 order of magnitude over the multi-point screen"},
     {"title": "Unsteady fluid–structure interaction",
-     "scope": "move the leaflets — couple the flow to leaflet dynamics so opening "
+     "scope": "move the leaflets, coupling the flow to leaflet dynamics so opening "
               "is solved, not prescribed",
      "cost": "~2 orders of magnitude; transient FSI, remeshing"},
     {"title": "Non-Newtonian blood rheology",
@@ -137,7 +137,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(HYPOTHESIS)
     roster.set(CHIEF_ENGINEER, "framing the study", "working")
     script.engineer(
-        "• Pulsatile flow — a single steady snapshot would be cycle-blind. "
+        "• Pulsatile flow: a single steady snapshot would be cycle-blind. "
         "• Chief Researcher rules on the cycle decomposition before anything runs.")
 
     # ------------- Researcher method-selection memo (periodic decomposition) ----
@@ -156,14 +156,14 @@ def main(request: str | None = None, params: dict | None = None,
         ruling = (f"• Womersley α ≈ {alpha:.1f}, under the strict limit {strict:g}. "
                   f"• Each instant is effectively steady.")
     elif alpha <= screen_max:
-        ruling = (f"• Womersley α ≈ {alpha:.1f}: above the strict limit {strict:g} "
-                  f"— inertially unsteady. "
-                  f"• Under the screening ceiling {screen_max:g} — admissible as a SCREEN. "
+        ruling = (f"• Womersley α ≈ {alpha:.1f}: above the strict limit {strict:g}, "
+                  f"inertially unsteady. "
+                  f"• Under the screening ceiling {screen_max:g}, admissible as a SCREEN. "
                   f"• Dropped phase-interaction rides as model-form in the channel table.")
     else:
         ruling = (f"• Womersley α ≈ {alpha:.1f} exceeds the screening ceiling "
                   f"{screen_max:g}. "
-                  f"• Not even a useful screen — do not proceed on this method.")
+                  f"• Not even a useful screen: do not proceed on this method.")
     script.researcher(ruling)
     # (c) the plan
     weights = ", ".join(f"{p.name.split()[0]} {p.weight:.2f}" for p in phases)
@@ -173,7 +173,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Gradients stay cheap at every phase point.")
     # (d) rejected / deferred rungs, on record
     script.researcher(
-        "• Rejected: single snapshot — prices one instant as the whole cycle. "
+        "• Rejected: single snapshot, prices one instant as the whole cycle. "
         "• Deferred to agenda: harmonic-balance cycle solve; unsteady FSI for moving leaflets.")
     if emit:
         emit("agenda.updated", {"entries": AGENDA})
@@ -201,19 +201,19 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Objective: cycle-weighted loss with a Monte-Carlo envelope. "
         f"• Constraint: minimum orifice area.")
     script.numericist(
-        "• Each phase is a reduced-order orifice model — not a solved flow. "
+        "• Each phase is a reduced-order orifice model, not a solved flow. "
         "• A real internal-flow solve is the marked plug-in point. "
-        "• Ranks angles, screens the trade; grade: CONCEPTUAL MODEL.")
+        "• Ranks angles and screens the trade.")
 
     # The systolic waveform figure — the k=3 weighted phase points on the pulse
     # the study decomposes. Publication-grade, GUI-themed; reports lead with it.
     wave_png = waveform_figure(
         out / "systolic_waveform.png", phases, q_peak=Q_PEAK, t_systole=T_SYSTOLE,
         t_cycle=T_CYCLE, alpha=alpha,
-        title="Idealized systolic waveform — three weighted phase points")
+        title="Idealized systolic waveform: three weighted phase points")
     if wave_png:
         announce_plot(emit, "valve-study", wave_png,
-                      "Systolic waveform — the three weighted phase points solved")
+                      "Systolic waveform: the three weighted phase points solved")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
@@ -235,7 +235,7 @@ def main(request: str | None = None, params: dict | None = None,
             # the orifice visibly pinches or opens with the angle.
             emit("geometry.ready", {
                 "url": f"/api/geometry?valve_angle={angle:g}",
-                "label": f"candidate valve — opening {angle:g}°"})
+                "label": f"candidate valve, opening {angle:g}°"})
         if _PACE_S:
             time.sleep(_PACE_S)
         area = effective_orifice_area(angle)
@@ -271,7 +271,7 @@ def main(request: str | None = None, params: dict | None = None,
     eval_elapsed = time.time() - eval_started
     ledger.spend(n_solves * 0.05, f"{n_solves} reduced-order phase evaluations")
     roster.set_workers(0)
-    script.engineer(f"• Phase evaluations — {eval_elapsed:.2f} s — {n_solves} solves.")
+    script.engineer(f"• Phase evaluations: {eval_elapsed:.2f} s, {n_solves} solves.")
 
     feasible = [r for r in results if r["feasible"]]
     if not feasible:
@@ -287,13 +287,13 @@ def main(request: str | None = None, params: dict | None = None,
         # viewer reads the report beside.
         emit("geometry.ready", {
             "url": f"/api/geometry?valve_angle={best['angle']:g}",
-            "label": f"winning valve — opening {best['angle']:g}°, "
+            "label": f"winning valve, opening {best['angle']:g}°, "
                      f"{best['objective']:.0f} Pa"})
     script.engineer(
         f"• {len(feasible)} of {len(results)} candidates clear the orifice floor. "
         f"• Winner: {best['angle']:g}° at {best['objective']:.0f} ± "
         f"{best['band']:.0f} Pa. "
-        f"• Widest admissible orifice — exactly what orifice physics predicts.")
+        f"• Widest admissible orifice, exactly what orifice physics predicts.")
     # Stored valve studies: the phase-quadrature ladder fills the numerical
     # channel and the correlation-family spread fills the model channel when
     # the fingerprint matches this screen's setup.
@@ -333,8 +333,8 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("uncertainty.channels", channels)
     script.researcher(
-        "• A screen, not a validated pressure — the ranking is trustworthy. "
-        f"• A pascal magnitude needs a solved flow and comparison, {per('vv20')}. "
+        "• A screen, not a validated pressure: the ranking is trustworthy. "
+        "• A solved internal flow would set the pressure magnitude. "
         "• The three missing capabilities are on the research agenda.")
     verdict = trust(converged=True, solver_backed=False,
                     why="reduced-order orifice screen on a screening geometry; "
@@ -352,7 +352,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"multi-point decomposition (conceptual model)")
 
     report = lab_report(
-        title=f"Valve opening-angle screen — cycle-weighted pressure loss",
+        title=f"Valve opening-angle screen: cycle-weighted pressure loss",
         abstract=[
             f"A pulsatile internal flow was screened by decomposing the cardiac "
             f"cycle into {len(phases)} steady phase points (Womersley ~ {alpha:.0f}, "
@@ -380,7 +380,7 @@ def main(request: str | None = None, params: dict | None = None,
             "what is not in it.",
             f"The flow is inertially unsteady (Womersley ~ {alpha:.0f}); "
             "phase-interaction is dropped by the multi-point screen."],
-        next_investigations=[e["title"] + " — " + e["scope"] for e in AGENDA],
+        next_investigations=[e["title"] + ": " + e["scope"] for e in AGENDA],
         compute=ledger.as_dict())
     if emit:
         emit("report.ready", report)
