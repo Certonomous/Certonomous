@@ -198,6 +198,50 @@ class RouterTests(unittest.TestCase):
                      "mesh and solve the motorbike"):
             self.assertIsNone(out_of_scope_domain(text), text)
 
+    # -- professional demo directives (v2-E1): full engineering sentences,
+    # not shorthand, must still land on the intended workflow. --
+    def test_b52_directive_routes_to_geometry_study(self):
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied B-52 geometry at "
+            "240 m/s, sea-level conditions. Select the appropriate turbulence "
+            "model and solver, gate the mesh on quality, and report drag and "
+            "lift with confidence envelopes.")
+        self.assertEqual(route.intent, "geometry-study")
+
+    def test_motorbike_directive_routes_to_geometry_study(self):
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied motorcycle-with-"
+            "rider geometry at highway speed, sea-level conditions. Select the "
+            "appropriate turbulence model and solver, gate the mesh on quality, "
+            "and report the drag coefficient with a confidence envelope.")
+        self.assertEqual(route.intent, "geometry-study")
+
+    def test_naca4412_directive_routes_to_geometry_study(self):
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied NACA 4412 "
+            "finite-wing geometry at cruise Reynolds number. Select the "
+            "appropriate turbulence model and solver, gate the mesh on "
+            "quality, and report the lift and drag coefficients with "
+            "confidence envelopes.")
+        self.assertEqual(route.intent, "geometry-study")
+
+    def test_airliner_directive_routes_to_aircraft_optimization(self):
+        route = self._intent(
+            "Optimize the lift-to-drag ratio of a twin-aisle airliner "
+            "carrying 300 passengers over a 6000 km range, with take-off at "
+            "85 m/s and landing at 72 m/s. Search the wing design space, mark "
+            "any infeasible designs, and report the best feasible L/D with "
+            "its envelope.")
+        self.assertEqual(route.intent, "aircraft-optimization")
+
+    def test_valve_directive_routes_to_valve_study(self):
+        route = self._intent(
+            "Optimize the leaflet opening angle of the aortic valve to "
+            "minimize pressure loss over the cardiac cycle. Decompose the "
+            "cycle into representative phase points, rule on the admissible "
+            "method, and report the cycle-weighted loss with its uncertainty.")
+        self.assertEqual(route.intent, "valve-study")
+
 
 class CitationDisplayTests(unittest.TestCase):
     def _display(self, raw):
