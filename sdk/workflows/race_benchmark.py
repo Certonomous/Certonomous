@@ -210,7 +210,7 @@ def polar_plot(mc: dict, out_png: Path) -> str | None:
     best = max(nominal, key=lambda p: p["l_d"])
     ax.annotate(rf"peak $L/D$ = {best['l_d']:.1f} at "
                 rf"$\alpha$ = {best['alpha']:g}$^\circ$",
-                (best["alpha"], best["l_d"]), xytext=(8, 12),
+                (best["alpha"], best["l_d"]), xytext=(14, -16),
                 textcoords="offset points", fontsize=10, color=INK)
     ax.scatter([best["alpha"]], [best["l_d"]], s=70, facecolors="none",
                edgecolors=GREEN, linewidths=2, zorder=5)
