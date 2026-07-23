@@ -188,11 +188,13 @@
   .entry { padding: 9px 0; border-bottom: 1px solid var(--line); }
   .entry .who { font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
   .entry .who time { float: right; color: var(--dim); letter-spacing: 0; }
-  .entry.chief-engineer .who { color: var(--live); }
-  .entry.chief-researcher .who { color: var(--regime); }
-  .entry.numericist .who { color: #9aa7ff; }
-  .entry.monitor .who { color: var(--trend); }
-  .entry.system .who { color: var(--dim); }
+  /* role accents — one color per role, shared verbatim by digest, conversation
+     and the present-bar stamp so a name reads the same color everywhere. */
+  .entry.chief-engineer .who, .present-bar .role.chief-engineer { color: var(--live); }
+  .entry.chief-researcher .who, .present-bar .role.chief-researcher { color: #c792ea; }
+  .entry.numericist .who, .present-bar .role.numericist { color: #45cfc0; }
+  .entry.monitor .who, .present-bar .role.monitor { color: #ef7fb0; }
+  .entry.system .who, .present-bar .role.system { color: var(--muted); }
   .entry p { margin-top: 5px; font-size: 13px; }
   .digest-phase { color: var(--dim); font: 9px var(--mono); letter-spacing: .2em; text-transform: uppercase; margin: 16px 0 7px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
   .digest-phase:first-child { margin-top: 0; }
@@ -395,7 +397,7 @@ function solverSelected(p) {
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600); }
 
 function togglePresent() { $('shell').classList.toggle('presenting'); }
-function present(role, msg) { if (!msg) return; $('presentRole').textContent = (role || 'Certonomous').toUpperCase(); const m = String(msg).replace(/\s+/g,' ').trim(); $('presentMsg').textContent = m.length > 220 ? m.slice(0,217)+'…' : m; }
+function present(role, msg) { if (!msg) return; const pr = $('presentRole'); pr.textContent = (role || 'Certonomous').toUpperCase(); pr.className = 'role ' + roleSlug(role); const m = String(msg).replace(/\s+/g,' ').trim(); $('presentMsg').textContent = m.length > 220 ? m.slice(0,217)+'…' : m; }
 function renderTouch() { setHidden('touch', !state.touchpoints); if (state.touchpoints) $('touchCount').textContent = state.touchpoints; }
 function bumpTouch() { if (!state.mission || state.finished) return; state.touchpoints++; renderTouch(); }
 
@@ -539,7 +541,8 @@ function renderAgenda(p) {
     `<div class="agenda-item"><b>${esc(e.title||'')}</b><span class="scope">${esc(e.scope||'')}</span>${e.cost?`<span class="cost">${esc(e.cost)}</span>`:''}</div>`).join('');
 }
 
-function roleClass(role) { return 'entry ' + String(role||'system').toLowerCase().replace(/[^a-z]+/g,'-'); }
+function roleSlug(role) { return String(role||'system').toLowerCase().replace(/[^a-z]+/g,'-'); }
+function roleClass(role) { return 'entry ' + roleSlug(role); }
 
 // The transcript streams at reading pace: entries queue as the backend emits
 // them and reveal one at a time, so the viewer watches the mission happen

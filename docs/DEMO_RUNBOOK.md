@@ -30,7 +30,7 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | VSPAERO reachable | `wsl -d Ubuntu -- vspaero \| head -1` | version banner (v7.x) |
 | No stray load | `wsl -d Ubuntu -u foam -- bash -c "pgrep -c -f '[c]ertonomous' \|\| echo 0"` | 0 |
 | Ports clear | `netstat -ano \| grep :8765` | nothing listening before you start |
-| Tests green | `cd sdk && python -m unittest discover tests` | 127 OK |
+| Tests green | `cd sdk && python -m unittest discover tests` | 148 OK |
 | Mesh cache warm (Act 2) | pre-run the Act 2 body once so the snapped mesh is cached (see Act 2) | cached case present |
 | Presentation mode | open `/?present=1`, confirm the big action line | renders |
 | Autonomy counter | fresh page → launch → reads `HUMAN TOUCHPOINTS · 1` | 1 |
@@ -43,11 +43,11 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 ## ACT 1 — Airliner L/D optimization (flagship, ~90 s on camera)
 
 **Trigger:** type, no upload —
-`Optimize the L/D of an airliner for 300 passengers, 6000 km range, take-off at 85 m/s, landing at 72 m/s` → Launch.
+`Optimize the lift-to-drag ratio of a twin-aisle airliner carrying 300 passengers over a 6000 km range, with take-off at 85 m/s and landing at 72 m/s. Search the wing design space, mark any infeasible designs, and report the best feasible L/D with its envelope.` → Launch.
 
 | Beat | Expected on screen | Failure signature | Fallback |
 |---|---|---|---|
-| Interpretation | route panel: `AIRCRAFT OPTIMIZATION · interpretation confidence 70%` + rationale | routes elsewhere | re-read prompt; `demo-output/fallbacks/act1_airliner.png` |
+| Interpretation | route panel: `AIRCRAFT OPTIMIZATION · interpretation confidence 46%` + rationale | routes elsewhere | re-read prompt; `demo-output/fallbacks/act1_airliner.png` |
 | Researcher memo | CHIEF RESEARCHER: classification (2-parameter, smooth, steady) → strategy (ensemble; "the gradient is cheap and admissible") → rejected alternatives → admissibility → CHIEF ENGINEER "On it." | memo generic/absent | still frame `act1_airliner.png` |
 | Compute audit | telemetry stack: `CAPACITY AVAILABLE · N requested / capacity M · cores free · memory · jobs · load` | panel missing | `act1_airliner.png` (panel bottom-left) |
 | Design-space landscape | viewport: solved points coloured by objective, infeasible greyed (stall/range), optimum ringed, fog thinning | landscape absent | `act1_airliner.png` |
@@ -65,8 +65,14 @@ read-out, not compute — pace the transcript).
 ## ACT 2 — Real-CFD production floor (~2 min, mesh-cache dependent)
 
 **Trigger (upload-driven):** write the objective, then Load-a-surface, then Launch —
-`Solve the drag on this aircraft and paint the pressure field.` + upload `b52.stl`
-(or `Show me the pressure field on this motorbike.` + `motorBike.obj`).
+`Solve the external aerodynamics of the supplied B-52 geometry at 240 m/s, sea-level conditions. Select the appropriate turbulence model and solver, gate the mesh on quality, and report drag and lift with confidence envelopes.` + upload `b52.stl`
+(or `Solve the external aerodynamics of the supplied motorcycle-with-rider geometry at highway speed, sea-level conditions. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the drag coefficient with a confidence envelope.` + `motorBike.obj`,
+or `Solve the external aerodynamics of the supplied NACA 4412 finite-wing geometry at cruise Reynolds number. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the lift and drag coefficients with confidence envelopes.` + `naca4412_wing.stl`).
+
+Each directive names the physics and asks the lab to **select** the closure —
+the response must carry the selection with its rationale (`Selected: k-omega
+SST, steady RANS — standard closure for attached external flow…`), not just
+run silently.
 
 | Beat | Expected on screen | Failure signature | Fallback |
 |---|---|---|---|
@@ -100,7 +106,7 @@ the fast cylinder sweep (seconds), so it can run live without pre-warm.
 ## ACT 3 — Heart valve (research, ~90 s on camera)
 
 **Trigger:** type, no upload —
-`Optimize the valve opening angle to minimize pressure loss over the cardiac cycle` → Launch.
+`Optimize the leaflet opening angle of the aortic valve to minimize pressure loss over the cardiac cycle. Decompose the cycle into representative phase points, rule on the admissible method, and report the cycle-weighted loss with its uncertainty.` → Launch.
 
 | Beat | Expected on screen | Failure signature | Fallback |
 |---|---|---|---|

@@ -69,7 +69,7 @@ def main(request: str | None = None, params: dict | None = None,
                               title=f"Run A — {run_a.n} samples")
     announce_plot(emit, "uncertainty-reduction", plot_a, f"First pass — {run_a.n} samples")
     script.engineer(
-        f"• Run A complete in {run_a.wall_seconds:.0f}s. • {run_a.headline()}",
+        f"• Run A — {run_a.wall_seconds:.0f} s. • {run_a.headline()}",
         result=run_a.as_dict())
 
     reducible = run_a.relative_error > TARGET_RELATIVE
@@ -94,7 +94,7 @@ def main(request: str | None = None, params: dict | None = None,
                               title=f"Run B — {run_b.n} samples")
     announce_plot(emit, "uncertainty-reduction", plot_b, f"Second pass — {run_b.n} samples")
     script.engineer(
-        f"• Run B complete in {run_b.wall_seconds:.0f}s. • {run_b.headline()}",
+        f"• Run B — {run_b.wall_seconds:.0f} s. • {run_b.headline()}",
         result=run_b.as_dict())
 
     comparison = plot_ab_comparison(run_a, run_b, out / "uncertainty_ab_panel.png")

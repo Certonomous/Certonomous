@@ -311,6 +311,8 @@ def main(request: str | None = None, params: dict | None = None,
         run_prefix=RUN_PREFIX, metric="Cd", label="w")
     ledger.spend(ensemble.n * CORE_SECONDS_PER_SOLVE, f"{ensemble.n}-sample ensemble")
     roster.set_workers(0)
+    script.engineer(
+        f"• Uncertainty ensemble — {ensemble.wall_seconds:.1f} s — {ensemble.n} solves.")
     plot = plot_convergence(ensemble, out / "winner_uncertainty.png",
                             title=f"Winning geometry (D={best_x:.3g} m) — drag with envelope")
     announce_plot(emit, "shape-optimization", plot,
