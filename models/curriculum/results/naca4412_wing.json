@@ -2,14 +2,18 @@
   "name": "naca4412_wing",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 1.81,
+  "wall_minutes": 4.41,
   "cd_measured": "0.02892",
+  "cd_compared": 0.0289,
+  "area_basis": "planform",
+  "basis_note": "already on the reference's planform-area basis",
+  "relative_error": 0.036,
   "envelope": "\u00b14.6e-07",
   "tier": "VALIDATED",
   "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
   "reference_cd": 0.03,
   "reference_source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
-  "finished_at": "2026-07-21T01:29:16+00:00",
+  "finished_at": "2026-07-23T04:17:19+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
@@ -39,5 +43,17 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 0.0289,
+    "compared_cd": 0.0289,
+    "reference_cd": 0.03,
+    "relative_error": 0.036,
+    "tolerance": 0.4,
+    "area_basis": "planform",
+    "basis_note": "already on the reference's planform-area basis",
+    "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+    "solved_reynolds": null,
+    "regime": "attached, cambered section carrying lift at zero incidence"
+  }
 }

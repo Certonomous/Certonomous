@@ -53,8 +53,8 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | Design-space landscape | viewport: solved points coloured by objective, infeasible greyed (stall/range), optimum ringed, fog thinning | landscape absent | `act1_airliner.png` |
 | Finalist solves | top 6 feasible wings promoted to **real vortex-lattice solves in parallel** (workers visible); per-finalist solved lines; winner picked on solved numbers | finalists absent → solver not reachable, check `OPENVSP_RUN_PREFIX` | screen-only path still completes honestly |
 | Result + envelope | EVIDENCE: best feasible **L/D 19.7 (solved)** at span 64 m, AR 13.7; screen said 18.4, same winner | number differs | expected ~19.7 solved / 18.4 screened |
-| Honesty cap | **TREND ONLY** — conceptual sizing model, not a solved flow; model-form flagged | tier over-claims | inspect verdict reason |
-| Report + certificate | REPORT tab: abstract/methods/results (TREND ONLY badge)/uncertainty/future-work + sealed-certificate link | report empty | `act1_airliner_report.png` |
+| Fidelity chip | **SOLVER-BACKED** when finalists solved (wing solved, buildup stated) — **CONCEPTUAL MODEL** on the screen-only path; headline reads value ± CI (95%) | chip over-claims | inspect verdict reason |
+| Report + certificate | REPORT tab: figures first, results table with fidelity chips, Next investigations + sealed-certificate link | report empty | `act1_airliner_report.png` |
 | Autonomy counter | masthead `HUMAN TOUCHPOINTS · 1` | >1 with no steer | reset page |
 
 Measured compute: **8.6 s** (well under 90 s; on-camera time is the narration
@@ -74,7 +74,7 @@ read-out, not compute — pace the transcript).
 | Researcher memo | CHIEF RESEARCHER: single fixed body, steady RANS — measurement not optimisation, mesh-quality-gated → "On it." | absent | still frame |
 | Mesh + gates | mesh built; non-orthogonality / skewness reported against the acceptance band | gate not shown | check monitor line |
 | Cp-painted geometry | the body painted by solved surface pressure (coolwarm), legend in Pa | flat / unpainted | `field.ready` didn't fire — check solve |
-| Envelope + tier | drag with settling envelope; **VALIDATED vs prior** where a reference exists, else TREND ONLY | envelope missing | inspect verdict |
+| Envelope + chip | drag as value ± CI (95%); **VALIDATED** where a published reference grades it, else **SOLVER-BACKED** | envelope missing | inspect verdict |
 | Certificate | sealed-certificate PDF link atop the report | absent | `/api/certificate/geometry-study` |
 | **Worker-kill beat** | mid-sweep run `scripts/kill_worker.sh <n>` → transcript: "Worker N stopped responding mid-sweep — reprovisioning…" → `worker.killed` then `worker.reprovisioned` → mission completes with the **same numbers** | no recovery | see matched-numbers proof below |
 
@@ -105,11 +105,11 @@ the fast cylinder sweep (seconds), so it can run live without pre-warm.
 | Beat | Expected on screen | Failure signature | Fallback |
 |---|---|---|---|
 | Interpretation | route panel: `VALVE STUDY` + pulsatile-internal-flow rationale | routes elsewhere | `demo-output/fallbacks/act3_valve.png` |
-| Periodicity + Womersley | CHIEF RESEARCHER: "pulsatile but periodic…" → **Womersley α ≈ 16.7 displayed** with the ruling (above strict limit 1, under screening ceiling 25 → admissible as a SCREEN, phase-interaction is model-form → TREND ONLY) | α not shown | `act3_valve.png` |
+| Periodicity + Womersley | CHIEF RESEARCHER: "pulsatile but periodic…" → **Womersley α ≈ 16.7 displayed** with the ruling (above strict limit 1, under screening ceiling 25 → admissible as a SCREEN, phase-interaction rides in the model channel) | α not shown | `act3_valve.png` |
 | Plan | k=3 phase points (weights 0.25 / 0.50 / 0.25), cycle-weighted pressure-loss objective, "backpropagation stays cheap at every phase point" | weights absent | still frame |
 | Rejected / deferred | single snapshot rejected (cycle-blind); harmonic-balance + unsteady-FSI deferred to the agenda | not on record | check digest |
 | Multi-point run | 4 angles × 3 phases; cycle-weighted loss per candidate with MC envelope; 35° infeasible (min-orifice) | run errors | inspect evidence |
-| Result | best **1345 ± 421 Pa at 80°**, **TREND ONLY** | number differs | expected ~1345 Pa |
+| Result | best **1345 ± 421 Pa (95%) at 80°**, chip **CONCEPTUAL MODEL** | number differs | expected ~1345 Pa |
 | Model-form honesty | reduced-order orifice model; phase-interaction neglected; leaflets fixed; Newtonian blood — all listed | list incomplete | inspect uncertainty channel |
 | Research agenda | agenda panel shows 3 lines: harmonic-balance cycle solve, unsteady FSI, non-Newtonian blood (each scope + rough cost) | agenda empty | `agenda.updated` didn't fire |
 
@@ -140,7 +140,7 @@ stalls. Full screen-recordings need a human operator (do one clean pass per act
 into the same folder before demo day).
 
 - `act1_airliner.png` — Act 1 launched: memo, compute-audit, landscape.
-- `act1_airliner_report.png` — Act 1 report: results + TREND ONLY + certificate.
+- `act1_airliner_report.png` — Act 1 report: results + fidelity chip + certificate.
 - `act3_valve.png` — Act 3 launched: Womersley memo, model-form, compute-audit.
 - `dormant_wall.png` — the validation wall (open on the dormant screen).
 - Act 2 still: capture during a pre-warmed B-52/motorBike run (painted field) and

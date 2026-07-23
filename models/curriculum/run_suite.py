@@ -145,12 +145,20 @@ def _run_one(name: str, refinement: int, iterations: int) -> dict:
 
     verdict = captured.get("result.verdict", {})
     report = captured.get("report.ready", {})
+    # The comparison block carries the REBASED coefficient — the one number
+    # the verdict was actually judged on. It is stored whole so every surface
+    # (wall card, reason text, tests) reads the same figure.
+    comparison = verdict.get("comparison") or {}
     return {
         "name": name,
         "returncode": code,
         "ok": code == 0,
         "wall_minutes": round(minutes, 2),
         "cd_measured": verdict.get("value"),
+        "cd_compared": comparison.get("compared_cd"),
+        "area_basis": comparison.get("area_basis"),
+        "basis_note": comparison.get("basis_note"),
+        "relative_error": comparison.get("relative_error"),
         "envelope": verdict.get("envelope"),
         "tier": verdict.get("tier"),
         "reason": verdict.get("reason"),
@@ -158,6 +166,7 @@ def _run_one(name: str, refinement: int, iterations: int) -> dict:
         "reference_source": (reference or {}).get("source"),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "report_results": report.get("results"),
+        "comparison": comparison or None,
     }
 
 

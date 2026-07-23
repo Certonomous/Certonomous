@@ -2,35 +2,39 @@
   "name": "cube",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 1.27,
-  "cd_measured": "1.101",
-  "envelope": "\u00b10.047",
+  "wall_minutes": 4.6,
+  "cd_measured": "1.112",
+  "cd_compared": 1.112,
+  "area_basis": "frontal",
+  "basis_note": "rebased from the measured planform area onto frontal area",
+  "relative_error": 0.059,
+  "envelope": "\u00b10.0061",
   "tier": "VALIDATED",
-  "reason": "within 5% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)",
+  "reason": "within 6% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)",
   "reference_cd": 1.05,
   "reference_source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)",
-  "finished_at": "2026-07-21T01:14:28+00:00",
+  "finished_at": "2026-07-23T03:57:13+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
-      "value": "1.101",
-      "envelope": "\u00b10.047 over the final 30 iterations",
+      "value": "1.112",
+      "envelope": "\u00b10.0061 over the final 50 iterations",
       "tier": "VALIDATED",
-      "reason": "within 5% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)"
+      "reason": "within 6% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)"
     },
     {
       "quantity": "Lift coefficient",
-      "value": "-0.01093",
-      "envelope": "\u00b10.017",
+      "value": "-0.0002979",
+      "envelope": "\u00b10.0021",
       "tier": "VALIDATED",
-      "reason": "within 5% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)"
+      "reason": "within 6% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)"
     },
     {
       "quantity": "Drag vs experiment",
-      "value": "Cd 1.101 vs 1.05",
-      "envelope": "5% apart, \u00b115% band",
+      "value": "Cd 1.112 vs 1.05",
+      "envelope": "6% apart, \u00b115% band",
       "tier": "VALIDATED",
-      "reason": "within 5% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)"
+      "reason": "within 6% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)"
     },
     {
       "quantity": "Mesh",
@@ -39,5 +43,17 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 1.112,
+    "compared_cd": 1.112,
+    "reference_cd": 1.05,
+    "relative_error": 0.059,
+    "tolerance": 0.15,
+    "area_basis": "frontal",
+    "basis_note": "rebased from the measured planform area onto frontal area",
+    "source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)",
+    "solved_reynolds": null,
+    "regime": "sharp-edged bluff body, fixed separation"
+  }
 }

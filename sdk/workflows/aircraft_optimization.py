@@ -52,6 +52,49 @@ _MU_CRUISE = 1.43e-5     # dynamic viscosity at ~11 km, Pa·s
 _CD0_NONWING = 0.013
 _TAPER = 0.3             # planform taper ratio for every candidate wing
 _N_FINALISTS = 6         # feasible designs promoted to real solves
+# Stated 1-sigma input uncertainties, propagated to the headline CI. These are
+# the aleatory inputs the sizing rests on; they are declared, not discovered.
+_SIGMA_PAYLOAD = 0.025   # passenger + baggage mass, ±5% at 2-sigma
+_SIGMA_CD0_NONWING = 0.04  # non-wing parasite buildup, ±8% at 2-sigma
+
+
+def _interp_polar(polar: dict, key: str, cl: float) -> float:
+    """Linear interpolation of a polar column against CLtot."""
+    cls_, ys = polar["CLtot"], polar[key]
+    for i in range(len(cls_) - 1):
+        if cls_[i] <= cl <= cls_[i + 1]:
+            t = (cl - cls_[i]) / ((cls_[i + 1] - cls_[i]) or 1.0)
+            return ys[i] + t * (ys[i + 1] - ys[i])
+    i = 0 if cl < cls_[0] else len(cls_) - 2
+    t = (cl - cls_[i]) / ((cls_[i + 1] - cls_[i]) or 1.0)
+    return ys[i] + t * (ys[i + 1] - ys[i])
+
+
+def winner_ci95(best: dict, reqs: dict, *, polar: dict | None,
+                n: int = 400, seed: int = 7) -> float:
+    """95% CI on the winner's L/D: the stated input uncertainties Monte-Carlo
+    propagated through the actual evaluation chain — the solved polar when one
+    exists, the sizing model otherwise. Real spread machinery, no fudge."""
+    import random
+    import statistics
+
+    rng = random.Random(seed)
+    samples: list[float] = []
+    for _ in range(n):
+        mass_f = rng.gauss(1.0, _SIGMA_PAYLOAD)
+        if polar:
+            cl = best["cl_cruise"] * mass_f
+            cd0 = _CD0_NONWING * rng.gauss(1.0, _SIGMA_CD0_NONWING)
+            cdi = _interp_polar(polar, "CDi", cl)
+            cdo = _interp_polar(polar, "CDo", cl)
+            samples.append(cl / (cd0 + cdo + cdi))
+        else:
+            perturbed = dict(reqs)
+            perturbed["passengers"] = reqs["passengers"] * mass_f
+            r = evaluate_design(best["span"], best["area"],
+                                best["sweep_deg"], perturbed)
+            samples.append(r["L_D"])
+    return 2.0 * statistics.stdev(samples)
 
 
 def parse_requirements(text: str) -> dict:
@@ -245,7 +288,7 @@ def main(request: str | None = None, params: dict | None = None,
         script.numericist(
             "• Conceptual sizing only — a drag polar, not a solved flow. "
             "• It ranks designs and finds the trade; it validates nothing. "
-            "• A real aero solve is what would move this off a trend.")
+            "• A real aero solve is what would set the magnitude.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
@@ -335,6 +378,7 @@ def main(request: str | None = None, params: dict | None = None,
             f["cdi_solved"] = round(matched["cdi"], 6)
             f["cdo_wing_solved"] = round(matched["cdo_wing"], 6)
             f["extrapolated"] = bool(matched["extrapolated"])
+            f["_polar"] = result["polar"]
             solved_ok.append(f)
             surface = out / f"wing-span{f['span']:g}-area{f['area']:g}.stl"
             try:
@@ -387,9 +431,12 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     won_solved = bool(solved_ok)
     best_ld = best["L_D_solved"] if won_solved else best["L_D"]
+    # Headline CI: stated input uncertainties propagated through the real
+    # evaluation chain (the solved polar when one exists).
+    ci95 = winner_ci95(best, reqs, polar=best.get("_polar"))
     if won_solved:
         channels = uncertainty_channels(
-            input_2sigma=None, numerical=None, model=None,
+            input_2sigma=round(ci95, 2), numerical=None, model=None,
             numerical_note="the design grid is discrete — the true optimum lies "
                            "between grid points",
             model_note="wing induced and viscous drag are solved (vortex "
@@ -397,40 +444,38 @@ def main(request: str | None = None, params: dict | None = None,
                        "remain a component buildup")
     else:
         channels = uncertainty_channels(
-            input_2sigma=None, numerical=None, model=None,
+            input_2sigma=round(ci95, 2), numerical=None, model=None,
             numerical_note="the design grid is discrete — the true optimum lies "
                            "between grid points",
-            model_note="conceptual drag polar, not a solved flow — a real aero "
-                       "solve would set the magnitude")
+            model_note="drag-polar sizing model; a solve would set the "
+                       "magnitude")
     if emit:
         emit("uncertainty.channels", channels)
     if won_solved:
         script.researcher(
             "• Wing solved: induced and viscous drag off a real polar at cruise. "
-            "• Non-wing drag is a stated buildup — the tier stays capped. "
-            f"• Lifting it takes a full-configuration solve and a comparison, {per('vv20')}.")
+            "• Non-wing drag is a stated buildup — grade: SOLVER-BACKED. "
+            f"• VALIDATED takes a full-configuration solve and a comparison, {per('vv20')}.")
         verdict = trust(
-            relative_error=0.0, converged=True, in_validated_regime=False,
-            calibrated=True,
-            why="wing solved by vortex lattice; non-wing drag is a component "
-                "buildup — the trade is solver-backed, the whole-aircraft "
-                "magnitude is a trend")
+            converged=True, in_validated_regime=False, calibrated=True,
+            solver_backed=True,
+            why="wing solved by vortex lattice; non-wing parasite drag from a "
+                "stated component buildup")
     else:
         script.researcher(
             "• Ranking trustworthy: aspect ratio buys L/D until landing speed stops it. "
-            f"• The magnitude {best['L_D']:.1f} is a conceptual estimate — a trend. "
+            f"• The magnitude {best['L_D']:.1f} ± {ci95:.1f} is a sizing-model estimate. "
             f"• A solved flow and a comparison come first, {per('vv20')}.")
         verdict = trust(
-            relative_error=0.0, converged=True, in_validated_regime=False,
-            calibrated=True,
-            why="conceptual sizing model, not a validated aero solve — the "
-                "trade is real, the magnitude is a trend")
+            converged=True, solver_backed=False,
+            why="drag-polar sizing model; no solve behind the magnitude")
     if emit:
         emit("result.verdict", {"quantity": "Best feasible L/D",
                                 "value": f"{best_ld:.1f}",
+                                "ci": f"{ci95:.1f}", "confidence": "95%",
                                 "envelope": ("solved wing + stated buildup"
                                              if won_solved else
-                                             "conceptual estimate"), **verdict})
+                                             "sizing-model estimate"), **verdict})
     knowledge.add(
         f"Airliner L/D for {reqs['passengers']} pax / {reqs['range_km']:.0f} km: "
         f"best feasible L/D {best_ld:.1f} at span {best['span']:.0f} m, "
@@ -472,22 +517,22 @@ def main(request: str | None = None, params: dict | None = None,
     abstract = [
         f"We searched a {len(grid)}-wing design space for the highest cruise "
         f"L/D meeting the stated mission requirements.",
-        f"The best feasible wing reaches L/D {best_ld:.1f} at span "
-        f"{best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
+        f"The best feasible wing reaches L/D {best_ld:.1f} ± {ci95:.1f} (95%) "
+        f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
         f"{n_infeasible} designs were infeasible on low-speed or range.",
         ("The winner stands on a solved wing polar with a stated non-wing "
          "buildup." if won_solved else
-         "The result is a conceptual-design trade, reported as a trend rather "
-         "than a validated magnitude."),
+         "The result comes from the stated sizing model with its input "
+         "envelope propagated."),
     ]
 
     uncertainty = [
         "The trade — L/D rising with aspect ratio until the landing speed caps "
         "it — is physical and trustworthy.",
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
-         "is a stated buildup, and the tier says so." if won_solved else
-         "The absolute L/D is a conceptual estimate from a drag polar, not a "
-         "solved flow; treat the magnitude as a trend."),
+         "is a stated buildup, and the chip says so." if won_solved else
+         "The absolute L/D comes from a drag polar sizing model, not a solved "
+         "flow; the model channel carries that."),
         "The optimum sits between discrete grid points, so the reported design "
         "is the best sampled, not the continuous optimum.",
     ]
@@ -498,7 +543,7 @@ def main(request: str | None = None, params: dict | None = None,
         methods=methods,
         results=[{
             "quantity": "Best feasible L/D",
-            "value": f"{best_ld:.1f}",
+            "value": f"{best_ld:.1f} ± {ci95:.1f} (95%)",
             "envelope": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}, "
                         f"range {best['range_km']:.0f} km",
             **verdict,

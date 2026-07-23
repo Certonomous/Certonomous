@@ -2,14 +2,18 @@
   "name": "ahmed_25",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 0.82,
+  "wall_minutes": 2.95,
   "cd_measured": "0.08978",
+  "cd_compared": 0.3219,
+  "area_basis": "frontal",
+  "basis_note": "rebased from the measured planform area onto frontal area",
+  "relative_error": 0.1295,
   "envelope": "\u00b11.6e-06",
   "tier": "VALIDATED",
   "reason": "within 13% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 (band \u00b115%)",
   "reference_cd": 0.285,
   "reference_source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
-  "finished_at": "2026-07-21T01:30:53+00:00",
+  "finished_at": "2026-07-23T04:23:19+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
@@ -39,5 +43,17 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 0.0898,
+    "compared_cd": 0.3219,
+    "reference_cd": 0.285,
+    "relative_error": 0.1295,
+    "tolerance": 0.15,
+    "area_basis": "frontal",
+    "basis_note": "rebased from the measured planform area onto frontal area",
+    "source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
+    "solved_reynolds": null,
+    "regime": "separated automotive wake, C-pillar vortices over the slant"
+  }
 }

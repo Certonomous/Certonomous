@@ -155,44 +155,56 @@ class ComputeLedger:
 # Trust tiers
 # --------------------------------------------------------------------------
 
+# Fidelity chips: one or two words that say what stands behind a number.
+# VALIDATED — graded against a published experiment and inside its band.
+# SOLVER-BACKED — a real solve produced it; no experimental comparison (or
+#   the comparison is not like-for-like). Specifics live in the channel table.
+# CONCEPTUAL MODEL — a sizing/reduced-order model, honestly labeled.
+# UNCONVERGED — the solve did not settle; the number is not evidence yet.
+# Honesty is carried by the value ± CI, the chip, and the uncertainty
+# channels — never by hedging prose.
 VALIDATED = "VALIDATED"
-TREND_ONLY = "TREND ONLY"
-NEEDS_WORK = "NEEDS WORK"
-# The solve landed in a different physical regime than the reference describes —
-# a like-for-like comparison is not available, so this is neither a pass nor a
-# quiet trend. The verdict names the regime it actually matches.
-REGIME_MISMATCH = "REFERENCE REGIME MISMATCH"
+SOLVER_BACKED = "SOLVER-BACKED"
+CONCEPTUAL = "CONCEPTUAL MODEL"
+UNCONVERGED = "UNCONVERGED"
+# Retired labels, kept only so historical records still map to a chip.
+LEGACY_CHIPS = {"TREND ONLY": SOLVER_BACKED,
+                "REFERENCE REGIME MISMATCH": SOLVER_BACKED,
+                "NEEDS WORK": UNCONVERGED}
+# Backwards-compatible aliases for older call sites/tests.
+TREND_ONLY = SOLVER_BACKED
+NEEDS_WORK = UNCONVERGED
+REGIME_MISMATCH = SOLVER_BACKED
 
 
 def trust(*, relative_error: float | None = None, converged: bool = True,
           in_validated_regime: bool = True, calibrated: bool = True,
-          tight_threshold: float = 0.02, why: str = "") -> dict[str, str]:
-    """Decide how far a reported quantity may be trusted, and say why.
+          solver_backed: bool = True, tight_threshold: float = 0.02,
+          why: str = "") -> dict[str, str]:
+    """Assign the fidelity chip a reported quantity has earned, and say why.
 
-    The verdict is derived, never asserted: every branch here is a measured
-    fact about this run, and ``why`` lets the caller name the specific number
-    that decided it so the tier can never read as a fixed label.
+    The chip is derived, never asserted: every branch is a measured fact
+    about this run. ``solver_backed=False`` marks results produced by a
+    conceptual or reduced-order model rather than a solve — nothing is
+    upgraded that was not earned. Caveat detail belongs in the uncertainty
+    channels; ``reason`` stays one crisp factual clause.
     """
     if not converged:
-        return {"tier": NEEDS_WORK,
-                "reason": why or "the solve did not converge, so the number is not evidence yet"}
-    if not in_validated_regime:
-        return {"tier": TREND_ONLY,
-                "reason": why or ("outside the regime we have validated — direction is "
-                                  "usable, magnitude is indicative")}
-    if not calibrated:
-        return {"tier": TREND_ONLY,
-                "reason": why or ("mesh quality is outside the acceptance band, so the "
-                                  "magnitude is indicative rather than trusted")}
+        return {"tier": UNCONVERGED,
+                "reason": why or "the solve did not settle; the number is not evidence yet"}
+    if not solver_backed:
+        return {"tier": CONCEPTUAL,
+                "reason": why or "produced by a stated conceptual model, not a solve"}
+    if not in_validated_regime or not calibrated:
+        return {"tier": SOLVER_BACKED,
+                "reason": why or "a real solve without a like-for-like experimental comparison"}
+    # VALIDATED is earned only against a published experiment — that path is
+    # validate_against_reference(). A tight envelope alone stays SOLVER-BACKED.
     if relative_error is None:
-        return {"tier": TREND_ONLY, "reason": "no envelope was computed for this quantity"}
-    if relative_error <= tight_threshold:
-        return {"tier": VALIDATED,
-                "reason": f"converged, inside the validated regime, envelope "
-                          f"{relative_error * 100:.1f}% of value"}
-    return {"tier": TREND_ONLY,
-            "reason": f"envelope is {relative_error * 100:.1f}% of value — usable as a "
-                      f"trend, not yet as a magnitude"}
+        return {"tier": SOLVER_BACKED,
+                "reason": why or "a real solve; no envelope computed for this quantity"}
+    return {"tier": SOLVER_BACKED,
+            "reason": why or f"a real solve; envelope {relative_error * 100:.1f}% of value"}
 
 
 def uncertainty_channels(*, input_2sigma: float | None = None,
@@ -325,17 +337,17 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
     }
 
     if not converged:
-        verdict = {"tier": NEEDS_WORK,
-                   "reason": "the solve did not converge, so there is nothing to compare "
+        verdict = {"tier": UNCONVERGED,
+                   "reason": "the solve did not settle; nothing to compare "
                              "against the reference yet"}
     elif not in_validated_regime:
-        verdict = {"tier": TREND_ONLY,
-                   "reason": (f"mesh quality is outside the acceptance band, so agreement with "
-                              f"{source} would not be trustworthy — direction only")}
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": (f"mesh quality outside the acceptance band — agreement "
+                              f"with {source} is not graded")}
     elif not calibrated:
-        verdict = {"tier": TREND_ONLY,
-                   "reason": (f"mesh skewness is above guidance, so the magnitude stays "
-                              f"indicative even against {source}")}
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": (f"mesh skewness above guidance — agreement with "
+                              f"{source} is not graded")}
     elif relative_error is not None and relative_error <= tolerance:
         verdict = {"tier": VALIDATED,
                    "reason": (f"within {relative_error * 100:.0f}% of {source}, "
@@ -347,20 +359,18 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
             re_note = _reynolds_mismatch_note(reference, solved_reynolds)
             cause = alt.get("cause")
             comparison["matched_regime"] = alt.get("label")
-            verdict = {"tier": REGIME_MISMATCH,
+            verdict = {"tier": SOLVER_BACKED,
                        "reason": (f"measured Cd {cd_cmp:.3f} matches the {alt.get('label')} regime "
                                   f"(Cd ~{float(alt['cd']):g}, {alt.get('source', source)}), not the "
                                   f"{primary} reference Cd {cd_ref:g}"
                                   + re_note
                                   + (f"; {cause}" if cause else "")
-                                  + " — a like-for-like comparison against the reference is "
-                                    "not available, so this is neither validated nor a plain trend")}
+                                  + " — no like-for-like comparison available")}
         else:
             pct = "n/a" if relative_error is None else f"{relative_error * 100:.0f}%"
-            verdict = {"tier": TREND_ONLY,
+            verdict = {"tier": SOLVER_BACKED,
                        "reason": (f"measured Cd {cd_cmp:.3f} is {pct} from {source}, "
-                                  f"Cd {cd_ref:g} — outside the ±{tolerance * 100:.0f}% band, "
-                                  f"so it stands as a trend")}
+                                  f"Cd {cd_ref:g} — outside the ±{tolerance * 100:.0f}% band")}
     verdict["comparison"] = comparison
     return verdict
 

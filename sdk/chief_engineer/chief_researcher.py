@@ -228,7 +228,7 @@ def approve_closure(*, geometry: str, flow: str, reynolds: float,
                 uncertainty_language=(
                     "UNVALIDATED REGIME — the number is reported with a widened "
                     "envelope and an explicit warning; treat magnitudes as "
-                    "indicative and trust only the trend until an unsteady run "
+                    "bounded by the stated grid difference until an unsteady run "
                     "confirms it."),
             )
         if not (cell_lo <= cells <= cell_hi):

@@ -2,14 +2,18 @@
   "name": "cylinder",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 0.57,
+  "wall_minutes": 1.77,
   "cd_measured": "0.5464",
+  "cd_compared": 0.5464,
+  "area_basis": "frontal",
+  "basis_note": "rebased from the measured planform area onto frontal area",
+  "relative_error": 0.2616,
   "envelope": "\u00b12.1e-05",
   "tier": "REFERENCE REGIME MISMATCH",
   "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend",
   "reference_cd": 0.74,
   "reference_source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)",
-  "finished_at": "2026-07-21T14:54:27+00:00",
+  "finished_at": "2026-07-23T04:09:52+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
@@ -39,5 +43,18 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 0.5464,
+    "compared_cd": 0.5464,
+    "reference_cd": 0.74,
+    "relative_error": 0.2616,
+    "tolerance": 0.2,
+    "area_basis": "frontal",
+    "basis_note": "rebased from the measured planform area onto frontal area",
+    "source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)",
+    "solved_reynolds": null,
+    "regime": "subcritical crossflow, free-end relief",
+    "matched_regime": "supercritical / fully-turbulent"
+  }
 }

@@ -66,7 +66,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertGreater(events.get("landscape.point", 0), 10)
         self.assertEqual(events.get("report.ready"), 1)
-        self.assertEqual(verdict.get("tier"), "TREND ONLY")
+        self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
         self.assertNotEqual(verdict.get("value"), "none")
 
     def test_router_sends_aircraft_ld_prompts_here(self):

@@ -103,7 +103,7 @@ def main(request: str | None = None, params: dict | None = None,
         verdict = trust(relative_error=0.01 / max(corrected, 1e-9))
         panel = plot_estimates(
             [{"label": f"coarse mesh, {int(coarse['cell_count'])} cells",
-              "value": coarse["Cd"], "band": 0.0, "tier": "TREND ONLY"},
+              "value": coarse["Cd"], "band": 0.0, "tier": "SOLVER-BACKED"},
              {"label": "after calibrated correction",
               "value": corrected, "band": 0.01, "tier": verdict["tier"]}],
             out / "closure_correction.png",
@@ -156,7 +156,7 @@ def main(request: str | None = None, params: dict | None = None,
                         in_validated_regime=reynolds <= 47)
         panel = plot_estimates(
             [{"label": f"coarse mesh, {int(coarse['cell_count'])} cells",
-              "value": coarse["Cd"], "band": grid_delta, "tier": "TREND ONLY"},
+              "value": coarse["Cd"], "band": grid_delta, "tier": "SOLVER-BACKED"},
              {"label": f"refinement probe, {int(probe['cell_count'])} cells",
               "value": probe["Cd"], "band": grid_delta, "tier": verdict["tier"]}],
             out / "grid_sensitivity.png",
@@ -169,11 +169,11 @@ def main(request: str | None = None, params: dict | None = None,
                                     "envelope": f"±{grid_delta:.2g}", **verdict})
         script.engineer(
             f"• FINAL — Cd = {probe['Cd']:.4g}, grid difference ±{grid_delta:.2g} "
-            f"({grid_percent:.1f}%), indicative not verified. "
+            f"({grid_percent:.1f}%) — a measured difference, not a verified bound. "
             f"• Re = {reynolds:.0f} is past the validated steady limit 47 — regime "
             f"error unquantified. "
-            f"• Trend usable; magnitude indicative; an unsteady run is the first "
-            f"buy with more time.", verdict=verdict)
+            f"• Direction usable; the magnitude carries the stated grid difference. "
+            f"• An unsteady run is the first buy with more time.", verdict=verdict)
 
     script.save(out / "transcript.txt")
     print("\nArtifacts in", out)

@@ -2,14 +2,18 @@
   "name": "ahmed_35",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 0.79,
+  "wall_minutes": 3.06,
   "cd_measured": "0.0876",
+  "cd_compared": 0.3141,
+  "area_basis": "frontal",
+  "basis_note": "rebased from the measured planform area onto frontal area",
+  "relative_error": 0.2081,
   "envelope": "\u00b11.8e-06",
   "tier": "TREND ONLY",
   "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend",
   "reference_cd": 0.26,
   "reference_source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
-  "finished_at": "2026-07-21T01:30:04+00:00",
+  "finished_at": "2026-07-23T04:20:22+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
@@ -39,5 +43,17 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 0.0876,
+    "compared_cd": 0.3141,
+    "reference_cd": 0.26,
+    "relative_error": 0.2081,
+    "tolerance": 0.15,
+    "area_basis": "frontal",
+    "basis_note": "rebased from the measured planform area onto frontal area",
+    "source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
+    "solved_reynolds": null,
+    "regime": "fully separated slant, quasi-two-dimensional wake"
+  }
 }

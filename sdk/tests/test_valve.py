@@ -50,7 +50,7 @@ class WaveformTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
-    def test_multipoint_screen_runs_and_caps_at_trend_only(self):
+    def test_multipoint_screen_grades_conceptual_model(self):
         from workflows.valve_study import main
         events = {}
         verdict = {}
@@ -70,7 +70,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(events.get("report.ready"), 1)
         self.assertEqual(events.get("uncertainty.channels"), 1)
         # hard cap
-        self.assertEqual(verdict.get("tier"), "TREND ONLY")
+        self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
         # agenda carries the three deferred capabilities
         self.assertEqual(len(agenda.get("entries", [])), 3)
         for entry in agenda["entries"]:

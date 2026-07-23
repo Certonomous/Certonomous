@@ -373,7 +373,7 @@ def main(request: str | None = None, params: dict | None = None,
                f"acceptance gate, so the discretization is not trustworthy here")
     elif not skew_ok:
         why = (f"max skewness {skew} exceeds the acceptance band of {MAX_SKEWNESS:.0f} "
-               f"(on a small number of faces), so the magnitude is indicative")
+               f"(on a small number of faces) — agreement is not graded")
     else:
         why = ""
     comparison = None
@@ -387,7 +387,9 @@ def main(request: str | None = None, params: dict | None = None,
             frontal_area=report.get("frontal_area"),
             converged=True, in_validated_regime=gate_ok, calibrated=skew_ok,
             solved_reynolds=report.get("reference", {}).get("reynolds"))
-        comparison = verdict.pop("comparison", None)
+        # Keep the comparison IN the verdict: the suite writer and the wall
+        # read it downstream — popping it here was the wall-arithmetic bug.
+        comparison = verdict.get("comparison")
         if comparison:
             script.researcher(
                 f"• Solve gives Cd {comparison['measured_cd']:.4g}; rebased "
@@ -406,7 +408,10 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("result.verdict", {"quantity": "Drag coefficient",
                                 "value": f"{drag['value']:.4g}",
-                                "envelope": f"±{2 * drag['sigma']:.2g}", **verdict})
+                                "ci": f"{2 * drag['sigma']:.2g}",
+                                "confidence": "95%",
+                                "envelope": f"over the final {drag['window']} iterations",
+                                **verdict})
         emit("uncertainty.channels", channels)
     script.engineer(
         f"• Drag settles at {drag['value']:.4g} ± {2 * drag['sigma']:.2g} over "
@@ -452,7 +457,7 @@ def main(request: str | None = None, params: dict | None = None,
             + ("• Consistent with our prior — but self-consistency is not validation."
                if familiar else
                "• No prior, no experiment: the number stands on mesh quality and convergence.")
-            + (" • Skewness above guidance is the specific reason this stays a trend."
+            + (" • Skewness above guidance is the specific reason it is not graded."
                if (skew or 0) > MAX_SKEWNESS else ""))
     script.engineer(
         "• Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. "

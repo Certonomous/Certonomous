@@ -35,7 +35,9 @@ _SEAL = (0.20, 0.24, 0.30)
 # Trust-tier badge colours.
 _TIER_COLOR = {
     "VALIDATED": (0.13, 0.55, 0.33),
-    "TREND ONLY": (0.80, 0.53, 0.11),
+    "SOLVER-BACKED": (0.24, 0.51, 0.82),
+    "CONCEPTUAL MODEL": (0.80, 0.53, 0.11),
+    "TREND ONLY": (0.80, 0.53, 0.11),  # legacy records
     "NEEDS WORK": (0.72, 0.20, 0.20),
 }
 _DEFAULT_TIER_COLOR = (0.42, 0.46, 0.51)
@@ -328,7 +330,7 @@ def build_certificate(report_doc: dict, *, out_path: str | Path,
     # -- footer ------------------------------------------------------------
     c.text(left, _MARGIN + 12,
            "Sealed by the hash above; any change to the recorded run invalidates it. "
-           "No tier exceeds TREND ONLY without an experimental comparison.",
+           "VALIDATED is earned only against a published experiment.",
            size=7.5, color=_MUTED)
 
     out_path = Path(out_path).with_suffix(".pdf")

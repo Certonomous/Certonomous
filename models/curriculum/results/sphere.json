@@ -2,14 +2,18 @@
   "name": "sphere",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 1.92,
+  "wall_minutes": 5.24,
   "cd_measured": "0.09484",
+  "cd_compared": 0.0948,
+  "area_basis": "frontal",
+  "basis_note": "rebased from the measured planform area onto frontal area",
+  "relative_error": 0.7982,
   "envelope": "\u00b10.00012",
   "tier": "REFERENCE REGIME MISMATCH",
   "reason": "measured Cd 0.095 matches the supercritical (post-drag-crisis) regime (Cd ~0.09, Achenbach 1972 (supercritical branch, Cd ~ 0.07-0.10)), not the subcritical (laminar separation, wide wake) reference Cd 0.47; steady fully-turbulent RANS delays boundary-layer separation and reproduces the post-drag-crisis wake, so the coefficient reads supercritical even when the solve Reynolds number is subcritical\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend",
   "reference_cd": 0.47,
   "reference_source": "Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory",
-  "finished_at": "2026-07-21T14:53:53+00:00",
+  "finished_at": "2026-07-23T04:02:28+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
@@ -39,5 +43,18 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 0.0948,
+    "compared_cd": 0.0948,
+    "reference_cd": 0.47,
+    "relative_error": 0.7982,
+    "tolerance": 0.2,
+    "area_basis": "frontal",
+    "basis_note": "rebased from the measured planform area onto frontal area",
+    "source": "Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory",
+    "solved_reynolds": null,
+    "regime": "subcritical (laminar separation, wide wake)",
+    "matched_regime": "supercritical (post-drag-crisis)"
+  }
 }

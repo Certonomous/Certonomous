@@ -62,9 +62,13 @@ def _events_path(mission_id: str) -> Path:
 # The validation wall
 # --------------------------------------------------------------------------
 
-# Earned credentials lead; the honest caveats follow.
-_TIER_RANK = {"VALIDATED": 0, "REFERENCE REGIME MISMATCH": 1,
-              "TREND ONLY": 2, "NEEDS WORK": 3}
+# Earned credentials lead; the honest caveats follow. Legacy tier names in
+# stored records are translated to the current fidelity chips at serve time.
+_TIER_RANK = {"VALIDATED": 0, "SOLVER-BACKED": 1, "CONCEPTUAL MODEL": 2,
+              "UNCONVERGED": 3}
+_LEGACY_TIERS = {"TREND ONLY": "SOLVER-BACKED",
+                 "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
+                 "NEEDS WORK": "UNCONVERGED"}
 
 
 def _credentials() -> list[dict]:
@@ -84,10 +88,18 @@ def _credentials() -> list[dict]:
         name = data.get("name")
         if not name:
             continue
+        # ONE number everywhere: the wall displays the coefficient on the
+        # reference's own area basis — the same figure the verdict was judged
+        # on and the reason text quotes. The raw solver value stays available
+        # as measured_raw for the evidence trail.
+        compared = data.get("cd_compared")
+        tier = data.get("tier") or "UNCONVERGED"
         cards.append({
             "name": name,
-            "tier": data.get("tier") or "NEEDS WORK",
-            "measured": data.get("cd_measured"),
+            "tier": _LEGACY_TIERS.get(tier, tier),
+            "measured": compared if compared is not None else data.get("cd_measured"),
+            "measured_raw": data.get("cd_measured"),
+            "area_basis": data.get("area_basis"),
             "envelope": data.get("envelope"),
             "reference_cd": data.get("reference_cd"),
             "source": data.get("reference_source"),

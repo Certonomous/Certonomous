@@ -149,7 +149,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Bigger diameter → higher Reynolds → lower laminar Cd. "
         f"• Expect the optimum at the upper bound, curve flattening toward it.")
     script.engineer(
-        "• Falsifiable two ways: the trend reverses, or a design leaves Re ≤ 47. "
+        "• Falsifiable two ways: the curve reverses, or a design leaves Re ≤ 47. "
         "• Past Re 47 a converged answer stops being physical.")
 
     # ---------------- Experiment plan ----------------
@@ -174,7 +174,7 @@ def main(request: str | None = None, params: dict | None = None,
         script.engineer(
             f"• Capacity fits: {len(designs)} designs in one parallel wave, each "
             f"a real solve. "
-            f"• Every point tests the trend; the ends test the bounds.")
+            f"• Every point tests the curve; the ends test the bounds.")
         script.phase(EVIDENCE)
         roster.set(CHIEF_ENGINEER, "dispatching the sweep", "working")
         roster.set_workers(min(capacity.capacity, len(designs)), "solving designs")
@@ -322,7 +322,9 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("result.verdict", {"quantity": "Drag coefficient",
                                 "value": f"{ensemble.mean:.4g}",
-                                "envelope": f"±{2 * ensemble.standard_error:.2g}",
+                                "ci": f"{2 * ensemble.standard_error:.2g}",
+                                "confidence": "95%",
+                                "envelope": f"{ensemble.n}-sample ensemble",
                                 **verdict})
         # The V&V-20 decomposition: input spread is measured; numerical and
         # model channels are honestly marked unquantified (no grid study, no
@@ -344,8 +346,8 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         f"• Confirmed: drag falls as the body grows; optimum at D={best_x:.4g} m, "
         f"as hypothesised. "
-        + ("• Trend monotone at every sampled point. " if monotone
-           else "• Trend not perfectly monotone — deserves a second look. ")
+        + ("• Monotone at every sampled point. " if monotone
+           else "• Not perfectly monotone — deserves a second look. ")
         + f"• Improvement vs D={baseline[0]:.3g} m baseline: {improvement:+.1f}%.")
     script.engineer(
         f"• Not confirmed: the predicted flattening near the bound. "
@@ -366,7 +368,7 @@ def main(request: str | None = None, params: dict | None = None,
         abstract=[
             f"We tested whether drag falls with body diameter over {LOW}–{HIGH} m "
             f"at fixed freestream conditions.",
-            f"Across {len(evidence)} real solves the trend held and the optimum sat at "
+            f"Across {len(evidence)} real solves the curve held and the optimum sat at "
             f"the upper bound, D={best_x:.4g} m, improving on the baseline by "
             f"{improvement:.1f}%.",
             f"The reported value carries a {ensemble.relative_error * 100:.1f}% estimator "

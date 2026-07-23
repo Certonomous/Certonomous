@@ -2,14 +2,18 @@
   "name": "flat_plate",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 1.75,
+  "wall_minutes": 5.63,
   "cd_measured": "0.03238",
+  "cd_compared": 0.0324,
+  "area_basis": "planform",
+  "basis_note": "already on the reference's planform-area basis",
+  "relative_error": 0.0793,
   "envelope": "\u00b12e-06",
   "tier": "VALIDATED",
   "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%)",
   "reference_cd": 0.03,
   "reference_source": "thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces",
-  "finished_at": "2026-07-21T01:25:42+00:00",
+  "finished_at": "2026-07-23T04:08:05+00:00",
   "report_results": [
     {
       "quantity": "Drag coefficient",
@@ -39,5 +43,17 @@
       "tier": "VALIDATED",
       "reason": "converged, inside the validated regime, envelope 0.0% of value"
     }
-  ]
+  ],
+  "comparison": {
+    "measured_cd": 0.0324,
+    "compared_cd": 0.0324,
+    "reference_cd": 0.03,
+    "relative_error": 0.0793,
+    "tolerance": 0.35,
+    "area_basis": "planform",
+    "basis_note": "already on the reference's planform-area basis",
+    "source": "thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces",
+    "solved_reynolds": null,
+    "regime": "attached lifting flow at small incidence"
+  }
 }

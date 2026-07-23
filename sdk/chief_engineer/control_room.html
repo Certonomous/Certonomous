@@ -579,11 +579,14 @@ function addDigest(p) {
   el.innerHTML = `<span class="who">${esc(p.role||'')}</span><p>${esc(msg)}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
   $('digest').appendChild(el); $('digest').scrollTop = $('digest').scrollHeight;
 }
+// The fidelity chip: one or two words for what stands behind a number.
+// Legacy tier names from older records map onto the current chips.
+const LEGACY_CHIP = { 'TREND ONLY':'SOLVER-BACKED', 'REFERENCE REGIME MISMATCH':'SOLVER-BACKED', 'NEEDS WORK':'UNCONVERGED' };
 function verdictBadge(tier) {
   if (!tier) return '';
-  const regime = tier === 'REFERENCE REGIME MISMATCH';
-  const cls = tier==='VALIDATED'?'v-validated':tier==='NEEDS WORK'?'v-needs':regime?'v-regime':'v-trend';
-  return `<span class="verdict ${cls}" title="${esc(tier)}">${esc(regime?'REGIME MISMATCH':tier)}</span>`;
+  const chip = LEGACY_CHIP[tier] || tier;
+  const cls = chip==='VALIDATED'?'v-validated':chip==='UNCONVERGED'?'v-needs':chip==='CONCEPTUAL MODEL'?'v-trend':'v-regime';
+  return `<span class="verdict ${cls}" title="${esc(chip)}">${esc(chip)}</span>`;
 }
 
 function renderRoster(p) {
@@ -858,7 +861,12 @@ $('landscape').addEventListener('mouseleave', () => { $('landTip').hidden=true; 
 
 function renderResult(p) {
   const rc = $('resultCard'); if (!rc) return;
-  rc.innerHTML = `<b class="rv">${esc(p.value??'—')}</b><span class="rq">${esc(p.quantity||'result')}</span>`
+  // Headline format: value ± CI (confidence). The CI comes from the mission's
+  // real spread machinery; the chip says what stands behind it.
+  const head = p.ci != null
+    ? `${p.value} ± ${p.ci} (${p.confidence || '95%'})`
+    : (p.value ?? '—');
+  rc.innerHTML = `<b class="rv">${esc(head)}</b><span class="rq">${esc(p.quantity||'result')}</span>`
     + verdictBadge(p.tier)
     + `<span class="re">${esc(p.envelope||'')}${p.reason?' — '+esc(p.reason):''}</span>`;
   rc.hidden = false;

@@ -5,7 +5,7 @@ cycle into a few steady phase points, solving each, and cycle-weighting the
 result. The design parameter is the leaflet opening angle; the objective is the
 cycle-weighted pressure loss across the valve orifice.
 
-This is a SCREENING method, hard-capped at TREND ONLY. The pressure loss at each
+This is a SCREENING method, graded CONCEPTUAL MODEL. The pressure loss at each
 phase point comes from a transparent reduced-order orifice model
 (dp = 0.5 * rho * (Q / (Cd * A_orifice))^2) — the same conceptual-model posture
 as the aircraft-sizing study, NOT a solved flow. The place a real steady
@@ -63,7 +63,7 @@ def _phase_pressure_loss(flow_rate: float, orifice_area: float,
     REDUCED-ORDER MODEL — this is the single point where a real steady
     internal-flow OpenFOAM solve (inlet flow rate, no-slip leaflets, simpleFoam,
     read dp from the solved field) plugs in. Until then the orifice correlation
-    stands in, transparently, and the tier is capped at TREND ONLY.
+    stands in, transparently, and the grade stays CONCEPTUAL MODEL.
     """
     throat_velocity = flow_rate / max(cd * orifice_area, 1e-9)
     return 0.5 * RHO_BLOOD * throat_velocity ** 2
@@ -153,7 +153,7 @@ def main(request: str | None = None, params: dict | None = None,
         ruling = (f"• Womersley α ≈ {alpha:.1f}: above the strict limit {strict:g} "
                   f"— inertially unsteady. "
                   f"• Under the screening ceiling {screen_max:g} — admissible as a SCREEN. "
-                  f"• Dropped phase-interaction is real model-form; tier capped TREND ONLY.")
+                  f"• Dropped phase-interaction rides as model-form in the channel table.")
     else:
         ruling = (f"• Womersley α ≈ {alpha:.1f} exceeds the screening ceiling "
                   f"{screen_max:g}. "
@@ -197,7 +197,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.numericist(
         "• Each phase is a reduced-order orifice model — not a solved flow. "
         "• A real internal-flow solve is the marked plug-in point. "
-        "• Ranks angles, screens the trade; hard cap TREND ONLY.")
+        "• Ranks angles, screens the trade; grade: CONCEPTUAL MODEL.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
@@ -252,24 +252,22 @@ def main(request: str | None = None, params: dict | None = None,
         emit("uncertainty.channels", channels)
     script.researcher(
         "• A screen, not a validated pressure — the ranking is trustworthy. "
-        f"• The pascal magnitude needs a solved flow and comparison, {per('vv20')}. "
+        f"• A pascal magnitude needs a solved flow and comparison, {per('vv20')}. "
         "• The three missing capabilities are on the research agenda.")
-    verdict = trust(relative_error=0.0, converged=True, in_validated_regime=False,
-                    calibrated=True,
-                    why="reduced-order cycle screen on a screening geometry — the "
-                        "trade is real, the magnitude is a trend, and the flow is "
-                        "inertially unsteady")
-    verdict["tier"] = "TREND ONLY"   # hard cap for this act
+    verdict = trust(converged=True, solver_backed=False,
+                    why="reduced-order orifice screen on a screening geometry; "
+                        "the flow is inertially unsteady")
     if emit:
         emit("result.verdict", {"quantity": "Cycle-weighted pressure loss",
                                 "value": f"{best['objective']:.0f} Pa",
-                                "envelope": f"+/- {best['band']:.0f} Pa "
-                                            f"at opening {best['angle']:g} deg",
+                                "ci": f"{best['band']:.0f} Pa",
+                                "confidence": "95%",
+                                "envelope": f"at opening {best['angle']:g} deg",
                                 **verdict})
     knowledge.add(
         f"Valve opening-angle screen: lowest cycle-weighted loss at "
         f"{best['angle']:g} deg ({best['objective']:.0f} Pa), Womersley ~ {alpha:.0f}, "
-        f"multi-point decomposition (TREND ONLY)")
+        f"multi-point decomposition (conceptual model)")
 
     report = lab_report(
         title=f"Valve opening-angle screen — cycle-weighted pressure loss",
@@ -280,8 +278,8 @@ def main(request: str | None = None, params: dict | None = None,
             f"Across {len(CANDIDATE_ANGLES)} opening angles the lowest cycle-weighted "
             f"pressure loss is at {best['angle']:g} deg, {best['objective']:.0f} +/- "
             f"{best['band']:.0f} Pa.",
-            "This is a reduced-order screen on an owned screening geometry, reported "
-            "as a trend, not a validated magnitude."],
+            "This is a reduced-order screen on an owned screening geometry; the "
+            "model channel carries what the screen leaves out."],
         methods=[
             "Idealized three-leaflet valve; leaflet opening angle sets the effective "
             "orifice area.",
@@ -290,13 +288,13 @@ def main(request: str | None = None, params: dict | None = None,
             "Per-phase pressure loss from a reduced-order orifice model; cycle-weighted "
             "objective with a Monte-Carlo input envelope; minimum-orifice constraint."],
         results=[{"quantity": "Cycle-weighted pressure loss",
-                  "value": f"{best['objective']:.0f} Pa",
-                  "envelope": f"+/- {best['band']:.0f} Pa at opening {best['angle']:g} deg",
+                  "value": f"{best['objective']:.0f} ± {best['band']:.0f} Pa (95%)",
+                  "envelope": f"at opening {best['angle']:g} deg",
                   **verdict}],
         uncertainty=[
             "The ranking (wider orifice, lower loss) is physical and trustworthy.",
-            "The magnitude is a reduced-order estimate, not a solved flow — treat it "
-            "as a trend.",
+            "The magnitude is a reduced-order estimate; the model channel names "
+            "what is not in it.",
             f"The flow is inertially unsteady (Womersley ~ {alpha:.0f}); "
             "phase-interaction is dropped by the multi-point screen."],
         next_investigations=[e["title"] + " — " + e["scope"] for e in AGENDA],
