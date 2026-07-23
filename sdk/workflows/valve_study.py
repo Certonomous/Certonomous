@@ -312,7 +312,7 @@ def main(request: str | None = None, params: dict | None = None,
                         "the flow is inertially unsteady")
     if emit:
         emit("result.verdict", {"quantity": "Cycle-weighted pressure loss",
-                                "value": f"{best['objective']:.0f} Pa",
+                                "value": f"{best['objective']:.0f}",
                                 "ci": f"{best['band']:.0f} Pa",
                                 "confidence": "95%",
                                 "envelope": f"at opening {best['angle']:g} deg",
