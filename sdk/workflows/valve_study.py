@@ -192,6 +192,14 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("audit.completed", capacity.panel())
     script.engineer(capacity.headline(), panel=capacity.panel())
+    if emit:
+        # Landscape skeleton on screen at plan time — axes and objective first.
+        emit("landscape.init", {
+            "title": "Candidate landscape",
+            "x": {"key": "opening_angle_deg", "label": "opening angle [°]"},
+            "y": {"key": "orifice_area_mm2", "label": "orifice area [mm²]"},
+            "objective": {"key": "cycle_pressure_loss",
+                          "label": "cycle loss [Pa]", "direction": "min"}})
     script.engineer(
         f"Plan: {len(CANDIDATE_ANGLES)} candidate opening angles x {len(phases)} "
         f"phase points = {n_solves} steady internal-flow evaluations. Each candidate "
@@ -306,7 +314,7 @@ def main(request: str | None = None, params: dict | None = None,
             "as a trend.",
             f"The flow is inertially unsteady (Womersley ~ {alpha:.0f}); "
             "phase-interaction is dropped by the multi-point screen."],
-        future_work=[e["title"] + " — " + e["scope"] for e in AGENDA],
+        next_investigations=[e["title"] + " — " + e["scope"] for e in AGENDA],
         compute=ledger.as_dict())
     if emit:
         emit("report.ready", report)

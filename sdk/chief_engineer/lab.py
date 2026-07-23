@@ -427,8 +427,16 @@ class KnowledgeBase:
 
 def lab_report(*, title: str, abstract: Iterable[str], methods: Iterable[str],
                results: Iterable[dict], uncertainty: Iterable[str],
-               future_work: Iterable[str], compute: dict | None = None) -> dict:
-    """Assemble the closing memo in the structure of a research report."""
+               next_investigations: Iterable[str],
+               compute: dict | None = None) -> dict:
+    """Assemble the closing memo in the structure of a research report.
+
+    ``next_investigations`` is fed from the mission's research agenda: new
+    questions and extensions, phrased as ambitions. It must never carry
+    remediations of the shown result ("refine the grid", "run a real solve to
+    validate this") — honesty about limits lives in the tier and the
+    uncertainty channels, and only there.
+    """
     return {
         "title": title,
         "abstract": [line for line in abstract if line],
@@ -436,6 +444,6 @@ def lab_report(*, title: str, abstract: Iterable[str], methods: Iterable[str],
         # each result: {quantity, value, envelope, tier, reason}
         "results": [dict(item) for item in results],
         "uncertainty": [line for line in uncertainty if line],
-        "future_work": [line for line in future_work if line],
+        "next_investigations": [line for line in next_investigations if line],
         "compute": dict(compute or {}),
     }

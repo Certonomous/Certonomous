@@ -153,6 +153,24 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
             "frontal_area": geometry["frontal_area"] * scale * scale}
 
 
+# New questions a solved body opens — ambitions, not remediations. Fed to the
+# research-agenda panel and to the report's "Next investigations".
+_AGENDA = [
+    {"title": "Drag build-up under yaw",
+     "scope": "sweep the approach angle and map how the force builds as the "
+              "body meets the flow off-axis",
+     "cost": "one solve per angle on the cached mesh"},
+    {"title": "Resolve the shedding",
+     "scope": "an unsteady solve of the wake the steady picture averages away — "
+              "the spectrum, not just the mean force",
+     "cost": "transient solve; ~1 order of magnitude over steady"},
+    {"title": "Next body in the class",
+     "scope": "take the same gated chain to the nearest unsolved body in the "
+              "library and grow the validated set",
+     "cost": "one full chain per body; meshing dominates"},
+]
+
+
 def main(request: str | None = None, params: dict | None = None,
          iterations: int = 300, emit=None) -> int:
     params = dict(params or {})
@@ -229,6 +247,11 @@ def main(request: str | None = None, params: dict | None = None,
     capacity = audit(1, memory_per_worker_mb=2048)
     if emit:
         emit("audit.completed", capacity.panel())
+        # The plan commits to the RANS chain here — the solver badge is earned
+        # at this moment, not asserted at page load.
+        emit("solver.selected", {
+            "solver": "OpenFOAM", "method": "steady RANS, k-omega SST",
+            "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
         f"Plan: extract surface features, build the background mesh, snap to the "
@@ -537,16 +560,12 @@ def main(request: str | None = None, params: dict | None = None,
              "No experimental comparison was made in this study, so the magnitude is "
              "unvalidated against reality."),
         ],
-        future_work=[
-            "Run one refinement level to convert the unquantified discretization "
-            "error into a measured band.",
-            "Compare against published data for this body class to turn the "
-            "magnitude from plausible into validated.",
-            "Repair the small number of high-skewness faces at the surface, which "
-            "is what currently caps the trust tier.",
-        ],
+        next_investigations=[
+            f"{entry['title']} — {entry['scope']}" for entry in _AGENDA],
         compute=ledger.as_dict(),
     )
+    if emit:
+        emit("agenda.updated", {"entries": _AGENDA})
     if emit:
         emit("report.ready", report_doc)
     try:

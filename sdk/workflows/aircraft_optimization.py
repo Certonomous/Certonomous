@@ -223,6 +223,14 @@ def main(request: str | None = None, params: dict | None = None,
         emit("solver.selected", {
             "solver": "VSPAERO", "method": "vortex lattice",
             "basis": "plan commits the finalist wings to real aero solves"})
+    if emit:
+        # The plan phase puts the landscape skeleton on screen before any
+        # point exists — axes, units, and objective announced up front.
+        emit("landscape.init", {
+            "title": "Design-space landscape",
+            "x": {"key": "span", "label": "span [m]"},
+            "y": {"key": "wing_area", "label": "wing area [m²]"},
+            "objective": {"key": "L_D", "label": "L/D", "direction": "max"}})
     plan_line = (
         f"Plan: screen {len(grid)} wings across span and area at a fixed 27.5° "
         f"sweep — each sized against every requirement, cruise L/D from the "
@@ -257,7 +265,8 @@ def main(request: str | None = None, params: dict | None = None,
         results.append(r)
         if emit:
             emit("landscape.point", {"design": {"span": r["span"], "wing_area": r["area"]},
-                                     "metrics": {"L_D": r["L_D"]}, "feasible": r["feasible"]})
+                                     "metrics": {"L_D": r["L_D"]}, "feasible": r["feasible"],
+                                     "why": r["violations"] or None})
             # The candidate under evaluation appears in the viewport as the
             # parametric wing it is — span, area, and sweep visibly differing.
             emit("geometry.ready", {
@@ -507,7 +516,8 @@ def main(request: str | None = None, params: dict | None = None,
             **verdict,
         }],
         uncertainty=uncertainty,
-        future_work=[f"{entry['title']} — {entry['scope']}" for entry in agenda],
+        next_investigations=[f"{entry['title']} — {entry['scope']}"
+                             for entry in agenda],
         compute=ledger.as_dict(),
     )
     if emit:

@@ -68,6 +68,24 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
     return _solve(design, work_root, f"d{index:02d}")
 
 
+# New questions this study opens — ambitions, not remediations. Fed to the
+# research-agenda panel and to the report's "Next investigations".
+_AGENDA = [
+    {"title": "Beyond the steady regime",
+     "scope": "extend the sweep past Re 47 with an unsteady solver — does the "
+              "drag trend continue once the wake starts shedding",
+     "cost": "transient solves; ~1 order of magnitude over the steady sweep"},
+    {"title": "Two-parameter shape family",
+     "scope": "let the cross-section vary alongside the diameter and map the "
+              "joint landscape",
+     "cost": "a second sweep dimension; same solver and gates"},
+    {"title": "Robust optimum across the operating band",
+     "scope": "optimize against a band of inflow speeds instead of one — the "
+              "design that wins on the whole mission profile",
+     "cost": "one sweep per speed; reuses today's machinery"},
+]
+
+
 def _sweep_designs(n: int) -> list[dict]:
     return [{**NOMINAL_CYLINDER, SWEEP_PARAMETER: LOW + (HIGH - LOW) * i / (n - 1)}
             for i in range(n)]
@@ -142,6 +160,10 @@ def main(request: str | None = None, params: dict | None = None,
     capacity = audit(FANOUT, memory_per_worker_mb=256)
     if emit:
         emit("audit.completed", capacity.panel())
+        # The plan commits the sweep to the RANS solver here — badge earned now.
+        emit("solver.selected", {
+            "solver": "OpenFOAM", "method": "steady RANS cylinder chain",
+            "basis": "plan commits every sweep design to a real solve"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     designs = _sweep_designs(FANOUT)
     staged = force_scarce or not capacity.fits
@@ -413,16 +435,12 @@ def main(request: str | None = None, params: dict | None = None,
             "the ranking. No grid refinement was run, so there is no numerical "
             "uncertainty to report at all.",
         ],
-        future_work=[
-            "Tighten the envelope before refining around the optimum — at present it "
-            "is wider than the gap between the leading designs.",
-            "Add a grid-convergence probe to split discretization error from sampling "
-            "error in the reported envelope.",
-            "Extend past Re 47 with an unsteady solver to test whether the trend "
-            "continues beyond the validated regime.",
-        ],
+        next_investigations=[
+            f"{entry['title']} — {entry['scope']}" for entry in _AGENDA],
         compute=ledger.as_dict(),
     )
+    if emit:
+        emit("agenda.updated", {"entries": _AGENDA})
     if emit:
         emit("report.ready", report)
     roster.all_idle()

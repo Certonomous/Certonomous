@@ -96,9 +96,6 @@
   .route-head b { color: var(--live); font: 11px var(--mono); letter-spacing: .06em; }
   .route-head span { color: var(--dim); font: 9px var(--mono); }
   .route p { color: var(--muted); font-size: 11.5px; margin-top: 7px; }
-  .principles { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 15px; }
-  .principle { display: flex; gap: 11px; padding: 5px 0; color: var(--muted); font-size: 10.5px; }
-  .principle b { color: var(--live); font: 9px var(--mono); }
 
   /* telemetry */
   .telemetry { padding: 16px 18px; display: flex; flex-direction: column; gap: 18px; }
@@ -142,6 +139,7 @@
   .stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
   #viewportCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .viewport-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--dim); font-size: 11.5px; padding: 40px; }
+  .viewport-empty[hidden] { display: none; }
   .viewport-foot { display: flex; justify-content: space-between; padding: 10px 18px; border-top: 1px solid var(--line); color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; flex: 0 0 auto; }
   .legend { display: none; align-items: center; gap: 9px; padding: 9px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
   .legend.on { display: flex; }
@@ -152,8 +150,23 @@
   .plots:empty { display: none; }
   .plots img { height: 88px; border: 1px solid var(--line-2); cursor: pointer; }
   .landscape-box { padding: 11px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
-  .landscape-box canvas { width: 100%; height: auto; border: 1px solid var(--line-2); background: #040506; }
-  .landscape-box .cap { display: flex; justify-content: space-between; margin-top: 6px; color: var(--dim); font: 9px var(--mono); }
+  .land-wrap { position: relative; }
+  .landscape-box canvas { width: 100%; height: 235px; display: block; border: 1px solid var(--line-2); background: #040506; }
+  .land-tip { position: absolute; pointer-events: none; z-index: 5; background: rgba(8,10,12,.96); border: 1px solid var(--line-2); padding: 6px 9px; font: 10px var(--mono); color: var(--fg); line-height: 1.5; max-width: 210px; }
+  .land-tip b { color: var(--live); }
+  .land-tip .bad { color: #e0896a; }
+  .land-legend { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--dim); font: 9px var(--mono); }
+  .land-legend .lg-note { margin-left: auto; }
+  .lg-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .lg-dot.ok { background: rgb(232,146,106); }
+  .lg-dot.bad { background: rgba(120,130,140,.6); }
+  .lg-ring { width: 9px; height: 9px; border-radius: 50%; border: 2px solid #57a5ff; display: inline-block; }
+  .result-card { margin: 0 18px 10px; padding: 10px 14px; border: 1px solid var(--line-2); background: rgba(87,165,255,.05); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .result-card .rv { font: 800 24px var(--cond); color: var(--fg); }
+  .result-card .rq { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .result-card .re { color: var(--dim); font: 10px var(--mono); width: 100%; }
+  .memo-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin: 10px 0 4px; }
+  .memo-figs img { width: 100%; border: 1px solid var(--line-2); cursor: pointer; }
 
   /* workspace */
   .ws-top { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
@@ -259,7 +272,7 @@
       <div class="command-body">
         <span class="eyebrow">Mission objective</span>
         <h1>Give the team a <em>hard problem.</em></h1>
-        <p class="intro">State the objective in plain language. The chief interprets it, forms the team, runs real solvers, and reports every result with its confidence envelope.</p>
+        <p class="intro">State the objective in plain language. The chief interprets it, forms the team, runs your solver of choice, and reports every result with its confidence envelope.</p>
         <div class="goal-box">
           <textarea id="goal" spellcheck="false" placeholder="e.g. Solve the drag on this aircraft and paint the pressure field."></textarea>
           <span class="goal-tag">NATURAL LANGUAGE / ENGINEERING</span>
@@ -269,11 +282,6 @@
         <div class="upload"><input type="file" id="surfaceFile" accept=".stl,.obj"><label for="surfaceFile" id="surfaceLabel">Load a surface (STL / OBJ)</label><p id="surfaceNote" hidden></p></div>
         <button class="launch" id="launch">Launch engineering mission</button>
         <div class="route" id="route" hidden><div class="route-head"><b id="routeIntent">—</b><span id="routeConf"></span></div><p id="routeRationale"></p></div>
-        <div class="principles">
-          <div class="principle"><b>01</b><span>Every solver action is a real run — the path is fixed, never the result.</span></div>
-          <div class="principle"><b>02</b><span>No tier above TREND ONLY without an experimental comparison.</span></div>
-          <div class="principle"><b>03</b><span>Envelopes on every number; the lab bounds its own trust.</span></div>
-        </div>
       </div>
     </section>
 
@@ -301,7 +309,12 @@
       <div class="stage-wrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div></div>
       <div class="viewport-foot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
       <div class="legend" id="legend"><span id="legendLo">—</span><span class="bar"></span><span id="legendHi">—</span><b id="legendName">pressure</b></div>
-      <div class="landscape-box" id="landscapeBox" hidden><span class="eyebrow">Design-space landscape</span><canvas id="landscape" width="300" height="190"></canvas><div class="cap"><span id="landAxes">—</span><span>solved points · fog thins where evidence exists</span></div></div>
+      <div class="landscape-box" id="landscapeBox" hidden>
+        <span class="eyebrow" id="landTitle">Design-space landscape</span>
+        <div class="land-wrap"><canvas id="landscape"></canvas><div class="land-tip" id="landTip" hidden></div></div>
+        <div class="land-legend"><span class="lg-dot ok"></span><span>feasible</span><span class="lg-dot bad"></span><span>infeasible</span><span class="lg-ring"></span><span>winner</span><span class="lg-note" id="landNote">hover a point for its design</span></div>
+      </div>
+      <div class="result-card" id="resultCard" hidden></div>
       <div class="plots" id="plots"></div>
     </section>
 
@@ -362,9 +375,17 @@ if (qs.get('mission')) resumeMission(qs.get('mission'));
 const dv = qs.get('view'); if (dv && dv !== 'report') { $('shell').classList.add('browsing'); showView(dv); }
 
 async function loadRuntime() {
-  try { const h = await (await fetch('/health')).json();
-    $('runtime').textContent = `SOLVER OF CHOICE / ${(h.backend||'openfoam').split('-')[0].toUpperCase()}`;
+  // The solver badge is earned, not asserted: it stays generic until the user
+  // names a solver or the plan commits to one (solver.selected).
+  try { await (await fetch('/health')).json();
+    $('runtime').textContent = 'LAB ONLINE';
   } catch { $('runtime').textContent = 'OFFLINE'; }
+}
+function solverSelected(p) {
+  const name = (p.solver || '').toUpperCase();
+  if (!name) return;
+  $('runtime').textContent = `SOLVER / ${name}`;
+  toast(`Solver selected: ${name}`);
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600); }
 
@@ -418,7 +439,9 @@ function connect(id) {
 function resetMission() {
   if (state.source) state.source.close();
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null;
-  state.landscape=[]; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
+  state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
+  loadRuntime();   // a new mission must earn the solver badge again
+  const rc = $('resultCard'); if (rc) { rc.hidden = true; rc.innerHTML=''; }
   $('digest').innerHTML=''; $('script').innerHTML=''; $('memo').innerHTML='';
   $('plots').innerHTML=''; $('roster').innerHTML=''; $('computeTiles').innerHTML=''; $('channels').innerHTML=''; $('knowledge').innerHTML=''; $('agenda').innerHTML='';
   ['auditSection','rosterSection','computeSection','channelsSection','knowSection','agendaSection','route','landscapeBox'].forEach(id => setHidden(id, true));
@@ -449,6 +472,10 @@ function dispatch(env) {
     case 'knowledge.added': knowledgeAdded(p, true); break;
     case 'knowledge.state': knowledgeAdded(p, false); break;
     case 'agenda.updated': renderAgenda(p); break;
+    case 'solver.selected': solverSelected(p); break;
+    case 'result.verdict': renderResult(p); break;
+    case 'landscape.init': initLandscape(p); break;
+    case 'objective.spec': if (p.metric) { state.objMetric = p.metric; state.objDir = p.direction || state.objDir; } break;
     case 'report.ready': renderMemo(p); break;
     case 'certificate.ready': state.certificate = p; injectCertificate(); break;
     case 'geometry.ready': loadGeometry(p); break;
@@ -470,6 +497,13 @@ function showRoute(r) {
   $('routeIntent').textContent = (r.intent || '').replace(/-/g,' ').toUpperCase();
   $('routeConf').textContent = r.confidence != null ? `interpretation confidence ${Math.round(r.confidence*100)}%` : '';
   $('routeRationale').textContent = r.rationale || '';
+  // The user naming a solver in the prompt earns the badge immediately;
+  // otherwise it waits for the plan's solver.selected.
+  const req = ((r.params && r.params.request) || '').toLowerCase();
+  const setup = (r.params && r.params.solver_setup) || '';
+  if (/vspaero|openvsp/.test(req)) solverSelected({ solver: 'VSPAERO' });
+  else if (/openfoam|simplefoam|pimplefoam|potentialfoam/.test(req) || /foam/i.test(setup))
+    solverSelected({ solver: 'OpenFOAM' });
 }
 
 function renderAudit(p) {
@@ -549,13 +583,19 @@ function renderMemo(rep) {
   const list = a => `<ul>${(a||[]).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
   const results = (rep.results||[]).map(r =>
     `<div class="memo-result"><span><b class="val">${esc(r.value)}</b> <span class="q">${esc(r.quantity)}</span><br><span class="q">${esc(r.envelope||'')}${r.reason?' — '+esc(r.reason):''}</span></span>${verdictBadge(r.tier)}</div>`).join('');
+  // Reports lead with plots: every figure the mission produced comes first.
+  const figs = state.plots.length
+    ? `<div class="memo-figs">${state.plots.map(pl =>
+        `<img src="${esc(pl.url)}" title="${esc(pl.title||'')}" onclick="window.open('${esc(pl.url)}','_blank')">`).join('')}</div>`
+    : '';
   $('memo').innerHTML =
     `<span class="eyebrow">Lab report</span><h3>${esc(rep.title||'Mission report')}</h3>`
+    + figs
+    + `<h4>Results</h4>${results}`
     + `<h4>Abstract</h4>${(rep.abstract||[]).map(x=>`<p>${esc(x)}</p>`).join('')}`
     + `<h4>Methods</h4>${list(rep.methods)}`
-    + `<h4>Results</h4>${results}`
     + `<h4>Uncertainty</h4>${list(rep.uncertainty)}`
-    + `<h4>Future work</h4>${list(rep.future_work)}`;
+    + `<h4>Next investigations</h4>${list(rep.next_investigations)}`;
   document.querySelector('.tab[data-view="memo"]').hidden = false;
   injectCertificate();
   if (new URLSearchParams(location.search).get('view')==='report') showView('memo');
@@ -607,13 +647,18 @@ function drawGeometry() {
   if (!W || !H) return;
   cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
   if (!m || !m.verts.length) return;
+  setHidden('viewportEmpty', true);
   let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9];
   for (const v of m.verts) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
   const c = [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
   const span = Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]) || 1;
   const s = Math.min(W,H)*0.42/span, ax = 0.42, cosA=Math.cos(ax), sinA=Math.sin(ax);
+  // A flat body (a wing) viewed edge-on is a sliver; show its planform
+  // instead — the tilt trades a little chord for a readable shape.
+  const flat = (hi[2]-lo[2]) < 0.12 * span;
   const proj = v => {
     let x=v[1]-c[1], y=v[2]-c[2], z=v[0]-c[0];
+    if (flat) { const t=y; y = -z*0.85 + t*0.4; z = t*0.85 + z*0.4; }
     const zr = z*cosA - x*sinA, xr = z*sinA + x*cosA, yr = y*0.92 - zr*0.28;
     return [W/2 + xr*s, H/2 - yr*s, zr];
   };
@@ -636,27 +681,147 @@ function addPlot(p) {
   $('plots').appendChild(img);
 }
 
-function pushLandscape(p) {
-  const obj = p.metrics && p.metrics[state.objMetric]; if (p.design == null || obj == null) return;
-  state.landscape.push({ design: p.design, obj: +obj, feasible: p.feasible !== false }); drawLandscape();
+function initLandscape(p) {
+  // The plan phase announces the axes before any point exists — the skeleton
+  // renders immediately, then fills as evidence lands.
+  state.landMeta = p || {}; state.landscape = [];
+  setHidden('landscapeBox', false);
+  if (p && p.title) $('landTitle').textContent = p.title;
+  drawLandscape();
 }
+function pushLandscape(p) {
+  const meta = state.landMeta || {};
+  const objKey = (meta.objective && meta.objective.key) || state.objMetric;
+  const obj = p.metrics && p.metrics[objKey]; if (p.design == null || obj == null) return;
+  state.landscape.push({ design: p.design, obj: +obj, feasible: p.feasible !== false,
+                         why: p.why || null, solved: !!p.solved });
+  drawLandscape();
+}
+// Default axis labels for known design variables — a plot must say its units.
+const UNIT_LABELS = { span:'span [m]', wing_area:'wing area [m²]', area:'area [m²]',
+  cylinder_diameter:'diameter [m]', diameter:'diameter [m]', sweep:'sweep [°]',
+  angle:'opening angle [°]', phase:'cycle phase' };
+const axisLabel = k => UNIT_LABELS[k] || String(k).replace(/_/g,' ');
 function drawLandscape() {
-  const pts = state.landscape; if (pts.length < 3) return;
-  const keys = Object.keys(pts[0].design||{}); if (keys.length < 2) return;
-  const varOf = k => { const vs = pts.map(p=>p.design[k]); const m = vs.reduce((a,b)=>a+b,0)/vs.length; return vs.reduce((a,b)=>a+(b-m)**2,0)/vs.length; };
-  const [kx,ky] = keys.slice().sort((a,b)=>varOf(b)-varOf(a)).slice(0,2);
-  setHidden('landscapeBox', false); $('landAxes').textContent = `${kx} × ${ky}`;
-  const cv=$('landscape'), ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=14; ctx.clearRect(0,0,W,H);
-  const rng = a => { const lo=Math.min(...a),hi=Math.max(...a); return [lo,(hi-lo)||1]; };
-  const [xl,xr]=rng(pts.map(p=>p.design[kx])), [yl,yr]=rng(pts.map(p=>p.design[ky])), [ol,or_]=rng(pts.map(p=>p.obj));
-  const px=v=>pad+(v-xl)/xr*(W-2*pad), py=v=>H-pad-(v-yl)/yr*(H-2*pad);
-  const best = state.objDir==='min'?pts.reduce((a,b)=>b.obj<a.obj?b:a):pts.reduce((a,b)=>b.obj>a.obj?b:a);
-  ctx.fillStyle='rgba(6,7,8,.72)'; ctx.fillRect(0,0,W,H);
+  const meta = state.landMeta || {};
+  const pts = state.landscape;
+  if (!meta.x && pts.length < 3) return;
+  let kx, ky;
+  if (meta.x && meta.y) { kx = meta.x.key; ky = meta.y.key; }
+  else {
+    const keys = Object.keys(pts[0].design||{}); if (keys.length < 2) return;
+    const varOf = k => { const vs = pts.map(p=>p.design[k]); const m = vs.reduce((a,b)=>a+b,0)/vs.length; return vs.reduce((a,b)=>a+(b-m)**2,0)/vs.length; };
+    [kx,ky] = keys.slice().sort((a,b)=>varOf(b)-varOf(a)).slice(0,2);
+  }
+  setHidden('landscapeBox', false);
+  const cv=$('landscape'), dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth||300, H=cv.clientHeight||235;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const ctx=cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const ML=46, MR=58, MT=10, MB=32, PW=W-ML-MR, PH=H-MT-MB;
+  const objLabel = (meta.objective && meta.objective.label) || state.objMetric.replace('_','/');
+  const objDir = (meta.objective && meta.objective.direction) || state.objDir;
+  const xLab = (meta.x && meta.x.label) || axisLabel(kx);
+  const yLab = (meta.y && meta.y.label) || axisLabel(ky);
+
+  const rng = a => { const lo=Math.min(...a),hi=Math.max(...a); return [lo, (hi-lo)||1]; };
+  const have = pts.length > 0;
+  const [xl,xr] = have ? rng(pts.map(p=>p.design[kx])) : [0,1];
+  const [yl,yr] = have ? rng(pts.map(p=>p.design[ky])) : [0,1];
+  const [ol,or_] = have ? rng(pts.map(p=>p.obj)) : [0,1];
+  const px=v=>ML+(v-xl)/xr*PW, py=v=>MT+PH-(v-yl)/yr*PH;
+
+  // frame + ticks with values: a plot that doesn't state its scale is a sketch
+  ctx.strokeStyle='rgba(140,170,200,.35)'; ctx.lineWidth=1;
+  ctx.strokeRect(ML,MT,PW,PH);
+  ctx.fillStyle='rgba(190,210,230,.75)'; ctx.font='9px ui-monospace,monospace';
+  const fmt = v => Math.abs(v)>=100 ? v.toFixed(0) : +v.toPrecision(3);
+  for (let i=0;i<=3;i++){
+    const xv = xl + xr*i/3, yv = yl + yr*i/3;
+    const X = ML+PW*i/3, Y = MT+PH-PH*i/3;
+    ctx.strokeStyle='rgba(140,170,200,.12)';
+    ctx.beginPath(); ctx.moveTo(X,MT); ctx.lineTo(X,MT+PH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ML,Y); ctx.lineTo(ML+PW,Y); ctx.stroke();
+    if (have){
+      ctx.textAlign='center'; ctx.fillText(fmt(xv), X, MT+PH+11);
+      ctx.textAlign='right'; ctx.fillText(fmt(yv), ML-5, Y+3);
+    }
+  }
+  ctx.textAlign='center'; ctx.fillStyle='rgba(210,225,240,.85)';
+  ctx.fillText(xLab, ML+PW/2, H-4);
+  ctx.save(); ctx.translate(10, MT+PH/2); ctx.rotate(-Math.PI/2); ctx.fillText(yLab, 0, 0); ctx.restore();
+
+  // colorbar for the objective
+  const CBX=W-MR+14, CBW=10;
+  for (let i=0;i<PH;i++){ ctx.fillStyle=coolwarm(1-i/PH); ctx.fillRect(CBX, MT+i, CBW, 1); }
+  ctx.strokeStyle='rgba(140,170,200,.35)'; ctx.strokeRect(CBX,MT,CBW,PH);
+  ctx.textAlign='left'; ctx.fillStyle='rgba(190,210,230,.8)';
+  if (have){
+    const cbHi = objDir==='min' ? ol : ol+or_, cbLo = objDir==='min' ? ol+or_ : ol;
+    ctx.fillText(fmt(cbHi), CBX+CBW+3, MT+8);
+    ctx.fillText(fmt(cbLo), CBX+CBW+3, MT+PH);
+  }
+  ctx.save(); ctx.translate(W-6, MT+PH/2); ctx.rotate(Math.PI/2); ctx.textAlign='center'; ctx.fillText(objLabel, 0, 0); ctx.restore();
+
+  if (!have){
+    ctx.textAlign='center'; ctx.fillStyle='rgba(160,180,200,.55)';
+    ctx.fillText('awaiting solved points…', ML+PW/2, MT+PH/2);
+    state._landPts = []; return;
+  }
+
+  // fog thins where evidence exists — clipped to the plot area
+  ctx.save(); ctx.beginPath(); ctx.rect(ML,MT,PW,PH); ctx.clip();
+  ctx.fillStyle='rgba(6,7,8,.62)'; ctx.fillRect(ML,MT,PW,PH);
   ctx.globalCompositeOperation='destination-out';
   for (const p of pts){ const x=px(p.design[kx]),y=py(p.design[ky]); const g=ctx.createRadialGradient(x,y,0,x,y,30); g.addColorStop(0,'rgba(0,0,0,.95)'); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,30,0,6.29); ctx.fill(); }
-  ctx.globalCompositeOperation='source-over';
-  for (const p of pts){ const t=(p.obj-ol)/or_, good=state.objDir==='min'?1-t:t; ctx.fillStyle = p.feasible?coolwarm(good):'rgba(120,130,140,.45)'; ctx.beginPath(); ctx.arc(px(p.design[kx]),py(p.design[ky]),3.2,0,6.29); ctx.fill(); }
-  ctx.strokeStyle='#57a5ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(px(best.design[kx]),py(best.design[ky]),7,0,6.29); ctx.stroke();
+  ctx.globalCompositeOperation='source-over'; ctx.restore();
+
+  // The winner is the best FEASIBLE point — an infeasible design can never win.
+  const pool = pts.filter(p=>p.feasible).length ? pts.filter(p=>p.feasible) : pts;
+  const best = objDir==='min'?pool.reduce((a,b)=>b.obj<a.obj?b:a):pool.reduce((a,b)=>b.obj>a.obj?b:a);
+  state._landPts = [];
+  for (const p of pts){
+    const t=(p.obj-ol)/or_, good=objDir==='min'?1-t:t;
+    const X=px(p.design[kx]), Y=py(p.design[ky]);
+    state._landPts.push({X,Y,p});
+    ctx.fillStyle = p.feasible?coolwarm(good):'rgba(120,130,140,.45)';
+    ctx.beginPath(); ctx.arc(X,Y,p.solved?4.4:3.2,0,6.29); ctx.fill();
+    if (p.solved){ ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=1; ctx.stroke(); }
+  }
+  // the winner is annotated with its value — the one number this plot exists for
+  const BX=px(best.design[kx]), BY=py(best.design[ky]);
+  ctx.strokeStyle='#57a5ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(BX,BY,7,0,6.29); ctx.stroke();
+  const lbl=`${objLabel} ${fmt(best.obj)}`;
+  ctx.font='bold 10px ui-monospace,monospace';
+  const tw=ctx.measureText(lbl).width, LX=Math.min(Math.max(BX+10,ML+2),ML+PW-tw-6), LY=Math.max(BY-10,MT+12);
+  ctx.fillStyle='rgba(8,10,12,.9)'; ctx.fillRect(LX-3,LY-10,tw+6,14);
+  ctx.fillStyle='#8fc3ff'; ctx.textAlign='left'; ctx.fillText(lbl,LX,LY);
+}
+// hover tooltips: the point under the cursor explains itself
+$('landscape').addEventListener('mousemove', e => {
+  const pts = state._landPts||[]; const r=$('landscape').getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  let near=null, nd=121;
+  for (const q of pts){ const d=(q.X-mx)**2+(q.Y-my)**2; if (d<nd){ nd=d; near=q; } }
+  const tip=$('landTip');
+  if (!near){ tip.hidden=true; return; }
+  const meta=state.landMeta||{}, objLabel=(meta.objective&&meta.objective.label)||'objective';
+  const design=Object.entries(near.p.design).map(([k,v])=>`${esc(axisLabel(k))} <b>${esc(v)}</b>`).join('<br>');
+  const why = near.p.feasible ? (near.p.solved?'feasible · solved polar':'feasible')
+    : `<span class="bad">infeasible${near.p.why?': '+esc([].concat(near.p.why).join('; ')) :''}</span>`;
+  tip.innerHTML = `${design}<br>${esc(objLabel)} <b>${esc(+(+near.p.obj).toPrecision(4))}</b><br>${why}`;
+  tip.hidden=false;
+  const bw=$('landscape').clientWidth;
+  tip.style.left=Math.min(mx+12, bw-215)+'px'; tip.style.top=Math.max(my-10,0)+'px';
+});
+$('landscape').addEventListener('mouseleave', () => { $('landTip').hidden=true; });
+
+function renderResult(p) {
+  const rc = $('resultCard'); if (!rc) return;
+  rc.innerHTML = `<b class="rv">${esc(p.value??'—')}</b><span class="rq">${esc(p.quantity||'result')}</span>`
+    + verdictBadge(p.tier)
+    + `<span class="re">${esc(p.envelope||'')}${p.reason?' — '+esc(p.reason):''}</span>`;
+  rc.hidden = false;
 }
 
 async function uploadSurface(e) {
