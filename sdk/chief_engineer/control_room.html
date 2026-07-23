@@ -162,6 +162,44 @@
   .evidence-row > * { flex: 1 1 0; min-width: 0; border-top: 0; }
   .evidence-row .landscape-box, .evidence-row .trace-box { border-top: 1px solid var(--line); }
 
+  /* split-screen race — two lanes race the same objective, both real and timed */
+  .race-view { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; background: radial-gradient(130% 130% at 50% 12%, #0b0e10, #040506); }
+  .race-banner { display: flex; align-items: baseline; gap: 14px; padding: 12px 18px 6px; flex: 0 0 auto; }
+  .rb-obj { color: var(--ink); font: 700 14px var(--cond); letter-spacing: .01em; }
+  .rb-sub { color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; }
+  .race-lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); flex: 1 1 auto; min-height: 0; }
+  .race-lane { background: #050607; display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 12px 14px; position: relative; }
+  .race-lane.mc { border-top: 2px solid #57a5ff; }
+  .race-lane.rom { border-top: 2px solid #f0a35a; }
+  .rl-head { display: flex; align-items: center; justify-content: space-between; }
+  .rl-title { font: 800 12px var(--cond); letter-spacing: .16em; text-transform: uppercase; }
+  .race-lane.mc .rl-title { color: #8fc3ff; }
+  .race-lane.rom .rl-title { color: #f5bd82; }
+  .rl-flag { font: 700 9px var(--mono); letter-spacing: .14em; color: var(--bg); background: var(--good, #6fcf7f); padding: 3px 8px; border-radius: 2px; }
+  .rl-sub { color: var(--dim); font: 9.5px var(--mono); letter-spacing: .06em; margin-top: 2px; }
+  .rl-polar { flex: 1 1 auto; width: 100%; min-height: 120px; display: block; margin: 8px 0; border: 1px solid var(--line-2); background: #040506; }
+  .rl-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex: 0 0 auto; }
+  .rl-prog { flex: 1 1 auto; min-width: 0; }
+  .rl-bar { height: 6px; background: var(--line-2); overflow: hidden; }
+  .rl-bar > i { display: block; height: 100%; width: 0; transition: width .18s ease; }
+  .race-lane.mc .rl-bar > i { background: #57a5ff; }
+  .race-lane.rom .rl-bar > i { background: #f0a35a; }
+  .rl-count { display: block; color: var(--muted); font: 9.5px var(--mono); letter-spacing: .04em; margin-top: 4px; }
+  .rl-clock { text-align: right; color: var(--muted); font: 9.5px var(--mono); letter-spacing: .04em; white-space: nowrap; }
+  .rl-clock b { color: var(--ink); font-size: 15px; font-family: var(--mono); }
+  .rl-note { color: var(--dim); font: 9.5px var(--mono); letter-spacing: .03em; margin-top: 6px; min-height: 12px; }
+  .race-lane.done .rl-note { color: var(--muted); }
+  .race-card { flex: 0 0 auto; border-top: 1px solid var(--line); padding: 12px 18px; background: var(--panel); }
+  .rc-bars { display: flex; flex-direction: column; gap: 7px; }
+  .rc-row { display: grid; grid-template-columns: 130px 1fr; align-items: center; gap: 10px; }
+  .rc-lbl { color: var(--muted); font: 9.5px var(--mono); letter-spacing: .04em; }
+  .rc-track { height: 16px; background: var(--line-2); position: relative; }
+  .rc-fill { height: 100%; display: flex; align-items: center; padding-left: 8px; color: var(--bg); font: 700 9.5px var(--mono); white-space: nowrap; }
+  .rc-row.mc .rc-fill { background: #57a5ff; }
+  .rc-row.rom .rc-fill { background: #f0a35a; }
+  .rc-verdict { margin-top: 10px; color: var(--ink); font: 13px var(--cond); }
+  .rc-verdict b { color: #8fc3ff; }
+
   /* viewport — the geometry stage is the hero: it takes the lion's share of the
      column and never shrinks below a readable size. */
   .stage-wrap { position: relative; flex: 1 1 auto; min-height: 320px; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
@@ -341,10 +379,22 @@
     </aside>
 
     <section class="panel viewport">
-      <div class="panel-head"><h2>Geometry</h2><span class="eyebrow" id="viewportIndex">02 / surface</span></div>
-      <div class="stage-wrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div></div>
-      <div class="viewport-foot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
+      <div class="panel-head"><h2 id="viewportHead">Geometry</h2><span class="eyebrow" id="viewportIndex">02 / surface</span></div>
+      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div></div>
+      <div class="viewport-foot" id="viewportFoot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
       <div class="legend" id="legend"><span id="legendLo">—</span><span class="bar"></span><span id="legendHi">—</span><b id="legendName">pressure</b></div>
+
+      <!-- Split-screen race view: two lanes race the same objective, one path
+           brute-force Monte-Carlo, one reduced-order, both real and timed. -->
+      <div class="race-view" id="raceView" hidden>
+        <div class="race-banner"><span class="rb-obj" id="raceObj"></span><span class="rb-sub" id="raceSub"></span></div>
+        <div class="race-lanes" id="raceLanes"></div>
+        <div class="race-card" id="raceCard" hidden>
+          <div class="rc-bars" id="raceBars"></div>
+          <div class="rc-verdict" id="raceVerdict"></div>
+        </div>
+      </div>
+
       <div class="evidence-row" id="evidenceRow">
         <div class="landscape-box" id="landscapeBox" hidden>
           <span class="eyebrow" id="landTitle">Design-space landscape</span>
@@ -404,7 +454,7 @@ const title = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpp
 const displayName = s => { if (!s) return ''; const base = String(s).split(/[\\/]/).pop().replace(/\.(stl|obj)$/i,''); return title(base); };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest',
-                dispatch:{}, dispatchGrant:null, trace:null, recordedPace:false };
+                dispatch:{}, dispatchGrant:null, trace:null, recordedPace:false, race:null };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
 const revealQ = [];
@@ -426,7 +476,7 @@ $('paceBtn').addEventListener('click', () => {
 $('askForm').addEventListener('submit', e => { e.preventDefault(); const q = $('askInput').value.trim(); if (q) { $('askInput').value=''; askLab(q); } });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
 document.addEventListener('keydown', e => { if ((e.key==='p'||e.key==='P') && !/TEXTAREA|INPUT/.test(e.target.tagName)) togglePresent(); });
-window.addEventListener('resize', () => { drawGeometry(); drawLandscape(); drawTrace(); });
+window.addEventListener('resize', () => { drawGeometry(); drawLandscape(); drawTrace(); drawRace(); });
 loadRuntime(); loadCredentials();
 const qs = new URLSearchParams(location.search);
 if (qs.get('present') === '1') $('shell').classList.add('presenting');
@@ -527,7 +577,7 @@ async function resumeMission(id, staticReplay) {
       // A completed still shows the end-state: report forward, geometry and
       // evidence plots beside it (B4). A mid-flight still stays on the digest.
       if (!upto && !document.querySelector('.tab[data-view="memo"]').hidden) showView('memo');
-      drawGeometry(); drawLandscape(); drawTrace();
+      drawGeometry(); drawLandscape(); drawTrace(); drawRace();
       fetch(`/api/missions/${id}`).then(r => r.json())
         .then(rec => { $('missionGoal').textContent = rec.request || id; }).catch(() => {});
     } else {
@@ -552,6 +602,13 @@ function resetMission() {
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
   state.peakAgents=0; state.peakWorkers=0; revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
+  // Race view: clear lanes, stop the ticker, and give the geometry stage back.
+  if (state._raceTick) { clearInterval(state._raceTick); state._raceTick = null; }
+  state.race = null;
+  setHidden('raceView', true); $('raceLanes').innerHTML=''; $('raceBars').innerHTML=''; $('raceVerdict').innerHTML='';
+  setHidden('raceCard', true);
+  ['stageWrap','viewportFoot'].forEach(id => setHidden(id, false));
+  $('viewportHead').textContent='Geometry'; $('viewportIndex').textContent='02 / surface';
   loadRuntime();   // a new mission must earn the solver badge again
   const rc = $('resultCard'); if (rc) { rc.hidden = true; rc.innerHTML=''; }
   $('digest').innerHTML=''; $('script').innerHTML=''; $('memo').innerHTML='';
@@ -584,7 +641,7 @@ function finish(status) {
       && !document.querySelector('.tab[data-view="memo"]').hidden) {
     showView('memo');
   }
-  drawGeometry(); drawLandscape(); drawTrace();
+  drawGeometry(); drawLandscape(); drawTrace(); drawRace();
 }
 
 function dispatch(env) {
@@ -611,7 +668,16 @@ function dispatch(env) {
     case 'plot.ready': addPlot(p); break;
     case 'landscape.point': pushLandscape(p); break;
     case 'dispatch.update': dispatchUpdate(p); break;
-    case 'trace.point': pushTrace(p); break;
+    case 'race.init': initRace(p); break;
+    case 'race.lane': raceLane(p); break;
+    case 'race.curve': raceCurve(p); break;
+    case 'race.result': raceResult(p); break;
+    case 'trace.point':
+      // In a race, the mc/rom series feed the split-screen lanes, not the
+      // single objective trace box.
+      if (state.race && (p.series === 'mc' || p.series === 'rom')) raceTracePoint(p);
+      else pushTrace(p);
+      break;
     case 'agent.started': state.agents++; $('kAgents').textContent = state.agents; break;
     case 'worker.provisioned': state.workers++; $('kWorkers').textContent = state.workers; break;
     case 'worker.released': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; break;
@@ -743,6 +809,171 @@ function drawTrace() {
   const tw=ctx.measureText(lbl).width, LX=Math.min(px(last.x)+8, ML+PW-tw-4), LY=Math.max(py(last.y)-8, MT+11);
   ctx.fillStyle='rgba(8,10,12,.9)'; ctx.fillRect(LX-3,LY-10,tw+6,14);
   ctx.fillStyle='#8fc3ff'; ctx.textAlign='left'; ctx.fillText(lbl,LX,LY);
+}
+
+// ---- Split-screen race view ------------------------------------------------
+// Two lanes race the same objective: a full Monte-Carlo sweep and a
+// reduced-order path, every point a real solve and both clocks measured. The
+// centre stage becomes the two lanes; each grows its own L/D-vs-alpha polar,
+// tracks solves-done/total, and ticks its own elapsed clock until it flags.
+const RACE_COLOR = { mc: '#57a5ff', rom: '#f0a35a' };
+function initRace(p) {
+  const lanes = {};
+  (p.lanes || []).forEach(l => { lanes[l.key] = {
+    key: l.key, title: l.title || l.key.toUpperCase(), subtitle: l.subtitle || '',
+    total: +l.total || 0, done: 0, elapsed: 0, startMs: null, frozen: null,
+    state: 'waiting', note: '', pts: [], curve: null }; });
+  state.race = { lanes, order: (p.lanes || []).map(l => l.key),
+                 xLabel: p.x_label || 'x', yLabel: p.y_label || 'L/D',
+                 objective: p.objective || '', subject: p.subject || '' };
+  $('raceObj').textContent = p.objective || 'The race';
+  $('raceSub').textContent = [p.subject, p.tolerance ? 'tolerance ' + p.tolerance : '']
+    .filter(Boolean).join('  ·  ');
+  $('raceLanes').innerHTML = state.race.order.map(k => {
+    const l = lanes[k];
+    return `<div class="race-lane ${esc(k)}" id="lane-${esc(k)}">`
+      + `<div class="rl-head"><span class="rl-title">${esc(l.title)}</span>`
+      + `<span class="rl-flag" id="flag-${esc(k)}" hidden>FINISHED</span></div>`
+      + `<div class="rl-sub">${esc(l.subtitle)}</div>`
+      + `<canvas class="rl-polar" id="polar-${esc(k)}"></canvas>`
+      + `<div class="rl-meta"><div class="rl-prog"><div class="rl-bar"><i id="bar-${esc(k)}"></i></div>`
+      + `<span class="rl-count" id="count-${esc(k)}">0 / ${l.total} solves</span></div>`
+      + `<div class="rl-clock"><b id="clock-${esc(k)}">0.0</b> s</div></div>`
+      + `<div class="rl-note" id="note-${esc(k)}"></div></div>`;
+  }).join('');
+  // The race owns the centre stage — the geometry viewport and the single
+  // objective trace step aside for the two lanes.
+  ['stageWrap','viewportFoot','legend','evidenceRow'].forEach(id => setHidden(id, true));
+  $('legend').classList.remove('on');
+  $('viewportHead').textContent = 'The race';
+  $('viewportIndex').textContent = 'full MC vs reduced-order';
+  setHidden('raceView', false);
+  setHidden('raceCard', true);
+  if (!state.instant) startRaceTicker();
+  drawRace();
+}
+function startRaceTicker() {
+  if (state._raceTick) clearInterval(state._raceTick);
+  state._raceTick = setInterval(() => {
+    if (!state.race) { clearInterval(state._raceTick); state._raceTick = null; return; }
+    let anyRunning = false;
+    for (const k of state.race.order) {
+      const l = state.race.lanes[k];
+      if (l.state === 'running' && l.startMs != null) {
+        anyRunning = true;
+        const el = $('clock-' + k); if (el) el.textContent = ((Date.now() - l.startMs) / 1000).toFixed(1);
+      }
+    }
+    if (!anyRunning) { clearInterval(state._raceTick); state._raceTick = null; }
+  }, 100);
+}
+function raceTracePoint(p) {
+  if (!state.race || !state.race.lanes[p.series]) return;
+  state.race.lanes[p.series].pts.push({
+    x: +p.x, y: +p.y, nominal: p.nominal === true, kind: p.kind || null });
+  drawRace();
+}
+function raceCurve(p) {
+  const l = state.race && state.race.lanes[p.lane]; if (!l) return;
+  l.curve = { c: p.coefficients || [], x0: +p.x0, x1: +p.x1, alphaStar: +p.alpha_star };
+  drawRace();
+}
+function raceLane(p) {
+  const l = state.race && state.race.lanes[p.lane]; if (!l) return;
+  l.done = +p.done || 0; if (p.total != null) l.total = +p.total;
+  l.state = p.state || l.state; if (p.note) l.note = p.note;
+  if (l.state === 'running' && l.startMs == null)
+    l.startMs = Date.now() - (+p.elapsed_s || 0) * 1000;
+  if (l.state === 'done') l.frozen = +p.elapsed_s || 0;
+  const bar = $('bar-' + p.lane), cnt = $('count-' + p.lane),
+        clk = $('clock-' + p.lane), flag = $('flag-' + p.lane), note = $('note-' + p.lane);
+  if (bar) bar.style.width = (l.total ? Math.min(100, 100 * l.done / l.total) : 0) + '%';
+  if (cnt) cnt.textContent = `${l.done} / ${l.total} solves`;
+  if (l.state === 'done') {
+    if (clk) clk.textContent = (l.frozen != null ? l.frozen : l.elapsed).toFixed(1);
+    if (flag) flag.hidden = false;
+    const lane = $('lane-' + p.lane); if (lane) lane.classList.add('done');
+  } else if (state.instant && clk) {
+    clk.textContent = (+p.elapsed_s || 0).toFixed(1);
+  }
+  if (note) note.textContent = l.note || '';
+}
+function raceResult(p) {
+  const bars = $('raceBars'); if (!bars) return;
+  const mc = p.mc || {}, rom = p.rom || {};
+  const maxCm = Math.max(+mc.core_minutes || 0, +rom.core_minutes || 0) || 1;
+  const row = (key, label, cm, wall, solves) => {
+    const w = Math.max(6, 100 * (+cm || 0) / maxCm);
+    return `<div class="rc-row ${key}"><span class="rc-lbl">${esc(label)}</span>`
+      + `<div class="rc-track"><div class="rc-fill" style="width:${w}%">`
+      + `${(+cm).toFixed(1)} core-min · wall ${(+wall).toFixed(0)} s · ${solves} real solves</div></div></div>`;
+  };
+  bars.innerHTML = row('mc', 'full Monte-Carlo', mc.core_minutes, mc.wall_seconds, mc.n_solves)
+    + row('rom', 'reduced-order', rom.core_minutes, rom.wall_seconds, rom.n_solves);
+  $('raceVerdict').innerHTML =
+    `Measured speedup <b>${esc(p.speedup_core_min)}×</b> in core-minutes `
+    + `(wall ${esc(p.speedup_wall)}×). ${esc(p.agreement || '')}`;
+  setHidden('raceCard', false);
+}
+function drawRace() {
+  if (!state.race) return;
+  // Shared y-range across both lanes so "same answer" is visible at a glance.
+  let ylo = Infinity, yhi = -Infinity;
+  for (const k of state.race.order) for (const pt of state.race.lanes[k].pts) {
+    if (pt.y < ylo) ylo = pt.y; if (pt.y > yhi) yhi = pt.y; }
+  if (!isFinite(ylo)) { ylo = 0; yhi = 1; }
+  const yr = (yhi - ylo) || 1, yPad = 0.14 * yr;
+  const ymin = ylo - yPad, ymax = yhi + yPad;
+  for (const k of state.race.order) drawRaceLane(k, ymin, ymax);
+}
+function drawRaceLane(key, ymin, ymax) {
+  const l = state.race.lanes[key], cv = $('polar-' + key); if (!cv) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 300, H = cv.clientHeight || 150;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const ML = 42, MR = 12, MT = 10, MB = 26, PW = W - ML - MR, PH = H - MT - MB;
+  const xlo = 0, xhi = 10;   // angle of attack 0..10 deg (the swept range)
+  const px = v => ML + (v - xlo) / (xhi - xlo) * PW;
+  const py = v => MT + PH - (v - ymin) / ((ymax - ymin) || 1) * PH;
+  ctx.strokeStyle = 'rgba(140,170,200,.30)'; ctx.lineWidth = 1; ctx.strokeRect(ML, MT, PW, PH);
+  ctx.fillStyle = 'rgba(190,210,230,.7)'; ctx.font = '9px ui-monospace,monospace';
+  const fmt = v => Math.abs(v) >= 100 ? v.toFixed(0) : +v.toPrecision(3);
+  for (let i = 0; i <= 3; i++) {
+    const yv = ymin + (ymax - ymin) * i / 3, Y = MT + PH - PH * i / 3;
+    ctx.strokeStyle = 'rgba(140,170,200,.08)'; ctx.beginPath(); ctx.moveTo(ML, Y); ctx.lineTo(ML + PW, Y); ctx.stroke();
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(190,210,230,.65)'; ctx.fillText(fmt(yv), ML - 5, Y + 3);
+    const xv = xlo + (xhi - xlo) * i / 3, X = ML + PW * i / 3;
+    ctx.textAlign = 'center'; ctx.fillText(fmt(xv), X, MT + PH + 11);
+  }
+  ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(210,225,240,.8)';
+  ctx.fillText(state.race.xLabel, ML + PW / 2, H - 2);
+  const color = RACE_COLOR[key] || '#8fc3ff';
+  // reduced-order: the fitted surface curve behind the anchors
+  if (l.curve && l.curve.c && l.curve.c.length === 3) {
+    const c = l.curve.c, pred = x => c[0] + c[1] * x + c[2] * x * x;
+    ctx.strokeStyle = color; ctx.globalAlpha = 0.55; ctx.lineWidth = 1.6; ctx.beginPath();
+    for (let i = 0; i <= 60; i++) { const x = xlo + (xhi - xlo) * i / 60, X = px(x), Y = py(pred(x)); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+    ctx.stroke(); ctx.globalAlpha = 1;
+  }
+  // monte-carlo: connect the nominal-Reynolds sample as the running answer line
+  if (key === 'mc') {
+    const nom = l.pts.filter(p => p.nominal).sort((a, b) => a.x - b.x);
+    if (nom.length > 1) {
+      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
+      nom.forEach((p, i) => { const X = px(p.x), Y = py(p.y); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+      ctx.stroke();
+    }
+  }
+  // the solved points
+  for (const p of l.pts) {
+    const X = px(p.x), Y = py(p.y);
+    const confirm = p.kind === 'confirm';
+    ctx.fillStyle = confirm ? '#6fcf7f' : color;
+    ctx.globalAlpha = (key === 'mc' && !p.nominal) ? 0.4 : 1;
+    ctx.beginPath(); ctx.arc(X, Y, confirm ? 5 : 3.2, 0, 6.29); ctx.fill();
+    ctx.globalAlpha = 1;
+    if (confirm) { ctx.strokeStyle = '#6fcf7f'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(X, Y, 8, 0, 6.29); ctx.stroke(); }
+  }
 }
 
 function renderAgenda(p) {

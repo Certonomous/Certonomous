@@ -41,6 +41,7 @@ TIME_CONSTRAINED = "time-constrained"
 UNSEEN_GEOMETRY = "unseen-geometry"
 UNCERTAINTY_REDUCTION = "uncertainty-reduction"
 GEOMETRY_STUDY = "geometry-study"
+RACE_COMPARISON = "race-comparison"
 GENERAL_MISSION = "general-mission"
 
 # Optimising lift-to-drag for an aircraft against mission requirements is a
@@ -56,6 +57,20 @@ _MISSION_REQ = re.compile(
 # cardiac cycle. Routes to the multi-point (cycle-decomposition) workflow.
 _VALVE = re.compile(
     r"\b(valve|leaflet|cardiac|pulsatile|systol\w+|orifice)\b", re.I)
+
+# A head-to-head speed comparison — a full Monte-Carlo sweep against a
+# reduced-order path on the same objective, both timed. The "race" act: it
+# runs the two methods concurrently on screen and reports the measured speedup.
+# A race is framed by a contest word (race / head-to-head / versus) and is
+# reinforced when the two methods it pits are named (Monte-Carlo vs reduced
+# order). Either signal alone is weak; together they are unambiguous.
+_RACE_FRAME = re.compile(
+    r"\b(race|head[\s-]?to[\s-]?head|versus|vs\.?|face[\s-]?off|"
+    r"against\s+the\s+reduced[\s-]?order|both\s+timed|measured\s+speed[\s-]?up)\b",
+    re.I)
+_RACE_METHODS = re.compile(
+    r"\b(monte[\s-]?carlo|reduced[\s-]?order|surrogate|"
+    r"response\s+surface|brute[\s-]?force)\b", re.I)
 
 _OPTIMIZE = re.compile(
     r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
@@ -224,6 +239,15 @@ def classify(request: str) -> Route:
     if geometry and not known:
         add(UNSEEN_GEOMETRY, 0.7,
             f"names {geometry!r}, which is absent from case memory")
+    # --- head-to-head speed race: full Monte-Carlo vs reduced-order, both timed ---
+    race_frame = _RACE_FRAME.search(text)
+    race_methods = _RACE_METHODS.search(text)
+    if race_frame:
+        add(RACE_COMPARISON, 1.9,
+            "frames a head-to-head comparison of two methods on one objective")
+        if race_methods:
+            add(RACE_COMPARISON, 0.6,
+                "names a full sweep against a reduced-order path")
     # --- pulsatile internal-flow valve screen (multi-point cycle decomposition) ---
     if _VALVE.search(text):
         add(VALVE_STUDY, 1.7,
@@ -269,6 +293,13 @@ def classify(request: str) -> Route:
         params["reference_length"] = float(length_match.group(1))
 
     rationale = {
+        RACE_COMPARISON: (
+            "Reading this as a head-to-head speed race: the same objective and "
+            "the same tolerance answered two ways — a full Monte-Carlo sweep "
+            "against a reduced-order path — with every evaluation on both sides "
+            "a real solve and both wall clocks measured live. I will run the two "
+            "lanes concurrently, show the polar forming on each, and report the "
+            "agreement and the measured speedup."),
         VALVE_STUDY: (
             "Reading this as a pulsatile internal-flow screen. The cycle is "
             "periodic, so I will decompose it into a few steady phase points, "
@@ -315,6 +346,8 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
     SHAPE_OPTIMIZATION: {"module": "workflows.shape_optimization",
                          "output": "shape-optimization"},
     VALVE_STUDY: {"module": "workflows.valve_study", "output": "valve-study"},
+    RACE_COMPARISON: {"module": "workflows.race_study",
+                      "output": "race-comparison"},
     AIRCRAFT_OPTIMIZATION: {"module": "workflows.aircraft_optimization",
                             "output": "aircraft-optimization"},
     TIME_CONSTRAINED: {"module": "workflows.time_constrained",
