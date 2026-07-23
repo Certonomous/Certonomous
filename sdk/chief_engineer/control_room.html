@@ -279,6 +279,7 @@
   .cert-link { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; padding: 13px; border: 1px solid var(--line-2); background: var(--panel-2); text-decoration: none; color: var(--ink); }
   .cert-link .seal { display: block; color: var(--dim); font: 8px var(--mono); letter-spacing: .06em; margin-top: 3px; }
 
+  .browsing .dormant { display: none; }
   .cred-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
   .cred-counters { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
   .cred-tile { border: 1px solid var(--line-2); padding: 12px 14px; }
@@ -1421,7 +1422,7 @@ async function loadCredentials() {
     if (stats) {
       const tiles = [
         ['missions run', (stats.missions_run ?? 0).toLocaleString()],
-        ['solver core-hours', String(stats.solver_core_hours ?? 0)],
+        ['solver core-hours', (+(stats.solver_core_hours ?? 0)).toFixed(1)],
         ['knowledge entries', String(stats.knowledge_entries ?? 0)],
         ['experimental anchors', String(stats.experimental_anchors ?? 0)],
         ['benchmarks active', String(stats.benchmarks_active ?? 0)],
