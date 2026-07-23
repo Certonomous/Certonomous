@@ -1,5 +1,37 @@
 # Certonomous — session handoff
 
+## FEEDBACK ROUND (2026-07-22 late) — items 5, 66–72 built, all DONE
+
+Sanaa's numbered GUI feedback, implemented and screenshot-verified:
+
+- **#70 OpenVSP/VSPAERO: LIVE.** Native `OpenVSP-3.51.1-Ubuntu-26.04_amd64.deb`
+  (openvsp.org) works on WSL's system python 3.14 — the old py3.11 wheel detour
+  is obsolete (no `openvsp` on PyPI at all). Adapter `chief_engineer/vspaero.py`
+  behind `OPENVSP_RUN_PREFIX="wsl -d Ubuntu --"` (add it to the server env);
+  in-WSL worker `vspaero_worker.py` (exact planform via section driver group;
+  STL export must come AFTER the analyses or it corrupts the geometry pass).
+  Act 1 is two-pass: conceptual screen (24 wings) → top-6 finalists solved in
+  parallel (~10 s) → winner on solved numbers: **L/D 19.7 @ span 64 m** (screen
+  said 18.4, same winner). Events: solver.selected, landscape.init,
+  vspaero.polar, per-candidate + solved-finalist geometry.ready.
+- **#5** solver badge earned (LAB ONLINE until user names a solver or the plan
+  commits); tagline "runs your solver of choice". **#66** doctrine bullets gone.
+- **#67** `lab_report(next_investigations=...)` fed ONLY from each mission's
+  research agenda (all four workflows have one + emit agenda.updated);
+  remediation-style future work deleted everywhere.
+- **#68** landscape rebuilt: axes+units+ticks, objective colorbar, legend,
+  winner annotated (feasible-only), hover tooltips w/ violation reasons.
+  Fixed: valve landscape had NEVER rendered (objective.spec unhandled).
+- **#69** all transcripts are 1–3 bullets ≤~14 words (researcher.py memo
+  generator + every workflow + server fallback); digest admits "•" entries.
+- **#71** candidates cycle in the viewport as parametric wings
+  (/api/geometry?span=..), finalists+winner render from real VSPAERO STLs
+  (/api/surface/...); flat bodies get a planform view. **#72** landscape
+  skeleton at plan, result card at conclusion, reports lead with figures.
+- **Windows gotcha:** two servers can bind :8765 simultaneously
+  (SO_REUSEADDR) and the STALE one answers — `netstat -ano | grep :8765`,
+  kill both, restart one, before trusting any verification run.
+
 ## CURRENT STATE (2026-07-22) — clean product repo + overnight build
 
 - **This is the clean product repo** `github.com/Certonomous/Certonomous` (private,

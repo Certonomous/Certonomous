@@ -57,9 +57,9 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
 
     if worker_sabotaged(index):
         clear_sabotage(index)
-        lost = (f"Worker {index} stopped responding mid-sweep — reprovisioning a "
-                f"fresh worker and re-running its design so the number still lands.")
-        took_over = f"A fresh worker took over slot {index}; its design is being re-run."
+        lost = (f"• Worker {index} stopped responding mid-sweep. "
+                f"• Reprovisioning and re-running its design — the number still lands.")
+        took_over = f"• A fresh worker took over slot {index}; its design re-runs."
         if script is not None:
             script.engineer(lost)
         if emit is not None:
@@ -145,15 +145,12 @@ def main(request: str | None = None, params: dict | None = None,
     announce_geometry(emit, diameter=NOMINAL_CYLINDER[SWEEP_PARAMETER],
                       label="baseline geometry")
     script.engineer(
-        f"My hypothesis: across {LOW}–{HIGH} m, drag falls as the body grows, "
-        f"because a larger diameter raises the Reynolds number and the laminar "
-        f"drag coefficient decreases with Reynolds. I expect the best design at "
-        f"the upper bound, and I expect the curve to flatten approaching it — "
-        f"meaning the last few centimetres buy very little.")
+        f"• Hypothesis: across {LOW}–{HIGH} m, drag falls as the body grows. "
+        f"• Bigger diameter → higher Reynolds → lower laminar Cd. "
+        f"• Expect the optimum at the upper bound, curve flattening toward it.")
     script.engineer(
-        f"It is falsifiable two ways: the trend could reverse, or a design could "
-        f"leave the validated regime above Re 47, where a converged answer stops "
-        f"being a physical one.")
+        "• Falsifiable two ways: the trend reverses, or a design leaves Re ≤ 47. "
+        "• Past Re 47 a converged answer stops being physical.")
 
     # ---------------- Experiment plan ----------------
     script.phase(PLAN)
@@ -175,9 +172,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     if not staged:
         script.engineer(
-            f"Capacity is there, so the plan is the direct one: {len(designs)} "
-            f"designs spanning the range in one parallel wave, each a real solve. "
-            f"Every point tests the trend; the ends test the bounds.")
+            f"• Capacity fits: {len(designs)} designs in one parallel wave, each "
+            f"a real solve. "
+            f"• Every point tests the trend; the ends test the bounds.")
         script.phase(EVIDENCE)
         roster.set(CHIEF_ENGINEER, "dispatching the sweep", "working")
         roster.set_workers(min(capacity.capacity, len(designs)), "solving designs")
@@ -192,13 +189,13 @@ def main(request: str | None = None, params: dict | None = None,
                      f"{len(designs)} full-fidelity solves")
         roster.set_workers(0)
         script.engineer(
-            f"{len(evidence)} solves complete. "
-            + "; ".join(f"D={d:.3g}→Cd={m['Cd']:.4g}" for d, m in evidence))
+            f"• {len(evidence)} solves complete. "
+            f"• " + "; ".join(f"D={d:.3g}→Cd={m['Cd']:.4g}" for d, m in evidence) + ".")
     else:
         script.engineer(
-            f"The full fan-out does not fit. Rather than run a thinner version of "
-            f"the same sweep, I want the runs chosen for information rather than "
-            f"convenience. Handing the selection to the Chief Researcher.")
+            "• The full fan-out does not fit. "
+            "• Runs must be chosen for information, not convenience. "
+            "• Handing the selection to the Chief Researcher.")
         roster.set(CHIEF_RESEARCHER, "selecting the informative runs", "working")
         selection = select_runs(
             dict(NOMINAL_CYLINDER),
@@ -206,13 +203,11 @@ def main(request: str | None = None, params: dict | None = None,
             capacity=capacity.capacity, requested=FANOUT, objective="drag")
         script.researcher(selection.headline(), selection=selection.as_dict())
         for run in selection.runs:
-            script.researcher(f"· {run.name}: {run.rationale}")
+            script.researcher(f"• {run.name}: {run.rationale}")
         script.numericist(
-            f"Endorsed, and worth saying why this is not a compromise: fitting a "
-            f"surface to bracket-and-centre anchors is the standard offline/online "
-            f"split — pay for a few high-fidelity points, evaluate the rest for "
-            f"nothing — {per('rom')}. What it requires is that the anchors span "
-            f"the range, which these do.")
+            "• Endorsed — the standard offline/online split, not a compromise. "
+            f"• Pay for a few anchors; evaluate the rest free, {per('rom')}. "
+            "• Requirement: anchors span the range. These do.")
 
         script.phase(EVIDENCE)
         roster.idle(CHIEF_RESEARCHER)
@@ -222,8 +217,8 @@ def main(request: str | None = None, params: dict | None = None,
             metrics = _solve(run.design, out / "anchors", run.name)
             evidence.append((run.design[SWEEP_PARAMETER], metrics))
             script.engineer(
-                f"Anchor {run.name}: D={run.design[SWEEP_PARAMETER]:.4g} → "
-                f"Cd={metrics['Cd']:.4g}, converged={int(metrics['converged'])}")
+                f"• Anchor {run.name}: D={run.design[SWEEP_PARAMETER]:.4g} → "
+                f"Cd={metrics['Cd']:.4g}, converged={int(metrics['converged'])}.")
         ledger.spend(len(selection.runs) * CORE_SECONDS_PER_SOLVE,
                      f"{len(selection.runs)} anchor solves")
         roster.set_workers(0)
@@ -238,11 +233,11 @@ def main(request: str | None = None, params: dict | None = None,
             predicted = min(candidates, key=lambda x: _predict(coefficients, x))
             uncovered = FANOUT - len(xs)
             script.numericist(
-                f"Surface fitted to {len(xs)} anchors, worst anchor residual "
-                f"{max(residuals):.2g} in drag coefficient. It covers the "
-                f"{uncovered} designs that never got solver time and puts the "
-                f"optimum at D={predicted:.4g}, predicted Cd="
-                f"{_predict(coefficients, predicted):.4g}.")
+                f"• Surface fitted to {len(xs)} anchors; worst residual "
+                f"{max(residuals):.2g} in Cd. "
+                f"• Covers the {uncovered} unsolved designs. "
+                f"• Optimum predicted at D={predicted:.4g}, "
+                f"Cd={_predict(coefficients, predicted):.4g}.")
             roster.idle(NUMERICIST)
             # The optimum landed on the edge of the tested range. That is
             # exactly the case a fitted surface is worst at, and it is why the
@@ -252,18 +247,13 @@ def main(request: str | None = None, params: dict | None = None,
             if at_bound:
                 roster.set(CHIEF_RESEARCHER, "challenging the proposed optimum", "working")
                 script.researcher(
-                    f"I want to push back before this is reported. The surface puts "
-                    f"the optimum exactly on the edge of the range it was fitted "
-                    f"over, and a quadratic is least trustworthy at its boundary — "
-                    f"it has no data beyond that point to curve against. On this "
-                    f"evidence D={predicted:.4g} is a extrapolation dressed as a "
-                    f"prediction. I am not willing to call it the answer.")
+                    "• Pushback: the optimum sits on the fitted range's edge. "
+                    "• A quadratic is least trustworthy at its boundary — no data beyond. "
+                    f"• D={predicted:.4g} is extrapolation dressed as prediction. Not the answer yet.")
                 script.engineer(
-                    f"That is fair, and I do not want to argue it on the surface's "
-                    f"terms either. The disagreement is settleable: one real solve "
-                    f"at the proposed point turns it from a prediction into a "
-                    f"measurement. Running it now — if the solver disagrees with "
-                    f"the surface, the surface loses.")
+                    "• Fair — and settleable. "
+                    "• One real solve turns the prediction into a measurement. "
+                    "• Running it now; if solver and surface disagree, the surface loses.")
                 roster.idle(CHIEF_RESEARCHER)
             roster.set(CHIEF_ENGINEER, "confirming the prediction", "working")
             confirm = _solve({**NOMINAL_CYLINDER, SWEEP_PARAMETER: predicted},
@@ -277,27 +267,25 @@ def main(request: str | None = None, params: dict | None = None,
                               f"{FANOUT} designs and its optimum was confirmed to "
                               f"within {error:.2g} in drag coefficient")
             script.engineer(
-                f"Confirmation solve at the predicted optimum: Cd={confirm['Cd']:.4g} "
-                f"against {_predict(coefficients, predicted):.4g} predicted — "
-                f"surrogate error {error:.2g}. The surface proposes; the solver "
-                f"decides. No design is reported on a prediction alone.")
+                f"• Confirmation solve: Cd={confirm['Cd']:.4g} vs "
+                f"{_predict(coefficients, predicted):.4g} predicted — error {error:.2g}. "
+                f"• The surface proposes; the solver decides.")
             if at_bound:
                 script.researcher(
-                    f"Then I withdraw the objection. The measurement agrees with the "
-                    f"surface to {error:.2g}, which is well inside the envelope we "
-                    f"are reporting, so the boundary optimum is evidence now rather "
-                    f"than extrapolation. Worth recording that the surface held at "
-                    f"its own edge — that is the part I doubted.")
+                    f"• Objection withdrawn: measurement agrees to {error:.2g}, inside "
+                    f"the envelope. "
+                    "• The boundary optimum is evidence now, not extrapolation. "
+                    "• On record: the surface held at its own edge.")
 
     # ---------------- Screening ----------------
     feasible = [(x, m) for x, m in evidence
                 if m.get("converged", 0) == 1 and m.get("Re", 0) <= 47]
     rejected = len(evidence) - len(feasible)
     if rejected:
-        script.engineer(f"{rejected} design(s) failed the contract and are excluded.")
+        script.engineer(f"• {rejected} design(s) failed the contract — excluded.")
     if not feasible:
-        script.engineer("No feasible design — stopping rather than reporting an "
-                        "out-of-contract winner.")
+        script.engineer("• No feasible design. "
+                        "• Stopping rather than reporting an out-of-contract winner.")
         roster.all_idle()
         script.save(out / "transcript.txt")
         return 1
@@ -313,9 +301,9 @@ def main(request: str | None = None, params: dict | None = None,
     workers = max(2, min(8, capacity.capacity))
     roster.set_workers(workers, "uncertainty ensemble")
     script.engineer(
-        f"A single best point is not a result. Propagating the "
-        f"{INLET_SIGMA * 100:.0f}% freestream uncertainty through the winning "
-        f"geometry as a real ensemble before I report anything.")
+        "• A single best point is not a result. "
+        f"• Propagating {INLET_SIGMA * 100:.0f}% freestream uncertainty through "
+        f"the winner as a real ensemble.")
     ensemble = run_ensemble(
         {**NOMINAL_CYLINDER, SWEEP_PARAMETER: best_x},
         {"inlet_velocity": INLET_SIGMA},
@@ -345,40 +333,33 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(f"Winner under uncertainty: {ensemble.headline()}",
                     result=ensemble.as_dict(), verdict=verdict)
     script.numericist(
-        f"One qualification on that envelope before it goes in the report. The "
-        f"±{2 * ensemble.standard_error:.2g} is calibrated by leaving samples out "
-        f"and checking the surrogate against them — and {per('gp-error')} shows "
-        f"that estimate runs optimistic when the samples are correlated, which "
-        f"ours are: they come from one sweep of one geometry. So the honest "
-        f"reading is a floor. The true epistemic uncertainty is at least this "
-        f"wide, and I would not defend it as a ceiling.")
+        f"• Qualification: the ±{2 * ensemble.standard_error:.2g} is cross-validated "
+        f"on correlated samples. "
+        f"• That runs optimistic, {per('gp-error')}. "
+        f"• Read it as a floor, not a ceiling.")
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
     improvement = (baseline[1]["Cd"] - ensemble.mean) / baseline[1]["Cd"] * 100
     script.engineer(
-        f"Confirmed: drag falls as the body grows across the tested range, and the "
-        f"optimum sits at the upper bound D={best_x:.4g} m, where the hypothesis "
-        f"put it. "
-        + ("The trend was monotone at every sampled point. " if monotone
-           else "The trend was not perfectly monotone, which deserves a second look. ")
-        + f"Against the D={baseline[0]:.3g} m baseline the improvement is "
-          f"{improvement:+.1f}%.")
+        f"• Confirmed: drag falls as the body grows; optimum at D={best_x:.4g} m, "
+        f"as hypothesised. "
+        + ("• Trend monotone at every sampled point. " if monotone
+           else "• Trend not perfectly monotone — deserves a second look. ")
+        + f"• Improvement vs D={baseline[0]:.3g} m baseline: {improvement:+.1f}%.")
     script.engineer(
-        f"Not confirmed: the flattening I predicted near the bound. The envelope on "
-        f"the winner is {ensemble.relative_error * 100:.1f}% of value, wider than the "
-        f"gap between the last two designs — so on this evidence I cannot separate "
-        f"them, and I will not claim a shape of curve I have not resolved.")
+        f"• Not confirmed: the predicted flattening near the bound. "
+        f"• Envelope {ensemble.relative_error * 100:.1f}% of value — wider than the "
+        f"gap between the last two designs. "
+        f"• Cannot separate them; claiming no curve shape unresolved.")
     script.engineer(
-        f"Still unknown: everything above Re 47. The optimum sits at the edge of the "
-        f"range I am allowed to explore, and whether drag keeps falling past the "
-        f"steady limit needs an unsteady solver this study did not have.")
+        "• Still unknown: everything above Re 47. "
+        "• Whether drag keeps falling needs an unsteady solver this study did not have.")
     if surrogate_note:
         knowledge.add(f"Reduced-order surface for cylinder drag, D {LOW}–{HIGH} m")
         script.numericist(
-            f"Worth keeping: {surrogate_note}. That surface is a reusable result — "
-            f"the next sweep in this range can start from it instead of paying for "
-            f"anchors again.")
+            f"• Worth keeping: {surrogate_note}. "
+            "• Reusable — the next sweep starts from it instead of re-paying anchors.")
 
     report = lab_report(
         title="Cylinder shape optimization under a converged-solve constraint",

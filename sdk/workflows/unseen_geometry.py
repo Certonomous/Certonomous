@@ -56,9 +56,8 @@ def main(request: str | None = None, params: dict | None = None,
                   f"Request: what drag should I expect for {target['label']}? "
                   f"We have never run this geometry.")
     script.engineer(
-        "Before I quote anything: this geometry is not in case memory. I can "
-        "either run it, or tell you what our existing evidence does and does not "
-        "support. Retrieving the nearest cases we have actually solved.")
+        "• This geometry is not in case memory — no number will be quoted. "
+        "• Retrieving the nearest cases we have actually solved.")
 
     matches = retrieve(
         dimensionality=target["dimensionality"], body_type=target["body_type"],
@@ -67,7 +66,7 @@ def main(request: str | None = None, params: dict | None = None,
 
     for match in matches:
         script.engineer(
-            f"  · {match.case.name} (score {match.score:.2f}) — {match.case.results}",
+            f"• {match.case.name} (score {match.score:.2f}) — {match.case.results}",
             citations=(match.case.source,))
 
     nearest = matches[0]
@@ -75,28 +74,22 @@ def main(request: str | None = None, params: dict | None = None,
         announce_geometry(emit, name="motorBike.obj",
                           label="nearest solved case — motorBike")
     script.researcher(
-        f"Nearest neighbour is {nearest.case.name}, and I want to be precise about "
-        f"why that is weak support. Shared: {', '.join(nearest.shared) or 'little'}. "
-        f"Differing: {'; '.join(nearest.differing) or 'nothing material'}.",
+        f"• Nearest neighbour: {nearest.case.name} — weak support, stated precisely. "
+        f"• Shared: {', '.join(nearest.shared) or 'little'}. "
+        f"• Differing: {'; '.join(nearest.differing) or 'nothing material'}.",
         citations=(nearest.case.source,))
 
     # ---- What transfers, what does not: stated as claims, not numbers ----
     if target["body_type"] == "streamlined":
         script.researcher(
-            "What transfers: the methodology, not the magnitude. From "
-            "motorbike-3d-turbulent we know our snappyHexMesh + simpleFoam chain "
-            "produces a converged, envelope-bounded Cd on a 3D external-aero body "
-            "at this kind of Reynolds number, and we know the mesh-quality band it "
-            "lands in (non-orthogonality 65, skewness 8.94). That is process "
-            "confidence.",
+            "• Transfers: the methodology — converged, envelope-bounded Cd "
+            "on 3D external aero. "
+            "• Known mesh-quality band (non-ortho 65, skew 8.94). Process confidence.",
             citations=(f"{KNOWLEDGE} #7 (motorBike benchmark)",))
         script.researcher(
-            "What does NOT transfer: the coefficient itself. Every case in memory "
-            "is a bluff body — flow that separates by geometry. A streamlined "
-            "section keeps its boundary layer attached over most of the chord, so "
-            "its drag is dominated by skin friction rather than pressure. Our "
-            "records give no basis for the magnitude; quoting a number "
-            "interpolated from bluff-body data would be inventing evidence.",
+            "• Does NOT transfer: the coefficient — memory is all bluff bodies. "
+            "• Streamlined drag is friction-dominated; our records are pressure-dominated. "
+            "• Interpolating a magnitude would be inventing evidence.",
             citations=(f"{KNOWLEDGE} #1 (cylinder benchmark, bluff)",))
         gap = ("attached-flow drag decomposition — we have never validated a "
                "skin-friction-dominated case")
@@ -104,36 +97,30 @@ def main(request: str | None = None, params: dict | None = None,
                     "the same chain, checked against published section data")
     else:
         script.researcher(
-            "What transfers: the regime warning. cylinder-2d-past-regime is the "
-            "directly relevant record — above Re ≈ 47 our steady solver converged "
-            "onto a branch the physical flow does not follow, giving Cd 1.181 "
-            "where the physical time-average is 1.3–1.4. A sphere at Re 200 is in "
-            "the same trap, one dimension up.",
+            "• Transfers: the regime warning — above Re ≈ 47 steady converges "
+            "onto an unphysical branch. "
+            "• Cd 1.181 where the physical time-average is 1.3–1.4. "
+            "• A sphere at Re 200 is the same trap, one dimension up.",
             citations=(f"{KNOWLEDGE} #3, #4 (unstable branch, degradation)",))
         script.researcher(
-            "What does NOT transfer: the 2D magnitudes. Three-dimensional relief "
-            "changes both the separation topology and the shedding mode, and we "
-            "have measured neither.",
+            "• Does NOT transfer: the 2D magnitudes. "
+            "• 3D relief changes separation and shedding — neither measured.",
             citations=(f"{KNOWLEDGE} #1",))
         gap = "3D unsteady wake behaviour — no unsteady solver track exists yet"
         cheapest = ("a pimpleFoam sphere run at Re 200 with time-averaged "
                     "coefficients, compared against the standard drag correlation")
 
     script.engineer(
-        f"Then my honest position is: high confidence in the *process* (our chain "
-        f"meshes, solves, and reports this class of case with measured envelopes), "
-        f"low confidence in any *magnitude* I could state today, and an explicit "
-        f"refusal to interpolate one. The dominant gap is {gap}.")
+        "• Position: high confidence in the process; low in any magnitude today. "
+        "• Explicit refusal to interpolate one. "
+        f"• Dominant gap: {gap}.")
     script.engineer(
-        f"Cheapest run that closes the most gap: {cheapest}. That is one solve, "
-        f"and it converts this conversation from opinion into a case-memory "
-        f"record we can cite next time — which is exactly how every entry we just "
-        f"retrieved got here.",
+        f"• Cheapest gap-closer: {cheapest}. "
+        f"• One solve converts opinion into a citable case-memory record.",
         citations=(f"{LESSONS_FILE} L-001",))
     script.researcher(
-        "Agreed. Approve that single run before any sweep is scoped: a sweep "
-        "built on an unvalidated magnitude would multiply the error, not the "
-        "information.")
+        "• Agreed — approve that single run before any sweep. "
+        "• A sweep on an unvalidated magnitude multiplies error, not information.")
 
     script.save(out / "transcript.txt")
     print("\nArtifacts in", out)

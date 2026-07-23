@@ -67,11 +67,9 @@ def main(request: str | None = None, params: dict | None = None,
     script.system(request or
                   f"Request: drag for this case within {deadline:.0f} minutes.")
     script.engineer(
-        f"A {deadline:.0f}-minute budget rules out the mesh I would choose. Proposing "
-        f"{COARSE_REFINEMENT:.1f}× refinement (~600 cells) instead of the "
-        f"grid-converged resolution — that meets the clock, but it carries a "
-        f"known discretization bias. Case is Re = {reynolds:.0f}. "
-        f"Requesting a closure ruling before I report anything.",
+        f"• {deadline:.0f}-minute budget rules out the mesh I would choose. "
+        f"• Proposing ~600 cells — meets the clock, carries a known bias. "
+        f"• Re = {reynolds:.0f}; requesting a closure ruling before reporting.",
         citations=(f"{KNOWLEDGE} #2 (coarse-grid bias measured at 1.6%)",))
 
     announce_geometry(emit, diameter=NOMINAL_CYLINDER["cylinder_diameter"],
@@ -91,17 +89,16 @@ def main(request: str | None = None, params: dict | None = None,
 
     coarse = _solve(design, out, "coarse")
     script.engineer(
-        f"Coarse solve complete: Cd = {coarse['Cd']:.4g}, "
-        f"{int(coarse['cell_count'])} cells, converged={int(coarse['converged'])}, "
-        f"residual {coarse['convergence_residual']:.2g}.")
+        f"• Coarse solve: Cd = {coarse['Cd']:.4g}, {int(coarse['cell_count'])} cells. "
+        f"• Converged={int(coarse['converged'])}, residual "
+        f"{coarse['convergence_residual']:.2g}.")
 
     if decision.approved:
         # ---------------- Approved: apply the measured correction ----------------
         corrected = coarse["Cd"] * 0.984
         script.engineer(
-            f"Applying {decision.model.name}: {coarse['Cd']:.4g} → {corrected:.4g}. "
-            f"The 1.6% removed here is not a fudge factor — it is the bias measured "
-            f"between 600 cells and the 21600-cell asymptote on this machine.",
+            f"• Applying {decision.model.name}: {coarse['Cd']:.4g} → {corrected:.4g}. "
+            f"• The 1.6% is a measured bias, not a fudge factor.",
             citations=(decision.model.citation,))
         verdict = trust(relative_error=0.01 / max(corrected, 1e-9))
         panel = plot_estimates(
@@ -118,48 +115,41 @@ def main(request: str | None = None, params: dict | None = None,
                                     "value": f"{corrected:.4g}",
                                     "envelope": "±0.01", **verdict})
         script.engineer(
-            f"VERDICT — {decision.uncertainty_language} "
-            f"Reported: Cd = {corrected:.4g} ± 0.01 (closure calibration residual), "
-            f"delivered inside the {deadline:.0f}-minute deadline.", verdict=verdict)
+            f"• VERDICT — {decision.uncertainty_language} "
+            f"• Cd = {corrected:.4g} ± 0.01, inside the {deadline:.0f}-minute "
+            f"deadline.", verdict=verdict)
     else:
         # ---------------- Rejected: widen, then measure the uncertainty ----------
         script.engineer(
-            f"Closure refused, so I will not dress this number up. "
-            f"VERDICT — {decision.uncertainty_language}")
+            f"• Closure refused — the number will not be dressed up. "
+            f"• VERDICT — {decision.uncertainty_language}")
         script.engineer(
-            "Running the ordered diagnostics now: uncertainty I can measure is "
-            "worth more than uncertainty I can only warn about.")
+            "• Running the ordered diagnostics. "
+            "• Measured uncertainty beats uncertainty I can only warn about.")
 
         probe_design = {**design, "mesh_refinement": FINE_REFINEMENT}
         probe = _solve(probe_design, out, "grid-probe")
         grid_delta = abs(probe["Cd"] - coarse["Cd"])
         grid_percent = grid_delta / abs(probe["Cd"]) * 100
         script.engineer(
-            f"Grid difference ({int(coarse['cell_count'])} → "
-            f"{int(probe['cell_count'])} cells): Cd {coarse['Cd']:.4g} → "
-            f"{probe['Cd']:.4g}, a {grid_percent:.1f}% shift. I am calling that a "
-            f"grid difference and not a verified uncertainty, because two meshes "
-            f"cannot give one.",
+            f"• Grid difference {int(coarse['cell_count'])}→{int(probe['cell_count'])} "
+            f"cells: Cd {coarse['Cd']:.4g}→{probe['Cd']:.4g}, {grid_percent:.1f}% shift. "
+            f"• A difference, not a verified uncertainty — two meshes cannot give one.",
             citations=(f"{KNOWLEDGE} #2 (grid convergence method)",))
         script.numericist(
-            f"That distinction is not pedantry. Establishing a numerical "
-            f"uncertainty needs systematically refined grids and a fit whose "
-            f"scatter sets the safety factor — {per('grid-uncertainty')}. With two "
-            f"meshes we have the size of a change and no evidence about the order "
-            f"it is converging at, so {grid_percent:.1f}% is a difference we "
-            f"measured, not a bound we can defend.")
+            f"• A real numerical uncertainty needs refined grids and a fitted "
+            f"safety factor, {per('grid-uncertainty')}. "
+            f"• Two meshes give a size, not a convergence order. "
+            f"• {grid_percent:.1f}% is measured, not defensible as a bound.")
 
         oscillation = probe.get("Cd_oscillation", 0.0)
         unsteady = oscillation > 1e-3
         script.engineer(
-            f"Oscillation diagnostic on the coefficient history: "
-            f"{oscillation:.2g}"
-            + (" — the steady solver is suppressing genuine unsteadiness; the "
-               "physical flow at this Re sheds vortices, so the steady value is "
-               "a branch, not an average."
+            f"• Oscillation diagnostic: {oscillation:.2g}. "
+            + ("• Steady solver is suppressing real shedding — the value is a "
+               "branch, not an average."
                if unsteady else
-               " — the history is flat, so the steady solver is at least "
-               "self-consistent here."),
+               "• History flat — the steady solver is at least self-consistent."),
             citations=(f"{KNOWLEDGE} #3 (convergence ≠ physical validity)",))
 
         verdict = trust(relative_error=grid_delta / max(abs(probe["Cd"]), 1e-9),
@@ -178,14 +168,12 @@ def main(request: str | None = None, params: dict | None = None,
                                     "value": f"{probe['Cd']:.4g}",
                                     "envelope": f"±{grid_delta:.2g}", **verdict})
         script.engineer(
-            f"FINAL — Cd = {probe['Cd']:.4g} with a grid difference of "
-            f"±{grid_delta:.2g} ({grid_percent:.1f}%) measured between two meshes — "
-            f"indicative of the discretization error, not a verified bound on it — "
-            f"plus an unquantified regime error because Re = {reynolds:.0f} "
-            f"is above the validated steady limit of 47. I am reporting the trend "
-            f"as usable and the magnitude as indicative. Closing that last gap "
-            f"needs an unsteady run, which does not fit this deadline — it is the "
-            f"first thing I would buy with more time.", verdict=verdict)
+            f"• FINAL — Cd = {probe['Cd']:.4g}, grid difference ±{grid_delta:.2g} "
+            f"({grid_percent:.1f}%), indicative not verified. "
+            f"• Re = {reynolds:.0f} is past the validated steady limit 47 — regime "
+            f"error unquantified. "
+            f"• Trend usable; magnitude indicative; an unsteady run is the first "
+            f"buy with more time.", verdict=verdict)
 
     script.save(out / "transcript.txt")
     print("\nArtifacts in", out)

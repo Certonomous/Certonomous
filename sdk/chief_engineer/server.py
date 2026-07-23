@@ -586,12 +586,13 @@ def _explain_unparsed(record: MissionRecord, reason: str) -> None:
         "citations_display": [], "data": {}, "at": time.time()})
     domain = out_of_scope_domain(record.request)
     opening = (
-        f"That needs {domain}, which is outside what this lab solves. This lab "
-        f"solves {LAB_DOMAIN}, so I will not stand up a plan that pretends to "
-        f"cover physics the solver cannot model." if domain else
-        "I could not turn that into a measurable objective, so I am not going "
-        "to guess at one and run something expensive on the strength of the "
-        "guess. What I could not find was a quantity to improve or report.")
+        f"• That needs {domain} — outside what this lab solves. "
+        f"• This lab solves {LAB_DOMAIN}. "
+        f"• No plan will pretend to cover physics the solver cannot model."
+        if domain else
+        "• No measurable objective found in that request. "
+        "• Nothing expensive runs on a guess. "
+        "• Name a quantity to improve or report, and I will start.")
     publish("transcript.entry", {
         "role": "CHIEF ENGINEER", "citations": [], "citations_display": [],
         "data": {}, "at": time.time(), "message": opening})
@@ -599,11 +600,10 @@ def _explain_unparsed(record: MissionRecord, reason: str) -> None:
         "role": "CHIEF ENGINEER", "citations": [], "citations_display": [],
         "data": {}, "at": time.time(),
         "message": (
-            "What this lab can do right now: take a named surface through meshing "
-            "and solving and report its forces; optimise a shape against a stated "
-            "objective; trade fidelity against a deadline; quantify and reduce the "
-            "uncertainty on a number; or reason about a geometry we have never "
-            "run. Name the body, or name the quantity, and I will start.")})
+            "• On offer: mesh-and-solve a named surface; optimise a shape; trade "
+            "fidelity against a deadline. "
+            "• Also: quantify and reduce uncertainty; reason about unseen geometry. "
+            "• Name the body or the quantity, and I will start.")})
     record.state = "incomplete"
     publish("mission.completed", {
         "status": "incomplete",

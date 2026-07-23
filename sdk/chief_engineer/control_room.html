@@ -540,8 +540,10 @@ function addDigest(p) {
   const phaseHit = Object.keys(PHASES).find(k => up === k || up.includes('== '+k));
   if (phaseHit && state.digestPhase !== phaseHit) { state.digestPhase = phaseHit; const h = document.createElement('div'); h.className='digest-phase'; h.textContent = PHASES[phaseHit]; $('digest').appendChild(h); return; }
   if (/^==/.test(msg.trim()) || p.role === 'SYSTEM') return;
+  // House style is terse bullets, so bulleted entries are digest-worthy by
+  // construction; the keyword filter only guards stray prose.
   const key = /(=|±|VERDICT|Cd |L\/D|converged|VALIDATED|TREND|MISMATCH|Winner|approved|reject|newton|force|alpha|Womersley|pressure loss)/i;
-  if (!key.test(msg) && !p.verdict) return;
+  if (!key.test(msg) && !p.verdict && !msg.trim().startsWith('•')) return;
   const el = document.createElement('div'); el.className = roleClass(p.role);
   el.innerHTML = `<span class="who">${esc(p.role||'')}</span><p>${esc(msg)}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
   $('digest').appendChild(el); $('digest').scrollTop = $('digest').scrollHeight;

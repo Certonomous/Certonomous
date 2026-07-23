@@ -197,16 +197,13 @@ def main(request: str | None = None, params: dict | None = None,
     stated.append(f"take-off ≤ {reqs['takeoff_speed']:.0f} m/s" + ("" if reqs["takeoff_stated"] else " (assumed)"))
     stated.append(f"landing ≤ {reqs['landing_speed']:.0f} m/s" + ("" if reqs["landing_stated"] else " (assumed)"))
     script.engineer(
-        "The mission fixes the requirements; the wing is the free variable. "
-        "Requirements on the table: " + "; ".join(stated) + ". Any I was not given "
-        "I have assumed and said so, because the Reynolds of the whole answer rides "
-        "on the weight, and the weight rides on the passenger count.")
+        "• Requirements fixed: " + "; ".join(stated) + ". "
+        "• Unstated values are assumed and marked. "
+        "• Weight rides on the passenger count; the whole answer rides on weight.")
     script.engineer(
-        "Hypothesis: L/D climbs with aspect ratio, so the best design pushes span "
-        "as far as the structure allows — but the low-speed requirements set a "
-        "floor on wing area, and range ties back to L/D through Breguet. I expect "
-        "the optimum to sit where the aspect ratio is as high as the landing speed "
-        "will permit.")
+        "• Hypothesis: L/D climbs with aspect ratio — push span to the limit. "
+        "• Low-speed limits floor the area; Breguet ties range to L/D. "
+        "• Expect the optimum where landing speed caps aspect ratio.")
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
@@ -232,28 +229,23 @@ def main(request: str | None = None, params: dict | None = None,
             "y": {"key": "wing_area", "label": "wing area [m²]"},
             "objective": {"key": "L_D", "label": "L/D", "direction": "max"}})
     plan_line = (
-        f"Plan: screen {len(grid)} wings across span and area at a fixed 27.5° "
-        f"sweep — each sized against every requirement, cruise L/D from the "
-        f"drag polar, range from Breguet. The infeasible ones stay on the plot "
-        f"so the trade is visible, not hidden.")
+        f"• Plan: screen {len(grid)} wings over span × area at 27.5° sweep. "
+        f"• Infeasible designs stay on the plot — the trade stays visible.")
     if solver_live:
         plan_line += (
-            f" The top {_N_FINALISTS} feasible finalists then get real "
-            f"vortex-lattice solves — actual parametric geometry, solved polars, "
-            f"the cruise point read off the solved curve.")
+            f" • Top {_N_FINALISTS} feasible finalists then get real "
+            f"vortex-lattice solves, in parallel.")
     script.engineer(plan_line)
     if solver_live:
         script.numericist(
-            "Fidelity, stated up front: the screen is conceptual sizing; the "
-            "finalists are solved — induced drag and wing viscous drag from the "
-            "vortex lattice. The fuselage and tail stay a parasite-drag buildup, "
-            "and that split is exactly what the verdict will say.")
+            "• Screen is conceptual sizing; finalists are solved — induced plus "
+            "wing viscous drag. "
+            "• Fuselage and tail stay a stated buildup; the verdict will say so.")
     else:
         script.numericist(
-            f"State the fidelity up front: this is conceptual sizing, {per('rom')} in "
-            f"spirit — a drag polar and weight fractions, not a solved flow. It ranks "
-            f"designs and finds the trade; it does not validate a number. A real aero "
-            f"solve is what would move this off a trend.")
+            "• Conceptual sizing only — a drag polar, not a solved flow. "
+            "• It ranks designs and finds the trade; it validates nothing. "
+            "• A real aero solve is what would move this off a trend.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
@@ -282,11 +274,9 @@ def main(request: str | None = None, params: dict | None = None,
     n_infeasible = len(results) - len(feasible)
     if not feasible:
         script.engineer(
-            "No wing in the grid meets every requirement at once — the low-speed "
-            "limits and the range requirement do not both close on this planform. "
-            "That is a real answer: the mission as stated needs a relaxation "
-            "(more wing area, a lower landing speed, or shorter range) before an "
-            "L/D optimum exists.")
+            "• No wing meets every requirement at once — nothing closes. "
+            "• The mission needs a relaxation: more area, slower landing, or less range. "
+            "• That is a real answer, not a failure.")
         verdict = trust(relative_error=None, converged=True,
                         in_validated_regime=False, calibrated=False,
                         why="the mission requirements are mutually infeasible on this planform")
@@ -299,11 +289,11 @@ def main(request: str | None = None, params: dict | None = None,
 
     best = max(feasible, key=lambda r: r["L_D"])
     script.engineer(
-        f"{len(feasible)} of {len(results)} wings clear every requirement; "
-        f"{n_infeasible} miss on low-speed or range and are shown as infeasible. "
-        f"Best screened design: span {best['span']:.0f} m, area {best['area']:.0f} m², "
-        f"aspect ratio {best['aspect_ratio']:.1f} → L/D {best['L_D']:.1f}, "
-        f"MTOW {best['mtow_kg']/1000:.0f} t, range {best['range_km']:.0f} km, "
+        f"• {len(feasible)} of {len(results)} wings clear every requirement; "
+        f"{n_infeasible} shown infeasible. "
+        f"• Best screened: span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f} "
+        f"→ L/D {best['L_D']:.1f}. "
+        f"• MTOW {best['mtow_kg']/1000:.0f} t; range {best['range_km']:.0f} km; "
         f"approach {best['approach_speed']:.0f} m/s.")
 
     # ---- real solves on the finalists --------------------------------------
@@ -316,8 +306,8 @@ def main(request: str | None = None, params: dict | None = None,
         roster.set_workers(len(finalists),
                            "vortex-lattice solves on finalist wings")
         script.engineer(
-            f"Promoting the top {len(finalists)} feasible wings to real solves — "
-            f"each is built as actual geometry and its polar solved in parallel.")
+            f"• Promoting the top {len(finalists)} feasible wings to real solves. "
+            f"• Each is actual geometry; each polar is solved, not estimated.")
         designs = [{
             "span": f["span"], "area": f["area"], "sweep": f["sweep_deg"],
             "taper": _TAPER, "cl_target": f["cl_cruise"],
@@ -335,8 +325,8 @@ def main(request: str | None = None, params: dict | None = None,
         for f, result in zip(finalists, batch):
             if not result:
                 script.engineer(
-                    f"Finalist span {f['span']:.0f} m did not return a polar — "
-                    f"it stays at its screened value and is marked unsolved.")
+                    f"• Finalist span {f['span']:.0f} m returned no polar — "
+                    f"stays screened, marked unsolved.")
                 continue
             matched = result["matched"]
             cd_total = _CD0_NONWING + matched["cdo_wing"] + matched["cdi"]
@@ -368,17 +358,20 @@ def main(request: str | None = None, params: dict | None = None,
                         "label": f"solved finalist — span {f['span']:.0f} m, "
                                  f"area {f['area']:.0f} m²"})
             script.engineer(
-                f"Solved: span {f['span']:.0f} m — cruise alpha "
-                f"{f['alpha_solved']:.1f}°, induced drag {f['cdi_solved']:.4f}, "
-                f"wing viscous {f['cdo_wing_solved']:.4f} → whole-aircraft "
-                f"L/D {f['L_D_solved']:.1f} with the stated non-wing buildup.")
+                f"• Solved span {f['span']:.0f} m: alpha {f['alpha_solved']:.1f}°, "
+                f"CDi {f['cdi_solved']:.4f}, wing viscous {f['cdo_wing_solved']:.4f}. "
+                f"• Whole-aircraft L/D {f['L_D_solved']:.1f} with the stated "
+                f"non-wing buildup.")
 
         if solved_ok:
             best = max(solved_ok, key=lambda r: r["L_D_solved"])
+            screen_agreed = best is max(feasible, key=lambda r: r["L_D"])
             script.engineer(
-                f"Winner on solved numbers: span {best['span']:.0f} m, area "
-                f"{best['area']:.0f} m² → L/D {best['L_D_solved']:.1f}. The "
-                f"screen ranked it {'first as well' if best is max(feasible, key=lambda r: r['L_D']) else 'differently — the solver moved the pick'}.")
+                f"• Winner on solved numbers: span {best['span']:.0f} m, area "
+                f"{best['area']:.0f} m² → L/D {best['L_D_solved']:.1f}. "
+                + ("• The screen ranked it first as well."
+                   if screen_agreed else
+                   "• The solver moved the pick — the screen had it wrong."))
             winner_surface = out / f"wing-span{best['span']:g}-area{best['area']:g}.stl"
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
@@ -387,8 +380,8 @@ def main(request: str | None = None, params: dict | None = None,
                              f"solved L/D {best['L_D_solved']:.1f}"})
         else:
             script.engineer(
-                "No finalist returned a usable polar — the result below stands "
-                "on the conceptual screen alone, and says so.")
+                "• No finalist returned a usable polar. "
+                "• The result stands on the conceptual screen alone, and says so.")
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
@@ -413,12 +406,9 @@ def main(request: str | None = None, params: dict | None = None,
         emit("uncertainty.channels", channels)
     if won_solved:
         script.researcher(
-            f"Read the split honestly: the wing is solved — its induced drag and "
-            f"its viscous drag came off a real polar at the cruise point — and "
-            f"the rest of the aircraft is a stated buildup. The trade is now "
-            f"solver-backed; the whole-aircraft magnitude still leans on the "
-            f"buildup, so {per('vv20')} keeps the tier where it is until a "
-            f"full-configuration solve and a comparison exist.")
+            "• Wing solved: induced and viscous drag off a real polar at cruise. "
+            "• Non-wing drag is a stated buildup — the tier stays capped. "
+            f"• Lifting it takes a full-configuration solve and a comparison, {per('vv20')}.")
         verdict = trust(
             relative_error=0.0, converged=True, in_validated_regime=False,
             calibrated=True,
@@ -427,11 +417,9 @@ def main(request: str | None = None, params: dict | None = None,
                 "magnitude is a trend")
     else:
         script.researcher(
-            f"Read this as a design-space result, not a validated coefficient. The "
-            f"ranking is trustworthy — higher aspect ratio buys L/D until the landing "
-            f"speed stops it, and that trade is physical. The absolute L/D {best['L_D']:.1f} "
-            f"is a conceptual estimate; {per('vv20')} would want a solved flow and a "
-            f"comparison before anyone flies on the number.")
+            "• Ranking trustworthy: aspect ratio buys L/D until landing speed stops it. "
+            f"• The magnitude {best['L_D']:.1f} is a conceptual estimate — a trend. "
+            f"• A solved flow and a comparison come first, {per('vv20')}.")
         verdict = trust(
             relative_error=0.0, converged=True, in_validated_regime=False,
             calibrated=True,

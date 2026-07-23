@@ -111,30 +111,25 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
 
     axes = "XYZ"
     script.engineer(
-        f"Measured the surface before deciding anything: {geometry['triangles']:,} "
-        f"triangles, streamwise along {axes[geometry['streamwise_axis']]}, span along "
-        f"{axes[geometry['span_axis']]}. At the working scale that is "
-        f"{geometry['length'] * scale:.1f} m long and {geometry['span'] * scale:.1f} m "
-        f"across.")
+        f"• Surface measured: {geometry['triangles']:,} triangles, streamwise "
+        f"{axes[geometry['streamwise_axis']]}, span {axes[geometry['span_axis']]}. "
+        f"• Working scale: {geometry['length'] * scale:.1f} m long, "
+        f"{geometry['span'] * scale:.1f} m across.")
     script.engineer(
-        f"On scale: {basis}. If that length is wrong, the Reynolds number is wrong "
-        f"with it and so is every force I report — so it is stated rather than "
-        f"buried.")
+        f"• Scale basis: {basis}. "
+        f"• Wrong length → wrong Reynolds → wrong forces; stated, not buried.")
 
     reference_values = build_case(
         Path(engineer.out_root) / "case", surface, geometry,
         velocity=velocity, scale=scale, refinement=refinement, iterations=iterations)
     script.engineer(
-        f"Case built around the body: farfield sized from its own bounding box, "
-        f"k-omega SST with wall functions, forces referenced to the measured "
-        f"planform area of {reference_values['planform_area']:.3g} m². "
-        f"Freestream {velocity:g} m/s, Reynolds number {reference_values['reynolds']:.1e}.")
+        f"• Case built: farfield from the body's own bounding box, k-omega SST. "
+        f"• Reference area: measured planform "
+        f"{reference_values['planform_area']:.3g} m². "
+        f"• Freestream {velocity:g} m/s; Re {reference_values['reynolds']:.1e}.")
     script.researcher(
-        f"Note what that reference area is: the silhouette this body actually "
-        f"casts, measured off the surface. It is not the published wing reference "
-        f"area a handbook would use, so the coefficient we report is not directly "
-        f"comparable to a book figure without rebasing it. I would rather measure "
-        f"the body in front of us than borrow a number for a different one.")
+        "• Reference area is the measured silhouette, not a handbook wing area. "
+        "• Book comparison needs rebasing first — measure the body, don't borrow numbers.")
 
     # Stage the case inside the compute node and scale the surface with it.
     local_case = Path(engineer.out_root) / "case"
@@ -214,33 +209,23 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, f"reading {surface}", "working")
     announce_geometry(emit, name=surface, label=f"{label} — as supplied")
     script.engineer(
-        f"This is a full geometry study on {surface}, not a parameter sweep. What "
-        f"I am testing is whether our chain — surface check, snappyHexMesh, "
-        f"steady solver — produces a converged force on this body with a mesh "
-        f"good enough to believe."
-        + (" We have solved this geometry before, so I have a prior to check "
-           "myself against." if familiar else
-           " We have never solved this body, so there is no prior: the mesh "
-           "quality and the convergence history are the only evidence I will "
-           "have about whether to trust the number."))
+        f"• Full geometry study on {surface} — a measurement, not a sweep. "
+        f"• Question: does the chain produce a converged force on a believable mesh? "
+        + ("• Prior exists for this body — I will check against it."
+           if familiar else
+           "• No prior: mesh quality and convergence are the only evidence."))
     script.engineer(
-        f"It fails if the surface will not mesh cleanly, if quality exceeds our "
-        f"gates — non-orthogonality {MAX_NON_ORTHOGONALITY:.0f}°, skewness "
-        f"{MAX_SKEWNESS:.0f} — or if the coefficient never settles.",
-        )
+        f"• Fails if: surface won't mesh; gates exceeded "
+        f"(non-ortho {MAX_NON_ORTHOGONALITY:.0f}°, skew {MAX_SKEWNESS:.0f}); "
+        f"or the force never settles.")
     requested = params.get("solver_setup")
     if requested:
         script.engineer(
-            f"You asked for {requested}. This case is configured for RAS with the "
-            f"k-omega SST model, which is what will run — so the request is "
-            f"satisfied by the standing setup rather than by a change. If you "
-            f"wanted a different closure I would need to say so before solving, "
-            f"not after.")
+            f"• You asked for {requested} — the standing setup already runs it. "
+            f"• A different closure would need saying before solving, not after.")
     script.numericist(
-        f"Those gates are not ours; they are the standard acceptance band, "
-        f"{per('mesh-quality')}. Worth stating up front so the mesh is judged "
-        f"against a published threshold rather than whatever it happens to "
-        f"produce.")
+        f"• The gates are the standard acceptance band, {per('mesh-quality')}. "
+        "• The mesh is judged against a published threshold, not itself.")
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
@@ -254,10 +239,9 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
-        f"Plan: extract surface features, build the background mesh, snap to the "
-        f"body, check quality against the gates, initialise with a potential "
-        f"solve, then run the steady solver for {iterations} iterations. Meshing "
-        f"is single-threaded and is the long pole — expect minutes, not seconds.")
+        f"• Plan: features → background mesh → snap → quality gates → potential "
+        f"init → {iterations} steady iterations. "
+        f"• Meshing is the long pole — minutes, not seconds.")
 
     engineer = HeadEngineer(f"study-{label}", out, novel=not familiar,
                             on_event=lambda event, payload: None)
@@ -267,14 +251,13 @@ def main(request: str | None = None, params: dict | None = None,
         monitor_seen.append(anomaly.kind)
         if anomaly.kind in {"nan", "fpe"}:
             roster.set(MONITOR, f"fatal: {anomaly.kind}", "blocked")
-            script.monitor(f"Stopping the study: {anomaly.detail} during {anomaly.step}.")
+            script.monitor(f"• Stopping the study: {anomaly.detail} during {anomaly.step}.")
         elif anomaly.kind == "residual-spike":
             roster.set(MONITOR, "residual spike flagged", "watching")
-            script.monitor(f"Residual spike during {anomaly.step}: {anomaly.detail}")
+            script.monitor(f"• Residual spike during {anomaly.step}: {anomaly.detail}")
         elif anomaly.kind == "novel-warning":
             roster.set(MONITOR, "unfamiliar solver warning", "watching")
-            script.monitor(f"First time we have seen this on an unfamiliar body: "
-                           f"{anomaly.line[:150]}")
+            script.monitor(f"• New on an unfamiliar body: {anomaly.line[:150]}")
 
     engineer.monitor.on_anomaly = on_anomaly
 
@@ -294,10 +277,10 @@ def main(request: str | None = None, params: dict | None = None,
             report = _build_unfamiliar_case(engineer, script, roster, surface,
                                             params, iterations, emit)
         script.engineer(
-            f"Surface accepted: {report['surface']}"
-            + (", closed" if report.get("closed") else "")
-            + (f" — {', '.join(report['issues'])}" if report.get("issues")
-               else ", no defects reported by the surface check."))
+            f"• Surface accepted: {report['surface']}"
+            + (", closed" if report.get("closed") else "") + ". "
+            + (f"• Issues: {', '.join(report['issues'])}." if report.get("issues")
+               else "• No defects reported by the surface check."))
 
         for step, command, note in (
             ("surfaceFeatureExtract", "surfaceFeatureExtract",
@@ -309,7 +292,7 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(CHIEF_ENGINEER, note, "working")
             result = engineer._run_step(step, command, 5400)
             ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-            script.engineer(f"{step} finished in {result.seconds:.0f}s — {note}.")
+            script.engineer(f"• {step} finished in {result.seconds:.0f}s — {note}.")
 
         if familiar:
             # The tutorial case keeps its fields in 0.orig; a generated case
@@ -322,17 +305,13 @@ def main(request: str | None = None, params: dict | None = None,
         gate_ok = (non_ortho or 0) <= MAX_NON_ORTHOGONALITY
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
-            f"Mesh is {cells:,} cells, max non-orthogonality {non_ortho}, max "
-            f"skewness {skew}. "
-            + (f"Non-orthogonality is inside the {MAX_NON_ORTHOGONALITY:.0f}° gate, so "
-               f"the discretization is acceptable. " if gate_ok else
-               f"Non-orthogonality exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate — I am "
-               f"not willing to call a force from this mesh validated. ")
-            + (f"Skewness {skew} is above the {MAX_SKEWNESS:.0f} guidance on a small "
-               f"number of faces; that caps how far I will trust the magnitude, and "
-               f"it is why this will not come back as fully validated."
+            f"• Mesh: {cells:,} cells; non-ortho {non_ortho}; skew {skew}. "
+            + (f"• Non-ortho inside the {MAX_NON_ORTHOGONALITY:.0f}° gate — discretization acceptable. "
+               if gate_ok else
+               f"• Non-ortho exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate — no validated force from this mesh. ")
+            + (f"• Skew {skew} above the {MAX_SKEWNESS:.0f} guidance — caps trust; not fully validated."
                if (skew or 0) > MAX_SKEWNESS else
-               "Skewness is inside guidance as well."))
+               "• Skewness inside guidance as well."))
         roster.idle(CHIEF_RESEARCHER)
 
         for step, command, note in (
@@ -343,10 +322,10 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(CHIEF_ENGINEER, note, "working")
             result = engineer._run_step(step, command, 7200)
             ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-            script.engineer(f"{step} finished in {result.seconds:.0f}s — {note}.")
+            script.engineer(f"• {step} finished in {result.seconds:.0f}s — {note}.")
     except Exception as exc:
         roster.set(CHIEF_ENGINEER, "halted", "blocked")
-        script.engineer(f"The study stopped: {exc}")
+        script.engineer(f"• The study stopped: {exc}")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
@@ -367,9 +346,8 @@ def main(request: str | None = None, params: dict | None = None,
         announce_field(emit, "geometry-study", painted,
                        f"{label} — surface pressure from the solve")
         script.engineer(
-            "Painted the body with its own surface-pressure field — high on the "
-            "leading surfaces, low over the upper wing, straight off the solved "
-            "case.")
+            "• Body painted with its own solved surface pressure. "
+            "• High on leading surfaces, low over the upper wing.")
     plots: list[str] = []
     for name in ("Cd", "Cl"):
         png = engineer.out_root / f"{name}_envelope.png"
@@ -383,7 +361,7 @@ def main(request: str | None = None, params: dict | None = None,
     drag = results.get("Cd")
     lift = results.get("Cl")
     if not drag:
-        script.engineer("The solver produced no force history — nothing to report.")
+        script.engineer("• No force history from the solver — nothing to report.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
@@ -412,13 +390,12 @@ def main(request: str | None = None, params: dict | None = None,
         comparison = verdict.pop("comparison", None)
         if comparison:
             script.researcher(
-                f"Experimental comparison: the solve gives Cd {comparison['measured_cd']:.4g} "
-                f"on planform area; {comparison['basis_note']} that is "
-                f"{comparison['compared_cd']:.4g} against {reference['source']}, which "
-                f"reports Cd {comparison['reference_cd']:g}. That is "
-                + (f"{comparison['relative_error'] * 100:.0f}% apart"
-                   if comparison['relative_error'] is not None else "not comparable")
-                + f", within a ±{comparison['tolerance'] * 100:.0f}% band.")
+                f"• Solve gives Cd {comparison['measured_cd']:.4g}; rebased "
+                f"{comparison['compared_cd']:.4g} vs {reference['source']} "
+                f"Cd {comparison['reference_cd']:g}. "
+                + (f"• {comparison['relative_error'] * 100:.0f}% apart, "
+                   if comparison['relative_error'] is not None else "• Not comparable, ")
+                + f"band ±{comparison['tolerance'] * 100:.0f}%.")
     else:
         verdict = trust(relative_error=relative, converged=True,
                         in_validated_regime=gate_ok, calibrated=skew_ok, why=why)
@@ -432,79 +409,62 @@ def main(request: str | None = None, params: dict | None = None,
                                 "envelope": f"±{2 * drag['sigma']:.2g}", **verdict})
         emit("uncertainty.channels", channels)
     script.engineer(
-        f"Drag settles at {drag['value']:.4g} ± {2 * drag['sigma']:.2g} over the final "
+        f"• Drag settles at {drag['value']:.4g} ± {2 * drag['sigma']:.2g} over "
         f"{drag['window']} iterations"
-        + (f"; lift at {lift['value']:.4g} ± {2 * lift['sigma']:.2g}." if lift else "."),
+        + (f". • Lift {lift['value']:.4g} ± {2 * lift['sigma']:.2g}." if lift else "."),
         verdict=verdict)
 
     script.numericist(
-        f"Before this is written up, two things it is not. The band on that "
-        f"coefficient is how far it moved over the averaging window — it "
-        f"establishes the solve is steady and nothing more, so read it as a floor. "
-        f"And there is no numerical uncertainty here at all: that needs "
-        f"systematically refined grids and a least-squares fit whose scatter sets "
-        f"the safety factor, {per('grid-uncertainty')}. One mesh cannot give it. "
-        + (f"On validation: {per('vv20')} wants an experimental comparison, and here "
-           f"we have one — the verdict is graded against it. Numerical uncertainty is "
-           f"still unquantified, so a validated magnitude is not a converged grid."
+        "• The band only shows the solve is steady — read it as a floor. "
+        f"• Numerical uncertainty needs refined grids, {per('grid-uncertainty')}; one mesh cannot give it. "
+        + ("• Validation: an experimental comparison exists; the verdict is graded against it."
            if reference else
-           f"Nor is this validated — {per('vv20')} wants an experimental comparison, "
-           f"and we have made none. Steady, and unvalidated."))
+           f"• Not validated — {per('vv20')} wants an experimental comparison; none was made."))
 
     monitor_summary = engineer.monitor.summary()
     suppressed = sum(monitor_summary.get("suppressed", {}).values())
     script.monitor(
-        f"Watched every line of solver output. {monitor_summary['anomalies']} "
-        f"event{'' if monitor_summary['anomalies'] == 1 else 's'} matched a watch "
-        f"pattern {monitor_summary['by_kind'] or ''}"
-        + (f"; {suppressed} were repeats of the same condition and were counted "
-           f"rather than repeated at you." if suppressed else ".")
-        + (" Nothing fatal." if not monitor_summary["fatal"] else
-           " One was fatal and this result should not be used."))
+        f"• Watched every solver line: {monitor_summary['anomalies']} watch-pattern "
+        f"event{'' if monitor_summary['anomalies'] == 1 else 's'} {monitor_summary['by_kind'] or ''}. "
+        + (f"• {suppressed} repeats counted, not repeated at you. " if suppressed else "")
+        + ("• Nothing fatal." if not monitor_summary["fatal"] else
+           "• One fatal — do not use this result."))
     roster.idle(MONITOR)
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"Confirmed: the chain took {surface} from a raw surface to a converged "
-        f"force in {elapsed:.1f} minutes of wall time without intervention. The "
-        f"coefficient history is flat over the averaging window, which is what "
-        f"makes the envelope meaningful rather than decorative.")
+        f"• Confirmed: raw surface → converged force in {elapsed:.1f} min, no intervention. "
+        "• Coefficient history flat over the window — the envelope means something.")
     if comparison and verdict["tier"] == "VALIDATED":
         script.engineer(
-            f"Confirmed against experiment: the rebased coefficient sits within the "
-            f"published band of {reference['source']}, so this magnitude is validated, "
-            f"not merely converged — {verdict['reason']}.")
+            f"• Confirmed against experiment: inside the published band of "
+            f"{reference['source']}. "
+            f"• Validated, not merely converged — {verdict['reason']}.")
     elif comparison:
         script.engineer(
-            f"Not confirmed as validated: the coefficient is converged but "
-            f"{verdict['reason']}. It agrees in direction with {reference['source']} "
-            f"without landing inside the band.")
+            f"• Converged but not validated: {verdict['reason']}. "
+            f"• Agrees in direction with {reference['source']}; outside the band.")
     else:
         script.engineer(
-            f"Not confirmed: the magnitude is not independently validated. "
-            + ("We have a prior for this body and the value is consistent with it, "
-               "but consistency with our own earlier run is not validation against "
-               "experiment." if familiar else
-               "There is no prior and no experimental comparison, so the number "
-               "stands on mesh quality and convergence alone.")
-            + (f" Skewness above guidance on a small number of faces is the specific "
-               f"reason this is reported as a trend rather than a validated magnitude."
+            "• Magnitude not independently validated. "
+            + ("• Consistent with our prior — but self-consistency is not validation."
+               if familiar else
+               "• No prior, no experiment: the number stands on mesh quality and convergence.")
+            + (" • Skewness above guidance is the specific reason this stays a trend."
                if (skew or 0) > MAX_SKEWNESS else ""))
     script.engineer(
-        f"Still unknown: mesh sensitivity. One mesh cannot separate discretization "
-        f"error from the physics, and at this cost a refinement study is a "
-        f"deliberate decision rather than a reflex — it would roughly double the "
-        f"{ledger.as_dict()['spent_core_minutes']:.0f} core-minutes this study spent.")
+        "• Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. "
+        f"• A refinement study would roughly double the "
+        f"{ledger.as_dict()['spent_core_minutes']:.0f} core-minutes spent.")
 
     if not familiar:
         knowledge.add(f"{label} meshed and solved: {cells:,} cells, "
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
         script.numericist(
-            f"Recording this as a case-memory entry. The next time someone asks "
-            f"about a body like {label}, the lab can answer from a run it has "
-            f"actually done instead of reasoning by analogy.")
+            f"• Recorded in case memory. "
+            f"• Next question about a body like {label} answers from a real run.")
 
     report_doc = lab_report(
         title=f"Geometry study — {label}",

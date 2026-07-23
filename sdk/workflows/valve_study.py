@@ -131,9 +131,8 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(HYPOTHESIS)
     roster.set(CHIEF_ENGINEER, "framing the study", "working")
     script.engineer(
-        "The flow through the valve is pulsatile, so a single steady snapshot "
-        "would be cycle-blind. Before I run anything I want the Chief Researcher "
-        "to rule on how to decompose the cycle.")
+        "• Pulsatile flow — a single steady snapshot would be cycle-blind. "
+        "• Chief Researcher rules on the cycle decomposition before anything runs.")
 
     # ------------- Researcher method-selection memo (periodic decomposition) ----
     roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
@@ -144,42 +143,32 @@ def main(request: str | None = None, params: dict | None = None,
 
     # (a) periodicity insight
     script.researcher(
-        "Problem classification: internal flow, pulsatile but periodic. A periodic "
-        "forcing is semi-convertible to a coupled set of steady problems — if the "
-        "cycle can be represented by a few phase points, the transient becomes a "
-        "handful of steady solves I can weight back together.")
+        "• Internal flow, pulsatile but periodic. "
+        "• Periodic forcing converts to a few steady phase points, weighted back together.")
     # (b) Womersley computed AND displayed with the ruling
     if alpha <= strict:
-        ruling = (f"alpha ~ {alpha:.1f} is below the strict quasi-steady limit "
-                  f"of {strict:g} — each instant is effectively a steady problem.")
+        ruling = (f"• Womersley α ≈ {alpha:.1f}, under the strict limit {strict:g}. "
+                  f"• Each instant is effectively steady.")
     elif alpha <= screen_max:
-        ruling = (f"alpha ~ {alpha:.1f} for this case. That is above the strict "
-                  f"quasi-steady limit of {strict:g}, so the flow is inertially "
-                  f"unsteady — but it sits under the multi-point screening ceiling "
-                  f"of {screen_max:g}, so a multi-point quasi-steady decomposition "
-                  f"is admissible as a SCREEN. The phase-interaction it drops is "
-                  f"real at this alpha and rides as a model-form limitation, which "
-                  f"is why the tier is capped at TREND ONLY.")
+        ruling = (f"• Womersley α ≈ {alpha:.1f}: above the strict limit {strict:g} "
+                  f"— inertially unsteady. "
+                  f"• Under the screening ceiling {screen_max:g} — admissible as a SCREEN. "
+                  f"• Dropped phase-interaction is real model-form; tier capped TREND ONLY.")
     else:
-        ruling = (f"alpha ~ {alpha:.1f} exceeds the screening ceiling of "
-                  f"{screen_max:g} — a steady-per-phase picture is not even a "
-                  f"useful screen; the study should not proceed on this method.")
-    script.researcher("Womersley admissibility: " + ruling)
+        ruling = (f"• Womersley α ≈ {alpha:.1f} exceeds the screening ceiling "
+                  f"{screen_max:g}. "
+                  f"• Not even a useful screen — do not proceed on this method.")
+    script.researcher(ruling)
     # (c) the plan
     weights = ", ".join(f"{p.name.split()[0]} {p.weight:.2f}" for p in phases)
     script.researcher(
-        f"Chosen strategy: a {len(phases)}-point cycle decomposition. Phase points "
-        f"at accelerating, peak, and decelerating systole, cycle-weighted by the "
-        f"stroke-volume fraction each carries ({weights}). The objective is the "
-        f"cycle-weighted pressure loss; each phase is a steady internal-flow "
-        f"problem, so backpropagation stays cheap at every phase point.")
+        f"• Strategy: {len(phases)}-point cycle decomposition, weights {weights}. "
+        f"• Objective: cycle-weighted pressure loss; each phase a steady problem. "
+        f"• Gradients stay cheap at every phase point.")
     # (d) rejected / deferred rungs, on record
     script.researcher(
-        "Rejected: a single steady snapshot — cycle-blind, it would price one "
-        "instant as the whole cycle. Deferred to the agenda: a harmonic-balance "
-        "cycle solve to recover the phase-interaction, and an unsteady "
-        "fluid–structure solve to let the leaflets actually move. Both are logged "
-        f"as research lines, {per('rom')} in spirit for the screen we run now.")
+        "• Rejected: single snapshot — prices one instant as the whole cycle. "
+        "• Deferred to agenda: harmonic-balance cycle solve; unsteady FSI for moving leaflets.")
     if emit:
         emit("agenda.updated", {"entries": AGENDA})
     roster.idle(CHIEF_RESEARCHER)
@@ -201,16 +190,14 @@ def main(request: str | None = None, params: dict | None = None,
             "objective": {"key": "cycle_pressure_loss",
                           "label": "cycle loss [Pa]", "direction": "min"}})
     script.engineer(
-        f"Plan: {len(CANDIDATE_ANGLES)} candidate opening angles x {len(phases)} "
-        f"phase points = {n_solves} steady internal-flow evaluations. Each candidate "
-        f"gets a cycle-weighted pressure loss with a Monte-Carlo envelope across "
-        f"the phases; the constraint is a minimum orifice area.")
+        f"• Plan: {len(CANDIDATE_ANGLES)} angles × {len(phases)} phases = "
+        f"{n_solves} steady evaluations. "
+        f"• Objective: cycle-weighted loss with a Monte-Carlo envelope. "
+        f"• Constraint: minimum orifice area.")
     script.numericist(
-        "State the fidelity plainly: each phase evaluation is a reduced-order "
-        f"orifice model right now, {per('rom')}, not a solved flow — a real steady "
-        "internal-flow solve is the marked plug-in point. It ranks the angles and "
-        "screens the trade; it does not validate a pressure in pascals. Hard cap: "
-        "TREND ONLY.")
+        "• Each phase is a reduced-order orifice model — not a solved flow. "
+        "• A real internal-flow solve is the marked plug-in point. "
+        "• Ranks angles, screens the trade; hard cap TREND ONLY.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
@@ -234,26 +221,26 @@ def main(request: str | None = None, params: dict | None = None,
                 "objective": round(obj, 1), "direction": "min",
                 "feasible": feasible})
         script.engineer(
-            f"Opening {angle:g} deg -> orifice {area*1e6:.0f} mm^2, cycle-weighted "
-            f"loss {obj:.0f} +/- {band:.0f} Pa"
-            + ("" if feasible else " (infeasible: below the minimum orifice area)"))
+            f"• Opening {angle:g}° → orifice {area*1e6:.0f} mm², loss "
+            f"{obj:.0f} ± {band:.0f} Pa"
+            + ("." if feasible else ". • Infeasible: below the minimum orifice area."))
     ledger.spend(n_solves * 0.05, f"{n_solves} reduced-order phase evaluations")
     roster.set_workers(0)
 
     feasible = [r for r in results if r["feasible"]]
     if not feasible:
-        script.engineer("No candidate clears the minimum orifice area; the sweep "
-                        "needs a wider opening range before an optimum exists.")
+        script.engineer("• No candidate clears the orifice-area floor. "
+                        "• The sweep needs a wider opening range first.")
         script.save(out / "transcript.txt"); roster.all_idle(); return 0
     best = min(feasible, key=lambda r: r["objective"])
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
     script.engineer(
-        f"{len(feasible)} of {len(results)} candidates clear the orifice-area floor. "
-        f"Lowest cycle-weighted loss: opening {best['angle']:g} deg at "
-        f"{best['objective']:.0f} +/- {best['band']:.0f} Pa — the widest admissible "
-        f"orifice, as the physics of an orifice loss would predict.")
+        f"• {len(feasible)} of {len(results)} candidates clear the orifice floor. "
+        f"• Winner: {best['angle']:g}° at {best['objective']:.0f} ± "
+        f"{best['band']:.0f} Pa. "
+        f"• Widest admissible orifice — exactly what orifice physics predicts.")
     channels = uncertainty_channels(
         input_2sigma=best["band"], numerical=None, model=None,
         numerical_note="the cycle is sampled at three phase points — between-phase "
@@ -264,11 +251,9 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("uncertainty.channels", channels)
     script.researcher(
-        "Read this as a screen, not a validated pressure. The ranking — wider "
-        f"orifice, lower cycle loss — is physical and trustworthy. The magnitude in "
-        f"pascals is a reduced-order estimate; {per('vv20')} would need a solved "
-        f"internal flow and a comparison before anyone trusts the number. The three "
-        f"capabilities this screen is missing are on the research agenda.")
+        "• A screen, not a validated pressure — the ranking is trustworthy. "
+        f"• The pascal magnitude needs a solved flow and comparison, {per('vv20')}. "
+        "• The three missing capabilities are on the research agenda.")
     verdict = trust(relative_error=0.0, converged=True, in_validated_regime=False,
                     calibrated=True,
                     why="reduced-order cycle screen on a screening geometry — the "
