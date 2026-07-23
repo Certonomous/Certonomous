@@ -32,19 +32,25 @@ _REPO = Path(__file__).resolve().parents[2]
 _OUT = _REPO / "demo-output" / "website" / "motorbike-video"
 _CHROME = r"C:/Program Files/Google/Chrome/Application/chrome.exe"
 
+# The event-stream envelope carries the type under "event" (the SSE frame name),
+# not "type" — read both so this survives either shape.
+def _kind(ev: dict) -> str:
+    return ev.get("event") or ev.get("type") or ""
+
+
 # Each beat: (order, filename-stem, human title, trigger predicate over an event).
 BEATS = [
     (1, "01-upload-route", "Upload & route",
-     lambda ev: ev.get("type") == "mission.routed"),
+     lambda ev: _kind(ev) == "mission.routed"),
     (2, "02-mesh-gates", "Mesh gates with real numbers",
-     lambda ev: ev.get("type") == "transcript.entry"
+     lambda ev: _kind(ev) == "transcript.entry"
      and "Mesh:" in json.dumps(ev.get("payload", {}))),
     (3, "03-cp-painted", "Cp-painted body",
-     lambda ev: ev.get("type") == "field.ready"),
+     lambda ev: _kind(ev) == "field.ready"),
     (4, "04-drag-envelope", "Drag + envelope",
-     lambda ev: ev.get("type") == "result.verdict"),
+     lambda ev: _kind(ev) == "result.verdict"),
     (5, "05-certificate", "Certificate",
-     lambda ev: ev.get("type") == "certificate.ready"),
+     lambda ev: _kind(ev) == "certificate.ready"),
 ]
 
 _TERMINAL = {"mission.completed", "mission.failed"}
@@ -76,7 +82,10 @@ def _upload_surface(base: str, path: Path) -> str:
 
 
 def _shoot(base: str, mission_id: str, out_file: Path, budget_ms: int = 6000) -> bool:
-    url = f"{base}/?mission={mission_id}&present=1"
+    # static=1 dispatches the recorded snapshot synchronously and renders the
+    # final surface deterministically, so a headless still never races an open
+    # SSE or an unresolved geometry fetch.
+    url = f"{base}/?mission={mission_id}&static=1&present=1"
     cmd = [
         _CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
         "--window-size=1920,1080", f"--virtual-time-budget={budget_ms}",

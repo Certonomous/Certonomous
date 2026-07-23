@@ -1,0 +1,44 @@
+{
+  "mission_id": "m-1b1c67bf525a",
+  "goal": "Solve the external aerodynamics of the supplied NACA 4412 finite-wing geometry at cruise Reynolds number. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the lift and drag coefficients with confidence envelopes.",
+  "surface": "naca4412_wing.stl",
+  "server": "http://127.0.0.1:8768",
+  "captured": [
+    {
+      "order": 1,
+      "stem": "01-upload-route",
+      "title": "Upload & route",
+      "file": "01-upload-route.png",
+      "present": true
+    },
+    {
+      "order": 2,
+      "stem": "02-mesh-gates",
+      "title": "Mesh gates with real numbers",
+      "file": "02-mesh-gates.png",
+      "present": true
+    },
+    {
+      "order": 3,
+      "stem": "03-cp-painted",
+      "title": "Cp-painted body",
+      "file": "03-cp-painted.png",
+      "present": true
+    },
+    {
+      "order": 4,
+      "stem": "04-drag-envelope",
+      "title": "Drag + envelope",
+      "file": "04-drag-envelope.png",
+      "present": true
+    },
+    {
+      "order": 5,
+      "stem": "05-certificate",
+      "title": "Certificate",
+      "file": "05-certificate.png",
+      "present": true
+    }
+  ],
+  "complete": true
+}

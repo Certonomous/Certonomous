@@ -14,12 +14,15 @@ needs VTK or numpy on the controller.
 from __future__ import annotations
 
 import base64
+import logging
 import re
 import struct
 from pathlib import Path
 from typing import Any
 
 from .geometry import _package
+
+_log = logging.getLogger(__name__)
 
 _ARRAY = re.compile(
     r"<DataArray\b([^>]*)>(.*?)</DataArray>", re.S)
@@ -105,7 +108,7 @@ def _read_patch(vtp_path: str | Path, field: str):
 
 
 def load_field_surface(sources, *, field: str = "p",
-                       max_faces: int = 12000, name: str = "surface") -> dict[str, Any]:
+                       max_faces: int = 30000, name: str = "surface") -> dict[str, Any]:
     """Read one patch file or merge several into a painted wireframe payload."""
     paths = [sources] if isinstance(sources, (str, Path)) else list(sources)
     all_v: list[list[float]] = []
@@ -155,19 +158,83 @@ def _attach_field(payload: dict[str, Any], original_faces, face_values, field: s
     }
 
 
-# Patches that are the domain, not the body — never painted.
-_DOMAIN_PATCHES = ("farfield", "frontandback", "inlet", "outlet",
-                   "defaultfaces", "domain", "atmosphere", "ground")
+# Names of patches that are the flow domain — the wind-tunnel / farfield box —
+# not the body. The body is whatever is left once these are removed. Matched
+# case-insensitively against the patch (file) stem.
+_DOMAIN_NAMES = frozenset({
+    "inlet", "outlet", "ground", "floor", "sky", "ceiling", "roof",
+    "front", "back", "frontandback", "farfield", "freestream",
+    "defaultfaces", "domain", "atmosphere", "wall", "walls",
+    "lowerwall", "upperwall", "fixedwalls", "movingwall",
+    "top", "bottom", "left", "right", "side", "sides",
+})
+# Prefixes that are always domain, whatever the suffix: symmetry planes
+# (sym, symmetry, symPlane, symFront…) and decomposition (processor) patches.
+_DOMAIN_PREFIXES = ("sym", "proc")
+
+
+def _is_domain_patch(stem: str) -> bool:
+    """True when a patch name is a flow-domain boundary, not the body."""
+    s = stem.strip().lower()
+    return s in _DOMAIN_NAMES or s.startswith(_DOMAIN_PREFIXES)
+
+
+def _body_patches(patches: list[Path]) -> list[Path]:
+    """Reduce a list of ``.vtp`` patch files to only the body patches.
+
+    Two tiers, so this is right for both the motorBike (a ``motorBike_*`` group
+    of dozens of sub-patches inside a wind-tunnel box) and a single-patch body
+    like the B-52. First drop every known domain boundary. Then, if the
+    survivors form a dominant ``<body>_<part>`` group (the motorBike case), keep
+    only that group — so an unknown domain name that slipped the blocklist can't
+    poison the merge and paint a flat rectangle instead of the vehicle.
+    """
+    kept = [p for p in patches if not _is_domain_patch(p.stem)]
+    if len(kept) <= 1:
+        return kept
+    from collections import Counter
+
+    groups: Counter[str] = Counter()
+    for p in kept:
+        if "_" in p.stem:
+            groups[p.stem.split("_", 1)[0].lower()] += 1
+    if groups:
+        top, n = groups.most_common(1)[0]
+        # A real group is two or more parts sharing a prefix; a single stray
+        # underscore is not enough to override the blocklist result.
+        if n >= 2:
+            grouped = [p for p in kept if p.stem.lower().startswith(top + "_")]
+            if len(grouped) >= n:
+                return grouped
+    return kept
 
 
 def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
-                      *, field: str = "p", name: str = "surface") -> str | None:
+                      *, field: str = "p", name: str = "surface",
+                      input_triangles: int | None = None,
+                      min_fraction: float = 0.15) -> str | None:
     """Run foamToVTK, merge every body patch, and write a painted-surface JSON.
 
     The body may be one patch (``body``) or a group of dozens (the motorBike's
-    ``motorBike_*`` sub-patches). Everything that is not a domain boundary is
+    ``motorBike_*`` sub-patches). Every patch that is not a domain boundary is
     collected and merged, so this works for any geometry. Returns the local
     JSON path, or None if no field surface could be produced.
+
+    Safeguard against painting the wrong surface: if ``input_triangles`` is
+    given and the merged body carries fewer than ``min_fraction`` of that many
+    faces, the selection is treated as suspect (almost certainly a couple of
+    flat domain rectangles rather than the vehicle) — it is flagged in the log
+    and None is returned so the caller keeps the wireframe rather than painting
+    the wrong thing.
+
+    ``min_fraction`` calibration: snappyHexMesh remeshes the surface, so the
+    painted body face count is NOT one-to-one with the input triangle count.
+    Measured on the motorBike, the correct body is 101,235 faces against a
+    331,653-triangle input — 31%. The bug this guards against selected two flat
+    domain rectangles: 5,747 faces, 1.7%. The floor is set well between those
+    two populations (comfortable margin above the real body, wide margin above
+    the failure) rather than at a literal fraction that would sit one point
+    under the real body and false-positive on any mesh variation.
     """
     import json
     import subprocess
@@ -190,13 +257,30 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
                             capture_output=True, text=True, timeout=600)
     if "OK" not in result.stdout:
         return None
-    patches = [p for p in staging.glob("*.vtp")
-               if p.stem.lower() not in _DOMAIN_PATCHES]
+    patches = _body_patches(list(staging.glob("*.vtp")))
     if not patches:
+        _log.warning("field-paint patch selection suspect: no body patch left "
+                     "after excluding domain boundaries — falling back to wireframe")
         return None
     payload = load_field_surface(patches, field=field, name=name)
     if not payload.get("field"):
         return None
+    # Face-count sanity check: the painted body should be a large fraction of
+    # the input surface, not a handful of flat domain rectangles.
+    body_faces = int(payload.get("triangles_total", 0))
+    if input_triangles:
+        fraction = body_faces / max(1, input_triangles)
+        if fraction < min_fraction:
+            _log.warning(
+                "field-paint patch selection suspect: painted body has %d faces, "
+                "only %.0f%% of the %d input triangles (floor %.0f%%) from patches "
+                "%s — falling back to wireframe",
+                body_faces, 100 * fraction, input_triangles, 100 * min_fraction,
+                sorted(p.stem for p in patches))
+            return None
+        _log.info("field-paint: painted body has %d faces from %d patches "
+                  "(%.0f%% of %d input triangles)",
+                  body_faces, len(patches), 100 * fraction, input_triangles)
     out_path.write_text(json.dumps(payload), encoding="utf-8")
     return str(out_path)
 

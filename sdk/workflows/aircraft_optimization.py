@@ -52,7 +52,7 @@ _MU_CRUISE = 1.43e-5     # dynamic viscosity at ~11 km, Pa·s
 # drag comes from the solver instead of the polar constant.
 _CD0_NONWING = 0.013
 _TAPER = 0.3             # planform taper ratio for every candidate wing
-_N_FINALISTS = 6         # feasible designs promoted to real solves
+_N_FINALISTS = 9         # feasible designs promoted to real solves
 # Stated 1-sigma input uncertainties, propagated to the headline CI. These are
 # the aleatory inputs the sizing rests on; they are declared, not discovered.
 _SIGMA_PAYLOAD = 0.025   # passenger + baggage mass, ±5% at 2-sigma
@@ -229,12 +229,28 @@ def _solve_finalist_slot(index, api, design, emit=None, script=None):
         return None
 
 
+# The third planform variable: quarter-chord sweep. Varying it (not just span
+# and area) makes the candidate wing visibly morph on screen — the planform
+# rocks through the sweep angles as well as growing and shrinking. It is a real
+# design variable, not decoration: cd0 carries a compressibility penalty that is
+# minimised near 25° (the drag-divergence-optimal sweep for this cruise Mach) and
+# span efficiency falls with sweep, so the optimiser finds a genuine interior
+# sweep optimum rather than railing to an edge.
+_SWEEPS = (20.0, 25.0, 30.0, 35.0)
+
+
 def _design_grid() -> list[tuple[float, float, float]]:
-    """A span × area sweep at a fixed representative sweep angle."""
+    """A span × area × sweep sweep of the wing design space.
+
+    Sweep is the innermost loop so the viewport wing rocks through the sweep
+    angles repeatedly across the screening — the geometry changes many times,
+    not just once, which is the whole point of watching the design space fill.
+    """
     grid = []
     for span in (34, 40, 46, 52, 58, 64):
         for area in (240, 300, 360, 420):
-            grid.append((float(span), float(area), 27.5))
+            for sweep in _SWEEPS:
+                grid.append((float(span), float(area), float(sweep)))
     return grid
 
 
@@ -259,7 +275,7 @@ def main(request: str | None = None, params: dict | None = None,
     props = MissionProperties(
         kind="parametric-optimization",
         objective="maximise the cruise lift-to-drag ratio",
-        dimensionality=2,          # wing span and area are the free variables
+        dimensionality=3,          # wing span, area, and quarter-chord sweep
         regime="steady",
         smoothness="smooth",
         fidelity="a conceptual sizing model",
@@ -308,7 +324,7 @@ def main(request: str | None = None, params: dict | None = None,
             "y": {"key": "wing_area", "label": "wing area [m²]"},
             "objective": {"key": "L_D", "label": "L/D", "direction": "max"}})
     plan_line = (
-        f"• Plan: screen {len(grid)} wings over span × area at 27.5° sweep. "
+        f"• Plan: screen {len(grid)} wings over span, area, and quarter-chord sweep. "
         f"• Infeasible designs stay on the plot, keeping the trade visible.")
     if solver_live:
         plan_line += (
