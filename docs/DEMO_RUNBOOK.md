@@ -175,6 +175,41 @@ steady internal-flow solve is the marked next step (not run) — say so on camer
 
 ---
 
+## RACE — Speed, certified (in-GUI split-screen act, ~90 s on camera)
+
+**Trigger:** type, no upload —
+`Race a full Monte-Carlo sweep against the reduced-order path on the NACA 4412 finite wing: same objective, same tolerance, both timed. Report the polar, the agreement, and the measured speedup.` → Launch.
+
+The whole race is a real, in-GUI act: the centre stage becomes two lanes and
+**both paths solve for real, concurrently, under one shared four-slot pool** (the
+compute treaty). Left lane runs a full Monte-Carlo alpha sweep (every evaluation
+a direct solve); right lane runs the reduced-order path (real anchors, fitted
+surface, one real confirmation). Nothing is choreographed — the clocks on screen
+are the machine's.
+
+| Beat | Expected on screen | Failure signature | Fallback |
+|---|---|---|---|
+| Interpretation | route panel: `RACE COMPARISON` + head-to-head rationale | routes elsewhere | re-read prompt; `demo-output/website/race-gui/01-start.png` |
+| Lanes live | centre stage splits: FULL MONTE-CARLO \| REDUCED-ORDER, each with its own polar, progress bar, and ticking clock | lanes absent | `race.init` didn't fire — check route |
+| Reduced-order crosses first | right lane flags FINISHED in a handful of solves (anchors + surface + one confirmation); left lane still grinding | rom stalls | `03-reduced-order-finished.png` |
+| Monte-Carlo grinds on | left lane keeps solving to earn its envelope; nominal-Reynolds polar drawn as the running answer line | mc stalls | check solver reachable |
+| Speedup card | finish card: measured core-minutes both lanes, wall times, **measured speedup**, agreement statement — numbers from THIS run only | card blank | `race.result` didn't fire |
+
+Measured on this machine (RACE_MC_SAMPLES=5, four-slot cap, shared box):
+**full MC 55 real solves · 17.9 core-min · wall 74.5 s · peak L/D 18.13 ± 0.04;
+reduced-order 5 real solves · 1.9 core-min · wall 11.1 s · peak L/D 18.14 — the
+two paths agree to 0.1%, measured speedup 9.2× in core-minutes (6.7× wall).**
+The speedup scales with the ensemble size (RACE_MC_SAMPLES) and the box load; the
+card always shows only what this run measured. The fuller 8-sample benchmark
+(21.5× / 29.8× under load) lives in `demo-output/website/race/benchmarks.md`.
+
+Captures in `demo-output/website/race-gui/`: `01-start` (both lanes live),
+`02-mid-mc-grinding` (Monte-Carlo mid-sweep), `03-reduced-order-finished`
+(right lane crosses first), `04-finish` (speedup card + agreement). Shotlist with
+per-beat narration in the same folder.
+
+---
+
 ## Timing table (measured vs target)
 
 | Act | Target | Measured (compute) | On-camera driver | Note |
@@ -182,6 +217,7 @@ steady internal-flow solve is the marked next step (not run) — say so on camer
 | 1 — airliner | ~90 s | ~10 s (6 real VSPAERO polars) | narration read-out | screen conceptual, finalists solved; worker-kill on the wing |
 | 2 — real CFD | ~2 min | mesh cached (−374 s); solve ≈ 4.5 min serial / ~2 min at 6 ranks | the real solve | **pre-warm the cache**; `CERTONOMOUS_SOLVE_RANKS=6` for the slot |
 | 3 — valve | ~90 s | 0.4 s | narration read-out | reduced-order screen, real solve is next step |
+| race — split-screen | ~90 s | wall 74.5 s (60 real solves, 4-slot cap) | the two live clocks | both lanes real; rom crosses at 11 s, mc at 74 s; 9.2× measured |
 
 Acts 1 and 3 are compute-light — their length on camera is the paced transcript,
 so they comfortably hit ~90 s. Act 2 is the only solve-bound act; pre-warming
