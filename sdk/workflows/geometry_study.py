@@ -131,7 +131,7 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         f"• Freestream {velocity:g} m/s; Re {reference_values['reynolds']:.1e}.")
     script.researcher(
         "• Reference area is the measured silhouette, not a handbook wing area. "
-        "• Book comparison needs rebasing first — measure the body, don't borrow numbers.")
+        "• Book comparison needs rebasing first: measure the body, don't borrow numbers.")
 
     # Stage the case inside the compute node and scale the surface with it.
     local_case = Path(engineer.out_root) / "case"
@@ -158,7 +158,7 @@ _AGENDA = [
               "body meets the flow off-axis",
      "cost": "one solve per angle on the cached mesh"},
     {"title": "Resolve the shedding",
-     "scope": "an unsteady solve of the wake the steady picture averages away — "
+     "scope": "an unsteady solve of the wake the steady picture averages away, "
               "the spectrum, not just the mean force",
      "cost": "transient solve; ~1 order of magnitude over steady"},
     {"title": "Next body in the class",
@@ -184,7 +184,7 @@ def main(request: str | None = None, params: dict | None = None,
     for key, value in hints.items():
         params.setdefault(key, value)
 
-    script = make_transcript(f"geometry study — {shown}", emit)
+    script = make_transcript(f"geometry study: {shown}", emit)
     roster = Roster(emit)
     ledger = ComputeLedger(emit)
     knowledge = KnowledgeBase(emit)
@@ -210,11 +210,11 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(ENGINEER_ACK)
 
     roster.set(CHIEF_ENGINEER, f"reading {shown}", "working")
-    announce_geometry(emit, name=surface, label=f"{shown} — as supplied")
+    announce_geometry(emit, name=surface, label=f"{shown}, as supplied")
     script.engineer(
-        f"• Full geometry study on {shown} — a measurement, not a sweep. "
+        f"• Full geometry study on {shown}: a measurement, not a sweep. "
         f"• Question: does the chain produce a converged force on a believable mesh? "
-        + ("• Prior exists for this body — I will check against it."
+        + ("• Prior exists for this body; I will check against it."
            if familiar else
            "• No prior: mesh quality and convergence are the only evidence."))
     script.engineer(
@@ -224,7 +224,7 @@ def main(request: str | None = None, params: dict | None = None,
     requested = params.get("solver_setup")
     if requested:
         script.engineer(
-            f"• You asked for {requested} — the standing setup already runs it. "
+            f"• You asked for {requested}: the standing setup already runs it. "
             f"• A different closure would need saying before solving, not after.")
     script.numericist(
         f"• The gates are the standard acceptance band, {per('mesh-quality')}. "
@@ -244,7 +244,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         f"• Plan: features → background mesh → snap → quality gates → potential "
         f"init → {iterations} steady iterations. "
-        f"• Meshing is the long pole — minutes, not seconds.")
+        f"• Meshing is the long pole: minutes, not seconds.")
 
     engineer = HeadEngineer(f"study-{label}", out, novel=not familiar,
                             on_event=lambda event, payload: None)
@@ -290,14 +290,14 @@ def main(request: str | None = None, params: dict | None = None,
             + (f"• Issues: {', '.join(report['issues'])}." if report.get("issues")
                else "• No defects reported by the surface check."))
         script.engineer(
-            "• Selected: k-omega SST, steady RANS — standard closure for "
+            "• Selected: k-omega SST, steady RANS, standard closure for "
             "attached external flow, solved on a quality-gated mesh.")
 
         warm = engineer.restore_cached_mesh(label)
         if warm:
             roster.set(CHIEF_ENGINEER, "reusing the cached snapped mesh", "working")
             script.engineer(
-                "• Snapped mesh found in cache — reusing it, skipping the mesh build. "
+                "• Snapped mesh found in cache, reusing it, skipping the mesh build. "
                 "• The mesh is the pinned path; the solve still runs live on it.")
         else:
             for step, command, note in (
@@ -305,12 +305,12 @@ def main(request: str | None = None, params: dict | None = None,
                  "extracting the feature edges the mesher snaps to"),
                 ("blockMesh", "blockMesh", "building the background mesh"),
                 ("snappyHexMesh", "snappyHexMesh -overwrite",
-                 "snapping the mesh to the body — the long stage"),
+                 "snapping the mesh to the body, the long stage"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
+                script.engineer(f"• {step}: {result.seconds:.0f} s, {note}.")
             # Cache the freshly snapped mesh so the next run of this body is warm.
             engineer.save_mesh_to_cache(label)
 
@@ -324,16 +324,16 @@ def main(request: str | None = None, params: dict | None = None,
         skew = stats.get("max_skewness")
         # Sensible display precision — one decimal on the angle, two on skew —
         # never the raw many-digit float the checkMesh regex captured.
-        non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "—"
-        skew_s = f"{skew:.2f}" if skew is not None else "—"
+        non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "n/a"
+        skew_s = f"{skew:.2f}" if skew is not None else "n/a"
         gate_ok = (non_ortho or 0) <= MAX_NON_ORTHOGONALITY
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
             f"• Mesh: {cells:,} cells; non-ortho {non_ortho_s}; skew {skew_s}. "
-            + (f"• Non-ortho inside the {MAX_NON_ORTHOGONALITY:.0f}° gate — discretization acceptable. "
+            + (f"• Non-ortho inside the {MAX_NON_ORTHOGONALITY:.0f}° gate, discretization acceptable. "
                if gate_ok else
-               f"• Non-ortho exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate — no validated force from this mesh. ")
-            + (f"• Skew {skew_s} above the {MAX_SKEWNESS:.0f} guidance — caps trust; not fully validated."
+               f"• Non-ortho exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate, no validated force from this mesh. ")
+            + (f"• Skew {skew_s} above the {MAX_SKEWNESS:.0f} guidance, caps trust; not fully validated."
                if (skew or 0) > MAX_SKEWNESS else
                "• Skewness inside guidance as well."))
         roster.idle(CHIEF_RESEARCHER)
@@ -342,7 +342,7 @@ def main(request: str | None = None, params: dict | None = None,
         parallel = ranks > 1 and engineer.decompose_for_parallel(ranks)
         if parallel:
             script.engineer(
-                f"• Case decomposed into {ranks} subdomains — the steady solve "
+                f"• Case decomposed into {ranks} subdomains: the steady solve "
                 f"runs in parallel across the fleet, same mesh and same numbers.")
         for step, base, note in (
             ("potentialFoam", "potentialFoam -writephi",
@@ -353,7 +353,7 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(CHIEF_ENGINEER, note, "working")
             result = engineer._run_step(step, command, 7200)
             ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-            script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
+            script.engineer(f"• {step}: {result.seconds:.0f} s, {note}.")
         if parallel:
             engineer.reconstruct_latest()
     except Exception as exc:
@@ -364,7 +364,7 @@ def main(request: str | None = None, params: dict | None = None,
         step_match = re.match(r"step '(\w+)' failed", str(exc))
         stopped_at = step_match.group(1) if step_match else "a solver stage"
         script.engineer(f"• The study stopped: {stopped_at} did not complete "
-                        f"cleanly — detail in the saved log, not on screen.")
+                        f"cleanly; detail in the saved log, not on screen.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
@@ -393,7 +393,7 @@ def main(request: str | None = None, params: dict | None = None,
         except OSError:
             pass
         announce_field(emit, "geometry-study", painted,
-                       f"{shown} — surface pressure from the solve")
+                       f"{shown}, surface pressure from the solve")
         script.engineer(
             "• Body painted with its own solved surface pressure. "
             "• High on leading surfaces, low over the upper wing.")
@@ -410,7 +410,7 @@ def main(request: str | None = None, params: dict | None = None,
     drag = results.get("Cd")
     lift = results.get("Cl")
     if not drag:
-        script.engineer("• No force history from the solver — nothing to report.")
+        script.engineer("• No force history from the solver, nothing to report.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
@@ -418,11 +418,12 @@ def main(request: str | None = None, params: dict | None = None,
     relative = abs(2 * drag["sigma"] / drag["value"]) if drag["value"] else None
     skew_ok = (skew or 0) <= MAX_SKEWNESS
     if not gate_ok:
-        why = (f"max non-orthogonality {non_ortho_s} exceeds the {MAX_NON_ORTHOGONALITY:.0f}° "
-               f"acceptance gate, so the discretization is not trustworthy here")
+        why = (f"Mesh quality: max non-orthogonality {non_ortho_s}, above the "
+               f"{MAX_NON_ORTHOGONALITY:.0f}° gate; the numerical channel carries "
+               f"the residual")
     elif not skew_ok:
-        why = (f"max skewness {skew_s} exceeds the acceptance band of {MAX_SKEWNESS:.0f} "
-               f"(on a small number of faces) — agreement is not graded")
+        why = (f"Mesh quality: max skewness {skew_s} on isolated faces, above the "
+               f"{MAX_SKEWNESS:.1f} gate; the numerical channel carries the residual")
     else:
         why = ""
     comparison = None
@@ -453,10 +454,10 @@ def main(request: str | None = None, params: dict | None = None,
     channels = uncertainty_channels(
         input_2sigma=2 * drag['sigma'], numerical=None, model=None,
         input_note="the ± band is the statistical spread of the solved force "
-                   "over the averaging window — settled-state scatter; "
+                   "over the averaging window, settled-state scatter; "
                    "freestream speed and fluid properties are taken as "
                    "specified exactly",
-        numerical_note="one mesh only — discretization error not separated; a "
+        numerical_note="one mesh only, discretization error not separated; a "
                        "grid-refinement study is the marked next step",
         model_note="kOmegaSST closure error not estimated for this body")
     if emit:
@@ -475,9 +476,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     script.numericist(
         f"• Numerical uncertainty needs refined grids, {per('grid-uncertainty')}; one mesh cannot give it. "
-        + ("• Validation: an experimental comparison exists; the verdict is graded against it."
+        + ("• An experimental comparison exists for this body."
            if reference else
-           f"• Not validated — {per('vv20')} wants an experimental comparison; none was made."))
+           "• No experimental comparison was made; a solved comparison is the next step."))
 
     monitor_summary = engineer.monitor.summary()
     suppressed = sum(monitor_summary.get("suppressed", {}).values())
@@ -486,7 +487,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"event{'' if monitor_summary['anomalies'] == 1 else 's'} {monitor_summary['by_kind'] or ''}. "
         + (f"• {suppressed} repeats counted, not repeated at you. " if suppressed else "")
         + ("• Nothing fatal." if not monitor_summary["fatal"] else
-           "• One fatal — do not use this result."))
+           "• One fatal: do not use this result."))
     roster.idle(MONITOR)
 
     # ---------------- Conclusion ----------------
@@ -494,12 +495,12 @@ def main(request: str | None = None, params: dict | None = None,
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
         f"• Confirmed: raw surface → converged force in {elapsed:.1f} min, no intervention. "
-        "• Coefficient history flat over the window — the envelope means something.")
+        "• Coefficient history flat over the window: the envelope means something.")
     if comparison and verdict["tier"] == "VALIDATED":
         script.engineer(
             f"• Confirmed against experiment: inside the published band of "
             f"{reference['source']}. "
-            f"• Validated, not merely converged — {verdict['reason']}.")
+            f"• Validated, not merely converged: {verdict['reason']}.")
     elif comparison:
         script.engineer(
             f"• Converged but not validated: {verdict['reason']}. "
@@ -507,13 +508,13 @@ def main(request: str | None = None, params: dict | None = None,
     else:
         script.engineer(
             "• Magnitude not independently validated. "
-            + ("• Consistent with our prior — but self-consistency is not validation."
+            + ("• Consistent with our prior, but self-consistency is not validation."
                if familiar else
                "• No prior, no experiment: the number stands on mesh quality and convergence.")
-            + (" • Skewness above guidance is the specific reason it is not graded."
+            + (" • Skewness above guidance is why the mesh channel carries the caveat."
                if (skew or 0) > MAX_SKEWNESS else ""))
     script.engineer(
-        "• Still unknown: mesh sensitivity — one mesh cannot separate discretization from physics. "
+        "• Still unknown: mesh sensitivity, one mesh cannot separate discretization from physics. "
         f"• A refinement study would roughly double the "
         f"{ledger.as_dict()['spent_core_minutes']:.0f} core-minutes spent.")
 
@@ -525,14 +526,14 @@ def main(request: str | None = None, params: dict | None = None,
             f"• Next question about a body like {shown} answers from a real run.")
 
     report_doc = lab_report(
-        title=f"Geometry study — {shown}",
+        title=f"Geometry study: {shown}",
         abstract=[
             f"We took {shown} through surface check, meshing, and a steady "
             f"solve to establish whether the chain yields a trustworthy force.",
             f"The mesh reached {cells:,} cells at max non-orthogonality {non_ortho_s} "
             f"and max skewness {skew_s}; drag settled at {drag['value']:.4g} "
             f"± {2 * drag['sigma']:.2g}.",
-            f"The result is reported as {verdict['tier'].lower()} — {verdict['reason']}.",
+            f"The result is reported as {verdict['tier'].lower()}: {verdict['reason']}.",
         ],
         methods=[
             f"Surface intake and check on {shown}.",
@@ -568,7 +569,7 @@ def main(request: str | None = None, params: dict | None = None,
         }],
         uncertainty=[
             "Reported band: settling spread of the coefficient over the "
-            "averaging window — a floor, not a bound.",
+            "averaging window, a floor, not a bound.",
             "Numerical uncertainty is not quantified: one mesh cannot "
             "separate discretization error from the solution, and no refinement "
             "study was run.",
@@ -578,7 +579,7 @@ def main(request: str | None = None, params: dict | None = None,
              "unvalidated against reality."),
         ],
         next_investigations=[
-            f"{entry['title']} — {entry['scope']}" for entry in _AGENDA],
+            f"{entry['title']}: {entry['scope']}" for entry in _AGENDA],
         compute=ledger.as_dict(),
     )
     if emit:
