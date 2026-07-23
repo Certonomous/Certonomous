@@ -1,26 +1,26 @@
 {
   "counters": {
-    "missions_run": 226,
-    "solver_core_hours": 0.453,
+    "missions_run": 657,
+    "solver_core_hours": 1.394,
     "knowledge_entries": 8,
     "experimental_anchors": 8,
     "benchmarks_active": 2,
     "detail": {
-      "ledger_evaluations": 226,
+      "ledger_evaluations": 657,
       "ledger_failed": 0,
       "persisted_missions": 0,
       "per_solver": {
         "openfoam-cylinder": {
-          "count": 74,
-          "wall_seconds": 1000.6
+          "count": 218,
+          "wall_seconds": 3157.7
         },
         "reduced-order": {
-          "count": 76,
-          "wall_seconds": 0.5
+          "count": 220,
+          "wall_seconds": 0.8
         },
         "vspaero-wing": {
-          "count": 76,
-          "wall_seconds": 627.9
+          "count": 219,
+          "wall_seconds": 1858.3
         }
       }
     }

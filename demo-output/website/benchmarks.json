@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-07-23T03:58:25Z",
+  "generated_at": "2026-07-23T04:14:38Z",
   "ledger": "C:\\Users\\mouza\\github-cleanup\\ct-website-pipeline\\demo-output\\website\\mega-batch\\ledger.jsonl",
   "totals": {
-    "evaluations_ok": 150,
+    "evaluations_ok": 657,
     "evaluations_failed": 0,
-    "wall_span_hours": 0.079,
-    "observed_throughput_per_hr": 1894.7,
-    "core_hours": 0.312
+    "wall_span_hours": 0.35,
+    "observed_throughput_per_hr": 1877.1,
+    "core_hours": 1.394
   },
   "per_solver": {
     "openfoam-cylinder": {
       "label": "real-solve",
-      "count": 49,
-      "mean_wall_s": 14.107,
-      "median_wall_s": 13.254,
-      "min_wall_s": 6.733,
-      "max_wall_s": 31.046,
-      "per_worker_throughput_per_hr": 255.2
+      "count": 218,
+      "mean_wall_s": 14.485,
+      "median_wall_s": 12.912,
+      "min_wall_s": 6.192,
+      "max_wall_s": 46.3,
+      "per_worker_throughput_per_hr": 248.5
     },
     "vspaero-wing": {
       "label": "real-solve",
-      "count": 50,
-      "mean_wall_s": 8.598,
-      "median_wall_s": 7.716,
+      "count": 219,
+      "mean_wall_s": 8.485,
+      "median_wall_s": 7.631,
       "min_wall_s": 7.063,
-      "max_wall_s": 16.601,
-      "per_worker_throughput_per_hr": 418.7
+      "max_wall_s": 21.934,
+      "per_worker_throughput_per_hr": 424.3
     },
     "reduced-order": {
       "label": "reduced-order-eval",
-      "count": 51,
-      "mean_wall_s": 0.009,
+      "count": 220,
+      "mean_wall_s": 0.004,
       "median_wall_s": 0.002,
-      "min_wall_s": 0.001,
+      "min_wall_s": 0.0,
       "max_wall_s": 0.383,
-      "per_worker_throughput_per_hr": 393991.4
+      "per_worker_throughput_per_hr": 992481.2
     }
   },
   "closure_challenge": {
