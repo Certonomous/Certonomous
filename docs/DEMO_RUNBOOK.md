@@ -30,11 +30,12 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | VSPAERO reachable | `wsl -d Ubuntu -- vspaero \| head -1` | version banner (v7.x) |
 | No stray load | `wsl -d Ubuntu -u foam -- bash -c "pgrep -c -f '[c]ertonomous' \|\| echo 0"` | 0 |
 | Ports clear | `netstat -ano \| grep :8765` | nothing listening before you start |
-| Tests green | `cd sdk && python -m unittest discover tests` | 148 OK |
-| Mesh cache warm (Act 2) | pre-run the Act 2 body once so the snapped mesh is cached (see Act 2) | cached case present |
+| Tests green | `cd sdk && python -m unittest discover tests` | all OK |
+| Mesh cache warm (Act 2) | run the motorBike once so the snapped mesh caches under `~/certonomous-runs/.mesh-cache/motorBike`; later runs say "reusing it, skipping the mesh build" | cache present, mesh skipped |
+| Parallel solve (Act 2 slot) | start the server with `CERTONOMOUS_SOLVE_RANKS=6` on the quiet demo box | warm solve fits ~2 min |
 | Presentation mode | open `/?present=1`, confirm the big action line | renders |
 | Autonomy counter | fresh page → launch → reads `HUMAN TOUCHPOINTS · 1` | 1 |
-| Kill script armed | `ls scripts/kill_worker.sh` | present |
+| Kill script armed (Act 1) | `ls scripts/kill_worker.sh`; arm slot 3 during Act 1 screening | present |
 | Validation wall | open `/` dormant → wall shows 8 bodies, 4 VALIDATED | renders |
 | SMTP | live report email is **Sanaa's** to send (WITH-SANAA) | note only |
 
@@ -55,10 +56,34 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | Result + envelope | EVIDENCE: best feasible **L/D 19.7 (solved)** at span 64 m, AR 13.7; screen said 18.4, same winner | number differs | expected ~19.7 solved / 18.4 screened |
 | Fidelity chip | **SOLVER-BACKED** when finalists solved (wing solved, buildup stated) — **CONCEPTUAL MODEL** on the screen-only path; headline reads value ± CI (95%) | chip over-claims | inspect verdict reason |
 | Report + certificate | REPORT tab: figures first, results table with fidelity chips, Next investigations + sealed-certificate link | report empty | `act1_airliner_report.png` |
+| **Worker-kill (resilience)** | arm slot 3 (`scripts/kill_worker.sh 3`) before the finalist wave → transcript: "Worker 3 stopped responding mid-solve — reprovisioning and re-running its wing" → `worker.killed` then `worker.reprovisioned` → **same six polars, same winner L/D 19.7** | no recovery | still `act1_05_worker_kill.png`; matched-numbers proof below |
 | Autonomy counter | masthead `HUMAN TOUCHPOINTS · 1` | >1 with no steer | reset page |
 
-Measured compute: **8.6 s** (well under 90 s; on-camera time is the narration
-read-out, not compute — pace the transcript).
+Measured compute (uncontended): **~10 s** (well under 90 s; on-camera time is
+the narration read-out, not compute — pace the transcript). Six real OpenVSP
+3.51.1 vortex-lattice polars in parallel. Determinism verified over 5+ full
+passes: identical six solved polars, winner L/D 19.7 @ span 64 m every run, all
+beats present, all three V&V-20 channels noted.
+
+**Worker-kill now rides the airliner wing, not a toy body** (content rule: no
+sphere/cube/plate/cylinder on camera). Each finalist solves on a kill-checkable
+worker slot; a sabotaged slot-3 run gives byte-identical solved polars and the
+same winner as a clean run — the kill is narrated and recovered, the numbers do
+not move:
+
+| span (m) | 46 | 52 | 58 | 58 | 64 | 64 |
+|---|---|---|---|---|---|---|
+| clean L/D | 18.3 | 17.7 | 16.6 | 18.6 | 17.3 | 19.7 |
+| sabotaged L/D | 18.3 | 17.7 | 16.6 | 18.6 | 17.3 | 19.7 |
+
+Winner identical (span 64 m, L/D 19.7); `worker.killed`/`worker.reprovisioned` = 1
+in the sabotaged run, 0 clean. Arm the marker during the screening phase so slot
+3 catches it as the finalist wave begins.
+
+Captures in `demo-output/acts/act1/`: `act1_01_launched` (badge, landscape,
+winner ringed, result card), `act1_02_conversation` (Chief Researcher
+method-memo), `act1_03_report` (figures-first report + fidelity chip), `act1_04_present`
+(presentation mode), `act1_05_worker_kill` (kill + reprovision on the wing).
 
 ---
 
@@ -80,26 +105,48 @@ run silently.
 | Researcher memo | CHIEF RESEARCHER: single fixed body, steady RANS — measurement not optimisation, mesh-quality-gated → "On it." | absent | still frame |
 | Mesh + gates | mesh built; non-orthogonality / skewness reported against the acceptance band | gate not shown | check monitor line |
 | Cp-painted geometry | the body painted by solved surface pressure (coolwarm), legend in Pa | flat / unpainted | `field.ready` didn't fire — check solve |
+| Cache reuse (warm) | on a pre-warmed body: "Snapped mesh found in cache — reusing it, skipping the mesh build" → checkMesh still reports the real gate numbers | re-meshes cold | see pre-warm below |
 | Envelope + chip | drag as value ± CI (95%); **VALIDATED** where a published reference grades it, else **SOLVER-BACKED** | envelope missing | inspect verdict |
 | Certificate | sealed-certificate PDF link atop the report | absent | `/api/certificate/geometry-study` |
-| **Worker-kill beat** | mid-sweep run `scripts/kill_worker.sh <n>` → transcript: "Worker N stopped responding mid-sweep — reprovisioning…" → `worker.killed` then `worker.reprovisioned` → mission completes with the **same numbers** | no recovery | see matched-numbers proof below |
 
-**Worker-kill matched-numbers (proven, real OpenFOAM cylinder sweep):** clean vs
-sabotaged (killed slot 3) — per-design Cd **identical**:
+The worker-kill resilience beat **moved to Act 1** (it now rides the airliner
+wing — no toy bodies on camera). The cylinder machinery stays in the repo for
+the CI tests only.
 
-| D (m) | 0.7 | 0.8 | 0.9 | 1.0 | 1.1 | 1.2 | 1.3 | 1.4 |
-|---|---|---|---|---|---|---|---|---|
-| clean | 2.549 | 2.393 | 2.266 | 2.161 | 2.071 | 1.994 | 1.927 | 1.868 |
-| sabotaged | 2.549 | 2.393 | 2.266 | 2.161 | 2.071 | 1.994 | 1.927 | 1.868 |
+**Mesh cache (implemented, measured).** The snapped mesh is cached per body
+(`~/certonomous-runs/.mesh-cache/<body>`) after the first cold run and reused on
+every later run of that body, keyed by name. Only the mesh topology (the PATH)
+is cached — the flow is solved live every time. Measured on motorBike (353,578
+cells):
 
-Winner identical (D = 1.4); `worker.killed`/`worker.reprovisioned` = 1 in the
-sabotaged run, 0 clean.
+| stage | cold | warm |
+|---|---|---|
+| surfaceFeatureExtract | 3 s | skipped |
+| blockMesh | 1 s | skipped |
+| snappyHexMesh | **374 s** | **skipped (cache)** |
+| checkMesh gate | ~few s | ~few s (real numbers: non-ortho 65, skew 8.94) |
+| potentialFoam | ~9 s | 3–9 s |
+| simpleFoam (300 iters) | solve-bound | solve-bound |
 
-**Timing / pre-warm:** a full external solve is the long pole (B-52 ≈ 8 min,
-motorBike ≈ 18 min from a cold mesh). **Pre-warm before recording:** run the Act 2
-body once during preflight so `snappyHexMesh` is cached; the on-camera run then
-re-solves on the cached mesh, fitting the ~2 min slot. The worker-kill beat rides
-the fast cylinder sweep (seconds), so it can run live without pre-warm.
+Pre-warming removes the ~6-min mesh from the on-camera run. The steady solve is
+then the only pole: **300 iterations serial ≈ 4.5 min on a quiet 14-core box**
+(the motorBike force is settled by ~iteration 120, so 300 is a converged, honest
+window — the run now honours the iteration count it reports).
+
+**Fitting the ~2-min slot — parallel solve.** Set `CERTONOMOUS_SOLVE_RANKS=6` on
+the server (the motorBike tutorial ships a 6-way decomposition) to run the warm
+steady solve in parallel via `mpirun`; it decomposes, solves, and reconstructs,
+same mesh and same numbers, and brings the 300-iteration solve toward the ~2-min
+slot on a quiet machine. Default is serial (the fully-tested path); the parallel
+path falls back to serial on any failure. NOTE: on the build night the shared
+box was saturated by a concurrent compute agent (load ~13/14), so a clean
+end-to-end warm *parallel* wall-time could not be measured — the parallel stages
+were each validated individually (decomposePar 3 s, mpirun potentialFoam 9 s,
+mpirun simpleFoam iterating, reconstructPar). Re-measure on the quiet demo box.
+
+Captures in `demo-output/acts/act2/`: `act2_01_mesh_gate` (OPENFOAM badge,
+surface rendered, measurement-not-optimisation memo, mesh-quality gate, compute
+audit); painted-field + drag capture added from the completed warm run.
 
 ---
 
@@ -129,13 +176,14 @@ steady internal-flow solve is the marked next step (not run) — say so on camer
 
 | Act | Target | Measured (compute) | On-camera driver | Note |
 |---|---|---|---|---|
-| 1 — airliner | ~90 s | 8.6 s | narration read-out | conceptual sizing, no solve |
-| 2 — real CFD | ~2 min | solve-bound (B-52 ≈ 8 min cold) | the real solve | **pre-warm the mesh cache**; worker-kill beat is seconds |
+| 1 — airliner | ~90 s | ~10 s (6 real VSPAERO polars) | narration read-out | screen conceptual, finalists solved; worker-kill on the wing |
+| 2 — real CFD | ~2 min | mesh cached (−374 s); solve ≈ 4.5 min serial / ~2 min at 6 ranks | the real solve | **pre-warm the cache**; `CERTONOMOUS_SOLVE_RANKS=6` for the slot |
 | 3 — valve | ~90 s | 0.4 s | narration read-out | reduced-order screen, real solve is next step |
 
 Acts 1 and 3 are compute-light — their length on camera is the paced transcript,
-so they comfortably hit ~90 s. Act 2 is the only solve-bound act; pre-warming is
-what makes it fit the slot.
+so they comfortably hit ~90 s. Act 2 is the only solve-bound act; pre-warming
+removes the mesh and a parallel solve brings the remaining steady solve into the
+slot on a quiet machine.
 
 ---
 

@@ -210,6 +210,7 @@ def trust(*, relative_error: float | None = None, converged: bool = True,
 def uncertainty_channels(*, input_2sigma: float | None = None,
                          numerical: float | None = None,
                          model: float | None = None,
+                         input_note: str = "",
                          numerical_note: str = "", model_note: str = "") -> dict:
     """The three V&V-20 uncertainty channels, reported separately.
 
@@ -218,6 +219,9 @@ def uncertainty_channels(*, input_2sigma: float | None = None,
     structured UQ rather than a single fudge factor.  ``input_2sigma`` is the
     aleatory spread propagated from input uncertainty; ``numerical`` is the
     discretization component; ``model`` is turbulence/closure model-form error.
+    Each channel always renders with a value or a crisp measured-status clause;
+    the ``*_note`` overrides carry the act-specific reason so no channel is left
+    on a generic placeholder (ASME V&V 20 asks for all three, named).
     """
     def channel(name, value, note):
         if value is None:
@@ -227,7 +231,7 @@ def uncertainty_channels(*, input_2sigma: float | None = None,
     return {
         "channels": [
             channel("input", input_2sigma,
-                    "propagated from the stated input uncertainty (aleatory)"),
+                    input_note or "propagated from the stated input uncertainty (aleatory)"),
             channel("numerical", numerical,
                     numerical_note or "discretization error — needs a grid-refinement study"),
             channel("model", model,

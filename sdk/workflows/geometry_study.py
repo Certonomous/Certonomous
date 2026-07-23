@@ -276,6 +276,11 @@ def main(request: str | None = None, params: dict | None = None,
                                else f"{FOAM_TUTORIALS}/resources/geometry/motorBike.obj.gz")
             wsl_source = geometry_source.replace("C:", "/mnt/c").replace("\\", "/")
             report = engineer.intake_geometry(wsl_source, surface)
+            # Run the iteration count the plan and report actually claim — the
+            # tutorial ships a longer endTime, and the force is settled well
+            # inside this window, so aligning them keeps the report truthful and
+            # the warm on-camera solve inside its slot.
+            engineer.set_iteration_count(iterations)
         else:
             report = _build_unfamiliar_case(engineer, script, roster, surface,
                                             params, iterations, emit)
@@ -288,17 +293,26 @@ def main(request: str | None = None, params: dict | None = None,
             "• Selected: k-omega SST, steady RANS — standard closure for "
             "attached external flow, solved on a quality-gated mesh.")
 
-        for step, command, note in (
-            ("surfaceFeatureExtract", "surfaceFeatureExtract",
-             "extracting the feature edges the mesher snaps to"),
-            ("blockMesh", "blockMesh", "building the background mesh"),
-            ("snappyHexMesh", "snappyHexMesh -overwrite",
-             "snapping the mesh to the body — the long stage"),
-        ):
-            roster.set(CHIEF_ENGINEER, note, "working")
-            result = engineer._run_step(step, command, 5400)
-            ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-            script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
+        warm = engineer.restore_cached_mesh(label)
+        if warm:
+            roster.set(CHIEF_ENGINEER, "reusing the cached snapped mesh", "working")
+            script.engineer(
+                "• Snapped mesh found in cache — reusing it, skipping the mesh build. "
+                "• The mesh is the pinned path; the solve still runs live on it.")
+        else:
+            for step, command, note in (
+                ("surfaceFeatureExtract", "surfaceFeatureExtract",
+                 "extracting the feature edges the mesher snaps to"),
+                ("blockMesh", "blockMesh", "building the background mesh"),
+                ("snappyHexMesh", "snappyHexMesh -overwrite",
+                 "snapping the mesh to the body — the long stage"),
+            ):
+                roster.set(CHIEF_ENGINEER, note, "working")
+                result = engineer._run_step(step, command, 5400)
+                ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
+                script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
+            # Cache the freshly snapped mesh so the next run of this body is warm.
+            engineer.save_mesh_to_cache(label)
 
         if familiar:
             # The tutorial case keeps its fields in 0.orig; a generated case
@@ -324,15 +338,24 @@ def main(request: str | None = None, params: dict | None = None,
                "• Skewness inside guidance as well."))
         roster.idle(CHIEF_RESEARCHER)
 
-        for step, command, note in (
+        ranks = engineer.solve_ranks()
+        parallel = ranks > 1 and engineer.decompose_for_parallel(ranks)
+        if parallel:
+            script.engineer(
+                f"• Case decomposed into {ranks} subdomains — the steady solve "
+                f"runs in parallel across the fleet, same mesh and same numbers.")
+        for step, base, note in (
             ("potentialFoam", "potentialFoam -writephi",
              "initialising the velocity field so the steady solver starts sane"),
             ("simpleFoam", "simpleFoam", f"steady solve, {iterations} iterations"),
         ):
+            command = f"mpirun -np {ranks} {base} -parallel" if parallel else base
             roster.set(CHIEF_ENGINEER, note, "working")
             result = engineer._run_step(step, command, 7200)
             ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
             script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
+        if parallel:
+            engineer.reconstruct_latest()
     except Exception as exc:
         roster.set(CHIEF_ENGINEER, "halted", "blocked")
         # A failed stage raises with the raw solver log tail attached, for the
@@ -359,6 +382,16 @@ def main(request: str | None = None, params: dict | None = None,
         RUN_PREFIX[:-1] if RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
         field="p", name=label)
     if painted:
+        # The field URL is /api/field/geometry-study/<file>, served from the
+        # beat's output root — so the painted JSON has to live directly under
+        # `out`, not in the per-case subdirectory the solve wrote it to (the same
+        # copy-to-out step the envelope plots already take).
+        served = out / Path(painted).name
+        try:
+            served.write_bytes(Path(painted).read_bytes())
+            painted = str(served)
+        except OSError:
+            pass
         announce_field(emit, "geometry-study", painted,
                        f"{shown} — surface pressure from the solve")
         script.engineer(
@@ -419,7 +452,12 @@ def main(request: str | None = None, params: dict | None = None,
                         in_validated_regime=gate_ok, calibrated=skew_ok, why=why)
     channels = uncertainty_channels(
         input_2sigma=2 * drag['sigma'], numerical=None, model=None,
-        numerical_note="one mesh only — discretization error not separated",
+        input_note="the ± band is the statistical spread of the solved force "
+                   "over the averaging window — settled-state scatter; "
+                   "freestream speed and fluid properties are taken as "
+                   "specified exactly",
+        numerical_note="one mesh only — discretization error not separated; a "
+                       "grid-refinement study is the marked next step",
         model_note="kOmegaSST closure error not estimated for this body")
     if emit:
         emit("result.verdict", {"quantity": "Drag coefficient",
