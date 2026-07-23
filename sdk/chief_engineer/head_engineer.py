@@ -37,6 +37,10 @@ from typing import Any, Callable, Sequence
 
 WSL = ["wsl", "-d", "Ubuntu", "-u", "foam", "--"]
 RUN_ROOT = "~/certonomous-runs"
+# The snapped mesh from a cold run is cached here, keyed by body, so a warm run
+# reuses it and skips the long snappyHexMesh stage. The cache holds the PATH
+# (mesh topology), never the RESULTS — every warm run still solves the flow live.
+MESH_CACHE_ROOT = f"{RUN_ROOT}/.mesh-cache"
 # Literal install path: environment-variable expansion of FOAM_TUTORIALS
 # through the Windows->WSL->bash quoting stack proved unreliable, and the
 # packaged install location is version-stable.  Override via env if needed.
@@ -344,6 +348,110 @@ class HeadEngineer:
             raise RuntimeError(
                 f"case staging from {template_wsl_path!r} failed: "
                 f"{(staged.stderr or staged.stdout).strip()[:300]}")
+
+    def _mesh_cache_dir(self, cache_key: str) -> str:
+        # A filesystem-safe key so a body name never escapes the cache root.
+        safe = re.sub(r"[^A-Za-z0-9._-]", "_", cache_key)
+        return f"{MESH_CACHE_ROOT}/{safe}"
+
+    def cached_mesh_available(self, cache_key: str) -> bool:
+        """True when a snapped mesh for this body is already cached (warm run)."""
+        if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
+            return False
+        cache = self._mesh_cache_dir(cache_key)
+        probe = self._wsl(
+            f"test -f {cache}/polyMesh/points && test -f {cache}/polyMesh/owner "
+            f"&& echo CACHED", timeout=120)
+        return "CACHED" in probe.stdout
+
+    def restore_cached_mesh(self, cache_key: str) -> bool:
+        """Copy the cached snapped mesh into this case, skipping the mesh build.
+
+        Returns True when a warm mesh was restored; False when none is cached and
+        the case must mesh cold. Only the mesh topology is reused — the fields and
+        the solve are untouched, so every warm run still produces live numbers.
+        """
+        if not self.cached_mesh_available(cache_key):
+            return False
+        cache = self._mesh_cache_dir(cache_key)
+        restored = self._wsl(
+            f"mkdir -p {self.remote_case}/constant && "
+            f"rm -rf {self.remote_case}/constant/polyMesh && "
+            f"cp -r {cache}/polyMesh {self.remote_case}/constant/polyMesh && "
+            f"test -f {self.remote_case}/constant/polyMesh/points && echo RESTORED",
+            timeout=300)
+        return "RESTORED" in restored.stdout
+
+    def save_mesh_to_cache(self, cache_key: str) -> None:
+        """Cache this case's snapped mesh so the next run of this body is warm."""
+        if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
+            return
+        cache = self._mesh_cache_dir(cache_key)
+        self._wsl(
+            f"test -f {self.remote_case}/constant/polyMesh/points && "
+            f"mkdir -p {cache} && rm -rf {cache}/polyMesh && "
+            f"cp -r {self.remote_case}/constant/polyMesh {cache}/polyMesh || true",
+            timeout=300)
+
+    def solve_ranks(self) -> int:
+        """How many MPI ranks the steady solve should use.
+
+        Default 1 (serial — the fully-tested path). Set CERTONOMOUS_SOLVE_RANKS
+        to the tutorial's native decomposition (the motorBike case ships a 6-way
+        split) to run the on-camera warm solve in parallel and fit its slot on a
+        quiet machine. Reused meshes and live numbers are unaffected either way.
+        """
+        raw = os.environ.get("CERTONOMOUS_SOLVE_RANKS", "1")
+        try:
+            return max(1, int(raw))
+        except (TypeError, ValueError):
+            return 1
+
+    def decompose_for_parallel(self, ranks: int) -> bool:
+        """Split the case into ``ranks`` subdomains for a parallel solve.
+
+        Uses the case's own decomposeParDict.<ranks> when present (the tutorial
+        ships one), else a scotch decomposition it writes. Best-effort: returns
+        False so the caller solves serially if decomposition is unavailable or
+        fails — the mission never stalls on the parallel path.
+        """
+        if ranks <= 1:
+            return False
+        dict_setup = (
+            f"cd {self.remote_case} && "
+            f"(test -f system/decomposeParDict.{ranks} && "
+            f"cp system/decomposeParDict.{ranks} system/decomposeParDict || "
+            f"printf 'FoamFile{{version 2.0;format ascii;class dictionary;"
+            f"object decomposeParDict;}}\\nnumberOfSubdomains {ranks};\\n"
+            f"method scotch;\\n' > system/decomposeParDict) && echo DICT")
+        setup = self._wsl(dict_setup, timeout=120)
+        if "DICT" not in setup.stdout:
+            return False
+        result = self._run_step("decomposePar", "decomposePar -force", 600)
+        return result.status == 0
+
+    def reconstruct_latest(self) -> None:
+        """Merge the decomposed solution back so postprocessing reads it serially."""
+        self._run_step("reconstructPar", "reconstructPar -latestTime", 1200)
+
+    def set_iteration_count(self, iterations: int) -> None:
+        """Set the steady solver's endTime so the run matches its stated length.
+
+        A staged tutorial ships its own endTime; when the workflow promises N
+        iterations the controlDict must say so too, or the report describes a run
+        that never happened. Best-effort: a failure here leaves the template's
+        own endTime in place rather than stopping the study.
+        """
+        try:
+            n = int(iterations)
+        except (TypeError, ValueError):
+            return
+        if n <= 0:
+            return
+        self._wsl(
+            f"cd {self.remote_case} && openfoam2606 foamDictionary "
+            f"-entry endTime -set {n} system/controlDict >/dev/null 2>&1 || true",
+            timeout=120)
 
     def intake_geometry(self, geometry_wsl_path: str, target_name: str) -> dict[str, Any]:
         """Place the surface in constant/triSurface and surface-check it."""

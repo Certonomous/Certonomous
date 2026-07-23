@@ -243,6 +243,8 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Widest admissible orifice — exactly what orifice physics predicts.")
     channels = uncertainty_channels(
         input_2sigma=best["band"], numerical=None, model=None,
+        input_note="2-sigma Monte-Carlo envelope propagated from the spread in "
+                   "phase flow-rate and the orifice discharge coefficient",
         numerical_note="the cycle is sampled at three phase points — between-phase "
                        "structure is not resolved",
         model_note="reduced-order orifice model, not a solved flow; phase-interaction "

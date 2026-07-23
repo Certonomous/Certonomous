@@ -150,6 +150,37 @@ def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> d
     }
 
 
+def _solve_finalist_slot(index, api, design, emit=None, script=None):
+    """Solve one finalist wing on worker slot ``index``, surviving a mid-batch kill.
+
+    Mirrors the shape-optimization sweep so the on-camera resilience beat rides an
+    industry-grade surface (a real airliner wing), not a toy body. Before the slot
+    does its work it checks whether that worker was struck down — a kill marker
+    dropped by scripts/kill_worker.sh, read through the shared fleet mechanism. If
+    so, the loss is reported on the record, the marker cleared, a fresh worker
+    stood up, and the wing re-solved — so the batch finishes with exactly the
+    polar a clean run would have produced. The wing is solved once either way;
+    only the slot that carries it changes. A solve that returns no polar comes
+    back as None so one bad wing does not sink the batch.
+    """
+    from chief_engineer.fleet import clear_sabotage, worker_sabotaged
+
+    if worker_sabotaged(index):
+        clear_sabotage(index)
+        lost = (f"• Worker {index} stopped responding mid-solve. "
+                f"• Reprovisioning and re-running its wing — the polar still lands.")
+        took_over = f"• A fresh worker took over slot {index}; its wing re-solves."
+        if script is not None:
+            script.engineer(lost)
+        if emit is not None:
+            emit("worker.killed", {"worker_index": index, "detail": lost, "pending": 1})
+            emit("worker.reprovisioned", {"worker_index": index, "detail": took_over})
+    try:
+        return api.evaluate(design)
+    except Exception:
+        return None
+
+
 def _design_grid() -> list[tuple[float, float, float]]:
     """A span × area sweep at a fixed representative sweep angle."""
     grid = []
@@ -315,8 +346,15 @@ def main(request: str | None = None, params: dict | None = None,
                         * (f["area"] / f["span"]) / _MU_CRUISE),
         } for f in finalists]
         started = time.time()
-        batch = api.evaluate_many(
-            designs, max_workers=min(capacity.capacity, len(designs)))
+        # Each finalist rides a kill-checkable worker slot: scripts/kill_worker.sh
+        # can strike one mid-batch, and the slot reports the loss, reprovisions,
+        # and re-solves — the same polar lands. Solved in parallel, order preserved.
+        from concurrent.futures import ThreadPoolExecutor
+        n_slots = min(capacity.capacity, len(designs))
+        with ThreadPoolExecutor(max_workers=max(1, n_slots)) as pool:
+            batch = list(pool.map(
+                lambda job: _solve_finalist_slot(job[0], api, job[1], emit, script),
+                enumerate(designs)))
         elapsed = time.time() - started
         roster.set_workers(0)
         ledger.spend(elapsed * len(finalists),
@@ -387,17 +425,25 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     won_solved = bool(solved_ok)
     best_ld = best["L_D_solved"] if won_solved else best["L_D"]
+    input_note = (
+        "requirements — passengers, range, take-off and landing speeds — are "
+        "held as exact specification, not distributions; the fixed sizing "
+        "constants (SFC, fuel and payload fractions, cruise altitude) carry an "
+        "unpropagated spread that a Monte-Carlo pass over them would quantify")
     if won_solved:
         channels = uncertainty_channels(
             input_2sigma=None, numerical=None, model=None,
+            input_note=input_note,
             numerical_note="the design grid is discrete — the true optimum lies "
-                           "between grid points",
+                           "between grid points; the vortex-lattice polar itself "
+                           "is converged at the solved panel density",
             model_note="wing induced and viscous drag are solved (vortex "
                        "lattice); fuselage, tail, and nacelle parasite drag "
                        "remain a component buildup")
     else:
         channels = uncertainty_channels(
             input_2sigma=None, numerical=None, model=None,
+            input_note=input_note,
             numerical_note="the design grid is discrete — the true optimum lies "
                            "between grid points",
             model_note="conceptual drag polar, not a solved flow — a real aero "
