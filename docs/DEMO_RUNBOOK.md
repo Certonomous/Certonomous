@@ -10,6 +10,7 @@ never. Human/method language on camera — no file paths, no tool or vendor name
 cd sdk
 $env:CHIEF_ADAPTER = "openfoam"
 $env:OPENFOAM_RUN_PREFIX = "wsl -d Ubuntu -- openfoam2606"
+$env:OPENVSP_RUN_PREFIX = "wsl -d Ubuntu --"
 python -m chief_engineer.server
 ```
 
@@ -26,6 +27,7 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | Check | Command / action | Expect |
 |---|---|---|
 | OpenFOAM reachable | `wsl -d Ubuntu -u foam -- openfoam2606 simpleFoam -help \| head -3` | usage banner |
+| VSPAERO reachable | `wsl -d Ubuntu -- vspaero \| head -1` | version banner (v7.x) |
 | No stray load | `wsl -d Ubuntu -u foam -- bash -c "pgrep -c -f '[c]ertonomous' \|\| echo 0"` | 0 |
 | Ports clear | `netstat -ano \| grep :8765` | nothing listening before you start |
 | Tests green | `cd sdk && python -m unittest discover tests` | 127 OK |
@@ -49,7 +51,8 @@ hero take — the `PRESENT` button, the `P` key, or launch with `?present=1`
 | Researcher memo | CHIEF RESEARCHER: classification (2-parameter, smooth, steady) → strategy (ensemble; "the gradient is cheap and admissible") → rejected alternatives → admissibility → CHIEF ENGINEER "On it." | memo generic/absent | still frame `act1_airliner.png` |
 | Compute audit | telemetry stack: `CAPACITY AVAILABLE · N requested / capacity M · cores free · memory · jobs · load` | panel missing | `act1_airliner.png` (panel bottom-left) |
 | Design-space landscape | viewport: solved points coloured by objective, infeasible greyed (stall/range), optimum ringed, fog thinning | landscape absent | `act1_airliner.png` |
-| Result + envelope | EVIDENCE: best feasible **L/D 18.4** at span 64 m, AR 13.7; envelope stated | number differs | expected 18.4 ± band |
+| Finalist solves | top 6 feasible wings promoted to **real vortex-lattice solves in parallel** (workers visible); per-finalist solved lines; winner picked on solved numbers | finalists absent → solver not reachable, check `OPENVSP_RUN_PREFIX` | screen-only path still completes honestly |
+| Result + envelope | EVIDENCE: best feasible **L/D 19.7 (solved)** at span 64 m, AR 13.7; screen said 18.4, same winner | number differs | expected ~19.7 solved / 18.4 screened |
 | Honesty cap | **TREND ONLY** — conceptual sizing model, not a solved flow; model-form flagged | tier over-claims | inspect verdict reason |
 | Report + certificate | REPORT tab: abstract/methods/results (TREND ONLY badge)/uncertainty/future-work + sealed-certificate link | report empty | `act1_airliner_report.png` |
 | Autonomy counter | masthead `HUMAN TOUCHPOINTS · 1` | >1 with no steer | reset page |

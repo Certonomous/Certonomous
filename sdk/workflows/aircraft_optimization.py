@@ -6,21 +6,25 @@ for the highest cruise L/D that still meets every requirement. Designs that miss
 a requirement are shown as infeasible, not hidden; the winner is the best L/D
 that clears them all.
 
-This is a **conceptual-design sizing model**, not a CFD solve: a textbook drag
-polar (induced + parasite drag over aspect ratio and sweep), a Breguet range
-check, and stall-speed constraints for take-off and landing. It is honest about
-that — the verdict never exceeds TREND ONLY, and the model-form uncertainty
-channel says a real aero solve (OpenVSP/VSPAERO or RANS) would be needed to
-validate a magnitude. The value here is the design-space reasoning, transparent
-and requirement-driven, not a validated coefficient.
+The search runs in two passes. A **conceptual sizing screen** — a textbook drag
+polar, a Breguet range check, and stall-speed constraints — maps the whole
+grid in milliseconds. Then, when the vortex-lattice solver is reachable, the
+**top finalists get real aero solves**: each candidate wing is built as actual
+parametric geometry and solved for its polar, the cruise point read off the
+solved curve, and the winner picked on solved numbers. The fuselage and tail
+stay a parasite-drag buildup — the verdict says exactly which parts were
+solved and which were modelled, and the tier is capped accordingly.
 """
 
 from __future__ import annotations
 
 import math
 import re
+import shutil
+import time
 
 from . import OUT_ROOT, make_transcript
+from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
@@ -41,6 +45,13 @@ _FUEL_FRACTION = 0.32    # usable fuel as a fraction of MTOW
 _PAYLOAD_FRACTION = 0.22 # payload as a fraction of MTOW (sets MTOW from pax)
 _KG_PER_PAX = 100.0      # passenger + baggage
 _SPAN_STRUCTURAL_LIMIT = 68.0   # m — beyond this the wing box is impractical
+_MU_CRUISE = 1.43e-5     # dynamic viscosity at ~11 km, Pa·s
+# Parasite drag of everything that is NOT the wing (fuselage, tail, nacelles,
+# interference) — the component-buildup share left when the wing's own viscous
+# drag comes from the solver instead of the polar constant.
+_CD0_NONWING = 0.013
+_TAPER = 0.3             # planform taper ratio for every candidate wing
+_N_FINALISTS = 6         # feasible designs promoted to real solves
 
 
 def parse_requirements(text: str) -> dict:
@@ -131,6 +142,7 @@ def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> d
     return {
         "span": round(span, 3), "area": round(area, 2), "sweep_deg": round(sweep_deg, 2),
         "aspect_ratio": round(aspect_ratio, 3),
+        "cl_cruise": round(cl_cruise, 4),
         "L_D": round(l_over_d, 4), "mtow_kg": round(mtow, 0),
         "approach_speed": round(approach_speed, 2), "takeoff_speed": round(takeoff_speed, 2),
         "range_km": round(breguet_range_km, 0),
@@ -203,16 +215,37 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("audit.completed", capacity.panel())
     script.engineer(capacity.headline(), panel=capacity.panel())
-    script.engineer(
-        f"Plan: evaluate {len(grid)} wings across span and area at a fixed 27.5° "
-        f"sweep — each one sized against every requirement, its cruise L/D from the "
-        f"drag polar, its range from Breguet. The infeasible ones stay on the plot "
+
+    solver_live = vspaero.available()
+    if solver_live and emit:
+        # The plan just committed to a solver — this is the moment the badge
+        # is earned, never before.
+        emit("solver.selected", {
+            "solver": "VSPAERO", "method": "vortex lattice",
+            "basis": "plan commits the finalist wings to real aero solves"})
+    plan_line = (
+        f"Plan: screen {len(grid)} wings across span and area at a fixed 27.5° "
+        f"sweep — each sized against every requirement, cruise L/D from the "
+        f"drag polar, range from Breguet. The infeasible ones stay on the plot "
         f"so the trade is visible, not hidden.")
-    script.numericist(
-        f"State the fidelity up front: this is conceptual sizing, {per('rom')} in "
-        f"spirit — a drag polar and weight fractions, not a solved flow. It ranks "
-        f"designs and finds the trade; it does not validate a number. A real aero "
-        f"solve is what would move this off a trend.")
+    if solver_live:
+        plan_line += (
+            f" The top {_N_FINALISTS} feasible finalists then get real "
+            f"vortex-lattice solves — actual parametric geometry, solved polars, "
+            f"the cruise point read off the solved curve.")
+    script.engineer(plan_line)
+    if solver_live:
+        script.numericist(
+            "Fidelity, stated up front: the screen is conceptual sizing; the "
+            "finalists are solved — induced drag and wing viscous drag from the "
+            "vortex lattice. The fuselage and tail stay a parasite-drag buildup, "
+            "and that split is exactly what the verdict will say.")
+    else:
+        script.numericist(
+            f"State the fidelity up front: this is conceptual sizing, {per('rom')} in "
+            f"spirit — a drag polar and weight fractions, not a solved flow. It ranks "
+            f"designs and finds the trade; it does not validate a number. A real aero "
+            f"solve is what would move this off a trend.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
@@ -225,6 +258,13 @@ def main(request: str | None = None, params: dict | None = None,
         if emit:
             emit("landscape.point", {"design": {"span": r["span"], "wing_area": r["area"]},
                                      "metrics": {"L_D": r["L_D"]}, "feasible": r["feasible"]})
+            # The candidate under evaluation appears in the viewport as the
+            # parametric wing it is — span, area, and sweep visibly differing.
+            emit("geometry.ready", {
+                "url": (f"/api/geometry?span={r['span']:g}&area={r['area']:g}"
+                        f"&sweep={r['sweep_deg']:g}&taper={_TAPER:g}"),
+                "label": f"candidate wing — span {r['span']:.0f} m, "
+                         f"area {r['area']:.0f} m²"})
     ledger.spend(len(grid) * 0.02, f"{len(grid)} conceptual sizing evaluations")
     roster.set_workers(0)
 
@@ -252,78 +292,222 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         f"{len(feasible)} of {len(results)} wings clear every requirement; "
         f"{n_infeasible} miss on low-speed or range and are shown as infeasible. "
-        f"The best feasible design: span {best['span']:.0f} m, area {best['area']:.0f} m², "
+        f"Best screened design: span {best['span']:.0f} m, area {best['area']:.0f} m², "
         f"aspect ratio {best['aspect_ratio']:.1f} → L/D {best['L_D']:.1f}, "
         f"MTOW {best['mtow_kg']/1000:.0f} t, range {best['range_km']:.0f} km, "
         f"approach {best['approach_speed']:.0f} m/s.")
 
+    # ---- real solves on the finalists --------------------------------------
+    solved_ok: list[dict] = []
+    if solver_live:
+        finalists = sorted(feasible, key=lambda r: r["L_D"],
+                           reverse=True)[:_N_FINALISTS]
+        api = vspaero.VspAeroWingApi(out / "vspaero")
+        roster.set(CHIEF_ENGINEER, "solving the finalist wings", "working")
+        roster.set_workers(len(finalists),
+                           "vortex-lattice solves on finalist wings")
+        script.engineer(
+            f"Promoting the top {len(finalists)} feasible wings to real solves — "
+            f"each is built as actual geometry and its polar solved in parallel.")
+        designs = [{
+            "span": f["span"], "area": f["area"], "sweep": f["sweep_deg"],
+            "taper": _TAPER, "cl_target": f["cl_cruise"],
+            "re_cref": (_RHO_CRUISE * _V_CRUISE
+                        * (f["area"] / f["span"]) / _MU_CRUISE),
+        } for f in finalists]
+        started = time.time()
+        batch = api.evaluate_many(
+            designs, max_workers=min(capacity.capacity, len(designs)))
+        elapsed = time.time() - started
+        roster.set_workers(0)
+        ledger.spend(elapsed * len(finalists),
+                     f"{len(finalists)} vortex-lattice wing solves")
+
+        for f, result in zip(finalists, batch):
+            if not result:
+                script.engineer(
+                    f"Finalist span {f['span']:.0f} m did not return a polar — "
+                    f"it stays at its screened value and is marked unsolved.")
+                continue
+            matched = result["matched"]
+            cd_total = _CD0_NONWING + matched["cdo_wing"] + matched["cdi"]
+            f["L_D_solved"] = round(f["cl_cruise"] / cd_total, 4)
+            f["alpha_solved"] = round(matched["alpha"], 3)
+            f["cdi_solved"] = round(matched["cdi"], 6)
+            f["cdo_wing_solved"] = round(matched["cdo_wing"], 6)
+            f["extrapolated"] = bool(matched["extrapolated"])
+            solved_ok.append(f)
+            surface = out / f"wing-span{f['span']:g}-area{f['area']:g}.stl"
+            try:
+                shutil.copy(result["stl_path"], surface)
+            except OSError:
+                surface = None
+            if emit:
+                emit("vspaero.polar", {
+                    "design": {"span": f["span"], "wing_area": f["area"],
+                               "sweep": f["sweep_deg"]},
+                    "polar": result["polar"], "matched": matched,
+                    "L_D_total": f["L_D_solved"],
+                    "solver": result.get("solver_version", "VSPAERO")})
+                emit("landscape.point", {
+                    "design": {"span": f["span"], "wing_area": f["area"]},
+                    "metrics": {"L_D": f["L_D_solved"]},
+                    "feasible": True, "solved": True})
+                if surface:
+                    emit("geometry.ready", {
+                        "url": f"/api/surface/aircraft-optimization/{surface.name}",
+                        "label": f"solved finalist — span {f['span']:.0f} m, "
+                                 f"area {f['area']:.0f} m²"})
+            script.engineer(
+                f"Solved: span {f['span']:.0f} m — cruise alpha "
+                f"{f['alpha_solved']:.1f}°, induced drag {f['cdi_solved']:.4f}, "
+                f"wing viscous {f['cdo_wing_solved']:.4f} → whole-aircraft "
+                f"L/D {f['L_D_solved']:.1f} with the stated non-wing buildup.")
+
+        if solved_ok:
+            best = max(solved_ok, key=lambda r: r["L_D_solved"])
+            script.engineer(
+                f"Winner on solved numbers: span {best['span']:.0f} m, area "
+                f"{best['area']:.0f} m² → L/D {best['L_D_solved']:.1f}. The "
+                f"screen ranked it {'first as well' if best is max(feasible, key=lambda r: r['L_D']) else 'differently — the solver moved the pick'}.")
+            winner_surface = out / f"wing-span{best['span']:g}-area{best['area']:g}.stl"
+            if emit and winner_surface.exists():
+                emit("geometry.ready", {
+                    "url": f"/api/surface/aircraft-optimization/{winner_surface.name}",
+                    "label": f"winning wing — span {best['span']:.0f} m, "
+                             f"solved L/D {best['L_D_solved']:.1f}"})
+        else:
+            script.engineer(
+                "No finalist returned a usable polar — the result below stands "
+                "on the conceptual screen alone, and says so.")
+
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
-    channels = uncertainty_channels(
-        input_2sigma=None, numerical=None, model=None,
-        numerical_note="the design grid is discrete — the true optimum lies between grid points",
-        model_note="conceptual drag polar, not a solved flow — a real aero solve would set the magnitude")
+    won_solved = bool(solved_ok)
+    best_ld = best["L_D_solved"] if won_solved else best["L_D"]
+    if won_solved:
+        channels = uncertainty_channels(
+            input_2sigma=None, numerical=None, model=None,
+            numerical_note="the design grid is discrete — the true optimum lies "
+                           "between grid points",
+            model_note="wing induced and viscous drag are solved (vortex "
+                       "lattice); fuselage, tail, and nacelle parasite drag "
+                       "remain a component buildup")
+    else:
+        channels = uncertainty_channels(
+            input_2sigma=None, numerical=None, model=None,
+            numerical_note="the design grid is discrete — the true optimum lies "
+                           "between grid points",
+            model_note="conceptual drag polar, not a solved flow — a real aero "
+                       "solve would set the magnitude")
     if emit:
         emit("uncertainty.channels", channels)
-    script.researcher(
-        f"Read this as a design-space result, not a validated coefficient. The "
-        f"ranking is trustworthy — higher aspect ratio buys L/D until the landing "
-        f"speed stops it, and that trade is physical. The absolute L/D {best['L_D']:.1f} "
-        f"is a conceptual estimate; {per('vv20')} would want a solved flow and a "
-        f"comparison before anyone flies on the number.")
-    verdict = trust(relative_error=0.0, converged=True, in_validated_regime=False,
-                    calibrated=True,
-                    why="conceptual sizing model, not a validated aero solve — the trade is real, the magnitude is a trend")
+    if won_solved:
+        script.researcher(
+            f"Read the split honestly: the wing is solved — its induced drag and "
+            f"its viscous drag came off a real polar at the cruise point — and "
+            f"the rest of the aircraft is a stated buildup. The trade is now "
+            f"solver-backed; the whole-aircraft magnitude still leans on the "
+            f"buildup, so {per('vv20')} keeps the tier where it is until a "
+            f"full-configuration solve and a comparison exist.")
+        verdict = trust(
+            relative_error=0.0, converged=True, in_validated_regime=False,
+            calibrated=True,
+            why="wing solved by vortex lattice; non-wing drag is a component "
+                "buildup — the trade is solver-backed, the whole-aircraft "
+                "magnitude is a trend")
+    else:
+        script.researcher(
+            f"Read this as a design-space result, not a validated coefficient. The "
+            f"ranking is trustworthy — higher aspect ratio buys L/D until the landing "
+            f"speed stops it, and that trade is physical. The absolute L/D {best['L_D']:.1f} "
+            f"is a conceptual estimate; {per('vv20')} would want a solved flow and a "
+            f"comparison before anyone flies on the number.")
+        verdict = trust(
+            relative_error=0.0, converged=True, in_validated_regime=False,
+            calibrated=True,
+            why="conceptual sizing model, not a validated aero solve — the "
+                "trade is real, the magnitude is a trend")
     if emit:
         emit("result.verdict", {"quantity": "Best feasible L/D",
-                                "value": f"{best['L_D']:.1f}",
-                                "envelope": "conceptual estimate", **verdict})
+                                "value": f"{best_ld:.1f}",
+                                "envelope": ("solved wing + stated buildup"
+                                             if won_solved else
+                                             "conceptual estimate"), **verdict})
     knowledge.add(
-        f"Airliner L/D sizing for {reqs['passengers']} pax / {reqs['range_km']:.0f} km: "
-        f"best feasible L/D {best['L_D']:.1f} at span {best['span']:.0f} m, "
-        f"aspect ratio {best['aspect_ratio']:.1f}")
+        f"Airliner L/D for {reqs['passengers']} pax / {reqs['range_km']:.0f} km: "
+        f"best feasible L/D {best_ld:.1f} at span {best['span']:.0f} m, "
+        f"aspect ratio {best['aspect_ratio']:.1f}"
+        + (" (wing solved, vortex lattice)" if won_solved else " (screened)"))
+
+    agenda = [
+        {"title": "Cruise Mach trade",
+         "scope": "sweep cruise Mach against the fixed requirements — where the "
+                  "range-speed-L/D surface actually peaks",
+         "cost": "one more sweep dimension; solver already in place"},
+        {"title": "Composite-span structural limits",
+         "scope": "explore spans beyond today's structural cap with a composite "
+                  "wing-box weight model driving MTOW",
+         "cost": "a weight-model extension plus a re-run of the sweep"},
+        {"title": "Full-configuration solve",
+         "scope": "put the fuselage and tail in the solved model and trim the "
+                  "winner for static margin",
+         "cost": "richer geometry per candidate; same solver, longer polars"},
+    ]
+    if emit:
+        emit("agenda.updated", {"entries": agenda})
+
+    methods = [
+        "Weights from the passenger count via a payload fraction; MTOW carries a "
+        "mild span-structural penalty.",
+        "Screening L/D from a drag polar (induced drag over aspect ratio and "
+        "Oswald efficiency, parasite drag with sweep).",
+        "Feasibility from stall-speed limits for take-off and landing and a "
+        "Breguet range check.",
+    ]
+    if won_solved:
+        methods.append(
+            f"The top {len(solved_ok)} feasible finalists were built as parametric "
+            f"geometry and solved by a vortex-lattice method in parallel; the "
+            f"cruise point was interpolated on each solved polar, and the winner "
+            f"was picked on solved numbers.")
+
+    abstract = [
+        f"We searched a {len(grid)}-wing design space for the highest cruise "
+        f"L/D meeting the stated mission requirements.",
+        f"The best feasible wing reaches L/D {best_ld:.1f} at span "
+        f"{best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
+        f"{n_infeasible} designs were infeasible on low-speed or range.",
+        ("The winner stands on a solved wing polar with a stated non-wing "
+         "buildup." if won_solved else
+         "The result is a conceptual-design trade, reported as a trend rather "
+         "than a validated magnitude."),
+    ]
+
+    uncertainty = [
+        "The trade — L/D rising with aspect ratio until the landing speed caps "
+        "it — is physical and trustworthy.",
+        ("Wing induced and viscous drag are solved; the non-wing parasite share "
+         "is a stated buildup, and the tier says so." if won_solved else
+         "The absolute L/D is a conceptual estimate from a drag polar, not a "
+         "solved flow; treat the magnitude as a trend."),
+        "The optimum sits between discrete grid points, so the reported design "
+        "is the best sampled, not the continuous optimum.",
+    ]
 
     report = lab_report(
         title=f"Aircraft L/D optimization — {reqs['passengers']} pax, {reqs['range_km']:.0f} km",
-        abstract=[
-            f"We searched a {len(grid)}-wing design space for the highest cruise "
-            f"L/D meeting the stated mission requirements.",
-            f"The best feasible wing reaches L/D {best['L_D']:.1f} at span "
-            f"{best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
-            f"{n_infeasible} designs were infeasible on low-speed or range.",
-            "The result is a conceptual-design trade, reported as a trend rather "
-            "than a validated magnitude.",
-        ],
-        methods=[
-            "Weights from the passenger count via a payload fraction; MTOW carries a "
-            "mild span-structural penalty.",
-            "Cruise L/D from a drag polar (induced drag over aspect ratio and Oswald "
-            "efficiency, parasite drag with sweep).",
-            "Feasibility from stall-speed limits for take-off and landing and a "
-            "Breguet range check.",
-        ],
+        abstract=abstract,
+        methods=methods,
         results=[{
             "quantity": "Best feasible L/D",
-            "value": f"{best['L_D']:.1f}",
+            "value": f"{best_ld:.1f}",
             "envelope": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}, "
                         f"range {best['range_km']:.0f} km",
             **verdict,
         }],
-        uncertainty=[
-            "The trade — L/D rising with aspect ratio until the landing speed caps "
-            "it — is physical and trustworthy.",
-            "The absolute L/D is a conceptual estimate from a drag polar, not a "
-            "solved flow; treat the magnitude as a trend.",
-            "The optimum sits between discrete grid points, so the reported design "
-            "is the best sampled, not the continuous optimum.",
-        ],
-        future_work=[
-            "Run the winning planform through a real aero solve (OpenVSP/VSPAERO or "
-            "RANS) to turn the L/D from a trend into a validated magnitude.",
-            "Refine the grid around the feasible optimum for the continuous best.",
-            "Add a wing-weight model that closes MTOW iteratively rather than by a "
-            "fixed payload fraction.",
-        ],
+        uncertainty=uncertainty,
+        future_work=[f"{entry['title']} — {entry['scope']}" for entry in agenda],
         compute=ledger.as_dict(),
     )
     if emit:

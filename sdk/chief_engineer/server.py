@@ -246,6 +246,9 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith("/api/field/"):
             self._serve_artifact(path, ".json", "application/json", "unknown field surface")
             return
+        if path.startswith("/api/surface/"):
+            self._serve_surface_artifact(path)
+            return
         if path.startswith("/api/certificate/"):
             self._serve_certificate(path)
             return
@@ -271,7 +274,7 @@ class Handler(BaseHTTPRequestHandler):
         self._write_json(200, [manifest.as_dict() for manifest in _registry().manifests()])
 
     def _serve_geometry(self, query) -> None:
-        from .geometry import cylinder_surface, load_surface
+        from .geometry import cylinder_surface, load_surface, wing_surface
 
         name = (query.get("name") or [""])[0]
         try:
@@ -282,6 +285,12 @@ class Handler(BaseHTTPRequestHandler):
                     self._fail(404, "unknown geometry")
                     return
                 payload = load_surface(target)
+            elif query.get("span"):
+                payload = wing_surface(
+                    float((query.get("span") or ["40"])[0]),
+                    float((query.get("area") or ["300"])[0]),
+                    sweep_deg=float((query.get("sweep") or ["27.5"])[0]),
+                    taper=float((query.get("taper") or ["0.3"])[0]))
             else:
                 diameter = float((query.get("diameter") or ["1.0"])[0])
                 payload = cylinder_surface(diameter)
@@ -308,6 +317,25 @@ class Handler(BaseHTTPRequestHandler):
             return
         self._serve_guarded_file(_output_root(), _output_root() / parts[2] / parts[3],
                                  content_type, missing)
+
+    def _serve_surface_artifact(self, path: str) -> None:
+        """Serve a mission-produced surface (e.g. a solved finalist wing) as
+        the same decimated viewport payload /api/geometry returns."""
+        from .geometry import load_surface
+
+        parts = path.strip("/").split("/")
+        if len(parts) != 4 or not parts[3].endswith((".stl", ".obj")):
+            self._fail(404, "not found")
+            return
+        root = _output_root().resolve()
+        target = (root / parts[2] / parts[3]).resolve()
+        if root not in target.parents or not target.exists():
+            self._fail(404, "unknown surface")
+            return
+        try:
+            self._write_json(200, load_surface(target))
+        except Exception as exc:
+            self._fail(400, f"{type(exc).__name__}: {exc}")
 
     def _serve_certificate(self, path: str) -> None:
         parts = path.strip("/").split("/")

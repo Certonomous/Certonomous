@@ -204,6 +204,64 @@ def _package(vertices, faces, max_faces: int, name: str) -> dict[str, Any]:
     }
 
 
+def wing_surface(span: float, area: float, *, sweep_deg: float = 27.5,
+                 taper: float = 0.3, n_chord: int = 9,
+                 n_span: int = 17) -> dict[str, Any]:
+    """Generate the parametric wing a design candidate actually is.
+
+    A symmetric tapered planform swept at the quarter chord, with a parabolic
+    thickness distribution so the viewport shows a body, not a sheet. The
+    planform is exact — root and tip chord follow from span, area, and taper —
+    because the point of drawing candidates is that their differences are real.
+    """
+    span = max(float(span), 1e-3)
+    area = max(float(area), 1e-3)
+    taper = min(max(float(taper), 0.05), 1.0)
+    semi = span / 2.0
+    root_chord = 2.0 * area / (span * (1.0 + taper))
+    tip_chord = taper * root_chord
+    tan_sweep = math.tan(math.radians(sweep_deg))
+
+    vertices: list[list[float]] = []
+    faces: list[list[int]] = []
+    stations = [semi * (2.0 * i / (n_span - 1) - 1.0) for i in range(n_span)]
+    for y in stations:
+        eta = abs(y) / semi
+        chord = root_chord + (tip_chord - root_chord) * eta
+        # Sweep the quarter-chord line; x runs streamwise, z is vertical.
+        x_quarter = abs(y) * tan_sweep
+        x_le = x_quarter - 0.25 * chord
+        for j in range(n_chord):
+            xc = j / (n_chord - 1)
+            x = x_le + xc * chord
+            thickness = 0.10 * chord * 4.0 * xc * (1.0 - xc)
+            vertices.append([x, y, thickness / 2.0])
+            vertices.append([x, y, -thickness / 2.0])
+    per_station = 2 * n_chord
+    for i in range(n_span - 1):
+        base_a, base_b = i * per_station, (i + 1) * per_station
+        for j in range(n_chord - 1):
+            for offset in (0, 1):   # upper surface, then lower
+                a = base_a + 2 * j + offset
+                b = base_b + 2 * j + offset
+                c = base_b + 2 * (j + 1) + offset
+                d = base_a + 2 * (j + 1) + offset
+                faces.append([a, b, c])
+                faces.append([a, c, d])
+
+    xs = [v[0] for v in vertices]
+    zs = [v[2] for v in vertices]
+    return {
+        "name": f"wing span={span:.3g} m area={area:.3g} m2",
+        "vertices": [[round(c, 5) for c in v] for v in vertices],
+        "faces": faces,
+        "triangles_total": len(faces),
+        "triangles_shown": len(faces),
+        "bounds": {"min": [min(xs), -semi, min(zs)],
+                   "max": [max(xs), semi, max(zs)]},
+    }
+
+
 def cylinder_surface(diameter: float = 1.0, *, span: float = 2.0,
                      segments: int = 64) -> dict[str, Any]:
     """Generate the parametric cylinder a 2D mission is actually solving."""
