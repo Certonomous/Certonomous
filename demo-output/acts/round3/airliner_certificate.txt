@@ -1,0 +1,49 @@
+
+######## airliner_certificate.pdf ########
+CERTONOMOUS
+CERTIFICATE OF AUTONOMOUS SOLVE
+CERTIFICATE No.
+C-2026-7080
+SUBJECT
+300-passenger twin-aisle airliner, planform
+study
+OBJECTIVE
+Optimize the lift-to-drag ratio of a twin-aisle airliner
+carrying 300 passengers over a 6000 km range, with take-off at
+85 m/s and landing at 72 m/s. Search the wing design space,
+mark any infeasible designs, and report the best feasible L/D
+with its envelope.
+SOLVER & MODEL
+Conceptual drag-polar sizing model
+ISSUED (UTC)
+2026-07-23T20:49:42Z
+RESULT
+CONCEPTUAL MODEL
+Best feasible cruise L/D
+18.5   ± 0.5
+95% confidence interval
+Basis: drag-polar sizing model; no solve behind the magnitude
+Winning wing
+span 64 m, AR 13.7   range 9838 km
+UNCERTAINTY  -  ASME V&V 20 THREE-CHANNEL
+CHANNEL
+VALUE
+STATE
+input
+0.46
+quantified
+Monte-Carlo over the stated payload-mass and non-wing-drag spreads; requirements are held as exact
+specification, and the remaining sizing constants (SFC, fuel fraction, cruise altitude) are fixed
+numerical
+—
+not quantified
+the design grid is discrete, so the true optimum lies between grid points
+model
+—
+not quantified
+drag-polar sizing model; a solve would set the magnitude
+PROVENANCE  -  EVIDENCE-BUNDLE SEAL (SHA-256)
+a07a58fb00c401c2d254db04db3e4b8a
+01b2c02d248b5e45e10431c8c715c0b9
+Mission aircraft-optimization   -   Certificate C-2026-7080
+Reproducible from the sealed evidence bundle; any change to the recorded run invalidates the seal. No tier exceeds TREND ONLY without an experimental comparison.

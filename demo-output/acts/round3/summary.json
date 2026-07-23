@@ -1,0 +1,65 @@
+{
+  "valve": {
+    "mission": "m-3fe1dd4f7410",
+    "surface": null,
+    "landscape_points": 11,
+    "plot_ready": 1,
+    "geometry_ready": 12,
+    "certificate_ready": 1,
+    "cert": {
+      "certificate_no": "C-2026-8945",
+      "fidelity": "CONCEPTUAL MODEL",
+      "dir": "valve-study",
+      "tier": "CONCEPTUAL MODEL"
+    },
+    "cert_seal16": "e79cc1185d9d720a",
+    "verdict": {
+      "quantity": "Cycle-weighted pressure loss",
+      "value": "1345",
+      "tier": "CONCEPTUAL MODEL"
+    },
+    "completed": true
+  },
+  "airliner": {
+    "mission": "m-fd9bb81e3801",
+    "surface": null,
+    "landscape_points": 96,
+    "plot_ready": null,
+    "geometry_ready": 96,
+    "certificate_ready": 1,
+    "cert": {
+      "certificate_no": "C-2026-7080",
+      "fidelity": "CONCEPTUAL MODEL",
+      "dir": "aircraft-optimization",
+      "tier": "CONCEPTUAL MODEL"
+    },
+    "cert_seal16": "a07a58fb00c401c2",
+    "verdict": {
+      "quantity": "Best feasible L/D",
+      "value": "18.5",
+      "tier": "CONCEPTUAL MODEL"
+    },
+    "completed": true
+  },
+  "naca": {
+    "mission": "m-db2ed2147343",
+    "surface": "naca4412_wing.stl",
+    "landscape_points": null,
+    "plot_ready": 2,
+    "geometry_ready": 1,
+    "certificate_ready": 1,
+    "cert": {
+      "certificate_no": "C-2026-7069",
+      "fidelity": "VALIDATED",
+      "dir": "geometry-study",
+      "tier": "VALIDATED"
+    },
+    "cert_seal16": "6211bdcfeedffef5",
+    "verdict": {
+      "quantity": "Drag coefficient",
+      "value": "0.01892",
+      "tier": "VALIDATED"
+    },
+    "completed": true
+  }
+}
