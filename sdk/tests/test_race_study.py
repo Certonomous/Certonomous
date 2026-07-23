@@ -100,6 +100,20 @@ class RaceStudyEvents(unittest.TestCase):
         verdict = self.by["result.verdict"][0]
         self.assertEqual(verdict["tier"], "SOLVER-BACKED")
 
+    def test_certificate_is_issued_for_the_race_act(self):
+        # Every act must carry a Certonomous certificate; the race's headline
+        # results are the measured speedup and the agreement, on the NACA wing.
+        self.assertIn("certificate.ready", self.by)
+        cert = self.by["certificate.ready"][0]
+        # The PDF is written under the (temp) OUT_ROOT the harness cleans up, so
+        # assert the target rather than a surviving file.
+        self.assertTrue(cert["path"].endswith("certificate.pdf"))
+        self.assertEqual(cert["dir"], "race-study")
+        self.assertEqual(cert["tier"], "SOLVER-BACKED")
+        self.assertTrue(cert.get("certificate_no", "").startswith("C-"))
+        # The seal is a 64-hex SHA-256.
+        self.assertEqual(len(cert["hash"]), 64)
+
 
 class RaceStudyConfig(unittest.TestCase):
     def test_worker_cap_is_four(self):
