@@ -215,9 +215,9 @@ def _solve_finalist_slot(index, api, design, emit=None, script=None):
 
     if worker_sabotaged(index):
         clear_sabotage(index)
-        lost = (f"• Worker {index} stopped responding mid-solve. "
+        lost = (f"• Worker {index + 1} stopped responding mid-solve. "
                 f"• Reprovisioning and re-running its wing; the polar still lands.")
-        took_over = f"• A fresh worker took over slot {index}; its wing re-solves."
+        took_over = f"• A fresh worker took over slot {index + 1}; its wing re-solves."
         if script is not None:
             script.engineer(lost)
         if emit is not None:

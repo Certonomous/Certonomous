@@ -61,9 +61,9 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
                                  "label": label, "detail": "full-fidelity solve"})
     if worker_sabotaged(index):
         clear_sabotage(index)
-        lost = (f"• Worker {index} stopped responding mid-sweep. "
+        lost = (f"• Worker {index + 1} stopped responding mid-sweep. "
                 f"• Reprovisioning and re-running its design; the number still lands.")
-        took_over = f"• A fresh worker took over slot {index}; its design re-runs."
+        took_over = f"• A fresh worker took over slot {index + 1}; its design re-runs."
         if script is not None:
             script.engineer(lost)
         if emit is not None:
