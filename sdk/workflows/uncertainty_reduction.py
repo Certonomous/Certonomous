@@ -60,16 +60,16 @@ def main(request: str | None = None, params: dict | None = None,
     # ---------------- Run A ----------------
     script.engineer(
         f"• Starting small: {n_a} samples across {workers} workers. "
-        f"• Cheap to be wrong about — the envelope says if it was enough.")
+        f"• Cheap to be wrong about: the envelope says if it was enough.")
     run_a = run_ensemble(
         NOMINAL_CYLINDER, {"inlet_velocity": INLET_SIGMA},
         n=n_a, workers=workers, work_root=out / "run-a",
         run_prefix=RUN_PREFIX, metric="Cd", label="a")
     plot_a = plot_convergence(run_a, out / "run_a_envelope.png",
-                              title=f"Run A — {run_a.n} samples")
-    announce_plot(emit, "uncertainty-reduction", plot_a, f"First pass — {run_a.n} samples")
+                              title=f"Run A: {run_a.n} samples")
+    announce_plot(emit, "uncertainty-reduction", plot_a, f"First pass: {run_a.n} samples")
     script.engineer(
-        f"• Run A — {run_a.wall_seconds:.0f} s. • {run_a.headline()}",
+        f"• Run A: {run_a.wall_seconds:.0f} s. • {run_a.headline()}",
         result=run_a.as_dict())
 
     reducible = run_a.relative_error > TARGET_RELATIVE
@@ -82,7 +82,7 @@ def main(request: str | None = None, params: dict | None = None,
     else:
         script.engineer(
             f"• Envelope already inside the {TARGET_RELATIVE * 100:.0f}% threshold. "
-            f"• Running the larger ensemble anyway — the scaling stays visible.",
+            f"• Running the larger ensemble anyway: the scaling stays visible.",
             citations=(f"{LESSONS_FILE} {LESSON}",), lesson=chip(LESSON))
 
     # ---------------- Run B ----------------
@@ -91,10 +91,10 @@ def main(request: str | None = None, params: dict | None = None,
         n=n_b, workers=workers, work_root=out / "run-b",
         run_prefix=RUN_PREFIX, metric="Cd", label="b")
     plot_b = plot_convergence(run_b, out / "run_b_envelope.png",
-                              title=f"Run B — {run_b.n} samples")
-    announce_plot(emit, "uncertainty-reduction", plot_b, f"Second pass — {run_b.n} samples")
+                              title=f"Run B: {run_b.n} samples")
+    announce_plot(emit, "uncertainty-reduction", plot_b, f"Second pass: {run_b.n} samples")
     script.engineer(
-        f"• Run B — {run_b.wall_seconds:.0f} s. • {run_b.headline()}",
+        f"• Run B: {run_b.wall_seconds:.0f} s. • {run_b.headline()}",
         result=run_b.as_dict())
 
     comparison = plot_ab_comparison(run_a, run_b, out / "uncertainty_ab_panel.png")
@@ -105,7 +105,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Envelope {run_a.relative_error * 100:.1f}% → {run_b.relative_error * 100:.1f}% "
         f"({shrink:.0f}% tighter) for {run_b.n - run_a.n} extra solves. "
         f"• Estimator error shrank; physical spread ±{run_b.ensemble_sigma:.3g} "
-        f"cannot — it is the {INLET_SIGMA * 100:.0f}% input propagating. "
+        f"cannot, it is the {INLET_SIGMA * 100:.0f}% input propagating. "
         f"• Remaining estimator uncertainty: {verdict}.",
         citations=(f"{LESSONS_FILE} {LESSON}", f"{KNOWLEDGE} #1 (validated cylinder benchmark)"),
         lesson=chip(LESSON))

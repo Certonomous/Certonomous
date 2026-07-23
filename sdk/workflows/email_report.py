@@ -42,7 +42,7 @@ def _html_table(rows: list[tuple[str, str]], title: str) -> str:
         for key, value in rows)
     return (
         f"<div style='font-family:-apple-system,Segoe UI,sans-serif'>"
-        f"<h2 style='color:#1c2430;margin-bottom:4px'>Certonomous — {title}</h2>"
+        f"<h2 style='color:#1c2430;margin-bottom:4px'>Certonomous: {title}</h2>"
         f"<p style='color:#6b7684;margin-top:0;font-size:13px'>"
         f"Every value below came from a real OpenFOAM solve on the mission "
         f"compute node.</p>"
@@ -66,10 +66,10 @@ def main(workflow: str | None = None, check_only: bool = False) -> int:
     if check_only or missing:
         status = "READY" if not missing else f"NOT CONFIGURED (missing: {', '.join(missing)})"
         print(f"SMTP {status}")
-        print(f"  host={os.environ.get('CERTONOMOUS_SMTP_HOST', '—')} "
+        print(f"  host={os.environ.get('CERTONOMOUS_SMTP_HOST', 'unset')} "
               f"port={os.environ.get('CERTONOMOUS_SMTP_PORT', '587')} "
-              f"user={os.environ.get('CERTONOMOUS_SMTP_USER', '—')} "
-              f"to={os.environ.get('CERTONOMOUS_SMTP_TO', '—')}")
+              f"user={os.environ.get('CERTONOMOUS_SMTP_USER', 'unset')} "
+              f"to={os.environ.get('CERTONOMOUS_SMTP_TO', 'unset')}")
         return 0 if not missing else 1
 
     directory = (OUT_ROOT / workflow) if workflow else _latest_mission()
@@ -83,7 +83,7 @@ def main(workflow: str | None = None, check_only: bool = False) -> int:
 
     rows = _rows_from_transcript(transcript)
     message = EmailMessage()
-    message["Subject"] = f"Certonomous report — {directory.name}"
+    message["Subject"] = f"Certonomous report: {directory.name}"
     message["From"] = os.environ.get("CERTONOMOUS_SMTP_USER", "certonomous@localhost")
     message["To"] = os.environ["CERTONOMOUS_SMTP_TO"]
     message.set_content(transcript.read_text(encoding="utf-8", errors="replace"))

@@ -603,7 +603,7 @@ def _explain_unparsed(record: MissionRecord, reason: str) -> None:
         "citations_display": [], "data": {}, "at": time.time()})
     domain = out_of_scope_domain(record.request)
     opening = (
-        f"• That needs {domain} — outside what this lab solves. "
+        f"• That needs {domain}, outside what this lab solves. "
         f"• This lab solves {LAB_DOMAIN}. "
         f"• No plan will pretend to cover physics the solver cannot model."
         if domain else
