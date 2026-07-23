@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-07-23T04:14:38Z",
+  "ledger": "C:\\Users\\mouza\\github-cleanup\\ct-website-pipeline\\demo-output\\website\\mega-batch\\ledger.jsonl",
+  "totals": {
+    "evaluations_ok": 657,
+    "evaluations_failed": 0,
+    "wall_span_hours": 0.35,
+    "observed_throughput_per_hr": 1877.1,
+    "core_hours": 1.394
+  },
+  "per_solver": {
+    "openfoam-cylinder": {
+      "label": "real-solve",
+      "count": 218,
+      "mean_wall_s": 14.485,
+      "median_wall_s": 12.912,
+      "min_wall_s": 6.192,
+      "max_wall_s": 46.3,
+      "per_worker_throughput_per_hr": 248.5
+    },
+    "vspaero-wing": {
+      "label": "real-solve",
+      "count": 219,
+      "mean_wall_s": 8.485,
+      "median_wall_s": 7.631,
+      "min_wall_s": 7.063,
+      "max_wall_s": 21.934,
+      "per_worker_throughput_per_hr": 424.3
+    },
+    "reduced-order": {
+      "label": "reduced-order-eval",
+      "count": 220,
+      "mean_wall_s": 0.004,
+      "median_wall_s": 0.002,
+      "min_wall_s": 0.0,
+      "max_wall_s": 0.383,
+      "per_worker_throughput_per_hr": 992481.2
+    }
+  },
+  "closure_challenge": {
+    "name": "Closure-challenge benchmark",
+    "status": "ACTIVE RESEARCH",
+    "board": "public leaderboard",
+    "target_rank": 4,
+    "target_overall": 0.0779,
+    "target_per_case": [
+      0.068,
+      0.1364,
+      0.0591,
+      0.0882,
+      0.0895,
+      0.0866,
+      0.0487,
+      0.0464
+    ],
+    "our_entry": "baseline in training \u2014 winners not yet beaten. Target: top 4.",
+    "our_score": null
+  },
+  "speed_benchmark": {
+    "name": "Reduced-order speed benchmark",
+    "case": "NACA 4412",
+    "full_mc_core_min": null,
+    "reduced_core_min": null,
+    "speedup_x": null,
+    "status": "pending measured run",
+    "source": "BG-1 measured race (docs/HANDOFF-BG1.md)"
+  }
+}

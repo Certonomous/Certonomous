@@ -1,0 +1,90 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 5 0 R /F2 6 0 R /F3 7 0 R /F4 8 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 4389 >>
+stream
+BT /F2 22.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 769.89 Tm (CERTONOMOUS) Tj ET
+BT /F2 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 359.28 773.89 Tm (CERTIFICATE OF AUTONOMOUS SOLVE) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 359.28 761.89 Tm (Mission geometry-study-b52) Tj ET
+1.10 w 0.110 0.140 0.190 RG 56.00 751.89 m 539.28 751.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 725.89 Tm (GEOMETRY) Tj ET
+BT /F1 11.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 152.00 725.89 Tm (b52) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 705.89 Tm (OBJECTIVE) Tj ET
+BT /F1 11.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 152.00 705.89 Tm (Solve the drag on this airframe and paint the surface pressure) Tj ET
+BT /F1 11.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 152.00 690.89 Tm (field.) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 670.89 Tm (ISSUED \(UTC\)) Tj ET
+BT /F1 11.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 152.00 670.89 Tm (2026-07-21T18:04:00Z) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 642.89 Tm (RESULT) Tj ET
+BT /F2 17.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 622.89 Tm (Drag coefficient   0.0471) Tj ET
+0.800 0.530 0.110 rg 453.28 618.89 86.00 20.00 re f
+BT /F2 9.50 Tf 1.000 1.000 1.000 rg 1 0 0 1 463.28 624.39 Tm (TREND ONLY) Tj ET
+BT /F1 10.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 604.89 Tm (Envelope: 0.0018) Tj ET
+BT /F1 10.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 589.89 Tm (Trust basis: steady RANS on a watertight airframe with no in-regime experimental anchor for) Tj ET
+BT /F1 10.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 575.89 Tm (this configuration; the reference area is the measured silhouette \(601 m^2\), not the) Tj ET
+BT /F1 10.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 561.89 Tm (published wing area) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 541.89 Tm (Lift coefficient) Tj ET
+BT /F1 9.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 206.00 541.89 Tm (0.0192   0.0041) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 526.89 Tm (Mesh) Tj ET
+BT /F1 9.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 206.00 526.89 Tm (193,880 cells   max non-orthogonality 62, max skewness 3.1) Tj ET
+0.70 w 0.860 0.880 0.910 RG 56.00 501.89 m 539.28 501.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 479.89 Tm (UNCERTAINTY CHANNELS  -  ASME V&V 20) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 461.89 Tm (Input) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 186.00 461.89 Tm (48.5 m ref. length) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 286.00 461.89 Tm (\(quantified\)) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 68.00 448.89 Tm (reference length stated, not inferred; freestream at cruise) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 433.89 Tm (Numerical) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 186.00 433.89 Tm (grid difference) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 286.00 433.89 Tm (\(not quantified\)) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 68.00 420.89 Tm (single mesh; a two-mesh probe yields a grid difference, not a verified GCI \(Eca & Hoekstra\)) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 56.00 405.89 Tm (Model form) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 186.00 405.89 Tm (fully-turbulent RANS) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 286.00 405.89 Tm (\(not quantified\)) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 68.00 392.89 Tm (k-omega SST, no transition model; Aref is the measured silhouette, so Cd is not directly comparable to) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 68.00 381.89 Tm (published book values) Tj ET
+0.70 w 0.860 0.880 0.910 RG 56.00 360.89 m 539.28 360.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 344.89 Tm (COMPUTE) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 152.00 344.89 Tm (193,880 cells   -   8.0 core-min spent) Tj ET
+0.960 0.970 0.980 rg 56.00 86.00 483.28 58.00 re f
+BT /F2 8.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 68.00 128.00 Tm (EVIDENCE-BUNDLE SEAL  -  SHA-256) Tj ET
+BT /F2 9.50 Tf 0.200 0.240 0.300 rg 1 0 0 1 68.00 112.00 Tm (025c221e1e43fcba26487a4ad89bce43) Tj ET
+BT /F2 9.50 Tf 0.200 0.240 0.300 rg 1 0 0 1 68.00 100.00 Tm (a419210658f8af3e9ff6598597778e9b) Tj ET
+BT /F1 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 56.00 68.00 Tm (Sealed by the hash above; any change to the recorded run invalidates it. No tier exceeds TREND ONLY without an experimental comparison.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000283 00000 n 
+0000004724 00000 n 
+0000004821 00000 n 
+0000004923 00000 n 
+0000005022 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+5120
+%%EOF
