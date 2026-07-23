@@ -38,16 +38,9 @@
   #globalStatus { color: var(--muted); font: 11px var(--mono); letter-spacing: .04em; }
   .touch { color: var(--dim); font: 9px var(--mono); letter-spacing: .12em; }
   .touch b { color: var(--live); font-size: 12px; }
-  .present-btn { padding: 5px 11px; background: transparent; color: var(--muted); border: 1px solid var(--line-2); font: 9px var(--mono); letter-spacing: .14em; cursor: pointer; }
-  .present-btn:hover { color: var(--ink); border-color: var(--ink); }
-  .present-btn.on { color: var(--live); border-color: var(--live); }
-  .shell.presenting .present-btn { background: var(--ink); color: #060708; border-color: var(--ink); }
-
-  /* present bar */
-  .present-bar { display: none; align-items: baseline; gap: 20px; padding: 18px 30px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
-  .shell.presenting .present-bar { display: flex; }
-  .present-bar .role { color: var(--live); font: 700 13px var(--mono); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
-  .present-bar .msg { font-size: 25px; font-weight: 500; line-height: 1.3; }
+  .chip-btn { padding: 5px 11px; background: transparent; color: var(--muted); border: 1px solid var(--line-2); font: 9px var(--mono); letter-spacing: .14em; cursor: pointer; }
+  .chip-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .chip-btn.on { color: var(--live); border-color: var(--live); }
 
   /* layout */
   .layout { flex: 1 1 auto; min-height: 0; display: grid; gap: 1px; background: var(--line); }
@@ -58,14 +51,11 @@
     grid-template-areas: "command viewport workspace" "telemetry viewport workspace";
   }
   .shell.launched .command { grid-area: command; }
-  .shell.launched .viewport { grid-area: viewport; }
+  .shell.launched .viewport { grid-area: viewport; overflow-y: auto; }
   .shell.launched .workspace { grid-area: workspace; }
   .shell.launched .telemetry { grid-area: telemetry; overflow-y: auto; }
   .shell:not(.launched) .viewport, .shell:not(.launched) .telemetry { display: none; }
   .layout > * { min-width: 0; min-height: 0; background: var(--bg); }
-  .shell.presenting.launched .layout { grid-template-columns: minmax(0,1fr) minmax(0,1.3fr); grid-template-rows: 1fr; grid-template-areas: "viewport workspace"; }
-  .shell.presenting .command, .shell.presenting .telemetry { display: none; }
-  .shell.presenting { font-size: 15px; }
 
   .panel { display: flex; flex-direction: column; overflow: hidden; }
   .panel-head { display: flex; align-items: center; justify-content: space-between; height: 42px; padding: 0 18px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
@@ -156,11 +146,16 @@
   .slot.idle .st { color: var(--dim); }
 
   /* live objective trace — the plot grows as candidates land, envelope forms live */
-  .trace-box { padding: 11px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
-  .trace-box canvas { width: 100%; height: 168px; display: block; border: 1px solid var(--line-2); background: #040506; }
-  .evidence-row { display: flex; gap: 1px; background: var(--line); flex: 0 0 auto; }
-  .evidence-row > * { flex: 1 1 0; min-width: 0; border-top: 0; }
+  .trace-box { padding: 13px 18px 16px; border-top: 1px solid var(--line); flex: 0 0 auto; }
+  .trace-box canvas { width: 100%; height: 320px; display: block; border: 1px solid var(--line-2); background: #040506; }
+  /* The evidence plots stack full-width below the hero geometry, each with real
+     height so they read at 1920x1080 — the viewport column scrolls to hold
+     them (the owner OK'd multi-page). Cramming them side-by-side made them
+     unreadable; a wide, tall plot each is legible. */
+  .evidence-row { display: flex; flex-direction: column; gap: 1px; background: var(--line); flex: 0 0 auto; }
+  .evidence-row > * { min-width: 0; border-top: 0; }
   .evidence-row .landscape-box, .evidence-row .trace-box { border-top: 1px solid var(--line); }
+  .evidence-row .eyebrow { display: block; margin-bottom: 8px; font-size: 10px; }
 
   /* viewport — the geometry stage is the hero: it takes the lion's share of the
      column and never shrinks below a readable size. */
@@ -177,9 +172,9 @@
   .plots { display: flex; gap: 8px; padding: 11px 18px; overflow-x: auto; flex: 0 0 auto; border-top: 1px solid var(--line); }
   .plots:empty { display: none; }
   .plots img { height: 88px; border: 1px solid var(--line-2); cursor: pointer; }
-  .landscape-box { padding: 11px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
+  .landscape-box { padding: 13px 18px 16px; border-top: 1px solid var(--line); flex: 0 0 auto; }
   .land-wrap { position: relative; }
-  .landscape-box canvas { width: 100%; height: 235px; display: block; border: 1px solid var(--line-2); background: #040506; }
+  .landscape-box canvas { width: 100%; height: 320px; display: block; border: 1px solid var(--line-2); background: #040506; }
   .land-tip { position: absolute; pointer-events: none; z-index: 5; background: rgba(8,10,12,.96); border: 1px solid var(--line-2); padding: 6px 9px; font: 10px var(--mono); color: var(--fg); line-height: 1.5; max-width: 210px; }
   .land-tip b { color: var(--live); }
   .land-tip .bad { color: #e0896a; }
@@ -200,7 +195,10 @@
   .ws-top { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
   .ws-top .mid { min-width: 0; }
   #missionId { color: var(--dim); font: 9px var(--mono); letter-spacing: .16em; }
-  #missionGoal { display: block; font: 500 16px/1.2 var(--sans); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* A long professional directive wraps to two lines and ellipsizes from there
+     (head-first, never tail-only) with the FULL text on hover — nothing about
+     the prompt is hidden or lost. */
+  #missionGoal { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 500 16px/1.25 var(--sans); margin-top: 4px; }
   .kpis { display: flex; gap: 20px; }
   .kpi { text-align: right; }
   .kpi b { display: block; font: 15px var(--mono); font-variant-numeric: tabular-nums; }
@@ -216,13 +214,13 @@
   .entry { padding: 9px 0; border-bottom: 1px solid var(--line); }
   .entry .who { font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
   .entry .who time { float: right; color: var(--dim); letter-spacing: 0; }
-  /* role accents — one color per role, shared verbatim by digest, conversation
-     and the present-bar stamp so a name reads the same color everywhere. */
-  .entry.chief-engineer .who, .present-bar .role.chief-engineer { color: var(--live); }
-  .entry.chief-researcher .who, .present-bar .role.chief-researcher { color: #c792ea; }
-  .entry.numericist .who, .present-bar .role.numericist { color: #45cfc0; }
-  .entry.monitor .who, .present-bar .role.monitor { color: #ef7fb0; }
-  .entry.system .who, .present-bar .role.system { color: var(--muted); }
+  /* role accents — one color per role, shared verbatim by digest and
+     conversation so a name reads the same color everywhere. */
+  .entry.chief-engineer .who { color: var(--live); }
+  .entry.chief-researcher .who { color: #c792ea; }
+  .entry.numericist .who { color: #45cfc0; }
+  .entry.monitor .who { color: #ef7fb0; }
+  .entry.system .who { color: var(--muted); }
   .entry p { margin-top: 5px; font-size: 13px; }
   .digest-phase { color: var(--dim); font: 9px var(--mono); letter-spacing: .2em; text-transform: uppercase; margin: 16px 0 7px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
   .digest-phase:first-child { margin-top: 0; }
@@ -291,12 +289,9 @@
       <span class="beacon" id="beacon"></span>
       <span id="globalStatus">CHIEF STANDING BY</span>
       <span class="touch" id="touch" hidden>HUMAN TOUCHPOINTS · <b id="touchCount">1</b></span>
-      <button class="present-btn" id="paceBtn" title="Toggle recorded-pace playback">PACE · READING</button>
-      <button class="present-btn" id="presentBtn" title="Presentation mode (P)">PRESENT</button>
+      <button class="chip-btn" id="paceBtn" title="Toggle playback pace: READING is a steady reading pace, FAST replays at the real event timing">PACE · READING</button>
     </div>
   </header>
-
-  <div class="present-bar"><span class="role" id="presentRole">CERTONOMOUS</span><span class="msg" id="presentMsg">Standing by for the objective.</span></div>
 
   <main class="layout">
     <section class="panel command">
@@ -404,7 +399,7 @@ const title = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpp
 const displayName = s => { if (!s) return ''; const base = String(s).split(/[\\/]/).pop().replace(/\.(stl|obj)$/i,''); return title(base); };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest',
-                dispatch:{}, dispatchGrant:null, trace:null, recordedPace:false };
+                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
 const revealQ = [];
@@ -417,19 +412,16 @@ setInterval(() => $('clock').textContent = new Date().toISOString().replace('T',
 ['workers','cycles'].forEach(id => $(id).addEventListener('input', () => $(id+'Out').value = $(id).value));
 $('launch').addEventListener('click', launchMission);
 $('surfaceFile').addEventListener('change', uploadSurface);
-$('presentBtn').addEventListener('click', togglePresent);
 $('paceBtn').addEventListener('click', () => {
-  state.recordedPace = !state.recordedPace;
-  $('paceBtn').textContent = state.recordedPace ? 'PACE · RECORDED' : 'PACE · READING';
-  $('paceBtn').classList.toggle('on', state.recordedPace);
+  state.fastPace = !state.fastPace;
+  $('paceBtn').textContent = state.fastPace ? 'PACE · FAST' : 'PACE · READING';
+  $('paceBtn').classList.toggle('on', state.fastPace);
 });
 $('askForm').addEventListener('submit', e => { e.preventDefault(); const q = $('askInput').value.trim(); if (q) { $('askInput').value=''; askLab(q); } });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
-document.addEventListener('keydown', e => { if ((e.key==='p'||e.key==='P') && !/TEXTAREA|INPUT/.test(e.target.tagName)) togglePresent(); });
 window.addEventListener('resize', () => { drawGeometry(); drawLandscape(); drawTrace(); });
 loadRuntime(); loadCredentials();
 const qs = new URLSearchParams(location.search);
-if (qs.get('present') === '1') $('shell').classList.add('presenting');
 if (qs.get('forcelaunch') === '1') { $('shell').classList.add('launched'); setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true); }
 // Defer the auto-resume until the whole script has initialised: it runs during
 // initial evaluation, and the draw helpers reference `const`s (coolwarm, …)
@@ -452,8 +444,6 @@ function solverSelected(p) {
 }
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600); }
 
-function togglePresent() { $('shell').classList.toggle('presenting'); }
-function present(role, msg) { if (!msg) return; const pr = $('presentRole'); pr.textContent = (role || 'Certonomous').toUpperCase(); pr.className = 'role ' + roleSlug(role); const m = String(msg).replace(/\s+/g,' ').trim(); $('presentMsg').textContent = m.length > 220 ? m.slice(0,217)+'…' : m; }
 function renderTouch() { setHidden('touch', !state.touchpoints); if (state.touchpoints) $('touchCount').textContent = state.touchpoints; }
 function bumpTouch() { if (!state.mission || state.finished) return; state.touchpoints++; renderTouch(); }
 
@@ -529,10 +519,11 @@ async function resumeMission(id, staticReplay) {
       if (!upto && !document.querySelector('.tab[data-view="memo"]').hidden) showView('memo');
       drawGeometry(); drawLandscape(); drawTrace();
       fetch(`/api/missions/${id}`).then(r => r.json())
-        .then(rec => { $('missionGoal').textContent = rec.request || id; }).catch(() => {});
+        .then(rec => { const g = rec.request || id; $('missionGoal').textContent = g; $('missionGoal').title = g; }).catch(() => {});
     } else {
       const rec = await (await fetch(`/api/missions/${id}`)).json();
-      $('missionGoal').textContent = rec.request || id;
+      const g = rec.request || id;
+      $('missionGoal').textContent = g; $('missionGoal').title = g;
       connect(id);
     }
   } catch (e) { toast('Could not replay: ' + e.message); }
@@ -590,9 +581,14 @@ function finish(status) {
 function dispatch(env) {
   const t = env.event || env.type;
   const p = env.payload || env;   // the SSE frame wraps the body in {event, payload}
+  // The envelope timestamp orders every event and drives FAST-pace replay; it
+  // falls back to the transcript entry's own `at` when a bare payload is passed.
+  const ts = env.timestamp != null ? env.timestamp : (p.at != null ? p.at : null);
   switch (t) {
     case 'mission.routed': showRoute(p); break;
-    case 'transcript.entry': enqueueEntry(p); break;
+    // Narrated + visual events share ONE ordered paced queue (below) so the
+    // conversation stays in sync with the landscape/trace/geometry it describes.
+    case 'transcript.entry': enqueue('entry', p, ts); break;
     case 'audit.completed': renderAudit(p); break;
     case 'roster.update': renderRoster(p); break;
     case 'compute.update': renderCompute(p); break;
@@ -601,22 +597,22 @@ function dispatch(env) {
     case 'knowledge.state': knowledgeAdded(p, false); break;
     case 'agenda.updated': renderAgenda(p); break;
     case 'solver.selected': solverSelected(p); break;
-    case 'result.verdict': renderResult(p); break;
+    case 'result.verdict': enqueue('result', p, ts); break;
     case 'landscape.init': initLandscape(p); break;
     case 'objective.spec': if (p.metric) { state.objMetric = p.metric; state.objDir = p.direction || state.objDir; } break;
     case 'report.ready': renderMemo(p); break;
     case 'certificate.ready': state.certificate = p; injectCertificate(); break;
-    case 'geometry.ready': loadGeometry(p); break;
-    case 'field.ready': loadField(p); break;
-    case 'plot.ready': addPlot(p); break;
-    case 'landscape.point': pushLandscape(p); break;
-    case 'dispatch.update': dispatchUpdate(p); break;
-    case 'trace.point': pushTrace(p); break;
+    case 'geometry.ready': enqueue('geometry', p, ts); break;
+    case 'field.ready': enqueue('field', p, ts); break;
+    case 'plot.ready': enqueue('plot', p, ts); break;
+    case 'landscape.point': enqueue('landscape', p, ts); break;
+    case 'dispatch.update': enqueue('dispatch', p, ts); break;
+    case 'trace.point': enqueue('trace', p, ts); break;
     case 'agent.started': state.agents++; $('kAgents').textContent = state.agents; break;
     case 'worker.provisioned': state.workers++; $('kWorkers').textContent = state.workers; break;
     case 'worker.released': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; break;
-    case 'worker.killed': toast(`Worker ${p.worker_index} lost — reprovisioning`); present('Monitor', p.detail); break;
-    case 'worker.reprovisioned': toast(`Fresh worker took over slot ${p.worker_index}`); present('Monitor', p.detail); break;
+    case 'worker.killed': toast(`Worker ${p.worker_index} lost — reprovisioning`); break;
+    case 'worker.reprovisioned': toast(`Fresh worker took over slot ${p.worker_index}`); break;
     case 'mission.completed': finish('complete'); break;
     case 'mission.failed': finish('failed'); break;
   }
@@ -756,22 +752,40 @@ function renderAgenda(p) {
 function roleSlug(role) { return String(role||'system').toLowerCase().replace(/[^a-z]+/g,'-'); }
 function roleClass(role) { return 'entry ' + roleSlug(role); }
 
-// The transcript streams at reading pace: entries queue as the backend emits
-// them and reveal one at a time, so the viewer watches the mission happen
-// instead of receiving it fully formed.
-const PACE_MS = 1500;   // reading pace between transcript entries (min ~1.5 s)
-function enqueueEntry(p) { revealQ.push(p); if (!revealing) { revealing = true; drainReveal(); } }
+// The mission streams at reading pace: BOTH narration and the visual events it
+// describes queue as the backend emits them and reveal one at a time, in exact
+// emission order, so the viewer watches the mission happen in sync — the
+// conversation never lags the landscape, trace, or geometry it is describing.
+const PACE_MS = 1500;   // reading beat between narration entries (min ~1.5 s)
+const VIS_MS = 240;     // a visual event lands a little quicker so bursts animate
+// Each queued item applies its side of the mission when its turn comes.
+const APPLY = {
+  entry:     p => { addEntry(p); addDigest(p); },
+  geometry:  p => loadGeometry(p),
+  field:     p => loadField(p),
+  plot:      p => addPlot(p),
+  landscape: p => pushLandscape(p),
+  dispatch:  p => dispatchUpdate(p),
+  trace:     p => pushTrace(p),
+  result:    p => renderResult(p),
+};
+function enqueue(kind, p, ts) {
+  revealQ.push({ kind, p, ts });
+  if (!revealing) { revealing = true; drainReveal(); }
+}
 function drainReveal() {
-  const p = revealQ.shift();
-  if (!p) { revealing = false; return; }
-  addEntry(p); addDigest(p); present(p.role, p.message);
+  const item = revealQ.shift();
+  if (!item) { revealing = false; return; }
+  (APPLY[item.kind] || (() => {}))(item.p);
   if (state.instant) { drainReveal(); return; }   // still-capture: no pacing
-  // Recorded pace (replays): honour the real inter-entry spacing from the event
-  // timestamps, clamped to a watchable range. Otherwise a steady reading pace.
-  let delay = PACE_MS;
   const next = revealQ[0];
-  if (state.recordedPace && p.at != null && next && next.at != null) {
-    delay = Math.max(300, Math.min(6000, (next.at - p.at) * 1000));
+  let delay;
+  if (state.fastPace && item.ts != null && next && next.ts != null) {
+    // FAST: replay at the real inter-event timing, clamped to a watchable band.
+    delay = Math.max(60, Math.min(4000, (next.ts - item.ts) * 1000));
+  } else {
+    // READING: narration gets a full reading beat; a visual event lands quicker.
+    delay = item.kind === 'entry' ? PACE_MS : VIS_MS;
   }
   setTimeout(drainReveal, delay);
 }
@@ -938,18 +952,29 @@ function drawGeometry() {
   for (const v of m.verts) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
   const c = [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
   const span = Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]) || 1;
-  const s = Math.min(W,H)*0.42/span, ax = 0.42, cosA=Math.cos(ax), sinA=Math.sin(ax);
+  const ax = 0.42, cosA=Math.cos(ax), sinA=Math.sin(ax);
   // A flat body (a wing) viewed edge-on is a sliver; show its planform
   // instead — the tilt trades a little chord for a readable shape.
   const flat = (hi[2]-lo[2]) < 0.12 * span;
-  const proj = v => {
+  // Project every vertex onto the model plane FIRST (rotation only, no screen
+  // scale/offset), then auto-frame: fit the body's projected bounding box so it
+  // FILLS the stage (~86%), centred. The shape is the hero — no fixed fudge
+  // factor that leaves it a speck. Works for wings, valve, cylinder, motorBike.
+  const planar = m.verts.map(v => {
     let x=v[1]-c[1], y=v[2]-c[2], z=v[0]-c[0];
     if (flat) { const t=y; y = -z*0.85 + t*0.4; z = t*0.85 + z*0.4; }
     const zr = z*cosA - x*sinA, xr = z*sinA + x*cosA, yr = y*0.92 - zr*0.28;
-    return [W/2 + xr*s, H/2 - yr*s, zr];
-  };
+    return [xr, yr, zr];
+  });
+  let pminx=1e9, pminy=1e9, pmaxx=-1e9, pmaxy=-1e9;
+  for (const p of planar) { pminx=Math.min(pminx,p[0]); pmaxx=Math.max(pmaxx,p[0]);
+                            pminy=Math.min(pminy,p[1]); pmaxy=Math.max(pmaxy,p[1]); }
+  const pw=(pmaxx-pminx)||1, ph=(pmaxy-pminy)||1, FILL=0.86;
+  const s = Math.min(W*FILL/pw, H*FILL/ph);
+  const pcx=(pminx+pmaxx)/2, pcy=(pminy+pmaxy)/2;
+  const scr = i => [W/2 + (planar[i][0]-pcx)*s, H/2 - (planar[i][1]-pcy)*s, planar[i][2]];
   const tris = m.faces.map((f,idx) => {
-    const a=proj(m.verts[f[0]]), b=proj(m.verts[f[1]]), cc=proj(m.verts[f[2]]);
+    const a=scr(f[0]), b=scr(f[1]), cc=scr(f[2]);
     return { a, b, c: cc, depth:(a[2]+b[2]+cc[2])/3, fi: idx };
   }).sort((p,q) => p.depth - q.depth);
   const fld = m.field && m.field.values;
