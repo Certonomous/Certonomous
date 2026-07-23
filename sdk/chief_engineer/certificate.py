@@ -61,8 +61,11 @@ class _Canvas:
 
     # -- primitives --------------------------------------------------------
     def text(self, x: float, y: float, s: str, size: float = 10.0,
-             bold: bool = False, color=_INK) -> None:
-        font = "F2" if bold else "F1"
+             bold: bool = False, color=_INK, serif: bool = False) -> None:
+        if serif:
+            font = "F4" if bold else "F3"
+        else:
+            font = "F2" if bold else "F1"
         r, g, b = color
         self._ops.append(
             f"BT /{font} {size:.2f} Tf {r:.3f} {g:.3f} {b:.3f} rg "
@@ -87,13 +90,17 @@ class _Canvas:
             b"<< /Type /Catalog /Pages 2 0 R >>",
             b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
             (f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {_PAGE_W:.2f} "
-             f"{_PAGE_H:.2f}] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> "
-             f"/Contents 4 0 R >>").encode("ascii"),
+             f"{_PAGE_H:.2f}] /Resources << /Font << /F1 5 0 R /F2 6 0 R "
+             f"/F3 7 0 R /F4 8 0 R >> >> /Contents 4 0 R >>").encode("ascii"),
             (b"<< /Length " + str(len(content)).encode("ascii") + b" >>\nstream\n"
              + content + b"\nendstream"),
             b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica "
             b"/Encoding /WinAnsiEncoding >>",
             b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold "
+            b"/Encoding /WinAnsiEncoding >>",
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman "
+            b"/Encoding /WinAnsiEncoding >>",
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold "
             b"/Encoding /WinAnsiEncoding >>",
         ]
         out = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
@@ -336,3 +343,226 @@ def build_certificate(report_doc: dict, *, out_path: str | Path,
     out_path.write_bytes(c.to_pdf())
     return {"path": str(out_path), "hash": seal, "mission_id": mission_id,
             "tier": tier}
+
+
+# --------------------------------------------------------------------------
+# Certificate — redesign (v2), PROPOSAL. Not the default until signed off.
+# --------------------------------------------------------------------------
+
+# Fidelity chip (orchestrator G5 semantics). Reserved, icon-free colours.
+_FIDELITY_COLOR = {
+    "VALIDATED": (0.13, 0.55, 0.33),
+    "SOLVER-BACKED": (0.16, 0.40, 0.66),
+    "CONCEPTUAL MODEL": (0.66, 0.45, 0.10),
+}
+_DEFAULT_FIDELITY_COLOR = (0.42, 0.46, 0.51)
+
+# Minimal display-name fallback until GUI-2's display_names registry lands.
+_DISPLAY_NAME_FALLBACK = {
+    "b52": "B-52 Stratofortress-class airframe",
+    "motorbike": "Motorcycle-and-rider body",
+    "ahmed_25": "Ahmed reference body (25 deg slant)",
+    "ahmed_35": "Ahmed reference body (35 deg slant)",
+    "cube": "Cube",
+    "sphere": "Sphere",
+    "cylinder": "Circular cylinder",
+}
+
+
+def display_name_for(geometry: str, explicit: str | None = None) -> str:
+    """Human display name for the subject geometry (never a file-facing slug)."""
+    if explicit:
+        return explicit
+    try:  # prefer GUI-2's registry when it lands
+        from . import display_names  # type: ignore
+        resolved = display_names.display_name(geometry)  # type: ignore
+        if resolved:
+            return resolved
+    except Exception:
+        pass
+    key = str(geometry).strip().lower().replace("-", "").replace(" ", "")
+    return _DISPLAY_NAME_FALLBACK.get(key, str(geometry))
+
+
+def _human_number(mission_id: str, issued_utc: str, seal: str) -> str:
+    """A human certificate number C-YYYY-NNNN, deterministic from the seal.
+
+    Never the mission slug — the slug is metadata, this is the certificate's
+    own registered identity.
+    """
+    year = (issued_utc or "2026")[:4]
+    if not (len(year) == 4 and year.isdigit()):
+        year = "2026"
+    n = int(seal[:6], 16) % 10000 if seal else 0
+    return f"C-{year}-{n:04d}"
+
+
+def _infer_fidelity(tier: str, compute: dict, results: list) -> str:
+    if tier == "VALIDATED":
+        return "VALIDATED"
+    text = " ".join(str(r.get("reason", "")) for r in results).lower()
+    conceptual = any(w in text for w in
+                     ("conceptual", "reduced-order", "orifice model",
+                      "sizing model", "not a solved flow"))
+    if conceptual:
+        return "CONCEPTUAL MODEL"
+    return "SOLVER-BACKED"
+
+
+def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
+                         geometry: str, objective: str, mission_id: str,
+                         issued_utc: str, channels: Iterable[dict] | None = None,
+                         display_name: str | None = None,
+                         source_filename: str | None = None,
+                         solver: str | None = None,
+                         fidelity: str | None = None) -> dict[str, Any]:
+    """Redesigned certificate: a certificate, not a log dump.
+
+    Serif/sans pairing, a human certificate number in the masthead (the mission
+    slug is demoted to provenance metadata), a subject block leading with the
+    geometry DISPLAY NAME, a result block with value +- 95% CI and a fidelity
+    chip, the complete three-channel uncertainty table, and a provenance footer
+    carrying the SHA-256 seal (truncated + full) and the reproducibility line.
+
+    Additive and non-default: nothing here changes ``build_certificate``.
+    """
+    results = list(report_doc.get("results", []))
+    if isinstance(channels, dict):
+        channels = channels.get("channels", [])
+    channels = [c for c in (channels or []) if isinstance(c, dict)]
+    compute = report_doc.get("compute", {})
+    primary = results[0] if results else {}
+    tier = (primary.get("tier") or "").upper()
+    chip = (fidelity or _infer_fidelity(tier, compute, results)).upper()
+    subject = display_name_for(geometry, display_name)
+
+    seal = evidence_hash(_seal_payload(
+        mission_id=mission_id, geometry=geometry, objective=objective,
+        results=results, channels=channels, compute=compute,
+        issued_utc=issued_utc))
+    cert_no = _human_number(mission_id, issued_utc, seal)
+
+    c = _Canvas()
+    left = _MARGIN + 8
+    right = _PAGE_W - _MARGIN - 8
+    width = right - left
+    y = _PAGE_H - _MARGIN - 6
+
+    # -- masthead: wordmark (serif) + document class + human number ---------
+    c.text(left, y - 18, "CERTONOMOUS", size=25, bold=True, color=_INK, serif=True)
+    c.text(left, y - 33, "CERTIFICATE OF AUTONOMOUS SOLVE", size=8.5, bold=True,
+           color=_MUTED)
+    c.text(right - 150, y - 6, "CERTIFICATE No.", size=8, bold=True, color=_MUTED)
+    c.text(right - 150, y - 22, cert_no, size=15, bold=True, color=_INK, serif=True)
+    y -= 48
+    c.rule(left, y, right, width=1.4, color=_INK)
+    y -= 30
+
+    # -- subject block -----------------------------------------------------
+    c.text(left, y, "SUBJECT", size=8, bold=True, color=_MUTED)
+    y -= 22
+    for line in _wrap(subject, 19, width):
+        c.text(left, y, line, size=19, bold=True, color=_INK, serif=True)
+        y -= 23
+    if source_filename:
+        c.text(left, y, f"source geometry: {source_filename}", size=8.5,
+               color=_MUTED)
+        y -= 16
+    y -= 6
+    for label, value in (("Objective", objective),
+                         ("Solver & model", solver or "—"),
+                         ("Issued (UTC)", issued_utc)):
+        c.text(left, y, label.upper(), size=8, bold=True, color=_MUTED)
+        for line in _wrap(str(value), 10.5, width - 120):
+            c.text(left + 120, y, line, size=10.5, color=_INK)
+            y -= 14
+        y -= 6
+    y -= 6
+    c.rule(left, y, right)
+    y -= 28
+
+    # -- result block: value +- CI + fidelity chip -------------------------
+    c.text(left, y, "RESULT", size=8, bold=True, color=_MUTED)
+    chip_color = _FIDELITY_COLOR.get(chip, _DEFAULT_FIDELITY_COLOR)
+    chip_w = max(96.0, len(chip) * 6.4 + 22)
+    c.rect(right - chip_w, y - 5, chip_w, 21, fill=chip_color)
+    c.text(right - chip_w + 11, y + 1, chip, size=9.5, bold=True, color=_WHITE)
+    y -= 30
+    quantity = str(primary.get("quantity", "Result"))
+    value = str(primary.get("value", ""))
+    env = primary.get("envelope")
+    c.text(left, y, quantity, size=11, color=_MUTED)
+    y -= 26
+    headline = f"{value}   {_fold('±')} {env}" if env else value
+    c.text(left, y, headline, size=24, bold=True, color=_INK, serif=True)
+    c.text(left + 8, y - 16, "95% confidence interval" if env else "point estimate",
+           size=8.5, color=_MUTED)
+    y -= 34
+    reason = primary.get("reason")
+    if reason:
+        for line in _wrap(f"Basis: {reason}", 9.5, width):
+            c.text(left, y, line, size=9.5, color=_MUTED)
+            y -= 13
+    # secondary results
+    for item in results[1:]:
+        c.text(left, y, str(item.get("quantity", "")), size=9, bold=True, color=_INK)
+        val = str(item.get("value", ""))
+        ienv = item.get("envelope")
+        c.text(left + 160, y, f"{val}   {ienv}" if ienv else val, size=9, color=_MUTED)
+        y -= 13
+    y -= 10
+    c.rule(left, y, right)
+    y -= 26
+
+    # -- three-channel uncertainty table -----------------------------------
+    c.text(left, y, "UNCERTAINTY  ·  ASME V&V 20 THREE-CHANNEL", size=8, bold=True,
+           color=_MUTED)
+    y -= 8
+    c.rule(left, y, right, width=0.5)
+    y -= 16
+    c.text(left, y, "CHANNEL", size=7.5, bold=True, color=_MUTED)
+    c.text(left + 150, y, "VALUE", size=7.5, bold=True, color=_MUTED)
+    c.text(left + 250, y, "STATE", size=7.5, bold=True, color=_MUTED)
+    y -= 6
+    c.rule(left, y, right, width=0.5)
+    y -= 16
+    table = channels or [{"name": n} for n in ("Input", "Numerical", "Model form")]
+    for ch in table:
+        state = "quantified" if ch.get("quantified") else "not quantified"
+        name = str(ch.get("name", ""))
+        cval = str(ch.get("value", "")) if ch.get("value") is not None else "—"
+        c.text(left, y, name, size=9.5, bold=True, color=_INK)
+        c.text(left + 150, y, cval, size=9.5, color=_INK)
+        c.text(left + 250, y, state, size=9,
+               color=_MUTED if ch.get("quantified") else (0.66, 0.45, 0.10))
+        y -= 13
+        note = ch.get("note")
+        if note:
+            for line in _wrap(str(note), 8.5, width - 14):
+                c.text(left + 14, y, line, size=8.5, color=_MUTED)
+                y -= 11
+        y -= 4
+
+    # -- provenance footer -------------------------------------------------
+    foot_h = 66
+    fy = _MARGIN + 22
+    c.rect(left, fy, width, foot_h, fill=(0.965, 0.972, 0.980))
+    ty = fy + foot_h - 15
+    c.text(left + 12, ty, "PROVENANCE  ·  EVIDENCE-BUNDLE SEAL (SHA-256)", size=8,
+           bold=True, color=_SEAL)
+    ty -= 15
+    c.text(left + 12, ty, seal[:32], size=9, bold=True, color=_SEAL)
+    c.text(left + 12, ty - 11, seal[32:], size=9, bold=True, color=_SEAL)
+    ty -= 24
+    c.text(left + 12, ty, f"Mission {mission_id}   ·   Certificate {cert_no}",
+           size=8, color=_MUTED)
+    c.text(left, _MARGIN + 6,
+           "Reproducible from the sealed evidence bundle; any change to the recorded "
+           "run invalidates the seal. No tier exceeds TREND ONLY without an experimental comparison.",
+           size=7.5, color=_MUTED)
+
+    out_path = Path(out_path).with_suffix(".pdf")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_bytes(c.to_pdf())
+    return {"path": str(out_path), "hash": seal, "mission_id": mission_id,
+            "tier": tier, "fidelity": chip, "certificate_no": cert_no}

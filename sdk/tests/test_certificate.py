@@ -4,8 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from chief_engineer.certificate import (build_certificate, evidence_hash,
-                                        _seal_payload)
+from chief_engineer.certificate import (build_certificate,
+                                        build_certificate_v2, display_name_for,
+                                        evidence_hash, _seal_payload)
 
 
 def _report():
@@ -103,6 +104,41 @@ class PdfTests(unittest.TestCase):
         report["results"][0]["reason"] = "within ±5%, Re ≈ 270, ≥ threshold"
         out = self._build(report)
         self.assertTrue(Path(out["path"]).read_bytes().startswith(b"%PDF"))
+
+
+class RedesignV2Tests(unittest.TestCase):
+    def _build_v2(self, **kw):
+        with tempfile.TemporaryDirectory() as d:
+            out = build_certificate_v2(
+                _report(), out_path=Path(d) / "c.pdf", channels=_CHANNELS,
+                display_name="B-52 Stratofortress-class airframe",
+                source_filename="b52.stl", solver="simpleFoam k-omega SST", **{**_KW, **kw})
+            return out, Path(out["path"]).read_bytes()
+
+    def test_v2_renders_valid_pdf_and_seal_matches_default(self):
+        out, data = self._build_v2()
+        self.assertTrue(data.startswith(b"%PDF"))
+        self.assertTrue(data.rstrip().endswith(b"%%EOF"))
+        # The seal covers the same facts, so it must equal the default cert's.
+        with tempfile.TemporaryDirectory() as d:
+            old = build_certificate(_report(), out_path=Path(d) / "o.pdf",
+                                    channels=_CHANNELS, **_KW)
+        self.assertEqual(out["hash"], old["hash"])
+
+    def test_v2_has_human_certificate_number_not_slug(self):
+        out, _ = self._build_v2()
+        self.assertRegex(out["certificate_no"], r"^C-\d{4}-\d{4}$")
+        self.assertNotEqual(out["certificate_no"], _KW["mission_id"])
+
+    def test_v2_fidelity_chip(self):
+        out, _ = self._build_v2()
+        self.assertIn(out["fidelity"],
+                      {"VALIDATED", "SOLVER-BACKED", "CONCEPTUAL MODEL"})
+
+    def test_display_name_fallback(self):
+        self.assertEqual(display_name_for("b52"),
+                         "B-52 Stratofortress-class airframe")
+        self.assertEqual(display_name_for("b52", "Explicit name"), "Explicit name")
 
 
 if __name__ == "__main__":

@@ -98,15 +98,34 @@ counters + per-solver breakdown.
 - **v3-N2 (benchmarks content):** done (closure board + speed placeholders).
 - **v4.1-W4 (certificate redesign):** see status below.
 
-## Certificate redesign (v4.1 item 4) — STATUS
+## Certificate redesign (v4.1 item 4) — DONE (proposal, not default)
 
-<!-- STATUS-CERT -->
+- **Additive generator** `build_certificate_v2` in `sdk/chief_engineer/certificate.py`
+  (the default `build_certificate` is UNCHANGED — v2 becomes default only on
+  sign-off). Serif/sans pairing (added Times faces to the PDF canvas), human
+  **Certificate No. C-2026-NNNN** masthead (mission slug demoted to the
+  provenance footer), subject block leading with the geometry **display name**
+  ("B-52 Stratofortress-class airframe"; filename small metadata), result block
+  with value ± 95% CI + **fidelity chip** (SOLVER-BACKED / CONCEPTUAL MODEL /
+  VALIDATED), complete three-channel V&V-20 table, provenance footer with the
+  SHA-256 seal (truncated + full) and "Reproducible from the sealed evidence
+  bundle". The v2 seal equals the default's (same covered facts) — test-enforced.
+- **display_name** uses a local fallback map and will defer to GUI-2's
+  `display_names` registry once it lands (imported lazily).
+- **Old-vs-new PDFs for sign-off:** `sdk/scripts/build_certificate_compare.py` →
+  `demo-output/website/certificates/{b52-certificate-current.pdf,
+  b52-certificate-redesign.pdf,README.md}`.
+- ⚠️ **Substitution:** mission **M-C13431539C15** is NOT in this repo, and no
+  B-52 geometry-study mission is persisted here, so the record uses the project's
+  DOCUMENTED real B-52 numbers (193,880 cells, Cd 0.0471, ~8 core-min, TREND
+  ONLY). Regenerate against a live B-52 mission when one exists on this branch.
 
 ## Tests
 
-`cd sdk && python -m unittest discover tests` → **141 OK** (added
+`cd sdk && python -m unittest discover tests` → **145 OK** (added
 `tests/test_mega_batch.py`, 7 CI-safe tests covering the design stream,
-valve run_task, ledger durability/resume, and lab-stats counters).
+valve run_task, ledger durability/resume, and lab-stats counters; +4 in
+`tests/test_certificate.py` for the v2 redesign).
 
 ## Files touched / added
 - `sdk/workflows/mega_batch.py` (new), `sdk/chief_engineer/lab_stats.py` (new)
