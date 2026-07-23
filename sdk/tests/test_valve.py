@@ -66,10 +66,11 @@ class WaveformTests(unittest.TestCase):
 
 class WorkflowTests(unittest.TestCase):
     def test_multipoint_screen_grades_conceptual_model(self):
-        from workflows.valve_study import main
+        from workflows.valve_study import main, CANDIDATE_ANGLES
         events = {}
         verdict = {}
         agenda = {}
+        certificate = {}
 
         def emit(e, p):
             events[e] = events.get(e, 0) + 1
@@ -77,30 +78,64 @@ class WorkflowTests(unittest.TestCase):
                 verdict.update(p)
             if e == "agenda.updated":
                 agenda.update(p)
+            if e == "certificate.ready":
+                certificate.update(p)
 
         import os
         os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
         rc = main(request="minimise valve pressure loss over the cardiac cycle", emit=emit)
         self.assertEqual(rc, 0)
-        # 4 candidates -> 4 cycle-weighted landscape points
-        self.assertEqual(events.get("landscape.point"), 4)
+        n = len(CANDIDATE_ANGLES)
+        # A denser sweep so the valve visibly cycles many more times: one
+        # cycle-weighted landscape point per real candidate.
+        self.assertGreaterEqual(n, 10)
+        self.assertEqual(events.get("landscape.point"), n)
         self.assertEqual(events.get("report.ready"), 1)
         self.assertEqual(events.get("uncertainty.channels"), 1)
-        # valve now renders: 4 candidate valves + the winner in the viewport
-        self.assertEqual(events.get("geometry.ready"), 5)
+        # valve renders every candidate valve plus the winner in the viewport
+        self.assertEqual(events.get("geometry.ready"), n + 1)
         # the systolic waveform figure leads the report
         self.assertEqual(events.get("plot.ready"), 1)
         # the dispatch panel and the live objective trace are fed
-        self.assertGreaterEqual(events.get("dispatch.update", 0), 8)
-        self.assertEqual(events.get("trace.point"), 4)
+        self.assertGreaterEqual(events.get("dispatch.update", 0), 2 * n)
+        self.assertEqual(events.get("trace.point"), n)
         # hard cap
         self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
+        # Physics stays consistent: the widest admissible orifice still wins, so
+        # the denser sweep peaks in the same 80 deg region as the old screen.
+        self.assertIn("80 deg", verdict.get("envelope", ""))
+        # Act 3 carries a Certonomous certificate with its evidence seal.
+        self.assertEqual(events.get("certificate.ready"), 1)
+        self.assertEqual(certificate.get("fidelity"), "CONCEPTUAL MODEL")
+        self.assertEqual(certificate.get("dir"), "valve-study")
+        self.assertTrue(Path(certificate.get("path", "")).exists())
         # agenda carries the three deferred capabilities
         self.assertEqual(len(agenda.get("entries", [])), 3)
         for entry in agenda["entries"]:
             self.assertIn("title", entry)
             self.assertIn("scope", entry)
             self.assertIn("cost", entry)
+
+    def test_certificate_failure_never_takes_down_a_good_mission(self):
+        # A certificate is wrapped: if issuing it raises, the mission must still
+        # complete and report normally.
+        import os
+        from unittest import mock
+        from workflows.valve_study import main
+
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+        events = {}
+
+        def emit(e, p):
+            events[e] = events.get(e, 0) + 1
+
+        with mock.patch("chief_engineer.certificate.build_certificate_v2",
+                        side_effect=RuntimeError("boom")):
+            rc = main(request="minimise valve pressure loss over the cardiac "
+                              "cycle", emit=emit)
+        self.assertEqual(rc, 0)
+        self.assertEqual(events.get("report.ready"), 1)
+        self.assertIsNone(events.get("certificate.ready"))
 
     def test_router_sends_valve_prompts_to_the_valve_study(self):
         from chief_engineer.router import classify, VALVE_STUDY
