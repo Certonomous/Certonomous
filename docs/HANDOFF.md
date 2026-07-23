@@ -1,5 +1,29 @@
 # Certonomous — session handoff
 
+## ROUND 2 + UQ PROGRAM EXECUTED (2026-07-23 afternoon) — all merged, 206 green
+
+- Round-2 feedback: geometry fills the stage; plots legible (scrolling column);
+  transcript synced with visuals in ONE paced queue; PACE READING/FAST;
+  presentation mode removed; dark themed report plots everywhere; live Cd
+  iteration traces; em-dashes purged (register test); self-grading speech
+  removed; SOLVER-BACKED never renders (unlabeled default); G13 clause;
+  G12 motorBike paint fixed (body patches only + sanity fallback + autoframe,
+  101,235-face Cp-painted bike, B-52 re-verified); Act 1 morphs 96 wings,
+  9 real finalists, same winner; optional NACA 4412 act VALIDATED;
+  certificate v2 default (signed off).
+- Race is a routed in-GUI act (race-comparison): split lanes, measured
+  10.7x core-min this run, paths agree 0.1%; five-video capture kit
+  (sdk/scripts/capture_video.py).
+- UQ Q1-Q5 landed: chief_engineer/uq.py + models/curriculum/uq-studies/
+  per-body records (ladders, closure trios, anchors, valve quadrature),
+  RSS combined 95% headlines with breakdown, fingerprint provenance,
+  honesty rails tested. Queued follow-ups: B-52 closures, SA re-run.
+- Mega-batch: 24,7xx real evaluations and running (ledger in
+  ct-website-pipeline worktree; ledger.jsonl.quarantine-20260723 documents a
+  reversed false quarantine - see commit f1517eb note).
+- Server pattern: START DETACHED (powershell Start-Process) - harness
+  background tasks get culled and take the server with them otherwise.
+
 ## NIGHT ORDERS v4 EXECUTED (2026-07-23 morning) — six-agent build, all merged
 
 Main integrates six work streams (orchestrator + 5 agents in worktrees), 175
