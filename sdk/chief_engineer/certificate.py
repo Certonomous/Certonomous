@@ -512,7 +512,10 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     env = primary.get("envelope")
     c.text(left, y, quantity, size=11, color=_MUTED)
     y -= 26
-    headline = f"{value}   {_fold('±')} {env}" if env else value
+    # Some report envelopes already carry their own leading "±"; never print
+    # the sign twice.
+    env_text = env.lstrip("± ").strip() if env else ""
+    headline = f"{value}   {_fold('±')} {env_text}" if env_text else value
     c.text(left, y, headline, size=24, bold=True, color=_INK, serif=True)
     c.text(left + 8, y - 16, "95% confidence interval" if env else "point estimate",
            size=8.5, color=_MUTED)
