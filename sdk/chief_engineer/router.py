@@ -166,13 +166,15 @@ def _deadline_minutes(text: str) -> float | None:
 
 
 def _mentioned_geometry(text: str) -> tuple[str | None, bool]:
-    """Return the geometry named in the request and whether we have run it."""
+    """Return the geometry named in the request and whether we have run it.
+
+    Whole-word matching only — "car" must not fire inside "cardiac"."""
     lowered = text.lower()
     for name in KNOWN_GEOMETRIES:
-        if name in lowered:
+        if re.search(rf"\b{re.escape(name)}\b", lowered):
             return name, True
     for name in CANDIDATE_GEOMETRIES:
-        if name in lowered:
+        if re.search(rf"\b{re.escape(name)}\b", lowered):
             return name, False
     return None, False
 
