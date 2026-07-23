@@ -14,6 +14,7 @@ used when it exists, and the validated motorBike is the default.
 
 from __future__ import annotations
 
+import re
 import sys
 import time
 from pathlib import Path
@@ -334,7 +335,13 @@ def main(request: str | None = None, params: dict | None = None,
             script.engineer(f"• {step} — {result.seconds:.0f} s — {note}.")
     except Exception as exc:
         roster.set(CHIEF_ENGINEER, "halted", "blocked")
-        script.engineer(f"• The study stopped: {exc}")
+        # A failed stage raises with the raw solver log tail attached, for the
+        # saved log file — never narrate that verbatim, just which stage and
+        # that the detail is on record.
+        step_match = re.match(r"step '(\w+)' failed", str(exc))
+        stopped_at = step_match.group(1) if step_match else "a solver stage"
+        script.engineer(f"• The study stopped: {stopped_at} did not complete "
+                        f"cleanly — detail in the saved log, not on screen.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
