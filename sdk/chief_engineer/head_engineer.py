@@ -209,12 +209,16 @@ def envelope_statistics(series: Sequence[float], window_fraction: float = 0.2):
 
 
 def plot_with_envelope(iterations, series, name, out_png, *, window: int = 25):
-    """Convergence curve with a rolling ±2-sigma envelope, single hue, one axis."""
-    try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-    except ImportError:
+    """Convergence curve with a rolling ±2σ envelope — dark GUI theme, mathtext.
+
+    The report figure reads as part of the control room, not a default-white
+    matplotlib chart: the panel palette, typeset $C_d$/$C_\\ell$ labels, a titled
+    frame, a legend, and one annotated key value, sized to span the report
+    column (G10).
+    """
+    from . import plot_theme as _t
+    plt = _t._pyplot()
+    if plt is None:
         return None
 
     means, los, his = [], [], []
@@ -224,32 +228,27 @@ def plot_with_envelope(iterations, series, name, out_png, *, window: int = 25):
         s = (sum((v - m) ** 2 for v in chunk) / (len(chunk) - 1)) ** 0.5 if len(chunk) > 1 else 0.0
         means.append(m); los.append(m - 2 * s); his.append(m + 2 * s)
 
-    line = "#2563b8"
-    ink, muted = "#1c2430", "#6b7684"
-    fig, ax = plt.subplots(figsize=(8.2, 4.4), dpi=140)
-    ax.fill_between(iterations, los, his, color=line, alpha=0.16, linewidth=0)
-    ax.plot(iterations, series, color=line, linewidth=0.9, alpha=0.45)
-    ax.plot(iterations, means, color=line, linewidth=2.0)
+    label = _t.metric_label(name)
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    ax.fill_between(iterations, los, his, color=_t.LIVE, alpha=0.16, linewidth=0,
+                    label=r"$\pm 2\sigma$ envelope")
+    ax.plot(iterations, series, color=_t.LIVE, linewidth=0.9, alpha=0.4,
+            label="per-iteration")
+    ax.plot(iterations, means, color=_t.LIVE, linewidth=2.4,
+            label=f"rolling mean ({window})")
     final = envelope_statistics(series)
     if final:
         ax.annotate(
-            f"{name} = {final['value']:.4g} ± {2 * final['sigma']:.2g} (95%)",
-            xy=(iterations[-1], means[-1]), xytext=(-8, 14),
-            textcoords="offset points", ha="right", fontsize=10, color=ink,
+            f"{label} = {final['value']:.4g} $\\pm$ {2 * final['sigma']:.2g} (95%)",
+            xy=(iterations[-1], means[-1]), xytext=(-8, 16),
+            textcoords="offset points", ha="right", fontsize=12,
+            color=_t.INK, weight="bold",
         )
-        ax.annotate("±2σ envelope", xy=(iterations[len(iterations) // 3],
-                    his[len(his) // 3]), xytext=(0, 6), textcoords="offset points",
-                    fontsize=8.5, color=muted)
-    ax.set_xlabel("iteration", color=ink, fontsize=9)
-    ax.set_ylabel(name, color=ink, fontsize=9)
-    ax.set_title(f"{name} convergence with uncertainty envelope",
-                 color=ink, fontsize=11, loc="left")
-    ax.grid(True, color="#dfe4ea", linewidth=0.6)
-    for spine in ("top", "right"):
-        ax.spines[spine].set_visible(False)
-    for spine in ("left", "bottom"):
-        ax.spines[spine].set_color(muted)
-    ax.tick_params(colors=muted, labelsize=8)
+    _t.style_axes(ax, "iteration", label,
+                  f"{label} convergence with uncertainty envelope")
+    leg = ax.legend(frameon=False, fontsize=10.5, labelcolor=_t.INK, loc="best")
+    for text in leg.get_texts():
+        text.set_color(_t.INK)
     fig.tight_layout()
     fig.savefig(out_png)
     plt.close(fig)
@@ -287,6 +286,7 @@ class HeadEngineer:
         self.geometry_report: dict[str, Any] = {}
         self.mesh_stats: dict[str, Any] = {}
         self.results: dict[str, Any] = {}
+        self.histories: dict[str, dict[str, list[float]]] = {}
         self.plots: list[str] = []
 
     # -- infrastructure ----------------------------------------------------
@@ -518,6 +518,10 @@ class HeadEngineer:
                     continue
                 stats = envelope_statistics(series)
                 results[name] = stats
+                # Keep the full marching history so the workflow can stream the
+                # coefficient being computed iteration by iteration (live trace).
+                self.histories[name] = {"iterations": list(iterations[:len(series)]),
+                                        "series": list(series)}
                 png = plot_with_envelope(iterations[:len(series)], series, name,
                                          self.out_root / f"{name}_envelope.png")
                 if png:
