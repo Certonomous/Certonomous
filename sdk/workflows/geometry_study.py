@@ -391,7 +391,7 @@ def main(request: str | None = None, params: dict | None = None,
                 "series": "Cd_history", "x": round(iters[i], 0),
                 "y": round(series[i], 5), "lo": round(m - 2 * s, 5),
                 "hi": round(m + 2 * s, 5), "x_label": "solver iteration",
-                "y_label": "Cd", "title": "Drag coefficient — solver iteration history",
+                "y_label": "Cd", "title": "Drag coefficient: solver iteration history",
                 "feasible": True})
 
     # Paint the geometry with the solved pressure field: the money shot is the
