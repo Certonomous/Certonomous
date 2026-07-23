@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-07-23T04:14:38Z",
-  "ledger": "C:\\Users\\mouza\\github-cleanup\\ct-website-pipeline\\demo-output\\website\\mega-batch\\ledger.jsonl",
+  "generated_at": "2026-07-23T05:11:49Z",
+  "ledger": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\website\\mega-batch\\ledger.jsonl",
   "totals": {
-    "evaluations_ok": 657,
+    "evaluations_ok": 2026,
     "evaluations_failed": 0,
-    "wall_span_hours": 0.35,
-    "observed_throughput_per_hr": 1877.1,
-    "core_hours": 1.394
+    "wall_span_hours": 0.999,
+    "observed_throughput_per_hr": 2028.8,
+    "core_hours": 3.983
   },
   "per_solver": {
     "openfoam-cylinder": {
       "label": "real-solve",
-      "count": 218,
-      "mean_wall_s": 14.485,
-      "median_wall_s": 12.912,
-      "min_wall_s": 6.192,
-      "max_wall_s": 46.3,
-      "per_worker_throughput_per_hr": 248.5
+      "count": 675,
+      "mean_wall_s": 13.366,
+      "median_wall_s": 11.844,
+      "min_wall_s": 4.357,
+      "max_wall_s": 52.644,
+      "per_worker_throughput_per_hr": 269.3
     },
     "vspaero-wing": {
       "label": "real-solve",
-      "count": 219,
-      "mean_wall_s": 8.485,
-      "median_wall_s": 7.631,
-      "min_wall_s": 7.063,
+      "count": 675,
+      "mean_wall_s": 7.876,
+      "median_wall_s": 7.256,
+      "min_wall_s": 6.013,
       "max_wall_s": 21.934,
-      "per_worker_throughput_per_hr": 424.3
+      "per_worker_throughput_per_hr": 457.1
     },
     "reduced-order": {
       "label": "reduced-order-eval",
-      "count": 220,
-      "mean_wall_s": 0.004,
+      "count": 676,
+      "mean_wall_s": 0.002,
       "median_wall_s": 0.002,
       "min_wall_s": 0.0,
       "max_wall_s": 0.383,
-      "per_worker_throughput_per_hr": 992481.2
+      "per_worker_throughput_per_hr": 1572093.0
     }
   },
   "closure_challenge": {
@@ -59,10 +59,10 @@
   "speed_benchmark": {
     "name": "Reduced-order speed benchmark",
     "case": "NACA 4412",
-    "full_mc_core_min": null,
-    "reduced_core_min": null,
-    "speedup_x": null,
-    "status": "pending measured run",
+    "full_mc_core_min": 45.4,
+    "reduced_core_min": 2.1,
+    "speedup_x": 21.5,
+    "status": "measured",
     "source": "BG-1 measured race (docs/HANDOFF-BG1.md)"
   }
 }

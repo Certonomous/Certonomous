@@ -62,15 +62,17 @@ _CLOSURE = {
     "our_score": None,   # never displayed until a real computed score exists
 }
 
-# Speed benchmark — values ONLY from BG-1's measured NACA 4412 race runs.
-# Left as pending placeholders until those measured numbers exist.
+# Speed benchmark — measured on this machine, 2026-07-23 (BG-1's NACA 4412
+# race, pass 1 headline; pass 2 under heavier load gave 29.8x). Every point a
+# real VSPAERO solve; details in docs/HANDOFF-BG1.md and
+# demo-output/website/race/benchmarks.md.
 _SPEED = {
     "name": "Reduced-order speed benchmark",
     "case": "NACA 4412",
-    "full_mc_core_min": None,
-    "reduced_core_min": None,
-    "speedup_x": None,
-    "status": "pending measured run",
+    "full_mc_core_min": 45.4,
+    "reduced_core_min": 2.1,
+    "speedup_x": 21.5,
+    "status": "measured",
     "source": "BG-1 measured race (docs/HANDOFF-BG1.md)",
 }
 
