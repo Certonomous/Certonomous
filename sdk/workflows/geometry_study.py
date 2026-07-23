@@ -171,11 +171,29 @@ _AGENDA = [
 def main(request: str | None = None, params: dict | None = None,
          iterations: int = 300, emit=None) -> int:
     params = dict(params or {})
+    out = OUT_ROOT / "geometry-study"
+    out.mkdir(parents=True, exist_ok=True)
+
+    # A body was named in the prompt but is not in the staged catalog and no
+    # surface was supplied for it. Say so honestly rather than silently solving
+    # the default body (motorBike) and passing it off as the requested one.
+    unavailable = params.get("surface_unavailable")
+    if unavailable and not params.get("surface"):
+        script = make_transcript("geometry study", emit)
+        script.system(request or f"Request: solve the supplied {unavailable} geometry.")
+        note = (f"• The prompt names {unavailable}, which is not in the staged "
+                f"geometry catalog and no surface file was supplied for it. "
+                f"• This run will not solve a different body and pass it off as "
+                f"{unavailable}: stage or upload that geometry, then re-run.")
+        script.engineer(note)
+        if emit:
+            emit("mission.note", {"unavailable": unavailable, "detail": note})
+        script.save(out / "transcript.txt")
+        return 0
+
     surface, familiar = _resolve_surface(params.get("surface"))
     label = Path(surface).stem
     shown = display_name(label)  # camera-facing name; `label` stays the file-safe slug
-    out = OUT_ROOT / "geometry-study"
-    out.mkdir(parents=True, exist_ok=True)
 
     # A curriculum body carries an experimental reference and the orientation
     # and speed that put the solve in the reference's regime. Explicit params

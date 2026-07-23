@@ -31,7 +31,9 @@ through to the general capability-driven mission planner.
 from __future__ import annotations
 
 import re
+import shutil
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 SHAPE_OPTIMIZATION = "shape-optimization"
@@ -93,6 +95,66 @@ _GEOMETRY_RUN = re.compile(
     r"aircraft|airplane|plane|wing|car|hull|case|simulation)\b",
     re.I)
 _SURFACE_FILE = re.compile(r"\b([\w.-]+\.(?:stl|obj))\b", re.I)
+
+# --- named-body resolution -------------------------------------------------
+# When a prompt NAMES a body the lab has staged ("the NACA 4412 finite-wing
+# geometry") but no file is uploaded and no *.stl/*.obj literal is typed, the
+# geometry study must solve the body that was ASKED FOR, not silently fall back
+# to the default motorBike. This table maps prompt vocabulary to the staged
+# surface; ``classify`` sets ``params["surface"]`` from it so the decision is
+# visible on the route panel (router-level, not buried in the workflow).
+#
+# Each entry is (pattern, staged filename, curriculum subdir to stage from if
+# the surface is not present in sdk/geometry). Ordered most-specific first.
+_GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
+_CURRICULUM_DIR = Path(__file__).resolve().parents[2] / "models" / "curriculum"
+_NAMED_BODIES: tuple[tuple["re.Pattern[str]", str, str | None], ...] = (
+    (re.compile(r"\bnaca[\s-]*4412\b|\b4412\b", re.I),
+     "naca4412_wing.stl", "naca4412_wing"),
+    (re.compile(r"\bnaca[\s-]*0012\b|\b0012\b", re.I),
+     "naca0012_wing.stl", "naca0012_wing"),
+    (re.compile(r"\b(?:b[\s-]?52|stratofortress)\b", re.I), "b52.stl", None),
+    (re.compile(r"\b(?:motorcycle|motorbike|motor[\s-]?bike)\b", re.I),
+     "motorBike.obj", None),
+)
+
+
+def _stage_body(filename: str, curriculum_subdir: str | None) -> bool:
+    """Ensure the named surface is present in sdk/geometry; stage it if not.
+
+    Returns whether a usable surface file now exists. A body named in a prompt
+    but absent from both the staging dir and the curriculum is NOT staged, and
+    the caller must say so honestly rather than solve the default body.
+    """
+    dest = _GEOMETRY_DIR / filename
+    if dest.exists():
+        return True
+    if curriculum_subdir:
+        src = _CURRICULUM_DIR / curriculum_subdir / filename
+        if src.exists():
+            try:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy(src, dest)
+                return True
+            except OSError:
+                return False
+    return dest.exists()
+
+
+def resolve_named_body(text: str) -> tuple[str | None, str | None, bool]:
+    """Map body vocabulary in a prompt to a staged surface filename.
+
+    Returns ``(filename, matched_phrase, available)``. ``available`` is False
+    when the body is recognized but no staged surface backs it, so the caller
+    can report the gap honestly instead of silently solving the default body.
+    Returns ``(None, None, False)`` when no known body is named.
+    """
+    for pattern, filename, subdir in _NAMED_BODIES:
+        match = pattern.search(text or "")
+        if match:
+            return filename, match.group(0), _stage_body(filename, subdir)
+    return None, None, False
+
 # Naming a turbulence model or solver is an instruction to run a case.
 _SOLVER_SETUP = re.compile(
     r"\b(k[\s-]?omega|k[\s-]?epsilon|komega|kepsilon|k[\s-]?sst|sst|rans|les|des|"
@@ -205,6 +267,11 @@ def classify(request: str) -> Route:
     geometry, known = _mentioned_geometry(text)
     surface_match = _SURFACE_FILE.search(text)
     surface_file = surface_match.group(1) if surface_match else None
+    # A named body (no file uploaded, no literal *.stl typed) resolves to its
+    # staged surface so the study solves what was asked for, not the default.
+    named_surface, named_phrase, named_available = (None, None, False)
+    if not surface_file:
+        named_surface, named_phrase, named_available = resolve_named_body(text)
     deadline = _deadline_minutes(text)
     length_match = _REFERENCE_LENGTH.search(text)
     reynolds_match = _REYNOLDS.search(text)
@@ -220,6 +287,12 @@ def classify(request: str) -> Route:
     # --- a named surface, or an explicit instruction to run one ---
     if surface_file:
         add(GEOMETRY_STUDY, 1.2, f"names the surface {surface_file!r}")
+    elif named_surface and named_available:
+        add(GEOMETRY_STUDY, 1.2,
+            f"names the staged body {named_phrase!r} -> {named_surface}")
+    elif named_phrase and not named_available:
+        add(GEOMETRY_STUDY, 0.8,
+            f"names {named_phrase!r}, which is not in the staged catalog")
     if _GEOMETRY_RUN.search(text):
         add(GEOMETRY_STUDY, 1.4, "asks for a geometry to be meshed and solved")
     solver_setup = _SOLVER_SETUP.search(text)
@@ -280,6 +353,13 @@ def classify(request: str) -> Route:
     params: dict[str, Any] = {"request": text}
     if surface_file:
         params["surface"] = surface_file
+    elif named_surface and named_available:
+        # Router-level surface: the route panel reflects the resolved body.
+        params["surface"] = named_surface
+    elif named_phrase and not named_available:
+        # Named but never staged: carried so the workflow says so honestly
+        # instead of silently solving the default body.
+        params["surface_unavailable"] = named_phrase
     if solver_setup:
         params["solver_setup"] = solver_setup.group(0)
     if geometry:

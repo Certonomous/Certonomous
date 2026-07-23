@@ -255,6 +255,59 @@ class RouterTests(unittest.TestCase):
             "confidence envelopes.")
         self.assertEqual(route.intent, "geometry-study")
 
+    # -- named-body resolution (P0): a body named in the prompt, with no file
+    # uploaded and no *.stl literal typed, must resolve to ITS staged surface,
+    # never the default motorBike. --
+    def test_b52_directive_resolves_the_b52_surface(self):
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied B-52 geometry at "
+            "240 m/s, sea-level conditions. Select the appropriate turbulence "
+            "model and solver, gate the mesh on quality, and report drag and "
+            "lift with confidence envelopes.")
+        self.assertEqual(route.params.get("surface"), "b52.stl")
+
+    def test_naca4412_directive_resolves_the_naca_surface_not_the_default(self):
+        # The reported P0 bug: this directive, typed without a file upload,
+        # silently solved the motorcycle. It must resolve the NACA wing.
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied NACA 4412 "
+            "finite-wing geometry at cruise Reynolds number. Select the "
+            "appropriate turbulence model and solver, gate the mesh on "
+            "quality, and report the lift and drag coefficients with "
+            "confidence envelopes.")
+        self.assertEqual(route.params.get("surface"), "naca4412_wing.stl")
+        self.assertNotEqual(route.params.get("surface"), "motorBike.obj")
+
+    def test_motorcycle_directive_still_resolves_the_motorbike_surface(self):
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied motorcycle-with-"
+            "rider geometry at highway speed, sea-level conditions. Select the "
+            "appropriate turbulence model and solver, gate the mesh on quality, "
+            "and report the drag coefficient with a confidence envelope.")
+        self.assertEqual(route.params.get("surface"), "motorBike.obj")
+
+    def test_naca0012_directive_resolves_the_naca0012_surface(self):
+        route = self._intent(
+            "Solve the external aerodynamics of the supplied NACA 0012 "
+            "finite-wing geometry at cruise Reynolds number and report the "
+            "lift and drag coefficients with confidence envelopes.")
+        self.assertEqual(route.params.get("surface"), "naca0012_wing.stl")
+
+    def test_uploaded_stl_literal_still_wins_over_a_named_body(self):
+        # An explicit file the user typed must not be overridden by name-guessing.
+        route = self._intent(
+            "Mesh and solve custom_wing.stl and report the drag coefficient.")
+        self.assertEqual(route.params.get("surface"), "custom_wing.stl")
+
+    def test_unstaged_named_body_is_flagged_not_silently_defaulted(self):
+        # A recognized body whose surface is genuinely absent must be flagged so
+        # the workflow can say so honestly, not solve the default body.
+        from chief_engineer import router as _router
+        surface, phrase, available = _router.resolve_named_body(
+            "solve the supplied NACA 4412 finite wing")
+        self.assertEqual(surface, "naca4412_wing.stl")
+        self.assertTrue(available)  # it is staged in this repo
+
     def test_airliner_directive_routes_to_aircraft_optimization(self):
         route = self._intent(
             "Optimize the lift-to-drag ratio of a twin-aisle airliner "
@@ -271,6 +324,25 @@ class RouterTests(unittest.TestCase):
             "cycle into representative phase points, rule on the admissible "
             "method, and report the cycle-weighted loss with its uncertainty.")
         self.assertEqual(route.intent, "valve-study")
+
+
+class GeometryStudyHonestyTests(unittest.TestCase):
+    def test_unavailable_body_does_not_silently_solve_the_default(self):
+        # When the router flags a named body as not staged, the study must say
+        # so and stop, never mesh the default motorBike and pass it off.
+        from workflows import geometry_study
+
+        events = []
+        rc = geometry_study.main(
+            request="Solve the supplied glider geometry.",
+            params={"surface_unavailable": "glider"},
+            emit=lambda e, p=None: events.append((e, p)))
+        self.assertEqual(rc, 0)
+        notes = [p for e, p in events if e == "mission.note"]
+        self.assertTrue(notes, "expected an honest mission.note")
+        self.assertEqual(notes[0].get("unavailable"), "glider")
+        # It must not have proceeded to a solved-field render of the default.
+        self.assertFalse([e for e, _ in events if e == "field.ready"])
 
 
 class CitationDisplayTests(unittest.TestCase):
