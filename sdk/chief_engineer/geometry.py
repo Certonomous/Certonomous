@@ -284,10 +284,15 @@ def valve_surface(opening_angle_deg: float, *, root_radius: float = 0.0115,
     theta = math.radians(min(max(float(opening_angle_deg), 1.0), 90.0))
     R = float(root_radius)
     L = float(root_length)
-    orifice_r = R * math.sin(theta)
+    # The free-edge radius follows sin(theta) so the orifice still opens and
+    # pinches monotonically with the angle, but a rendering scale keeps a visible
+    # leaflet band even at full open (a real leaflet is never a zero-width sliver)
+    # — the picture stays legible without breaking the honest parametrisation.
+    orifice_r = R * math.sin(theta) * 0.80
     # How far the free edge swings upstream off the outlet plane: wide open
-    # (theta→90°) barely moves; pinched (small theta) swings deep upstream.
-    depth = R * math.cos(theta) * 0.9
+    # swings little, pinched swings deep upstream — with a small floor so the
+    # three leaflets read as three even when the valve is nearly open.
+    depth = R * (math.cos(theta) * 0.85 + 0.14)
 
     vertices: list[list[float]] = []
     faces: list[list[int]] = []

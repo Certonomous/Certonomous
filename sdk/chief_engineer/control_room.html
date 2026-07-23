@@ -40,6 +40,7 @@
   .touch b { color: var(--live); font-size: 12px; }
   .present-btn { padding: 5px 11px; background: transparent; color: var(--muted); border: 1px solid var(--line-2); font: 9px var(--mono); letter-spacing: .14em; cursor: pointer; }
   .present-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .present-btn.on { color: var(--live); border-color: var(--live); }
   .shell.presenting .present-btn { background: var(--ink); color: #060708; border-color: var(--ink); }
 
   /* present bar */
@@ -52,7 +53,7 @@
   .layout { flex: 1 1 auto; min-height: 0; display: grid; gap: 1px; background: var(--line); }
   .shell:not(.launched) .layout { grid-template-columns: minmax(370px, 30%) minmax(0, 1fr); }
   .shell.launched .layout {
-    grid-template-columns: 330px minmax(0, 1fr) minmax(0, 1.3fr);
+    grid-template-columns: 300px minmax(0, 1.5fr) minmax(0, 1.05fr);
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas: "command viewport workspace" "telemetry viewport workspace";
   }
@@ -135,8 +136,35 @@
   .agenda-item .scope { color: var(--muted); font-size: 10.5px; margin-top: 2px; }
   .agenda-item .cost { color: var(--dim); font: 9px var(--mono); letter-spacing: .06em; margin-top: 2px; display: block; }
 
-  /* viewport */
-  .stage-wrap { position: relative; flex: 1 1 auto; min-height: 0; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
+  /* dispatch panel — a live per-worker strip: the viewer watches the fleet work */
+  .dispatch-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .dispatch-head .grant { color: var(--muted); font: 9px var(--mono); letter-spacing: .06em; }
+  .dispatch-head .grant b { color: var(--live); }
+  .dispatch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .slot { border: 1px solid var(--line-2); padding: 6px 8px; min-height: 40px; position: relative; overflow: hidden; }
+  .slot .sn { color: var(--dim); font: 8px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+  .slot .sl { display: block; font: 10.5px var(--mono); color: var(--ink); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot .st { display: block; font: 8.5px var(--mono); letter-spacing: .04em; margin-top: 2px; }
+  .slot.solving { border-color: var(--live); background: rgba(87,165,255,.06); }
+  .slot.solving .st { color: var(--live); }
+  .slot.solving::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: var(--live); animation: slotpulse 1.1s infinite; }
+  @keyframes slotpulse { 0%,100% { opacity: .3; } 50% { opacity: 1; } }
+  .slot.done { border-color: var(--line-2); }
+  .slot.done .st { color: var(--validated); }
+  .slot.lost { border-color: var(--needs); background: rgba(242,106,92,.07); }
+  .slot.lost .st { color: var(--needs); }
+  .slot.idle .st { color: var(--dim); }
+
+  /* live objective trace — the plot grows as candidates land, envelope forms live */
+  .trace-box { padding: 11px 18px; border-top: 1px solid var(--line); flex: 0 0 auto; }
+  .trace-box canvas { width: 100%; height: 168px; display: block; border: 1px solid var(--line-2); background: #040506; }
+  .evidence-row { display: flex; gap: 1px; background: var(--line); flex: 0 0 auto; }
+  .evidence-row > * { flex: 1 1 0; min-width: 0; border-top: 0; }
+  .evidence-row .landscape-box, .evidence-row .trace-box { border-top: 1px solid var(--line); }
+
+  /* viewport — the geometry stage is the hero: it takes the lion's share of the
+     column and never shrinks below a readable size. */
+  .stage-wrap { position: relative; flex: 1 1 auto; min-height: 320px; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
   #viewportCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .viewport-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--dim); font-size: 11.5px; padding: 40px; }
   .viewport-empty[hidden] { display: none; }
@@ -261,6 +289,7 @@
       <span class="beacon" id="beacon"></span>
       <span id="globalStatus">CHIEF STANDING BY</span>
       <span class="touch" id="touch" hidden>HUMAN TOUCHPOINTS · <b id="touchCount">1</b></span>
+      <button class="present-btn" id="paceBtn" title="Toggle recorded-pace playback">PACE · READING</button>
       <button class="present-btn" id="presentBtn" title="Presentation mode (P)">PRESENT</button>
     </div>
   </header>
@@ -299,6 +328,10 @@
         <p class="audit-reason" id="auditReason"></p>
       </div>
       <div class="tsection" id="rosterSection" hidden><span class="eyebrow">The team</span><div id="roster"></div></div>
+      <div class="tsection" id="dispatchSection" hidden>
+        <div class="dispatch-head"><span class="eyebrow">Dispatch — the fleet</span><span class="grant" id="dispatchGrant"></span></div>
+        <div class="dispatch-grid" id="dispatchGrid"></div>
+      </div>
       <div class="tsection" id="computeSection" hidden><span class="eyebrow">Compute ledger</span><div class="tiles" id="computeTiles"></div><p class="channel-note" id="computeNote"></p></div>
       <div class="tsection" id="channelsSection" hidden><span class="eyebrow">Uncertainty · V&amp;V 20</span><div id="channels"></div></div>
       <div class="tsection" id="knowSection" hidden><span class="eyebrow">Lab knowledge</span><div id="knowledge"></div></div>
@@ -310,10 +343,17 @@
       <div class="stage-wrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div></div>
       <div class="viewport-foot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
       <div class="legend" id="legend"><span id="legendLo">—</span><span class="bar"></span><span id="legendHi">—</span><b id="legendName">pressure</b></div>
-      <div class="landscape-box" id="landscapeBox" hidden>
-        <span class="eyebrow" id="landTitle">Design-space landscape</span>
-        <div class="land-wrap"><canvas id="landscape"></canvas><div class="land-tip" id="landTip" hidden></div></div>
-        <div class="land-legend"><span class="lg-dot ok"></span><span>feasible</span><span class="lg-dot bad"></span><span>infeasible</span><span class="lg-ring"></span><span>winner</span><span class="lg-note" id="landNote">hover a point for its design</span></div>
+      <div class="evidence-row" id="evidenceRow">
+        <div class="landscape-box" id="landscapeBox" hidden>
+          <span class="eyebrow" id="landTitle">Design-space landscape</span>
+          <div class="land-wrap"><canvas id="landscape"></canvas><div class="land-tip" id="landTip" hidden></div></div>
+          <div class="land-legend"><span class="lg-dot ok"></span><span>feasible</span><span class="lg-dot bad"></span><span>infeasible</span><span class="lg-ring"></span><span>winner</span><span class="lg-note" id="landNote">hover a point for its design</span></div>
+        </div>
+        <div class="trace-box" id="traceBox" hidden>
+          <span class="eyebrow" id="traceTitle">Objective trace — live</span>
+          <canvas id="trace"></canvas>
+          <div class="land-legend"><span class="lg-dot ok"></span><span id="traceSeriesLbl">objective</span><span class="lg-note">grows as candidates land</span></div>
+        </div>
       </div>
       <div class="result-card" id="resultCard" hidden></div>
       <div class="plots" id="plots"></div>
@@ -356,8 +396,13 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const setHidden = (id, v) => { const n = $(id); if (n) n.hidden = v; };
 const title = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+// Graceful display name from a raw surface name/slug: strip the extension and
+// path, humanise separators. Real display names come from event labels (and,
+// once it lands on main, the shared registry); this only guards raw fallbacks.
+const displayName = s => { if (!s) return ''; const base = String(s).split(/[\\/]/).pop().replace(/\.(stl|obj)$/i,''); return title(base); };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
-                landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest' };
+                landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest',
+                dispatch:{}, dispatchGrant:null, trace:null, recordedPace:false };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
 const revealQ = [];
@@ -368,15 +413,20 @@ setInterval(() => $('clock').textContent = new Date().toISOString().replace('T',
 $('launch').addEventListener('click', launchMission);
 $('surfaceFile').addEventListener('change', uploadSurface);
 $('presentBtn').addEventListener('click', togglePresent);
+$('paceBtn').addEventListener('click', () => {
+  state.recordedPace = !state.recordedPace;
+  $('paceBtn').textContent = state.recordedPace ? 'PACE · RECORDED' : 'PACE · READING';
+  $('paceBtn').classList.toggle('on', state.recordedPace);
+});
 $('askForm').addEventListener('submit', e => { e.preventDefault(); const q = $('askInput').value.trim(); if (q) { $('askInput').value=''; askLab(q); } });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showView(t.dataset.view)));
 document.addEventListener('keydown', e => { if ((e.key==='p'||e.key==='P') && !/TEXTAREA|INPUT/.test(e.target.tagName)) togglePresent(); });
-window.addEventListener('resize', () => { drawGeometry(); drawLandscape(); });
+window.addEventListener('resize', () => { drawGeometry(); drawLandscape(); drawTrace(); });
 loadRuntime(); loadCredentials();
 const qs = new URLSearchParams(location.search);
 if (qs.get('present') === '1') $('shell').classList.add('presenting');
 if (qs.get('forcelaunch') === '1') { $('shell').classList.add('launched'); setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true); }
-if (qs.get('mission')) resumeMission(qs.get('mission'));
+if (qs.get('mission')) resumeMission(qs.get('mission'), qs.get('static') === '1');
 const dv = qs.get('view'); if (dv && dv !== 'report') { $('shell').classList.add('browsing'); showView(dv); }
 
 async function loadRuntime() {
@@ -421,15 +471,46 @@ async function launchMission() {
   } catch (e) { toast(e.message); finish('failed'); }
 }
 
-async function resumeMission(id) {
+async function resumeMission(id, staticReplay) {
   resetMission(); state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('beacon').classList.add('live');
   $('globalStatus').textContent = 'REPLAYING MISSION'; $('launch').disabled = true;
   try {
-    const rec = await (await fetch(`/api/missions/${id}`)).json();
     state.mission = id; $('missionId').textContent = id.toUpperCase();
-    $('missionGoal').textContent = rec.request || id; setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true);
-    connect(id);
+    setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true);
+    // Static replay (?static=1): dispatch the recorded snapshot with no open
+    // SSE — the page reaches idle so headless captures render deterministically.
+    // The events are fetched first (the capture-critical call); the mission
+    // detail is a non-blocking follow-up just for the goal line.
+    if (staticReplay) {
+      state.instant = true;   // reveal at once — a deterministic still capture
+      // Synchronous fetch on purpose: the snapshot must be dispatched during the
+      // initial script run so a headless capture never races an unresolved
+      // promise. Only used for still captures (?static=1), never the live UI.
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', `/api/missions/${id}/events.json`, false);
+      xhr.send(null);
+      // A solver polar can carry NaN/Infinity; Python serialises those as bare
+      // tokens the browser's JSON.parse rejects. The live SSE path tolerates it
+      // per-frame; the bulk snapshot must sanitise before parsing.
+      const clean = xhr.responseText.replace(/\bNaN\b/g, 'null').replace(/-?\bInfinity\b/g, 'null');
+      const snap = JSON.parse(clean);
+      // ?upto=N freezes a deterministic MID-flight still (the fleet caught
+      // solving) instead of the completed end-state.
+      const upto = +new URLSearchParams(location.search).get('upto') || 0;
+      const evs = upto ? (snap.events || []).slice(0, upto) : (snap.events || []);
+      evs.forEach(e => { try { dispatch(e); } catch {} });
+      // A completed still shows the end-state: report forward, geometry and
+      // evidence plots beside it (B4). A mid-flight still stays on the digest.
+      if (!upto && !document.querySelector('.tab[data-view="memo"]').hidden) showView('memo');
+      drawGeometry(); drawLandscape(); drawTrace();
+      fetch(`/api/missions/${id}`).then(r => r.json())
+        .then(rec => { $('missionGoal').textContent = rec.request || id; }).catch(() => {});
+    } else {
+      const rec = await (await fetch(`/api/missions/${id}`)).json();
+      $('missionGoal').textContent = rec.request || id;
+      connect(id);
+    }
   } catch (e) { toast('Could not replay: ' + e.message); }
 }
 
@@ -446,11 +527,13 @@ function resetMission() {
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null;
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
   state.peakAgents=0; state.peakWorkers=0; revealQ.length=0; revealing=false;
+  state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
   loadRuntime();   // a new mission must earn the solver badge again
   const rc = $('resultCard'); if (rc) { rc.hidden = true; rc.innerHTML=''; }
   $('digest').innerHTML=''; $('script').innerHTML=''; $('memo').innerHTML='';
   $('plots').innerHTML=''; $('roster').innerHTML=''; $('computeTiles').innerHTML=''; $('channels').innerHTML=''; $('knowledge').innerHTML=''; $('agenda').innerHTML='';
-  ['auditSection','rosterSection','computeSection','channelsSection','knowSection','agendaSection','route','landscapeBox'].forEach(id => setHidden(id, true));
+  $('dispatchGrid').innerHTML=''; $('dispatchGrant').innerHTML='';
+  ['auditSection','rosterSection','dispatchSection','computeSection','channelsSection','knowSection','agendaSection','route','landscapeBox','traceBox'].forEach(id => setHidden(id, true));
   $('legend').classList.remove('on');
   $('kAgents').textContent='0'; $('kWorkers').textContent='0'; $('kCycle').textContent='—';
   const cv = $('viewportCanvas'), c = cv.getContext('2d'); c && c.clearRect(0,0,cv.width,cv.height);
@@ -469,6 +552,15 @@ function finish(status) {
   if (state.peakAgents) $('kAgents').textContent = state.peakAgents;
   if (state.peakWorkers) $('kWorkers').textContent = state.peakWorkers;
   if (state.source) { state.source.close(); state.source = null; }
+  // End state (B4): the completed mission is not a lone report pane — the painted
+  // geometry and the evidence plots stay in the centre column while the report
+  // comes forward on the right. Only auto-surface it if the viewer is still on
+  // the default digest (never override a deliberate navigation).
+  if (status !== 'failed' && state.currentView === 'digest'
+      && !document.querySelector('.tab[data-view="memo"]').hidden) {
+    showView('memo');
+  }
+  drawGeometry(); drawLandscape(); drawTrace();
 }
 
 function dispatch(env) {
@@ -494,6 +586,8 @@ function dispatch(env) {
     case 'field.ready': loadField(p); break;
     case 'plot.ready': addPlot(p); break;
     case 'landscape.point': pushLandscape(p); break;
+    case 'dispatch.update': dispatchUpdate(p); break;
+    case 'trace.point': pushTrace(p); break;
     case 'agent.started': state.agents++; $('kAgents').textContent = state.agents; break;
     case 'worker.provisioned': state.workers++; $('kWorkers').textContent = state.workers; break;
     case 'worker.released': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; break;
@@ -529,6 +623,102 @@ function renderAudit(p) {
   $('auditJobs').textContent = p.other_jobs ?? '—';
   $('auditLoad').textContent = p.load ?? '—';
   $('auditReason').textContent = p.reason || '';
+  // Feed the dispatch panel's requested-vs-granted line from the same audit.
+  if (p.requested != null && p.capacity != null) {
+    const full = fits && p.requested <= p.capacity;
+    state.dispatchGrant = full
+      ? `<b>${p.requested}</b> requested / capacity ${p.capacity} — full fan-out in one wave`
+      : `<b>${Math.min(p.requested, p.capacity)}</b> granted of ${p.requested} requested — staged`;
+    renderDispatchHead();
+  }
+}
+function renderDispatchHead() {
+  if (state.dispatchGrant) $('dispatchGrant').innerHTML = state.dispatchGrant;
+}
+// The dispatch panel is a live per-worker strip: each slot shows the design it
+// carries and its state (provisioning / solving / done / lost). The viewer
+// watches the fleet actually working through the sweep.
+function dispatchUpdate(p) {
+  if (p.slot == null) return;
+  setHidden('dispatchSection', false);
+  state.dispatch[p.slot] = { label: p.label || '', state: p.state || 'idle', detail: p.detail || '' };
+  renderDispatch();
+}
+function renderDispatch() {
+  const slots = Object.keys(state.dispatch).map(Number).sort((a, b) => a - b);
+  const stateWord = s => ({ solving:'solving', done:'done', lost:'lost — reprovisioning', idle:'idle' }[s] || s);
+  $('dispatchGrid').innerHTML = slots.map(n => {
+    const s = state.dispatch[n];
+    return `<div class="slot ${esc(s.state)}"><span class="sn">Worker ${n+1}</span>`
+      + `<span class="sl">${esc(s.label || '—')}</span>`
+      + `<span class="st">${esc(stateWord(s.state))}${s.detail ? ' · ' + esc(s.detail) : ''}</span></div>`;
+  }).join('');
+}
+
+// Live objective trace — a streaming line + envelope that grows as candidates
+// land, so the plot forms in real time rather than arriving finished.
+function pushTrace(p) {
+  if (p.x == null || p.y == null) return;
+  if (!state.trace || state.trace.series !== p.series) {
+    state.trace = { series: p.series, pts: [], xLabel: p.x_label || 'x', yLabel: p.y_label || 'y',
+                    title: p.title || 'Objective trace' };
+    $('traceTitle').textContent = (p.title || 'Objective trace') + ' — live';
+    $('traceSeriesLbl').textContent = p.series ? String(p.series).replace(/_/g, ' ') : 'objective';
+  }
+  state.trace.pts.push({ x: +p.x, y: +p.y, lo: p.lo != null ? +p.lo : null, hi: p.hi != null ? +p.hi : null,
+                         feasible: p.feasible !== false });
+  setHidden('traceBox', false);
+  drawTrace();
+}
+function drawTrace() {
+  const tr = state.trace, cv = $('trace'); if (!tr || !cv || !tr.pts.length) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 320, H = cv.clientHeight || 168;
+  cv.width = W*dpr; cv.height = H*dpr;
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const ML=48, MR=14, MT=12, MB=30, PW=W-ML-MR, PH=H-MT-MB;
+  const pts = tr.pts;
+  const xs = pts.map(p=>p.x), lows = pts.map(p=>p.lo!=null?p.lo:p.y), his = pts.map(p=>p.hi!=null?p.hi:p.y);
+  const xlo=Math.min(...xs), xhiR=(Math.max(...xs)-xlo)||1;
+  const ylo=Math.min(...lows), yhi=Math.max(...his), yr=(yhi-ylo)||1;
+  const yPad=0.12*yr;
+  const px=v=>ML+(v-xlo)/xhiR*PW, py=v=>MT+PH-(v-(ylo-yPad))/((yr+2*yPad)||1)*PH;
+  // frame + ticks
+  ctx.strokeStyle='rgba(140,170,200,.35)'; ctx.lineWidth=1; ctx.strokeRect(ML,MT,PW,PH);
+  ctx.fillStyle='rgba(190,210,230,.75)'; ctx.font='9px ui-monospace,monospace';
+  const fmt=v=>Math.abs(v)>=100?v.toFixed(0):+v.toPrecision(3);
+  for (let i=0;i<=3;i++){
+    const yv=(ylo-yPad)+(yr+2*yPad)*i/3, Y=MT+PH-PH*i/3;
+    ctx.strokeStyle='rgba(140,170,200,.10)'; ctx.beginPath(); ctx.moveTo(ML,Y); ctx.lineTo(ML+PW,Y); ctx.stroke();
+    ctx.textAlign='right'; ctx.fillStyle='rgba(190,210,230,.7)'; ctx.fillText(fmt(yv), ML-5, Y+3);
+    const xv=xlo+xhiR*i/3, X=ML+PW*i/3;
+    ctx.textAlign='center'; ctx.fillText(fmt(xv), X, MT+PH+11);
+  }
+  ctx.textAlign='center'; ctx.fillStyle='rgba(210,225,240,.85)';
+  ctx.fillText(tr.xLabel, ML+PW/2, H-3);
+  ctx.save(); ctx.translate(11, MT+PH/2); ctx.rotate(-Math.PI/2); ctx.fillText(tr.yLabel, 0, 0); ctx.restore();
+  // envelope band
+  const hasBand = pts.some(p=>p.lo!=null&&p.hi!=null);
+  if (hasBand && pts.length>1){
+    ctx.beginPath();
+    pts.forEach((p,i)=>{ const X=px(p.x),Y=py(p.hi!=null?p.hi:p.y); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
+    for (let i=pts.length-1;i>=0;i--){ const p=pts[i]; ctx.lineTo(px(p.x),py(p.lo!=null?p.lo:p.y)); }
+    ctx.closePath(); ctx.fillStyle='rgba(87,165,255,.16)'; ctx.fill();
+  }
+  // line + markers
+  ctx.strokeStyle='#57a5ff'; ctx.lineWidth=2; ctx.beginPath();
+  pts.forEach((p,i)=>{ const X=px(p.x),Y=py(p.y); i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
+  ctx.stroke();
+  for (const p of pts){ const X=px(p.x),Y=py(p.y);
+    ctx.fillStyle=p.feasible?'#8fc3ff':'rgba(120,130,140,.6)';
+    ctx.beginPath(); ctx.arc(X,Y,3.4,0,6.29); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=1; ctx.stroke(); }
+  // annotate the latest value — the one number the trace is tracking
+  const last=pts[pts.length-1];
+  const lbl=`${fmt(last.y)}${last.hi!=null?` ±${fmt((last.hi-last.lo)/2)}`:''}`;
+  ctx.font='bold 10px ui-monospace,monospace';
+  const tw=ctx.measureText(lbl).width, LX=Math.min(px(last.x)+8, ML+PW-tw-4), LY=Math.max(py(last.y)-8, MT+11);
+  ctx.fillStyle='rgba(8,10,12,.9)'; ctx.fillRect(LX-3,LY-10,tw+6,14);
+  ctx.fillStyle='#8fc3ff'; ctx.textAlign='left'; ctx.fillText(lbl,LX,LY);
 }
 
 function renderAgenda(p) {
@@ -544,12 +734,21 @@ function roleClass(role) { return 'entry ' + String(role||'system').toLowerCase(
 // The transcript streams at reading pace: entries queue as the backend emits
 // them and reveal one at a time, so the viewer watches the mission happen
 // instead of receiving it fully formed.
+const PACE_MS = 1500;   // reading pace between transcript entries (min ~1.5 s)
 function enqueueEntry(p) { revealQ.push(p); if (!revealing) { revealing = true; drainReveal(); } }
 function drainReveal() {
   const p = revealQ.shift();
   if (!p) { revealing = false; return; }
   addEntry(p); addDigest(p); present(p.role, p.message);
-  setTimeout(drainReveal, 650);
+  if (state.instant) { drainReveal(); return; }   // still-capture: no pacing
+  // Recorded pace (replays): honour the real inter-entry spacing from the event
+  // timestamps, clamped to a watchable range. Otherwise a steady reading pace.
+  let delay = PACE_MS;
+  const next = revealQ[0];
+  if (state.recordedPace && p.at != null && next && next.at != null) {
+    delay = Math.max(300, Math.min(6000, (next.at - p.at) * 1000));
+  }
+  setTimeout(drainReveal, delay);
 }
 const stamp = at => at ? new Date(at * 1000).toISOString().slice(11, 19) : '';
 function addEntry(p) {
@@ -654,7 +853,10 @@ async function loadGeometry(p) {
     if (!url) return;
     const mesh = normalizeMesh(await (await fetch(url)).json()); mesh.field = null;
     state.mesh = mesh; setHidden('viewportEmpty', true);
-    $('viewportLabel').textContent = p.label || p.name || 'surface';
+    // Viewport labels are display names, never raw filenames/slugs (R1). The
+    // workflows already emit human labels; this is the graceful fallback until
+    // the shared display-name registry lands on main.
+    $('viewportLabel').textContent = p.label || displayName(p.name) || 'surface';
     $('viewportStats').textContent = mesh.faces.length.toLocaleString() + ' faces';
     drawGeometry();
   } catch (e) {}
@@ -683,11 +885,15 @@ const coolwarm = t => {
 };
 function drawGeometry() {
   const cv = $('viewportCanvas'), m = state.mesh; if (!cv) return;
+  // Single source of truth (B1): the "renders here…" placeholder exists ONLY
+  // when no surface is loaded. Once geometry lands it is hidden and stays hidden
+  // — the model never disappears (B2), through setup, solve, and the report.
+  const haveMesh = !!(m && m.verts && m.verts.length);
+  setHidden('viewportEmpty', haveMesh);
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
   if (!W || !H) return;
   cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
-  if (!m || !m.verts.length) return;
-  setHidden('viewportEmpty', true);
+  if (!haveMesh) return;
   let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9];
   for (const v of m.verts) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
   const c = [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
