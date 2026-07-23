@@ -15,6 +15,12 @@ sdk/chief-engineer-runs/
 sdk/mission-output/
 **/.sabotage/
 
+# Mega-batch live/transient files (durable on disk, kept out of git churn)
+demo-output/website/mega-batch/work/
+demo-output/website/mega-batch/ledger.jsonl
+demo-output/website/mega-batch/run.log
+demo-output/website/mega-batch/STOP
+
 # OS / editor
 .DS_Store
 Thumbs.db

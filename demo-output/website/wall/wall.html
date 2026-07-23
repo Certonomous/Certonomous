@@ -1,0 +1,154 @@
+<section class="credential-wall" aria-label="Laboratory credentials">
+  <style>
+    .credential-wall {
+      --wall-ink: #12130f; --wall-ink2: #5b5a52; --wall-line: #e2e1dc;
+      --wall-surface: #fbfbf9; --wall-card: #ffffff; --wall-accent: #1baf7a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--wall-ink); background: var(--wall-surface);
+      border: 1px solid var(--wall-line); border-radius: 14px;
+      padding: 28px 30px 30px; max-width: 1100px; margin: 0 auto;
+    }
+    @media (prefers-color-scheme: dark) {
+      .credential-wall {
+        --wall-ink: #f4f3ee; --wall-ink2: #b9b8ad; --wall-line: #33332e;
+        --wall-surface: #171814; --wall-card: #1f201b; --wall-accent: #37c793;
+      }
+    }
+    .credential-wall * { box-sizing: border-box; }
+    .cred-kicker { font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--wall-accent); font-weight: 700; margin: 0 0 4px; }
+    .cred-title { font-size: 26px; font-weight: 700; margin: 0 0 20px; letter-spacing: -.01em; }
+    .cred-counters { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 26px; }
+    .cred-counter { flex: 1 1 150px; background: var(--wall-card); border: 1px solid var(--wall-line);
+      border-radius: 11px; padding: 16px 18px; display: flex; flex-direction: column; gap: 5px; }
+    .cred-counter-value { font-size: 30px; font-weight: 750; line-height: 1;
+      font-variant-numeric: tabular-nums; }
+    .cred-counter-label { font-size: 12.5px; color: var(--wall-ink2);
+      text-transform: uppercase; letter-spacing: .05em; }
+    .cred-section-title { font-size: 15px; font-weight: 700; margin: 0 0 12px; }
+    .cred-real { margin-bottom: 22px; }
+    .cred-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+    .cred-card { background: var(--wall-card); border: 1px solid var(--wall-line);
+      border-radius: 11px; padding: 16px 18px; }
+    .cred-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .cred-body { font-weight: 650; font-size: 15px; }
+    .cred-measure { font-size: 15px; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .cred-env { color: var(--wall-ink2); font-size: 13px; }
+    .cred-reason { font-size: 13px; color: var(--wall-ink2); line-height: 1.45; margin-bottom: 6px; }
+    .cred-src { font-size: 12px; color: var(--wall-ink2); font-style: italic; }
+    .vtier { font-size: 11px; font-weight: 700; letter-spacing: .05em; padding: 3px 9px;
+      border-radius: 999px; white-space: nowrap; }
+    .vt-validated { background: rgba(27,175,122,.14); color: #12855f; }
+    .vt-reference { background: rgba(237,161,0,.16); color: #9a6a00; }
+    .vt-trend { background: rgba(42,120,214,.14); color: #1e5aa0; }
+    .vt-needs { background: rgba(227,73,72,.14); color: #b23433; }
+    @media (prefers-color-scheme: dark) {
+      .vt-validated { color: #37c793; } .vt-reference { color: #edb54a; }
+      .vt-trend { color: #6aa4e5; } .vt-needs { color: #e88; }
+    }
+    .cal-suite { background: var(--wall-card); border: 1px solid var(--wall-line);
+      border-radius: 11px; padding: 4px 8px; }
+    .cal-suite > summary { cursor: pointer; list-style: none; padding: 14px 12px;
+      display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+    .cal-suite > summary::-webkit-details-marker { display: none; }
+    .cal-title { font-weight: 700; font-size: 16px; }
+    .cal-sub { color: var(--wall-ink2); font-size: 13.5px; flex: 1 1 auto; }
+    .cal-hint { font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+      color: var(--wall-accent); font-weight: 700; }
+    .cal-suite[open] .cal-hint::after { content: "ed"; }
+    .cal-table-wrap { overflow-x: auto; }
+    .cal-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0 10px; }
+    .cal-table th { text-align: left; color: var(--wall-ink2); font-weight: 600;
+      border-bottom: 1px solid var(--wall-line); padding: 8px 12px; font-size: 11.5px;
+      text-transform: uppercase; letter-spacing: .04em; }
+    .cal-table td { border-bottom: 1px solid var(--wall-line); padding: 9px 12px; vertical-align: top; }
+    .cal-body { font-weight: 600; }
+    .cal-num { font-variant-numeric: tabular-nums; }
+    .cal-env, .cal-src { color: var(--wall-ink2); }
+    .cal-src { font-size: 12px; }
+    .cred-foot { margin-top: 18px; font-size: 12px; color: var(--wall-ink2); line-height: 1.5; }
+  </style>
+  <div class="cred-kicker">Certonomous · laboratory credentials</div>
+  <h2 class="cred-title">What this lab has measured</h2>
+    <div class="cred-counters">
+      <div class="cred-counter"><span class="cred-counter-value">226</span><span class="cred-counter-label">missions run</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">0.453</span><span class="cred-counter-label">solver core-hours</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">8</span><span class="cred-counter-label">knowledge entries</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">8</span><span class="cred-counter-label">experimental anchors</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">2</span><span class="cred-counter-label">benchmarks active</span></div>
+    </div>
+
+    <details class="cal-suite">
+      <summary>
+        <span class="cal-title">Calibration suite</span>
+        <span class="cal-sub">8 canonical bodies benchmarked against published experiment · 4 validated within band</span>
+        <span class="cal-hint">expand</span>
+      </summary>
+      <div class="cal-table-wrap">
+      <table class="cal-table">
+        <thead><tr><th>Body</th><th>Measured vs reference</th><th>Envelope</th><th>Tier</th><th>Source</th></tr></thead>
+        <tbody>
+        <tr>
+          <td class="cal-body">Ahmed body — 25° slant</td>
+          <td class="cal-num">Cd 0.08978 vs 0.285</td>
+          <td class="cal-env">±1.6e-06</td>
+          <td><span class="vtier vt-validated">VALIDATED</span></td>
+          <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
+        </tr>
+        <tr>
+          <td class="cal-body">Cube</td>
+          <td class="cal-num">Cd 1.101 vs 1.05</td>
+          <td class="cal-env">±0.047</td>
+          <td><span class="vtier vt-validated">VALIDATED</span></td>
+          <td class="cal-src">Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)</td>
+        </tr>
+        <tr>
+          <td class="cal-body">Flat plate</td>
+          <td class="cal-num">Cd 0.03238 vs 0.03</td>
+          <td class="cal-env">±2e-06</td>
+          <td><span class="vtier vt-validated">VALIDATED</span></td>
+          <td class="cal-src">thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces</td>
+        </tr>
+        <tr>
+          <td class="cal-body">NACA 4412 wing</td>
+          <td class="cal-num">Cd 0.02892 vs 0.03</td>
+          <td class="cal-env">±4.6e-07</td>
+          <td><span class="vtier vt-validated">VALIDATED</span></td>
+          <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)</td>
+        </tr>
+        <tr>
+          <td class="cal-body">Circular cylinder</td>
+          <td class="cal-num">Cd 0.5464 vs 0.74</td>
+          <td class="cal-env">±2.1e-05</td>
+          <td><span class="vtier vt-reference">REFERENCE REGIME MISMATCH</span></td>
+          <td class="cal-src">Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)</td>
+        </tr>
+        <tr>
+          <td class="cal-body">Sphere</td>
+          <td class="cal-num">Cd 0.09484 vs 0.47</td>
+          <td class="cal-env">±0.00012</td>
+          <td><span class="vtier vt-reference">REFERENCE REGIME MISMATCH</span></td>
+          <td class="cal-src">Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory</td>
+        </tr>
+        <tr>
+          <td class="cal-body">Ahmed body — 35° slant</td>
+          <td class="cal-num">Cd 0.0876 vs 0.26</td>
+          <td class="cal-env">±1.8e-06</td>
+          <td><span class="vtier vt-trend">TREND ONLY</span></td>
+          <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
+        </tr>
+        <tr>
+          <td class="cal-body">NACA 0012 wing</td>
+          <td class="cal-num">Cd 0.02229 vs 0.009</td>
+          <td class="cal-env">±2.5e-07</td>
+          <td><span class="vtier vt-trend">TREND ONLY</span></td>
+          <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data</td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </details>
+  <p class="cred-foot">Every credential is a real evaluation on this machine, graded against a
+    published experimental value within a stated band. Tiers are honest: a body earns VALIDATED
+    only against an experimental anchor in-regime; otherwise it carries the tier its evidence supports.</p>
+</section>

@@ -25,6 +25,7 @@ from urllib.parse import parse_qs, urlparse
 from .adapters import SoftwareAdapterRegistry, synthetic_registry
 from .api import SyntheticApi
 from .events import EventBus
+from . import lab_stats
 
 # Kept public for the module entrypoint and any external caller.
 HERE = _PACKAGE_DIR = Path(__file__).resolve().parent
@@ -233,6 +234,7 @@ class Handler(BaseHTTPRequestHandler):
             "/health": self._serve_health,
             "/api/capabilities": self._serve_capabilities,
             "/api/credentials": lambda _q: self._write_json(200, _credentials()),
+            "/api/lab-stats": lambda _q: self._write_json(200, lab_stats.lifetime_counters()),
             "/api/geometry": self._serve_geometry,
             "/api/compute-audit": self._serve_compute_audit,
             "/api/missions": self._serve_mission_list,
