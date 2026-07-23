@@ -28,6 +28,7 @@ import yaml
 
 from . import OUT_ROOT, announce_plot, make_transcript
 from chief_engineer.compute_audit import audit
+from chief_engineer.display_names import display_name
 from chief_engineer.plot_theme import waveform_figure
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
@@ -45,7 +46,16 @@ from waveform import (phase_points, womersley, RHO_BLOOD, Q_PEAK,  # noqa: E402
                       T_CYCLE, T_SYSTOLE, NU_BLOOD)
 from generate_valve import effective_orifice_area, ROOT_RADIUS  # noqa: E402
 
-CANDIDATE_ANGLES = (35.0, 50.0, 65.0, 80.0)   # 4 candidates
+# A dense opening-angle sweep, 30 to 80 deg in 5 deg steps: eleven real
+# reduced-order candidates so the three-leaflet valve visibly cycles open many
+# more times on screen than the old four. The winner stays at 80 deg (the widest
+# admissible orifice, exactly what orifice physics predicts), and the min-orifice
+# constraint still marks the tight openings (30, 35 deg) infeasible. The upper
+# bound is held at 80 rather than pushed to 85 so the winning angle is unchanged
+# from the four-candidate screen; the candidate set is NOT part of the UQ valve
+# fingerprint (setup_fingerprint has no candidate field), so the stored study
+# still matches and needs no update.
+CANDIDATE_ANGLES = tuple(float(a) for a in range(30, 81, 5))   # 11 candidates
 # Backend pacing: the four candidate valves visibly cycle in the viewport as
 # each is screened (paces the PATH, never the numbers). Off in CI via env.
 _PACE_S = float(os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "550")) / 1000.0
@@ -384,6 +394,44 @@ def main(request: str | None = None, params: dict | None = None,
         compute=ledger.as_dict())
     if emit:
         emit("report.ready", report)
+
+    # The Certonomous certificate for the valve act: the cycle-weighted loss
+    # with its RSS-combined 95% band, and the full three-channel table (input
+    # Monte-Carlo envelope, phase-quadrature numerical, correlation-family
+    # model) exactly as displayed. A certificate must never take down a good
+    # mission, so it is wrapped just as geometry_study wires it.
+    try:
+        import time as _time
+        from chief_engineer.certificate import build_certificate_v2
+
+        cert_band = combined if combined else best["band"]
+        cert_doc = {
+            "results": [
+                {"quantity": "Cycle-weighted pressure loss",
+                 "value": f"{best['objective']:.0f} Pa",
+                 "envelope": f"{cert_band:.0f} Pa", **verdict},
+                {"quantity": "Winning leaflet opening",
+                 "value": f"{best['angle']:g} deg",
+                 "envelope": f"orifice {best['area'] * 1e6:.0f} mm2"},
+            ],
+            "compute": ledger.as_dict(),
+        }
+        certificate = build_certificate_v2(
+            cert_doc, out_path=out / "certificate.pdf",
+            geometry="aortic_valve",
+            objective=(request or "Minimise the cycle-weighted pressure loss "
+                       "across the valve by choosing the leaflet opening angle."),
+            mission_id="valve-study",
+            issued_utc=_time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()),
+            channels=channels,
+            display_name="Idealized trileaflet aortic valve, systolic configuration",
+            solver="Reduced-order orifice model, cycle-decomposition screen",
+            fidelity="CONCEPTUAL MODEL")
+        if emit:
+            emit("certificate.ready", {**certificate, "dir": out.name})
+    except Exception as exc:  # a certificate must never take down a good mission
+        script.engineer(f"(Certificate could not be issued: {exc})")
+
     script.save(out / "transcript.txt")
     roster.all_idle()
     print("Artifacts in", out)

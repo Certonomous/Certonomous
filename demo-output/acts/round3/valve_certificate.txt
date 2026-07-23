@@ -1,0 +1,50 @@
+
+######## valve_certificate.pdf ########
+CERTONOMOUS
+CERTIFICATE OF AUTONOMOUS SOLVE
+CERTIFICATE No.
+C-2026-8945
+SUBJECT
+Idealized trileaflet aortic valve, systolic
+configuration
+OBJECTIVE
+Optimize the leaflet opening angle of the aortic valve to
+minimize pressure loss over the cardiac cycle. Decompose the
+cycle into representative phase points, rule on the admissible
+method, and report the cycle-weighted loss with its
+uncertainty.
+SOLVER & MODEL
+Reduced-order orifice model, cycle-decomposition screen
+ISSUED (UTC)
+2026-07-23T20:49:37Z
+RESULT
+CONCEPTUAL MODEL
+Cycle-weighted pressure loss
+1345 Pa   ± 441 Pa
+95% confidence interval
+Basis: reduced-order orifice screen on a screening geometry; the flow is inertially unsteady
+Winning leaflet opening
+80 deg   orifice 403 mm2
+UNCERTAINTY  -  ASME V&V 20 THREE-CHANNEL
+CHANNEL
+VALUE
+STATE
+input
+421.1424
+quantified
+2-sigma Monte-Carlo envelope propagated from the spread in phase flow-rate and the orifice discharge
+coefficient
+numerical
+81.0
+quantified
+phase-quadrature ladder k = 3/5/9
+model
+104.8
+quantified
+correlation-family spread; unmodeled: phase-interaction neglected, leaflet motion not modeled,
+Newtonian blood
+PROVENANCE  -  EVIDENCE-BUNDLE SEAL (SHA-256)
+e79cc1185d9d720a5b9777a52c29af80
+1bbe420198b093e09fcb4967716130c6
+Mission valve-study   -   Certificate C-2026-8945
+Reproducible from the sealed evidence bundle; any change to the recorded run invalidates the seal. No tier exceeds TREND ONLY without an experimental comparison.

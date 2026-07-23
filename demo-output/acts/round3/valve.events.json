@@ -1,0 +1,1697 @@
+[
+  {
+    "sequence": 1,
+    "timestamp": 1784839769.7932668,
+    "event": "mission.routed",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "intent": "valve-study",
+      "confidence": 0.53,
+      "rationale": "Reading this as a pulsatile internal-flow screen. The cycle is periodic, so I will decompose it into a few steady phase points, solve each, and cycle-weight the result \u2014 after the Chief Researcher rules the decomposition admissible for this Womersley number. Basis: screens a pulsatile internal flow by decomposing the cycle into phase points.",
+      "evidence": [
+        "screens a pulsatile internal flow by decomposing the cycle into phase points"
+      ],
+      "params": {
+        "request": "Optimize the leaflet opening angle of the aortic valve to minimize pressure loss over the cardiac cycle. Decompose the cycle into representative phase points, rule on the admissible method, and report the cycle-weighted loss with its uncertainty."
+      }
+    }
+  },
+  {
+    "sequence": 2,
+    "timestamp": 1784839770.0550995,
+    "event": "knowledge.state",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "entries": 7,
+      "lessons": 1,
+      "added": []
+    }
+  },
+  {
+    "sequence": 3,
+    "timestamp": 1784839770.058101,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "SYSTEM",
+      "message": "Optimize the leaflet opening angle of the aortic valve to minimize pressure loss over the cardiac cycle. Decompose the cycle into representative phase points, rule on the admissible method, and report the cycle-weighted loss with its uncertainty.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.0561025
+    }
+  },
+  {
+    "sequence": 4,
+    "timestamp": 1784839770.0591004,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "PHASE",
+      "message": "Hypothesis",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Hypothesis"
+      },
+      "at": 1784839770.0591004
+    }
+  },
+  {
+    "sequence": 5,
+    "timestamp": 1784839770.0600984,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "framing the study",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 6,
+    "timestamp": 1784839770.06111,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Pulsatile flow: a single steady snapshot would be cycle-blind. \u2022 Chief Researcher rules on the cycle decomposition before anything runs.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.06111
+    }
+  },
+  {
+    "sequence": 7,
+    "timestamp": 1784839770.063098,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "framing the study",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "selecting the method",
+          "status": "working"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 8,
+    "timestamp": 1784839770.0660949,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Internal flow, pulsatile but periodic. \u2022 Periodic forcing converts to a few steady phase points, weighted back together.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.0660949
+    }
+  },
+  {
+    "sequence": 9,
+    "timestamp": 1784839770.067094,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Womersley \u03b1 \u2248 16.7: above the strict limit 1, inertially unsteady. \u2022 Under the screening ceiling 25, admissible as a SCREEN. \u2022 Dropped phase-interaction rides as model-form in the channel table.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.067094
+    }
+  },
+  {
+    "sequence": 10,
+    "timestamp": 1784839770.0685346,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Strategy: 3-point cycle decomposition, weights accelerating 0.25, peak 0.50, decelerating 0.25. \u2022 Objective: cycle-weighted pressure loss; each phase a steady problem. \u2022 Gradients stay cheap at every phase point.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.0685346
+    }
+  },
+  {
+    "sequence": 11,
+    "timestamp": 1784839770.0685346,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Rejected: single snapshot, prices one instant as the whole cycle. \u2022 Deferred to agenda: harmonic-balance cycle solve; unsteady FSI for moving leaflets.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.0685346
+    }
+  },
+  {
+    "sequence": 12,
+    "timestamp": 1784839770.0700536,
+    "event": "agenda.updated",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "entries": [
+        {
+          "title": "Harmonic-balance cycle solve",
+          "scope": "resolve phase-interaction the multi-point screen drops, solving the coupled harmonics of one cycle instead of independent phase points",
+          "cost": "~1 order of magnitude over the multi-point screen"
+        },
+        {
+          "title": "Unsteady fluid\u2013structure interaction",
+          "scope": "move the leaflets, coupling the flow to leaflet dynamics so opening is solved, not prescribed",
+          "cost": "~2 orders of magnitude; transient FSI, remeshing"
+        },
+        {
+          "title": "Non-Newtonian blood rheology",
+          "scope": "replace the Newtonian viscosity with a shear-thinning model in the orifice jet and wake",
+          "cost": "modest over a Newtonian solve; a constitutive-model swap"
+        }
+      ]
+    }
+  },
+  {
+    "sequence": 13,
+    "timestamp": 1784839770.0700536,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "framing the study",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 14,
+    "timestamp": 1784839770.0710642,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "On it.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839770.0710642
+    }
+  },
+  {
+    "sequence": 15,
+    "timestamp": 1784839770.0710642,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "PHASE",
+      "message": "Experiment plan",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Experiment plan"
+      },
+      "at": 1784839770.0710642
+    }
+  },
+  {
+    "sequence": 16,
+    "timestamp": 1784839775.2981343,
+    "event": "audit.completed",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "verdict": "FITS",
+      "requested": 12,
+      "capacity": 12,
+      "cores": "12/14 free",
+      "memory": "6/7 GB free",
+      "other_jobs": 0,
+      "load": 0.0,
+      "reason": "Full fan-out can run in one wave."
+    }
+  },
+  {
+    "sequence": 17,
+    "timestamp": 1784839775.2991328,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "Compute audit \u2014 YES: requested 12 parallel workers, capacity 12 (12/14 cores free, 6 GB available, 0 other job(s) running). Full fan-out can run in one wave.",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "panel": {
+          "verdict": "FITS",
+          "requested": 12,
+          "capacity": 12,
+          "cores": "12/14 free",
+          "memory": "6/7 GB free",
+          "other_jobs": 0,
+          "load": 0.0,
+          "reason": "Full fan-out can run in one wave."
+        }
+      },
+      "at": 1784839775.2991328
+    }
+  },
+  {
+    "sequence": 18,
+    "timestamp": 1784839775.3014092,
+    "event": "landscape.init",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "title": "Candidate landscape",
+      "x": {
+        "key": "opening_angle_deg",
+        "label": "opening angle [\u00b0]"
+      },
+      "y": {
+        "key": "orifice_area_mm2",
+        "label": "orifice area [mm\u00b2]"
+      },
+      "objective": {
+        "key": "cycle_pressure_loss",
+        "label": "cycle loss [Pa]",
+        "direction": "min"
+      }
+    }
+  },
+  {
+    "sequence": 19,
+    "timestamp": 1784839775.3014092,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Plan: 11 angles \u00d7 3 phases = 33 steady evaluations. \u2022 Objective: cycle-weighted loss with a Monte-Carlo envelope. \u2022 Constraint: minimum orifice area.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839775.3014092
+    }
+  },
+  {
+    "sequence": 20,
+    "timestamp": 1784839775.3028197,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "NUMERICIST",
+      "message": "\u2022 Each phase is a reduced-order orifice model, not a solved flow. \u2022 A real internal-flow solve is the marked plug-in point. \u2022 Ranks angles and screens the trade.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839775.3028197
+    }
+  },
+  {
+    "sequence": 21,
+    "timestamp": 1784839776.9627852,
+    "event": "plot.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "beat": "valve-study",
+      "file": "systolic_waveform.png",
+      "title": "Systolic waveform: the three weighted phase points solved",
+      "url": "/api/plot/valve-study/systolic_waveform.png"
+    }
+  },
+  {
+    "sequence": 22,
+    "timestamp": 1784839776.9647613,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "PHASE",
+      "message": "Evidence",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Evidence"
+      },
+      "at": 1784839776.9647613
+    }
+  },
+  {
+    "sequence": 23,
+    "timestamp": 1784839776.9667604,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "screening the phase points",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 24,
+    "timestamp": 1784839776.9677756,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "screening the phase points",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 12,
+      "worker_activity": "phase evaluations"
+    }
+  },
+  {
+    "sequence": 25,
+    "timestamp": 1784839776.9687726,
+    "event": "objective.spec",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "metric": "cycle_pressure_loss",
+      "direction": "min"
+    }
+  },
+  {
+    "sequence": 26,
+    "timestamp": 1784839776.9707751,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 0,
+      "state": "solving",
+      "label": "opening 30\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 27,
+    "timestamp": 1784839776.9717736,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=30",
+      "label": "candidate valve, opening 30\u00b0"
+    }
+  },
+  {
+    "sequence": 28,
+    "timestamp": 1784839776.9737635,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 30.0,
+        "orifice_area_mm2": 103.9
+      },
+      "metrics": {
+        "cycle_pressure_loss": 20235.4
+      },
+      "objective": 20235.4,
+      "direction": "min",
+      "feasible": false
+    }
+  },
+  {
+    "sequence": 29,
+    "timestamp": 1784839776.9757605,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 30.0,
+      "y": 20235.4,
+      "lo": 13897.4,
+      "hi": 26573.4,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": false
+    }
+  },
+  {
+    "sequence": 30,
+    "timestamp": 1784839776.9767625,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 0,
+      "state": "done",
+      "label": "opening 30\u00b0",
+      "detail": "20235 Pa"
+    }
+  },
+  {
+    "sequence": 31,
+    "timestamp": 1784839776.9788504,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 30\u00b0 \u2192 orifice 104 mm\u00b2, loss 20235 \u00b1 6338 Pa. \u2022 Infeasible: below the minimum orifice area.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839776.9788504
+    }
+  },
+  {
+    "sequence": 32,
+    "timestamp": 1784839776.97985,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 1,
+      "state": "solving",
+      "label": "opening 35\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 33,
+    "timestamp": 1784839776.98084,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=35",
+      "label": "candidate valve, opening 35\u00b0"
+    }
+  },
+  {
+    "sequence": 34,
+    "timestamp": 1784839776.9838448,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 35.0,
+        "orifice_area_mm2": 136.7
+      },
+      "metrics": {
+        "cycle_pressure_loss": 11684.9
+      },
+      "objective": 11684.9,
+      "direction": "min",
+      "feasible": false
+    }
+  },
+  {
+    "sequence": 35,
+    "timestamp": 1784839776.984841,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 35.0,
+      "y": 11684.9,
+      "lo": 8025.0,
+      "hi": 15344.8,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": false
+    }
+  },
+  {
+    "sequence": 36,
+    "timestamp": 1784839776.9858408,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 1,
+      "state": "done",
+      "label": "opening 35\u00b0",
+      "detail": "11685 Pa"
+    }
+  },
+  {
+    "sequence": 37,
+    "timestamp": 1784839776.9878407,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 35\u00b0 \u2192 orifice 137 mm\u00b2, loss 11685 \u00b1 3660 Pa. \u2022 Infeasible: below the minimum orifice area.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839776.9878407
+    }
+  },
+  {
+    "sequence": 38,
+    "timestamp": 1784839776.98884,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 2,
+      "state": "solving",
+      "label": "opening 40\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 39,
+    "timestamp": 1784839776.9898415,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=40",
+      "label": "candidate valve, opening 40\u00b0"
+    }
+  },
+  {
+    "sequence": 40,
+    "timestamp": 1784839776.9918416,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 40.0,
+        "orifice_area_mm2": 171.7
+      },
+      "metrics": {
+        "cycle_pressure_loss": 7408.4
+      },
+      "objective": 7408.4,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 41,
+    "timestamp": 1784839776.992839,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 40.0,
+      "y": 7408.4,
+      "lo": 5087.9,
+      "hi": 9728.8,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 42,
+    "timestamp": 1784839776.9948409,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 2,
+      "state": "done",
+      "label": "opening 40\u00b0",
+      "detail": "7408 Pa"
+    }
+  },
+  {
+    "sequence": 43,
+    "timestamp": 1784839776.9958405,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 40\u00b0 \u2192 orifice 172 mm\u00b2, loss 7408 \u00b1 2320 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839776.9958405
+    }
+  },
+  {
+    "sequence": 44,
+    "timestamp": 1784839776.99784,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 3,
+      "state": "solving",
+      "label": "opening 45\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 45,
+    "timestamp": 1784839776.9988403,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=45",
+      "label": "candidate valve, opening 45\u00b0"
+    }
+  },
+  {
+    "sequence": 46,
+    "timestamp": 1784839777.0008402,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 45.0,
+        "orifice_area_mm2": 207.7
+      },
+      "metrics": {
+        "cycle_pressure_loss": 5058.8
+      },
+      "objective": 5058.8,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 47,
+    "timestamp": 1784839777.0018406,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 45.0,
+      "y": 5058.8,
+      "lo": 3474.3,
+      "hi": 6643.4,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 48,
+    "timestamp": 1784839777.0028403,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 3,
+      "state": "done",
+      "label": "opening 45\u00b0",
+      "detail": "5059 Pa"
+    }
+  },
+  {
+    "sequence": 49,
+    "timestamp": 1784839777.0048406,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 45\u00b0 \u2192 orifice 208 mm\u00b2, loss 5059 \u00b1 1585 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.0048406
+    }
+  },
+  {
+    "sequence": 50,
+    "timestamp": 1784839777.0058627,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 4,
+      "state": "solving",
+      "label": "opening 50\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 51,
+    "timestamp": 1784839777.007836,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=50",
+      "label": "candidate valve, opening 50\u00b0"
+    }
+  },
+  {
+    "sequence": 52,
+    "timestamp": 1784839777.0108397,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 50.0,
+        "orifice_area_mm2": 243.8
+      },
+      "metrics": {
+        "cycle_pressure_loss": 3672.6
+      },
+      "objective": 3672.6,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 53,
+    "timestamp": 1784839777.0128381,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 50.0,
+      "y": 3672.6,
+      "lo": 2522.3,
+      "hi": 4822.9,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 54,
+    "timestamp": 1784839777.0138466,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 4,
+      "state": "done",
+      "label": "opening 50\u00b0",
+      "detail": "3673 Pa"
+    }
+  },
+  {
+    "sequence": 55,
+    "timestamp": 1784839777.0158412,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 50\u00b0 \u2192 orifice 244 mm\u00b2, loss 3673 \u00b1 1150 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.0158412
+    }
+  },
+  {
+    "sequence": 56,
+    "timestamp": 1784839777.0168445,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 5,
+      "state": "solving",
+      "label": "opening 55\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 57,
+    "timestamp": 1784839777.018837,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=55",
+      "label": "candidate valve, opening 55\u00b0"
+    }
+  },
+  {
+    "sequence": 58,
+    "timestamp": 1784839777.0208383,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 55.0,
+        "orifice_area_mm2": 278.8
+      },
+      "metrics": {
+        "cycle_pressure_loss": 2808.9
+      },
+      "objective": 2808.9,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 59,
+    "timestamp": 1784839777.023844,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 55.0,
+      "y": 2808.9,
+      "lo": 1929.1,
+      "hi": 3688.7,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 60,
+    "timestamp": 1784839777.0248494,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 5,
+      "state": "done",
+      "label": "opening 55\u00b0",
+      "detail": "2809 Pa"
+    }
+  },
+  {
+    "sequence": 61,
+    "timestamp": 1784839777.0268414,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 55\u00b0 \u2192 orifice 279 mm\u00b2, loss 2809 \u00b1 880 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.0268414
+    }
+  },
+  {
+    "sequence": 62,
+    "timestamp": 1784839777.0278447,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 6,
+      "state": "solving",
+      "label": "opening 60\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 63,
+    "timestamp": 1784839777.029842,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=60",
+      "label": "candidate valve, opening 60\u00b0"
+    }
+  },
+  {
+    "sequence": 64,
+    "timestamp": 1784839777.0318434,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 60.0,
+        "orifice_area_mm2": 311.6
+      },
+      "metrics": {
+        "cycle_pressure_loss": 2248.4
+      },
+      "objective": 2248.4,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 65,
+    "timestamp": 1784839777.032842,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 60.0,
+      "y": 2248.4,
+      "lo": 1544.2,
+      "hi": 2952.6,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 66,
+    "timestamp": 1784839777.033841,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 6,
+      "state": "done",
+      "label": "opening 60\u00b0",
+      "detail": "2248 Pa"
+    }
+  },
+  {
+    "sequence": 67,
+    "timestamp": 1784839777.035842,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 60\u00b0 \u2192 orifice 312 mm\u00b2, loss 2248 \u00b1 704 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.035842
+    }
+  },
+  {
+    "sequence": 68,
+    "timestamp": 1784839777.0368426,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 7,
+      "state": "solving",
+      "label": "opening 65\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 69,
+    "timestamp": 1784839777.0378482,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=65",
+      "label": "candidate valve, opening 65\u00b0"
+    }
+  },
+  {
+    "sequence": 70,
+    "timestamp": 1784839777.0398645,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 65.0,
+        "orifice_area_mm2": 341.3
+      },
+      "metrics": {
+        "cycle_pressure_loss": 1874.5
+      },
+      "objective": 1874.5,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 71,
+    "timestamp": 1784839777.0418622,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 65.0,
+      "y": 1874.5,
+      "lo": 1287.4,
+      "hi": 2461.6,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 72,
+    "timestamp": 1784839777.042863,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 7,
+      "state": "done",
+      "label": "opening 65\u00b0",
+      "detail": "1875 Pa"
+    }
+  },
+  {
+    "sequence": 73,
+    "timestamp": 1784839777.043866,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 65\u00b0 \u2192 orifice 341 mm\u00b2, loss 1875 \u00b1 587 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.043866
+    }
+  },
+  {
+    "sequence": 74,
+    "timestamp": 1784839777.0448601,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 8,
+      "state": "solving",
+      "label": "opening 70\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 75,
+    "timestamp": 1784839777.0458643,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=70",
+      "label": "candidate valve, opening 70\u00b0"
+    }
+  },
+  {
+    "sequence": 76,
+    "timestamp": 1784839777.0488672,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 70.0,
+        "orifice_area_mm2": 366.9
+      },
+      "metrics": {
+        "cycle_pressure_loss": 1622.0
+      },
+      "objective": 1622.0,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 77,
+    "timestamp": 1784839777.049862,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 70.0,
+      "y": 1622.0,
+      "lo": 1114.0,
+      "hi": 2130.0,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 78,
+    "timestamp": 1784839777.0508618,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 8,
+      "state": "done",
+      "label": "opening 70\u00b0",
+      "detail": "1622 Pa"
+    }
+  },
+  {
+    "sequence": 79,
+    "timestamp": 1784839777.0528624,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 70\u00b0 \u2192 orifice 367 mm\u00b2, loss 1622 \u00b1 508 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.051868
+    }
+  },
+  {
+    "sequence": 80,
+    "timestamp": 1784839777.0544102,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 9,
+      "state": "solving",
+      "label": "opening 75\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 81,
+    "timestamp": 1784839777.0554097,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=75",
+      "label": "candidate valve, opening 75\u00b0"
+    }
+  },
+  {
+    "sequence": 82,
+    "timestamp": 1784839777.0584083,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 75.0,
+        "orifice_area_mm2": 387.6
+      },
+      "metrics": {
+        "cycle_pressure_loss": 1452.8
+      },
+      "objective": 1452.8,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 83,
+    "timestamp": 1784839777.0604074,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 75.0,
+      "y": 1452.8,
+      "lo": 997.8,
+      "hi": 1907.9,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 84,
+    "timestamp": 1784839777.0614111,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 9,
+      "state": "done",
+      "label": "opening 75\u00b0",
+      "detail": "1453 Pa"
+    }
+  },
+  {
+    "sequence": 85,
+    "timestamp": 1784839777.0634089,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 75\u00b0 \u2192 orifice 388 mm\u00b2, loss 1453 \u00b1 455 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.0634089
+    }
+  },
+  {
+    "sequence": 86,
+    "timestamp": 1784839777.0644078,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 10,
+      "state": "solving",
+      "label": "opening 80\u00b0",
+      "detail": "phase decomposition"
+    }
+  },
+  {
+    "sequence": 87,
+    "timestamp": 1784839777.065409,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=80",
+      "label": "candidate valve, opening 80\u00b0"
+    }
+  },
+  {
+    "sequence": 88,
+    "timestamp": 1784839777.0684133,
+    "event": "landscape.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "design": {
+        "opening_angle_deg": 80.0,
+        "orifice_area_mm2": 402.9
+      },
+      "metrics": {
+        "cycle_pressure_loss": 1344.6
+      },
+      "objective": 1344.6,
+      "direction": "min",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 89,
+    "timestamp": 1784839777.0704076,
+    "event": "trace.point",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "series": "cycle_pressure_loss",
+      "x": 80.0,
+      "y": 1344.6,
+      "lo": 923.4,
+      "hi": 1765.7,
+      "x_label": "opening angle [deg]",
+      "y_label": "cycle loss [Pa]",
+      "title": "Cycle-weighted pressure loss",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 90,
+    "timestamp": 1784839777.0724099,
+    "event": "dispatch.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "slot": 10,
+      "state": "done",
+      "label": "opening 80\u00b0",
+      "detail": "1345 Pa"
+    }
+  },
+  {
+    "sequence": 91,
+    "timestamp": 1784839777.073409,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Opening 80\u00b0 \u2192 orifice 403 mm\u00b2, loss 1345 \u00b1 421 Pa.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.073409
+    }
+  },
+  {
+    "sequence": 92,
+    "timestamp": 1784839777.0754073,
+    "event": "compute.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "spent_core_minutes": 0.03,
+      "saved_core_minutes": 0.0,
+      "efficiency": 0.0,
+      "full_fidelity": true,
+      "notes": [
+        "spent 0.0 core-min \u00b7 33 reduced-order phase evaluations"
+      ]
+    }
+  },
+  {
+    "sequence": 93,
+    "timestamp": 1784839777.0764065,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "screening the phase points",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 94,
+    "timestamp": 1784839777.0784152,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Phase evaluations: 0.10 s, 33 solves.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.0784152
+    }
+  },
+  {
+    "sequence": 95,
+    "timestamp": 1784839777.0794086,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "PHASE",
+      "message": "Conclusion",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Conclusion"
+      },
+      "at": 1784839777.0794086
+    }
+  },
+  {
+    "sequence": 96,
+    "timestamp": 1784839777.0804067,
+    "event": "geometry.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "url": "/api/geometry?valve_angle=80",
+      "label": "winning valve, opening 80\u00b0, 1345 Pa"
+    }
+  },
+  {
+    "sequence": 97,
+    "timestamp": 1784839777.0814047,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 9 of 11 candidates clear the orifice floor. \u2022 Winner: 80\u00b0 at 1345 \u00b1 421 Pa. \u2022 Widest admissible orifice, exactly what orifice physics predicts.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.0814047
+    }
+  },
+  {
+    "sequence": 98,
+    "timestamp": 1784839777.0884035,
+    "event": "uncertainty.channels",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "channels": [
+        {
+          "name": "input",
+          "value": 421.1424,
+          "quantified": true,
+          "note": "2-sigma Monte-Carlo envelope propagated from the spread in phase flow-rate and the orifice discharge coefficient"
+        },
+        {
+          "name": "numerical",
+          "value": 81.0,
+          "quantified": true,
+          "note": "phase-quadrature ladder k = 3/5/9"
+        },
+        {
+          "name": "model",
+          "value": 104.8,
+          "quantified": true,
+          "note": "correlation-family spread; unmodeled: phase-interaction neglected, leaflet motion not modeled, Newtonian blood"
+        }
+      ]
+    }
+  },
+  {
+    "sequence": 99,
+    "timestamp": 1784839777.089407,
+    "event": "transcript.entry",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 A screen, not a validated pressure: the ranking is trustworthy. \u2022 A solved internal flow would set the pressure magnitude. \u2022 The three missing capabilities are on the research agenda.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839777.089407
+    }
+  },
+  {
+    "sequence": 100,
+    "timestamp": 1784839777.0914056,
+    "event": "result.verdict",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "quantity": "Cycle-weighted pressure loss",
+      "value": "1345",
+      "ci": "441 Pa",
+      "confidence": "95%",
+      "envelope": "at opening 80 deg",
+      "tier": "CONCEPTUAL MODEL",
+      "reason": "reduced-order orifice screen on a screening geometry; the flow is inertially unsteady"
+    }
+  },
+  {
+    "sequence": 101,
+    "timestamp": 1784839777.0924058,
+    "event": "knowledge.added",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "title": "Valve opening-angle screen: lowest cycle-weighted loss at 80 deg (1345 Pa), Womersley ~ 17, multi-point decomposition (conceptual model)",
+      "kind": "knowledge",
+      "entries": 8,
+      "lessons": 1,
+      "added": [
+        {
+          "title": "Valve opening-angle screen: lowest cycle-weighted loss at 80 deg (1345 Pa), Womersley ~ 17, multi-point decomposition (conceptual model)",
+          "kind": "knowledge"
+        }
+      ]
+    }
+  },
+  {
+    "sequence": 102,
+    "timestamp": 1784839777.0944078,
+    "event": "report.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "title": "Valve opening-angle screen: cycle-weighted pressure loss",
+      "abstract": [
+        "A pulsatile internal flow was screened by decomposing the cardiac cycle into 3 steady phase points (Womersley ~ 17, below the multi-point screening ceiling).",
+        "Across 11 opening angles the lowest cycle-weighted pressure loss is at 80 deg, 1345 +/- 421 Pa.",
+        "This is a reduced-order screen on an owned screening geometry; the model channel carries what the screen leaves out."
+      ],
+      "methods": [
+        "Idealized three-leaflet valve; leaflet opening angle sets the effective orifice area.",
+        "In-repo half-sine systolic waveform; three phase points weighted by the stroke-volume fraction each carries.",
+        "Per-phase pressure loss from a reduced-order orifice model; cycle-weighted objective with a Monte-Carlo input envelope; minimum-orifice constraint."
+      ],
+      "results": [
+        {
+          "quantity": "Cycle-weighted pressure loss",
+          "value": "1345 \u00b1 441 Pa (95%)",
+          "envelope": "at opening 80 deg",
+          "tier": "CONCEPTUAL MODEL",
+          "reason": "reduced-order orifice screen on a screening geometry; the flow is inertially unsteady"
+        }
+      ],
+      "uncertainty": [
+        "The ranking (wider orifice, lower loss) is physical and trustworthy.",
+        "The magnitude is a reduced-order estimate; the model channel names what is not in it.",
+        "The flow is inertially unsteady (Womersley ~ 17); phase-interaction is dropped by the multi-point screen."
+      ],
+      "next_investigations": [
+        "Harmonic-balance cycle solve: resolve phase-interaction the multi-point screen drops, solving the coupled harmonics of one cycle instead of independent phase points",
+        "Unsteady fluid\u2013structure interaction: move the leaflets, coupling the flow to leaflet dynamics so opening is solved, not prescribed",
+        "Non-Newtonian blood rheology: replace the Newtonian viscosity with a shear-thinning model in the orifice jet and wake"
+      ],
+      "compute": {
+        "spent_core_minutes": 0.03,
+        "saved_core_minutes": 0.0,
+        "efficiency": 0.0,
+        "full_fidelity": true,
+        "notes": [
+          "spent 0.0 core-min \u00b7 33 reduced-order phase evaluations"
+        ]
+      }
+    }
+  },
+  {
+    "sequence": 103,
+    "timestamp": 1784839777.100408,
+    "event": "certificate.ready",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "path": "C:\\Users\\mouza\\github-cleanup\\ct-demo-acts\\mission-output\\valve-study\\certificate.pdf",
+      "hash": "e79cc1185d9d720a5b9777a52c29af801bbe420198b093e09fcb4967716130c6",
+      "mission_id": "valve-study",
+      "tier": "CONCEPTUAL MODEL",
+      "fidelity": "CONCEPTUAL MODEL",
+      "certificate_no": "C-2026-8945",
+      "dir": "valve-study"
+    }
+  },
+  {
+    "sequence": 104,
+    "timestamp": 1784839777.1034074,
+    "event": "roster.update",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 105,
+    "timestamp": 1784839777.1044073,
+    "event": "mission.completed",
+    "mission_id": "m-3fe1dd4f7410",
+    "payload": {
+      "status": "complete",
+      "intent": "valve-study",
+      "output": "valve-study",
+      "reason": "Workflow finished."
+    }
+  }
+]

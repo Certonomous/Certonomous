@@ -1,0 +1,2142 @@
+[
+  {
+    "sequence": 1,
+    "timestamp": 1784839781.2759008,
+    "event": "mission.routed",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "intent": "geometry-study",
+      "confidence": 0.52,
+      "rationale": "Reading this as a full geometry study: take the surface in, check it, mesh it, solve it, and report the forces with their envelope. This is the expensive path \u2014 meshing and solving a real body takes minutes, not seconds \u2014 so I will say what each stage costs as it runs. Basis: names the staged body 'NACA 4412' -> naca4412_wing.stl; names a solver setup (turbulence model), which is a request to run a case rather than a question about one.",
+      "evidence": [
+        "names the staged body 'NACA 4412' -> naca4412_wing.stl",
+        "names a solver setup (turbulence model), which is a request to run a case rather than a question about one"
+      ],
+      "params": {
+        "request": "Solve the external aerodynamics of the supplied NACA 4412 finite-wing geometry at cruise Reynolds number. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the lift and drag coefficients with confidence envelopes.",
+        "surface": "naca4412_wing.stl",
+        "solver_setup": "turbulence model",
+        "geometry": "wing",
+        "geometry_known": false
+      }
+    }
+  },
+  {
+    "sequence": 2,
+    "timestamp": 1784839781.3119261,
+    "event": "knowledge.state",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "entries": 7,
+      "lessons": 1,
+      "added": []
+    }
+  },
+  {
+    "sequence": 3,
+    "timestamp": 1784839781.3129308,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "SYSTEM",
+      "message": "Solve the external aerodynamics of the supplied NACA 4412 finite-wing geometry at cruise Reynolds number. Select the appropriate turbulence model and solver, gate the mesh on quality, and report the lift and drag coefficients with confidence envelopes.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3129308
+    }
+  },
+  {
+    "sequence": 4,
+    "timestamp": 1784839781.3129308,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "PHASE",
+      "message": "Hypothesis",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Hypothesis"
+      },
+      "at": 1784839781.3129308
+    }
+  },
+  {
+    "sequence": 5,
+    "timestamp": 1784839781.3139277,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "selecting the method",
+          "status": "working"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 6,
+    "timestamp": 1784839781.3159277,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Single fixed body, steady turbulent (RANS): a measurement, not an optimisation. \u2022 One gated solve; the only freedom is mesh and convergence. \u2022 Rejected: pricing by analogy (wrong wake); an ungated coarser mesh.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3159277
+    }
+  },
+  {
+    "sequence": 7,
+    "timestamp": 1784839781.317928,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Admissible against the standard mesh-quality acceptance band, a published threshold.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.317928
+    }
+  },
+  {
+    "sequence": 8,
+    "timestamp": 1784839781.3189332,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 9,
+    "timestamp": 1784839781.3219337,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "On it.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3219337
+    }
+  },
+  {
+    "sequence": 10,
+    "timestamp": 1784839781.3229358,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "reading NACA 4412 finite wing",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 11,
+    "timestamp": 1784839781.3229358,
+    "event": "geometry.ready",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "url": "/api/geometry?name=naca4412_wing.stl",
+      "label": "NACA 4412 finite wing, as supplied"
+    }
+  },
+  {
+    "sequence": 12,
+    "timestamp": 1784839781.3239279,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Full geometry study on NACA 4412 finite wing: a measurement, not a sweep. \u2022 Question: does the chain produce a converged force on a believable mesh? \u2022 No prior: mesh quality and convergence are the only evidence.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3239279
+    }
+  },
+  {
+    "sequence": 13,
+    "timestamp": 1784839781.3249288,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Fails if: surface won't mesh; gates exceeded (non-ortho 70\u00b0, skew 4); or the force never settles.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3249288
+    }
+  },
+  {
+    "sequence": 14,
+    "timestamp": 1784839781.3259299,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 You asked for turbulence model: the standing setup already runs it. \u2022 A different closure would need saying before solving, not after.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3259299
+    }
+  },
+  {
+    "sequence": 15,
+    "timestamp": 1784839781.3269305,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "NUMERICIST",
+      "message": "\u2022 The gates are the standard acceptance band, per OpenFOAM mesh-quality guidance. \u2022 The mesh is judged against a published threshold, not itself.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.3269305
+    }
+  },
+  {
+    "sequence": 16,
+    "timestamp": 1784839781.327929,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "PHASE",
+      "message": "Experiment plan",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Experiment plan"
+      },
+      "at": 1784839781.327929
+    }
+  },
+  {
+    "sequence": 17,
+    "timestamp": 1784839781.4598312,
+    "event": "audit.completed",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "verdict": "FITS",
+      "requested": 1,
+      "capacity": 3,
+      "cores": "12/14 free",
+      "memory": "6/7 GB free",
+      "other_jobs": 0,
+      "load": 0.0,
+      "reason": "Full fan-out can run in one wave."
+    }
+  },
+  {
+    "sequence": 18,
+    "timestamp": 1784839781.4609058,
+    "event": "solver.selected",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "solver": "OpenFOAM",
+      "method": "steady RANS, k-omega SST",
+      "basis": "plan commits the body to the meshed-and-solved chain"
+    }
+  },
+  {
+    "sequence": 19,
+    "timestamp": 1784839781.4619853,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "Compute audit \u2014 YES: requested 1 parallel workers, capacity 3 (12/14 cores free, 6 GB available, 0 other job(s) running). Full fan-out can run in one wave.",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "panel": {
+          "verdict": "FITS",
+          "requested": 1,
+          "capacity": 3,
+          "cores": "12/14 free",
+          "memory": "6/7 GB free",
+          "other_jobs": 0,
+          "load": 0.0,
+          "reason": "Full fan-out can run in one wave."
+        }
+      },
+      "at": 1784839781.4619853
+    }
+  },
+  {
+    "sequence": 20,
+    "timestamp": 1784839781.4629893,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Plan: features \u2192 background mesh \u2192 snap \u2192 quality gates \u2192 potential init \u2192 300 steady iterations. \u2022 Meshing is the long pole: minutes, not seconds.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839781.4629893
+    }
+  },
+  {
+    "sequence": 21,
+    "timestamp": 1784839781.4639947,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "PHASE",
+      "message": "Evidence",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Evidence"
+      },
+      "at": 1784839781.4639947
+    }
+  },
+  {
+    "sequence": 22,
+    "timestamp": 1784839781.4649966,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "reading NACA 4412 finite wing",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "watching solver output",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 23,
+    "timestamp": 1784839781.4660058,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "staging the case",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "watching solver output",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 24,
+    "timestamp": 1784839782.6186438,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Surface measured: 712 triangles, streamwise X, span Y. \u2022 Working scale: 1.0 m long, 3.0 m across.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839782.6186438
+    }
+  },
+  {
+    "sequence": 25,
+    "timestamp": 1784839782.6216571,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Scale basis: the file's units are dimensionally plausible, so I am taking them as metres. \u2022 Wrong length \u2192 wrong Reynolds \u2192 wrong forces; stated, not buried.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839782.6216571
+    }
+  },
+  {
+    "sequence": 26,
+    "timestamp": 1784839782.6531029,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Case built: farfield from the body's own bounding box, k-omega SST. \u2022 Reference area: measured planform 3 m\u00b2. \u2022 Freestream 15 m/s; Re 1.0e+06.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839782.6531029
+    }
+  },
+  {
+    "sequence": 27,
+    "timestamp": 1784839782.655106,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Reference area is the measured silhouette, not a handbook wing area. \u2022 Book comparison needs rebasing first: measure the body, don't borrow numbers.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839782.6541107
+    }
+  },
+  {
+    "sequence": 28,
+    "timestamp": 1784839783.9382644,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Surface accepted: NACA 4412 finite wing, closed. \u2022 No defects reported by the surface check.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839783.9382644
+    }
+  },
+  {
+    "sequence": 29,
+    "timestamp": 1784839783.9407253,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Selected: k-omega SST, steady RANS, standard closure for attached external flow, solved on a quality-gated mesh.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839783.9407253
+    }
+  },
+  {
+    "sequence": 30,
+    "timestamp": 1784839784.2940571,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "reusing the cached snapped mesh",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "watching solver output",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 31,
+    "timestamp": 1784839784.2960708,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Snapped mesh found in cache, reusing it, skipping the mesh build. \u2022 The mesh is the pinned path; the solve still runs live on it.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839784.2960708
+    }
+  },
+  {
+    "sequence": 32,
+    "timestamp": 1784839786.7662704,
+    "event": "mesh.stats",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "cells": 337334,
+      "max_non_orthogonality": 49.921642,
+      "max_skewness": 3.3231909
+    }
+  },
+  {
+    "sequence": 33,
+    "timestamp": 1784839786.7687726,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "reusing the cached snapped mesh",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "ruling on mesh quality",
+          "status": "working"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "watching solver output",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 34,
+    "timestamp": 1784839786.770783,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Mesh: 337,334 cells; non-ortho 49.9\u00b0; skew 3.32. \u2022 Non-ortho inside the 70\u00b0 gate, discretization acceptable. \u2022 Skewness inside guidance as well.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839786.770783
+    }
+  },
+  {
+    "sequence": 35,
+    "timestamp": 1784839786.7717829,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "reusing the cached snapped mesh",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "watching solver output",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 36,
+    "timestamp": 1784839786.7737825,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "initialising the velocity field so the steady solver starts sane",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "watching solver output",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 37,
+    "timestamp": 1784839787.3773572,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "initialising the velocity field so the steady solver starts sane",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "unfamiliar solver warning",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 38,
+    "timestamp": 1784839787.3793569,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "MONITOR",
+      "message": "\u2022 New on an unfamiliar body: --> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839787.3793569
+    }
+  },
+  {
+    "sequence": 39,
+    "timestamp": 1784839790.1887488,
+    "event": "compute.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "spent_core_minutes": 0.06,
+      "saved_core_minutes": 0.0,
+      "efficiency": 0.0,
+      "full_fidelity": true,
+      "notes": [
+        "spent 0.1 core-min \u00b7 potentialFoam (3s)"
+      ]
+    }
+  },
+  {
+    "sequence": 40,
+    "timestamp": 1784839790.1907492,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 potentialFoam: 3 s, initialising the velocity field so the steady solver starts sane.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839790.1907492
+    }
+  },
+  {
+    "sequence": 41,
+    "timestamp": 1784839790.193766,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "steady solve, 300 iterations",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "unfamiliar solver warning",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 42,
+    "timestamp": 1784839929.769073,
+    "event": "compute.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "spent_core_minutes": 2.38,
+      "saved_core_minutes": 0.0,
+      "efficiency": 0.0,
+      "full_fidelity": true,
+      "notes": [
+        "spent 0.1 core-min \u00b7 potentialFoam (3s)",
+        "spent 2.3 core-min \u00b7 simpleFoam (140s)"
+      ]
+    }
+  },
+  {
+    "sequence": 43,
+    "timestamp": 1784839929.7710767,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 simpleFoam: 140 s, steady solve, 300 iterations.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839929.7710767
+    }
+  },
+  {
+    "sequence": 44,
+    "timestamp": 1784839929.7730734,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "reading the force history",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "unfamiliar solver warning",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 45,
+    "timestamp": 1784839930.9159539,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 1.0,
+      "y": 0.00185,
+      "lo": 0.00185,
+      "hi": 0.00185,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 46,
+    "timestamp": 1784839930.9169593,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 4.0,
+      "y": 0.01732,
+      "lo": -0.00413,
+      "hi": 0.02258,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 47,
+    "timestamp": 1784839930.9179552,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 7.0,
+      "y": 0.03446,
+      "lo": -0.00643,
+      "hi": 0.04204,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 48,
+    "timestamp": 1784839930.9179552,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 10.0,
+      "y": 0.03664,
+      "lo": -0.00361,
+      "hi": 0.05083,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 49,
+    "timestamp": 1784839930.9189537,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 13.0,
+      "y": 0.02775,
+      "lo": 0.00623,
+      "hi": 0.04832,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 50,
+    "timestamp": 1784839930.9189537,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 16.0,
+      "y": 0.02099,
+      "lo": 0.01809,
+      "hi": 0.0421,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 51,
+    "timestamp": 1784839930.9189537,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 19.0,
+      "y": 0.01802,
+      "lo": 0.01221,
+      "hi": 0.04273,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 52,
+    "timestamp": 1784839930.920953,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 22.0,
+      "y": 0.01743,
+      "lo": 0.01102,
+      "hi": 0.03409,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 53,
+    "timestamp": 1784839930.9219525,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 25.0,
+      "y": 0.01769,
+      "lo": 0.0142,
+      "hi": 0.02421,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 54,
+    "timestamp": 1784839930.9239523,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 28.0,
+      "y": 0.01821,
+      "lo": 0.01675,
+      "hi": 0.01919,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 55,
+    "timestamp": 1784839930.924952,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 31.0,
+      "y": 0.01885,
+      "lo": 0.01698,
+      "hi": 0.01891,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 56,
+    "timestamp": 1784839930.9269521,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 34.0,
+      "y": 0.0193,
+      "lo": 0.01708,
+      "hi": 0.01964,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 57,
+    "timestamp": 1784839930.9279523,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 37.0,
+      "y": 0.01951,
+      "lo": 0.01764,
+      "hi": 0.02,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 58,
+    "timestamp": 1784839930.9299526,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 40.0,
+      "y": 0.0195,
+      "lo": 0.01844,
+      "hi": 0.01995,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 59,
+    "timestamp": 1784839930.9299526,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 43.0,
+      "y": 0.01943,
+      "lo": 0.01909,
+      "hi": 0.01971,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 60,
+    "timestamp": 1784839930.9309525,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 46.0,
+      "y": 0.01937,
+      "lo": 0.01934,
+      "hi": 0.01956,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 61,
+    "timestamp": 1784839930.9309525,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 49.0,
+      "y": 0.01934,
+      "lo": 0.01929,
+      "hi": 0.01956,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 62,
+    "timestamp": 1784839930.9319525,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 52.0,
+      "y": 0.01932,
+      "lo": 0.01928,
+      "hi": 0.01948,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 63,
+    "timestamp": 1784839930.9329531,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 55.0,
+      "y": 0.0193,
+      "lo": 0.01928,
+      "hi": 0.01941,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 64,
+    "timestamp": 1784839930.9349527,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 58.0,
+      "y": 0.01927,
+      "lo": 0.01926,
+      "hi": 0.01937,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 65,
+    "timestamp": 1784839930.9359524,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 61.0,
+      "y": 0.01923,
+      "lo": 0.01922,
+      "hi": 0.01936,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 66,
+    "timestamp": 1784839930.936963,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 64.0,
+      "y": 0.01919,
+      "lo": 0.01918,
+      "hi": 0.01934,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 67,
+    "timestamp": 1784839930.937963,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 67.0,
+      "y": 0.01916,
+      "lo": 0.01914,
+      "hi": 0.01931,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 68,
+    "timestamp": 1784839930.939963,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 70.0,
+      "y": 0.01913,
+      "lo": 0.0191,
+      "hi": 0.01928,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 69,
+    "timestamp": 1784839930.939963,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 73.0,
+      "y": 0.0191,
+      "lo": 0.01907,
+      "hi": 0.01924,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 70,
+    "timestamp": 1784839930.9419625,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 76.0,
+      "y": 0.01907,
+      "lo": 0.01905,
+      "hi": 0.0192,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 71,
+    "timestamp": 1784839930.942963,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 79.0,
+      "y": 0.01904,
+      "lo": 0.01903,
+      "hi": 0.01916,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 72,
+    "timestamp": 1784839930.9439628,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 82.0,
+      "y": 0.01902,
+      "lo": 0.01901,
+      "hi": 0.01913,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 73,
+    "timestamp": 1784839930.945963,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 85.0,
+      "y": 0.019,
+      "lo": 0.01899,
+      "hi": 0.0191,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 74,
+    "timestamp": 1784839930.9469633,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 88.0,
+      "y": 0.01898,
+      "lo": 0.01897,
+      "hi": 0.01907,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 75,
+    "timestamp": 1784839930.9479635,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 91.0,
+      "y": 0.01897,
+      "lo": 0.01895,
+      "hi": 0.01905,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 76,
+    "timestamp": 1784839930.9499633,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 94.0,
+      "y": 0.01895,
+      "lo": 0.01894,
+      "hi": 0.01902,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 77,
+    "timestamp": 1784839930.9514735,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 97.0,
+      "y": 0.01894,
+      "lo": 0.01893,
+      "hi": 0.019,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 78,
+    "timestamp": 1784839930.952486,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 100.0,
+      "y": 0.01893,
+      "lo": 0.01892,
+      "hi": 0.01898,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 79,
+    "timestamp": 1784839930.9534853,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 103.0,
+      "y": 0.01893,
+      "lo": 0.01892,
+      "hi": 0.01896,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 80,
+    "timestamp": 1784839930.9554853,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 106.0,
+      "y": 0.01892,
+      "lo": 0.01892,
+      "hi": 0.01895,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 81,
+    "timestamp": 1784839930.956486,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 109.0,
+      "y": 0.01892,
+      "lo": 0.01891,
+      "hi": 0.01894,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 82,
+    "timestamp": 1784839930.9584858,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 112.0,
+      "y": 0.01892,
+      "lo": 0.01891,
+      "hi": 0.01893,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 83,
+    "timestamp": 1784839930.9594858,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 115.0,
+      "y": 0.01891,
+      "lo": 0.01891,
+      "hi": 0.01893,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 84,
+    "timestamp": 1784839930.960487,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 118.0,
+      "y": 0.01891,
+      "lo": 0.01891,
+      "hi": 0.01892,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 85,
+    "timestamp": 1784839930.9614885,
+    "event": "trace.point",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "series": "Cd_history",
+      "x": 120.0,
+      "y": 0.01891,
+      "lo": 0.01891,
+      "hi": 0.01892,
+      "x_label": "solver iteration",
+      "y_label": "Cd",
+      "title": "Drag coefficient: solver iteration history",
+      "feasible": true
+    }
+  },
+  {
+    "sequence": 86,
+    "timestamp": 1784839930.9614885,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "extracting the surface pressure field",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "unfamiliar solver warning",
+          "status": "watching"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 87,
+    "timestamp": 1784839937.140264,
+    "event": "field.ready",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "beat": "geometry-study",
+      "file": "naca4412_wing_field.json",
+      "label": "NACA 4412 finite wing, surface pressure from the solve",
+      "url": "/api/field/geometry-study/naca4412_wing_field.json",
+      "bounds": {
+        "min": [
+          0.0013738187691261475,
+          -1.500000576178233,
+          -0.028921245131641626
+        ],
+        "max": [
+          0.989316137213456,
+          1.5001071691513062,
+          0.0987748292585214
+        ]
+      }
+    }
+  },
+  {
+    "sequence": 88,
+    "timestamp": 1784839937.1422646,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Body painted with its own solved surface pressure. \u2022 High on leading surfaces, low over the upper wing.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1422646
+    }
+  },
+  {
+    "sequence": 89,
+    "timestamp": 1784839937.1513577,
+    "event": "plot.ready",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "beat": "geometry-study",
+      "file": "Cd_envelope.png",
+      "title": "Drag history with envelope",
+      "url": "/api/plot/geometry-study/Cd_envelope.png"
+    }
+  },
+  {
+    "sequence": 90,
+    "timestamp": 1784839937.1553583,
+    "event": "plot.ready",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "beat": "geometry-study",
+      "file": "Cl_envelope.png",
+      "title": "Lift history with envelope",
+      "url": "/api/plot/geometry-study/Cl_envelope.png"
+    }
+  },
+  {
+    "sequence": 91,
+    "timestamp": 1784839937.1563573,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF RESEARCHER",
+      "message": "\u2022 Solve gives Cd 0.0189; rebased 0.0189 vs Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009) Cd 0.03. \u2022 37% apart, band \u00b140%.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1563573
+    }
+  },
+  {
+    "sequence": 92,
+    "timestamp": 1784839937.1588755,
+    "event": "result.verdict",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "quantity": "Drag coefficient",
+      "value": "0.01892",
+      "ci": "1.9e-05",
+      "confidence": "95%",
+      "envelope": "over the final 24 iterations",
+      "tier": "VALIDATED",
+      "reason": "within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
+      "comparison": {
+        "measured_cd": 0.0189,
+        "compared_cd": 0.0189,
+        "reference_cd": 0.03,
+        "relative_error": 0.3693,
+        "tolerance": 0.4,
+        "area_basis": "planform",
+        "basis_note": "already on the reference's planform-area basis",
+        "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+        "solved_reynolds": 1000300.0205324497,
+        "regime": "attached, cambered section carrying lift at zero incidence"
+      }
+    }
+  },
+  {
+    "sequence": 93,
+    "timestamp": 1784839937.1608908,
+    "event": "uncertainty.channels",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "channels": [
+        {
+          "name": "input",
+          "value": 2e-05,
+          "quantified": true,
+          "note": "the \u00b1 band is the statistical spread of the solved force over the averaging window, settled-state scatter; freestream speed and fluid properties are taken as specified exactly"
+        },
+        {
+          "name": "numerical",
+          "value": null,
+          "quantified": false,
+          "note": "study pending: no matching refinement study for this setup"
+        },
+        {
+          "name": "model",
+          "value": null,
+          "quantified": false,
+          "note": "kOmegaSST closure error not estimated for this body"
+        }
+      ]
+    }
+  },
+  {
+    "sequence": 94,
+    "timestamp": 1784839937.1618922,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Drag settles at 0.01892 \u00b1 1.9e-05 over 24 iterations. \u2022 Lift 0.2689 \u00b1 0.0002.",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "verdict": {
+          "tier": "VALIDATED",
+          "reason": "within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
+          "comparison": {
+            "measured_cd": 0.0189,
+            "compared_cd": 0.0189,
+            "reference_cd": 0.03,
+            "relative_error": 0.3693,
+            "tolerance": 0.4,
+            "area_basis": "planform",
+            "basis_note": "already on the reference's planform-area basis",
+            "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+            "solved_reynolds": 1000300.0205324497,
+            "regime": "attached, cambered section carrying lift at zero incidence"
+          }
+        }
+      },
+      "at": 1784839937.1618922
+    }
+  },
+  {
+    "sequence": 95,
+    "timestamp": 1784839937.1638896,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "NUMERICIST",
+      "message": "\u2022 Numerical uncertainty needs refined grids, per the grid-refinement uncertainty procedure (Eca & Hoekstra, 2014); one mesh cannot give it. \u2022 An experimental comparison exists for this body.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1638896
+    }
+  },
+  {
+    "sequence": 96,
+    "timestamp": 1784839937.1648886,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "MONITOR",
+      "message": "\u2022 Watched every solver line: 10 watch-pattern events {'novel-warning': 1, 'bounding': 9}. \u2022 6 repeats counted, not repeated at you. \u2022 Nothing fatal.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1648886
+    }
+  },
+  {
+    "sequence": 97,
+    "timestamp": 1784839937.1658885,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "extracting the surface pressure field",
+          "status": "working"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 98,
+    "timestamp": 1784839937.1668894,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "PHASE",
+      "message": "Conclusion",
+      "citations": [],
+      "citations_display": [],
+      "data": {
+        "phase": "Conclusion"
+      },
+      "at": 1784839937.1668894
+    }
+  },
+  {
+    "sequence": 99,
+    "timestamp": 1784839937.1683223,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Confirmed: raw surface \u2192 converged force in 2.6 min, no intervention. \u2022 Coefficient history flat over the window: the envelope means something.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1683223
+    }
+  },
+  {
+    "sequence": 100,
+    "timestamp": 1784839937.1696243,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Confirmed against experiment: inside the published band of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009). \u2022 Validated, not merely converged: within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%).",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1696243
+    }
+  },
+  {
+    "sequence": 101,
+    "timestamp": 1784839937.170636,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "CHIEF ENGINEER",
+      "message": "\u2022 Still unknown: mesh sensitivity, one mesh cannot separate discretization from physics. \u2022 A refinement study would roughly double the 2 core-minutes spent.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.170636
+    }
+  },
+  {
+    "sequence": 102,
+    "timestamp": 1784839937.1726363,
+    "event": "knowledge.added",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "title": "NACA 4412 finite wing meshed and solved: 337,334 cells, Cd 0.01892 \u00b1 1.9e-05",
+      "kind": "knowledge",
+      "entries": 8,
+      "lessons": 1,
+      "added": [
+        {
+          "title": "NACA 4412 finite wing meshed and solved: 337,334 cells, Cd 0.01892 \u00b1 1.9e-05",
+          "kind": "knowledge"
+        }
+      ]
+    }
+  },
+  {
+    "sequence": 103,
+    "timestamp": 1784839937.1736352,
+    "event": "transcript.entry",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "role": "NUMERICIST",
+      "message": "\u2022 Recorded in case memory. \u2022 Next question about a body like NACA 4412 finite wing answers from a real run.",
+      "citations": [],
+      "citations_display": [],
+      "data": {},
+      "at": 1784839937.1736352
+    }
+  },
+  {
+    "sequence": 104,
+    "timestamp": 1784839937.174636,
+    "event": "agenda.updated",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "entries": [
+        {
+          "title": "Drag build-up under yaw",
+          "scope": "sweep the approach angle and map how the force builds as the body meets the flow off-axis",
+          "cost": "one solve per angle on the cached mesh"
+        },
+        {
+          "title": "Resolve the shedding",
+          "scope": "an unsteady solve of the wake the steady picture averages away, the spectrum, not just the mean force",
+          "cost": "transient solve; ~1 order of magnitude over steady"
+        },
+        {
+          "title": "Next body in the class",
+          "scope": "take the same gated chain to the nearest unsolved body in the library and grow the validated set",
+          "cost": "one full chain per body; meshing dominates"
+        }
+      ]
+    }
+  },
+  {
+    "sequence": 105,
+    "timestamp": 1784839937.1756353,
+    "event": "report.ready",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "title": "Geometry study: NACA 4412 finite wing",
+      "abstract": [
+        "We took NACA 4412 finite wing through surface check, meshing, and a steady solve to establish whether the chain yields a trustworthy force.",
+        "The mesh reached 337,334 cells at max non-orthogonality 49.9\u00b0 and max skewness 3.32; drag settled at 0.01892 \u00b1 1.9e-05.",
+        "The result is reported as validated: within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)."
+      ],
+      "methods": [
+        "Surface intake and check on NACA 4412 finite wing.",
+        "Background mesh plus snappyHexMesh to 337,334 cells; quality gated at 70\u00b0 non-orthogonality and 4 skewness.",
+        "Potential-flow initialisation followed by 300 steady iterations.",
+        "Forces averaged over the final fifth of the iteration history; the band is the spread of that window."
+      ],
+      "results": [
+        {
+          "quantity": "Drag coefficient",
+          "value": "0.01892",
+          "envelope": "\u00b11.9e-05 over the final 24 iterations",
+          "tier": "VALIDATED",
+          "reason": "within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
+          "comparison": {
+            "measured_cd": 0.0189,
+            "compared_cd": 0.0189,
+            "reference_cd": 0.03,
+            "relative_error": 0.3693,
+            "tolerance": 0.4,
+            "area_basis": "planform",
+            "basis_note": "already on the reference's planform-area basis",
+            "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+            "solved_reynolds": 1000300.0205324497,
+            "regime": "attached, cambered section carrying lift at zero incidence"
+          }
+        },
+        {
+          "quantity": "Lift coefficient",
+          "value": "0.2689",
+          "envelope": "\u00b10.0002",
+          "tier": "VALIDATED",
+          "reason": "within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
+          "comparison": {
+            "measured_cd": 0.0189,
+            "compared_cd": 0.0189,
+            "reference_cd": 0.03,
+            "relative_error": 0.3693,
+            "tolerance": 0.4,
+            "area_basis": "planform",
+            "basis_note": "already on the reference's planform-area basis",
+            "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+            "solved_reynolds": 1000300.0205324497,
+            "regime": "attached, cambered section carrying lift at zero incidence"
+          }
+        },
+        {
+          "quantity": "Drag vs experiment",
+          "value": "Cd 0.0189 vs 0.03",
+          "envelope": "37% apart, \u00b140% band",
+          "tier": "VALIDATED",
+          "reason": "within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
+          "comparison": {
+            "measured_cd": 0.0189,
+            "compared_cd": 0.0189,
+            "reference_cd": 0.03,
+            "relative_error": 0.3693,
+            "tolerance": 0.4,
+            "area_basis": "planform",
+            "basis_note": "already on the reference's planform-area basis",
+            "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+            "solved_reynolds": 1000300.0205324497,
+            "regime": "attached, cambered section carrying lift at zero incidence"
+          }
+        },
+        {
+          "quantity": "Mesh",
+          "value": "337,334 cells",
+          "envelope": "max non-orthogonality 49.9\u00b0, max skewness 3.32",
+          "tier": "SOLVER-BACKED",
+          "reason": "a real solve; envelope 0.0% of value"
+        }
+      ],
+      "uncertainty": [
+        "Reported band: settling spread of the coefficient over the averaging window, a floor, not a bound.",
+        "Numerical uncertainty is not quantified: one mesh cannot separate discretization error from the solution, and no refinement study was run.",
+        "Compared against Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009): within 37% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)."
+      ],
+      "next_investigations": [
+        "Drag build-up under yaw: sweep the approach angle and map how the force builds as the body meets the flow off-axis",
+        "Resolve the shedding: an unsteady solve of the wake the steady picture averages away, the spectrum, not just the mean force",
+        "Next body in the class: take the same gated chain to the nearest unsolved body in the library and grow the validated set"
+      ],
+      "compute": {
+        "spent_core_minutes": 2.38,
+        "saved_core_minutes": 0.0,
+        "efficiency": 0.0,
+        "full_fidelity": true,
+        "notes": [
+          "spent 0.1 core-min \u00b7 potentialFoam (3s)",
+          "spent 2.3 core-min \u00b7 simpleFoam (140s)"
+        ]
+      }
+    }
+  },
+  {
+    "sequence": 106,
+    "timestamp": 1784839937.1816335,
+    "event": "certificate.ready",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "path": "C:\\Users\\mouza\\github-cleanup\\ct-demo-acts\\mission-output\\geometry-study\\certificate.pdf",
+      "hash": "6211bdcfeedffef57dd8d28d3c151e0223d7e7e8074ac074e681bd9fad722a80",
+      "mission_id": "geometry-study-naca4412_wing",
+      "tier": "VALIDATED",
+      "fidelity": "VALIDATED",
+      "certificate_no": "C-2026-7069",
+      "dir": "geometry-study"
+    }
+  },
+  {
+    "sequence": 107,
+    "timestamp": 1784839937.185635,
+    "event": "roster.update",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "members": [
+        {
+          "role": "Chief Engineer",
+          "blurb": "runs the mission end to end",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Chief Researcher",
+          "blurb": "governs approximations and validity",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Numericist",
+          "blurb": "audits the numerics, proposes faster routes",
+          "activity": "standing by",
+          "status": "idle"
+        },
+        {
+          "role": "Monitoring agent",
+          "blurb": "watches solver output for trouble",
+          "activity": "standing by",
+          "status": "idle"
+        }
+      ],
+      "workers": 0,
+      "worker_activity": ""
+    }
+  },
+  {
+    "sequence": 108,
+    "timestamp": 1784839937.1876345,
+    "event": "mission.completed",
+    "mission_id": "m-db2ed2147343",
+    "payload": {
+      "status": "complete",
+      "intent": "geometry-study",
+      "output": "geometry-study",
+      "reason": "Workflow finished."
+    }
+  }
+]

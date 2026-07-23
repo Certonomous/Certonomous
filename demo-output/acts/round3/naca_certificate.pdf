@@ -1,0 +1,103 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 5 0 R /F2 6 0 R /F3 7 0 R /F4 8 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 5647 >>
+stream
+BT /F4 25.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 761.89 Tm (CERTONOMOUS) Tj ET
+BT /F2 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 746.89 Tm (CERTIFICATE OF AUTONOMOUS SOLVE) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 381.28 773.89 Tm (CERTIFICATE No.) Tj ET
+BT /F4 15.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 381.28 757.89 Tm (C-2026-7069) Tj ET
+1.40 w 0.110 0.140 0.190 RG 64.00 731.89 m 531.28 731.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 701.89 Tm (SUBJECT) Tj ET
+BT /F4 19.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 679.89 Tm (NACA 4412 finite wing) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 656.89 Tm (source geometry: naca4412_wing.stl) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 634.89 Tm (OBJECTIVE) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 634.89 Tm (Solve the external aerodynamics of the supplied NACA 4412) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 620.89 Tm (finite-wing geometry at cruise Reynolds number. Select the) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 606.89 Tm (appropriate turbulence model and solver, gate the mesh on) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 592.89 Tm (quality, and report the lift and drag coefficients with) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 578.89 Tm (confidence envelopes.) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 558.89 Tm (SOLVER & MODEL) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 558.89 Tm (OpenFOAM, k-omega SST steady RANS) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 538.89 Tm (ISSUED \(UTC\)) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 538.89 Tm (2026-07-23T20:52:17Z) Tj ET
+0.70 w 0.860 0.880 0.910 RG 64.00 512.89 m 531.28 512.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 484.89 Tm (RESULT) Tj ET
+0.130 0.550 0.330 rg 435.28 479.89 96.00 21.00 re f
+BT /F2 9.50 Tf 1.000 1.000 1.000 rg 1 0 0 1 446.28 485.89 Tm (VALIDATED) Tj ET
+BT /F1 11.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 454.89 Tm (Drag coefficient) Tj ET
+BT /F4 24.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 428.89 Tm (0.01892   ± ±1.9e-05 over the final 24 iterations) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 72.00 412.89 Tm (95% confidence interval) Tj ET
+BT /F1 9.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 394.89 Tm (Basis: within 37% of Abbott & von Doenhoff, Theory of Wing Sections \(1959\), NACA 4412 section) Tj ET
+BT /F1 9.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 381.89 Tm (data \(section Cd ~ 0.006-0.009\), Cd 0.03 \(band ±40%\)) Tj ET
+BT /F2 9.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 368.89 Tm (Lift coefficient) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 224.00 368.89 Tm (0.2689   ±0.0002) Tj ET
+BT /F2 9.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 355.89 Tm (Drag vs experiment) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 224.00 355.89 Tm (Cd 0.0189 vs 0.03   37% apart, ±40% band) Tj ET
+BT /F2 9.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 342.89 Tm (Mesh) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 224.00 342.89 Tm (337,334 cells   max non-orthogonality 49.9∞, max skewness 3.32) Tj ET
+0.70 w 0.860 0.880 0.910 RG 64.00 319.89 m 531.28 319.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 293.89 Tm (UNCERTAINTY  -  ASME V&V 20 THREE-CHANNEL) Tj ET
+0.50 w 0.860 0.880 0.910 RG 64.00 285.89 m 531.28 285.89 l S
+BT /F2 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 269.89 Tm (CHANNEL) Tj ET
+BT /F2 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 214.00 269.89 Tm (VALUE) Tj ET
+BT /F2 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 314.00 269.89 Tm (STATE) Tj ET
+0.50 w 0.860 0.880 0.910 RG 64.00 263.89 m 531.28 263.89 l S
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 247.89 Tm (input) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 214.00 247.89 Tm (2e-05) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 314.00 247.89 Tm (quantified) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 234.89 Tm (the ± band is the statistical spread of the solved force over the averaging window, settled-state) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 223.89 Tm (scatter; freestream speed and fluid properties are taken as specified exactly) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 208.89 Tm (numerical) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 214.00 208.89 Tm (ó) Tj ET
+BT /F1 9.00 Tf 0.660 0.450 0.100 rg 1 0 0 1 314.00 208.89 Tm (not quantified) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 195.89 Tm (study pending: no matching refinement study for this setup) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 180.89 Tm (model) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 214.00 180.89 Tm (ó) Tj ET
+BT /F1 9.00 Tf 0.660 0.450 0.100 rg 1 0 0 1 314.00 180.89 Tm (not quantified) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 167.89 Tm (kOmegaSST closure error not estimated for this body) Tj ET
+0.965 0.972 0.980 rg 64.00 78.00 467.28 66.00 re f
+BT /F2 8.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 76.00 129.00 Tm (PROVENANCE  -  EVIDENCE-BUNDLE SEAL \(SHA-256\)) Tj ET
+BT /F2 9.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 76.00 114.00 Tm (6211bdcfeedffef57dd8d28d3c151e02) Tj ET
+BT /F2 9.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 76.00 103.00 Tm (23d7e7e8074ac074e681bd9fad722a80) Tj ET
+BT /F1 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 76.00 90.00 Tm (Mission geometry-study-naca4412_wing   -   Certificate C-2026-7069) Tj ET
+BT /F1 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 62.00 Tm (Reproducible from the sealed evidence bundle; any change to the recorded run invalidates the seal. No tier exceeds TREND ONLY without an experimental comparison.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000283 00000 n 
+0000005982 00000 n 
+0000006079 00000 n 
+0000006181 00000 n 
+0000006280 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+6378
+%%EOF

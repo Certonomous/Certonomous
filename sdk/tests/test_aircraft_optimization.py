@@ -2,6 +2,7 @@
 
 import os
 import unittest
+from pathlib import Path
 
 from chief_engineer.router import AIRCRAFT_OPTIMIZATION, classify
 from workflows.aircraft_optimization import (evaluate_design, main,
@@ -60,11 +61,14 @@ class WorkflowTests(unittest.TestCase):
     def test_main_runs_and_reports_a_feasible_optimum(self):
         events = {}
         verdict = {}
+        certificate = {}
 
         def emit(event, payload):
             events[event] = events.get(event, 0) + 1
             if event == "result.verdict":
                 verdict.update(payload)
+            if event == "certificate.ready":
+                certificate.update(payload)
 
         rc = main(request="Optimize the L/D of an airliner for 300 passengers, "
                           "6000 km range, takeoff 85 m/s, landing 72 m/s", emit=emit)
@@ -76,6 +80,13 @@ class WorkflowTests(unittest.TestCase):
         # The dispatch panel and the live trace are fed as the grid is screened.
         self.assertGreater(events.get("dispatch.update", 0), 20)
         self.assertGreater(events.get("trace.point", 0), 0)
+        # Act 1 carries a Certonomous certificate with its evidence seal. On a
+        # solver-less run the finalists are not solved, so the fidelity is the
+        # conceptual screen; the seal and human number are still issued.
+        self.assertEqual(events.get("certificate.ready"), 1)
+        self.assertEqual(certificate.get("dir"), "aircraft-optimization")
+        self.assertTrue(certificate.get("certificate_no", "").startswith("C-"))
+        self.assertTrue(Path(certificate.get("path", "")).exists())
 
     def test_router_sends_aircraft_ld_prompts_here(self):
         route = classify("optimize the lift-to-drag of this airplane for 250 passengers")

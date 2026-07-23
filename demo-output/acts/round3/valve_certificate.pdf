@@ -1,0 +1,99 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 5 0 R /F2 6 0 R /F3 7 0 R /F4 8 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 5163 >>
+stream
+BT /F4 25.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 761.89 Tm (CERTONOMOUS) Tj ET
+BT /F2 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 746.89 Tm (CERTIFICATE OF AUTONOMOUS SOLVE) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 381.28 773.89 Tm (CERTIFICATE No.) Tj ET
+BT /F4 15.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 381.28 757.89 Tm (C-2026-8945) Tj ET
+1.40 w 0.110 0.140 0.190 RG 64.00 731.89 m 531.28 731.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 701.89 Tm (SUBJECT) Tj ET
+BT /F4 19.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 679.89 Tm (Idealized trileaflet aortic valve, systolic) Tj ET
+BT /F4 19.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 656.89 Tm (configuration) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 627.89 Tm (OBJECTIVE) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 627.89 Tm (Optimize the leaflet opening angle of the aortic valve to) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 613.89 Tm (minimize pressure loss over the cardiac cycle. Decompose the) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 599.89 Tm (cycle into representative phase points, rule on the admissible) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 585.89 Tm (method, and report the cycle-weighted loss with its) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 571.89 Tm (uncertainty.) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 551.89 Tm (SOLVER & MODEL) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 551.89 Tm (Reduced-order orifice model, cycle-decomposition screen) Tj ET
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 531.89 Tm (ISSUED \(UTC\)) Tj ET
+BT /F1 10.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 184.00 531.89 Tm (2026-07-23T20:49:37Z) Tj ET
+0.70 w 0.860 0.880 0.910 RG 64.00 505.89 m 531.28 505.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 477.89 Tm (RESULT) Tj ET
+0.660 0.450 0.100 rg 406.88 472.89 124.40 21.00 re f
+BT /F2 9.50 Tf 1.000 1.000 1.000 rg 1 0 0 1 417.88 478.89 Tm (CONCEPTUAL MODEL) Tj ET
+BT /F1 11.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 447.89 Tm (Cycle-weighted pressure loss) Tj ET
+BT /F4 24.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 421.89 Tm (1345 Pa   ± 441 Pa) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 72.00 405.89 Tm (95% confidence interval) Tj ET
+BT /F1 9.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 387.89 Tm (Basis: reduced-order orifice screen on a screening geometry; the flow is inertially unsteady) Tj ET
+BT /F2 9.00 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 374.89 Tm (Winning leaflet opening) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 224.00 374.89 Tm (80 deg   orifice 403 mm2) Tj ET
+0.70 w 0.860 0.880 0.910 RG 64.00 351.89 m 531.28 351.89 l S
+BT /F2 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 325.89 Tm (UNCERTAINTY  -  ASME V&V 20 THREE-CHANNEL) Tj ET
+0.50 w 0.860 0.880 0.910 RG 64.00 317.89 m 531.28 317.89 l S
+BT /F2 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 301.89 Tm (CHANNEL) Tj ET
+BT /F2 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 214.00 301.89 Tm (VALUE) Tj ET
+BT /F2 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 314.00 301.89 Tm (STATE) Tj ET
+0.50 w 0.860 0.880 0.910 RG 64.00 295.89 m 531.28 295.89 l S
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 279.89 Tm (input) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 214.00 279.89 Tm (421.1424) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 314.00 279.89 Tm (quantified) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 266.89 Tm (2-sigma Monte-Carlo envelope propagated from the spread in phase flow-rate and the orifice discharge) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 255.89 Tm (coefficient) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 240.89 Tm (numerical) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 214.00 240.89 Tm (81.0) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 314.00 240.89 Tm (quantified) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 227.89 Tm (phase-quadrature ladder k = 3/5/9) Tj ET
+BT /F2 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 64.00 212.89 Tm (model) Tj ET
+BT /F1 9.50 Tf 0.110 0.140 0.190 rg 1 0 0 1 214.00 212.89 Tm (104.8) Tj ET
+BT /F1 9.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 314.00 212.89 Tm (quantified) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 199.89 Tm (correlation-family spread; unmodeled: phase-interaction neglected, leaflet motion not modeled,) Tj ET
+BT /F1 8.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 78.00 188.89 Tm (Newtonian blood) Tj ET
+0.965 0.972 0.980 rg 64.00 78.00 467.28 66.00 re f
+BT /F2 8.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 76.00 129.00 Tm (PROVENANCE  -  EVIDENCE-BUNDLE SEAL \(SHA-256\)) Tj ET
+BT /F2 9.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 76.00 114.00 Tm (e79cc1185d9d720a5b9777a52c29af80) Tj ET
+BT /F2 9.00 Tf 0.200 0.240 0.300 rg 1 0 0 1 76.00 103.00 Tm (1bbe420198b093e09fcb4967716130c6) Tj ET
+BT /F1 8.00 Tf 0.420 0.460 0.510 rg 1 0 0 1 76.00 90.00 Tm (Mission valve-study   -   Certificate C-2026-8945) Tj ET
+BT /F1 7.50 Tf 0.420 0.460 0.510 rg 1 0 0 1 64.00 62.00 Tm (Reproducible from the sealed evidence bundle; any change to the recorded run invalidates the seal. No tier exceeds TREND ONLY without an experimental comparison.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+8 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000283 00000 n 
+0000005498 00000 n 
+0000005595 00000 n 
+0000005697 00000 n 
+0000005796 00000 n 
+trailer
+<< /Size 9 /Root 1 0 R >>
+startxref
+5894
+%%EOF

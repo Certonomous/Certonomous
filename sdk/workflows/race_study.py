@@ -33,8 +33,10 @@ from pathlib import Path
 from . import OUT_ROOT, make_transcript
 from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
+from chief_engineer.display_names import display_name
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
-                                EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN, Roster)
+                                EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN, Roster,
+                                uncertainty_channels)
 from chief_engineer.researcher import (ENGINEER_ACK, MissionProperties,
                                        method_memo)
 from workflows.race_benchmark import (ALPHAS, ANCHOR_ALPHAS, RE_NOMINAL,
@@ -389,6 +391,62 @@ def main(request: str | None = None, params: dict | None = None,
                         f"{speedup_cm}× in core-minutes "
                         f"(wall {speedup_wall}×)."),
             "figures": []})
+
+    # The Certonomous certificate for the race act: the measured speedup and
+    # the agreement between the two paths as the headline results, on the NACA
+    # 4412 wing. Every evaluation on both lanes was a real solve, so the chip
+    # is SOLVER-BACKED. Wrapped so the certificate never sinks a good mission.
+    try:
+        from chief_engineer.certificate import build_certificate_v2
+
+        verdict = {"tier": "SOLVER-BACKED",
+                   "reason": (f"every evaluation on both lanes was a real "
+                              f"vortex-lattice solve; the two paths agree to "
+                              f"{agreement_pct}%")}
+        cert_doc = {
+            "results": [
+                {"quantity": "Measured speedup, reduced-order vs full "
+                             "Monte-Carlo",
+                 "value": f"{speedup_cm}x in core-minutes",
+                 **verdict},
+                {"quantity": "Agreement of the two paths",
+                 "value": f"{agreement_pct}%",
+                 "envelope": f"peak L/D {rom['confirmed']:.2f} at "
+                             f"{rom['alpha_star']:g} deg"},
+                {"quantity": "Cost",
+                 "value": f"{cm_mc:.1f} vs {cm_rom:.1f} core-min",
+                 "envelope": f"wall {speedup_wall}x"},
+            ],
+            "compute": {"spent_core_minutes": round(cm_mc + cm_rom, 2),
+                        "saved_core_minutes": round(cm_mc - cm_rom, 2)},
+        }
+        race_channels = uncertainty_channels(
+            input_2sigma=round(2 * mc["peak_sem"], 3),
+            numerical=None,
+            model=round(rom["surrogate_error"], 3),
+            input_note="input-uncertainty ensemble over chord Reynolds number, "
+                       "propagated to the peak lift-to-drag",
+            numerical_note="each evaluation is a converged vortex-lattice "
+                           "solve; panel-density refinement not separately "
+                           "studied here",
+            model_note="reduced-order surrogate residual against one real "
+                       "confirmation solve at the predicted angle of attack")
+        certificate = build_certificate_v2(
+            cert_doc, out_path=out / "certificate.pdf",
+            geometry="naca4412",
+            objective="Locate the peak lift-to-drag over angle of attack two "
+                      "ways, same objective and tolerance, both timed.",
+            mission_id="race-comparison",
+            issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            channels=race_channels,
+            display_name=display_name("naca4412"),
+            source_filename=subject,
+            solver="OpenVSP VSPAERO, vortex lattice, both lanes real solves")
+        if emit:
+            emit("certificate.ready", {**certificate, "dir": out.name})
+    except Exception as exc:  # a certificate must never take down a good mission
+        script.engineer(f"(Certificate could not be issued: {exc})")
+
     return 0
 
 

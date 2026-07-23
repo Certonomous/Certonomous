@@ -683,6 +683,43 @@ def main(request: str | None = None, params: dict | None = None,
     )
     if emit:
         emit("report.ready", report)
+
+    # The Certonomous certificate for the airliner act: the best feasible L/D
+    # with its 95% CI, the solver named only when the finalists were actually
+    # solved, and the full three-channel table (input Monte-Carlo, numerical
+    # grid-discreteness, model from the UQ airliner-anchors study where the
+    # fingerprint matches). Wrapped so a certificate never sinks a good mission.
+    try:
+        from chief_engineer.certificate import build_certificate_v2
+
+        cert_doc = {
+            "results": [
+                {"quantity": "Best feasible cruise L/D",
+                 "value": f"{best_ld:.1f}",
+                 "envelope": f"{headline_ci:.1f}", **verdict},
+                {"quantity": "Winning wing",
+                 "value": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}",
+                 "envelope": f"range {best['range_km']:.0f} km"},
+            ],
+            "compute": ledger.as_dict(),
+        }
+        solver = ("OpenVSP VSPAERO, vortex lattice" if won_solved
+                  else "Conceptual drag-polar sizing model")
+        certificate = build_certificate_v2(
+            cert_doc, out_path=out / "certificate.pdf",
+            geometry="airliner",
+            objective=(request or "Maximise the airliner cruise lift-to-drag "
+                       "ratio subject to its mission requirements."),
+            mission_id="aircraft-optimization",
+            issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            channels=channels,
+            display_name="300-passenger twin-aisle airliner, planform study",
+            solver=solver)
+        if emit:
+            emit("certificate.ready", {**certificate, "dir": out.name})
+    except Exception as exc:  # a certificate must never take down a good mission
+        script.engineer(f"(Certificate could not be issued: {exc})")
+
     script.save(out / "transcript.txt")
     roster.all_idle()
     print("Artifacts in", out)
