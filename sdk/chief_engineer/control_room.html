@@ -187,6 +187,7 @@
 
   .entry { padding: 9px 0; border-bottom: 1px solid var(--line); }
   .entry .who { font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+  .entry .who time { float: right; color: var(--dim); letter-spacing: 0; }
   .entry.chief-engineer .who { color: var(--live); }
   .entry.chief-researcher .who { color: var(--regime); }
   .entry.numericist .who { color: #9aa7ff; }
@@ -357,6 +358,10 @@ const setHidden = (id, v) => { const n = $(id); if (n) n.hidden = v; };
 const title = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest' };
+// Declared before any top-level caller of resetMission (the ?mission= resume
+// path runs during initial evaluation).
+const revealQ = [];
+let revealing = false;
 
 setInterval(() => $('clock').textContent = new Date().toISOString().replace('T',' · ').replace(/\.\d+Z/,' UTC'), 500);
 ['workers','cycles'].forEach(id => $(id).addEventListener('input', () => $(id+'Out').value = $(id).value));
@@ -440,6 +445,7 @@ function resetMission() {
   if (state.source) state.source.close();
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null;
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
+  state.peakAgents=0; state.peakWorkers=0; revealQ.length=0; revealing=false;
   loadRuntime();   // a new mission must earn the solver badge again
   const rc = $('resultCard'); if (rc) { rc.hidden = true; rc.innerHTML=''; }
   $('digest').innerHTML=''; $('script').innerHTML=''; $('memo').innerHTML='';
@@ -454,8 +460,14 @@ function resetMission() {
 }
 
 function finish(status) {
+  // Let the paced transcript catch up before declaring the mission over.
+  if (revealQ.length) { setTimeout(() => finish(status), 500); return; }
   state.finished = true; $('beacon').classList.remove('live'); $('launch').disabled = false;
   $('globalStatus').textContent = status === 'failed' ? 'MISSION ENDED' : 'MISSION COMPLETE';
+  // The roster idles at completion; the KPIs keep the mission's peak effort
+  // on screen instead of dropping back to zero.
+  if (state.peakAgents) $('kAgents').textContent = state.peakAgents;
+  if (state.peakWorkers) $('kWorkers').textContent = state.peakWorkers;
   if (state.source) { state.source.close(); state.source = null; }
 }
 
@@ -464,7 +476,7 @@ function dispatch(env) {
   const p = env.payload || env;   // the SSE frame wraps the body in {event, payload}
   switch (t) {
     case 'mission.routed': showRoute(p); break;
-    case 'transcript.entry': addEntry(p); addDigest(p); present(p.role, p.message); break;
+    case 'transcript.entry': enqueueEntry(p); break;
     case 'audit.completed': renderAudit(p); break;
     case 'roster.update': renderRoster(p); break;
     case 'compute.update': renderCompute(p); break;
@@ -485,7 +497,7 @@ function dispatch(env) {
     case 'agent.started': state.agents++; $('kAgents').textContent = state.agents; break;
     case 'worker.provisioned': state.workers++; $('kWorkers').textContent = state.workers; break;
     case 'worker.released': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; break;
-    case 'worker.killed': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; toast(`Worker ${p.worker_index} lost — reprovisioning`); present('Monitor', p.detail); break;
+    case 'worker.killed': toast(`Worker ${p.worker_index} lost — reprovisioning`); present('Monitor', p.detail); break;
     case 'worker.reprovisioned': toast(`Fresh worker took over slot ${p.worker_index}`); present('Monitor', p.detail); break;
     case 'mission.completed': finish('complete'); break;
     case 'mission.failed': finish('failed'); break;
@@ -528,17 +540,36 @@ function renderAgenda(p) {
 }
 
 function roleClass(role) { return 'entry ' + String(role||'system').toLowerCase().replace(/[^a-z]+/g,'-'); }
+
+// The transcript streams at reading pace: entries queue as the backend emits
+// them and reveal one at a time, so the viewer watches the mission happen
+// instead of receiving it fully formed.
+function enqueueEntry(p) { revealQ.push(p); if (!revealing) { revealing = true; drainReveal(); } }
+function drainReveal() {
+  const p = revealQ.shift();
+  if (!p) { revealing = false; return; }
+  addEntry(p); addDigest(p); present(p.role, p.message);
+  setTimeout(drainReveal, 650);
+}
+const stamp = at => at ? new Date(at * 1000).toISOString().slice(11, 19) : '';
 function addEntry(p) {
   const el = document.createElement('div'); el.className = roleClass(p.role);
-  el.innerHTML = `<span class="who">${esc(p.role||'System')}</span><p>${esc(p.message||'')}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
+  el.innerHTML = `<span class="who">${esc(p.role||'System')}<time>${stamp(p.at)}</time></span><p>${esc(p.message||'')}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
   $('script').appendChild(el); $('script').scrollTop = $('script').scrollHeight;
 }
 const PHASES = { HYPOTHESIS:'Hypothesis', 'EXPERIMENT PLAN':'Plan', PLAN:'Plan', EVIDENCE:'Evidence', CONCLUSION:'Conclusion' };
+const PHASE_ORDER = ['Hypothesis', 'Plan', 'Evidence', 'Conclusion'];
 function addDigest(p) {
   const msg = p.message || '';
   const up = msg.trim().toUpperCase();
   const phaseHit = Object.keys(PHASES).find(k => up === k || up.includes('== '+k));
-  if (phaseHit && state.digestPhase !== phaseHit) { state.digestPhase = phaseHit; const h = document.createElement('div'); h.className='digest-phase'; h.textContent = PHASES[phaseHit]; $('digest').appendChild(h); return; }
+  if (phaseHit && state.digestPhase !== phaseHit) {
+    state.digestPhase = phaseHit;
+    const h = document.createElement('div'); h.className='digest-phase'; h.textContent = PHASES[phaseHit]; $('digest').appendChild(h);
+    // The Cycle KPI is the live phase counter — it advances as the mission does.
+    $('kCycle').textContent = `${PHASE_ORDER.indexOf(PHASES[phaseHit]) + 1}/${PHASE_ORDER.length}`;
+    return;
+  }
   if (/^==/.test(msg.trim()) || p.role === 'SYSTEM') return;
   // House style is terse bullets, so bulleted entries are digest-worthy by
   // construction; the keyword filter only guards stray prose.
@@ -560,6 +591,13 @@ function renderRoster(p) {
   const members = p.members || [];
   $('roster').innerHTML = members.map(m =>
     `<div class="roster-row"><span class="roster-dot ${esc(m.state||'')}"></span><span class="who">${esc(m.name||m.role||'')}</span><span class="doing">${esc(m.doing||m.status||'')}</span></div>`).join('');
+  // Live KPIs come from the roster, which the backend updates continuously:
+  // workers is the provisioned count, agents is whoever is not idle right now.
+  const active = members.filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle').length;
+  $('kWorkers').textContent = p.workers ?? 0;
+  $('kAgents').textContent = active;
+  state.peakAgents = Math.max(state.peakAgents || 0, active);
+  state.peakWorkers = Math.max(state.peakWorkers || 0, p.workers || 0);
 }
 function renderCompute(p) {
   setHidden('computeSection', false);
