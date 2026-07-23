@@ -262,6 +262,86 @@ def wing_surface(span: float, area: float, *, sweep_deg: float = 27.5,
     }
 
 
+def valve_surface(opening_angle_deg: float, *, root_radius: float = 0.0115,
+                  root_length: float = 0.030, n_leaflets: int = 3,
+                  wall_segments: int = 48, n_u: int = 7,
+                  n_v: int = 9) -> dict[str, Any]:
+    """Generate the parametric three-leaflet valve a candidate angle actually is.
+
+    An idealized engineering rendering — honestly parametric, no anatomy. A short
+    root tube carries three leaflet petals hinged on the wall at the outlet; the
+    leaflet opening angle sets how far each petal swings inward toward the axis
+    and upstream, which fixes the central orifice the flow squeezes through:
+
+        orifice radius = root_radius * sin(theta)
+
+    the same geometric measure the pressure-loss physics consumes, so the picture
+    and the number move together. Larger angle → leaflets lie back toward the
+    wall → wider orifice; smaller angle → petals pinch the centre. The flow axis
+    runs along +x so the viewport shows the tri-leaflet face at a three-quarter
+    view, exactly as a wing candidate does.
+    """
+    theta = math.radians(min(max(float(opening_angle_deg), 1.0), 90.0))
+    R = float(root_radius)
+    L = float(root_length)
+    orifice_r = R * math.sin(theta)
+    # How far the free edge swings upstream off the outlet plane: wide open
+    # (theta→90°) barely moves; pinched (small theta) swings deep upstream.
+    depth = R * math.cos(theta) * 0.9
+
+    vertices: list[list[float]] = []
+    faces: list[list[int]] = []
+
+    # --- root tube wall: two rings joined into a short open cylinder ---
+    for seg in range(wall_segments):
+        ang = 2.0 * math.pi * seg / wall_segments
+        y, z = R * math.cos(ang), R * math.sin(ang)
+        vertices.append([0.0, y, z])
+        vertices.append([L, y, z])
+    for seg in range(wall_segments):
+        a = 2 * seg
+        b = 2 * ((seg + 1) % wall_segments)
+        faces.append([a, a + 1, b + 1])
+        faces.append([a, b + 1, b])
+
+    # --- three leaflet petals ---
+    hinge_half = math.radians(52.0)   # angular half-width at the hinge (leaves a gap)
+    for k in range(n_leaflets):
+        phi = 2.0 * math.pi * k / n_leaflets
+        base = len(vertices)
+        for iu in range(n_u + 1):
+            u = iu / n_u                      # 0 hinge (wall) → 1 free edge (orifice)
+            r = R + (orifice_r - R) * u
+            x = L - depth * math.sin(u * math.pi / 2.0)
+            width = hinge_half * (1.0 - 0.55 * u)   # petal narrows toward the axis
+            for iv in range(n_v + 1):
+                v = -1.0 + 2.0 * iv / n_v
+                ang = phi + v * width
+                # A mild belly so the petal reads as a curved leaflet, not a flat fin.
+                belly = 0.12 * R * math.sin(u * math.pi) * (1.0 - v * v)
+                vertices.append([x - belly, r * math.cos(ang), r * math.sin(ang)])
+        stride = n_v + 1
+        for iu in range(n_u):
+            for iv in range(n_v):
+                a = base + iu * stride + iv
+                b = base + (iu + 1) * stride + iv
+                faces.append([a, b, b + 1])
+                faces.append([a, b + 1, a + 1])
+
+    xs = [v[0] for v in vertices]
+    ys = [v[1] for v in vertices]
+    zs = [v[2] for v in vertices]
+    return {
+        "name": f"valve opening={opening_angle_deg:g}° orifice={orifice_r*1e3:.1f} mm r",
+        "vertices": [[round(c, 6) for c in v] for v in vertices],
+        "faces": faces,
+        "triangles_total": len(faces),
+        "triangles_shown": len(faces),
+        "bounds": {"min": [min(xs), min(ys), min(zs)],
+                   "max": [max(xs), max(ys), max(zs)]},
+    }
+
+
 def cylinder_surface(diameter: float = 1.0, *, span: float = 2.0,
                      segments: int = 64) -> dict[str, Any]:
     """Generate the parametric cylinder a 2D mission is actually solving."""

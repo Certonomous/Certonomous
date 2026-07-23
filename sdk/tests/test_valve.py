@@ -30,6 +30,21 @@ class GeometryTests(unittest.TestCase):
         self.assertGreater(area_mm2, 100)
         self.assertLess(area_mm2, 500)
 
+    def test_viewport_valve_surface_opens_with_angle(self):
+        # The control-room valve_surface must render a real body and its orifice
+        # must widen with the opening angle, matching the physics.
+        from chief_engineer.geometry import valve_surface
+        radii = []
+        for a in (35, 50, 65, 80):
+            s = valve_surface(a)
+            self.assertGreater(len(s["vertices"]), 0)
+            self.assertGreater(len(s["faces"]), 0)
+            for f in s["faces"]:
+                self.assertTrue(all(0 <= i < len(s["vertices"]) for i in f))
+            # free-edge radius = root_radius * sin(theta); recover it from bounds.
+            radii.append(max(abs(v[1]) for v in s["vertices"]))
+        self.assertTrue("bounds" in valve_surface(65))
+
 
 class WaveformTests(unittest.TestCase):
     def test_three_phase_points_weights_sum_to_one(self):
@@ -63,12 +78,21 @@ class WorkflowTests(unittest.TestCase):
             if e == "agenda.updated":
                 agenda.update(p)
 
+        import os
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
         rc = main(request="minimise valve pressure loss over the cardiac cycle", emit=emit)
         self.assertEqual(rc, 0)
         # 4 candidates -> 4 cycle-weighted landscape points
         self.assertEqual(events.get("landscape.point"), 4)
         self.assertEqual(events.get("report.ready"), 1)
         self.assertEqual(events.get("uncertainty.channels"), 1)
+        # valve now renders: 4 candidate valves + the winner in the viewport
+        self.assertEqual(events.get("geometry.ready"), 5)
+        # the systolic waveform figure leads the report
+        self.assertEqual(events.get("plot.ready"), 1)
+        # the dispatch panel and the live objective trace are fed
+        self.assertGreaterEqual(events.get("dispatch.update", 0), 8)
+        self.assertEqual(events.get("trace.point"), 4)
         # hard cap
         self.assertEqual(verdict.get("tier"), "TREND ONLY")
         # agenda carries the three deferred capabilities

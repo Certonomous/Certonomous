@@ -104,12 +104,18 @@ class ShapeOptimizationSweepRecoveryTests(unittest.TestCase):
         self.assertIn("worker.reprovisioned", kinds)
         self.assertFalse(_sabotage_marker(2).exists())         # marker consumed
 
-    def test_unsabotaged_slot_reports_nothing(self):
+    def test_unsabotaged_slot_reports_no_kill(self):
         clear_sabotage(3)
         events = []
         self.so._solve_slot(3, {"cylinder_diameter": 1.0}, self.dir,
                             emit=lambda e, p: events.append((e, p)))
-        self.assertEqual(events, [])
+        kinds = [e for e, _ in events]
+        # A clean slot never reports a kill or a reprovision...
+        self.assertNotIn("worker.killed", kinds)
+        self.assertNotIn("worker.reprovisioned", kinds)
+        # ...but it does feed the dispatch panel: solving then done.
+        states = [p["state"] for e, p in events if e == "dispatch.update"]
+        self.assertEqual(states, ["solving", "done"])
 
 
 if __name__ == "__main__":

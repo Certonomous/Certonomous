@@ -55,6 +55,10 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
     """
     from chief_engineer.fleet import clear_sabotage, worker_sabotaged
 
+    label = f"D={design[SWEEP_PARAMETER]:.3g} m"
+    if emit is not None:
+        emit("dispatch.update", {"slot": index, "state": "solving",
+                                 "label": label, "detail": "full-fidelity solve"})
     if worker_sabotaged(index):
         clear_sabotage(index)
         lost = (f"• Worker {index} stopped responding mid-sweep. "
@@ -63,9 +67,17 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
         if script is not None:
             script.engineer(lost)
         if emit is not None:
+            emit("dispatch.update", {"slot": index, "state": "lost",
+                                     "label": label, "detail": "reprovisioning"})
             emit("worker.killed", {"worker_index": index, "detail": lost, "pending": 1})
             emit("worker.reprovisioned", {"worker_index": index, "detail": took_over})
-    return _solve(design, work_root, f"d{index:02d}")
+            emit("dispatch.update", {"slot": index, "state": "solving",
+                                     "label": label, "detail": "re-running on fresh worker"})
+    metrics = _solve(design, work_root, f"d{index:02d}")
+    if emit is not None:
+        emit("dispatch.update", {"slot": index, "state": "done", "label": label,
+                                 "detail": f"Cd={metrics['Cd']:.4g}"})
+    return metrics
 
 
 # New questions this study opens — ambitions, not remediations. Fed to the
