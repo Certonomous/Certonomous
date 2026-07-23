@@ -1,0 +1,34 @@
+{
+  "video": "race",
+  "mission_id": "m-455a6cc184e3",
+  "goal": "Race a full Monte-Carlo sweep against the reduced-order path on the NACA 4412 finite wing: same objective, same tolerance, both timed. Report the polar, the agreement, and the measured speedup.",
+  "surface": null,
+  "server": "http://127.0.0.1:8772",
+  "captured": [
+    {
+      "order": 1,
+      "stem": "01-start",
+      "title": "The race is set",
+      "present": true
+    },
+    {
+      "order": 2,
+      "stem": "02-mid-mc-grinding",
+      "title": "Monte-Carlo grinding",
+      "present": true
+    },
+    {
+      "order": 3,
+      "stem": "03-reduced-order-finished",
+      "title": "Reduced-order crosses first",
+      "present": true
+    },
+    {
+      "order": 4,
+      "stem": "04-finish",
+      "title": "Speed, certified",
+      "present": true
+    }
+  ],
+  "complete": true
+}

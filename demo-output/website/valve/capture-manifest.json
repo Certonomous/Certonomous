@@ -1,0 +1,40 @@
+{
+  "video": "valve",
+  "mission_id": "m-b859e25349f4",
+  "goal": "Optimize the leaflet opening angle of the aortic valve to minimize pressure loss over the cardiac cycle. Decompose the cycle into representative phase points, rule on the admissible method, and report the cycle-weighted loss with its uncertainty.",
+  "surface": null,
+  "server": "http://127.0.0.1:8772",
+  "captured": [
+    {
+      "order": 1,
+      "stem": "01-interpretation",
+      "title": "Interpretation",
+      "present": true
+    },
+    {
+      "order": 2,
+      "stem": "02-womersley",
+      "title": "Periodicity and Womersley",
+      "present": true
+    },
+    {
+      "order": 3,
+      "stem": "03-phase-plan",
+      "title": "Phase-point plan",
+      "present": true
+    },
+    {
+      "order": 4,
+      "stem": "04-result",
+      "title": "Cycle-weighted result",
+      "present": true
+    },
+    {
+      "order": 5,
+      "stem": "05-agenda",
+      "title": "Research agenda",
+      "present": true
+    }
+  ],
+  "complete": true
+}

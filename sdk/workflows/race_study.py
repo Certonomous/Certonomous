@@ -42,10 +42,18 @@ from workflows.race_benchmark import (ALPHAS, ANCHOR_ALPHAS, RE_NOMINAL,
                                       WING, _TimedSolver)
 from workflows.shape_optimization import _fit_quadratic, _predict
 
-# Both lanes draw from one bounded pool: at most four real solves in flight at
-# once, across BOTH lanes together (compute treaty). This is the ceiling the
-# race runs under and the number the card's core-minutes are honest against.
+# The compute treaty: at most four real solves in flight at once, across BOTH
+# lanes together (a mega-batch and the UQ ladders share the box). The four slots
+# are split evenly, two per lane, so each lane has a guaranteed, reserved share
+# and never exceeds the cap together. The even split also makes the race honest
+# and deterministic: at equal parallelism the reduced-order lane wins purely
+# because it needs an order of magnitude fewer real solves — never because it
+# was handed more of the box. When a lane finishes, its slots simply fall idle
+# (total in flight only ever drops), so the cap is respected throughout.
 MAX_WORKERS = 4
+MC_WORKERS = 2
+ROM_WORKERS = 2
+assert MC_WORKERS + ROM_WORKERS <= MAX_WORKERS
 
 # The Monte-Carlo ensemble size. Sample 0 is the nominal Reynolds; the rest draw
 # the stated 8% input uncertainty. Every alpha of every sample is a real solve,
@@ -100,7 +108,7 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
                              "nominal": s == 0, "sample": s,
                              "x_label": "angle of attack [deg]",
                              "y_label": "L/D",
-                             "title": "Full Monte-Carlo — solved polar"})
+                             "title": "Full Monte-Carlo: solved polar"})
         emit("race.lane", {"lane": "mc", "done": done, "total": total,
                            "elapsed_s": round(time.time() - started, 1),
                            "state": "running"})
@@ -150,7 +158,7 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit) -> dict:
                              "y": round(point["l_d"], 3), "kind": "anchor",
                              "x_label": "angle of attack [deg]",
                              "y_label": "L/D",
-                             "title": "Reduced-order — anchors + surface"})
+                             "title": "Reduced-order: anchors + surface"})
         emit("race.lane", {"lane": "rom", "done": len(anchors), "total": total,
                            "elapsed_s": round(time.time() - started, 1),
                            "state": "running"})
@@ -177,7 +185,7 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit) -> dict:
     emit("trace.point", {"series": "rom", "x": alpha_star,
                          "y": round(confirm["l_d"], 3), "kind": "confirm",
                          "x_label": "angle of attack [deg]", "y_label": "L/D",
-                         "title": "Reduced-order — one real confirmation"})
+                         "title": "Reduced-order: one real confirmation"})
     surrogate_error = abs(confirm["l_d"] - predicted)
     core_minutes = round(sum(solver.solve_seconds) * VSPAERO_THREADS / 60, 2)
     emit("race.lane", {"lane": "rom", "done": total, "total": total,
@@ -222,7 +230,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.researcher(
         "• Two admissible methods for one smooth peak: brute the ensemble, "
         "or anchor a surface. "
-        "• Both are real solves here — the only honest question is what "
+        "• Both are real solves here, so the only honest question is what "
         "each costs. "
         "• So we run them side by side and measure.")
     roster.idle(CHIEF_RESEARCHER)
@@ -243,17 +251,17 @@ def main(request: str | None = None, params: dict | None = None,
             "solver": "VSPAERO", "method": "vortex lattice",
             "basis": "both lanes commit every evaluation to a real solve"})
     script.engineer(
-        f"• Left lane: full Monte-Carlo — {samples} Reynolds samples "
+        f"• Left lane: full Monte-Carlo, {samples} Reynolds samples "
         f"× {len(ALPHAS)} direct solves = {total_mc} real solves. "
-        f"• Right lane: reduced-order — {len(ANCHOR_ALPHAS)} anchors, a "
+        f"• Right lane: reduced-order, {len(ANCHOR_ALPHAS)} anchors, a "
         f"fitted surface, one confirmation = {total_rom} real solves. "
-        f"• Same peak, same ±{TOLERANCE_DEG:g}° tolerance, one "
-        f"shared pool of {MAX_WORKERS} slots.")
+        f"• Same peak, same ±{TOLERANCE_DEG:g}° tolerance, the same box: "
+        f"{MAX_WORKERS} slots split evenly, {ROM_WORKERS} per lane.")
     script.numericist(
         "• The two envelopes mean different things: the Monte-Carlo band is "
         "the stated input spread; the reduced-order band is the surrogate's "
         "residual against one real solve. "
-        "• No delays are staged — the clocks are the machine's.")
+        "• No delays are staged; the clocks are the machine's.")
 
     if emit:
         emit("race.init", {
@@ -274,8 +282,8 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, "running both lanes", "working")
     roster.set_workers(MAX_WORKERS, "shared solver slots")
     script.engineer(
-        "• Both lanes are live now, drawing from the same four slots. "
-        "• Watch the reduced-order lane cross the line first — then the "
+        "• Both lanes are live now, two reserved slots each on one box. "
+        "• Watch the reduced-order lane cross the line first, then the "
         "Monte-Carlo lane keeps solving to earn its envelope.")
 
     lane_results: dict[str, dict] = {}
@@ -286,17 +294,22 @@ def main(request: str | None = None, params: dict | None = None,
         except Exception as exc:  # a lane failure is reported, not hidden
             lane_results[key] = {"lane": key, "error": str(exc)}
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
-        with ThreadPoolExecutor(max_workers=2) as drivers:
-            futs = [
-                drivers.submit(_run, lambda: _rom_lane(pool, work_root, emit),
-                               "rom"),
-                drivers.submit(_run, lambda: _mc_lane(pool, work_root, emit,
-                                                      samples=samples, seed=seed),
-                               "mc"),
-            ]
-            for fut in futs:
-                fut.result()
+    # Each lane gets its own reserved pool; the two sizes sum to the four-slot
+    # cap. Reserved slots are what make the on-screen race deterministic — the
+    # reduced-order lane cannot be starved of the box by the Monte-Carlo lane's
+    # far larger job queue, so it wins on solve count alone.
+    with ThreadPoolExecutor(max_workers=ROM_WORKERS) as rom_pool, \
+         ThreadPoolExecutor(max_workers=MC_WORKERS) as mc_pool, \
+         ThreadPoolExecutor(max_workers=2) as drivers:
+        futs = [
+            drivers.submit(_run, lambda: _rom_lane(rom_pool, work_root, emit),
+                           "rom"),
+            drivers.submit(_run, lambda: _mc_lane(mc_pool, work_root, emit,
+                                                  samples=samples, seed=seed),
+                           "mc"),
+        ]
+        for fut in futs:
+            fut.result()
 
     mc = lane_results.get("mc", {})
     rom = lane_results.get("rom", {})
@@ -306,7 +319,7 @@ def main(request: str | None = None, params: dict | None = None,
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
     if "error" in mc or "error" in rom or not mc or not rom:
-        script.engineer("• A lane did not finish cleanly — reporting "
+        script.engineer("• A lane did not finish cleanly; reporting "
                         "what completed, not a manufactured number.")
         if emit:
             emit("mission.note", {"mc": mc, "rom": rom})
@@ -322,7 +335,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         f"• Same answer: full MC peak L/D {mc['peak_mean']:.2f} ± "
         f"{2 * mc['peak_sem']:.2f}; reduced-order {rom['confirmed']:.2f} at "
-        f"{rom['alpha_star']:g}° — they agree to {agreement_pct}%. "
+        f"{rom['alpha_star']:g}°, and they agree to {agreement_pct}%. "
         f"• Cost: {cm_mc:.1f} core-min versus {cm_rom:.1f} core-min. "
         f"• Measured speedup {speedup_cm}× in core-minutes "
         f"(wall {speedup_wall}×).")
@@ -340,13 +353,13 @@ def main(request: str | None = None, params: dict | None = None,
             "speedup_core_min": speedup_cm, "speedup_wall": speedup_wall,
             "agreement_pct": agreement_pct,
             "agreement": (f"The two paths agree to {agreement_pct}% "
-                          f"— same answer, one at a fraction of the cost.")})
+                          f". Same answer, one at a fraction of the cost.")})
         emit("result.verdict", {
             "quantity": "Peak L/D (both paths agree)",
             "value": f"{rom['confirmed']:.2f}", "ci": f"{2 * mc['peak_sem']:.2f}",
             "confidence": "95%", "tier": "SOLVER-BACKED",
             "envelope": f"full MC {cm_mc:.1f} core-min vs reduced {cm_rom:.1f} "
-                        f"core-min — {speedup_cm}× measured",
+                        f"core-min, {speedup_cm}× measured",
             "reason": f"every evaluation on both lanes was a real solve; the "
                       f"paths agree to {agreement_pct}%"})
         emit("agenda.updated", {"entries": [
@@ -363,7 +376,7 @@ def main(request: str | None = None, params: dict | None = None,
                       "sharing the four slots, to bound the busy-box number",
              "cost": "one contended pass"}]})
         emit("report.ready", {
-            "title": "Speed, certified — the NACA 4412 race",
+            "title": "Speed, certified: the NACA 4412 race",
             "subject": subject,
             "summary": (f"Two real paths, both timed on this machine. Full "
                         f"Monte-Carlo: {mc['n_solves']} real solves, "
