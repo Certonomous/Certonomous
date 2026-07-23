@@ -23,7 +23,7 @@ _BANNED = ("TREND ONLY", "trend only", "indicative",
 _SOURCES = [SDK / "workflows" / name for name in (
     "aircraft_optimization.py", "valve_study.py", "shape_optimization.py",
     "geometry_study.py", "time_constrained.py", "uncertainty_reduction.py",
-    "unseen_geometry.py")]
+    "unseen_geometry.py")] + [SDK / "chief_engineer" / "researcher.py"]
 
 _ALLOWED_LINE = re.compile(r"LEGACY|legacy|# ")
 

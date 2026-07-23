@@ -50,12 +50,12 @@ def _core_entry(p: MissionProperties) -> str:
     """Classification → strategy → rejected, as one 3-bullet entry."""
     if p.kind == "single-body-study":
         return bullets(
-            f"Single fixed body, {p.regime} — a measurement, not an optimisation",
+            f"Single fixed body, {p.regime}: a measurement, not an optimisation",
             "One gated solve; the only freedom is mesh and convergence",
             "Rejected: pricing by analogy (wrong wake); an ungated coarser mesh")
     if p.kind == "one-parameter-sweep":
         return bullets(
-            f"One {p.smoothness} parameter, {p.regime} regime — a few anchors pin the curve",
+            f"One {p.smoothness} parameter, {p.regime} regime: a few anchors pin the curve",
             "Ensemble bracketing the range, fitted to a response surface",
             "Rejected: single point (prices one setting as the range); a fine grid (cost, no info)")
     # parametric-optimization
@@ -73,13 +73,14 @@ def _core_entry(p: MissionProperties) -> str:
 def _admissibility_entry(p: MissionProperties) -> str:
     if p.admissibility_cite:
         return bullets(
-            f"Admissible {p.admissibility_cite} — a published threshold, not self-grading")
+            f"Admissible {p.admissibility_cite}, a published threshold")
     if p.smoothness == "smooth" and p.regime.startswith("steady"):
         return bullets(
-            "Admissible while smooth and steady hold — descent and ensemble read the same surface",
-            f"Model fidelity ({p.fidelity}) caps the tier, not the search")
+            "Admissible while smooth and steady hold: descent and ensemble read the same surface",
+            f"Model fidelity ({p.fidelity}) bounds the claim, not the search")
     return bullets(
-        f"Valid while the regime stays {p.regime}; outside it, trend only")
+        f"Valid while the regime stays {p.regime}; outside it, the physics changes "
+        f"and the model no longer applies")
 
 
 def method_memo(p: MissionProperties) -> list[str]:

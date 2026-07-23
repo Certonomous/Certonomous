@@ -31,7 +31,7 @@ from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_me
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
-                                lab_report, per, trust, uncertainty_channels)
+                                lab_report, trust, uncertainty_channels)
 
 # Physical constants and modelling assumptions, all stated so the numbers can be
 # traced. These are conventional conceptual-design values, not tuned to a body.
@@ -216,7 +216,7 @@ def _solve_finalist_slot(index, api, design, emit=None, script=None):
     if worker_sabotaged(index):
         clear_sabotage(index)
         lost = (f"• Worker {index} stopped responding mid-solve. "
-                f"• Reprovisioning and re-running its wing — the polar still lands.")
+                f"• Reprovisioning and re-running its wing; the polar still lands.")
         took_over = f"• A fresh worker took over slot {index}; its wing re-solves."
         if script is not None:
             script.engineer(lost)
@@ -280,7 +280,7 @@ def main(request: str | None = None, params: dict | None = None,
         "• Unstated values are assumed and marked. "
         "• Weight rides on the passenger count; the whole answer rides on weight.")
     script.engineer(
-        "• Hypothesis: L/D climbs with aspect ratio — push span to the limit. "
+        "• Hypothesis: L/D climbs with aspect ratio, so push span to the limit. "
         "• Low-speed limits floor the area; Breguet ties range to L/D. "
         "• Expect the optimum where landing speed caps aspect ratio.")
 
@@ -309,7 +309,7 @@ def main(request: str | None = None, params: dict | None = None,
             "objective": {"key": "L_D", "label": "L/D", "direction": "max"}})
     plan_line = (
         f"• Plan: screen {len(grid)} wings over span × area at 27.5° sweep. "
-        f"• Infeasible designs stay on the plot — the trade stays visible.")
+        f"• Infeasible designs stay on the plot, keeping the trade visible.")
     if solver_live:
         plan_line += (
             f" • Top {_N_FINALISTS} feasible finalists then get real "
@@ -317,12 +317,12 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(plan_line)
     if solver_live:
         script.numericist(
-            "• Screen is conceptual sizing; finalists are solved — induced plus "
+            "• Screen is conceptual sizing; finalists are solved, induced plus "
             "wing viscous drag. "
             "• Fuselage and tail stay a stated buildup.")
     else:
         script.numericist(
-            "• Conceptual sizing only — a drag polar, not a solved flow. "
+            "• Conceptual sizing only, a drag polar, not a solved flow. "
             "• It ranks designs and finds the trade; it validates nothing. "
             "• A real aero solve is what would set the magnitude.")
 
@@ -352,7 +352,7 @@ def main(request: str | None = None, params: dict | None = None,
             emit("geometry.ready", {
                 "url": (f"/api/geometry?span={r['span']:g}&area={r['area']:g}"
                         f"&sweep={r['sweep_deg']:g}&taper={_TAPER:g}"),
-                "label": f"candidate wing — span {r['span']:.0f} m, "
+                "label": f"candidate wing, span {r['span']:.0f} m, "
                          f"area {r['area']:.0f} m²"})
             # Live best-feasible-L/D trace — the running optimum climbs on screen.
             if r["feasible"]:
@@ -361,7 +361,7 @@ def main(request: str | None = None, params: dict | None = None,
                 emit("trace.point", {
                     "series": "best_L_D", "x": idx + 1, "y": round(best_ld_so_far, 3),
                     "x_label": "candidates screened", "y_label": "best feasible L/D",
-                    "title": "Best feasible L/D — running optimum", "feasible": True})
+                    "title": "Best feasible L/D, running optimum", "feasible": True})
         if _PACE_S:
             time.sleep(_PACE_S)
         if emit:
@@ -372,14 +372,14 @@ def main(request: str | None = None, params: dict | None = None,
     screen_elapsed = time.time() - screen_started
     ledger.spend(len(grid) * 0.02, f"{len(grid)} conceptual sizing evaluations")
     roster.set_workers(0)
-    script.engineer(f"• Screening sweep — {screen_elapsed:.2f} s — {len(grid)} designs.")
+    script.engineer(f"• Screening sweep: {screen_elapsed:.2f} s, {len(grid)} designs.")
 
     feasible = [r for r in results if r["feasible"]]
     infeasible = results[:]  # for narration counts
     n_infeasible = len(results) - len(feasible)
     if not feasible:
         script.engineer(
-            "• No wing meets every requirement at once — nothing closes. "
+            "• No wing meets every requirement at once, so nothing closes. "
             "• The mission needs a relaxation: more area, slower landing, or less range. "
             "• That is a real answer, not a failure.")
         verdict = trust(relative_error=None, converged=True,
@@ -387,7 +387,7 @@ def main(request: str | None = None, params: dict | None = None,
                         why="the mission requirements are mutually infeasible on this planform")
         if emit:
             emit("result.verdict", {"quantity": "Best feasible L/D",
-                                    "value": "none", "envelope": "—", **verdict})
+                                    "value": "none", "envelope": "n/a", **verdict})
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 0
@@ -447,12 +447,12 @@ def main(request: str | None = None, params: dict | None = None,
         ledger.spend(elapsed * len(finalists),
                      f"{len(finalists)} vortex-lattice wing solves")
         script.engineer(
-            f"• Finalist solves — {elapsed:.1f} s — {len(finalists)} wings in parallel.")
+            f"• Finalist solves: {elapsed:.1f} s, {len(finalists)} wings in parallel.")
 
         for f, result in zip(finalists, batch):
             if not result:
                 script.engineer(
-                    f"• Finalist span {f['span']:.0f} m returned no polar — "
+                    f"• Finalist span {f['span']:.0f} m returned no polar, "
                     f"stays screened, marked unsolved.")
                 continue
             matched = result["matched"]
@@ -483,7 +483,7 @@ def main(request: str | None = None, params: dict | None = None,
                 if surface:
                     emit("geometry.ready", {
                         "url": f"/api/surface/aircraft-optimization/{surface.name}",
-                        "label": f"solved finalist — span {f['span']:.0f} m, "
+                        "label": f"solved finalist, span {f['span']:.0f} m, "
                                  f"area {f['area']:.0f} m²"})
             script.engineer(
                 f"• Solved span {f['span']:.0f} m: alpha {f['alpha_solved']:.1f}°, "
@@ -499,12 +499,12 @@ def main(request: str | None = None, params: dict | None = None,
                 f"{best['area']:.0f} m² → L/D {best['L_D_solved']:.1f}. "
                 + ("• The screen ranked it first as well."
                    if screen_agreed else
-                   "• The solver moved the pick — the screen had it wrong."))
+                   "• The solver moved the pick; the screen had it wrong."))
             winner_surface = out / f"wing-span{best['span']:g}-area{best['area']:g}.stl"
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
                     "url": f"/api/surface/aircraft-optimization/{winner_surface.name}",
-                    "label": f"winning wing — span {best['span']:.0f} m, "
+                    "label": f"winning wing, span {best['span']:.0f} m, "
                              f"solved L/D {best['L_D_solved']:.1f}"})
         else:
             script.engineer(
@@ -526,7 +526,7 @@ def main(request: str | None = None, params: dict | None = None,
         channels = uncertainty_channels(
             input_2sigma=round(ci95, 2), numerical=None, model=None,
             input_note=input_note,
-            numerical_note="the design grid is discrete — the true optimum lies "
+            numerical_note="the design grid is discrete, so the true optimum lies "
                            "between grid points; the vortex-lattice polar itself "
                            "is converged at the solved panel density",
             model_note="wing induced and viscous drag are solved (vortex "
@@ -536,7 +536,7 @@ def main(request: str | None = None, params: dict | None = None,
         channels = uncertainty_channels(
             input_2sigma=round(ci95, 2), numerical=None, model=None,
             input_note=input_note,
-            numerical_note="the design grid is discrete — the true optimum lies "
+            numerical_note="the design grid is discrete, so the true optimum lies "
                            "between grid points",
             model_note="drag-polar sizing model; a solve would set the "
                        "magnitude")
@@ -545,8 +545,8 @@ def main(request: str | None = None, params: dict | None = None,
     if won_solved:
         script.researcher(
             "• Wing solved: induced and viscous drag off a real polar at cruise. "
-            "• Non-wing drag is a stated buildup — grade: SOLVER-BACKED. "
-            f"• VALIDATED takes a full-configuration solve and a comparison, {per('vv20')}.")
+            "• Non-wing drag is a stated buildup, not yet solved. "
+            "• A full-configuration solve and comparison would close that gap.")
         verdict = trust(
             converged=True, in_validated_regime=False, calibrated=True,
             solver_backed=True,
@@ -556,7 +556,7 @@ def main(request: str | None = None, params: dict | None = None,
         script.researcher(
             "• Ranking trustworthy: aspect ratio buys L/D until landing speed stops it. "
             f"• The magnitude {best['L_D']:.1f} ± {ci95:.1f} is a sizing-model estimate. "
-            f"• A solved flow and a comparison come first, {per('vv20')}.")
+            f"• A solved flow and a comparison would set the magnitude.")
         verdict = trust(
             converged=True, solver_backed=False,
             why="drag-polar sizing model; no solve behind the magnitude")
@@ -575,8 +575,8 @@ def main(request: str | None = None, params: dict | None = None,
 
     agenda = [
         {"title": "Cruise Mach trade",
-         "scope": "sweep cruise Mach against the fixed requirements — where the "
-                  "range-speed-L/D surface actually peaks",
+         "scope": "sweep cruise Mach against the fixed requirements to find where "
+                  "the range-speed-L/D surface actually peaks",
          "cost": "one more sweep dimension; solver already in place"},
         {"title": "Composite-span structural limits",
          "scope": "explore spans beyond today's structural cap with a composite "
@@ -618,8 +618,8 @@ def main(request: str | None = None, params: dict | None = None,
     ]
 
     uncertainty = [
-        "The trade — L/D rising with aspect ratio until the landing speed caps "
-        "it — is physical and trustworthy.",
+        "The trade, L/D rising with aspect ratio until the landing speed caps "
+        "it, is physical and trustworthy.",
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
          "is a stated buildup." if won_solved else
          "The absolute L/D comes from a drag polar sizing model, not a solved "
@@ -629,7 +629,7 @@ def main(request: str | None = None, params: dict | None = None,
     ]
 
     report = lab_report(
-        title=f"Aircraft L/D optimization — {reqs['passengers']} pax, {reqs['range_km']:.0f} km",
+        title=f"Aircraft L/D optimization: {reqs['passengers']} pax, {reqs['range_km']:.0f} km",
         abstract=abstract,
         methods=methods,
         results=[{
@@ -640,7 +640,7 @@ def main(request: str | None = None, params: dict | None = None,
             **verdict,
         }],
         uncertainty=uncertainty,
-        next_investigations=[f"{entry['title']} — {entry['scope']}"
+        next_investigations=[f"{entry['title']}: {entry['scope']}"
                              for entry in agenda],
         compute=ledger.as_dict(),
     )
