@@ -1,5 +1,31 @@
 # Certonomous — session handoff
 
+## NIGHT ORDERS v4 EXECUTED (2026-07-23 morning) — six-agent build, all merged
+
+Main integrates six work streams (orchestrator + 5 agents in worktrees), 175
+tests green, single server pattern on :8765. Per-agent detail in
+docs/HANDOFF-{GUI1,GUI2,ACTFIXER,BG1,BG2}.md. Highlights:
+- G1/B1-B4 liveness + layout: paced streaming transcript w/ timestamps + PACE
+  toggle, live KPIs, dispatch panel, hero viewport, geometry persistence,
+  completed state keeps geometry+plots+report.
+- G5/G6: fidelity chips (VALIDATED/SOLVER-BACKED/CONCEPTUAL MODEL/UNCONVERGED)
+  replace tiers; trend language retired (regression-tested); headlines are
+  value ± CI (95%) from real machinery.
+- Wall arithmetic (v2-G1): records store the rebased coefficient; the wall
+  serves ONE number; test_wall_arithmetic recomputes every percentage;
+  curriculum re-run 8/8 real solves.
+- Acts hardened w/ capture sets (demo-output/acts/); worker-kill moved to the
+  airliner finalists (N3 no-toy-cases); mesh cache (warm motorBike present);
+  valve KEEP (render dependency satisfied by merge).
+- NACA 4412 race measured: full MC 45.4 core-min vs reduced 2.1 → 21.5x
+  (29.8x under load). Mega-batch ran all night: 2,026+ real evaluations
+  (ledger in ct-website-pipeline worktree; refresh_website_artifacts.ps1
+  regenerates wall/benchmarks). Certificate redesign awaiting Sanaa sign-off
+  (old-vs-new B-52 PDFs in demo-output/website/certificates/).
+- Known gaps: light-theme legacy PNGs (shape/geometry reports), live traces
+  not yet in ensemble/geometry solve loops, MONITOR role-color screenshot
+  unverified. All logged in the per-agent handoffs.
+
 ## FEEDBACK ROUND (2026-07-22 late) — items 5, 66–72 built, all DONE
 
 Sanaa's numbered GUI feedback, implemented and screenshot-verified:
