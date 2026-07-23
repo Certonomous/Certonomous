@@ -377,10 +377,23 @@ def main(request: str | None = None, params: dict | None = None,
     # body shown carrying its own solution, not a bare wireframe.
     roster.set(CHIEF_ENGINEER, "extracting the surface pressure field", "working")
     from chief_engineer.field_render import extract_and_paint
+
+    # Face-count sanity check reference: the painted body should carry a large
+    # fraction of the input surface's triangles, not a couple of flat domain
+    # rectangles. Count the local input surface if we have it.
+    input_triangles = None
+    local_surface = GEOMETRY_DIR / surface
+    if local_surface.exists():
+        try:
+            from chief_engineer.geometry import load_surface
+            input_triangles = load_surface(local_surface)["triangles_total"]
+        except Exception:
+            input_triangles = None
+
     painted = extract_and_paint(
         engineer.remote_case, engineer.out_root / f"{label}_field",
         RUN_PREFIX[:-1] if RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
-        field="p", name=label)
+        field="p", name=label, input_triangles=input_triangles)
     if painted:
         # The field URL is /api/field/geometry-study/<file>, served from the
         # beat's output root — so the painted JSON has to live directly under
