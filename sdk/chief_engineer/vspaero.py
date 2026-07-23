@@ -60,9 +60,12 @@ class VspAeroWingApi:
                  analyses: Sequence[str] = ()) -> Mapping[str, Any]:
         """Solve one wing; returns the polar, the matched cruise point, and
         the exported surface path. Raises RuntimeError when the solve fails."""
-        tag = "wing-" + "-".join(
+        # One case directory per DISTINCT design: every key that changes the
+        # solve must be in the tag, or parallel evaluations clobber each other.
+        tag = str(design.get("tag_hint", "")) or "wing-" + "-".join(
             f"{k}{float(v):g}" for k, v in sorted(design.items())
-            if k in ("span", "area", "sweep"))
+            if k in ("span", "area", "sweep", "alpha_start", "alpha_end",
+                     "re_cref", "camber"))
         case = self.workdir / tag
         case.mkdir(parents=True, exist_ok=True)
         shutil.copy(_WORKER, case / "vspaero_worker.py")

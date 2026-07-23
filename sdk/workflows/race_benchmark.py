@@ -77,7 +77,12 @@ class _TimedSolver:
 
     def solve(self, alpha: float, re_cref: float, tag: str) -> dict:
         started = time.time()
-        result = self.api.evaluate({**_design(alpha, re_cref), "tag_hint": tag})
+        design = {**_design(alpha, re_cref), "tag_hint": tag}
+        try:
+            result = self.api.evaluate(design)
+        except RuntimeError:
+            # One retry for transient failures; a second failure is real.
+            result = self.api.evaluate({**design, "tag_hint": tag + "-r"})
         seconds = time.time() - started
         self.solve_seconds.append(seconds)
         point = result["polar"]
@@ -144,9 +149,15 @@ def run_rom_path(work_root: Path) -> dict:
     xs = [a["alpha"] for a in anchors]
     ys = [a["l_d"] for a in anchors]
     coefficients = _fit_quadratic(xs, ys)
-    # Peak of the fitted quadratic, clamped to the swept range.
+    # Peak of the fitted quadratic over the swept range: the vertex when the
+    # fit is concave, otherwise whichever end the fit values higher.
     a2, a1 = coefficients[2], coefficients[1]
-    vertex = -a1 / (2 * a2) if a2 < 0 else ALPHAS[-1]
+    if a2 < 0:
+        vertex = -a1 / (2 * a2)
+    else:
+        vertex = (ALPHAS[0]
+                  if _predict(coefficients, ALPHAS[0])
+                  >= _predict(coefficients, ALPHAS[-1]) else ALPHAS[-1])
     alpha_star = round(min(max(vertex, ALPHAS[0]), ALPHAS[-1]), 1)
     predicted = _predict(coefficients, alpha_star)
     confirm = solver.solve(alpha_star, RE_NOMINAL, "confirm")
