@@ -280,6 +280,17 @@
   .cert-link .seal { display: block; color: var(--dim); font: 8px var(--mono); letter-spacing: .06em; margin-top: 3px; }
 
   .cred-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .cred-counters { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+  .cred-tile { border: 1px solid var(--line-2); padding: 12px 14px; }
+  .cred-tile b { display: block; font: 800 24px var(--cond); }
+  .cred-tile span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+  .calib-row { border: 1px solid var(--line-2); margin-top: 14px; }
+  .calib-row summary { cursor: pointer; padding: 12px 14px; display: flex; gap: 12px; align-items: baseline; list-style: none; }
+  .calib-row summary::-webkit-details-marker { display: none; }
+  .calib-row summary::before { content: '▸'; color: var(--muted); }
+  .calib-row[open] summary::before { content: '▾'; }
+  .calib-row summary span { color: var(--muted); font-size: 11px; }
+  .calib-row .cred-card { margin: 0 14px 12px; }
   .cred-count { color: var(--muted); font: 10px var(--mono); }
   .cred-card { border: 1px solid var(--line-2); padding: 12px 14px; margin-bottom: 10px; background: var(--panel); }
   .cred-top { display: flex; align-items: center; justify-content: space-between; }
@@ -1393,13 +1404,39 @@ async function uploadSurface(e) {
   finally { e.target.value = ''; }
 }
 
+// Canonical calibration geometry never headlines the credentials view: it
+// lives inside one collapsed row (v2-G5 / v3-N3).
+const CALIBRATION_BODIES = new Set(['cube','sphere','cylinder','flat_plate',
+  'naca0012_wing','naca4412_wing','ahmed_25','ahmed_35']);
 async function loadCredentials() {
   const host = $('credentials');
   try {
-    const rows = await (await fetch('/api/credentials')).json();
-    if (!rows.length) { host.innerHTML = '<div class="cred-empty">No graded bodies yet — run the curriculum and validated credentials appear here.</div>'; renderDormant(null); return; }
-    const validated = rows.filter(r => r.tier === 'VALIDATED').length;
-    const html = `<div class="cred-head"><span class="eyebrow">Lab credentials</span><span class="cred-count">${validated} of ${rows.length} validated against published experiment</span></div>` + rows.map(credCard).join('');
+    const [rows, stats] = await Promise.all([
+      (await fetch('/api/credentials')).json(),
+      fetch('/api/lab-stats').then(r => r.ok ? r.json() : null).catch(() => null),
+    ]);
+    if (!rows.length) { host.innerHTML = '<div class="cred-empty">No graded bodies yet. Run the curriculum and credentials appear here.</div>'; renderDormant(null); return; }
+    // Header: lifetime lab stats, never a fraction.
+    let counters = '';
+    if (stats) {
+      const tiles = [
+        ['missions run', (stats.missions_run ?? 0).toLocaleString()],
+        ['solver core-hours', String(stats.solver_core_hours ?? 0)],
+        ['knowledge entries', String(stats.knowledge_entries ?? 0)],
+        ['experimental anchors', String(stats.experimental_anchors ?? 0)],
+        ['benchmarks active', String(stats.benchmarks_active ?? 0)],
+      ];
+      counters = `<div class="cred-counters">${tiles.map(([k,v]) =>
+        `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('')}</div>`;
+    }
+    const calib = rows.filter(r => CALIBRATION_BODIES.has(r.name));
+    const real = rows.filter(r => !CALIBRATION_BODIES.has(r.name));
+    const validated = calib.filter(r => r.tier === 'VALIDATED').length;
+    const calibRow = calib.length ? `<details class="calib-row"><summary>
+      <b>Calibration suite</b><span>${calib.length} canonical bodies · ${validated} validated against published experiment</span></summary>
+      ${calib.map(credCard).join('')}</details>` : '';
+    const html = `<div class="cred-head"><span class="eyebrow">Lab credentials</span></div>`
+      + counters + real.map(credCard).join('') + calibRow;
     host.innerHTML = html; renderDormant(html);
   } catch (e) { host.innerHTML = `<div class="cred-empty">Credentials unavailable.</div>`; renderDormant(null); }
 }
