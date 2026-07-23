@@ -586,13 +586,18 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("report.ready", report_doc)
     try:
-        from chief_engineer.certificate import build_certificate
-        certificate = build_certificate(
+        # The redesigned certificate is the default as of Sanaa's sign-off
+        # (2026-07-23, old-vs-new B-52 comparison approved).
+        from chief_engineer.certificate import build_certificate_v2
+        certificate = build_certificate_v2(
             report_doc, out_path=out / "certificate.pdf",
             geometry=shown, objective=(request or f"Geometry study of {shown}"),
             mission_id=f"geometry-study-{label}",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            channels=channels)
+            channels=channels,
+            display_name=display_name(label),
+            source_filename=surface,
+            solver="OpenFOAM, k-omega SST steady RANS")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception as exc:  # a certificate must never take down a good solve
