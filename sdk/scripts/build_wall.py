@@ -91,6 +91,26 @@ def _e(value) -> str:
     return html.escape("" if value is None else str(value))
 
 
+# Legacy tier names normalize onto the current fidelity chips before display.
+_LEGACY_TIER_ALIAS = {"TREND ONLY": "SOLVER-BACKED",
+                      "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
+                      "NEEDS WORK": "UNCONVERGED"}
+
+
+def _chip_html(tier: str) -> str:
+    """The fidelity chip markup, or '' when the tier is the unlabeled default.
+
+    SOLVER-BACKED (a real solve, no experimental comparison) is the standard
+    for this simulation platform and renders no badge. VALIDATED, CONCEPTUAL
+    MODEL, and UNCONVERGED say more than the baseline, so they render.
+    """
+    resolved = _LEGACY_TIER_ALIAS.get(tier, tier)
+    if resolved == "SOLVER-BACKED":
+        return ""
+    tier_class = "vt-" + resolved.split()[0].lower()
+    return f'<span class="vtier {tier_class}">{_e(resolved)}</span>'
+
+
 def _counter_html(counters: dict) -> str:
     tiles = [
         ("missions run", f"{counters['missions_run']:,}"),
@@ -113,7 +133,6 @@ def _cal_row_html(cards: list[dict]) -> str:
     for card in cards:
         title = _DISPLAY.get(card["name"], card["name"])
         tier = card["tier"]
-        tier_class = "vt-" + tier.split()[0].lower()
         measured = _e(card["measured"])
         ref = card["reference_cd"]
         vs = f"Cd {measured} vs {ref}" if ref is not None else f"Cd {measured}"
@@ -122,7 +141,7 @@ def _cal_row_html(cards: list[dict]) -> str:
             f'          <td class="cal-body">{_e(title)}</td>\n'
             f'          <td class="cal-num">{vs}</td>\n'
             f'          <td class="cal-env">{_e(card["envelope"])}</td>\n'
-            f'          <td><span class="vtier {tier_class}">{_e(tier)}</span></td>\n'
+            f'          <td>{_chip_html(tier)}</td>\n'
             f'          <td class="cal-src">{_e(card["source"])}</td>\n'
             "        </tr>"
         )
@@ -154,13 +173,12 @@ def build_html(counters: dict, cards: list[dict]) -> str:
         for card in real_bodies:
             title = _DISPLAY.get(card["name"], card["name"])
             tier = card["tier"]
-            tier_class = "vt-" + tier.split()[0].lower()
             ref = card["reference_cd"]
             vs = f"Cd {_e(card['measured'])} vs {ref}" if ref is not None else f"Cd {_e(card['measured'])}"
             blocks.append(
                 f'      <div class="cred-card">\n'
                 f'        <div class="cred-card-head"><span class="cred-body">{_e(title)}</span>'
-                f'<span class="vtier {tier_class}">{_e(tier)}</span></div>\n'
+                f'{_chip_html(tier)}</div>\n'
                 f'        <div class="cred-measure">{vs} <span class="cred-env">{_e(card["envelope"])}</span></div>\n'
                 f'        <div class="cred-reason">{_e(card["reason"])}</div>\n'
                 f'        <div class="cred-src">{_e(card["source"])}</div>\n'

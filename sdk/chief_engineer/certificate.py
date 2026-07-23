@@ -42,6 +42,15 @@ _TIER_COLOR = {
 }
 _DEFAULT_TIER_COLOR = (0.42, 0.46, 0.51)
 
+# Legacy tier names normalize onto the current fidelity chips before display.
+_LEGACY_TIER_ALIAS = {"TREND ONLY": "SOLVER-BACKED",
+                      "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
+                      "NEEDS WORK": "UNCONVERGED"}
+
+
+def _resolved_tier(tier: str) -> str:
+    return _LEGACY_TIER_ALIAS.get(tier, tier)
+
 # WinAnsi cannot encode these; fold to something it can before laying out text.
 _GLYPH_FOLD = {
     "≈": "~", "≥": ">=", "≤": "<=", "−": "-",
@@ -244,11 +253,15 @@ def build_certificate(report_doc: dict, *, out_path: str | Path,
         y -= 20
         headline = f"{primary.get('quantity', 'Result')}   {primary.get('value', '')}"
         c.text(left, y, headline, size=17, bold=True, color=_INK)
-        badge = _TIER_COLOR.get(tier, _DEFAULT_TIER_COLOR)
-        badge_w = max(78.0, len(tier) * 6.6 + 20)
-        c.rect(right - badge_w, y - 4, badge_w, 20, fill=badge)
-        c.text(right - badge_w + 10, y + 1.5, tier or "UNRATED",
-               size=9.5, bold=True, color=_WHITE)
+        # SOLVER-BACKED is the unlabeled default for this simulation platform:
+        # a real solve with no further chip renders no badge at all.
+        shown_tier = _resolved_tier(tier)
+        if shown_tier and shown_tier != "SOLVER-BACKED":
+            badge = _TIER_COLOR.get(shown_tier, _DEFAULT_TIER_COLOR)
+            badge_w = max(78.0, len(shown_tier) * 6.6 + 20)
+            c.rect(right - badge_w, y - 4, badge_w, 20, fill=badge)
+            c.text(right - badge_w + 10, y + 1.5, shown_tier,
+                   size=9.5, bold=True, color=_WHITE)
         y -= 18
         env = primary.get("envelope")
         if env:
@@ -485,10 +498,14 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
 
     # -- result block: value +- CI + fidelity chip -------------------------
     c.text(left, y, "RESULT", size=8, bold=True, color=_MUTED)
-    chip_color = _FIDELITY_COLOR.get(chip, _DEFAULT_FIDELITY_COLOR)
-    chip_w = max(96.0, len(chip) * 6.4 + 22)
-    c.rect(right - chip_w, y - 5, chip_w, 21, fill=chip_color)
-    c.text(right - chip_w + 11, y + 1, chip, size=9.5, bold=True, color=_WHITE)
+    # SOLVER-BACKED is the unlabeled default for this simulation platform:
+    # a real solve with no further chip renders no badge at all.
+    shown_chip = _resolved_tier(chip)
+    if shown_chip and shown_chip != "SOLVER-BACKED":
+        chip_color = _FIDELITY_COLOR.get(shown_chip, _DEFAULT_FIDELITY_COLOR)
+        chip_w = max(96.0, len(shown_chip) * 6.4 + 22)
+        c.rect(right - chip_w, y - 5, chip_w, 21, fill=chip_color)
+        c.text(right - chip_w + 11, y + 1, shown_chip, size=9.5, bold=True, color=_WHITE)
     y -= 30
     quantity = str(primary.get("quantity", "Result"))
     value = str(primary.get("value", ""))

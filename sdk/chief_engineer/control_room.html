@@ -809,6 +809,10 @@ const LEGACY_CHIP = { 'TREND ONLY':'SOLVER-BACKED', 'REFERENCE REGIME MISMATCH':
 function verdictBadge(tier) {
   if (!tier) return '';
   const chip = LEGACY_CHIP[tier] || tier;
+  // SOLVER-BACKED is the unlabeled default for this simulation platform: a
+  // real solve with no chip earns no badge. Only the tiers that say more
+  // than the baseline (VALIDATED, CONCEPTUAL MODEL, UNCONVERGED) render.
+  if (chip === 'SOLVER-BACKED') return '';
   const cls = chip==='VALIDATED'?'v-validated':chip==='UNCONVERGED'?'v-needs':chip==='CONCEPTUAL MODEL'?'v-trend':'v-regime';
   return `<span class="verdict ${cls}" title="${esc(chip)}">${esc(chip)}</span>`;
 }
