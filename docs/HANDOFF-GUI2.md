@@ -238,3 +238,175 @@ All local to this worktree/branch, not pushed (per orchestrator instructions
   any `TREND ONLY`/tier-word lines. Should merge clean.
 - New files (`display_names.py`, `test_display_names.py`): no collision
   risk, nothing else references this path yet.
+
+---
+
+## Session 2 — language/register round (Sanaa's numbered items, this session)
+
+Merged `main` first (picked up the six-agent overnight build: G5/G6 fidelity
+chips, wall arithmetic, worker-kill on the airliner, mesh cache, race
+benchmark, mega-batch, Act 1 memos — see `docs/HANDOFF.md` top). All edits
+below are on top of that merge. 177 tests green after every commit
+(148 → 175 from the merge → 177 with the two new tests added this session).
+
+### 1. EM-DASH PURGE — DONE
+
+Every em dash (`—`) removed from user-visible narration and report strings in
+`sdk/workflows/*.py` and `sdk/chief_engineer/{researcher,lab,server,
+head_engineer,chief_researcher}.py`. Rewritten with commas, colons,
+semicolons, or a period and a new sentence, never dropping content or
+changing a number. Docstrings and `#` comments were left alone (not
+user-visible); a handful of stray placeholder dashes (`os.environ.get(...,
+'—')`, a missing-stat fallback) were changed to `"unset"`/`"n/a"` since those
+render on screen too.
+
+**Regression test:** `sdk/tests/test_register.py` (new) —
+`NoEmDashInUserVisibleStrings` walks the AST of every target file, excludes
+module/class/function docstring nodes (comments are already invisible to the
+AST), and asserts no remaining string-constant literal contains `—`. This is
+the exact rule documented in the module docstring. 175 non-docstring
+em-dash string literals were found and fixed across the 15 target files
+before this test could pass.
+
+**Before/after** (`sdk/workflows/geometry_study.py`):
+```
+- "• Meshing is the long pole — minutes, not seconds."
++ "• Meshing is the long pole: minutes, not seconds."
+```
+
+### 2. SELF-GRADING SPEECH KILLED — DONE
+
+Removed every narration line where an agent graded its own result or cited
+a validation standard in defense of itself. The chip is still computed
+(`trust()`/`validate_against_reference()` unchanged) and still stored on the
+verdict/report — it is simply never spoken. Fixed:
+- `workflows/aircraft_optimization.py` conclusion (`CHIEF RESEARCHER`, both
+  the solved and screened branches) — this is the exact line the owner
+  quoted.
+- `workflows/valve_study.py` numericist plan line (`grade: CONCEPTUAL
+  MODEL`) and conclusion researcher line (`per the ASME V&V 20...`).
+- `workflows/geometry_study.py` numericist line ("the verdict is graded
+  against it" / `per('vv20')` attached to self-assessment) and the
+  conclusion's "it is not graded" self-reference.
+- `chief_engineer/researcher.py`'s shared admissibility memo (used by
+  every workflow's Hypothesis phase): dropped "not self-grading" and
+  "caps the tier" — also incidentally found and fixed a live "trend only"
+  retired-word leak here (not caught before because
+  `test_fidelity_chips.py`'s `RetiredVocabulary` scan only listed
+  `workflows/*.py`, not `chief_engineer/researcher.py`; the source list is
+  now extended to include it).
+
+**Before/after** (`sdk/workflows/aircraft_optimization.py`, the owner's
+quoted example):
+```
+- "• Non-wing drag is a stated buildup — grade: SOLVER-BACKED. "
+- f"• VALIDATED takes a full-configuration solve and a comparison, {per('vv20')}."
++ "• Non-wing drag is a stated buildup, not yet solved. "
++ "• A full-configuration solve and comparison would close that gap."
+```
+
+Regression: `test_register.py::NoSelfGradingNarration` scans the same file
+set for `grade: <CHIP>` and the ASME V&V 20 self-assessment citation phrase.
+
+### 3. CHIP DISPLAY POLICY — DONE
+
+`control_room.html`'s `verdictBadge()` (the ONLY GUI edit made this session,
+per treaty — GUI-1b owns everything else in that file tonight) now returns
+`''` for `SOLVER-BACKED` and its legacy aliases (`TREND ONLY`, `REFERENCE
+REGIME MISMATCH`, both of which already mapped onto `SOLVER-BACKED` via the
+existing `LEGACY_CHIP` table). `VALIDATED`, `CONCEPTUAL MODEL`, and
+`UNCONVERGED` render unchanged. Every call site (transcript entries, memo
+results, the credentials wall, the digest) goes through this one function,
+so the fix is one place.
+
+Same rule applied at the two other chip-render paths named in the brief:
+- `sdk/scripts/build_wall.py` — new shared `_chip_html(tier)` helper
+  (normalizes legacy names, returns `''` for `SOLVER-BACKED`), used by both
+  the calibration-suite table and the real-geometry credential cards.
+- `sdk/chief_engineer/certificate.py` — both `build_certificate` (default)
+  and `build_certificate_v2` (redesign proposal, not yet default) skip
+  drawing the badge rectangle/text when the resolved tier is
+  `SOLVER-BACKED`. The returned record's `tier`/`fidelity` field is
+  untouched (tests that check the raw returned value still pass); only the
+  drawn PDF badge is suppressed. Backend computation is unchanged
+  everywhere; this is display-only, as instructed.
+
+`docs/DEMO_RUNBOOK.md` had several illustrative transcript quotes that went
+stale the moment this landed (e.g. Act 1's "Fidelity chip: SOLVER-BACKED...")
+— updated those beats to describe the new unlabeled-default behavior so the
+runbook doesn't mislead an operator watching for a badge that will no longer
+appear.
+
+### 4. G13 — DONE
+
+Owner's flagged headline line and its `lab.py` sibling rewritten to a
+professional clause, per her suggested wording, with the mesh-quality detail
+staying under the headline number (channel table), not spoken as a
+self-assessment ("is not graded").
+
+**Before/after** (`sdk/workflows/geometry_study.py`, the exact quoted line):
+```
+- why = (f"max skewness {skew_s} exceeds the acceptance band of {MAX_SKEWNESS:.0f} "
+-        f"(on a small number of faces) — agreement is not graded")
++ why = (f"Mesh quality: max skewness {skew_s} on isolated faces, above the "
++        f"{MAX_SKEWNESS:.1f} gate; the numerical channel carries the residual")
+```
+
+Same treatment applied to the non-orthogonality sibling `why` string, and to
+`chief_engineer/lab.py`'s `validate_against_reference()` `SOLVER_BACKED`
+reasons (the `in_validated_regime`/`calibrated` branches), which were the
+other source the owner named.
+
+### 5. PROMPT PROFESSIONALISM AUDIT — VERIFIED, no wording changes needed
+
+Re-read `docs/DEMO_RUNBOOK.md` post-merge. All five runbook trigger prompts
+(airliner, B-52, motorcycle-with-rider, NACA 4412, valve) already read as
+complete engineering directives from the prior v2-E1 session and needed no
+further rewriting. Confirmed each still routes correctly:
+`tests/test_orchestration_stack.py::RouterTests` already has one test per
+directive (`test_b52_directive_routes_to_geometry_study`,
+`test_motorbike_directive_routes_to_geometry_study`,
+`test_naca4412_directive_routes_to_geometry_study`,
+`test_airliner_directive_routes_to_aircraft_optimization`,
+`test_valve_directive_routes_to_valve_study`), all passing, text matched
+verbatim against the runbook. No router changes were needed. The only
+runbook edits this session were the stale-quote fixes under item 3 above.
+
+### Files touched this session
+
+- `sdk/workflows/aircraft_optimization.py`
+- `sdk/workflows/valve_study.py`
+- `sdk/workflows/geometry_study.py`
+- `sdk/workflows/shape_optimization.py`
+- `sdk/workflows/time_constrained.py`
+- `sdk/workflows/unseen_geometry.py`
+- `sdk/workflows/uncertainty_reduction.py`
+- `sdk/workflows/mega_batch.py`
+- `sdk/workflows/race_benchmark.py`
+- `sdk/workflows/email_report.py`
+- `sdk/chief_engineer/researcher.py`
+- `sdk/chief_engineer/lab.py`
+- `sdk/chief_engineer/server.py`
+- `sdk/chief_engineer/head_engineer.py`
+- `sdk/chief_engineer/chief_researcher.py`
+- `sdk/chief_engineer/control_room.html` (treaty-scoped: `verdictBadge()`
+  only, ~6 lines)
+- `sdk/chief_engineer/certificate.py`
+- `sdk/scripts/build_wall.py`
+- `sdk/tests/test_register.py` (new)
+- `sdk/tests/test_fidelity_chips.py` (extended `_SOURCES`)
+- `docs/DEMO_RUNBOOK.md` (stale-quote fixes only)
+
+### Test status
+
+177 tests green (`cd sdk && python -m unittest discover tests`), including
+the two new register tests, after every commit this session.
+
+### Not touched (treaty)
+
+`control_room.html` layout/pacing/plot code, `field_render.py`, act
+structure — all GUI-1b/ACT-FIXER-b territory tonight, per orders.
+
+### Blockers
+
+None. All five items DONE.
