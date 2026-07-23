@@ -132,10 +132,12 @@ _REYNOLDS = re.compile(r"\bre(?:ynolds)?\s*(?:number)?\s*(?:of|=|:)?\s*"
 
 # Geometries the organization has actually solved; anything else is unseen.
 KNOWN_GEOMETRIES = ("cylinder", "motorbike", "motorcycle")
+# "valve" is absent deliberately: the dedicated valve-study pattern owns that
+# vocabulary, and double-counting it as unseen geometry only muddies routing.
 CANDIDATE_GEOMETRIES = (
     "airfoil", "aerofoil", "wing", "aircraft", "airplane", "plane", "sphere",
     "car", "vehicle", "turbine", "blade", "propeller", "rotor", "hull", "duct",
-    "nozzle", "valve", "heat exchanger", "building", "bridge", "drone", "rocket",
+    "nozzle", "heat exchanger", "building", "bridge", "drone", "rocket",
 )
 
 
