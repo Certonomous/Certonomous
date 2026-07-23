@@ -322,6 +322,10 @@ def main(request: str | None = None, params: dict | None = None,
         cells = int(stats.get("cells", 0))
         non_ortho = stats.get("max_non_orthogonality")
         skew = stats.get("max_skewness")
+        if emit:
+            emit("mesh.stats", {"cells": cells,
+                                "max_non_orthogonality": non_ortho,
+                                "max_skewness": skew})
         # Sensible display precision — one decimal on the angle, two on skew —
         # never the raw many-digit float the checkMesh regex captured.
         non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "—"

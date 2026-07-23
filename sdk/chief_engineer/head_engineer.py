@@ -393,6 +393,12 @@ class HeadEngineer:
             f"cp -r {self.remote_case}/constant/polyMesh {cache}/polyMesh || true",
             timeout=300)
 
+    def clear_mesh_cache(self, cache_key: str) -> None:
+        """Drop a cached mesh. A refinement ladder must never reuse another
+        rung's mesh, so each rung clears the body's entry before meshing."""
+        cache = self._mesh_cache_dir(cache_key)
+        self._wsl(f"rm -rf {cache}", timeout=120)
+
     def solve_ranks(self) -> int:
         """How many MPI ranks the steady solve should use.
 
