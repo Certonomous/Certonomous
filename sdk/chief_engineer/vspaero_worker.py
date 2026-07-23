@@ -87,7 +87,10 @@ def solve(job: dict) -> dict:
     polar_id = vsp.FindLatestResultsID("VSPAERO_Polar")
     polar = {}
     for key in ("Alpha", "CLtot", "CDi", "CDo", "CDtot", "L_D", "E"):
-        polar[key] = list(vsp.GetDoubleResults(polar_id, key))
+        # NaN is not JSON: scrub non-finite entries to None at the source so
+        # every downstream consumer (SSE, snapshots, ledgers) parses cleanly.
+        polar[key] = [v if math.isfinite(v) else None
+                      for v in vsp.GetDoubleResults(polar_id, key)]
 
     alphas, cls = polar["Alpha"], polar["CLtot"]
 
@@ -129,7 +132,7 @@ def solve(job: dict) -> dict:
         "cdi": interp(polar["CDi"], cl_target, cls),
         "cdo_wing": interp(polar["CDo"], cl_target, cls),
         "span_efficiency": interp(polar["E"], cl_target, cls)
-        if all(math.isfinite(v) for v in polar["E"]) else None,
+        if all(v is not None and math.isfinite(v) for v in polar["E"]) else None,
         "extrapolated": extrapolated,
     }
 
