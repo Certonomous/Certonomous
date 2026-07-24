@@ -75,9 +75,15 @@ def _admissibility_entry(p: MissionProperties) -> str:
         return bullets(
             f"Admissible {p.admissibility_cite}, a published threshold")
     if p.smoothness == "smooth" and p.regime.startswith("steady"):
+        # Owner wording for the conceptual-screen acts; the generic phrasing
+        # stays for missions whose fidelity is already a solved field.
+        fidelity_line = (
+            "Start with a conceptual model to bound the search space"
+            if "conceptual" in p.fidelity.lower() else
+            f"Model fidelity ({p.fidelity}) bounds the claim, not the search")
         return bullets(
             "Admissible while smooth and steady hold: descent and ensemble read the same surface",
-            f"Model fidelity ({p.fidelity}) bounds the claim, not the search")
+            fidelity_line)
     return bullets(
         f"Valid while the regime stays {p.regime}; outside it, the physics changes "
         f"and the model no longer applies")

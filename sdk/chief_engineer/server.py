@@ -71,12 +71,17 @@ _LEGACY_TIERS = {"TREND ONLY": "SOLVER-BACKED",
                  "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
                  "NEEDS WORK": "UNCONVERGED"}
 
+# Owner curation (curation, never number-editing): the wall serves only the
+# bodies the on-screen missions run. The wider graded library stays intact on
+# disk and keeps feeding the grading pipeline; it is simply not displayed.
+_WALL_BODIES = frozenset({"motorBike", "b52", "naca4412_wing"})
+
 
 def _credentials() -> list[dict]:
-    """One card per graded curriculum body for the standing 'Lab credentials'
+    """One card per on-screen mission body for the standing 'Lab credentials'
     panel — the tier it earned, measured-vs-reference, source, and the honest
-    one-line reason. The wall shows judgement, not only trophies, so TREND ONLY
-    and REGIME MISMATCH bodies appear alongside the validated ones."""
+    one-line reason. Bodies outside ``_WALL_BODIES`` are curated off the wall;
+    their records remain on disk untouched."""
     root = _credentials_root()
     if not root.exists():
         return []
@@ -87,7 +92,7 @@ def _credentials() -> list[dict]:
         except Exception:
             continue
         name = data.get("name")
-        if not name:
+        if not name or name not in _WALL_BODIES:
             continue
         # ONE number everywhere: the wall displays the coefficient on the
         # reference's own area basis — the same figure the verdict was judged
@@ -512,19 +517,14 @@ def _start_mission(request: str, payload: dict):
     shape or aircraft optimisation, a deadline trade, an uncertainty question.
     A surface uploaded with the prompt means "run it on this body", so the
     objective can stay plain language with no filename — the surface is threaded
-    into the workflow params, and anything not already an optimisation is taken
-    through the full geometry study. A request no workflow matches is answered
-    honestly rather than run on a guess.
+    into the workflow params. An aircraft optimisation keeps its route and takes
+    the surface as the starting geometry; anything not already an optimisation
+    is taken through the full geometry study. A request no workflow matches is
+    answered honestly rather than run on a guess.
     """
-    from .router import (AIRCRAFT_OPTIMIZATION, GEOMETRY_STUDY,
-                         SHAPE_OPTIMIZATION, WORKFLOWS, classify)
+    from .router import WORKFLOWS, apply_surface, classify
 
-    route = classify(request)
-    surface = str(payload.get("surface") or "").strip()
-    if surface and route.intent not in (SHAPE_OPTIMIZATION, AIRCRAFT_OPTIMIZATION):
-        route.params["surface"] = surface
-        route.intent = GEOMETRY_STUDY
-        route.confidence = max(route.confidence, 0.9)
+    route = apply_surface(classify(request), str(payload.get("surface") or ""))
 
     mission_id = "m-" + secrets.token_hex(6)
     record = MissionRecord(mission_id, request, EventBus(mission_id, _events_path(mission_id)))

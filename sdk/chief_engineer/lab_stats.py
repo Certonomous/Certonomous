@@ -33,6 +33,10 @@ _ACTIVE_BENCHMARKS = ("closure-challenge", "reduced-order-speedup")
 # internal-flow screens). Each entry was verified live against its host before
 # inclusion. NEVER carries an invented score, rank, or result: the ``status``
 # is where the lab stands, and ``entry`` is the real pipeline it would submit.
+#
+# Display order is deterministic and owner-directed: the two ``lead`` entries
+# (Drag Prediction Workshop, then the NASA Turbulence Modeling Resource) render
+# immediately after the closure-challenge card; the rest follow in tuple order.
 _RESEARCH_CHALLENGES = (
     {
         "title": "AIAA Drag Prediction Workshop (NASA Common Research Model)",
@@ -43,6 +47,7 @@ _RESEARCH_CHALLENGES = (
         "status": "target identified",
         "entry": "our external-aerodynamics RANS pipeline on the Common Research "
                  "Model, graded against the published experimental drag",
+        "lead": True,
     },
     {
         "title": "NASA Turbulence Modeling Resource verification cases",
@@ -53,6 +58,7 @@ _RESEARCH_CHALLENGES = (
         "status": "scoping",
         "entry": "our RANS solver on the flat-plate and bump-in-channel cases, "
                  "checked against the published verified coefficients",
+        "lead": True,
     },
     {
         "title": "FDA medical-device CFD benchmark (nozzle and blood pump)",
@@ -64,6 +70,7 @@ _RESEARCH_CHALLENGES = (
         "entry": "our reduced-order internal-flow screen and a RANS nozzle solve, "
                  "aligned with the valve agenda and graded against the published "
                  "velocity fields",
+        "lead": False,
     },
     {
         "title": "Automotive CFD Prediction Workshop (DrivAer)",
@@ -74,6 +81,7 @@ _RESEARCH_CHALLENGES = (
         "status": "target identified",
         "entry": "our external-aerodynamics RANS pipeline, the one that already runs "
                  "the motorBike body, carried onto the DrivAer geometry",
+        "lead": False,
     },
 )
 
@@ -83,7 +91,9 @@ def research_challenges() -> list[dict[str, Any]]:
 
     Returned as a fresh list of plain dicts so callers cannot mutate the module
     constant. Each dict keeps the same shape: title, host, url, what, status,
-    entry. No score, rank, or result is ever asserted.
+    entry, lead. The list order is the display order; ``lead`` entries render
+    directly after the closure-challenge card. No score, rank, or result is
+    ever asserted.
     """
     return [dict(item) for item in _RESEARCH_CHALLENGES]
 
@@ -160,13 +170,6 @@ def _experimental_anchors() -> int:
     return anchors
 
 
-def _uq_studies_root() -> Path:
-    env = os.environ.get("CERTONOMOUS_UQ_STUDIES")
-    if env:
-        return Path(env).resolve()
-    return (_REPO_ROOT / "models" / "curriculum" / "uq-studies").resolve()
-
-
 def _benchmarks_path() -> Path:
     env = os.environ.get("CERTONOMOUS_BENCHMARKS")
     if env:
@@ -179,49 +182,6 @@ def _load_json(path: Path) -> dict[str, Any]:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return {}
-
-
-# Geometries surfaced on the discretization-uncertainty card, in display order,
-# each with the human name the lab uses on camera and its honest programme state.
-_UQ_GEOMETRIES = (
-    ("motorBike", "motorBike", "measured"),
-    ("naca4412_wing", "NACA 4412 wing", "measured"),
-    ("b52", "B-52", "in progress"),
-)
-
-
-def _uq_program() -> dict[str, Any]:
-    """Discretization-uncertainty programme, data-driven from the UQ studies.
-
-    Reports the observed order and the conservative band each refinement ladder
-    actually produced. Nothing is invented: a study with no usable order (its
-    mesh did not refine between rungs) is reported as still in progress.
-    """
-    root = _uq_studies_root()
-    geometries: list[dict[str, Any]] = []
-    for slug, label, state in _UQ_GEOMETRIES:
-        data = _load_json(root / f"{slug}.json")
-        num = data.get("numerical", {}) if isinstance(data, dict) else {}
-        levels = data.get("levels", []) if isinstance(data, dict) else []
-        band_rel = num.get("band_rel")
-        geometries.append({
-            "name": label,
-            "state": state,
-            "rungs": len(levels),
-            "observed_order": num.get("observed_order"),
-            "band_abs": num.get("band_abs"),
-            "band_rel": band_rel,
-            "band_pct": round(band_rel * 100.0, 1) if isinstance(band_rel, (int, float)) else None,
-            "value": num.get("value_fine", num.get("value_working")),
-            "method": num.get("method", ""),
-        })
-    return {
-        "title": "Discretization-uncertainty program",
-        "status": "ACTIVE RESEARCH",
-        "summary": "Refinement ladders per geometry: observed orders and "
-                   "conservative uncertainty bands.",
-        "geometries": geometries,
-    }
 
 
 def _ledger_study_path() -> Path:
@@ -268,12 +228,11 @@ def _fleet_learning() -> dict[str, Any]:
         "status": "ACTIVE RESEARCH",
         "summary": (
             f"Distilled from {prov.get('row_count', 0)} rows of the mega-batch "
-            f"ledger ({prov.get('ok_rows', 0)} completed evaluations); trends "
-            f"carry measured fit quality, never assertion."
+            f"ledger ({prov.get('ok_rows', 0)} completed evaluations); every "
+            f"relationship carries measured fit quality, never assertion."
         ),
         "available": True,
         "generated_at": study.get("generated_at"),
-        "source": prov.get("ledger_path"),
         "row_count": prov.get("row_count"),
         "ok_rows": prov.get("ok_rows"),
         "failed_rows": prov.get("failed_rows"),
@@ -287,10 +246,11 @@ def research_programs() -> dict[str, Any]:
     """The lab's real research programmes, framed as work in progress.
 
     Closure-challenge and reduced-order speed figures come from the public
-    benchmarks file; the discretization program is data-driven from the UQ
-    refinement studies; the fleet-learning card is driven by the distilled
+    benchmarks file; the fleet-learning card is driven by the distilled
     ledger study; the valve agenda lines are the queued programmes; and the
-    challenges list is the real, public benchmarks the lab has targeted.
+    challenges list is the real, public benchmarks the lab has targeted, in
+    display order with the two ``lead`` entries placed by the owner directly
+    after the closure card.
     """
     bench = _load_json(_benchmarks_path())
     closure_raw = bench.get("closure_challenge", {})
@@ -307,6 +267,8 @@ def research_programs() -> dict[str, Any]:
         "target": "top 4",
         "repo": "github.com/rmcconke/closure-challenge-benchmark",
     }
+    # No provenance string here: the benchmarks file cites an internal working
+    # note, and internal file references never reach a user-visible surface.
     speed = {
         "title": speed_raw.get("name", "Reduced-order speed program"),
         "status": "measured",
@@ -314,7 +276,6 @@ def research_programs() -> dict[str, Any]:
         "full_core_min": speed_raw.get("full_mc_core_min"),
         "reduced_core_min": speed_raw.get("reduced_core_min"),
         "speedup_x": speed_raw.get("speedup_x"),
-        "source": speed_raw.get("source", ""),
     }
     queued = [
         {"name": "Harmonic-balance cycle solve",
@@ -326,7 +287,6 @@ def research_programs() -> dict[str, Any]:
     ]
     return {
         "closure": closure,
-        "uq": _uq_program(),
         "speed": speed,
         "fleet_learning": _fleet_learning(),
         "queued": queued,
@@ -366,8 +326,8 @@ def lifetime_counters(ledger_path: Path | None = None) -> dict[str, Any]:
             "per_solver": summary["per_solver"],
         },
         # The active-research programmes the credentials view showcases as
-        # work in progress (R5): closure challenge, discretization uncertainty,
-        # reduced-order speed, and the queued valve agenda.
+        # work in progress (R5): closure challenge, the public challenge
+        # targets, reduced-order speed, and the queued valve agenda.
         "research": research_programs(),
     }
 

@@ -433,9 +433,30 @@ def classify(request: str) -> Route:
             "samples until only irreducible uncertainty remains."),
     }[intent]
 
-    return Route(intent, confidence,
-                 f"{rationale} Basis: {'; '.join(reasons)}.",
-                 tuple(reasons), params)
+    # The rationale stands alone on the interpretation panel; the raw evidence
+    # clauses stay machine-readable in ``evidence`` rather than being appended
+    # as a "Basis:" sentence that restates the rationale in router shorthand.
+    return Route(intent, confidence, rationale, tuple(reasons), params)
+
+
+def apply_surface(route: Route, surface: str | None) -> Route:
+    """Fold an uploaded surface into an already-classified route.
+
+    An aircraft optimisation keeps its route and takes the surface as the
+    starting geometry for the search; a shape optimisation likewise stays on
+    its route. Anything else with an uploaded surface means "run it on this
+    body" and becomes a full geometry study.
+    """
+    surface = (surface or "").strip()
+    if not surface:
+        return route
+    if route.intent == AIRCRAFT_OPTIMIZATION:
+        route.params["surface"] = surface
+    elif route.intent != SHAPE_OPTIMIZATION:
+        route.params["surface"] = surface
+        route.intent = GEOMETRY_STUDY
+        route.confidence = max(route.confidence, 0.9)
+    return route
 
 
 # Which module and entry point serves each route.

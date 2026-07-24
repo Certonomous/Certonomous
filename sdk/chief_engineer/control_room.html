@@ -280,6 +280,13 @@
   .entry.monitor .who { color: #ef7fb0; }
   .entry.system .who { color: var(--muted); }
   .entry p { margin-top: 5px; font-size: 13px; }
+  /* transcript tables: same feed fonts, compact; wide ones scroll inside
+     their own wrapper so the feed column never widens. */
+  .entry .t-wrap { margin-top: 6px; overflow-x: auto; }
+  .entry table.t-table { border-collapse: collapse; width: 100%; font: 11px var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .entry .t-table th { text-align: left; color: var(--muted); font: 8.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 3px 10px 3px 0; border-bottom: 1px solid var(--line-2); }
+  .entry .t-table td { padding: 3px 10px 3px 0; border-bottom: 1px solid var(--line); }
+  .entry .t-table tr:last-child td { border-bottom: 0; }
   .digest-phase { color: var(--dim); font: 9px var(--mono); letter-spacing: .2em; text-transform: uppercase; margin: 16px 0 7px; padding-bottom: 5px; border-bottom: 1px solid var(--line); }
   .digest-phase:first-child { margin-top: 0; }
 
@@ -457,7 +464,7 @@
           <div class="land-legend"><span class="lg-dot ok"></span><span>feasible</span><span class="lg-dot bad"></span><span>infeasible</span><span class="lg-ring"></span><span>winner</span><span class="lg-note" id="landNote">hover a point for its design</span></div>
         </div>
         <div class="trace-box" id="traceBox" hidden>
-          <span class="eyebrow" id="traceTitle">Objective trace — live</span>
+          <span class="eyebrow" id="traceTitle">Objective trace, live</span>
           <canvas id="trace"></canvas>
           <div class="land-legend"><span class="lg-dot ok"></span><span id="traceSeriesLbl">objective</span></div>
         </div>
@@ -718,6 +725,9 @@ function dispatch(env) {
     // Narrated + visual events share ONE ordered paced queue (below) so the
     // conversation stays in sync with the landscape/trace/geometry it describes.
     case 'transcript.entry': enqueue('entry', p, ts); break;
+    // Transcript tables ride the same paced feed as narration: the first event
+    // creates the table, append events land rows live as solves finish.
+    case 'transcript.table': enqueue('table', p, ts); break;
     case 'audit.completed': renderAudit(p); break;
     // Roster rides the SAME paced queue as the transcript so the live Agents /
     // Workers KPI numerals stay in lockstep with the narration and dispatch they
@@ -876,7 +886,7 @@ function pushTrace(p) {
   if (!state.trace || state.trace.series !== p.series) {
     state.trace = { series: p.series, pts: [], xLabel: p.x_label || 'x', yLabel: p.y_label || 'y',
                     title: p.title || 'Objective trace' };
-    $('traceTitle').textContent = (p.title || 'Objective trace') + ' — live';
+    $('traceTitle').textContent = (p.title || 'Objective trace') + ', live';
     $('traceSeriesLbl').textContent = p.series ? String(p.series).replace(/_/g, ' ') : 'objective';
   }
   state.trace.pts.push({ x: +p.x, y: +p.y, lo: p.lo != null ? +p.lo : null, hi: p.hi != null ? +p.hi : null,
@@ -1120,6 +1130,7 @@ const VIS_MS = 240;     // a visual event lands a little quicker so bursts anima
 // Each queued item applies its side of the mission when its turn comes.
 const APPLY = {
   entry:      p => { addEntry(p); addDigest(p); noteAgentRole(p.role); },
+  table:      p => addTable(p),
   geometry:   p => loadGeometry(p),
   field:      p => loadField(p),
   plot:       p => addPlot(p),
@@ -1156,7 +1167,8 @@ function drainReveal() {
     // READING: narration gets a full reading beat; a visual event lands
     // quicker — and when a burst backs up (the 96-wing screening sweep), the
     // queue drains fast so the sweep reads as the speed demonstration it is.
-    delay = item.kind === 'entry' ? PACE_MS
+    // A transcript table is narration too: each row lands at reading pace.
+    delay = (item.kind === 'entry' || item.kind === 'table') ? PACE_MS
           : revealQ.length > 30 ? 45
           : revealQ.length > 12 ? 110 : VIS_MS;
   }
@@ -1167,6 +1179,35 @@ function addEntry(p) {
   const el = document.createElement('div'); el.className = roleClass(p.role);
   el.innerHTML = `<span class="who">${esc(p.role||'System')}<time>${stamp(p.at)}</time></span><p>${esc(p.message||'')}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
   $('script').appendChild(el); $('script').scrollTop = $('script').scrollHeight;
+}
+// A transcript table renders in both feeds with the entry styling it sits
+// among. The first event for a table_id creates the table (headers + any
+// rows); append:true events land new rows into that same table, so rows
+// arrive live as solves finish without repeating the header block.
+function addTable(p) {
+  const rows = p.rows || [];
+  ['script', 'digest'].forEach(feedId => {
+    const host = $(feedId);
+    let body = null;
+    host.querySelectorAll('tbody[data-tid]').forEach(b => {
+      if (b.dataset.tid === String(p.table_id || '')) body = b;
+    });
+    if (!body || !p.append) {
+      const el = document.createElement('div'); el.className = roleClass(p.role);
+      const head = (p.headers || []).map(h => `<th>${esc(h)}</th>`).join('');
+      el.innerHTML = `<span class="who">${esc(p.role || 'System')}<time>${stamp(p.at)}</time></span>`
+        + (p.title ? `<p>${esc(p.title)}</p>` : '')
+        + `<div class="t-wrap"><table class="t-table"><thead><tr>${head}</tr></thead>`
+        + `<tbody data-tid="${esc(String(p.table_id || ''))}"></tbody></table></div>`;
+      host.appendChild(el);
+      body = el.querySelector('tbody');
+    }
+    for (const r of rows)
+      body.insertAdjacentHTML('beforeend',
+        `<tr>${(r || []).map(c => `<td>${esc(c)}</td>`).join('')}</tr>`);
+    host.scrollTop = host.scrollHeight;
+  });
+  noteAgentRole(p.role);
 }
 const PHASES = { HYPOTHESIS:'Hypothesis', 'EXPERIMENT PLAN':'Plan', PLAN:'Plan', EVIDENCE:'Evidence', CONCLUSION:'Conclusion' };
 const PHASE_ORDER = ['Hypothesis', 'Plan', 'Evidence', 'Conclusion'];
@@ -1539,7 +1580,7 @@ function renderResult(p) {
     : (p.value ?? '—');
   rc.innerHTML = `<b class="rv">${esc(head)}</b><span class="rq">${esc(p.quantity||'result')}</span>`
     + verdictBadge(p.tier)
-    + `<span class="re">${esc(p.envelope||'')}${p.reason?' · '+esc(p.reason):''}</span>`;
+    + `<span class="re">${esc([p.envelope, p.reason].filter(Boolean).join(' · '))}</span>`;
   rc.hidden = false;
 }
 
@@ -1559,10 +1600,11 @@ async function uploadSurface(e) {
   finally { e.target.value = ''; }
 }
 
-// The on-screen missions run motorBike, b52 and the NACA 4412 wing. The
-// lab has graded is deliberately showcased on the dormant wall as the work
-// wider library gets the showcase, per the owner directive: closure
-// challenge first, then the graded cases beyond the on-screen missions.
+// The on-screen missions run motorBike, b52 and the NACA 4412 wing. Per the
+// owner directive the wall shows the active-research programmes and the graded
+// rows for these mission bodies only; the wider graded library is curated off
+// the wall (the server serves mission bodies alone, and no case-library
+// section renders here).
 const MISSION_BODIES = new Set(['motorBike', 'b52', 'naca4412_wing']);
 async function loadCredentials() {
   const host = $('credentials');
@@ -1585,41 +1627,45 @@ async function loadCredentials() {
         `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span><em>${esc(sub)}</em></div>`).join('')}</div>`;
     }
     const research = (stats && stats.research) ? renderResearch(stats.research) : '';
-    // Split by what the on-screen missions run, not by geometry class: the
-    // wider library gets the expanded showcase, the overlap a short coda.
-    // Every card comes straight from a graded /api/credentials row.
-    const beyond = rows.filter(r => !MISSION_BODIES.has(r.name));
+    // Mission bodies only: every card comes straight from a graded
+    // /api/credentials row, and the server already curates the wall to the
+    // bodies the on-screen missions run.
     const missionRows = rows.filter(r => MISSION_BODIES.has(r.name));
-    const validated = beyond.filter(r => r.tier === 'VALIDATED').length;
-    const beyondCards = beyond.length
-      ? `<div class="cred-subhead"><span class="eyebrow">Case library</span>`
-        + `<div class="cred-src">${beyond.length} graded bodies beyond the missions on screen · ${validated} validated against published experiment · each card shows the measured coefficient, its published reference, and the tier it earned</div></div>`
-        + beyond.map(credCard).join('')
-      : '';
     const missionCards = missionRows.length
       ? `<div class="cred-subhead"><span class="eyebrow">Mission bodies</span>`
         + `<div class="cred-src">Graded rows for the bodies the missions on screen run.</div></div>`
         + missionRows.map(credCard).join('')
       : '';
     const html = `<div class="cred-head"><span class="eyebrow">Lab credentials</span></div>`
-      + counters + research + beyondCards + missionCards;
+      + counters + research + missionCards;
     host.innerHTML = html; renderDormant(html);
   } catch (e) { host.innerHTML = `<div class="cred-empty">Credentials unavailable.</div>`; renderDormant(null); }
 }
 function credCard(r) {
-  const meas = r.measured!=null ? (+r.measured).toPrecision(4) : '—';
-  const ref = r.reference_cd!=null ? (+r.reference_cd).toPrecision(3) : '—';
+  const meas = r.measured!=null ? (+r.measured).toPrecision(4) : 'n/a';
+  const ref = r.reference_cd!=null ? (+r.reference_cd).toPrecision(3) : 'n/a';
   return `<div class="cred-card"><div class="cred-top"><b>${esc(title(r.name))}</b>${verdictBadge(r.tier)}</div>`
     + `<div class="cred-nums">measured Cd <b>${esc(meas)}</b><span class="vs">vs</span>reference Cd <b>${esc(ref)}</b>${r.wall_minutes!=null?` · ${r.wall_minutes} min`:''}</div>`
     + (r.source?`<div class="cred-src">${esc(r.source)}</div>`:'') + (r.reason?`<div class="cred-reason">${esc(r.reason)}</div>`:'') + `</div>`;
 }
 // ACTIVE RESEARCH (R5): the lab's real programmes shown as work in progress, so
 // the credentials view reads as a working lab, not a finished homework set. Data
-// is driven from the benchmarks file and the UQ studies; the closure leaderboard
-// is public external data, cited to its repository. No invented "our score".
+// is driven from the benchmarks file; the closure leaderboard is public external
+// data, cited to its repository. No invented "our score". Card order is
+// owner-directed and deterministic: closure first, then the challenges the
+// backend flags as lead (Drag Prediction Workshop, NASA Turbulence Modeling
+// Resource), then the remaining programmes in their standing order.
 function renderResearch(r) {
   if (!r) return '';
   const tag = s => `<span class="rp-tag ${s === 'ACTIVE RESEARCH' ? 'active' : s === 'measured' ? 'measured' : 'queued'}">${esc(s)}</span>`;
+  const chCard = c =>
+    `<div class="rp-card"><div class="rp-top"><b>${esc(c.title)}</b>${tag(c.status)}</div>`
+    + `<div class="rp-body">${esc(c.what)}.</div>`
+    + `<div class="rp-body">Our entry: ${esc(c.entry)}.</div>`
+    + `<div class="rp-src">public external benchmark · ${esc(c.host)} · ${esc(c.url)}</div></div>`;
+  const ch = r.challenges || [];
+  const leadChallenges = ch.filter(c => c.lead);
+  const laterChallenges = ch.filter(c => !c.lead);
   const cards = [];
 
   // (a) Closure-challenge benchmark — hardcoded public board, cited.
@@ -1633,25 +1679,8 @@ function renderResearch(r) {
       + `<div class="rp-src">public external data · ${esc(cl.repo)}</div></div>`);
   }
 
-  // (b) Discretization-uncertainty program — refinement ladders per geometry.
-  const uq = r.uq;
-  if (uq) {
-    const geos = (uq.geometries || []).map(g => {
-      const order = g.observed_order != null ? `observed order p ${(+g.observed_order).toFixed(2)}` : 'order not resolved';
-      const band = g.band_abs != null
-        ? `band ±${(+g.band_abs).toPrecision(2)}${g.band_pct != null ? ` (${g.band_pct}%)` : ''}`
-        : '';
-      const rungs = g.rungs ? `${g.rungs}-rung ladder` : '';
-      const detail = g.state === 'in progress'
-        ? 'refinement inconclusive: the parameter did not change the mesh between rungs'
-        : [rungs, order, band].filter(Boolean).join(' · ');
-      return `<div class="rp-geo"><span class="rp-geo-name">${esc(g.name)}</span>`
-        + `<span class="rp-geo-state ${g.state === 'in progress' ? 'wip' : 'ok'}">${esc(g.state)}</span>`
-        + `<span class="rp-geo-detail">${esc(detail)}</span></div>`;
-    }).join('');
-    cards.push(`<div class="rp-card"><div class="rp-top"><b>${esc(uq.title)}</b>${tag(uq.status)}</div>`
-      + `<div class="rp-body">${esc(uq.summary)}</div>${geos}</div>`);
-  }
+  // (b) The lead public challenges, immediately after the closure card.
+  leadChallenges.forEach(c => cards.push(chCard(c)));
 
   // (c) Reduced-order speed program — measured speedup, NACA 4412 race.
   const sp = r.speed;
@@ -1660,7 +1689,7 @@ function renderResearch(r) {
       + `<div class="rp-body">${esc(sp.case)} race: reduced-order path is a measured <b>${esc((+sp.speedup_x).toFixed(1))}×</b> in core-minutes`
       + (sp.full_core_min != null && sp.reduced_core_min != null
           ? ` (${esc(sp.full_core_min)} to ${esc(sp.reduced_core_min)} core-min).` : '.')
-      + `</div>${sp.source ? `<div class="rp-src">${esc(sp.source)}</div>` : ''}</div>`);
+      + `</div></div>`);
   }
 
   // (d) Queued research — the valve agenda lines.
@@ -1672,16 +1701,11 @@ function renderResearch(r) {
       + `</div>`);
   }
 
-  // (e) Public challenges the lab targets — real external benchmarks, each cited
-  // to its host. Honest by construction: a status of where the lab stands and
-  // the real pipeline it would enter with, never an invented score or rank.
-  const ch = r.challenges || [];
-  const chCards = ch.map(c =>
-    `<div class="rp-card"><div class="rp-top"><b>${esc(c.title)}</b>${tag(c.status)}</div>`
-    + `<div class="rp-body">${esc(c.what)}.</div>`
-    + `<div class="rp-body">Our entry: ${esc(c.entry)}.</div>`
-    + `<div class="rp-src">public external benchmark · ${esc(c.host)} · ${esc(c.url)}</div></div>`
-  ).join('');
+  // (e) The remaining public challenges the lab targets — real external
+  // benchmarks, each cited to its host. Honest by construction: a status of
+  // where the lab stands and the real pipeline it would enter with, never an
+  // invented score or rank.
+  const chCards = laterChallenges.map(chCard).join('');
 
   const head = `<div class="cred-subhead"><span class="eyebrow">Active research</span></div>`;
   const chHead = chCards

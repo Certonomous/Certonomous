@@ -1,12 +1,27 @@
 """Aircraft L/D optimization: requirement parsing, sizing, and routing (#1)."""
 
 import os
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from chief_engineer.router import AIRCRAFT_OPTIMIZATION, classify
+from chief_engineer.router import (AIRCRAFT_OPTIMIZATION, GEOMETRY_STUDY,
+                                   apply_surface, classify)
 from workflows.aircraft_optimization import (evaluate_design, main,
-                                             parse_requirements)
+                                             measure_surface_span,
+                                             parse_requirements, seeded_spans)
+
+_TINY_STL = """solid test
+ facet normal 0 0 1
+  outer loop
+   vertex 0 -20 0
+   vertex 3 -20 0
+   vertex 0 20 0.5
+  endloop
+ endfacet
+endsolid test
+"""
 
 
 class RequirementParsingTests(unittest.TestCase):
@@ -53,10 +68,22 @@ class SizingModelTests(unittest.TestCase):
         self.assertGreater(high_ar, low_ar)
 
 
+def _disable_pace(test: unittest.TestCase) -> None:
+    """Keep CI fast: the on-camera pacing (~120 ms/candidate) is off in tests.
+
+    ``_PACE_S`` is bound at import time, so the env var alone is not enough
+    once the module is already loaded — patch the module constant directly."""
+    os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+    from workflows import aircraft_optimization as aopt
+
+    patcher = mock.patch.object(aopt, "_PACE_S", 0.0)
+    patcher.start()
+    test.addCleanup(patcher.stop)
+
+
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
-        # Keep CI fast: the on-camera pacing (~120 ms/candidate) is off in tests.
-        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+        _disable_pace(self)
 
     def test_main_runs_and_reports_a_feasible_optimum(self):
         events = {}
@@ -161,6 +188,234 @@ class WorkflowTests(unittest.TestCase):
                         if e == "transcript.entry")
         self.assertIn("leave headroom", said)
         self.assertIn("Time budget on the record: 2 minutes", said)
+
+
+class StartingGeometryTests(unittest.TestCase):
+    """An uploaded surface with an airliner prompt: kept on the aircraft
+    route, measured for span, and used to seed the search grid."""
+
+    def setUp(self):
+        _disable_pace(self)
+
+    def test_surface_param_keeps_the_aircraft_route(self):
+        route = classify("optimize the lift-to-drag of this airplane "
+                         "for 250 passengers")
+        route = apply_surface(route, "startwing.stl")
+        self.assertEqual(route.intent, AIRCRAFT_OPTIMIZATION)
+        self.assertEqual(route.params.get("surface"), "startwing.stl")
+
+    def test_surface_still_reroutes_non_optimisation_prompts(self):
+        route = apply_surface(classify("how confident are we in the drag "
+                                       "number"), "startwing.stl")
+        self.assertEqual(route.intent, GEOMETRY_STUDY)
+        self.assertEqual(route.params.get("surface"), "startwing.stl")
+
+    def test_span_is_measured_from_a_tiny_synthetic_stl(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "startwing.stl"
+            path.write_text(_TINY_STL, encoding="utf-8")
+            # Largest horizontal extent: y runs -20..20 -> 40 m.
+            self.assertAlmostEqual(measure_surface_span(path), 40.0, places=3)
+
+    def test_unreadable_surface_measures_none(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "broken.stl"
+            path.write_bytes(b"\x00\x01not a surface")
+            self.assertIsNone(measure_surface_span(path))
+        self.assertIsNone(measure_surface_span(Path("does-not-exist.stl")))
+
+    def test_seeded_spans_bracket_the_measurement_within_clamps(self):
+        spans = seeded_spans(40.0)
+        self.assertTrue(any(s < 40.0 for s in spans))
+        self.assertTrue(any(s > 40.0 for s in spans))
+        self.assertTrue(all(28.0 <= s <= 68.0 for s in spans))
+        # An extreme measurement is clamped to sane airliner bounds.
+        wide = seeded_spans(200.0)
+        self.assertTrue(all(s <= 68.0 for s in wide))
+        narrow = seeded_spans(5.0)
+        self.assertTrue(all(s >= 28.0 for s in narrow))
+
+    def test_workflow_acknowledges_and_seeds_from_the_uploaded_surface(self):
+        from workflows import aircraft_optimization as aopt
+
+        events = []
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "startwing.stl").write_text(_TINY_STL, encoding="utf-8")
+            with mock.patch.object(aopt, "_GEOMETRY_DIR", Path(tmp)):
+                rc = aopt.main(
+                    request="Optimize the L/D of an airliner for 300 passengers, "
+                            "6000 km range, takeoff 85 m/s, landing 72 m/s",
+                    params={"surface": "startwing.stl"},
+                    emit=lambda e, p: events.append((e, p)))
+        self.assertEqual(rc, 0)
+        said = " ".join(p.get("message", "") for e, p in events
+                        if e == "transcript.entry")
+        self.assertIn("Starting geometry received: Startwing", said)
+        self.assertIn("Measured span about 40 m; the search brackets it", said)
+        # No raw filename on camera.
+        self.assertNotIn("startwing.stl", said)
+        # The uploaded surface shows in the geometry viewport via the same
+        # display path the geometry study uses.
+        geo = [p for e, p in events if e == "geometry.ready"]
+        self.assertTrue(any("name=startwing.stl" in (p.get("url") or "")
+                            for p in geo))
+        # The screened grid is re-centred on the measured span.
+        spans = sorted({p["design"]["span"] for e, p in events
+                        if e == "landscape.point" and "design" in p})
+        expected = sorted(seeded_spans(40.0))
+        self.assertEqual(spans, expected)
+
+    def test_unparseable_surface_stays_on_file_with_default_bounds(self):
+        from workflows import aircraft_optimization as aopt
+
+        events = []
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "blob.stl").write_bytes(b"\x00\x01not a surface")
+            with mock.patch.object(aopt, "_GEOMETRY_DIR", Path(tmp)):
+                rc = aopt.main(
+                    request="Optimize the L/D of an airliner for 300 passengers, "
+                            "6000 km range, takeoff 85 m/s, landing 72 m/s",
+                    params={"surface": "blob.stl"},
+                    emit=lambda e, p: events.append((e, p)))
+        self.assertEqual(rc, 0)
+        said = " ".join(p.get("message", "") for e, p in events
+                        if e == "transcript.entry")
+        self.assertIn("on file as the reference shape", said)
+        spans = sorted({p["design"]["span"] for e, p in events
+                        if e == "landscape.point" and "design" in p})
+        self.assertEqual(spans, [34.0, 40.0, 46.0, 52.0, 58.0, 64.0])
+
+
+class _SolvedApi:
+    """A stand-in for VspAeroWingApi returning complete solved results."""
+
+    ELAPSED: float | None = None
+    REUSED = False
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def evaluate(self, design, analyses=()):
+        result = {
+            "polar": {"CLtot": [0.1, 0.5, 0.9],
+                      "CDi": [0.002, 0.004, 0.008],
+                      "CDo": [0.0055, 0.0056, 0.0058]},
+            "matched": {"alpha": 3.9, "cl": design.get("cl_target"),
+                        "cdi": 0.0023, "cdo_wing": 0.0055,
+                        "extrapolated": False},
+            "stl": "wing.stl", "stl_path": "nowhere/wing.stl",
+            "case_dir": "nowhere", "solver_version": "VSPAERO 3.x",
+        }
+        if self.ELAPSED is not None:
+            result["elapsed_s"] = self.ELAPSED
+        if self.REUSED:
+            result["reused_prior"] = True
+        return result
+
+
+class TranscriptTableTests(unittest.TestCase):
+    REQUEST = ("Optimize the L/D of an airliner for 300 passengers, "
+               "6000 km range, takeoff 85 m/s, landing 72 m/s")
+
+    def setUp(self):
+        _disable_pace(self)
+
+    def _run(self, api=None):
+        from workflows import aircraft_optimization as aopt
+
+        events = []
+        emit = lambda e, p: events.append((e, p))
+        if api is None:
+            rc = aopt.main(request=self.REQUEST, emit=emit)
+        else:
+            with mock.patch.object(aopt.vspaero, "available",
+                                   return_value=True), \
+                    mock.patch.object(aopt.vspaero, "VspAeroWingApi", api):
+                rc = aopt.main(request=self.REQUEST, emit=emit)
+        self.assertEqual(rc, 0)
+        return events
+
+    @staticmethod
+    def _said(events):
+        return " ".join(p.get("message", "") for e, p in events
+                        if e == "transcript.entry")
+
+    def test_screened_optimum_table_lands_in_the_solver_less_path(self):
+        events = self._run()
+        tables = [p for e, p in events if e == "transcript.table"]
+        screened = [p for p in tables if p["table_id"] == "screened-optimum"]
+        self.assertEqual(len(screened), 1)
+        self.assertEqual(screened[0]["headers"],
+                         ["Best Screened", "Span", "AR", "MTOW", "Range",
+                          "Approach Speed", "L/D"])
+        self.assertEqual(len(screened[0]["rows"]), 1)
+        self.assertTrue(screened[0]["rows"][0][0].startswith("Rank 1"))
+        # Finalists are not solved on this path, so no finalist table exists.
+        self.assertFalse([p for p in tables
+                          if p["table_id"] == "finalist-solves"])
+        # The old prose line is gone from the transcript.
+        self.assertNotIn("Best screened:", self._said(events))
+
+    def test_finalist_rows_land_live_and_vspaero_is_named(self):
+        events = self._run(api=_SolvedApi)
+        tables = [p for e, p in events if e == "transcript.table"]
+        self.assertTrue([p for p in tables
+                         if p["table_id"] == "screened-optimum"])
+        finalist = [p for p in tables if p["table_id"] == "finalist-solves"]
+        headers = [p for p in finalist if not p["append"]]
+        rows = [row for p in finalist if p["append"] for row in p["rows"]]
+        self.assertEqual(len(headers), 1)
+        self.assertEqual(headers[0]["headers"],
+                         ["Span", "Alpha", "CDi", "Wing Viscous", "L/D"])
+        self.assertEqual(len(rows), 9)   # one row per finalist solve
+        said = self._said(events)
+        self.assertIn("Solver of choice: VSPAERO", said)
+        self.assertNotIn("Each is actual geometry", said)
+        # The per-finalist prose entries are replaced by the table.
+        self.assertNotIn("Solved span", said)
+        report = [p for e, p in events if e == "report.ready"][0]
+        self.assertTrue(any(
+            "solved with VSPAERO, a vortex-lattice method" in m
+            for m in report["methods"]))
+        verdict = [p for e, p in events if e == "result.verdict"][0]
+        self.assertEqual(verdict.get("tier"), "SOLVER-BACKED")
+        self.assertIn("wing solved with VSPAERO", verdict.get("reason", ""))
+
+    def test_instant_batches_never_report_a_zero_second_wall(self):
+        # Mocked solves return instantly with no elapsed_s: the honest report
+        # names the wings and slots and omits the time clause entirely.
+        said = self._said(self._run(api=_SolvedApi))
+        self.assertIn("Finalist solves:", said)
+        self.assertNotIn("0.0 s", said)
+
+    def test_warm_reuse_reports_the_stamped_parallel_wall_estimate(self):
+        calls = []
+
+        class WarmApi(_SolvedApi):
+            REUSED = True
+
+            def evaluate(self, design, analyses=()):
+                # Thread-safe under the GIL: at least one caller reads an
+                # empty list and stamps the 84.0 s first-run duration.
+                result = _SolvedApi.evaluate(self, design, analyses)
+                first = not calls
+                calls.append(1)
+                result["elapsed_s"] = 84.0 if first else 12.3
+                return result
+
+        said = self._said(self._run(api=WarmApi))
+        # max(per-wing elapsed_s) is the parallel wall estimate.
+        self.assertIn("Finalist solves: 84.0 s wall", said)
+
+    def test_warm_reuse_without_stamps_omits_the_time_clause(self):
+        class LegacyWarmApi(_SolvedApi):
+            REUSED = True
+            ELAPSED = None
+
+        said = self._said(self._run(api=LegacyWarmApi))
+        self.assertIn("Finalist solves:", said)
+        self.assertNotIn("s wall", said)
+        self.assertNotIn("0.0 s", said)
 
 
 if __name__ == "__main__":

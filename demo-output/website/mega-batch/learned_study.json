@@ -1,6 +1,6 @@
 {
   "study": "fleet-ledger-learning",
-  "generated_at": "2026-07-24T14:46:05Z",
+  "generated_at": "2026-07-24T23:33:25Z",
   "provenance": {
     "ledger_path": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\website\\mega-batch\\ledger.jsonl",
     "row_count": 36164,
@@ -138,7 +138,7 @@
     }
   },
   "learned": [
-    "Across 12055 wing polars, higher aspect ratio raises L/D: about +1.90 in L/D per unit of aspect ratio, and the fit explains 93 percent of the variance (r2 = 0.93). That is a strong trend, measured, not assumed.",
+    "Across 12055 wing polars, higher aspect ratio raises L/D: about +1.90 in L/D per unit of aspect ratio, and the fit explains 93 percent of the variance (r2 = 0.93). That is a strong relationship, measured, not assumed.",
     "The induced-drag rows imply a span efficiency near 1.02 (spread 0.02 over 12055 polars), pulled straight from cl and cdi.",
     "Best wing seen so far: L/D 47.0 at aspect ratio 15.8 and sweep 15.3 deg (ledger row 35986).",
     "Over 12055 cylinder solves in the steady-laminar band, Cd falls with Re with a log-log slope of -0.43 (r2 = 1.00), consistent with laminar drag theory.",

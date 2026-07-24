@@ -330,7 +330,7 @@ def _learned_sentences(families: dict[str, Any], wing: dict[str, Any],
                 f"Across {wing['n']} wing polars, higher aspect ratio raises L/D: "
                 f"about {fit['slope']:+.2f} in L/D per unit of aspect ratio, and the "
                 f"fit explains {_pct(fit['r2'])} of the variance (r2 = {fit['r2']:.2f}). "
-                f"That is a {quality} trend, measured, not assumed."
+                f"That is a {quality} relationship, measured, not assumed."
             )
         else:
             learned.append(

@@ -86,6 +86,38 @@ class WallArithmetic(unittest.TestCase):
             with self.subTest(body=body):
                 self.assertEqual(cards[body]["measured"], data["cd_compared"])
 
+    def test_wall_serves_only_mission_bodies(self):
+        """Owner curation: the wall response carries the on-screen mission
+        bodies alone. The wider graded library stays on disk, ungraded rows and
+        all, but never rides the credentials payload."""
+        import os
+        os.environ.setdefault("CERTONOMOUS_CREDENTIALS", str(RESULTS))
+        from chief_engineer.server import _WALL_BODIES, _credentials
+
+        served = {card["name"] for card in _credentials()}
+        self.assertTrue(served, "the wall still serves the mission bodies")
+        self.assertLessEqual(served, set(_WALL_BODIES))
+        for retired in ("ahmed_25", "ahmed_35", "cube", "cylinder",
+                        "flat_plate", "naca0012_wing", "sphere"):
+            self.assertNotIn(retired, served)
+
+    def test_wall_payload_obeys_the_style_rules(self):
+        """No banned words, no em dashes, and no internal file references in
+        anything the wall response serves."""
+        import os
+        os.environ.setdefault("CERTONOMOUS_CREDENTIALS", str(RESULTS))
+        from chief_engineer.server import _credentials
+
+        blob = json.dumps(_credentials())
+        self.assertNotIn("—", blob)
+        self.assertNotIn("--", blob)
+        low = blob.lower()
+        for banned in ("demo", "stored", "saved", "cached", "pre-computed",
+                       "precomputed", "recorded", "trend"):
+            self.assertNotIn(banned, low, f"banned word served: {banned}")
+        for internal in (".md", "docs/", "handoff", "sdk/"):
+            self.assertNotIn(internal, low, f"internal reference served: {internal}")
+
 
 if __name__ == "__main__":
     unittest.main()

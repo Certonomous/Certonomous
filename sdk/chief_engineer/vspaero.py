@@ -18,6 +18,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
@@ -138,6 +139,12 @@ class VspAeroWingApi:
                                                 "design": dict(design)})
                         prior["case_dir"] = str(case)
                         prior["stl_path"] = str(prior_stl)
+                        # In-memory marker only, never written back: the caller
+                        # can tell a reused result from one solved this run.
+                        # A prior stamped with elapsed_s carries the measured
+                        # wall seconds of its own first run; older priors
+                        # simply lack the key (optional garnish, not evidence).
+                        prior["reused_prior"] = True
                         return prior
                 except Exception:
                     pass   # unreadable prior result: solve fresh
@@ -156,9 +163,11 @@ class VspAeroWingApi:
         command = [*self.run_prefix, "env", f"PYTHONPATH={self.pythonpath}",
                    "python3", "vspaero_worker.py"]
         log_path = case / "log.vspaero"
+        solve_started = time.monotonic()
         with log_path.open("w") as log:
             subprocess.run(command, stdout=log, stderr=subprocess.STDOUT,
                            timeout=self.timeout_s, cwd=case)
+        solve_elapsed = round(time.monotonic() - solve_started, 2)
 
         result_path = case / "result.json"
         if not result_path.exists():
@@ -167,6 +176,15 @@ class VspAeroWingApi:
         result = json.loads(result_path.read_text(encoding="utf-8"))
         if "error" in result:
             raise RuntimeError(f"VSPAERO failed for {tag}: {result['error']}")
+
+        # Stamp the measured wall seconds of this solve into the result AND
+        # back into result.json, so a later reuse of this case reports the true
+        # first-run duration instead of a zero-length batch clock.
+        result["elapsed_s"] = solve_elapsed
+        try:
+            result_path.write_text(json.dumps(result), encoding="utf-8")
+        except OSError:
+            pass   # the stamp is reporting garnish; the solve itself stands
 
         stl = case / result.get("stl", "wing.stl")
         self._artifacts.append({"kind": "surface", "path": str(stl),

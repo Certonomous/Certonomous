@@ -23,11 +23,15 @@ import os
 import re
 import shutil
 import time
+from pathlib import Path
 
-from . import OUT_ROOT, make_transcript
+from . import OUT_ROOT, announce_geometry, make_transcript
 from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
+from chief_engineer.display_names import display_name
 from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
+from chief_engineer.transcript import CHIEF_ENGINEER as _SPEAKER
+from chief_engineer.transcript import Entry
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
                                 ComputeLedger, KnowledgeBase, Roster,
@@ -57,6 +61,14 @@ _N_FINALISTS = 9         # feasible designs promoted to real solves
 # the aleatory inputs the sizing rests on; they are declared, not discovered.
 _SIGMA_PAYLOAD = 0.025   # passenger + baggage mass, ±5% at 2-sigma
 _SIGMA_CD0_NONWING = 0.04  # non-wing parasite buildup, ±8% at 2-sigma
+# Where uploaded surfaces land (the same directory the geometry study reads).
+_GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
+# Span ladder used to seed the search around an uploaded starting geometry:
+# the default six-rung ladder re-centred on the measured span, with the centre
+# and every rung clamped to sane airliner bounds.
+_SPAN_SEED_OFFSETS = (-15.0, -9.0, -3.0, 3.0, 9.0, 15.0)
+_SPAN_SEED_FLOOR = 28.0
+_SPAN_CENTER_LO, _SPAN_CENTER_HI = 38.0, 60.0
 # Backend pacing so the landscape points and the candidate wing in the viewport
 # visibly land one by one — the viewer watches the screen fill. Paces the PATH,
 # never the numbers; disabled in CI via CERTONOMOUS_SWEEP_PACE_MS=0.
@@ -142,6 +154,73 @@ def parse_requirements(text: str) -> dict:
         "takeoff_speed": takeoff, "takeoff_stated": to_stated,
         "landing_speed": landing, "landing_stated": ld_stated,
     }
+
+
+def measure_surface_span(path: str | Path) -> float | None:
+    """Measure an uploaded STL/OBJ starting geometry: the largest horizontal
+    extent of its bounding box (z up), taken as the approximate span.
+
+    Returns None when the file cannot be parsed — the caller must then say the
+    surface is on file as the reference shape, never invent a measurement."""
+    from chief_engineer.geometry import _read_obj, _read_stl
+
+    try:
+        path = Path(path)
+        if path.suffix.lower() == ".obj":
+            vertices, _faces = _read_obj(path)
+        else:
+            vertices, _faces = _read_stl(path)
+    except Exception:
+        return None
+    if not vertices:
+        return None
+    extents = []
+    for axis in (0, 1):   # x streamwise, y spanwise; z is vertical
+        values = [v[axis] for v in vertices]
+        extents.append(max(values) - min(values))
+    span = max(extents)
+    return round(span, 3) if span > 0 else None
+
+
+def seeded_spans(measured_span: float) -> tuple[float, ...]:
+    """Centre the span ladder on a measured starting-geometry span.
+
+    The centre is clamped to sane airliner bounds and every rung to the
+    structural limit, so the search still brackets the measured span with
+    buildable wings on both sides wherever possible."""
+    center = min(max(float(measured_span), _SPAN_CENTER_LO), _SPAN_CENTER_HI)
+    spans: list[float] = []
+    for offset in _SPAN_SEED_OFFSETS:
+        rung = min(max(center + offset, _SPAN_SEED_FLOOR), _SPAN_STRUCTURAL_LIMIT)
+        if rung not in spans:
+            spans.append(rung)
+    return tuple(spans)
+
+
+# Transcript-table headers for the live finalist-solve rows.
+_FINALIST_HEADERS = ("Span", "Alpha", "CDi", "Wing Viscous", "L/D")
+
+
+def _emit_table(emit, script, *, title: str, headers, rows, table_id: str,
+                append: bool = False) -> None:
+    """Put a transcript table on the record.
+
+    The control room renders it as a compact table in the same paced feed as
+    transcript entries; ``append=True`` lands new rows into the existing table
+    (rows arrive live as solves finish). Every row is also mirrored into the
+    saved transcript so the on-disk record keeps the numbers."""
+    if emit:
+        emit("transcript.table", {
+            "role": _SPEAKER, "title": title,
+            "headers": [str(h) for h in headers],
+            "rows": [[str(cell) for cell in row] for row in rows],
+            "table_id": table_id, "append": bool(append), "at": time.time()})
+    for row in rows:
+        line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
+        entry = Entry(_SPEAKER, f"[{title}] {line}")
+        script.entries.append(entry)
+        if emit is None and script.echo:
+            script.echo(entry.render())
 
 
 def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> dict:
@@ -239,15 +318,17 @@ def _solve_finalist_slot(index, api, design, emit=None, script=None):
 _SWEEPS = (20.0, 25.0, 30.0, 35.0)
 
 
-def _design_grid() -> list[tuple[float, float, float]]:
+def _design_grid(spans: tuple[float, ...] | None = None
+                 ) -> list[tuple[float, float, float]]:
     """A span × area × sweep sweep of the wing design space.
 
     Sweep is the innermost loop so the viewport wing rocks through the sweep
     angles repeatedly across the screening — the geometry changes many times,
     not just once, which is the whole point of watching the design space fill.
+    ``spans`` re-centres the ladder around a measured starting-geometry span.
     """
     grid = []
-    for span in (34, 40, 46, 52, 58, 64):
+    for span in (spans or (34, 40, 46, 52, 58, 64)):
         for area in (240, 300, 360, 420):
             for sweep in _SWEEPS:
                 grid.append((float(span), float(area), float(sweep)))
@@ -295,6 +376,30 @@ def main(request: str | None = None, params: dict | None = None,
         "• Requirements fixed: " + "; ".join(stated) + ". "
         "• Unstated values are assumed and marked. "
         "• Weight rides on the passenger count; the whole answer rides on weight.")
+
+    # ---- uploaded starting geometry -----------------------------------------
+    # A surface uploaded with the prompt is the search's starting geometry: it
+    # is acknowledged on the record under its display name, its span measured
+    # from the file's bounding box, and the span ladder re-centred around that
+    # measurement. The STL itself is never morphed and never pretended solved.
+    start_surface = str(params.get("surface") or "").strip()
+    measured_span = None
+    if start_surface:
+        surface_name = display_name(start_surface)
+        measured_span = measure_surface_span(_GEOMETRY_DIR / start_surface)
+        announce_geometry(emit, name=start_surface,
+                          label=f"starting geometry: {surface_name}")
+        if measured_span:
+            script.engineer(
+                f"• Starting geometry received: {surface_name}. "
+                f"• Measured span about {measured_span:.0f} m; the search "
+                f"brackets it.")
+        else:
+            script.engineer(
+                f"• Starting geometry received: {surface_name}. "
+                f"• The surface is on file as the reference shape; the search "
+                f"runs on default bounds.")
+
     script.engineer(
         "• Hypothesis: L/D climbs with aspect ratio, so push span to the limit. "
         "• Low-speed limits floor the area; Breguet ties range to L/D. "
@@ -302,7 +407,7 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
-    grid = _design_grid()
+    grid = _design_grid(seeded_spans(measured_span) if measured_span else None)
     capacity = audit(min(12, len(grid)), memory_per_worker_mb=128)
     if emit:
         emit("audit.completed", capacity.panel())
@@ -349,8 +454,8 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Infeasible designs stay on the plot, keeping the trade visible.")
     if solver_live:
         plan_line += (
-            f" • Top {_N_FINALISTS} feasible finalists then get solved with the "
-            f"selected solver, vortex lattice, in parallel.")
+            f" • Top {_N_FINALISTS} feasible finalists then get solved with "
+            f"VSPAERO, the selected vortex-lattice solver, in parallel.")
     script.engineer(plan_line)
     if solver_live:
         script.numericist(
@@ -432,11 +537,19 @@ def main(request: str | None = None, params: dict | None = None,
     best = max(feasible, key=lambda r: r["L_D"])
     script.engineer(
         f"• {len(feasible)} of {len(results)} wings clear every requirement; "
-        f"{n_infeasible} shown infeasible. "
-        f"• Best screened: span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f} "
-        f"→ L/D {best['L_D']:.1f}. "
-        f"• MTOW {best['mtow_kg']/1000:.0f} t; range {best['range_km']:.0f} km; "
-        f"approach {best['approach_speed']:.0f} m/s.")
+        f"{n_infeasible} shown infeasible.")
+    _emit_table(
+        emit, script, title="Screened optimum",
+        headers=["Best Screened", "Span", "AR", "MTOW", "Range",
+                 "Approach Speed", "L/D"],
+        rows=[[f"Rank 1 of {len(feasible)} feasible",
+               f"{best['span']:.0f} m",
+               f"{best['aspect_ratio']:.1f}",
+               f"{best['mtow_kg'] / 1000:.0f} t",
+               f"{best['range_km']:.0f} km",
+               f"{best['approach_speed']:.0f} m/s",
+               f"{best['L_D']:.1f}"]],
+        table_id="screened-optimum")
 
     # ---- real solves on the finalists --------------------------------------
     solved_ok: list[dict] = []
@@ -446,10 +559,16 @@ def main(request: str | None = None, params: dict | None = None,
         api = vspaero.VspAeroWingApi(out / "vspaero")
         roster.set(CHIEF_ENGINEER, "solving the finalist wings", "working")
         n_par = min(granted, len(finalists))
-        roster.set_workers(n_par, "vortex-lattice solves on finalist wings")
+        roster.set_workers(n_par, "VSPAERO solves on finalist wings")
         script.engineer(
             f"• Promoting the top {len(finalists)} feasible wings to the selected solver. "
-            f"• Each is actual geometry; each polar is solved, not estimated.")
+            f"• Solver of choice: VSPAERO. Launching {len(finalists)} parallel solves.")
+        script.engineer(
+            "• Each row below lands as its solve finishes; L/D is whole-aircraft "
+            "with the documented non-wing buildup.")
+        _emit_table(emit, script, title="Finalist solves",
+                    headers=list(_FINALIST_HEADERS), rows=[],
+                    table_id="finalist-solves")
         designs = [{
             "span": f["span"], "area": f["area"], "sweep": f["sweep_deg"],
             "taper": _TAPER, "cl_target": f["cl_cruise"],
@@ -465,17 +584,41 @@ def main(request: str | None = None, params: dict | None = None,
                 emit("dispatch.update", {
                     "slot": slot, "state": "solving" if live_now else "idle",
                     "label": f"finalist span {f['span']:.0f} m",
-                    "detail": ("vortex-lattice solve" if live_now
+                    "detail": ("VSPAERO solve" if live_now
                                else "queued for a free slot")})
         started = time.time()
+
+        def _finalist_job(job):
+            """Solve one finalist and land its table row the moment the polar
+            arrives — rows appear live as solves finish, not after the batch."""
+            index, design = job
+            result = _solve_finalist_slot(index, api, design, emit, script)
+            f = finalists[index]
+            if (result and isinstance(result.get("matched"), dict)
+                    and result.get("polar")):
+                matched = result["matched"]
+                try:
+                    whole_ld = f["cl_cruise"] / (
+                        _CD0_NONWING + matched["cdo_wing"] + matched["cdi"])
+                    _emit_table(
+                        emit, script, title="Finalist solves",
+                        headers=list(_FINALIST_HEADERS),
+                        rows=[[f"{f['span']:.0f} m",
+                               f"{matched['alpha']:.1f}°",
+                               f"{matched['cdi']:.4f}",
+                               f"{matched['cdo_wing']:.4f}",
+                               f"{whole_ld:.1f}"]],
+                        table_id="finalist-solves", append=True)
+                except (KeyError, TypeError, ZeroDivisionError):
+                    pass   # a malformed result stays out of the table
+            return result
+
         # Each finalist rides a kill-checkable worker slot: scripts/kill_worker.sh
         # can strike one mid-batch, and the slot reports the loss, reprovisions,
         # and re-solves — the same polar lands. Solved in parallel, order preserved.
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=max(1, n_par)) as pool:
-            batch = list(pool.map(
-                lambda job: _solve_finalist_slot(job[0], api, job[1], emit, script),
-                enumerate(designs)))
+            batch = list(pool.map(_finalist_job, enumerate(designs)))
         elapsed = time.time() - started
         roster.set_workers(0)
         if emit:
@@ -485,9 +628,28 @@ def main(request: str | None = None, params: dict | None = None,
                     "label": f"finalist span {f['span']:.0f} m",
                     "detail": "solved" if result else "no polar"})
         ledger.spend(elapsed * len(finalists),
-                     f"{len(finalists)} vortex-lattice wing solves")
-        script.engineer(
-            f"• Finalist solves: {elapsed:.1f} s, {len(finalists)} wings on {n_par} granted slots.")
+                     f"{len(finalists)} VSPAERO wing solves")
+        # The reported finalist-solve time is always a measurement: the batch
+        # wall clock when any wing was solved fresh this run, otherwise the
+        # parallel wall estimate max(per-wing elapsed_s) each prior carries
+        # from its own measured first run. A prior without the stamp gets no
+        # time clause; a zero-length clock is never shown.
+        per_wing = [r["elapsed_s"] for r in batch
+                    if isinstance(r, dict)
+                    and isinstance(r.get("elapsed_s"), (int, float))
+                    and not isinstance(r.get("elapsed_s"), bool)]
+        solved_fresh = any(isinstance(r, dict) and not r.get("reused_prior")
+                           for r in batch)
+        reported_s = (elapsed if solved_fresh
+                      else (max(per_wing) if per_wing else None))
+        if reported_s is not None and reported_s >= 0.05:
+            script.engineer(
+                f"• Finalist solves: {reported_s:.1f} s wall, "
+                f"{len(finalists)} wings on {n_par} granted slots.")
+        else:
+            script.engineer(
+                f"• Finalist solves: {len(finalists)} wings on "
+                f"{n_par} granted slots.")
 
         for f, result in zip(finalists, batch):
             # A result without a matched cruise point or a polar (a stale or
@@ -529,11 +691,9 @@ def main(request: str | None = None, params: dict | None = None,
                         "url": f"/api/surface/aircraft-optimization/{surface.name}",
                         "label": f"solved finalist, span {f['span']:.0f} m, "
                                  f"area {f['area']:.0f} m²"})
-            script.engineer(
-                f"• Solved span {f['span']:.0f} m: alpha {f['alpha_solved']:.1f}°, "
-                f"CDi {f['cdi_solved']:.4f}, wing viscous {f['cdo_wing_solved']:.4f}. "
-                f"• Whole-aircraft L/D {f['L_D_solved']:.1f} with the stated "
-                f"non-wing buildup.")
+            # The per-finalist numbers land as live rows in the "Finalist
+            # solves" transcript table (emitted the moment each solve
+            # finished), so no per-wing transcript entry repeats them here.
 
         if solved_ok:
             best = max(solved_ok, key=lambda r: r["L_D_solved"])
@@ -576,9 +736,9 @@ def main(request: str | None = None, params: dict | None = None,
         "requirements are held as exact specification, and the remaining "
         "sizing constants (SFC, fuel fraction, cruise altitude) are fixed")
     if won_solved:
-        model_note = ("wing induced and viscous drag are solved (vortex "
-                      "lattice); fuselage, tail, and nacelle parasite drag "
-                      "remain a component buildup")
+        model_note = ("wing induced and viscous drag are solved with VSPAERO; "
+                      "fuselage, tail and nacelle drag added from a documented "
+                      "component buildup")
         if model_band is not None:
             model_note = (f"{anchors['model']['method']} "
                           f"({len(anchors['model'].get('members', {}))} solved "
@@ -589,7 +749,7 @@ def main(request: str | None = None, params: dict | None = None,
             model=None if model_band is None else round(model_band, 3),
             input_note=input_note,
             numerical_note="the design grid is discrete, so the true optimum lies "
-                           "between grid points; the vortex-lattice polar itself "
+                           "between grid points; the VSPAERO polar itself "
                            "is converged at the solved panel density",
             model_note=model_note)
     else:
@@ -610,8 +770,8 @@ def main(request: str | None = None, params: dict | None = None,
         verdict = trust(
             converged=True, in_validated_regime=False, calibrated=True,
             solver_backed=True,
-            why="wing solved by vortex lattice; non-wing parasite drag from a "
-                "stated component buildup")
+            why="wing solved with VSPAERO; fuselage, tail and nacelle drag "
+                "added from a documented component buildup")
     else:
         script.researcher(
             "• Ranking trustworthy: aspect ratio buys L/D until landing speed stops it. "
@@ -626,17 +786,18 @@ def main(request: str | None = None, params: dict | None = None,
             input_2sigma=ci95, numerical_abs=None,
             model_abs=model_band)["combined_95"]
     if emit:
+        # On a solved win the fidelity line is the verdict reason alone; a
+        # duplicate envelope shorthand would only restate it less clearly.
         emit("result.verdict", {"quantity": "Best feasible L/D",
                                 "value": f"{best_ld:.1f}",
                                 "ci": f"{headline_ci:.1f}", "confidence": "95%",
-                                "envelope": ("solved wing + stated buildup"
-                                             if won_solved else
+                                "envelope": ("" if won_solved else
                                              "sizing-model estimate"), **verdict})
     knowledge.add(
         f"Airliner L/D for {reqs['passengers']} pax / {reqs['range_km']:.0f} km: "
         f"best feasible L/D {best_ld:.1f} at span {best['span']:.0f} m, "
         f"aspect ratio {best['aspect_ratio']:.1f}"
-        + (" (wing solved, vortex lattice)" if won_solved else " (screened)"))
+        + (" (wing solved with VSPAERO)" if won_solved else " (screened)"))
 
     agenda = [
         {"title": "Cruise Mach trade",
@@ -666,9 +827,9 @@ def main(request: str | None = None, params: dict | None = None,
     if won_solved:
         methods.append(
             f"The top {len(solved_ok)} feasible finalists were built as parametric "
-            f"geometry and solved by a vortex-lattice method in parallel; the "
-            f"cruise point was interpolated on each solved polar, and the winner "
-            f"was picked on solved numbers.")
+            f"geometry and solved with VSPAERO, a vortex-lattice method, in "
+            f"parallel; the cruise point was interpolated on each solved polar, "
+            f"and the winner was picked on solved numbers.")
 
     abstract = [
         f"We searched a {len(grid)}-wing design space for the highest cruise "
@@ -676,8 +837,8 @@ def main(request: str | None = None, params: dict | None = None,
         f"The best feasible wing reaches L/D {best_ld:.1f} ± {headline_ci:.1f} (95%) "
         f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
         f"{n_infeasible} designs were infeasible on low-speed or range.",
-        ("The winner stands on a solved wing polar with a stated non-wing "
-         "buildup." if won_solved else
+        ("The winner stands on a wing polar solved with VSPAERO plus a "
+         "documented non-wing buildup." if won_solved else
          "The result comes from the stated sizing model with its input "
          "envelope propagated."),
     ]

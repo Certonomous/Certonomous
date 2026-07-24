@@ -120,12 +120,14 @@ class LabStatsTests(unittest.TestCase):
 
     def test_research_programs_are_real_and_structured(self):
         # The credentials ACTIVE RESEARCH section is data-driven (R5): closure
-        # board, discretization ladders, and the reduced-order speed program all
-        # come back structured, with real numbers and no invented "our score".
+        # board, public challenge targets, and the reduced-order speed program
+        # all come back structured, with real numbers and no invented "our
+        # score". The discretization-ladder card is retired from the wall by
+        # owner curation, so no "uq" key may reach the payload.
         r = lab_stats.research_programs()
         self.assertEqual(
             set(r),
-            {"closure", "uq", "speed", "fleet_learning", "queued", "challenges"},
+            {"closure", "speed", "fleet_learning", "queued", "challenges"},
         )
 
         closure = r["closure"]
@@ -136,13 +138,10 @@ class LabStatsTests(unittest.TestCase):
         self.assertNotIn("our_score", closure)
         self.assertEqual(closure["our_entry"], "baseline in training")
 
-        names = [g["name"] for g in r["uq"]["geometries"]]
-        self.assertIn("motorBike", names)
-        self.assertIn("B-52", names)
-        in_progress = [g for g in r["uq"]["geometries"] if g["state"] == "in progress"]
-        self.assertTrue(in_progress, "at least one UQ geometry is still in progress")
-
         self.assertGreater(r["speed"]["speedup_x"], 1.0)
+        # Internal working notes never reach the wall: the speed card carries
+        # no provenance string pointing at repo files.
+        self.assertNotIn("source", r["speed"])
         self.assertTrue(r["queued"], "the valve agenda seeds the queued research")
 
     def test_research_challenges_are_real_public_targets(self):
@@ -155,12 +154,14 @@ class LabStatsTests(unittest.TestCase):
         challenges[0]["title"] = "mutated"
         self.assertNotEqual(lab_stats.research_challenges()[0]["title"], "mutated")
 
-        shape = {"title", "host", "url", "what", "status", "entry"}
+        shape = {"title", "host", "url", "what", "status", "entry", "lead"}
+        text_keys = shape - {"lead"}
         seen_hosts = set()
         for c in lab_stats.research_challenges():
             self.assertEqual(set(c), shape)
-            for key in shape:
+            for key in text_keys:
                 self.assertTrue(str(c[key]).strip(), f"{key} must be non-empty")
+            self.assertIsInstance(c["lead"], bool)
             # A host and a URL: cited external data, like the closure exemplar.
             self.assertTrue(c["url"], "every challenge cites a URL")
             seen_hosts.add(c["host"])
@@ -175,6 +176,18 @@ class LabStatsTests(unittest.TestCase):
         for token in ("aiaa-dpw", "turbmodels", "fda", "autocfd"):
             self.assertIn(token, blob, f"expected the {token} challenge")
 
+    def test_research_challenge_order_is_owner_directed(self):
+        # Deterministic wall order: the Drag Prediction Workshop leads, the
+        # NASA Turbulence Modeling Resource follows, and only those two carry
+        # the lead flag that places them directly after the closure card.
+        challenges = lab_stats.research_challenges()
+        self.assertIn("Drag Prediction Workshop", challenges[0]["title"])
+        self.assertIn("Turbulence Modeling Resource", challenges[1]["title"])
+        self.assertTrue(challenges[0]["lead"])
+        self.assertTrue(challenges[1]["lead"])
+        for c in challenges[2:]:
+            self.assertFalse(c["lead"], f"unexpected lead flag on {c['title']}")
+
     def test_research_challenges_obey_the_style_rules(self):
         # The challenge cards are visible content, so they must stay on-message:
         # no em dash, no "demo", no cached/stored/saved/pre-computed language.
@@ -182,7 +195,8 @@ class LabStatsTests(unittest.TestCase):
         blob = json.dumps(lab_stats.research_challenges())
         self.assertNotIn("—", blob, "no em dashes in the challenge cards")
         low = blob.lower()
-        for banned in ("demo", "cached", "stored", "saved", "pre-computed", "precomputed"):
+        for banned in ("demo", "cached", "stored", "saved", "pre-computed",
+                       "precomputed", "recorded", "trend"):
             self.assertNotIn(banned, low, f"banned word surfaced: {banned}")
 
 

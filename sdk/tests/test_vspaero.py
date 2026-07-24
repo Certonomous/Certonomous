@@ -156,6 +156,39 @@ class StaleResultReuse(unittest.TestCase):
                 self.api.evaluate(self.DESIGN)
         run.assert_called_once()
 
+    # ---- elapsed_s stamping: the measured first-run duration rides along ----
+
+    def test_fresh_solve_stamps_measured_elapsed_into_result_and_file(self):
+        with self._fresh_solver() as run:
+            result = self.api.evaluate(self.DESIGN)
+        run.assert_called_once()
+        self.assertIn("elapsed_s", result)
+        self.assertGreaterEqual(result["elapsed_s"], 0.0)
+        on_disk = json.loads((self.case / "result.json").read_text(encoding="utf-8"))
+        self.assertEqual(on_disk["elapsed_s"], result["elapsed_s"])
+        # The in-memory reuse marker is never persisted.
+        self.assertNotIn("reused_prior", on_disk)
+
+    def test_prior_without_elapsed_s_is_still_reused(self):
+        # elapsed_s is optional garnish, not evidence: an older-schema prior
+        # that carries everything the caller consumes must still be reused.
+        self._write_prior(_complete_result())
+        with mock.patch("chief_engineer.vspaero.subprocess.run") as run:
+            result = self.api.evaluate(self.DESIGN)
+        run.assert_not_called()
+        self.assertTrue(result.get("reused_prior"))
+        self.assertNotIn("elapsed_s", result)
+
+    def test_reused_prior_returns_its_stamped_first_run_duration(self):
+        prior = _complete_result()
+        prior["elapsed_s"] = 84.2
+        self._write_prior(prior)
+        with mock.patch("chief_engineer.vspaero.subprocess.run") as run:
+            result = self.api.evaluate(self.DESIGN)
+        run.assert_not_called()
+        self.assertEqual(result["elapsed_s"], 84.2)
+        self.assertTrue(result.get("reused_prior"))
+
 
 class WingSurface(unittest.TestCase):
     def test_planform_is_exact(self):
