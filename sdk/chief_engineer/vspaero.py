@@ -37,6 +37,50 @@ def available() -> bool:
     return Path("/opt/OpenVSP/vspaero").exists()
 
 
+# What every caller of ``evaluate`` consumes from a solved result. A prior
+# result.json missing any of it (older schema, killed run, single-point solve)
+# is not reusable evidence — it must be re-solved, never returned.
+_POLAR_COLUMNS = ("CLtot", "CDi", "CDo")
+_MATCHED_KEYS = ("alpha", "cdi", "cdo_wing", "extrapolated")
+
+
+def _usable_prior(prior: Any, design: Mapping[str, float]) -> bool:
+    """True only when a prior result carries everything the caller consumes:
+    a polar with at least two finite points in every interpolated column, a
+    matched cruise point with all its keys, and the surface path — and the
+    matched point was solved for THIS design's cl_target, not another
+    mission's."""
+    if not isinstance(prior, dict) or "error" in prior:
+        return False
+    polar = prior.get("polar")
+    if not isinstance(polar, dict):
+        return False
+    lengths = set()
+    for column in _POLAR_COLUMNS:
+        values = polar.get(column)
+        if not isinstance(values, (list, tuple)) or len(values) < 2:
+            return False
+        if any(not isinstance(v, (int, float)) or isinstance(v, bool)
+               for v in values):
+            return False   # NaN scrubbed to None, or junk: not interpolable
+        lengths.add(len(values))
+    if len(lengths) != 1:
+        return False
+    matched = prior.get("matched")
+    if not isinstance(matched, dict):
+        return False
+    if any(key not in matched for key in _MATCHED_KEYS):
+        return False
+    if "cl_target" in design:
+        cl = matched.get("cl")
+        if (not isinstance(cl, (int, float)) or isinstance(cl, bool)
+                or abs(float(cl) - float(design["cl_target"])) > 1e-6):
+            return False   # matched at a different cruise CL: wrong answer
+    if not isinstance(prior.get("stl"), str):
+        return False
+    return True
+
+
 class VspAeroWingApi:
     """Evaluate parametric wings with real VSPAERO solves, one case per design."""
 
@@ -83,8 +127,9 @@ class VspAeroWingApi:
             if prior_path.exists():
                 try:
                     prior = json.loads(prior_path.read_text(encoding="utf-8"))
-                    prior_stl = case / prior.get("stl", "wing.stl")
-                    if "error" not in prior and prior_stl.exists():
+                    prior_stl = case / (prior.get("stl", "wing.stl")
+                                        if isinstance(prior, dict) else "wing.stl")
+                    if _usable_prior(prior, design) and prior_stl.exists():
                         self._artifacts.append({"kind": "surface",
                                                 "path": str(prior_stl),
                                                 "design": dict(design)})
@@ -100,6 +145,10 @@ class VspAeroWingApi:
         shutil.copy(_WORKER, case / "vspaero_worker.py")
         (case / "job.json").write_text(json.dumps(dict(design)),
                                        encoding="utf-8")
+        # A stale result.json must never masquerade as this run's output: if
+        # the worker dies before writing (killed WSL, timeout), reading the
+        # leftover file back would report a solve that never happened.
+        (case / "result.json").unlink(missing_ok=True)
 
         # ``env`` carries PYTHONPATH through launcher prefixes that do not
         # forward the host environment (WSL, containers). The cwd *is* the

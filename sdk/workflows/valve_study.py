@@ -250,7 +250,13 @@ def main(request: str | None = None, params: dict | None = None,
             time.sleep(_PACE_S)
         area = effective_orifice_area(angle)
         per_phase = [(p.name, _phase_pressure_loss(p.flow_rate, area)) for p in phases]
-        obj, band = _mc_envelope(angle, phases)
+        # The headline objective IS the cycle-weighted sum of those phase
+        # evaluations (weights 0.25/0.50/0.25 from the waveform). The
+        # Monte-Carlo envelope supplies only the band: its mean sits ~1.4%
+        # above the nominal (convexity of dp ~ Q^2/Cd^2 under the input
+        # spread) and must not stand in for the reported value.
+        obj = _cycle_weighted_loss(angle, phases)
+        _, band = _mc_envelope(angle, phases)
         feasible = area >= MIN_ORIFICE_AREA
         results.append({"angle": angle, "area": area, "objective": obj,
                         "band": band, "feasible": feasible, "per_phase": per_phase})

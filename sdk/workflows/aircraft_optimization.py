@@ -490,7 +490,11 @@ def main(request: str | None = None, params: dict | None = None,
             f"• Finalist solves: {elapsed:.1f} s, {len(finalists)} wings on {n_par} granted slots.")
 
         for f, result in zip(finalists, batch):
-            if not result:
+            # A result without a matched cruise point or a polar (a stale or
+            # partial file that slipped past the adapter) is not evidence:
+            # the finalist stays screened rather than sinking the mission.
+            if (not result or not isinstance(result.get("matched"), dict)
+                    or not result.get("polar")):
                 script.engineer(
                     f"• Finalist span {f['span']:.0f} m returned no polar, "
                     f"stays screened, marked unsolved.")

@@ -88,6 +88,38 @@ class WorkflowTests(unittest.TestCase):
         self.assertTrue(certificate.get("certificate_no", "").startswith("C-"))
         self.assertTrue(Path(certificate.get("path", "")).exists())
 
+    def test_stale_api_results_never_crash_and_never_upgrade_the_tier(self):
+        # Regression for the stale-result-reuse bug: an api that hands back
+        # schema-incomplete results (a stale result.json from a killed run or
+        # an older worker) must not crash the finalist processing, and the
+        # verdict must stay on the conceptual screen — never claim a solve.
+        from unittest import mock
+
+        from workflows import aircraft_optimization as aopt
+
+        class StaleApi:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def evaluate(self, design, analyses=()):
+                # What the reuse path used to return from a killed run.
+                return {"built": {"span": design["span"]}, "stl": "wing.stl",
+                        "case_dir": "nowhere", "stl_path": "nowhere/wing.stl"}
+
+        verdict = {}
+
+        def emit(event, payload):
+            if event == "result.verdict":
+                verdict.update(payload)
+
+        with mock.patch.object(aopt.vspaero, "available", return_value=True), \
+                mock.patch.object(aopt.vspaero, "VspAeroWingApi", StaleApi):
+            rc = main(request="Optimize the L/D of an airliner for 300 "
+                              "passengers, 6000 km range, takeoff 85 m/s, "
+                              "landing 72 m/s", emit=emit)
+        self.assertEqual(rc, 0)
+        self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
+
     def test_router_sends_aircraft_ld_prompts_here(self):
         route = classify("optimize the lift-to-drag of this airplane for 250 passengers")
         self.assertEqual(route.intent, AIRCRAFT_OPTIMIZATION)
