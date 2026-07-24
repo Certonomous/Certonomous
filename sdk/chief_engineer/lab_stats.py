@@ -28,6 +28,65 @@ _OPERATING_LESSONS = 1
 # The two benchmarks the website tracks (see demo-output/website/benchmarks.json).
 _ACTIVE_BENCHMARKS = ("closure-challenge", "reduced-order-speedup")
 
+# Real, public research challenges the lab can honestly target with its actual
+# capabilities (external-aerodynamics RANS, vortex-lattice wings, reduced-order
+# internal-flow screens). Each entry was verified live against its host before
+# inclusion. NEVER carries an invented score, rank, or result: the ``status``
+# is where the lab stands, and ``entry`` is the real pipeline it would submit.
+_RESEARCH_CHALLENGES = (
+    {
+        "title": "AIAA Drag Prediction Workshop (NASA Common Research Model)",
+        "host": "AIAA, with the NASA Common Research Model",
+        "url": "aiaa-dpw.org",
+        "what": "a standing public forum that grades CFD drag predictions on the "
+                "NASA Common Research Model against published wind-tunnel data",
+        "status": "target identified",
+        "entry": "our external-aerodynamics RANS pipeline on the Common Research "
+                 "Model, graded against the published experimental drag",
+    },
+    {
+        "title": "NASA Turbulence Modeling Resource verification cases",
+        "host": "NASA Langley / Turbulence Model Benchmarking Working Group",
+        "url": "tmbwg.github.io/turbmodels",
+        "what": "the reference verification cases, including the 2D flat plate and "
+                "bump-in-channel, that a RANS code must reproduce on refined grids",
+        "status": "scoping",
+        "entry": "our RANS solver on the flat-plate and bump-in-channel cases, "
+                 "checked against the published verified coefficients",
+    },
+    {
+        "title": "FDA medical-device CFD benchmark (nozzle and blood pump)",
+        "host": "U.S. Food and Drug Administration, Critical Path Initiative",
+        "url": "github.com/OSEL-DAM/CFD-and-Blood-Damage-Benchmarks",
+        "what": "the FDA benchmark nozzle and centrifugal blood-pump geometries with "
+                "particle-image-velocimetry validation data for internal blood flow",
+        "status": "scoping",
+        "entry": "our reduced-order internal-flow screen and a RANS nozzle solve, "
+                 "aligned with the valve agenda and graded against the published "
+                 "velocity fields",
+    },
+    {
+        "title": "Automotive CFD Prediction Workshop (DrivAer)",
+        "host": "AutoCFD steering committee (Oxford, Ford, and partners)",
+        "url": "autocfd.org",
+        "what": "a road-car aerodynamics benchmark on the DrivAer model, correlated "
+                "against Pininfarina wind-tunnel measurements",
+        "status": "target identified",
+        "entry": "our external-aerodynamics RANS pipeline, the one that already runs "
+                 "the motorBike body, carried onto the DrivAer geometry",
+    },
+)
+
+
+def research_challenges() -> list[dict[str, Any]]:
+    """Public research challenges the lab honestly targets (verified live).
+
+    Returned as a fresh list of plain dicts so callers cannot mutate the module
+    constant. Each dict keeps the same shape: title, host, url, what, status,
+    entry. No score, rank, or result is ever asserted.
+    """
+    return [dict(item) for item in _RESEARCH_CHALLENGES]
+
 
 def _ledger_path() -> Path:
     env = os.environ.get("CERTONOMOUS_MEGABATCH_LEDGER")
@@ -230,7 +289,8 @@ def research_programs() -> dict[str, Any]:
     Closure-challenge and reduced-order speed figures come from the public
     benchmarks file; the discretization program is data-driven from the UQ
     refinement studies; the fleet-learning card is driven by the distilled
-    ledger study; the valve agenda lines are the queued programmes.
+    ledger study; the valve agenda lines are the queued programmes; and the
+    challenges list is the real, public benchmarks the lab has targeted.
     """
     bench = _load_json(_benchmarks_path())
     closure_raw = bench.get("closure_challenge", {})
@@ -270,6 +330,7 @@ def research_programs() -> dict[str, Any]:
         "speed": speed,
         "fleet_learning": _fleet_learning(),
         "queued": queued,
+        "challenges": research_challenges(),
     }
 
 

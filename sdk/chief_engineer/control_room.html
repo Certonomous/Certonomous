@@ -1672,7 +1672,23 @@ function renderResearch(r) {
       + `</div>`);
   }
 
-  return `<div class="cred-subhead"><span class="eyebrow">Active research</span></div>${cards.join('')}`;
+  // (e) Public challenges the lab targets — real external benchmarks, each cited
+  // to its host. Honest by construction: a status of where the lab stands and
+  // the real pipeline it would enter with, never an invented score or rank.
+  const ch = r.challenges || [];
+  const chCards = ch.map(c =>
+    `<div class="rp-card"><div class="rp-top"><b>${esc(c.title)}</b>${tag(c.status)}</div>`
+    + `<div class="rp-body">${esc(c.what)}.</div>`
+    + `<div class="rp-body">Our entry: ${esc(c.entry)}.</div>`
+    + `<div class="rp-src">public external benchmark · ${esc(c.host)} · ${esc(c.url)}</div></div>`
+  ).join('');
+
+  const head = `<div class="cred-subhead"><span class="eyebrow">Active research</span></div>`;
+  const chHead = chCards
+    ? `<div class="cred-subhead"><span class="eyebrow">Public challenges targeted</span>`
+      + `<div class="cred-src">Real, public benchmarks the lab has verified and set its sights on, each cited to its host.</div></div>`
+    : '';
+  return head + cards.join('') + chHead + chCards;
 }
 function renderDormant(wallHtml) {
   if ($('shell').classList.contains('launched')) return;

@@ -123,7 +123,10 @@ class LabStatsTests(unittest.TestCase):
         # board, discretization ladders, and the reduced-order speed program all
         # come back structured, with real numbers and no invented "our score".
         r = lab_stats.research_programs()
-        self.assertEqual(set(r), {"closure", "uq", "speed", "fleet_learning", "queued"})
+        self.assertEqual(
+            set(r),
+            {"closure", "uq", "speed", "fleet_learning", "queued", "challenges"},
+        )
 
         closure = r["closure"]
         self.assertEqual(closure["target_rank"], 4)
@@ -141,6 +144,46 @@ class LabStatsTests(unittest.TestCase):
 
         self.assertGreater(r["speed"]["speedup_x"], 1.0)
         self.assertTrue(r["queued"], "the valve agenda seeds the queued research")
+
+    def test_research_challenges_are_real_public_targets(self):
+        # The challenges list carries real, public benchmarks the lab honestly
+        # targets. Every entry keeps the same shape, cites a host and URL, and
+        # NEVER asserts a score, rank, or result.
+        challenges = lab_stats.research_challenges()
+        self.assertGreaterEqual(len(challenges), 3)
+        # research_challenges() must hand back copies, not the module constant.
+        challenges[0]["title"] = "mutated"
+        self.assertNotEqual(lab_stats.research_challenges()[0]["title"], "mutated")
+
+        shape = {"title", "host", "url", "what", "status", "entry"}
+        seen_hosts = set()
+        for c in lab_stats.research_challenges():
+            self.assertEqual(set(c), shape)
+            for key in shape:
+                self.assertTrue(str(c[key]).strip(), f"{key} must be non-empty")
+            # A host and a URL: cited external data, like the closure exemplar.
+            self.assertTrue(c["url"], "every challenge cites a URL")
+            seen_hosts.add(c["host"])
+            # No invented result may masquerade as a status.
+            self.assertNotIn("rank", c["status"].lower())
+            for forbidden in ("rank #", "score", "1st", "won", "beat"):
+                self.assertNotIn(forbidden, c["entry"].lower())
+        self.assertGreaterEqual(len(seen_hosts), 3, "distinct hosts, not one board")
+
+        # The four verified programmes are present by host or URL.
+        blob = json.dumps(lab_stats.research_challenges()).lower()
+        for token in ("aiaa-dpw", "turbmodels", "fda", "autocfd"):
+            self.assertIn(token, blob, f"expected the {token} challenge")
+
+    def test_research_challenges_obey_the_style_rules(self):
+        # The challenge cards are visible content, so they must stay on-message:
+        # no em dash, no "demo", no cached/stored/saved/pre-computed language.
+        # (Internal file paths in other cards are not visible and out of scope.)
+        blob = json.dumps(lab_stats.research_challenges())
+        self.assertNotIn("—", blob, "no em dashes in the challenge cards")
+        low = blob.lower()
+        for banned in ("demo", "cached", "stored", "saved", "pre-computed", "precomputed"):
+            self.assertNotIn(banned, low, f"banned word surfaced: {banned}")
 
 
 if __name__ == "__main__":
