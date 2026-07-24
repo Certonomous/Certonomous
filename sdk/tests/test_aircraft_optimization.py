@@ -92,6 +92,44 @@ class WorkflowTests(unittest.TestCase):
         route = classify("optimize the lift-to-drag of this airplane for 250 passengers")
         self.assertEqual(route.intent, AIRCRAFT_OPTIMIZATION)
 
+    # The short demo-day directive: hyphenated "lift-drag", a constraints list,
+    # a spoken time budget, and a compute-headroom ask. It must route to the
+    # aircraft act and carry BOTH live constraints as params.
+    SHORT_DIRECTIVE = (
+        "Optimize lift-drag ratio of a twin-aisle airliner with following "
+        "constraints: - 300 passengers -6000 km range, take off speed: 85 m/s , "
+        "landing speed 72 m/s. Also I want this to be super quick because I am "
+        "shooting a demo right now so 2 min at most. I am running locally so "
+        "don't use all my workers.")
+
+    def test_short_demo_directive_routes_with_live_constraints(self):
+        route = classify(self.SHORT_DIRECTIVE)
+        self.assertEqual(route.intent, AIRCRAFT_OPTIMIZATION)
+        self.assertEqual(route.params.get("deadline_minutes"), 2.0)
+        self.assertTrue(route.params.get("hold_workers_back"))
+
+    def test_short_demo_directive_requirements_parse(self):
+        from workflows.aircraft_optimization import parse_requirements
+        reqs = parse_requirements(self.SHORT_DIRECTIVE)
+        self.assertEqual(reqs["passengers"], 300)
+        self.assertEqual(reqs["range_km"], 6000.0)
+        self.assertEqual(reqs["takeoff_speed"], 85.0)
+        self.assertEqual(reqs["landing_speed"], 72.0)
+        self.assertTrue(all(reqs[k] for k in (
+            "passengers_stated", "range_stated", "takeoff_stated", "landing_stated")))
+
+    def test_worker_cap_and_time_budget_are_on_the_record(self):
+        from workflows.aircraft_optimization import main
+        lines = []
+        rc = main(request=self.SHORT_DIRECTIVE,
+                  params={"deadline_minutes": 2.0, "hold_workers_back": True},
+                  emit=lambda e, p: lines.append((e, p)))
+        self.assertEqual(rc, 0)
+        said = " ".join(p.get("message", "") for e, p in lines
+                        if e == "transcript.entry")
+        self.assertIn("leave headroom", said)
+        self.assertIn("Time budget on the record: 2 minutes", said)
+
 
 if __name__ == "__main__":
     unittest.main()

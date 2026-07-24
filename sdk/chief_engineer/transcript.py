@@ -63,7 +63,9 @@ class Transcript:
 
     def say(self, role: str, message: str, *,
             citations: Iterable[str] = (), **data) -> Entry:
-        entry = Entry(role, message, tuple(citations), dict(data))
+        from . import voice
+
+        entry = Entry(role, voice.polish(role, message), tuple(citations), dict(data))
         self.entries.append(entry)
         if self.echo:
             self.echo(entry.render())

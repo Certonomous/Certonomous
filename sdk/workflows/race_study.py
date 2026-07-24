@@ -62,7 +62,10 @@ assert MC_WORKERS + ROM_WORKERS <= MAX_WORKERS
 # so this sets the lane's solve count (samples x len(ALPHAS)). Kept modest so a
 # live on-camera race finishes in a sensible window; every solve is still real.
 import os
-N_SAMPLES = int(os.environ.get("RACE_MC_SAMPLES", "5"))
+# 8 samples x 11 alphas = 88 direct solves: the Monte-Carlo lane visibly
+# grinds for minutes while the reduced-order lane crosses in seconds — the
+# orders-of-magnitude gap IS the act.
+N_SAMPLES = int(os.environ.get("RACE_MC_SAMPLES", "8"))
 
 
 def _mc_reynolds(samples: int, seed: int | None) -> list[float]:
@@ -225,15 +228,15 @@ def main(request: str | None = None, params: dict | None = None,
         kind="one-parameter-sweep",
         objective="locate the peak lift-to-drag over angle of attack",
         dimensionality=1, regime="steady", smoothness="smooth",
-        fidelity="real vortex-lattice solves on both paths",
+        fidelity="the selected solver (vortex lattice) on both paths",
         constraints=("same objective", "same tolerance"))
     for line in method_memo(props):
         script.researcher(line)
     script.researcher(
         "• Two admissible methods for one smooth peak: brute the ensemble, "
         "or anchor a surface. "
-        "• Both are real solves here, so the only honest question is what "
-        "each costs. "
+        "• Both lanes run the selected solver here, so the only honest question "
+        "is what each costs. "
         "• So we run them side by side and measure.")
     roster.idle(CHIEF_RESEARCHER)
     script.engineer(ENGINEER_ACK)
@@ -251,18 +254,18 @@ def main(request: str | None = None, params: dict | None = None,
     if solver_live and emit:
         emit("solver.selected", {
             "solver": "VSPAERO", "method": "vortex lattice",
-            "basis": "both lanes commit every evaluation to a real solve"})
+            "basis": "both lanes commit every evaluation to the selected solver"})
     script.engineer(
         f"• Left lane: full Monte-Carlo, {samples} Reynolds samples "
-        f"× {len(ALPHAS)} direct solves = {total_mc} real solves. "
+        f"× {len(ALPHAS)} direct solves = {total_mc} solver runs. "
         f"• Right lane: reduced-order, {len(ANCHOR_ALPHAS)} anchors, a "
-        f"fitted surface, one confirmation = {total_rom} real solves. "
+        f"fitted surface, one confirmation = {total_rom} solver runs. "
         f"• Same peak, same ±{TOLERANCE_DEG:g}° tolerance, the same box: "
         f"{MAX_WORKERS} slots split evenly, {ROM_WORKERS} per lane.")
     script.numericist(
         "• The two envelopes mean different things: the Monte-Carlo band is "
         "the stated input spread; the reduced-order band is the surrogate's "
-        "residual against one real solve. "
+        "residual against one confirming solver run. "
         "• No delays are staged; the clocks are the machine's.")
 
     if emit:
@@ -362,7 +365,7 @@ def main(request: str | None = None, params: dict | None = None,
             "confidence": "95%", "tier": "SOLVER-BACKED",
             "envelope": f"full MC {cm_mc:.1f} core-min vs reduced {cm_rom:.1f} "
                         f"core-min, {speedup_cm}× measured",
-            "reason": f"every evaluation on both lanes was a real solve; the "
+            "reason": f"every evaluation on both lanes ran the selected solver; the "
                       f"paths agree to {agreement_pct}%"})
         emit("agenda.updated", {"entries": [
             {"title": "Push the reduced-order lane to a two-parameter surface",
@@ -381,10 +384,10 @@ def main(request: str | None = None, params: dict | None = None,
             "title": "Speed, certified: the NACA 4412 race",
             "subject": subject,
             "summary": (f"Two real paths, both timed on this machine. Full "
-                        f"Monte-Carlo: {mc['n_solves']} real solves, "
+                        f"Monte-Carlo: {mc['n_solves']} solver runs, "
                         f"{cm_mc:.1f} core-min, peak L/D {mc['peak_mean']:.2f} "
                         f"± {2 * mc['peak_sem']:.2f}. Reduced-order: "
-                        f"{rom['n_solves']} real solves, {cm_rom:.1f} core-min, "
+                        f"{rom['n_solves']} solver runs, {cm_rom:.1f} core-min, "
                         f"peak L/D {rom['confirmed']:.2f} at "
                         f"{rom['alpha_star']:g}°. They agree to "
                         f"{agreement_pct}%; the measured speedup is "
@@ -441,7 +444,7 @@ def main(request: str | None = None, params: dict | None = None,
             channels=race_channels,
             display_name=display_name("naca4412"),
             source_filename=subject,
-            solver="OpenVSP VSPAERO, vortex lattice, both lanes real solves")
+            solver="OpenVSP VSPAERO, vortex lattice, run on both lanes")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception as exc:  # a certificate must never take down a good mission

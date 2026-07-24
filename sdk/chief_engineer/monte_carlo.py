@@ -248,7 +248,7 @@ def plot_ab_comparison(run_a: EnsembleResult, run_b: EnsembleResult,
     shrink = (1 - run_b.relative_error / run_a.relative_error) * 100 if run_a.relative_error else 0
     fig.suptitle(
         f"More samples, tighter estimate — the reducible envelope narrowed "
-        f"{shrink:.0f}%  ({run_a.n} → {run_b.n} real solves)",
+        f"{shrink:.0f}%  ({run_a.n} → {run_b.n} solver runs)",
         color=_theme.INK, fontsize=13, x=0.012, ha="left", weight="bold")
     fig.tight_layout(rect=(0, 0, 1, 0.94)); fig.savefig(out_png); plt.close(fig)
     return str(out_png)

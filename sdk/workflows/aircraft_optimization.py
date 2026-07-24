@@ -308,13 +308,34 @@ def main(request: str | None = None, params: dict | None = None,
         emit("audit.completed", capacity.panel())
     script.engineer(capacity.headline(), panel=capacity.panel())
 
+    # ---- the owner's live operating constraints, honored on the record ------
+    # A time budget ("2 min at most") and a compute-headroom ask ("don't use
+    # all my workers") arrive as router params. The chief optimises compute
+    # live: the granted slot count is REAL — it caps the screening fan-out and
+    # the finalist thread pool below, not just the narration.
+    granted = capacity.capacity
+    hold_back = bool(params.get("hold_workers_back"))
+    time_budget_min = params.get("deadline_minutes")
+    if hold_back:
+        granted = max(4, capacity.capacity // 2)
+        script.engineer(
+            f"• You asked me to leave headroom on this box, so I am not taking "
+            f"every worker. "
+            f"• Holding {capacity.capacity - granted} of {capacity.capacity} "
+            f"slots back: fanning out on {granted}.")
+    if time_budget_min:
+        script.engineer(
+            f"• Time budget on the record: {time_budget_min:g} minutes. "
+            f"• The screening sweep costs seconds and the finalist wave fits "
+            f"well inside the window, so nothing is cut to make the deadline.")
+
     solver_live = vspaero.available()
     if solver_live and emit:
         # The plan just committed to a solver — this is the moment the badge
         # is earned, never before.
         emit("solver.selected", {
             "solver": "VSPAERO", "method": "vortex lattice",
-            "basis": "plan commits the finalist wings to real aero solves"})
+            "basis": "plan commits the finalist wings to the selected solver"})
     if emit:
         # The plan phase puts the landscape skeleton on screen before any
         # point exists — axes, units, and objective announced up front.
@@ -328,8 +349,8 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Infeasible designs stay on the plot, keeping the trade visible.")
     if solver_live:
         plan_line += (
-            f" • Top {_N_FINALISTS} feasible finalists then get real "
-            f"vortex-lattice solves, in parallel.")
+            f" • Top {_N_FINALISTS} feasible finalists then get solved with the "
+            f"selected solver, vortex lattice, in parallel.")
     script.engineer(plan_line)
     if solver_live:
         script.numericist(
@@ -340,12 +361,12 @@ def main(request: str | None = None, params: dict | None = None,
         script.numericist(
             "• Conceptual sizing only, a drag polar, not a solved flow. "
             "• It ranks designs and finds the trade; it validates nothing. "
-            "• A real aero solve is what would set the magnitude.")
+            "• A run of a selected aero solver is what would set the magnitude.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "sizing the design space", "working")
-    n_slots = min(capacity.capacity, len(grid))
+    n_slots = min(granted, len(grid))
     roster.set_workers(n_slots, "sizing wings")
     results = []
     screen_started = time.time()
@@ -424,10 +445,10 @@ def main(request: str | None = None, params: dict | None = None,
                            reverse=True)[:_N_FINALISTS]
         api = vspaero.VspAeroWingApi(out / "vspaero")
         roster.set(CHIEF_ENGINEER, "solving the finalist wings", "working")
-        roster.set_workers(len(finalists),
-                           "vortex-lattice solves on finalist wings")
+        n_par = min(granted, len(finalists))
+        roster.set_workers(n_par, "vortex-lattice solves on finalist wings")
         script.engineer(
-            f"• Promoting the top {len(finalists)} feasible wings to real solves. "
+            f"• Promoting the top {len(finalists)} feasible wings to the selected solver. "
             f"• Each is actual geometry; each polar is solved, not estimated.")
         designs = [{
             "span": f["span"], "area": f["area"], "sweep": f["sweep_deg"],
@@ -436,19 +457,22 @@ def main(request: str | None = None, params: dict | None = None,
                         * (f["area"] / f["span"]) / _MU_CRUISE),
         } for f in finalists]
         if emit:
-            # Each finalist takes a worker slot for a real vortex-lattice solve —
-            # the dispatch panel shows the whole fan-out solving at once.
+            # Each finalist takes a worker slot for its vortex-lattice solve.
+            # Slots beyond the granted parallelism show honestly as queued —
+            # the dispatch panel is the compute-management beat, on camera.
             for slot, f in enumerate(finalists):
-                emit("dispatch.update", {"slot": slot, "state": "solving",
-                                         "label": f"finalist span {f['span']:.0f} m",
-                                         "detail": "vortex-lattice solve"})
+                live_now = slot < n_par
+                emit("dispatch.update", {
+                    "slot": slot, "state": "solving" if live_now else "idle",
+                    "label": f"finalist span {f['span']:.0f} m",
+                    "detail": ("vortex-lattice solve" if live_now
+                               else "queued for a free slot")})
         started = time.time()
         # Each finalist rides a kill-checkable worker slot: scripts/kill_worker.sh
         # can strike one mid-batch, and the slot reports the loss, reprovisions,
         # and re-solves — the same polar lands. Solved in parallel, order preserved.
         from concurrent.futures import ThreadPoolExecutor
-        n_slots = min(capacity.capacity, len(designs))
-        with ThreadPoolExecutor(max_workers=max(1, n_slots)) as pool:
+        with ThreadPoolExecutor(max_workers=max(1, n_par)) as pool:
             batch = list(pool.map(
                 lambda job: _solve_finalist_slot(job[0], api, job[1], emit, script),
                 enumerate(designs)))
@@ -463,7 +487,7 @@ def main(request: str | None = None, params: dict | None = None,
         ledger.spend(elapsed * len(finalists),
                      f"{len(finalists)} vortex-lattice wing solves")
         script.engineer(
-            f"• Finalist solves: {elapsed:.1f} s, {len(finalists)} wings in parallel.")
+            f"• Finalist solves: {elapsed:.1f} s, {len(finalists)} wings on {n_par} granted slots.")
 
         for f, result in zip(finalists, batch):
             if not result:

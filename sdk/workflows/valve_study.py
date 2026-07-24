@@ -212,7 +212,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Constraint: minimum orifice area.")
     script.numericist(
         "• Each phase is a reduced-order orifice model, not a solved flow. "
-        "• A real internal-flow solve is the marked plug-in point. "
+        "• A full internal-flow run with the selected solver is the marked plug-in point. "
         "• Ranks angles and screens the trade.")
 
     # The systolic waveform figure — the k=3 weighted phase points on the pulse

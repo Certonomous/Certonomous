@@ -172,7 +172,7 @@ def main(request: str | None = None, params: dict | None = None,
         # The plan commits the sweep to the RANS solver here — badge earned now.
         emit("solver.selected", {
             "solver": "OpenFOAM", "method": "steady RANS cylinder chain",
-            "basis": "plan commits every sweep design to a real solve"})
+            "basis": "plan commits every sweep design to the selected solver"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     designs = _sweep_designs(FANOUT)
     staged = force_scarce or not capacity.fits
@@ -185,7 +185,7 @@ def main(request: str | None = None, params: dict | None = None,
     if not staged:
         script.engineer(
             f"• Capacity fits: {len(designs)} designs in one parallel wave, each "
-            f"a real solve. "
+            f"run through the selected solver. "
             f"• Every point tests the curve; the ends test the bounds.")
         script.phase(EVIDENCE)
         roster.set(CHIEF_ENGINEER, "dispatching the sweep", "working")
@@ -264,7 +264,7 @@ def main(request: str | None = None, params: dict | None = None,
                     f"• D={predicted:.4g} is extrapolation dressed as prediction. Not the answer yet.")
                 script.engineer(
                     "• Fair, and settleable. "
-                    "• One real solve turns the prediction into a measurement. "
+                    "• One run of the selected solver turns the prediction into a measurement. "
                     "• Running it now; if solver and surface disagree, the surface loses.")
                 roster.idle(CHIEF_RESEARCHER)
             roster.set(CHIEF_ENGINEER, "confirming the prediction", "working")
@@ -382,7 +382,7 @@ def main(request: str | None = None, params: dict | None = None,
         abstract=[
             f"We tested whether drag falls with body diameter over {LOW}–{HIGH} m "
             f"at fixed freestream conditions.",
-            f"Across {len(evidence)} real solves the curve held and the optimum sat at "
+            f"Across {len(evidence)} solver runs the curve held and the optimum sat at "
             f"the upper bound, D={best_x:.4g} m, improving on the baseline by "
             f"{improvement:.1f}%.",
             f"The reported value carries a {ensemble.relative_error * 100:.1f}% estimator "

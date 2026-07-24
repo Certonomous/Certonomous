@@ -72,7 +72,8 @@ class _TimedSolver:
     """Every solve through here is real and individually wall-clocked."""
 
     def __init__(self, work_root: Path):
-        self.api = VspAeroWingApi(work_root)
+        # The race is a timing measurement: never reuse a prior result.
+        self.api = VspAeroWingApi(work_root, reuse_prior=False)
         self.solve_seconds: list[float] = []
 
     def solve(self, alpha: float, re_cref: float, tag: str) -> dict:

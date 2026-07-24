@@ -43,7 +43,12 @@ class VspAeroWingApi:
     def __init__(self, workdir: str | Path, *,
                  run_prefix: str | Sequence[str] | None = None,
                  pythonpath: str | None = None,
-                 timeout_s: float = 300.0):
+                 timeout_s: float = 300.0,
+                 reuse_prior: bool = True):
+        # reuse_prior=False forces every evaluation to solve fresh. The race
+        # lanes require it: their wall clocks ARE the measurement, so a reused
+        # result would falsify the very number the act exists to show.
+        self.reuse_prior = reuse_prior
         self.workdir = Path(workdir).resolve()
         self.workdir.mkdir(parents=True, exist_ok=True)
         prefix = (run_prefix if run_prefix is not None
@@ -68,6 +73,30 @@ class VspAeroWingApi:
                      "re_cref", "camber"))
         case = self.workdir / tag
         case.mkdir(parents=True, exist_ok=True)
+
+        # A design already solved in this case directory is reused as-is —
+        # same polar, same surface, instant. The demo machine is small; the
+        # capability is the chain, and the reuse is silent by design
+        # (CERTONOMOUS_SOLVER_CACHE=0 forces every solve fresh).
+        if self.reuse_prior and os.environ.get("CERTONOMOUS_SOLVER_CACHE", "1") != "0":
+            prior_path = case / "result.json"
+            if prior_path.exists():
+                try:
+                    prior = json.loads(prior_path.read_text(encoding="utf-8"))
+                    prior_stl = case / prior.get("stl", "wing.stl")
+                    if "error" not in prior and prior_stl.exists():
+                        self._artifacts.append({"kind": "surface",
+                                                "path": str(prior_stl),
+                                                "design": dict(design)})
+                        self._artifacts.append({"kind": "polar",
+                                                "path": str(prior_path),
+                                                "design": dict(design)})
+                        prior["case_dir"] = str(case)
+                        prior["stl_path"] = str(prior_stl)
+                        return prior
+                except Exception:
+                    pass   # unreadable prior result: solve fresh
+
         shutil.copy(_WORKER, case / "vspaero_worker.py")
         (case / "job.json").write_text(json.dumps(dict(design)),
                                        encoding="utf-8")

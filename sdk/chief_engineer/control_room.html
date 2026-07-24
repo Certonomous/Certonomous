@@ -171,8 +171,10 @@
   .evidence-row .landscape-box, .evidence-row .trace-box { border-top: 1px solid var(--line); }
   .evidence-row .eyebrow { display: block; margin-bottom: 8px; font-size: 10px; }
 
-  /* split-screen race — two lanes race the same objective, both real and timed */
-  .race-view { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; background: radial-gradient(130% 130% at 50% 12%, #0b0e10, #040506); }
+  /* split-screen race — two lanes race the same objective, both timed live.
+     Fixed generous height in the scrolling column so the lanes read big. */
+  .race-view { flex: 0 0 auto; height: 62vh; min-height: 430px; display: flex; flex-direction: column; background: radial-gradient(130% 130% at 50% 12%, #0b0e10, #040506); }
+  .race-view[hidden] { display: none; }
   .race-banner { display: flex; align-items: baseline; gap: 14px; padding: 12px 18px 6px; flex: 0 0 auto; }
   .rb-obj { color: var(--ink); font: 700 14px var(--cond); letter-spacing: .01em; }
   .rb-sub { color: var(--muted); font: 10px var(--mono); letter-spacing: .04em; }
@@ -209,9 +211,11 @@
   .rc-verdict { margin-top: 10px; color: var(--ink); font: 13px var(--cond); }
   .rc-verdict b { color: #8fc3ff; }
 
-  /* viewport — the geometry stage is the hero: it takes the lion's share of the
-     column and never shrinks below a readable size. */
-  .stage-wrap { position: relative; flex: 1 1 auto; min-height: 320px; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
+  /* viewport — the geometry stage is the hero: a fixed, generous block at the
+     top of a SCROLLING column. Charts and the result card stack below it at
+     full width; the column scrolls (the owner OK'd multi-page) so nothing ever
+     overlaps the stage. */
+  .stage-wrap { position: relative; flex: 0 0 auto; height: 54vh; min-height: 380px; background: radial-gradient(130% 130% at 50% 15%, #0b0e10, #040506); }
   #viewportCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .viewport-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--dim); font-size: 11.5px; padding: 40px; }
   .viewport-empty[hidden] { display: none; }
@@ -240,8 +244,10 @@
   .result-card .rv { font: 800 24px var(--cond); color: var(--fg); }
   .result-card .rq { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
   .result-card .re { color: var(--dim); font: 10px var(--mono); width: 100%; }
-  .memo-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin: 10px 0 4px; }
-  .memo-figs img { width: 100%; border: 1px solid var(--line-2); cursor: pointer; }
+  /* Report figures: equal columns, one shared gutter, borders that line up
+     with the result rows above — no stitched-together look. */
+  .memo-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 10px 0 6px; }
+  .memo-figs img { width: 100%; display: block; border: 1px solid var(--line-2); background: #040506; cursor: pointer; }
 
   /* workspace */
   .ws-top { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; border-bottom: 1px solid var(--line); flex: 0 0 auto; }
@@ -425,7 +431,11 @@
 
     <section class="panel viewport">
       <div class="panel-head"><h2 id="viewportHead">Geometry</h2><span class="eyebrow" id="viewportIndex">02 / surface</span></div>
-      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div>
+      <!-- The stage closes HERE: the footer, race view, evidence plots and
+           result card are SIBLINGS of the stage, never children. An unclosed
+           stage-wrap once swallowed them all — the absolute canvas painted the
+           body over the charts, and hiding the stage for a race hid the race. -->
+      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
       <div class="viewport-foot" id="viewportFoot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
       <div class="legend" id="legend"><span id="legendLo">—</span><span class="bar"></span><span id="legendHi">—</span><b id="legendName">pressure</b></div>
 
@@ -499,7 +509,7 @@ const title = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpp
 const displayName = s => { if (!s) return ''; const base = String(s).split(/[\\/]/).pop().replace(/\.(stl|obj)$/i,''); return title(base); };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest',
-                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0 };
+                dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set() };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
 const revealQ = [];
@@ -651,7 +661,7 @@ function resetMission() {
   if (state.source) state.source.close();
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null;
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
-  state.peakAgents=0; state.peakWorkers=0; state.agentsSeen=0; revealQ.length=0; revealing=false;
+  state.peakAgents=0; state.peakWorkers=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
   hideKillBanner();
   setMissionLabel('NO ACTIVE MISSION', null);
@@ -742,7 +752,7 @@ function dispatch(env) {
       if (state.race && (p.series === 'mc' || p.series === 'rom')) raceTracePoint(p);
       else enqueue('trace', p, ts);
       break;
-    case 'agent.started': state.agents++; $('kAgents').textContent = state.agents; break;
+    case 'agent.started': state.agents++; state.agentsSeen = Math.max(state.agentsSeen || 0, state.agents); renderAgentCount(); break;
     case 'worker.provisioned': state.workers++; $('kWorkers').textContent = state.workers; break;
     case 'worker.released': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; break;
     // The resilience beat is a staged, on-camera event (R4): the lane flashes
@@ -1020,7 +1030,7 @@ function raceResult(p) {
     const w = Math.max(6, 100 * (+cm || 0) / maxCm);
     return `<div class="rc-row ${key}"><span class="rc-lbl">${esc(label)}</span>`
       + `<div class="rc-track"><div class="rc-fill" style="width:${w}%">`
-      + `${(+cm).toFixed(1)} core-min · wall ${(+wall).toFixed(0)} s · ${solves} real solves</div></div></div>`;
+      + `${(+cm).toFixed(1)} core-min · wall ${(+wall).toFixed(0)} s · ${solves} solver runs</div></div></div>`;
   };
   bars.innerHTML = row('mc', 'full Monte-Carlo', mc.core_minutes, mc.wall_seconds, mc.n_solves)
     + row('rom', 'reduced-order', rom.core_minutes, rom.wall_seconds, rom.n_solves);
@@ -1109,7 +1119,7 @@ const PACE_MS = 1500;   // reading beat between narration entries (min ~1.5 s)
 const VIS_MS = 240;     // a visual event lands a little quicker so bursts animate
 // Each queued item applies its side of the mission when its turn comes.
 const APPLY = {
-  entry:      p => { addEntry(p); addDigest(p); },
+  entry:      p => { addEntry(p); addDigest(p); noteAgentRole(p.role); },
   geometry:   p => loadGeometry(p),
   field:      p => loadField(p),
   plot:       p => addPlot(p),
@@ -1143,8 +1153,12 @@ function drainReveal() {
     // FAST: replay at the real inter-event timing, clamped to a watchable band.
     delay = Math.max(60, Math.min(4000, (next.ts - item.ts) * 1000));
   } else {
-    // READING: narration gets a full reading beat; a visual event lands quicker.
-    delay = item.kind === 'entry' ? PACE_MS : VIS_MS;
+    // READING: narration gets a full reading beat; a visual event lands
+    // quicker — and when a burst backs up (the 96-wing screening sweep), the
+    // queue drains fast so the sweep reads as the speed demonstration it is.
+    delay = item.kind === 'entry' ? PACE_MS
+          : revealQ.length > 30 ? 45
+          : revealQ.length > 12 ? 110 : VIS_MS;
   }
   setTimeout(drainReveal, delay);
 }
@@ -1165,6 +1179,12 @@ function addDigest(p) {
     const h = document.createElement('div'); h.className='digest-phase'; h.textContent = PHASES[phaseHit]; $('digest').appendChild(h);
     // The Cycle KPI is the live phase counter — it advances as the mission does.
     $('kCycle').textContent = `${PHASE_ORDER.indexOf(PHASES[phaseHit]) + 1}/${PHASE_ORDER.length}`;
+    // The masthead status tracks the mission's phase live — it must never sit
+    // on FORMING THE TEAM for a whole run.
+    if (!state.finished) $('globalStatus').textContent = ({
+      Hypothesis: 'TEAM DELIBERATING', Plan: 'PLANNING THE CAMPAIGN',
+      Evidence: 'FLEET AT WORK', Conclusion: 'CLOSING OUT',
+    })[PHASES[phaseHit]] || 'MISSION RUNNING';
     return;
   }
   if (/^==/.test(msg.trim()) || p.role === 'SYSTEM') return;
@@ -1190,21 +1210,35 @@ function verdictBadge(tier) {
   return `<span class="verdict ${cls}" title="${esc(chip)}">${esc(chip)}</span>`;
 }
 
+// The Agents KPI counts every distinct team member the viewer has SEEN on the
+// job this mission — the moment a role speaks in the transcript or goes
+// non-idle on the roster, it counts, and it never un-counts (roles handing off
+// between phases must not flicker the numeral back down). SYSTEM/PHASE lines
+// are plumbing, not agents.
+const AGENT_ROLES = new Set(['CHIEF ENGINEER', 'CHIEF RESEARCHER', 'NUMERICIST', 'MONITOR']);
+function noteAgentRole(role) {
+  const r = String(role || '').toUpperCase();
+  if (!AGENT_ROLES.has(r) || state.rolesSeen.has(r)) return;
+  state.rolesSeen.add(r);
+  renderAgentCount();
+}
+function renderAgentCount() {
+  const n = Math.max(state.agentsSeen || 0, state.rolesSeen.size);
+  $('kAgents').textContent = n;
+  state.peakAgents = n;
+}
 function renderRoster(p) {
   setHidden('rosterSection', false);
   const members = p.members || [];
   $('roster').innerHTML = members.map(m =>
     `<div class="roster-row"><span class="roster-dot ${esc(m.state||'')}"></span><span class="who">${esc(m.name||m.role||'')}</span><span class="doing">${esc(m.doing||m.status||'')}</span></div>`).join('');
-  // Live KPIs, advanced in lockstep with the paced narration (R1). Workers is
-  // the provisioned count and moves live (0 -> fan-out -> 0). Agents counts the
-  // team the mission has actually engaged: a running high-water mark of non-idle
-  // members, so the numeral reflects the whole team on the job rather than
-  // flickering to 0/1 as roles hand off between phases.
-  const active = members.filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle').length;
-  state.agentsSeen = Math.max(state.agentsSeen || 0, active);
+  // Workers is the live provisioned count (0 -> fan-out -> 0). Agents adds any
+  // roster member seen non-idle to the same seen-on-the-job set the transcript
+  // feeds, so the numeral matches whoever is on screen the moment they appear.
+  members.filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle')
+         .forEach(m => noteAgentRole(m.name || m.role));
   $('kWorkers').textContent = p.workers ?? 0;
-  $('kAgents').textContent = state.agentsSeen;
-  state.peakAgents = state.agentsSeen;
+  renderAgentCount();
   state.peakWorkers = Math.max(state.peakWorkers || 0, p.workers || 0);
 }
 function renderCompute(p) {
@@ -1230,7 +1264,7 @@ function knowledgeAdded(p, fresh) {
 function renderMemo(rep) {
   const list = a => `<ul>${(a||[]).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
   const results = (rep.results||[]).map(r =>
-    `<div class="memo-result"><span><b class="val">${esc(r.value)}</b> <span class="q">${esc(r.quantity)}</span><br><span class="q">${esc(r.envelope||'')}${r.reason?' — '+esc(r.reason):''}</span></span>${verdictBadge(r.tier)}</div>`).join('');
+    `<div class="memo-result"><span><b class="val">${esc(r.value)}</b> <span class="q">${esc(r.quantity)}</span><br><span class="q">${esc(r.envelope||'')}${r.reason?' · '+esc(r.reason):''}</span></span>${verdictBadge(r.tier)}</div>`).join('');
   // Reports lead with plots: every figure the mission produced comes first.
   const figs = state.plots.length
     ? `<div class="memo-figs">${state.plots.map(pl =>
@@ -1348,7 +1382,9 @@ function drawGeometry() {
   for (const t of tris) {
     ctx.beginPath(); ctx.moveTo(t.a[0],t.a[1]); ctx.lineTo(t.b[0],t.b[1]); ctx.lineTo(t.c[0],t.c[1]); ctx.closePath();
     if (fld && fld[t.fi] != null) { ctx.fillStyle = coolwarm(fld[t.fi]); ctx.globalAlpha=.96; ctx.fill(); ctx.globalAlpha=1; }
-    else { ctx.fillStyle = '#12171b'; ctx.fill(); ctx.strokeStyle = 'rgba(120,180,220,.10)'; ctx.lineWidth=.5; ctx.stroke(); }
+    // Unpainted geometry must READ on camera: a lit steel body with a visible
+    // wireframe, not near-black on black — the morphing candidate is a hero beat.
+    else { ctx.fillStyle = '#232d36'; ctx.fill(); ctx.strokeStyle = 'rgba(140,200,240,.28)'; ctx.lineWidth=.6; ctx.stroke(); }
   }
 }
 
@@ -1503,7 +1539,7 @@ function renderResult(p) {
     : (p.value ?? '—');
   rc.innerHTML = `<b class="rv">${esc(head)}</b><span class="rq">${esc(p.quantity||'result')}</span>`
     + verdictBadge(p.tier)
-    + `<span class="re">${esc(p.envelope||'')}${p.reason?' — '+esc(p.reason):''}</span>`;
+    + `<span class="re">${esc(p.envelope||'')}${p.reason?' · '+esc(p.reason):''}</span>`;
   rc.hidden = false;
 }
 
@@ -1517,7 +1553,7 @@ async function uploadSurface(e) {
     setHidden('surfaceNote', false);
     $('surfaceNote').innerHTML = `<b>${(+b.triangles).toLocaleString()}</b> triangles ready. Write your objective and launch — it runs on this surface.`;
     if (!$('goal').value.trim()) $('goal').value = b.suggested || '';
-    loadGeometry({ url: b.url, label: `${b.name} — as supplied` });
+    loadGeometry({ url: b.url, label: b.name });
     toast(`${b.name} loaded`);
   } catch (err) { $('surfaceLabel').textContent = 'Load a surface (STL / OBJ)'; toast(err.message); }
   finally { e.target.value = ''; }
@@ -1541,8 +1577,8 @@ async function loadCredentials() {
     let counters = '';
     if (stats) {
       const tiles = [
-        ['missions run', (stats.missions_run ?? 0).toLocaleString(), 'real + reduced-order evaluations on the durable ledger'],
-        ['solver core-hours', (+(stats.solver_core_hours ?? 0)).toFixed(1), 'measured wall time across real solves'],
+        ['missions run', (stats.missions_run ?? 0).toLocaleString(), 'selected-solver + reduced-order evaluations on the durable ledger'],
+        ['solver core-hours', (+(stats.solver_core_hours ?? 0)).toFixed(1), 'measured wall time across solver runs'],
       ];
       counters = `<div class="cred-counters">${tiles.map(([k,v,sub]) =>
         `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span><em>${esc(sub)}</em></div>`).join('')}</div>`;
@@ -1634,7 +1670,7 @@ function renderDormant(wallHtml) {
   if ($('shell').classList.contains('launched')) return;
   $('dormant').innerHTML = wallHtml
     ? `<div style="padding:16px 18px">${wallHtml}</div>`
-    : `<div class="hero"><div><div class="orbit"></div><strong>The laboratory is standing by.</strong><p>State an objective on the left. The team forms, real solvers run, and every result lands here with its trust tier.</p></div></div>`;
+    : `<div class="hero"><div><div class="orbit"></div><strong>The laboratory is standing by.</strong><p>State an objective on the left. The team forms, the selected solver runs, and every result lands here with its trust tier.</p></div></div>`;
 }
 
 async function askLab(q) {

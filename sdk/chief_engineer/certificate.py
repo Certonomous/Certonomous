@@ -578,10 +578,6 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     ty -= 24
     c.text(left + 12, ty, f"Mission {mission_id}   ·   Certificate {cert_no}",
            size=8, color=_MUTED)
-    c.text(left, _MARGIN + 6,
-           "Reproducible from the sealed evidence bundle; any change to the recorded "
-           "run invalidates the seal. No tier exceeds TREND ONLY without an experimental comparison.",
-           size=7.5, color=_MUTED)
 
     out_path = Path(out_path).with_suffix(".pdf")
     out_path.parent.mkdir(parents=True, exist_ok=True)

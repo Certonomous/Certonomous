@@ -75,7 +75,7 @@ class ComputeAudit:
     def headline(self) -> str:
         verdict = "YES" if self.fits else "NO"
         return (
-            f"Compute audit — {verdict}: requested {self.requested_workers} "
+            f"Compute audit, {verdict}: requested {self.requested_workers} "
             f"parallel workers, capacity {self.capacity} "
             f"({self.cores_free}/{self.cores_total} cores free, "
             f"{self.memory_available_mb // 1024:.0f} GB available, "

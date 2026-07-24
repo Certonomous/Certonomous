@@ -49,7 +49,7 @@ GENERAL_MISSION = "general-mission"
 # Optimising lift-to-drag for an aircraft against mission requirements is a
 # distinct beat from the OpenFOAM shape sweep: it searches a wing design space.
 _LIFT_DRAG = re.compile(
-    r"\b(l\s*/?\s*d\b|lift[\s-]?to[\s-]?drag|lift[\s/]drag|aerodynamic efficiency)\b", re.I)
+    r"\b(l\s*/?\s*d\b|lift[\s-]?to[\s-]?drag|lift[\s/-]+drag|aerodynamic efficiency)\b", re.I)
 _AIRCRAFT = re.compile(
     r"\b(aircraft|airplane|airliner|aeroplane|plane|jet|wing|fuselage|flight)\b", re.I)
 _MISSION_REQ = re.compile(
@@ -95,6 +95,13 @@ _GEOMETRY_RUN = re.compile(
     r"aircraft|airplane|plane|wing|car|hull|case|simulation)\b",
     re.I)
 _SURFACE_FILE = re.compile(r"\b([\w.-]+\.(?:stl|obj))\b", re.I)
+# The owner asking the lab to leave compute headroom on the box ("don't use all
+# my workers", "I'm running locally") — honored inside the routed mission, on
+# the record, not routed to a different workflow.
+_HOLD_WORKERS = re.compile(
+    r"\b(?:don'?t|do not|not)\s+(?:use\s+)?(?:all|every)\b[^.?!]{0,40}\bworkers?\b|"
+    r"\bhold\s+(?:some\s+)?workers?\s+back\b|\bleave\s+(?:some\s+)?headroom\b|"
+    r"\bhalf\s+(?:the\s+|my\s+)?workers?\b", re.I)
 
 # --- named-body resolution -------------------------------------------------
 # When a prompt NAMES a body the lab has staged ("the NACA 4412 finite-wing
@@ -326,9 +333,19 @@ def classify(request: str) -> Route:
         add(VALVE_STUDY, 1.7,
             "screens a pulsatile internal flow by decomposing the cycle into phase points")
     # --- aircraft L/D optimization against mission requirements ---
+    hold_workers = bool(_HOLD_WORKERS.search(text))
     if _LIFT_DRAG.search(text) and (_AIRCRAFT.search(text) or _MISSION_REQ.search(text)):
         add(AIRCRAFT_OPTIMIZATION, 1.6,
             "optimises lift-to-drag for an aircraft against mission requirements")
+        # Live operating constraints ride INSIDE the aircraft mission — the
+        # chief honors a time budget and a compute-headroom ask on the record
+        # rather than handing the request to a different workflow.
+        if deadline:
+            add(AIRCRAFT_OPTIMIZATION, 0.3,
+                f"states a {deadline:.0f}-minute budget the mission will honor")
+        if hold_workers:
+            add(AIRCRAFT_OPTIMIZATION, 0.3,
+                "asks the lab to hold workers back on this box")
     # --- optimization ---
     if _OPTIMIZE.search(text):
         add(SHAPE_OPTIMIZATION, 0.7, "asks for an objective to be improved")
@@ -367,6 +384,8 @@ def classify(request: str) -> Route:
         params["geometry_known"] = known
     if deadline:
         params["deadline_minutes"] = deadline
+    if hold_workers:
+        params["hold_workers_back"] = True
     if reynolds:
         params["reynolds"] = reynolds
     if length_match:
@@ -377,7 +396,7 @@ def classify(request: str) -> Route:
             "Reading this as a head-to-head speed race: the same objective and "
             "the same tolerance answered two ways — a full Monte-Carlo sweep "
             "against a reduced-order path — with every evaluation on both sides "
-            "a real solve and both wall clocks measured live. I will run the two "
+            "run through the selected solver and both wall clocks measured live. I will run the two "
             "lanes concurrently, show the polar forming on each, and report the "
             "agreement and the measured speedup."),
         VALVE_STUDY: (

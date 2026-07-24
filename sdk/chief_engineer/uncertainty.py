@@ -214,7 +214,7 @@ def _assess_metric(name, value, observed, target, unit):
             relative=spread / scale, confidence=CONFIDENCE_UNKNOWN,
             n_samples=n, unit=unit,
             statement=(
-                f"I cannot quantify my uncertainty on {name} yet — "
+                f"I cannot quantify my uncertainty on {name} yet, "
                 f"only {n} evaluation{'s' if n != 1 else ''} in evidence."
             ),
         )
@@ -238,7 +238,7 @@ def _assess_metric(name, value, observed, target, unit):
     elif confidence == CONFIDENCE_MODERATE:
         statement = f"Here I am fairly sure: {body}."
     else:
-        statement = f"Here I am NOT sure: {body} — treat this number as provisional."
+        statement = f"Here I am NOT sure: {body}. Treat this number as provisional."
     return MetricUncertainty(name, value, std, ci, relative, confidence, n, unit, statement)
 
 
@@ -441,6 +441,6 @@ def _narrate(design_id, n_designs, assessments, thin_directions):
     if thin_directions:
         listed = ", ".join(thin_directions)
         lines.append(
-            f"Evidence is thin along {listed} — sampling there would tighten these bounds."
+            f"Evidence is thin along {listed}; sampling there would tighten these bounds."
         )
     return " ".join(lines)

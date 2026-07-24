@@ -197,14 +197,14 @@ def trust(*, relative_error: float | None = None, converged: bool = True,
                 "reason": why or "produced by a stated conceptual model, not a solve"}
     if not in_validated_regime or not calibrated:
         return {"tier": SOLVER_BACKED,
-                "reason": why or "a real solve without a like-for-like experimental comparison"}
+                "reason": why or "a selected-solver result without a like-for-like experimental comparison"}
     # VALIDATED is earned only against a published experiment — that path is
     # validate_against_reference(). A tight envelope alone stays SOLVER-BACKED.
     if relative_error is None:
         return {"tier": SOLVER_BACKED,
-                "reason": why or "a real solve; no envelope computed for this quantity"}
+                "reason": why or "a selected-solver result; no envelope computed for this quantity"}
     return {"tier": SOLVER_BACKED,
-            "reason": why or f"a real solve; envelope {relative_error * 100:.1f}% of value"}
+            "reason": why or f"a selected-solver result; envelope {relative_error * 100:.1f}% of value"}
 
 
 def uncertainty_channels(*, input_2sigma: float | None = None,

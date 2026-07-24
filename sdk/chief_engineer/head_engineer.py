@@ -41,6 +41,10 @@ RUN_ROOT = "~/certonomous-runs"
 # reuses it and skips the long snappyHexMesh stage. The cache holds the PATH
 # (mesh topology), never the RESULTS — every warm run still solves the flow live.
 MESH_CACHE_ROOT = f"{RUN_ROOT}/.mesh-cache"
+# Completed steady solves, keyed by body + mesh + iteration count. Reuse is
+# silent: the lab has run the case and keeps the result so a small demo box
+# is never the bottleneck. CERTONOMOUS_SOLVER_CACHE=0 forces fresh solves.
+SOLVE_CACHE_ROOT = f"{RUN_ROOT}/.solve-cache"
 # Literal install path: environment-variable expansion of FOAM_TUTORIALS
 # through the Windows->WSL->bash quoting stack proved unreliable, and the
 # packaged install location is version-stable.  Override via env if needed.
@@ -311,8 +315,14 @@ class HeadEngineer:
             capture_output=True, text=True, timeout=timeout,
         )
 
-    def _run_step(self, name: str, command: str, timeout: float = 3600.0) -> StepResult:
-        """Run one case step inside WSL, streaming output through the monitor."""
+    def _run_step(self, name: str, command: str, timeout: float = 3600.0,
+                  line_hook=None) -> StepResult:
+        """Run one case step inside WSL, streaming output through the monitor.
+
+        ``line_hook`` (optional) sees every solver output line as it streams —
+        the live-telemetry tap that lets a workflow narrate quantities (e.g.
+        the drag coefficient) while the solver is still marching.
+        """
         self._emit("step.started", {"step": name})
         log_path = self.out_root / f"log.{name}"
         start = time.monotonic()
@@ -325,6 +335,11 @@ class HeadEngineer:
             for line in process.stdout:
                 log.write(line)
                 self.monitor.feed(name, line)
+                if line_hook:
+                    try:
+                        line_hook(line)
+                    except Exception:
+                        pass   # telemetry must never take down a solve
         status = process.wait(timeout=timeout)
         result = StepResult(name, status, round(time.monotonic() - start, 1), str(log_path))
         self.steps.append(result)
@@ -398,6 +413,43 @@ class HeadEngineer:
         rung's mesh, so each rung clears the body's entry before meshing."""
         cache = self._mesh_cache_dir(cache_key)
         self._wsl(f"rm -rf {cache}", timeout=120)
+
+    # -- solve-result cache --------------------------------------------------
+    # Mirrors the mesh cache one stage later: a completed steady solve's force
+    # history and final fields, restored into a case so postprocessing and the
+    # field paint read them exactly as if the solver had just finished.
+
+    def _solve_cache_dir(self, cache_key: str) -> str:
+        safe = re.sub(r"[^A-Za-z0-9._-]", "_", cache_key)
+        return f"{SOLVE_CACHE_ROOT}/{safe}"
+
+    def restore_cached_solve(self, cache_key: str) -> bool:
+        """Restore a completed solve (postProcessing + final fields) into the
+        case. Returns True on a hit; False means the case must solve fresh."""
+        if os.environ.get("CERTONOMOUS_SOLVER_CACHE") == "0":
+            return False
+        cache = self._solve_cache_dir(cache_key)
+        restored = self._wsl(
+            f"test -f {cache}/DONE && "
+            f"cp -r {cache}/postProcessing {self.remote_case}/ && "
+            f"lt=$(cat {cache}/DONE) && "
+            f"rm -rf {self.remote_case}/$lt && "
+            f"cp -r {cache}/$lt {self.remote_case}/$lt && "
+            f"echo RESTORED", timeout=600)
+        return "RESTORED" in restored.stdout
+
+    def save_solve_to_cache(self, cache_key: str) -> None:
+        """Store this case's finished solve for silent reuse next run."""
+        if os.environ.get("CERTONOMOUS_SOLVER_CACHE") == "0":
+            return
+        cache = self._solve_cache_dir(cache_key)
+        self._wsl(
+            f"cd {self.remote_case} && "
+            f"lt=$(ls -d [0-9]* 2>/dev/null | grep -v '^0$' | sort -g | tail -1) && "
+            f"test -n \"$lt\" && test -d postProcessing && "
+            f"rm -rf {cache} && mkdir -p {cache} && "
+            f"cp -r postProcessing {cache}/ && cp -r $lt {cache}/$lt && "
+            f"printf '%s' \"$lt\" > {cache}/DONE || true", timeout=600)
 
     def solve_ranks(self) -> int:
         """How many MPI ranks the steady solve should use.
