@@ -1559,10 +1559,11 @@ async function uploadSurface(e) {
   finally { e.target.value = ''; }
 }
 
-// Canonical calibration geometry never headlines the credentials view: it
-// lives inside one collapsed row (v2-G5 / v3-N3).
-const CALIBRATION_BODIES = new Set(['cube','sphere','cylinder','flat_plate',
-  'naca0012_wing','naca4412_wing','ahmed_25','ahmed_35']);
+// The demo runs motorBike, b52 and the NACA 4412 wing. Everything else the
+// lab has graded is deliberately showcased on the dormant wall as the work
+// nobody sees in the demo, per the owner directive: closure challenge first,
+// then the cases we are NOT showing in the demo or website.
+const DEMO_BODIES = new Set(['motorBike', 'b52', 'naca4412_wing']);
 async function loadCredentials() {
   const host = $('credentials');
   try {
@@ -1584,17 +1585,24 @@ async function loadCredentials() {
         `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span><em>${esc(sub)}</em></div>`).join('')}</div>`;
     }
     const research = (stats && stats.research) ? renderResearch(stats.research) : '';
-    const calib = rows.filter(r => CALIBRATION_BODIES.has(r.name));
-    const real = rows.filter(r => !CALIBRATION_BODIES.has(r.name));
-    const validated = calib.filter(r => r.tier === 'VALIDATED').length;
-    const calibRow = calib.length ? `<details class="calib-row"><summary>
-      <b>Calibration suite</b><span>${calib.length} canonical bodies · ${validated} validated against published experiment</span></summary>
-      ${calib.map(credCard).join('')}</details>` : '';
-    const realCards = real.length
-      ? `<div class="cred-subhead"><span class="eyebrow">Graded bodies</span></div>${real.map(credCard).join('')}`
+    // Split by what the demo runs, not by geometry class: the non-demo graded
+    // bodies get the expanded showcase, the demo overlap gets a short coda.
+    // Every card comes straight from a graded /api/credentials row.
+    const beyond = rows.filter(r => !DEMO_BODIES.has(r.name));
+    const demo = rows.filter(r => DEMO_BODIES.has(r.name));
+    const validated = beyond.filter(r => r.tier === 'VALIDATED').length;
+    const beyondCards = beyond.length
+      ? `<div class="cred-subhead"><span class="eyebrow">Beyond the demo</span>`
+        + `<div class="cred-src">${beyond.length} graded bodies the demo never runs · ${validated} validated against published experiment · each card shows the measured coefficient, its published reference, and the tier it earned</div></div>`
+        + beyond.map(credCard).join('')
+      : '';
+    const demoCards = demo.length
+      ? `<div class="cred-subhead"><span class="eyebrow">Also in the demo</span>`
+        + `<div class="cred-src">Graded rows for bodies the demo runs as well.</div></div>`
+        + demo.map(credCard).join('')
       : '';
     const html = `<div class="cred-head"><span class="eyebrow">Lab credentials</span></div>`
-      + counters + research + realCards + calibRow;
+      + counters + research + beyondCards + demoCards;
     host.innerHTML = html; renderDormant(html);
   } catch (e) { host.innerHTML = `<div class="cred-empty">Credentials unavailable.</div>`; renderDormant(null); }
 }

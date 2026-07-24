@@ -175,6 +175,69 @@ _AGENDA = [
 ]
 
 
+def mesh_validity(cells: int, non_ortho: float | None,
+                  skew: float | None) -> dict:
+    """The certificate's mesh-validity facts for this mission.
+
+    Exactly the numbers ``collect_mesh_stats`` read from checkMesh, paired with
+    the published gates this study already judges them by: the certificate and
+    the report carry the same evidence, and no number originates here.
+    """
+    return {"cells": cells,
+            "max_non_orthogonality": non_ortho,
+            "max_skewness": skew,
+            "non_orthogonality_gate": MAX_NON_ORTHOGONALITY,
+            "skewness_gate": MAX_SKEWNESS}
+
+
+def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
+                         lookup: dict, cells: int, non_ortho_s: str,
+                         skew_s: str) -> dict:
+    """The three V&V-20 channels for this study, built from what was measured.
+
+    Input: the freestream conditions envelope. This study takes the freestream
+    as specified exactly and propagates no input spread, so the channel states
+    that honestly instead of borrowing the settling scatter (which stays on the
+    result line where it belongs). Numerical: mesh discretization, carrying the
+    mission's actual checkMesh numbers, plus the matching grid-refinement band
+    when one exists for this setup fingerprint. Model: the k-omega SST closure,
+    stated model-form, quantified only by a matching closure-spread study.
+    A channel with no quantified number says so; nothing is invented.
+    """
+    input_note = (
+        f"freestream conditions envelope: speed {velocity:g} m/s and fluid "
+        f"properties are taken as specified exactly, so no input spread was "
+        f"propagated; the result's ±{settle_2sigma:.2g} band over the final "
+        f"{window} iterations is settled-state scatter, carried on the result "
+        f"line; stated, not quantified")
+    mesh_clause = (
+        f"mesh discretization; checkMesh: {cells:,} cells, max "
+        f"non-orthogonality {non_ortho_s} vs the {MAX_NON_ORTHOGONALITY:.0f}° "
+        f"gate, max skewness {skew_s} vs the {MAX_SKEWNESS:.1f} guidance")
+    numerical_val = model_val = None
+    if lookup.get("numerical"):
+        numerical_val = lookup["numerical"]["band_abs"]
+        tail = lookup["numerical"]["method"]
+        if lookup.get("provenance"):
+            tail += f"; study {', '.join(lookup['provenance'][:3])}"
+    elif lookup.get("pending"):
+        tail = "study pending: no matching refinement study for this setup"
+    else:
+        tail = ("one mesh only, discretization error not separated; a "
+                "grid-refinement study is the marked next step")
+    model_note = ("turbulence closure k-omega SST, stated model-form; closure "
+                  "error not quantified for this body")
+    if lookup.get("model"):
+        model_val = lookup["model"]["band_abs"]
+        model_note = ("turbulence closure k-omega SST, stated model-form; "
+                      + lookup["model"]["method"])
+    return uncertainty_channels(
+        input_2sigma=None, numerical=numerical_val, model=model_val,
+        input_note=input_note,
+        numerical_note=f"{mesh_clause}; {tail}",
+        model_note=model_note)
+
+
 def main(request: str | None = None, params: dict | None = None,
          iterations: int = 300, emit=None) -> int:
     params = dict(params or {})
@@ -629,30 +692,15 @@ def main(request: str | None = None, params: dict | None = None,
             refinement=int(params.get("refinement", 3)),
             iterations=iterations)
     lookup = uq_studies.channels_for(label, study_fp)
-    numerical_val = model_val = None
-    numerical_note = ("one mesh only, discretization error not separated; a "
-                      "grid-refinement study is the marked next step")
-    model_note = "kOmegaSST closure error not estimated for this body"
-    if lookup["numerical"]:
-        numerical_val = lookup["numerical"]["band_abs"]
-        numerical_note = lookup["numerical"]["method"]
-        if lookup["provenance"]:
-            numerical_note += f"; study {', '.join(lookup['provenance'][:3])}"
-    elif lookup["pending"]:
-        numerical_note = ("study pending: no matching refinement study for "
-                          "this setup")
-    if lookup["model"]:
-        model_val = lookup["model"]["band_abs"]
-        model_note = lookup["model"]["method"]
-    channels = uncertainty_channels(
-        input_2sigma=2 * drag['sigma'], numerical=numerical_val,
-        model=model_val,
-        input_note="the ± band is the statistical spread of the solved force "
-                   "over the averaging window, settled-state scatter; "
-                   "freestream speed and fluid properties are taken as "
-                   "specified exactly",
-        numerical_note=numerical_note,
-        model_note=model_note)
+    channels = certificate_channels(
+        settle_2sigma=2 * drag["sigma"], window=drag["window"],
+        velocity=20.0 if familiar else float(params.get("velocity", 100.0)),
+        lookup=lookup, cells=cells, non_ortho_s=non_ortho_s, skew_s=skew_s)
+    numerical_val = channels["channels"][1]["value"]
+    model_val = channels["channels"][2]["value"]
+    # The combined 95% band still carries the settled-state scatter of the
+    # result alongside the study bands; the input CHANNEL, being the freestream
+    # envelope, is honestly unquantified above.
     combined = uq_studies.combine_expanded(
         input_2sigma=2 * drag['sigma'], numerical_abs=numerical_val,
         model_abs=model_val)["combined_95"]
@@ -759,7 +807,11 @@ def main(request: str | None = None, params: dict | None = None,
         }] if comparison else []) + [{
             "quantity": "Mesh",
             "value": f"{cells:,} cells",
-            "envelope": f"max non-orthogonality {non_ortho_s}, max skewness {skew_s}",
+            "envelope": (f"max non-orthogonality {non_ortho_s} vs "
+                         f"{MAX_NON_ORTHOGONALITY:.0f}° gate "
+                         f"({'pass' if gate_ok else 'caveat'}), max skewness "
+                         f"{skew_s} vs {MAX_SKEWNESS:.1f} guidance "
+                         f"({'pass' if skew_ok else 'caveat'})"),
             **trust(relative_error=0.0, in_validated_regime=gate_ok,
                     calibrated=(skew or 0) <= MAX_SKEWNESS),
         }],
@@ -794,7 +846,8 @@ def main(request: str | None = None, params: dict | None = None,
             channels=channels,
             display_name=display_name(label),
             source_filename=surface,
-            solver="OpenFOAM, k-omega SST steady RANS")
+            solver="OpenFOAM, k-omega SST steady RANS",
+            mesh=mesh_validity(cells, non_ortho, skew))
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception as exc:  # a certificate must never take down a good solve

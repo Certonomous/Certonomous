@@ -403,9 +403,9 @@ def main(request: str | None = None, params: dict | None = None,
         from chief_engineer.certificate import build_certificate_v2
 
         verdict = {"tier": "SOLVER-BACKED",
-                   "reason": (f"every evaluation on both lanes was a real "
-                              f"vortex-lattice solve; the two paths agree to "
-                              f"{agreement_pct}%")}
+                   "reason": (f"every evaluation on both lanes was a converged "
+                              f"vortex-lattice run on the selected solver; the "
+                              f"two paths agree to {agreement_pct}%")}
         cert_doc = {
             "results": [
                 {"quantity": "Measured speedup, reduced-order vs full "

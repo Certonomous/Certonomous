@@ -14,7 +14,11 @@ a chip the interface can expand, rather than being read aloud.
 
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import dataclass
+from datetime import date
+from pathlib import Path
 from typing import Any
 
 
@@ -93,3 +97,70 @@ def express(lesson_id: str, **context: Any) -> str:
 def chip(lesson_id: str) -> dict[str, str]:
     lesson = LESSONS.get(lesson_id)
     return lesson.chip() if lesson else {}
+
+
+# --------------------------------------------------------------------------
+# Lessons the lab earns from its own missions
+# --------------------------------------------------------------------------
+#
+# The static LESSONS above are the standing practice the lab shipped with.
+# Learned lessons are the ones the debrief loop writes after each mission:
+# one grounded paragraph per mission, kept on disk alongside the mission
+# state and cited by the mission id that earned it. Ask-the-lab retrieval
+# reads them back as first-class record sources.
+
+
+def _learned_root() -> Path:
+    override = os.environ.get("CERTONOMOUS_LESSONS_DIR")
+    if override:
+        return Path(override)
+    workdir = Path(os.environ.get("CHIEF_ENGINEER_WORKDIR", "./chief-engineer-runs"))
+    state = Path(os.environ.get(
+        "CHIEF_ENGINEER_STATE_DIR", str(workdir.resolve() / "mission-state")))
+    return state / "lessons"
+
+
+def record_learned(mission_id: str, text: str) -> dict[str, str] | None:
+    """Keep one mission-earned lesson, cited by the mission that taught it.
+
+    Returns the record on success, None when there is nothing to keep or the
+    write fails — the caller treats both quietly, a lesson is a bonus, never
+    a dependency.
+    """
+    mission_id = (mission_id or "").strip()
+    text = (text or "").strip()
+    if not mission_id or not text:
+        return None
+    record = {"mission_id": mission_id, "text": text,
+              "added": date.today().isoformat()}
+    try:
+        root = _learned_root()
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / f"{mission_id}.json"
+        staging = path.with_suffix(".json.tmp")
+        staging.write_text(json.dumps(record, separators=(",", ":")),
+                           encoding="utf-8")
+        staging.replace(path)
+    except OSError:
+        return None
+    return record
+
+
+def learned_lessons() -> list[dict[str, str]]:
+    """Every mission-earned lesson on disk, in mission-id order."""
+    items: list[dict[str, str]] = []
+    try:
+        paths = sorted(_learned_root().glob("*.json"))
+    except OSError:
+        return items
+    for path in paths:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        mission_id = str(data.get("mission_id", "")).strip()
+        text = str(data.get("text", "")).strip()
+        if mission_id and text:
+            items.append({"mission_id": mission_id, "text": text,
+                          "added": str(data.get("added", ""))})
+    return items

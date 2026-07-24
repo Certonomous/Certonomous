@@ -165,12 +165,72 @@ def _uq_program() -> dict[str, Any]:
     }
 
 
+def _ledger_study_path() -> Path:
+    env = os.environ.get("CERTONOMOUS_LEDGER_STUDY")
+    if env:
+        return Path(env).resolve()
+    return _ledger_path().parent / "learned_study.json"
+
+
+def _fleet_learning() -> dict[str, Any]:
+    """Learning-from-the-fleet-ledger card, driven by the distilled study.
+
+    Every number comes from the study JSON that ``ledger_learning`` distilled
+    out of real ledger rows; when no study exists yet the card says so plainly
+    instead of inventing figures.
+    """
+    study = _load_json(_ledger_study_path())
+    title = "Learning from the fleet ledger"
+    if not study or "provenance" not in study:
+        return {
+            "title": title,
+            "status": "PENDING",
+            "summary": "The distiller has not run over the fleet ledger yet; "
+                       "the first mega-batch pass will produce this card.",
+            "available": False,
+        }
+
+    prov = study.get("provenance", {})
+    families = study.get("families", {})
+    family_rows = [
+        {
+            "solver": name,
+            "label": fam.get("label", name),
+            "ok": fam.get("ok", 0),
+            "failed": fam.get("failed", 0),
+            "failure_rate": fam.get("failure_rate", 0.0),
+        }
+        for name, fam in families.items()
+    ]
+    wing = study.get("wing", {})
+    best_wing = wing.get("best")
+    return {
+        "title": title,
+        "status": "ACTIVE RESEARCH",
+        "summary": (
+            f"Distilled from {prov.get('row_count', 0)} rows of the mega-batch "
+            f"ledger ({prov.get('ok_rows', 0)} completed evaluations); trends "
+            f"carry measured fit quality, never assertion."
+        ),
+        "available": True,
+        "generated_at": study.get("generated_at"),
+        "source": prov.get("ledger_path"),
+        "row_count": prov.get("row_count"),
+        "ok_rows": prov.get("ok_rows"),
+        "failed_rows": prov.get("failed_rows"),
+        "families": family_rows,
+        "best_wing": best_wing,
+        "highlights": list(study.get("learned", [])),
+    }
+
+
 def research_programs() -> dict[str, Any]:
     """The lab's real research programmes, framed as work in progress.
 
     Closure-challenge and reduced-order speed figures come from the public
     benchmarks file; the discretization program is data-driven from the UQ
-    refinement studies; the valve agenda lines are the queued programmes.
+    refinement studies; the fleet-learning card is driven by the distilled
+    ledger study; the valve agenda lines are the queued programmes.
     """
     bench = _load_json(_benchmarks_path())
     closure_raw = bench.get("closure_challenge", {})
@@ -208,6 +268,7 @@ def research_programs() -> dict[str, Any]:
         "closure": closure,
         "uq": _uq_program(),
         "speed": speed,
+        "fleet_learning": _fleet_learning(),
         "queued": queued,
     }
 

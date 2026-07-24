@@ -569,6 +569,16 @@ def _run_workflow(record: MissionRecord, route, workflow: dict) -> None:
     finally:
         record.finished_at = time.time()
         _persist(record)
+        # The learning loop: hand the finished transcript to the debrief so the
+        # lab keeps one grounded lesson per mission. Fully defensive and on a
+        # daemon thread — completion never waits on it and no failure escapes.
+        try:
+            from .debrief import debrief_async
+
+            debrief_async(record.id, record.request, record.state,
+                          record.bus.snapshot())
+        except Exception:
+            pass
         record.bus.close()
 
 

@@ -1,0 +1,150 @@
+{
+  "study": "fleet-ledger-learning",
+  "generated_at": "2026-07-24T05:19:50Z",
+  "provenance": {
+    "ledger_path": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\website\\mega-batch\\ledger.jsonl",
+    "row_count": 24076,
+    "ok_rows": 24076,
+    "failed_rows": 0,
+    "first_timestamp": "2026-07-23T03:53:37Z",
+    "last_timestamp": "2026-07-23T16:49:29Z"
+  },
+  "families": {
+    "openfoam-cylinder": {
+      "label": "OpenFOAM cylinder solves",
+      "attempted": 8025,
+      "ok": 8025,
+      "failed": 0,
+      "wall_seconds": 71021.6,
+      "failure_rate": 0.0,
+      "wall_seconds_mean": 8.85
+    },
+    "reduced-order": {
+      "label": "reduced-order valve evaluations",
+      "attempted": 8026,
+      "ok": 8026,
+      "failed": 0,
+      "wall_seconds": 8.4,
+      "failure_rate": 0.0,
+      "wall_seconds_mean": 0.0
+    },
+    "vspaero-wing": {
+      "label": "VSPAERO wing polars",
+      "attempted": 8025,
+      "ok": 8025,
+      "failed": 0,
+      "wall_seconds": 80942.6,
+      "failure_rate": 0.0,
+      "wall_seconds_mean": 10.09
+    }
+  },
+  "wing": {
+    "n": 8025,
+    "L_D": {
+      "n": 8025,
+      "mean": 37.5826,
+      "std": 5.6514,
+      "min": 23.6124,
+      "max": 46.8697
+    },
+    "best": {
+      "ledger_index": 8677,
+      "aspect_ratio": 15.97,
+      "sweep_deg": 34.37,
+      "L_D": 46.87
+    },
+    "worst": {
+      "ledger_index": 3790,
+      "aspect_ratio": 6.0,
+      "sweep_deg": 10.93,
+      "L_D": 23.61
+    },
+    "trend_LD_vs_aspect_ratio": {
+      "fit": {
+        "slope": 1.893957,
+        "intercept": 16.664926,
+        "r2": 0.9346,
+        "n": 8025
+      },
+      "quality": "strong"
+    },
+    "trend_LD_vs_sweep": {
+      "fit": {
+        "slope": 0.007231,
+        "intercept": 37.455065,
+        "r2": 0.0002,
+        "n": 8025
+      },
+      "quality": "not supported"
+    },
+    "implied_span_efficiency": {
+      "n": 8025,
+      "mean": 1.0156,
+      "std": 0.0188,
+      "min": 0.9518,
+      "max": 1.0666
+    }
+  },
+  "cylinder": {
+    "n": 8025,
+    "Cd": {
+      "n": 8025,
+      "mean": 1.9852,
+      "std": 0.3605,
+      "min": 1.5375,
+      "max": 3.0102
+    },
+    "Re": {
+      "n": 8025,
+      "mean": 27.5193,
+      "std": 9.8759,
+      "min": 10.0113,
+      "max": 44.9948
+    },
+    "converged_fraction": 1.0,
+    "trend_logCd_vs_logRe": {
+      "fit": {
+        "slope": -0.434365,
+        "intercept": 2.078431,
+        "r2": 0.9979,
+        "n": 8025
+      },
+      "quality": "strong"
+    }
+  },
+  "valve": {
+    "n": 8026,
+    "loss_Pa": {
+      "n": 8026,
+      "mean": 3291.9262,
+      "std": 2472.456,
+      "min": 1267.276,
+      "max": 11519.225
+    },
+    "best": {
+      "ledger_index": 11072,
+      "opening_angle_deg": 84.99,
+      "cycle_weighted_loss_Pa": 1267.28
+    },
+    "feasible_fraction": 0.9333,
+    "trend_loss_vs_angle": {
+      "fit": {
+        "slope": -148.207161,
+        "intercept": 12204.69681,
+        "r2": 0.7531,
+        "n": 8026
+      },
+      "quality": "strong"
+    }
+  },
+  "learned": [
+    "Across 8025 wing polars, higher aspect ratio raises L/D: about +1.89 in L/D per unit of aspect ratio, and the fit explains 93 percent of the variance (r2 = 0.93). That is a strong trend, measured, not assumed.",
+    "The induced-drag rows imply a span efficiency near 1.02 (spread 0.02 over 8025 polars), pulled straight from cl and cdi.",
+    "Best wing seen so far: L/D 46.9 at aspect ratio 16.0 and sweep 34.4 deg (ledger row 8677).",
+    "Over 8025 cylinder solves in the steady-laminar band, Cd falls with Re with a log-log slope of -0.43 (r2 = 1.00), consistent with laminar drag theory.",
+    "100 percent of the 8025 cylinder solves converged to residual tolerance.",
+    "Across 8026 reduced-order valve evaluations, wider opening angles cut cycle-weighted loss (slope -148.2 Pa per degree, r2 = 0.75); the lowest loss seen is 1267 Pa at 85.0 deg (ledger row 11072).",
+    "Reliability: 0 of 24076 attempted evaluations failed (0 percent); every failure stays in the ledger and counts against the fleet.",
+    "All of the above rests on 24076 completed evaluations in the fleet ledger; nothing here is asserted without a row behind it."
+  ]
+}

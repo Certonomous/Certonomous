@@ -10,14 +10,16 @@ tamper-evident without a signing key.
 Pure standard library.  The PDF is written by hand — a single page, the two
 built-in Helvetica faces (no font embedding), text, rules, and filled badges —
 so nothing here needs reportlab or any third-party PDF toolkit on the
-controller.  Text is emitted in WinAnsi so ``±``, ``°``, ``×`` and the em dash
-render; a few maths glyphs that WinAnsi lacks are folded to ASCII first.
+controller.  Text is emitted in WinAnsi so ``±``, ``°`` and ``×`` render; a few
+maths glyphs that WinAnsi lacks are folded to ASCII first, and an em dash is
+never emitted on the sealed page.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -52,12 +54,29 @@ def _resolved_tier(tier: str) -> str:
     return _LEGACY_TIER_ALIAS.get(tier, tier)
 
 # WinAnsi cannot encode these; fold to something it can before laying out text.
+# The em dash is foldable in WinAnsi but banned from the sealed page outright.
 _GLYPH_FOLD = {
     "≈": "~", "≥": ">=", "≤": "<=", "−": "-",
-    "–": "-", "‑": "-", "→": "->",
+    "—": "-", "–": "-", "‑": "-", "→": "->",
     "“": '"', "”": '"', "‘": "'", "’": "'",
     "·": "-",
 }
+
+# Language rails for the sealed page: no storage narration, no retired TREND
+# label, no "real solve" phrasing (the platform says "selected solver").
+# These rewrite wording only, applied at render time; the evidence seal is
+# computed over the caller's facts upstream and no number is ever touched.
+_BANNED_LANGUAGE = (
+    (re.compile(r"\bTREND[ -]ONLY\b", re.IGNORECASE), "SOLVER-BACKED"),
+    (re.compile(r"\bTREND\b"), "SOLVER-BACKED"),
+    (re.compile(r"\breal[ -]solves\b", re.IGNORECASE), "selected-solver runs"),
+    (re.compile(r"\breal[ -]solve\b", re.IGNORECASE), "selected-solver run"),
+    (re.compile(r"\bpre[ -]?computed\b", re.IGNORECASE), "prior"),
+    (re.compile(r"\bcached\b", re.IGNORECASE), "held"),
+    (re.compile(r"\bstored\b", re.IGNORECASE), "held"),
+    (re.compile(r"\bsaved\b", re.IGNORECASE), "held"),
+    (re.compile(r"\brecorded\b", re.IGNORECASE), "documented"),
+)
 
 
 # --------------------------------------------------------------------------
@@ -132,6 +151,8 @@ class _Canvas:
 def _fold(s: str) -> str:
     for bad, good in _GLYPH_FOLD.items():
         s = s.replace(bad, good)
+    for pattern, replacement in _BANNED_LANGUAGE:
+        s = pattern.sub(replacement, s)
     return s
 
 
@@ -173,9 +194,13 @@ def evidence_hash(payload: dict) -> str:
 
 
 def _seal_payload(*, mission_id, geometry, objective, results, channels,
-                  compute, issued_utc) -> dict:
-    """The exact fields the seal covers — nothing cosmetic, everything factual."""
-    return {
+                  compute, issued_utc, mesh=None) -> dict:
+    """The exact fields the seal covers — nothing cosmetic, everything factual.
+
+    ``mesh`` (the mission's actual checkMesh facts) joins the payload only when
+    the caller supplies it, so certificates without one keep their seals.
+    """
+    payload = {
         "mission_id": mission_id,
         "geometry": geometry,
         "objective": objective,
@@ -190,6 +215,9 @@ def _seal_payload(*, mission_id, geometry, objective, results, channels,
         ],
         "compute": compute or {},
     }
+    if mesh:
+        payload["mesh"] = dict(mesh)
+    return payload
 
 
 # --------------------------------------------------------------------------
@@ -349,7 +377,7 @@ def build_certificate(report_doc: dict, *, out_path: str | Path,
 
     # -- footer ------------------------------------------------------------
     c.text(left, _MARGIN + 12,
-           "Sealed by the hash above; any change to the recorded run invalidates it. "
+           "Sealed by the hash above; any change to the documented run invalidates it. "
            "VALIDATED is earned only against a published experiment.",
            size=7.5, color=_MUTED)
 
@@ -424,20 +452,59 @@ def _infer_fidelity(tier: str, compute: dict, results: list) -> str:
     return "SOLVER-BACKED"
 
 
+def _mesh_rows(mesh: dict) -> list[tuple[str, str, str, bool]]:
+    """(check, measured, verdict, ok) rows for the mesh-validity block.
+
+    Gates default to the OpenFOAM guidance the studies already judge by:
+    70 degrees max non-orthogonality (hard gate), 4.0 max skewness (guidance).
+    A value checkMesh did not report renders as exactly that; no number is
+    ever invented for the page.
+    """
+    rows: list[tuple[str, str, str, bool]] = []
+    cells = mesh.get("cells")
+    if cells is not None:
+        rows.append(("Cells", f"{int(cells):,}", "", True))
+    non_ortho = mesh.get("max_non_orthogonality")
+    gate = float(mesh.get("non_orthogonality_gate", 70.0))
+    if non_ortho is None:
+        rows.append(("Max non-orthogonality", "not reported by checkMesh", "", True))
+    else:
+        ok = float(non_ortho) <= gate
+        rows.append(("Max non-orthogonality",
+                     f"{float(non_ortho):.1f}° vs {gate:.0f}° gate",
+                     "pass" if ok else "caveat", ok))
+    skew = mesh.get("max_skewness")
+    guidance = float(mesh.get("skewness_gate", 4.0))
+    if skew is None:
+        rows.append(("Max skewness", "not reported by checkMesh", "", True))
+    else:
+        ok = float(skew) <= guidance
+        rows.append(("Max skewness",
+                     f"{float(skew):.2f} vs {guidance:.1f} guidance",
+                     "pass" if ok else "caveat", ok))
+    return rows
+
+
 def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
                          geometry: str, objective: str, mission_id: str,
                          issued_utc: str, channels: Iterable[dict] | None = None,
                          display_name: str | None = None,
                          source_filename: str | None = None,
                          solver: str | None = None,
-                         fidelity: str | None = None) -> dict[str, Any]:
+                         fidelity: str | None = None,
+                         mesh: dict | None = None) -> dict[str, Any]:
     """Redesigned certificate: a certificate, not a log dump.
 
     Serif/sans pairing, a human certificate number in the masthead (the mission
     slug is demoted to provenance metadata), a subject block leading with the
     geometry DISPLAY NAME, a result block with value +- 95% CI and a fidelity
     chip, the complete three-channel uncertainty table, and a provenance footer
-    carrying the SHA-256 seal (truncated + full) and the reproducibility line.
+    carrying the SHA-256 seal (truncated + full).
+
+    ``mesh`` carries the mission's actual checkMesh facts for the solved-mesh
+    acts (cells, max non-orthogonality, max skewness plus their gates); when
+    given it is sealed with the run and rendered as a mesh-validity block with
+    pass/caveat verdicts against the stated gates.
 
     Additive and non-default: nothing here changes ``build_certificate``.
     """
@@ -454,7 +521,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     seal = evidence_hash(_seal_payload(
         mission_id=mission_id, geometry=geometry, objective=objective,
         results=results, channels=channels, compute=compute,
-        issued_utc=issued_utc))
+        issued_utc=issued_utc, mesh=mesh))
     cert_no = _human_number(mission_id, issued_utc, seal)
 
     c = _Canvas()
@@ -462,6 +529,12 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     right = _PAGE_W - _MARGIN - 8
     width = right - left
     y = _PAGE_H - _MARGIN - 6
+
+    # A certificate carrying the mesh-validity block holds more rows on the
+    # same single page, so its vertical rhythm tightens; certificates without
+    # one keep the exact spacing the signed-off redesign shipped with.
+    def gap(normal: float, tight: float) -> float:
+        return tight if mesh else normal
 
     # -- masthead: wordmark (serif) + document class + human number ---------
     c.text(left, y - 18, "CERTONOMOUS", size=25, bold=True, color=_INK, serif=True)
@@ -471,30 +544,30 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     c.text(right - 150, y - 22, cert_no, size=15, bold=True, color=_INK, serif=True)
     y -= 48
     c.rule(left, y, right, width=1.4, color=_INK)
-    y -= 30
+    y -= gap(30, 24)
 
     # -- subject block -----------------------------------------------------
     c.text(left, y, "SUBJECT", size=8, bold=True, color=_MUTED)
-    y -= 22
+    y -= gap(22, 20)
     for line in _wrap(subject, 19, width):
         c.text(left, y, line, size=19, bold=True, color=_INK, serif=True)
-        y -= 23
+        y -= gap(23, 22)
     if source_filename:
         c.text(left, y, f"source geometry: {source_filename}", size=8.5,
                color=_MUTED)
-        y -= 16
-    y -= 6
+        y -= gap(16, 14)
+    y -= gap(6, 4)
     for label, value in (("Objective", objective),
                          ("Solver & model", solver or "—"),
                          ("Issued (UTC)", issued_utc)):
         c.text(left, y, label.upper(), size=8, bold=True, color=_MUTED)
         for line in _wrap(str(value), 10.5, width - 120):
             c.text(left + 120, y, line, size=10.5, color=_INK)
-            y -= 14
-        y -= 6
-    y -= 6
+            y -= gap(14, 13)
+        y -= gap(6, 5)
+    y -= gap(6, 4)
     c.rule(left, y, right)
-    y -= 28
+    y -= gap(28, 22)
 
     # -- result block: value +- CI + fidelity chip -------------------------
     c.text(left, y, "RESULT", size=8, bold=True, color=_MUTED)
@@ -506,12 +579,12 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         chip_w = max(96.0, len(shown_chip) * 6.4 + 22)
         c.rect(right - chip_w, y - 5, chip_w, 21, fill=chip_color)
         c.text(right - chip_w + 11, y + 1, shown_chip, size=9.5, bold=True, color=_WHITE)
-    y -= 30
+    y -= gap(30, 26)
     quantity = str(primary.get("quantity", "Result"))
     value = str(primary.get("value", ""))
     env = primary.get("envelope")
     c.text(left, y, quantity, size=11, color=_MUTED)
-    y -= 26
+    y -= gap(26, 24)
     # Some report envelopes already carry their own leading "±"; never print
     # the sign twice.
     env_text = env.lstrip("± ").strip() if env else ""
@@ -519,35 +592,38 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     c.text(left, y, headline, size=24, bold=True, color=_INK, serif=True)
     c.text(left + 8, y - 16, "95% confidence interval" if env else "point estimate",
            size=8.5, color=_MUTED)
-    y -= 34
+    y -= gap(34, 30)
     reason = primary.get("reason")
     if reason:
         for line in _wrap(f"Basis: {reason}", 9.5, width):
             c.text(left, y, line, size=9.5, color=_MUTED)
-            y -= 13
-    # secondary results
+            y -= gap(13, 12)
+    # secondary results; a "Mesh" line is skipped when the dedicated
+    # mesh-validity block below carries those same facts with their verdicts.
     for item in results[1:]:
+        if mesh and str(item.get("quantity", "")).strip().lower() == "mesh":
+            continue
         c.text(left, y, str(item.get("quantity", "")), size=9, bold=True, color=_INK)
         val = str(item.get("value", ""))
         ienv = item.get("envelope")
         c.text(left + 160, y, f"{val}   {ienv}" if ienv else val, size=9, color=_MUTED)
-        y -= 13
-    y -= 10
+        y -= gap(13, 12)
+    y -= gap(10, 6)
     c.rule(left, y, right)
-    y -= 26
+    y -= gap(26, 20)
 
     # -- three-channel uncertainty table -----------------------------------
     c.text(left, y, "UNCERTAINTY  ·  ASME V&V 20 THREE-CHANNEL", size=8, bold=True,
            color=_MUTED)
-    y -= 8
+    y -= gap(8, 6)
     c.rule(left, y, right, width=0.5)
-    y -= 16
+    y -= gap(16, 14)
     c.text(left, y, "CHANNEL", size=7.5, bold=True, color=_MUTED)
     c.text(left + 150, y, "VALUE", size=7.5, bold=True, color=_MUTED)
     c.text(left + 250, y, "STATE", size=7.5, bold=True, color=_MUTED)
-    y -= 6
+    y -= gap(6, 5)
     c.rule(left, y, right, width=0.5)
-    y -= 16
+    y -= gap(16, 14)
     table = channels or [{"name": n} for n in ("Input", "Numerical", "Model form")]
     for ch in table:
         state = "quantified" if ch.get("quantified") else "not quantified"
@@ -557,12 +633,28 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         c.text(left + 150, y, cval, size=9.5, color=_INK)
         c.text(left + 250, y, state, size=9,
                color=_MUTED if ch.get("quantified") else (0.66, 0.45, 0.10))
-        y -= 13
+        y -= gap(13, 12)
         note = ch.get("note")
         if note:
             for line in _wrap(str(note), 8.5, width - 14):
                 c.text(left + 14, y, line, size=8.5, color=_MUTED)
-                y -= 11
+                y -= gap(11, 10)
+        y -= gap(4, 3)
+
+    # -- mesh validity (solved-mesh acts) -----------------------------------
+    if mesh:
+        y -= 4
+        c.rule(left, y + 12, right, width=0.5)
+        c.text(left, y - 2, "MESH VALIDITY  ·  CHECKMESH", size=8, bold=True,
+               color=_MUTED)
+        y -= 17
+        for name, measured, verdict, ok in _mesh_rows(mesh):
+            c.text(left, y, name, size=9.5, bold=True, color=_INK)
+            c.text(left + 150, y, measured, size=9.5, color=_INK)
+            if verdict:
+                c.text(left + 290, y, verdict, size=9,
+                       color=_MUTED if ok else (0.66, 0.45, 0.10))
+            y -= 13
         y -= 4
 
     # -- provenance footer -------------------------------------------------

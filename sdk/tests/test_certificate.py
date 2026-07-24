@@ -141,5 +141,96 @@ class RedesignV2Tests(unittest.TestCase):
         self.assertEqual(display_name_for("b52", "Explicit name"), "Explicit name")
 
 
+class GeometryStudyCertificateTests(unittest.TestCase):
+    """Owner directives: all three V&V-20 channels on the geometry-study
+    certificate, the mission's real checkMesh numbers with their gate verdicts,
+    and none of the banned vocabulary in the rendered text."""
+
+    def _render(self, report=None, channels=_CHANNELS, mesh=None, **kw):
+        with tempfile.TemporaryDirectory() as d:
+            out = build_certificate_v2(
+                report or _report(), out_path=Path(d) / "c.pdf",
+                channels=channels, mesh=mesh, **{**_KW, **kw})
+            text = Path(out["path"]).read_bytes().decode("latin-1")
+            return out, text
+
+    def test_three_channels_on_a_geometry_study_certificate(self):
+        from workflows.geometry_study import certificate_channels
+        lookup = {"numerical": {"band_abs": 0.00303,
+                                "method": "3-mesh ladder (r = 1.22), observed "
+                                          "order p = 2.10; GCI band, Fs = 1.25"},
+                  "model": None, "pending": False,
+                  "provenance": ["uq-b52-r1", "uq-b52-r2", "uq-b52-r3"]}
+        channels = certificate_channels(
+            settle_2sigma=0.0026, window=60, velocity=20.0, lookup=lookup,
+            cells=193880, non_ortho_s="65.2°", skew_s="3.20")
+        self.assertEqual([c["name"] for c in channels["channels"]],
+                         ["input", "numerical", "model"])
+        inp, num, mod = channels["channels"]
+        # Input: the freestream envelope, honestly unquantified, never a
+        # borrowed number. Numerical: the refinement band plus the REAL
+        # checkMesh numbers. Model: k-omega SST, stated model-form.
+        self.assertFalse(inp["quantified"])
+        self.assertIn("stated, not quantified", inp["note"])
+        self.assertIn("freestream conditions envelope", inp["note"])
+        self.assertTrue(num["quantified"])
+        self.assertEqual(num["value"], 0.00303)
+        self.assertIn("checkMesh: 193,880 cells", num["note"])
+        self.assertFalse(mod["quantified"])
+        self.assertIn("k-omega SST", mod["note"])
+        _, text = self._render(channels=channels)
+        self.assertTrue(text.startswith("%PDF"))
+        for token in ("input", "numerical", "model", "not quantified",
+                      "193,880"):
+            self.assertIn(token, text)
+
+    def test_pending_study_states_status_and_invents_nothing(self):
+        from workflows.geometry_study import certificate_channels
+        channels = certificate_channels(
+            settle_2sigma=0.004, window=60, velocity=100.0,
+            lookup={"numerical": None, "model": None, "pending": True,
+                    "provenance": []},
+            cells=50000, non_ortho_s="61.0°", skew_s="2.10")
+        inp, num, mod = channels["channels"]
+        self.assertFalse(num["quantified"])
+        self.assertIsNone(num["value"])
+        self.assertIn("study pending", num["note"])
+        self.assertFalse(mod["quantified"])
+
+    def test_mesh_validity_block_carries_real_checkmesh_numbers(self):
+        from workflows.geometry_study import mesh_validity
+        mesh = mesh_validity(193880, 65.2, 8.9)
+        out, text = self._render(mesh=mesh)
+        self.assertIn("MESH VALIDITY", text)
+        self.assertIn("193,880", text)
+        self.assertIn("65.2\xb0 vs 70\xb0 gate", text)
+        self.assertIn("8.90 vs 4.0 guidance", text)
+        self.assertIn("pass", text)      # non-orthogonality inside its gate
+        self.assertIn("caveat", text)    # skewness above the guidance
+        # The mesh facts are sealed with the run: the hash must move.
+        base, _ = self._render()
+        self.assertNotEqual(out["hash"], base["hash"])
+
+    def test_banned_language_never_renders(self):
+        report = {
+            "results": [
+                {"quantity": "Drag coefficient", "value": "0.0471",
+                 "envelope": "±0.0013", "tier": "TREND ONLY",
+                 "reason": "cached, stored, saved, recorded, pre-computed "
+                           "from a real solve — TREND"},
+            ],
+            "uncertainty": [],
+            "compute": {"cells": 1000, "core_minutes": 1.0},
+        }
+        _, text = self._render(report=report,
+                               objective="measure drag — precisely")
+        self.assertTrue(text.startswith("%PDF"))
+        for banned in ("\x97",           # em dash in WinAnsi
+                       "cached", "stored", "saved", "recorded",
+                       "pre-computed", "real solve", "TREND",
+                       "reproducible evidence"):
+            self.assertNotIn(banned, text)
+
+
 if __name__ == "__main__":
     unittest.main()

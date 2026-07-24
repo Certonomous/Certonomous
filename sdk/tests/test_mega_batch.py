@@ -86,6 +86,13 @@ class LedgerTests(unittest.TestCase):
                 rows = [json.loads(x) for x in ledger.read_text().splitlines() if x.strip()]
                 indices = [r["index"] for r in rows]
                 self.assertEqual(len(indices), len(set(indices)))
+                # Every batch is a learning opportunity: the session-end
+                # distiller must have written the learned study beside it.
+                study_path = ledger.parent / "learned_study.json"
+                self.assertTrue(study_path.exists())
+                study = json.loads(study_path.read_text(encoding="utf-8"))
+                self.assertEqual(study["provenance"]["row_count"], 7)
+                self.assertEqual(study["valve"]["n"], 7)
             finally:
                 mega_batch.design_for_index = original
 
@@ -116,7 +123,7 @@ class LabStatsTests(unittest.TestCase):
         # board, discretization ladders, and the reduced-order speed program all
         # come back structured, with real numbers and no invented "our score".
         r = lab_stats.research_programs()
-        self.assertEqual(set(r), {"closure", "uq", "speed", "queued"})
+        self.assertEqual(set(r), {"closure", "uq", "speed", "fleet_learning", "queued"})
 
         closure = r["closure"]
         self.assertEqual(closure["target_rank"], 4)

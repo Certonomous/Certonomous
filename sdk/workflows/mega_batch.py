@@ -265,6 +265,29 @@ def load_done_indices(ledger_path: Path) -> set[int]:
 
 
 # --------------------------------------------------------------------------
+# Learning pass — every batch is a learning opportunity
+# --------------------------------------------------------------------------
+
+# Refresh the distilled learned study after this many completions in-session,
+# and always once more when the session ends. Cheap (one ledger read), and a
+# failure here must never sink the batch itself.
+LEARN_EVERY = 500
+
+
+def distill_learning(ledger_path: Path, log=print) -> None:
+    """Distill the ledger into the learned study; never raises."""
+    try:
+        from chief_engineer.ledger_learning import distill_to_file
+        study = distill_to_file(ledger_path)
+        log(
+            f"[mega-batch] learning refreshed: "
+            f"{study['provenance']['row_count']} ledger rows distilled"
+        )
+    except Exception as exc:  # learning is best-effort, the batch is not
+        log(f"[mega-batch] learning pass skipped: {type(exc).__name__}: {exc}")
+
+
+# --------------------------------------------------------------------------
 # Continuous run loop
 # --------------------------------------------------------------------------
 
@@ -340,8 +363,14 @@ def run_batch(
                 else:
                     stats["failed"] += 1
                     log(f"[mega-batch] #{index} {record['solver']} FAILED: {record.get('error')}")
+                if completed_this_session % LEARN_EVERY == 0:
+                    distill_learning(ledger_path, log=log)
             if should_stop() and not inflight:
                 break
+
+    # Every batch is a learning opportunity: distill the ledger into the
+    # learned study at session end (best-effort, never fatal).
+    distill_learning(ledger_path, log=log)
 
     total = len(load_done_indices(ledger_path))
     log(

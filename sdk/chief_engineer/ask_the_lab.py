@@ -23,9 +23,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from . import citations
+from . import citations, claude_lab
 from .case_memory import CASE_MEMORY
-from .lessons import LESSONS
+from .lessons import LESSONS, learned_lessons
 
 _STOPWORDS = {
     "the", "a", "an", "of", "on", "in", "at", "to", "for", "and", "or", "is",
@@ -77,42 +77,38 @@ class Answer:
 # The deterministic layer above RETRIEVES the facts and guards provenance; the
 # LLM only REASONS over the facts it is handed — comparing bodies, converting a
 # coefficient to a force, focusing a dump into an answer. It is given ONLY the
-# grounded source details, never the whole corpus, so it cannot introduce a
-# number the record does not hold. If the key is absent, the ``anthropic``
-# package is missing, or the call fails, synthesis returns None and the caller
-# keeps the deterministic listing — the demo never depends on the model.
+# retrieved source details, never the whole corpus, so it cannot introduce a
+# number the record does not hold, and it must cite exactly what retrieval
+# cited. A solid record answer is kept as-is; the model is consulted only when
+# the record listing alone is thin, or when the question asks for reasoning
+# (rank, compare) the listing cannot do. All calls go through the shared
+# ``claude_lab`` client: no key, a kill switch, or any failure means None and
+# the caller keeps the deterministic behaviour — the demo never depends on the
+# model.
 
-# A single config constant, overridable via env with no code edit — kept in step
-# with the objective compiler's model.
-DEFAULT_LLM_MODEL = "claude-sonnet-4-6"
-
-
-def _llm_model() -> str:
-    return os.environ.get("CERTONOMOUS_LLM_MODEL", DEFAULT_LLM_MODEL).strip() or DEFAULT_LLM_MODEL
+_SYNTHESIS_SYSTEM = (
+    "You answer strictly from the facts you are given, reasoning over them "
+    "but never beyond them. Plain prose, no preamble, no em dashes (use "
+    "commas). Never describe a result as cached, stored, saved, or "
+    "pre-computed.")
 
 
 def _synthesis_enabled() -> bool:
     if os.environ.get("CERTONOMOUS_ASK_LLM", "").strip() == "0":
         return False
-    return bool(os.environ.get("ANTHROPIC_API_KEY"))
+    return claude_lab.enabled()
 
 
 def _synthesize(question: str, facts: list[str]) -> str | None:
-    """Reason over the grounded facts with a real model, or return None.
+    """Reason over the retrieved facts with the shared lab model, or None.
 
-    The key is read ONLY from ``ANTHROPIC_API_KEY`` and is never logged, echoed,
-    or persisted. The model is handed the question and the grounded facts and
-    nothing else, and is told to use only those facts — so the answer stays
-    inside what the lab has actually recorded.
+    The model is handed the question and the retrieved facts and nothing
+    else, and is told to use only those facts — so the answer stays inside
+    what the lab has actually recorded. When the facts cannot answer the
+    question the model says UNANSWERABLE and the caller keeps its honest
+    refusal instead.
     """
     if not facts or not _synthesis_enabled():
-        return None
-    key = os.environ.get("ANTHROPIC_API_KEY")
-    if not key:
-        return None
-    try:
-        import anthropic  # optional dependency; absence is a clean fallback
-    except ImportError:
         return None
     catalogue = "\n".join(f"- {fact}" for fact in facts)
     instructions = (
@@ -122,24 +118,26 @@ def _synthesize(question: str, facts: list[str]) -> str | None:
         "not present in them. If the question asks you to compare, rank, or "
         "convert (for example a drag coefficient into a force), do the reasoning "
         "explicitly from these facts and state any standard constant you use. If "
-        "the facts do not answer the question, say so plainly and say what the "
-        "lab would need to run. Keep it to a few sentences, precise and honest; "
-        "never soften a trust caveat or agree to a value the record contradicts.\n\n"
+        "the facts do not answer the question, reply with the single word "
+        "UNANSWERABLE. Keep it to a few sentences, precise and honest; never "
+        "soften a trust caveat or agree to a value the record contradicts.\n\n"
         f"FACTS FROM THE LAB'S RECORD:\n{catalogue}\n\nQUESTION: {question}")
-    try:
-        client = anthropic.Anthropic(api_key=key)
-        message = client.messages.create(
-            model=_llm_model(),
-            max_tokens=600,
-            system=("You answer strictly from the facts you are given, reasoning "
-                    "over them but never beyond them. Plain prose, no preamble."),
-            messages=[{"role": "user", "content": instructions}])
-        content = "".join(
-            block.text for block in message.content
-            if getattr(block, "type", None) == "text").strip()
-        return content or None
-    except Exception:
+    reply = claude_lab.complete(_SYNTHESIS_SYSTEM, instructions,
+                                max_tokens=700, effort="low")
+    if not reply:
         return None
+    reply = reply.replace("—", ",").strip()
+    if not reply or reply.upper().startswith("UNANSWERABLE"):
+        return None
+    return reply
+
+
+def _coverage(query: set[str], chosen: list[Source]) -> float:
+    """How much of the question the chosen sources actually cover, 0..1."""
+    covered: set[str] = set()
+    for source in chosen:
+        covered |= query & _tokens(source.text)
+    return len(covered) / max(1, len(query))
 
 
 def _mission_state_root() -> Path:
@@ -278,8 +276,16 @@ def _static_sources() -> list[Source]:
     return sources
 
 
+def _learned_sources() -> list[Source]:
+    """Lessons the debrief loop earned from finished missions, cited by the
+    mission id that taught them."""
+    return [Source(kind="lesson", text=item["text"], detail=item["text"],
+                   citation=item["mission_id"])
+            for item in learned_lessons()]
+
+
 def _corpus() -> list[Source]:
-    return _static_sources() + _mission_sources()
+    return _static_sources() + _learned_sources() + _mission_sources()
 
 
 # An aggregation over the whole record — "rank/list/compare/summarise", or a
@@ -311,6 +317,9 @@ def _aggregate_answer(text: str, query: set[str]) -> Answer:
     facts = [source.detail for source in cases]
     body = ("From the lab's body of work (each value carries the +/- envelope "
             "that is its confidence): " + " ".join(facts))
+    # A rank/compare/summarise question asks for reasoning the raw listing
+    # cannot do, so the model is always offered the excerpts here; the listing
+    # remains the fallback whenever it has nothing to add.
     synthesized = _synthesize(text, facts)
     return Answer(
         grounded=True,
@@ -348,13 +357,32 @@ def answer(question: str, *, max_sources: int = 3) -> Answer:
     threshold = 2.0 if len(query) >= 2 else 1.0
     chosen = [source for score, source in scored[:max_sources] if score >= threshold]
     if not chosen:
+        # Retrieval surfaced record excerpts but none cleared the grounding
+        # bar. Hand those same excerpts — and nothing else — to the model; if
+        # it can answer from them it does, with the same citations, otherwise
+        # the honest refusal stands exactly as before.
+        near = [source for _score, source in scored[:max_sources]]
+        synthesized = _synthesize(text, [source.detail for source in near]) if near else None
+        if synthesized:
+            return Answer(
+                grounded=True,
+                text=synthesized,
+                citations=citations.display_all(source.citation for source in near),
+                sources=[{"kind": source.kind,
+                          "citation_display": citations.display(source.citation)}
+                         for source in near],
+                mode="synthesized")
         return _ungrounded()
 
     facts = [source.detail for source in chosen]
     lead = facts[0]
     rest = " ".join(facts[1:])
     body = f"From the lab's record: {lead}" + (f" {rest}" if rest else "")
-    synthesized = _synthesize(text, facts)
+    # A solid record answer stands on its own. The model is brought in only
+    # when the retrieved excerpts cover less than half of the question — the
+    # listing alone would then read as a non-answer — and it reasons over
+    # exactly the excerpts the deterministic layer chose.
+    synthesized = _synthesize(text, facts) if _coverage(query, chosen) < 0.5 else None
     return Answer(
         grounded=True,
         text=synthesized or body,
