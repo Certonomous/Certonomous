@@ -315,7 +315,12 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
     return {"surface": surface, "closed": True, "issues": [],
             "reference": reference_values,
             "planform_area": geometry["planform_area"] * scale * scale,
-            "frontal_area": geometry["frontal_area"] * scale * scale}
+            "frontal_area": geometry["frontal_area"] * scale * scale,
+            # Body axes ride along so the pressure-slice plot knows which
+            # plane is mid-span without re-measuring the surface.
+            "streamwise_axis": geometry["streamwise_axis"],
+            "span_axis": geometry["span_axis"],
+            "vertical_axis": geometry["vertical_axis"]}
 
 
 # New questions a solved body opens — ambitions, not remediations. Fed to the
@@ -334,6 +339,19 @@ _AGENDA = [
               "library and grow the validated set",
      "cost": "one full chain per body; meshing dominates"},
 ]
+
+
+def pressure_slice_entry(path) -> dict:
+    """The report-manifest entry for the mid-span pressure-slice figure.
+
+    Same shape as the C_d / C_L envelope entries, so the memo's figure strip
+    renders it clickable next to them regardless of live-queue timing.
+    """
+    from chief_engineer.field_render import SLICE_TITLE
+
+    name = Path(path).name
+    return {"title": SLICE_TITLE, "file": name,
+            "url": f"/api/plot/geometry-study/{name}"}
 
 
 def mesh_validity(cells: int, non_ortho: float | None,
@@ -902,6 +920,10 @@ def main(request: str | None = None, params: dict | None = None,
                                else f"{FOAM_TUTORIALS}/resources/geometry/motorBike.obj.gz")
             wsl_source = geometry_source.replace("C:", "/mnt/c").replace("\\", "/")
             report = engineer.intake_geometry(wsl_source, surface)
+            # The tutorial motorbike rides x streamwise, y across the bike,
+            # z up: the mid-span pressure slice cuts the y = const plane.
+            report.update({"streamwise_axis": 0, "span_axis": 1,
+                           "vertical_axis": 2})
             # Run the iteration count the plan and report actually claim — the
             # tutorial ships a longer endTime, and the force is settled well
             # inside this window, so aligning them keeps the report truthful and
@@ -1220,6 +1242,44 @@ def main(request: str | None = None, params: dict | None = None,
             # strip never depends on live-queue timing.
             report_plots.append({"title": title, "file": target.name,
                                  "url": f"/api/plot/geometry-study/{target.name}"})
+
+    # Mid-span static-pressure slice: the field AROUND the body from the
+    # solved volume output (stagnation warmth at the nose, the suction bubble
+    # over the upper surface), alongside the painted surface above. The
+    # volume file comes from the foamToVTK run the paint step already made,
+    # so a warm replay renders it from the held case with no new solve; a
+    # held case whose volume output is absent (runs that predate the volume
+    # writer) skips the plot without a word on camera.
+    roster.set(CHIEF_ENGINEER, "slicing the pressure field", "working")
+    from chief_engineer.field_render import extract_pressure_slice
+
+    body_bounds = None
+    if painted:
+        try:
+            import json as _json
+            body_bounds = _json.loads(
+                Path(painted).read_text(encoding="utf-8")).get("bounds")
+        except (OSError, ValueError):
+            body_bounds = None
+    try:
+        slice_png = extract_pressure_slice(
+            engineer.remote_case, out / f"{label}_pressure_slice.png",
+            RUN_PREFIX[:-1] if RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
+            span_axis=int(report.get("span_axis", 1)),
+            plane_axes=(int(report.get("streamwise_axis", 0)),
+                        int(report.get("vertical_axis", 2))),
+            body_bounds=body_bounds, body_label=shown)
+    except Exception:
+        slice_png = None
+    if slice_png:
+        entry = pressure_slice_entry(slice_png)
+        announce_plot(emit, "geometry-study", slice_png, entry["title"])
+        report_plots.append(entry)
+        script.engineer(
+            "• Mid-span pressure slice rendered from the solved volume "
+            "field. • Red is the stagnation region where the flow comes to "
+            "rest; blue is the low-pressure region where it accelerates "
+            "around the body.")
 
     drag = results.get("Cd")
     lift = results.get("Cl")

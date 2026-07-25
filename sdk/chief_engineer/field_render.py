@@ -9,6 +9,12 @@ alone.
 
 Pure standard library: the base64 arrays are decoded by hand, so nothing here
 needs VTK or numpy on the controller.
+
+The mid-span pressure-slice renderer at the bottom of this module is the one
+exception: it reads the case's volume output (``internal.vtu``, written by the
+same ``foamToVTK`` call as the surface patches) and renders a filled contour of
+the static pressure in the fluid around the body, so it imports numpy and
+matplotlib lazily. The wireframe/paint path above stays stdlib-only.
 """
 
 from __future__ import annotations
@@ -394,3 +400,391 @@ def _wsl_out(path: Path) -> str:
     if len(text) > 1 and text[1] == ":":
         text = "/mnt/" + text[0].lower() + text[2:]
     return text
+
+
+# ---------------------------------------------------------------------------
+# Mid-span pressure slice: the field AROUND the body, from the volume output
+# ---------------------------------------------------------------------------
+# People read external aerodynamics from a 2D pressure-field slice: stagnation
+# warmth at the nose, the blue suction bubble over the upper surface. The
+# painted body above shows pressure ON the surface; this section shows the
+# static pressure IN the fluid on a plane normal to the span axis at mid-span,
+# extracted from the cell-centre field of the case's own volume output.
+
+_CELLS = re.compile(r"<Cells\b.*?</Cells>", re.S)
+
+# numpy dtypes for the same VTK binary types _TYPE_FMT covers.
+_NP_TYPES = {"Float32": "<f4", "Float64": "<f8", "Int32": "<i4",
+             "Int64": "<i8", "UInt8": "u1", "UInt32": "<u4", "UInt64": "<u8"}
+
+SLICE_TITLE = "Static pressure, mid-span slice"
+# Slab thickness: ~2% of the body span (1% half-thickness each side).
+SLICE_HALF_THICKNESS_FRACTION = 0.01
+
+# Diverging pressure map for the control-room theme: plot_theme's panel blue
+# and alert red at the poles (red high, blue low, the same convention as the
+# painted body), brightened at the extremes so the stagnation and suction
+# regions carry the eye, through a neutral dark grey at zero pressure so the
+# near-freestream field recedes into the panel. The midpoint is a neutral,
+# never a hue; the body cross-section shows as the darker figure background.
+_SLICE_ANCHORS = ("#8ec8ff", "#57a5ff", "#3a4147", "#f26a5c", "#ffb2a1")
+
+
+def _named_array(section: str, name: str, header_bytes: int):
+    """Decode one base64 binary DataArray into a numpy array (volume path).
+
+    Same wire format as :func:`_decode` (base64 over header+payload), but the
+    byte-count header is honoured exactly and the payload lands in numpy,
+    because a volume file carries millions of values where the per-face loop
+    above carries thousands.
+    """
+    import numpy as np
+
+    for attrs, body in _ARRAY.findall(section):
+        meta = dict(_ATTR.findall(attrs))
+        if meta.get("Name") != name:
+            continue
+        raw = base64.b64decode("".join(body.split()))
+        head_fmt = "<Q" if header_bytes == 8 else "<I"
+        (length,) = struct.unpack(head_fmt, raw[:header_bytes])
+        payload = raw[header_bytes:header_bytes + length]
+        return np.frombuffer(payload, dtype=_NP_TYPES[meta["type"]])
+    return None
+
+
+def read_volume_field(vtu_path: str | Path, field: str = "p"):
+    """Read points, cell connectivity, and one cell-centred field from a .vtu.
+
+    Returns ``(points (N,3), connectivity, offsets, values (C,))`` as numpy
+    arrays, or None when any part is missing. The cell-centre values are the
+    solver's own finite-volume unknowns, so no interpolation happens here.
+    """
+    text = Path(vtu_path).read_text(errors="replace")
+    header_bytes = 8 if "header_type='UInt64'" in text or \
+        (_HEADER_TYPE.search(text) or [""])[0] == "UInt64" else 4
+
+    points_section = _POINTS.search(text)
+    cells_section = _CELLS.search(text)
+    cell_data = _CELLDATA.search(text)
+    if not (points_section and cells_section and cell_data):
+        return None
+    points = _named_array(points_section.group(0), "Points", header_bytes)
+    connectivity = _named_array(cells_section.group(0), "connectivity", header_bytes)
+    offsets = _named_array(cells_section.group(0), "offsets", header_bytes)
+    values = _named_array(cell_data.group(0), field, header_bytes)
+    if points is None or connectivity is None or offsets is None or values is None:
+        return None
+    return points.reshape(-1, 3).astype("f8"), connectivity, offsets, values.astype("f8")
+
+
+def cell_centres(points, connectivity, offsets):
+    """Cell centres and per-axis extents from raw VTK unstructured-grid arrays.
+
+    Pure function over the arrays :func:`read_volume_field` returns. The
+    centre is the mean of the cell's vertices and the extent its axis-aligned
+    bounding box, which is exact for the hex-dominant snappy meshes here and
+    plenty for picking and framing a display slice (no polyhedral face
+    machinery needed). Returns ``(centres (C,3), extents (C,3))``.
+    """
+    import numpy as np
+
+    offsets = np.asarray(offsets, dtype=np.int64)
+    if offsets.size == 0:
+        return (np.zeros((0, 3)), np.zeros((0, 3)))
+    starts = np.empty_like(offsets)
+    starts[0] = 0
+    starts[1:] = offsets[:-1]
+    cell_points = np.asarray(points, dtype=np.float64)[
+        np.asarray(connectivity, dtype=np.int64)]
+    counts = (offsets - starts).astype(np.float64)
+    centres = np.add.reduceat(cell_points, starts, axis=0) / counts[:, None]
+    extents = (np.maximum.reduceat(cell_points, starts, axis=0)
+               - np.minimum.reduceat(cell_points, starts, axis=0))
+    return centres, extents
+
+
+def pick_slice(centres, extents, *, axis: int, station: float,
+               half_thickness: float, min_cells: int = 200,
+               widenings: int = 4):
+    """Indices of the cell layer the mid-span plane passes through.
+
+    A cell is kept when the plane crosses the cell's own extent along the
+    slice axis. That gives exactly one cell per in-plane position: the fine
+    near-body layers never stack (stacked layers project onto each other and
+    render as checkerboard noise, seen on the B-52 nose with a plain slab),
+    while the far field stays covered because its huge cells reach the plane
+    from far away — an effective slab of about one local cell size, thinner
+    than the nominal ~2% of span everywhere the mesh is refined. The nominal
+    ``half_thickness`` serves only as the widening fallback: when a sparse
+    volume leaves the cut starved the slab grows, doubling up to
+    ``widenings`` times, so an older, coarser held case still yields a
+    picture. Returns ``(indices, half_thickness_used)`` where a used value of
+    0.0 means the pure one-layer cut.
+    """
+    import numpy as np
+
+    centres = np.asarray(centres, dtype=np.float64)
+    extents = np.asarray(extents, dtype=np.float64)
+    distance = np.abs(centres[:, axis] - station)
+    reach = 0.5 * extents[:, axis]
+    used = 0.0
+    keep = np.flatnonzero(distance <= reach)
+    for _ in range(widenings):
+        if keep.size >= min_cells:
+            break
+        used = half_thickness if used == 0.0 else used * 2.0
+        keep = np.flatnonzero(distance <= reach + used)
+    return keep, used
+
+
+def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
+                        xlabel: str, ylabel: str, body_label: str = "",
+                        station_note: str = "", view_box=None,
+                        figsize=(11.4, 6.2), dpi: int = 150) -> dict | None:
+    """Render the filled pressure contour around the body silhouette.
+
+    ``u``/``v`` are in-plane cell-centre coordinates in metres, ``values`` the
+    cell-centre kinematic pressure (the incompressible solver's p, which is
+    already p over rho, in m^2/s^2), ``footprint`` each cell's in-plane size.
+    The triangulation is masked wherever a triangle spans farther than a few
+    local cell sizes, which is exactly the body cross-section (and any other
+    hole in the fluid), so the body shows as the dark panel background.
+    Returns metadata about what was drawn, including every string placed on
+    the figure so tests can hold the register.
+    """
+    import numpy as np
+    from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
+    from matplotlib.tri import Triangulation
+
+    from .plot_theme import BG, DIM, INK, MUTED, _pyplot, style_axes
+
+    u = np.asarray(u, dtype=np.float64)
+    v = np.asarray(v, dtype=np.float64)
+    values = np.asarray(values, dtype=np.float64)
+    footprint = np.asarray(footprint, dtype=np.float64)
+    if u.size < 3:
+        return None
+
+    if view_box is None:
+        view_box = (float(u.min()), float(u.max()),
+                    float(v.min()), float(v.max()))
+    u_lo, u_hi, v_lo, v_hi = view_box
+
+    # Work on the view neighbourhood only (30% margin): the colour range and
+    # the triangulation both stay local to what the figure shows.
+    margin_u = 0.3 * (u_hi - u_lo)
+    margin_v = 0.3 * (v_hi - v_lo)
+    near = ((u >= u_lo - margin_u) & (u <= u_hi + margin_u)
+            & (v >= v_lo - margin_v) & (v <= v_hi + margin_v))
+    if near.sum() < 3:
+        return None
+    u, v, values, footprint = u[near], v[near], values[near], footprint[near]
+
+    triangulation = Triangulation(u, v)
+    tris = triangulation.triangles
+    edge = np.zeros(len(tris))
+    for a, b in ((0, 1), (1, 2), (2, 0)):
+        edge = np.maximum(edge, np.hypot(u[tris[:, a]] - u[tris[:, b]],
+                                         v[tris[:, a]] - v[tris[:, b]]))
+    # A triangle whose longest edge outruns the local cell size bridges a
+    # hole in the fluid: the body cross-section. Masked triangles are simply
+    # not drawn, so the silhouette shows as the dark figure background.
+    local = footprint[tris].max(axis=1)
+    triangulation.set_mask(edge > 2.6 * np.maximum(local, 1e-12))
+
+    # Robust colour range about zero gauge pressure: percentiles keep one
+    # stagnation spike from flattening the whole field, and the diverging map
+    # is anchored at p = 0 so blue is always suction and red always
+    # compression, matching the painted body.
+    in_view = ((u >= u_lo) & (u <= u_hi) & (v >= v_lo) & (v <= v_hi))
+    ranged = values[in_view] if in_view.sum() >= 16 else values
+    lo = float(np.percentile(ranged, 1.0))
+    hi = float(np.percentile(ranged, 99.5))
+    tiny = max(1e-9, 1e-4 * (abs(lo) + abs(hi)))
+    lo = min(lo, -tiny)
+    hi = max(hi, tiny)
+
+    plt = _pyplot()
+    cmap = LinearSegmentedColormap.from_list("controlroom-pressure",
+                                             list(_SLICE_ANCHORS))
+    norm = TwoSlopeNorm(vmin=lo, vcenter=0.0, vmax=hi)
+
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    levels = np.concatenate([np.linspace(lo, 0.0, 21)[:-1],
+                             np.linspace(0.0, hi, 21)])
+    contour = ax.tricontourf(triangulation, values, levels=levels, cmap=cmap,
+                             norm=norm, extend="both")
+
+    # One annotated key value: the stagnation peak, the warmest point of the
+    # whole field, where the flow comes to rest on the nose.
+    peak_pool = np.flatnonzero(in_view) if in_view.sum() >= 16 else np.arange(values.size)
+    peak = int(peak_pool[np.argmax(values[peak_pool])])
+    annotation = (rf"stagnation peak  $p/\rho$ = {values[peak]:,.0f}"
+                  r" $\mathrm{m^2/s^2}$")
+    ax.annotate(annotation, xy=(u[peak], v[peak]),
+                xytext=(0.03, 0.94), textcoords="axes fraction",
+                ha="left", va="top", fontsize=12, color=INK, weight="bold",
+                arrowprops={"arrowstyle": "-", "color": MUTED,
+                            "linewidth": 0.9, "alpha": 0.8})
+
+    title = SLICE_TITLE + (f": {body_label}" if body_label else "")
+    style_axes(ax, xlabel, ylabel, title)
+    ax.grid(False)  # gridlines over a filled field are clutter, ticks stay
+    ax.set_xlim(u_lo, u_hi)
+    ax.set_ylim(v_lo, v_hi)
+    ax.set_aspect("equal", adjustable="box")
+
+    colorbar_label = (r"static pressure  $p/\rho$  [$\mathrm{m^2/s^2}$]")
+    cbar = fig.colorbar(contour, ax=ax, pad=0.02, fraction=0.05)
+    cbar.set_label(colorbar_label, color=INK, fontsize=11)
+    cbar.ax.tick_params(colors=MUTED, labelsize=9)
+    cbar.outline.set_edgecolor(DIM)
+
+    # Units stated plainly: the incompressible solver carries p over rho.
+    note = ("Incompressible solve: p is kinematic pressure, p over rho; "
+            "multiply by rho = 1.2 kg/m3 (air) for Pa.\n"
+            "Red high, blue low; the dark silhouette is the body "
+            "cross-section." + (f" {station_note}" if station_note else ""))
+    fig.text(0.01, 0.008, note, color=MUTED, fontsize=8.5,
+             family="monospace", va="bottom")
+
+    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    out_png = Path(out_png)
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_png)
+    plt.close(fig)
+    return {"path": str(out_png), "title": title, "xlabel": xlabel,
+            "ylabel": ylabel, "colorbar": colorbar_label, "note": note,
+            "annotation": annotation, "stagnation": float(values[peak]),
+            "value_range": (lo, hi)}
+
+
+_AXIS_NAMES = "xyz"
+
+
+def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
+                          span_axis: int, plane_axes=None, body_bounds=None,
+                          body_label: str = "", figsize=(11.4, 6.2),
+                          dpi: int = 150, field: str = "p") -> dict | None:
+    """Extract the mid-span slab from a volume file and render the contour.
+
+    ``span_axis`` is the axis the slicing plane is normal to; ``plane_axes``
+    the (horizontal, vertical) in-plane axes, defaulting to the remaining two
+    in order. ``body_bounds`` (the painted-surface payload's ``bounds``) sets
+    the slice station at the body's own mid-span and frames the view on the
+    body; without it both fall back to the fluid domain itself.
+    """
+    import numpy as np
+
+    volume = read_volume_field(vtu_path, field)
+    if volume is None:
+        return None
+    points, connectivity, offsets, values = volume
+    centres, extents = cell_centres(points, connectivity, offsets)
+    if len(centres) == 0 or len(values) < len(centres):
+        return None
+    values = values[:len(centres)]
+
+    if plane_axes is None:
+        plane_axes = tuple(a for a in range(3) if a != span_axis)
+    axis_u, axis_v = plane_axes
+
+    if body_bounds:
+        b_lo, b_hi = body_bounds["min"], body_bounds["max"]
+        station = 0.5 * (b_lo[span_axis] + b_hi[span_axis])
+        span = max(b_hi[span_axis] - b_lo[span_axis], 1e-9)
+    else:
+        domain_lo = points.min(axis=0)
+        domain_hi = points.max(axis=0)
+        station = 0.5 * (domain_lo[span_axis] + domain_hi[span_axis])
+        span = max(domain_hi[span_axis] - domain_lo[span_axis], 1e-9)
+
+    keep, half_used = pick_slice(
+        centres, extents, axis=span_axis, station=station,
+        half_thickness=SLICE_HALF_THICKNESS_FRACTION * span)
+    if keep.size < 3:
+        return None
+
+    u = centres[keep, axis_u]
+    v = centres[keep, axis_v]
+    footprint = np.maximum(extents[keep, axis_u], extents[keep, axis_v])
+
+    if body_bounds:
+        # Frame on the body: room ahead and above, more behind for the wake.
+        lu = max(b_hi[axis_u] - b_lo[axis_u], 1e-9)
+        lv = max(b_hi[axis_v] - b_lo[axis_v], 1e-9)
+        cv = 0.5 * (b_lo[axis_v] + b_hi[axis_v])
+        half_v = 0.65 * max(lu, lv)
+        view = [b_lo[axis_u] - 0.50 * lu, b_hi[axis_u] + 0.90 * lu,
+                cv - half_v, cv + half_v]
+    else:
+        # No body bounds on file: frame on the refined region, which hugs the
+        # body (the finest cells are the ones snapped to the surface).
+        fine = footprint <= 4.0 * max(float(footprint.min()), 1e-12)
+        fu, fv = (u[fine], v[fine]) if fine.sum() >= 8 else (u, v)
+        lu = max(float(fu.max() - fu.min()), 1e-9)
+        lv = max(float(fv.max() - fv.min()), 1e-9)
+        view = [float(fu.min()) - 0.3 * lu, float(fu.max()) + 0.5 * lu,
+                float(fv.min()) - 0.3 * lv, float(fv.max()) + 0.3 * lv]
+    # The view never reaches outside the fluid that was actually sliced.
+    view[0] = max(view[0], float(u.min()))
+    view[1] = min(view[1], float(u.max()))
+    view[2] = max(view[2], float(v.min()))
+    view[3] = min(view[3], float(v.max()))
+
+    station_note = (f"Slice: {_AXIS_NAMES[span_axis]} = {station:.2f} m, "
+                    + ("the cell layer crossing the plane."
+                       if half_used == 0.0 else
+                       f"slab widened to {2 * half_used:.3g} m."))
+    return render_slice_figure(
+        u, v, values[keep], footprint, out_png,
+        xlabel=f"{_AXIS_NAMES[axis_u]}  [m]",
+        ylabel=f"{_AXIS_NAMES[axis_v]}  [m]",
+        body_label=body_label, station_note=station_note, view_box=view,
+        figsize=figsize, dpi=dpi)
+
+
+def extract_pressure_slice(remote_case: str, out_png: str | Path, wsl_prefix,
+                           *, span_axis: int, plane_axes=None,
+                           body_bounds=None, body_label: str = "") -> str | None:
+    """Fetch the case's volume output and render the mid-span pressure slice.
+
+    The volume file (``internal.vtu``) comes from the same ``foamToVTK`` run
+    :func:`extract_and_paint` already performed, so this never re-solves and
+    never re-meshes; it only copies one file out of the compute node. A held
+    case with no volume output on disk (runs older than the volume writer)
+    returns None and the act simply carries no slice plot.
+    """
+    import subprocess
+    import tempfile
+
+    staging = Path(tempfile.mkdtemp())
+    local = _wsl_out(staging)
+    # Same constraint as extract_and_paint: the wsl argument layer eats $
+    # expressions, so this is a plain glob copy. foamToVTK -latestTime writes
+    # exactly one time directory with a volume file, so the glob is single.
+    command = (f"cd {remote_case} && "
+               f"cp VTK/*/internal.vtu '{local}/volume.vtu' 2>/dev/null; "
+               f"test -s '{local}/volume.vtu' && echo OK")
+    try:
+        result = subprocess.run([*wsl_prefix, "bash", "-c", command],
+                                capture_output=True, text=True, timeout=600)
+    except Exception:
+        return None
+    if "OK" not in result.stdout:
+        return None
+    try:
+        meta = render_pressure_slice(
+            staging / "volume.vtu", out_png, span_axis=span_axis,
+            plane_axes=plane_axes, body_bounds=body_bounds,
+            body_label=body_label)
+    except Exception:
+        _log.warning("pressure-slice render failed for %s", remote_case,
+                     exc_info=True)
+        return None
+    finally:
+        try:
+            (staging / "volume.vtu").unlink()
+        except OSError:
+            pass
+    return meta["path"] if meta else None

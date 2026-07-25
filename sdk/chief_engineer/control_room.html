@@ -1727,8 +1727,9 @@ async function loadCredentials() {
         + `<div class="cred-src">Graded rows for the bodies the missions on screen run.</div></div>`
         + missionRows.map(credCard).join('')
       : '';
+    // Owner-directed order: Active research leads, the agenda docket follows.
     const html = `<div class="cred-head"><span class="eyebrow">Lab credentials</span></div>`
-      + counters + agendaHtml + research + missionCards;
+      + counters + research + agendaHtml + missionCards;
     host.innerHTML = html; renderDormant(html);
   } catch (e) { host.innerHTML = `<div class="cred-empty">Credentials unavailable.</div>`; renderDormant(null); }
 }
