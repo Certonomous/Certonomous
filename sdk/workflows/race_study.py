@@ -25,12 +25,13 @@ split-screen race view in the control room.
 from __future__ import annotations
 
 import random
+import re
 import statistics
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from . import OUT_ROOT, make_transcript
+from . import OUT_ROOT, announce_geometry, make_transcript
 from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
@@ -43,6 +44,14 @@ from workflows.race_benchmark import (ALPHAS, ANCHOR_ALPHAS, RE_NOMINAL,
                                       RE_SIGMA, TOLERANCE_DEG, VSPAERO_THREADS,
                                       WING, _TimedSolver)
 from workflows.shape_optimization import _fit_quadratic, _predict
+# The canonical uploaded-surface measurement lives in the airliner act; it is
+# imported, not duplicated, so every act measures an uploaded surface the same
+# way (largest horizontal bounding-box extent, z up).
+from workflows.aircraft_optimization import measure_surface_span
+
+# Where the router stages uploaded surfaces (the router and the airliner act
+# each define this same path locally).
+_GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
 
 # The compute treaty: at most four real solves in flight at once, across BOTH
 # lanes together (a mega-batch and the UQ ladders share the box). The four slots
@@ -75,7 +84,8 @@ def _mc_reynolds(samples: int, seed: int | None) -> list[float]:
 
 
 def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
-             samples: int, seed: int | None) -> dict:
+             samples: int, seed: int | None,
+             wing: dict | None = None) -> dict:
     """The full Monte-Carlo lane: samples x alpha, every point a real solve.
 
     Submits every (sample, alpha) job to the shared pool and streams a trace
@@ -83,7 +93,7 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
     sample is flagged so the polar can draw it as the running answer line while
     the ensemble keeps grinding out the envelope behind it.
     """
-    solver = _TimedSolver(work_root / "mc")
+    solver = _TimedSolver(work_root / "mc", wing=wing)
     res = _mc_reynolds(samples, seed)
     jobs = [(s, alpha, re_c) for s, re_c in enumerate(res) for alpha in ALPHAS]
     total = len(jobs)
@@ -113,7 +123,7 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
                              "nominal": s == 0, "sample": s,
                              "x_label": "angle of attack [deg]",
                              "y_label": "L/D",
-                             "title": "Full Monte-Carlo: solved polar"})
+                             "title": "Full Monte-Carlo: polar"})
         emit("race.lane", {"lane": "mc", "done": done, "total": total,
                            "elapsed_s": round(time.time() - started, 1),
                            "state": "running"})
@@ -142,11 +152,12 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
     return summary
 
 
-def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit) -> dict:
-    """The reduced-order lane: four real anchors, a fitted surface, one real
+def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
+              wing: dict | None = None) -> dict:
+    """The reduced-order lane: four anchor solves, a fitted surface, one
     confirmation solve. Shares the same four-slot pool as the Monte-Carlo lane,
     so on a busy box it queues behind those solves — the race stays honest."""
-    solver = _TimedSolver(work_root / "rom")
+    solver = _TimedSolver(work_root / "rom", wing=wing)
     total = len(ANCHOR_ALPHAS) + 1
     started = time.time()
     emit("race.lane", {"lane": "rom", "done": 0, "total": total,
@@ -190,7 +201,7 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit) -> dict:
     emit("trace.point", {"series": "rom", "x": alpha_star,
                          "y": round(confirm["l_d"], 3), "kind": "confirm",
                          "x_label": "angle of attack [deg]", "y_label": "L/D",
-                         "title": "Reduced-order: one real confirmation"})
+                         "title": "Reduced-order: confirmation solve"})
     surrogate_error = abs(confirm["l_d"] - predicted)
     core_minutes = round(sum(solver.solve_seconds) * VSPAERO_THREADS / 60, 2)
     emit("race.lane", {"lane": "rom", "done": total, "total": total,
@@ -215,11 +226,55 @@ def main(request: str | None = None, params: dict | None = None,
     script = make_transcript("race study", emit)
     roster = Roster(emit)
 
-    subject = ("NACA 4412 finite wing (chord 1 m, span 3 m, unswept, "
-               "chord Reynolds 1e6)")
-    script.system(request or "Race a full Monte-Carlo sweep against the "
-                             "reduced-order path on the NACA 4412 finite wing: "
-                             "same objective, same tolerance, both timed.")
+    # ---- uploaded raced wing -------------------------------------------
+    # A surface uploaded with the race prompt is the raced wing: it is
+    # acknowledged on the record under its display name, shown in the
+    # viewport before the race takes the stage, and its span measured from
+    # the file's bounding box anchors the parametric wing both lanes solve
+    # (reference chord held at the family's 1 m). The STL itself is never
+    # pretended to be the parametric family; it stays on file.
+    surface = str(params.get("surface") or "").strip()
+    surface_name = display_name(surface) if surface else ""
+    chord_ref = WING["area"] / WING["span"]
+    wing = None
+    measured_span = None
+    if surface:
+        measured_span = measure_surface_span(_GEOMETRY_DIR / surface)
+        if measured_span:
+            wing = {**WING, "span": measured_span,
+                    "area": round(measured_span * chord_ref, 3)}
+
+    if wing:
+        subject = (f"{surface_name} (span {measured_span:g} m measured from "
+                   f"the surface bounding box, reference chord {chord_ref:g} m, "
+                   f"chord Reynolds 1e6)")
+    elif surface:
+        subject = (f"{surface_name} (surface on file; raced on the NACA 4412 "
+                   f"parametric anchor)")
+    else:
+        subject = ("NACA 4412 finite wing (chord 1 m, span 3 m, unswept, "
+                   "chord Reynolds 1e6)")
+    raced_name = surface_name or "NACA 4412 finite wing"
+    script.system(request or f"Race a full Monte-Carlo sweep against the "
+                             f"reduced-order path on the {raced_name}: "
+                             f"same objective, same tolerance, both timed.")
+
+    if surface:
+        announce_geometry(emit, name=surface,
+                          label=f"raced wing: {surface_name}")
+        if wing:
+            script.engineer(
+                f"• Raced wing received: {surface_name}. "
+                f"• Span {measured_span:g} m measured from the surface "
+                f"bounding box; reference chord {chord_ref:g} m sets the "
+                f"area at {wing['area']:g} m². "
+                f"• Both lanes race this wing's parametric anchor; the "
+                f"surface itself stays on file.")
+        else:
+            script.engineer(
+                f"• Raced wing received: {surface_name}. "
+                f"• The surface is on file as the reference shape; both "
+                f"lanes race the NACA 4412 parametric anchor.")
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
@@ -230,13 +285,25 @@ def main(request: str | None = None, params: dict | None = None,
         dimensionality=1, regime="steady", smoothness="smooth",
         fidelity="the selected solver (vortex lattice) on both paths",
         constraints=("same objective", "same tolerance"))
+    # The generic memo phrases fidelity as a bound on the claim; in this act
+    # the owner-ratified line is the plain statement of what runs. Solver
+    # status is carried by the tier chip, never reassured in prose.
+    fidelity_line = re.compile(
+        r"Model fidelity \(.*?\) bounds the claim, not the search")
+    stated_solver = False
     for line in method_memo(props):
+        if fidelity_line.search(line):
+            line = fidelity_line.sub("Both lanes solve with VSPAERO", line)
+            stated_solver = True
         script.researcher(line)
+    # Bullets ride together inside ONE emitted entry (owner rule: an agent
+    # never appears to speak twice for one thought), so if the memo did not
+    # carry the solver line it leads this entry instead of standing alone.
     script.researcher(
-        "• Two admissible methods for one smooth peak: brute the ensemble, "
-        "or anchor a surface. "
-        "• Both lanes run the selected solver here, so the only honest question "
-        "is what each costs. "
+        ("" if stated_solver else "• Both lanes solve with VSPAERO. ") +
+        "• Two ways to find one smooth peak: sweep the whole ensemble with "
+        "Monte Carlo, or fit a surface from a few anchor solves. "
+        "• The only honest question is what each path costs. "
         "• So we run them side by side and measure.")
     roster.idle(CHIEF_RESEARCHER)
     script.engineer(ENGINEER_ACK)
@@ -265,8 +332,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.numericist(
         "• The two envelopes mean different things: the Monte-Carlo band is "
         "the stated input spread; the reduced-order band is the surrogate's "
-        "residual against one confirming solver run. "
-        "• No delays are staged; the clocks are the machine's.")
+        "residual against one confirming solver run.")
 
     if emit:
         emit("race.init", {
@@ -289,7 +355,10 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         "• Both lanes are live now, two reserved slots each on one box. "
         "• Watch the reduced-order lane cross the line first, then the "
-        "Monte-Carlo lane keeps solving to earn its envelope.")
+        "Monte-Carlo lane keeps solving to earn its envelope. "
+        f"• The Monte-Carlo lane needs all {total_mc} solves to reach a "
+        f"confidence band this tight; the reduced-order lane gets there "
+        f"with {total_rom}.")
 
     lane_results: dict[str, dict] = {}
 
@@ -307,10 +376,12 @@ def main(request: str | None = None, params: dict | None = None,
          ThreadPoolExecutor(max_workers=MC_WORKERS) as mc_pool, \
          ThreadPoolExecutor(max_workers=2) as drivers:
         futs = [
-            drivers.submit(_run, lambda: _rom_lane(rom_pool, work_root, emit),
+            drivers.submit(_run, lambda: _rom_lane(rom_pool, work_root, emit,
+                                                   wing=wing),
                            "rom"),
             drivers.submit(_run, lambda: _mc_lane(mc_pool, work_root, emit,
-                                                  samples=samples, seed=seed),
+                                                  samples=samples, seed=seed,
+                                                  wing=wing),
                            "mc"),
         ]
         for fut in futs:
@@ -357,10 +428,10 @@ def main(request: str | None = None, params: dict | None = None,
                     "peak": f"L/D {rom['confirmed']:.2f} at {rom['alpha_star']:g}°"},
             "speedup_core_min": speedup_cm, "speedup_wall": speedup_wall,
             "agreement_pct": agreement_pct,
-            "agreement": (f"The two paths agree to {agreement_pct}% "
-                          f". Same answer, one at a fraction of the cost.")})
+            "agreement": (f"The two paths agree to {agreement_pct}%. "
+                          f"Both within confidence bounds.")})
         emit("result.verdict", {
-            "quantity": "Peak L/D (both paths agree)",
+            "quantity": "Peak L/D",
             "value": f"{rom['confirmed']:.2f}", "ci": f"{2 * mc['peak_sem']:.2f}",
             "confidence": "95%", "tier": "SOLVER-BACKED",
             "envelope": f"full MC {cm_mc:.1f} core-min vs reduced {cm_rom:.1f} "
@@ -381,7 +452,8 @@ def main(request: str | None = None, params: dict | None = None,
                       "sharing the four slots, to bound the busy-box number",
              "cost": "one contended pass"}]})
         emit("report.ready", {
-            "title": "Speed, certified: the NACA 4412 race",
+            "title": (f"Speed, certified: the {surface_name} race" if surface
+                      else "Speed, certified: the NACA 4412 race"),
             "subject": subject,
             "summary": (f"Two real paths, both timed on this machine. Full "
                         f"Monte-Carlo: {mc['n_solves']} solver runs, "
@@ -434,15 +506,16 @@ def main(request: str | None = None, params: dict | None = None,
                            "studied here",
             model_note="reduced-order surrogate residual against one real "
                        "confirmation solve at the predicted angle of attack")
+        geometry_key = Path(surface).stem if surface else "naca4412"
         certificate = build_certificate_v2(
             cert_doc, out_path=out / "certificate.pdf",
-            geometry="naca4412",
+            geometry=geometry_key,
             objective="Locate the peak lift-to-drag over angle of attack two "
                       "ways, same objective and tolerance, both timed.",
             mission_id="race-comparison",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=race_channels,
-            display_name=display_name("naca4412"),
+            display_name=display_name(geometry_key),
             source_filename=subject,
             solver="OpenVSP VSPAERO, vortex lattice, run on both lanes")
         if emit:

@@ -5,7 +5,7 @@ cycle into a few steady phase points, solving each, and cycle-weighting the
 result. The design parameter is the leaflet opening angle; the objective is the
 cycle-weighted pressure loss across the valve orifice.
 
-This is a SCREENING method, graded CONCEPTUAL MODEL. The pressure loss at each
+This is a SCREENING method, graded RESEARCH MODEL. The pressure loss at each
 phase point comes from a transparent reduced-order orifice model
 (dp = 0.5 * rho * (Q / (Cd * A_orifice))^2) — the same conceptual-model posture
 as the aircraft-sizing study, NOT a solved flow. The place a real steady
@@ -29,6 +29,8 @@ import yaml
 from . import OUT_ROOT, announce_plot, make_transcript
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
+from chief_engineer.transcript import CHIEF_ENGINEER as _SPEAKER
+from chief_engineer.transcript import Entry
 from chief_engineer.plot_theme import waveform_figure
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
@@ -79,7 +81,7 @@ def _phase_pressure_loss(flow_rate: float, orifice_area: float,
     REDUCED-ORDER MODEL — this is the single point where a real steady
     internal-flow OpenFOAM solve (inlet flow rate, no-slip leaflets, simpleFoam,
     read dp from the solved field) plugs in. Until then the orifice correlation
-    stands in, transparently, and the grade stays CONCEPTUAL MODEL.
+    stands in, transparently, and the grade stays RESEARCH MODEL.
     """
     throat_velocity = flow_rate / max(cd * orifice_area, 1e-9)
     return 0.5 * RHO_BLOOD * throat_velocity ** 2
@@ -129,6 +131,32 @@ AGENDA = [
 ]
 
 
+# Transcript-table headers for the live candidate-screen rows.
+_CANDIDATE_HEADERS = ("Angle", "Orifice Area", "Cycle Loss", "Admissible")
+
+
+def _emit_table(emit, script, *, title: str, headers, rows, table_id: str,
+                append: bool = False) -> None:
+    """Put a transcript table on the record (valve act's live candidate rows).
+
+    The control room renders it as a compact table in the same paced feed as
+    transcript entries; ``append=True`` lands new rows into the existing table
+    (rows arrive live as evaluations finish). Every row is also mirrored into
+    the on-disk transcript so the written record keeps the numbers."""
+    if emit:
+        emit("transcript.table", {
+            "role": _SPEAKER, "title": title,
+            "headers": [str(h) for h in headers],
+            "rows": [[str(cell) for cell in row] for row in rows],
+            "table_id": table_id, "append": bool(append), "at": time.time()})
+    for row in rows:
+        line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
+        entry = Entry(_SPEAKER, f"[{title}] {line}")
+        script.entries.append(entry)
+        if emit is None and script.echo:
+            script.echo(entry.render())
+
+
 def main(request: str | None = None, params: dict | None = None,
          iterations: int = 1, emit=None) -> int:
     params = params or {}
@@ -161,15 +189,20 @@ def main(request: str | None = None, params: dict | None = None,
     script.researcher(
         "• Internal flow, pulsatile but periodic. "
         "• Periodic forcing converts to a few steady phase points, weighted back together.")
-    # (b) Womersley computed AND displayed with the ruling
+    # (b) Womersley computed AND displayed with the ruling — ONE entry, the
+    # GUI stacks its bullets as rows inside the single entry block.
     if alpha <= strict:
         ruling = (f"• Womersley α ≈ {alpha:.1f}, under the strict limit {strict:g}. "
                   f"• Each instant is effectively steady.")
     elif alpha <= screen_max:
         ruling = (f"• Womersley α ≈ {alpha:.1f}: above the strict limit {strict:g}, "
                   f"inertially unsteady. "
-                  f"• Under the screening ceiling {screen_max:g}, admissible as a SCREEN. "
-                  f"• Dropped phase-interaction rides as model-form in the channel table.")
+                  f"• Under the screening ceiling {screen_max:g}, admissible as a screen. "
+                  f"• Dropped phase-interaction rides as model-form in the channel table. "
+                  f"• To solve this for real. Required: a transient pulsatile solve "
+                  f"(moving-boundary incompressible solver with the time-varying inlet "
+                  f"waveform) on a meshed valve geometry; the phase decomposition then "
+                  f"becomes the initial guess, not the answer.")
     else:
         ruling = (f"• Womersley α ≈ {alpha:.1f} exceeds the screening ceiling "
                   f"{screen_max:g}. "
@@ -234,6 +267,15 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("objective.spec", {"metric": "cycle_pressure_loss", "direction": "min"})
     eval_started = time.time()
+    # One live-growing table carries every candidate's numbers: the header
+    # lands first, then each angle appends its row the moment its evaluation
+    # completes, exactly the airliner finalist-table pattern.
+    script.engineer(
+        f"• Screening {len(CANDIDATE_ANGLES)} opening angles; each candidate lands "
+        f"its row in the table below as its evaluation completes.")
+    _emit_table(emit, script, title="Opening-angle screen",
+                headers=list(_CANDIDATE_HEADERS), rows=[],
+                table_id="valve-candidates")
     trace_x, trace_y, trace_lo, trace_hi = [], [], [], []
     for slot, angle in enumerate(CANDIDATE_ANGLES):
         if emit:
@@ -280,10 +322,13 @@ def main(request: str | None = None, params: dict | None = None,
             emit("dispatch.update", {"slot": slot, "state": "done",
                                      "label": f"opening {angle:g}°",
                                      "detail": f"{obj:.0f} Pa"})
-        script.engineer(
-            f"• Opening {angle:g}° → orifice {area*1e6:.0f} mm², loss "
-            f"{obj:.0f} ± {band:.0f} Pa"
-            + ("." if feasible else ". • Infeasible: below the minimum orifice area."))
+        _emit_table(emit, script, title="Opening-angle screen",
+                    headers=list(_CANDIDATE_HEADERS),
+                    rows=[[f"{angle:g}°", f"{area * 1e6:.0f} mm²",
+                           f"{obj:.0f} ± {band:.0f} Pa",
+                           "Yes" if feasible
+                           else "No, below the minimum orifice area"]],
+                    table_id="valve-candidates", append=True)
     eval_elapsed = time.time() - eval_started
     ledger.spend(n_solves * 0.05, f"{n_solves} reduced-order phase evaluations")
     roster.set_workers(0)
@@ -340,7 +385,9 @@ def main(request: str | None = None, params: dict | None = None,
     channels = uncertainty_channels(
         input_2sigma=best["band"], numerical=numerical_val, model=model_val,
         input_note="2-sigma Monte-Carlo envelope propagated from the spread in "
-                   "phase flow-rate and the orifice discharge coefficient",
+                   "phase flow-rate and the orifice discharge coefficient. "
+                   "• The compute budget allows the full 2-sigma Monte-Carlo "
+                   "envelope.",
         numerical_note=numerical_note,
         model_note=model_note)
     combined = uq_studies.combine_expanded(
@@ -365,7 +412,7 @@ def main(request: str | None = None, params: dict | None = None,
     knowledge.add(
         f"Valve opening-angle screen: lowest cycle-weighted loss at "
         f"{best['angle']:g} deg ({best['objective']:.0f} Pa), Womersley ~ {alpha:.0f}, "
-        f"multi-point decomposition (conceptual model)")
+        f"multi-point decomposition (research model)")
 
     report = lab_report(
         title=f"Valve opening-angle screen: cycle-weighted pressure loss",
@@ -398,6 +445,15 @@ def main(request: str | None = None, params: dict | None = None,
             "phase-interaction is dropped by the multi-point screen."],
         next_investigations=[e["title"] + ": " + e["scope"] for e in AGENDA],
         compute=ledger.as_dict())
+    if wave_png:
+        # The lab report leads with the mission's figures: the systolic
+        # waveform rides in the report payload itself (same artifact URL the
+        # control room serves for the inline plot strip), so the report column
+        # embeds it and a click opens the full-size PNG.
+        report["plots"] = [{
+            "title": "Idealized systolic waveform: three weighted phase points",
+            "file": Path(wave_png).name,
+            "url": f"/api/plot/valve-study/{Path(wave_png).name}"}]
     if emit:
         emit("report.ready", report)
 
@@ -432,7 +488,7 @@ def main(request: str | None = None, params: dict | None = None,
             channels=channels,
             display_name="Idealized trileaflet aortic valve, systolic configuration",
             solver="Reduced-order orifice model, cycle-decomposition screen",
-            fidelity="CONCEPTUAL MODEL")
+            fidelity="RESEARCH MODEL")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception as exc:  # a certificate must never take down a good mission

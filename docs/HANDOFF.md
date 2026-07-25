@@ -32,7 +32,7 @@ docs/HANDOFF-{GUI1,GUI2,ACTFIXER,BG1,BG2}.md. Highlights:
 - G1/B1-B4 liveness + layout: paced streaming transcript w/ timestamps + PACE
   toggle, live KPIs, dispatch panel, hero viewport, geometry persistence,
   completed state keeps geometry+plots+report.
-- G5/G6: fidelity chips (VALIDATED/SOLVER-BACKED/CONCEPTUAL MODEL/UNCONVERGED)
+- G5/G6: fidelity chips (VALIDATED/SOLVER-BACKED/RESEARCH MODEL/UNCONVERGED)
   replace tiers; trend language retired (regression-tested); headlines are
   value ± CI (95%) from real machinery.
 - Wall arithmetic (v2-G1): records store the rebased coefficient; the wall
@@ -475,7 +475,7 @@ MEMORY.md. Update jango-agi-project if the branch state changes materially.
   REAL SOLVE: NOT run. Pressure loss uses a transparent reduced-order orifice model
   (dp = 0.5 rho (Q/(Cd A))^2), same posture as the aircraft act, clearly labeled and capped
   TREND ONLY. The real steady internal-flow OpenFOAM solve is the marked plug-in point
-  (valve_study._phase_pressure_loss). Result: lowest cycle-weighted loss 1345 +/- 421 Pa at 80 deg.
+  (valve_study._phase_pressure_loss). Result: lowest cycle-weighted loss 1327 +/- 421 Pa at 80 deg.
 - A3.5 research agenda: DONE (backend). Emits agenda.updated {entries:[{title,scope,cost}]} with
   3 entries: harmonic-balance cycle solve, unsteady FSI, non-Newtonian blood. GUI renders it
   (parallel GUI redesign owns control_room.html; NOT touched by this fork).

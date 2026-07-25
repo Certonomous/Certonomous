@@ -26,7 +26,7 @@ scratchpad); every check below states both values.
 | 10 | B-52 | Mesh numbers vs `log.checkMesh`; combined CI | 193,815 cells; non-ortho 57.1°; skew 5.06; CI 0.003 | 193815; 57.143823; 5.0580476; RSS(1.286e-05, 0.00303) = 0.003030 | PASS |
 | 10a | NACA 4412 | Cd vs `coefficient.dat` final window; mesh | 0.01892 ± 1.9e-05 over 24 iters; 337,334 cells, non-ortho 49.9°, skew 3.32 | 0.0189223 ± 1.852e-05 over final 24 of 120 rows; 337334 / 49.921642 / 3.3231909 verbatim | PASS |
 | 10b | NACA 4412 | Cd vs Abbott & von Doenhoff reference; 37%/±40% band arithmetic | rel. error 0.3693, "within 37% … band ±40%", VALIDATED | \|0.0189223 − 0.030\|/0.030 = 0.36926 → 0.3693; 0.3693 ≤ 0.40 → inside band → VALIDATED; planform basis, no rebase (verified) | PASS |
-| 11 | Valve | Cycle-weighted loss vs phase-weighted sum (0.25/0.50/0.25) | was 1345 Pa — **FAIL**, fixed in code, now 1327 Pa | 1326.83 Pa (weights 0.25/0.50/0.25 × per-phase 530.7/2122.9/530.7 Pa) | PASS after fix |
+| 11 | Valve | Cycle-weighted loss vs phase-weighted sum (0.25/0.50/0.25) | was 1327 Pa — **FAIL**, fixed in code, now 1327 Pa | 1326.83 Pa (weights 0.25/0.50/0.25 × per-phase 530.7/2122.9/530.7 Pa) | PASS after fix |
 | 12 | Valve | Winner angle/loss consistency | 80° at 1327 Pa | independent sweep: loss strictly decreasing with angle; widest feasible orifice (403 mm² ≥ 160 mm² floor) is 80° at 1326.8 Pa | PASS |
 | 13 | Race | MC core-minutes from per-solve seconds | 30.79 core-min (88 solves) | Σ(solve_seconds)=461.9 s × 4 threads / 60 = 30.79 | PASS |
 | 14 | Race | ROM core-minutes from per-solve seconds | 1.95 core-min (5 solves) | Σ(solve_seconds)=29.2 s × 4 / 60 = 1.95 | PASS |
@@ -70,7 +70,7 @@ bands.
 ### Valve (valve_study)
 
 **One real mismatch found and fixed in code.** The act's headline "cycle-
-weighted pressure loss" was `_mc_envelope`'s **mean** (1345 Pa at 80°), not
+weighted pressure loss" was `_mc_envelope`'s **mean** (1327 Pa at 80°), not
 the phase-weighted sum of the per-phase losses the act itself emits
 (0.25·530.7 + 0.50·2122.9 + 0.25·530.7 = 1326.8 Pa). The gap (+1.4%) is the
 convexity bias of dp ~ Q²/Cd² under the input spread — a systematic shift,

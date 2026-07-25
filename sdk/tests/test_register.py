@@ -30,7 +30,8 @@ EM_DASH = "—"
 # sections, verdict reasons, agenda scopes, and channel notes.
 _WORKFLOWS_DIR = SDK / "workflows"
 _CHIEF_ENGINEER_FILES = ("researcher.py", "lab.py", "server.py",
-                         "head_engineer.py", "chief_researcher.py")
+                         "head_engineer.py", "chief_researcher.py",
+                         "display_names.py", "uq.py")
 
 
 def _target_files() -> list[Path]:
@@ -94,7 +95,7 @@ class NoSelfGradingNarration(unittest.TestCase):
     # is not the target class of phrase, but the check below narrows on
     # word boundaries via simple containment of the exact banned phrase.
     _SELF_GRADE_PHRASES = (
-        "grade: SOLVER-BACKED", "grade: CONCEPTUAL MODEL", "grade: VALIDATED",
+        "grade: SOLVER-BACKED", "grade: RESEARCH MODEL", "grade: VALIDATED",
         "grade: UNCONVERGED", "the tier says", "the chip says",
         "per the ASME V&V 20 validation-uncertainty standard",
     )

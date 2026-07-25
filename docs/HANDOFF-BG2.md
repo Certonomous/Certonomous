@@ -108,7 +108,7 @@ counters + per-solver breakdown.
   **Certificate No. C-2026-NNNN** masthead (mission slug demoted to the
   provenance footer), subject block leading with the geometry **display name**
   ("B-52 Stratofortress-class airframe"; filename small metadata), result block
-  with value ± 95% CI + **fidelity chip** (SOLVER-BACKED / CONCEPTUAL MODEL /
+  with value ± 95% CI + **fidelity chip** (SOLVER-BACKED / RESEARCH MODEL /
   VALIDATED), complete three-channel V&V-20 table, provenance footer with the
   SHA-256 seal (truncated + full) and "Reproducible from the sealed evidence
   bundle". The v2 seal equals the default's (same covered facts) — test-enforced.

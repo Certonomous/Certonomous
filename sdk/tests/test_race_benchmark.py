@@ -4,9 +4,10 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from workflows.race_benchmark import (ALPHAS, WING, _design, speedup_card,
-                                      write_benchmarks)
+from workflows.race_benchmark import (ALPHAS, WING, _design, _TimedSolver,
+                                      speedup_card, write_benchmarks)
 
 
 def _mc(core_minutes=14.2, wall=95.0):
@@ -37,6 +38,42 @@ class DesignShape(unittest.TestCase):
     def test_alpha_grid_covers_zero_to_ten(self):
         self.assertEqual(ALPHAS[0], 0.0)
         self.assertEqual(ALPHAS[-1], 10.0)
+
+    def test_wing_override_anchors_the_design_without_touching_default(self):
+        raced = {**WING, "span": 40.0, "area": 40.0}
+        design = _design(4.0, 1.0e6, wing=raced)
+        self.assertEqual(design["span"], 40.0)
+        self.assertEqual(design["area"], 40.0)
+        self.assertEqual(design["camber"], WING["camber"])
+        # No override: the curriculum wing, unchanged.
+        self.assertEqual(_design(4.0, 1.0e6)["span"], WING["span"])
+
+
+class TimedSolverContract(unittest.TestCase):
+    def test_never_reuses_prior_results_and_solves_the_given_wing(self):
+        with mock.patch("workflows.race_benchmark.VspAeroWingApi") as api_cls:
+            api_cls.return_value.evaluate.return_value = {
+                "polar": {"CLtot": [0.9], "CDtot": [0.05], "L_D": [18.0]}}
+            with tempfile.TemporaryDirectory() as tmp:
+                solver = _TimedSolver(Path(tmp),
+                                      wing={**WING, "span": 40.0, "area": 40.0})
+                point = solver.solve(4.0, 1.0e6, "t")
+        # The clocks ARE the measurement: reuse_prior must stay False.
+        self.assertIs(api_cls.call_args.kwargs.get("reuse_prior"), False)
+        design = api_cls.return_value.evaluate.call_args.args[0]
+        self.assertEqual(design["span"], 40.0)
+        self.assertEqual(point["l_d"], 18.0)
+        self.assertEqual(len(solver.solve_seconds), 1)
+
+    def test_default_wing_is_the_curriculum_wing(self):
+        with mock.patch("workflows.race_benchmark.VspAeroWingApi") as api_cls:
+            api_cls.return_value.evaluate.return_value = {
+                "polar": {"CLtot": [0.9], "CDtot": [0.05], "L_D": [18.0]}}
+            with tempfile.TemporaryDirectory() as tmp:
+                _TimedSolver(Path(tmp)).solve(4.0, 1.0e6, "t")
+        self.assertIs(api_cls.call_args.kwargs.get("reuse_prior"), False)
+        design = api_cls.return_value.evaluate.call_args.args[0]
+        self.assertEqual(design["span"], WING["span"])
 
 
 class Artifacts(unittest.TestCase):

@@ -356,7 +356,10 @@ def _fields(inlet, k: float, omega: float, viscosity: float) -> dict[str, str]:
 
 _MESH_QUALITY = (
     _header("dictionary", "system", "meshQualityDict")
-    + "maxNonOrtho 65;\nmaxBoundarySkewness 20;\nmaxInternalSkewness 4;\n"
+    # Boundary skewness is held to the same 4.0 the lab's checkMesh guidance
+    # uses (the stock 20 allowance left faces checkMesh then flagged: the
+    # B-52 read max skewness 5.06 with it, under 4 with this gate).
+    + "maxNonOrtho 65;\nmaxBoundarySkewness 4;\nmaxInternalSkewness 4;\n"
     + "maxConcave 80;\nminVol 1e-13;\nminTetQuality 1e-15;\nminArea -1;\n"
     + "minTwist 0.02;\nminDeterminant 0.001;\nminFaceWeight 0.05;\n"
     + "minVolRatio 0.01;\nminTriangleTwist -1;\nnSmoothScale 4;\n"

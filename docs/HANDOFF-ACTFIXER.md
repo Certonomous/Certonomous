@@ -81,7 +81,7 @@ viewport render landing; if that render does not merge, it is still demo-safe
 but should not be the hero take.** Reasoning: the act runs clean and
 deterministic (0.4 s compute, every beat fires — VALVE STUDY route, the Chief
 Researcher Womersley memo with α ≈ 16.7 computed and displayed plus its ruling,
-the candidate landscape with the winner ringed, the 1345 ± 421 Pa @ 80° result
+the candidate landscape with the winner ringed, the 1327 ± 421 Pa @ 80° result
 card at TREND ONLY, all three V&V-20 channels with specific notes, and the
 3-entry research agenda), and it reads *well* on camera — the Womersley
 reasoning is the most distinctive science moment in the demo. Its one weak spot
@@ -127,7 +127,7 @@ motorBike + optimization per the fallback plan.
 - Captures: `demo-output/acts/act2/`.
 
 ### Act 3 — valve — GREEN except viewport (external dependency; see recommendation)
-- Womersley α ≈ 16.7 displayed, landscape, 1345 ± 421 Pa @ 80°, agenda, all
+- Womersley α ≈ 16.7 displayed, landscape, 1327 ± 421 Pa @ 80°, agenda, all
   three channels. Captures: `demo-output/acts/act3/act3_0{1..3}_*.png`.
 
 ## Worker-kill relocation (v3-N3: no toy bodies on camera)

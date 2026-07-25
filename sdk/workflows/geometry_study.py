@@ -49,6 +49,32 @@ _SOLVE_TIME_RE = re.compile(r"^Time = (\d+)")
 _SOLVE_CD_RE = re.compile(r"^\s*Cd\s*[:=]\s*([-+0-9.eE]+)")
 MAX_SKEWNESS = 4.0
 
+# Live-Cd pacing (Katie, 2026-07-24: "the CD is a little bit slow"): the warm
+# presentation spreads the whole force history over this many seconds, and a
+# cold solve streams points up to twice a second so the trace feels alive.
+SOLVE_REPLAY_DEFAULT_S = 14.0
+LIVE_CD_MIN_INTERVAL_S = 0.5
+
+# The in-act grid-refinement study is on by default; CERTONOMOUS_REFINEMENT=0
+# is the emergency skip. Rungs solve a shorter budget than the production
+# mesh; the force window machinery still judges whether they settled.
+REFINEMENT_ENV = "CERTONOMOUS_REFINEMENT"
+RUNG_ITERATION_FRACTION = 0.6
+RUNG_ITERATION_FLOOR = 120
+
+# The input channel's assumption sentence (uncertainty doctrine, 2026-07-24):
+# when conditions are taken exactly as specified, the channel says what was
+# assumed, in these words, on the GUI and the certificate alike.
+INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
+
+# Published dimensions for named bodies: a recognized aircraft is scaled to
+# its published length, stated with its source in the transcript, instead of
+# the generic 50 m fallback (which remains for unnamed uploads only).
+PUBLISHED_DIMENSIONS: dict[str, dict] = {
+    "b52": {"length": 48.5, "span": 56.4, "kind": "aircraft",
+            "note": "B-52 Stratofortress published dimensions"},
+}
+
 
 CURRICULUM_DIR = GEOMETRY_DIR.parent.parent / "models" / "curriculum"
 
@@ -85,6 +111,40 @@ def _resolve_surface(name: str | None) -> tuple[str, bool]:
     return DEFAULT_SURFACE, True
 
 
+def scale_basis(surface: str, raw_length: float,
+                params: dict) -> tuple[float, list[str]]:
+    """The working reference length for a body, and the transcript bullets
+    that state where it came from.
+
+    Precedence: an explicit ``reference_length`` param, then the published
+    dimensions of a recognized body (a B-52 is 48.5 m long, with the source
+    stated on the record), then the generic 50 m fallback for an unnamed
+    upload with implausible file units, then the file's own units when they
+    are dimensionally plausible."""
+    stated = params.get("reference_length")
+    published = PUBLISHED_DIMENSIONS.get(
+        Path(surface).stem.lower().replace("-", "_"))
+    if stated:
+        return float(stated), [
+            f"Scale basis: you stated a reference length of "
+            f"{float(stated):.1f} m"]
+    if published:
+        reference = float(published["length"])
+        return reference, [
+            f"Scale basis: the file's own units would make this body "
+            f"{raw_length:.0f} units long",
+            f"Published length of this {published.get('kind', 'body')}: "
+            f"{reference:g} m; working to that",
+        ]
+    if raw_length > 150:
+        return 50.0, [
+            f"Scale basis: the file's own units would make this body "
+            f"{raw_length:.0f} units long, which is not a plausible size for "
+            f"it; working to a 50 m reference length instead"]
+    return raw_length, ["Scale basis: the file's units are dimensionally "
+                        "plausible, so I am taking them as metres"]
+
+
 def _build_unfamiliar_case(engineer, script, roster, surface, params,
                            iterations, emit):
     """Build a case around a body the lab has never solved.
@@ -104,18 +164,7 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         source, streamwise_axis=int(streamwise_axis) if streamwise_axis is not None else None)
     raw_length = geometry["length"]
 
-    stated = params.get("reference_length")
-    if stated:
-        reference = float(stated)
-        basis = f"you stated a reference length of {reference:.1f} m"
-    elif raw_length > 150:
-        reference = 50.0
-        basis = (f"the file's own units would make this body {raw_length:.0f} units "
-                 f"long, which is not a plausible size for it; I am working to a "
-                 f"{reference:.0f} m reference length instead")
-    else:
-        reference = raw_length
-        basis = "the file's units are dimensionally plausible, so I am taking them as metres"
+    reference, basis_lines = scale_basis(surface, raw_length, params)
     scale = reference / raw_length
 
     axes = "XYZ"
@@ -125,8 +174,9 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         f"• Working scale: {geometry['length'] * scale:.1f} m long, "
         f"{geometry['span'] * scale:.1f} m across.")
     script.engineer(
-        f"• Scale basis: {basis}. "
-        f"• Wrong length → wrong Reynolds → wrong forces; stated, not buried.")
+        " ".join(f"• {line}." for line in basis_lines)
+        + " • The Reynolds number and every force ride on this length, so it "
+          "goes on the record.")
 
     reference_values = build_case(
         Path(engineer.out_root) / "case", surface, geometry,
@@ -137,8 +187,8 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         f"{reference_values['planform_area']:.3g} m². "
         f"• Freestream {velocity:g} m/s; Re {reference_values['reynolds']:.1e}.")
     script.researcher(
-        "• Reference area is the measured silhouette, not a handbook wing area. "
-        "• Book comparison needs rebasing first: measure the body, don't borrow numbers.")
+        "• Reference area must be measured from the body itself. "
+        "• Same discipline as our NACA 4412 validation: measure first, then compare.")
 
     # Stage the case inside the compute node and scale the surface with it.
     local_case = Path(engineer.out_root) / "case"
@@ -146,6 +196,10 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
     wsl_case = str(local_case).replace("C:", "/mnt/c").replace("\\", "/")
     engineer._wsl(f"rm -rf {engineer.remote_case} && mkdir -p {RUN_ROOT_PARENT} && "
                   f"cp -r '{wsl_case}' {engineer.remote_case}")
+    # Keep a pristine copy of the initial fields: the refinement rungs re-mesh
+    # this case, and potentialFoam will have overwritten 0/ with fields sized
+    # to the production mesh by the time a rung needs a clean start.
+    engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0.orig && cp -r 0 0.orig")
     engineer._wsl(
         f"cd {engineer.remote_case} && openfoam2606 surfaceTransformPoints "
         f"-scale '({scale:.6f} {scale:.6f} {scale:.6f})' "
@@ -190,51 +244,360 @@ def mesh_validity(cells: int, non_ortho: float | None,
             "skewness_gate": MAX_SKEWNESS}
 
 
+def _emit_table(emit, script, *, role: str, title: str, headers, rows,
+                table_id: str, append: bool = False) -> None:
+    """Put a transcript table on the record (same event the airliner act uses).
+
+    The control room renders it as a compact table in the paced feed;
+    ``append=True`` lands new rows into the existing table so rows arrive live
+    as solves finish. Every row is mirrored into the saved transcript so the
+    on-disk record keeps the numbers."""
+    from chief_engineer.transcript import Entry
+
+    if emit:
+        emit("transcript.table", {
+            "role": role, "title": title,
+            "headers": [str(h) for h in headers],
+            "rows": [[str(cell) for cell in row] for row in rows],
+            "table_id": table_id, "append": bool(append), "at": time.time()})
+    for row in rows:
+        line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
+        entry = Entry(role, f"[{title}] {line}")
+        script.entries.append(entry)
+        if emit is None and script.echo:
+            script.echo(entry.render())
+
+
+def surface_acceptance(report: dict, shown: str) -> tuple[str, int | None]:
+    """The surface-check announcement, with multi-shell counts told honestly.
+
+    Separate closed shells (bike, rider, wheels) are how an assembly arrives;
+    snappyHexMesh meshes them together as one flow domain, so the line states
+    that calmly instead of listing an expected property as a defect. Returns
+    the transcript line and the shell count (the mesh-gate follow-up closes
+    the loop on it once checkMesh has ruled)."""
+    shells = None
+    kept = []
+    for issue in (report.get("issues") or []):
+        match = re.match(r"(\d+)\s+unconnected parts", str(issue))
+        if match and shells is None:
+            shells = int(match.group(1))
+        else:
+            kept.append(str(issue))
+    line = (f"• Surface accepted: {shown}"
+            + (", closed" if report.get("closed") else "") + ". ")
+    if shells:
+        line += (f"• {shells} separate closed shells, normal for an assembly "
+                 f"of parts; they mesh together as one flow body. ")
+    if kept:
+        line += f"• Flagged by the surface check: {', '.join(kept)}."
+    elif not shells:
+        line += "• No defects reported by the surface check."
+    return line.rstrip(), shells
+
+
+def refinement_rungs(*, familiar: bool, refinement: int = 3) -> list[dict]:
+    """Derive the two cheaper rungs of the grid study from the production
+    mesh budget.
+
+    The knob is the castellated refinement level, which genuinely changes the
+    mesh (the B-52 wall lesson: a knob at its floor produces identical rungs
+    and no study). The tutorial motorbike case meshes at surface level (5 6);
+    a generated case at surface level (r, r+1) for refinement r. Each rung
+    steps the whole level family down one, and when the floor would make two
+    rungs identical, the coarser one also scales the background-mesh
+    divisions so the cell budgets stay distinct; the runtime cell-count guard
+    still refuses to report a study if they do not."""
+    if familiar:
+        return [
+            {"tag": "coarse", "feature": 4, "surface": (3, 4), "region": 2,
+             "block_scale": None},
+            {"tag": "medium", "feature": 5, "surface": (4, 5), "region": 3,
+             "block_scale": None},
+        ]
+    base = max(2, int(refinement))
+    medium_level = max(2, base - 1)
+    coarse_level = max(2, base - 2)
+    medium = {"tag": "medium", "feature": medium_level,
+              "surface": (medium_level, medium_level + 1),
+              "region": max(1, medium_level - 1),
+              "block_scale": 0.85 if medium_level == base else None}
+    coarse = {"tag": "coarse", "feature": coarse_level,
+              "surface": (coarse_level, coarse_level + 1),
+              "region": max(1, coarse_level - 1),
+              "block_scale": 0.7 if coarse_level == medium_level else None}
+    return [coarse, medium]
+
+
+def rung_iterations(iterations: int) -> int:
+    """A rung's solve budget: a fraction of the production budget, floored so
+    the force window can still settle."""
+    return max(RUNG_ITERATION_FLOOR, int(round(iterations * RUNG_ITERATION_FRACTION)))
+
+
+_RUNG_LABELS = {"coarse": "Coarse rung", "medium": "Middle rung",
+                "mid": "Middle rung", "fine": "Production mesh",
+                "production": "Production mesh"}
+
+
+def _rung_label(tag: str) -> str:
+    return _RUNG_LABELS.get(str(tag), str(tag).capitalize())
+
+
+def _ladder_rows(levels: list[dict]) -> list[list[str]]:
+    """Table rows for the mesh ladder, production/fine anchor first, then the
+    cheaper rungs in the order they land."""
+    anchor = [lv for lv in levels if lv.get("tag") in ("fine", "production")]
+    rungs = [lv for lv in levels if lv.get("tag") not in ("fine", "production")]
+    return [[_rung_label(lv["tag"]), f"{lv['cells']:,}", f"{lv['cd']:.4f}"]
+            for lv in anchor + rungs]
+
+
+def _band_bullet(band: dict) -> str:
+    """The one-line reading of the measured refinement band, guards included."""
+    if band.get("monotone") is False:
+        return (f"• Rungs not monotone; conservative band, largest spread "
+                f"times 1.25: ±{band['band_abs']:.2g} on Cd.")
+    note = (f"• Numerical uncertainty from 3 meshes: "
+            f"±{band['band_abs']:.2g} on Cd (Eca & Hoekstra 2014).")
+    if band.get("clamped"):
+        note += " • Observed order limited to the theoretical range."
+    return note
+
+
+def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
+                           params: dict, iterations: int,
+                           production_cells: int, production_cd: float,
+                           study_fp: str, script, roster, ledger, emit,
+                           out) -> dict | None:
+    """Measure mesh sensitivity inside the act: two cheaper rungs of the same
+    case, then the Eca & Hoekstra band on Cd across all three meshes.
+
+    A completed study for this exact setup fingerprint presents its rungs at
+    reading pace with no re-solving; otherwise the rungs mesh and solve live
+    through the same monitored pipeline as the production case, and the
+    finished ladder is kept so the next run of this setup presents instantly.
+    Returns the numerical-band record, or None when no study can be reported
+    (skipped by env, refused for identical meshes, or a rung failed)."""
+    if os.environ.get(REFINEMENT_ENV, "1") == "0":
+        return None
+    from chief_engineer import uq as uq_studies
+    from chief_engineer.head_engineer import HeadEngineer
+    from chief_engineer.lab import NUMERICIST as _NUM
+    from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
+
+    headers = ("Mesh", "Cells", "C_d")
+    table_id = f"refinement-{label}"
+    title = "Mesh sensitivity: three meshes of the same case"
+
+    def _finish(levels: list[dict], *, replay: bool) -> dict | None:
+        ordered = sorted(levels, key=lambda lv: lv["cells"])
+        band = uq_studies.eca_hoekstra_band(
+            [lv["cells"] for lv in ordered], [lv["cd"] for lv in ordered])
+        if band.get("band_abs") is None:
+            script.numericist(
+                "• The refinement parameter did not change the mesh between "
+                "rungs; no study is reported from matching meshes.")
+            return None
+        script.numericist(_band_bullet(band))
+        study = uq_studies.load_study(label) or {"body": label}
+        rel = (band["band_abs"] / abs(production_cd)) if production_cd else None
+        numerical = {
+            "band_abs": band["band_abs"],
+            "band_rel": None if rel is None else round(rel, 5),
+            "observed_order": band["observed_order"],
+            "order_used": band.get("order_used"),
+            "clamped": band.get("clamped", False),
+            "method": band["method"], "conclusive": band["conclusive"],
+            "value_working": production_cd,
+        }
+        study.update({"levels": ordered, "fingerprint": study_fp,
+                      "numerical": numerical,
+                      "provenance": [lv.get("mission", f"{label}-{lv['tag']}")
+                                     for lv in ordered]})
+        uq_studies.save_study(label, study)
+        return {**numerical, "levels": ordered, "replay": replay}
+
+    existing = uq_studies.load_study(label) or {}
+    stored_levels = existing.get("levels", [])
+    # A stored ladder replays only when it is genuinely usable: three DISTINCT
+    # meshes (a degenerate record, the old B-52 floor bug, left two identical
+    # rungs) AND one of its rungs IS this run's production mesh, so the table
+    # on screen always matches the mesh that was actually solved. Anything
+    # else falls through to a fresh ladder with the collision-guarded specs.
+    distinct_cells = len({int(lv.get("cells", 0)) for lv in stored_levels})
+    anchored = any(int(lv.get("cells", 0)) == int(production_cells)
+                   for lv in stored_levels)
+    if (existing.get("fingerprint") == study_fp and distinct_cells >= 3
+            and anchored):
+        roster.set(_NUM, "grid-refinement study", "working")
+        script.numericist(
+            "• Grid-refinement study: two cheaper meshes of this same case "
+            "alongside the production mesh, one knob moved.")
+        rows = _ladder_rows(existing["levels"])
+        _emit_table(emit, script, role=_NUM_ROLE, title=title,
+                    headers=headers, rows=rows[:1], table_id=table_id)
+        for row in rows[1:]:
+            if emit:
+                time.sleep(0.8)
+            _emit_table(emit, script, role=_NUM_ROLE, title=title,
+                        headers=headers, rows=[row], table_id=table_id,
+                        append=True)
+        result = _finish(list(existing["levels"]), replay=True)
+        roster.idle(_NUM)
+        return result
+
+    roster.set(_NUM, "grid-refinement study", "working")
+    try:
+        specs = refinement_rungs(familiar=familiar,
+                                 refinement=int(params.get("refinement", 3)))
+        rung_iters = rung_iterations(iterations)
+        script.numericist(
+            "• Grid-refinement study: two cheaper meshes of this same case, "
+            "same physics, one knob moved. "
+            f"• Each rung runs the full mesh-and-solve chain at {rung_iters} "
+            f"iterations; the production mesh anchors the ladder.")
+        levels = [{"tag": "production", "cells": production_cells,
+                   "cd": production_cd, "mission": f"{label}-production"}]
+        _emit_table(emit, script, role=_NUM_ROLE, title=title, headers=headers,
+                    rows=_ladder_rows(levels), table_id=table_id)
+        for spec in specs:
+            tag = spec["tag"]
+            lo, hi = spec["surface"]
+            rung = HeadEngineer(f"study-{label}-{tag}", out,
+                                on_event=lambda event, payload: None)
+            rung.monitor.on_anomaly = engineer.monitor.on_anomaly
+            if not rung.clone_case_from(engineer.remote_case):
+                raise RuntimeError(f"rung {tag}: case staging failed")
+            if not rung.set_refinement_levels(feature=spec["feature"],
+                                              surface_lo=lo, surface_hi=hi,
+                                              region=spec["region"]):
+                raise RuntimeError(f"rung {tag}: refinement knob not applied")
+            block_note = ""
+            if spec.get("block_scale"):
+                scaled = rung.scale_background_divisions(spec["block_scale"])
+                if not scaled:
+                    raise RuntimeError(f"rung {tag}: background mesh unchanged")
+                block_note = f"-b{spec['block_scale']:g}"
+            rung.set_iteration_count(rung_iters)
+            mesh_key = f"{label}-rung-{tag}-s{lo}{hi}{block_note}"
+            note = f"refinement rung {tag}: surface level ({lo} {hi})"
+            roster.set(_NUM, note, "working")
+            if not rung.restore_cached_mesh(mesh_key):
+                for step, command in (
+                        ("surfaceFeatureExtract", "surfaceFeatureExtract"),
+                        ("blockMesh", "blockMesh"),
+                        ("snappyHexMesh", "snappyHexMesh -overwrite")):
+                    result = rung._run_step(step, command, 5400)
+                    ledger.spend(result.seconds,
+                                 f"{step} rung {tag} ({result.seconds:.0f}s)")
+                rung.save_mesh_to_cache(mesh_key)
+            reset = rung._wsl(
+                f"cd {rung.remote_case} && test -d 0.orig && rm -rf 0 && "
+                f"cp -r 0.orig 0 && echo RESET")
+            if "RESET" not in reset.stdout:
+                raise RuntimeError(f"rung {tag}: no pristine initial fields")
+            stats = rung.collect_mesh_stats()
+            cells = int(stats.get("cells", 0))
+            if not cells:
+                raise RuntimeError(f"rung {tag}: checkMesh reported no cells")
+            solve_key = f"{label}-{tag}-c{cells}-i{rung_iters}"
+            if rung.restore_cached_solve(solve_key):
+                started = time.time()
+                ledger.spend(max(1.0, time.time() - started),
+                             f"simpleFoam rung {tag}")
+            else:
+                for step, command in (
+                        ("potentialFoam", "potentialFoam -writephi"),
+                        ("simpleFoam", "simpleFoam")):
+                    result = rung._run_step(step, command, 7200)
+                    ledger.spend(result.seconds,
+                                 f"{step} rung {tag} ({result.seconds:.0f}s)")
+                rung.save_solve_to_cache(solve_key)
+            rung_results = rung.postprocess(("Cd",))
+            if not rung_results.get("Cd"):
+                raise RuntimeError(f"rung {tag}: no force history")
+            level = {"tag": tag, "cells": cells,
+                     "cd": rung_results["Cd"]["value"],
+                     "mission": f"{label}-rung-{tag}"}
+            levels.append(level)
+            _emit_table(emit, script, role=_NUM_ROLE, title=title,
+                        headers=headers, rows=_ladder_rows([level]),
+                        table_id=table_id, append=True)
+    except Exception:
+        script.numericist(
+            "• The refinement study did not complete; detail is in the run "
+            "logs, and no band is reported from a partial ladder.")
+        roster.idle(_NUM)
+        return None
+    result = _finish(levels, replay=False)
+    roster.idle(_NUM)
+    return result
+
+
 def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
                          lookup: dict, cells: int, non_ortho_s: str,
-                         skew_s: str) -> dict:
+                         skew_s: str, model_extra: str = "") -> dict:
     """The three V&V-20 channels for this study, built from what was measured.
 
-    Input: the freestream conditions envelope. This study takes the freestream
-    as specified exactly and propagates no input spread, so the channel states
-    that honestly instead of borrowing the settling scatter (which stays on the
-    result line where it belongs). Numerical: mesh discretization, carrying the
-    mission's actual checkMesh numbers, plus the matching grid-refinement band
-    when one exists for this setup fingerprint. Model: the k-omega SST closure,
-    stated model-form, quantified only by a matching closure-spread study.
-    A channel with no quantified number says so; nothing is invented.
+    Doctrine (docs/UNCERTAINTY-DOCTRINE.md): input conditions taken as
+    specified display the assumption sentence, in exactly these words, on the
+    GUI and the certificate alike. The numerical channel carries the
+    grid-refinement study for this setup fingerprint as clean bullets: rung
+    cell counts, observed order, band. No tool names and no internal study
+    identifiers reach a channel note; the mesh gate figures (``cells``,
+    ``non_ortho_s``, ``skew_s`` are still accepted for signature stability)
+    live only in the certificate's Mesh Validity block. Model: the k-omega
+    SST closure, stated model-form, quantified by a matching closure-spread
+    study, plus the published-band comparison when one was made.
     """
-    input_note = (
-        f"freestream conditions envelope: speed {velocity:g} m/s and fluid "
-        f"properties are taken as specified exactly, so no input spread was "
-        f"propagated; the result's ±{settle_2sigma:.2g} band over the final "
-        f"{window} iterations is settled-state scatter, carried on the result "
-        f"line; stated, not quantified")
-    mesh_clause = (
-        f"mesh discretization; checkMesh: {cells:,} cells, max "
-        f"non-orthogonality {non_ortho_s} vs the {MAX_NON_ORTHOGONALITY:.0f}° "
-        f"gate, max skewness {skew_s} vs the {MAX_SKEWNESS:.1f} guidance")
+    del settle_2sigma, window, velocity, cells, non_ortho_s, skew_s  # mesh-validity block owns these
+    input_note = INPUT_ASSUMED_NOTE
     numerical_val = model_val = None
     if lookup.get("numerical"):
-        numerical_val = lookup["numerical"]["band_abs"]
-        tail = lookup["numerical"]["method"]
-        if lookup.get("provenance"):
-            tail += f"; study {', '.join(lookup['provenance'][:3])}"
+        num = lookup["numerical"]
+        numerical_val = num["band_abs"]
+        parts = []
+        levels = lookup.get("levels") or []
+        if levels:
+            cells_s = ", ".join(f"{int(lv['cells']):,}"
+                                for lv in sorted(levels, key=lambda lv: lv["cells"]))
+            parts.append(f"Grid-refinement study on {len(levels)} meshes of "
+                         f"this case: {cells_s} cells")
+        else:
+            parts.append("Grid-refinement study on meshes of this case")
+        order = num.get("observed_order")
+        if order is not None:
+            parts.append(f"Observed order {order:.2f}"
+                         + ("; limited to the theoretical range for the band"
+                            if num.get("clamped") else ""))
+        elif "monotone" in str(num.get("method", "")):
+            parts.append("Rungs not monotone; conservative band, largest "
+                         "spread times 1.25")
+        parts.append(f"Band ±{num['band_abs']:.2g} on the drag coefficient, "
+                     f"least-squares fit with safety factor 1.25 "
+                     f"(Eca & Hoekstra 2014)")
+        numerical_note = " ".join(f"• {part}." for part in parts)
     elif lookup.get("pending"):
-        tail = "study pending: no matching refinement study for this setup"
+        numerical_note = ("• Grid-refinement study pending for this setup. "
+                          "• No band is quoted from a different setup.")
     else:
-        tail = ("one mesh only, discretization error not separated; a "
-                "grid-refinement study is the marked next step")
+        numerical_note = ("• One mesh on this record. "
+                          "• A grid-refinement study is the marked next step.")
     model_note = ("turbulence closure k-omega SST, stated model-form; closure "
                   "error not quantified for this body")
     if lookup.get("model"):
         model_val = lookup["model"]["band_abs"]
         model_note = ("turbulence closure k-omega SST, stated model-form; "
                       + lookup["model"]["method"])
+    if model_extra:
+        # A positive published comparison rides the model channel: that is the
+        # channel a magnitude check against reality belongs to.
+        model_note += "; " + model_extra
     return uncertainty_channels(
         input_2sigma=None, numerical=numerical_val, model=model_val,
         input_note=input_note,
-        numerical_note=f"{mesh_clause}; {tail}",
+        numerical_note=numerical_note,
         model_note=model_note)
 
 
@@ -300,7 +663,7 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, f"reading {shown}", "working")
     announce_geometry(emit, name=surface, label=shown)
     script.engineer(
-        f"• Full geometry study on {shown}: a measurement, not a sweep. "
+        f"• Full geometry study on {shown}: one fixed body, solved end to end. "
         f"• Question: does the chain produce a converged force on a believable mesh? "
         + ("• Prior exists for this body; I will check against it."
            if familiar else
@@ -330,13 +693,27 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
-        f"• Plan: features → background mesh → snap → quality gates → potential "
-        f"init → {iterations} steady iterations. "
+        f"• Plan: feature edges, background mesh, snap, quality gates, "
+        f"potential init, then {iterations} steady iterations. "
         f"• Meshing is the long pole: minutes, not seconds.")
 
     engineer = HeadEngineer(f"study-{label}", out, novel=not familiar,
                             on_event=lambda event, payload: None)
     monitor_seen: list[str] = []
+
+    # Per-stage timings land as rows of ONE compact table rather than a run of
+    # repeated "step: N s" bullets; rows arrive live as stages complete.
+    from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
+    stage_table = {"created": False}
+
+    def stage_row(step: str, seconds: float, note: str) -> None:
+        _emit_table(emit, script, role=_CE_ROLE,
+                    title="Pipeline stages, as run",
+                    headers=("Stage", "Time", "What ran"),
+                    rows=[[step, f"{seconds:.0f} s",
+                           note[:1].upper() + note[1:]]],
+                    table_id=f"stages-{label}", append=stage_table["created"])
+        stage_table["created"] = True
 
     def on_anomaly(anomaly):
         monitor_seen.append(anomaly.kind)
@@ -360,6 +737,11 @@ def main(request: str | None = None, params: dict | None = None,
     try:
         if familiar:
             engineer.stage_case(f"{FOAM_TUTORIALS}/incompressible/simpleFoam/motorBike")
+            # The tutorial's boundary-skewness allowance (20) leaves a handful
+            # of faces that checkMesh flags above the 4.0 guidance; enforcing
+            # the guidance at mesh time produces a clean mesh at the same cell
+            # budget (measured: 8.94 with the stock gate, 3.99 with this one).
+            engineer.enforce_boundary_skewness(MAX_SKEWNESS)
             geometry_source = (f"{GEOMETRY_DIR / surface}" if (GEOMETRY_DIR / surface).exists()
                                else f"{FOAM_TUTORIALS}/resources/geometry/motorBike.obj.gz")
             wsl_source = geometry_source.replace("C:", "/mnt/c").replace("\\", "/")
@@ -372,11 +754,8 @@ def main(request: str | None = None, params: dict | None = None,
         else:
             report = _build_unfamiliar_case(engineer, script, roster, surface,
                                             params, iterations, emit)
-        script.engineer(
-            f"• Surface accepted: {shown}"
-            + (", closed" if report.get("closed") else "") + ". "
-            + (f"• Issues: {', '.join(report['issues'])}." if report.get("issues")
-               else "• No defects reported by the surface check."))
+        acceptance_line, shells = surface_acceptance(report, shown)
+        script.engineer(acceptance_line)
         script.engineer(
             "• Selected: k-omega SST, steady RANS, standard closure for "
             "attached external flow, solved on a quality-gated mesh.")
@@ -401,7 +780,7 @@ def main(request: str | None = None, params: dict | None = None,
                 roster.set_workers(1, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                script.engineer(f"• {step}: {result.seconds:.0f} s, {note}.")
+                stage_row(step, result.seconds, note)
             # Cache the freshly snapped mesh so the next run of this body is warm.
             engineer.save_mesh_to_cache(label)
 
@@ -432,6 +811,15 @@ def main(request: str | None = None, params: dict | None = None,
                if (skew or 0) > MAX_SKEWNESS else
                "• Skewness inside guidance as well."))
         roster.idle(CHIEF_RESEARCHER)
+        # Close the loop on the multi-shell surface: the viewer heard about
+        # the separate parts at intake, so say plainly what checkMesh showed
+        # once the assembly meshed, and only what it showed.
+        if shells and gate_ok:
+            script.engineer(
+                f"• The {shells} shells meshed as one flow domain"
+                + (", and checkMesh passed on the assembly."
+                   if stats.get("mesh_ok") else
+                   "; the checkMesh record for the assembly is above."))
 
         # A case this lab has already solved end-to-end (same body, same mesh,
         # same iteration count) is restored and presented at a watchable pace:
@@ -465,7 +853,7 @@ def main(request: str | None = None, params: dict | None = None,
             live_cd["iters"].append(live_cd["iter"])
             live_cd["vals"].append(float(m.group(1)))
             now = time.time()
-            if now - live_cd["last"] < 1.0:      # readable pace, ~1 pt/s max
+            if now - live_cd["last"] < LIVE_CD_MIN_INTERVAL_S:   # ~2 pt/s max
                 return
             live_cd["last"] = now
             vals = live_cd["vals"]
@@ -500,7 +888,8 @@ def main(request: str | None = None, params: dict | None = None,
                     pts.append((int(float(r[0])), float(r[1])))
                 except (ValueError, IndexError):
                     continue
-            pace_total = float(os.environ.get("CERTONOMOUS_SOLVE_REPLAY_S", "22"))
+            pace_total = float(os.environ.get("CERTONOMOUS_SOLVE_REPLAY_S",
+                                              str(SOLVE_REPLAY_DEFAULT_S)))
             if emit and pts:
                 step_n = max(1, len(pts) // 36)
                 marks = sorted(set(list(range(0, len(pts), step_n)) + [len(pts) - 1]))
@@ -525,7 +914,7 @@ def main(request: str | None = None, params: dict | None = None,
                         time.sleep(per_point)
             elapsed = max(1.0, time.time() - started)
             ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            script.engineer(f"• simpleFoam: {elapsed:.0f} s, {note}.")
+            stage_row("simpleFoam", elapsed, note)
             roster.set_workers(0)
         else:
             for step, base, note in (
@@ -541,7 +930,7 @@ def main(request: str | None = None, params: dict | None = None,
                     step, command, 7200,
                     line_hook=_cd_line_hook if step == "simpleFoam" else None)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                script.engineer(f"• {step}: {result.seconds:.0f} s, {note}.")
+                stage_row(step, result.seconds, note)
             roster.set_workers(0)
             if parallel:
                 engineer.reconstruct_latest()
@@ -554,7 +943,7 @@ def main(request: str | None = None, params: dict | None = None,
         step_match = re.match(r"step '(\w+)' failed", str(exc))
         stopped_at = step_match.group(1) if step_match else "a solver stage"
         script.engineer(f"• The study stopped: {stopped_at} did not complete "
-                        f"cleanly; detail in the saved log, not on screen.")
+                        f"cleanly; detail in the run log, not on screen.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
@@ -622,16 +1011,22 @@ def main(request: str | None = None, params: dict | None = None,
                        f"{shown}, surface pressure from the solve")
         script.engineer(
             "• Body painted with its own solved surface pressure. "
-            "• High on leading surfaces, low over the upper wing.")
+            "• Red is high pressure where the flow stagnates; blue is low "
+            "where it accelerates.")
     plots: list[str] = []
+    report_plots: list[dict] = []
     for name in ("Cd", "Cl"):
         png = engineer.out_root / f"{name}_envelope.png"
         if png.exists():
             target = out / png.name
             target.write_bytes(png.read_bytes())
             plots.append(str(target))
-            announce_plot(emit, "geometry-study", target,
-                          f"{'Drag' if name == 'Cd' else 'Lift'} history with envelope")
+            title = f"{'Drag' if name == 'Cd' else 'Lift'} history with envelope"
+            announce_plot(emit, "geometry-study", target, title)
+            # The report carries its own plot manifest so the memo's figure
+            # strip never depends on live-queue timing.
+            report_plots.append({"title": title, "file": target.name,
+                                 "url": f"/api/plot/geometry-study/{target.name}"})
 
     drag = results.get("Cd")
     lift = results.get("Cl")
@@ -653,7 +1048,8 @@ def main(request: str | None = None, params: dict | None = None,
     else:
         why = ""
     comparison = None
-    if reference:
+    drag_area_cmp = None
+    if reference and "cd" in reference:
         # The lab holds an experiment for this body: grade the force against it,
         # which is the only path that can reach VALIDATED.
         from chief_engineer.lab import validate_against_reference
@@ -674,12 +1070,57 @@ def main(request: str | None = None, params: dict | None = None,
                 + (f"• {comparison['relative_error'] * 100:.0f}% apart, "
                    if comparison['relative_error'] is not None else "• Not comparable, ")
                 + f"band ±{comparison['tolerance'] * 100:.0f}%.")
+    elif reference and reference.get("drag_area_band"):
+        # A published drag-area band: Cd * Aref in m² is area-convention-proof,
+        # so the comparison is like for like whatever reference area the case's
+        # force coefficients used. The Aref is read from the case, never assumed.
+        from chief_engineer.lab import grade_drag_area
+        aref = engineer.reference_area()
+        if aref:
+            verdict = grade_drag_area(
+                measured_cd=drag["value"], reference_area_m2=aref,
+                reference=reference, converged=True,
+                in_validated_regime=gate_ok, calibrated=skew_ok)
+            drag_area_cmp = verdict.get("comparison")
+            script.researcher(
+                f"• Drag area {drag_area_cmp['drag_area_m2']:.2f} m² from the "
+                f"solve: Cd {drag['value']:.4g} on the case reference area "
+                f"{aref:g} m². "
+                + (f"• Sits inside the {drag_area_cmp['band_label']}, "
+                   f"{drag_area_cmp['band_lo']:g} to "
+                   f"{drag_area_cmp['band_hi']:g} m² "
+                   f"({drag_area_cmp['source_short']})."
+                   if drag_area_cmp["position"] == "inside" else
+                   f"• Sits {drag_area_cmp['position']} the "
+                   f"{drag_area_cmp['band_label']}, "
+                   f"{drag_area_cmp['band_lo']:g} to "
+                   f"{drag_area_cmp['band_hi']:g} m² "
+                   f"({drag_area_cmp['source_short']}); the gap stands on the record."))
+        else:
+            verdict = trust(relative_error=relative, converged=True,
+                            in_validated_regime=gate_ok, calibrated=skew_ok,
+                            why=why)
     else:
         verdict = trust(relative_error=relative, converged=True,
                         in_validated_regime=gate_ok, calibrated=skew_ok, why=why)
-    # Stored UQ studies (refinement ladder, closure trio) populate the
-    # numerical and model channels when their setup fingerprint matches this
-    # mission; a mismatch says "study pending", never a stale band.
+
+    # The result on the record, at reading pace: a short lead-in carrying the
+    # verdict, then the coefficients as one compact table (Katie's format).
+    script.engineer("• Forces settled; the window is flat.", verdict=verdict)
+    coefficient_rows = [["C_d", f"{drag['value']:.4g}",
+                         f"±{2 * drag['sigma']:.2g}",
+                         f"final {drag['window']} iterations"]]
+    if lift:
+        coefficient_rows.append(["C_L", f"{lift['value']:.4g}",
+                                 f"±{2 * lift['sigma']:.2g}",
+                                 f"final {lift['window']} iterations"])
+    _emit_table(emit, script, role=_CE_ROLE,
+                title="Force coefficients over the settled window",
+                headers=("Coefficient", "Value", "Band (95%)", "Window"),
+                rows=coefficient_rows, table_id=f"coefficients-{label}")
+
+    # The setup fingerprint keys every stored band; a mismatch means the
+    # refinement study runs fresh rather than quoting a stale number.
     from chief_engineer import uq as uq_studies
     if familiar:
         study_fp = uq_studies.setup_fingerprint(
@@ -691,11 +1132,27 @@ def main(request: str | None = None, params: dict | None = None,
             velocity=float(params.get("velocity", 100.0)),
             refinement=int(params.get("refinement", 3)),
             iterations=iterations)
+
+    # The grid-refinement study runs INSIDE the act: two cheaper rungs of the
+    # same case, the Eca & Hoekstra band on Cd across the three meshes, and
+    # the band lands in the numerical channel of this mission's certificate.
+    refine = _run_refinement_ladder(
+        engineer=engineer, label=label, familiar=familiar, params=params,
+        iterations=iterations, production_cells=cells,
+        production_cd=drag["value"], study_fp=study_fp, script=script,
+        roster=roster, ledger=ledger, emit=emit, out=out)
+
     lookup = uq_studies.channels_for(label, study_fp)
+    model_extra = ""
+    if drag_area_cmp and drag_area_cmp["position"] == "inside":
+        model_extra = (f"drag area {drag_area_cmp['drag_area_m2']:.2f} m² "
+                       f"inside the {drag_area_cmp['band_label']} "
+                       f"({drag_area_cmp['source_short']})")
     channels = certificate_channels(
         settle_2sigma=2 * drag["sigma"], window=drag["window"],
         velocity=20.0 if familiar else float(params.get("velocity", 100.0)),
-        lookup=lookup, cells=cells, non_ortho_s=non_ortho_s, skew_s=skew_s)
+        lookup=lookup, cells=cells, non_ortho_s=non_ortho_s, skew_s=skew_s,
+        model_extra=model_extra)
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
     # The combined 95% band still carries the settled-state scatter of the
@@ -712,17 +1169,21 @@ def main(request: str | None = None, params: dict | None = None,
                                 "envelope": f"over the final {drag['window']} iterations",
                                 **verdict})
         emit("uncertainty.channels", channels)
-    script.engineer(
-        f"• Drag settles at {drag['value']:.4g} ± {2 * drag['sigma']:.2g} over "
-        f"{drag['window']} iterations"
-        + (f". • Lift {lift['value']:.4g} ± {2 * lift['sigma']:.2g}." if lift else "."),
-        verdict=verdict)
 
-    script.numericist(
-        f"• Numerical uncertainty needs refined grids, {per('grid-uncertainty')}; one mesh cannot give it. "
-        + ("• An experimental comparison exists for this body."
-           if reference else
-           "• No experimental comparison was made; a solved comparison is the next step."))
+    if refine and refine.get("band_abs") is not None:
+        script.numericist(
+            f"• Discretization band measured from three meshes of this case, "
+            f"{per('grid-uncertainty')}. "
+            + ("• A published comparison for this body is on the record above."
+               if (comparison or drag_area_cmp) else
+               "• No published comparison exists for this body yet."))
+    else:
+        script.numericist(
+            "• No refinement band on the record for this setup; the numerical "
+            "channel states that plainly. "
+            + ("• A published comparison for this body is on the record above."
+               if (comparison or drag_area_cmp) else
+               "• No published comparison exists for this body yet."))
 
     monitor_summary = engineer.monitor.summary()
     suppressed = sum(monitor_summary.get("suppressed", {}).values())
@@ -738,8 +1199,15 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• Confirmed: raw surface → converged force in {elapsed:.1f} min, no intervention. "
-        "• Coefficient history flat over the window: the envelope means something.")
+        f"• From raw surface to a converged force in {elapsed:.1f} minutes, "
+        f"no hand tuning at any step. "
+        "• The coefficient history is flat across the averaging window, so "
+        "the quoted band is meaningful.")
+    # The skewness caveat, stated as a measurement when and only when
+    # checkMesh actually showed it.
+    skew_line = (f" • Max skewness {skew_s} exceeds the guidance value "
+                 f"{MAX_SKEWNESS:.1f}; the mesh channel carries that as "
+                 f"measured." if (skew or 0) > MAX_SKEWNESS else "")
     if comparison and verdict["tier"] == "VALIDATED":
         script.engineer(
             f"• Confirmed against experiment: inside the published band of "
@@ -748,25 +1216,43 @@ def main(request: str | None = None, params: dict | None = None,
     elif comparison:
         script.engineer(
             f"• Converged but not validated: {verdict['reason']}. "
-            f"• Agrees in direction with {reference['source']}; outside the band.")
+            f"• Agrees in direction with {reference['source']}; outside the band."
+            + skew_line)
+    elif drag_area_cmp:
+        c = drag_area_cmp
+        if c["position"] == "inside":
+            script.engineer(
+                f"• Checked against the literature: drag area "
+                f"{c['drag_area_m2']:.2f} m² sits inside the {c['band_label']}, "
+                f"{c['band_lo']:g} to {c['band_hi']:g} m² ({c['source_short']})."
+                + skew_line)
+        else:
+            script.engineer(
+                f"• Checked against the literature: drag area "
+                f"{c['drag_area_m2']:.2f} m² sits {c['position']} the "
+                f"{c['band_label']}, {c['band_lo']:g} to {c['band_hi']:g} m² "
+                f"({c['source_short']}); the gap stands on the record." + skew_line)
     else:
         script.engineer(
-            "• Magnitude not independently validated. "
-            + ("• Consistent with our prior, but self-consistency is not validation."
-               if familiar else
-               "• No prior, no experiment: the number stands on mesh quality and convergence.")
-            + (" • Skewness above guidance is why the mesh channel carries the caveat."
-               if (skew or 0) > MAX_SKEWNESS else ""))
-    script.engineer(
-        "• Still unknown: mesh sensitivity, one mesh cannot separate discretization from physics. "
-        f"• A refinement study would roughly double the "
-        f"{ledger.as_dict()['spent_core_minutes']:.0f} core-minutes spent.")
+            "• No published comparison for this body; the number stands on "
+            "mesh quality, convergence, and the grid study." + skew_line)
+    if refine and refine.get("band_abs") is not None:
+        script.engineer(
+            f"• Mesh sensitivity measured on three meshes of this case; the "
+            f"band rides the numerical channel of the certificate. "
+            f"• Total spend {ledger.as_dict()['spent_core_minutes']:.0f} "
+            f"core-minutes, refinement rungs included.")
+    else:
+        script.engineer(
+            f"• Mesh sensitivity is not separated on this run; the numerical "
+            f"channel states that plainly. "
+            f"• Spend {ledger.as_dict()['spent_core_minutes']:.0f} core-minutes.")
 
     if not familiar:
         knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
         script.numericist(
-            f"• Recorded in case memory. "
+            f"• Entered into case memory. "
             f"• Next question about a body like {shown} answers from a real run.")
 
     report_doc = lab_report(
@@ -804,7 +1290,20 @@ def main(request: str | None = None, params: dict | None = None,
                          f"±{comparison['tolerance'] * 100:.0f}% band"
                          if comparison['relative_error'] is not None else "not comparable"),
             **verdict,
-        }] if comparison else []) + [{
+        }] if comparison else []) + ([{
+            "quantity": "Drag area vs literature",
+            "value": (f"{drag_area_cmp['drag_area_m2']:.2f} m² vs "
+                      f"{drag_area_cmp['band_lo']:g} to "
+                      f"{drag_area_cmp['band_hi']:g} m²"),
+            "envelope": drag_area_cmp["source"],
+            **verdict,
+        }] if drag_area_cmp else []) + ([{
+            "quantity": "Numerical uncertainty on Cd",
+            "value": f"±{refine['band_abs']:.2g}",
+            "envelope": refine["method"],
+            **trust(relative_error=0.0, in_validated_regime=gate_ok,
+                    calibrated=skew_ok),
+        }] if refine and refine.get("band_abs") is not None else []) + [{
             "quantity": "Mesh",
             "value": f"{cells:,} cells",
             "envelope": (f"max non-orthogonality {non_ortho_s} vs "
@@ -818,18 +1317,29 @@ def main(request: str | None = None, params: dict | None = None,
         uncertainty=[
             "Reported band: settling spread of the coefficient over the "
             "averaging window, a floor, not a bound.",
-            "Numerical uncertainty is not quantified: one mesh cannot "
-            "separate discretization error from the solution, and no refinement "
-            "study was run.",
+            (f"Numerical uncertainty from a 3-mesh refinement study: "
+             f"±{refine['band_abs']:.2g} on Cd; {refine['method']}."
+             if refine and refine.get("band_abs") is not None else
+             "Numerical uncertainty not quantified on this run: no matching "
+             "refinement study on the record for this setup."),
             (f"Compared against {reference['source']}: {verdict['reason']}."
              if comparison else
-             "No experimental comparison was made in this study, so the magnitude is "
-             "unvalidated against reality."),
+             (f"Compared against {drag_area_cmp['source']}: drag area "
+              f"{drag_area_cmp['drag_area_m2']:.2f} m² sits "
+              f"{drag_area_cmp['position']} the published "
+              f"{drag_area_cmp['band_lo']:g} to {drag_area_cmp['band_hi']:g} m² "
+              f"band."
+              if drag_area_cmp else
+              "No published comparison exists for this body, so the magnitude "
+              "stands on the solve's own evidence.")),
         ],
         next_investigations=[
             f"{entry['title']}: {entry['scope']}" for entry in _AGENDA],
         compute=ledger.as_dict(),
     )
+    # The C_d / C_L coefficient-history figures ride the report itself,
+    # clickable to full size in the memo whatever the queue timing was.
+    report_doc["plots"] = report_plots
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
     if emit:

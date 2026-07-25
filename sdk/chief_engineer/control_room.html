@@ -280,6 +280,8 @@
   .entry.monitor .who { color: #ef7fb0; }
   .entry.system .who { color: var(--muted); }
   .entry p { margin-top: 5px; font-size: 13px; }
+  /* every bullet on its own line, in every feed (Katie, 2026-07-24) */
+  .bline { display: block; }
   /* transcript tables: same feed fonts, compact; wide ones scroll inside
      their own wrapper so the feed column never widens. */
   .entry .t-wrap { margin-top: 6px; overflow-x: auto; }
@@ -442,7 +444,7 @@
            result card are SIBLINGS of the stage, never children. An unclosed
            stage-wrap once swallowed them all — the absolute canvas painted the
            body over the charts, and hiding the stage for a race hid the race. -->
-      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here — painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
+      <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here, painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
       <div class="viewport-foot" id="viewportFoot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
       <div class="legend" id="legend"><span id="legendLo">—</span><span class="bar"></span><span id="legendHi">—</span><b id="legendName">pressure</b></div>
 
@@ -464,7 +466,7 @@
           <div class="land-legend"><span class="lg-dot ok"></span><span>feasible</span><span class="lg-dot bad"></span><span>infeasible</span><span class="lg-ring"></span><span>winner</span><span class="lg-note" id="landNote">hover a point for its design</span></div>
         </div>
         <div class="trace-box" id="traceBox" hidden>
-          <span class="eyebrow" id="traceTitle">Objective trace, live</span>
+          <span class="eyebrow" id="traceTitle">Objective trace</span>
           <canvas id="trace"></canvas>
           <div class="land-legend"><span class="lg-dot ok"></span><span id="traceSeriesLbl">objective</span></div>
         </div>
@@ -666,7 +668,7 @@ function connect(id) {
 
 function resetMission() {
   if (state.source) state.source.close();
-  state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null;
+  state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null; state.report=null;
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
   state.peakAgents=0; state.peakWorkers=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
@@ -779,7 +781,7 @@ function showRoute(r) {
   setHidden('route', false);
   $('routeIntent').textContent = (r.intent || '').replace(/-/g,' ').toUpperCase();
   $('routeConf').textContent = r.confidence != null ? `interpretation confidence ${Math.round(r.confidence*100)}%` : '';
-  $('routeRationale').textContent = r.rationale || '';
+  $('routeRationale').innerHTML = bulletHTML(r.rationale || '');
   // The user naming a solver in the prompt earns the badge immediately;
   // otherwise it waits for the plan's solver.selected.
   const req = ((r.params && r.params.request) || '').toLowerCase();
@@ -886,7 +888,7 @@ function pushTrace(p) {
   if (!state.trace || state.trace.series !== p.series) {
     state.trace = { series: p.series, pts: [], xLabel: p.x_label || 'x', yLabel: p.y_label || 'y',
                     title: p.title || 'Objective trace' };
-    $('traceTitle').textContent = (p.title || 'Objective trace') + ', live';
+    $('traceTitle').textContent = p.title || 'Objective trace';
     $('traceSeriesLbl').textContent = p.series ? String(p.series).replace(/_/g, ' ') : 'objective';
   }
   state.trace.pts.push({ x: +p.x, y: +p.y, lo: p.lo != null ? +p.lo : null, hi: p.hi != null ? +p.hi : null,
@@ -1175,15 +1177,35 @@ function drainReveal() {
   setTimeout(drainReveal, delay);
 }
 const stamp = at => at ? new Date(at * 1000).toISOString().slice(11, 19) : '';
+// House bullet rendering (Katie, 2026-07-24): EVERY "• …" item in an entry
+// renders on its own line, and every bullet opens with a capital letter.
+// Applied wherever narration renders (conversation feed, digest, route
+// rationale, channel notes). `suffix` (a verdict badge) rides the last line.
+const capBullet = s => /^[a-z]/.test(s) ? s[0].toUpperCase() + s.slice(1) : s;
+function bulletHTML(message, suffix = '') {
+  const msg = String(message ?? '');
+  if (!msg.includes('•')) return esc(msg) + suffix;
+  const parts = msg.split('•').map(s => s.trim()).filter(Boolean);
+  return parts.map((s, i) =>
+    `<span class="bline">• ${esc(capBullet(s))}${i === parts.length - 1 ? suffix : ''}</span>`
+  ).join('');
+}
 function addEntry(p) {
   const el = document.createElement('div'); el.className = roleClass(p.role);
-  el.innerHTML = `<span class="who">${esc(p.role||'System')}<time>${stamp(p.at)}</time></span><p>${esc(p.message||'')}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
+  el.innerHTML = `<span class="who">${esc(p.role||'System')}<time>${stamp(p.at)}</time></span><p>${bulletHTML(p.message, p.verdict ? verdictBadge(p.verdict.tier) : '')}</p>`;
   $('script').appendChild(el); $('script').scrollTop = $('script').scrollHeight;
 }
 // A transcript table renders in both feeds with the entry styling it sits
 // among. The first event for a table_id creates the table (headers + any
 // rows); append:true events land new rows into that same table, so rows
 // arrive live as solves finish without repeating the header block.
+// Table cells typeset simple coefficient symbols: C_d renders as C with a
+// subscript d. Applied AFTER escaping (the only markup that can reach the
+// cell is the <sub> tag this formatter itself inserts), and only inside
+// tables, where content is short symbols and numbers rather than prose.
+function subScript(escaped) {
+  return String(escaped).replace(/\b([A-Za-z])_([A-Za-z0-9]{1,3})\b/g, '$1<sub>$2</sub>');
+}
 function addTable(p) {
   const rows = p.rows || [];
   ['script', 'digest'].forEach(feedId => {
@@ -1194,7 +1216,7 @@ function addTable(p) {
     });
     if (!body || !p.append) {
       const el = document.createElement('div'); el.className = roleClass(p.role);
-      const head = (p.headers || []).map(h => `<th>${esc(h)}</th>`).join('');
+      const head = (p.headers || []).map(h => `<th>${subScript(esc(h))}</th>`).join('');
       el.innerHTML = `<span class="who">${esc(p.role || 'System')}<time>${stamp(p.at)}</time></span>`
         + (p.title ? `<p>${esc(p.title)}</p>` : '')
         + `<div class="t-wrap"><table class="t-table"><thead><tr>${head}</tr></thead>`
@@ -1204,7 +1226,7 @@ function addTable(p) {
     }
     for (const r of rows)
       body.insertAdjacentHTML('beforeend',
-        `<tr>${(r || []).map(c => `<td>${esc(c)}</td>`).join('')}</tr>`);
+        `<tr>${(r || []).map(c => `<td>${subScript(esc(c))}</td>`).join('')}</tr>`);
     host.scrollTop = host.scrollHeight;
   });
   noteAgentRole(p.role);
@@ -1234,7 +1256,7 @@ function addDigest(p) {
   const key = /(=|±|VERDICT|Cd |L\/D|converged|VALIDATED|TREND|MISMATCH|Winner|approved|reject|newton|force|alpha|Womersley|pressure loss)/i;
   if (!key.test(msg) && !p.verdict && !msg.trim().startsWith('•')) return;
   const el = document.createElement('div'); el.className = roleClass(p.role);
-  el.innerHTML = `<span class="who">${esc(p.role||'')}</span><p>${esc(msg)}${p.verdict ? verdictBadge(p.verdict.tier) : ''}</p>`;
+  el.innerHTML = `<span class="who">${esc(p.role||'')}</span><p>${bulletHTML(msg, p.verdict ? verdictBadge(p.verdict.tier) : '')}</p>`;
   $('digest').appendChild(el); $('digest').scrollTop = $('digest').scrollHeight;
 }
 // The fidelity chip: one or two words for what stands behind a number.
@@ -1245,9 +1267,9 @@ function verdictBadge(tier) {
   const chip = LEGACY_CHIP[tier] || tier;
   // SOLVER-BACKED is the unlabeled default for this simulation platform: a
   // real solve with no chip earns no badge. Only the tiers that say more
-  // than the baseline (VALIDATED, CONCEPTUAL MODEL, UNCONVERGED) render.
+  // than the baseline (VALIDATED, RESEARCH MODEL, UNCONVERGED) render.
   if (chip === 'SOLVER-BACKED') return '';
-  const cls = chip==='VALIDATED'?'v-validated':chip==='UNCONVERGED'?'v-needs':chip==='CONCEPTUAL MODEL'?'v-trend':'v-regime';
+  const cls = chip==='VALIDATED'?'v-validated':chip==='UNCONVERGED'?'v-needs':chip==='RESEARCH MODEL'?'v-trend':'v-regime';
   return `<span class="verdict ${cls}" title="${esc(chip)}">${esc(chip)}</span>`;
 }
 
@@ -1295,7 +1317,7 @@ function renderCompute(p) {
 function renderChannels(p) {
   setHidden('channelsSection', false);
   $('channels').innerHTML = (p.channels||[]).map(c =>
-    `<div class="channel"><div class="channel-top"><b>${esc(title(c.name))}</b>${c.quantified ? `<span class="val">${esc(c.value)}</span>` : '<span class="q">not quantified</span>'}</div><div class="channel-note">${esc(c.note||'')}</div></div>`).join('');
+    `<div class="channel"><div class="channel-top"><b>${esc(title(c.name))}</b>${c.quantified ? `<span class="val">${esc(c.value)}</span>` : '<span class="q">not quantified</span>'}</div><div class="channel-note">${bulletHTML(c.note||'')}</div></div>`).join('');
 }
 function knowledgeAdded(p, fresh) {
   setHidden('knowSection', false);
@@ -1303,13 +1325,21 @@ function knowledgeAdded(p, fresh) {
 }
 
 function renderMemo(rep) {
+  state.report = rep;   // plots landing after the report re-render it (below)
   const list = a => `<ul>${(a||[]).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
   const results = (rep.results||[]).map(r =>
     `<div class="memo-result"><span><b class="val">${esc(r.value)}</b> <span class="q">${esc(r.quantity)}</span><br><span class="q">${esc(r.envelope||'')}${r.reason?' · '+esc(r.reason):''}</span></span>${verdictBadge(r.tier)}</div>`).join('');
-  // Reports lead with plots: every figure the mission produced comes first.
-  const figs = state.plots.length
-    ? `<div class="memo-figs">${state.plots.map(pl =>
-        `<img src="${esc(pl.url)}" title="${esc(pl.title||'')}" onclick="window.open('${esc(pl.url)}','_blank')">`).join('')}</div>`
+  // Reports lead with plots: every figure the mission produced comes first,
+  // clickable to its full-size PNG. The list is the union of the report's
+  // own plot manifest (rep.plots, immune to queue timing: a fast act can
+  // finish before plot.ready drains the paced queue) and everything that
+  // streamed in live, de-duped by URL.
+  const seenFig = new Set();
+  const figSrc = [...(rep.plots || []), ...state.plots]
+    .filter(pl => pl && pl.url && !seenFig.has(pl.url) && seenFig.add(pl.url));
+  const figs = figSrc.length
+    ? `<div class="memo-figs">${figSrc.map(pl =>
+        `<a href="${esc(pl.url)}" target="_blank" rel="noopener"><img src="${esc(pl.url)}" title="${esc(pl.title||'')}" alt="${esc(pl.title||'figure')}"></a>`).join('')}</div>`
     : '';
   $('memo').innerHTML =
     `<span class="eyebrow">Lab report</span><h3>${esc(rep.title||'Mission report')}</h3>`
@@ -1363,7 +1393,7 @@ async function loadField(p) {
     const mesh = normalizeMesh(await (await fetch(url)).json());
     if (seq !== _geomSeq) return;
     state.mesh = mesh; setHidden('viewportEmpty', true);
-    $('viewportLabel').textContent = (p.label || $('viewportLabel').textContent) + ' — solved field';
+    $('viewportLabel').textContent = p.label || $('viewportLabel').textContent;
     if (mesh.field) {
       $('legend').classList.add('on');
       $('legendLo').textContent = mesh.field.display_min; $('legendHi').textContent = mesh.field.display_max;
@@ -1372,7 +1402,60 @@ async function loadField(p) {
     drawGeometry();
   } catch (e) {}
 }
-function normalizeMesh(m) { return { verts: m.vertices || m.points || [], faces: m.faces || m.triangles || [], field: m.field || null }; }
+function normalizeMesh(m) {
+  return dropOrphanIslands({ verts: m.vertices || m.points || [], faces: m.faces || m.triangles || [], field: m.field || null });
+}
+// DISPLAY-only cleanup (Katie's B-52 screenshot): a meshed body can carry a
+// tiny detached island of triangles floating in empty space. Connected
+// components are found over position-quantized vertices (so vertex soups and
+// merged patches unify), and any component under 1% of the face count is
+// dropped from the DISPLAY mesh, capped at 3% total so real geometry can
+// never be cut. The solve geometry is untouched; this runs on the viewport
+// payload only. Field values stay aligned face-for-face.
+function dropOrphanIslands(mesh, frac = 0.01, capFrac = 0.03) {
+  const verts = mesh.verts || [], faces = mesh.faces || [];
+  if (verts.length < 3 || faces.length < 8) return mesh;
+  let lo = [1e18, 1e18, 1e18], hi = [-1e18, -1e18, -1e18];
+  for (const v of verts) for (let i = 0; i < 3; i++) { if (v[i] < lo[i]) lo[i] = v[i]; if (v[i] > hi[i]) hi[i] = v[i]; }
+  const span = Math.max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) || 1;
+  const q = span * 1e-5, key = new Map(), vid = new Array(verts.length);
+  for (let i = 0; i < verts.length; i++) {
+    const k = Math.round(verts[i][0] / q) + ',' + Math.round(verts[i][1] / q) + ',' + Math.round(verts[i][2] / q);
+    let id = key.get(k); if (id === undefined) { id = key.size; key.set(k, id); }
+    vid[i] = id;
+  }
+  const parent = new Array(key.size);
+  for (let i = 0; i < parent.length; i++) parent[i] = i;
+  const find = a => { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; };
+  for (const f of faces) {
+    parent[find(vid[f[0]])] = find(vid[f[1]]);
+    parent[find(vid[f[1]])] = find(vid[f[2]]);
+  }
+  const roots = faces.map(f => find(vid[f[0]]));
+  const size = new Map();
+  for (const r of roots) size.set(r, (size.get(r) || 0) + 1);
+  if (size.size < 2) return mesh;
+  const cut = frac * faces.length, doomed = new Set();
+  let doomedFaces = 0;
+  for (const [r, n] of size) if (n < cut) { doomed.add(r); doomedFaces += n; }
+  if (!doomed.size || doomedFaces > capFrac * faces.length) return mesh;
+  const vals = mesh.field && mesh.field.values;
+  const keptFaces = [], keptVals = [];
+  for (let i = 0; i < faces.length; i++) {
+    if (doomed.has(roots[i])) continue;
+    keptFaces.push(faces[i]);
+    if (vals) keptVals.push(vals[i]);
+  }
+  // Re-pack the vertex list so the dropped island cannot skew auto-framing.
+  const remap = new Map(), outVerts = [];
+  const outFaces = keptFaces.map(f => f.map(ix => {
+    let nix = remap.get(ix);
+    if (nix === undefined) { nix = outVerts.length; outVerts.push(verts[ix]); remap.set(ix, nix); }
+    return nix;
+  }));
+  return { verts: outVerts, faces: outFaces,
+           field: mesh.field ? Object.assign({}, mesh.field, { values: vals ? keptVals : mesh.field.values }) : null };
+}
 const coolwarm = t => {
   t = Math.max(0, Math.min(1, t));
   const stops = [[59,76,192],[122,160,224],[242,242,242],[232,146,106],[180,4,38]];
@@ -1434,6 +1517,9 @@ function addPlot(p) {
   if (!url) return; state.plots.push({ url, title: p.title });
   const img = document.createElement('img'); img.src = url; img.title = p.title || ''; img.onclick = () => window.open(url,'_blank');
   $('plots').appendChild(img);
+  // Plots ride the paced queue and can land AFTER report.ready rendered the
+  // memo; re-render so the lab report always embeds every figure.
+  if (state.report) renderMemo(state.report);
 }
 
 function initLandscape(p) {

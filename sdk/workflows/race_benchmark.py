@@ -63,22 +63,25 @@ def _load_context() -> dict:
             "other_jobs": panel.get("other_jobs"), "load": panel.get("load")}
 
 
-def _design(alpha: float, re_cref: float) -> dict:
-    return {**WING, "re_cref": re_cref, "alpha_start": alpha,
+def _design(alpha: float, re_cref: float, wing: dict | None = None) -> dict:
+    """Single-alpha design point. ``wing`` overrides the curriculum wing when
+    the race runs on an uploaded surface's measured parametric anchor."""
+    return {**(wing or WING), "re_cref": re_cref, "alpha_start": alpha,
             "alpha_end": alpha, "alpha_npts": 1}
 
 
 class _TimedSolver:
-    """Every solve through here is real and individually wall-clocked."""
+    """Every solve through here is individually wall-clocked."""
 
-    def __init__(self, work_root: Path):
+    def __init__(self, work_root: Path, wing: dict | None = None):
         # The race is a timing measurement: never reuse a prior result.
         self.api = VspAeroWingApi(work_root, reuse_prior=False)
+        self.wing = dict(wing) if wing else None
         self.solve_seconds: list[float] = []
 
     def solve(self, alpha: float, re_cref: float, tag: str) -> dict:
         started = time.time()
-        design = {**_design(alpha, re_cref), "tag_hint": tag}
+        design = {**_design(alpha, re_cref, self.wing), "tag_hint": tag}
         try:
             result = self.api.evaluate(design)
         except RuntimeError:

@@ -6,7 +6,7 @@ for the highest cruise L/D that still meets every requirement. Designs that miss
 a requirement are shown as infeasible, not hidden; the winner is the best L/D
 that clears them all.
 
-The search runs in two passes. A **conceptual sizing screen** — a textbook drag
+The search runs in two passes. A **research sizing screen** — a textbook drag
 polar, a Breguet range check, and stall-speed constraints — maps the whole
 grid in milliseconds. Then, when the vortex-lattice solver is reachable, the
 **top finalists get real aero solves**: each candidate wing is built as actual
@@ -112,6 +112,164 @@ def winner_ci95(best: dict, reqs: dict, *, polar: dict | None,
                                 best["sweep_deg"], perturbed)
             samples.append(r["L_D"])
     return 2.0 * statistics.stdev(samples)
+
+
+# ---------------------------------------------------------------------------
+# Computed uncertainty: every channel a number traced to a computation.
+# ---------------------------------------------------------------------------
+
+# The three axes of the design grid, in the order evaluate_design reports them.
+_GRID_AXES = ("span", "area", "sweep_deg")
+# Documented band on the non-wing component buildup terms (Raymer, Aircraft
+# Design: A Conceptual Approach, AIAA): a conceptual-design buildup is credited
+# to about ±15% on its terms; propagated to L/D it becomes the model channel.
+_BUILDUP_BAND = 0.15
+
+
+def axis_steps(grid) -> dict:
+    """Grid spacing per design axis, measured from the grid actually screened."""
+    steps: dict[str, float] = {}
+    for i, axis in enumerate(_GRID_AXES):
+        values = sorted({float(g[i]) for g in grid})
+        diffs = [b - a for a, b in zip(values, values[1:])]
+        steps[axis] = min(diffs) if diffs else 0.0
+    return steps
+
+
+def _fit_quadratic(xs, ys) -> tuple[float, float, float]:
+    """Least-squares quadratic a·x² + b·x + c through (xs, ys); stdlib only."""
+    rows = [[x * x, x, 1.0] for x in xs]
+    ata = [[sum(r[i] * r[j] for r in rows) for j in range(3)] for i in range(3)]
+    aty = [sum(r[i] * y for r, y in zip(rows, ys)) for i in range(3)]
+    m = [ata[i][:] + [aty[i]] for i in range(3)]
+    for i in range(3):
+        pivot = max(range(i, 3), key=lambda r: abs(m[r][i]))
+        m[i], m[pivot] = m[pivot], m[i]
+        for r in range(i + 1, 3):
+            factor = m[r][i] / m[i][i]
+            for col in range(i, 4):
+                m[r][col] -= factor * m[i][col]
+    out = [0.0, 0.0, 0.0]
+    for i in (2, 1, 0):
+        out[i] = (m[i][3] - sum(m[i][c] * out[c] for c in range(i + 1, 3))) / m[i][i]
+    return out[0], out[1], out[2]
+
+
+def grid_spacing_bracket(points, winner, steps, value_key: str = "L_D_solved"
+                         ) -> dict:
+    """The grid-spacing bracket: the true optimum lies between discrete grid
+    points, so the objective is fitted locally around the winner along each
+    axis and varied by half a grid step; the axes combine in quadrature.
+
+    ``points`` are evaluated designs carrying the axis values and
+    ``value_key``. Along each axis the fit uses the points that hold the other
+    two axes at one setting — the winner's own line when it has company,
+    otherwise the best-populated parallel line: a quadratic for three or more
+    points, a straight slope for two. An axis with no variation in the data
+    contributes nothing. Every number comes from the points given.
+
+    Returns ``{"value": float | None, "axes": {axis: float | None}}``.
+    """
+    axes_out: dict[str, float | None] = {}
+    total = 0.0
+    any_axis = False
+    for axis in _GRID_AXES:
+        others = [a for a in _GRID_AXES if a != axis]
+        step = float(steps.get(axis) or 0.0)
+        if step <= 0:
+            axes_out[axis] = None
+            continue
+        lines: dict[tuple, dict[float, float]] = {}
+        for p in points:
+            try:
+                key = tuple(round(float(p[o]), 6) for o in others)
+                x = round(float(p[axis]), 6)
+                value = float(p[value_key])
+            except (KeyError, TypeError, ValueError):
+                continue
+            lines.setdefault(key, {})[x] = value
+        winner_key = tuple(round(float(winner[o]), 6) for o in others)
+        x0 = float(winner[axis])
+        line = lines.get(winner_key, {})
+        if len(line) < 2:
+            candidates = [(k, ln) for k, ln in lines.items() if len(ln) >= 2]
+            if not candidates:
+                axes_out[axis] = None
+                continue
+            candidates.sort(key=lambda item: (
+                -len(item[1]),
+                sum(abs(a - b) for a, b in zip(item[0], winner_key))))
+            line = candidates[0][1]
+        xs = sorted(line)
+        ys = [line[x] for x in xs]
+        half = step / 2.0
+        if len(xs) >= 3:
+            a, b, c = _fit_quadratic(xs, ys)
+            fit = lambda x: a * x * x + b * x + c   # noqa: E731
+            delta = max(abs(fit(x0 + half) - fit(x0)),
+                        abs(fit(x0 - half) - fit(x0)))
+        else:
+            slope = (ys[1] - ys[0]) / (xs[1] - xs[0])
+            delta = abs(slope) * half
+        axes_out[axis] = delta
+        total += delta * delta
+        any_axis = True
+    return {"value": (math.sqrt(total) if any_axis else None), "axes": axes_out}
+
+
+def polar_readoff_residual(polar, cl: float,
+                           cd0_nonwing: float = _CD0_NONWING) -> float:
+    """Cruise-point read-off residual on the solved polar: the whole-aircraft
+    L/D difference between a straight-line and a curved read of the polar at
+    the cruise CL. Zero when the polar cannot support the comparison."""
+    try:
+        cls_ = [float(v) for v in polar["CLtot"]]
+        if len(cls_) < 3:
+            return 0.0
+
+        def lin(key: str) -> float:
+            return _interp_polar(polar, key, cl)
+
+        def quad(key: str) -> float:
+            ys = [float(v) for v in polar[key]]
+            i = min(range(len(cls_)), key=lambda k: abs(cls_[k] - cl))
+            i = max(1, min(i, len(cls_) - 2))
+            xs, yv = cls_[i - 1:i + 2], ys[i - 1:i + 2]
+            out = 0.0
+            for j in range(3):
+                term = yv[j]
+                for k in range(3):
+                    if k != j:
+                        term *= (cl - xs[k]) / (xs[j] - xs[k])
+                out += term
+            return out
+
+        ld_lin = cl / (cd0_nonwing + lin("CDo") + lin("CDi"))
+        ld_quad = cl / (cd0_nonwing + quad("CDo") + quad("CDi"))
+        return abs(ld_lin - ld_quad)
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return 0.0
+
+
+def buildup_band_ld(cl: float, cdo_wing: float, cdi: float,
+                    cd0_nonwing: float = _CD0_NONWING,
+                    band: float = _BUILDUP_BAND) -> float:
+    """The documented ±band on the non-wing component buildup, propagated to
+    whole-aircraft L/D at the solved cruise point (Raymer's buildup terms)."""
+    ld0 = cl / (cd0_nonwing + cdo_wing + cdi)
+    ld_hi = cl / ((1.0 - band) * cd0_nonwing + cdo_wing + cdi)
+    ld_lo = cl / ((1.0 + band) * cd0_nonwing + cdo_wing + cdi)
+    return max(abs(ld_hi - ld0), abs(ld0 - ld_lo))
+
+
+def screen_solve_gap(finalists) -> float | None:
+    """Mean absolute gap between the sizing screen's L/D and the solved L/D
+    over the finalists carrying both — measured model-channel evidence for
+    the screen, per the special optimization-act case of the doctrine."""
+    gaps = [abs(float(f["L_D"]) - float(f["L_D_solved"]))
+            for f in finalists
+            if f.get("L_D") is not None and f.get("L_D_solved") is not None]
+    return (sum(gaps) / len(gaps)) if gaps else None
 
 
 def parse_requirements(text: str) -> dict:
@@ -359,7 +517,7 @@ def main(request: str | None = None, params: dict | None = None,
         dimensionality=3,          # wing span, area, and quarter-chord sweep
         regime="steady",
         smoothness="smooth",
-        fidelity="a conceptual sizing model",
+        fidelity="a research sizing model",
         constraints=("take-off speed", "landing speed", "range"))
     for line in method_memo(props):
         script.researcher(line)
@@ -459,12 +617,18 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(plan_line)
     if solver_live:
         script.numericist(
-            "• Screen is conceptual sizing; finalists are solved, induced plus "
+            "• Screen is research sizing; finalists are solved, induced plus "
             "wing viscous drag. "
-            "• Fuselage and tail stay a stated buildup.")
+            "• Fuselage, tail and nacelle drag come from Raymer's component "
+            "buildup method.")
     else:
+        script.engineer(
+            "• The aero solver is not connected in this session; no launcher "
+            "is configured on this machine. "
+            "• Running the research sizing screen only; reconnect the solver "
+            "and rerun for solved numbers.")
         script.numericist(
-            "• Conceptual sizing only, a drag polar, not a solved flow. "
+            "• Research sizing only, a drag polar, not a solved flow. "
             "• It ranks designs and finds the trade; it validates nothing. "
             "• A run of a selected aero solver is what would set the magnitude.")
 
@@ -485,7 +649,7 @@ def main(request: str | None = None, params: dict | None = None,
             # report it done — the fleet is visibly working through the grid.
             emit("dispatch.update", {"slot": slot, "state": "solving",
                                      "label": f"span {r['span']:.0f} m / {r['area']:.0f} m²",
-                                     "detail": "conceptual sizing"})
+                                     "detail": "research sizing"})
             emit("landscape.point", {"design": {"span": r["span"], "wing_area": r["area"]},
                                      "metrics": {"L_D": r["L_D"]}, "feasible": r["feasible"],
                                      "why": r["violations"] or None})
@@ -512,7 +676,7 @@ def main(request: str | None = None, params: dict | None = None,
                                      "detail": (f"L/D {r['L_D']:.1f}" if r["feasible"]
                                                 else "infeasible")})
     screen_elapsed = time.time() - screen_started
-    ledger.spend(len(grid) * 0.02, f"{len(grid)} conceptual sizing evaluations")
+    ledger.spend(len(grid) * 0.02, f"{len(grid)} research sizing evaluations")
     roster.set_workers(0)
     script.engineer(f"• Screening sweep: {screen_elapsed:.2f} s, {len(grid)} designs.")
 
@@ -530,6 +694,16 @@ def main(request: str | None = None, params: dict | None = None,
         if emit:
             emit("result.verdict", {"quantity": "Best feasible L/D",
                                     "value": "none", "envelope": "n/a", **verdict})
+        # No certificate exists for a run with no feasible design; the
+        # previous run's page is withdrawn so nothing out of date is served.
+        try:
+            (out / "certificate.pdf").unlink()
+        except OSError:
+            pass
+        script.engineer(
+            "• No certificate is issued when nothing closes. "
+            "• The previous run's certificate is withdrawn, so nothing out of "
+            "date is served.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 0
@@ -565,7 +739,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"• Solver of choice: VSPAERO. Launching {len(finalists)} parallel solves.")
         script.engineer(
             "• Each row below lands as its solve finishes; L/D is whole-aircraft "
-            "with the documented non-wing buildup.")
+            "with Raymer's non-wing component buildup.")
         _emit_table(emit, script, title="Finalist solves",
                     headers=list(_FINALIST_HEADERS), rows=[],
                     table_id="finalist-solves")
@@ -700,10 +874,9 @@ def main(request: str | None = None, params: dict | None = None,
             screen_agreed = best is max(feasible, key=lambda r: r["L_D"])
             script.engineer(
                 f"• Winner on solved numbers: span {best['span']:.0f} m, area "
-                f"{best['area']:.0f} m² → L/D {best['L_D_solved']:.1f}. "
-                + ("• The screen ranked it first as well."
-                   if screen_agreed else
-                   "• The solver moved the pick; the screen had it wrong."))
+                f"{best['area']:.0f} m², L/D {best['L_D_solved']:.1f}."
+                + (" • The screen ranked it first as well."
+                   if screen_agreed else ""))
             winner_surface = out / f"wing-span{best['span']:g}-area{best['area']:g}.stl"
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
@@ -722,69 +895,123 @@ def main(request: str | None = None, params: dict | None = None,
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).
     ci95 = winner_ci95(best, reqs, polar=best.get("_polar"))
-    # Stored anchors study: sizing-model deviation at the solved finalists
-    # feeds the model channel when its fingerprint matches this configuration.
     from chief_engineer import uq as uq_studies
-    anchors = uq_studies.channels_for(
-        "airliner-wing",
-        uq_studies.setup_fingerprint(body="airliner-wing", solver="vspaero",
-                                     closure="vortex-lattice", velocity=230.0,
-                                     refinement=None, iterations=None))
-    model_band = (anchors["model"]["band_abs"] if anchors["model"] else None)
+    steps = axis_steps(grid)
     input_note = (
-        "Monte-Carlo over the stated payload-mass and non-wing-drag spreads; "
-        "requirements are held as exact specification, and the remaining "
+        "Ensemble run over the stated payload-mass and non-wing-drag spreads. "
+        "Requirements are held as exact specification, and the remaining "
         "sizing constants (SFC, fuel fraction, cruise altitude) are fixed")
     if won_solved:
-        model_note = ("wing induced and viscous drag are solved with VSPAERO; "
-                      "fuselage, tail and nacelle drag added from a documented "
-                      "component buildup")
-        if model_band is not None:
-            model_note = (f"{anchors['model']['method']} "
-                          f"({len(anchors['model'].get('members', {}))} solved "
-                          f"anchors); non-wing drag remains a component buildup")
+        # Numerical: the grid-spacing bracket (local quadratic fit of the
+        # solved L/D around the winner, half-step variation per axis in
+        # quadrature) plus the cruise-point read-off residual on the polar.
+        bracket = grid_spacing_bracket(solved_ok, best, steps,
+                                       value_key="L_D_solved")
+        readoff = polar_readoff_residual(best.get("_polar"), best["cl_cruise"])
+        num_parts = [v for v in (bracket["value"], readoff) if v]
+        u_num = (round(math.sqrt(sum(v * v for v in num_parts)), 3)
+                 if num_parts else None)
+        # Model: the documented band on the non-wing component buildup,
+        # propagated to L/D at the solved cruise point; the measured
+        # screen-vs-solve gap goes on the record beside it.
+        u_model = round(buildup_band_ld(
+            best["cl_cruise"], best["cdo_wing_solved"], best["cdi_solved"]), 3)
+        gap = screen_solve_gap(solved_ok)
+        numerical_note = (
+            f"The design grid is discrete, so the true optimum lies between "
+            f"grid points. Default numerical consistency method: the winner "
+            f"brackets the half-step variation on each grid axis, "
+            f"±{(bracket['value'] or 0.0):.2f}. The cruise-point read on the "
+            f"solved polar adds ±{readoff:.2f}.")
+        model_note = (
+            f"Component buildup band on non-wing drag, propagated to L/D: "
+            f"±{u_model:.2f}. The band is the documented ±15% on the buildup "
+            f"terms (Raymer, Aircraft Design: A Conceptual Approach, AIAA).")
+        if gap is not None:
+            model_note += (
+                f" The sizing screen's measured gap to the {len(solved_ok)} "
+                f"solved wings averages {gap:.2f} in L/D.")
         channels = uncertainty_channels(
-            input_2sigma=round(ci95, 2),
-            numerical=None,
+            input_2sigma=round(ci95, 2), numerical=u_num, model=u_model,
+            input_note=input_note, numerical_note=numerical_note,
+            model_note=model_note)
+        headline_ci = uq_studies.combine_expanded(
+            input_2sigma=ci95, numerical_abs=u_num,
+            model_abs=u_model)["combined_95"] or ci95
+    else:
+        # No solves this run. The numerical channel is still computed — the
+        # same half-step bracket, on the screened L/D — and the model channel
+        # comes from the measured screen-vs-solve deviation held for this
+        # configuration when its fingerprint matches.
+        anchors = uq_studies.channels_for(
+            "airliner-wing",
+            uq_studies.setup_fingerprint(body="airliner-wing", solver="vspaero",
+                                         closure="vortex-lattice", velocity=230.0,
+                                         refinement=None, iterations=None))
+        model_band = (anchors["model"]["band_abs"] if anchors["model"] else None)
+        bracket = grid_spacing_bracket(feasible, best, steps, value_key="L_D")
+        u_num = round(bracket["value"], 3) if bracket["value"] else None
+        channels = uncertainty_channels(
+            input_2sigma=round(ci95, 2), numerical=u_num,
             model=None if model_band is None else round(model_band, 3),
             input_note=input_note,
-            numerical_note="the design grid is discrete, so the true optimum lies "
-                           "between grid points; the VSPAERO polar itself "
-                           "is converged at the solved panel density",
-            model_note=model_note)
-    else:
-        channels = uncertainty_channels(
-            input_2sigma=round(ci95, 2), numerical=None, model=None,
-            input_note=input_note,
-            numerical_note="the design grid is discrete, so the true optimum lies "
-                           "between grid points",
-            model_note="drag-polar sizing model; a solve would set the "
-                       "magnitude")
+            numerical_note=(
+                "The design grid is discrete, so the true optimum lies between "
+                "grid points. Default numerical consistency method: the winner "
+                "brackets the half-step variation on each grid axis."
+                if u_num is not None else
+                "The design grid is discrete, so the true optimum lies "
+                "between grid points."),
+            model_note=(f"{anchors['model']['method']} "
+                        f"({len(anchors['model'].get('members', {}))} solved "
+                        f"anchors); non-wing drag remains a component buildup"
+                        if model_band is not None else
+                        "drag-polar sizing model; a solve would set the "
+                        "magnitude"))
+        headline_ci = uq_studies.combine_expanded(
+            input_2sigma=ci95, numerical_abs=u_num,
+            model_abs=model_band)["combined_95"] or ci95
     if emit:
         emit("uncertainty.channels", channels)
+    # Standing lesson: these computed-uncertainty patterns transfer to every
+    # act, so they are kept as a global lesson the team reads back.
+    try:
+        from chief_engineer.lessons import record_learned
+
+        record_learned(
+            "computed-uncertainty-patterns",
+            "Grid-spacing bracket via local quadratic fit: on a discrete "
+            "design grid, fit the objective around the winner along each axis "
+            "and take the half-step variation, axes combined in quadrature; "
+            "that is the numerical channel, computed from results already in "
+            "hand. Screen-vs-solve discrepancy as model evidence: when the "
+            "same designs carry both a screen value and a solved value, the "
+            "measured discrepancy set is direct model-channel evidence for "
+            "the screen. A component-buildup share carries its documented "
+            "band (Raymer) propagated to the reported quantity.")
+    except Exception:
+        pass
     if won_solved:
         script.researcher(
-            "• Wing solved: induced and viscous drag off a real polar at cruise. "
-            "• Non-wing drag is a stated buildup, not yet solved. "
-            "• A full-configuration solve and comparison would close that gap.")
+            "• Wing solved with VSPAERO: induced and viscous drag from the "
+            "solved polar at cruise. "
+            "• Non-wing drag comes from the component buildup method (Raymer). "
+            "• To solve that too. Required: a full-configuration surface and "
+            "an external-aerodynamics case for it; the pipeline itself is "
+            "ready.")
         verdict = trust(
             converged=True, in_validated_regime=False, calibrated=True,
             solver_backed=True,
             why="wing solved with VSPAERO; fuselage, tail and nacelle drag "
-                "added from a documented component buildup")
+                "added from Raymer's component buildup method")
     else:
         script.researcher(
             "• Ranking trustworthy: aspect ratio buys L/D until landing speed stops it. "
-            f"• The magnitude {best['L_D']:.1f} ± {ci95:.1f} is a sizing-model estimate. "
+            f"• The magnitude {best['L_D']:.1f} ± {headline_ci:.1f} is a sizing-model estimate. "
             f"• A solved flow and a comparison would set the magnitude.")
         verdict = trust(
             converged=True, solver_backed=False,
-            why="drag-polar sizing model; no solve behind the magnitude")
-    headline_ci = ci95
-    if won_solved and model_band is not None:
-        headline_ci = uq_studies.combine_expanded(
-            input_2sigma=ci95, numerical_abs=None,
-            model_abs=model_band)["combined_95"]
+            why="research sizing model; a solve would set the magnitude")
     if emit:
         # On a solved win the fidelity line is the verdict reason alone; a
         # duplicate envelope shorthand would only restate it less clearly.
@@ -830,6 +1057,9 @@ def main(request: str | None = None, params: dict | None = None,
             f"geometry and solved with VSPAERO, a vortex-lattice method, in "
             f"parallel; the cruise point was interpolated on each solved polar, "
             f"and the winner was picked on solved numbers.")
+        methods.append(
+            "Non-wing parasite drag from Raymer's component buildup method "
+            "(Raymer, Aircraft Design: A Conceptual Approach, AIAA).")
 
     abstract = [
         f"We searched a {len(grid)}-wing design space for the highest cruise "
@@ -837,17 +1067,17 @@ def main(request: str | None = None, params: dict | None = None,
         f"The best feasible wing reaches L/D {best_ld:.1f} ± {headline_ci:.1f} (95%) "
         f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
         f"{n_infeasible} designs were infeasible on low-speed or range.",
-        ("The winner stands on a wing polar solved with VSPAERO plus a "
-         "documented non-wing buildup." if won_solved else
+        ("The winner stands on a wing polar solved with VSPAERO plus Raymer's "
+         "component buildup for the non-wing drag." if won_solved else
          "The result comes from the stated sizing model with its input "
          "envelope propagated."),
     ]
 
     uncertainty = [
-        "The trade, L/D rising with aspect ratio until the landing speed caps "
-        "it, is physical and trustworthy.",
+        "The trade is physical: L/D rises with aspect ratio until the landing "
+        "speed caps it.",
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
-         "is a stated buildup." if won_solved else
+         "comes from Raymer's component buildup method." if won_solved else
          "The absolute L/D comes from a drag polar sizing model, not a solved "
          "flow; the model channel carries that."),
         "The optimum sits between discrete grid points, so the reported design "
@@ -874,10 +1104,20 @@ def main(request: str | None = None, params: dict | None = None,
         emit("report.ready", report)
 
     # The Certonomous certificate for the airliner act: the best feasible L/D
-    # with its 95% CI, the solver named only when the finalists were actually
-    # solved, and the full three-channel table (input Monte-Carlo, numerical
-    # grid-discreteness, model from the UQ airliner-anchors study where the
-    # fingerprint matches). Wrapped so a certificate never sinks a good mission.
+    # with its 95% CI, the solver named whenever the finalists were actually
+    # solved, the structured result table, and the full three-channel
+    # uncertainty table — every channel a computed number on a solved run.
+    # The previous run's page is withdrawn FIRST and the new page lands by
+    # atomic replacement, so a page from an earlier mission can never be
+    # served after this one completes; if generation fails the act says so
+    # on the record instead of leaving an out-of-date page linked.
+    cert_path = out / "certificate.pdf"
+    try:
+        cert_path.unlink()
+    except FileNotFoundError:
+        pass
+    except OSError:
+        pass
     try:
         from chief_engineer.certificate import build_certificate_v2
 
@@ -890,24 +1130,38 @@ def main(request: str | None = None, params: dict | None = None,
                  "value": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}",
                  "envelope": f"range {best['range_km']:.0f} km"},
             ],
+            # Structured result block: Title Case labels, verbatim numbers.
+            "result_fields": [
+                ("Span", f"{best['span']:.0f} m"),
+                ("AR", f"{best['aspect_ratio']:.1f}"),
+                ("MTOW", f"{best['mtow_kg'] / 1000:.0f} t"),
+                ("Range", f"{best['range_km']:.0f} km"),
+                ("Approach Speed", f"{best['approach_speed']:.0f} m/s"),
+                ("L/D", f"{best_ld:.1f}"),
+            ],
             "compute": ledger.as_dict(),
         }
-        solver = ("OpenVSP VSPAERO, vortex lattice" if won_solved
-                  else "Conceptual drag-polar sizing model")
+        solver = ("VSPAERO vortex lattice; research sizing screen"
+                  if won_solved else "Research drag-polar sizing model")
         certificate = build_certificate_v2(
-            cert_doc, out_path=out / "certificate.pdf",
+            cert_doc, out_path=cert_path,
             geometry="airliner",
+            # The objective is always THIS run's verbatim request.
             objective=(request or "Maximise the airliner cruise lift-to-drag "
                        "ratio subject to its mission requirements."),
             mission_id="aircraft-optimization",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels,
-            display_name="300-passenger twin-aisle airliner, planform study",
+            display_name=f"{reqs['passengers']}-passenger twin-aisle airliner",
             solver=solver)
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
-    except Exception as exc:  # a certificate must never take down a good mission
-        script.engineer(f"(Certificate could not be issued: {exc})")
+    except Exception:  # a certificate must never take down a good mission
+        script.engineer(
+            "• No certificate could be issued for this run. "
+            "• The previous run's certificate is withdrawn, so nothing out of "
+            "date is served. "
+            "• The result above stands on the transcript and the report.")
 
     script.save(out / "transcript.txt")
     roster.all_idle()

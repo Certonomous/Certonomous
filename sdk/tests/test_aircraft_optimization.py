@@ -1,6 +1,7 @@
 """Aircraft L/D optimization: requirement parsing, sizing, and routing (#1)."""
 
 import os
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,9 +9,12 @@ from unittest import mock
 
 from chief_engineer.router import (AIRCRAFT_OPTIMIZATION, GEOMETRY_STUDY,
                                    apply_surface, classify)
-from workflows.aircraft_optimization import (evaluate_design, main,
+from workflows.aircraft_optimization import (buildup_band_ld, evaluate_design,
+                                             grid_spacing_bracket, main,
                                              measure_surface_span,
-                                             parse_requirements, seeded_spans)
+                                             parse_requirements,
+                                             polar_readoff_residual,
+                                             screen_solve_gap, seeded_spans)
 
 _TINY_STL = """solid test
  facet normal 0 0 1
@@ -81,9 +85,33 @@ def _disable_pace(test: unittest.TestCase) -> None:
     test.addCleanup(patcher.stop)
 
 
+def _redirect_output(test: unittest.TestCase) -> Path:
+    """Every workflow-running test writes into its own temporary output root.
+
+    Root-cause guard for the stale-certificate incident of 2026-07-24: a test
+    invoking main() with a directive prompt used to write certificate.pdf and
+    transcript.txt into the REAL mission-output tree the control room serves,
+    overwriting the artifacts of the owner's own missions. Tests must never
+    touch the served tree again. The lessons directory is redirected with it.
+    """
+    from workflows import aircraft_optimization as aopt
+
+    tmp = Path(tempfile.mkdtemp())
+    patcher = mock.patch.object(aopt, "OUT_ROOT", tmp)
+    patcher.start()
+    test.addCleanup(patcher.stop)
+    env = mock.patch.dict(os.environ,
+                          {"CERTONOMOUS_LESSONS_DIR": str(tmp / "lessons")})
+    env.start()
+    test.addCleanup(env.stop)
+    test.addCleanup(lambda: shutil.rmtree(tmp, ignore_errors=True))
+    return tmp
+
+
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
         _disable_pace(self)
+        _redirect_output(self)
 
     def test_main_runs_and_reports_a_feasible_optimum(self):
         events = {}
@@ -102,7 +130,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertGreater(events.get("landscape.point", 0), 10)
         self.assertEqual(events.get("report.ready"), 1)
-        self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
+        self.assertEqual(verdict.get("tier"), "RESEARCH MODEL")
         self.assertNotEqual(verdict.get("value"), "none")
         # The dispatch panel and the live trace are fed as the grid is screened.
         self.assertGreater(events.get("dispatch.update", 0), 20)
@@ -145,7 +173,7 @@ class WorkflowTests(unittest.TestCase):
                               "passengers, 6000 km range, takeoff 85 m/s, "
                               "landing 72 m/s", emit=emit)
         self.assertEqual(rc, 0)
-        self.assertEqual(verdict.get("tier"), "CONCEPTUAL MODEL")
+        self.assertEqual(verdict.get("tier"), "RESEARCH MODEL")
 
     def test_router_sends_aircraft_ld_prompts_here(self):
         route = classify("optimize the lift-to-drag of this airplane for 250 passengers")
@@ -196,6 +224,7 @@ class StartingGeometryTests(unittest.TestCase):
 
     def setUp(self):
         _disable_pace(self)
+        _redirect_output(self)
 
     def test_surface_param_keeps_the_aircraft_route(self):
         route = classify("optimize the lift-to-drag of this airplane "
@@ -203,6 +232,15 @@ class StartingGeometryTests(unittest.TestCase):
         route = apply_surface(route, "startwing.stl")
         self.assertEqual(route.intent, AIRCRAFT_OPTIMIZATION)
         self.assertEqual(route.params.get("surface"), "startwing.stl")
+
+    def test_race_prompt_keeps_the_race_route_with_the_surface(self):
+        from chief_engineer.router import RACE_COMPARISON
+        route = classify("Race a full Monte-Carlo sweep against the "
+                         "reduced-order path on the NACA 4412 finite wing: "
+                         "same objective, same tolerance, both timed.")
+        route = apply_surface(route, "naca4412_wing.stl")
+        self.assertEqual(route.intent, RACE_COMPARISON)
+        self.assertEqual(route.params.get("surface"), "naca4412_wing.stl")
 
     def test_surface_still_reroutes_non_optimisation_prompts(self):
         route = apply_surface(classify("how confident are we in the drag "
@@ -319,6 +357,7 @@ class TranscriptTableTests(unittest.TestCase):
 
     def setUp(self):
         _disable_pace(self)
+        _redirect_output(self)
 
     def _run(self, api=None):
         from workflows import aircraft_optimization as aopt
@@ -416,6 +455,232 @@ class TranscriptTableTests(unittest.TestCase):
         self.assertIn("Finalist solves:", said)
         self.assertNotIn("s wall", said)
         self.assertNotIn("0.0 s", said)
+
+
+class ComputedUncertaintyHelperTests(unittest.TestCase):
+    """The doctrine's computed-channel helpers on synthetic finalist data."""
+
+    STEPS = {"span": 6.0, "area": 60.0, "sweep_deg": 5.0}
+
+    def test_grid_bracket_recovers_a_known_quadratic(self):
+        def value(span, area):
+            return 20.0 - 0.01 * (span - 58.0) ** 2 - 1e-4 * (area - 300.0) ** 2
+
+        points = [{"span": s, "area": 300.0, "sweep_deg": 25.0,
+                   "L_D_solved": value(s, 300.0)} for s in (52.0, 58.0, 64.0)]
+        points += [{"span": 58.0, "area": a, "sweep_deg": 25.0,
+                    "L_D_solved": value(58.0, a)} for a in (240.0, 360.0)]
+        winner = {"span": 58.0, "area": 300.0, "sweep_deg": 25.0}
+        out = grid_spacing_bracket(points, winner, self.STEPS)
+        # Half-step deltas of the known quadratics: 0.01·3² and 1e-4·30².
+        self.assertAlmostEqual(out["axes"]["span"], 0.09, places=6)
+        self.assertAlmostEqual(out["axes"]["area"], 0.09, places=6)
+        self.assertIsNone(out["axes"]["sweep_deg"])   # no variation in the data
+        self.assertAlmostEqual(out["value"], (2 * 0.09 ** 2) ** 0.5, places=6)
+
+    def test_two_point_axis_uses_the_straight_slope(self):
+        points = [
+            {"span": 58.0, "area": 300.0, "sweep_deg": 25.0, "L_D_solved": 20.0},
+            {"span": 58.0, "area": 360.0, "sweep_deg": 25.0, "L_D_solved": 18.8},
+        ]
+        out = grid_spacing_bracket(points, points[0], self.STEPS)
+        # |slope| = 1.2 / 60 per m²; half step 30 m² -> 0.6.
+        self.assertAlmostEqual(out["axes"]["area"], 0.6, places=6)
+
+    def test_lone_winner_returns_none_rather_than_a_guess(self):
+        points = [{"span": 58.0, "area": 300.0, "sweep_deg": 25.0,
+                   "L_D_solved": 20.0}]
+        out = grid_spacing_bracket(points, points[0], self.STEPS)
+        self.assertIsNone(out["value"])
+
+    def test_buildup_band_matches_direct_computation(self):
+        cl, cdo, cdi, cd0 = 0.478, 0.006014, 0.004889, 0.013
+        ld0 = cl / (cd0 + cdo + cdi)
+        ld_hi = cl / (0.85 * cd0 + cdo + cdi)
+        ld_lo = cl / (1.15 * cd0 + cdo + cdi)
+        expected = max(abs(ld_hi - ld0), abs(ld0 - ld_lo))
+        self.assertAlmostEqual(buildup_band_ld(cl, cdo, cdi), expected, places=9)
+        self.assertGreater(buildup_band_ld(cl, cdo, cdi), 0.0)
+
+    def test_screen_gap_is_the_mean_absolute_delta(self):
+        finalists = [{"L_D": 18.0, "L_D_solved": 20.0},
+                     {"L_D": 19.0, "L_D_solved": 18.5}]
+        self.assertAlmostEqual(screen_solve_gap(finalists), 1.25, places=9)
+        self.assertIsNone(screen_solve_gap([]))
+
+    def test_polar_readoff_residual_is_computed_not_invented(self):
+        polar = {"CLtot": [0.1, 0.5, 0.9],
+                 "CDi": [0.002, 0.004, 0.008],
+                 "CDo": [0.0055, 0.0056, 0.0058]}
+        # The polar curves, so a straight read and a curved read differ.
+        self.assertGreater(polar_readoff_residual(polar, 0.3), 0.0)
+        # A polar that cannot support the comparison contributes zero.
+        self.assertEqual(polar_readoff_residual({}, 0.3), 0.0)
+        self.assertEqual(polar_readoff_residual(None, 0.3), 0.0)
+
+
+class SolvedRunDoctrineTests(unittest.TestCase):
+    """A solved run quantifies all three channels, speaks the cleared
+    capability wording, and issues a structured, honestly-labelled page."""
+
+    REQUEST = ("Optimize the L/D of an airliner for 300 passengers, "
+               "6000 km range, takeoff 85 m/s, landing 72 m/s")
+    BANNED = ("demo", "stored", "saved", "cached", "recorded",
+              "pre-computed", "trend")
+
+    def setUp(self):
+        _disable_pace(self)
+        self.out_root = _redirect_output(self)
+
+    def _run_solved(self):
+        from workflows import aircraft_optimization as aopt
+
+        events = []
+        with mock.patch.object(aopt.vspaero, "available", return_value=True), \
+                mock.patch.object(aopt.vspaero, "VspAeroWingApi", _SolvedApi):
+            rc = aopt.main(request=self.REQUEST,
+                           emit=lambda e, p: events.append((e, p)))
+        self.assertEqual(rc, 0)
+        return events
+
+    @staticmethod
+    def _messages(events):
+        return [p.get("message", "") for e, p in events
+                if e == "transcript.entry"]
+
+    def test_all_three_channels_quantified_when_solves_ran(self):
+        events = self._run_solved()
+        channels = [p for e, p in events
+                    if e == "uncertainty.channels"][0]["channels"]
+        self.assertEqual([c["name"] for c in channels],
+                         ["input", "numerical", "model"])
+        for channel in channels:
+            self.assertTrue(channel["quantified"], channel)
+            self.assertIsNotNone(channel["value"], channel)
+            self.assertNotIn("not quantified", channel["note"])
+        model = channels[2]
+        self.assertIn("Component buildup band on non-wing drag", model["note"])
+        self.assertIn("Raymer", model["note"])
+        self.assertIn("solved wings averages", model["note"])
+        numerical = channels[1]
+        # Katie's rule: channel notes never name the exact method.
+        self.assertIn("Default numerical consistency method", numerical["note"])
+        self.assertNotIn("quadratic fit", numerical["note"])
+        self.assertNotIn("Monte-Carlo", channels[0]["note"])
+        self.assertIn("Ensemble run", channels[0]["note"])
+
+    def test_certificate_names_the_solver_and_carries_no_unquantified_row(self):
+        events = self._run_solved()
+        cert = [p for e, p in events if e == "certificate.ready"][0]
+        text = Path(cert["path"]).read_bytes().decode("latin-1")
+        self.assertIn("VSPAERO vortex lattice", text)
+        self.assertIn("research sizing screen", text)
+        self.assertNotIn("Research drag-polar sizing model", text)
+        self.assertNotIn("not quantified", text)
+        # Objective is this run's verbatim request.
+        self.assertIn("300 passengers,", text)
+        # Structured result table with Title Case labels and units.
+        for token in ("Parameter", "Span", "AR", "MTOW", "Range",
+                      "Approach Speed", "L/D"):
+            self.assertIn(token, text)
+
+    def test_wording_is_the_cleared_capability_statement(self):
+        events = self._run_solved()
+        said = " ".join(self._messages(events))
+        self.assertIn("Wing solved with VSPAERO: induced and viscous drag "
+                      "from the solved polar at cruise", said)
+        self.assertIn("Non-wing drag comes from the component buildup method "
+                      "(Raymer)", said)
+        self.assertIn("the pipeline itself is ready", said)
+        self.assertNotIn("The solver moved the pick", said)
+        self.assertNotIn("the screen had it wrong", said)
+        self.assertNotIn("not yet solved", said)
+        self.assertNotIn("would close that gap", said)
+        verdict = [p for e, p in events if e == "result.verdict"][0]
+        self.assertIn("Raymer's component buildup method",
+                      verdict.get("reason", ""))
+
+    def test_no_banned_strings_and_bullets_start_capitalized(self):
+        events = self._run_solved()
+        surfaces = list(self._messages(events))
+        for e, p in events:
+            if e == "uncertainty.channels":
+                surfaces += [c.get("note", "") for c in p["channels"]]
+            if e == "report.ready":
+                surfaces += list(p.get("methods", []))
+                surfaces += list(p.get("abstract", []))
+                surfaces += list(p.get("uncertainty", []))
+        blob = " ".join(surfaces)
+        import re
+        for word in self.BANNED:
+            self.assertIsNone(re.search(rf"\b{word}\b", blob, re.I), word)
+        for glyph in ("—", "→", "--"):
+            self.assertNotIn(glyph, blob)
+        for message in self._messages(events):
+            for bullet in message.split("•")[1:]:
+                bullet = bullet.strip()
+                if bullet:
+                    self.assertFalse(bullet[0].islower(), message)
+
+    def test_lesson_records_the_computed_uncertainty_patterns(self):
+        from chief_engineer.lessons import learned_lessons
+
+        self._run_solved()
+        lessons = {item["mission_id"]: item["text"]
+                   for item in learned_lessons()}
+        self.assertIn("computed-uncertainty-patterns", lessons)
+        text = lessons["computed-uncertainty-patterns"]
+        self.assertIn("quadratic fit", text)
+        self.assertIn("half-step", text)
+        self.assertIn("Screen-vs-solve discrepancy", text)
+
+
+class StaleCertificateRegressionTests(unittest.TestCase):
+    """The served page always belongs to the newest completed run."""
+
+    BASE = ("Optimize the L/D of an airliner for 300 passengers, 6000 km "
+            "range, takeoff 85 m/s, landing 72 m/s.")
+
+    def setUp(self):
+        _disable_pace(self)
+        self.out_root = _redirect_output(self)
+        self.pdf = self.out_root / "aircraft-optimization" / "certificate.pdf"
+
+    def _run(self, request, events=None):
+        from workflows import aircraft_optimization as aopt
+
+        with mock.patch.object(aopt.vspaero, "available", return_value=False):
+            rc = aopt.main(request=request,
+                           emit=(None if events is None
+                                 else lambda e, p: events.append((e, p))))
+        self.assertEqual(rc, 0)
+
+    def test_second_run_replaces_the_served_pdf_with_its_own_request(self):
+        self._run(self.BASE + " Fleet name Aquila.")
+        first = self.pdf.read_bytes().decode("latin-1")
+        self.assertIn("Aquila", first)
+        self._run(self.BASE + " Fleet name Borealis.")
+        second = self.pdf.read_bytes().decode("latin-1")
+        self.assertIn("Borealis", second)
+        self.assertNotIn("Aquila", second)
+        # Atomic swap leaves no staging file behind in the served directory.
+        leftovers = [p.name for p in self.pdf.parent.iterdir()
+                     if p.suffix not in {".pdf", ".txt", ".stl"}]
+        self.assertEqual(leftovers, [])
+
+    def test_failed_generation_withdraws_the_previous_page_and_says_so(self):
+        self._run(self.BASE)
+        self.assertTrue(self.pdf.exists())
+        events = []
+        with mock.patch("chief_engineer.certificate.build_certificate_v2",
+                        side_effect=RuntimeError("boom")):
+            self._run(self.BASE + " Second pass.", events)
+        self.assertFalse(self.pdf.exists())
+        self.assertFalse([p for e, p in events if e == "certificate.ready"])
+        said = " ".join(p.get("message", "") for e, p in events
+                        if e == "transcript.entry")
+        self.assertIn("No certificate could be issued for this run", said)
+        self.assertIn("withdrawn", said)
 
 
 if __name__ == "__main__":

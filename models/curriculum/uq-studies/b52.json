@@ -2,40 +2,39 @@
   "body": "b52",
   "levels": [
     {
-      "cells": 107489,
-      "cd": 0.04539,
-      "mission": "uq-b52-r1",
-      "refinement": 1,
-      "wall_minutes": 1.9
+      "tag": "coarse",
+      "cells": 40656,
+      "cd": 0.05511730425833333,
+      "mission": "b52-rung-coarse"
     },
     {
+      "tag": "medium",
       "cells": 107489,
-      "cd": 0.04539,
-      "mission": "uq-b52-r2",
-      "refinement": 2,
-      "wall_minutes": 2.1
+      "cd": 0.04476728948611111,
+      "mission": "b52-rung-medium"
     },
     {
-      "cells": 193815,
-      "cd": 0.0464,
-      "mission": "uq-b52-r3",
-      "refinement": 3,
-      "wall_minutes": 3.8
+      "tag": "production",
+      "cells": 193880,
+      "cd": 0.04719600808166667,
+      "mission": "b52-production"
     }
   ],
-  "updated_utc": "2026-07-23T17:34:46Z",
+  "updated_utc": "2026-07-25T01:29:03Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
-    "band_abs": 0.003029999999999991,
-    "band_rel": 0.0653,
+    "band_abs": 0.012937518465277777,
+    "band_rel": 0.27412,
     "observed_order": null,
-    "method": "refinement study inconclusive: refinement parameter did not change the mesh between rungs",
+    "order_used": null,
+    "clamped": false,
+    "method": "rungs not monotone; conservative band, largest spread times 1.25",
     "conclusive": false,
-    "value_working": 0.0464
+    "value_working": 0.04719600808166667
   },
   "provenance": [
-    "uq-b52-r1",
-    "uq-b52-r2",
-    "uq-b52-r3"
+    "b52-rung-coarse",
+    "b52-rung-medium",
+    "b52-production"
   ]
 }

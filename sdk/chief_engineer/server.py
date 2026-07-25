@@ -65,11 +65,12 @@ def _events_path(mission_id: str) -> Path:
 
 # Earned credentials lead; the honest caveats follow. Legacy tier names in
 # stored records are translated to the current fidelity chips at serve time.
-_TIER_RANK = {"VALIDATED": 0, "SOLVER-BACKED": 1, "CONCEPTUAL MODEL": 2,
+_TIER_RANK = {"VALIDATED": 0, "SOLVER-BACKED": 1, "RESEARCH MODEL": 2,
               "UNCONVERGED": 3}
 _LEGACY_TIERS = {"TREND ONLY": "SOLVER-BACKED",
                  "REFERENCE REGIME MISMATCH": "SOLVER-BACKED",
-                 "NEEDS WORK": "UNCONVERGED"}
+                 "NEEDS WORK": "UNCONVERGED",
+                 "CONCEPTUAL MODEL": "RESEARCH MODEL"}
 
 # Owner curation (curation, never number-editing): the wall serves only the
 # bodies the on-screen missions run. The wider graded library stays intact on

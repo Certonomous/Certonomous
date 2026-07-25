@@ -133,7 +133,7 @@ class RedesignV2Tests(unittest.TestCase):
     def test_v2_fidelity_chip(self):
         out, _ = self._build_v2()
         self.assertIn(out["fidelity"],
-                      {"VALIDATED", "SOLVER-BACKED", "CONCEPTUAL MODEL"})
+                      {"VALIDATED", "SOLVER-BACKED", "RESEARCH MODEL"})
 
     def test_display_name_fallback(self):
         self.assertEqual(display_name_for("b52"),
@@ -169,20 +169,41 @@ class GeometryStudyCertificateTests(unittest.TestCase):
         inp, num, mod = channels["channels"]
         # Input: the freestream envelope, honestly unquantified, never a
         # borrowed number. Numerical: the refinement band plus the REAL
-        # checkMesh numbers. Model: k-omega SST, stated model-form.
+        # mesh-check numbers. Model: k-omega SST, stated model-form.
         self.assertFalse(inp["quantified"])
-        self.assertIn("stated, not quantified", inp["note"])
-        self.assertIn("freestream conditions envelope", inp["note"])
+        self.assertIsNone(inp["value"])
         self.assertTrue(num["quantified"])
         self.assertEqual(num["value"], 0.00303)
-        self.assertIn("checkMesh: 193,880 cells", num["note"])
+        self.assertIn("Grid-refinement study", num["note"])
         self.assertFalse(mod["quantified"])
         self.assertIn("k-omega SST", mod["note"])
         _, text = self._render(channels=channels)
         self.assertTrue(text.startswith("%PDF"))
         for token in ("input", "numerical", "model", "not quantified",
-                      "193,880"):
+                      "0.00303"):
             self.assertIn(token, text)
+        # Render rails: internal study slugs and tool names never reach the page.
+        self.assertNotIn("uq-b52", text)
+        self.assertNotIn("checkMesh", text)
+
+    def test_model_channel_carries_the_published_band_comparison(self):
+        from workflows.geometry_study import certificate_channels
+        channels = certificate_channels(
+            settle_2sigma=0.0011, window=60, velocity=20.0,
+            lookup={"numerical": {"band_abs": 0.0019,
+                                  "method": "3-mesh study (r = 1.75)"},
+                    "model": {"band_abs": 0.0018,
+                              "method": "inter-closure spread "
+                                        "(screening estimate)"},
+                    "pending": False, "provenance": ["m-1"]},
+            cells=353578, non_ortho_s="65.2°", skew_s="3.20",
+            model_extra="drag area 0.31 m² inside the published "
+                        "motorcycle-with-rider band (Cossalter 2006; "
+                        "Hoerner 1965)")
+        mod = channels["channels"][2]
+        self.assertTrue(mod["quantified"])
+        self.assertIn("drag area 0.31 m²", mod["note"])
+        self.assertIn("Cossalter 2006", mod["note"])
 
     def test_pending_study_states_status_and_invents_nothing(self):
         from workflows.geometry_study import certificate_channels
@@ -201,7 +222,7 @@ class GeometryStudyCertificateTests(unittest.TestCase):
         from workflows.geometry_study import mesh_validity
         mesh = mesh_validity(193880, 65.2, 8.9)
         out, text = self._render(mesh=mesh)
-        self.assertIn("MESH VALIDITY", text)
+        self.assertIn("Mesh Validity", text)
         self.assertIn("193,880", text)
         self.assertIn("65.2\xb0 vs 70\xb0 gate", text)
         self.assertIn("8.90 vs 4.0 guidance", text)
@@ -230,6 +251,199 @@ class GeometryStudyCertificateTests(unittest.TestCase):
                        "pre-computed", "real solve", "TREND",
                        "reproducible evidence"):
             self.assertNotIn(banned, text)
+
+
+class RenderRailTests(unittest.TestCase):
+    """Owner review rails: Title Case section headers, no internal study
+    slugs, no tool names on the uncertainty channels, the plain input-channel
+    sentence, and every surviving number rendered verbatim."""
+
+    def _render(self, channels=_CHANNELS, mesh=None, report=None, **kw):
+        with tempfile.TemporaryDirectory() as d:
+            out = build_certificate_v2(
+                report or _report(), out_path=Path(d) / "c.pdf",
+                channels=channels, mesh=mesh, **{**_KW, **kw})
+            return out, Path(out["path"]).read_bytes().decode("latin-1")
+
+    def test_section_headers_are_title_case_not_shouted(self):
+        mesh = {"cells": 193880, "max_non_orthogonality": 65.2,
+                "max_skewness": 3.2}
+        _, text = self._render(mesh=mesh)
+        for header in ("Certificate of Autonomous Solve", "Certificate No.",
+                       "Subject", "Result", "Uncertainty", "Channel", "Value",
+                       "State", "Mesh Validity", "Evidence Seal"):
+            self.assertIn(header, text)
+        for shouted in ("UNCERTAINTY", "MESH VALIDITY", "CHECKMESH", "SUBJECT",
+                        "RESULT", "CHANNEL", "PROVENANCE", "EVIDENCE-BUNDLE",
+                        "CERTIFICATE OF AUTONOMOUS SOLVE", "CERTIFICATE No."):
+            self.assertNotIn(shouted, text)
+
+    def test_uq_study_slugs_never_render(self):
+        channels = [{"name": "numerical", "value": 0.00303, "quantified": True,
+                     "note": "3-mesh ladder (r = 1.22), observed order "
+                             "p = 2.10; GCI band, Fs = 1.25; study uq-b52-r1, "
+                             "uq-b52-r2, uq-b52-r3"}]
+        _, text = self._render(channels=channels)
+        self.assertNotIn("uq-b52", text)
+        self.assertNotIn("study uq-", text)
+        # every number around the deleted reference survives verbatim
+        for kept in ("0.00303", "1.22", "2.10", "1.25"):
+            self.assertIn(kept, text)
+
+    def test_checkmesh_dropped_from_channels_numbers_kept(self):
+        channels = [{"name": "numerical", "value": 0.003, "quantified": True,
+                     "note": "mesh discretization; checkMesh: 193,880 cells, "
+                             "max non-orthogonality 65.2° vs the 70° "
+                             "gate, max skewness 3.20 vs the 4.0 guidance"}]
+        _, text = self._render(channels=channels)
+        self.assertNotIn("checkMesh", text)
+        self.assertNotIn("CHECKMESH", text)
+        for kept in ("193,880", "65.2", "70", "3.20", "4.0"):
+            self.assertIn(kept, text)
+
+    def test_mesh_block_never_names_the_tool(self):
+        # A mesh record with unreported values renders "not reported by the
+        # mesh check", never the tool name.
+        _, text = self._render(mesh={"cells": 5000})
+        self.assertIn("Mesh Validity", text)
+        self.assertIn("not reported by the mesh check", text)
+        self.assertNotIn("checkMesh", text)
+
+    def test_input_channel_renders_the_plain_sentence(self):
+        note = ("freestream conditions envelope: speed 20 m/s and fluid "
+                "properties are taken as specified exactly, so no input "
+                "spread was propagated; the result's ±0.0026 band over "
+                "the final 60 iterations is settled-state scatter, carried "
+                "on the result line; stated, not quantified")
+        channels = [{"name": "input", "value": None, "quantified": False,
+                     "note": note},
+                    {"name": "numerical", "value": 0.001, "quantified": True,
+                     "note": "refinement band"}]
+        _, text = self._render(channels=channels)
+        self.assertIn("No input uncertainty was assumed for this problem.", text)
+        self.assertNotIn("as specified exactly", text)
+        self.assertNotIn("freestream conditions envelope", text)
+
+    def test_input_sentence_passes_through_unchanged(self):
+        channels = [{"name": "input", "value": None, "quantified": False,
+                     "note": "No input uncertainty was assumed for this "
+                             "problem."}]
+        _, text = self._render(channels=channels)
+        self.assertIn("No input uncertainty was assumed for this problem.", text)
+
+    def test_quantified_input_channel_is_not_replaced(self):
+        # A genuinely quantified input channel keeps its note and its number.
+        # Notes render one sentence per line, first letter capitalized.
+        _, text = self._render(channels=_CHANNELS)
+        self.assertIn("Propagated 2-sigma", text)
+        self.assertIn("2.7%", text)
+        self.assertNotIn("No input uncertainty was assumed", text)
+
+    def test_rails_delete_jargon_but_never_touch_a_number(self):
+        from chief_engineer.certificate import _channel_rails
+        railed = _channel_rails("GCI band 0.00303, Fs = 1.25; study uq-b52-r1, "
+                                "uq-b52-r2, uq-b52-r3")
+        self.assertEqual(railed, "GCI band 0.00303, Fs = 1.25")
+        self.assertEqual(_channel_rails("mesh discretization; checkMesh: "
+                                        "193,880 cells"),
+                         "mesh discretization; 193,880 cells")
+
+    def test_no_em_dash_or_double_hyphen_on_the_page(self):
+        _, text = self._render(mesh={"cells": 1000},
+                               objective="measure drag — precisely")
+        self.assertNotIn("\x97", text)   # WinAnsi em dash
+        self.assertNotIn("--", text)
+        # headline numbers rendered verbatim
+        self.assertIn("0.0471", text)
+        self.assertIn("0.0013", text)
+
+
+class ResultFieldsTests(unittest.TestCase):
+    """Structured result support: ordered label/value pairs render as a
+    Parameter | Value table, sealed with the run; acts without them keep the
+    sentence fallback (covered by the seal-parity test above)."""
+
+    FIELDS = [("Span", "64 m"), ("AR", "13.7"), ("MTOW", "146 t"),
+              ("Range", "9838 km"), ("Approach Speed", "66 m/s"),
+              ("L/D", "18.5")]
+
+    def _render(self, result_fields=None):
+        report = _report()
+        if result_fields is not None:
+            report["result_fields"] = result_fields
+        with tempfile.TemporaryDirectory() as d:
+            out = build_certificate_v2(report, out_path=Path(d) / "c.pdf",
+                                       channels=_CHANNELS, **_KW)
+            return out, Path(out["path"]).read_bytes().decode("latin-1")
+
+    def test_result_fields_render_as_a_two_column_table(self):
+        _, text = self._render(self.FIELDS)
+        self.assertIn("Parameter", text)
+        for label, value in self.FIELDS:
+            self.assertIn(label, text)
+            self.assertIn(value, text)
+
+    def test_labels_and_values_render_verbatim_never_recased(self):
+        _, text = self._render([("AR", "13.7"), ("L/D", "18.5")])
+        self.assertIn("AR", text)
+        self.assertIn("L/D", text)
+        self.assertNotIn("Ar", text.replace("Parameter", ""))
+
+    def test_result_fields_are_sealed_with_the_run(self):
+        with_fields, _ = self._render(self.FIELDS)
+        without, _ = self._render(None)
+        self.assertNotEqual(with_fields["hash"], without["hash"])
+        tampered = [list(pair) for pair in self.FIELDS]
+        tampered[0][1] = "65 m"
+        other, _ = self._render(tampered)
+        self.assertNotEqual(with_fields["hash"], other["hash"])
+
+    def test_dict_shaped_fields_are_accepted(self):
+        _, text = self._render([{"label": "Span", "value": "64 m"}])
+        self.assertIn("Span", text)
+        self.assertIn("64 m", text)
+
+
+class AtomicWriteTests(unittest.TestCase):
+    """The served path always holds a complete page: staging file swapped in,
+    never left behind, and a rebuild replaces the page in one step."""
+
+    def test_no_staging_file_remains_and_rebuild_replaces(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "certificate.pdf"
+            first = build_certificate_v2(_report(), out_path=path,
+                                         channels=_CHANNELS, **_KW)
+            self.assertTrue(path.exists())
+            leftovers = [p.name for p in Path(d).iterdir() if p.name != path.name]
+            self.assertEqual(leftovers, [])
+            second_kw = {**_KW, "objective": "Measure lift instead."}
+            build_certificate_v2(_report(), out_path=path,
+                                 channels=_CHANNELS, **second_kw)
+            text = path.read_bytes().decode("latin-1")
+            self.assertIn("Measure lift instead.", text)
+            self.assertNotIn("Measure drag.", text)
+            self.assertTrue(Path(first["path"]).samefile(path))
+
+
+class ChannelNoteLineTests(unittest.TestCase):
+    """A channel note that joins several sentences or bullets inline renders
+    one per line, each starting with a capital letter, numbers verbatim."""
+
+    def test_note_lines_split_on_sentences_and_bullets(self):
+        from chief_engineer.certificate import _note_lines
+        self.assertEqual(
+            _note_lines("• the band is ±0.44. the read adds ±0.07."),
+            ["The band is ±0.44.", "The read adds ±0.07."])
+        self.assertEqual(
+            _note_lines("Band ±0.003 (Eca & Hoekstra 2014)."),
+            ["Band ±0.003 (Eca & Hoekstra 2014)."])
+
+    def test_semicolon_clauses_stay_on_one_line(self):
+        from chief_engineer.certificate import _note_lines
+        note = "inside the published band (Cossalter 2006; Hoerner 1965)"
+        self.assertEqual(_note_lines(note),
+                         ["Inside the published band "
+                          "(Cossalter 2006; Hoerner 1965)"])
 
 
 if __name__ == "__main__":

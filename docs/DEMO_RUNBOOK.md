@@ -74,7 +74,7 @@ length is more solved geometry on screen, not more talk.
 | Design-space landscape | viewport: the candidate wing visibly morphs — span, area, AND quarter-chord sweep all change as the 96-wing sweep fills the plot; solved points coloured by objective, infeasible greyed (stall/range), optimum ringed | landscape absent | `act1_airliner.png` |
 | Finalist solves | top 9 feasible wings promoted to **real vortex-lattice solves in parallel** (workers visible); per-finalist solved lines; winner picked on solved numbers | finalists absent → solver not reachable, check `OPENVSP_RUN_PREFIX` | screen-only path still completes honestly |
 | Result + envelope | EVIDENCE: best feasible **L/D 19.7 (solved)** at span 64 m, sweep 35°, AR 13.7; screen said 18.5, same winner; the solve moved the sweep pick (screen favoured 25°, solve prefers 35°) | number differs | expected ~19.7 solved / 18.5 screened |
-| Fidelity chip | unlabeled when finalists solved (SOLVER-BACKED is the platform's unlabeled default); **CONCEPTUAL MODEL** shows on the screen-only path; headline reads value ± CI (95%) | chip over-claims | inspect verdict reason |
+| Fidelity chip | unlabeled when finalists solved (SOLVER-BACKED is the platform's unlabeled default); **RESEARCH MODEL** shows on the screen-only path; headline reads value ± CI (95%) | chip over-claims | inspect verdict reason |
 | Report + certificate | REPORT tab: figures first, results table with fidelity chips, Next investigations + sealed-certificate link | report empty | `act1_airliner_report.png` |
 | **Worker-kill (resilience)** | arm slot 3 (`scripts/kill_worker.sh 3`) before the finalist wave → transcript: "Worker 3 stopped responding mid-solve; reprovisioning and re-running its wing" → `worker.killed` then `worker.reprovisioned` → **same nine polars, same winner L/D 19.7** | no recovery | still `act1_05_worker_kill.png`; matched-numbers proof below |
 | Autonomy counter | masthead `HUMAN TOUCHPOINTS · 1` | >1 with no steer | reset page |
@@ -235,7 +235,7 @@ Captures: `demo-output/acts/round2/naca4412/` (five beats).
 | Plan | k=3 phase points (weights 0.25 / 0.50 / 0.25), cycle-weighted pressure-loss objective, "backpropagation stays cheap at every phase point" | weights absent | still frame |
 | Rejected / deferred | single snapshot rejected (cycle-blind); harmonic-balance + unsteady-FSI deferred to the agenda | not on record | check digest |
 | Multi-point run | 4 angles × 3 phases; cycle-weighted loss per candidate with MC envelope; 35° infeasible (min-orifice) | run errors | inspect evidence |
-| Result | best **1345 ± 421 Pa (95%) at 80°**, chip **CONCEPTUAL MODEL** | number differs | expected ~1345 Pa |
+| Result | best **1327 ± 421 Pa (95%) at 80°**, chip **RESEARCH MODEL** | number differs | expected ~1327 Pa |
 | Model-form honesty | reduced-order orifice model; phase-interaction neglected; leaflets fixed; Newtonian blood, all listed | list incomplete | inspect uncertainty channel |
 | Research agenda | agenda panel shows 3 lines: harmonic-balance cycle solve, unsteady FSI, non-Newtonian blood (each scope + rough cost) | agenda empty | `agenda.updated` didn't fire |
 

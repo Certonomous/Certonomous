@@ -60,6 +60,66 @@ class DegenerateLadder(unittest.TestCase):
         self.assertGreater(out["band_abs_middle"], out["band_abs"])
 
 
+class EcaHoekstraBand(unittest.TestCase):
+    """The in-act refinement band: clamp, non-monotone fallback, degeneracy."""
+
+    def test_clean_second_order_triplet(self):
+        cells = [1000, 8000, 64000]
+        h = [(1.0 / n) ** (1 / 3) for n in cells]
+        values = [1.0 + 4.0 * hh ** 2 for hh in h]
+        out = uq.eca_hoekstra_band(cells, values)
+        self.assertTrue(out["monotone"])
+        self.assertFalse(out["clamped"])
+        self.assertAlmostEqual(out["observed_order"], 2.0, places=2)
+        e21 = abs(values[2] - values[1])
+        self.assertAlmostEqual(out["band_abs"], 1.25 * e21 / (2 ** 2 - 1),
+                               places=10)
+        self.assertIn("Eca and Hoekstra 2014", out["method"])
+
+    def test_silly_observed_order_is_clamped_and_says_so(self):
+        # The real overnight motorbike ladder: p = 4.82, outside [0.5, 2.5].
+        out = uq.eca_hoekstra_band(
+            [14714, 66316, 353578],
+            [0.47066928, 0.4201672083333333, 0.4155770166666667])
+        self.assertTrue(out["clamped"])
+        self.assertAlmostEqual(out["observed_order"], 4.824, places=2)
+        self.assertEqual(out["order_used"], 2.5)
+        self.assertIn(uq.ORDER_CLAMP_NOTE, out["method"])
+        # Band uses the clamped order, so it stays sane (not the raw-p band).
+        self.assertLess(out["band_abs"], 0.01)
+        self.assertGreater(out["band_abs"], 0.0005)
+
+    def test_low_order_clamps_from_below(self):
+        cells = [1000, 8000, 64000]
+        h = [(1.0 / n) ** (1 / 3) for n in cells]
+        values = [1.0 + 0.5 * hh ** 0.2 for hh in h]     # apparent p ~ 0.2
+        out = uq.eca_hoekstra_band(cells, values)
+        self.assertTrue(out["clamped"])
+        self.assertEqual(out["order_used"], 0.5)
+
+    def test_non_monotone_falls_back_to_spread_times_1_25(self):
+        out = uq.eca_hoekstra_band([1000, 8000, 64000], [1.0, 1.2, 1.1])
+        self.assertFalse(out["monotone"])
+        self.assertIsNone(out["observed_order"])
+        self.assertAlmostEqual(out["band_abs"], 1.25 * 0.2, places=10)
+        self.assertEqual(out["method"], uq.NON_MONOTONE_NOTE)
+
+    def test_identical_meshes_refuse_a_band(self):
+        out = uq.eca_hoekstra_band([67826, 67826, 137569],
+                                   [0.0289, 0.0289, 0.0217])
+        self.assertIsNone(out["band_abs"])
+        self.assertFalse(out["conclusive"])
+        self.assertEqual(out["method"], uq.DEGENERATE)
+
+    def test_method_carries_no_em_dash_or_arrow(self):
+        for args in (([1000, 8000, 64000], [1.0, 1.1, 1.15]),
+                     ([1000, 8000, 64000], [1.0, 1.2, 1.1]),
+                     ([1000, 1000, 64000], [1.0, 1.0, 1.1])):
+            out = uq.eca_hoekstra_band(*args)
+            self.assertNotIn("—", out["method"])
+            self.assertNotIn("→", out["method"])
+
+
 class Spreads(unittest.TestCase):
     def test_spread_is_half_range_and_labeled(self):
         out = uq.spread_estimate(

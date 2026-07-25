@@ -424,9 +424,10 @@ def classify(request: str) -> Route:
             "what transfers from what does not."),
         GEOMETRY_STUDY: (
             "Reading this as a full geometry study: take the surface in, check it, "
-            "mesh it, solve it, and report the forces with their envelope. This is "
-            "the expensive path — meshing and solving a real body takes minutes, "
-            "not seconds — so I will say what each stage costs as it runs."),
+            "mesh it, solve it, and report the forces with their envelope. "
+            "• Meshing and solving a full body takes minutes, not seconds. "
+            "• Planning the delegation around the available workers, the body's "
+            "complexity, and the quality gates."),
         UNCERTAINTY_REDUCTION: (
             "This is a question about confidence itself. I will quantify the "
             "current envelope, decide whether it is reducible, and spend "
@@ -443,14 +444,15 @@ def apply_surface(route: Route, surface: str | None) -> Route:
     """Fold an uploaded surface into an already-classified route.
 
     An aircraft optimisation keeps its route and takes the surface as the
-    starting geometry for the search; a shape optimisation likewise stays on
-    its route. Anything else with an uploaded surface means "run it on this
-    body" and becomes a full geometry study.
+    starting geometry for the search; a race comparison keeps its route and
+    races on the uploaded wing; a shape optimisation likewise stays on its
+    route. Anything else with an uploaded surface means "run it on this body"
+    and becomes a full geometry study.
     """
     surface = (surface or "").strip()
     if not surface:
         return route
-    if route.intent == AIRCRAFT_OPTIMIZATION:
+    if route.intent in (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON):
         route.params["surface"] = surface
     elif route.intent != SHAPE_OPTIMIZATION:
         route.params["surface"] = surface

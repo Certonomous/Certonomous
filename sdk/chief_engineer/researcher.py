@@ -38,7 +38,7 @@ class MissionProperties:
     dimensionality: int                  # count of free design parameters (0 = a fixed body)
     regime: str                          # e.g. "steady", "steady turbulent (RANS)"
     smoothness: str                      # "smooth" | "gated" | "discrete"
-    fidelity: str                        # e.g. "a conceptual sizing model", "a solved field"
+    fidelity: str                        # e.g. "a research sizing model", "a solved field"
     constraints: tuple[str, ...] = ()    # human-language constraint names
     # An admissibility condition already sourced by the caller from the physics
     # rules or the knowledge base (e.g. "per the mesh-quality acceptance band").
@@ -50,7 +50,7 @@ def _core_entry(p: MissionProperties) -> str:
     """Classification → strategy → rejected, as one 3-bullet entry."""
     if p.kind == "single-body-study":
         return bullets(
-            f"Single fixed body, {p.regime}: a measurement, not an optimisation",
+            f"Single fixed body, {p.regime}: solve it once and grade the evidence",
             "One gated solve; the only freedom is mesh and convergence",
             "Rejected: pricing by analogy (wrong wake); an ungated coarser mesh")
     if p.kind == "one-parameter-sweep":
@@ -61,7 +61,7 @@ def _core_entry(p: MissionProperties) -> str:
     # parametric-optimization
     if p.smoothness == "smooth" and p.regime.startswith("steady"):
         return bullets(
-            f"Smooth {p.dimensionality}-parameter space, {p.regime} regime → map it, don't hunt it",
+            f"Smooth {p.dimensionality}-parameter space, {p.regime} regime: map it, don't hunt it",
             "Ensemble sweep chosen; gradients admissible but unnecessary at this dimensionality",
             "Rejected: single point (blind to the trade); high-fidelity everywhere (cost, no info)")
     return bullets(
@@ -78,11 +78,12 @@ def _admissibility_entry(p: MissionProperties) -> str:
         # Owner wording for the conceptual-screen acts; the generic phrasing
         # stays for missions whose fidelity is already a solved field.
         fidelity_line = (
-            "Start with a conceptual model to bound the search space"
+            "Start with a research model to bound the search space"
             if "conceptual" in p.fidelity.lower() else
             f"Model fidelity ({p.fidelity}) bounds the claim, not the search")
         return bullets(
-            "Admissible while smooth and steady hold: descent and ensemble read the same surface",
+            "The landscape is smooth, so any search method lands on the same optimum",
+            "The ensemble sweep also maps the whole trade",
             fidelity_line)
     return bullets(
         f"Valid while the regime stays {p.regime}; outside it, the physics changes "

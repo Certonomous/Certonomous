@@ -144,6 +144,79 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
     return result
 
 
+ORDER_CLAMP_NOTE = "observed order limited to the theoretical range"
+NON_MONOTONE_NOTE = ("rungs not monotone; conservative band, largest spread "
+                     "times 1.25")
+
+
+def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
+                      *, p_lo: float = 0.5, p_hi: float = 2.5,
+                      fs: float = 1.25) -> dict[str, Any]:
+    """In-mission numerical-uncertainty band from a 3-mesh study.
+
+    The act's live grid-refinement procedure (Eca and Hoekstra 2014,
+    least-squares / GCI practice): representative size h = (1/N)^(1/3), the
+    observed order solved from the standard implicit relation, and the band
+    Fs * |e21| / (r21^p - 1) on the fine mesh. Guards, per Katie's spec:
+
+    - the observed order used for the band is clamped to [p_lo, p_hi]; a
+      clamped study says ORDER_CLAMP_NOTE rather than quoting a silly p;
+    - a non-monotone triplet falls back to a conservative band of
+      max spread * 1.25 and says NON_MONOTONE_NOTE plainly;
+    - fewer than three DISTINCT cell counts is no study at all: band None,
+      the caller must refuse to report one (the B-52 degenerate-rung lesson).
+    """
+    distinct: list[tuple[float, float]] = []
+    for c, v in zip(cells, values):
+        if not distinct or float(c) != distinct[-1][0]:
+            distinct.append((float(c), float(v)))
+    if len(distinct) < 3:
+        return {"cells": [c for c, _ in distinct],
+                "values": [v for _, v in distinct],
+                "observed_order": None, "order_used": None, "clamped": False,
+                "band_abs": None, "monotone": None, "conclusive": False,
+                "method": DEGENERATE}
+    (n1, f1), (n2, f2), (n3, f3) = distinct[-3:]
+    if not (n1 < n2 < n3):
+        raise ValueError("cell counts must increase coarse to fine")
+    h1, h2, h3 = ((1.0 / n) ** (1.0 / 3.0) for n in (n1, n2, n3))
+    r21 = h2 / h3
+    r32 = h1 / h2
+    e21 = f3 - f2
+    e32 = f2 - f1
+    result: dict[str, Any] = {"cells": [n1, n2, n3], "values": [f1, f2, f3]}
+    if (e21 * e32) <= 0.0:
+        spread = max(f1, f2, f3) - min(f1, f2, f3)
+        result.update({
+            "observed_order": None, "order_used": None, "clamped": False,
+            "band_abs": 1.25 * spread, "monotone": False, "conclusive": False,
+            "method": NON_MONOTONE_NOTE})
+        return result
+    p = abs(math.log(abs(e32 / e21))) / math.log(r21)
+    for _ in range(50):
+        q = math.log((r21 ** p - 1.0) / (r32 ** p - 1.0)) if r21 != r32 else 0.0
+        p_new = abs(math.log(abs(e32 / e21)) + q) / math.log(r21)
+        if abs(p_new - p) < 1e-10:
+            p = p_new
+            break
+        p = p_new
+    clamped = not (p_lo <= p <= p_hi)
+    p_used = min(max(p, p_lo), p_hi)
+    band = fs * abs(e21) / (r21 ** p_used - 1.0)
+    # No method jargon on any surface this string can reach (doctrine: GCI
+    # stays internal; the Eca and Hoekstra citation is the allowed name).
+    method = (f"3-mesh study (r = {r21:.2f}), observed order p = {p:.2f}; "
+              f"least-squares fit with safety factor {fs:g} "
+              f"(Eca and Hoekstra 2014)")
+    if clamped:
+        method += f"; {ORDER_CLAMP_NOTE} (band uses p = {p_used:.1f})"
+    result.update({
+        "observed_order": round(p, 3), "order_used": round(p_used, 3),
+        "clamped": clamped, "band_abs": band, "monotone": True,
+        "conclusive": not clamped, "method": method})
+    return result
+
+
 # --------------------------------------------------------------------------
 # Closure / family spreads (Q2)
 # --------------------------------------------------------------------------
@@ -224,13 +297,15 @@ def channels_for(body: str, fingerprint: str) -> dict[str, Any]:
     """The channel values a mission may display for this body + setup.
 
     Returns {"numerical": {...}|None, "model": {...}|None, "pending": bool,
-    "provenance": [...]}. A fingerprint mismatch yields pending (Q4): the
-    numerical channel must then say "study pending", never a stale band.
+    "provenance": [...], "levels": [...]}. A fingerprint mismatch yields
+    pending (Q4): the numerical channel must then say "study pending", never
+    a stale band. ``levels`` carries the matching study's rung records so a
+    channel note can state cell counts without reaching for study internals.
     """
     study = load_study(body)
     if not study:
         return {"numerical": None, "model": None, "pending": True,
-                "provenance": []}
+                "provenance": [], "levels": []}
     match = study.get("fingerprint") == fingerprint
     numerical = study.get("numerical") if match else None
     # The model spread is tied to the same fingerprint discipline.
@@ -240,4 +315,5 @@ def channels_for(body: str, fingerprint: str) -> dict[str, Any]:
         "model": model,
         "pending": not match,
         "provenance": study.get("provenance", []) if match else [],
+        "levels": study.get("levels", []) if match else [],
     }

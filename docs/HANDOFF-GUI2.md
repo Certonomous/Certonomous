@@ -314,7 +314,7 @@ set for `grade: <CHIP>` and the ASME V&V 20 self-assessment citation phrase.
 per treaty — GUI-1b owns everything else in that file tonight) now returns
 `''` for `SOLVER-BACKED` and its legacy aliases (`TREND ONLY`, `REFERENCE
 REGIME MISMATCH`, both of which already mapped onto `SOLVER-BACKED` via the
-existing `LEGACY_CHIP` table). `VALIDATED`, `CONCEPTUAL MODEL`, and
+existing `LEGACY_CHIP` table). `VALIDATED`, `RESEARCH MODEL`, and
 `UNCONVERGED` render unchanged. Every call site (transcript entries, memo
 results, the credentials wall, the digest) goes through this one function,
 so the fix is one place.

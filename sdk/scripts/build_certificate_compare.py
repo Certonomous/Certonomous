@@ -84,7 +84,7 @@ sign-off.
 - Subject block leads with the geometry **display name** ("B-52
   Stratofortress-class airframe"); the filename is small metadata.
 - Result block: value ± 95% CI with a **fidelity chip** (SOLVER-BACKED /
-  CONCEPTUAL MODEL / VALIDATED).
+  RESEARCH MODEL / VALIDATED).
 - Complete **three-channel** V&V-20 uncertainty table.
 - Provenance footer: SHA-256 seal (truncated + full), mission id small,
   "Reproducible from the sealed evidence bundle".

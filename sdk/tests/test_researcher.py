@@ -12,7 +12,7 @@ _VENDOR_WORDS = ("openfoam", "vspaero", "openvsp", "simplefoam", "snappyhexmesh"
 def _optimization():
     return MissionProperties(kind="parametric-optimization", objective="maximise L/D",
                              dimensionality=2, regime="steady", smoothness="smooth",
-                             fidelity="a conceptual sizing model")
+                             fidelity="a research sizing model")
 
 
 def _single_body():
@@ -48,7 +48,10 @@ class MemoStructureTests(unittest.TestCase):
         self.assertNotEqual(opt[1], one[1])
         self.assertIn("2-parameter space", opt[0])
         self.assertIn("Single fixed body", one[0])
-        self.assertIn("measurement, not an optimisation", one[0])
+        # Katie's cut (2026-07-24): the "a measurement, not an optimisation"
+        # fragment never reaches the screen again, in any memo branch.
+        self.assertNotIn("measurement, not an optimisation", " ".join(one))
+        self.assertIn("grade the evidence", one[0])
         self.assertIn("Rejected:", opt[0])
         self.assertIn("Rejected:", one[0])
 

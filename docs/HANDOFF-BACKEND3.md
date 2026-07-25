@@ -65,7 +65,7 @@ the motorcycle directive STILL resolves to motorBike.obj and the race directive
 - Upper bound held at **80, not 85**, deliberately: the orifice grows
   monotonically, so 85 would win and move the headline off the runbook's 80 deg.
   Owner asked to "keep the winner physics consistent (same 80 deg region)", so
-  the winner stays exactly 80 deg / 1345 Pa. (If you actually want it pushed to
+  the winner stays exactly 80 deg / 1327 Pa. (If you actually want it pushed to
   85, it's a one-line range change plus a runbook narration edit.)
 - The systolic waveform PNG was NOT dropped in a merge: `waveform_figure(...)`
   runs and `announce_plot` emits `plot.ready` at plan time; verified on the live
@@ -85,7 +85,7 @@ Live run on :8768. See `demo-output/acts/round3/VERIFICATION.md`,
 - NACA directive (no upload) -> surface `naca4412_wing.stl`, report "Geometry
   study: NACA 4412 finite wing", cert C-2026-7069 subject "NACA 4412 finite
   wing", zero motorcycle mentions. P0 fixed end to end.
-- Airliner cert C-2026-7080; valve cert C-2026-8945 (1345 Pa +- 441 Pa, 11
+- Airliner cert C-2026-7080; valve cert C-2026-8945 (1327 Pa +- 441 Pa, 11
   candidates, waveform present).
 
 ## Merge risks / notes for other streams
@@ -95,7 +95,7 @@ Live run on :8768. See `demo-output/acts/round3/VERIFICATION.md`,
 - Pre-existing cosmetic (not mine, out of scope): the geometry_study certificate
   double-prints "+- +-" because its report `envelope` already embeds "+-" and
   build_certificate_v2 adds one. My three new certificates split value/envelope
-  and render cleanly ("1345 Pa +- 441 Pa"). Worth a one-line fix in
+  and render cleanly ("1327 Pa +- 441 Pa"). Worth a one-line fix in
   geometry_study's results dict if you want it consistent.
 - Setting `params["surface"]` on the race route (it also names "NACA 4412") is
   harmless - race_study ignores surface - and is correct on the route panel.

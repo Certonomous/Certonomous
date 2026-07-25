@@ -17,11 +17,18 @@ import workflows.race_study as rs
 
 
 class _StubSolver:
-    """Deterministic stand-in: an L/D curve peaking near alpha 2, cheap timings."""
+    """Deterministic stand-in: an L/D curve peaking near alpha 2, cheap timings.
 
-    def __init__(self, work_root):
+    Records the wing it was handed so tests can pin which parametric anchor
+    the lanes raced (None means the curriculum wing)."""
+
+    created: list["_StubSolver"] = []
+
+    def __init__(self, work_root, wing=None):
         self.work_root = Path(work_root)
+        self.wing = dict(wing) if wing else None
         self.solve_seconds: list[float] = []
+        _StubSolver.created.append(self)
 
     def solve(self, alpha, re_cref, tag):
         # A concave curve so the quadratic surface has an interior vertex; the
@@ -34,16 +41,22 @@ class _StubSolver:
                 "l_d": l_d, "seconds": 0.5}
 
 
-def _run(**kw):
+def _run(params=None, request="race test", **kw):
+    _StubSolver.created = []
     events: list[tuple[str, dict]] = []
     with tempfile.TemporaryDirectory() as tmp:
         with mock.patch.object(rs, "_TimedSolver", _StubSolver), \
              mock.patch.object(rs, "OUT_ROOT", Path(tmp)):
-            rc = rs.main(request="race test",
-                         params={"mc_samples": 3},
+            rc = rs.main(request=request,
+                         params={"mc_samples": 3, **(params or {})},
                          emit=lambda e, p=None: events.append((e, p or {})),
                          **kw)
     return rc, events
+
+
+def _said(events):
+    return " ".join(p.get("message", "") for e, p in events
+                    if e == "transcript.entry")
 
 
 class RaceStudyEvents(unittest.TestCase):
@@ -113,6 +126,157 @@ class RaceStudyEvents(unittest.TestCase):
         self.assertTrue(cert.get("certificate_no", "").startswith("C-"))
         # The seal is a 64-hex SHA-256.
         self.assertEqual(len(cert["hash"]), 64)
+
+
+_TINY_STL = """solid test
+ facet normal 0 0 1
+  outer loop
+   vertex 0 -20 0
+   vertex 3 -20 0
+   vertex 0 20 0.5
+  endloop
+ endfacet
+endsolid test
+"""
+
+
+class WordingPins(unittest.TestCase):
+    """The owner-reviewed transcript wording, pinned string by string."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rc, cls.events = _run(seed=7)
+        cls.said = _said(cls.events)
+
+    def test_mission_finishes_clean(self):
+        self.assertEqual(self.rc, 0)
+
+    def test_solver_named_plainly_and_fidelity_framing_gone(self):
+        self.assertIn("Both lanes solve with VSPAERO.", self.said)
+        self.assertNotIn("Model fidelity", self.said)
+        self.assertNotIn("bounds the claim", self.said)
+
+    def test_no_solver_fidelity_reassurance_in_prose(self):
+        # The tier chip carries solver status; the transcript never
+        # reassures about it in prose.
+        lowered = self.said.lower()
+        self.assertNotIn("solver-backed", lowered)
+        self.assertNotIn("real polar", lowered)
+        self.assertNotIn("real solves", lowered)
+        self.assertNotIn("the selected solver here", lowered)
+
+    def test_two_ways_sentence_replaces_the_opaque_one(self):
+        self.assertIn(
+            "Two ways to find one smooth peak: sweep the whole ensemble "
+            "with Monte Carlo, or fit a surface from a few anchor solves.",
+            self.said)
+        self.assertNotIn("Two admissible methods", self.said)
+        self.assertNotIn("brute the ensemble", self.said)
+        self.assertNotIn("anchor a surface", self.said)
+
+    def test_staged_delay_disclaimer_removed(self):
+        self.assertNotIn("No delays are staged", self.said)
+
+    def test_contrast_bullet_rides_in_the_same_emitted_entry(self):
+        # Owner rule: bullets are rows within ONE emitted entry, never a
+        # separate entry per bullet.
+        entries = [p["message"] for e, p in self.events
+                   if e == "transcript.entry"]
+        watch = [m for m in entries if "Watch the reduced-order lane" in m]
+        self.assertEqual(len(watch), 1)
+        self.assertIn("The Monte-Carlo lane needs all", watch[0])
+
+    def test_envelope_contrast_derives_from_configured_counts(self):
+        total_mc = 3 * len(rs.ALPHAS)
+        total_rom = len(rs.ANCHOR_ALPHAS) + 1
+        self.assertIn(
+            f"The Monte-Carlo lane needs all {total_mc} solves to reach a "
+            f"confidence band this tight; the reduced-order lane gets "
+            f"there with {total_rom}.", self.said)
+
+    def test_agreement_sentence_stands_on_confidence_bounds(self):
+        result = [p for e, p in self.events if e == "race.result"][0]
+        self.assertTrue(
+            result["agreement"].startswith("The two paths agree to"))
+        self.assertIn("Both within confidence bounds.", result["agreement"])
+        self.assertNotIn("fraction of the cost", result["agreement"])
+
+    def test_result_headline_is_just_peak_l_d(self):
+        verdict = [p for e, p in self.events if e == "result.verdict"][0]
+        self.assertEqual(verdict["quantity"], "Peak L/D")
+
+    def test_lane_chart_titles_stay_neutral(self):
+        titles = {p.get("title") for e, p in self.events
+                  if e == "trace.point"}
+        self.assertIn("Reduced-order: confirmation solve", titles)
+        self.assertNotIn("Reduced-order: one real confirmation", titles)
+        self.assertNotIn("Full Monte-Carlo: solved polar", titles)
+
+    def test_measured_numbers_flow_through_verbatim(self):
+        # The stub curve peaks at exactly L/D 18 at alpha 2; the result card
+        # must carry the measured value untouched.
+        result = [p for e, p in self.events if e == "race.result"][0]
+        self.assertIn("L/D 18.00 at 2°", result["rom"]["peak"])
+        self.assertEqual(result["mc"]["n_solves"], 3 * len(rs.ALPHAS))
+        self.assertEqual(result["rom"]["n_solves"],
+                         len(rs.ANCHOR_ALPHAS) + 1)
+
+    def test_default_race_runs_the_curriculum_wing(self):
+        self.assertEqual([s.wing for s in _StubSolver.created], [None, None])
+
+
+class RacedWingUpload(unittest.TestCase):
+    """A surface uploaded with the race prompt is the raced wing."""
+
+    def test_uploaded_surface_is_announced_and_raced(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "naca4412_wing.stl").write_text(_TINY_STL,
+                                                         encoding="utf-8")
+            with mock.patch.object(rs, "_GEOMETRY_DIR", Path(tmp)):
+                rc, events = _run(params={"surface": "naca4412_wing.stl"},
+                                  request=None, seed=7)
+        said = _said(events)
+        self.assertEqual(rc, 0)
+        self.assertIn("Raced wing received: NACA 4412 finite wing", said)
+        self.assertIn("Span 40 m measured from the surface bounding box",
+                      said)
+        # No raw filename on camera.
+        self.assertNotIn("naca4412_wing.stl", said)
+        # The wing shows through the same geometry path other acts use.
+        geo = [p for e, p in events if e == "geometry.ready"]
+        self.assertTrue(any("name=naca4412_wing.stl" in (p.get("url") or "")
+                            for p in geo))
+        self.assertTrue(any("NACA 4412 finite wing" in (p.get("label") or "")
+                            for p in geo))
+        # Both lanes solved the measured parametric anchor.
+        wings = [s.wing for s in _StubSolver.created]
+        self.assertEqual(len(wings), 2)
+        for wing in wings:
+            self.assertEqual(wing["span"], 40.0)
+            self.assertEqual(wing["area"], 40.0)
+        # The race subject names the wing and states the measurement.
+        init = [p for e, p in events if e == "race.init"][0]
+        self.assertIn("NACA 4412 finite wing", init["subject"])
+        self.assertIn("span 40 m measured", init["subject"])
+
+    def test_unparseable_surface_stays_on_file_reference_raced(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "blob.stl").write_bytes(b"\x00\x01not a surface")
+            with mock.patch.object(rs, "_GEOMETRY_DIR", Path(tmp)):
+                rc, events = _run(params={"surface": "blob.stl"}, seed=7)
+        said = _said(events)
+        self.assertEqual(rc, 0)
+        self.assertIn("Raced wing received: Blob", said)
+        self.assertIn("on file as the reference shape", said)
+        # No invented measurement: the lanes race the curriculum wing.
+        self.assertEqual([s.wing for s in _StubSolver.created], [None, None])
+
+    def test_race_study_races_with_the_timed_solver(self):
+        # Outside the stub, the act must race the benchmark's timed solver,
+        # whose contract (reuse_prior=False, wing pass-through) is pinned in
+        # test_race_benchmark.TimedSolverContract.
+        from workflows import race_benchmark
+        self.assertIs(rs._TimedSolver, race_benchmark._TimedSolver)
 
 
 class RaceStudyConfig(unittest.TestCase):

@@ -32,7 +32,7 @@ class ChipContract(unittest.TestCase):
     def test_chip_names(self):
         self.assertEqual(lab.VALIDATED, "VALIDATED")
         self.assertEqual(lab.SOLVER_BACKED, "SOLVER-BACKED")
-        self.assertEqual(lab.CONCEPTUAL, "CONCEPTUAL MODEL")
+        self.assertEqual(lab.CONCEPTUAL, "RESEARCH MODEL")
         self.assertEqual(lab.UNCONVERGED, "UNCONVERGED")
 
     def test_trust_never_emits_retired_labels(self):

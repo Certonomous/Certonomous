@@ -2,42 +2,41 @@
   "body": "motorBike",
   "levels": [
     {
-      "cells": 14714,
-      "cd": 0.47066928,
       "tag": "coarse",
-      "mission": "uq-motorBike-coarse",
-      "wall_minutes": 0.5
+      "cells": 14714,
+      "cd": 0.47093433333333334,
+      "mission": "motorBike-rung-coarse"
     },
     {
-      "cells": 66316,
-      "cd": 0.4201672083333333,
-      "tag": "mid",
-      "mission": "uq-motorBike-mid",
-      "wall_minutes": 1.4
+      "tag": "medium",
+      "cells": 66302,
+      "cd": 0.4213963111111111,
+      "mission": "motorBike-rung-medium"
     },
     {
-      "cells": 353578,
-      "cd": 0.4155770166666667,
-      "tag": "fine",
-      "mission": "uq-motorBike-fine",
-      "wall_minutes": 7.9
+      "tag": "production",
+      "cells": 353688,
+      "cd": 0.4201129966666667,
+      "mission": "motorBike-production"
     }
   ],
-  "updated_utc": "2026-07-23T18:27:22Z",
   "fingerprint": "db438daafabf8793",
   "numerical": {
-    "band_abs": 0.16527679,
-    "band_rel": 0.3977,
-    "observed_order": 4.824,
-    "method": "3-mesh ladder, observed order p = 4.82 outside the credible range; conservative factor-3 band",
+    "band_abs": 0.000528438150851199,
+    "band_rel": 0.00126,
+    "observed_order": 7.298,
+    "order_used": 2.5,
+    "clamped": true,
+    "method": "3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
     "conclusive": false,
-    "value_fine": 0.4155770166666667
+    "value_working": 0.4201129966666667
   },
   "provenance": [
-    "uq-motorBike-coarse",
-    "uq-motorBike-mid",
-    "uq-motorBike-fine"
+    "motorBike-rung-coarse",
+    "motorBike-rung-medium",
+    "motorBike-production"
   ],
+  "updated_utc": "2026-07-25T01:39:36Z",
   "closures": {
     "kOmegaSST": 0.4155770166666667,
     "kEpsilon": 0.41915239,

@@ -1,0 +1,20 @@
+# Published comparison for the motorcycle-with-rider geometry study.
+#
+# This is a BAND-type reference, not a geometry-specific experiment: the
+# literature reports full-scale motorcycle-with-rider drag AREAS (Cd * A, m²),
+# which are area-convention-proof, so the act compares Cd * Aref from its own
+# forceCoeffs setup against the published range. Cossalter tabulates drag
+# areas from about 0.30-0.35 m² for a sport machine with the rider tucked up
+# to 0.6 m² and above for upright touring configurations; Hoerner's
+# motorcycle-with-rider data sits in the same range on frontal areas near
+# 0.7-0.8 m². A band of many machines can never grant VALIDATED (that takes a
+# like-for-like experiment on this geometry); it grades the magnitude against
+# reality and the comparison is stated on the record either way.
+name: motorBike
+kind: drag_area_band
+drag_area_band: [0.30, 0.70]
+units: m^2
+band_label: published motorcycle-with-rider band
+configuration: full-scale motorcycle with rider, racing tuck to upright touring
+source: Cossalter, Motorcycle Dynamics (2006); Hoerner, Fluid-Dynamic Drag (1965)
+source_short: Cossalter 2006; Hoerner 1965

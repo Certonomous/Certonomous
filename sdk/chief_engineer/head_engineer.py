@@ -234,12 +234,15 @@ def plot_with_envelope(iterations, series, name, out_png, *, window: int = 25):
 
     label = _t.metric_label(name)
     fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    # Legend names the trace and its envelope only. "Rolling mean" is banned
+    # from every coefficient plot (Katie: it must never read as a statistical
+    # sampling product); the settling line itself stays, unlabeled.
     ax.fill_between(iterations, los, his, color=_t.LIVE, alpha=0.16, linewidth=0,
                     label=r"$\pm 2\sigma$ envelope")
     ax.plot(iterations, series, color=_t.LIVE, linewidth=0.9, alpha=0.4,
-            label="per-iteration")
+            label="coefficient history")
     ax.plot(iterations, means, color=_t.LIVE, linewidth=2.4,
-            label=f"rolling mean ({window})")
+            label="_nolegend_")
     final = envelope_statistics(series)
     if final:
         ax.annotate(
@@ -364,6 +367,23 @@ class HeadEngineer:
                 f"case staging from {template_wsl_path!r} failed: "
                 f"{(staged.stderr or staged.stdout).strip()[:300]}")
 
+    def enforce_boundary_skewness(self, value: float = 4.0) -> bool:
+        """Tighten the staged case's snappyHexMesh boundary-skewness gate.
+
+        The stock tutorial allowance (20) lets a handful of boundary faces
+        through that checkMesh then flags above the 4.0 guidance; appending
+        the entry after the dictionary's include makes the tighter value win
+        and snappy smooths those faces out during meshing. Measured on the
+        motorbike (2026-07-24): max skewness 8.94 with the stock gate, 3.99
+        with this one, at an unchanged cell budget.
+        """
+        gated = self._wsl(
+            f"cd {self.remote_case} && test -f system/meshQualityDict && "
+            f"printf 'maxBoundarySkewness {value:g};\\n' >> system/meshQualityDict && "
+            f"grep -q 'maxBoundarySkewness {value:g};' system/meshQualityDict && "
+            f"echo GATED", timeout=120)
+        return "GATED" in gated.stdout
+
     def _mesh_cache_dir(self, cache_key: str) -> str:
         # A filesystem-safe key so a body name never escapes the cache root.
         safe = re.sub(r"[^A-Za-z0-9._-]", "_", cache_key)
@@ -423,18 +443,35 @@ class HeadEngineer:
         safe = re.sub(r"[^A-Za-z0-9._-]", "_", cache_key)
         return f"{SOLVE_CACHE_ROOT}/{safe}"
 
+    def _solved_time_dirs(self) -> list[str]:
+        """Names of this case's solved time directories (integers above 0).
+
+        Listed plainly and filtered in Python: shell globs inside command
+        substitution do not survive the Windows-to-WSL quoting stack on this
+        machine, so no ``$(...)`` may carry a glob (the bug that silently
+        left the solve cache empty).
+        """
+        listing = self._wsl(f"cd {self.remote_case} && ls 2>/dev/null",
+                            timeout=120).stdout.split()
+        return sorted((name for name in listing
+                       if re.fullmatch(r"[0-9]+", name) and name != "0"),
+                      key=int)
+
     def restore_cached_solve(self, cache_key: str) -> bool:
         """Restore a completed solve (postProcessing + final fields) into the
         case. Returns True on a hit; False means the case must solve fresh."""
         if os.environ.get("CERTONOMOUS_SOLVER_CACHE") == "0":
             return False
         cache = self._solve_cache_dir(cache_key)
+        latest = self._wsl(f"cat {cache}/DONE 2>/dev/null",
+                           timeout=120).stdout.strip()
+        if not re.fullmatch(r"[0-9]+", latest or ""):
+            return False
         restored = self._wsl(
             f"test -f {cache}/DONE && "
             f"cp -r {cache}/postProcessing {self.remote_case}/ && "
-            f"lt=$(cat {cache}/DONE) && "
-            f"rm -rf {self.remote_case}/$lt && "
-            f"cp -r {cache}/$lt {self.remote_case}/$lt && "
+            f"rm -rf {self.remote_case}/{latest} && "
+            f"cp -r {cache}/{latest} {self.remote_case}/{latest} && "
             f"echo RESTORED", timeout=600)
         return "RESTORED" in restored.stdout
 
@@ -442,14 +479,17 @@ class HeadEngineer:
         """Store this case's finished solve for silent reuse next run."""
         if os.environ.get("CERTONOMOUS_SOLVER_CACHE") == "0":
             return
+        solved = self._solved_time_dirs()
+        if not solved:
+            return
+        latest = solved[-1]
         cache = self._solve_cache_dir(cache_key)
         self._wsl(
-            f"cd {self.remote_case} && "
-            f"lt=$(ls -d [0-9]* 2>/dev/null | grep -v '^0$' | sort -g | tail -1) && "
-            f"test -n \"$lt\" && test -d postProcessing && "
+            f"cd {self.remote_case} && test -d postProcessing && "
             f"rm -rf {cache} && mkdir -p {cache} && "
-            f"cp -r postProcessing {cache}/ && cp -r $lt {cache}/$lt && "
-            f"printf '%s' \"$lt\" > {cache}/DONE || true", timeout=600)
+            f"cp -r postProcessing {cache}/ && "
+            f"cp -r {latest} {cache}/{latest} && "
+            f"printf {latest} > {cache}/DONE || true", timeout=600)
 
     def solve_ranks(self) -> int:
         """How many MPI ranks the steady solve should use.
@@ -510,6 +550,97 @@ class HeadEngineer:
             f"cd {self.remote_case} && openfoam2606 foamDictionary "
             f"-entry endTime -set {n} system/controlDict >/dev/null 2>&1 || true",
             timeout=120)
+
+    # -- grid-refinement rungs ------------------------------------------------
+    # A refinement rung is the SAME case with one mesh knob changed: cloned
+    # from the production case, remeshed at a cheaper setting, solved shorter.
+
+    def clone_case_from(self, source_remote_case: str) -> bool:
+        """Stage this case as a copy of another case, stripped back to inputs.
+
+        Keeps the geometry, dictionaries, and initial fields; drops the mesh,
+        any solved time directories, and postProcessing so the rung meshes and
+        solves from scratch with only its own knob changed. Solved time
+        directories are identified in Python, never with a shell loop: the
+        Windows-to-WSL quoting stack mangles globs in compound constructs.
+        """
+        cloned = self._wsl(
+            f"rm -rf {self.remote_case} && mkdir -p {RUN_ROOT} && "
+            f"cp -r {source_remote_case} {self.remote_case} && "
+            f"cd {self.remote_case} && "
+            f"rm -rf constant/polyMesh postProcessing processor* log.* && "
+            f"test -f system/controlDict && echo CLONED", timeout=600)
+        if "CLONED" not in cloned.stdout:
+            return False
+        solved = self._solved_time_dirs()
+        if solved:
+            doomed = " ".join(solved)
+            self._wsl(f"cd {self.remote_case} && rm -rf {doomed}", timeout=300)
+        return True
+
+    def set_refinement_levels(self, *, feature: int, surface_lo: int,
+                              surface_hi: int, region: int) -> bool:
+        """Point snappyHexMesh at a different castellated refinement level.
+
+        This is the knob that genuinely changes the mesh (background density
+        stays put; surface and region refinement move), and it exists in both
+        the tutorial dictionary and the generated one. The seds are tolerant
+        of either spelling (1E15/1e15, any current level numbers).
+        """
+        changed = self._wsl(
+            f"cd {self.remote_case} && "
+            f"sed -i -E 's/level \\([0-9]+ [0-9]+\\);/level ({surface_lo} {surface_hi});/' "
+            f"system/snappyHexMeshDict && "
+            f"sed -i -E 's/level [0-9]+;/level {feature};/' system/snappyHexMeshDict && "
+            f"sed -i -E 's/levels \\(\\([0-9eE+.]+ [0-9]+\\)\\);/levels ((1e15 {region}));/' "
+            f"system/snappyHexMeshDict && "
+            f"grep -q 'level ({surface_lo} {surface_hi});' system/snappyHexMeshDict && "
+            f"echo LEVELS", timeout=120)
+        return "LEVELS" in changed.stdout
+
+    def scale_background_divisions(self, factor: float) -> tuple | None:
+        """Scale the blockMesh division counts by ``factor`` (second knob).
+
+        Used only when the castellated level floors out and two rungs would
+        otherwise share a mesh. Returns (old, new) division triples, or None
+        when the dictionary could not be edited or the scaling changed
+        nothing (the caller must then refuse to report a study).
+        """
+        raw = self._wsl(f"cat {self.remote_case}/system/blockMeshDict",
+                        timeout=120).stdout
+        match = re.search(r"hex \(([^)]*)\) \((\d+) (\d+) (\d+)\)", raw)
+        if not match:
+            return None
+        old = tuple(int(match.group(i)) for i in (2, 3, 4))
+        new = tuple(max(4, int(round(n * float(factor)))) for n in old)
+        if new == old:
+            return None
+        # Rebuild the exact division triple textually, stage the edited file
+        # on the Windows side, and copy it in: multi-line heredocs do not
+        # survive the Windows-to-WSL quoting stack reliably.
+        edited = raw.replace(
+            f"({old[0]} {old[1]} {old[2]})", f"({new[0]} {new[1]} {new[2]})", 1)
+        staging = self.out_root / "blockMeshDict.scaled"
+        staging.write_text(edited, errors="replace")
+        wsl_staging = str(staging).replace("C:", "/mnt/c").replace("\\", "/")
+        write = self._wsl(
+            f"cp '{wsl_staging}' {self.remote_case}/system/blockMeshDict && "
+            f"grep -q '({new[0]} {new[1]} {new[2]})' "
+            f"{self.remote_case}/system/blockMeshDict && echo SCALED", timeout=120)
+        return (old, new) if "SCALED" in write.stdout else None
+
+    def reference_area(self) -> float | None:
+        """The Aref this case's force coefficients divide by, read from the
+        case itself (never assumed): the drag-area comparison must use exactly
+        the area the solver used."""
+        raw = self._wsl(
+            f"grep -rh 'Aref' {self.remote_case}/system 2>/dev/null | head -3",
+            timeout=120).stdout
+        match = re.search(r"Aref\s+([0-9.eE+-]+)\s*;", raw)
+        try:
+            return float(match.group(1)) if match else None
+        except (TypeError, ValueError):
+            return None
 
     def intake_geometry(self, geometry_wsl_path: str, target_name: str) -> dict[str, Any]:
         """Place the surface in constant/triSurface and surface-check it."""

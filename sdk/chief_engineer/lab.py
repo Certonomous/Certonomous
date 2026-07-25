@@ -159,13 +159,13 @@ class ComputeLedger:
 # VALIDATED — graded against a published experiment and inside its band.
 # SOLVER-BACKED — a real solve produced it; no experimental comparison (or
 #   the comparison is not like-for-like). Specifics live in the channel table.
-# CONCEPTUAL MODEL — a sizing/reduced-order model, honestly labeled.
+# RESEARCH MODEL — a sizing/reduced-order model, honestly labeled.
 # UNCONVERGED — the solve did not settle; the number is not evidence yet.
 # Honesty is carried by the value ± CI, the chip, and the uncertainty
 # channels — never by hedging prose.
 VALIDATED = "VALIDATED"
 SOLVER_BACKED = "SOLVER-BACKED"
-CONCEPTUAL = "CONCEPTUAL MODEL"
+CONCEPTUAL = "RESEARCH MODEL"
 UNCONVERGED = "UNCONVERGED"
 # Retired labels, kept only so historical records still map to a chip.
 LEGACY_CHIPS = {"TREND ONLY": SOLVER_BACKED,
@@ -194,7 +194,7 @@ def trust(*, relative_error: float | None = None, converged: bool = True,
                 "reason": why or "the solve did not settle; the number is not evidence yet"}
     if not solver_backed:
         return {"tier": CONCEPTUAL,
-                "reason": why or "produced by a stated conceptual model, not a solve"}
+                "reason": why or "produced by a stated research model, not a solve"}
     if not in_validated_regime or not calibrated:
         return {"tier": SOLVER_BACKED,
                 "reason": why or "a selected-solver result without a like-for-like experimental comparison"}
@@ -377,6 +377,67 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
                                   f"Cd {cd_ref:g}, outside the ±{tolerance * 100:.0f}% band")}
     verdict["comparison"] = comparison
     return verdict
+
+def grade_drag_area(*, measured_cd: float, reference_area_m2: float,
+                    reference: dict, converged: bool = True,
+                    in_validated_regime: bool = True,
+                    calibrated: bool = True) -> dict[str, Any]:
+    """Grade a solved force against a published drag-area band.
+
+    Drag area Cd * Aref is area-convention-proof: whatever reference area the
+    case's force coefficients used, the product is the physical drag area in
+    m² and compares like for like against published full-scale values. The
+    reference carries ``drag_area_band`` [lo, hi] in m², a ``band_label``
+    naming the population, and its ``source``.
+
+    A population band is not an experiment on this specific geometry, so this
+    path never grants VALIDATED; a positive comparison is stated on the
+    record and the tier stays SOLVER-BACKED with the comparison as its reason.
+    """
+    lo, hi = (float(x) for x in reference["drag_area_band"])
+    source = reference.get("source", "the cited reference")
+    source_short = reference.get("source_short", source)
+    label = reference.get("band_label", "published band")
+    drag_area = float(measured_cd) * float(reference_area_m2)
+    position = "inside" if lo <= drag_area <= hi else (
+        "below" if drag_area < lo else "above")
+    comparison = {
+        "kind": "drag-area-band",
+        "measured_cd": round(float(measured_cd), 4),
+        "reference_area_m2": round(float(reference_area_m2), 4),
+        "drag_area_m2": round(drag_area, 4),
+        "band_lo": lo, "band_hi": hi,
+        "band_label": label, "source": source, "source_short": source_short,
+        "position": position,
+    }
+    if not converged:
+        verdict = {"tier": UNCONVERGED,
+                   "reason": "the solve did not settle; nothing to compare "
+                             "against the published band yet"}
+    elif not in_validated_regime:
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": ("mesh quality outside the acceptance band; the "
+                              "numerical channel carries the residual, not a "
+                              f"comparison with {source}")}
+    elif not calibrated:
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": ("mesh skewness above guidance; the numerical "
+                              "channel carries the residual, not a comparison "
+                              f"with {source}")}
+    elif position == "inside":
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": (f"drag area {drag_area:.2f} m² sits inside the "
+                              f"{label}, {lo:g} to {hi:g} m² ({source_short}); "
+                              f"a published band, not a geometry-specific "
+                              f"experiment")}
+    else:
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": (f"drag area {drag_area:.2f} m² sits {position} "
+                              f"the {label}, {lo:g} to {hi:g} m² "
+                              f"({source_short})")}
+    verdict["comparison"] = comparison
+    return verdict
+
 
 # --------------------------------------------------------------------------
 # Literature the Numericist reads
