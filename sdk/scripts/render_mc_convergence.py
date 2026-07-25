@@ -2,12 +2,14 @@
 
 The race act (mission-output/race-study) answered one question two ways: a
 full Monte-Carlo ensemble, 8 Reynolds samples x 11 angles = 88 recorded
-VSPAERO runs, against a reduced-order path, 4 anchors + 1 confirmation = 5
+VSPAERO runs, against a reduced-order model, 4 anchors + 1 confirmation = 5
 recorded runs. This script turns those on-disk records into the convergence
 story for the website section: the 95 percent confidence half-width of the
 Monte-Carlo peak lift-to-drag estimate versus the number of solver runs N,
 with the 1 over sqrt N theoretical guarantee anchored at the measured
-ensemble variance, and the reduced-order path marked at its 5 runs.
+ensemble variance, and the reduced-order model's own convergence curve
+(its prediction error measured against each next recorded run) reaching
+its confirmed envelope at 5 runs.
 
 Every number is read from the recorded artifacts, nothing is invented:
 
@@ -169,10 +171,48 @@ def fit_powerlaw_slope(ns, values) -> float:
     return float(slope)
 
 
+def rom_convergence(anchors: list[dict], confirm: dict, *,
+                    x_lo: float = ALPHAS[0], x_hi: float = ALPHAS[-1]
+                    ) -> list[dict]:
+    """The reduced-order model's own convergence, from its recorded runs.
+
+    ``anchors`` must be in run order (the recorded dispatch order). With k
+    anchors fitted (k >= 3, a quadratic needs three points, so no 2-run
+    point exists), the model's error is measured against the next recorded
+    run: the next anchor while anchors remain, then the confirmation run at
+    the located peak. The final entry is the confirmation run itself
+    landing, which turns the last prediction error into the model's
+    confirmed envelope. Every value is a recorded solver result; nothing is
+    invented.
+    """
+    if len(anchors) < 3:
+        raise ValueError("a quadratic model needs at least three anchors")
+    out: list[dict] = []
+    for k in range(3, len(anchors) + 1):
+        xs = [a["alpha"] for a in anchors[:k]]
+        ys = [a["l_d"] for a in anchors[:k]]
+        if k < len(anchors):
+            nxt = anchors[k]
+            pred = float(np.polyval(np.polyfit(xs, ys, 2), nxt["alpha"]))
+            out.append({"n_runs": k, "error": abs(pred - nxt["l_d"]),
+                        "tested_at": nxt["alpha"],
+                        "tested": "next recorded anchor"})
+        else:
+            sur = quadratic_peak_residual(xs, ys, confirm["l_d"],
+                                          x_lo=x_lo, x_hi=x_hi)
+            out.append({"n_runs": k, "error": sur["residual"],
+                        "tested_at": sur["alpha_star"],
+                        "tested": "confirmation at the located peak"})
+    out.append({"n_runs": len(anchors) + 1, "error": out[-1]["error"],
+                "tested_at": out[-1]["tested_at"],
+                "tested": "confirmation run lands, envelope confirmed"})
+    return out
+
+
 def quadratic_peak_residual(xs, ys, confirm_value: float, *,
                             x_lo: float = ALPHAS[0], x_hi: float = ALPHAS[-1]
                             ) -> dict[str, float]:
-    """The reduced-order path's achieved envelope, from its own records.
+    """The reduced-order model's achieved envelope, from its own records.
 
     Fit the quadratic surface through the anchor points, locate its peak on
     [x_lo, x_hi] exactly as the act did (vertex when concave, else the
@@ -210,6 +250,9 @@ def load_mc_points(work: Path = WORK) -> list[dict]:
 
 
 def load_rom(work: Path = WORK) -> dict:
+    """Anchors are returned in run order, taken from the recorded dispatch
+    times (job.json mtime); for this act that order is alpha 0, 3.3, 6.7,
+    10, then the confirmation."""
     anchors = []
     for tag in ANCHOR_TAGS:
         d = work / "rom" / tag
@@ -217,14 +260,15 @@ def load_rom(work: Path = WORK) -> dict:
         j = json.loads((d / "job.json").read_text(encoding="utf-8"))
         anchors.append({"alpha": float(j["alpha_start"]),
                         "l_d": r["polar"]["L_D"][0],
-                        "elapsed_s": float(r["elapsed_s"])})
+                        "elapsed_s": float(r["elapsed_s"]),
+                        "dispatched": (d / "job.json").stat().st_mtime})
     d = work / "rom" / "rom-confirm"
     r = json.loads((d / "result.json").read_text(encoding="utf-8"))
     j = json.loads((d / "job.json").read_text(encoding="utf-8"))
     confirm = {"alpha": float(j["alpha_start"]),
                "l_d": r["polar"]["L_D"][0],
                "elapsed_s": float(r["elapsed_s"])}
-    return {"anchors": sorted(anchors, key=lambda a: a["alpha"]),
+    return {"anchors": sorted(anchors, key=lambda a: a["dispatched"]),
             "confirm": confirm}
 
 
@@ -241,6 +285,7 @@ def build_story(work: Path = WORK, *, orderings: int = ORDERINGS,
     xs = [a["alpha"] for a in rom["anchors"]]
     ys = [a["l_d"] for a in rom["anchors"]]
     surrogate = quadratic_peak_residual(xs, ys, rom["confirm"]["l_d"])
+    rom_curve = rom_convergence(rom["anchors"], rom["confirm"])
     mc_seconds = sum(p["elapsed_s"] for p in points)
     rom_seconds = (sum(a["elapsed_s"] for a in rom["anchors"])
                    + rom["confirm"]["elapsed_s"])
@@ -252,7 +297,7 @@ def build_story(work: Path = WORK, *, orderings: int = ORDERINGS,
         "slope_rms": fit_powerlaw_slope(ns, rms),
         "slope_median": fit_powerlaw_slope(
             ns, [per_member[m]["median"] for m in sorted(per_member)]),
-        "surrogate": surrogate,
+        "surrogate": surrogate, "rom_curve": rom_curve,
         "mc_seconds": mc_seconds, "rom_seconds": rom_seconds,
         "seconds_per_run": mc_seconds / len(points),
         "speedup_solver_time": mc_seconds / rom_seconds,
@@ -312,6 +357,25 @@ def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
         "pass": abs(spr - 5.10) < 0.01,
         "detail": f"mean recorded elapsed over the 88 ensemble runs "
                   f"{spr:.3f} s per solver run"})
+
+    rc = story["rom_curve"]
+    errors = [p["error"] for p in rc]
+    order = [round(a["alpha"], 1) for a in story["rom"]["anchors"]]
+    checks.append({
+        "name": "reduced-order convergence curve traced to its recorded runs",
+        "pass": (rc[0]["n_runs"] == 3
+                 and rc[-1]["n_runs"] == story["n_rom_runs"]
+                 and all(a >= b for a, b in zip(errors, errors[1:]))
+                 and round(errors[-1], 3) == 0.084
+                 and order == [0.0, 3.3, 6.7, 10.0]),
+        "detail": f"run order from recorded dispatch times: alphas {order}; "
+                  f"3-run model tested at the next recorded run (alpha "
+                  f"{rc[0]['tested_at']:g}) misses by {errors[0]:.4f}, "
+                  f"4-run model tested by the confirmation misses by "
+                  f"{errors[1]:.4f}, envelope confirmed +-{errors[-1]:.3f} "
+                  f"at {rc[-1]['n_runs']} runs; certificate says 0.084. "
+                  f"No 2-run point exists (a quadratic needs 3), so the "
+                  f"curve starts at 3."})
     return checks
 
 
@@ -335,7 +399,7 @@ def _pyplot():
 
 
 X_LIM = (1.8, 105.0)
-Y_LIM = (0.045, 1.0)
+Y_LIM = (0.05, 2.4)
 
 
 def _base_axes(plt, story):
@@ -345,7 +409,7 @@ def _base_axes(plt, story):
     ax.set_xlim(*X_LIM)
     ax.set_ylim(*Y_LIM)
     ax.set_xlabel("solver runs  $N$  (log scale)", color=INK, fontsize=13)
-    ax.set_ylabel(r"95% confidence half-width of peak $L/D$  (log scale)",
+    ax.set_ylabel(r"error band on peak $L/D$  (log scale)",
                   color=INK, fontsize=13)
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
@@ -353,33 +417,21 @@ def _base_axes(plt, story):
         ax.spines[spine].set_color(DIM)
     ax.grid(True, which="both", color=GRID, linewidth=0.8)
     ax.tick_params(colors=MUTED, labelsize=10, which="both")
-    ticks = [2, 5, 11, 22, 44, 88]
+    ticks = [2, 3, 5, 11, 22, 44, 88]
     ax.set_xticks(ticks)
     ax.set_xticklabels([str(t) for t in ticks])
     ax.set_xticks([], minor=True)
-    yticks = [0.05, 0.1, 0.2, 0.4, 0.8]
+    yticks = [0.05, 0.1, 0.2, 0.4, 0.8, 1.6]
     ax.set_yticks(yticks)
     ax.set_yticklabels([f"{t:g}" for t in yticks])
     ax.set_yticks([], minor=True)
 
-    # Guarantee line, anchored at the measured ensemble variance.
+    # Guarantee line, anchored at the measured variance.
     grid_n = np.geomspace(2, 100, 200)
     ax.plot(grid_n, guarantee_half_width(story["peak_sd"], grid_n),
             color=INK, linewidth=1.6, linestyle=(0, (6, 4)), alpha=0.85,
             label="theoretical guarantee: error falls as 1 over sqrt N "
-                  "(anchored at the measured ensemble variance)")
-
-    # Wall-time twin of the same axis, at the measured per-run cost.
-    spr = story["seconds_per_run"]
-    top = ax.secondary_xaxis(
-        "top", functions=(lambda n: n * spr, lambda s: s / spr))
-    top.set_xlabel(f"solver time at the measured {spr:.2f} s per run  [s]",
-                   color=MUTED, fontsize=10.5)
-    top.set_xticks([t * spr for t in ticks])
-    top.set_xticklabels([f"{t * spr:.0f}" for t in ticks])
-    top.set_xticks([], minor=True)
-    top.tick_params(colors=MUTED, labelsize=9.5)
-    top.spines["top"].set_color(DIM)
+                  "(anchored at the measured variance)")
     return fig, ax
 
 
@@ -398,7 +450,7 @@ def _step_arrays(per_member, key, upto_n=None):
     return xs, ys
 
 
-def _draw_band(ax, story, upto_n=None, *, envelope=True, median=True):
+def _draw_band(ax, story, upto_n=None, *, envelope=True):
     per = story["per_member"]
     label_n = story["n_mc_runs"]
     if envelope:
@@ -406,41 +458,42 @@ def _draw_band(ax, story, upto_n=None, *, envelope=True, median=True):
         _, hi = _step_arrays(per, "q75", upto_n)
         if xq:
             ax.fill_between(xq, lo, hi, color=LIVE, alpha=0.16, linewidth=0,
-                            label="middle 50% of orderings")
+                            label="spread across run orderings (middle 50%)")
     xs, ys = _step_arrays(per, "rms", upto_n)
     if xs:
         ax.plot(xs, ys, color=LIVE, linewidth=2.4, solid_capstyle="round",
-                label=f"sequential 95% band from the {label_n} recorded "
-                      f"runs, root mean square over {ORDERINGS} orderings")
+                label=f"Monte-Carlo: measured 95% band over the "
+                      f"{label_n} recorded runs")
         marker_n = [m * RUNS_PER_MEMBER for m in sorted(per)
                     if upto_n is None or m * RUNS_PER_MEMBER <= upto_n]
         ax.plot(marker_n, [per[n // RUNS_PER_MEMBER]["rms"]
                            for n in marker_n], linestyle="none", marker="o",
                 markersize=7, color=LIVE, markeredgecolor=INK,
                 markeredgewidth=0.9, zorder=5)
-    if median:
-        xm, ym = _step_arrays(per, "median", upto_n)
-        if xm:
-            ax.plot(xm, ym, color=MUTED, linewidth=1.4, linestyle=":",
-                    label="median over the same orderings")
 
 
-def _draw_rom(ax, story, *, annotate: bool):
-    res = story["surrogate"]["residual"]
+def _draw_rom(ax, story, upto_n=None, *, annotate: bool):
+    curve = [p for p in story["rom_curve"]
+             if upto_n is None or p["n_runs"] <= upto_n]
+    if not curve:
+        return
     n_rom = story["n_rom_runs"]
-    ax.scatter([n_rom], [res], s=170, marker="D", color=VALID,
-               edgecolor=INK, linewidths=1.4, zorder=6,
-               label=f"reduced-order path: {n_rom} recorded runs, "
-                     f"confirmation residual $\\pm${res:.3f}")
+    xs = [p["n_runs"] for p in curve]
+    ys = [p["error"] for p in curve]
+    ax.plot(xs, ys, color=VALID, linewidth=2.4, solid_capstyle="round",
+            marker="o", markersize=7, markeredgecolor=INK,
+            markeredgewidth=0.9, zorder=6,
+            label=f"reduced-order model: converges in {n_rom} runs")
+    if xs[-1] == n_rom:
+        ax.scatter([xs[-1]], [ys[-1]], s=170, marker="D", color=VALID,
+                   edgecolor=INK, linewidths=1.4, zorder=7)
     if annotate:
+        res = story["surrogate"]["residual"]
         ax.annotate(
-            f"reduced-order path: {n_rom} solver runs\n"
-            f"envelope $\\pm${res:.3f}, tighter than the\n"
-            f"$\\pm${story['hw_final']:.3f} ensemble band at "
-            f"{story['n_mc_runs']} runs\n"
-            f"(surrogate residual vs input-spread\n"
-            f"confidence, both from recorded runs)",
-            xy=(n_rom, res), xytext=(-4, 26), textcoords="offset points",
+            f"reduced-order model: converges in {n_rom} solver runs\n"
+            f"envelope $\\pm${res:.3f}, confirmed by its final run\n"
+            f"(model error, measured at the next recorded run)",
+            xy=(0.30, 0.155), xycoords="axes fraction", ha="left",
             fontsize=10.5, color=INK)
 
 
@@ -454,30 +507,16 @@ def render_hero(story: dict, out_png: Path) -> Path:
     hw = story["hw_final"]
     ax.annotate(
         f"$\\pm${hw:.3f} at {n88} runs\npublished $\\pm$0.10 (95%)",
-        xy=(n88, hw), xytext=(4, -58), textcoords="offset points",
-        ha="right", fontsize=10.5, color=INK, weight="bold")
-    ax.annotate(
-        f"fitted slope {story['slope_rms']:+.2f} vs guarantee $-1/2$",
-        xy=(0.985, 0.975), xycoords="axes fraction", ha="right",
-        fontsize=11.5, color=INK, weight="bold")
+        xy=(0.985, 0.035), xycoords="axes fraction", ha="right",
+        va="bottom", fontsize=10.5, color=INK, weight="bold")
     ax.set_title(
-        "Monte-Carlo convergence, measured: the 95% band vs solver runs, "
-        "NACA 4412 race act",
+        "Monte-Carlo convergence, measured: the NACA race",
         color=INK, fontsize=14, loc="left", pad=14, weight="bold")
     leg = ax.legend(frameon=False, fontsize=9.5, loc="upper right",
-                    bbox_to_anchor=(0.995, 0.93), labelcolor=INK)
+                    bbox_to_anchor=(0.995, 0.97), labelcolor=INK)
     for text in leg.get_texts():
         text.set_color(INK)
-    fig.tight_layout(rect=(0, 0.045, 1, 1))
-    fig.text(0.012, 0.026,
-             "source: the race act's recorded solver runs, 88 on the "
-             "ensemble lane and 5 on the reduced-order lane . "
-             "certificate C-2026-6122",
-             fontsize=9, color=MUTED)
-    fig.text(0.012, 0.008,
-             "one ensemble member costs 11 solver runs (a full angle sweep "
-             "locates its peak), so the band updates every 11 runs",
-             fontsize=9, color=MUTED)
+    fig.tight_layout()
     fig.savefig(out_png)
     plt.close(fig)
     return out_png
@@ -489,23 +528,25 @@ def render_frames(story: dict, out_dir: Path) -> list[Path]:
     per = story["per_member"]
     for i, n in enumerate(range(2, story["n_mc_runs"] + 1), start=1):
         fig, ax = _base_axes(plt, story)
-        _draw_band(ax, story, upto_n=n, median=False)
-        if n >= story["n_rom_runs"]:
-            _draw_rom(ax, story, annotate=False)
+        _draw_band(ax, story, upto_n=n)
+        _draw_rom(ax, story, upto_n=n, annotate=False)
         m, value = band_at_runs(n, per)
         if value is not None:
             ax.scatter([m * RUNS_PER_MEMBER], [value], s=120, color=LIVE,
                        edgecolor=INK, linewidths=1.2, zorder=6)
-        status = (f"95% band: $\\pm${value:.3f}" if value is not None else
-                  "band pending: needs 2 complete members (22 runs)")
+        lines = [f"solver runs: {n} of {story['n_mc_runs']}"]
+        if n >= story["n_rom_runs"]:
+            lines.append(f"reduced-order model: done, "
+                         f"$\\pm${story['surrogate']['residual']:.3f} "
+                         f"at {story['n_rom_runs']} runs")
+        if value is not None:
+            lines.append(f"Monte-Carlo 95% band: $\\pm${value:.3f}")
         ax.annotate(
-            f"solver runs: {n} of {story['n_mc_runs']}\n"
-            f"complete ensemble members: {m} of {N_SAMPLES}\n" + status,
-            xy=(0.018, 0.045), xycoords="axes fraction", ha="left",
+            "\n".join(lines),
+            xy=(0.985, 0.035), xycoords="axes fraction", ha="right",
             va="bottom", fontsize=11.5, color=INK, weight="bold")
         ax.set_title(
-            "Monte-Carlo convergence: the 95% band narrows along the "
-            "1 over sqrt N guarantee",
+            "Monte-Carlo convergence, measured: the NACA race",
             color=INK, fontsize=14, loc="left", pad=14, weight="bold")
         leg = ax.legend(frameon=False, fontsize=9.5, loc="upper right",
                         bbox_to_anchor=(0.995, 0.97), labelcolor=INK)
@@ -534,6 +575,10 @@ def write_stats_note(story: dict, checks: list[dict], out_md: Path) -> Path:
         f"- {'PASS' if c['pass'] else 'FAIL'}: {c['name']}. {c['detail']}"
         for c in checks)
     peaks = ", ".join(f"{p:.4f}" for p in story["peaks"])
+    rom_rows = "\n".join(
+        f"| {p['n_runs']} | {p['error']:.4f} | {p['tested']} "
+        f"(alpha {p['tested_at']:g}) |"
+        for p in story["rom_curve"])
     md = f"""# Monte-Carlo convergence panel: the numbers and their sources
 
 Website line served: orders of magnitude fewer runs, backed by theoretical
@@ -573,6 +618,19 @@ median curve: {story['slope_median']:+.3f}).
 | members m | solver runs N | half-width, rms | half-width, median | middle 50% | guarantee 2s*sqrt(11/N) |
 |---|---|---|---|---|---|
 {rows}
+
+## The reduced-order model's own convergence (drawn on the figure)
+
+Anchor run order comes from the recorded dispatch times (job.json mtime
+under mission-output/race-study/work/rom): alpha 0, 3.3, 6.7, 10, then the
+confirmation at the located peak. With k anchors fitted, the model's error
+is measured against the next recorded run; the final run confirms the
+envelope. No 2-run point exists (a quadratic needs three anchors), so the
+curve starts at 3 runs. Every value is a recorded solver result.
+
+| solver runs | model error | measured against |
+|---|---|---|
+{rom_rows}
 
 ## Check verdicts
 

@@ -44,6 +44,21 @@ median curve: -0.123).
 | 7 | 77 | 0.1028 | 0.1077 | 0.1025..0.1087 | 0.1028 |
 | 8 | 88 | 0.0962 | 0.0962 | 0.0962..0.0962 | 0.0962 |
 
+## The reduced-order model's own convergence (drawn on the figure)
+
+Anchor run order comes from the recorded dispatch times (job.json mtime
+under mission-output/race-study/work/rom): alpha 0, 3.3, 6.7, 10, then the
+confirmation at the located peak. With k anchors fitted, the model's error
+is measured against the next recorded run; the final run confirms the
+envelope. No 2-run point exists (a quadratic needs three anchors), so the
+curve starts at 3 runs. Every value is a recorded solver result.
+
+| solver runs | model error | measured against |
+|---|---|---|
+| 3 | 1.6217 | next recorded anchor (alpha 10) |
+| 4 | 0.0840 | confirmation at the located peak (alpha 0) |
+| 5 | 0.0840 | confirmation run lands, envelope confirmed (alpha 0) |
+
 ## Check verdicts
 
 - PASS: convergence slope matches the 1 over sqrt N guarantee. fitted slope -0.5018 on the root mean square curve over N = 22..88, guarantee -0.5, tolerance 0.05
@@ -51,6 +66,7 @@ median curve: -0.123).
 - PASS: reduced-order envelope comes from its recorded runs. quadratic through the 4 recorded anchors peaks at alpha 0, predicts 18.2247, recorded confirmation 18.1407, residual 0.0840; certificate says 0.084
 - PASS: measured speedup reproduces the act's 16x. recorded solver time 448.6 s over 88 runs vs 27.9 s over 5 runs = 16.06x; certificate says 16.0x core-minutes
 - PASS: per-run wall cost matches the stated 5.10 s. mean recorded elapsed over the 88 ensemble runs 5.098 s per solver run
+- PASS: reduced-order convergence curve traced to its recorded runs. run order from recorded dispatch times: alphas [0.0, 3.3, 6.7, 10.0]; 3-run model tested at the next recorded run (alpha 10) misses by 1.6217, 4-run model tested by the confirmation misses by 0.0840, envelope confirmed +-0.084 at 5 runs; certificate says 0.084. No 2-run point exists (a quadratic needs 3), so the curve starts at 3.
 
 ## Provenance note on the published band
 

@@ -166,5 +166,60 @@ class QuadraticPeakResidualTests(unittest.TestCase):
         self.assertAlmostEqual(out["residual"], 0.0, places=9)
 
 
+class RomConvergenceTests(unittest.TestCase):
+    @staticmethod
+    def _anchors(xs, f):
+        return [{"alpha": x, "l_d": f(x)} for x in xs]
+
+    def test_exact_quadratic_gives_zero_errors(self):
+        f = lambda x: -0.5 * (x - 4.0) ** 2 + 18.0        # noqa: E731
+        anchors = self._anchors([0.0, 3.3, 6.7, 10.0], f)
+        curve = mcc.rom_convergence(anchors, {"l_d": f(4.0)},
+                                    x_lo=0.0, x_hi=10.0)
+        self.assertEqual([p["n_runs"] for p in curve], [3, 4, 5])
+        for p in curve:
+            self.assertAlmostEqual(p["error"], 0.0, places=8)
+
+    def test_three_run_error_is_measured_at_the_next_anchor(self):
+        f = lambda x: -0.5 * (x - 4.0) ** 2 + 18.0        # noqa: E731
+        anchors = self._anchors([0.0, 3.3, 6.7], f)
+        # Fourth anchor off the 3-run surface by exactly 0.5.
+        anchors.append({"alpha": 10.0, "l_d": f(10.0) + 0.5})
+        curve = mcc.rom_convergence(anchors, {"l_d": f(4.0)},
+                                    x_lo=0.0, x_hi=10.0)
+        self.assertAlmostEqual(curve[0]["error"], 0.5, places=9)
+        self.assertEqual(curve[0]["tested_at"], 10.0)
+
+    def test_final_point_confirms_the_full_fit_residual(self):
+        f = lambda x: -1.0 * (x - 5.0) ** 2 + 10.0        # noqa: E731
+        anchors = self._anchors([2.0, 4.0, 6.0, 8.0], f)
+        confirm = {"l_d": f(5.0) - 0.25}
+        curve = mcc.rom_convergence(anchors, confirm, x_lo=0.0, x_hi=10.0)
+        self.assertAlmostEqual(curve[-2]["error"], 0.25, places=9)
+        self.assertAlmostEqual(curve[-1]["error"], curve[-2]["error"])
+        self.assertEqual(curve[-1]["n_runs"], len(anchors) + 1)
+
+    def test_never_invents_a_two_run_point(self):
+        f = lambda x: -0.5 * (x - 4.0) ** 2 + 18.0        # noqa: E731
+        anchors = self._anchors([0.0, 3.3, 6.7, 10.0], f)
+        curve = mcc.rom_convergence(anchors, {"l_d": f(4.0)},
+                                    x_lo=0.0, x_hi=10.0)
+        self.assertEqual(min(p["n_runs"] for p in curve), 3)
+
+    def test_rejects_fewer_than_three_anchors(self):
+        f = lambda x: 18.0 - x                             # noqa: E731
+        anchors = self._anchors([0.0, 10.0], f)
+        with self.assertRaises(ValueError):
+            mcc.rom_convergence(anchors, {"l_d": 18.0},
+                                x_lo=0.0, x_hi=10.0)
+
+    def test_five_anchor_generalization(self):
+        f = lambda x: -0.4 * (x - 3.0) ** 2 + 12.0        # noqa: E731
+        anchors = self._anchors([0.0, 2.5, 5.0, 7.5, 10.0], f)
+        curve = mcc.rom_convergence(anchors, {"l_d": f(3.0)},
+                                    x_lo=0.0, x_hi=10.0)
+        self.assertEqual([p["n_runs"] for p in curve], [3, 4, 5, 6])
+
+
 if __name__ == "__main__":
     unittest.main()
