@@ -4,10 +4,13 @@ The mission is framed the way a lab would frame it: a hypothesis stated in
 plain language before anything runs, a plan naming which runs test it, the
 evidence as it arrives, and a conclusion separating what was confirmed from
 what remains unknown.  The compute audit decides whether the plan runs as one
-wave or is staged through a reduced-order surface; either way the winner is
-reported with a real envelope and a trust tier.
+wave or takes the staged route: calibration solver runs fit a differentiable
+reduced-order model, gradient descent on that model walks the geometry from
+the starting shape to the optimum (every step of the walk is computed and on
+the record), and the converged shape is confirmed with a solver run.  Either
+way the winner is reported with a real envelope and a trust tier.
 
-    python -m workflows.shape_optimization           # follows the live audit
+    python -m workflows.shape_optimization           # follows the compute audit
     python -m workflows.shape_optimization --scarce  # forces the staged branch
 """
 
@@ -86,7 +89,7 @@ def _solve_slot(index, design, work_root, emit=None, script=None):
 _AGENDA = [
     {"title": "Beyond the steady regime",
      "scope": "extend the sweep past Re 47 with an unsteady solver, does the "
-              "drag trend continue once the wake starts shedding",
+              "drag curve keep falling once the wake starts shedding",
      "cost": "transient solves; ~1 order of magnitude over the steady sweep"},
     {"title": "Two-parameter shape family",
      "scope": "let the cross-section vary alongside the diameter and map the "
@@ -128,6 +131,56 @@ def _fit_quadratic(xs, ys):
 
 def _predict(c, x):
     return c[0] + c[1] * x + c[2] * x * x
+
+
+def _gradient(c, x):
+    """Analytic design gradient of the fitted surface, d(Cd)/dD."""
+    return c[1] + 2.0 * c[2] * x
+
+
+# The largest single move the descent may take, as a fraction of the design
+# range: step = range / DESCENT_STEP_DIVISOR at the steepest gradient in the
+# calibrated range.  Sized so a typical walk across this family lands in the
+# tens of steps, each one computed.
+DESCENT_STEP_DIVISOR = 30.0
+
+
+def descend(coefficients, start, low, high, *, step=None, tolerance=None,
+            max_steps=200):
+    """Projected gradient descent on the fitted surface; every step computed.
+
+    The fitted quadratic is differentiable, so its design gradient is analytic
+    (:func:`_gradient`).  The walk starts at ``start``, moves against the
+    gradient with a fixed step sized so no move exceeds
+    ``(high - low) / DESCENT_STEP_DIVISOR``, and clamps every iterate to the
+    design bounds.  It stops when the projected gradient, the move the bounds
+    actually allow divided by the step, falls to ``tolerance`` or below, or at
+    ``max_steps``.
+
+    Returns the full trajectory, one record per point visited:
+    ``{"x", "objective", "gradient"}``.  ``len(trajectory) - 1`` is the honest
+    step count; nothing is interpolated or padded.
+    """
+    low, high = float(low), float(high)
+    scale = max(abs(_gradient(coefficients, low)),
+                abs(_gradient(coefficients, high))) or 1.0
+    if step is None:
+        step = (high - low) / (DESCENT_STEP_DIVISOR * scale)
+    if tolerance is None:
+        tolerance = 1e-3 * scale
+    x = min(max(float(start), low), high)
+    trajectory = [{"x": x, "objective": _predict(coefficients, x),
+                   "gradient": _gradient(coefficients, x)}]
+    for _ in range(max_steps):
+        gradient = _gradient(coefficients, x)
+        proposed = min(max(x - step * gradient, low), high)
+        projected = abs(proposed - x) / step if step else 0.0
+        if projected <= tolerance:
+            break
+        x = proposed
+        trajectory.append({"x": x, "objective": _predict(coefficients, x),
+                           "gradient": _gradient(coefficients, x)})
+    return trajectory
 
 
 def main(request: str | None = None, params: dict | None = None,
@@ -180,7 +233,8 @@ def main(request: str | None = None, params: dict | None = None,
         # The plan commits the sweep to the RANS solver here — badge earned now.
         emit("solver.selected", {
             "solver": "OpenFOAM", "method": "steady RANS cylinder chain",
-            "basis": "plan commits every sweep design to the selected solver"})
+            "basis": "every measured number in this study comes from the "
+                     "selected solver"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     designs = _sweep_designs(FANOUT)
     staged = force_scarce or not capacity.fits
@@ -216,86 +270,127 @@ def main(request: str | None = None, params: dict | None = None,
             "• The full fan-out does not fit. "
             "• Runs must be chosen for information, not convenience. "
             "• Handing the selection to the Chief Researcher.")
-        roster.set(CHIEF_RESEARCHER, "selecting the informative runs", "working")
+        roster.set(CHIEF_RESEARCHER, "selecting the calibration runs", "working")
         selection = select_runs(
             dict(NOMINAL_CYLINDER),
             [spec for spec in PARAMETER_SPECS if spec.name == SWEEP_PARAMETER],
-            capacity=capacity.capacity, requested=FANOUT, objective="drag")
-        script.researcher(selection.headline(), selection=selection.as_dict())
+            capacity=max(3, capacity.capacity), requested=FANOUT,
+            objective="drag")
+        script.researcher(
+            f"• Selected {len(selection.runs)} calibration runs under the "
+            f"compute constraint. "
+            f"• They span the range, so the model is calibrated between them, "
+            f"{per('rom')}.",
+            selection=selection.as_dict())
         for run in selection.runs:
             script.researcher(f"• {run.name}: {run.rationale}")
         script.numericist(
             "• Endorsed: the standard offline/online split, not a compromise. "
-            f"• Pay for a few anchors; evaluate the rest free, {per('rom')}. "
-            "• Requirement: anchors span the range. These do.")
+            "• A few solver runs calibrate a differentiable model. "
+            "• The model's design gradient then moves the geometry directly.")
 
         script.phase(EVIDENCE)
         roster.idle(CHIEF_RESEARCHER)
-        roster.set(CHIEF_ENGINEER, "solving the anchor designs", "working")
-        roster.set_workers(1, "anchor solves")
+        roster.set(CHIEF_ENGINEER, "running the calibration solves", "working")
+        roster.set_workers(1, "calibration solves")
+        script.engineer(
+            f"• {len(selection.runs)} solver runs calibrate the model; the "
+            f"geometry then follows the design gradient.")
         for run in selection.runs:
             metrics = _solve(run.design, out / "anchors", run.name)
             evidence.append((run.design[SWEEP_PARAMETER], metrics))
+            if emit:
+                emit("calibration.solve", {
+                    "name": run.name, "D": run.design[SWEEP_PARAMETER],
+                    "Cd": metrics["Cd"],
+                    "converged": int(metrics.get("converged", 0))})
             script.engineer(
-                f"• Anchor {run.name}: D={run.design[SWEEP_PARAMETER]:.4g}, "
+                f"• Calibration run {run.name}: D={run.design[SWEEP_PARAMETER]:.4g}, "
                 f"Cd={metrics['Cd']:.4g}, converged={int(metrics['converged'])}.")
         ledger.spend(len(selection.runs) * CORE_SECONDS_PER_SOLVE,
-                     f"{len(selection.runs)} anchor solves")
+                     f"{len(selection.runs)} calibration solver runs")
         roster.set_workers(0)
 
         xs = [x for x, _ in evidence]
         ys = [m["Cd"] for _, m in evidence]
         if len(set(round(x, 6) for x in xs)) >= 3:
-            roster.set(NUMERICIST, "fitting the response surface", "working")
+            roster.set(NUMERICIST, "calibrating the design model", "working")
             coefficients = _fit_quadratic(xs, ys)
             residuals = [abs(y - _predict(coefficients, x)) for x, y in zip(xs, ys)]
-            candidates = [d[SWEEP_PARAMETER] for d in designs]
-            predicted = min(candidates, key=lambda x: _predict(coefficients, x))
-            uncovered = FANOUT - len(xs)
             script.numericist(
-                f"• Surface fitted to {len(xs)} anchors; worst residual "
+                f"• Model calibrated on {len(xs)} solver runs; worst residual "
                 f"{max(residuals):.2g} in Cd. "
-                f"• Covers the {uncovered} unsolved designs. "
-                f"• Optimum predicted at D={predicted:.4g}, "
-                f"Cd={_predict(coefficients, predicted):.4g}.")
-            roster.idle(NUMERICIST)
-            # The optimum landed on the edge of the tested range. That is
-            # exactly the case a fitted surface is worst at, and it is why the
-            # confirmation solve exists — so the objection is voiced, not
-            # buried in a code path.
+                f"• The fitted surface is differentiable, so its design "
+                f"gradient is analytic. "
+                f"• The geometry now follows the design gradient.")
+            roster.set(NUMERICIST, "following the design gradient", "working")
+            trajectory = descend(coefficients, NOMINAL_CYLINDER[SWEEP_PARAMETER],
+                                 LOW, HIGH)
+            for index, point in enumerate(trajectory):
+                if emit:
+                    emit("descent.step", {
+                        "step": index, "D": point["x"],
+                        "objective": point["objective"],
+                        "gradient": point["gradient"]})
+            steps = len(trajectory) - 1
+            predicted = trajectory[-1]["x"]
             at_bound = abs(predicted - HIGH) < 1e-9 or abs(predicted - LOW) < 1e-9
+            stop_clause = ("the design bound pins it there" if at_bound
+                           else "the design gradient vanishes")
+            script.numericist(
+                f"• Gradient descent on the model: {steps} steps, "
+                f"D={trajectory[0]['x']:.4g} m to D={predicted:.4g} m. "
+                f"• Gradient magnitude {abs(trajectory[0]['gradient']):.2g} at "
+                f"the start, {abs(trajectory[-1]['gradient']):.2g} at the stop. "
+                f"• The walk stops where {stop_clause}.")
+            roster.idle(NUMERICIST)
+            # The descent stopped on the edge of the calibrated range. That is
+            # exactly the case a fitted model is worst at, and it is why the
+            # confirmation run exists — so the objection is voiced, not
+            # buried in a code path.
             if at_bound:
-                roster.set(CHIEF_RESEARCHER, "challenging the proposed optimum", "working")
+                roster.set(CHIEF_RESEARCHER, "challenging the converged shape", "working")
                 script.researcher(
-                    "• Pushback: the optimum sits on the fitted range's edge. "
+                    "• Pushback: the descent stops on the edge of the calibrated range. "
                     "• A quadratic is least trustworthy at its boundary, no data beyond. "
                     f"• D={predicted:.4g} is extrapolation dressed as prediction. Not the answer yet.")
                 script.engineer(
                     "• Fair, and settleable. "
                     "• One run of the selected solver turns the prediction into a measurement. "
-                    "• Running it now; if solver and surface disagree, the surface loses.")
+                    "• Running it now; if solver and model disagree, the model loses.")
                 roster.idle(CHIEF_RESEARCHER)
-            roster.set(CHIEF_ENGINEER, "confirming the prediction", "working")
+            roster.set(CHIEF_ENGINEER, "confirming the converged shape", "working")
             confirm = _solve({**NOMINAL_CYLINDER, SWEEP_PARAMETER: predicted},
-                             out / "confirm", "predicted-optimum")
+                             out / "confirm", "converged-shape")
             evidence.append((predicted, confirm))
-            ledger.spend(CORE_SECONDS_PER_SOLVE, "confirmation solve")
-            ledger.save(uncovered * CORE_SECONDS_PER_SOLVE,
-                        f"surrogate covered {uncovered} designs never solved")
+            ledger.spend(CORE_SECONDS_PER_SOLVE,
+                         "solver run confirming the converged shape")
+            avoided = max(0, FANOUT - len(xs) - 1)
+            ledger.save(avoided * CORE_SECONDS_PER_SOLVE,
+                        f"the design gradient replaced {avoided} of the "
+                        f"planned {FANOUT} solver runs")
             error = abs(confirm["Cd"] - _predict(coefficients, predicted))
-            surrogate_note = (f"a reduced-order surface stood in for {uncovered} of "
-                              f"{FANOUT} designs and its optimum was confirmed to "
-                              f"within {error:.2g} in drag coefficient")
+            surrogate_note = (f"a reduced-order model calibrated on {len(xs)} "
+                              f"solver runs carried the design gradient to the "
+                              f"optimum, confirmed to within {error:.2g} in "
+                              f"drag coefficient")
+            if emit:
+                emit("confirmation.solve", {
+                    "D": predicted, "Cd": confirm["Cd"],
+                    "model": _predict(coefficients, predicted),
+                    "error": error, "steps": steps})
             script.engineer(
-                f"• Confirmation solve: Cd={confirm['Cd']:.4g} vs "
-                f"{_predict(coefficients, predicted):.4g} predicted, error {error:.2g}. "
-                f"• The surface proposes; the solver decides.")
+                f"• The converged shape is confirmed with a solver run: "
+                f"Cd={confirm['Cd']:.4g} measured, "
+                f"{_predict(coefficients, predicted):.4g} from the model, "
+                f"difference {error:.2g}. "
+                f"• The model proposes; the solver decides.")
             if at_bound:
                 script.researcher(
                     f"• Objection withdrawn: measurement agrees to {error:.2g}, inside "
                     f"the envelope. "
                     "• The boundary optimum is evidence now, not extrapolation. "
-                    "• On record: the surface held at its own edge.")
+                    "• On record: the model held at its own edge.")
 
     # ---------------- Screening ----------------
     feasible = [(x, m) for x, m in evidence
@@ -383,7 +478,8 @@ def main(request: str | None = None, params: dict | None = None,
         knowledge.add(f"Reduced-order surface for cylinder drag, D {LOW}–{HIGH} m")
         script.numericist(
             f"• Worth keeping: {surrogate_note}. "
-            "• Reusable: the next sweep starts from it instead of re-paying anchors.")
+            "• Reusable: the next study starts from it instead of re-paying "
+            "the calibration.")
 
     report = lab_report(
         title="Cylinder shape optimization under a converged-solve constraint",
@@ -401,8 +497,9 @@ def main(request: str | None = None, params: dict | None = None,
             f"Two-dimensional steady laminar flow past a circular cylinder on a "
             f"generated mesh, "
             + ("run as a single parallel wave." if not staged
-               else "staged as anchor solves plus a reduced-order surface."),
-            f"{len(evidence)} design evaluations at solver fidelity"
+               else "staged as calibration solver runs, a fitted reduced-order "
+                    "model, and gradient descent on the model."),
+            f"{len(evidence)} solver runs"
             + (f"; {surrogate_note}." if surrogate_note else "."),
             f"Input uncertainty of {INLET_SIGMA * 100:.0f}% on freestream velocity "
             f"propagated by a {ensemble.n}-sample Monte-Carlo ensemble.",

@@ -2392,7 +2392,10 @@ NACA_GRID_FILES = {
 
 def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
                    log: Callable[[str], None] = print, *,
-                   detach: bool = False) -> dict[str, Any] | dict[str, float]:
+                   detach: bool = False, relax_p: float = 0.25,
+                   relax_u: float = 0.6,
+                   iterations: int | None = None
+                   ) -> dict[str, Any] | dict[str, float]:
     """One (grid, alpha) solve on the actual TMR-distributed C-grid.
 
     Converts the PLOT3D file, autoPatches the boundary, classifies patches
@@ -2412,14 +2415,14 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
     case = case_root / f"a{alpha_deg:g}" / level.name
     for sub in ("system",):
         (case / sub).mkdir(parents=True, exist_ok=True)
+    budget = iterations or NACA_ITERATIONS.get(level.name, 10000)
     dicts = {
         "system/controlDict": control_dict(
-            NACA_ITERATIONS.get(level.name, 10000), patch="PLACEHOLDER",
-            lref=1.0, aref=1.0),
+            budget, patch="PLACEHOLDER", lref=1.0, aref=1.0),
         "system/fvSchemes": fv_schemes(limited=True),
-        "system/fvSolution": fv_solution(non_orth_correctors=1, relax_p=0.25,
-                                         relax_u=0.6, potential=True,
-                                         p_solver="PCG"),
+        "system/fvSolution": fv_solution(non_orth_correctors=1,
+                                         relax_p=relax_p, relax_u=relax_u,
+                                         potential=True, p_solver="PCG"),
         "constant/transportProperties": transport_properties(NACA_NU),
         "constant/turbulenceProperties": turbulence_properties(),
     }
@@ -2478,8 +2481,7 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
             handle.write(text)
     rad = math.radians(alpha_deg)
     control = control_dict(
-        NACA_ITERATIONS.get(level.name, 10000), patch=airfoil,
-        lref=1.0, aref=thickness,
+        budget, patch=airfoil, lref=1.0, aref=thickness,
         drag_dir=_axis_vector(math.cos(rad), math.sin(rad), lift_axis),
         lift_dir=_axis_vector(-math.sin(rad), math.cos(rad), lift_axis))
     with (out_dir / "controlDict.solve").open("w", newline="\n") as handle:
