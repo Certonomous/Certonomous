@@ -316,11 +316,13 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
             "reference": reference_values,
             "planform_area": geometry["planform_area"] * scale * scale,
             "frontal_area": geometry["frontal_area"] * scale * scale,
-            # Body axes ride along so the pressure-slice plot knows which
-            # plane is mid-span without re-measuring the surface.
+            # Body axes and the applied scale ride along so the pressure
+            # slice knows the mid-span plane and can cut the exact silhouette
+            # from the surface file in solved-case coordinates.
             "streamwise_axis": geometry["streamwise_axis"],
             "span_axis": geometry["span_axis"],
-            "vertical_axis": geometry["vertical_axis"]}
+            "vertical_axis": geometry["vertical_axis"],
+            "geometry_scale": scale}
 
 
 # New questions a solved body opens — ambitions, not remediations. Fed to the
@@ -921,9 +923,10 @@ def main(request: str | None = None, params: dict | None = None,
             wsl_source = geometry_source.replace("C:", "/mnt/c").replace("\\", "/")
             report = engineer.intake_geometry(wsl_source, surface)
             # The tutorial motorbike rides x streamwise, y across the bike,
-            # z up: the mid-span pressure slice cuts the y = const plane.
+            # z up, in metres already: the mid-span pressure slice cuts the
+            # y = const plane at unit scale.
             report.update({"streamwise_axis": 0, "span_axis": 1,
-                           "vertical_axis": 2})
+                           "vertical_axis": 2, "geometry_scale": 1.0})
             # Run the iteration count the plan and report actually claim — the
             # tutorial ships a longer endTime, and the force is settled well
             # inside this window, so aligning them keeps the report truthful and
@@ -1268,7 +1271,9 @@ def main(request: str | None = None, params: dict | None = None,
             span_axis=int(report.get("span_axis", 1)),
             plane_axes=(int(report.get("streamwise_axis", 0)),
                         int(report.get("vertical_axis", 2))),
-            body_bounds=body_bounds, body_label=shown)
+            body_bounds=body_bounds, body_label=shown,
+            surface_path=local_surface if local_surface.exists() else None,
+            surface_scale=float(report.get("geometry_scale", 1.0)))
     except Exception:
         slice_png = None
     if slice_png:

@@ -421,13 +421,16 @@ SLICE_TITLE = "Static pressure, mid-span slice"
 # Slab thickness: ~2% of the body span (1% half-thickness each side).
 SLICE_HALF_THICKNESS_FRACTION = 0.01
 
-# Diverging pressure map for the control-room theme: plot_theme's panel blue
-# and alert red at the poles (red high, blue low, the same convention as the
-# painted body), brightened at the extremes so the stagnation and suction
-# regions carry the eye, through a neutral dark grey at zero pressure so the
-# near-freestream field recedes into the panel. The midpoint is a neutral,
-# never a hue; the body cross-section shows as the darker figure background.
-_SLICE_ANCHORS = ("#8ec8ff", "#57a5ff", "#3a4147", "#f26a5c", "#ffb2a1")
+# Diverging pressure map: the classic cool-to-warm CFD ramp (deep blue
+# through a light neutral midpoint to deep red), the same character as the
+# approved painted-sail render and the standard solver-viewer look. Red is
+# high, blue is low, matching the painted-body convention; the midpoint is a
+# neutral, never a hue; the body cross-section is a dark filled silhouette.
+_SLICE_CMAP = "coolwarm"
+# The interpolation grid the slice field is resampled onto before shading:
+# fine enough that the field reads as a continuous physical gradient, not
+# poster bands of raw solver cells.
+SLICE_GRID_SHAPE = (800, 1200)
 
 
 def _named_array(section: str, name: str, header_bytes: int):
@@ -537,24 +540,186 @@ def pick_slice(centres, extents, *, axis: int, station: float,
     return keep, used
 
 
+def load_surface_mesh(path: str | Path, scale: float = 1.0):
+    """Load an STL/OBJ surface as numpy ``(vertices, faces)`` for slicing.
+
+    Reuses the act's own surface readers, then applies the same uniform scale
+    the case build applied, so the cross-section lands in solved-case
+    coordinates. Returns None when the surface cannot be read.
+    """
+    import numpy as np
+
+    from .geometry import _read_obj, _read_stl
+
+    path = Path(path)
+    try:
+        if path.suffix.lower() == ".obj":
+            vertices, faces = _read_obj(path)
+        elif path.suffix.lower() == ".stl":
+            vertices, faces = _read_stl(path)
+        else:
+            return None
+    except Exception:
+        return None
+    if not vertices or not faces:
+        return None
+    return (np.asarray(vertices, dtype=np.float64) * float(scale),
+            np.asarray(faces, dtype=np.int64))
+
+
+def surface_cross_section(vertices, faces, *, axis: int, station: float,
+                          plane_axes) -> list:
+    """The body's exact cross-section: surface mesh intersected with a plane.
+
+    Every triangle crossing ``axis = station`` contributes one segment; the
+    segments are chained end to end (by quantized coordinates, so the
+    unwelded duplicate vertices STL files carry do not break the chain) into
+    ordered loops. The loops are the true section outline - a NACA profile
+    comes out as the textbook shape - independent of how coarsely the volume
+    mesh sampled the fluid around it. Returns a list of (K, 2) point loops
+    in ``plane_axes`` coordinates; watertight surfaces yield closed loops.
+    """
+    import numpy as np
+    from collections import defaultdict
+
+    verts = np.asarray(vertices, dtype=np.float64)
+    tris = np.asarray(faces, dtype=np.int64)
+    if len(verts) == 0 or len(tris) == 0:
+        return []
+    span = float(verts[:, axis].max() - verts[:, axis].min()) or 1.0
+    d = verts[:, axis] - station
+    # A vertex exactly on the plane would make a degenerate zero-length
+    # segment; nudging it to one side keeps every crossing a clean two-point
+    # cut without moving anything visibly (a billionth of the span).
+    d = np.where(d == 0.0, 1e-9 * span, d)
+
+    ax_u, ax_v = plane_axes
+    face_ids: list = []
+    cut_pts: list = []
+    for a, b in ((0, 1), (1, 2), (2, 0)):
+        da, db = d[tris[:, a]], d[tris[:, b]]
+        crossing = (da * db) < 0.0
+        if not crossing.any():
+            continue
+        t = (da[crossing] / (da[crossing] - db[crossing]))[:, None]
+        pa = verts[tris[crossing, a]]
+        pb = verts[tris[crossing, b]]
+        cut = pa + t * (pb - pa)
+        face_ids.append(np.flatnonzero(crossing))
+        cut_pts.append(cut[:, [ax_u, ax_v]])
+    if not face_ids:
+        return []
+    face_ids = np.concatenate(face_ids)
+    cut_pts = np.concatenate(cut_pts)
+
+    per_face: dict[int, list] = defaultdict(list)
+    for face, point in zip(face_ids.tolist(), cut_pts):
+        per_face[face].append(point)
+    segments = [pair for pair in per_face.values() if len(pair) == 2]
+    if not segments:
+        return []
+
+    # Chain segments into loops by quantized endpoints.
+    diag = float(np.hypot(cut_pts[:, 0].max() - cut_pts[:, 0].min(),
+                          cut_pts[:, 1].max() - cut_pts[:, 1].min())) or 1.0
+    tol = 1e-6 * diag
+
+    def keyed(point) -> tuple[int, int]:
+        return (int(round(point[0] / tol)), int(round(point[1] / tol)))
+
+    links: dict[tuple[int, int], list] = defaultdict(list)
+    for index, (p, q) in enumerate(segments):
+        links[keyed(p)].append((index, 0))
+        links[keyed(q)].append((index, 1))
+
+    used = [False] * len(segments)
+    loops: list = []
+    for start in range(len(segments)):
+        if used[start]:
+            continue
+        used[start] = True
+        p, q = segments[start]
+        chain = [p, q]
+        cursor = keyed(q)
+        home = keyed(p)
+        while cursor != home:
+            follow = next(((i, e) for i, e in links[cursor] if not used[i]),
+                          None)
+            if follow is None:
+                break  # an open chain from a non-watertight patch: kept as-is
+            index, end = follow
+            used[index] = True
+            nxt = segments[index][1 - end]
+            chain.append(nxt)
+            cursor = keyed(nxt)
+        if cursor == home:
+            chain = chain[:-1] if len(chain) > 1 and keyed(chain[-1]) == home \
+                else chain
+        if len(chain) >= 3:
+            loops.append(np.asarray(chain, dtype=np.float64))
+    return loops
+
+
+def _box_sum(grid, radius: int, axis: int):
+    """Windowed sum over ``2*radius + 1`` samples along one axis (zero pad)."""
+    import numpy as np
+
+    pad = [(0, 0), (0, 0)]
+    pad[axis] = (radius + 1, radius)
+    summed = np.cumsum(np.pad(grid, pad), axis=axis)
+    window = 2 * radius + 1
+    if axis == 0:
+        return summed[window:, :] - summed[:-window, :]
+    return summed[:, window:] - summed[:, :-window]
+
+
+def _smooth_grid(filled, weight, radius: int = 3, passes: int = 2):
+    """Gentle normalized smoothing of the resampled field.
+
+    A separable box blur repeated ``passes`` times (a triangular kernel, close
+    to a small gaussian) with the data-coverage ``weight`` blurred alongside,
+    so regions without data pull no value in and edges stay honest. Pure
+    numpy: the demo machine carries no scipy. This is what removes the
+    single-cell freckles the near-wall layers leave in the resampled field
+    while leaving the real gradients (a stagnation spot is dozens of grid
+    cells wide) untouched.
+    """
+    import numpy as np
+
+    smoothed = filled * weight
+    mass = weight.astype(np.float64)
+    for _ in range(passes):
+        for axis in (0, 1):
+            smoothed = _box_sum(smoothed, radius, axis)
+            mass = _box_sum(mass, radius, axis)
+    return np.where(mass > 1e-12, smoothed / np.maximum(mass, 1e-12), 0.0)
+
+
 def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
                         xlabel: str, ylabel: str, body_label: str = "",
                         station_note: str = "", view_box=None,
+                        silhouette=None, grid_shape=SLICE_GRID_SHAPE,
                         figsize=(11.4, 6.2), dpi: int = 150) -> dict | None:
-    """Render the filled pressure contour around the body silhouette.
+    """Render the smooth pressure field around the exact body silhouette.
 
     ``u``/``v`` are in-plane cell-centre coordinates in metres, ``values`` the
     cell-centre kinematic pressure (the incompressible solver's p, which is
     already p over rho, in m^2/s^2), ``footprint`` each cell's in-plane size.
-    The triangulation is masked wherever a triangle spans farther than a few
-    local cell sizes, which is exactly the body cross-section (and any other
-    hole in the fluid), so the body shows as the dark panel background.
-    Returns metadata about what was drawn, including every string placed on
-    the figure so tests can hold the register.
+    The scattered cell centres are linearly interpolated onto a fine regular
+    grid and shaded continuously, so the field reads as a smooth physical
+    gradient rather than the raw solver cells. ``silhouette`` is the body's
+    exact cross-section from :func:`surface_cross_section`: it is drawn as a
+    crisp dark filled outline and the interpolated field is masked inside it
+    (even-odd over the loops, so a loop inside a loop is fluid again).
+    Without a silhouette the body mask falls back to hole-bridging triangles
+    of the cell triangulation. Returns metadata about what was drawn,
+    including every string placed on the figure so tests hold the register.
     """
     import numpy as np
-    from matplotlib.colors import LinearSegmentedColormap, TwoSlopeNorm
-    from matplotlib.tri import Triangulation
+    from matplotlib.cm import ScalarMappable
+    from matplotlib.colors import TwoSlopeNorm, to_rgba
+    from matplotlib.path import Path as MplPath
+    from matplotlib.tri import LinearTriInterpolator, Triangulation
 
     from .plot_theme import BG, DIM, INK, MUTED, _pyplot, style_axes
 
@@ -581,16 +746,50 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     u, v, values, footprint = u[near], v[near], values[near], footprint[near]
 
     triangulation = Triangulation(u, v)
-    tris = triangulation.triangles
-    edge = np.zeros(len(tris))
-    for a, b in ((0, 1), (1, 2), (2, 0)):
-        edge = np.maximum(edge, np.hypot(u[tris[:, a]] - u[tris[:, b]],
-                                         v[tris[:, a]] - v[tris[:, b]]))
-    # A triangle whose longest edge outruns the local cell size bridges a
-    # hole in the fluid: the body cross-section. Masked triangles are simply
-    # not drawn, so the silhouette shows as the dark figure background.
-    local = footprint[tris].max(axis=1)
-    triangulation.set_mask(edge > 2.6 * np.maximum(local, 1e-12))
+
+    # Continuous field: resample the scattered cell centres onto a fine
+    # regular grid. The interpolation is linear inside the data's hull and
+    # blank outside it, so open regions (below the ground plane, outside the
+    # domain) stay dark panel.
+    grid_ny, grid_nx = grid_shape
+    grid_x = np.linspace(u_lo, u_hi, grid_nx)
+    grid_y = np.linspace(v_lo, v_hi, grid_ny)
+    mesh_x, mesh_y = np.meshgrid(grid_x, grid_y)
+    field = LinearTriInterpolator(triangulation, values)(mesh_x, mesh_y)
+    no_data = np.ma.getmaskarray(field)
+    filled = _smooth_grid(field.filled(0.0), (~no_data).astype(np.float64))
+
+    if silhouette:
+        # Exact body mask: even-odd over the section loops, so nested loops
+        # (a hub inside a tyre) carve fluid back out.
+        flat = np.column_stack([mesh_x.ravel(), mesh_y.ravel()])
+        inside = np.zeros(len(flat), dtype=bool)
+        for loop in silhouette:
+            loop = np.asarray(loop, dtype=np.float64)
+            if len(loop) < 3:
+                continue
+            boxed = ((flat[:, 0] >= loop[:, 0].min())
+                     & (flat[:, 0] <= loop[:, 0].max())
+                     & (flat[:, 1] >= loop[:, 1].min())
+                     & (flat[:, 1] <= loop[:, 1].max()))
+            if not boxed.any():
+                continue
+            hits = MplPath(loop).contains_points(flat[boxed])
+            inside[np.flatnonzero(boxed)[hits]] ^= True
+        body_mask = inside.reshape(mesh_x.shape)
+    else:
+        # No surface on file: mask grid points that fall in hole-bridging
+        # triangles (longest edge far beyond the local cell size), which is
+        # where the body was in the fluid.
+        tris = triangulation.triangles
+        edge = np.zeros(len(tris))
+        for a, b in ((0, 1), (1, 2), (2, 0)):
+            edge = np.maximum(edge, np.hypot(u[tris[:, a]] - u[tris[:, b]],
+                                             v[tris[:, a]] - v[tris[:, b]]))
+        local = footprint[tris].max(axis=1)
+        bridging = edge > 2.6 * np.maximum(local, 1e-12)
+        owner = triangulation.get_trifinder()(mesh_x, mesh_y)
+        body_mask = (owner >= 0) & bridging[np.clip(owner, 0, len(bridging) - 1)]
 
     # Robust colour range about zero gauge pressure: percentiles keep one
     # stagnation spike from flattening the whole field, and the diverging map
@@ -605,15 +804,25 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     hi = max(hi, tiny)
 
     plt = _pyplot()
-    cmap = LinearSegmentedColormap.from_list("controlroom-pressure",
-                                             list(_SLICE_ANCHORS))
+    cmap = plt.get_cmap(_SLICE_CMAP)
     norm = TwoSlopeNorm(vmin=lo, vcenter=0.0, vmax=hi)
 
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
-    levels = np.concatenate([np.linspace(lo, 0.0, 21)[:-1],
-                             np.linspace(0.0, hi, 21)])
-    contour = ax.tricontourf(triangulation, values, levels=levels, cmap=cmap,
-                             norm=norm, extend="both")
+    # One composed image: smooth shaded field, dark panel where there is no
+    # fluid data, dark body inside the silhouette. Composing the RGBA pixels
+    # directly keeps the mask and the fill pixel-identical by construction.
+    shaded = cmap(norm(np.clip(filled, lo, hi)))
+    shaded[no_data] = to_rgba(BG)
+    shaded[body_mask] = to_rgba(BG)
+    ax.imshow(shaded, extent=(u_lo, u_hi, v_lo, v_hi), origin="lower",
+              interpolation="bilinear", zorder=1)
+    if silhouette:
+        # The crisp outline of the exact section, over the fill.
+        for loop in silhouette:
+            loop = np.asarray(loop, dtype=np.float64)
+            ring = np.vstack([loop, loop[:1]])
+            ax.plot(ring[:, 0], ring[:, 1], color=INK, linewidth=1.0,
+                    alpha=0.9, zorder=3, solid_joinstyle="round")
 
     # One annotated key value: the stagnation peak, the warmest point of the
     # whole field, where the flow comes to rest on the nose.
@@ -621,9 +830,13 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     peak = int(peak_pool[np.argmax(values[peak_pool])])
     annotation = (rf"stagnation peak  $p/\rho$ = {values[peak]:,.0f}"
                   r" $\mathrm{m^2/s^2}$")
+    # The label rides a dark panel chip so it reads over the light field.
     ax.annotate(annotation, xy=(u[peak], v[peak]),
                 xytext=(0.03, 0.94), textcoords="axes fraction",
                 ha="left", va="top", fontsize=12, color=INK, weight="bold",
+                zorder=4,
+                bbox={"boxstyle": "round,pad=0.45", "facecolor": BG,
+                      "edgecolor": DIM, "alpha": 0.88},
                 arrowprops={"arrowstyle": "-", "color": MUTED,
                             "linewidth": 0.9, "alpha": 0.8})
 
@@ -635,7 +848,8 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     ax.set_aspect("equal", adjustable="box")
 
     colorbar_label = (r"static pressure  $p/\rho$  [$\mathrm{m^2/s^2}$]")
-    cbar = fig.colorbar(contour, ax=ax, pad=0.02, fraction=0.05)
+    cbar = fig.colorbar(ScalarMappable(norm=norm, cmap=cmap), ax=ax,
+                        pad=0.02, fraction=0.05)
     cbar.set_label(colorbar_label, color=INK, fontsize=11)
     cbar.ax.tick_params(colors=MUTED, labelsize=9)
     cbar.outline.set_edgecolor(DIM)
@@ -656,7 +870,9 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     return {"path": str(out_png), "title": title, "xlabel": xlabel,
             "ylabel": ylabel, "colorbar": colorbar_label, "note": note,
             "annotation": annotation, "stagnation": float(values[peak]),
-            "value_range": (lo, hi)}
+            "value_range": (lo, hi), "renderer": "smooth-grid",
+            "grid_shape": tuple(grid_shape),
+            "silhouette_loops": len(silhouette or [])}
 
 
 _AXIS_NAMES = "xyz"
@@ -664,15 +880,20 @@ _AXIS_NAMES = "xyz"
 
 def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
                           span_axis: int, plane_axes=None, body_bounds=None,
-                          body_label: str = "", figsize=(11.4, 6.2),
-                          dpi: int = 150, field: str = "p") -> dict | None:
-    """Extract the mid-span slab from a volume file and render the contour.
+                          body_label: str = "", surface_mesh=None,
+                          figsize=(11.4, 6.2), dpi: int = 150,
+                          field: str = "p") -> dict | None:
+    """Extract the mid-span slab from a volume file and render the field.
 
     ``span_axis`` is the axis the slicing plane is normal to; ``plane_axes``
     the (horizontal, vertical) in-plane axes, defaulting to the remaining two
     in order. ``body_bounds`` (the painted-surface payload's ``bounds``) sets
     the slice station at the body's own mid-span and frames the view on the
     body; without it both fall back to the fluid domain itself.
+    ``surface_mesh`` is the body's own triangle mesh in case coordinates
+    (from :func:`load_surface_mesh`): when given, the silhouette is the exact
+    plane cross-section of that surface rather than anything inferred from
+    the volume cells.
     """
     import numpy as np
 
@@ -732,6 +953,18 @@ def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
     view[2] = max(view[2], float(v.min()))
     view[3] = min(view[3], float(v.max()))
 
+    # The exact body cross-section, cut from the body's own surface mesh at
+    # this station: the silhouette is the true section shape however coarse
+    # the volume sampling is.
+    silhouette = None
+    if surface_mesh is not None:
+        try:
+            silhouette = surface_cross_section(
+                surface_mesh[0], surface_mesh[1], axis=span_axis,
+                station=station, plane_axes=(axis_u, axis_v)) or None
+        except Exception:
+            silhouette = None
+
     station_note = (f"Slice: {_AXIS_NAMES[span_axis]} = {station:.2f} m, "
                     + ("the cell layer crossing the plane."
                        if half_used == 0.0 else
@@ -741,19 +974,23 @@ def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
         xlabel=f"{_AXIS_NAMES[axis_u]}  [m]",
         ylabel=f"{_AXIS_NAMES[axis_v]}  [m]",
         body_label=body_label, station_note=station_note, view_box=view,
-        figsize=figsize, dpi=dpi)
+        silhouette=silhouette, figsize=figsize, dpi=dpi)
 
 
 def extract_pressure_slice(remote_case: str, out_png: str | Path, wsl_prefix,
                            *, span_axis: int, plane_axes=None,
-                           body_bounds=None, body_label: str = "") -> str | None:
+                           body_bounds=None, body_label: str = "",
+                           surface_path=None,
+                           surface_scale: float = 1.0) -> str | None:
     """Fetch the case's volume output and render the mid-span pressure slice.
 
     The volume file (``internal.vtu``) comes from the same ``foamToVTK`` run
     :func:`extract_and_paint` already performed, so this never re-solves and
     never re-meshes; it only copies one file out of the compute node. A held
     case with no volume output on disk (runs older than the volume writer)
-    returns None and the act simply carries no slice plot.
+    returns None and the act simply carries no slice plot. ``surface_path``
+    plus ``surface_scale`` give the body's own surface file and the uniform
+    scale the case build applied, for the exact silhouette cut.
     """
     import subprocess
     import tempfile
@@ -773,11 +1010,14 @@ def extract_pressure_slice(remote_case: str, out_png: str | Path, wsl_prefix,
         return None
     if "OK" not in result.stdout:
         return None
+    surface_mesh = None
+    if surface_path is not None:
+        surface_mesh = load_surface_mesh(surface_path, surface_scale)
     try:
         meta = render_pressure_slice(
             staging / "volume.vtu", out_png, span_axis=span_axis,
             plane_axes=plane_axes, body_bounds=body_bounds,
-            body_label=body_label)
+            body_label=body_label, surface_mesh=surface_mesh)
     except Exception:
         _log.warning("pressure-slice render failed for %s", remote_case,
                      exc_info=True)

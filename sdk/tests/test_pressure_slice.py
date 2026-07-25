@@ -18,11 +18,14 @@ from pathlib import Path
 
 import numpy as np
 
-from chief_engineer.field_render import (SLICE_HALF_THICKNESS_FRACTION,
+from chief_engineer.field_render import (SLICE_GRID_SHAPE,
+                                         SLICE_HALF_THICKNESS_FRACTION,
                                          SLICE_TITLE, cell_centres,
-                                         pick_slice, read_volume_field,
+                                         load_surface_mesh, pick_slice,
+                                         read_volume_field,
                                          render_pressure_slice,
-                                         render_slice_figure)
+                                         render_slice_figure,
+                                         surface_cross_section)
 from workflows import geometry_study as gs
 
 SDK = Path(__file__).resolve().parents[1]
@@ -90,6 +93,43 @@ def _write_vtu(path: Path, points, conn, offsets, values) -> None:
         + _binary_array("p", "Float32", values)
         + "\n</CellData>\n</Piece>\n</UnstructuredGrid>\n</VTKFile>\n")
     path.write_text(body, encoding="ascii")
+
+
+def _box_mesh(lo, hi):
+    """A closed axis-aligned box as (vertices (8,3), triangles (12,3))."""
+    x0, y0, z0 = lo
+    x1, y1, z1 = hi
+    verts = np.array([[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0],
+                      [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]],
+                     dtype=float)
+    quads = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4),
+             (2, 3, 7, 6), (1, 2, 6, 5), (3, 0, 4, 7)]
+    faces = []
+    for a, b, c, d in quads:
+        faces.append([a, b, c])
+        faces.append([a, c, d])
+    return verts, np.array(faces)
+
+
+def _write_cube_stl(path: Path, lo=(0, 0, 0), hi=(1, 1, 1)) -> None:
+    verts, faces = _box_mesh(lo, hi)
+    lines = ["solid cube"]
+    for tri in faces:
+        lines.append(" facet normal 0 0 0")
+        lines.append("  outer loop")
+        for index in tri:
+            x, y, z = verts[index]
+            lines.append(f"   vertex {x} {y} {z}")
+        lines.append("  endloop")
+        lines.append(" endfacet")
+    lines.append("endsolid cube")
+    path.write_text("\n".join(lines), encoding="ascii")
+
+
+def _shoelace(loop) -> float:
+    loop = np.asarray(loop)
+    x, y = loop[:, 0], loop[:, 1]
+    return 0.5 * abs(float(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1))))
 
 
 # --------------------------------------------------------------------------
@@ -180,6 +220,58 @@ class PickSliceTests(unittest.TestCase):
 
 
 # --------------------------------------------------------------------------
+# Exact silhouette: the body surface cut by the slice plane
+# --------------------------------------------------------------------------
+
+class SurfaceCrossSectionTests(unittest.TestCase):
+    def test_cube_section_is_one_closed_unit_square(self):
+        verts, faces = _box_mesh((0, 0, 0), (1, 1, 1))
+        loops = surface_cross_section(verts, faces, axis=2, station=0.4,
+                                      plane_axes=(0, 1))
+        self.assertEqual(len(loops), 1)
+        loop = loops[0]
+        # Eight crossing triangles chain into one closed ring whose area and
+        # bounds are the exact unit square, whatever the point count.
+        self.assertGreaterEqual(len(loop), 4)
+        self.assertAlmostEqual(_shoelace(loop), 1.0, places=9)
+        np.testing.assert_allclose(loop.min(axis=0), [0.0, 0.0], atol=1e-9)
+        np.testing.assert_allclose(loop.max(axis=0), [1.0, 1.0], atol=1e-9)
+
+    def test_two_bodies_give_two_loops(self):
+        va, fa = _box_mesh((0, 0, 0), (1, 1, 1))
+        vb, fb = _box_mesh((3, 0, 0), (4, 2, 1))
+        verts = np.vstack([va, vb])
+        faces = np.vstack([fa, fb + len(va)])
+        loops = surface_cross_section(verts, faces, axis=2, station=0.5,
+                                      plane_axes=(0, 1))
+        self.assertEqual(len(loops), 2)
+        areas = sorted(_shoelace(loop) for loop in loops)
+        self.assertAlmostEqual(areas[0], 1.0, places=9)
+        self.assertAlmostEqual(areas[1], 2.0, places=9)
+
+    def test_plane_missing_the_body_gives_no_loops(self):
+        verts, faces = _box_mesh((0, 0, 0), (1, 1, 1))
+        self.assertEqual(surface_cross_section(verts, faces, axis=2,
+                                               station=5.0,
+                                               plane_axes=(0, 1)), [])
+
+    def test_synthetic_stl_round_trip_with_case_scale(self):
+        # The loader applies the case build's uniform scale, so the section
+        # lands in solved-case coordinates (the B-52 path).
+        with tempfile.TemporaryDirectory() as tmp:
+            stl = Path(tmp) / "cube.stl"
+            _write_cube_stl(stl)
+            mesh = load_surface_mesh(stl, scale=2.0)
+        self.assertIsNotNone(mesh)
+        verts, faces = mesh
+        self.assertEqual(len(faces), 12)
+        loops = surface_cross_section(verts, faces, axis=2, station=1.0,
+                                      plane_axes=(0, 1))
+        self.assertEqual(len(loops), 1)
+        self.assertAlmostEqual(_shoelace(loops[0]), 4.0, places=9)
+
+
+# --------------------------------------------------------------------------
 # The .vtu reader on a synthetic file in foamToVTK's own wire format
 # --------------------------------------------------------------------------
 
@@ -230,6 +322,26 @@ class RenderTests(unittest.TestCase):
         # The annotated key value is the true field maximum: x centre 0.55.
         self.assertAlmostEqual(meta["stagnation"], 0.55, places=5)
         self.assertTrue(meta["title"].startswith(SLICE_TITLE))
+        # Smoothness proxy: the field was resampled onto the fine regular
+        # grid and shaded continuously, not contoured on raw slice cells.
+        self.assertEqual(meta["renderer"], "smooth-grid")
+        self.assertEqual(meta["grid_shape"], SLICE_GRID_SHAPE)
+
+    def test_exact_silhouette_rides_the_render_when_a_surface_is_given(self):
+        points, conn, offsets, values = _hex_grid(6, 1, 6, d=0.1)
+        surface = _box_mesh((0.2, -1.0, 0.2), (0.4, 1.0, 0.4))
+        with tempfile.TemporaryDirectory() as tmp:
+            vtu = Path(tmp) / "internal.vtu"
+            _write_vtu(vtu, points, conn, offsets, values)
+            out = Path(tmp) / "slice.png"
+            meta = render_pressure_slice(vtu, out, span_axis=1,
+                                         plane_axes=(0, 2),
+                                         body_label="synthetic block",
+                                         surface_mesh=surface)
+            self.assertIsNotNone(meta)
+            self.assertTrue(out.exists())
+        # The silhouette came from the surface mesh cut, not the volume.
+        self.assertEqual(meta["silhouette_loops"], 1)
 
     def test_every_figure_string_holds_the_register(self):
         rng = np.random.default_rng(7)
@@ -293,6 +405,11 @@ class ReportPayloadTests(unittest.TestCase):
         self.assertIn('announce_plot(emit, "geometry-study", slice_png, '
                       'entry["title"])', source)
         self.assertIn("report_plots.append(entry)", source)
+        # The exact-silhouette cut gets the body's own surface file and the
+        # case build's scale.
+        self.assertIn("surface_path=local_surface", source)
+        self.assertIn('surface_scale=float(report.get("geometry_scale", 1.0))',
+                      source)
         # Warm replays render from the held case; an absent volume output
         # (older caches) must skip silently, so the act never narrates a
         # missing plot: no slice-specific apology string exists.
