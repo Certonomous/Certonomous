@@ -1,0 +1,81 @@
+{
+  "naca4412_wing": {
+    "body": "naca4412_wing",
+    "u_inf": 15.0,
+    "q_kinematic": 112.5,
+    "p_inf": 0.05242667719721794,
+    "farfield": {
+      "p_inf": 0.05242667719721794,
+      "decay_abs_p": {
+        "1c": 3.35682333111763,
+        "2c": 1.313664010167122
+      },
+      "slice_cells": 3000,
+      "far_cells": 402
+    },
+    "alpha_geometric_deg": 0.07465105497005456,
+    "chord": 0.9961472404665983,
+    "band_half_width": 0.02,
+    "faces": 376,
+    "stagnation_cp": 0.8766359002391497,
+    "stagnation_xc": 0.0014021610057364262,
+    "cp_min_upper": -0.6670451300342878,
+    "xc_cp_min_upper": 0.15432575279944805,
+    "section_cn": 0.3171706255116114,
+    "reference_alpha_deg": 0.0,
+    "reference_cl": 0.338,
+    "reference_alpha_effective_deg": -0.5,
+    "reference_source": "Pinkerton, NACA Report 563 (1936), Table I, midspan section, Re 3.1e6, aspect ratio 6 model",
+    "rms_upper": 0.05136355942214938,
+    "max_dev_upper": 0.11328643591673909,
+    "worst_xc_upper": 0.009399999999999999,
+    "rms_lower": 0.1027340570603749,
+    "max_dev_lower": 0.27010925793873003,
+    "worst_xc_lower": 0.0166,
+    "rms_upper_aft_5pct": 0.04549324375317458,
+    "max_dev_upper_aft_5pct": 0.10257462551087734,
+    "rms_lower_aft_5pct": 0.0586272166292275,
+    "max_dev_lower_aft_5pct": 0.11662943700298622,
+    "global_max_cp": 0.8892004618710941,
+    "n_ref_stations": 51,
+    "plot": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\plots\\pressure_slices\\validation\\naca4412_wing_cp_validation.png"
+  },
+  "naca0015_sail": {
+    "body": "naca0015_sail",
+    "u_inf": 75.0,
+    "q_kinematic": 2812.5,
+    "p_inf": 0.7748077809810638,
+    "farfield": {
+      "p_inf": 0.7748077809810638,
+      "decay_abs_p": {
+        "1c": 34.111410011847816,
+        "2c": 7.097571411728859
+      },
+      "slice_cells": 4298,
+      "far_cells": 1140
+    },
+    "alpha_geometric_deg": 0.18714538885467835,
+    "chord": 1.1930159132716067,
+    "band_half_width": 0.02,
+    "faces": 352,
+    "stagnation_cp": 0.8855635752889846,
+    "stagnation_xc": 2.3194228458168389e-07,
+    "global_max_cp": 0.8865686100112067,
+    "cp_min": -0.5795039702839322,
+    "xc_cp_min": 0.22228098882553252,
+    "cp_min_2d_band": [
+      -0.65,
+      -0.55
+    ],
+    "xc_cp_min_2d_band": [
+      0.2,
+      0.3
+    ],
+    "symmetry_max_abs": 0.0013315755208333502,
+    "symmetry_mean_abs": 0.0005164137584640758,
+    "symmetry_bins": 59,
+    "decay_cp_1c": 0.01212850133754589,
+    "decay_cp_2c": 0.002523580946392483,
+    "plot": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\plots\\pressure_slices\\validation\\naca0015_sail_cp_validation.png"
+  }
+}
