@@ -143,3 +143,15 @@ run; no number is misstated.
    worker can never resurrect it. `sdk/workflows/aircraft_optimization.py` —
    finalist processing treats a result without a usable `matched`/`polar` as
    unsolved instead of raising.
+
+## Follow-up entry, 2026-07-25 (owner-approved sweep extension)
+
+The valve sweep now extends to 87.5 deg per the approved agenda proposal
+(fleet-ledger evidence). New on-camera headline: 1253 +- 417 Pa (95%) at
+opening 87.5 deg (sweep-table input band 1253 +- 398 Pa; orifice 415 mm2).
+The 85.0 deg evaluation reproduces the ledger's cited 1267 Pa exactly.
+Channels re-measured at the new winner: input 397.6, numerical 76.5,
+model 98.9, RSS 95% = 417. The 80 deg / 1327 Pa rows above remain correct
+as the audit record of the pre-extension sweep. B-52 numerical band is
+now +-0.00536 on Cd over a 4-rung ladder (still non-monotone; conservative
+rule; see uq-studies/b52.json).

@@ -117,9 +117,10 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(events.get("trace.point"), n)
         # hard cap
         self.assertEqual(verdict.get("tier"), "RESEARCH MODEL")
-        # Physics stays consistent: the widest admissible orifice still wins, so
-        # the denser sweep peaks in the same 80 deg region as the old screen.
-        self.assertIn("80 deg", verdict.get("envelope", ""))
+        # Physics stays consistent: the widest admissible orifice wins, and the
+        # sweep now extends past the old 80 deg cap to 87.5 deg (the fleet
+        # ledger's evaluations beyond the cap showed lower loss).
+        self.assertIn("87.5 deg", verdict.get("envelope", ""))
         # Act 3 carries a Certonomous certificate with its evidence seal.
         self.assertEqual(events.get("certificate.ready"), 1)
         self.assertEqual(certificate.get("fidelity"), "RESEARCH MODEL")
@@ -184,12 +185,15 @@ class WorkflowTests(unittest.TestCase):
         # the tight openings stay marked infeasible, the winner admissible
         self.assertTrue(rows[0]["rows"][0][3].startswith("No"))
         self.assertEqual(rows[-1]["rows"][0][3], "Yes")
-        self.assertEqual(rows[-1]["rows"][0][2], "1327 ± 421 Pa")
+        self.assertEqual(rows[-1]["rows"][0][2], "1253 ± 398 Pa")
         # the per-candidate narration entries are gone: one lead-in bullet only
         lines = [p["message"] for p in _of(stream, "transcript.entry")]
         self.assertEqual([m for m in lines if "Opening 65" in m], [])
         self.assertEqual(
-            len([m for m in lines if m.startswith("• Screening 11 opening angles")]), 1)
+            len([m for m in lines if m.startswith("• Screening 13 opening angles")]), 1)
+        # the extension past the old cap is narrated, citing the fleet ledger
+        self.assertEqual(
+            len([m for m in lines if "extends past the old 80 degree cap" in m]), 1)
 
     def test_waveform_plot_rides_in_the_lab_report(self):
         rc, stream = _run_valve()
@@ -240,9 +244,9 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("Ensemble run over the stated spread",
                       by_name["input"]["note"])
         # numbers untouched by the wording
-        self.assertAlmostEqual(by_name["input"]["value"], 421.1424, places=4)
-        self.assertAlmostEqual(by_name["numerical"]["value"], 81.0, places=4)
-        self.assertAlmostEqual(by_name["model"]["value"], 104.8, places=4)
+        self.assertAlmostEqual(by_name["input"]["value"], 397.639, places=3)
+        self.assertAlmostEqual(by_name["numerical"]["value"], 76.5, places=4)
+        self.assertAlmostEqual(by_name["model"]["value"], 98.9, places=4)
 
     def test_channel_notes_stay_on_the_generic_register(self):
         rc, stream = _run_valve()
@@ -263,7 +267,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_certificate_renders_the_result_table_with_unchanged_numbers(self):
         # The sealed page: structured result table, all three channel values
-        # (421.1 / 81.0 / 104.8), generic notes, and no mesh block, because
+        # (397.6 / 76.5 / 98.9), generic notes, and no mesh block, because
         # the reduced-order act solves no mesh.
         stream = []
 
@@ -278,9 +282,9 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         cert = _of(stream, "certificate.ready")[0]
         text = Path(cert["path"]).read_bytes().decode("latin-1")
-        for token in ("Opening Angle", "80 deg", "Cycle Loss", "1327 Pa",
+        for token in ("Opening Angle", "87.5 deg", "Cycle Loss", "1253 Pa",
                       "Band \\(95%\\)", "Orifice Area", "Parameter",
-                      "421.14", "81.0", "104.8",
+                      "397.63", "76.5", "98.9",
                       "minimise valve pressure loss over the cardiac cycle"):
             self.assertIn(token, text)
         # No mesh block on a meshless act; no method names on the sealed page.
@@ -319,16 +323,20 @@ class WorkflowTests(unittest.TestCase):
         # Reissue for anything that reads the served directory afterwards.
         main(request="minimise valve pressure loss over the cardiac cycle")
 
-    def test_headline_numbers_are_unchanged(self):
+    def test_headline_numbers_match_the_extended_sweep(self):
+        # The sweep extended past 80 deg moved the winner: 87.5 deg at
+        # 1253 Pa, exactly where the reduced-order physics puts the widest
+        # admissible orifice (the ledger's 85 deg record at 1267 Pa sits on
+        # the same curve).
         rc, stream = _run_valve()
         self.assertEqual(rc, 0)
         verdict = _of(stream, "result.verdict")[0]
-        self.assertEqual(verdict["value"], "1327")
-        self.assertEqual(verdict["envelope"], "at opening 80 deg")
+        self.assertEqual(verdict["value"], "1253")
+        self.assertEqual(verdict["envelope"], "at opening 87.5 deg")
         report = _of(stream, "report.ready")[0]
-        self.assertTrue(any("1327" in line for line in report["abstract"]))
-        self.assertTrue(any("80 deg" in line for line in report["abstract"]))
-        self.assertTrue(report["results"][0]["value"].startswith("1327"))
+        self.assertTrue(any("1253" in line for line in report["abstract"]))
+        self.assertTrue(any("87.5 deg" in line for line in report["abstract"]))
+        self.assertTrue(report["results"][0]["value"].startswith("1253"))
 
     def test_emitted_text_is_house_style(self):
         # No banned punctuation, no raw links; bullets stack as rows inside

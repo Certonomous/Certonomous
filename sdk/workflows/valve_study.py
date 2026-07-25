@@ -48,16 +48,19 @@ from waveform import (phase_points, womersley, RHO_BLOOD, Q_PEAK,  # noqa: E402
                       T_CYCLE, T_SYSTOLE, NU_BLOOD)
 from generate_valve import effective_orifice_area, ROOT_RADIUS  # noqa: E402
 
-# A dense opening-angle sweep, 30 to 80 deg in 5 deg steps: eleven real
-# reduced-order candidates so the three-leaflet valve visibly cycles open many
-# more times on screen than the old four. The winner stays at 80 deg (the widest
-# admissible orifice, exactly what orifice physics predicts), and the min-orifice
-# constraint still marks the tight openings (30, 35 deg) infeasible. The upper
-# bound is held at 80 rather than pushed to 85 so the winning angle is unchanged
-# from the four-candidate screen; the candidate set is NOT part of the UQ valve
-# fingerprint (setup_fingerprint has no candidate field), so the stored study
-# still matches and needs no update.
-CANDIDATE_ANGLES = tuple(float(a) for a in range(30, 81, 5))   # 11 candidates
+# A dense opening-angle sweep, 30 to 80 deg in 5 deg steps, then extended past
+# the old 80 deg cap to 85 and 87.5 deg: the fleet ledger's reduced-order
+# evaluations beyond the cap found lower cycle-weighted loss (ledger best
+# 1267 Pa at 85 deg), so the sweep now covers that region. The orifice-area
+# model is admissible up to its 90 deg clamp, but at 90 the leaflets lie flat
+# on the wall (no leaflet tilt at all), so the sweep caps at 87.5 deg to keep
+# a physically meaningful leaflet position. The winner is the widest
+# admissible orifice, exactly what orifice physics predicts, and the
+# min-orifice constraint still marks the tight openings (30, 35 deg)
+# infeasible. The stored UQ study is re-measured at the winning angle by
+# scripts/run_uq_studies.py (stage "valve") whenever the winner moves.
+CANDIDATE_ANGLES = (tuple(float(a) for a in range(30, 81, 5))
+                    + (85.0, 87.5))                # 13 candidates
 # Backend pacing: the four candidate valves visibly cycle in the viewport as
 # each is screened (paces the PATH, never the numbers). Off in CI via env.
 _PACE_S = float(os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "550")) / 1000.0
@@ -278,6 +281,10 @@ def main(request: str | None = None, params: dict | None = None,
     # One live-growing table carries every candidate's numbers: the header
     # lands first, then each angle appends its row the moment its evaluation
     # completes, exactly the airliner finalist-table pattern.
+    script.engineer(
+        "• The sweep extends past the old 80 degree cap to 87.5 degrees. "
+        "• The fleet ledger's evaluations beyond the cap showed lower loss; "
+        "the sweep now covers that region.")
     script.engineer(
         f"• Screening {len(CANDIDATE_ANGLES)} opening angles; each candidate lands "
         f"its row in the table below as its evaluation completes.")

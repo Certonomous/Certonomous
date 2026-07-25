@@ -498,6 +498,145 @@ def closures_unfamiliar(body: str, stl_name: str, *,
 
 
 # --------------------------------------------------------------------------
+# B-52 fourth refinement rung (agenda: resolve the non-monotone 3-rung ladder)
+# --------------------------------------------------------------------------
+
+def b52_fourth_rung() -> None:
+    """One more rung for the B-52 ladder, aimed at the medium-to-production
+    gap, to try to resolve the ladder's non-monotone convergence.
+
+    Placement reasoning: the non-monotone signature is a dip at the medium
+    rung (coarse 0.0551 at 40,656 cells, medium 0.0448 at 107,489, production
+    0.0472 at 193,880). A rung near that dip tests whether the finest segment
+    of the ladder is itself monotone, and when it is, the Eca and Hoekstra
+    fit lands on the production mesh, the mesh the act actually reports. A
+    rung finer than production (surface level (4 5)) would roughly double the
+    solve cost and put the band on a mesh no act solves. The rung is the
+    production case with ONE knob moved: the background-mesh divisions scaled
+    by 0.9 (the same second knob the in-act rung machinery uses when the
+    castellated level floors out); the surface refinement stays at the
+    production level (3 4). The snappy refinement cascade is nonlinear in the
+    background density, so the cell count the knob produces is measured, not
+    chosen; the rung is stored at whatever count checkMesh reports, provided
+    it is distinct from every existing rung. Setup matches the stored
+    fingerprint exactly: velocity 100.0, published 48.5 m scale basis,
+    refinement 3, 300 iterations, with the rung solved at the standard rung
+    budget.
+    """
+    from chief_engineer.external_aero import analyse_surface, build_case
+    from workflows.geometry_study import rung_iterations, scale_basis
+
+    body = "b52"
+    stl_name = "b52.stl"
+    study = uq.load_study(body) or {}
+    levels = sorted(study.get("levels", []), key=lambda lv: lv["cells"])
+    if len(levels) < 3:
+        raise RuntimeError("b52 fourth rung needs the existing 3-rung ladder")
+    tag = "intermediate"
+    existing = next((lv for lv in levels if lv.get("tag") == tag), None)
+    if existing is None:
+        _log(f"b52 rung {tag} starting (production case, background "
+             f"divisions scaled 0.9)")
+        began = time.time()
+        engineer = HeadEngineer(f"uq-b52-{tag}", OUT / f"b52-{tag}")
+        source = GEOMETRY_DIR / stl_name
+        geometry = analyse_surface(source)
+        # The act works the B-52 to its published 48.5 m length (scale_basis);
+        # the rung must solve the same scaled body or its Reynolds number and
+        # Cd basis drift off the ladder's.
+        reference, _basis = scale_basis(stl_name, geometry["length"], {})
+        scale = reference / geometry["length"]
+        case_dir = Path(engineer.out_root) / "case"
+        build_case(case_dir, stl_name, geometry, velocity=100.0, scale=scale,
+                   refinement=3, iterations=ITERATIONS)
+        shutil.copy(source, case_dir / "constant" / "triSurface" / stl_name)
+        wsl_case = str(case_dir).replace("C:", "/mnt/c").replace("\\", "/")
+        engineer._wsl(f"rm -rf {engineer.remote_case} && "
+                      f"cp -r '{wsl_case}' {engineer.remote_case}")
+        # The case's domain is scaled to the published length; the staged STL
+        # must be scaled with it (exactly as the act stages its case), or the
+        # body never meets the domain and snappy meshes an empty box.
+        engineer._wsl(
+            f"cd {engineer.remote_case} && openfoam2606 surfaceTransformPoints "
+            f"-scale '({scale:.6f} {scale:.6f} {scale:.6f})' "
+            f"constant/triSurface/{stl_name} constant/triSurface/_scaled.stl && "
+            f"mv constant/triSurface/_scaled.stl constant/triSurface/{stl_name}")
+        scaled = engineer.scale_background_divisions(0.9)
+        if not scaled:
+            raise RuntimeError("background divisions unchanged; the rung "
+                               "would duplicate the production mesh")
+        engineer.set_iteration_count(rung_iterations(ITERATIONS))
+        for step, command in (("surfaceFeatureExtract", "surfaceFeatureExtract"),
+                              ("blockMesh", "blockMesh"),
+                              ("snappyHexMesh", "snappyHexMesh -overwrite")):
+            engineer._run_step(step, command, 5400)
+        stats = engineer.collect_mesh_stats()
+        cells = int(stats.get("cells", 0))
+        if not cells:
+            raise RuntimeError("checkMesh reported no cells")
+        if cells in {int(lv["cells"]) for lv in levels}:
+            raise RuntimeError(f"rung mesh duplicates an existing rung "
+                               f"({cells} cells); no rung stored")
+        _log(f"b52 {tag}: {cells:,} cells, mesh_ok={stats.get('mesh_ok')}, "
+             f"max non-orthogonality {stats.get('max_non_orthogonality')}")
+        # A generated case carries its pristine fields in 0/ directly; only a
+        # case with a 0.orig needs the reset (the in-act rung guard).
+        engineer._wsl(f"cd {engineer.remote_case} && test -d 0.orig && "
+                      f"rm -rf 0 && cp -r 0.orig 0 || true")
+        engineer._run_step("potentialFoam", "potentialFoam -writephi", 3600)
+        engineer._run_step("simpleFoam", "simpleFoam", 7200)
+        results = engineer.postprocess(("Cd",))
+        if not results.get("Cd"):
+            raise RuntimeError("no force history from the rung solve")
+        cd = float(results["Cd"]["value"])
+        sigma = float(results["Cd"].get("sigma") or 0.0)
+        if not cd:
+            # A zero force coefficient means the solve never saw the body;
+            # storing it would poison the ladder.
+            raise RuntimeError("rung produced Cd = 0; the case did not "
+                               "resolve the body, no rung stored")
+        if 2.0 * sigma / abs(cd) > 0.05:
+            # An unconverged rung is not ladder evidence; refuse to store it.
+            raise RuntimeError(f"rung unconverged: Cd {cd:.4f} window spread "
+                               f"{2 * sigma:.2g} exceeds 5 percent")
+        existing = {"tag": tag, "cells": cells, "cd": cd,
+                    "mission": f"b52-rung-{tag}",
+                    "wall_minutes": round((time.time() - began) / 60, 1)}
+        levels = sorted(levels + [existing], key=lambda lv: lv["cells"])
+        _checkpoint(body, levels=levels)
+        _log(f"b52 {tag}: cells {cells:,}, Cd {cd:.4f} "
+             f"(window 2-sigma {2 * sigma:.2g}), "
+             f"{existing['wall_minutes']} min")
+    else:
+        _log(f"b52 rung {tag} already done (cells {existing['cells']:,})")
+    # Recompute the band over the 4-rung ladder exactly as the in-act
+    # machinery will on warm replay: eca_hoekstra_band over the cell-sorted
+    # rungs (the fit, clamp rules included, when the finest triplet is
+    # monotone; the conservative largest-spread band with the honest
+    # sentence when it is not).
+    band = uq.eca_hoekstra_band([lv["cells"] for lv in levels],
+                                [lv["cd"] for lv in levels])
+    production = next(lv for lv in levels if lv.get("tag") == "production")
+    working = production.get("cd")
+    numerical = {
+        "band_abs": band["band_abs"],
+        "band_rel": (None if not working
+                     else round(band["band_abs"] / abs(working), 5)),
+        "observed_order": band["observed_order"],
+        "order_used": band.get("order_used"),
+        "clamped": band.get("clamped", False),
+        "method": band["method"],
+        "conclusive": band["conclusive"],
+        "value_working": working,
+    }
+    _checkpoint(body, numerical=numerical,
+                provenance=[lv.get("mission", f"{body}-{lv['tag']}")
+                            for lv in levels])
+    _log(f"b52 fourth rung DONE: monotone={band.get('monotone')}, "
+         f"{band['method']}, band {band['band_abs']:.4g}")
+
+
+# --------------------------------------------------------------------------
 # Airliner anchors (Q2b) — no new solves, deviations at the solved anchors
 # --------------------------------------------------------------------------
 
@@ -560,7 +699,9 @@ def valve_studies() -> None:
     from generate_valve import effective_orifice_area        # noqa: E402
 
     body = "aortic-valve"
-    angle = 80.0
+    # The winning angle of the extended act sweep (30 to 87.5 deg): the study
+    # channels are measured at the angle the act actually reports.
+    angle = 87.5
     area = effective_orifice_area(angle)
     systole = T_CYCLE / 3.0          # half-sine ejection window
 
@@ -632,6 +773,7 @@ STAGES = {
     "motorbike_closures": closures_motorbike,
     "b52_ladder": lambda: ladder_unfamiliar("b52", "b52.stl"),
     "b52_closures": lambda: closures_unfamiliar("b52", "b52.stl"),
+    "b52_rung4": b52_fourth_rung,
     "airliner": airliner_anchors,
     "valve": valve_studies,
 }

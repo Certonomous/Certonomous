@@ -1,7 +1,7 @@
 {
   "id": "r1-sobol-sensitivity-mission",
   "objective": "Add a Sobol sensitivity mission type that apportions output variance across the input spreads before any uncertainty reduction campaign is priced",
-  "rationale": "The lab propagates input spreads through Monte Carlo but never says which input owns the variance, so reduction work is untargeted. Variance-based decomposition gives main and total effect indices per input; on the reduced-order paths an evaluation costs about a millisecond, so a pick-and-freeze design of N times (M plus 2) evaluations at N of 200 is seconds of compute for the valve and comparable for the airliner surrogate. The mission ends with a ranking of inputs by variance share and a recommendation of where the next samples or the next measurement effort should go.",
+  "rationale": "The lab propagates input spreads through Monte Carlo but never says which input owns the variance, so reduction work is untargeted. Variance-based decomposition gives main and total effect indices per input; on the reduced-order paths an evaluation costs about a millisecond, so a pick-and-freeze design of N times (M plus 2) evaluations at N of 200 is seconds of compute for the valve and comparable for the airliner surrogate. The mission ends with a ranking of inputs by variance share and a recommendation of where the next samples or the next measurement effort should go. Offline evidence measured 2026-07-25: on the valve screen discharge coefficient owns the variance (main 0.61, total 0.60) over flow amplitude (main 0.39); on the airliner sizing chain non-wing drag owns it (main 0.64) over payload mass (main 0.35); the estimator recovers the Ishigami closed-form indices to 0.022 absolute and every Sobol identity holds within bootstrap CI.",
   "citations": [
     "Dakota Theory Manual, Stochastic Expansion Methods, Sandia National Laboratories",
     "Dakota Reference Manual, Sampling With Variance Based Decomposition, Sandia National Laboratories"
@@ -12,5 +12,147 @@
   "source_kind": "reading",
   "status": "proposed",
   "created_at": "2026-07-25",
-  "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention."
+  "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention.",
+  "evidence": {
+    "measured_at": "2026-07-25",
+    "standard_stage": "Stage 2 - offline evidence on a benchmark",
+    "script": "sdk/scripts/run_sobol_evidence.py",
+    "valve_screen": {
+      "names": [
+        "flow amplitude",
+        "discharge coefficient"
+      ],
+      "main": [
+        0.3884,
+        0.6075
+      ],
+      "total": [
+        0.4011,
+        0.6026
+      ],
+      "main_ci95": [
+        [
+          0.3664,
+          0.4146
+        ],
+        [
+          0.5757,
+          0.639
+        ]
+      ],
+      "total_ci95": [
+        [
+          0.3814,
+          0.4171
+        ],
+        [
+          0.578,
+          0.626
+        ]
+      ],
+      "n_base": 4096,
+      "n_evaluations": 16384,
+      "seed": 20260725,
+      "identities_hold": true
+    },
+    "airliner_sizing": {
+      "names": [
+        "payload mass",
+        "non-wing drag"
+      ],
+      "main": [
+        0.3537,
+        0.6356
+      ],
+      "total": [
+        0.3656,
+        0.6351
+      ],
+      "main_ci95": [
+        [
+          0.3311,
+          0.3796
+        ],
+        [
+          0.6042,
+          0.6724
+        ]
+      ],
+      "total_ci95": [
+        [
+          0.3459,
+          0.3796
+        ],
+        [
+          0.6124,
+          0.6593
+        ]
+      ],
+      "n_base": 4096,
+      "n_evaluations": 16384,
+      "seed": 20260726,
+      "identities_hold": true
+    },
+    "ishigami_benchmark": {
+      "names": [
+        "x1",
+        "x2",
+        "x3"
+      ],
+      "main": [
+        0.2926,
+        0.4467,
+        0.008
+      ],
+      "total": [
+        0.5351,
+        0.4462,
+        0.2382
+      ],
+      "main_ci95": [
+        [
+          0.2647,
+          0.3198
+        ],
+        [
+          0.4215,
+          0.4761
+        ],
+        [
+          -0.0177,
+          0.0328
+        ]
+      ],
+      "total_ci95": [
+        [
+          0.4918,
+          0.5849
+        ],
+        [
+          0.4272,
+          0.4651
+        ],
+        [
+          0.2256,
+          0.2496
+        ]
+      ],
+      "n_base": 4096,
+      "n_evaluations": 20480,
+      "seed": 20260727,
+      "identities_hold": true,
+      "true_main": [
+        0.3139,
+        0.4424,
+        0.0
+      ],
+      "true_total": [
+        0.5576,
+        0.4424,
+        0.2437
+      ],
+      "max_abs_error": 0.0225
+    }
+  },
+  "evidence_stage": "offline-evidence-measured"
 }

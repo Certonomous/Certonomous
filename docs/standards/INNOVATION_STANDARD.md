@@ -79,6 +79,86 @@ fidelity ceiling and named dropped physics at adoption, and a marked path to
 the higher-fidelity version. Any method that cannot state what it drops does
 not enter.
 
+## Methods in the pipeline (status ledger)
+
+### Sobol sensitivity indices -- STATUS: offline evidence measured (2026-07-25)
+
+Proposal `r1-sobol-sensitivity-mission` (basis: Dakota theory manual;
+Saltelli 2010 main estimator, Jansen 1999 total estimator). Primitive:
+`sdk/chief_engineer/sensitivity.py` -- pick-and-freeze main and total indices
+over a callable model and stated input distributions, cost n_base x (M+2)
+evaluations, bootstrap CIs, deterministic given seed. Evidence run:
+`sdk/scripts/run_sobol_evidence.py`, all evaluations reduced-order
+(milliseconds), no solver.
+
+Measured (recorded in the proposal JSON): on the valve screen's stated
+spreads the discharge coefficient owns the loss variance (main 0.61 [0.58,
+0.64]) over the flow amplitude (main 0.39 [0.37, 0.41]); on the airliner
+sizing chain the non-wing drag buildup owns it (main 0.64 [0.60, 0.67]) over
+the payload mass (main 0.35 [0.33, 0.38]). The estimator recovers the
+Ishigami closed-form indices to 0.023 absolute at n_base 4096.
+
+Gate criteria for adoption on a surface:
+- A ranking is admissible only when every Sobol identity holds within
+  bootstrap CI (indices in [0, 1], main <= total per input, mains sum <= 1);
+  a run failing an identity is reported as sampling noise, never as physics.
+- Indices are reported WITH their CIs; two inputs whose CIs overlap are
+  stated as unresolved, not force-ranked.
+- The indices inherit the model's fidelity ceiling: a ranking computed
+  through a RESEARCH MODEL screen targets uncertainty-reduction effort for
+  that screen and claims nothing about the solved flow.
+- The input distributions must be the act's own stated spreads (the valve's
+  bounded-uniform convention, the airliner's Gaussian convention) -- never
+  spreads invented for the decomposition.
+
+Named limitations: pick-and-freeze assumes independent inputs; correlated
+spreads need a different estimator before any such case is admitted.
+
+### Multifidelity Monte Carlo (MFMC) -- STATUS: offline evidence measured (2026-07-25)
+
+Proposal `r1-multifidelity-propagation` (basis: Peherstorfer, Willcox and
+Gunzburger, SIAM Review 2018). Primitive:
+`sdk/chief_engineer/multifidelity.py` -- control-variate fusion of a cheap
+model against sparse high-fidelity anchors: measured correlation sets the
+coefficient, measured cost ratio sets the allocation, both decide honestly
+whether fusion pays. Evidence run: `sdk/scripts/run_mfmc_evidence.py` on the
+race act's recorded paired evaluations (no new solve).
+
+Measured (recorded in the proposal JSON): over the race's 88 matched
+design evaluations the surrogate-solver correlation is 0.9967, the measured
+cost ratio ~1e7 (5.10 s per solve vs ~5e-7 s per surrogate call, both
+wall-clocked on this machine), the optimal allocation at the lane's own
+449 s budget is 87 solves + ~3.4M surrogate evaluations, and the analytic
+variance reduction at equal budget
+is 150x (empirical replay over the real records: 61x). Honest split verdict:
+for the race's actual estimand -- peak L/D under the Reynolds spread at fixed
+alpha -- the recorded alpha-only surrogate is constant across the ensemble,
+correlation is undefined, and MFMC would NOT have beaten the race's approach
+at any budget.
+
+Gate criteria for adoption on a surface:
+- Fusion is admissible only when the cheap model demonstrably varies with
+  the uncertain input of the estimand (a measured, defined rho on the paired
+  records); a degenerate lane is refused, never zero-filled.
+- The survey's pay condition must hold on measured numbers:
+  cost_lo/cost_hi < rho^2/(1 - rho^2); otherwise the act runs single-fidelity
+  and says fusion does not pay.
+- At least one high-fidelity solve stays in every fused estimate (the
+  accuracy anchor); a plan with zero solves is surrogate extrapolation and
+  is refused by the allocation function itself.
+- The fused envelope is labelled as fused, with rho, the allocation, and
+  both lane costs on the record.
+
+Named limitations: the recorded evidence pairs one surrogate with one
+solver on one wing; the estimator is unbiased by construction, but the
+variance-reduction claim transfers only after the target act's own rho and
+costs are measured.
+
+Neither method is wired to a router intent or a GUI act yet -- that is a
+camera-surface change, deliberately deferred to a round with the owner
+present. The primitives, their evidence scripts, the measured numbers in the
+proposal JSONs, and the recorded lessons are the current extent of adoption.
+
 ## Sources
 
 - Valve workflow and its module docstring, `sdk/workflows/valve_study.py`.

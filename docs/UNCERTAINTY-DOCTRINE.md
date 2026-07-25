@@ -47,6 +47,17 @@ problem.").
    conceptual screen value and a solved value, the measured screen-vs-solve
    discrepancy IS direct model-channel evidence for the screen (airliner:
    |screen L/D - VSPAERO L/D| across the 9 finalists).
+   Coefficient-interval propagation (queued): a measured parametric basis
+   for this channel - perturbed-coefficient solve sets on a held mesh using
+   the published epistemic intervals for the k-omega SST closure
+   coefficients, band = the min/max envelope across the set, carried as an
+   interval alongside u_val and never converted to a sigma inside the
+   quadrature. Per "Uncertainty Quantification of Turbulence Model Closure
+   Coefficients for Transonic Wall-Bounded Flows" and "Uncertainty
+   Quantification and Sensitivity Analysis of SA Turbulence Model
+   Coefficients in Two and Three Dimensions" (Schaefer et al.). See
+   proposal r2-closure-coefficient-uncertainty; the current recipe above
+   stands unchanged until it lands.
 
 ## Standing product rules that bind these
 - Never a fake number; every displayed value traces to a computation.

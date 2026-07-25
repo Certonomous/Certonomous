@@ -347,6 +347,129 @@ in `docs/standards/`.
   detection rule, severity, and action. Proposals: r1-monitor-walltime-rule,
   r1-monitor-stall-rule.
 
+## Reading round R2 — closure-coefficient uncertainty (read 2026-07-25)
+
+Four papers supplied to `docs/papers/`, targeted at the model channel: the
+Schaefer closure-coefficient UQ pair, the original Spalart-Allmaras model
+paper, and the UQit framework paper. Each entry is claim, then source, then
+where it applies in this lab. Proposal raised from this round:
+r2-closure-coefficient-uncertainty.
+
+- **Uncertainty Quantification of Turbulence Model Closure Coefficients for
+  Transonic Wall-Bounded Flows** (Schaefer, Hosder, West, Rumsey, Carlson &
+  Kleb, *AIAA Journal* 55(1):195–210, 2017). Treats every closure
+  coefficient of SA, Wilcox 2006 k-ω, and Menter SST as an epistemic
+  interval with named provenance: κ ∈ [0.38, 0.42] from Bailey et al.'s
+  pipe-flow measurement κ = 0.40 ± 0.02; β* ∈ [0.0784, 0.1024] from
+  Wilcox's stress ratio τxy/k ≈ 3/10 taken as [0.28, 0.32]; β*/β0 = 1.25 ±
+  0.06 per Wilcox; a1 ∈ [0.31, 0.40] from Georgiadis & Yoder, with Menter's
+  own caveat that "one can only increase a1 — decreasing it interferes with
+  the log layer calibration"; SA bounds from Spalart's constraints (σ ∈
+  [0.6, 1.0], cw3 ∈ [1.75, 2.5], cb1/cb2/cw2 from the original paper's
+  trade figure). Full SST set: σk1 0.85 [0.7, 1.0], σk2 1.0 [0.8, 1.2],
+  σw1 0.5 [0.3, 0.7], σw2 0.856 [0.7, 1.0], β*/β1 1.20 [1.19, 1.31],
+  β*/β2 1.0870 [1.05, 1.45], β* 0.09 [0.0784, 0.1024], κ 0.41 [0.38,
+  0.42], a1 0.31 [0.31, 0.40]. Machinery: point-collocation non-intrusive
+  polynomial chaos over Latin Hypercube samples, Legendre basis, order
+  p = 2, oversampling 2, Ns = np·(n+p)!/(n!p!) solves; the epistemic output
+  band is the min/max of the response surface (no PDF assumed), verified
+  within ~4% by confirming CFD solves at the extremal corners; the
+  reduced-dimensionality pass keeps coefficients covering ≥ 95% of the
+  variance. Results: SST is the most coefficient-sensitive of the three
+  models — RAE 2822 CD spans 112 to 183 counts against a 128.5 baseline,
+  and the transonic-bump separation bubble spans 0 to 0.90 chord against
+  0.51; β* dominates drag and skin friction (Sobol ≈ 0.8), a1 and β*/β2
+  dominate lift, a1 is significant to separation-bubble size; κ is dominant
+  for SA but insignificant in both two-equation models because their
+  log-law calibration (the γ expressions) absorbs it. UQ training cases
+  restart from the converged baseline solution to cut solve cost. Source:
+  `docs/papers/Schaefer et al. - 2017 - Uncertainty Quantification of
+  Turbulence Model Closure Coefficients for Transonic Wall-Bounded
+  Flows.pdf`.
+  *Applies*: the direct basis for a measured model channel on our k-ω SST
+  cases. The SST table names the five coefficients worth perturbing (β*,
+  a1, σw1, β*/β1, β*/β2) with defensible intervals; restart-from-baseline
+  is the cost trick; and the min/max convention fixes what we report — the
+  coefficient band is an interval, not a sigma. Proposal:
+  r2-closure-coefficient-uncertainty.
+
+- **Uncertainty Quantification and Sensitivity Analysis of SA Turbulence
+  Model Coefficients in Two and Three Dimensions** (Schaefer, Cary, Mani &
+  Spalart, AIAA 2017-1710). Treating all nine SA coefficients as
+  independently uncertain yields implausibly wide bands — RAE 2822 CD
+  interval 15.6 counts, NASA Common Research Model CD 28.6 counts with
+  26.7 of it in skin friction — and even flat-plate Cf turns uncertain,
+  which is self-evidently wrong since the model was calibrated to match
+  flat-plate Cf. Enforcing the designer's own relations (cb1, cb2, cw2 as
+  cubic fits in σ digitized from the original paper's trade figure;
+  cv1 = 7.1 + 37.5(κ − 0.41) so u+ = 18.67 at y+ = 250 holds as κ varies)
+  cuts the dimensionality from nine to three and the intervals by an order
+  of magnitude (RAE 2822 CD 1.8 counts, CRM 2.9), and restores the tight
+  flat plate. Sensitivity geography: κ dominates wherever the boundary
+  layer is attached with a developed log layer; σ takes over post-shock,
+  near separation, and in strong vortices. The κ/σ ranking is shown
+  independent of mesh, grid topology, flow solver, and 2-D versus 3-D.
+  Source: `docs/papers/Schaefer et al. - 2017 - Uncertainty Quantification
+  and Sensitivity Analysis of SA Turbulence Model Coefficients in Two and
+  T.pdf`.
+  *Applies*: the recipe discipline for our perturbation missions — vary
+  coefficients within the designer relations rather than independently,
+  keep an attached-flow anchor (our flat-plate or cylinder unit problems)
+  as the sanity gate that the input characterization is physical, and
+  expect the dominant coefficient to switch between attached and separated
+  regions: for the motorcycle wake the separated-flow set matters most.
+  The CRM result says the ranking survives to full 3-D configurations.
+
+- **A One-Equation Turbulence Model for Aerodynamic Flows** (Spalart &
+  Allmaras, AIAA 92-0439, 1992). The model's constants are a coupled
+  calibration, not independent knobs: cb1, σ, cb2 come as a one-parameter
+  family from matching peak shear stress in 2-D mixing layers (0.01·ΔU²)
+  and wakes (0.06·ΔU²), from which σ = 2/3, cb1 = 0.1355, cb2 = 0.622 were
+  picked for edge behavior; cw1 is "not negotiable", fixed by the log law
+  as cb1/κ² + (1+cb2)/σ; cw2 = 0.3 is calibrated to flat-plate
+  Cf = 0.00262 at Rθ = 10⁴; cv1 = 7.1 is preferred over Mellor & Herring's
+  6.9 for the log-law intercept. The authors bound their own envelope: the
+  calibration cases — mixing layers, wakes, flat-plate boundary layers —
+  are "the building blocks for aerodynamic flows"; the model "is not
+  intended to be universal" (axisymmetric flows conflict with the 2-D
+  calibration); post-shock reattachment and massive separation are named
+  weak points; and "on no account" should the model be trusted to predict
+  the transition location — transition is user-imposed via the trip terms
+  (ct1–ct4). Source: `docs/papers/Spalart et Allmaras - 1992 - A
+  one-equation turbulence model for aerodynamic flows.pdf`.
+  *Applies*: background for any future SA adoption (the lab runs k-ω SST):
+  an SA validity claim must state attached-to-mildly-separated aerodynamic
+  flows with imposed transition, nothing wider. More generally it is the
+  primary-source warrant for the R2 discipline: perturbing closure
+  coefficients independently breaks a calibration the designers built as a
+  system, which is exactly what the companion paper measured.
+
+- **UQit: A Python package for uncertainty quantification (UQ) in
+  computational fluid dynamics (CFD)** (Rezaeiravesh, Vinuesa & Schlatter,
+  *Journal of Open Source Software* 6(60):2871, 2021). A compact statement
+  of the KTH framework (a software paper, not a survey): uncertainty is
+  distinct from error (deviation from a reference value); named sources
+  include model fidelity, parameters, boundary/initial data, and the
+  finite sampling time of time-averaged quantities; the general strategy
+  is to reformulate epistemic uncertainties in aleatoric terms so
+  probabilistic machinery applies, non-intrusively with the simulator as a
+  black box. Toolset: polynomial chaos expansion (regression or
+  projection, compressed sensing when samples are fewer than expansion
+  terms), Gaussian-process regression carrying observational uncertainty,
+  a probabilistic PCE combining the two, and Sobol indices (main,
+  interaction, total) for global sensitivity. Source:
+  `docs/papers/Rezaeiravesh et al. - 2021 - UQit A Python package for
+  uncertainty quantification (UQ) in computational fluid dynamics
+  (CFD).pdf`.
+  *Applies*: confirms our channel toolkit (PCE-style surrogates, GP
+  variance, Sobol layer, final-window envelopes for finite averaging) is
+  the standard stack. One doctrine conflict flagged rather than
+  reconciled: its epistemic-as-aleatoric reformulation is the opposite
+  convention from the Schaefer interval treatment, which assumes no PDF
+  and reports only min/max. Our doctrine's u_val quadrature combines
+  variances, so a coefficient-interval band must be carried as an interval
+  alongside u_val, never silently converted to a sigma inside it.
+
 ## What this changes in our practice
 
 1. **Stop calling a two-mesh comparison an uncertainty.** Rename it what it

@@ -14,17 +14,24 @@
       "mission": "b52-rung-medium"
     },
     {
+      "tag": "intermediate",
+      "cells": 135779,
+      "cd": 0.04905217593055556,
+      "mission": "b52-rung-intermediate",
+      "wall_minutes": 6.3
+    },
+    {
       "tag": "production",
       "cells": 193880,
       "cd": 0.04719600808166667,
       "mission": "b52-production"
     }
   ],
-  "updated_utc": "2026-07-25T18:27:13Z",
+  "updated_utc": "2026-07-25T21:04:37Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
-    "band_abs": 0.012937518465277777,
-    "band_rel": 0.27412,
+    "band_abs": 0.00535610805555556,
+    "band_rel": 0.11349,
     "observed_order": null,
     "order_used": null,
     "clamped": false,
@@ -35,6 +42,7 @@
   "provenance": [
     "b52-rung-coarse",
     "b52-rung-medium",
+    "b52-rung-intermediate",
     "b52-production"
   ]
 }

@@ -1,7 +1,7 @@
 {
   "id": "r1-multifidelity-propagation",
   "objective": "Adopt a multifidelity Monte Carlo propagation scheme that fuses the reduced-order ensemble with a few anchoring solver evaluations instead of racing them",
-  "rationale": "The race act already produces the exact data multifidelity fusion needs: the same designs evaluated through the reduced-order lane and the solver lane. Multifidelity Monte Carlo is an unbiased control-variate estimator; the measured correlation between the paired lanes and the measured cost ratio decide the optimal sample allocation analytically, and also decide honestly whether fusion pays at all. Today the pairing is discarded once the race ends. The scheme keeps the solver in the loop for the accuracy guarantee, uses the reduced-order ensemble for volume, and reports one fused envelope with the correlation and allocation on the record.",
+  "rationale": "The race act already produces the exact data multifidelity fusion needs: the same designs evaluated through the reduced-order lane and the solver lane. Multifidelity Monte Carlo is an unbiased control-variate estimator; the measured correlation between the paired lanes and the measured cost ratio decide the optimal sample allocation analytically, and also decide honestly whether fusion pays at all. Today the pairing is discarded once the race ends. The scheme keeps the solver in the loop for the accuracy guarantee, uses the reduced-order ensemble for volume, and reports one fused envelope with the correlation and allocation on the record. Offline evidence measured 2026-07-25 on the race act's recorded pairs: correlation 0.9967 over 88 matched design evaluations, measured cost ratio 1.03e+07, optimal allocation 87 solves + 3422145 surrogate evaluations at the lane's own budget, variance reduction factor 150.1x vs single-fidelity MC at equal cost (empirical replay 60.5x); for the race's actual fixed-alpha Reynolds-spread estimand the alpha-only surrogate is constant and fusion buys nothing \u2014 a Reynolds-aware cheap model is the named prerequisite.",
   "citations": [
     "Survey Of Multifidelity Methods In Uncertainty Propagation, Inference, And Optimization, Peherstorfer, Willcox And Gunzburger, SIAM Review 2018"
   ],
@@ -11,5 +11,34 @@
   "source_kind": "reading",
   "status": "proposed",
   "created_at": "2026-07-25",
-  "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated."
+  "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated.",
+  "evidence": {
+    "measured_at": "2026-07-25",
+    "standard_stage": "Stage 2 - offline evidence on a benchmark",
+    "script": "sdk/scripts/run_mfmc_evidence.py",
+    "paired_records": 88,
+    "rho": 0.99669,
+    "control_variate_alpha": 1.053403,
+    "cost_hi_s": 5.098,
+    "cost_lo_s": 4.952120000234573e-07,
+    "cost_ratio": 10294718.6,
+    "budget_s": 448.6,
+    "allocation": {
+      "n_hi": 87,
+      "n_lo": 3422145,
+      "r_optimal": 39335.0
+    },
+    "variance_ratio_analytic": 0.00666021815556507,
+    "variance_ratio_empirical": 0.01652608632056445,
+    "equal_budget_speedup": 150.1,
+    "fixed_alpha_estimand": {
+      "peak_alpha_deg": 0.0,
+      "hi_sigma": 0.1272,
+      "lo_sigma": 0.0,
+      "rho": null,
+      "degenerate": true
+    },
+    "verdict": "Split verdict. For estimands the surrogate tracks (anything that varies with alpha, e.g. the sweep-mean L/D), MFMC at the MC lane's own 449 s budget would have cut estimator variance by 150.1x (rho 0.9967, cost ratio 1e+07) \u2014 equivalently, matched the MC lane's error using roughly 1% of its budget. For the question the race actually asked \u2014 peak L/D under the Reynolds spread at fixed alpha \u2014 the recorded surrogate carries no Reynolds dependence, its lane is constant across the ensemble, and MFMC would NOT have beaten the race's approach at any budget: fusion needs a cheap model that moves with the uncertain input."
+  },
+  "evidence_stage": "offline-evidence-measured"
 }
