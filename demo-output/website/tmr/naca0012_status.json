@@ -1,0 +1,35 @@
+{
+  "case": "TMR NACA 0012 airfoil validation",
+  "state": "one rung measured, ladder pending",
+  "measured": {
+    "alpha_deg": 10.0,
+    "grid": "TMR-distributed 113x33 C-grid (3584 cells), converted from the published PLOT3D file",
+    "cl": 1.1164357439,
+    "cd": 0.0044948532678,
+    "cd_pressure": -0.001479113051,
+    "cd_viscous": 0.005973966318,
+    "cl_tail_spread": 4.649999985062436e-08,
+    "cd_tail_spread": 5.738080000039503e-08,
+    "yplus_max": 9.6640209274,
+    "iterations": 5000,
+    "wall_seconds": 95.2
+  },
+  "reference": {
+    "cfl3d_finest_cl": 1.0778080613,
+    "cfl3d_finest_cd": 0.012362110998,
+    "note": "Published values are finest-grid (897x257) only; a single coarse rung supports no comparison claim and none is made",
+    "source": "turbmodels.larc.nasa.gov NACA 0012 validation, CFL3D SST on the 897x257 grid with point-vortex farfield correction (n0012clcd_cfl3d_sst.dat via mirror tmbwg.github.io/turbmodels, retrieved 2026-07-25); FUN3D values from the same validation page"
+  },
+  "pending": [
+    "225x65 and 449x129 rungs at alpha 10 (medium launch was withdrawn when the STOP file appeared)",
+    "Full ladders at alpha 0 and alpha 15",
+    "Observed order, Richardson extrapolation, figures, and any card change wait until a full ladder exists"
+  ],
+  "deviations": [
+    "Incompressible simpleFoam analog of the M=0.15 case",
+    "No point-vortex farfield correction; the grids place the farfield near 500 chords, and the outer pressure is pinned uniform there",
+    "The TMR coarse grid's own wall spacing gives max y+ near 10 at this Reynolds number; that is the reference family's coarse rung, not a choice of ours",
+    "Grids are the TMR point files themselves, converted with plot3dToFoam; the wake cut closes through the converter's point merge"
+  ],
+  "generated_unix": 1785006887
+}

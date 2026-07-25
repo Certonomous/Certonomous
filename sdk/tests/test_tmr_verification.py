@@ -11,13 +11,15 @@ import math
 import unittest
 
 from workflows.tmr_verification import (
-    BANNED_CARD_WORDS, BUMP_LEVELS, CFL3D_BUMP_SST, CFL3D_SST_V,
-    FUN3D_BUMP_SST, FUN3D_SST_V, LEVELS, build_bump_summary, build_proposals,
+    BANNED_CARD_WORDS, BUMP_LEVELS, CFL3D_BUMP_SST, CFL3D_NACA_SST,
+    CFL3D_SST_V, FUN3D_BUMP_SST, FUN3D_NACA_SST, FUN3D_SST_V, LEVELS,
+    NACA_LEVELS, _axis_vector, build_bump_summary, build_proposals,
     build_summary, bump_edge_points, bump_profile, card_entry_text,
-    card_update, cf_at, final_coefficient, format_bump_summary_lines,
-    format_summary_lines, geometric_first_cell, grid_convergence_index,
-    observed_order, parse_force_split, parse_wall_shear_raw, parse_yplus_dat,
-    ratio_for_first_cell, richardson_extrapolate,
+    card_update, cf_at, classify_naca_patches, final_coefficient,
+    format_bump_summary_lines, format_summary_lines, geometric_first_cell,
+    grid_convergence_index, naca_fields_tmr, naca_thickness, observed_order,
+    parse_boundary_patches, parse_force_split, parse_wall_shear_raw,
+    parse_yplus_dat, ratio_for_first_cell, richardson_extrapolate,
 )
 
 
@@ -405,6 +407,74 @@ class Proposals(unittest.TestCase):
             self.assertNotIn("--", blob)
             for word in BANNED_CARD_WORDS:
                 self.assertNotIn(word, blob.lower(), msg=word)
+
+
+class NacaCase(unittest.TestCase):
+    def test_airfoil_closes_sharp_at_both_ends(self):
+        self.assertEqual(naca_thickness(0.0), 0.0)
+        self.assertLess(abs(naca_thickness(1.0)), 1e-12)
+        self.assertAlmostEqual(
+            max(naca_thickness(x / 1000) for x in range(1001)), 0.0595,
+            places=3)
+
+    def test_ladder_matches_the_tmr_cell_counts(self):
+        self.assertEqual([lv.cells for lv in NACA_LEVELS],
+                         [3584, 14336, 57344])
+
+    def test_reference_values_match_the_published_files(self):
+        self.assertAlmostEqual(CFL3D_NACA_SST[10.0]["cl"], 1.0778080613,
+                               places=10)
+        self.assertAlmostEqual(CFL3D_NACA_SST[15.0]["cd"], 2.2186245406e-2,
+                               places=12)
+        self.assertAlmostEqual(FUN3D_NACA_SST[10.0]["cl"], 1.0840, places=8)
+
+    def test_axis_vector_places_lift_on_the_discovered_axis(self):
+        self.assertEqual(_axis_vector(1.0, 0.5, 2),
+                         "(1.00000000 0.00000000 0.50000000)")
+        self.assertEqual(_axis_vector(1.0, 0.5, 1),
+                         "(1.00000000 0.50000000 0.00000000)")
+
+    def test_boundary_parse_and_classification(self):
+        boundary = """
+    auto0 { type patch; nFaces 4; startFace 0; }
+    auto1 { type patch; nFaces 4; startFace 4; }
+    auto2 { type patch; nFaces 4; startFace 8; }
+    empty0 { type patch; nFaces 0; startFace 12; }
+"""
+        patches = parse_boundary_patches(boundary)
+        self.assertEqual(patches["auto1"], (4, 4))
+        # Synthetic mesh: chord x, lift z, span y in [0, -1] (the TMR NACA
+        # layout). Patch 0 far away, patch 1 on the body, patch 2 a span
+        # plane.
+        points = [(0.5, 0.0, 0.001), (0.6, 0.0, 0.001),
+                  (0.5, -1.0, 0.001), (0.6, -1.0, 0.001),
+                  (400.0, 0.0, -300.0), (410.0, 0.0, -300.0),
+                  (400.0, -1.0, -300.0), (410.0, -1.0, -300.0),
+                  (0.5, 0.0, 0.3), (0.6, 0.0, 0.3),
+                  (0.5, 0.0, -0.3), (0.6, 0.0, -0.3)]
+        faces = ([[4, 5, 7, 6]] * 4          # patch auto0: farfield
+                 + [[0, 1, 3, 2]] * 4        # patch auto1: on the body
+                 + [[0, 1, 9, 8]] * 4)       # patch auto2: span plane y=0
+        roles, thickness, lift_axis, span_axis = classify_naca_patches(
+            points, faces, patches)
+        self.assertEqual(span_axis, 1)
+        self.assertEqual(lift_axis, 2)
+        self.assertAlmostEqual(thickness, 1.0)
+        self.assertEqual(roles, {"auto0": "outer", "auto1": "airfoil",
+                                 "auto2": "frontAndBack",
+                                 "empty0": "unused"})
+
+    def test_fields_carry_the_discovered_patch_names_and_alpha(self):
+        roles = {"auto3": "airfoil", "auto4": "outer",
+                 "auto1": "frontAndBack", "defaultFaces": "unused"}
+        fields = naca_fields_tmr(10.0, roles, lift_axis=2)
+        for text in fields.values():
+            for name in roles:
+                self.assertIn(name, text)
+        # Alpha 10 with lift on z: U = (cos10, 0, sin10).
+        self.assertIn("(0.98480775 0.00000000 0.17364818)", fields["U"])
+        self.assertIn("noSlip", fields["U"])
+        self.assertIn("omegaWallFunction", fields["omega"])
 
 
 if __name__ == "__main__":

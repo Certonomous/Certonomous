@@ -406,7 +406,9 @@ boundary
 
 
 def control_dict(iterations: int = 5000, *, patch: str = "plate",
-                 lref: float = PLATE_LENGTH, aref: float = PLATE_LENGTH) -> str:
+                 lref: float = PLATE_LENGTH, aref: float = PLATE_LENGTH,
+                 drag_dir: str = "(1 0 0)",
+                 lift_dir: str = "(0 1 0)") -> str:
     return _foam_header("dictionary", "controlDict", "system") + f"""
 application     simpleFoam;
 startFrom       startTime;
@@ -437,8 +439,8 @@ functions
         lRef            {lref};
         Aref            {aref};
         CofR            (0 0 0);
-        dragDir         (1 0 0);
-        liftDir         (0 1 0);
+        dragDir         {drag_dir};
+        liftDir         {lift_dir};
         pitchAxis       (0 0 1);
     }}
     yPlus1
@@ -474,10 +476,21 @@ functions
 """
 
 
-def fv_schemes() -> str:
-    return _foam_header("dictionary", "fvSchemes", "system") + """
-ddtSchemes      { default steadyState; }
-gradSchemes     { default Gauss linear; }
+def fv_schemes(limited: bool = False) -> str:
+    """Discretization schemes. ``limited`` swaps the orthogonal-mesh
+    laplacian/snGrad for limited corrected forms; the C-grid airfoil blocks
+    carry real non-orthogonality (up to 70 degrees on the coarse rung) that
+    the plate and bump meshes simply do not have."""
+    grad = "cellLimited Gauss linear 1" if limited else "Gauss linear"
+    lap = ("Gauss linear limited corrected 0.5" if limited
+           else "Gauss linear corrected")
+    sng = "limited corrected 0.5" if limited else "corrected"
+    return _foam_header("dictionary", "fvSchemes", "system") + f"""
+ddtSchemes      {{ default steadyState; }}
+gradSchemes     {{ default {grad}; }}
+laplacianSchemes {{ default {lap}; }}
+snGradSchemes   {{ default {sng}; }}
+""" + """
 divSchemes
 {
     // Momentum second order; turbulence advection first-order upwind.
@@ -493,50 +506,75 @@ divSchemes
     div(phi,omega)                  bounded Gauss upwind;
     div((nuEff*dev2(T(grad(U)))))   Gauss linear;
 }
-laplacianSchemes { default Gauss linear corrected; }
 interpolationSchemes { default linear; }
-snGradSchemes   { default corrected; }
 wallDist        { method meshWave; }
 """
 
 
-def fv_solution() -> str:
-    return _foam_header("dictionary", "fvSolution", "system") + """
-solvers
+def fv_solution(non_orth_correctors: int = 0, relax_p: float = 0.3,
+                relax_u: float = 0.7, potential: bool = False,
+                p_solver: str = "GAMG") -> str:
+    """fvSolution. ``potential`` adds the Phi solver block potentialFoam
+    needs; the airfoil case initializes from a potential solution because an
+    impulsive uniform start on its extreme-aspect C-grid diverged within 20
+    iterations (measured, not theorized). ``p_solver`` exists for the same
+    mesh: GAMG stalled on the C-grid's 1e7-aspect cells (a bare Laplace
+    solve plateaued at 1000 sweeps), while PCG with DIC converges."""
+    if p_solver == "PCG":
+        p_inner = ("        solver          PCG;\n"
+                   "        preconditioner  DIC;\n")
+    else:
+        p_inner = ("        solver          GAMG;\n"
+                   "        smoother        GaussSeidel;\n")
+    phi_block = f"""
+    Phi
+    {{
+{p_inner}        tolerance       1e-08;
+        relTol          0.02;
+    }}
+""" if potential else ""
+    potential_block = """
+potentialFlow
 {
+    nNonOrthogonalCorrectors 10;
+    PhiRefCell      0;
+    PhiRefValue     0;
+}
+""" if potential else ""
+    return _foam_header("dictionary", "fvSolution", "system") + f"""
+solvers
+{{
     p
-    {
-        solver          GAMG;
-        smoother        GaussSeidel;
-        tolerance       1e-09;
+    {{
+{p_inner}        tolerance       1e-09;
         relTol          0.01;
-    }
-    "(U|k|omega)"
-    {
+    }}
+{phi_block}    "(U|k|omega)"
+    {{
         solver          smoothSolver;
         smoother        symGaussSeidel;
         tolerance       1e-10;
         relTol          0.01;
-    }
-}
+    }}
+}}
 
 SIMPLE
-{
-    nNonOrthogonalCorrectors 0;
+{{
+    nNonOrthogonalCorrectors {non_orth_correctors};
     consistent      no;
     residualControl
-    {
+    {{
         p               1e-06;
         U               1e-08;
         "(k|omega)"     1e-08;
-    }
-}
-
+    }}
+}}
+{potential_block}
 relaxationFactors
-{
-    fields    { p 0.3; }
-    equations { U 0.7; k 0.7; omega 0.7; }
-}
+{{
+    fields    {{ p {relax_p}; }}
+    equations {{ U {relax_u}; k {relax_u}; omega {relax_u}; }}
+}}
 """
 
 
@@ -706,7 +744,7 @@ def _stage_and_mesh(level: GridLevel, case_root: Path, out_dir: Path,
 
 
 def _extract_record(level: GridLevel, out_dir: Path, remote: str,
-                    timings: dict[str, float], station: float,
+                    timings: dict[str, float], station: float | None,
                     yplus_patch: str,
                     log: Callable[[str], None]) -> dict[str, Any]:
     """Pull one solved case's results back to Windows and extract the record.
@@ -742,10 +780,17 @@ def _extract_record(level: GridLevel, out_dir: Path, remote: str,
     if not raw_files:
         raise RuntimeError(f"{level.name}: no wall-shear sample found")
     profile = parse_wall_shear_raw(raw_files[-1].read_text(errors="replace"))
-    cf_station = cf_at(profile, station)
-    if cf_station is None or cf_station <= 0:
-        raise RuntimeError(f"{level.name}: Cf at x={station} not extractable "
-                           f"(profile of {len(profile)} points)")
+    cf_station = None
+    if station is not None:
+        # A single-valued Cf(x) station only makes sense on a single-surface
+        # wall (plate, bump); an airfoil folds two surfaces onto one x.
+        cf_station = cf_at(profile, station)
+        if cf_station is None or cf_station <= 0:
+            raise RuntimeError(
+                f"{level.name}: Cf at x={station} not extractable "
+                f"(profile of {len(profile)} points)")
+    cl = final_coefficient(coeff_files[-1].read_text(errors="replace"), "Cl",
+                           tail=50)
 
     yplus_files = sorted((out_dir / "postProcessing").rglob("yPlus.dat"))
     yplus = (parse_yplus_dat(yplus_files[-1].read_text(errors="replace"),
@@ -770,11 +815,17 @@ def _extract_record(level: GridLevel, out_dir: Path, remote: str,
         "timings": timings,
         "cf_profile": [(round(x, 6), round(c, 8)) for x, c in profile],
     }
+    if cl is not None:
+        record["cl"] = cl["value"]
+        record["cl_tail_spread"] = cl["spread"]
     if split:
         record["cd_pressure"] = split["pressure"]
         record["cd_viscous"] = split["viscous"]
+    station_note = (f"Cf({station:g})={cf_station:.6f} "
+                    if cf_station is not None else
+                    f"Cl={record.get('cl', float('nan')):.5f} ")
     log(f"[tmr:{level.name}] Cd={cd['value']:.6f} "
-        f"Cf({station:g})={cf_station:.6f} iters={cd['iterations']} "
+        f"{station_note}iters={cd['iterations']} "
         f"wall={record['wall_seconds']:.0f}s")
     return record
 
@@ -783,12 +834,15 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
               log: Callable[[str], None] = print, *,
               writer: Callable[[Path, GridLevel], Path] = write_case,
               remote_prefix: str = "tmr-flatplate",
-              station: float = CF_STATION, yplus_patch: str = "plate",
-              solver_timeout: float = 5400.0) -> dict[str, Any]:
+              station: float | None = CF_STATION, yplus_patch: str = "plate",
+              solver_timeout: float = 5400.0,
+              init_potential: bool = False) -> dict[str, Any]:
     """Mesh and solve one ladder level in WSL, pull results back, extract."""
     remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
     out_dir = Path(out_dir)
     timings = _stage_and_mesh(level, case_root, out_dir, remote, writer, log)
+    if init_potential:
+        _run_potential_init(level, remote, timings, log)
     start = time.monotonic()
     log(f"[tmr:{level.name}] simpleFoam started")
     result = _wsl(f"cd {remote} && openfoam2606 simpleFoam "
@@ -804,10 +858,27 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
                            yplus_patch, log)
 
 
+def _run_potential_init(level: GridLevel, remote: str,
+                        timings: dict[str, float],
+                        log: Callable[[str], None]) -> None:
+    """Initialize U and phi from a potential solve before the RANS march."""
+    start = time.monotonic()
+    log(f"[tmr:{level.name}] potentialFoam started")
+    result = _wsl(f"cd {remote} && openfoam2606 potentialFoam -writephi "
+                  f"> log.potentialFoam 2>&1 && echo DONE", timeout=1800)
+    timings["potentialFoam"] = round(time.monotonic() - start, 1)
+    if "DONE" not in result.stdout:
+        tail = _wsl(f"tail -20 {remote}/log.potentialFoam").stdout
+        raise RuntimeError(f"{level.name}/potentialFoam failed:\n{tail}")
+    log(f"[tmr:{level.name}] potentialFoam finished in "
+        f"{timings['potentialFoam']:.1f} s")
+
+
 def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
                         log: Callable[[str], None] = print, *,
                         writer: Callable[[Path, GridLevel], Path] = write_case,
-                        remote_prefix: str = "tmr-flatplate") -> dict[str, float]:
+                        remote_prefix: str = "tmr-flatplate",
+                        init_potential: bool = False) -> dict[str, float]:
     """Stage, mesh, and start the solve DETACHED inside WSL.
 
     For rungs whose solve outlives any sane foreground window. The nohup'd
@@ -818,6 +889,8 @@ def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
     remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
     timings = _stage_and_mesh(level, case_root, Path(out_dir), remote,
                               writer, log)
+    if init_potential:
+        _run_potential_init(level, remote, timings, log)
     # setsid puts the solver in its own session so WSL's per-session cleanup
     # cannot reap it when this command's wsl.exe exits, and the launching
     # shell stays alive (sleep) until the solver has demonstrably opened its
@@ -1658,6 +1731,818 @@ def write_proposals(proposals: list[dict[str, Any]],
             json.dump(proposal, handle, indent=2)
         written.append(str(path))
     return written
+
+
+# ---------------------------------------------------------------------------
+# NACA 0012: the third TMR case, first with lift
+# ---------------------------------------------------------------------------
+# TMR spec (tmbwg.github.io/turbmodels/naca0012_val.html): the sharp-TE
+# modified NACA 0012 (equation below, closes exactly at x=1), Re = 6 million
+# per chord, M = 0.15, farfield close to 500 chords away (or a point-vortex
+# farfield correction). Reference values are the published CFL3D and FUN3D
+# results on the finest 897x257 grid; no SST per-grid ladder is published,
+# so matched-size comparisons are NOT claimed for this case: our ladder
+# reports its own observed order and Richardson value against the published
+# finest-grid numbers, with the deviations stated.
+
+NACA_NU = 1.0 / 6.0e6                             # Re per chord = 6e6
+_A_NACA = U_INF / 0.15                            # a at the case's M = 0.15
+NACA_K_INF = 9.0e-9 * _A_NACA ** 2                # 4.0e-7
+NACA_OMEGA_INF = 1.0e-6 * _A_NACA ** 2 / NACA_NU  # 266.67
+NACA_NUT_INF = NACA_K_INF / NACA_OMEGA_INF        # 0.009 nu again
+NACA_R = 500.0                                    # farfield radius, chords
+NACA_WAKE = 500.0                                 # wake block length
+NACA_ALPHAS = (10.0, 0.0, 15.0)                   # priority order: lift first
+
+NACA_REFERENCE_SOURCE = (
+    "turbmodels.larc.nasa.gov NACA 0012 validation, CFL3D SST on the "
+    "897x257 grid with point-vortex farfield correction "
+    "(n0012clcd_cfl3d_sst.dat via mirror tmbwg.github.io/turbmodels, "
+    "retrieved 2026-07-25); FUN3D values from the same validation page")
+
+# Published finest-grid (897x257) values. CFL3D from the data file; FUN3D
+# quoted on the validation page. Keyed by alpha in degrees.
+CFL3D_NACA_SST = {
+    0.0:  {"cl": -0.76275807991e-5, "cd": 0.80937292380e-2},
+    10.0: {"cl": 1.0778080613, "cd": 1.2362110998e-2},
+    15.0: {"cl": 1.5067867358, "cd": 2.2186245406e-2},
+}
+FUN3D_NACA_SST = {
+    0.0:  {"cl": 0.0, "cd": 0.00808},
+    10.0: {"cl": 1.0840, "cd": 0.01253},
+    15.0: {"cl": 1.5109, "cd": 0.02275},
+}
+
+
+@dataclass(frozen=True)
+class NacaGridLevel:
+    name: str
+    tmr_nodes: str
+    n_surf_quarter: int   # cells per quarter surface (4 quarters total)
+    n_wake: int           # wake cells each side of the cut
+    ny: int               # wall-normal cells
+
+    @property
+    def nx_total(self) -> int:
+        return 4 * self.n_surf_quarter + 2 * self.n_wake
+
+    @property
+    def cells(self) -> int:
+        return self.nx_total * self.ny
+
+
+NACA_LEVELS = (
+    NacaGridLevel("coarse", "113x33", 16, 24, 32),
+    NacaGridLevel("medium", "225x65", 32, 48, 64),
+    NacaGridLevel("fine", "449x129", 64, 96, 128),
+)
+
+NACA_ITERATIONS = {"coarse": 5000, "medium": 8000, "fine": 12000}
+
+# Family gradings, fixed across levels. Surface: expansion away from the
+# leading edge and contraction into the trailing edge (the two mid-chord
+# block boundaries make every airfoil face's vertex set unique, which
+# blockMesh needs to tell the upper surface from the lower). Wall-normal
+# first cell ~6e-6 chords on the coarse rung (y+ under 1); the wake grows
+# from the trailing-edge streamwise spacing out to 500 chords.
+# The nose radius is 0.016 chords; the first pilot with E_LE = 10 left a
+# coarse-rung leading-edge cell wrapping a third of the nose and the solve
+# detonated from the stagnation column. E_LE = 50 puts the coarse LE cell at
+# ~0.002 chords.
+NACA_E_LE = 50.0      # mid-chord to leading-edge spacing ratio
+NACA_E_TE = 4.0       # mid-chord to trailing-edge spacing ratio
+R_Y_NACA = ratio_for_first_cell(NACA_R, 32, 6.0e-6)
+# The wake cut must not carry wall-level clustering 500 chords downstream:
+# that gave 1.4e-8-volume cells of aspect 2.8e7 at the outflow and the
+# pressure matrix was unsolvable (GAMG stalled on a bare Laplacian there).
+# The far end of the wake relaxes to ~0.3-chord first spacing instead; the
+# per-edge grading below tapers between the two.
+R_Y_FAR = ratio_for_first_cell(NACA_R, 32, 0.3)
+
+
+def naca_thickness(x: float) -> float:
+    """The TMR sharp-trailing-edge NACA 0012 half thickness; exactly zero at
+    both x=0 and x=1 (the quartic coefficient closes the trailing edge)."""
+    if x <= 0.0:
+        return 0.0
+    return 0.594689181 * (0.298222773 * math.sqrt(x) - 0.127125232 * x
+                          - 0.357907906 * x ** 2 + 0.291984971 * x ** 3
+                          - 0.105174606 * x ** 4)
+
+
+def naca_surface_points(x_lo: float, x_hi: float, sign: float,
+                        n: int = 240) -> list[tuple[float, float]]:
+    """Interior points of one surface segment, cosine-clustered toward both
+    segment ends so the polyLine is densest where curvature lives."""
+    points = []
+    for i in range(1, n):
+        t = 0.5 * (1.0 - math.cos(math.pi * i / n))
+        x = x_lo + (x_hi - x_lo) * t
+        points.append((x, sign * naca_thickness(x)))
+    return points
+
+
+def _naca_wake_ratio(level_coarse: NacaGridLevel = None) -> float:
+    """Total wake expansion so the first wake cell matches the trailing-edge
+    streamwise spacing of the coarse family member (fixed across levels)."""
+    lv = NACA_LEVELS[0]
+    # Upper-rear quarter: length ~ surface arc of [0.5, 1], graded 1/E_TE.
+    seg = 0.502
+    r = (1.0 / NACA_E_TE) ** (1.0 / (lv.n_surf_quarter - 1))
+    first = seg * (r - 1.0) / (r ** lv.n_surf_quarter - 1.0)
+    te_spacing = first * r ** (lv.n_surf_quarter - 1)
+    return ratio_for_first_cell(NACA_WAKE, lv.n_wake, te_spacing)
+
+
+R_WAKE_NACA = _naca_wake_ratio()
+
+
+def naca_blockmesh_dict(level: NacaGridLevel) -> str:
+    R, W = NACA_R, 1.0 + NACA_WAKE
+    ym = naca_thickness(0.5)
+    c45 = R / math.sqrt(2.0)
+
+    def arc_point(deg: float) -> str:
+        rad = math.radians(deg)
+        return f"({1.0 + R * math.cos(rad):.10g} {R * math.sin(rad):.10g}"
+
+    def edge(kind: str, a: int, b: int, payload: str) -> str:
+        return f"    {kind} {a} {b} {payload}"
+
+    def poly(points: list[tuple[float, float]], z: float) -> str:
+        inner = "\n".join(f"        ({x:.10g} {y:.10g} {z})"
+                          for x, y in points)
+        return f"(\n{inner}\n    )"
+
+    up_front = naca_surface_points(0.0, 0.5, +1.0)
+    up_rear = naca_surface_points(0.5, 1.0, +1.0)
+    lo_front = naca_surface_points(0.0, 0.5, -1.0)
+    lo_rear = naca_surface_points(0.5, 1.0, -1.0)
+    ns, nw, ny = level.n_surf_quarter, level.n_wake, level.ny
+    e_le, e_te = NACA_E_LE, NACA_E_TE
+
+    lines = [_foam_header("dictionary", "blockMeshDict", "system"), """
+scale   1;
+
+vertices
+("""]
+    base = [
+        (1.0, 0.0),                    # 0 TE
+        (0.0, 0.0),                    # 1 LE
+        (0.5, ym),                     # 2 mid upper
+        (0.5, -ym),                    # 3 mid lower
+        (1.0 - R, 0.0),                # 4 arc left (180 deg)
+        (1.0 - c45, c45),              # 5 arc 135 deg
+        (1.0, R),                      # 6 arc top (90 deg)
+        (1.0 - c45, -c45),             # 7 arc 225 deg
+        (1.0, -R),                     # 8 arc bottom (270 deg)
+        (W, 0.0),                      # 9 wake end, cut line
+        (W, R),                        # 10 wake end top
+        (W, -R),                       # 11 wake end bottom
+    ]
+    for z in (0, 1):
+        for i, (x, y) in enumerate(base):
+            lines.append(f"    ({x:.10g} {y:.10g} {z})   // {i + 12 * z}")
+    lines.append(f""");
+
+blocks
+(
+    // upper front: LE to mid-chord, fine at the leading edge
+    hex (1 2 5 4 13 14 17 16) ({ns} {ny} 1)
+        simpleGrading ({e_le:.8g} {R_Y_NACA:.8g} 1)
+    // upper rear: mid-chord to TE, contracting into the trailing edge
+    hex (2 0 6 5 14 12 18 17) ({ns} {ny} 1)
+        simpleGrading ({1.0 / e_te:.8g} {R_Y_NACA:.8g} 1)
+    // lower rear: TE to mid-chord, fine at the trailing edge
+    hex (0 3 7 8 12 15 19 20) ({ns} {ny} 1)
+        simpleGrading ({e_te:.8g} {R_Y_NACA:.8g} 1)
+    // lower front: mid-chord to LE, contracting into the leading edge
+    hex (3 1 4 7 15 13 16 19) ({ns} {ny} 1)
+        simpleGrading ({1.0 / e_le:.8g} {R_Y_NACA:.8g} 1)
+    // upper wake: wall-level cut clustering at the TE edge tapering to a
+    // mild far-end distribution (per-edge grading, y-edge order 0-3 1-2 5-6 4-7)
+    hex (0 9 10 6 12 21 22 18) ({nw} {ny} 1)
+        edgeGrading ({R_WAKE_NACA:.8g} {R_WAKE_NACA:.8g} {R_WAKE_NACA:.8g} {R_WAKE_NACA:.8g}
+                     {R_Y_NACA:.8g} {R_Y_FAR:.8g} {R_Y_FAR:.8g} {R_Y_NACA:.8g}
+                     1 1 1 1)
+    // lower wake
+    hex (9 0 8 11 21 12 20 23) ({nw} {ny} 1)
+        edgeGrading ({1.0 / R_WAKE_NACA:.8g} {1.0 / R_WAKE_NACA:.8g} {1.0 / R_WAKE_NACA:.8g} {1.0 / R_WAKE_NACA:.8g}
+                     {R_Y_FAR:.8g} {R_Y_NACA:.8g} {R_Y_NACA:.8g} {R_Y_FAR:.8g}
+                     1 1 1 1)
+);
+
+edges
+(""")
+    for z, off in ((0.0, 0), (1.0, 12)):
+        lines.append(edge("polyLine", 1 + off, 2 + off, poly(up_front, z)))
+        lines.append(edge("polyLine", 2 + off, 0 + off, poly(up_rear, z)))
+        lines.append(edge("polyLine", 0 + off, 3 + off, poly(lo_rear[::-1], z)))
+        lines.append(edge("polyLine", 3 + off, 1 + off, poly(lo_front[::-1], z)))
+        for a, b, deg in ((4, 5, 157.5), (5, 6, 112.5),
+                          (8, 7, 247.5), (7, 4, 202.5)):
+            lines.append(edge("arc", a + off, b + off,
+                              f"{arc_point(deg)} {z:g})"))
+    lines.append(f""");
+
+boundary
+(
+    airfoil
+    {{
+        type wall;
+        faces ((1 2 14 13) (2 0 12 14) (0 3 15 12) (3 1 13 15));
+    }}
+    // The far boundary is split geometrically so the flow always has hard
+    // anchors: Dirichlet velocity on the upstream arc and the lower plane
+    // (inflow for alpha >= 0), Dirichlet pressure on the top and downstream
+    // planes (outflow). A single all-freestream boundary left the pressure
+    // level flapping and the solve never settled (measured on the pilot).
+    inflow
+    {{
+        type patch;
+        faces
+        (
+            (4 5 17 16) (5 6 18 17) (8 7 19 20) (7 4 16 19)
+            (11 8 20 23)
+        );
+    }}
+    outflow
+    {{
+        type patch;
+        faces ((6 10 22 18) (9 10 22 21) (9 11 23 21));
+    }}
+    frontAndBack
+    {{
+        type empty;
+        faces
+        (
+            (1 2 5 4) (2 0 6 5) (0 3 7 8) (3 1 4 7)
+            (0 9 10 6) (9 0 8 11)
+            (13 14 17 16) (14 12 18 17) (12 15 19 20) (15 13 16 19)
+            (12 21 22 18) (21 12 20 23)
+        );
+    }}
+);
+""")
+    return "\n".join(lines)
+
+
+def naca_initial_fields(alpha_deg: float) -> dict[str, str]:
+    """0/ files for the airfoil case; the angle of attack lives in the
+    freestream velocity vector, the grid never rotates."""
+    rad = math.radians(alpha_deg)
+    u_vec = f"({math.cos(rad):.8f} {math.sin(rad):.8f} 0)"
+    empty = "        type            empty;\n"
+
+    def bc(*lines: str) -> str:
+        return "".join(f"        {line}\n" for line in lines)
+
+    u = _field("volVectorField", "U", "[0 1 -1 0 0 0 0]",
+               f"uniform {u_vec}", {
+                   "inflow": bc("type            fixedValue;",
+                                f"value           uniform {u_vec};"),
+                   "outflow": bc("type            inletOutlet;",
+                                 f"inletValue      uniform {u_vec};",
+                                 f"value           uniform {u_vec};"),
+                   "airfoil": bc("type            noSlip;"),
+                   "frontAndBack": empty,
+               })
+    # Pressure is pinned on the WHOLE outer boundary, inflow included. With
+    # the anchor only on the outflow planes, the front C-region's pressure
+    # level floated (its own boundaries are all Neumann) and the solve
+    # blew up as a front-versus-wake seesaw within 300 iterations; anchoring
+    # everywhere killed it dead (measured on the alpha 0 probe). At 500
+    # chords a uniform p is the same approximation the stated point-vortex
+    # deviation already covers.
+    p = _field("volScalarField", "p", "[0 2 -2 0 0 0 0]", "uniform 0", {
+        "inflow": bc("type            fixedValue;",
+                     "value           uniform 0;"),
+        "outflow": bc("type            fixedValue;",
+                      "value           uniform 0;"),
+        "airfoil": bc("type            zeroGradient;"),
+        "frontAndBack": empty,
+    })
+    k = _field("volScalarField", "k", "[0 2 -2 0 0 0 0]",
+               f"uniform {NACA_K_INF:.8g}", {
+                   "inflow": bc("type            fixedValue;",
+                                f"value           uniform {NACA_K_INF:.8g};"),
+                   "outflow": bc("type            inletOutlet;",
+                                 f"inletValue      uniform {NACA_K_INF:.8g};",
+                                 f"value           uniform {NACA_K_INF:.8g};"),
+                   "airfoil": bc("type            kLowReWallFunction;",
+                                 "value           uniform 1e-12;"),
+                   "frontAndBack": empty,
+               })
+    omega = _field("volScalarField", "omega", "[0 0 -1 0 0 0 0]",
+                   f"uniform {NACA_OMEGA_INF:.8g}", {
+                       "inflow": bc("type            fixedValue;",
+                                    f"value           uniform {NACA_OMEGA_INF:.8g};"),
+                       "outflow": bc(
+                           "type            inletOutlet;",
+                           f"inletValue      uniform {NACA_OMEGA_INF:.8g};",
+                           f"value           uniform {NACA_OMEGA_INF:.8g};"),
+                       "airfoil": bc("type            omegaWallFunction;",
+                                     "blended         true;",
+                                     f"value           uniform {NACA_OMEGA_INF:.8g};"),
+                       "frontAndBack": empty,
+                   })
+    nut = _field("volScalarField", "nut", "[0 2 -1 0 0 0 0]",
+                 f"uniform {NACA_NUT_INF:.8g}", {
+                     "inflow": bc("type            calculated;",
+                                  "value           uniform 0;"),
+                     "outflow": bc("type            calculated;",
+                                   "value           uniform 0;"),
+                     "airfoil": bc("type            nutLowReWallFunction;",
+                                   "value           uniform 0;"),
+                     "frontAndBack": empty,
+                 })
+    return {"U": u, "p": p, "k": k, "omega": omega, "nut": nut}
+
+
+def write_naca_case(root: Path, level: NacaGridLevel,
+                    alpha_deg: float) -> Path:
+    """Write the complete airfoil case for one rung at one angle of attack."""
+    rad = math.radians(alpha_deg)
+    case = Path(root) / f"a{alpha_deg:g}" / level.name
+    for sub in ("0", "constant", "system"):
+        (case / sub).mkdir(parents=True, exist_ok=True)
+    files = {
+        "system/blockMeshDict": naca_blockmesh_dict(level),
+        "system/controlDict": control_dict(
+            NACA_ITERATIONS.get(level.name, 10000), patch="airfoil",
+            lref=1.0, aref=1.0,
+            drag_dir=f"({math.cos(rad):.8f} {math.sin(rad):.8f} 0)",
+            lift_dir=f"({-math.sin(rad):.8f} {math.cos(rad):.8f} 0)"),
+        "system/fvSchemes": fv_schemes(limited=True),
+        "system/fvSolution": fv_solution(non_orth_correctors=1, relax_p=0.25,
+                                         relax_u=0.6, potential=True,
+                                         p_solver="PCG"),
+        "constant/transportProperties": transport_properties(NACA_NU),
+        "constant/turbulenceProperties": turbulence_properties(),
+    }
+    for name, text in naca_initial_fields(alpha_deg).items():
+        files[f"0/{name}"] = text
+    for rel, text in files.items():
+        with (case / rel).open("w", newline="\n") as handle:
+            handle.write(text)
+    return case
+
+
+def build_naca_summary(alpha_deg: float,
+                       grids: list[dict[str, Any]]) -> dict[str, Any]:
+    """Per-alpha summary. There is no published SST per-grid ladder for this
+    case, so the comparison quotes the published finest-grid (897x257)
+    values and never claims a matched-size agreement."""
+    cd_conv = _convergence_block([g["cd"] for g in grids])
+    blocks = {"cd": cd_conv}
+    lifting = abs(alpha_deg) > 1e-9
+    if lifting:
+        blocks["cl"] = _convergence_block([g["cl"] for g in grids])
+    ref_c, ref_f = CFL3D_NACA_SST[alpha_deg], FUN3D_NACA_SST[alpha_deg]
+    fine = grids[-1]
+    comparison: dict[str, Any] = {
+        "cfl3d_finest_cl": ref_c["cl"], "cfl3d_finest_cd": ref_c["cd"],
+        "fun3d_finest_cl": ref_f["cl"], "fun3d_finest_cd": ref_f["cd"],
+        "published_grid": "897x257 (229376 cells); our finest rung is "
+                          f"{fine['tmr_nodes']} ({fine['cells']} cells)",
+        "cd_fine_vs_cfl3d_finest_pct":
+            100.0 * (fine["cd"] / ref_c["cd"] - 1.0),
+    }
+    if lifting:
+        comparison["cl_fine_vs_cfl3d_finest_pct"] = (
+            100.0 * (fine["cl"] / ref_c["cl"] - 1.0))
+        if blocks["cl"].get("richardson") is not None:
+            comparison["cl_extrapolate_vs_cfl3d_finest_pct"] = 100.0 * (
+                blocks["cl"]["richardson"] / ref_c["cl"] - 1.0)
+    if cd_conv.get("richardson") is not None:
+        comparison["cd_extrapolate_vs_cfl3d_finest_pct"] = 100.0 * (
+            cd_conv["richardson"] / ref_c["cd"] - 1.0)
+    return {
+        "case": "TMR NACA 0012 airfoil validation",
+        "alpha_deg": alpha_deg,
+        "model": "k-omega SST (OpenFOAM kOmegaSST, strain production)",
+        "solver": "simpleFoam, incompressible, OpenFOAM v2606 under WSL",
+        "conditions": {
+            "re_per_chord": U_INF / NACA_NU, "mach_reference": 0.15,
+            "k_inf": NACA_K_INF, "omega_inf": NACA_OMEGA_INF,
+            "eddy_viscosity_ratio_inf": NACA_NUT_INF / NACA_NU,
+            "farfield_chords": NACA_R,
+        },
+        "grids": [{k: v for k, v in g.items() if k != "cf_profile"}
+                  for g in grids],
+        "convergence": blocks,
+        "comparison": comparison,
+        "reference_source": NACA_REFERENCE_SOURCE,
+        "numerics": ("Second-order linearUpwind momentum advection, "
+                     "first-order upwind advection on k and omega, "
+                     "second-order diffusion throughout"),
+        "deviations": [
+            "Incompressible simpleFoam analog of the M=0.15 case",
+            "No point-vortex farfield correction; the farfield sits at 500 "
+            "chords, the distance TMR recommends when the correction is off",
+            "The published SST reference is finest-grid only (897x257), so "
+            "no matched-size comparison exists for this case; our ladder "
+            "reports its own observed order and Richardson value",
+            "Grids are this module's own C-grid family at the TMR cell "
+            "counts (3584, 14336, 57344), not the TMR point files; the "
+            "transfinite blocks carry non-orthogonality up to 70 degrees, "
+            "treated with limited gradients and a non-orthogonal corrector",
+        ],
+        "generated_unix": int(time.time()),
+    }
+
+
+def format_naca_summary_lines(summary: dict[str, Any]) -> list[str]:
+    alpha = summary["alpha_deg"]
+    lines = [
+        f"NASA TMR NACA 0012 validation, alpha {alpha:g} degrees, "
+        f"3-grid ladder (turbmodels.larc.nasa.gov)",
+    ]
+    lifting = "cl" in summary["convergence"]
+    for grid in summary["grids"]:
+        cl_part = f"Cl = {grid['cl']:.5f}, " if lifting else ""
+        lines.append(
+            f"Grid {grid['tmr_nodes']} ({grid['cells']} cells): "
+            f"{cl_part}Cd = {grid['cd']:.6f}, "
+            f"max y+ = {grid['yplus']['max']:.2f}, "
+            f"{grid['iterations']} iterations in {grid['wall_seconds']:.0f} s")
+    for key, label in (("cl", "Cl"), ("cd", "Cd")):
+        conv = summary["convergence"].get(key)
+        if conv is None:
+            continue
+        if conv.get("observed_order") is not None:
+            lines.append(
+                f"{label}: observed order {conv['observed_order']:.2f}, "
+                f"Richardson extrapolate {conv['richardson']:.6f}")
+        else:
+            lines.append(f"{label}: sequence not monotone, "
+                         "no order or extrapolate is quoted")
+    comp = summary["comparison"]
+    ref = (f"Cl {comp['cfl3d_finest_cl']:.5f} and " if lifting else "")
+    lines.append(
+        f"Reference: CFL3D SST on the published finest grid (897x257) gives "
+        f"{ref}Cd {comp['cfl3d_finest_cd']:.6f}; our finest rung is 57344 "
+        f"cells, a quarter of that grid, so this is not a matched-size "
+        f"comparison ({summary['reference_source']})")
+    for deviation in summary["deviations"]:
+        lines.append(f"Deviation: {deviation}")
+    return lines
+
+
+def _naca_figure(alpha_deg: float, grids: list[dict[str, Any]],
+                 summary: dict[str, Any], out_dir: Path) -> list[str]:
+    """One ladder figure per alpha: Cd (and Cl when lifting) vs h with the
+    published finest-grid values drawn as reference lines."""
+    from chief_engineer import plot_theme as _t
+    plt = _t._pyplot()
+    if plt is None:
+        return []
+    lifting = "cl" in summary["convergence"]
+    n_panels = 2 if lifting else 1
+    fig, axes = plt.subplots(1, n_panels, figsize=(11.4, 4.6), dpi=150)
+    axes = axes if n_panels > 1 else [axes]
+    hs = [math.sqrt(1.0 / g["cells"]) for g in grids]
+    panels = [("cd", r"$C_D$", "cfl3d_finest_cd", "fun3d_finest_cd")]
+    if lifting:
+        panels.append(("cl", r"$C_\ell$", "cfl3d_finest_cl",
+                       "fun3d_finest_cl"))
+    for ax, (key, label, ref_c, ref_f) in zip(axes, panels):
+        ax.plot(hs, [g[key] for g in grids], color=_t.LIVE, linewidth=2.2,
+                marker="o", markersize=7, markeredgecolor=_t.INK,
+                label="This lab")
+        ax.axhline(summary["comparison"][ref_c], color=_t.VALID,
+                   linewidth=1.6, linestyle=(0, (4, 3)),
+                   label="CFL3D, 897x257")
+        ax.axhline(summary["comparison"][ref_f], color=_t.TREND,
+                   linewidth=1.6, linestyle=(0, (2, 3)),
+                   label="FUN3D, 897x257")
+        rich = summary["convergence"][key].get("richardson")
+        if rich is not None:
+            ax.scatter([0.0], [rich], s=120, color=_t.LIVE, marker="D",
+                       edgecolor=_t.INK, linewidth=1.2, zorder=5,
+                       label="Richardson (ours)")
+        _t.style_axes(ax, r"$h=\sqrt{1/N}$", label,
+                      f"{label} ladder, alpha {alpha_deg:g} deg")
+        leg = ax.legend(frameon=False, fontsize=9.5, loc="best")
+        for text in leg.get_texts():
+            text.set_color(_t.INK)
+    fig.suptitle(f"TMR NACA 0012, alpha {alpha_deg:g} degrees: grid "
+                 f"convergence vs published finest-grid values",
+                 color=_t.INK, fontsize=13, weight="bold", x=0.02,
+                 ha="left")
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    path = out_dir / f"naca0012_a{alpha_deg:g}_convergence.png"
+    fig.savefig(path)
+    plt.close(fig)
+    return [str(path)]
+
+
+def persist_naca_ladder(alpha_deg: float, grids: list[dict[str, Any]],
+                        out_dir: Path,
+                        log: Callable[[str], None] = print) -> dict[str, Any]:
+    out_dir = Path(out_dir)
+    summary = build_naca_summary(alpha_deg, grids)
+    summary["plots"] = [Path(p).name
+                        for p in _naca_figure(alpha_deg, grids, summary,
+                                              out_dir)]
+    with (out_dir / f"naca0012_a{alpha_deg:g}_sst.json").open(
+            "w", newline="\n") as handle:
+        json.dump(summary, handle, indent=2)
+    for line in format_naca_summary_lines(summary):
+        log(f"[tmr-naca] {line}")
+    return summary
+
+
+# -- TMR-grid pipeline for the airfoil ---------------------------------------
+# The self-built transfinite C-grid was abandoned after five pilot rounds:
+# even stabilized, its coarse rung limit-cycled and could not anchor a
+# defensible ladder. The TMR-distributed PLOT3D grids (the reference family
+# itself) convert cleanly with plot3dToFoam; the wake cut stitches itself
+# through the point merge, and autoPatch separates the boundary.
+
+def parse_boundary_patches(text: str) -> dict[str, tuple[int, int]]:
+    """Patch name -> (startFace, nFaces) from a polyMesh boundary file."""
+    out: dict[str, tuple[int, int]] = {}
+    for match in re.finditer(
+            r"(\w+)\s*\{[^}]*?nFaces\s+(\d+);\s*startFace\s+(\d+);", text):
+        out[match.group(1)] = (int(match.group(3)), int(match.group(2)))
+    return out
+
+
+def classify_naca_patches(points: list[tuple[float, float, float]],
+                          faces: list[list[int]],
+                          patches: dict[str, tuple[int, int]]
+                          ) -> tuple[dict[str, str], float, int, int]:
+    """Role of every boundary patch of a converted TMR C-grid, by geometry.
+
+    The TMR files put the 2D plane wherever they like (the NACA family is
+    chord x, LIFT along z, spanwise y), so the axes are discovered, never
+    assumed: the spanwise axis is the one with the one-cell extent, the
+    chord is x, the lift axis is the remaining one. Returns
+    ({patch: airfoil|outer|frontAndBack|unused}, span thickness,
+    lift_axis, span_axis).
+    """
+    ranges = [max(p[a] for p in points) - min(p[a] for p in points)
+              for a in range(3)]
+    span_axis = min(range(3), key=lambda a: ranges[a])
+    lift_axis = next(a for a in (2, 1) if a != span_axis)
+    span_lo = min(p[span_axis] for p in points)
+    thickness = ranges[span_axis]
+    roles: dict[str, str] = {}
+    for name, (start, n_faces) in patches.items():
+        if n_faces == 0:
+            roles[name] = "unused"
+            continue
+        centre = [sum(c) / len(c) for c in zip(
+            *(points[i] for i in faces[start]))]
+        span_pos = centre[span_axis]
+        if (abs(span_pos - span_lo) < 1e-6 * max(1.0, thickness)
+                or abs(span_pos - span_lo - thickness)
+                < 1e-6 * max(1.0, thickness)):
+            roles[name] = "frontAndBack"
+        elif -0.1 <= centre[0] <= 1.1 and abs(centre[lift_axis]) < 0.3:
+            roles[name] = "airfoil"
+        else:
+            roles[name] = "outer"
+    return roles, thickness, lift_axis, span_axis
+
+
+def parse_polymesh_points_faces(points_text: str, faces_text: str
+                                ) -> tuple[list[tuple[float, float, float]],
+                                           list[list[int]]]:
+    points = [tuple(float(v) for v in m.groups())
+              for m in re.finditer(
+                  r"\(([-0-9.eE+]+)\s+([-0-9.eE+]+)\s+([-0-9.eE+]+)\)",
+                  points_text)]
+    faces = [[int(v) for v in m.group(1).split()]
+             for m in re.finditer(r"\d+\(([\d ]+)\)", faces_text)]
+    return points, faces
+
+
+def _axis_vector(chord: float, lift: float, lift_axis: int) -> str:
+    """A vector with ``chord`` on x and ``lift`` on the discovered lift axis."""
+    comp = [0.0, 0.0, 0.0]
+    comp[0] = chord
+    comp[lift_axis] = lift
+    return f"({comp[0]:.8f} {comp[1]:.8f} {comp[2]:.8f})"
+
+
+def naca_fields_tmr(alpha_deg: float, roles: dict[str, str],
+                    lift_axis: int = 1) -> dict[str, str]:
+    """0/ files keyed by field name for a converted TMR grid, with boundary
+    entries generated from the discovered patch roles and axes."""
+    rad = math.radians(alpha_deg)
+    u_vec = _axis_vector(math.cos(rad), math.sin(rad), lift_axis)
+
+    def bc(*lines: str) -> str:
+        return "".join(f"        {line}\n" for line in lines)
+
+    def build(role_bcs: dict[str, str]) -> dict[str, str]:
+        return {name: role_bcs[role] for name, role in roles.items()}
+
+    empty = "        type            empty;\n"
+    unused = bc("type            zeroGradient;")
+    u = _field("volVectorField", "U", "[0 1 -1 0 0 0 0]",
+               f"uniform {u_vec}", build({
+                   "outer": bc("type            inletOutlet;",
+                               f"inletValue      uniform {u_vec};",
+                               f"value           uniform {u_vec};"),
+                   "airfoil": bc("type            noSlip;"),
+                   "frontAndBack": empty, "unused": unused}))
+    p = _field("volScalarField", "p", "[0 2 -2 0 0 0 0]", "uniform 0", build({
+        "outer": bc("type            fixedValue;",
+                    "value           uniform 0;"),
+        "airfoil": bc("type            zeroGradient;"),
+        "frontAndBack": empty, "unused": unused}))
+    k = _field("volScalarField", "k", "[0 2 -2 0 0 0 0]",
+               f"uniform {NACA_K_INF:.8g}", build({
+                   "outer": bc("type            inletOutlet;",
+                               f"inletValue      uniform {NACA_K_INF:.8g};",
+                               f"value           uniform {NACA_K_INF:.8g};"),
+                   "airfoil": bc("type            kLowReWallFunction;",
+                                 "value           uniform 1e-12;"),
+                   "frontAndBack": empty, "unused": unused}))
+    omega = _field("volScalarField", "omega", "[0 0 -1 0 0 0 0]",
+                   f"uniform {NACA_OMEGA_INF:.8g}", build({
+                       "outer": bc(
+                           "type            inletOutlet;",
+                           f"inletValue      uniform {NACA_OMEGA_INF:.8g};",
+                           f"value           uniform {NACA_OMEGA_INF:.8g};"),
+                       "airfoil": bc(
+                           "type            omegaWallFunction;",
+                           "blended         true;",
+                           f"value           uniform {NACA_OMEGA_INF:.8g};"),
+                       "frontAndBack": empty, "unused": unused}))
+    nut = _field("volScalarField", "nut", "[0 2 -1 0 0 0 0]",
+                 f"uniform {NACA_NUT_INF:.8g}", build({
+                     "outer": bc("type            calculated;",
+                                 "value           uniform 0;"),
+                     "airfoil": bc("type            nutLowReWallFunction;",
+                                   "value           uniform 0;"),
+                     "frontAndBack": empty, "unused": unused}))
+    return {"U": u, "p": p, "k": k, "omega": omega, "nut": nut}
+
+
+NACA_GRID_FILES = {
+    "coarse": "n0012_113-33.p3dfmt",
+    "medium": "n0012_225-65.p3dfmt",
+    "fine": "n0012_449-129.p3dfmt",
+}
+
+
+def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
+                   log: Callable[[str], None] = print, *,
+                   detach: bool = False) -> dict[str, Any] | dict[str, float]:
+    """One (grid, alpha) solve on the actual TMR-distributed C-grid.
+
+    Converts the PLOT3D file, autoPatches the boundary, classifies patches
+    geometrically, writes the fields against the discovered names, then
+    initializes from a potential solve and runs simpleFoam (inline, or
+    detached when ``detach`` is set: the caller then polls
+    solver_exit_status and calls collect_level with the returned timings).
+    """
+    prefix = f"tmr-naca-a{alpha_deg:g}"
+    remote = f"{_RUN_ROOT}/{prefix}-{level.name}"
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    case_root = _REPO_ROOT / "models" / "tmr" / "naca0012"
+    grid_src = case_root / "grids" / NACA_GRID_FILES[level.name]
+
+    # Stage a minimal case: dictionaries only; fields come after patching.
+    case = case_root / f"a{alpha_deg:g}" / level.name
+    for sub in ("system",):
+        (case / sub).mkdir(parents=True, exist_ok=True)
+    dicts = {
+        "system/controlDict": control_dict(
+            NACA_ITERATIONS.get(level.name, 10000), patch="PLACEHOLDER",
+            lref=1.0, aref=1.0),
+        "system/fvSchemes": fv_schemes(limited=True),
+        "system/fvSolution": fv_solution(non_orth_correctors=1, relax_p=0.25,
+                                         relax_u=0.6, potential=True,
+                                         p_solver="PCG"),
+        "constant/transportProperties": transport_properties(NACA_NU),
+        "constant/turbulenceProperties": turbulence_properties(),
+    }
+    (case / "constant").mkdir(exist_ok=True)
+    for rel, text in dicts.items():
+        with (case / rel).open("w", newline="\n") as handle:
+            handle.write(text)
+    shutil.copy(grid_src, case / "grid.p3dfmt")
+
+    staged = _wsl(
+        f"rm -rf {remote} && mkdir -p {_RUN_ROOT} && "
+        f"cp -r \"$(wslpath '{case}')\" {remote} && "
+        f"test -f {remote}/system/controlDict && echo STAGED")
+    if "STAGED" not in staged.stdout:
+        raise RuntimeError(f"{level.name}: staging failed")
+
+    timings: dict[str, float] = {}
+    for name, command, timeout in (
+            ("plot3dToFoam", "plot3dToFoam -noBlank grid.p3dfmt", 900),
+            ("autoPatch", "autoPatch 80 -overwrite", 900)):
+        start = time.monotonic()
+        result = _wsl(f"cd {remote} && openfoam2606 {command} "
+                      f"> log.{name} 2>&1 && echo DONE", timeout=timeout)
+        timings[name] = round(time.monotonic() - start, 1)
+        _wsl(f"cp {remote}/log.{name} \"$(wslpath '{out_dir}')\"/ || true")
+        if "DONE" not in result.stdout:
+            tail = _wsl(f"tail -15 {remote}/log.{name}").stdout
+            raise RuntimeError(f"{level.name}/{name} failed:\n{tail}")
+
+    # Pull the mesh description back and classify the boundary.
+    for item in ("boundary", "points", "faces"):
+        _wsl(f"cp {remote}/constant/polyMesh/{item} "
+             f"\"$(wslpath '{out_dir}')\"/mesh.{item}", timeout=300)
+    patches = parse_boundary_patches(
+        (out_dir / "mesh.boundary").read_text(errors="replace"))
+    points, faces = parse_polymesh_points_faces(
+        (out_dir / "mesh.points").read_text(errors="replace"),
+        (out_dir / "mesh.faces").read_text(errors="replace"))
+    roles, thickness, lift_axis, span_axis = classify_naca_patches(
+        points, faces, patches)
+    airfoil_patches = [n for n, r in roles.items() if r == "airfoil"]
+    if len(airfoil_patches) != 1:
+        raise RuntimeError(f"{level.name}: expected one airfoil patch, "
+                           f"got {airfoil_patches} from {roles}")
+    airfoil = airfoil_patches[0]
+    log(f"[tmr-naca:{level.name}] patches {roles}, thickness {thickness:g}, "
+        f"lift axis {'xyz'[lift_axis]}")
+
+    # Fields and the real controlDict (patch name and Aref now known),
+    # plus boundary types: the z planes become empty, the body a wall.
+    fields_dir = out_dir / "0"
+    shutil.rmtree(fields_dir, ignore_errors=True)
+    fields_dir.mkdir(parents=True)
+    for name, text in naca_fields_tmr(alpha_deg, roles, lift_axis).items():
+        with (fields_dir / name).open("w", newline="\n") as handle:
+            handle.write(text)
+    rad = math.radians(alpha_deg)
+    control = control_dict(
+        NACA_ITERATIONS.get(level.name, 10000), patch=airfoil,
+        lref=1.0, aref=thickness,
+        drag_dir=_axis_vector(math.cos(rad), math.sin(rad), lift_axis),
+        lift_dir=_axis_vector(-math.sin(rad), math.cos(rad), lift_axis))
+    with (out_dir / "controlDict.solve").open("w", newline="\n") as handle:
+        handle.write(control)
+    type_edits = " && ".join(
+        f"openfoam2606 foamDictionary -entry entry0/{name}/type -set "
+        f"{'empty' if role == 'frontAndBack' else 'wall'} "
+        f"constant/polyMesh/boundary > /dev/null"
+        for name, role in roles.items()
+        if role in ("frontAndBack",) or name == airfoil)
+    pushed = _wsl(
+        f"cd {remote} && rm -rf 0 && mkdir 0 && "
+        f"cp \"$(wslpath '{fields_dir}')\"/* 0/ && "
+        f"cp \"$(wslpath '{out_dir / 'controlDict.solve'}')\" "
+        f"system/controlDict && {type_edits} && echo PUSHED", timeout=300)
+    if "PUSHED" not in pushed.stdout:
+        raise RuntimeError(f"{level.name}: field/boundary push failed: "
+                           f"{(pushed.stderr or pushed.stdout)[:300]}")
+
+    for name, command, timeout in (
+            ("checkMesh", "checkMesh", 900),
+            ("potentialFoam", "potentialFoam -writephi", 1800)):
+        start = time.monotonic()
+        result = _wsl(f"cd {remote} && openfoam2606 {command} "
+                      f"> log.{name} 2>&1 && echo DONE", timeout=timeout)
+        timings[name] = round(time.monotonic() - start, 1)
+        _wsl(f"cp {remote}/log.{name} \"$(wslpath '{out_dir}')\"/ || true")
+        if "DONE" not in result.stdout:
+            tail = _wsl(f"tail -15 {remote}/log.{name}").stdout
+            raise RuntimeError(f"{level.name}/{name} failed:\n{tail}")
+
+    if detach:
+        launched = _wsl(
+            f"cd {remote} && rm -f solve.exit && "
+            f"setsid nohup bash -c 'cd {remote} && openfoam2606 simpleFoam "
+            f"> log.simpleFoam 2>&1; echo $? > solve.exit' "
+            f"< /dev/null >/dev/null 2>&1 & sleep 3; "
+            f"test -f {remote}/log.simpleFoam && echo LAUNCHED", timeout=120)
+        if "LAUNCHED" not in launched.stdout:
+            raise RuntimeError(f"{level.name}: detached solve failed to launch")
+        log(f"[tmr-naca:{level.name}] a{alpha_deg:g} solve launched detached")
+        timings["airfoil_patch"] = airfoil  # smuggled for collect_level
+        return timings
+
+    start = time.monotonic()
+    log(f"[tmr-naca:{level.name}] a{alpha_deg:g} simpleFoam started")
+    result = _wsl(f"cd {remote} && openfoam2606 simpleFoam "
+                  f"> log.simpleFoam 2>&1 && echo DONE", timeout=14400)
+    timings["simpleFoam"] = round(time.monotonic() - start, 1)
+    if "DONE" not in result.stdout:
+        tail = _wsl(f"tail -20 {remote}/log.simpleFoam").stdout
+        raise RuntimeError(f"{level.name}/simpleFoam failed:\n{tail}")
+    log(f"[tmr-naca:{level.name}] simpleFoam finished in "
+        f"{timings['simpleFoam']:.1f} s")
+    return _extract_record(level, out_dir, remote, timings, None,
+                           airfoil, log)
+
+
+def stop_requested(out_root: Path | None = None) -> bool:
+    """The owner's STOP file: when present, no new solve may be launched."""
+    root = Path(out_root) if out_root else (
+        _REPO_ROOT / "demo-output" / "website" / "tmr")
+    return (root / "STOP").exists()
 
 
 if __name__ == "__main__":

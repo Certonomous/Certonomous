@@ -1,0 +1,48 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : plot3dToFoam -noBlank grid.p3dfmt
+Date   : Jul 25 2026
+Time   : 15:12:27
+Host   : SanaaMouzahir
+PID    : 448
+I/O    : uncollated
+Case   : /home/foam/certonomous-runs/tmr-naca-a10-medium
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading 1 blocks
+block 0 nx:2 ny:225 nz:65
+Reading block points
+block 0:
+Reading 29250 x coordinates...
+Reading 29250 y coordinates...
+Reading 29250 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+Merged points within 1e-15 distance. Merged from 29250 down to 29152 points.
+Creating cells
+Creating boundary patches
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::wordList&, const Foam::word&, const Foam::word&, const Foam::wordList&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 635
+    Found 29152 undefined faces in mesh; adding to default patch defaultFaces
+Writing polyMesh
+End
+

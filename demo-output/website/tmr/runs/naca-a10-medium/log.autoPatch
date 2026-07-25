@@ -1,0 +1,48 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : autoPatch 80 -overwrite
+Date   : Jul 25 2026
+Time   : 15:12:29
+Host   : SanaaMouzahir
+PID    : 934
+I/O    : uncollated
+Case   : /home/foam/certonomous-runs/tmr-naca-a10-medium
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create polyMesh for time = 0
+
+Mesh read in = 0.12 s
+
+
+Feature:80
+minCos :0.1736481777
+
+Assigned 128 faces to patch auto0
+
+Assigned 14336 faces to patch auto1
+
+Assigned 14336 faces to patch auto2
+
+Assigned 128 faces to patch auto3
+
+Assigned 224 faces to patch auto4
+
+End
+

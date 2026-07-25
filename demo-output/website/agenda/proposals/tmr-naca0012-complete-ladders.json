@@ -1,0 +1,15 @@
+{
+  "id": "tmr-naca0012-complete-ladders",
+  "objective": "Complete the NACA 0012 ladders on the TMR-distributed grids: 225x65 and 449x129 at alpha 10, then full ladders at alpha 0 and 15, with observed order and Richardson values against the published finest-grid results",
+  "rationale": "The conversion pipeline is proven: the 113x33 rung at alpha 10 converged flat (Cl and Cd steady to 6e-8 over the final 50 iterations) in 95 seconds; the remaining rungs are the same pipeline pointed at the finer files",
+  "citations": [
+    "NASA Langley Turbulence Modeling Resource: NACA 0012 validation case and distributed grids (turbmodels.larc.nasa.gov)",
+    "TMR CFL3D SST results, n0012clcd_cfl3d_sst.dat (tmbwg.github.io/turbmodels)"
+  ],
+  "est_core_min": 150,
+  "expected_knowledge_gain": "First lifting-body ladder; whether the verification discipline holds when pressure drag and lift dominate",
+  "source_kind": "challenge",
+  "status": "queued",
+  "created_at": "2026-07-25T15:14:47",
+  "launch_prompt": "Run workflows.tmr_verification.run_naca_level for (medium, fine) x (10, 0, 15 degrees) sequentially with detach=True and collect_level, honoring the STOP file before every launch; then build the per-alpha summaries with build_naca_summary and persist_naca_ladder, and only then touch the card."
+}
