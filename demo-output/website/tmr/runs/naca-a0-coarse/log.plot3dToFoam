@@ -7,13 +7,13 @@
 \*---------------------------------------------------------------------------*/
 Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
-Exec   : autoPatch 80 -overwrite
+Exec   : plot3dToFoam -noBlank grid.p3dfmt
 Date   : Jul 25 2026
-Time   : 15:56:36
+Time   : 16:07:03
 Host   : SanaaMouzahir
-PID    : 271676
+PID    : 400442
 I/O    : uncollated
-Case   : /home/foam/certonomous-runs/tmr-naca-a10-medium
+Case   : /home/foam/certonomous-runs/tmr-naca-a0-coarse
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 memory pool : not available
@@ -26,23 +26,23 @@ fileModificationChecking : Monitoring run-time modified files using timeStampMas
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 Create time
 
-Create polyMesh for time = 0
+Reading 1 blocks
+block 0 nx:2 ny:113 nz:33
+Reading block points
+block 0:
+Reading 7458 x coordinates...
+Reading 7458 y coordinates...
+Reading 7458 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
 
-Mesh read in = 0.16 s
-
-
-Feature:80
-minCos :0.1736481777
-
-Assigned 128 faces to patch auto0
-
-Assigned 14336 faces to patch auto1
-
-Assigned 14336 faces to patch auto2
-
-Assigned 128 faces to patch auto3
-
-Assigned 224 faces to patch auto4
-
+Merged points within 1e-15 distance. Merged from 7458 down to 7408 points.
+Creating cells
+Creating boundary patches
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::wordList&, const Foam::word&, const Foam::word&, const Foam::wordList&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 635
+    Found 7408 undefined faces in mesh; adding to default patch defaultFaces
+Writing polyMesh
 End
 

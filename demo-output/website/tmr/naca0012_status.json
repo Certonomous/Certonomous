@@ -1,6 +1,6 @@
 {
   "case": "TMR NACA 0012 airfoil validation",
-  "state": "one rung measured, ladder pending",
+  "state": "one rung measured; the remaining rungs do not reach a steady state under this solver configuration",
   "measured": {
     "alpha_deg": 10.0,
     "grid": "TMR-distributed 113x33 C-grid (3584 cells), converted from the published PLOT3D file",
@@ -21,9 +21,7 @@
     "source": "turbmodels.larc.nasa.gov NACA 0012 validation, CFL3D SST on the 897x257 grid with point-vortex farfield correction (n0012clcd_cfl3d_sst.dat via mirror tmbwg.github.io/turbmodels, retrieved 2026-07-25); FUN3D values from the same validation page"
   },
   "pending": [
-    "225x65 and 449x129 rungs at alpha 10 (medium launch was withdrawn when the STOP file appeared)",
-    "Full ladders at alpha 0 and alpha 15",
-    "Observed order, Richardson extrapolation, figures, and any card change wait until a full ladder exists"
+    "A steady or time-averaged closure for the medium and fine rungs at every alpha; until then no ladder, no observed order, no card change"
   ],
   "deviations": [
     "Incompressible simpleFoam analog of the M=0.15 case",
@@ -31,5 +29,11 @@
     "The TMR coarse grid's own wall spacing gives max y+ near 10 at this Reynolds number; that is the reference family's coarse rung, not a choice of ours",
     "Grids are the TMR point files themselves, converted with plot3dToFoam; the wake cut closes through the converter's point merge"
   ],
-  "generated_unix": 1785006887
+  "generated_unix": 1785010692,
+  "findings_2026_07_25": [
+    "Alpha 10, 225x65 grid: a sustained force oscillation under second-order momentum advection at two relaxation levels (16000 and 24000 iteration budgets); the swing grows and shrinks with a period of thousands of iterations and never decays",
+    "Alpha 0, 113x33 grid: the same oscillation, antisymmetric (Cl swings of 0.3 on a symmetric case)",
+    "Root cause isolated by scheme substitution on the alpha 0 rung: first-order momentum is perfectly steady (Cd 0.0229, overdiffused and not usable for verification), TVD limitedLinear reduces the cycle to about 3e-4 around Cd 0.0090 but never flattens over 15000 iterations; the feedback lives in the wake and trailing-edge convection",
+    "The published CFL3D results converge the same grids with a compressible implicit solver and different numerical dissipation; a time-accurate solve with averaged coefficients, or a dissipation study, is the honest next step"
+  ]
 }

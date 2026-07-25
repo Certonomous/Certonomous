@@ -9,11 +9,11 @@ Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
 Exec   : checkMesh
 Date   : Jul 25 2026
-Time   : 15:56:44
+Time   : 16:07:09
 Host   : SanaaMouzahir
-PID    : 275258
+PID    : 404522
 I/O    : uncollated
-Case   : /home/foam/certonomous-runs/tmr-naca-a10-medium
+Case   : /home/foam/certonomous-runs/tmr-naca-a0-coarse
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 memory pool : not available
@@ -33,11 +33,11 @@ Check mesh...
 Time = 0
 
 Mesh stats 
-    points:           29152
+    points:           7408
     internal points:  0
-    faces:            57584
-    internal faces:   28432
-    cells:            14336
+    faces:            14456
+    internal faces:   7048
+    cells:            3584
     faces per cell:   6
     boundary patches: 6
     point zones:      0
@@ -45,7 +45,7 @@ Mesh stats
     cell zones:       0
 
 Overall number of cells of each type:
-    hexahedra:     14336
+    hexahedra:     3584
     prisms:        0
     wedges:        0
     pyramids:      0
@@ -64,12 +64,12 @@ Checking topology...
 Checking patch topology for multiply connected surfaces...
     Patch               Faces    Points     Surface topology
     defaultFaces        0        0        ok (empty)                        
-    auto0               128      258      ok (non-closed singly connected)  
-    auto1               14336    14576    ok (non-closed singly connected)  
-    auto2               14336    14576    ok (non-closed singly connected)  
-    auto3               128      256      ok (non-closed singly connected)  
-    auto4               224      450      ok (non-closed singly connected)  
-    ".*"                29152    29152    ok (closed singly connected)      
+    auto0               64       130      ok (non-closed singly connected)  
+    auto1               3584     3704     ok (non-closed singly connected)  
+    auto2               3584     3704     ok (non-closed singly connected)  
+    auto3               64       128      ok (non-closed singly connected)  
+    auto4               112      226      ok (non-closed singly connected)  
+    ".*"                7408     7408     ok (closed singly connected)      
 
 
 Checking faceZone topology for multiply connected surfaces...
@@ -82,21 +82,21 @@ Checking basic pointZone addressing...
     No pointZones found.
 
 Checking geometry...
-    Overall domain bounding box (-484.4566167 -1 -507.8060811) (501.0000078 0 507.8060808)
+    Overall domain bounding box (-484.4566167 -1 -507.7995612) (501.0000078 0 507.7995609)
     Mesh has 2 geometric (non-empty/wedge) directions (1 0 1)
     Mesh has 2 solution (non-empty) directions (1 0 1)
     All edges aligned with or perpendicular to non-empty directions.
-    Boundary openness (-3.563619933e-19 5.359639572e-16 -3.563619933e-19) OK.
- ***High aspect ratio cells found, Max aspect ratio: 26446226.94, number of cells 1822
-  <<Writing 1822 cells with high aspect ratio to set highAspectRatioCells
-    Minimum face area = 3.307039218e-09. Maximum face area = 11322.65272.  Face area magnitudes OK.
-    Min volume = 3.307039218e-09. Max volume = 11322.65272.  Total volume = 875541.0439.  Cell volumes OK.
-    Mesh non-orthogonality Max: 77.44174221 average: 10.2023267
-   *Number of severely non-orthogonal (> 70 degrees) faces: 170.
+    Boundary openness (-2.267904884e-19 5.059624766e-16 0) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 20650841.43, number of cells 454
+  <<Writing 454 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 2.614674647e-08. Maximum face area = 36057.73138.  Face area magnitudes OK.
+    Min volume = 2.614674647e-08. Max volume = 36057.73138.  Total volume = 875484.3579.  Cell volumes OK.
+    Mesh non-orthogonality Max: 85.69872592 average: 15.01469094
+   *Number of severely non-orthogonal (> 70 degrees) faces: 166.
     Non-orthogonality check OK.
-  <<Writing 170 non-orthogonal faces to set nonOrthoFaces
+  <<Writing 166 non-orthogonal faces to set nonOrthoFaces
     Face pyramids OK.
-    Max skewness = 0.4848516812 OK.
+    Max skewness = 0.5068662781 OK.
     Coupled point location match (average 0) OK.
 
 Failed 1 mesh checks.

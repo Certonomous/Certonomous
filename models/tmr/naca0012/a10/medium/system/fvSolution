@@ -55,6 +55,6 @@ potentialFlow
 
 relaxationFactors
 {
-    fields    { p 0.25; }
-    equations { U 0.6; k 0.6; omega 0.6; }
+    fields    { p 0.15; }
+    equations { U 0.45; k 0.45; omega 0.45; }
 }

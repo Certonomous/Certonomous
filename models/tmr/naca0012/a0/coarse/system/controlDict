@@ -30,15 +30,15 @@ functions
         libs            (forces);
         writeControl    timeStep;
         writeInterval   1;
-        patches         (airfoil);
+        patches         (PLACEHOLDER);
         rho             rhoInf;
         rhoInf          1.0;
         magUInf         1.0;
         lRef            1.0;
         Aref            1.0;
         CofR            (0 0 0);
-        dragDir         (1.00000000 0.00000000 0);
-        liftDir         (-0.00000000 1.00000000 0);
+        dragDir         (1 0 0);
+        liftDir         (0 1 0);
         pitchAxis       (0 0 1);
     }
     yPlus1
@@ -52,7 +52,7 @@ functions
     {
         type            wallShearStress;
         libs            (fieldFunctionObjects);
-        patches         (airfoil);
+        patches         (PLACEHOLDER);
         executeControl  onEnd;
         writeControl    onEnd;
     }
@@ -67,7 +67,7 @@ functions
         interpolate     false;
         surfaces
         (
-            airfoil { type patch; patches (airfoil); }
+            PLACEHOLDER { type patch; patches (PLACEHOLDER); }
         );
     }
 }

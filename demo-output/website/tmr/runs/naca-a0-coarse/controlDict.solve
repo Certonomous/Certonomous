@@ -12,10 +12,10 @@ application     simpleFoam;
 startFrom       startTime;
 startTime       0;
 stopAt          endTime;
-endTime         16000;
+endTime         5000;
 deltaT          1;
 writeControl    timeStep;
-writeInterval   16000;
+writeInterval   5000;
 purgeWrite      2;
 writeFormat     ascii;
 writePrecision  10;
@@ -30,15 +30,15 @@ functions
         libs            (forces);
         writeControl    timeStep;
         writeInterval   1;
-        patches         (PLACEHOLDER);
+        patches         (auto3);
         rho             rhoInf;
         rhoInf          1.0;
         magUInf         1.0;
         lRef            1.0;
         Aref            1.0;
         CofR            (0 0 0);
-        dragDir         (1 0 0);
-        liftDir         (0 1 0);
+        dragDir         (1.00000000 0.00000000 0.00000000);
+        liftDir         (-0.00000000 0.00000000 1.00000000);
         pitchAxis       (0 0 1);
     }
     yPlus1
@@ -52,7 +52,7 @@ functions
     {
         type            wallShearStress;
         libs            (fieldFunctionObjects);
-        patches         (PLACEHOLDER);
+        patches         (auto3);
         executeControl  onEnd;
         writeControl    onEnd;
     }
@@ -67,7 +67,7 @@ functions
         interpolate     false;
         surfaces
         (
-            PLACEHOLDER { type patch; patches (PLACEHOLDER); }
+            auto3 { type patch; patches (auto3); }
         );
     }
 }

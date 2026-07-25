@@ -9,11 +9,11 @@ Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
 Exec   : potentialFoam -writephi
 Date   : Jul 25 2026
-Time   : 15:56:47
+Time   : 16:07:10
 Host   : SanaaMouzahir
-PID    : 276527
+PID    : 405300
 I/O    : uncollated
-Case   : /home/foam/certonomous-runs/tmr-naca-a10-medium
+Case   : /home/foam/certonomous-runs/tmr-naca-a0-coarse
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 memory pool : not available
@@ -41,20 +41,20 @@ No MRF models present
 
 
 Calculating potential flow
-DICPCG:  Solving for Phi, Initial residual = 1, Final residual = 0.1850318074, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.1145378419, Final residual = 0.03425495103, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.06373389372, Final residual = 0.02974204025, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.04445283981, Final residual = 0.007650483835, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.01849511936, Final residual = 0.01255091823, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.02210543499, Final residual = 0.0265374176, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.0368323879, Final residual = 0.002017432238, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.01127282134, Final residual = 0.00375440663, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.01190187702, Final residual = 0.003679166828, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.01169624855, Final residual = 0.001956410997, No Iterations 1000
-DICPCG:  Solving for Phi, Initial residual = 0.01035813488, Final residual = 0.00292718196, No Iterations 1000
-Continuity error = 1.585421453e-05
-Interpolated velocity error = 6.014846505e-05
-ExecutionTime = 5.72 s  ClockTime = 6 s
+DICPCG:  Solving for Phi, Initial residual = 1, Final residual = 0.01872759214, No Iterations 539
+DICPCG:  Solving for Phi, Initial residual = 0.02696014488, Final residual = 0.0005289017219, No Iterations 637
+DICPCG:  Solving for Phi, Initial residual = 0.004332418228, Final residual = 8.298696893e-05, No Iterations 438
+DICPCG:  Solving for Phi, Initial residual = 0.0003999330864, Final residual = 6.32015116e-06, No Iterations 551
+DICPCG:  Solving for Phi, Initial residual = 8.517205287e-05, Final residual = 1.612876514e-06, No Iterations 266
+DICPCG:  Solving for Phi, Initial residual = 3.209008522e-05, Final residual = 5.459933772e-07, No Iterations 285
+DICPCG:  Solving for Phi, Initial residual = 1.969391011e-05, Final residual = 3.551590281e-07, No Iterations 321
+DICPCG:  Solving for Phi, Initial residual = 1.36627551e-05, Final residual = 2.427325007e-07, No Iterations 221
+DICPCG:  Solving for Phi, Initial residual = 8.55038418e-06, Final residual = 1.54694801e-07, No Iterations 114
+DICPCG:  Solving for Phi, Initial residual = 7.683525268e-06, Final residual = 1.521402953e-07, No Iterations 167
+DICPCG:  Solving for Phi, Initial residual = 6.610733561e-06, Final residual = 1.311326161e-07, No Iterations 101
+Continuity error = 6.512467729e-10
+Interpolated velocity error = 0.0001790387116
+ExecutionTime = 0.4 s  ClockTime = 1 s
 
 End
 
