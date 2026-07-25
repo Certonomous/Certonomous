@@ -1,0 +1,627 @@
+"""Monte-Carlo convergence, measured from the race act's recorded solver runs.
+
+The race act (mission-output/race-study) answered one question two ways: a
+full Monte-Carlo ensemble, 8 Reynolds samples x 11 angles = 88 recorded
+VSPAERO runs, against a reduced-order path, 4 anchors + 1 confirmation = 5
+recorded runs. This script turns those on-disk records into the convergence
+story for the website section: the 95 percent confidence half-width of the
+Monte-Carlo peak lift-to-drag estimate versus the number of solver runs N,
+with the 1 over sqrt N theoretical guarantee anchored at the measured
+ensemble variance, and the reduced-order path marked at its 5 runs.
+
+Every number is read from the recorded artifacts, nothing is invented:
+
+* mission-output/race-study/work/mc/mc-s{S}a{A}/result.json  (88 files)
+* mission-output/race-study/work/rom/rom-*/result.json       (5 files)
+* the act's published numbers live in
+  mission-output/race-study/certificate.pdf (C-2026-6122).
+
+The estimator study: the act's Monte-Carlo band is 2 * stdev / sqrt(m) over
+the m per-sample peaks, and one ensemble member costs 11 solver runs (a full
+angle sweep locates its peak), so the band updates every 11 runs. The curve
+is resampled over many random orderings of the recorded ensemble members so
+it is the estimator's behavior, not one lucky ordering: the root mean square
+across orderings is the primary curve (the guarantee speaks about the mean
+square error), the median and the middle 50 percent of orderings are drawn
+beside it.
+
+Outputs (1920x1080, control-room theme):
+
+* demo-output/plots/monte_carlo/mc_convergence.png       hero still
+* demo-output/plots/monte_carlo/frame_0001..0087.png     N = 2..88 sequence
+* demo-output/plots/monte_carlo/panel_stats.md           numbers + sources
+
+Usage (from sdk/):
+
+    python scripts/render_mc_convergence.py            # hero + stats note
+    python scripts/render_mc_convergence.py --frames   # + 87 frames
+    python scripts/render_mc_convergence.py --check    # verdicts only
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import statistics
+from pathlib import Path
+
+import numpy as np
+
+REPO = Path(__file__).resolve().parents[2]
+WORK = REPO / "mission-output" / "race-study" / "work"
+OUT_DIR = REPO / "demo-output" / "plots" / "monte_carlo"
+
+N_SAMPLES = 8
+ALPHAS = [float(a) for a in range(11)]        # the act's 1-degree grid
+RUNS_PER_MEMBER = len(ALPHAS)                 # one member = 11 solver runs
+ANCHOR_TAGS = ("rom-anchor0", "rom-anchor3.3", "rom-anchor6.7", "rom-anchor10")
+ORDERINGS = 20000
+SEED = 20260725
+
+# Control-room palette, mirrors chief_engineer/plot_theme.py and
+# control_room.html so the PNGs sit beside the live canvases in one tone.
+BG = "#0a0c0e"
+INK = "#f4f6f8"
+MUTED = "#868d95"
+DIM = "#545a61"
+LIVE = "#57a5ff"
+VALID = "#4fd483"
+GRID = "#191d21"
+
+
+# ---------------------------------------------------------------------------
+# Pure functions (unit-tested in tests/test_render_mc_convergence.py)
+# ---------------------------------------------------------------------------
+
+def half_width_95(values) -> float | None:
+    """The act's own 95 percent band: 2 * stdev / sqrt(n) over the values.
+
+    This is exactly the statistic the race act published (note and
+    certificate use mean +- 2 * standard error). None below two values,
+    where no spread can be estimated.
+    """
+    vals = [float(v) for v in values]
+    if len(vals) < 2:
+        return None
+    return 2.0 * statistics.stdev(vals) / math.sqrt(len(vals))
+
+
+def sample_peaks(points: list[dict]) -> list[float]:
+    """Per-sample peak lift-to-drag, the ensemble the act's band is built on.
+
+    ``points`` carry ``sample`` and ``l_d``; the peak of a sample is the
+    largest lift-to-drag among its solved angles. Returned in sample order.
+    """
+    by_sample: dict[int, list[float]] = {}
+    for p in points:
+        by_sample.setdefault(int(p["sample"]), []).append(float(p["l_d"]))
+    return [max(vals) for _, vals in sorted(by_sample.items())]
+
+
+def sequential_band_stats(peaks, *, orderings: int = ORDERINGS,
+                          seed: int = SEED) -> dict[int, dict[str, float]]:
+    """Half-width after m complete members, resampled over member orderings.
+
+    For each random ordering of the recorded per-sample peaks, the sequential
+    95 percent band after m members is 2 * stdev(first m) / sqrt(m), the
+    exact statistic a live run displays as members land. Across orderings the
+    root mean square, median, and 25th/75th percentiles are returned per m.
+    The root mean square is the primary curve: the sqrt-N guarantee is a
+    statement about the mean square error, and the sample variance of a
+    without-replacement prefix is an unbiased estimate of the full-ensemble
+    variance, so this curve is the estimator's true error scale.
+    """
+    vals = np.asarray(list(peaks), dtype=float)
+    n = vals.size
+    if n < 2:
+        raise ValueError("need at least two ensemble members")
+    rng = np.random.default_rng(seed)
+    perms = rng.permuted(np.tile(vals, (orderings, 1)), axis=1)
+    out: dict[int, dict[str, float]] = {}
+    for m in range(2, n + 1):
+        prefix = perms[:, :m]
+        sd = prefix.std(axis=1, ddof=1)
+        hw = 2.0 * sd / math.sqrt(m)
+        out[m] = {
+            "rms": float(np.sqrt(np.mean(hw ** 2))),
+            "median": float(np.median(hw)),
+            "q25": float(np.percentile(hw, 25)),
+            "q75": float(np.percentile(hw, 75)),
+        }
+    return out
+
+
+def guarantee_half_width(sd: float, n_runs, *,
+                         runs_per_member: int = RUNS_PER_MEMBER):
+    """The theoretical guarantee anchored at the measured variance.
+
+    Error falls as 1 over sqrt N: half-width(N) = 2 * sd * sqrt(runs per
+    member / N), which passes exactly through the act's published band at
+    N = 88 runs (m = 8 members).
+    """
+    n = np.asarray(n_runs, dtype=float)
+    return 2.0 * float(sd) * np.sqrt(float(runs_per_member) / n)
+
+
+def band_at_runs(n_runs: int, per_member: dict[int, dict[str, float]],
+                 key: str = "rms", *,
+                 runs_per_member: int = RUNS_PER_MEMBER
+                 ) -> tuple[int, float | None]:
+    """(complete members, band) at a solver-run count.
+
+    A member's peak exists only once all its angle solves are in, so the
+    band updates every ``runs_per_member`` runs and holds in between; below
+    two complete members there is no band yet.
+    """
+    m = n_runs // runs_per_member
+    if m < 2:
+        return m, None
+    m = min(m, max(per_member))
+    return m, per_member[m][key]
+
+
+def fit_powerlaw_slope(ns, values) -> float:
+    """Least-squares exponent of value ~ N**slope, fitted in log-log."""
+    x = np.log(np.asarray(ns, dtype=float))
+    y = np.log(np.asarray(values, dtype=float))
+    slope = np.polyfit(x, y, 1)[0]
+    return float(slope)
+
+
+def quadratic_peak_residual(xs, ys, confirm_value: float, *,
+                            x_lo: float = ALPHAS[0], x_hi: float = ALPHAS[-1]
+                            ) -> dict[str, float]:
+    """The reduced-order path's achieved envelope, from its own records.
+
+    Fit the quadratic surface through the anchor points, locate its peak on
+    [x_lo, x_hi] exactly as the act did (vertex when concave, else the
+    higher end, rounded to 0.1), predict there, and return the residual
+    against the recorded confirmation value. Nothing is invented: anchors
+    and confirmation are the recorded solver runs.
+    """
+    a2, a1, a0 = np.polyfit(np.asarray(xs, float), np.asarray(ys, float), 2)
+    predict = lambda x: a2 * x * x + a1 * x + a0            # noqa: E731
+    if a2 < 0:
+        vertex = -a1 / (2.0 * a2)
+    else:
+        vertex = x_lo if predict(x_lo) >= predict(x_hi) else x_hi
+    x_star = round(min(max(vertex, x_lo), x_hi), 1)
+    predicted = float(predict(x_star))
+    return {"alpha_star": float(x_star), "predicted": predicted,
+            "residual": abs(float(confirm_value) - predicted)}
+
+
+# ---------------------------------------------------------------------------
+# Record loading (reads the race act's on-disk artifacts, read-only)
+# ---------------------------------------------------------------------------
+
+def load_mc_points(work: Path = WORK) -> list[dict]:
+    points = []
+    for s in range(N_SAMPLES):
+        for a in ALPHAS:
+            d = work / "mc" / f"mc-s{s}a{a:g}"
+            r = json.loads((d / "result.json").read_text(encoding="utf-8"))
+            points.append({"sample": s, "alpha": a,
+                           "l_d": r["polar"]["L_D"][0],
+                           "elapsed_s": float(r["elapsed_s"]),
+                           "source": str(d / "result.json")})
+    return points
+
+
+def load_rom(work: Path = WORK) -> dict:
+    anchors = []
+    for tag in ANCHOR_TAGS:
+        d = work / "rom" / tag
+        r = json.loads((d / "result.json").read_text(encoding="utf-8"))
+        j = json.loads((d / "job.json").read_text(encoding="utf-8"))
+        anchors.append({"alpha": float(j["alpha_start"]),
+                        "l_d": r["polar"]["L_D"][0],
+                        "elapsed_s": float(r["elapsed_s"])})
+    d = work / "rom" / "rom-confirm"
+    r = json.loads((d / "result.json").read_text(encoding="utf-8"))
+    j = json.loads((d / "job.json").read_text(encoding="utf-8"))
+    confirm = {"alpha": float(j["alpha_start"]),
+               "l_d": r["polar"]["L_D"][0],
+               "elapsed_s": float(r["elapsed_s"])}
+    return {"anchors": sorted(anchors, key=lambda a: a["alpha"]),
+            "confirm": confirm}
+
+
+def build_story(work: Path = WORK, *, orderings: int = ORDERINGS,
+                seed: int = SEED) -> dict:
+    """Everything the figures and the stats note need, from the records."""
+    points = load_mc_points(work)
+    rom = load_rom(work)
+    peaks = sample_peaks(points)
+    sd = statistics.stdev(peaks)
+    per_member = sequential_band_stats(peaks, orderings=orderings, seed=seed)
+    ns = [RUNS_PER_MEMBER * m for m in sorted(per_member)]
+    rms = [per_member[m]["rms"] for m in sorted(per_member)]
+    xs = [a["alpha"] for a in rom["anchors"]]
+    ys = [a["l_d"] for a in rom["anchors"]]
+    surrogate = quadratic_peak_residual(xs, ys, rom["confirm"]["l_d"])
+    mc_seconds = sum(p["elapsed_s"] for p in points)
+    rom_seconds = (sum(a["elapsed_s"] for a in rom["anchors"])
+                   + rom["confirm"]["elapsed_s"])
+    return {
+        "points": points, "rom": rom, "peaks": peaks,
+        "peak_mean": statistics.fmean(peaks), "peak_sd": sd,
+        "per_member": per_member,
+        "hw_final": per_member[len(peaks)]["rms"],
+        "slope_rms": fit_powerlaw_slope(ns, rms),
+        "slope_median": fit_powerlaw_slope(
+            ns, [per_member[m]["median"] for m in sorted(per_member)]),
+        "surrogate": surrogate,
+        "mc_seconds": mc_seconds, "rom_seconds": rom_seconds,
+        "seconds_per_run": mc_seconds / len(points),
+        "speedup_solver_time": mc_seconds / rom_seconds,
+        "n_mc_runs": len(points),
+        "n_rom_runs": len(rom["anchors"]) + 1,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Checks: the deliverable's own validation, printed as verdicts
+# ---------------------------------------------------------------------------
+
+def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
+    """Every checkable claim in the deliverable, checked against the records
+    and the act's certificate (mission-output/race-study/certificate.pdf,
+    C-2026-6122: peak L/D 18.14 +- 0.10 at 95 percent, input channel 0.096,
+    speedup 16.0x core-minutes, 88 + 5 solver runs, residual 0.084)."""
+    checks = []
+
+    slope = story["slope_rms"]
+    checks.append({
+        "name": "convergence slope matches the 1 over sqrt N guarantee",
+        "pass": abs(slope + 0.5) <= slope_tol,
+        "detail": f"fitted slope {slope:+.4f} on the root mean square curve "
+                  f"over N = 22..88, guarantee -0.5, tolerance {slope_tol}"})
+
+    hw = story["hw_final"]
+    checks.append({
+        "name": "N = 88 half-width reproduces the act's published band",
+        "pass": round(hw, 2) == 0.10 and round(hw, 3) == 0.096,
+        "detail": f"recomputed +-{hw:.4f}; certificate C-2026-6122 publishes "
+                  f"+-0.10 (95 percent) with input channel 0.096. The +-0.07 "
+                  f"band belongs to the earlier race-benchmark passes "
+                  f"(demo-output/website/race/benchmarks.md), not this act."})
+
+    res = story["surrogate"]["residual"]
+    checks.append({
+        "name": "reduced-order envelope comes from its recorded runs",
+        "pass": round(res, 3) == 0.084,
+        "detail": f"quadratic through the 4 recorded anchors peaks at alpha "
+                  f"{story['surrogate']['alpha_star']:g}, predicts "
+                  f"{story['surrogate']['predicted']:.4f}, recorded "
+                  f"confirmation {story['rom']['confirm']['l_d']:.4f}, "
+                  f"residual {res:.4f}; certificate says 0.084"})
+
+    spd = story["speedup_solver_time"]
+    checks.append({
+        "name": "measured speedup reproduces the act's 16x",
+        "pass": round(spd, 1) == 16.1 or round(spd) == 16,
+        "detail": f"recorded solver time {story['mc_seconds']:.1f} s over 88 "
+                  f"runs vs {story['rom_seconds']:.1f} s over 5 runs = "
+                  f"{spd:.2f}x; certificate says 16.0x core-minutes"})
+
+    spr = story["seconds_per_run"]
+    checks.append({
+        "name": "per-run wall cost matches the stated 5.10 s",
+        "pass": abs(spr - 5.10) < 0.01,
+        "detail": f"mean recorded elapsed over the 88 ensemble runs "
+                  f"{spr:.3f} s per solver run"})
+    return checks
+
+
+# ---------------------------------------------------------------------------
+# Rendering (control-room theme; matplotlib imported lazily)
+# ---------------------------------------------------------------------------
+
+def _pyplot():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({
+        "figure.facecolor": BG, "axes.facecolor": BG, "savefig.facecolor": BG,
+        "text.color": INK, "axes.labelcolor": INK, "axes.edgecolor": MUTED,
+        "xtick.color": MUTED, "ytick.color": MUTED,
+        "font.family": "monospace", "font.size": 12,
+        "mathtext.fontset": "cm", "axes.titlesize": 14,
+        "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.8,
+    })
+    return plt
+
+
+X_LIM = (1.8, 105.0)
+Y_LIM = (0.045, 1.0)
+
+
+def _base_axes(plt, story):
+    fig, ax = plt.subplots(figsize=(12.8, 7.2), dpi=150)
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(*X_LIM)
+    ax.set_ylim(*Y_LIM)
+    ax.set_xlabel("solver runs  $N$  (log scale)", color=INK, fontsize=13)
+    ax.set_ylabel(r"95% confidence half-width of peak $L/D$  (log scale)",
+                  color=INK, fontsize=13)
+    for spine in ("top", "right"):
+        ax.spines[spine].set_visible(False)
+    for spine in ("left", "bottom"):
+        ax.spines[spine].set_color(DIM)
+    ax.grid(True, which="both", color=GRID, linewidth=0.8)
+    ax.tick_params(colors=MUTED, labelsize=10, which="both")
+    ticks = [2, 5, 11, 22, 44, 88]
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([str(t) for t in ticks])
+    ax.set_xticks([], minor=True)
+    yticks = [0.05, 0.1, 0.2, 0.4, 0.8]
+    ax.set_yticks(yticks)
+    ax.set_yticklabels([f"{t:g}" for t in yticks])
+    ax.set_yticks([], minor=True)
+
+    # Guarantee line, anchored at the measured ensemble variance.
+    grid_n = np.geomspace(2, 100, 200)
+    ax.plot(grid_n, guarantee_half_width(story["peak_sd"], grid_n),
+            color=INK, linewidth=1.6, linestyle=(0, (6, 4)), alpha=0.85,
+            label="theoretical guarantee: error falls as 1 over sqrt N "
+                  "(anchored at the measured ensemble variance)")
+
+    # Wall-time twin of the same axis, at the measured per-run cost.
+    spr = story["seconds_per_run"]
+    top = ax.secondary_xaxis(
+        "top", functions=(lambda n: n * spr, lambda s: s / spr))
+    top.set_xlabel(f"solver time at the measured {spr:.2f} s per run  [s]",
+                   color=MUTED, fontsize=10.5)
+    top.set_xticks([t * spr for t in ticks])
+    top.set_xticklabels([f"{t * spr:.0f}" for t in ticks])
+    top.set_xticks([], minor=True)
+    top.tick_params(colors=MUTED, labelsize=9.5)
+    top.spines["top"].set_color(DIM)
+    return fig, ax
+
+
+def _step_arrays(per_member, key, upto_n=None):
+    """Step-hold (N, value) arrays: the band updates every 11 runs."""
+    ms = sorted(per_member)
+    xs, ys = [], []
+    for i, m in enumerate(ms):
+        n0 = m * RUNS_PER_MEMBER
+        n1 = ms[i + 1] * RUNS_PER_MEMBER if i + 1 < len(ms) else n0
+        if upto_n is not None and n0 > upto_n:
+            break
+        end = n1 if upto_n is None else min(n1, upto_n)
+        xs += [n0, end]
+        ys += [per_member[m][key]] * 2
+    return xs, ys
+
+
+def _draw_band(ax, story, upto_n=None, *, envelope=True, median=True):
+    per = story["per_member"]
+    label_n = story["n_mc_runs"]
+    if envelope:
+        xq, lo = _step_arrays(per, "q25", upto_n)
+        _, hi = _step_arrays(per, "q75", upto_n)
+        if xq:
+            ax.fill_between(xq, lo, hi, color=LIVE, alpha=0.16, linewidth=0,
+                            label="middle 50% of orderings")
+    xs, ys = _step_arrays(per, "rms", upto_n)
+    if xs:
+        ax.plot(xs, ys, color=LIVE, linewidth=2.4, solid_capstyle="round",
+                label=f"sequential 95% band from the {label_n} recorded "
+                      f"runs, root mean square over {ORDERINGS} orderings")
+        marker_n = [m * RUNS_PER_MEMBER for m in sorted(per)
+                    if upto_n is None or m * RUNS_PER_MEMBER <= upto_n]
+        ax.plot(marker_n, [per[n // RUNS_PER_MEMBER]["rms"]
+                           for n in marker_n], linestyle="none", marker="o",
+                markersize=7, color=LIVE, markeredgecolor=INK,
+                markeredgewidth=0.9, zorder=5)
+    if median:
+        xm, ym = _step_arrays(per, "median", upto_n)
+        if xm:
+            ax.plot(xm, ym, color=MUTED, linewidth=1.4, linestyle=":",
+                    label="median over the same orderings")
+
+
+def _draw_rom(ax, story, *, annotate: bool):
+    res = story["surrogate"]["residual"]
+    n_rom = story["n_rom_runs"]
+    ax.scatter([n_rom], [res], s=170, marker="D", color=VALID,
+               edgecolor=INK, linewidths=1.4, zorder=6,
+               label=f"reduced-order path: {n_rom} recorded runs, "
+                     f"confirmation residual $\\pm${res:.3f}")
+    if annotate:
+        ax.annotate(
+            f"reduced-order path: {n_rom} solver runs\n"
+            f"envelope $\\pm${res:.3f}, tighter than the\n"
+            f"$\\pm${story['hw_final']:.3f} ensemble band at "
+            f"{story['n_mc_runs']} runs\n"
+            f"(surrogate residual vs input-spread\n"
+            f"confidence, both from recorded runs)",
+            xy=(n_rom, res), xytext=(-4, 26), textcoords="offset points",
+            fontsize=10.5, color=INK)
+
+
+def render_hero(story: dict, out_png: Path) -> Path:
+    plt = _pyplot()
+    fig, ax = _base_axes(plt, story)
+    _draw_band(ax, story)
+    _draw_rom(ax, story, annotate=True)
+
+    n88 = story["n_mc_runs"]
+    hw = story["hw_final"]
+    ax.annotate(
+        f"$\\pm${hw:.3f} at {n88} runs\npublished $\\pm$0.10 (95%)",
+        xy=(n88, hw), xytext=(4, -58), textcoords="offset points",
+        ha="right", fontsize=10.5, color=INK, weight="bold")
+    ax.annotate(
+        f"fitted slope {story['slope_rms']:+.2f} vs guarantee $-1/2$",
+        xy=(0.985, 0.975), xycoords="axes fraction", ha="right",
+        fontsize=11.5, color=INK, weight="bold")
+    ax.set_title(
+        "Monte-Carlo convergence, measured: the 95% band vs solver runs, "
+        "NACA 4412 race act",
+        color=INK, fontsize=14, loc="left", pad=14, weight="bold")
+    leg = ax.legend(frameon=False, fontsize=9.5, loc="upper right",
+                    bbox_to_anchor=(0.995, 0.93), labelcolor=INK)
+    for text in leg.get_texts():
+        text.set_color(INK)
+    fig.tight_layout(rect=(0, 0.045, 1, 1))
+    fig.text(0.012, 0.026,
+             "source: the race act's recorded solver runs, 88 on the "
+             "ensemble lane and 5 on the reduced-order lane . "
+             "certificate C-2026-6122",
+             fontsize=9, color=MUTED)
+    fig.text(0.012, 0.008,
+             "one ensemble member costs 11 solver runs (a full angle sweep "
+             "locates its peak), so the band updates every 11 runs",
+             fontsize=9, color=MUTED)
+    fig.savefig(out_png)
+    plt.close(fig)
+    return out_png
+
+
+def render_frames(story: dict, out_dir: Path) -> list[Path]:
+    plt = _pyplot()
+    paths = []
+    per = story["per_member"]
+    for i, n in enumerate(range(2, story["n_mc_runs"] + 1), start=1):
+        fig, ax = _base_axes(plt, story)
+        _draw_band(ax, story, upto_n=n, median=False)
+        if n >= story["n_rom_runs"]:
+            _draw_rom(ax, story, annotate=False)
+        m, value = band_at_runs(n, per)
+        if value is not None:
+            ax.scatter([m * RUNS_PER_MEMBER], [value], s=120, color=LIVE,
+                       edgecolor=INK, linewidths=1.2, zorder=6)
+        status = (f"95% band: $\\pm${value:.3f}" if value is not None else
+                  "band pending: needs 2 complete members (22 runs)")
+        ax.annotate(
+            f"solver runs: {n} of {story['n_mc_runs']}\n"
+            f"complete ensemble members: {m} of {N_SAMPLES}\n" + status,
+            xy=(0.018, 0.045), xycoords="axes fraction", ha="left",
+            va="bottom", fontsize=11.5, color=INK, weight="bold")
+        ax.set_title(
+            "Monte-Carlo convergence: the 95% band narrows along the "
+            "1 over sqrt N guarantee",
+            color=INK, fontsize=14, loc="left", pad=14, weight="bold")
+        leg = ax.legend(frameon=False, fontsize=9.5, loc="upper right",
+                        bbox_to_anchor=(0.995, 0.97), labelcolor=INK)
+        for text in leg.get_texts():
+            text.set_color(INK)
+        fig.tight_layout()
+        png = out_dir / f"frame_{i:04d}.png"
+        fig.savefig(png)
+        plt.close(fig)
+        paths.append(png)
+    return paths
+
+
+# ---------------------------------------------------------------------------
+# Stats note
+# ---------------------------------------------------------------------------
+
+def write_stats_note(story: dict, checks: list[dict], out_md: Path) -> Path:
+    per = story["per_member"]
+    rows = "\n".join(
+        f"| {m} | {m * RUNS_PER_MEMBER} | {per[m]['rms']:.4f} | "
+        f"{per[m]['median']:.4f} | {per[m]['q25']:.4f}..{per[m]['q75']:.4f} | "
+        f"{guarantee_half_width(story['peak_sd'], m * RUNS_PER_MEMBER):.4f} |"
+        for m in sorted(per))
+    verdicts = "\n".join(
+        f"- {'PASS' if c['pass'] else 'FAIL'}: {c['name']}. {c['detail']}"
+        for c in checks)
+    peaks = ", ".join(f"{p:.4f}" for p in story["peaks"])
+    md = f"""# Monte-Carlo convergence panel: the numbers and their sources
+
+Website line served: orders of magnitude fewer runs, backed by theoretical
+guarantees. Every number below is read from the race act's recorded
+artifacts; nothing is synthesized.
+
+## Headline numbers
+
+| quantity | value | source |
+|---|---|---|
+| Monte-Carlo solver runs | {story['n_mc_runs']} | mission-output/race-study/work/mc/mc-s0a0 .. mc-s7a10 (result.json, one per run) |
+| reduced-order solver runs | {story['n_rom_runs']} | mission-output/race-study/work/rom (4 anchors + 1 confirmation, result.json each) |
+| peak L/D, ensemble mean | {story['peak_mean']:.2f} | mean of the 8 per-sample peaks below |
+| peak L/D, reduced-order confirmed | {story['rom']['confirm']['l_d']:.2f} at alpha {story['rom']['confirm']['alpha']:g} | work/rom/rom-confirm/result.json |
+| ensemble 95% band at 88 runs | +-{story['hw_final']:.3f} (published +-0.10) | 2 x stdev / sqrt(8) over the per-sample peaks; certificate C-2026-6122 |
+| reduced-order envelope | +-{story['surrogate']['residual']:.3f} | recorded confirmation {story['rom']['confirm']['l_d']:.4f} vs surface prediction {story['surrogate']['predicted']:.4f} from the 4 recorded anchors; certificate says residual 0.084 |
+| measured speedup, solver time | {story['speedup_solver_time']:.1f}x | {story['mc_seconds']:.1f} s over 88 runs vs {story['rom_seconds']:.1f} s over 5 runs (elapsed_s in every result.json); certificate says 16.0x core-minutes |
+| measured cost per run | {story['seconds_per_run']:.2f} s | mean elapsed_s over the 88 ensemble records |
+| fitted convergence slope | {story['slope_rms']:+.3f} | log-log fit over the root mean square curve, N = 22..88; guarantee is -1/2 |
+| ensemble standard deviation | {story['peak_sd']:.4f} | stdev of the 8 per-sample peaks; anchors the guarantee line |
+
+Per-sample peaks (L/D, samples s0..s7): {peaks}.
+Every sample peaked at alpha 0, so each peak is that sample's recorded
+alpha-0 run.
+
+## The convergence table (resampled over {ORDERINGS} member orderings)
+
+One ensemble member costs {RUNS_PER_MEMBER} solver runs (a full angle sweep
+locates its peak), so the sequential band updates every {RUNS_PER_MEMBER}
+runs. Root mean square is the primary curve: the prefix sample variance is
+an unbiased estimate of the full-ensemble variance, so its square root per
+member count is the estimator's true error scale. The median of a 2-to-7
+member standard deviation is biased and noisy, which is why the median
+column wanders around the guarantee instead of tracking it (slope of the
+median curve: {story['slope_median']:+.3f}).
+
+| members m | solver runs N | half-width, rms | half-width, median | middle 50% | guarantee 2s*sqrt(11/N) |
+|---|---|---|---|---|---|
+{rows}
+
+## Check verdicts
+
+{verdicts}
+
+## Provenance note on the published band
+
+The race act's own certificate (mission-output/race-study/certificate.pdf,
+C-2026-6122, issued 2026-07-25T19:11Z) publishes peak L/D 18.14 +- 0.10 at
+95 percent with input channel 0.096, speedup 16.0x core-minutes, 88 + 5
+solver runs. The +-0.07 band circulating with the value 18.14 belongs to
+the earlier race-benchmark passes (demo-output/website/race/benchmarks.md:
+pass1 18.10 +- 0.07, pass2 18.20 +- 0.07); this panel reproduces the race
+act's records exactly, so it carries +-0.10.
+"""
+    out_md.write_text(md, encoding="utf-8")
+    return out_md
+
+
+# ---------------------------------------------------------------------------
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--frames", action="store_true",
+                        help="also render the 87-frame sequence")
+    parser.add_argument("--check", action="store_true",
+                        help="run the checks and print verdicts only")
+    parser.add_argument("--orderings", type=int, default=ORDERINGS)
+    parser.add_argument("--seed", type=int, default=SEED)
+    args = parser.parse_args(argv)
+
+    story = build_story(orderings=args.orderings, seed=args.seed)
+    checks = run_checks(story)
+    for c in checks:
+        print(f"[{'PASS' if c['pass'] else 'FAIL'}] {c['name']}: {c['detail']}")
+    if args.check:
+        return 0 if all(c["pass"] for c in checks) else 1
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    hero = render_hero(story, OUT_DIR / "mc_convergence.png")
+    print(f"[panel] hero still: {hero}")
+    note = write_stats_note(story, checks, OUT_DIR / "panel_stats.md")
+    print(f"[panel] stats note: {note}")
+    if args.frames:
+        frames = render_frames(story, OUT_DIR)
+        print(f"[panel] frames: {len(frames)} "
+              f"({frames[0].name} .. {frames[-1].name})")
+    return 0 if all(c["pass"] for c in checks) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

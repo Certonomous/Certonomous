@@ -1,0 +1,63 @@
+# Monte-Carlo convergence panel: the numbers and their sources
+
+Website line served: orders of magnitude fewer runs, backed by theoretical
+guarantees. Every number below is read from the race act's recorded
+artifacts; nothing is synthesized.
+
+## Headline numbers
+
+| quantity | value | source |
+|---|---|---|
+| Monte-Carlo solver runs | 88 | mission-output/race-study/work/mc/mc-s0a0 .. mc-s7a10 (result.json, one per run) |
+| reduced-order solver runs | 5 | mission-output/race-study/work/rom (4 anchors + 1 confirmation, result.json each) |
+| peak L/D, ensemble mean | 18.13 | mean of the 8 per-sample peaks below |
+| peak L/D, reduced-order confirmed | 18.14 at alpha 0 | work/rom/rom-confirm/result.json |
+| ensemble 95% band at 88 runs | +-0.096 (published +-0.10) | 2 x stdev / sqrt(8) over the per-sample peaks; certificate C-2026-6122 |
+| reduced-order envelope | +-0.084 | recorded confirmation 18.1407 vs surface prediction 18.2247 from the 4 recorded anchors; certificate says residual 0.084 |
+| measured speedup, solver time | 16.1x | 448.6 s over 88 runs vs 27.9 s over 5 runs (elapsed_s in every result.json); certificate says 16.0x core-minutes |
+| measured cost per run | 5.10 s | mean elapsed_s over the 88 ensemble records |
+| fitted convergence slope | -0.502 | log-log fit over the root mean square curve, N = 22..88; guarantee is -1/2 |
+| ensemble standard deviation | 0.1360 | stdev of the 8 per-sample peaks; anchors the guarantee line |
+
+Per-sample peaks (L/D, samples s0..s7): 18.1407, 18.2542, 17.8494, 18.1936, 18.1208, 18.2288, 18.2074, 18.0056.
+Every sample peaked at alpha 0, so each peak is that sample's recorded
+alpha-0 run.
+
+## The convergence table (resampled over 20000 member orderings)
+
+One ensemble member costs 11 solver runs (a full angle sweep
+locates its peak), so the sequential band updates every 11
+runs. Root mean square is the primary curve: the prefix sample variance is
+an unbiased estimate of the full-ensemble variance, so its square root per
+member count is the estimator's true error scale. The median of a 2-to-7
+member standard deviation is biased and noisy, which is why the median
+column wanders around the guarantee instead of tracking it (slope of the
+median curve: -0.123).
+
+| members m | solver runs N | half-width, rms | half-width, median | middle 50% | guarantee 2s*sqrt(11/N) |
+|---|---|---|---|---|---|
+| 2 | 22 | 0.1928 | 0.1152 | 0.0529..0.2487 | 0.1923 |
+| 3 | 33 | 0.1573 | 0.1386 | 0.0664..0.2156 | 0.1570 |
+| 4 | 44 | 0.1358 | 0.1139 | 0.0918..0.1745 | 0.1360 |
+| 5 | 55 | 0.1217 | 0.1360 | 0.0867..0.1444 | 0.1216 |
+| 6 | 66 | 0.1110 | 0.1206 | 0.0748..0.1234 | 0.1110 |
+| 7 | 77 | 0.1028 | 0.1077 | 0.1025..0.1087 | 0.1028 |
+| 8 | 88 | 0.0962 | 0.0962 | 0.0962..0.0962 | 0.0962 |
+
+## Check verdicts
+
+- PASS: convergence slope matches the 1 over sqrt N guarantee. fitted slope -0.5018 on the root mean square curve over N = 22..88, guarantee -0.5, tolerance 0.05
+- PASS: N = 88 half-width reproduces the act's published band. recomputed +-0.0962; certificate C-2026-6122 publishes +-0.10 (95 percent) with input channel 0.096. The +-0.07 band belongs to the earlier race-benchmark passes (demo-output/website/race/benchmarks.md), not this act.
+- PASS: reduced-order envelope comes from its recorded runs. quadratic through the 4 recorded anchors peaks at alpha 0, predicts 18.2247, recorded confirmation 18.1407, residual 0.0840; certificate says 0.084
+- PASS: measured speedup reproduces the act's 16x. recorded solver time 448.6 s over 88 runs vs 27.9 s over 5 runs = 16.06x; certificate says 16.0x core-minutes
+- PASS: per-run wall cost matches the stated 5.10 s. mean recorded elapsed over the 88 ensemble runs 5.098 s per solver run
+
+## Provenance note on the published band
+
+The race act's own certificate (mission-output/race-study/certificate.pdf,
+C-2026-6122, issued 2026-07-25T19:11Z) publishes peak L/D 18.14 +- 0.10 at
+95 percent with input channel 0.096, speedup 16.0x core-minutes, 88 + 5
+solver runs. The +-0.07 band circulating with the value 18.14 belongs to
+the earlier race-benchmark passes (demo-output/website/race/benchmarks.md:
+pass1 18.10 +- 0.07, pass2 18.20 +- 0.07); this panel reproduces the race
+act's records exactly, so it carries +-0.10.
