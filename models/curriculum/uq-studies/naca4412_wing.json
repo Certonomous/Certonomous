@@ -46,7 +46,7 @@
     },
     "screening_estimate": true
   },
-  "fingerprint": "b05956c0233a3828",
+  "fingerprint": "3a4b75b1f37b6a61",
   "numerical": {
     "band_abs": 0.030000000000000006,
     "band_rel": 1.3844,
@@ -60,5 +60,6 @@
     "uq-naca4412_wing-r2",
     "uq-naca4412_wing-r3",
     "uq-naca4412_wing-r4"
-  ]
+  ],
+  "fingerprint_note": "re-keyed 2026-07-24: the ladder rungs solved with the registry velocity hint 15.0 m/s (see provenance runs); the original key had recorded the runner default 100.0 by mistake. No measured number changed."
 }

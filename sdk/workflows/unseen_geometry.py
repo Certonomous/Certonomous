@@ -21,8 +21,8 @@ import sys
 from . import OUT_ROOT, announce_geometry, make_transcript
 from chief_engineer.case_memory import retrieve
 
-KNOWLEDGE = "docs/NUMERICS_KNOWLEDGE.md"
-LESSONS_FILE = "sdk/introspection/recipe/memory/LESSONS.md"
+KNOWLEDGE = "the numerics knowledge base"
+LESSONS_FILE = "the lab's lessons memory"
 
 
 TARGETS = {

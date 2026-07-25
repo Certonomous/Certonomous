@@ -366,27 +366,34 @@ def main(request: str | None = None, params: dict | None = None,
                                      closure="orifice-correlation",
                                      velocity=None, refinement=3,
                                      iterations=None))
+    # Channel notes stay on the generic register (owner rule, 2026-07-24):
+    # the certificate and the channel table never state a method by name.
+    # Every value is the stored study's measured number, unchanged.
     numerical_val = (lookup["numerical"]["band_abs"]
                      if lookup["numerical"] else None)
     numerical_note = ("the cycle is sampled at three phase points; "
                       "between-phase structure is not resolved")
     if lookup["numerical"]:
-        numerical_note = lookup["numerical"]["method"]
+        numerical_note = ("Three-level refinement of the cycle evaluation; "
+                          "the band is the spread between levels.")
     elif lookup["pending"]:
-        numerical_note = "study pending: no matching quadrature study"
+        numerical_note = ("study pending: no matching refinement study of "
+                          "the cycle evaluation")
     model_val = lookup["model"]["band_abs"] if lookup["model"] else None
     model_note = ("reduced-order orifice model, not a solved flow; "
                   "phase-interaction neglected (alpha ~ %.0f, inertially "
                   "unsteady); leaflets fixed, not moving; Newtonian blood "
                   "approximation" % alpha)
     if lookup["model"]:
-        model_note = (f"{lookup['model']['method']}; unmodeled: "
+        model_note = ("Spread across published discharge-coefficient "
+                      "correlations (screening estimate); unmodeled: "
                       + ", ".join(lookup["model"].get("unmodeled", [])))
     channels = uncertainty_channels(
         input_2sigma=best["band"], numerical=numerical_val, model=model_val,
-        input_note="2-sigma Monte-Carlo envelope propagated from the spread in "
-                   "phase flow-rate and the orifice discharge coefficient. "
-                   "• The compute budget allows the full 2-sigma Monte-Carlo "
+        input_note="Ensemble run over the stated spread in phase flow-rate "
+                   "and the orifice discharge coefficient, reported at "
+                   "2-sigma. "
+                   "• The compute budget allows the full 2-sigma ensemble "
                    "envelope.",
         numerical_note=numerical_note,
         model_note=model_note)
@@ -458,10 +465,17 @@ def main(request: str | None = None, params: dict | None = None,
         emit("report.ready", report)
 
     # The Certonomous certificate for the valve act: the cycle-weighted loss
-    # with its RSS-combined 95% band, and the full three-channel table (input
-    # Monte-Carlo envelope, phase-quadrature numerical, correlation-family
-    # model) exactly as displayed. A certificate must never take down a good
-    # mission, so it is wrapped just as geometry_study wires it.
+    # with its RSS-combined 95% band, the structured result table, and the
+    # full three-channel table exactly as displayed, generic notes only.
+    # Uniform convention (airliner pattern): the previous run's page is
+    # withdrawn FIRST and the new page lands by atomic replacement; if
+    # generation fails the act says so on the record. A certificate must
+    # never take down a good mission. No mesh block: this act solves no mesh.
+    cert_path = out / "certificate.pdf"
+    try:
+        cert_path.unlink()
+    except OSError:
+        pass
     try:
         import time as _time
         from chief_engineer.certificate import build_certificate_v2
@@ -476,11 +490,21 @@ def main(request: str | None = None, params: dict | None = None,
                  "value": f"{best['angle']:g} deg",
                  "envelope": f"orifice {best['area'] * 1e6:.0f} mm2"},
             ],
+            # Structured result block: Title Case labels, verbatim numbers.
+            "result_fields": [
+                ("Opening Angle", f"{best['angle']:g} deg"),
+                ("Cycle Loss", f"{best['objective']:.0f} Pa"),
+                ("Band (95%)", f"±{cert_band:.0f} Pa"),
+                ("Orifice Area", f"{best['area'] * 1e6:.0f} mm²"),
+                ("Phase Points", f"{len(phases)}"),
+                ("Admissible", f"{len(feasible)} of {len(results)} angles"),
+            ],
             "compute": ledger.as_dict(),
         }
         certificate = build_certificate_v2(
-            cert_doc, out_path=out / "certificate.pdf",
+            cert_doc, out_path=cert_path,
             geometry="aortic_valve",
+            # The objective is always THIS run's verbatim request.
             objective=(request or "Minimise the cycle-weighted pressure loss "
                        "across the valve by choosing the leaflet opening angle."),
             mission_id="valve-study",
@@ -491,8 +515,12 @@ def main(request: str | None = None, params: dict | None = None,
             fidelity="RESEARCH MODEL")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
-    except Exception as exc:  # a certificate must never take down a good mission
-        script.engineer(f"(Certificate could not be issued: {exc})")
+    except Exception:  # a certificate must never take down a good mission
+        script.engineer(
+            "• No certificate could be issued for this run. "
+            "• The previous run's certificate is withdrawn, so nothing out of "
+            "date is served. "
+            "• The result above stands on the transcript and the report.")
 
     script.save(out / "transcript.txt")
     roster.all_idle()

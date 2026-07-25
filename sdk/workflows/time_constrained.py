@@ -31,7 +31,7 @@ from chief_engineer.lab import per, trust
 from chief_engineer.monte_carlo import plot_estimates
 from chief_engineer.openfoam import OpenFoamCylinderApi
 
-KNOWLEDGE = "docs/NUMERICS_KNOWLEDGE.md"
+KNOWLEDGE = "the numerics knowledge base"
 DEADLINE_MINUTES = 5.0
 COARSE_REFINEMENT = 0.5      # ~600 cells: fast, and inside the calibrated range
 FINE_REFINEMENT = 1.0        # ~2400 cells: the probe step
@@ -85,7 +85,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.researcher(decision.headline(), citations=decision.citations,
                       decision=decision.as_dict())
     for order in decision.orders:
-        script.researcher(f"  → {order}")
+        script.researcher(f"  {order}")
 
     coarse = _solve(design, out, "coarse")
     script.engineer(
@@ -97,7 +97,7 @@ def main(request: str | None = None, params: dict | None = None,
         # ---------------- Approved: apply the measured correction ----------------
         corrected = coarse["Cd"] * 0.984
         script.engineer(
-            f"• Applying {decision.model.name}: {coarse['Cd']:.4g} → {corrected:.4g}. "
+            f"• Applying {decision.model.name}: {coarse['Cd']:.4g} to {corrected:.4g}. "
             f"• The 1.6% is a measured bias, not a fudge factor.",
             citations=(decision.model.citation,))
         verdict = trust(relative_error=0.01 / max(corrected, 1e-9))
@@ -132,8 +132,10 @@ def main(request: str | None = None, params: dict | None = None,
         grid_delta = abs(probe["Cd"] - coarse["Cd"])
         grid_percent = grid_delta / abs(probe["Cd"]) * 100
         script.engineer(
-            f"• Grid difference {int(coarse['cell_count'])}→{int(probe['cell_count'])} "
-            f"cells: Cd {coarse['Cd']:.4g}→{probe['Cd']:.4g}, {grid_percent:.1f}% shift. "
+            f"• Grid difference {int(coarse['cell_count'])} to "
+            f"{int(probe['cell_count'])} "
+            f"cells: Cd {coarse['Cd']:.4g} to {probe['Cd']:.4g}, "
+            f"{grid_percent:.1f}% shift. "
             f"• A difference, not a verified uncertainty; two meshes cannot give one.",
             citations=(f"{KNOWLEDGE} #2 (grid convergence method)",))
         script.numericist(

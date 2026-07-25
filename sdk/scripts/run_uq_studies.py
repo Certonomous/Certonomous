@@ -149,9 +149,14 @@ def ladder_unfamiliar(body: str, stl_name: str, *,
     method = band["method"] + (
         "; band for the working mesh (middle level)" if use_middle else "")
     rel = band_abs / abs(act_level["cd"]) if act_level.get("cd") else None
+    # The fingerprint must key the setup the rungs ACTUALLY solved: the
+    # registry's velocity hint (passed through extra) wins over the default,
+    # exactly as it did inside the geometry runs themselves. Keying the
+    # default while solving the hint was the NACA 4412 mismatch bug.
     fingerprint = uq.setup_fingerprint(
         body=body, solver="openfoam-simpleFoam", closure="kOmegaSST",
-        velocity=velocity, refinement=act_refinement, iterations=ITERATIONS)
+        velocity=float(extra.get("velocity", velocity)),
+        refinement=act_refinement, iterations=ITERATIONS)
     _checkpoint(
         body, fingerprint=fingerprint,
         numerical={"band_abs": band_abs,

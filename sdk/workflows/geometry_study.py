@@ -67,6 +67,78 @@ RUNG_ITERATION_FLOOR = 120
 # assumed, in these words, on the GUI and the certificate alike.
 INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
 
+# Keep-trying rule (Katie, 2026-07-24): a mesh that misses a quality gate is
+# remeshed with tightened controls, up to this many retries, before the act
+# may proceed; only after the retries fail does the caveat go on the record.
+MESH_RETRY_LIMIT = 2
+MESH_RETRY_NARRATION = ("Mesh quality below standard; remeshing with "
+                        "tightened controls.")
+
+
+def mesh_gates_pass(non_ortho: float | None, skew: float | None) -> bool:
+    """True when the mesh check cleared both published gates."""
+    return ((non_ortho or 0) <= MAX_NON_ORTHOGONALITY
+            and (skew or 0) <= MAX_SKEWNESS)
+
+
+def mesh_caveat_lines(non_ortho: float | None, skew: float | None) -> list[str]:
+    """The mesh-channel caveat clauses, in gate order; empty when the mesh
+    check passed both gates. These are the only sentences allowed to cap the
+    verdict on mesh grounds, so a passing mesh can never carry one."""
+    caveats: list[str] = []
+    if (non_ortho or 0) > MAX_NON_ORTHOGONALITY:
+        caveats.append(
+            f"Mesh quality: max non-orthogonality {non_ortho:.1f}°, above the "
+            f"{MAX_NON_ORTHOGONALITY:.0f}° gate; the numerical channel carries "
+            f"the residual")
+    if (skew or 0) > MAX_SKEWNESS:
+        caveats.append(
+            f"Mesh quality: max skewness {skew:.2f} on isolated faces, above "
+            f"the {MAX_SKEWNESS:.1f} gate; the numerical channel carries the "
+            f"residual")
+    return caveats
+
+
+def retry_mesh_quality(engineer, stats: dict, *, narrate, remesh,
+                       limit: int = MESH_RETRY_LIMIT) -> tuple[dict, int, bool]:
+    """The keep-trying rule, as behavior: gates failed, so tighten and remesh.
+
+    ``remesh(retry_index)`` re-runs the mesh chain; ``narrate(line)`` puts the
+    retry on the record honestly. After each retry the mesh check runs again.
+    Returns (final stats, retries used, gates passed). Taking a retry at all
+    is a lesson the team keeps, recorded through the lessons machinery.
+    """
+    retries = 0
+    while (retries < limit
+           and not mesh_gates_pass(stats.get("max_non_orthogonality"),
+                                   stats.get("max_skewness"))):
+        retries += 1
+        tightened = max(1.0, MAX_SKEWNESS - 0.5 * (retries - 1))
+        narrate(f"• {MESH_RETRY_NARRATION} "
+                f"• Retry {retries} of {limit}: boundary-skewness limit "
+                f"{tightened:g}, same body, same physics.")
+        engineer.enforce_boundary_skewness(tightened)
+        remesh(retries)
+        stats = engineer.collect_mesh_stats()
+    passed = mesh_gates_pass(stats.get("max_non_orthogonality"),
+                             stats.get("max_skewness"))
+    if retries:
+        try:
+            from chief_engineer.lessons import record_learned
+
+            record_learned(
+                "mesh-quality-keep-trying",
+                "When the mesh misses a quality gate after meshing, do not "
+                "proceed on the first attempt: tighten the boundary-skewness "
+                "control and remesh, up to two retries, narrating each retry "
+                "plainly. Only after the retries fail may the run proceed, "
+                "with the caveat on the record. Measured on the motorbike "
+                "mesh: max skewness 8.94 with the stock control, 3.99 with "
+                "the tightened one, at an unchanged cell budget.")
+        except Exception:
+            pass
+    return stats, retries, passed
+
 # Published dimensions for named bodies: a recognized aircraft is scaled to
 # its published length, stated with its source in the transcript, instead of
 # the generic 50 m fallback (which remains for unnamed uploads only).
@@ -537,7 +609,8 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
 
 def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
                          lookup: dict, cells: int, non_ortho_s: str,
-                         skew_s: str, model_extra: str = "") -> dict:
+                         skew_s: str, model_extra: str = "",
+                         transfer: dict | None = None) -> dict:
     """The three V&V-20 channels for this study, built from what was measured.
 
     Doctrine (docs/UNCERTAINTY-DOCTRINE.md): input conditions taken as
@@ -549,7 +622,11 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
     ``non_ortho_s``, ``skew_s`` are still accepted for signature stability)
     live only in the certificate's Mesh Validity block. Model: the k-omega
     SST closure, stated model-form, quantified by a matching closure-spread
-    study, plus the published-band comparison when one was made.
+    study, plus the published-band comparison when one was made. A body with
+    no closure study of its own may carry ``transfer`` — the band transferred
+    from the lab's measured validation history (doctrine fallback) — so every
+    body path still quantifies all three channels. Channel notes stay on the
+    generic register: no named method ever reaches a certificate note.
     """
     del settle_2sigma, window, velocity, cells, non_ortho_s, skew_s  # mesh-validity block owns these
     input_note = INPUT_ASSUMED_NOTE
@@ -574,9 +651,8 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         elif "monotone" in str(num.get("method", "")):
             parts.append("Rungs not monotone; conservative band, largest "
                          "spread times 1.25")
-        parts.append(f"Band ±{num['band_abs']:.2g} on the drag coefficient, "
-                     f"least-squares fit with safety factor 1.25 "
-                     f"(Eca & Hoekstra 2014)")
+        parts.append(f"Band ±{num['band_abs']:.2g} on the drag coefficient "
+                     f"by the default numerical consistency method")
         numerical_note = " ".join(f"• {part}." for part in parts)
     elif lookup.get("pending"):
         numerical_note = ("• Grid-refinement study pending for this setup. "
@@ -590,6 +666,13 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         model_val = lookup["model"]["band_abs"]
         model_note = ("turbulence closure k-omega SST, stated model-form; "
                       + lookup["model"]["method"])
+    elif transfer and transfer.get("band_abs") is not None:
+        # Doctrine fallback: no closure study of its own, so the band is
+        # transferred from the lab's measured validation history.
+        model_val = transfer["band_abs"]
+        model_note = ("turbulence closure k-omega SST, stated model-form; "
+                      "band estimated from the lab's validation history "
+                      "(screening estimate, not a bound)")
     if model_extra:
         # A positive published comparison rides the model channel: that is the
         # channel a magnitude check against reality belongs to.
@@ -789,6 +872,43 @@ def main(request: str | None = None, params: dict | None = None,
             # writes 0/ directly and must not have it swept away.
             engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && cp -r 0.orig 0")
         stats = engineer.collect_mesh_stats()
+
+        def _remesh(retry_index: int) -> None:
+            # The keep-trying rule re-runs the whole mesh chain under the
+            # tightened controls; a stale cached mesh must never mask the fix.
+            engineer.clear_mesh_cache(label)
+            for step, command, note in (
+                ("surfaceFeatureExtract", "surfaceFeatureExtract",
+                 "extracting the feature edges the mesher snaps to"),
+                ("blockMesh", "blockMesh", "rebuilding the background mesh"),
+                ("snappyHexMesh", "snappyHexMesh -overwrite",
+                 "re-snapping under the tightened quality controls"),
+            ):
+                roster.set(CHIEF_ENGINEER, note, "working")
+                result = engineer._run_step(step, command, 5400)
+                ledger.spend(result.seconds,
+                             f"{step} remesh {retry_index} "
+                             f"({result.seconds:.0f}s)")
+                stage_row(f"{step} (remesh {retry_index})", result.seconds,
+                          note)
+            if familiar:
+                engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && "
+                              f"cp -r 0.orig 0")
+
+        stats, mesh_retries, retried_gates_ok = retry_mesh_quality(
+            engineer, stats, narrate=script.engineer, remesh=_remesh)
+        if mesh_retries and retried_gates_ok:
+            # The remeshed, gate-clean mesh is the one every later run warms
+            # from; the failing one is already cleared.
+            engineer.save_mesh_to_cache(label)
+            script.engineer(
+                f"• Remesh {mesh_retries} brought the mesh inside the gates; "
+                f"the tightened mesh is the one solved below.")
+        elif mesh_retries:
+            script.engineer(
+                f"• The mesh still misses a gate after {mesh_retries} "
+                f"remesh{'es' if mesh_retries > 1 else ''}; proceeding with "
+                f"the caveat on the record.")
         cells = int(stats.get("cells", 0))
         non_ortho = stats.get("max_non_orthogonality")
         skew = stats.get("max_skewness")
@@ -1038,15 +1158,10 @@ def main(request: str | None = None, params: dict | None = None,
 
     relative = abs(2 * drag["sigma"] / drag["value"]) if drag["value"] else None
     skew_ok = (skew or 0) <= MAX_SKEWNESS
-    if not gate_ok:
-        why = (f"Mesh quality: max non-orthogonality {non_ortho_s}, above the "
-               f"{MAX_NON_ORTHOGONALITY:.0f}° gate; the numerical channel carries "
-               f"the residual")
-    elif not skew_ok:
-        why = (f"Mesh quality: max skewness {skew_s} on isolated faces, above the "
-               f"{MAX_SKEWNESS:.1f} gate; the numerical channel carries the residual")
-    else:
-        why = ""
+    # The caveat clauses come from one gate-checked helper, so a mesh the
+    # check passed can never carry a mesh caveat (regression-tested).
+    caveats = mesh_caveat_lines(non_ortho, skew)
+    why = caveats[0] if caveats else ""
     comparison = None
     drag_area_cmp = None
     if reference and "cd" in reference:
@@ -1148,11 +1263,17 @@ def main(request: str | None = None, params: dict | None = None,
         model_extra = (f"drag area {drag_area_cmp['drag_area_m2']:.2f} m² "
                        f"inside the {drag_area_cmp['band_label']} "
                        f"({drag_area_cmp['source_short']})")
+    # A body without a closure study of its own still quantifies the model
+    # channel: the band transfers from the lab's measured validation history
+    # (doctrine fallback), so every body path carries all three channels.
+    transfer = (None if lookup.get("model")
+                else uq_studies.transferred_model_band(drag["value"],
+                                                       exclude=label))
     channels = certificate_channels(
         settle_2sigma=2 * drag["sigma"], window=drag["window"],
         velocity=20.0 if familiar else float(params.get("velocity", 100.0)),
         lookup=lookup, cells=cells, non_ortho_s=non_ortho_s, skew_s=skew_s,
-        model_extra=model_extra)
+        model_extra=model_extra, transfer=transfer)
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
     # The combined 95% band still carries the settled-state scatter of the
@@ -1344,13 +1465,35 @@ def main(request: str | None = None, params: dict | None = None,
         emit("agenda.updated", {"entries": _AGENDA})
     if emit:
         emit("report.ready", report_doc)
+    # Uniform certificate convention (airliner pattern): the previous run's
+    # page is withdrawn FIRST and the new page lands by atomic replacement,
+    # so a page from an earlier mission can never be served after this one
+    # completes; if generation fails the act says so on the record.
+    cert_path = out / "certificate.pdf"
+    try:
+        cert_path.unlink()
+    except OSError:
+        pass
     try:
         # The redesigned certificate is the default as of Sanaa's sign-off
         # (2026-07-23, old-vs-new B-52 comparison approved).
         from chief_engineer.certificate import build_certificate_v2
+
+        # Structured result block: Title Case labels, verbatim numbers, the
+        # same figures the verdict and the report already carry.
+        cert_doc = dict(report_doc)
+        cert_doc["result_fields"] = (
+            [("Body", shown), ("C_d", f"{drag['value']:.4g}")]
+            + ([("C_L", f"{lift['value']:.4g}")] if lift else [])
+            + [("Band (95%)",
+                f"±{(combined if combined else 2 * drag['sigma']):.2g}"),
+               ("Cells", f"{cells:,}"),
+               ("Solve Time", f"{elapsed:.1f} min")])
         certificate = build_certificate_v2(
-            report_doc, out_path=out / "certificate.pdf",
-            geometry=shown, objective=(request or f"Geometry study of {shown}"),
+            cert_doc, out_path=cert_path,
+            geometry=shown,
+            # The objective is always THIS run's verbatim request.
+            objective=(request or f"Geometry study of {shown}"),
             mission_id=f"geometry-study-{label}",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels,
@@ -1360,8 +1503,12 @@ def main(request: str | None = None, params: dict | None = None,
             mesh=mesh_validity(cells, non_ortho, skew))
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
-    except Exception as exc:  # a certificate must never take down a good solve
-        script.engineer(f"(Certificate could not be issued: {exc})")
+    except Exception:  # a certificate must never take down a good solve
+        script.engineer(
+            "• No certificate could be issued for this run. "
+            "• The previous run's certificate is withdrawn, so nothing out of "
+            "date is served. "
+            "• The result above stands on the transcript and the report.")
     engineer.report_markdown()
     script.save(out / "transcript.txt")
     roster.all_idle()

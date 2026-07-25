@@ -27,3 +27,30 @@ womersley:
   #    a useful screen. The physiological aortic root sits near alpha ~ 17.
   strict_quasi_steady_max: 1.0
   multipoint_screening_max: 25.0
+
+mesh_quality:
+  # Mesh admissibility gates, codified 2026-07-25 by the reading program (R1).
+  # Full basis and failure modes: docs/standards/MESH_STANDARD.md.
+  #
+  # Citations:
+  #  - checkMesh acceptance thresholds compiled into OpenFOAM v2606:
+  #    nonOrthThreshold 70 deg, skewThreshold 4, aspectThreshold 1000
+  #    (src/OpenFOAM/meshes/primitiveMesh/primitiveMeshCheck/primitiveMeshCheck.C).
+  #  - snappyHexMesh generation defaults: maxNonOrtho 65, maxInternalSkewness 4,
+  #    maxBoundarySkewness 20, minVolRatio 0.01 (etc/caseDicts/meshQualityDict).
+  #  - Calibration: NASA TMR flat-plate reference grids on disk measure max
+  #    aspect ratio 66643 to 74041 with non-orthogonality 0 and machine-precision
+  #    skewness (demo-output/website/tmr/runs/*/log.checkMesh). A hard aspect
+  #    ratio gate would reject every reference-grade boundary-layer grid.
+  #
+  # The two hard gates match what the geometry workflow already enforces
+  # (70 and 4); writing them here makes the values governed rather than moving
+  # them. The advisory entries are new and await enforcement wiring, proposed
+  # in the agenda inbox as r1-mesh-gate-extension.
+  max_non_orthogonality_deg: 70.0     # hard gate; checkMesh acceptance threshold
+  non_orthogonality_warn_deg: 65.0    # warning band start; snappy generation constraint
+  max_skewness: 4.0                   # hard gate, boundary faces included; checkMesh failure threshold
+  aspect_ratio_advisory: 1000.0       # advisory only; above it an alignment justification is required
+  aspect_ratio_flag_with_non_ortho_deg: 60.0  # aspect ratio above advisory AND non-ortho above this is a flag
+  aspect_ratio_flag_with_skewness: 2.0        # aspect ratio above advisory AND skew above this is a flag
+  min_volume_ratio_warn: 0.01         # adjacent-cell volume ratio warning; snappy generation floor

@@ -233,14 +233,91 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         channels = _of(stream, "uncertainty.channels")[0]["channels"]
         by_name = {c["name"]: c for c in channels}
-        self.assertIn("The compute budget allows the full 2-sigma Monte-Carlo "
+        # Generic register (owner rule, 2026-07-24): no method named in any
+        # channel note; the compute-budget statement stays.
+        self.assertIn("The compute budget allows the full 2-sigma ensemble "
                       "envelope.", by_name["input"]["note"])
-        self.assertIn("2-sigma Monte-Carlo envelope propagated from the spread",
+        self.assertIn("Ensemble run over the stated spread",
                       by_name["input"]["note"])
         # numbers untouched by the wording
         self.assertAlmostEqual(by_name["input"]["value"], 421.1424, places=4)
         self.assertAlmostEqual(by_name["numerical"]["value"], 81.0, places=4)
         self.assertAlmostEqual(by_name["model"]["value"], 104.8, places=4)
+
+    def test_channel_notes_stay_on_the_generic_register(self):
+        rc, stream = _run_valve()
+        self.assertEqual(rc, 0)
+        channels = _of(stream, "uncertainty.channels")[0]["channels"]
+        by_name = {c["name"]: c for c in channels}
+        self.assertEqual(by_name["numerical"]["note"],
+                         "Three-level refinement of the cycle evaluation; "
+                         "the band is the spread between levels.")
+        self.assertIn("Spread across published discharge-coefficient "
+                      "correlations (screening estimate)",
+                      by_name["model"]["note"])
+        self.assertIn("unmodeled:", by_name["model"]["note"])
+        blob = " ".join(str(c["note"]) for c in channels)
+        for banned in ("Monte-Carlo", "quadrature", "k = 3/5/9", "Eca",
+                       "Hoekstra", "GCI", "least-squares", "uq-"):
+            self.assertNotIn(banned, blob)
+
+    def test_certificate_renders_the_result_table_with_unchanged_numbers(self):
+        # The sealed page: structured result table, all three channel values
+        # (421.1 / 81.0 / 104.8), generic notes, and no mesh block, because
+        # the reduced-order act solves no mesh.
+        stream = []
+
+        def emit(e, p):
+            stream.append((e, p))
+
+        import os
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+        from workflows.valve_study import main
+        rc = main(request="minimise valve pressure loss over the cardiac "
+                          "cycle", emit=emit)
+        self.assertEqual(rc, 0)
+        cert = _of(stream, "certificate.ready")[0]
+        text = Path(cert["path"]).read_bytes().decode("latin-1")
+        for token in ("Opening Angle", "80 deg", "Cycle Loss", "1327 Pa",
+                      "Band \\(95%\\)", "Orifice Area", "Parameter",
+                      "421.14", "81.0", "104.8",
+                      "minimise valve pressure loss over the cardiac cycle"):
+            self.assertIn(token, text)
+        # No mesh block on a meshless act; no method names on the sealed page.
+        self.assertNotIn("Mesh Validity", text)
+        for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra",
+                       "GCI", "least-squares", "uq-"):
+            self.assertNotIn(banned, text)
+
+    def test_failed_certificate_withdraws_the_previous_page(self):
+        # The uniform convention: the previous run's page is withdrawn first,
+        # so a failed generation leaves nothing out of date being served, and
+        # the act says so on the record.
+        import os
+        from unittest import mock
+        from workflows.valve_study import main
+        from workflows import OUT_ROOT
+
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+        pdf = OUT_ROOT / "valve-study" / "certificate.pdf"
+        rc = main(request="minimise valve pressure loss over the cardiac "
+                          "cycle")
+        self.assertEqual(rc, 0)
+        self.assertTrue(pdf.exists())
+        stream = []
+        with mock.patch("chief_engineer.certificate.build_certificate_v2",
+                        side_effect=RuntimeError("boom")):
+            rc = main(request="minimise valve pressure loss over the cardiac "
+                              "cycle",
+                      emit=lambda e, p: stream.append((e, p)))
+        self.assertEqual(rc, 0)
+        self.assertFalse(pdf.exists())
+        said = " ".join(p.get("message", "") for e, p in stream
+                        if e == "transcript.entry")
+        self.assertIn("No certificate could be issued for this run", said)
+        self.assertIn("withdrawn", said)
+        # Reissue for anything that reads the served directory afterwards.
+        main(request="minimise valve pressure loss over the cardiac cycle")
 
     def test_headline_numbers_are_unchanged(self):
         rc, stream = _run_valve()

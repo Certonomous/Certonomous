@@ -94,15 +94,42 @@ _BANNED_LANGUAGE = (
 _STUDY_REF = re.compile(r"[;,]?\s*\bstudy\s+uq-[\w,\s-]+", re.IGNORECASE)
 _UQ_SLUG = re.compile(r"[;,]?\s*\buq-[\w-]+-r\d+\b", re.IGNORECASE)
 _TOOL_NAME = re.compile(r"\bcheckMesh\b:?\s*", re.IGNORECASE)
+# The sealed page never states a UQ method by name (owner rule, 2026-07-24):
+# named procedures fold to the generic register — a citation is deleted, a
+# named estimator becomes its plain description. Wording only; every number
+# in the surrounding text renders verbatim.
+_METHOD_GENERIC = (
+    (re.compile(r"\s*\((?:Eca|Eça)\s*(?:&|and)\s*Hoekstra[^)]*\)",
+                re.IGNORECASE), ""),
+    (re.compile(r"\b(?:Eca|Eça)\s*(?:&|and)\s*Hoekstra(?:\s*,?\s*\d{4})?",
+                re.IGNORECASE), "the default numerical consistency method"),
+    (re.compile(r"\bMonte[- ]Carlo\b", re.IGNORECASE), "ensemble"),
+    (re.compile(r"\bleast[- ]squares fit\b", re.IGNORECASE),
+     "default numerical consistency method"),
+    (re.compile(r"\bleast[- ]squares\b", re.IGNORECASE),
+     "default numerical consistency"),
+    (re.compile(r"\bGCI\b"), "grid-refinement"),
+    # The k-rung spec is a level index list, not a measured value; the
+    # sanctioned generic phrasing drops it with the method name.
+    (re.compile(r"\bphase-quadrature ladder(?:\s+k\s*=\s*[\d/]+)?",
+                re.IGNORECASE),
+     "multi-level refinement of the cycle evaluation"),
+    (re.compile(r"\bquadrature ladder(?:\s+k\s*=\s*[\d/]+)?", re.IGNORECASE),
+     "multi-level refinement"),
+)
 _INPUT_ASSUMED = "No input uncertainty was assumed for this problem."
 _INPUT_ASSUMED_HINTS = ("as specified exactly", "no input spread")
 
 
 def _channel_rails(text: str) -> str:
-    """Strip internal identifiers and tool jargon from one channel line."""
+    """Strip internal identifiers, tool jargon, and named UQ methods from one
+    channel line. Wording only; every number passes through verbatim."""
     s = _STUDY_REF.sub("", text)
     s = _UQ_SLUG.sub("", s)
     s = _TOOL_NAME.sub("", s)
+    for pattern, replacement in _METHOD_GENERIC:
+        s = pattern.sub(replacement, s)
+    s = re.sub(r"\(\s*\)", "", s)            # a deleted citation leaves no ()
     s = re.sub(r"\s+([;,.])", r"\1", s)      # no space left before punctuation
     s = re.sub(r"[;,]\s*([;,])", r"\1", s)   # collapse doubled separators
     s = re.sub(r"\s{2,}", " ", s)

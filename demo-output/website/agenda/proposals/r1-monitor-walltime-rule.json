@@ -1,0 +1,14 @@
+{
+  "id": "r1-monitor-walltime-rule",
+  "objective": "Add a wall-time excursion rule to the monitor: flag any run beyond 10 times its solver's running 99th percentile, stop and investigate beyond 100 times",
+  "rationale": "Mined from the mega-batch ledger: solver wall times are tightly banded, with the cylinder at median 3.7 seconds and 99th percentile 19.7 seconds and the wing at median 5.8 seconds and 99th percentile 8.6 seconds, yet three runs per solver recorded wall times near 16300 seconds, over 800 times the 99th percentile, and every one was recorded ok with no anomaly anywhere. A hung or starved run that eventually returns a plausible number is invisible to every current check. The rule keeps the excursion as a named field on the record so fleet learning can separate solver cost from infrastructure stalls.",
+  "citations": [
+    "Certonomous Mega-Batch Ledger, 39442 Rows Examined 2026-07-25",
+    "Certonomous Monitor Standard, Version 1.0"
+  ],
+  "est_core_min": 0,
+  "expected_knowledge_gain": "The fleet ledger stops silently absorbing 800-fold wall-time excursions, and the cost model behind mission planning stops being polluted by infrastructure stalls counted as solver time",
+  "source_kind": "reading",
+  "status": "proposed",
+  "created_at": "2026-07-25"
+}

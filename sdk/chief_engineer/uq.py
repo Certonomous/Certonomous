@@ -241,6 +241,62 @@ def spread_estimate(values: dict[str, float], *, label: str) -> dict[str, Any]:
     }
 
 
+TRANSFER_METHOD = ("estimated from the lab's validation history "
+                   "(transferred; screening estimate)")
+
+
+def transferred_model_band(value: float | None,
+                           exclude: str | None = None) -> dict[str, Any] | None:
+    """Model-form band transferred from the lab's own measured spread history.
+
+    Doctrine fallback (UNCERTAINTY-DOCTRINE, model channel b): a body with no
+    direct closure study borrows a conservative pool statistic from the
+    stored studies that carry BOTH a measured model spread and the working
+    value it was measured against. Each donor contributes its measured
+    relative spread; the transferred statistic is mean + 1 sigma over the
+    pool (never below the largest member), scaled by this mission's own
+    value. Every number in the pool was measured; nothing is invented here.
+
+    Returns None when the mission has no working value or the pool is empty —
+    the caller must then leave the channel honestly unquantified.
+    """
+    if not value:
+        return None
+    pool: dict[str, float] = {}
+    try:
+        paths = sorted(STUDIES_DIR.glob("*.json"))
+    except OSError:
+        return None
+    for path in paths:
+        body = path.stem
+        if exclude and body == exclude:
+            continue
+        study = load_study(body)
+        if not study:
+            continue
+        model = study.get("model") or {}
+        band = model.get("band_abs")
+        working = (study.get("numerical") or {}).get("value_working")
+        if band is None or not working:
+            continue
+        pool[body] = abs(float(band)) / abs(float(working))
+    if not pool:
+        return None
+    rels = list(pool.values())
+    mean = sum(rels) / len(rels)
+    if len(rels) > 1:
+        sigma = math.sqrt(sum((r - mean) ** 2 for r in rels) / (len(rels) - 1))
+    else:
+        sigma = 0.0
+    rel = max(mean + sigma, max(rels))
+    return {"band_abs": rel * abs(float(value)),
+            "band_rel": round(rel, 5),
+            "method": TRANSFER_METHOD,
+            "members": {k: round(v, 5) for k, v in pool.items()},
+            "screening_estimate": True,
+            "transferred": True}
+
+
 # --------------------------------------------------------------------------
 # Combination (Q3)
 # --------------------------------------------------------------------------

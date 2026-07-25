@@ -412,14 +412,54 @@ class ChannelNoteTests(unittest.TestCase):
         self.assertIn("Observed order 4.82", num["note"])
         self.assertIn("limited to the theoretical range", num["note"])
         self.assertIn("±0.0019", num["note"])
-        self.assertIn("Eca & Hoekstra 2014", num["note"])
-        for banned in ("checkMesh", "uq-", "GCI", "rung-coarse"):
+        # Generic register (owner rule, 2026-07-24): the certificate never
+        # states a method by name; transcript citations stay in the
+        # transcript, never in a channel note.
+        self.assertIn("default numerical consistency method", num["note"])
+        for banned in ("checkMesh", "uq-", "GCI", "rung-coarse", "Eca",
+                       "Hoekstra", "least-squares"):
             self.assertNotIn(banned, num["note"])
         # Every bullet opens with a capital letter.
         for part in num["note"].split("•"):
             part = part.strip()
             if part:
                 self.assertTrue(part[0].isupper(), part)
+
+    def test_model_channel_transfers_from_validation_history_when_no_study(self):
+        # Doctrine fallback: a body with no closure study of its own still
+        # quantifies the model channel, from the lab's measured history.
+        transfer = {"band_abs": 0.0133, "band_rel": 0.282,
+                    "method": uq.TRANSFER_METHOD,
+                    "members": {"motorBike": 0.00426,
+                                "naca4412_wing": 0.28206},
+                    "screening_estimate": True, "transferred": True}
+        channels = gs.certificate_channels(
+            settle_2sigma=0.001, window=60, velocity=100.0,
+            lookup={"numerical": None, "model": None, "pending": True,
+                    "provenance": [], "levels": []},
+            cells=193880, non_ortho_s="65.0°", skew_s="3.20",
+            transfer=transfer)
+        mod = channels["channels"][2]
+        self.assertTrue(mod["quantified"])
+        self.assertEqual(mod["value"], 0.0133)
+        self.assertIn("estimated from the lab's validation history",
+                      mod["note"])
+        self.assertIn("screening estimate", mod["note"])
+        for banned in ("GP", "Gaussian", "regression", "uq-"):
+            self.assertNotIn(banned, mod["note"])
+
+    def test_direct_study_still_wins_over_the_transfer(self):
+        lookup = dict(self.LOOKUP)
+        lookup["model"] = {"band_abs": 0.0018,
+                           "method": "inter-closure spread "
+                                     "(screening estimate)"}
+        channels = gs.certificate_channels(
+            settle_2sigma=0.001, window=60, velocity=20.0, lookup=lookup,
+            cells=353578, non_ortho_s="65.0°", skew_s="3.20",
+            transfer={"band_abs": 9.9, "method": uq.TRANSFER_METHOD})
+        mod = channels["channels"][2]
+        self.assertEqual(mod["value"], 0.0018)
+        self.assertIn("inter-closure spread", mod["note"])
 
     def test_no_channel_note_carries_mesh_gate_figures(self):
         blob = " ".join(c["note"] for c in self._channels(self.LOOKUP)["channels"])
@@ -449,6 +489,118 @@ class ChannelsForLevels(unittest.TestCase):
             miss = uq.channels_for("x", "other")
         self.assertEqual(len(hit["levels"]), 1)
         self.assertEqual(miss["levels"], [])
+
+
+# --------------------------------------------------------------------------
+# Mesh caveats: regression per body path (the meshes were fixed 2026-07-24)
+# --------------------------------------------------------------------------
+
+class MeshCaveatRegressionTests(unittest.TestCase):
+    """The mesh-channel caveat lines cannot fire when the mesh check passes.
+
+    One representative passing stat set per body path the act carries:
+    motorbike (familiar tutorial), B-52 and NACA 4412 (curriculum uploads),
+    and a generic unnamed upload."""
+
+    PASSING = {
+        "motorBike": (65.0, 3.99),        # measured after the skewness fix
+        "b52": (65.2, 3.20),
+        "naca4412_wing": (60.1, 2.85),
+        "uploaded_body": (69.9, 4.0),     # exactly on both gates still passes
+    }
+
+    def test_no_caveat_when_the_mesh_check_passes(self):
+        for body, (non_ortho, skew) in self.PASSING.items():
+            self.assertTrue(gs.mesh_gates_pass(non_ortho, skew), body)
+            self.assertEqual(gs.mesh_caveat_lines(non_ortho, skew), [], body)
+
+    def test_certificate_mesh_block_carries_no_caveat_on_a_passing_mesh(self):
+        from chief_engineer.certificate import _mesh_rows
+        for body, (non_ortho, skew) in self.PASSING.items():
+            rows = _mesh_rows(gs.mesh_validity(193880, non_ortho, skew))
+            for name, measured, verdict, ok in rows:
+                self.assertTrue(ok, f"{body}: {name} {measured}")
+                self.assertNotEqual(verdict, "caveat", f"{body}: {name}")
+
+    def test_caveats_fire_only_above_the_gates(self):
+        both = gs.mesh_caveat_lines(75.0, 8.94)
+        self.assertEqual(len(both), 2)
+        self.assertIn("non-orthogonality 75.0°", both[0])
+        self.assertIn("skewness 8.94", both[1])
+        self.assertEqual(len(gs.mesh_caveat_lines(65.0, 8.94)), 1)
+        self.assertEqual(gs.mesh_caveat_lines(None, None), [])
+
+
+# --------------------------------------------------------------------------
+# The keep-trying rule: gates fail -> tighten and remesh, up to twice
+# --------------------------------------------------------------------------
+
+class KeepTryingRuleTests(unittest.TestCase):
+    GOOD = {"cells": 353688, "max_non_orthogonality": 65.0,
+            "max_skewness": 3.99}
+    BAD = {"cells": 353688, "max_non_orthogonality": 65.0,
+           "max_skewness": 8.94}
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        patcher = mock.patch.dict(os.environ,
+                                  {"CERTONOMOUS_LESSONS_DIR": tmp.name})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.narrated: list[str] = []
+        self.remeshes: list[int] = []
+
+    def _engineer(self, stats_after):
+        engineer = mock.Mock()
+        engineer.collect_mesh_stats.side_effect = list(stats_after)
+        return engineer
+
+    def test_failing_gates_trigger_one_honest_retry_that_passes(self):
+        engineer = self._engineer([self.GOOD])
+        stats, retries, passed = gs.retry_mesh_quality(
+            engineer, dict(self.BAD), narrate=self.narrated.append,
+            remesh=self.remeshes.append)
+        self.assertEqual(retries, 1)
+        self.assertTrue(passed)
+        self.assertEqual(stats["max_skewness"], 3.99)
+        self.assertEqual(self.remeshes, [1])
+        self.assertTrue(self.narrated[0].startswith(
+            "• Mesh quality below standard; remeshing with tightened "
+            "controls."))
+        engineer.enforce_boundary_skewness.assert_called_once_with(4.0)
+        # The retry is a lesson the team reads back.
+        from chief_engineer.lessons import learned_lessons
+        lessons = {item["mission_id"] for item in learned_lessons()}
+        self.assertIn("mesh-quality-keep-trying", lessons)
+
+    def test_passing_gates_never_retry_and_record_no_lesson(self):
+        engineer = self._engineer([])
+        stats, retries, passed = gs.retry_mesh_quality(
+            engineer, dict(self.GOOD), narrate=self.narrated.append,
+            remesh=self.remeshes.append)
+        self.assertEqual(retries, 0)
+        self.assertTrue(passed)
+        self.assertEqual(self.narrated, [])
+        engineer.enforce_boundary_skewness.assert_not_called()
+        from chief_engineer.lessons import learned_lessons
+        self.assertEqual(learned_lessons(), [])
+
+    def test_two_failed_retries_proceed_with_the_caveat_on_the_record(self):
+        engineer = self._engineer([dict(self.BAD), dict(self.BAD)])
+        stats, retries, passed = gs.retry_mesh_quality(
+            engineer, dict(self.BAD), narrate=self.narrated.append,
+            remesh=self.remeshes.append)
+        self.assertEqual(retries, gs.MESH_RETRY_LIMIT)
+        self.assertFalse(passed)
+        self.assertEqual(self.remeshes, [1, 2])
+        # Each retry tightens further: 4.0 first, then 3.5.
+        calls = [c.args[0] for c in
+                 engineer.enforce_boundary_skewness.call_args_list]
+        self.assertEqual(calls, [4.0, 3.5])
+        # The caveat machinery still fires afterwards, as measured.
+        self.assertEqual(len(gs.mesh_caveat_lines(
+            stats["max_non_orthogonality"], stats["max_skewness"])), 1)
 
 
 # --------------------------------------------------------------------------

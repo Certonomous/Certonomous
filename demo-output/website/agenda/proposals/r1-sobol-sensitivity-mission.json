@@ -1,0 +1,16 @@
+{
+  "id": "r1-sobol-sensitivity-mission",
+  "objective": "Add a Sobol sensitivity mission type that apportions output variance across the input spreads before any uncertainty reduction campaign is priced",
+  "rationale": "The lab propagates input spreads through Monte Carlo but never says which input owns the variance, so reduction work is untargeted. Variance-based decomposition gives main and total effect indices per input; on the reduced-order paths an evaluation costs about a millisecond, so a pick-and-freeze design of N times (M plus 2) evaluations at N of 200 is seconds of compute for the valve and comparable for the airliner surrogate. The mission ends with a ranking of inputs by variance share and a recommendation of where the next samples or the next measurement effort should go.",
+  "citations": [
+    "Dakota Theory Manual, Stochastic Expansion Methods, Sandia National Laboratories",
+    "Dakota Reference Manual, Sampling With Variance Based Decomposition, Sandia National Laboratories"
+  ],
+  "url": "https://snl-dakota.github.io/docs/6.20.0/users/usingdakota/theory/stochastic.html",
+  "est_core_min": 6,
+  "expected_knowledge_gain": "Main and total effect Sobol indices for the valve inputs (flow amplitude 5 percent, discharge coefficient 6 percent) and the airliner inputs (span, area, sweep, taper), plus a standing answer to which spread is worth buying down first",
+  "source_kind": "reading",
+  "status": "proposed",
+  "created_at": "2026-07-25",
+  "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention."
+}

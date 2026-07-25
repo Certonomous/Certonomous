@@ -26,8 +26,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Sequence
 
-KNOWLEDGE = "docs/NUMERICS_KNOWLEDGE.md"
-LESSONS = "sdk/introspection/recipe/memory/LESSONS.md"
+KNOWLEDGE = "the numerics knowledge base"
+LESSONS = "the lab's lessons memory"
 
 
 # --------------------------------------------------------------------------
@@ -114,7 +114,7 @@ def select_runs(baseline: dict[str, float],
             runs.append(SelectedRun(
                 f"{name}-{side}",
                 {**baseline, name: value},
-                f"Brackets {name} on the {side} side ({current:.4g} → {value:.4g}) "
+                f"Brackets {name} on the {side} side ({current:.4g} to {value:.4g}) "
                 f"to establish the sign and slope of its effect on {objective} "
                 f"before any surrogate is trusted to interpolate it.",
             ))
@@ -162,7 +162,7 @@ CLOSURE_REGISTRY: tuple[ClosureModel, ...] = (
         quantity="Cd",
         correction="multiply coarse-grid Cd by 0.984 (remove the measured "
                    "+1.6% coarse-grid bias)",
-        calibration="Re = 20 grid study, 600 → 21600 cells, Cd 2.191 → 2.156",
+        calibration="Re = 20 grid study, 600 to 21600 cells, Cd 2.191 to 2.156",
         citation=f"{KNOWLEDGE} #2 (grid convergence, this machine)",
         regime={"geometry": "cylinder-2d", "flow": "steady-laminar",
                 "reynolds": (5.0, 47.0), "cells": (600, 21600)},

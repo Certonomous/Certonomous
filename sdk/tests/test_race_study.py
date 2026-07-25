@@ -279,6 +279,77 @@ class RacedWingUpload(unittest.TestCase):
         self.assertIs(rs._TimedSolver, race_benchmark._TimedSolver)
 
 
+class RaceCertificateConvention(unittest.TestCase):
+    """The uniform certificate convention on the race act: three computed
+    channels, the structured result table, the verbatim objective, no mesh
+    block, and generic channel notes on the sealed page."""
+
+    REQUEST = "race the two paths on the NACA 4412 wing tonight"
+
+    @classmethod
+    def setUpClass(cls):
+        _StubSolver.created = []
+        cls.events = []
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(rs, "_TimedSolver", _StubSolver), \
+                 mock.patch.object(rs, "OUT_ROOT", Path(tmp)):
+                cls.rc = rs.main(
+                    request=cls.REQUEST, params={"mc_samples": 3},
+                    emit=lambda e, p=None: cls.events.append((e, p or {})),
+                    seed=7)
+                cert = [p for e, p in cls.events
+                        if e == "certificate.ready"][0]
+                cls.text = Path(cert["path"]).read_bytes().decode("latin-1")
+
+    def _channels(self):
+        payloads = [p for e, p in self.events if e == "uncertainty.channels"]
+        self.assertEqual(len(payloads), 1)
+        return {c["name"]: c for c in payloads[0]["channels"]}
+
+    def test_all_three_channels_are_computed_numbers(self):
+        by = self._channels()
+        for name in ("input", "numerical", "model"):
+            self.assertTrue(by[name]["quantified"], name)
+            self.assertIsNotNone(by[name]["value"], name)
+
+    def test_numerical_is_the_half_step_bracket_from_the_lane_data(self):
+        # The stub curve is exactly quadratic (peak at alpha 2), so the
+        # anchor fit reproduces it and the half-step bracket is
+        # |f(2 ± 0.5) - f(2)| = 0.1 * 0.25 = 0.025. Measured, not invented.
+        by = self._channels()
+        self.assertAlmostEqual(by["numerical"]["value"], 0.025, places=6)
+        self.assertIn("discrete angle grid", by["numerical"]["note"])
+        self.assertIn("half a grid step", by["numerical"]["note"])
+
+    def test_model_channel_is_the_measured_cross_path_agreement(self):
+        by = self._channels()
+        result = [p for e, p in self.events if e == "race.result"][0]
+        mc_peak = float(result["mc"]["peak"].split()[1])
+        self.assertAlmostEqual(by["model"]["value"],
+                               round(abs(mc_peak - 18.00), 3), places=3)
+        self.assertIn("Measured agreement between the two independent "
+                      "solve paths", by["model"]["note"])
+        self.assertIn("confirmation solve", by["model"]["note"])
+
+    def test_notes_stay_on_the_generic_register(self):
+        blob = " ".join(str(c["note"]) for c in self._channels().values())
+        for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra", "GCI",
+                       "least-squares", "uq-"):
+            self.assertNotIn(banned, blob)
+        self.assertIn("Ensemble run", blob)
+
+    def test_certificate_carries_result_table_and_verbatim_objective(self):
+        for token in ("Parameter", "Peak L/D", "18.00 at 2 deg",
+                      "Band \\(95%\\)", "Agreement", "Speedup",
+                      "Solver Runs", "Cost", self.REQUEST):
+            self.assertIn(token, self.text)
+        # No mesh block on a meshless act; no method names on the sealed page.
+        self.assertNotIn("Mesh Validity", self.text)
+        for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra",
+                       "GCI", "least-squares"):
+            self.assertNotIn(banned, self.text)
+
+
 class RaceStudyConfig(unittest.TestCase):
     def test_worker_cap_is_four(self):
         self.assertEqual(rs.MAX_WORKERS, 4)

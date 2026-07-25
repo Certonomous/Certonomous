@@ -174,6 +174,62 @@ class StudyRecords(unittest.TestCase):
         self.assertTrue(out["pending"])
 
 
+class TransferredModelBand(unittest.TestCase):
+    """Doctrine fallback: a body with no closure study borrows a conservative
+    pool statistic from the lab's own measured spread history."""
+
+    def _tmp_studies(self):
+        tmp = tempfile.TemporaryDirectory()
+        patcher = mock.patch.object(uq, "STUDIES_DIR", Path(tmp.name))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(tmp.cleanup)
+
+    def _seed_pool(self):
+        uq.save_study("bikey", {
+            "numerical": {"band_abs": 0.0005, "value_working": 0.42},
+            "model": {"band_abs": 0.0018, "method": "inter-closure spread"}})
+        uq.save_study("wingy", {
+            "numerical": {"band_abs": 0.003, "value_working": 0.0217},
+            "model": {"band_abs": 0.0061, "method": "inter-closure spread"}})
+        # A study with a spread but no working value contributes nothing.
+        uq.save_study("valvey", {
+            "numerical": {"band_abs": 81.0},
+            "model": {"band_abs": 104.8, "method": "correlation-family"}})
+
+    def test_pool_statistic_is_mean_plus_sigma_never_below_the_max(self):
+        self._tmp_studies()
+        self._seed_pool()
+        out = uq.transferred_model_band(0.05)
+        self.assertIsNotNone(out)
+        rels = [0.0018 / 0.42, 0.0061 / 0.0217]
+        mean = sum(rels) / 2
+        sigma = math.sqrt(sum((r - mean) ** 2 for r in rels))
+        expected_rel = max(mean + sigma, max(rels))
+        self.assertAlmostEqual(out["band_rel"], round(expected_rel, 5),
+                               places=5)
+        self.assertAlmostEqual(out["band_abs"], expected_rel * 0.05, places=6)
+        self.assertEqual(set(out["members"]), {"bikey", "wingy"})
+        self.assertTrue(out["screening_estimate"])
+        self.assertTrue(out["transferred"])
+        self.assertIn("validation history", out["method"])
+
+    def test_exclude_keeps_a_body_out_of_its_own_pool(self):
+        self._tmp_studies()
+        self._seed_pool()
+        out = uq.transferred_model_band(0.05, exclude="wingy")
+        self.assertEqual(set(out["members"]), {"bikey"})
+        self.assertAlmostEqual(out["band_rel"],
+                               round(0.0018 / 0.42, 5), places=5)
+
+    def test_no_pool_or_no_value_means_no_invented_band(self):
+        self._tmp_studies()
+        self.assertIsNone(uq.transferred_model_band(0.05))
+        self._seed_pool()
+        self.assertIsNone(uq.transferred_model_band(None))
+        self.assertIsNone(uq.transferred_model_band(0.0))
+
+
 class HonestyRails(unittest.TestCase):
     def test_channels_never_upgrade_the_chip(self):
         # A perfect channel set still cannot make plain trust() say VALIDATED.

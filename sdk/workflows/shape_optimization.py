@@ -158,7 +158,7 @@ def main(request: str | None = None, params: dict | None = None,
                       label="baseline geometry")
     script.engineer(
         f"• Hypothesis: across {LOW}–{HIGH} m, drag falls as the body grows. "
-        f"• Bigger diameter → higher Reynolds → lower laminar Cd. "
+        f"• Bigger diameter means higher Reynolds and lower laminar Cd. "
         f"• Expect the optimum at the upper bound, curve flattening toward it.")
     script.engineer(
         "• Falsifiable two ways: the curve reverses, or a design leaves Re ≤ 47. "
@@ -202,7 +202,7 @@ def main(request: str | None = None, params: dict | None = None,
         roster.set_workers(0)
         script.engineer(
             f"• {len(evidence)} solves complete. "
-            f"• " + "; ".join(f"D={d:.3g}→Cd={m['Cd']:.4g}" for d, m in evidence) + ".")
+            f"• " + "; ".join(f"D={d:.3g} Cd={m['Cd']:.4g}" for d, m in evidence) + ".")
     else:
         script.engineer(
             "• The full fan-out does not fit. "
@@ -229,7 +229,7 @@ def main(request: str | None = None, params: dict | None = None,
             metrics = _solve(run.design, out / "anchors", run.name)
             evidence.append((run.design[SWEEP_PARAMETER], metrics))
             script.engineer(
-                f"• Anchor {run.name}: D={run.design[SWEEP_PARAMETER]:.4g} → "
+                f"• Anchor {run.name}: D={run.design[SWEEP_PARAMETER]:.4g}, "
                 f"Cd={metrics['Cd']:.4g}, converged={int(metrics['converged'])}.")
         ledger.spend(len(selection.runs) * CORE_SECONDS_PER_SOLVE,
                      f"{len(selection.runs)} anchor solves")

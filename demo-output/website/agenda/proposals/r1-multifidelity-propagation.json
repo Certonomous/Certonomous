@@ -1,0 +1,15 @@
+{
+  "id": "r1-multifidelity-propagation",
+  "objective": "Adopt a multifidelity Monte Carlo propagation scheme that fuses the reduced-order ensemble with a few anchoring solver evaluations instead of racing them",
+  "rationale": "The race act already produces the exact data multifidelity fusion needs: the same designs evaluated through the reduced-order lane and the solver lane. Multifidelity Monte Carlo is an unbiased control-variate estimator; the measured correlation between the paired lanes and the measured cost ratio decide the optimal sample allocation analytically, and also decide honestly whether fusion pays at all. Today the pairing is discarded once the race ends. The scheme keeps the solver in the loop for the accuracy guarantee, uses the reduced-order ensemble for volume, and reports one fused envelope with the correlation and allocation on the record.",
+  "citations": [
+    "Survey Of Multifidelity Methods In Uncertainty Propagation, Inference, And Optimization, Peherstorfer, Willcox And Gunzburger, SIAM Review 2018"
+  ],
+  "url": "https://arxiv.org/abs/1806.10761",
+  "est_core_min": 20,
+  "expected_knowledge_gain": "The measured correlation between the reduced-order lane and the solver lane on a shared design set, the resulting optimal allocation, and a fused envelope whose variance undercuts the solver-only estimate at equal budget or is honestly reported as not paying",
+  "source_kind": "reading",
+  "status": "proposed",
+  "created_at": "2026-07-25",
+  "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated."
+}

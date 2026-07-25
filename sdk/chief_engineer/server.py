@@ -256,6 +256,7 @@ class Handler(BaseHTTPRequestHandler):
             "/api/geometry": self._serve_geometry,
             "/api/compute-audit": self._serve_compute_audit,
             "/api/missions": self._serve_mission_list,
+            "/api/agenda": self._serve_agenda,
         }
         if path in exact:
             exact[path](query)
@@ -327,6 +328,14 @@ class Handler(BaseHTTPRequestHandler):
 
         workers = int((query.get("workers") or ["8"])[0])
         self._write_json(200, compute_audit(workers, memory_per_worker_mb=256).panel())
+
+    def _serve_agenda(self, _query) -> None:
+        """The research-agenda docket, ranked by expected knowledge gain per
+        core-minute (the deterministic heuristic documented in agenda.py).
+        Reading the docket never launches anything."""
+        from . import agenda
+
+        self._write_json(200, agenda.docket_view())
 
     def _serve_mission_list(self, _query) -> None:
         with _missions_lock:
@@ -411,7 +420,93 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/missions":
             self._launch_mission()
             return
+        if path == "/api/agenda/approve":
+            self._approve_proposal()
+            return
+        if path == "/api/agenda/dismiss":
+            self._dismiss_proposal()
+            return
         self._fail(404, "not found")
+
+    # ---- Research agenda: the human veto ---------------------------------
+    # The lab drafts proposals; NOTHING runs without the click. Approve maps a
+    # proposal onto the ordinary mission path (same router, same workflows)
+    # when it carries a launch prompt, and it respects the compute audit: no
+    # capacity means the proposal is queued honestly, not forced through.
+
+    def _approve_proposal(self) -> None:
+        from . import agenda
+
+        try:
+            body = self._read_json_body()
+        except Exception:
+            body = {}
+        proposal_id = str(body.get("id") or "").strip()
+        if not proposal_id:
+            self._fail(400, "a proposal id is required")
+            return
+        proposal = agenda.get_proposal(proposal_id)
+        if proposal is None:
+            self._fail(404, "unknown proposal")
+            return
+        if proposal.get("status") not in agenda.OPEN_STATUSES:
+            self._fail(400, f"proposal is already {proposal.get('status')}")
+            return
+        launch_prompt = str(proposal.get("launch_prompt") or "").strip()
+        if not launch_prompt:
+            updated = agenda.set_status(proposal_id, "approved")
+            self._write_json(200, {
+                "proposal": updated, "launched": False,
+                "note": ("Approved and on the record. No runnable workflow "
+                         "maps to this proposal yet, so nothing was "
+                         "started.")})
+            return
+        # The audit gate: an approval spends compute only when the machine
+        # measurably has room, exactly like a typed mission would face.
+        workers = int(proposal.get("workers") or 4)
+        verdict = _agenda_audit(workers)
+        if not verdict.fits:
+            updated = agenda.set_status(proposal_id, "approved-queued")
+            self._write_json(200, {
+                "proposal": updated, "launched": False,
+                "audit": verdict.panel(),
+                "note": ("Approved, but the compute audit found no room "
+                         "right now. Queued honestly; approve again when "
+                         "the machine frees up and it launches.")})
+            return
+        record, route = _start_mission(launch_prompt, {})
+        updated = agenda.set_status(proposal_id, "approved",
+                                    mission_id=record.id)
+        self._write_json(202, {
+            "proposal": updated, "launched": True,
+            "mission_id": record.id, "request": launch_prompt,
+            "route": route.as_dict(), "audit": verdict.panel()})
+
+    def _dismiss_proposal(self) -> None:
+        from . import agenda
+
+        try:
+            body = self._read_json_body()
+        except Exception:
+            body = {}
+        proposal_id = str(body.get("id") or "").strip()
+        reason = str(body.get("reason") or "").strip()
+        if not proposal_id:
+            self._fail(400, "a proposal id is required")
+            return
+        if not reason:
+            self._fail(400, "a dismissal reason is required")
+            return
+        proposal = agenda.get_proposal(proposal_id)
+        if proposal is None:
+            self._fail(404, "unknown proposal")
+            return
+        if proposal.get("status") not in agenda.OPEN_STATUSES:
+            self._fail(400, f"proposal is already {proposal.get('status')}")
+            return
+        updated = agenda.set_status(proposal_id, "dismissed",
+                                    dismiss_reason=reason)
+        self._write_json(200, {"proposal": updated})
 
     def _answer_question(self) -> None:
         from . import ask_the_lab
@@ -510,6 +605,15 @@ class Handler(BaseHTTPRequestHandler):
 # --------------------------------------------------------------------------
 # Mission dispatch
 # --------------------------------------------------------------------------
+
+def _agenda_audit(workers: int):
+    """The measured compute audit an agenda approval must pass before its
+    mission starts. Module-level so tests can pin the verdict; production
+    always measures the real machine."""
+    from .compute_audit import audit as compute_audit
+
+    return compute_audit(workers, memory_per_worker_mb=256)
+
 
 def _start_mission(request: str, payload: dict):
     """Classify the request, register the mission, and start it on a thread.

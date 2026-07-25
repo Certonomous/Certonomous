@@ -1,57 +1,57 @@
 {
   "study": "fleet-ledger-learning",
-  "generated_at": "2026-07-25T01:46:58Z",
+  "generated_at": "2026-07-25T02:13:24Z",
   "provenance": {
     "ledger_path": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\website\\mega-batch\\ledger.jsonl",
-    "row_count": 39164,
-    "ok_rows": 39164,
+    "row_count": 40664,
+    "ok_rows": 40664,
     "failed_rows": 0,
     "first_timestamp": "2026-07-23T03:53:37Z",
-    "last_timestamp": "2026-07-25T01:46:51Z"
+    "last_timestamp": "2026-07-25T02:13:19Z"
   },
   "families": {
     "openfoam-cylinder": {
       "label": "OpenFOAM cylinder solves",
-      "attempted": 13054,
-      "ok": 13054,
+      "attempted": 13555,
+      "ok": 13555,
       "failed": 0,
-      "wall_seconds": 109145.9,
+      "wall_seconds": 112377.5,
       "failure_rate": 0.0,
-      "wall_seconds_mean": 8.36
+      "wall_seconds_mean": 8.29
     },
     "reduced-order": {
       "label": "reduced-order valve evaluations",
-      "attempted": 13055,
-      "ok": 13055,
+      "attempted": 13555,
+      "ok": 13555,
       "failed": 0,
-      "wall_seconds": 12.8,
+      "wall_seconds": 13.3,
       "failure_rate": 0.0,
       "wall_seconds_mean": 0.0
     },
     "vspaero-wing": {
       "label": "VSPAERO wing polars",
-      "attempted": 13055,
-      "ok": 13055,
+      "attempted": 13554,
+      "ok": 13554,
       "failed": 0,
-      "wall_seconds": 126355.5,
+      "wall_seconds": 129456.4,
       "failure_rate": 0.0,
-      "wall_seconds_mean": 9.68
+      "wall_seconds_mean": 9.55
     }
   },
   "wing": {
-    "n": 13055,
+    "n": 13554,
     "L_D": {
-      "n": 13055,
-      "mean": 37.5839,
-      "std": 5.6579,
+      "n": 13554,
+      "mean": 37.582,
+      "std": 5.6608,
       "min": 23.6124,
-      "max": 46.9499
+      "max": 47.104
     },
     "best": {
-      "ledger_index": 35986,
-      "aspect_ratio": 15.85,
-      "sweep_deg": 15.3,
-      "L_D": 46.95
+      "ledger_index": 40402,
+      "aspect_ratio": 15.99,
+      "sweep_deg": 16.94,
+      "L_D": 47.1
     },
     "worst": {
       "ledger_index": 3790,
@@ -61,24 +61,24 @@
     },
     "trend_LD_vs_aspect_ratio": {
       "fit": {
-        "slope": 1.899609,
-        "intercept": 16.601041,
-        "r2": 0.9345,
-        "n": 13055
+        "slope": 1.899261,
+        "intercept": 16.604651,
+        "r2": 0.9344,
+        "n": 13554
       },
       "quality": "strong"
     },
     "trend_LD_vs_sweep": {
       "fit": {
-        "slope": 0.010533,
-        "intercept": 37.398816,
+        "slope": 0.010076,
+        "intercept": 37.404895,
         "r2": 0.0003,
-        "n": 13055
+        "n": 13554
       },
       "quality": "not supported"
     },
     "implied_span_efficiency": {
-      "n": 13055,
+      "n": 13554,
       "mean": 1.0156,
       "std": 0.0189,
       "min": 0.9497,
@@ -86,38 +86,38 @@
     }
   },
   "cylinder": {
-    "n": 13054,
+    "n": 13555,
     "Cd": {
-      "n": 13054,
-      "mean": 1.9814,
-      "std": 0.3595,
+      "n": 13555,
+      "mean": 1.9805,
+      "std": 0.3592,
       "min": 1.537,
-      "max": 3.0102
+      "max": 3.0112
     },
     "Re": {
-      "n": 13054,
-      "mean": 27.6203,
-      "std": 9.8654,
+      "n": 13555,
+      "mean": 27.6442,
+      "std": 9.8635,
       "min": 10.0113,
       "max": 44.9948
     },
     "converged_fraction": 1.0,
     "trend_logCd_vs_logRe": {
       "fit": {
-        "slope": -0.434376,
-        "intercept": 2.078414,
+        "slope": -0.434332,
+        "intercept": 2.078278,
         "r2": 0.9978,
-        "n": 13054
+        "n": 13555
       },
       "quality": "strong"
     }
   },
   "valve": {
-    "n": 13055,
+    "n": 13555,
     "loss_Pa": {
-      "n": 13055,
-      "mean": 3301.2515,
-      "std": 2477.5452,
+      "n": 13555,
+      "mean": 3303.0571,
+      "std": 2474.4392,
       "min": 1267.276,
       "max": 11519.225
     },
@@ -126,25 +126,25 @@
       "opening_angle_deg": 84.99,
       "cycle_weighted_loss_Pa": 1267.28
     },
-    "feasible_fraction": 0.9327,
+    "feasible_fraction": 0.933,
     "trend_loss_vs_angle": {
       "fit": {
-        "slope": -148.693869,
-        "intercept": 12233.116498,
-        "r2": 0.7537,
-        "n": 13055
+        "slope": -148.551026,
+        "intercept": 12222.080702,
+        "r2": 0.7536,
+        "n": 13555
       },
       "quality": "strong"
     }
   },
   "learned": [
-    "Across 13055 wing polars, higher aspect ratio raises L/D: about +1.90 in L/D per unit of aspect ratio, and the fit explains 93 percent of the variance (r2 = 0.93). That is a strong relationship, measured, not assumed.",
-    "The induced-drag rows imply a span efficiency near 1.02 (spread 0.02 over 13055 polars), pulled straight from cl and cdi.",
-    "Best wing seen so far: L/D 47.0 at aspect ratio 15.8 and sweep 15.3 deg (ledger row 35986).",
-    "Over 13054 cylinder solves in the steady-laminar band, Cd falls with Re with a log-log slope of -0.43 (r2 = 1.00), consistent with laminar drag theory.",
-    "100 percent of the 13054 cylinder solves converged to residual tolerance.",
-    "Across 13055 reduced-order valve evaluations, wider opening angles cut cycle-weighted loss (slope -148.7 Pa per degree, r2 = 0.75); the lowest loss seen is 1267 Pa at 85.0 deg (ledger row 11072).",
-    "Reliability: 0 of 39164 attempted evaluations failed (0 percent); every failure stays in the ledger and counts against the fleet.",
-    "All of the above rests on 39164 completed evaluations in the fleet ledger; nothing here is asserted without a row behind it."
+    "Across 13554 wing polars, higher aspect ratio raises L/D: about +1.90 in L/D per unit of aspect ratio, and the fit explains 93 percent of the variance (r2 = 0.93). That is a strong relationship, measured, not assumed.",
+    "The induced-drag rows imply a span efficiency near 1.02 (spread 0.02 over 13554 polars), pulled straight from cl and cdi.",
+    "Best wing seen so far: L/D 47.1 at aspect ratio 16.0 and sweep 16.9 deg (ledger row 40402).",
+    "Over 13555 cylinder solves in the steady-laminar band, Cd falls with Re with a log-log slope of -0.43 (r2 = 1.00), consistent with laminar drag theory.",
+    "100 percent of the 13555 cylinder solves converged to residual tolerance.",
+    "Across 13555 reduced-order valve evaluations, wider opening angles cut cycle-weighted loss (slope -148.6 Pa per degree, r2 = 0.75); the lowest loss seen is 1267 Pa at 85.0 deg (ledger row 11072).",
+    "Reliability: 0 of 40664 attempted evaluations failed (0 percent); every failure stays in the ledger and counts against the fleet.",
+    "All of the above rests on 40664 completed evaluations in the fleet ledger; nothing here is asserted without a row behind it."
   ]
 }

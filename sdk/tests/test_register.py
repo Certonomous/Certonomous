@@ -19,6 +19,7 @@ Two house rules pinned here:
 from __future__ import annotations
 
 import ast
+import re
 import unittest
 from pathlib import Path
 
@@ -113,6 +114,174 @@ class NoSelfGradingNarration(unittest.TestCase):
             "Self-grading narration found (agent lecturing about its own "
             "tier/chip/grade). State the finding and next step instead:\n"
             + "\n".join(offenders))
+
+
+class GlobalRegisterRails(unittest.TestCase):
+    """The overnight register rails (owner order, 2026-07-24), pinned at the
+    source for every workflow and the narration-feeding chief modules:
+
+    - no arrow glyph and no prose double hyphen in any emitted string;
+    - "conceptual model" is retired (the tier is RESEARCH MODEL);
+    - no raw URLs in narration (links render as source hyperlinks);
+    - no internal file/path references (docs/..., anything/...*.md);
+    - "solver backed" never appears in prose (the tier chip carries it).
+
+    Docstrings and comments are exempt as before; exact CLI flags and the
+    matplotlib "--" linestyle token are not prose and do not match the prose
+    double-hyphen pattern.
+    """
+
+    _PROSE_DOUBLE_HYPHEN = re.compile(r"(?:\s--\s|\w--\w)")
+    _MD_PATH = re.compile(r"(?:docs/|[\w.-]+/[\w./-]*\.md\b)")
+    _RAW_URL = re.compile(r"https?://")
+    _SOLVER_BACKED_PROSE = re.compile(r"solver[ -]backed")   # lowercase only
+
+    def _offenders(self, check):
+        out = []
+        for path in _target_files():
+            for lineno, value in _non_docstring_string_literals(path):
+                if check(value):
+                    out.append(f"{path.relative_to(SDK)}:{lineno}: {value!r}")
+        return out
+
+    def test_no_arrow_glyph(self):
+        self.assertEqual(self._offenders(lambda s: "→" in s), [])
+
+    def test_no_prose_double_hyphen(self):
+        self.assertEqual(
+            self._offenders(lambda s: bool(self._PROSE_DOUBLE_HYPHEN.search(s))),
+            [])
+
+    def test_no_conceptual_model(self):
+        # The exact uppercase constant is the legacy-alias KEY that maps the
+        # retired label onto RESEARCH MODEL at render time; the rule targets
+        # the retired term ever being SPOKEN, so prose casing is what fails.
+        self.assertEqual(
+            self._offenders(lambda s: "conceptual model" in s.lower()
+                            and s != "CONCEPTUAL MODEL"), [])
+
+    def test_no_raw_urls(self):
+        self.assertEqual(
+            self._offenders(lambda s: bool(self._RAW_URL.search(s))), [])
+
+    def test_no_internal_md_or_docs_paths(self):
+        self.assertEqual(
+            self._offenders(lambda s: bool(self._MD_PATH.search(s))), [])
+
+    def test_no_solver_backed_prose(self):
+        # The uppercase SOLVER-BACKED tier chip is exempt; lowercase prose
+        # reassurance is not.
+        self.assertEqual(
+            self._offenders(
+                lambda s: bool(self._SOLVER_BACKED_PROSE.search(s))), [])
+
+
+def _prose_surfaces(events):
+    """Every user-visible prose string one act emitted, by surface."""
+    surfaces: list[str] = []
+    channel_notes: list[str] = []
+    tiers: list[str] = []
+    for event, payload in events:
+        payload = payload or {}
+        if event == "transcript.entry":
+            surfaces.append(payload.get("message", ""))
+        elif event == "transcript.table":
+            surfaces.append(payload.get("title", ""))
+            surfaces += [str(c) for c in payload.get("headers", [])]
+            surfaces += [str(c) for row in payload.get("rows", [])
+                         for c in row]
+        elif event == "uncertainty.channels":
+            for ch in payload.get("channels", []):
+                channel_notes.append(str(ch.get("note", "")))
+                surfaces.append(str(ch.get("name", "")))
+        elif event == "result.verdict":
+            tiers.append(str(payload.get("tier", "")))
+            surfaces += [str(payload.get(k, ""))
+                         for k in ("quantity", "envelope", "reason")]
+        elif event == "report.ready":
+            for key in ("abstract", "methods", "uncertainty"):
+                surfaces += [str(line) for line in payload.get(key, [])]
+            for item in payload.get("results", []):
+                tiers.append(str(item.get("tier", "")))
+                surfaces += [str(item.get(k, ""))
+                             for k in ("quantity", "value", "envelope",
+                                       "reason")]
+        elif event == "agenda.updated":
+            for entry in payload.get("entries", []):
+                surfaces += [str(entry.get(k, ""))
+                             for k in ("title", "scope", "cost")]
+        elif event == "knowledge.added":
+            surfaces.append(str(payload.get("title", "")))
+    return surfaces, channel_notes, tiers
+
+
+class EmittedTextRegister(unittest.TestCase):
+    """Walk the fast (solver-less) acts end to end and assert every register
+    rule at once over the text they actually emit, so future acts inherit
+    the rails rather than re-learning them."""
+
+    # Method names that may never reach a channel note (they land on the
+    # sealed page verbatim).
+    _BANNED_IN_CHANNEL_NOTES = ("Monte-Carlo", "quadrature", "Eca",
+                                "Hoekstra", "GCI", "least-squares", "uq-",
+                                "checkMesh")
+
+    @classmethod
+    def setUpClass(cls):
+        import os
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+        cls.acts = {}
+        from workflows import valve_study
+        events = []
+        rc = valve_study.main(
+            request="minimise valve pressure loss over the cardiac cycle",
+            emit=lambda e, p: events.append((e, p)))
+        assert rc == 0
+        cls.acts["valve"] = events
+        from unittest import mock
+        from workflows import aircraft_optimization as aopt
+        events = []
+        with mock.patch.object(aopt.vspaero, "available", return_value=False):
+            rc = aopt.main(request="Optimize the L/D of an airliner for 180 "
+                                   "passengers and 5000 km range",
+                           emit=lambda e, p: events.append((e, p)))
+        assert rc == 0
+        cls.acts["airliner"] = events
+
+    def test_every_rule_on_every_emitted_prose_surface(self):
+        rules = (
+            ("em dash", lambda s: "—" in s),
+            ("arrow", lambda s: "→" in s),
+            ("prose double hyphen",
+             lambda s: bool(re.search(r"(?:\s--\s|\w--\w)", s))),
+            ("conceptual model", lambda s: "conceptual model" in s.lower()),
+            ("raw url", lambda s: bool(re.search(r"https?://", s))),
+            ("internal path",
+             lambda s: bool(re.search(r"(?:docs/|[\w.-]+/[\w./-]*\.md\b)", s))),
+            ("solver-backed prose",
+             lambda s: bool(re.search(r"solver[ -]backed", s))),
+            ("live label", lambda s: s.strip().lower().endswith(", live")),
+        )
+        for act, events in self.acts.items():
+            surfaces, channel_notes, tiers = _prose_surfaces(events)
+            self.assertTrue(surfaces, act)
+            for text in surfaces + channel_notes:
+                for name, hit in rules:
+                    self.assertFalse(hit(text), f"{act}: [{name}] {text!r}")
+
+    def test_channel_notes_never_name_a_method(self):
+        for act, events in self.acts.items():
+            _surfaces, channel_notes, _tiers = _prose_surfaces(events)
+            self.assertTrue(channel_notes, act)
+            for note in channel_notes:
+                for banned in self._BANNED_IN_CHANNEL_NOTES:
+                    self.assertNotIn(banned, note, f"{act}: {note!r}")
+
+    def test_tier_is_research_model_never_conceptual(self):
+        for act, events in self.acts.items():
+            _surfaces, _notes, tiers = _prose_surfaces(events)
+            for tier in tiers:
+                self.assertNotEqual(tier.upper(), "CONCEPTUAL MODEL", act)
 
 
 if __name__ == "__main__":

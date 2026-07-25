@@ -343,10 +343,52 @@ class RenderRailTests(unittest.TestCase):
         from chief_engineer.certificate import _channel_rails
         railed = _channel_rails("GCI band 0.00303, Fs = 1.25; study uq-b52-r1, "
                                 "uq-b52-r2, uq-b52-r3")
-        self.assertEqual(railed, "GCI band 0.00303, Fs = 1.25")
+        self.assertEqual(railed, "grid-refinement band 0.00303, Fs = 1.25")
         self.assertEqual(_channel_rails("mesh discretization; checkMesh: "
                                         "193,880 cells"),
                          "mesh discretization; 193,880 cells")
+
+    def test_rails_fold_named_methods_to_the_generic_register(self):
+        # Owner rule (2026-07-24): the sealed page never states a UQ method
+        # by name. The rails fold names to the generic register and delete
+        # citations; every measured number survives verbatim.
+        from chief_engineer.certificate import _channel_rails
+        self.assertEqual(
+            _channel_rails("Band ±0.003 on the drag coefficient, "
+                           "least-squares fit with safety factor 1.25 "
+                           "(Eca & Hoekstra 2014)"),
+            "Band ±0.003 on the drag coefficient, default numerical "
+            "consistency method with safety factor 1.25")
+        self.assertEqual(
+            _channel_rails("2-sigma Monte-Carlo envelope, ±421.14 Pa"),
+            "2-sigma ensemble envelope, ±421.14 Pa")
+        self.assertEqual(
+            _channel_rails("phase-quadrature ladder k = 3/5/9"),
+            "multi-level refinement of the cycle evaluation")
+
+    def test_banned_method_names_never_render_in_a_channel_note(self):
+        channels = [
+            {"name": "input", "value": 421.14, "quantified": True,
+             "note": "2-sigma Monte-Carlo envelope propagated from the "
+                     "stated spreads"},
+            {"name": "numerical", "value": 81.0, "quantified": True,
+             "note": "phase-quadrature ladder k = 3/5/9"},
+            {"name": "model", "value": 0.003, "quantified": True,
+             "note": "GCI band, least-squares fit (Eca & Hoekstra 2014)"},
+        ]
+        _, text = self._render(channels=channels)
+        for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra",
+                       "least-squares", "GCI", "3/5/9"):
+            self.assertNotIn(banned, text)
+        # Every measured value still renders verbatim.
+        for kept in ("421.14", "81.0", "0.003"):
+            self.assertIn(kept, text)
+
+    def test_meshless_certificate_renders_no_mesh_block(self):
+        # Acts without a mesh (reduced-order valve, panel-code airliner,
+        # race) must not render an empty Mesh Validity block.
+        _, text = self._render(mesh=None)
+        self.assertNotIn("Mesh Validity", text)
 
     def test_no_em_dash_or_double_hyphen_on_the_page(self):
         _, text = self._render(mesh={"cells": 1000},

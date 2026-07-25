@@ -1,0 +1,14 @@
+{
+  "id": "r1-validation-tier-labels",
+  "objective": "Label every case in the lab with its validation-hierarchy tier so the trust a result may carry is bounded by its tier on the record",
+  "rationale": "Oberkampf and Trucano organize validation as a building-block hierarchy: unit problems, benchmark cases, subsystem cases, complete system, with experimental information degrading radically up the tiers. The lab's portfolio maps cleanly: the laminar cylinder is a unit problem, the TMR flat plate and the motorcycle are benchmark cases, the valve screen is a subsystem case, the airliner is the complete-system posture where data are scarcest. Making the tier a named field beside the fidelity chip states why the airliner stops below VALIDATED no matter how tight its envelope, as a structural fact rather than a hedge. This is a content addition and may land directly on the certificate and wall surfaces.",
+  "citations": [
+    "Verification And Validation In Computational Fluid Dynamics, Oberkampf And Trucano, Sandia Report SAND2002-0529"
+  ],
+  "url": "https://doi.org/10.2172/793406",
+  "est_core_min": 0,
+  "expected_knowledge_gain": "A tier label per case that explains the ceiling on its fidelity chip and tells the owner exactly which tier new experimental data would unlock",
+  "source_kind": "reading",
+  "status": "proposed",
+  "created_at": "2026-07-25"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "r1-monitor-stall-rule",
+  "objective": "Add residual-stall, oscillatory-divergence, and Courant-excursion rules to the monitor, covering the calm failure modes the spike rule cannot see",
+  "rationale": "The lab's own evidence documents a failure the current monitor misses by design: the Re 200 cylinder stalls at residual near 1e-3 with a small force oscillation and exits on the iteration cap looking calm, because a steady solver applied past its regime degrades measurably but never spikes. Detection rules from the monitor standard: a stall is a rolling-median residual improving by less than a factor of 2 over 200 iterations while still above the residualControl target; oscillatory divergence is alternating-sign residual changes with a growing envelope over 50 iterations; a Courant excursion is the reported maximum exceeding the case limit or growing monotonically over 20 steps. A stalled result is UNCONVERGED no matter how smooth its tail, and the prescribed action is the regime check before any rerun buys more iterations. The Courant rule is written now so the first transient run arrives born monitored.",
+  "citations": [
+    "Certonomous Numericist Knowledge Base, Validated Facts 3 And 4",
+    "Certonomous Monitor Standard, Version 1.0"
+  ],
+  "est_core_min": 0,
+  "expected_knowledge_gain": "The monitor recognizes the graceful-degradation family of failures, so a run that exits on its iteration cap can never be mistaken for evidence again",
+  "source_kind": "reading",
+  "status": "proposed",
+  "created_at": "2026-07-25"
+}

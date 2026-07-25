@@ -1,0 +1,323 @@
+{
+ "generated_at": "2026-07-25T02:07:58+00:00",
+ "proposals": [
+  {
+   "id": "r1-monitor-walltime-rule",
+   "objective": "Add a wall-time excursion rule to the monitor: flag any run beyond 10 times its solver's running 99th percentile, stop and investigate beyond 100 times",
+   "rationale": "Mined from the mega-batch ledger: solver wall times are tightly banded, with the cylinder at median 3.7 seconds and 99th percentile 19.7 seconds and the wing at median 5.8 seconds and 99th percentile 8.6 seconds, yet three runs per solver recorded wall times near 16300 seconds, over 800 times the 99th percentile, and every one was recorded ok with no anomaly anywhere. A hung or starved run that eventually returns a plausible number is invisible to every current check. The rule keeps the excursion as a named field on the record so fleet learning can separate solver cost from infrastructure stalls.",
+   "citations": [
+    "Certonomous Mega-Batch Ledger, 39442 Rows Examined 2026-07-25",
+    "Certonomous Monitor Standard, Version 1.0"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "The fleet ledger stops silently absorbing 800-fold wall-time excursions, and the cost model behind mission planning stops being polluted by infrastructure stalls counted as solver time",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25"
+  },
+  {
+   "id": "r1-monitor-stall-rule",
+   "objective": "Add residual-stall, oscillatory-divergence, and Courant-excursion rules to the monitor, covering the calm failure modes the spike rule cannot see",
+   "rationale": "The lab's own evidence documents a failure the current monitor misses by design: the Re 200 cylinder stalls at residual near 1e-3 with a small force oscillation and exits on the iteration cap looking calm, because a steady solver applied past its regime degrades measurably but never spikes. Detection rules from the monitor standard: a stall is a rolling-median residual improving by less than a factor of 2 over 200 iterations while still above the residualControl target; oscillatory divergence is alternating-sign residual changes with a growing envelope over 50 iterations; a Courant excursion is the reported maximum exceeding the case limit or growing monotonically over 20 steps. A stalled result is UNCONVERGED no matter how smooth its tail, and the prescribed action is the regime check before any rerun buys more iterations. The Courant rule is written now so the first transient run arrives born monitored.",
+   "citations": [
+    "Certonomous Numericist Knowledge Base, Validated Facts 3 And 4",
+    "Certonomous Monitor Standard, Version 1.0"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "The monitor recognizes the graceful-degradation family of failures, so a run that exits on its iteration cap can never be mistaken for evidence again",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25"
+  },
+  {
+   "id": "r1-credibility-scorecard",
+   "objective": "Back each fidelity chip with a compact credibility scorecard covering the two factors the chips do not encode: input pedigree and results robustness",
+   "rationale": "Mapping the lab's four chips onto the NASA standard's assessment factors shows the chips already encode validation status, solver backing, and convergence. Two factors are invisible: input pedigree, so a run on poorly traced inputs can wear the same chip as one on measured inputs, and results robustness, so sensitivity knowledge never reaches the certificate. A per-result scorecard with a 0 to 4 level for each factor, following the standard's level definitions, closes the gap without changing what any chip means. The Womersley screening cap already behaves like the standard's placard requirement for use outside the validated domain, naming the limit, its extent, and the consequences; the scorecard states that explicitly. This is a content addition and may land directly on the certificate surfaces.",
+   "citations": [
+    "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Every certificate states how well its inputs are traced and how well its sensitivities are known, in the same leveled language NASA uses for simulation credibility",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25"
+  },
+  {
+   "id": "agp-237cc95c2498",
+   "objective": "Extend the valve opening-angle sweep past 80 degrees",
+   "rationale": "The fleet ledger's reduced-order screen finds its lowest cycle-weighted loss, 1267 Pa at 85.0 degrees, past the engineering sweep's 80 degree bound; the measured trend is -148 Pa per degree (r squared 0.75) over 13389 evaluations.",
+   "citations": [
+    "Fleet-ledger learned study",
+    "Mega-batch ledger, reduced-order valve family"
+   ],
+   "est_core_min": 1.0,
+   "cost_basis": "measured: 13389 reduced-order valve evaluations on the ledger totalled 13 seconds; an extension screen rounds up to one core minute",
+   "expected_knowledge_gain": "Confirms or bounds the loss trend where the current sweep stops, and relocates the optimum if it lies past 80 degrees",
+   "source_kind": "ledger",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "r1-validation-tier-labels",
+   "objective": "Label every case in the lab with its validation-hierarchy tier so the trust a result may carry is bounded by its tier on the record",
+   "rationale": "Oberkampf and Trucano organize validation as a building-block hierarchy: unit problems, benchmark cases, subsystem cases, complete system, with experimental information degrading radically up the tiers. The lab's portfolio maps cleanly: the laminar cylinder is a unit problem, the TMR flat plate and the motorcycle are benchmark cases, the valve screen is a subsystem case, the airliner is the complete-system posture where data are scarcest. Making the tier a named field beside the fidelity chip states why the airliner stops below VALIDATED no matter how tight its envelope, as a structural fact rather than a hedge. This is a content addition and may land directly on the certificate and wall surfaces.",
+   "citations": [
+    "Verification And Validation In Computational Fluid Dynamics, Oberkampf And Trucano, Sandia Report SAND2002-0529"
+   ],
+   "est_core_min": 0.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A tier label per case that explains the ceiling on its fidelity chip and tells the owner exactly which tier new experimental data would unlock",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25"
+  },
+  {
+   "id": "agp-536d110e078a",
+   "objective": "Close the validation gap on the NACA 0012 finite wing",
+   "rationale": "The graded record stands at Cd 0.0223 against the reference 0.009, 148 percent off and outside the validation band; a refined near-wall setup can close the gap or explain it on the record.",
+   "citations": [
+    "Graded curriculum record, NACA 0012 finite wing",
+    "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data"
+   ],
+   "est_core_min": 3.04,
+   "cost_basis": "measured: the prior graded solve of this body ran 3.0 minutes of wall time",
+   "expected_knowledge_gain": "Either a validated credential for the NACA 0012 finite wing or a measured account of why the setup misses the reference",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "launch_prompt": "Mesh and solve the NACA 0012 wing and report the drag with its envelope."
+  },
+  {
+   "id": "agp-72bef8b5583d",
+   "objective": "Close the validation gap on the Ahmed reference body, 35\u00b0 slant",
+   "rationale": "The graded record stands at Cd 0.3141 against the reference 0.26, 21 percent off and outside the validation band; a refined near-wall setup can close the gap or explain it on the record.",
+   "citations": [
+    "Graded curriculum record, Ahmed reference body, 35\u00b0 slant",
+    "Ahmed, Ramm & Faltin 1984, SAE 840300"
+   ],
+   "est_core_min": 3.06,
+   "cost_basis": "measured: the prior graded solve of this body ran 3.1 minutes of wall time",
+   "expected_knowledge_gain": "Either a validated credential for the Ahmed reference body, 35\u00b0 slant or a measured account of why the setup misses the reference",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "r1-sobol-sensitivity-mission",
+   "objective": "Add a Sobol sensitivity mission type that apportions output variance across the input spreads before any uncertainty reduction campaign is priced",
+   "rationale": "The lab propagates input spreads through Monte Carlo but never says which input owns the variance, so reduction work is untargeted. Variance-based decomposition gives main and total effect indices per input; on the reduced-order paths an evaluation costs about a millisecond, so a pick-and-freeze design of N times (M plus 2) evaluations at N of 200 is seconds of compute for the valve and comparable for the airliner surrogate. The mission ends with a ranking of inputs by variance share and a recommendation of where the next samples or the next measurement effort should go.",
+   "citations": [
+    "Dakota Theory Manual, Stochastic Expansion Methods, Sandia National Laboratories",
+    "Dakota Reference Manual, Sampling With Variance Based Decomposition, Sandia National Laboratories"
+   ],
+   "est_core_min": 6.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Main and total effect Sobol indices for the valve inputs (flow amplitude 5 percent, discharge coefficient 6 percent) and the airliner inputs (span, area, sweep, taper), plus a standing answer to which spread is worth buying down first",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25",
+   "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention."
+  },
+  {
+   "id": "agp-f493fff26990",
+   "objective": "Add a fifth refinement rung to the NACA 4412 finite wing grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.0289, 0.0289, 0.0217, 0.0189 across the rungs, and the record states the verdict as: 3-mesh ladder, observed order p = 4.62 outside the credible range; conservative factor-3 band; band for the working mesh (middle level). A further rung can settle the observed order.",
+   "citations": [
+    "NACA 4412 finite wing grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 337,334 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 4412 finite wing drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-d889fd00f6ae",
+   "objective": "Add a fourth refinement rung to the B-52 Stratofortress-class airframe grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.0551, 0.0448, 0.0472 across the rungs, and the record states the verdict as: rungs not monotone; conservative band, largest spread times 1.25. A further rung can settle the observed order.",
+   "citations": [
+    "B-52 Stratofortress-class airframe grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 193,880 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-130bfe3b2961",
+   "objective": "Add a fourth refinement rung to the Motorcycle with rider, highway configuration grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.4709, 0.4214, 0.4201 across the rungs, and the record states the verdict as: 3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5). A further rung can settle the observed order.",
+   "citations": [
+    "Motorcycle with rider, highway configuration grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 353,688 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Motorcycle with rider, highway configuration drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "r1-multifidelity-propagation",
+   "objective": "Adopt a multifidelity Monte Carlo propagation scheme that fuses the reduced-order ensemble with a few anchoring solver evaluations instead of racing them",
+   "rationale": "The race act already produces the exact data multifidelity fusion needs: the same designs evaluated through the reduced-order lane and the solver lane. Multifidelity Monte Carlo is an unbiased control-variate estimator; the measured correlation between the paired lanes and the measured cost ratio decide the optimal sample allocation analytically, and also decide honestly whether fusion pays at all. Today the pairing is discarded once the race ends. The scheme keeps the solver in the loop for the accuracy guarantee, uses the reduced-order ensemble for volume, and reports one fused envelope with the correlation and allocation on the record.",
+   "citations": [
+    "Survey Of Multifidelity Methods In Uncertainty Propagation, Inference, And Optimization, Peherstorfer, Willcox And Gunzburger, SIAM Review 2018"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "The measured correlation between the reduced-order lane and the solver lane on a shared design set, the resulting optimal allocation, and a fused envelope whose variance undercuts the solver-only estimate at equal budget or is honestly reported as not paying",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25",
+   "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated."
+  },
+  {
+   "id": "agp-e5136061890b",
+   "objective": "Run the bump-in-channel verification case on a three-grid ladder",
+   "rationale": "The flat plate is measured on a three-grid ladder, fine-grid Cd 0.002834 vs CFL3D 0.002826 on the same grid size, and the resource card names bump-in-channel as the next verification case.",
+   "citations": [
+    "NASA Turbulence Modeling Resource verification cases",
+    "Flat-plate verification card, k-omega SST"
+   ],
+   "est_core_min": 30.0,
+   "cost_basis": "estimate; the measured flat-plate three-grid ladder ran 5.2 core minutes on this machine and the bump grids carry more cells",
+   "expected_knowledge_gain": "A second verification case earned against the reference ladders, adding a curved wall and pressure gradient to the verified set",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-12fdfe05e05f",
+   "objective": "Composite-span structural limits",
+   "rationale": "Filed under next investigations by the mission report \"Aircraft L/D optimization: 300 pax, 6000 km\": Composite-span structural limits: explore spans beyond today's structural cap with a composite wing-box weight model driving MTOW.",
+   "citations": [
+    "Aircraft L/D optimization: 300 pax, 6000 km"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
+   "source_kind": "report",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-f6354ae61613",
+   "objective": "Cruise Mach trade",
+   "rationale": "Filed under next investigations by the mission report \"Aircraft L/D optimization: 300 pax, 6000 km\": Cruise Mach trade: sweep cruise Mach against the fixed requirements to find where the range-speed-L/D surface actually peaks.",
+   "citations": [
+    "Aircraft L/D optimization: 300 pax, 6000 km"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
+   "source_kind": "report",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-8991d74e789f",
+   "objective": "Drag build-up under yaw",
+   "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Drag build-up under yaw: sweep the approach angle and map how the force builds as the body meets the flow off-axis.",
+   "citations": [
+    "Geometry study: NACA 4412 finite wing"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
+   "source_kind": "report",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-a13672d0713c",
+   "objective": "Next body in the class",
+   "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Next body in the class: take the same gated chain to the nearest unsolved body in the library and grow the validated set.",
+   "citations": [
+    "Geometry study: NACA 4412 finite wing"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
+   "source_kind": "report",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-d64295666c56",
+   "objective": "Full-configuration solve",
+   "rationale": "Filed under next investigations by the mission report \"Aircraft L/D optimization: 300 pax, 6000 km\": Full-configuration solve: put the fuselage and tail in the solved model and trim the winner for static margin.",
+   "citations": [
+    "Aircraft L/D optimization: 300 pax, 6000 km"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-527efc1cbb44",
+   "objective": "Harmonic-balance cycle solve",
+   "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Harmonic-balance cycle solve: resolve phase-interaction the multi-point screen drops, solving the coupled harmonics of one cycle instead of independent phase points.",
+   "citations": [
+    "Valve opening-angle screen: cycle-weighted pressure loss"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-f68b5c37221c",
+   "objective": "Non-Newtonian blood rheology",
+   "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Non-Newtonian blood rheology: replace the Newtonian viscosity with a shear-thinning model in the orifice jet and wake.",
+   "citations": [
+    "Valve opening-angle screen: cycle-weighted pressure loss"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-a3cc843ce473",
+   "objective": "Resolve the shedding",
+   "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Resolve the shedding: an unsteady solve of the wake the steady picture averages away, the spectrum, not just the mean force.",
+   "citations": [
+    "Geometry study: NACA 4412 finite wing"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  },
+  {
+   "id": "agp-37da30f972b3",
+   "objective": "Unsteady fluid-structure interaction",
+   "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Unsteady fluid-structure interaction: move the leaflets, coupling the flow to leaflet dynamics so opening is solved, not prescribed.",
+   "citations": [
+    "Valve opening-angle screen: cycle-weighted pressure loss"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-25T02:07:58+00:00"
+  }
+ ]
+}

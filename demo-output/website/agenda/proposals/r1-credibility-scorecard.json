@@ -1,0 +1,14 @@
+{
+  "id": "r1-credibility-scorecard",
+  "objective": "Back each fidelity chip with a compact credibility scorecard covering the two factors the chips do not encode: input pedigree and results robustness",
+  "rationale": "Mapping the lab's four chips onto the NASA standard's assessment factors shows the chips already encode validation status, solver backing, and convergence. Two factors are invisible: input pedigree, so a run on poorly traced inputs can wear the same chip as one on measured inputs, and results robustness, so sensitivity knowledge never reaches the certificate. A per-result scorecard with a 0 to 4 level for each factor, following the standard's level definitions, closes the gap without changing what any chip means. The Womersley screening cap already behaves like the standard's placard requirement for use outside the validated domain, naming the limit, its extent, and the consequences; the scorecard states that explicitly. This is a content addition and may land directly on the certificate surfaces.",
+  "citations": [
+    "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024"
+  ],
+  "url": "https://standards.nasa.gov/standard/NASA/NASA-STD-7009",
+  "est_core_min": 0,
+  "expected_knowledge_gain": "Every certificate states how well its inputs are traced and how well its sensitivities are known, in the same leveled language NASA uses for simulation credibility",
+  "source_kind": "reading",
+  "status": "proposed",
+  "created_at": "2026-07-25"
+}

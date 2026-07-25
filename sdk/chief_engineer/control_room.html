@@ -1695,9 +1695,10 @@ const MISSION_BODIES = new Set(['motorBike', 'b52', 'naca4412_wing']);
 async function loadCredentials() {
   const host = $('credentials');
   try {
-    const [rows, stats] = await Promise.all([
+    const [rows, stats, docket] = await Promise.all([
       (await fetch('/api/credentials')).json(),
       fetch('/api/lab-stats').then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('/api/agenda').then(r => r.ok ? r.json() : null).catch(() => null),
     ]);
     if (!rows.length && !stats) { host.innerHTML = '<div class="cred-empty">No graded bodies yet. Run the curriculum and credentials appear here.</div>'; renderDormant(null); return; }
     // Header: only the impressive-and-real lifetime tiles (R5). The small-number
@@ -1713,6 +1714,10 @@ async function loadCredentials() {
         `<div class="cred-tile"><b>${esc(v)}</b><span>${esc(k)}</span><em>${esc(sub)}</em></div>`).join('')}</div>`;
     }
     const research = (stats && stats.research) ? renderResearch(stats.research) : '';
+    // The operational agenda: proposals the lab drafted from its own records,
+    // rendered at the top of the research area. Reading never runs anything;
+    // a mission starts only on the Approve click.
+    const agendaHtml = renderAgendaDocket(docket);
     // Mission bodies only: every card comes straight from a graded
     // /api/credentials row, and the server already curates the wall to the
     // bodies the on-screen missions run.
@@ -1723,7 +1728,7 @@ async function loadCredentials() {
         + missionRows.map(credCard).join('')
       : '';
     const html = `<div class="cred-head"><span class="eyebrow">Lab credentials</span></div>`
-      + counters + research + missionCards;
+      + counters + agendaHtml + research + missionCards;
     host.innerHTML = html; renderDormant(html);
   } catch (e) { host.innerHTML = `<div class="cred-empty">Credentials unavailable.</div>`; renderDormant(null); }
 }
@@ -1799,6 +1804,112 @@ function renderResearch(r) {
       + `<div class="cred-src">Real, public benchmarks the lab has verified and set its sights on, each cited to its host.</div></div>`
     : '';
   return head + cards.join('') + chHead + chCards;
+}
+// THE OPERATIONAL AGENDA — the lab drafts proposed next missions from its own
+// records (reports, verification cards, inconclusive ladders, the fleet
+// ledger, and the overnight agents' inbox); the human approves or dismisses.
+// Rendering is content only: every class below already exists in the
+// stylesheet, no new CSS, no geometry. The renderer is pure (docket JSON in,
+// HTML out, no DOM access) so a static test can exercise it under node.
+// AGENDA-RENDER-BEGIN
+function renderAgendaDocket(docket) {
+  const props = (docket && docket.proposals) || [];
+  if (!props.length) return '';
+  const open = props.filter(p => p.status === 'proposed' || p.status === 'approved-queued');
+  const tagFor = s => s === 'approved' || s === 'done'
+    ? ['measured', s.toUpperCase()]
+    : s === 'approved-queued' ? ['active', 'APPROVED, QUEUED']
+    : s === 'dismissed' ? ['queued', 'DISMISSED'] : ['queued', 'PROPOSED'];
+  const cost = p => p.est_core_min != null
+    ? `est ${+p.est_core_min} core-min · ${p.cost_basis || 'estimate'}`
+    : `cost: ${p.cost_basis || 'estimate'}`;
+  const digestRows = open.map(p =>
+    `<div class="rp-geo"><span class="rp-geo-name">${esc(p.objective)}</span>`
+    + `<span class="rp-geo-detail">${esc(p.expected_knowledge_gain || '')}`
+    + ` · ${esc(cost(p))}</span></div>`).join('');
+  const digest = open.length
+    ? `<div class="rp-card"><div class="rp-top"><b>Morning digest</b>`
+      + `<span class="rp-tag active">AWAITING YOUR CALL</span></div>`
+      + `<div class="rp-body">${open.length} proposal${open.length === 1 ? '' : 's'} `
+      + `drafted from the lab's own records, ranked by expected knowledge gain `
+      + `per core minute. Nothing runs without your approval.</div>`
+      + digestRows + `</div>`
+    : `<div class="rp-card"><div class="rp-top"><b>Morning digest</b></div>`
+      + `<div class="rp-body">Every drafted proposal has been decided. `
+      + `The next records the lab produces will draft new ones.</div></div>`;
+  const card = p => {
+    const [cls, word] = tagFor(p.status);
+    const decided = p.status === 'dismissed' && p.dismiss_reason
+      ? `<div class="rp-body">Dismissed: ${esc(p.dismiss_reason)}</div>` : '';
+    const buttons = (p.status === 'proposed' || p.status === 'approved-queued')
+      ? `<div class="rp-src"><button class="chip-btn" data-agenda-act="approve" `
+        + `data-id="${esc(p.id)}">APPROVE${p.launch_prompt ? ' · LAUNCH' : ''}</button> `
+        + `<button class="chip-btn" data-agenda-act="dismiss" data-id="${esc(p.id)}">DISMISS</button></div>`
+      : '';
+    return `<div class="rp-card"><div class="rp-top"><b>${esc(p.objective)}</b>`
+      + `<span class="rp-tag ${cls}">${esc(word)}</span></div>`
+      + `<div class="rp-body">${esc(p.rationale || '')}</div>`
+      + (p.expected_knowledge_gain
+          ? `<div class="rp-body">Expected gain: ${esc(p.expected_knowledge_gain)}.</div>` : '')
+      + `<div class="rp-nums">${esc(cost(p))}</div>`
+      + decided
+      + ((p.citations || []).length
+          ? `<div class="rp-src">from the record · ${p.citations.map(esc).join(' · ')}</div>` : '')
+      + buttons + `</div>`;
+  };
+  return `<div class="cred-subhead"><span class="eyebrow">Research agenda</span>`
+    + `<div class="cred-src">Missions the lab proposes from its own records. `
+    + `Approve launches through the ordinary mission path once the compute `
+    + `audit clears it; Dismiss archives with your reason.</div></div>`
+    + digest + props.map(card).join('');
+}
+// AGENDA-RENDER-END
+// The click flow: Approve may launch a real mission (the server routes the
+// proposal's prompt exactly like a typed one, behind the compute audit);
+// Dismiss requires a reason. Delegated so the cards work in both the
+// credentials view and the dormant wall copy.
+document.addEventListener('click', e => {
+  const btn = e.target.closest && e.target.closest('button[data-agenda-act]');
+  if (!btn) return;
+  if (btn.dataset.agendaAct === 'approve') approveProposal(btn.dataset.id);
+  else dismissProposal(btn.dataset.id);
+});
+async function approveProposal(id) {
+  try {
+    const r = await fetch('/api/agenda/approve', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'approve failed');
+    if (d.launched && d.mission_id) {
+      // The approved mission enters exactly like a typed launch.
+      const goal = d.request || (d.proposal && (d.proposal.launch_prompt || d.proposal.objective)) || '';
+      resetMission(); state.touchpoints = 1; renderTouch();
+      $('shell').classList.add('launched'); $('shell').classList.remove('browsing');
+      $('launch').disabled = true; $('beacon').classList.add('live');
+      $('globalStatus').textContent = 'FORMING THE TEAM';
+      state.mission = d.mission_id; setMissionLabel('ACTIVE MISSION', d.mission_id);
+      $('missionGoal').textContent = goal; $('missionGoal').title = goal;
+      setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true);
+      if (d.route) showRoute(d.route);
+      connect(d.mission_id);
+      toast('Approved: mission launched');
+    } else {
+      toast(d.note || 'Approved');
+      loadCredentials();
+    }
+  } catch (err) { toast(err.message); }
+}
+async function dismissProposal(id) {
+  const reason = (window.prompt('Reason for dismissing this proposal (kept on the record):') || '').trim();
+  if (!reason) { toast('A dismissal needs a reason.'); return; }
+  try {
+    const r = await fetch('/api/agenda/dismiss', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, reason }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'dismiss failed');
+    toast('Dismissed, with your reason on the record');
+    loadCredentials();
+  } catch (err) { toast(err.message); }
 }
 function renderDormant(wallHtml) {
   if ($('shell').classList.contains('launched')) return;

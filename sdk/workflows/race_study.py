@@ -77,6 +77,32 @@ import os
 N_SAMPLES = int(os.environ.get("RACE_MC_SAMPLES", "8"))
 
 
+def peak_grid_bracket(anchors: list[dict], alpha_star: float,
+                      half_step: float = TOLERANCE_DEG) -> float | None:
+    """The race's numerical channel, computed from the lane data in hand.
+
+    Both lanes locate the peak on a discrete angle grid, so the true optimum
+    lies between grid points. The reduced-order lane's own anchors fit the
+    local response, and the bracket is the largest change in peak
+    lift-to-drag across half a grid step either side of the winning angle,
+    the same half-step convention the airliner act's grid bracket uses.
+    Returns None when the anchors cannot support a fit; nothing is invented.
+    """
+    points = sorted((a for a in anchors
+                     if a.get("alpha") is not None and a.get("l_d") is not None),
+                    key=lambda a: a["alpha"])
+    if len(points) < 3:
+        return None
+    try:
+        coefficients = _fit_quadratic([float(p["alpha"]) for p in points],
+                                      [float(p["l_d"]) for p in points])
+        at = lambda x: _predict(coefficients, x)   # noqa: E731
+        return max(abs(at(alpha_star + half_step) - at(alpha_star)),
+                   abs(at(alpha_star - half_step) - at(alpha_star)))
+    except (ValueError, ZeroDivisionError, ArithmeticError):
+        return None
+
+
 def _mc_reynolds(samples: int, seed: int | None) -> list[float]:
     rng = random.Random(time.time_ns() if seed is None else seed)
     return [RE_NOMINAL] + [max(1e5, rng.gauss(RE_NOMINAL, RE_SIGMA))
@@ -467,10 +493,48 @@ def main(request: str | None = None, params: dict | None = None,
                         f"(wall {speedup_wall}×)."),
             "figures": []})
 
-    # The Certonomous certificate for the race act: the measured speedup and
-    # the agreement between the two paths as the headline results, on the NACA
-    # 4412 wing. Every evaluation on both lanes was a real solve, so the chip
-    # is SOLVER-BACKED. Wrapped so the certificate never sinks a good mission.
+    # The three uncertainty channels, every value measured in THIS run:
+    # input is the ensemble spread over the stated Reynolds uncertainty;
+    # numerical is the angle-grid bracket computed from the lane data; model
+    # is the measured agreement of the two independent solve paths, which is
+    # direct cross-path evidence, with the surface's own confirmation
+    # residual stated beside it. Generic register only; no method names.
+    bracket = peak_grid_bracket(rom.get("anchors") or [], rom["alpha_star"])
+    race_channels = uncertainty_channels(
+        input_2sigma=round(2 * mc["peak_sem"], 3),
+        numerical=None if bracket is None else round(bracket, 3),
+        model=round(agreement, 3),
+        input_note="Ensemble run over the stated spread in chord Reynolds "
+                   "number, propagated to the peak lift-to-drag through "
+                   "direct solves.",
+        numerical_note=("Both lanes locate the peak on a discrete angle "
+                        "grid, so the true optimum lies between grid points. "
+                        "The band is the change in peak lift-to-drag across "
+                        "half a grid step at the winning angle."
+                        if bracket is not None else
+                        "Both lanes locate the peak on a discrete angle "
+                        "grid; the anchor set cannot bracket the half-step "
+                        "variation on this run."),
+        model_note=(f"Measured agreement between the two independent solve "
+                    f"paths: {agreement:.2f} in peak lift-to-drag "
+                    f"({agreement_pct}%). The fitted surface's residual "
+                    f"against its confirmation solve is "
+                    f"{rom['surrogate_error']:.2g}."))
+    if emit:
+        emit("uncertainty.channels", race_channels)
+
+    # The Certonomous certificate for the race act: the peak lift-to-drag
+    # with its measured ensemble band as the headline, the measured speedup
+    # and agreement in the structured result table. Every evaluation on both
+    # lanes was a real solve, so the chip is SOLVER-BACKED. Uniform
+    # convention (airliner pattern): the previous run's page is withdrawn
+    # FIRST and the new page lands atomically; a failure is said on the
+    # record. No mesh block: this act solves no mesh.
+    cert_path = out / "certificate.pdf"
+    try:
+        cert_path.unlink()
+    except OSError:
+        pass
     try:
         from chief_engineer.certificate import build_certificate_v2
 
@@ -480,38 +544,37 @@ def main(request: str | None = None, params: dict | None = None,
                               f"two paths agree to {agreement_pct}%")}
         cert_doc = {
             "results": [
+                {"quantity": "Peak lift-to-drag",
+                 "value": f"{rom['confirmed']:.2f}",
+                 "envelope": f"{2 * mc['peak_sem']:.2f}", **verdict},
                 {"quantity": "Measured speedup, reduced-order vs full "
-                             "Monte-Carlo",
+                             "ensemble sweep",
                  "value": f"{speedup_cm}x in core-minutes",
-                 **verdict},
-                {"quantity": "Agreement of the two paths",
-                 "value": f"{agreement_pct}%",
-                 "envelope": f"peak L/D {rom['confirmed']:.2f} at "
-                             f"{rom['alpha_star']:g} deg"},
-                {"quantity": "Cost",
-                 "value": f"{cm_mc:.1f} vs {cm_rom:.1f} core-min",
                  "envelope": f"wall {speedup_wall}x"},
+            ],
+            # Structured result block: Title Case labels, verbatim numbers.
+            "result_fields": [
+                ("Peak L/D", f"{rom['confirmed']:.2f} at "
+                             f"{rom['alpha_star']:g} deg"),
+                ("Band (95%)", f"±{2 * mc['peak_sem']:.2f}"),
+                ("Agreement", f"{agreement_pct}%"),
+                ("Speedup", f"{speedup_cm}x core-minutes, "
+                            f"{speedup_wall}x wall"),
+                ("Solver Runs", f"{mc['n_solves']} ensemble lane, "
+                                f"{rom['n_solves']} reduced-order lane"),
+                ("Cost", f"{cm_mc:.1f} vs {cm_rom:.1f} core-min"),
             ],
             "compute": {"spent_core_minutes": round(cm_mc + cm_rom, 2),
                         "saved_core_minutes": round(cm_mc - cm_rom, 2)},
         }
-        race_channels = uncertainty_channels(
-            input_2sigma=round(2 * mc["peak_sem"], 3),
-            numerical=None,
-            model=round(rom["surrogate_error"], 3),
-            input_note="input-uncertainty ensemble over chord Reynolds number, "
-                       "propagated to the peak lift-to-drag",
-            numerical_note="each evaluation is a converged vortex-lattice "
-                           "solve; panel-density refinement not separately "
-                           "studied here",
-            model_note="reduced-order surrogate residual against one real "
-                       "confirmation solve at the predicted angle of attack")
         geometry_key = Path(surface).stem if surface else "naca4412"
         certificate = build_certificate_v2(
-            cert_doc, out_path=out / "certificate.pdf",
+            cert_doc, out_path=cert_path,
             geometry=geometry_key,
-            objective="Locate the peak lift-to-drag over angle of attack two "
-                      "ways, same objective and tolerance, both timed.",
+            # The objective is always THIS run's verbatim request.
+            objective=(request or "Locate the peak lift-to-drag over angle "
+                       "of attack two ways, same objective and tolerance, "
+                       "both timed."),
             mission_id="race-comparison",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=race_channels,
@@ -520,8 +583,12 @@ def main(request: str | None = None, params: dict | None = None,
             solver="OpenVSP VSPAERO, vortex lattice, run on both lanes")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
-    except Exception as exc:  # a certificate must never take down a good mission
-        script.engineer(f"(Certificate could not be issued: {exc})")
+    except Exception:  # a certificate must never take down a good mission
+        script.engineer(
+            "• No certificate could be issued for this run. "
+            "• The previous run's certificate is withdrawn, so nothing out of "
+            "date is served. "
+            "• The result above stands on the transcript and the report.")
 
     return 0
 

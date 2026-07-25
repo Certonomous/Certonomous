@@ -28,8 +28,8 @@ from chief_engineer.monte_carlo import (
 )
 
 LESSON = "L-001"
-LESSONS_FILE = "sdk/introspection/recipe/memory/LESSONS.md"
-KNOWLEDGE = "docs/NUMERICS_KNOWLEDGE.md"
+LESSONS_FILE = "the lab's lessons memory"
+KNOWLEDGE = "the numerics knowledge base"
 # The estimator is considered converged when 2·SEM is within this fraction of
 # the mean; below it, further sampling buys precision we would not act on.
 TARGET_RELATIVE = 0.010
@@ -102,7 +102,7 @@ def main(request: str | None = None, params: dict | None = None,
     shrink = (1 - run_b.relative_error / run_a.relative_error) * 100 if run_a.relative_error else 0.0
     verdict = "irreducible" if run_b.relative_error <= TARGET_RELATIVE else "still reducible"
     script.engineer(
-        f"• Envelope {run_a.relative_error * 100:.1f}% → {run_b.relative_error * 100:.1f}% "
+        f"• Envelope {run_a.relative_error * 100:.1f}% to {run_b.relative_error * 100:.1f}% "
         f"({shrink:.0f}% tighter) for {run_b.n - run_a.n} extra solves. "
         f"• Estimator error shrank; physical spread ±{run_b.ensemble_sigma:.3g} "
         f"cannot, it is the {INLET_SIGMA * 100:.0f}% input propagating. "

@@ -222,6 +222,131 @@ These were the references previously listed as needed; they are now in
   finding is the general warning our lab needs: a condition that is formally
   available is not therefore appropriate, and the failure is silent.
 
+## Reading program R1 (read 2026-07-25)
+
+Overnight open-access reading round. Each entry is claim, then source, then
+where it applies in this lab. Proposals raised from these entries live in
+`demo-output/website/agenda/proposals/` and the standards they produced live
+in `docs/standards/`.
+
+- **Dakota theory and reference documentation, variance-based decomposition
+  and stochastic expansions** (Sandia National Laboratories, Dakota 6.19/6.20
+  documentation). The Sobol main effect index S_i = Var[E(Y|x_i)]/Var(Y) is
+  the fraction of output variance attributable to one input alone; the total
+  effect index adds all its interactions. Sampling estimates via the
+  pick-and-freeze design cost N*(M+2) evaluations for M inputs, with N of at
+  least one hundred and preferably several hundred recommended; a binned
+  estimator recovers main effects from N plain samples. A polynomial chaos
+  expansion yields both index families directly from its coefficients with no
+  extra model evaluations, and Smolyak sparse grids (with anisotropic
+  dimension preference) build such expansions at a small fraction of the m^n
+  tensor cost. Source:
+  https://snl-dakota.github.io/docs/6.20.0/users/usingdakota/theory/stochastic.html,
+  https://snl-dakota.github.io/docs/6.19.0/users/usingdakota/reference/method-sampling-variance_based_decomp.html.
+  *Applies*: the lab propagates input spreads (valve flow 5% and discharge
+  coefficient 6%; airliner span/area/sweep/taper) but never apportions the
+  output variance, so every reduction campaign is untargeted. On the
+  reduced-order paths at around a millisecond per evaluation, pick-and-freeze
+  at N=200 is seconds of compute. Proposal: r1-sobol-sensitivity-mission.
+
+- **Verification and Validation in Computational Fluid Dynamics** (Oberkampf
+  & Trucano, Sandia report SAND2002-0529, 2002). Validation is organized as a
+  building-block hierarchy of tiers: unit problems, benchmark cases,
+  subsystem cases, complete system; the quantity and accuracy of experimental
+  information degrades radically up the tiers, with complete-system data
+  "essentially always very limited" and often lacking uncertainty analysis. A
+  validation experiment is designed and conducted for model validation, with
+  detailed characterization of conditions and uncertainty estimates on
+  measurements, unlike a traditional performance test. Verification splits
+  into code verification and solution verification and is measured against
+  analytical or highly accurate solutions, with a posteriori error estimation
+  required for complex problems. Source: https://doi.org/10.2172/793406.
+  *Applies*: the lab's portfolio maps cleanly onto the tiers: laminar
+  cylinder is a unit problem, the TMR flat plate and the motorcycle are
+  benchmark cases, the valve screen is a subsystem case, the airliner is the
+  complete-system posture where data are scarcest. The trust a result may
+  carry is bounded by its tier's data quality, which is why the airliner
+  stops below VALIDATED no matter how tight its envelope. Proposal:
+  r1-validation-tier-labels.
+
+- **NASA-STD-7009B, Standard for Models and Simulations** (NASA, 2024). The
+  credibility of an M&S-based result is assessed on two structured scales,
+  each factor leveled 0 to 4: a capability assessment (pedigree,
+  verification, validation, development technical review, process/product
+  management) and a results assessment (use assessment, input pedigree,
+  uncertainty characterization, results robustness, use/analysis technical
+  review, use process/product management). Validation level 4 requires
+  favorable comparison against measurements on the real-world system in its
+  operating environment or a qualifying higher-fidelity model; uncertainty
+  characterization level 4 requires statistical analysis of output
+  uncertainty after propagating all known sources; robustness levels turn on
+  how many key sensitivities are actually known. Requirement M&S 26: use
+  outside the permissible domain of verification and validation must be
+  placarded with the type of limit exceeded, the extent, and the assessed
+  consequences. Source:
+  https://standards.nasa.gov/standard/NASA/NASA-STD-7009.
+  *Applies*: the gap analysis against our four fidelity chips. The chips
+  encode validation status, solver backing, and convergence, three of the
+  factors, but carry no input-pedigree and no results-robustness dimension:
+  a run on poorly traced inputs can currently wear the same chip as one on
+  measured inputs, and sensitivity knowledge is invisible on the certificate.
+  The Womersley screening cap already behaves exactly like an M&S 26 placard
+  (named limit, extent alpha ~ 17 versus ceiling 25, consequences carried as
+  model-form), which is worth stating on the record. Proposal:
+  r1-credibility-scorecard.
+
+- **OpenFOAM checkMesh criteria, from the v2606 source tree on disk**. checkMesh warns at non-orthogonality 70 degrees, fails skewness at 4, and
+  reports high-aspect-ratio cells above 1000 (`nonOrthThreshold_`,
+  `skewThreshold_`, `aspectThreshold_` in primitiveMeshCheck.C);
+  snappyHexMesh generation defaults are maxNonOrtho 65, maxInternalSkewness
+  4, maxBoundarySkewness 20, minDeterminant 0.001, minFaceWeight 0.05,
+  minVolRatio 0.01 (etc/caseDicts/meshQualityDict). Calibration against the
+  NASA TMR flat-plate grids on disk: reference-grade wall-resolved grids
+  measure max aspect ratio 66643 to 74041 with non-orthogonality exactly 0
+  and skewness at machine precision, and checkMesh duly counts them one
+  failed check each. Source: OpenFOAM source at
+  `C:/Users/mouza/github-cleanup/openfoam-core`, logs under
+  `demo-output/website/tmr/runs/`.
+  *Applies*: our 70/4 gates are exactly the acceptance thresholds compiled
+  into checkMesh and stay as they are; aspect ratio must enter as an advisory
+  gate only (a hard gate at 1000 would reject every reference-grade
+  boundary-layer grid we own); volume ratio 0.01 is the missing growth-rate
+  gate. Codified in `docs/standards/MESH_STANDARD.md` and the `mesh_quality`
+  section of `docs/physics_rules.yaml`. Proposal: r1-mesh-gate-extension.
+
+- **Survey of multifidelity methods in UQ, inference, and optimization,
+  second pass** (Peherstorfer, Willcox & Gunzburger, SIAM Review 60(3),
+  2018; first-pass entry above). The survey's model-management taxonomy is
+  adaptation (correct the low-fidelity model as high-fidelity data arrives),
+  fusion (combine evaluations from all fidelities, the control-variate
+  family), and filtering (use the low-fidelity model to decide which
+  candidates earn a high-fidelity evaluation). The invariant across all
+  three: the high-fidelity model stays in the loop, so accuracy guarantees
+  survive; multifidelity Monte Carlo stays unbiased with allocation set by
+  the measured correlation and cost ratio. Source:
+  https://arxiv.org/abs/1806.10761.
+  *Applies*: the race act already runs the natural testbed: the same design
+  space through a reduced-order lane and a solver lane, with paired records
+  in the ledger. That pairing is precisely the data that measures the
+  correlation rho deciding whether fusion pays; today the lanes race and the
+  pairing is discarded. The lab's screen-then-promote pattern is the
+  filtering strategy, already in production without the name. Proposal:
+  r1-multifidelity-propagation.
+
+- **The lab's own logs, mined 2026-07-25** (mega-batch ledger, 39442 rows;
+  runner logs; mission lessons; LogMonitor implementation). Solver wall
+  times are tightly banded (cylinder median 3.7 s, 99th percentile 19.7 s;
+  wing median 5.8 s, 99th percentile 8.6 s), yet three runs per solver
+  recorded wall times near 16300 s, over 800 times the 99th percentile, and every one was recorded ok with no anomaly. The monitor currently
+  recognizes fpe, nan, residual spike, bounding, and first-seen warnings; it
+  has no rule for residual stall (the calm failure our own Re 200 evidence
+  documents), oscillatory divergence, Courant excursions, or wall-time
+  excursions. Source: `demo-output/website/mega-batch/ledger.jsonl`,
+  `sdk/chief_engineer/head_engineer.py`.
+  *Applies*: `docs/standards/MONITOR_STANDARD.md` names each signature with
+  detection rule, severity, and action. Proposals: r1-monitor-walltime-rule,
+  r1-monitor-stall-rule.
+
 ## What this changes in our practice
 
 1. **Stop calling a two-mesh comparison an uncertainty.** Rename it what it
