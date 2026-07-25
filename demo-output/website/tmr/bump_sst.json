@@ -1,0 +1,150 @@
+{
+  "case": "TMR 2D bump-in-channel",
+  "model": "k-omega SST (OpenFOAM kOmegaSST, strain production)",
+  "solver": "simpleFoam, incompressible, OpenFOAM v2606 under WSL",
+  "conditions": {
+    "re_per_unit_length": 3000000.0,
+    "wall_length": 1.5,
+    "mach_reference": 0.2,
+    "k_inf": 2.25e-07,
+    "omega_inf": 74.99999999999999,
+    "eddy_viscosity_ratio_inf": 0.009000000000000001
+  },
+  "grids": [
+    {
+      "level": "coarse",
+      "tmr_nodes": "89x41",
+      "cells": 3520,
+      "nx": 88,
+      "ny": 40,
+      "cd": 0.0034430186567,
+      "cd_tail_spread": 5.345949999997421e-08,
+      "cf_station": 0.00558236864,
+      "iterations": 4000,
+      "yplus": {
+        "min": 0.18217456581,
+        "max": 0.43154747274,
+        "average": 0.28452823245
+      },
+      "wall_seconds": 101.89999999999999,
+      "timings": {
+        "blockMesh": 1.6,
+        "checkMesh": 1.5,
+        "simpleFoam": 98.8
+      },
+      "cd_pressure": 0.0003968809399,
+      "cd_viscous": 0.003046137717
+    },
+    {
+      "level": "medium",
+      "tmr_nodes": "177x81",
+      "cells": 14080,
+      "nx": 176,
+      "ny": 80,
+      "cd": 0.0035162873848,
+      "cd_tail_spread": 3.8925400000066473e-08,
+      "cf_station": 0.005797357754719066,
+      "iterations": 6000,
+      "yplus": {
+        "min": 0.098488810124,
+        "max": 0.25595351437,
+        "average": 0.15416255555
+      },
+      "wall_seconds": 815.4,
+      "timings": {
+        "blockMesh": 1.4,
+        "checkMesh": 1.5,
+        "simpleFoam": 812.5
+      },
+      "cd_pressure": 0.0003768365029,
+      "cd_viscous": 0.003139450882
+    },
+    {
+      "level": "fine",
+      "tmr_nodes": "353x161",
+      "cells": 56320,
+      "nx": 352,
+      "ny": 160,
+      "cd": 0.0035665207477,
+      "cd_tail_spread": 2.8068100000038648e-08,
+      "cf_station": 0.005907636155,
+      "iterations": 9000,
+      "yplus": {
+        "min": 0.051106819875,
+        "max": 0.15048065994,
+        "average": 0.080181408889
+      },
+      "wall_seconds": 7119.799999999999,
+      "timings": {
+        "blockMesh": 2.3,
+        "checkMesh": 3.1,
+        "simpleFoam": 7114.4
+      },
+      "cd_pressure": 0.0003832531851,
+      "cd_viscous": 0.003183267563
+    }
+  ],
+  "convergence": {
+    "cd": {
+      "ladder": [
+        0.0034430186567,
+        0.0035162873848,
+        0.0035665207477
+      ],
+      "observed_order": 0.5445517113445835,
+      "richardson": 0.003676064951854538,
+      "gci_fine_pct": 3.8393231073021705
+    },
+    "cf_station": {
+      "ladder": [
+        0.00558236864,
+        0.005797357754719066,
+        0.005907636155
+      ],
+      "observed_order": 0.9631133708413026,
+      "richardson": 0.006023778286526637,
+      "gci_fine_pct": 2.457457781746154
+    }
+  },
+  "cf_station_x": 0.75,
+  "comparison": {
+    "cfl3d_cd_ladder": [
+      0.0045618542592,
+      0.0037071442412,
+      0.0036071373739
+    ],
+    "cfl3d_cf075_ladder": [
+      0.00516392617,
+      0.00562215503,
+      0.00576886628
+    ],
+    "fun3d_cd_ladder": [
+      0.004056323,
+      0.003610564,
+      0.003573397
+    ],
+    "cfl3d_cd_finest": 0.0036045158543,
+    "cfl3d_cf075_finest": 0.00584823033,
+    "fun3d_cd_finest": 0.003592588,
+    "cfl3d_observed_order_same_rungs": 3.095335961421031,
+    "cd_fine_vs_cfl3d_same_grid_pct": -1.1260071904632185,
+    "cf075_fine_vs_cfl3d_same_grid_pct": 2.4054964747770136,
+    "cd_pressure_fine_vs_cfl3d_same_grid_pct": -11.211386032458858,
+    "cd_viscous_fine_vs_cfl3d_same_grid_pct": 0.24490577905198485,
+    "cd_extrapolate_vs_cfl3d_finest_pct": 1.98498495905306,
+    "cf075_extrapolate_vs_cfl3d_finest_pct": 3.0017278154405025
+  },
+  "reference_source": "turbmodels.larc.nasa.gov 2D bump-in-channel, SST convergence data (mirror tmbwg.github.io/turbmodels, retrieved 2026-07-24)",
+  "numerics": "Second-order linearUpwind momentum advection, first-order upwind advection on k and omega, second-order diffusion throughout",
+  "deviations": [
+    "Incompressible simpleFoam analog of the M=0.2 case; TMR notes incompressible codes land close but not identical",
+    "The TMR bump data is labeled SST; OpenFOAM's kOmegaSST is the 2003 strain-production form, so a small model-variant gap can remain",
+    "Grids match TMR cell counts and refinement factor 2 with this module's own blockMesh stretching, not the TMR point files",
+    "The bump surface enters blockMesh as a 480-segment polyLine, far finer than any cell, rather than an analytic surface"
+  ],
+  "generated_unix": 1784952830,
+  "plots": [
+    "bump_cf_profiles.png",
+    "bump_cd_convergence.png"
+  ]
+}

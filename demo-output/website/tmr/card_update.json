@@ -1,0 +1,8 @@
+{
+  "target": "sdk/chief_engineer/lab_stats.py _RESEARCH_CHALLENGES, NASA Turbulence Modeling Resource entry",
+  "card": {
+    "status": "flat plate and bump measured",
+    "entry": "flat plate and bump-in-channel each run on a 3-grid ladder against the published CFL3D values: flat-plate Cd 0.002834 vs 0.002826 at matched grid size, bump Cd 0.003567 vs 0.003607; NACA 0012 airfoil next"
+  },
+  "basis": "demo-output/website/tmr/flatplate_sst.json and bump_sst.json"
+}

@@ -55,13 +55,14 @@ _RESEARCH_CHALLENGES = (
         "url": "tmbwg.github.io/turbmodels",
         "what": "the reference verification cases, including the 2D flat plate and "
                 "bump-in-channel, that a RANS code must reproduce on refined grids",
-        # Measured 2026-07-24 by workflows/tmr_verification.py; full numbers,
-        # deviations, and figures in demo-output/website/tmr/flatplate_sst.json.
-        "status": "flat plate measured",
-        "entry": "flat plate run live on a 3-grid ladder (816 to 13056 cells, "
-                 "y+ under 1): fine-grid Cd 0.002834 vs CFL3D 0.002826 on the "
-                 "same size, observed order 1.1, Richardson Cd 0.002882; "
-                 "bump-in-channel next",
+        # Measured 2026-07-24/25 by workflows/tmr_verification.py; full
+        # numbers, deviations, and figures in demo-output/website/tmr/
+        # (flatplate_sst.json, bump_sst.json, card_update.json).
+        "status": "flat plate and bump measured",
+        "entry": "flat plate and bump-in-channel each run on a 3-grid ladder "
+                 "against the published CFL3D values: flat-plate Cd 0.002834 "
+                 "vs 0.002826 at matched grid size, bump Cd 0.003567 vs "
+                 "0.003607; NACA 0012 airfoil next",
         "lead": True,
     },
     {

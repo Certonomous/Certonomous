@@ -336,17 +336,15 @@ def draft_report_proposals() -> list[dict]:
 
 
 def draft_tmr_proposals() -> list[dict]:
-    """The verification card's own named next case (bump-in-channel)."""
-    from . import lab_stats
-
+    """The verification program's next unmeasured case, read from the card
+    artifacts themselves (canonical sequence: flat plate, bump-in-channel,
+    NACA 0012). Hermetic: only the card path decides, never module state."""
     card = _load_json(_tmr_card_path())
     if not isinstance(card, dict) or not card.get("grids"):
         return []
-    names_bump = any(
-        "bump-in-channel next" in str(entry.get("entry", ""))
-        for entry in lab_stats.research_challenges())
-    if not names_bump:
-        return []
+    bump = _load_json(_tmr_card_path().parent / "bump_sst.json")
+    if isinstance(bump, dict) and bump.get("grids"):
+        return [_draft_tmr_naca0012(bump)]
     grids = card["grids"]
     fine = grids[-1] if grids else {}
     comparison = card.get("comparison") or {}
@@ -376,6 +374,36 @@ def draft_tmr_proposals() -> list[dict]:
             "verified set"),
         source_kind="capability")
     return [proposal] if proposal else []
+
+
+def _draft_tmr_naca0012(bump: dict) -> dict:
+    """With flat plate and bump both measured, the sequence's next case."""
+    grids = bump.get("grids") or []
+    wall_core_min = sum(float(g.get("wall_seconds") or 0) for g in grids) / 60.0
+    # Three alpha points per the reference tables, plus headroom for the
+    # tighter airfoil convergence; anchored to the measured bump ladder.
+    est = round(wall_core_min * 3 * 1.5, 0) if wall_core_min else 600.0
+    return _proposal(
+        objective=("Run the TMR 2D NACA 0012 airfoil case on the three "
+                   "coarsest reference grid sizes at 0, 10, and 15 degrees "
+                   "and compare lift, drag, and surface pressure against "
+                   "the published CFL3D and FUN3D values"),
+        rationale=("Flat plate and bump-in-channel are both measured on "
+                   "three-grid ladders against the reference codes; the "
+                   "resource's verification sequence names the NACA 0012 "
+                   "airfoil as the next case."),
+        citations=["NASA Turbulence Modeling Resource verification cases",
+                   "Bump-in-channel verification card, k-omega SST"],
+        est_core_min=est,
+        cost_basis=(f"estimate; the measured bump three-grid ladder ran "
+                    f"{wall_core_min:.1f} core minutes on this machine, "
+                    f"scaled for three alpha points with headroom"
+                    if wall_core_min else
+                    "estimate; anchored to the measured bump ladder"),
+        expected_knowledge_gain=(
+            "A lifting-surface verification credential with published "
+            "reference polars, completing the resource's core sequence"),
+        source_kind="capability")
 
 
 # Bodies the router can stage from a plain-language prompt, so an approval

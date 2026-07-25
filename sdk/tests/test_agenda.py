@@ -167,6 +167,22 @@ class DraftingFromRecords(_EnvMixin, unittest.TestCase):
                             for o in objectives))
         self.assertTrue(any("bump-in-channel" in o for o in objectives))
 
+    def test_tmr_sequence_advances_once_bump_is_measured(self):
+        # With a measured bump card beside the flat-plate card, the drafter
+        # proposes the sequence's next case (NACA 0012), not the bump again.
+        _write_json(self.root / "bump_sst.json", {
+            "grids": [{"cells": 3520, "wall_seconds": 102.0},
+                      {"cells": 14080, "wall_seconds": 815.0},
+                      {"cells": 56320, "wall_seconds": 7120.0}]})
+        objectives = {p["objective"] for p in agenda.draft_all()}
+        self.assertTrue(any("NACA 0012" in o for o in objectives))
+        self.assertFalse(any("bump-in-channel verification case" in o
+                             for o in objectives))
+        naca = next(p for p in agenda.draft_all()
+                    if "NACA 0012" in p["objective"])
+        # Cost is anchored to the measured bump ladder, never invented.
+        self.assertIn("core minutes on this machine", naca["cost_basis"])
+
     def test_rationales_cite_the_actual_record(self):
         by_objective = {p["objective"]: p for p in agenda.draft_all()}
         report_kid = by_objective["Harmonic-balance cycle solve"]

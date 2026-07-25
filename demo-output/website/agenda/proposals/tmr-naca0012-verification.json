@@ -1,0 +1,15 @@
+{
+  "id": "tmr-naca0012-verification",
+  "objective": "Run the TMR 2D NACA 0012 airfoil case on the three coarsest reference grid sizes at 0, 10, and 15 degrees and compare lift, drag, and surface pressure against the published CFL3D and FUN3D values",
+  "rationale": "The flat-plate ladder landed within 0.3 percent of the published value at matched grid size and the bump within 1.1 percent; the NACA 0012 is the next TMR case and the first with lift, adding a genuinely new check on the pipeline",
+  "citations": [
+    "NASA Langley Turbulence Modeling Resource: 2D NACA 0012 airfoil validation case (turbmodels.larc.nasa.gov)",
+    "TMR CFL3D and FUN3D reference ladders (tmbwg.github.io/turbmodels)"
+  ],
+  "est_core_min": 604,
+  "expected_knowledge_gain": "First lifting-body verification anchor; establishes whether the lab's ladder discipline holds when pressure drag dominates friction",
+  "source_kind": "challenge",
+  "status": "proposed",
+  "created_at": "2026-07-25T00:13:52",
+  "launch_prompt": "Extend sdk/workflows/tmr_verification.py with the TMR 2D NACA 0012 case: download the reference convergence data live from tmbwg.github.io/turbmodels, build a C-grid or O-grid ladder matching the three coarsest reference cell counts, run alpha 0, 10, 15 degrees to steady convergence, extract Cl, Cd, and Cp, report observed order and Richardson extrapolates, and state every deviation plainly. Refuse any comparison you cannot defend."
+}

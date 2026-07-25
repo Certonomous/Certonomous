@@ -11,11 +11,13 @@ import math
 import unittest
 
 from workflows.tmr_verification import (
-    BANNED_CARD_WORDS, CFL3D_SST_V, FUN3D_SST_V, LEVELS, build_summary,
-    card_entry_text, cf_at, final_coefficient, format_summary_lines,
-    geometric_first_cell, grid_convergence_index, observed_order,
-    parse_wall_shear_raw, parse_yplus_dat, ratio_for_first_cell,
-    richardson_extrapolate,
+    BANNED_CARD_WORDS, BUMP_LEVELS, CFL3D_BUMP_SST, CFL3D_SST_V,
+    FUN3D_BUMP_SST, FUN3D_SST_V, LEVELS, build_bump_summary, build_proposals,
+    build_summary, bump_edge_points, bump_profile, card_entry_text,
+    card_update, cf_at, final_coefficient, format_bump_summary_lines,
+    format_summary_lines, geometric_first_cell, grid_convergence_index,
+    observed_order, parse_force_split, parse_wall_shear_raw, parse_yplus_dat,
+    ratio_for_first_cell, richardson_extrapolate,
 )
 
 
@@ -162,9 +164,9 @@ def _fake_grids():
                              (0.002550, 0.002628, 0.002665)):
         grids.append({
             "level": level.name, "tmr_nodes": level.tmr_nodes,
-            "cells": level.cells, "nx": level.nx_up + level.nx_plate,
-            "ny": level.ny, "cd": cd, "cd_tail_spread": 1e-9, "cf_097": cf,
-            "iterations": 4000, "wall_seconds": 60.0,
+            "cells": level.cells, "nx": level.nx_total,
+            "ny": level.ny, "cd": cd, "cd_tail_spread": 1e-9,
+            "cf_station": cf, "iterations": 4000, "wall_seconds": 60.0,
             "yplus": {"min": 0.1, "max": 0.9, "average": 0.4},
             "timings": {"simpleFoam": 55.0},
         })
@@ -219,6 +221,190 @@ class SummaryAndCard(unittest.TestCase):
         summary = build_summary(_fake_grids())
         summary["grids"] = summary["grids"][:2]
         self.assertIsNone(card_entry_text(summary))
+
+
+def _fake_bump_grids():
+    """Bump-shaped records: Cd decreasing with refinement, like the case."""
+    grids = []
+    for level, cd, cdp, cf in zip(
+            BUMP_LEVELS, (0.004480, 0.003720, 0.003625),
+            (0.001400, 0.000560, 0.000440), (0.005230, 0.005640, 0.005780)):
+        grids.append({
+            "level": level.name, "tmr_nodes": level.tmr_nodes,
+            "cells": level.cells, "nx": level.nx_total, "ny": level.ny,
+            "cd": cd, "cd_tail_spread": 1e-9, "cd_pressure": cdp,
+            "cd_viscous": cd - cdp, "cf_station": cf, "iterations": 3000,
+            "wall_seconds": 300.0,
+            "yplus": {"min": 0.1, "max": 0.8, "average": 0.3},
+            "timings": {"simpleFoam": 290.0},
+        })
+    return grids
+
+
+class BumpGeometry(unittest.TestCase):
+    def test_profile_is_zero_off_the_bump(self):
+        for x in (0.0, 0.1, 0.29999, 1.20001, 1.5):
+            self.assertEqual(bump_profile(x), 0.0)
+
+    def test_profile_peaks_at_five_percent_at_the_tmr_peak(self):
+        self.assertAlmostEqual(bump_profile(0.75), 0.05, places=12)
+
+    def test_profile_is_symmetric_about_the_peak(self):
+        for d in (0.05, 0.15, 0.30, 0.44):
+            self.assertAlmostEqual(bump_profile(0.75 - d),
+                                   bump_profile(0.75 + d), places=12)
+
+    def test_profile_is_continuous_at_the_junctions(self):
+        self.assertLess(bump_profile(0.300001), 1e-12)
+        self.assertLess(bump_profile(1.199999), 1e-12)
+
+    def test_edge_points_are_interior_dense_and_bounded(self):
+        points = bump_edge_points()
+        self.assertGreater(len(points), 400)
+        self.assertGreater(points[0][0], 0.0)
+        self.assertLess(points[-1][0], 1.5)
+        self.assertAlmostEqual(max(y for _, y in points), 0.05, places=4)
+        self.assertGreaterEqual(min(y for _, y in points), 0.0)
+
+
+class BumpGridFamily(unittest.TestCase):
+    def test_ladder_matches_the_tmr_cell_counts(self):
+        self.assertEqual([lv.cells for lv in BUMP_LEVELS],
+                         [3520, 14080, 56320])
+        for lv in BUMP_LEVELS:
+            self.assertIn(lv.cells, CFL3D_BUMP_SST)
+            self.assertIn(lv.cells, FUN3D_BUMP_SST)
+
+    def test_each_level_doubles_every_direction(self):
+        for lo, hi in zip(BUMP_LEVELS, BUMP_LEVELS[1:]):
+            self.assertEqual(hi.nx_up, 2 * lo.nx_up)
+            self.assertEqual(hi.nx_wall, 2 * lo.nx_wall)
+            self.assertEqual(hi.nx_down, 2 * lo.nx_down)
+            self.assertEqual(hi.ny, 2 * lo.ny)
+
+    def test_reference_finest_values_match_the_tmr_data_files(self):
+        self.assertAlmostEqual(CFL3D_BUMP_SST[901120]["cd"],
+                               0.36045158543e-2, places=13)
+        self.assertAlmostEqual(CFL3D_BUMP_SST[901120]["cf075"],
+                               0.58482303300e-2, places=13)
+        self.assertAlmostEqual(FUN3D_BUMP_SST[901120]["cd"],
+                               0.3592588e-2, places=10)
+
+
+class ForceSplitParsing(unittest.TestCase):
+    LOG = (
+        "forceCoeffs forceCoeffs1 write:\n"
+        "    Cd:\t0.004000\t0.001000\t0.003000\t0\n"
+        "    Cl:\t0.024000\t0.023990\t0.000010\t0\n"
+        "later iteration...\n"
+        "forceCoeffs forceCoeffs1 write:\n"
+        "    Cd:\t0.003625\t0.000440\t0.003185\t0\n"
+        "    Cl:\t0.024800\t0.024790\t0.000010\t0\n"
+    )
+
+    def test_last_block_wins_and_splits(self):
+        split = parse_force_split(self.LOG, "Cd")
+        self.assertAlmostEqual(split["total"], 0.003625)
+        self.assertAlmostEqual(split["pressure"], 0.000440)
+        self.assertAlmostEqual(split["viscous"], 0.003185)
+
+    def test_other_names_and_missing(self):
+        self.assertAlmostEqual(parse_force_split(self.LOG, "Cl")["total"],
+                               0.0248)
+        self.assertIsNone(parse_force_split(self.LOG, "Cs"))
+        self.assertIsNone(parse_force_split("no coefficients here", "Cd"))
+
+
+class BumpSummaryAndCard(unittest.TestCase):
+    def test_bump_summary_convergence_and_split_comparison(self):
+        summary = build_bump_summary(_fake_bump_grids())
+        self.assertIsNotNone(summary["convergence"]["cd"]["observed_order"])
+        comp = summary["comparison"]
+        self.assertAlmostEqual(comp["cfl3d_cd_finest"], 0.36045158543e-2,
+                               places=13)
+        self.assertIn("cd_pressure_fine_vs_cfl3d_same_grid_pct", comp)
+        self.assertIn("cd_extrapolate_vs_cfl3d_finest_pct", comp)
+
+    def test_bump_summary_lines_obey_product_rules(self):
+        lines = format_bump_summary_lines(build_bump_summary(_fake_bump_grids()))
+        joined = "\n".join(lines)
+        self.assertNotIn("—", joined)
+        self.assertNotIn("--", joined)
+        for word in BANNED_CARD_WORDS:
+            self.assertNotIn(word, joined.lower(), msg=word)
+        for line in lines:
+            first = next((ch for ch in line if ch.isalpha()), "X")
+            self.assertTrue(first.isupper() or first.isdigit(),
+                            msg=f"bullet not capitalized: {line!r}")
+        self.assertIn("turbmodels.larc.nasa.gov", joined)
+
+    def test_combined_card_carries_both_results_without_methods(self):
+        card = card_update(build_summary(_fake_grids()),
+                           build_bump_summary(_fake_bump_grids()))
+        self.assertEqual(card["status"], "flat plate and bump measured")
+        self.assertIn("0.002828", card["entry"])     # flat fine Cd measured
+        self.assertIn("0.003625", card["entry"])     # bump fine Cd measured
+        self.assertIn("NACA 0012 airfoil next", card["entry"])
+        lowered = card["entry"].lower()
+        for banned in (*BANNED_CARD_WORDS, "foam", "sst", "mesh", "solver",
+                       "k-omega", "upwind"):
+            self.assertNotIn(banned, lowered, msg=banned)
+        self.assertNotIn("--", card["entry"])
+
+    def test_card_falls_back_to_flat_only_when_bump_missing(self):
+        card = card_update(build_summary(_fake_grids()), None)
+        self.assertEqual(card["status"], "flat plate measured")
+        self.assertIn("bump-in-channel next", card["entry"])
+
+    def test_card_none_when_even_flat_is_not_defensible(self):
+        grids = _fake_grids()
+        grids[1]["cd"] = 0.002830
+        self.assertIsNone(card_update(build_summary(grids), None))
+
+
+class Proposals(unittest.TestCase):
+    SCHEMA = {"id", "objective", "rationale", "citations", "est_core_min",
+              "expected_knowledge_gain", "source_kind", "status",
+              "created_at", "launch_prompt"}
+
+    def _proposals(self):
+        return build_proposals(build_summary(_fake_grids()),
+                               build_bump_summary(_fake_bump_grids()))
+
+    def test_schema_is_exact_and_ids_distinct(self):
+        proposals = self._proposals()
+        self.assertEqual(len(proposals), 2)
+        ids = {p["id"] for p in proposals}
+        self.assertEqual(len(ids), 2)
+        for p in proposals:
+            self.assertEqual(set(p), self.SCHEMA)
+            self.assertEqual(p["status"], "proposed")
+            self.assertEqual(p["source_kind"], "challenge")
+            self.assertIsInstance(p["est_core_min"], int)
+            self.assertGreater(p["est_core_min"], 0)
+            self.assertTrue(p["citations"])
+            self.assertTrue(p["created_at"].startswith("20"))
+            self.assertTrue(p["launch_prompt"].strip())
+
+    def test_estimates_are_anchored_to_measured_wall_clocks(self):
+        proposals = self._proposals()
+        by_id = {p["id"]: p for p in proposals}
+        # Bump ladder: 3 x 300 s = 15 core-min; NACA: 3 alphas x 1.5 margin.
+        self.assertEqual(by_id["tmr-naca0012-verification"]["est_core_min"],
+                         int(round(3 * 15.0 * 1.5)) + 1)
+        # Finest grids: (4*2 + 16*4) x measured flat fine-solve seconds / 60.
+        expected = int(round(72 * 55.0 / 60.0)) + 1
+        self.assertEqual(by_id["tmr-flatplate-finest-grids"]["est_core_min"],
+                         expected)
+
+    def test_proposal_text_obeys_product_rules(self):
+        for p in self._proposals():
+            blob = " ".join([p["objective"], p["rationale"],
+                             p["expected_knowledge_gain"]])
+            self.assertNotIn("—", blob)
+            self.assertNotIn("--", blob)
+            for word in BANNED_CARD_WORDS:
+                self.assertNotIn(word, blob.lower(), msg=word)
 
 
 if __name__ == "__main__":

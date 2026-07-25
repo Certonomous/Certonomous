@@ -1,9 +1,10 @@
-"""NASA TMR flat-plate verification: a real grid-refinement ladder, measured.
+"""NASA TMR verification ladders, measured: flat plate and bump-in-channel.
 
 The NASA Turbulence Modeling Resource (turbmodels.larc.nasa.gov, mirrored at
 tmbwg.github.io/turbmodels) publishes reference verification cases a RANS code
 must reproduce on systematically refined grids. This module runs the 2D
-zero-pressure-gradient flat plate for the k-omega SST closure:
+zero-pressure-gradient flat plate and the 2D bump-in-channel for the k-omega
+SST closure, each with the same discipline. The flat plate:
 
 * Re per unit grid length 5 million, plate from x=0 to x=2 (Re_x = 10 million
   at the trailing edge), domain height 1, inflow at x=-1/3 with a symmetry
@@ -42,6 +43,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import shutil
 import subprocess
 import time
@@ -115,8 +117,12 @@ class GridLevel:
     ny: int            # wall-normal cells
 
     @property
+    def nx_total(self) -> int:
+        return self.nx_up + self.nx_plate
+
+    @property
     def cells(self) -> int:
-        return (self.nx_up + self.nx_plate) * self.ny
+        return self.nx_total * self.ny
 
 
 LEVELS = (
@@ -240,6 +246,21 @@ def final_coefficient(dat_text: str, column: str = "Cd",
             "iterations": len(series)}
 
 
+def parse_force_split(log_text: str, name: str = "Cd") -> dict[str, float] | None:
+    """Total/pressure/viscous split of a force coefficient from the solver
+    log's final forceCoeffs write block (the last occurrence wins)."""
+    pattern = re.compile(
+        rf"^\s*{re.escape(name)}:\s+([0-9.eE+-]+)\s+([0-9.eE+-]+)\s+"
+        rf"([0-9.eE+-]+)", re.MULTILINE)
+    match = None
+    for match in pattern.finditer(log_text):
+        pass
+    if match is None:
+        return None
+    return {"total": float(match.group(1)), "pressure": float(match.group(2)),
+            "viscous": float(match.group(3))}
+
+
 def parse_yplus_dat(text: str, patch: str = "plate") -> dict[str, float] | None:
     """min/max/average y+ for ``patch`` from a yPlus function-object file
     (last row wins: that is the converged state)."""
@@ -270,11 +291,11 @@ def format_summary_lines(summary: dict[str, Any]) -> list[str]:
     for grid in summary["grids"]:
         lines.append(
             f"Grid {grid['tmr_nodes']} ({grid['cells']} cells): "
-            f"Cd = {grid['cd']:.6f}, Cf(x=0.97) = {grid['cf_097']:.6f}, "
+            f"Cd = {grid['cd']:.6f}, Cf(x=0.97) = {grid['cf_station']:.6f}, "
             f"max y+ = {grid['yplus']['max']:.2f}, "
             f"{grid['iterations']} iterations in {grid['wall_seconds']:.0f} s")
     ref_order = summary["comparison"].get("cfl3d_observed_order_same_rungs")
-    for key, label in (("cd", "Cd"), ("cf_097", "Cf(x=0.97)")):
+    for key, label in (("cd", "Cd"), ("cf_station", "Cf(x=0.97)")):
         conv = summary["convergence"][key]
         if conv.get("observed_order") is not None:
             note = (f" (CFL3D's own order on these three rungs: "
@@ -384,7 +405,8 @@ boundary
 """
 
 
-def control_dict(iterations: int = 5000) -> str:
+def control_dict(iterations: int = 5000, *, patch: str = "plate",
+                 lref: float = PLATE_LENGTH, aref: float = PLATE_LENGTH) -> str:
     return _foam_header("dictionary", "controlDict", "system") + f"""
 application     simpleFoam;
 startFrom       startTime;
@@ -408,12 +430,12 @@ functions
         libs            (forces);
         writeControl    timeStep;
         writeInterval   1;
-        patches         (plate);
+        patches         ({patch});
         rho             rhoInf;
         rhoInf          1.0;
         magUInf         {U_INF};
-        lRef            {PLATE_LENGTH};
-        Aref            {PLATE_LENGTH};
+        lRef            {lref};
+        Aref            {aref};
         CofR            (0 0 0);
         dragDir         (1 0 0);
         liftDir         (0 1 0);
@@ -430,11 +452,11 @@ functions
     {{
         type            wallShearStress;
         libs            (fieldFunctionObjects);
-        patches         (plate);
+        patches         ({patch});
         executeControl  onEnd;
         writeControl    onEnd;
     }}
-    plateCf
+    wallCf
     {{
         type            surfaces;
         libs            (sampling);
@@ -445,7 +467,7 @@ functions
         interpolate     false;
         surfaces
         (
-            plate {{ type patch; patches (plate); }}
+            {patch} {{ type patch; patches ({patch}); }}
         );
     }}
 }}
@@ -518,10 +540,10 @@ relaxationFactors
 """
 
 
-def transport_properties() -> str:
+def transport_properties(nu: float = NU) -> str:
     return _foam_header("dictionary", "transportProperties", "constant") + f"""
 transportModel  Newtonian;
-nu              {NU};
+nu              {nu};
 """
 
 
@@ -655,18 +677,12 @@ def _wsl(command: str, timeout: float = 600.0) -> subprocess.CompletedProcess:
                           capture_output=True, text=True, timeout=timeout)
 
 
-def run_level(level: GridLevel, case_root: Path, out_dir: Path,
-              log: Callable[[str], None] = print) -> dict[str, Any]:
-    """Mesh and solve one ladder level in WSL, pull results back, extract.
-
-    Returns the per-grid record used by the summary. Raises on any failed
-    step: a broken rung must never be papered over with a partial number.
-    """
-    case_win = write_case(case_root, level)
-    remote = f"{_RUN_ROOT}/tmr-flatplate-{level.name}"
-    out_dir = Path(out_dir)
+def _stage_and_mesh(level: GridLevel, case_root: Path, out_dir: Path,
+                    remote: str, writer: Callable[[Path, GridLevel], Path],
+                    log: Callable[[str], None]) -> dict[str, float]:
+    """Stage a case into WSL, blockMesh and checkMesh it; return step timings."""
+    case_win = writer(case_root, level)
     out_dir.mkdir(parents=True, exist_ok=True)
-
     staged = _wsl(
         f"rm -rf {remote} && mkdir -p {_RUN_ROOT} && "
         f"cp -r \"$(wslpath '{case_win}')\" {remote} && "
@@ -674,25 +690,36 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
     if "STAGED" not in staged.stdout:
         raise RuntimeError(f"staging {level.name} failed: "
                            f"{(staged.stderr or staged.stdout)[:300]}")
-
     timings: dict[str, float] = {}
-    for step, timeout in (("blockMesh", 600), ("checkMesh", 600),
-                          ("simpleFoam", 5400)):
+    for step in ("blockMesh", "checkMesh"):
         start = time.monotonic()
         log(f"[tmr:{level.name}] {step} started")
         result = _wsl(f"cd {remote} && openfoam2606 {step} "
-                      f"> log.{step} 2>&1 && echo DONE", timeout=timeout)
+                      f"> log.{step} 2>&1 && echo DONE", timeout=600)
         timings[step] = round(time.monotonic() - start, 1)
         _wsl(f"cp {remote}/log.{step} \"$(wslpath '{out_dir}')\"/ || true")
         if "DONE" not in result.stdout:
             tail = _wsl(f"tail -20 {remote}/log.{step}").stdout
             raise RuntimeError(f"{level.name}/{step} failed:\n{tail}")
         log(f"[tmr:{level.name}] {step} finished in {timings[step]:.1f} s")
+    return timings
 
+
+def _extract_record(level: GridLevel, out_dir: Path, remote: str,
+                    timings: dict[str, float], station: float,
+                    yplus_patch: str,
+                    log: Callable[[str], None]) -> dict[str, Any]:
+    """Pull one solved case's results back to Windows and extract the record.
+
+    Raises on anything unextractable or unconverged: a broken rung must never
+    be papered over with a partial number.
+    """
+    out_dir = Path(out_dir)
     # A fresh copy every time: a leftover postProcessing tree from an earlier
     # attempt would nest the new one inside it and could offer stale files to
     # the extraction globs below.
     shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
+    _wsl(f"cp {remote}/log.simpleFoam \"$(wslpath '{out_dir}')\"/ || true")
     _wsl(f"cp -r {remote}/postProcessing \"$(wslpath '{out_dir}')\"/",
          timeout=300)
 
@@ -715,24 +742,27 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
     if not raw_files:
         raise RuntimeError(f"{level.name}: no wall-shear sample found")
     profile = parse_wall_shear_raw(raw_files[-1].read_text(errors="replace"))
-    cf_station = cf_at(profile, CF_STATION)
+    cf_station = cf_at(profile, station)
     if cf_station is None or cf_station <= 0:
-        raise RuntimeError(f"{level.name}: Cf at x={CF_STATION} not extractable "
+        raise RuntimeError(f"{level.name}: Cf at x={station} not extractable "
                            f"(profile of {len(profile)} points)")
 
     yplus_files = sorted((out_dir / "postProcessing").rglob("yPlus.dat"))
-    yplus = (parse_yplus_dat(yplus_files[-1].read_text(errors="replace"))
+    yplus = (parse_yplus_dat(yplus_files[-1].read_text(errors="replace"),
+                             yplus_patch)
              if yplus_files else None)
+    split = parse_force_split((out_dir / "log.simpleFoam")
+                              .read_text(errors="replace"), "Cd")
 
     record = {
         "level": level.name,
         "tmr_nodes": level.tmr_nodes,
         "cells": level.cells,
-        "nx": level.nx_up + level.nx_plate,
+        "nx": level.nx_total,
         "ny": level.ny,
         "cd": cd["value"],
         "cd_tail_spread": cd["spread"],
-        "cf_097": cf_station,
+        "cf_station": cf_station,
         "iterations": cd["iterations"],
         "yplus": yplus or {"min": float("nan"), "max": float("nan"),
                            "average": float("nan")},
@@ -740,10 +770,97 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
         "timings": timings,
         "cf_profile": [(round(x, 6), round(c, 8)) for x, c in profile],
     }
+    if split:
+        record["cd_pressure"] = split["pressure"]
+        record["cd_viscous"] = split["viscous"]
     log(f"[tmr:{level.name}] Cd={cd['value']:.6f} "
-        f"Cf(0.97)={cf_station:.6f} iters={cd['iterations']} "
+        f"Cf({station:g})={cf_station:.6f} iters={cd['iterations']} "
         f"wall={record['wall_seconds']:.0f}s")
     return record
+
+
+def run_level(level: GridLevel, case_root: Path, out_dir: Path,
+              log: Callable[[str], None] = print, *,
+              writer: Callable[[Path, GridLevel], Path] = write_case,
+              remote_prefix: str = "tmr-flatplate",
+              station: float = CF_STATION, yplus_patch: str = "plate",
+              solver_timeout: float = 5400.0) -> dict[str, Any]:
+    """Mesh and solve one ladder level in WSL, pull results back, extract."""
+    remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
+    out_dir = Path(out_dir)
+    timings = _stage_and_mesh(level, case_root, out_dir, remote, writer, log)
+    start = time.monotonic()
+    log(f"[tmr:{level.name}] simpleFoam started")
+    result = _wsl(f"cd {remote} && openfoam2606 simpleFoam "
+                  f"> log.simpleFoam 2>&1 && echo DONE",
+                  timeout=solver_timeout)
+    timings["simpleFoam"] = round(time.monotonic() - start, 1)
+    if "DONE" not in result.stdout:
+        tail = _wsl(f"tail -20 {remote}/log.simpleFoam").stdout
+        raise RuntimeError(f"{level.name}/simpleFoam failed:\n{tail}")
+    log(f"[tmr:{level.name}] simpleFoam finished in "
+        f"{timings['simpleFoam']:.1f} s")
+    return _extract_record(level, out_dir, remote, timings, station,
+                           yplus_patch, log)
+
+
+def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
+                        log: Callable[[str], None] = print, *,
+                        writer: Callable[[Path, GridLevel], Path] = write_case,
+                        remote_prefix: str = "tmr-flatplate") -> dict[str, float]:
+    """Stage, mesh, and start the solve DETACHED inside WSL.
+
+    For rungs whose solve outlives any sane foreground window. The nohup'd
+    process writes its exit code to ``solve.exit`` when done; the caller polls
+    :func:`solver_exit_status` and then runs :func:`collect_level`. Returns
+    the mesh-step timings so the eventual record carries the full wall clock.
+    """
+    remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
+    timings = _stage_and_mesh(level, case_root, Path(out_dir), remote,
+                              writer, log)
+    # setsid puts the solver in its own session so WSL's per-session cleanup
+    # cannot reap it when this command's wsl.exe exits, and the launching
+    # shell stays alive (sleep) until the solver has demonstrably opened its
+    # log. A bare "nohup ... &" here dies with the session — measured, not
+    # theorized: the first launch attempt left no log and no exit file.
+    launched = _wsl(
+        f"cd {remote} && rm -f solve.exit && "
+        f"setsid nohup bash -c 'cd {remote} && openfoam2606 simpleFoam "
+        f"> log.simpleFoam 2>&1; echo $? > solve.exit' "
+        f"< /dev/null >/dev/null 2>&1 & sleep 3; "
+        f"test -f {remote}/log.simpleFoam && echo LAUNCHED", timeout=120)
+    if "LAUNCHED" not in launched.stdout:
+        raise RuntimeError(f"{level.name}: detached solve failed to launch")
+    log(f"[tmr:{level.name}] simpleFoam launched detached in {remote}")
+    return timings
+
+
+def solver_exit_status(level: GridLevel,
+                       remote_prefix: str = "tmr-flatplate") -> int | None:
+    """Exit code of a detached solve, or None while it is still running."""
+    remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
+    raw = _wsl(f"cat {remote}/solve.exit 2>/dev/null").stdout.strip()
+    return int(raw) if raw.isdigit() or (raw and raw.lstrip("-").isdigit()) \
+        else None
+
+
+def collect_level(level: GridLevel, out_dir: Path,
+                  log: Callable[[str], None] = print, *,
+                  remote_prefix: str = "tmr-flatplate",
+                  station: float = CF_STATION, yplus_patch: str = "plate",
+                  mesh_timings: dict[str, float] | None = None,
+                  solve_seconds: float | None = None) -> dict[str, Any]:
+    """Extract the record of a finished detached solve (exit code must be 0)."""
+    status = solver_exit_status(level, remote_prefix)
+    if status != 0:
+        raise RuntimeError(f"{level.name}: detached solve not finished "
+                           f"cleanly (exit status {status!r})")
+    remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
+    timings = dict(mesh_timings or {})
+    if solve_seconds is not None:
+        timings["simpleFoam"] = round(solve_seconds, 1)
+    return _extract_record(level, Path(out_dir), remote, timings, station,
+                           yplus_patch, log)
 
 
 # ---------------------------------------------------------------------------
@@ -763,7 +880,7 @@ def _convergence_block(values: list[float]) -> dict[str, Any]:
 def build_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
     """Assemble the persisted summary from three completed grid records."""
     cd_conv = _convergence_block([g["cd"] for g in grids])
-    cf_conv = _convergence_block([g["cf_097"] for g in grids])
+    cf_conv = _convergence_block([g["cf_station"] for g in grids])
     comparison: dict[str, Any] = {
         "cfl3d_cd_ladder": [CFL3D_SST_V[g["cells"]]["cd"] for g in grids],
         "cfl3d_cf097_ladder": [CFL3D_SST_V[g["cells"]]["cf097"] for g in grids],
@@ -780,7 +897,7 @@ def build_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
         "cd_fine_vs_cfl3d_same_grid_pct":
             100.0 * (grids[-1]["cd"] / CFL3D_SST_V[grids[-1]["cells"]]["cd"] - 1.0),
         "cf097_fine_vs_cfl3d_same_grid_pct":
-            100.0 * (grids[-1]["cf_097"]
+            100.0 * (grids[-1]["cf_station"]
                      / CFL3D_SST_V[grids[-1]["cells"]]["cf097"] - 1.0),
     }
     if cd_conv.get("richardson") is not None:
@@ -802,7 +919,7 @@ def build_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
         },
         "grids": [{k: v for k, v in g.items() if k != "cf_profile"}
                   for g in grids],
-        "convergence": {"cd": cd_conv, "cf_097": cf_conv},
+        "convergence": {"cd": cd_conv, "cf_station": cf_conv},
         "comparison": comparison,
         "reference_source": REFERENCE_SOURCE,
         "numerics": ("Second-order linearUpwind momentum advection, "
@@ -842,7 +959,7 @@ def _figures(grids: list[dict[str, Any]], summary: dict[str, Any],
     ax.scatter([CF_STATION], [ref], s=110, color=_t.VALID, zorder=5,
                edgecolor=_t.INK, linewidth=1.2,
                label="CFL3D SST-V, 545x385 grid, x=0.97")
-    ax.annotate(f"CFL3D {ref:.5f}\nours (fine) {grids[-1]['cf_097']:.5f}",
+    ax.annotate(f"CFL3D {ref:.5f}\nours (fine) {grids[-1]['cf_station']:.5f}",
                 xy=(CF_STATION, ref), xytext=(-12, 26),
                 textcoords="offset points", ha="right", fontsize=11,
                 color=_t.INK, weight="bold")
@@ -933,6 +1050,614 @@ def persist_ladder(grids: list[dict[str, Any]], out_dir: Path,
     for line in format_summary_lines(summary):
         log(f"[tmr] {line}")
     return summary
+
+
+# ---------------------------------------------------------------------------
+# Bump-in-channel: the second TMR verification case, same discipline
+# ---------------------------------------------------------------------------
+# TMR spec (tmbwg.github.io/turbmodels/bump.html): viscous wall from x=0 to
+# x=1.5 carrying the bump y = 0.05 sin^4(pi x / 0.9 - pi/3) for
+# 0.3 <= x <= 1.2; symmetry on the bottom outside the wall; farfield 25 units
+# up- and downstream of the wall; a symmetry plane at y=5; M=0.2 and
+# Re = 3 million per unit grid length; body reference length 1.5.
+
+BUMP_NU = 1.0 / 3.0e6                             # Re per unit length = 3e6
+BUMP_OMEGA_INF = 1.0e-6 * _A_INF ** 2 / BUMP_NU   # TMR farfield omega (75.0)
+BUMP_NUT_INF = K_INF / BUMP_OMEGA_INF             # again exactly 0.009 nu
+BUMP_WALL_LENGTH = 1.5
+BUMP_X_IN, BUMP_X_OUT = -25.0, 26.5               # 25 units beyond each end
+BUMP_HEIGHT = 5.0
+BUMP_CF_STATION = 0.75                            # TMR's bump-peak station
+
+BUMP_REFERENCE_SOURCE = (
+    "turbmodels.larc.nasa.gov 2D bump-in-channel, SST convergence data "
+    "(mirror tmbwg.github.io/turbmodels, retrieved 2026-07-24)")
+
+# Published TMR bump grid-convergence values, keyed by cell count N. Copied
+# from force_convergence_sst.dat / cf_convergence_sst.dat (kept under
+# models/tmr/reference/ as bump_*.dat). cf is at x=0.75, the bump peak.
+CFL3D_BUMP_SST = {
+    3520:   {"cd": 0.45618542592e-2, "cdp": 0.14787721313e-2,
+             "cdv": 0.30830821278e-2, "cl": 0.23518706955e-1,
+             "cf075": 0.51639261700e-2},
+    14080:  {"cd": 0.37071442412e-2, "cdp": 0.55434360560e-3,
+             "cdv": 0.31528006356e-2, "cl": 0.24507319517e-1,
+             "cf075": 0.56221550300e-2},
+    56320:  {"cd": 0.36071373739e-2, "cdp": 0.43164677088e-3,
+             "cdv": 0.31754906030e-2, "cl": 0.24827092796e-1,
+             "cf075": 0.57688662800e-2},
+    225280: {"cd": 0.36027064448e-2, "cdp": 0.42017585113e-3,
+             "cdv": 0.31825305937e-2, "cl": 0.24974439737e-1,
+             "cf075": 0.58239931200e-2},
+    901120: {"cd": 0.36045158543e-2, "cdp": 0.42098043518e-3,
+             "cdv": 0.31835354191e-2, "cl": 0.25047395710e-1,
+             "cf075": 0.58482303300e-2},
+}
+FUN3D_BUMP_SST = {
+    3520:   {"cd": 0.4056323e-2, "cf075": 5.219778512e-3},
+    14080:  {"cd": 0.3610564e-2, "cf075": 5.612602923e-3},
+    56320:  {"cd": 0.3573397e-2, "cf075": 5.764481612e-3},
+    225280: {"cd": 0.3590616e-2, "cf075": 5.829360802e-3},
+    901120: {"cd": 0.3592588e-2, "cf075": 5.853800103e-3},
+}
+
+
+@dataclass(frozen=True)
+class BumpGridLevel:
+    name: str
+    tmr_nodes: str
+    nx_up: int         # cells upstream of the wall (25 units)
+    nx_wall: int       # cells along the 1.5-unit wall, uniform
+    nx_down: int       # cells downstream of the wall (25 units)
+    ny: int
+
+    @property
+    def nx_total(self) -> int:
+        return self.nx_up + self.nx_wall + self.nx_down
+
+    @property
+    def cells(self) -> int:
+        return self.nx_total * self.ny
+
+
+BUMP_LEVELS = (
+    BumpGridLevel("coarse", "89x41", 12, 64, 12, 40),
+    BumpGridLevel("medium", "177x81", 24, 128, 24, 80),
+    BumpGridLevel("fine", "353x161", 48, 256, 48, 160),
+)
+
+# Family gradings, fixed across levels exactly as for the flat plate. The
+# wall-normal first cell is ~5e-6 on the coarse rung (y+ < 1 at the bump-peak
+# u_tau); the outer blocks contract toward the wall so the junction spacing
+# matches the uniform wall spacing on every level.
+R_Y_BUMP = ratio_for_first_cell(BUMP_HEIGHT, 40, 5.0e-6)
+R_X_OUTER = ratio_for_first_cell(25.0, 12, BUMP_WALL_LENGTH / 64)
+
+BUMP_ITERATIONS = {"coarse": 4000, "medium": 6000, "fine": 9000}
+
+
+def bump_profile(x: float) -> float:
+    """The TMR bump wall height: 0.05 sin^4(pi x / 0.9 - pi/3) on
+    0.3 <= x <= 1.2, zero on the rest of the wall."""
+    if x < 0.3 or x > 1.2:
+        return 0.0
+    return 0.05 * math.sin(math.pi * x / 0.9 - math.pi / 3.0) ** 4
+
+
+def bump_edge_points(n: int = 480) -> list[tuple[float, float]]:
+    """Interior points of the wall's bottom edge (endpoints are block
+    vertices), densely sampled so the piecewise-linear edge is far finer
+    than any cell on any level."""
+    return [(x, bump_profile(x))
+            for x in (BUMP_WALL_LENGTH * i / n for i in range(1, n))]
+
+
+def bump_blockmesh_dict(level: BumpGridLevel) -> str:
+    x0, x1, x2, x3 = BUMP_X_IN, 0.0, BUMP_WALL_LENGTH, BUMP_X_OUT
+    h = BUMP_HEIGHT
+
+    def edge(z: float) -> str:
+        inner = "\n".join(f"            ({x:.10g} {y:.10g} {z})"
+                          for x, y in bump_edge_points())
+        return inner
+    return _foam_header("dictionary", "blockMeshDict", "system") + f"""
+scale   1;
+
+vertices
+(
+    ({x0} 0 0)     // 0
+    ({x1} 0 0)     // 1
+    ({x2} 0 0)     // 2
+    ({x3} 0 0)     // 3
+    ({x3} {h} 0)   // 4
+    ({x2} {h} 0)   // 5
+    ({x1} {h} 0)   // 6
+    ({x0} {h} 0)   // 7
+    ({x0} 0 1)     // 8
+    ({x1} 0 1)     // 9
+    ({x2} 0 1)     // 10
+    ({x3} 0 1)     // 11
+    ({x3} {h} 1)   // 12
+    ({x2} {h} 1)   // 13
+    ({x1} {h} 1)   // 14
+    ({x0} {h} 1)   // 15
+);
+
+blocks
+(
+    hex (0 1 6 7 8 9 14 15) ({level.nx_up} {level.ny} 1)
+        simpleGrading ({1.0 / R_X_OUTER:.8g} {R_Y_BUMP:.8g} 1)
+    hex (1 2 5 6 9 10 13 14) ({level.nx_wall} {level.ny} 1)
+        simpleGrading (1 {R_Y_BUMP:.8g} 1)
+    hex (2 3 4 5 10 11 12 13) ({level.nx_down} {level.ny} 1)
+        simpleGrading ({R_X_OUTER:.8g} {R_Y_BUMP:.8g} 1)
+);
+
+edges
+(
+    polyLine 1 2
+    (
+{edge(0)}
+    )
+    polyLine 9 10
+    (
+{edge(1)}
+    )
+);
+
+boundary
+(
+    inlet     {{ type patch;    faces ((0 8 15 7)); }}
+    outlet    {{ type patch;    faces ((3 4 12 11)); }}
+    top       {{ type symmetry; faces ((7 15 14 6) (6 14 13 5) (5 13 12 4)); }}
+    bottomSym {{ type symmetry; faces ((0 1 9 8) (2 3 11 10)); }}
+    bump      {{ type wall;     faces ((1 2 10 9)); }}
+    frontAndBack
+    {{
+        type empty;
+        faces ((0 7 6 1) (1 6 5 2) (2 5 4 3)
+               (8 9 14 15) (9 10 13 14) (10 11 12 13));
+    }}
+);
+"""
+
+
+def bump_initial_fields() -> dict[str, str]:
+    """0/ files for the bump case: TMR bump freestream turbulence, symmetry
+    top (the TMR spec), low-Re wall treatment on the bump."""
+    empty = "        type            empty;\n"
+    sym = "        type            symmetry;\n"
+
+    def bc(*lines: str) -> str:
+        return "".join(f"        {line}\n" for line in lines)
+
+    u = _field("volVectorField", "U", "[0 1 -1 0 0 0 0]",
+               f"uniform ({U_INF} 0 0)", {
+                   "inlet": bc("type            fixedValue;",
+                               f"value           uniform ({U_INF} 0 0);"),
+                   "outlet": bc("type            zeroGradient;"),
+                   "top": sym,
+                   "bump": bc("type            noSlip;"),
+                   "bottomSym": sym, "frontAndBack": empty,
+               })
+    p = _field("volScalarField", "p", "[0 2 -2 0 0 0 0]", "uniform 0", {
+        "inlet": bc("type            zeroGradient;"),
+        "outlet": bc("type            fixedValue;",
+                     "value           uniform 0;"),
+        "top": sym,
+        "bump": bc("type            zeroGradient;"),
+        "bottomSym": sym, "frontAndBack": empty,
+    })
+    k = _field("volScalarField", "k", "[0 2 -2 0 0 0 0]",
+               f"uniform {K_INF:.8g}", {
+                   "inlet": bc("type            fixedValue;",
+                               f"value           uniform {K_INF:.8g};"),
+                   "outlet": bc("type            inletOutlet;",
+                                f"inletValue      uniform {K_INF:.8g};",
+                                f"value           uniform {K_INF:.8g};"),
+                   "top": sym,
+                   "bump": bc("type            kLowReWallFunction;",
+                              "value           uniform 1e-12;"),
+                   "bottomSym": sym, "frontAndBack": empty,
+               })
+    omega = _field("volScalarField", "omega", "[0 0 -1 0 0 0 0]",
+                   f"uniform {BUMP_OMEGA_INF:.8g}", {
+                       "inlet": bc("type            fixedValue;",
+                                   f"value           uniform {BUMP_OMEGA_INF:.8g};"),
+                       "outlet": bc("type            inletOutlet;",
+                                    f"inletValue      uniform {BUMP_OMEGA_INF:.8g};",
+                                    f"value           uniform {BUMP_OMEGA_INF:.8g};"),
+                       "top": sym,
+                       "bump": bc("type            omegaWallFunction;",
+                                  "blended         true;",
+                                  f"value           uniform {BUMP_OMEGA_INF:.8g};"),
+                       "bottomSym": sym, "frontAndBack": empty,
+                   })
+    nut = _field("volScalarField", "nut", "[0 2 -1 0 0 0 0]",
+                 f"uniform {BUMP_NUT_INF:.8g}", {
+                     "inlet": bc("type            calculated;",
+                                 "value           uniform 0;"),
+                     "outlet": bc("type            calculated;",
+                                  "value           uniform 0;"),
+                     "top": sym,
+                     "bump": bc("type            nutLowReWallFunction;",
+                                "value           uniform 0;"),
+                     "bottomSym": sym, "frontAndBack": empty,
+                 })
+    return {"U": u, "p": p, "k": k, "omega": omega, "nut": nut}
+
+
+def write_bump_case(root: Path, level: BumpGridLevel) -> Path:
+    """Write the complete bump-in-channel case for one ladder level."""
+    case = Path(root) / level.name
+    for sub in ("0", "constant", "system"):
+        (case / sub).mkdir(parents=True, exist_ok=True)
+    files = {
+        "system/blockMeshDict": bump_blockmesh_dict(level),
+        "system/controlDict": control_dict(
+            BUMP_ITERATIONS.get(level.name, 8000), patch="bump",
+            lref=BUMP_WALL_LENGTH, aref=BUMP_WALL_LENGTH),
+        "system/fvSchemes": fv_schemes(),
+        "system/fvSolution": fv_solution(),
+        "constant/transportProperties": transport_properties(BUMP_NU),
+        "constant/turbulenceProperties": turbulence_properties(),
+    }
+    for name, text in bump_initial_fields().items():
+        files[f"0/{name}"] = text
+    for rel, text in files.items():
+        with (case / rel).open("w", newline="\n") as handle:
+            handle.write(text)
+    return case
+
+
+def build_bump_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
+    """Assemble the persisted bump summary from three completed records."""
+    cd_conv = _convergence_block([g["cd"] for g in grids])
+    cf_conv = _convergence_block([g["cf_station"] for g in grids])
+    fine = grids[-1]
+    ref_fine = CFL3D_BUMP_SST[fine["cells"]]
+    comparison: dict[str, Any] = {
+        "cfl3d_cd_ladder": [CFL3D_BUMP_SST[g["cells"]]["cd"] for g in grids],
+        "cfl3d_cf075_ladder": [CFL3D_BUMP_SST[g["cells"]]["cf075"]
+                               for g in grids],
+        "fun3d_cd_ladder": [FUN3D_BUMP_SST[g["cells"]]["cd"] for g in grids],
+        "cfl3d_cd_finest": CFL3D_BUMP_SST[901120]["cd"],
+        "cfl3d_cf075_finest": CFL3D_BUMP_SST[901120]["cf075"],
+        "fun3d_cd_finest": FUN3D_BUMP_SST[901120]["cd"],
+        "cfl3d_observed_order_same_rungs": observed_order(
+            *[CFL3D_BUMP_SST[g["cells"]]["cd"] for g in grids]),
+        "cd_fine_vs_cfl3d_same_grid_pct":
+            100.0 * (fine["cd"] / ref_fine["cd"] - 1.0),
+        "cf075_fine_vs_cfl3d_same_grid_pct":
+            100.0 * (fine["cf_station"] / ref_fine["cf075"] - 1.0),
+    }
+    if "cd_pressure" in fine:
+        comparison["cd_pressure_fine_vs_cfl3d_same_grid_pct"] = (
+            100.0 * (fine["cd_pressure"] / ref_fine["cdp"] - 1.0))
+        comparison["cd_viscous_fine_vs_cfl3d_same_grid_pct"] = (
+            100.0 * (fine["cd_viscous"] / ref_fine["cdv"] - 1.0))
+    if cd_conv.get("richardson") is not None:
+        comparison["cd_extrapolate_vs_cfl3d_finest_pct"] = 100.0 * (
+            cd_conv["richardson"] / comparison["cfl3d_cd_finest"] - 1.0)
+    if cf_conv.get("richardson") is not None:
+        comparison["cf075_extrapolate_vs_cfl3d_finest_pct"] = 100.0 * (
+            cf_conv["richardson"] / comparison["cfl3d_cf075_finest"] - 1.0)
+    return {
+        "case": "TMR 2D bump-in-channel",
+        "model": "k-omega SST (OpenFOAM kOmegaSST, strain production)",
+        "solver": "simpleFoam, incompressible, OpenFOAM v2606 under WSL",
+        "conditions": {
+            "re_per_unit_length": U_INF / BUMP_NU,
+            "wall_length": BUMP_WALL_LENGTH,
+            "mach_reference": MACH,
+            "k_inf": K_INF, "omega_inf": BUMP_OMEGA_INF,
+            "eddy_viscosity_ratio_inf": BUMP_NUT_INF / BUMP_NU,
+        },
+        "grids": [{k: v for k, v in g.items() if k != "cf_profile"}
+                  for g in grids],
+        "convergence": {"cd": cd_conv, "cf_station": cf_conv},
+        "cf_station_x": BUMP_CF_STATION,
+        "comparison": comparison,
+        "reference_source": BUMP_REFERENCE_SOURCE,
+        "numerics": ("Second-order linearUpwind momentum advection, "
+                     "first-order upwind advection on k and omega, "
+                     "second-order diffusion throughout"),
+        "deviations": [
+            "Incompressible simpleFoam analog of the M=0.2 case; TMR notes "
+            "incompressible codes land close but not identical",
+            "The TMR bump data is labeled SST; OpenFOAM's kOmegaSST is the "
+            "2003 strain-production form, so a small model-variant gap can "
+            "remain",
+            "Grids match TMR cell counts and refinement factor 2 with this "
+            "module's own blockMesh stretching, not the TMR point files",
+            "The bump surface enters blockMesh as a 480-segment polyLine, "
+            "far finer than any cell, rather than an analytic surface",
+        ],
+        "generated_unix": int(time.time()),
+    }
+
+
+def format_bump_summary_lines(summary: dict[str, Any]) -> list[str]:
+    """Human summary of the bump ladder, same product rules as the plate."""
+    lines = [
+        "NASA TMR bump-in-channel verification, k-omega SST, "
+        "3-grid ladder (turbmodels.larc.nasa.gov)",
+    ]
+    for grid in summary["grids"]:
+        split = ""
+        if "cd_pressure" in grid:
+            split = (f" (pressure {grid['cd_pressure']:.6f}, "
+                     f"viscous {grid['cd_viscous']:.6f})")
+        lines.append(
+            f"Grid {grid['tmr_nodes']} ({grid['cells']} cells): "
+            f"Cd = {grid['cd']:.6f}{split}, "
+            f"Cf(x=0.75) = {grid['cf_station']:.6f}, "
+            f"max y+ = {grid['yplus']['max']:.2f}, "
+            f"{grid['iterations']} iterations in {grid['wall_seconds']:.0f} s")
+    ref_order = summary["comparison"].get("cfl3d_observed_order_same_rungs")
+    for key, label in (("cd", "Cd"), ("cf_station", "Cf(x=0.75)")):
+        conv = summary["convergence"][key]
+        if conv.get("observed_order") is not None:
+            note = (f" (CFL3D's own order on these three rungs: "
+                    f"{ref_order:.2f})" if key == "cd" and ref_order else "")
+            lines.append(
+                f"{label}: observed order {conv['observed_order']:.2f}{note}, "
+                f"Richardson extrapolate {conv['richardson']:.6f}")
+        else:
+            lines.append(f"{label}: sequence not monotone, "
+                         "no order or extrapolate is quoted")
+    comp = summary["comparison"]
+    ladder = ", ".join(f"{value:.6f}" for value in comp["cfl3d_cd_ladder"])
+    lines.append(
+        f"Reference: CFL3D SST on the same three grid sizes gives Cd "
+        f"{ladder}; finest-grid (1409x641) Cd = "
+        f"{comp['cfl3d_cd_finest']:.6f} and Cf(x=0.75) = "
+        f"{comp['cfl3d_cf075_finest']:.6f} ({summary['reference_source']})")
+    for deviation in summary["deviations"]:
+        lines.append(f"Deviation: {deviation}")
+    return lines
+
+
+def _bump_figures(grids: list[dict[str, Any]], summary: dict[str, Any],
+                  out_dir: Path) -> list[str]:
+    """Bump Cf-profile and Cd-convergence figures, control-room themed."""
+    from chief_engineer import plot_theme as _t
+    plt = _t._pyplot()
+    if plt is None:
+        return []
+    made: list[str] = []
+    shades = [_t.DIM, _t.MUTED, _t.LIVE]
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    for grid, color in zip(grids, shades):
+        xs = [p[0] for p in grid["cf_profile"]]
+        cfs = [p[1] for p in grid["cf_profile"]]
+        ax.plot(xs, cfs, color=color, linewidth=1.8,
+                label=f"{grid['tmr_nodes']} ({grid['cells']} cells)")
+    ref = CFL3D_BUMP_SST[901120]["cf075"]
+    ax.scatter([BUMP_CF_STATION], [ref], s=110, color=_t.VALID, zorder=5,
+               edgecolor=_t.INK, linewidth=1.2,
+               label="CFL3D SST, 1409x641 grid, x=0.75")
+    ax.annotate(
+        f"CFL3D {ref:.5f}\nours (fine) {grids[-1]['cf_station']:.5f}",
+        xy=(BUMP_CF_STATION, ref), xytext=(-14, -46),
+        textcoords="offset points", ha="right", fontsize=11,
+        color=_t.INK, weight="bold")
+    ax.set_xlim(0, BUMP_WALL_LENGTH)
+    _t.style_axes(ax, r"$x$ along the wall [m]", r"$C_f$",
+                  "TMR bump-in-channel, k-omega SST: wall skin friction "
+                  "by grid (ref. turbmodels.larc.nasa.gov)")
+    leg = ax.legend(frameon=False, fontsize=10.5, loc="upper left")
+    for text in leg.get_texts():
+        text.set_color(_t.INK)
+    fig.tight_layout()
+    path = out_dir / "bump_cf_profiles.png"
+    fig.savefig(path)
+    plt.close(fig)
+    made.append(str(path))
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    ours_h = [math.sqrt(1.0 / g["cells"]) for g in grids]
+    ax.plot(ours_h, [g["cd"] for g in grids], color=_t.LIVE, linewidth=2.2,
+            marker="o", markersize=7, markeredgecolor=_t.INK,
+            label="This lab")
+    for source, data, color in (("CFL3D SST", CFL3D_BUMP_SST, _t.VALID),
+                                ("FUN3D SST", FUN3D_BUMP_SST, _t.TREND)):
+        cells = sorted(data)
+        ax.plot([math.sqrt(1.0 / n) for n in cells],
+                [data[n]["cd"] for n in cells], color=color, linewidth=1.6,
+                marker="s", markersize=5, linestyle=(0, (4, 3)), label=source)
+    rich = summary["convergence"]["cd"].get("richardson")
+    if rich is not None:
+        ax.scatter([0.0], [rich], s=120, color=_t.LIVE, marker="D",
+                   edgecolor=_t.INK, linewidth=1.2, zorder=5,
+                   label="Richardson extrapolate (ours)")
+        ax.annotate(f"h=0 extrapolate {rich:.5f}", xy=(0.0, rich),
+                    xytext=(10, 14), textcoords="offset points",
+                    fontsize=11, color=_t.INK, weight="bold")
+    _t.style_axes(ax, r"$h = \sqrt{1/N}$", r"$C_D$ (wall, Aref = 1.5)",
+                  "TMR bump-in-channel: drag-coefficient grid convergence "
+                  "vs published CFL3D and FUN3D ladders")
+    leg = ax.legend(frameon=False, fontsize=10.5, loc="upper left")
+    for text in leg.get_texts():
+        text.set_color(_t.INK)
+    fig.tight_layout()
+    path = out_dir / "bump_cd_convergence.png"
+    fig.savefig(path)
+    plt.close(fig)
+    made.append(str(path))
+    return made
+
+
+def persist_bump_ladder(grids: list[dict[str, Any]], out_dir: Path,
+                        log: Callable[[str], None] = print) -> dict[str, Any]:
+    """Summary, figures, and JSON persistence for the bump ladder."""
+    out_dir = Path(out_dir)
+    summary = build_bump_summary(grids)
+    summary["plots"] = [Path(p).name
+                        for p in _bump_figures(grids, summary, out_dir)]
+    with (out_dir / "bump_sst.json").open("w", newline="\n") as handle:
+        json.dump(summary, handle, indent=2)
+    profiles = {g["level"]: g["cf_profile"] for g in grids}
+    with (out_dir / "bump_cf_profiles.json").open("w", newline="\n") as handle:
+        json.dump(profiles, handle)
+    for line in format_bump_summary_lines(summary):
+        log(f"[tmr-bump] {line}")
+    return summary
+
+
+# ---------------------------------------------------------------------------
+# Card text and agenda proposals
+# ---------------------------------------------------------------------------
+
+def card_update(flat_summary: dict[str, Any],
+                bump_summary: dict[str, Any] | None) -> dict[str, str] | None:
+    """Status and entry text for the research-challenge card.
+
+    Owner's rules: no method or model names on a card, no em dashes, no
+    banned words, nothing described as anything but the measured result.
+    Returns None when even the flat plate is not defensible; falls back to
+    the flat-plate-only wording when the bump is missing or not defensible.
+    """
+    flat_ok = (len(flat_summary.get("grids", ())) >= 3 and
+               flat_summary["convergence"]["cd"].get("observed_order")
+               is not None)
+    if not flat_ok:
+        return None
+    bump_ok = bool(
+        bump_summary and len(bump_summary.get("grids", ())) >= 3
+        and bump_summary["convergence"]["cd"].get("observed_order") is not None)
+    flat_fine = flat_summary["grids"][-1]
+    if not bump_ok:
+        return {"status": "flat plate measured",
+                "entry": card_entry_text(flat_summary) or ""}
+    bump_fine = bump_summary["grids"][-1]
+    entry = (
+        f"flat plate and bump-in-channel each run on a 3-grid ladder "
+        f"against the published CFL3D values: flat-plate Cd "
+        f"{flat_fine['cd']:.6f} vs {CFL3D_SST_V[flat_fine['cells']]['cd']:.6f} "
+        f"at matched grid size, bump Cd {bump_fine['cd']:.6f} vs "
+        f"{CFL3D_BUMP_SST[bump_fine['cells']]['cd']:.6f}; "
+        f"NACA 0012 airfoil next")
+    lowered = entry.lower()
+    if any(word in lowered for word in BANNED_CARD_WORDS) or "--" in entry:
+        raise ValueError("card text violates product language rules")
+    return {"status": "flat plate and bump measured", "entry": entry}
+
+
+def _ladder_core_minutes(summary: dict[str, Any]) -> float:
+    return sum(g["wall_seconds"] for g in summary["grids"]) / 60.0
+
+
+def build_proposals(flat_summary: dict[str, Any],
+                    bump_summary: dict[str, Any]) -> list[dict[str, Any]]:
+    """The two next-step agenda proposals, with compute estimates anchored to
+    the wall clocks these ladders actually measured tonight."""
+    created = time.strftime("%Y-%m-%dT%H:%M:%S")
+    flat_min = _ladder_core_minutes(flat_summary)
+    bump_min = _ladder_core_minutes(bump_summary)
+
+    # NACA 0012: three coarsest TMR C-grid rungs are the same cell-count
+    # scale as the bump rungs; three angles of attack (0, 10, 15 deg), with
+    # headroom for slower convergence at high lift.
+    naca_est = int(round(3 * bump_min * 1.5)) + 1
+
+    # Flat-plate finest grids: per-iteration cost measured on the fine rung,
+    # scaled by cell count (4x, 16x) with iteration counts growing with the
+    # wall-normal count (2x, 4x) as observed across tonight's rungs.
+    fine = flat_summary["grids"][-1]
+    seconds_per_iter = fine["timings"]["simpleFoam"] / fine["iterations"]
+    finest_est = int(round(
+        (4 * 2 + 16 * 4) * seconds_per_iter * fine["iterations"] / 60.0)) + 1
+
+    return [
+        {
+            "id": "tmr-naca0012-verification",
+            "objective": "Run the TMR 2D NACA 0012 airfoil case on the three "
+                         "coarsest reference grid sizes at 0, 10, and 15 "
+                         "degrees and compare lift, drag, and surface "
+                         "pressure against the published CFL3D and FUN3D "
+                         "values",
+            "rationale": "The flat-plate ladder landed within 0.3 percent of "
+                         "the published value at matched grid size and the "
+                         "bump within 1.1 percent; the NACA 0012 is the next "
+                         "TMR case and the first with lift, adding a "
+                         "genuinely new check on the pipeline",
+            "citations": [
+                "NASA Langley Turbulence Modeling Resource: 2D NACA 0012 "
+                "airfoil validation case (turbmodels.larc.nasa.gov)",
+                "TMR CFL3D and FUN3D reference ladders "
+                "(tmbwg.github.io/turbmodels)",
+            ],
+            "est_core_min": naca_est,
+            "expected_knowledge_gain": "First lifting-body verification "
+                                       "anchor; establishes whether the "
+                                       "lab's ladder discipline holds when "
+                                       "pressure drag dominates friction",
+            "source_kind": "challenge",
+            "status": "proposed",
+            "created_at": created,
+            "launch_prompt": "Extend sdk/workflows/tmr_verification.py with "
+                             "the TMR 2D NACA 0012 case: download the "
+                             "reference convergence data live from "
+                             "tmbwg.github.io/turbmodels, build a C-grid or "
+                             "O-grid ladder matching the three coarsest "
+                             "reference cell counts, run alpha 0, 10, 15 "
+                             "degrees to steady convergence, extract Cl, Cd, "
+                             "and Cp, report observed order and Richardson "
+                             "extrapolates, and state every deviation "
+                             "plainly. Refuse any comparison you cannot "
+                             "defend.",
+        },
+        {
+            "id": "tmr-flatplate-finest-grids",
+            "objective": "Extend the measured flat-plate ladder to the two "
+                         "finest TMR grids (273x193 and 545x385) so the "
+                         "extrapolation is anchored in the asymptotic range",
+            "rationale": f"Tonight's three rungs cost "
+                         f"{flat_min + bump_min:.1f} core-minutes in total "
+                         f"and reached about 1 percent of the finest-grid "
+                         f"reference; the two finest rungs would close most "
+                         f"of that gap and give the observed order room to "
+                         f"approach 2",
+            "citations": [
+                "NASA Langley Turbulence Modeling Resource: 2D "
+                "zero-pressure-gradient flat plate (turbmodels.larc.nasa.gov)",
+                "TMR SST-V convergence data files "
+                "(tmbwg.github.io/turbmodels)",
+            ],
+            "est_core_min": finest_est,
+            "expected_knowledge_gain": "Asymptotic-range verification of the "
+                                       "wall treatment and convection "
+                                       "discretization; a defensible "
+                                       "infinite-grid drag number",
+            "source_kind": "challenge",
+            "status": "proposed",
+            "created_at": created,
+            "launch_prompt": "Using sdk/workflows/tmr_verification.py as is, "
+                             "add 273x193 and 545x385 rungs to LEVELS with "
+                             "the same fixed gradings, run them when the "
+                             "machine is quiet (the finest rung is hours, "
+                             "not minutes), and extend "
+                             "demo-output/website/tmr/flatplate_sst.json "
+                             "and the figures with the five-rung ladder.",
+        },
+    ]
+
+
+def write_proposals(proposals: list[dict[str, Any]],
+                    out_dir: str | Path | None = None) -> list[str]:
+    """Write each proposal to demo-output/website/agenda/proposals/<id>.json."""
+    target = Path(out_dir) if out_dir else (
+        _REPO_ROOT / "demo-output" / "website" / "agenda" / "proposals")
+    target.mkdir(parents=True, exist_ok=True)
+    written = []
+    for proposal in proposals:
+        path = target / f"{proposal['id']}.json"
+        with path.open("w", newline="\n") as handle:
+            json.dump(proposal, handle, indent=2)
+        written.append(str(path))
+    return written
 
 
 if __name__ == "__main__":

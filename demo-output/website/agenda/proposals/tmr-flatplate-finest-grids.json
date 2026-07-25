@@ -1,0 +1,15 @@
+{
+  "id": "tmr-flatplate-finest-grids",
+  "objective": "Extend the measured flat-plate ladder to the two finest TMR grids (273x193 and 545x385) so the extrapolation is anchored in the asymptotic range",
+  "rationale": "Tonight's three rungs cost 139.1 core-minutes in total and reached about 1 percent of the finest-grid reference; the two finest rungs would close most of that gap and give the observed order room to approach 2",
+  "citations": [
+    "NASA Langley Turbulence Modeling Resource: 2D zero-pressure-gradient flat plate (turbmodels.larc.nasa.gov)",
+    "TMR SST-V convergence data files (tmbwg.github.io/turbmodels)"
+  ],
+  "est_core_min": 327,
+  "expected_knowledge_gain": "Asymptotic-range verification of the wall treatment and convection discretization; a defensible infinite-grid drag number",
+  "source_kind": "challenge",
+  "status": "proposed",
+  "created_at": "2026-07-25T00:13:52",
+  "launch_prompt": "Using sdk/workflows/tmr_verification.py as is, add 273x193 and 545x385 rungs to LEVELS with the same fixed gradings, run them when the machine is quiet (the finest rung is hours, not minutes), and extend demo-output/website/tmr/flatplate_sst.json and the figures with the five-rung ladder."
+}
