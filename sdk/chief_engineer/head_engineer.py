@@ -35,6 +35,12 @@ from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
+from .log_signatures import (
+    classify_wall_time,
+    detect_oscillatory_divergence,
+    detect_residual_stall,
+)
+
 WSL = ["wsl", "-d", "Ubuntu", "-u", "foam", "--"]
 RUN_ROOT = "~/certonomous-runs"
 # The snapped mesh from a cold run is cached here, keyed by body, so a warm run
@@ -58,10 +64,13 @@ FOAM_TUTORIALS = os.environ.get(
 
 @dataclass
 class Anomaly:
-    kind: str          # nan | fpe | residual-spike | bounding | novel-warning
+    # kind: nan | fpe | residual-spike | bounding | novel-warning
+    #       | residual-stall | oscillatory-divergence | wall-time-excursion
+    kind: str
     step: str
     line: str
     detail: str = ""
+    severity: str = ""  # "" (kind implies it) | "flag" | "fatal"
 
 
 class LogMonitor:
@@ -89,18 +98,31 @@ class LogMonitor:
 
     WINDOW = 25
     REPORT_LIMIT = 3
+    STALL_WINDOW = 200       # Monitor Standard S6
+    OSCILLATION_WINDOW = 50  # Monitor Standard S7
 
     def __init__(self, *, novel: bool = False, spike_factor: float = 25.0,
-                 on_anomaly: Callable[[Anomaly], None] | None = None):
+                 on_anomaly: Callable[[Anomaly], None] | None = None,
+                 residual_target: float | None = None,
+                 iteration_cap: int | None = None):
         self.novel = novel
         self.spike_factor = spike_factor
         self.on_anomaly = on_anomaly
+        # Stall detection (S6) needs the residualControl target the solve is
+        # aiming for; without it a converged plateau at the solver floor is
+        # indistinguishable from a stall, so the check stays off.
+        self.residual_target = residual_target
+        self.iteration_cap = iteration_cap
         self.anomalies: list[Anomaly] = []
         self.novel_observations: list[str] = []
         self.suppressed: dict[str, int] = {}
         self._history: dict[str, list[float]] = {}
         self._reported: dict[tuple[str, str], int] = {}
         self._seen_warnings: set[str] = set()
+        self._series: dict[str, list[float]] = {}   # long history for S6/S7
+        self._iterations: dict[str, int] = {}
+        self._stalled: set[str] = set()
+        self._oscillating: dict[str, str] = {}
 
     def feed(self, step: str, line: str) -> None:
         if self.FPE.search(line):
@@ -126,6 +148,12 @@ class LogMonitor:
                                     "first occurrence on an unfamiliar case"))
 
     def _residual(self, step: str, field: str, residual: float, line: str) -> None:
+        series = self._series.setdefault(field, [])
+        series.append(residual)
+        if len(series) > self.STALL_WINDOW:
+            series.pop(0)
+        self._iterations[field] = self._iterations.get(field, 0) + 1
+        self._check_series(step, field, line)
         history = self._history.setdefault(field, [])
         history.append(residual)
         if len(history) > self.WINDOW:
@@ -144,12 +172,78 @@ class LogMonitor:
                 f"recent median {median:.3g} and still climbing"))
             history.clear()
 
+    def _check_series(self, step: str, field: str, line: str) -> None:
+        """Series-level rules S6 and S7 over the long residual history.
+
+        A stall or a divergence is a state, not an event: each is raised once
+        per field per episode, with oscillatory divergence raised again only
+        when it escalates from flag to fatal.
+        """
+        series = self._series[field]
+        oscillation = detect_oscillatory_divergence(
+            series, window=self.OSCILLATION_WINDOW)
+        if oscillation is None:
+            self._oscillating.pop(field, None)
+        elif self._oscillating.get(field) != oscillation["severity"]:
+            previous = self._oscillating.get(field)
+            self._oscillating[field] = oscillation["severity"]
+            if previous != "fatal":  # never downgrade an episode already fatal
+                self._raise(Anomaly(
+                    "oscillatory-divergence", step, line.strip(),
+                    f"{field} residual oscillation envelope grew "
+                    f"{oscillation['growth']:.2f}x over the last "
+                    f"{oscillation['window']} iterations; "
+                    f"{oscillation['action']}",
+                    severity=oscillation["severity"]))
+        if self.residual_target is None or field in self._stalled:
+            return
+        stall = detect_residual_stall(
+            series, target=self.residual_target, window=self.STALL_WINDOW,
+            iterations_done=self._iterations[field],
+            iteration_cap=self.iteration_cap)
+        if stall:
+            self._stalled.add(field)
+            self._raise(Anomaly(
+                "residual-stall", step, line.strip(),
+                f"{field} residual sits at {stall['median_late']:.3g}, above "
+                f"the target {stall['target']:.3g}, having improved only "
+                f"{stall['improvement']:.2f}x over the last {stall['window']} "
+                f"iterations; {stall['action']}",
+                severity=stall["severity"]))
+
+    def check_wall_time(self, step: str, solver_kind: str, wall_seconds: float,
+                        *, envelope=None, ledger_path=None,
+                        flag_multiple: float = 20.0) -> dict[str, Any] | None:
+        """Wall-time excursion rule S9 against the learned ledger envelope.
+
+        Call once per completed solver run with its measured wall time. A run
+        beyond ``flag_multiple`` times the learned 99th percentile for its
+        solver kind raises a wall-time-excursion anomaly (severity flag,
+        escalating to fatal at 100x); the classification is returned so the
+        caller can keep the excursion as a named field on the record. The
+        record itself is never altered.
+        """
+        finding = classify_wall_time(
+            solver_kind, wall_seconds, envelope,
+            flag_multiple=flag_multiple, ledger_path=ledger_path)
+        if finding:
+            self._raise(Anomaly(
+                "wall-time-excursion", step,
+                f"{solver_kind} wall time {wall_seconds:.1f} s",
+                f"wall time {wall_seconds:.1f} s is {finding['multiple']:.0f}x "
+                f"the learned 99th percentile {finding['p99']:.2f} s for "
+                f"solver kind {solver_kind} ({finding['samples']} runs); "
+                f"{finding['action']}",
+                severity=finding["severity"]))
+        return finding
+
     def _raise(self, anomaly: Anomaly) -> None:
         self.anomalies.append(anomaly)
         key = (anomaly.kind, anomaly.step)
         seen = self._reported.get(key, 0) + 1
         self._reported[key] = seen
-        if seen > self.REPORT_LIMIT and anomaly.kind not in {"nan", "fpe"}:
+        fatal = anomaly.kind in {"nan", "fpe"} or anomaly.severity == "fatal"
+        if seen > self.REPORT_LIMIT and not fatal:
             self.suppressed[anomaly.kind] = self.suppressed.get(anomaly.kind, 0) + 1
             return
         if self.on_anomaly:
@@ -164,7 +258,8 @@ class LogMonitor:
             "by_kind": by_kind,
             "reported": sum(min(v, self.REPORT_LIMIT) for v in self._reported.values()),
             "suppressed": dict(self.suppressed),
-            "fatal": any(item.kind in {"nan", "fpe"} for item in self.anomalies),
+            "fatal": any(item.kind in {"nan", "fpe"} or item.severity == "fatal"
+                         for item in self.anomalies),
             "novel_observations": list(self.novel_observations),
         }
 

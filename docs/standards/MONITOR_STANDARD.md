@@ -61,6 +61,12 @@ count, report in the debrief).
 Each of these is filed as a proposal in the agenda inbox; the monitor code is
 owned elsewhere and is not edited by this program.
 
+Adoption note, 2026-07-25: the owner approved the agenda proposals, and S6,
+S7, and S9 are implemented as pure detection functions in
+`sdk/chief_engineer/log_signatures.py`, wired into `LogMonitor` in
+`sdk/chief_engineer/head_engineer.py` (series hooks for S6/S7, a
+`check_wall_time` hook for S9). Each signature below carries a Status line.
+
 ### S6. Residual stall (proposal r1-monitor-stall-rule)
 
 - Evidence: the Re 200 cylinder case stalls at residual near 1e-3 with Cd
@@ -73,6 +79,10 @@ owned elsewhere and is not edited by this program.
 - Severity: FLAG. Action: the result is UNCONVERGED regardless of how smooth
   the tail looks; prescribe the regime check (steady versus unsteady) before
   any rerun buys more iterations.
+- Status: implemented (`detect_residual_stall` in
+  `sdk/chief_engineer/log_signatures.py`; raised once per field per episode
+  by `LogMonitor` when constructed with `residual_target`, and gated on the
+  iteration cap approaching when `iteration_cap` is given).
 
 ### S7. Oscillatory divergence (same proposal)
 
@@ -83,6 +93,10 @@ owned elsewhere and is not edited by this program.
 - Severity: FLAG, escalating to FATAL when the envelope doubles. Action: stop
   the steady solve; the prescribed fix is the unsteady track, not more
   iterations.
+- Status: implemented (`detect_oscillatory_divergence` in
+  `sdk/chief_engineer/log_signatures.py`; runs on every residual line in
+  `LogMonitor`, raised once per episode and again only on escalation to
+  FATAL).
 
 ### S8. Courant excursion (same proposal, forward-looking)
 
@@ -94,6 +108,7 @@ owned elsewhere and is not edited by this program.
 - Severity: FLAG at the limit, FATAL on monotonic growth with the time step
   fixed. Action: reduce the time step or enable adaptive stepping; a transient
   result computed above its Courant limit is not evidence.
+- Status: not implemented (forward-looking; awaits the unsteady track).
 
 ### S9. Wall-time excursion (proposal r1-monitor-walltime-rule)
 
@@ -109,6 +124,19 @@ owned elsewhere and is not edited by this program.
 - Severity: FLAG, then FATAL as above. Action: the record keeps the excursion
   as a named field so fleet learning can separate solver cost from
   infrastructure stalls.
+- Status: implemented (`wall_time_percentiles` and `classify_wall_time` in
+  `sdk/chief_engineer/log_signatures.py`, exposed as
+  `LogMonitor.check_wall_time`, which returns the classification so the
+  caller can keep it as a named field on the record). The envelope is learned
+  lazily from the mega-batch ledger percentiles and memoized per file
+  version. The adopted defaults, per the approved proposal, are FLAG above 20
+  times the learned p99 (configurable) and FATAL above 100 times; both carry
+  the stop-and-investigate action. Envelope measured at implementation time,
+  55135 ledger rows: openfoam-cylinder p50 4.14 s, p99 19.09 s (18416 runs);
+  vspaero-wing p50 5.86 s, p99 8.33 s (18416 runs); reduced-order p50
+  0.001 s, p99 0.005 s (18417 runs). The three ~16300 s runs per solver land
+  at roughly 850x (cylinder) and 1960x (wing) their p99: FATAL under the
+  rule.
 
 ## 3. Standing rules for any monitor rule
 
@@ -130,3 +158,8 @@ owned elsewhere and is not edited by this program.
   validated facts 3, 4, and 7.
 - LogMonitor implementation and tests, `sdk/chief_engineer/head_engineer.py`,
   `sdk/tests/test_head_engineer.py`.
+- Signature detectors for S6, S7, and S9,
+  `sdk/chief_engineer/log_signatures.py`, with tests in
+  `sdk/tests/test_log_signatures.py` (including an integration test against
+  a fixture slice of real ledger rows,
+  `sdk/tests/fixtures/ledger_slice.jsonl`).

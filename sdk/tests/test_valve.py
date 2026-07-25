@@ -369,5 +369,97 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(route.intent, VALVE_STUDY)
 
 
+class ValveReferenceSurface(unittest.TestCase):
+    """An uploaded STL with a valve prompt keeps the valve route, and the act
+    acknowledges it honestly as the reference body on file: display name,
+    viewport announcement, and a plain statement that the screen runs on the
+    parametric orifice family."""
+
+    def test_uploaded_surface_keeps_the_valve_route(self):
+        from chief_engineer.router import VALVE_STUDY, apply_surface, classify
+        route = classify("optimize the valve opening angle to minimise "
+                         "pressure loss over the cardiac cycle")
+        route = apply_surface(route, "patient_valve.stl")
+        self.assertEqual(route.intent, VALVE_STUDY)
+        self.assertEqual(route.params.get("surface"), "patient_valve.stl")
+
+    def test_uploaded_surface_is_acknowledged_displayed_and_framed(self):
+        import os
+        from workflows.valve_study import main
+
+        os.environ["CERTONOMOUS_SWEEP_PACE_MS"] = "0"
+        stream = []
+        rc = main(request="minimise valve pressure loss over the cardiac "
+                          "cycle",
+                  params={"surface": "patient_valve.stl"},
+                  emit=lambda e, p: stream.append((e, p)))
+        self.assertEqual(rc, 0)
+        # The uploaded surface is shown in the viewport under its display name.
+        shown = [p for e, p in stream if e == "geometry.ready"
+                 and str(p.get("label", "")).startswith("reference body:")]
+        self.assertEqual(len(shown), 1)
+        self.assertEqual(shown[0]["label"], "reference body: Patient valve")
+        self.assertEqual(shown[0]["url"],
+                         "/api/geometry?name=patient_valve.stl")
+        # The acknowledgment is ONE entry with the honest framing.
+        said = [p["message"] for e, p in stream if e == "transcript.entry"]
+        ack = [m for m in said if "Reference body received" in m]
+        self.assertEqual(len(ack), 1)
+        self.assertIn("Patient valve", ack[0])
+        self.assertIn("on file as the reference shape", ack[0])
+        self.assertIn("parametric orifice family", ack[0])
+        self.assertIn("not meshed or solved", ack[0])
+        # The screen itself is unchanged: the certificate is still issued for
+        # the valve subject, and the verdict still lands.
+        self.assertEqual(len([p for e, p in stream
+                              if e == "certificate.ready"]), 1)
+        self.assertEqual(len([p for e, p in stream
+                              if e == "result.verdict"]), 1)
+
+    def test_no_surface_means_no_reference_acknowledgment(self):
+        rc, stream = _run_valve()
+        self.assertEqual(rc, 0)
+        said = [p["message"] for e, p in stream if e == "transcript.entry"]
+        self.assertEqual([m for m in said if "Reference body received" in m],
+                         [])
+
+
+class ReferenceSurfaceHelperTests(unittest.TestCase):
+    """The shared acknowledge-reference-surface helper: display name, viewport
+    announcement, honest framing, and a clean no-op without a surface."""
+
+    class _Script:
+        def __init__(self):
+            self.lines = []
+
+        def engineer(self, message):
+            self.lines.append(message)
+
+    def test_helper_announces_and_frames_honestly(self):
+        from workflows import acknowledge_reference_surface
+
+        script, events = self._Script(), []
+        name = acknowledge_reference_surface(
+            script, lambda e, p: events.append((e, p)),
+            {"surface": "naca0015_sail.stl"}, family="cylinder")
+        self.assertEqual(name, "NACA 0015 sail")
+        self.assertEqual(events[0][0], "geometry.ready")
+        self.assertEqual(events[0][1]["label"],
+                         "reference body: NACA 0015 sail")
+        self.assertEqual(len(script.lines), 1)
+        self.assertIn("parametric cylinder family", script.lines[0])
+        self.assertIn("not meshed or solved", script.lines[0])
+
+    def test_no_surface_is_a_no_op(self):
+        from workflows import acknowledge_reference_surface
+
+        script, events = self._Script(), []
+        name = acknowledge_reference_surface(
+            script, lambda e, p: events.append((e, p)), {}, family="orifice")
+        self.assertIsNone(name)
+        self.assertEqual(events, [])
+        self.assertEqual(script.lines, [])
+
+
 if __name__ == "__main__":
     unittest.main()

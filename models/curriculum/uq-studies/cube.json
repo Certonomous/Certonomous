@@ -1,0 +1,40 @@
+{
+  "body": "cube",
+  "levels": [
+    {
+      "tag": "coarse",
+      "cells": 53861,
+      "cd": 1.1029819408333335,
+      "mission": "cube-rung-coarse"
+    },
+    {
+      "tag": "medium",
+      "cells": 103934,
+      "cd": 1.1092391427777777,
+      "mission": "cube-rung-medium"
+    },
+    {
+      "tag": "production",
+      "cells": 299493,
+      "cd": 1.104171681,
+      "mission": "cube-production"
+    }
+  ],
+  "fingerprint": "d38701f70845f56e",
+  "numerical": {
+    "band_abs": 0.007821502430555294,
+    "band_rel": 0.00708,
+    "observed_order": null,
+    "order_used": null,
+    "clamped": false,
+    "method": "rungs not monotone; conservative band, largest spread times 1.25",
+    "conclusive": false,
+    "value_working": 1.104171681
+  },
+  "provenance": [
+    "cube-rung-coarse",
+    "cube-rung-medium",
+    "cube-production"
+  ],
+  "updated_utc": "2026-07-25T18:22:59Z"
+}

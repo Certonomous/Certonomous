@@ -325,6 +325,48 @@ class RouterTests(unittest.TestCase):
             "method, and report the cycle-weighted loss with its uncertainty.")
         self.assertEqual(route.intent, "valve-study")
 
+    # -- NACA 0015 named body: resolves to the staged sail surface, with the
+    # Reynolds hint and a stated chord riding the geometry params; a sail not
+    # yet staged takes the existing honest-refusal path. --
+    def test_naca0015_directive_resolves_the_sail_surface_when_staged(self):
+        from unittest import mock
+        from chief_engineer import router as _router
+        with mock.patch.object(_router, "_stage_body", return_value=True):
+            route = self._intent(
+                "Run the NACA 0015 sail at Re 6e6, chord 1.2 m, and report "
+                "the drag coefficient with a confidence envelope.")
+        self.assertEqual(route.intent, "geometry-study")
+        self.assertEqual(route.params.get("surface"), "naca0015_sail.stl")
+        self.assertEqual(route.params.get("reynolds"), 6e6)
+        self.assertEqual(route.params.get("reference_length"), 1.2)
+
+    def test_naca0015_not_yet_staged_takes_the_honest_refusal_path(self):
+        from unittest import mock
+        from chief_engineer import router as _router
+        with mock.patch.object(_router, "_stage_body", return_value=False):
+            route = self._intent("Run the NACA 0015 sail and report the drag "
+                                 "coefficient.")
+        self.assertEqual(route.intent, "geometry-study")
+        self.assertIsNone(route.params.get("surface"))
+        self.assertTrue(route.params.get("surface_unavailable"))
+
+    def test_reference_length_accepts_both_phrasings(self):
+        # The original "1.2 m long" form and the stated-chord form both set
+        # the reference length the geometry study scales to.
+        for text in ("run the wing case, 1.2 m long",
+                     "run the wing case with chord 1.2 m",
+                     "run the wing case, chord of 1.2 m"):
+            route = self._intent(text)
+            self.assertEqual(route.params.get("reference_length"), 1.2, text)
+
+    def test_shape_prompt_keeps_its_route_with_the_surface_on_file(self):
+        from chief_engineer.router import SHAPE_OPTIMIZATION, apply_surface
+        route = self._intent(
+            "Minimize drag on the cylinder body under constraints")
+        route = apply_surface(route, "custom_body.stl")
+        self.assertEqual(route.intent, SHAPE_OPTIMIZATION)
+        self.assertEqual(route.params.get("surface"), "custom_body.stl")
+
 
 class GeometryStudyHonestyTests(unittest.TestCase):
     def test_unavailable_body_does_not_silently_solve_the_default(self):

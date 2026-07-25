@@ -1,0 +1,40 @@
+{
+  "body": "naca0015_sail",
+  "levels": [
+    {
+      "tag": "coarse",
+      "cells": 63920,
+      "cd": 0.015918694330555556,
+      "mission": "naca0015_sail-rung-coarse"
+    },
+    {
+      "tag": "medium",
+      "cells": 156089,
+      "cd": 0.011615368719444444,
+      "mission": "naca0015_sail-rung-medium"
+    },
+    {
+      "tag": "production",
+      "cells": 243929,
+      "cd": 0.010153170333333334,
+      "mission": "naca0015_sail-production"
+    }
+  ],
+  "fingerprint": "c8bbf70374542fbd",
+  "numerical": {
+    "band_abs": 0.006367624102174725,
+    "band_rel": 0.62716,
+    "observed_order": 1.696,
+    "order_used": 1.696,
+    "clamped": false,
+    "method": "3-mesh study (r = 1.16), observed order p = 1.70; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014)",
+    "conclusive": true,
+    "value_working": 0.010153170333333334
+  },
+  "provenance": [
+    "naca0015_sail-rung-coarse",
+    "naca0015_sail-rung-medium",
+    "naca0015_sail-production"
+  ],
+  "updated_utc": "2026-07-25T18:01:33Z"
+}

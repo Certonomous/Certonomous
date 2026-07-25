@@ -84,6 +84,70 @@ class LogMonitorTests(unittest.TestCase):
         self.assertEqual(len(summary["novel_observations"]), 1)  # deduped by pattern
 
 
+class MonitorStandardRuleTests(unittest.TestCase):
+    """Monitor Standard S6/S7/S9 wired into the LogMonitor hooks."""
+
+    LEDGER_SLICE = Path(__file__).resolve().parent / "fixtures" / "ledger_slice.jsonl"
+
+    def _residuals(self, monitor, values, field="p"):
+        for value in values:
+            monitor.feed("simpleFoam",
+                         f"Solving for {field}, Initial residual = {value}, "
+                         f"Final residual = 1e-9")
+
+    def test_stall_is_raised_once_per_field(self):
+        monitor = LogMonitor(residual_target=1e-6, iteration_cap=250)
+        self._residuals(monitor, [1e-3] * 220)
+        kinds = [a.kind for a in monitor.anomalies]
+        self.assertEqual(kinds.count("residual-stall"), 1)
+        self.assertFalse(monitor.summary()["fatal"])  # a stall flags, never kills
+
+    def test_stall_needs_a_residual_target(self):
+        # Without the residualControl target a plateau at the solver floor is
+        # indistinguishable from a stall, so the check stays off by default.
+        monitor = LogMonitor()
+        self._residuals(monitor, [1e-3] * 220)
+        self.assertNotIn("residual-stall", [a.kind for a in monitor.anomalies])
+
+    def test_growing_oscillation_is_flagged(self):
+        monitor = LogMonitor()
+        series = [1e-2 + 1e-4 * (1.02 ** i) * (-1) ** i for i in range(60)]
+        self._residuals(monitor, series)
+        oscillation = [a for a in monitor.anomalies
+                       if a.kind == "oscillatory-divergence"]
+        self.assertTrue(oscillation)
+        self.assertFalse(monitor.summary()["fatal"])
+
+    def test_doubling_oscillation_envelope_is_fatal(self):
+        monitor = LogMonitor()
+        series = [1e-2 + 1e-4 * (1.05 ** i) * (-1) ** i for i in range(60)]
+        self._residuals(monitor, series)
+        severities = {a.severity for a in monitor.anomalies
+                      if a.kind == "oscillatory-divergence"}
+        self.assertIn("fatal", severities)
+        self.assertTrue(monitor.summary()["fatal"])
+
+    def test_wall_time_excursion_against_real_ledger_rows(self):
+        # 16310.017 s is a real ledger row, recorded ok with no flag: over
+        # 800x the 99th percentile for its solver kind.
+        monitor = LogMonitor()
+        finding = monitor.check_wall_time(
+            "solve", "openfoam-cylinder", 16310.017,
+            ledger_path=self.LEDGER_SLICE)
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding["severity"], "fatal")
+        self.assertGreater(finding["multiple"], 100.0)
+        self.assertIn("wall-time-excursion", [a.kind for a in monitor.anomalies])
+        self.assertTrue(monitor.summary()["fatal"])
+
+    def test_ordinary_wall_time_raises_nothing(self):
+        monitor = LogMonitor()
+        finding = monitor.check_wall_time(
+            "solve", "openfoam-cylinder", 4.1, ledger_path=self.LEDGER_SLICE)
+        self.assertIsNone(finding)
+        self.assertEqual(monitor.summary()["anomalies"], 0)
+
+
 class StatisticsTests(unittest.TestCase):
     HISTORY = (
         "# Time Cd Cs Cl\n"

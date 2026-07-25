@@ -16,7 +16,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from . import (NOMINAL_CYLINDER, OUT_ROOT, RUN_PREFIX, announce_geometry,
+from . import (NOMINAL_CYLINDER, OUT_ROOT, RUN_PREFIX,
+               acknowledge_reference_surface, announce_geometry,
                announce_plot, make_transcript)
 from chief_engineer.chief_researcher import select_runs
 from chief_engineer.compute_audit import audit
@@ -142,6 +143,13 @@ def main(request: str | None = None, params: dict | None = None,
     script.system(request or
                   "Request: minimise drag on the cylinder body, keeping every "
                   "solve converged inside the validated steady-laminar regime.")
+
+    # ---- uploaded reference surface -----------------------------------------
+    # A surface uploaded with a shape-optimisation prompt keeps this route: it
+    # is acknowledged under its display name and shown in the viewport as the
+    # reference body on file. The sweep itself runs on the parametric cylinder
+    # family; nothing pretends the uploaded surface is meshed or solved here.
+    acknowledge_reference_surface(script, emit, params, family="cylinder")
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)

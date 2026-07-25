@@ -15,12 +15,13 @@ from __future__ import annotations
 
 import base64
 import logging
+import math
 import re
 import struct
 from pathlib import Path
 from typing import Any
 
-from .geometry import _package
+from .geometry import _cluster, _package
 
 _log = logging.getLogger(__name__)
 
@@ -126,21 +127,124 @@ def load_field_surface(sources, *, field: str = "p",
             all_field.extend(values)
         else:
             all_field.extend([0.0] * len(faces))
-    payload = _package(all_v, all_f, max_faces, name)
-    _attach_field(payload, all_f, all_field, field)
+    payload, display_values = _package_painted(all_v, all_f, all_field, max_faces, name)
+    _attach_field(payload, display_values, field)
     return payload
 
 
-def _attach_field(payload: dict[str, Any], original_faces, face_values, field: str) -> None:
-    """Carry a normalised field value per kept face, plus its physical range."""
+def _package_painted(vertices, faces, face_values, max_faces: int, name: str):
+    """Package a mesh for the viewport with field values tracking the decimation.
+
+    Returns ``(payload, display_values)`` where ``display_values`` has exactly
+    one value per face in ``payload["faces"]``.
+
+    Below the decimation threshold this defers to :func:`geometry._package`
+    unchanged and passes the per-face values straight through — the pipeline
+    for non-decimated bodies (motorbike, B-52) is byte-identical, which is the
+    frozen-rendering acceptance bar.
+
+    Above the threshold ``_package`` decimates by vertex clustering, so source
+    face *i* has no relationship to display face *i*: sampling the value list
+    by index painted the decimated sail as salt-and-pepper noise. Here the
+    clustering is mirrored step for step (same resolution search, same grid
+    math as ``geometry._cluster``) so every source face can be mapped to the
+    display face its corners collapsed into, and each display face carries the
+    mean of the source faces that merged into it — a smooth physical field.
+    ``test_field_render`` pins the mirrored geometry against ``_package``'s
+    own output, so any change to the decimation in ``geometry.py`` fails a
+    test here instead of silently drifting.
+    """
+    total = len(faces)
+    have_values = bool(face_values) and len(face_values) == total
+    if total <= max_faces or not have_values:
+        payload = _package(vertices, faces, max_faces, name)
+        values = face_values[:len(payload["faces"])] if have_values else []
+        return payload, values
+
+    # -- Mirror of geometry._package's decimation branch ---------------------
+    out_vertices, out_faces = vertices, faces
+    resolution = used_resolution = 56
+    for _ in range(6):
+        used_resolution = resolution
+        out_vertices, out_faces = _cluster(vertices, faces, resolution)
+        if len(out_faces) > max_faces * 1.35:
+            resolution = max(8, int(resolution * 0.78))
+        elif len(out_faces) < max_faces * 0.45:
+            resolution = int(resolution * 1.3)
+        else:
+            break
+    if len(out_faces) > max_faces:
+        keep = max(1, math.ceil(len(out_faces) / max_faces))
+        out_faces = out_faces[::keep]
+
+    # -- Source-vertex -> display-vertex owner map (same grid as _cluster) ---
+    xs = [v[0] for v in vertices]
+    ys = [v[1] for v in vertices]
+    zs = [v[2] for v in vertices]
+    low = (min(xs), min(ys), min(zs))
+    high = (max(xs), max(ys), max(zs))
+    size = max(high[i] - low[i] for i in range(3)) or 1.0
+    cell = size / max(1, used_resolution)
+    cells: dict[tuple[int, int, int], int] = {}
+    owner: list[int] = []
+    for vertex in vertices:
+        key = tuple(int((vertex[i] - low[i]) // cell) for i in range(3))
+        index = cells.get(key)
+        if index is None:
+            index = len(cells)
+            cells[key] = index
+        owner.append(index)
+
+    # -- Aggregate: mean of the source faces merged into each display face ---
+    merged: dict[tuple[int, int, int], list[float]] = {}
+    for face, value in zip(faces, face_values):
+        if len(face) < 3:
+            continue
+        try:
+            mapped = (owner[face[0]], owner[face[1]], owner[face[2]])
+        except IndexError:
+            continue
+        if mapped[0] == mapped[1] or mapped[1] == mapped[2] or mapped[0] == mapped[2]:
+            continue  # collapsed to zero area; _cluster drops it too
+        key = tuple(sorted(mapped))
+        slot = merged.get(key)
+        if slot is None:
+            merged[key] = [value, 1.0]
+        else:
+            slot[0] += value
+            slot[1] += 1.0
+    display_values = []
+    for face in out_faces:
+        slot = merged.get(tuple(sorted(face)))
+        display_values.append(slot[0] / slot[1] if slot else 0.0)
+
+    # -- Payload assembly, identical to _package's ---------------------------
+    pxs = [v[0] for v in out_vertices] or [0.0]
+    pys = [v[1] for v in out_vertices] or [0.0]
+    pzs = [v[2] for v in out_vertices] or [0.0]
+    payload = {
+        "name": name,
+        "vertices": [[round(c, 5) for c in v] for v in out_vertices],
+        "faces": out_faces,
+        "triangles_total": total,
+        "triangles_shown": len(out_faces),
+        "bounds": {"min": [min(pxs), min(pys), min(pzs)],
+                   "max": [max(pxs), max(pys), max(pzs)]},
+    }
+    return payload, display_values
+
+
+def _attach_field(payload: dict[str, Any], face_values, field: str) -> None:
+    """Carry a normalised field value per kept face, plus its physical range.
+
+    ``face_values`` must already be one-to-one with ``payload["faces"]`` —
+    :func:`_package_painted` guarantees that for both the decimated and the
+    untouched path.
+    """
     if not face_values:
         payload["field"] = None
         return
-    # _package decimates by keeping every Nth face; mirror that here.
-    total = len(original_faces)
-    kept = payload["triangles_shown"]
-    stride = max(1, total // max(1, payload.get("triangles_total", total)))
-    sampled = face_values[::stride][:len(payload["faces"])]
+    sampled = face_values
     # Clip to robust percentiles: a single stagnation spike would otherwise
     # flatten the whole surface to one colour. The 2nd/98th keep the real
     # pressure variation across the wings and body visible.

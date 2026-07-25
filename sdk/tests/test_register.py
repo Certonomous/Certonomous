@@ -238,6 +238,15 @@ class EmittedTextRegister(unittest.TestCase):
             emit=lambda e, p: events.append((e, p)))
         assert rc == 0
         cls.acts["valve"] = events
+        # The upload variant: the reference-body acknowledgment strings ride
+        # the same rails as everything else the act emits.
+        events = []
+        rc = valve_study.main(
+            request="minimise valve pressure loss over the cardiac cycle",
+            params={"surface": "patient_valve.stl"},
+            emit=lambda e, p: events.append((e, p)))
+        assert rc == 0
+        cls.acts["valve-upload"] = events
         from unittest import mock
         from workflows import aircraft_optimization as aopt
         events = []

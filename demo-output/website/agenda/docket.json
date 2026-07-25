@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-25T02:07:58+00:00",
+ "generated_at": "2026-07-25T18:24:29+00:00",
  "proposals": [
   {
    "id": "r1-monitor-walltime-rule",
@@ -13,8 +13,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "The fleet ledger stops silently absorbing 800-fold wall-time excursions, and the cost model behind mission planning stops being polluted by infrastructure stalls counted as solver time",
    "source_kind": "reading",
-   "status": "proposed",
-   "created_at": "2026-07-25"
+   "status": "approved",
+   "created_at": "2026-07-25",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "r1-monitor-stall-rule",
@@ -28,8 +30,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "The monitor recognizes the graceful-degradation family of failures, so a run that exits on its iteration cap can never be mistaken for evidence again",
    "source_kind": "reading",
-   "status": "proposed",
-   "created_at": "2026-07-25"
+   "status": "approved",
+   "created_at": "2026-07-25",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "r1-credibility-scorecard",
@@ -42,8 +46,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "Every certificate states how well its inputs are traced and how well its sensitivities are known, in the same leveled language NASA uses for simulation credibility",
    "source_kind": "reading",
-   "status": "proposed",
-   "created_at": "2026-07-25"
+   "status": "approved",
+   "created_at": "2026-07-25",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-237cc95c2498",
@@ -57,8 +63,10 @@
    "cost_basis": "measured: 13389 reduced-order valve evaluations on the ledger totalled 13 seconds; an extension screen rounds up to one core minute",
    "expected_knowledge_gain": "Confirms or bounds the loss trend where the current sweep stops, and relocates the optimum if it lies past 80 degrees",
    "source_kind": "ledger",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "r1-validation-tier-labels",
@@ -71,8 +79,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A tier label per case that explains the ceiling on its fidelity chip and tells the owner exactly which tier new experimental data would unlock",
    "source_kind": "reading",
-   "status": "proposed",
-   "created_at": "2026-07-25"
+   "status": "approved",
+   "created_at": "2026-07-25",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-536d110e078a",
@@ -86,9 +96,11 @@
    "cost_basis": "measured: the prior graded solve of this body ran 3.0 minutes of wall time",
    "expected_knowledge_gain": "Either a validated credential for the NACA 0012 finite wing or a measured account of why the setup misses the reference",
    "source_kind": "gate",
-   "status": "proposed",
+   "status": "approved",
    "created_at": "2026-07-25T02:07:58+00:00",
-   "launch_prompt": "Mesh and solve the NACA 0012 wing and report the drag with its envelope."
+   "launch_prompt": "Mesh and solve the NACA 0012 wing and report the drag with its envelope.",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-72bef8b5583d",
@@ -102,8 +114,10 @@
    "cost_basis": "measured: the prior graded solve of this body ran 3.1 minutes of wall time",
    "expected_knowledge_gain": "Either a validated credential for the Ahmed reference body, 35\u00b0 slant or a measured account of why the setup misses the reference",
    "source_kind": "gate",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "r1-sobol-sensitivity-mission",
@@ -117,9 +131,11 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "Main and total effect Sobol indices for the valve inputs (flow amplitude 5 percent, discharge coefficient 6 percent) and the airliner inputs (span, area, sweep, taper), plus a standing answer to which spread is worth buying down first",
    "source_kind": "reading",
-   "status": "proposed",
+   "status": "approved",
    "created_at": "2026-07-25",
-   "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention."
+   "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention.",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-f493fff26990",
@@ -132,8 +148,10 @@
    "cost_basis": "estimate; the finest rung holds 337,334 cells and the next roughly doubles it",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 4412 finite wing drag",
    "source_kind": "gate",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-d889fd00f6ae",
@@ -146,8 +164,24 @@
    "cost_basis": "estimate; the finest rung holds 193,880 cells and the next roughly doubles it",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
    "source_kind": "gate",
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "agp-d0b3c7cb6a58",
+   "objective": "Add a fourth refinement rung to the Canonical calibration body: cube grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 1.1030, 1.1092, 1.1042 across the rungs, and the record states the verdict as: rungs not monotone; conservative band, largest spread times 1.25. A further rung can settle the observed order.",
+   "citations": [
+    "Canonical calibration body: cube grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 299,493 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Canonical calibration body: cube drag",
+   "source_kind": "gate",
    "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "created_at": "2026-07-25T18:24:27+00:00"
   },
   {
    "id": "agp-130bfe3b2961",
@@ -160,8 +194,24 @@
    "cost_basis": "estimate; the finest rung holds 353,688 cells and the next roughly doubles it",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Motorcycle with rider, highway configuration drag",
    "source_kind": "gate",
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "agp-64393439352d",
+   "objective": "Add a fourth refinement rung to the NACA 4412 finite wing grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.0289, 0.0217, 0.0189 across the rungs, and the record states the verdict as: 3-mesh study (r = 1.35), observed order p = 4.62; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5). A further rung can settle the observed order.",
+   "citations": [
+    "NACA 4412 finite wing grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 337,334 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 4412 finite wing drag",
+   "source_kind": "gate",
    "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "created_at": "2026-07-25T18:10:48+00:00"
   },
   {
    "id": "r1-multifidelity-propagation",
@@ -174,9 +224,11 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "The measured correlation between the reduced-order lane and the solver lane on a shared design set, the resulting optimal allocation, and a fused envelope whose variance undercuts the solver-only estimate at equal budget or is honestly reported as not paying",
    "source_kind": "reading",
-   "status": "proposed",
+   "status": "approved",
    "created_at": "2026-07-25",
-   "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated."
+   "launch_prompt": "On the race act design space, take the paired records where both lanes evaluated the same design, measure the correlation and the cost ratio, compute the optimal multifidelity Monte Carlo allocation and control-variate coefficient, then run the fused estimator at the same core-minute budget as the solver-only lane and report both envelopes side by side with the allocation stated.",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-e5136061890b",
@@ -190,8 +242,10 @@
    "cost_basis": "estimate; the measured flat-plate three-grid ladder ran 5.2 core minutes on this machine and the bump grids carry more cells",
    "expected_knowledge_gain": "A second verification case earned against the reference ladders, adding a curved wall and pressure gradient to the verified set",
    "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-12fdfe05e05f",
@@ -204,8 +258,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
    "source_kind": "report",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-f6354ae61613",
@@ -218,8 +274,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
    "source_kind": "report",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-8991d74e789f",
@@ -232,8 +290,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
    "source_kind": "report",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-a13672d0713c",
@@ -246,8 +306,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
    "source_kind": "report",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-d64295666c56",
@@ -260,8 +322,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
    "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-527efc1cbb44",
@@ -274,8 +338,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
    "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-f68b5c37221c",
@@ -288,8 +354,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
    "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-a3cc843ce473",
@@ -302,8 +370,10 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
    "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
    "id": "agp-37da30f972b3",
@@ -316,8 +386,45 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
    "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-25T02:07:58+00:00"
+   "status": "approved",
+   "created_at": "2026-07-25T02:07:58+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "tmr-flatplate-finest-grids",
+   "objective": "Extend the measured flat-plate ladder to the two finest TMR grids (273x193 and 545x385) so the extrapolation is anchored in the asymptotic range",
+   "rationale": "Tonight's three rungs cost 139.1 core-minutes in total and reached about 1 percent of the finest-grid reference; the two finest rungs would close most of that gap and give the observed order room to approach 2",
+   "citations": [
+    "NASA Langley Turbulence Modeling Resource: 2D zero-pressure-gradient flat plate (turbmodels.larc.nasa.gov)",
+    "TMR SST-V convergence data files (tmbwg.github.io/turbmodels)"
+   ],
+   "est_core_min": 327.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "Asymptotic-range verification of the wall treatment and convection discretization; a defensible infinite-grid drag number",
+   "source_kind": "challenge",
+   "status": "approved",
+   "created_at": "2026-07-25T00:13:52",
+   "launch_prompt": "Using sdk/workflows/tmr_verification.py as is, add 273x193 and 545x385 rungs to LEVELS with the same fixed gradings, run them when the machine is quiet (the finest rung is hours, not minutes), and extend demo-output/website/tmr/flatplate_sst.json and the figures with the five-rung ladder.",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "agp-4369c99cdd7f",
+   "objective": "Run the TMR 2D NACA 0012 airfoil case on the three coarsest reference grid sizes at 0, 10, and 15 degrees and compare lift, drag, and surface pressure against the published CFL3D and FUN3D values",
+   "rationale": "Flat plate and bump-in-channel are both measured on three-grid ladders against the reference codes; the resource's verification sequence names the NACA 0012 airfoil as the next case.",
+   "citations": [
+    "NASA Turbulence Modeling Resource verification cases",
+    "Bump-in-channel verification card, k-omega SST"
+   ],
+   "est_core_min": 603.0,
+   "cost_basis": "estimate; the measured bump three-grid ladder ran 134.0 core minutes on this machine, scaled for three alpha points with headroom",
+   "expected_knowledge_gain": "A lifting-surface verification credential with published reference polars, completing the resource's core sequence",
+   "source_kind": "capability",
+   "status": "approved",
+   "created_at": "2026-07-25T17:39:39+00:00",
+   "decided_at": "2026-07-25T15:30:00Z",
+   "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   }
  ]
 }

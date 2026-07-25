@@ -26,9 +26,9 @@ from pathlib import Path
 
 import yaml
 
-from . import OUT_ROOT, announce_plot, make_transcript
+from . import (OUT_ROOT, acknowledge_reference_surface, announce_plot,
+               make_transcript)
 from chief_engineer.compute_audit import audit
-from chief_engineer.display_names import display_name
 from chief_engineer.transcript import CHIEF_ENGINEER as _SPEAKER
 from chief_engineer.transcript import Entry
 from chief_engineer.plot_theme import waveform_figure
@@ -170,6 +170,14 @@ def main(request: str | None = None, params: dict | None = None,
 
     script.system(request or "Request: minimise the pressure loss across the valve "
                              "over the cardiac cycle by choosing the leaflet opening angle.")
+
+    # ---- uploaded reference surface -----------------------------------------
+    # A surface uploaded with the valve prompt keeps the valve route: it is
+    # acknowledged on the record under its display name and shown in the
+    # viewport as the reference body on file. The screen itself runs on the
+    # parametric orifice family either way; nothing pretends the uploaded
+    # surface is meshed or solved by this screen.
+    acknowledge_reference_surface(script, emit, params, family="orifice")
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)

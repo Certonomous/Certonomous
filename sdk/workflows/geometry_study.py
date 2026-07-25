@@ -41,6 +41,11 @@ DEFAULT_SURFACE = "motorBike.obj"
 # Mesh-quality acceptance thresholds from the OpenFOAM guidance indexed in the
 # knowledge base: non-orthogonality is a hard gate, skewness a warning band.
 MAX_NON_ORTHOGONALITY = 70.0
+# The kinematic viscosity of air the case build writes into the transport
+# properties (external_aero.build_case default). A Reynolds number stated in
+# the prompt converts to a freestream speed through this same value, so the
+# solved case runs at exactly the Reynolds that was asked for.
+AIR_KINEMATIC_VISCOSITY = 1.5e-5
 
 # Solver-stdout telemetry: simpleFoam logs "Time = N" and the forceCoeffs
 # function object prints "Cd : <value>" blocks as it marches — these two
@@ -217,6 +222,30 @@ def scale_basis(surface: str, raw_length: float,
                         "plausible, so I am taking them as metres"]
 
 
+def freestream_basis(params: dict, reference: float) -> tuple[float, str]:
+    """The freestream speed for an unfamiliar-body case, and the transcript
+    line that states where it came from.
+
+    An explicit ``velocity`` param wins; otherwise a Reynolds number stated in
+    the prompt sets the speed through the working reference length and the
+    case's air viscosity, so the solve runs in the regime that was asked for.
+    The derivation goes on the record with its inputs; with neither stated,
+    the generic 100 m/s default stands (narrated by the case-build line).
+    """
+    stated_velocity = params.get("velocity")
+    stated_reynolds = params.get("reynolds")
+    if stated_velocity is not None:
+        return float(stated_velocity), ""
+    if stated_reynolds:
+        velocity = float(stated_reynolds) * AIR_KINEMATIC_VISCOSITY / reference
+        return velocity, (
+            f"• You stated Reynolds {float(stated_reynolds):.2g}: at the "
+            f"working reference length {reference:g} m and air viscosity "
+            f"{AIR_KINEMATIC_VISCOSITY:g} m²/s that sets the freestream at "
+            f"{velocity:.1f} m/s.")
+    return 100.0, ""
+
+
 def _build_unfamiliar_case(engineer, script, roster, surface, params,
                            iterations, emit):
     """Build a case around a body the lab has never solved.
@@ -230,7 +259,6 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
 
     source = GEOMETRY_DIR / surface
     streamwise_axis = params.get("streamwise_axis")
-    velocity = float(params.get("velocity", 100.0))
     refinement = int(params.get("refinement", 3))
     geometry = analyse_surface(
         source, streamwise_axis=int(streamwise_axis) if streamwise_axis is not None else None)
@@ -238,6 +266,11 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
 
     reference, basis_lines = scale_basis(surface, raw_length, params)
     scale = reference / raw_length
+
+    velocity, velocity_line = freestream_basis(params, reference)
+    # The velocity actually solved is the one every downstream consumer keys
+    # on (setup fingerprint, channel table), so it rides back on the params.
+    params["velocity"] = velocity
 
     axes = "XYZ"
     script.engineer(
@@ -249,6 +282,8 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         " ".join(f"• {line}." for line in basis_lines)
         + " • The Reynolds number and every force ride on this length, so it "
           "goes on the record.")
+    if velocity_line:
+        script.engineer(velocity_line)
 
     reference_values = build_case(
         Path(engineer.out_root) / "case", surface, geometry,
@@ -425,6 +460,35 @@ def _ladder_rows(levels: list[dict]) -> list[list[str]]:
             for lv in anchor + rungs]
 
 
+def _replay_levels(stored: list[dict], production_cells: int) -> list[dict]:
+    """Stored rungs in renderable form: one entry per distinct mesh, tagged.
+
+    Studies written by the standalone refinement scripts carry a refinement
+    index per rung rather than the in-act coarse/medium/production tags (the
+    NACA 4412 ladder is one), and may repeat a cell count when a refinement
+    knob change did not change the mesh. Rendering requires a tag per rung,
+    so the distinct meshes are kept in cell order and tagged: the rung whose
+    cell count matches this run's solved mesh is the production anchor, the
+    cheaper ones are the coarse and middle rungs. Every cell count and Cd
+    passes through untouched."""
+    by_cells: dict[int, dict] = {}
+    for lv in stored:
+        cells = int(lv.get("cells", 0))
+        if cells and cells not in by_cells:
+            by_cells[cells] = dict(lv)
+    ordered = [by_cells[cells] for cells in sorted(by_cells)]
+    fallback_tags = ("coarse", "medium", "fine")
+    for index, lv in enumerate(ordered):
+        if not lv.get("tag"):
+            if int(lv["cells"]) == int(production_cells):
+                lv["tag"] = "production"
+            else:
+                lv["tag"] = (fallback_tags[index]
+                             if index < len(fallback_tags)
+                             else f"level {index + 1}")
+    return ordered
+
+
 def _band_bullet(band: dict) -> str:
     """The one-line reading of the measured refinement band, guards included."""
     if band.get("monotone") is False:
@@ -502,22 +566,31 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                    for lv in stored_levels)
     if (existing.get("fingerprint") == study_fp and distinct_cells >= 3
             and anchored):
-        roster.set(_NUM, "grid-refinement study", "working")
-        script.numericist(
-            "• Grid-refinement study: two cheaper meshes of this same case "
-            "alongside the production mesh, one knob moved.")
-        rows = _ladder_rows(existing["levels"])
-        _emit_table(emit, script, role=_NUM_ROLE, title=title,
-                    headers=headers, rows=rows[:1], table_id=table_id)
-        for row in rows[1:]:
-            if emit:
-                time.sleep(0.8)
+        # The stored rungs may come from the standalone refinement scripts
+        # (refinement indices, possible duplicate cell counts) rather than
+        # the in-act ladder; normalize before rendering. A study this run
+        # cannot present must never take down the act: any failure here
+        # falls through and the ladder is measured fresh instead.
+        try:
+            levels = _replay_levels(stored_levels, production_cells)
+            roster.set(_NUM, "grid-refinement study", "working")
+            script.numericist(
+                "• Grid-refinement study: two cheaper meshes of this same case "
+                "alongside the production mesh, one knob moved.")
+            rows = _ladder_rows(levels)
             _emit_table(emit, script, role=_NUM_ROLE, title=title,
-                        headers=headers, rows=[row], table_id=table_id,
-                        append=True)
-        result = _finish(list(existing["levels"]), replay=True)
-        roster.idle(_NUM)
-        return result
+                        headers=headers, rows=rows[:1], table_id=table_id)
+            for row in rows[1:]:
+                if emit:
+                    time.sleep(0.8)
+                _emit_table(emit, script, role=_NUM_ROLE, title=title,
+                            headers=headers, rows=[row], table_id=table_id,
+                            append=True)
+            result = _finish(levels, replay=True)
+            roster.idle(_NUM)
+            return result
+        except Exception:
+            roster.idle(_NUM)
 
     roster.set(_NUM, "grid-refinement study", "working")
     try:
@@ -1251,11 +1324,19 @@ def main(request: str | None = None, params: dict | None = None,
     # The grid-refinement study runs INSIDE the act: two cheaper rungs of the
     # same case, the Eca & Hoekstra band on Cd across the three meshes, and
     # the band lands in the numerical channel of this mission's certificate.
-    refine = _run_refinement_ladder(
-        engineer=engineer, label=label, familiar=familiar, params=params,
-        iterations=iterations, production_cells=cells,
-        production_cd=drag["value"], study_fp=study_fp, script=script,
-        roster=roster, ledger=ledger, emit=emit, out=out)
+    # A refinement study must never take down a solved mission: any failure
+    # is said plainly and the numerical channel states the missing band.
+    try:
+        refine = _run_refinement_ladder(
+            engineer=engineer, label=label, familiar=familiar, params=params,
+            iterations=iterations, production_cells=cells,
+            production_cd=drag["value"], study_fp=study_fp, script=script,
+            roster=roster, ledger=ledger, emit=emit, out=out)
+    except Exception:
+        script.numericist(
+            "• The refinement study did not complete; detail is in the run "
+            "logs, and no band is reported from a partial ladder.")
+        refine = None
 
     lookup = uq_studies.channels_for(label, study_fp)
     model_extra = ""

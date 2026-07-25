@@ -78,6 +78,33 @@ def announce_geometry(emit, *, name: str | None = None,
                                 "label": label or f"cylinder D={value:.3g} m"})
 
 
+def acknowledge_reference_surface(script, emit, params, *, family: str
+                                  ) -> str | None:
+    """Acknowledge an uploaded surface as the reference body on file.
+
+    Used by acts that run on a parametric family (the valve's orifice screen,
+    the cylinder shape sweep): the surface is announced to the viewport under
+    its display name, and the transcript states plainly that the screen runs
+    on the parametric family while the uploaded surface stays on file as the
+    reference shape. Nothing pretends the surface is meshed or solved by the
+    screen. Returns the display name when a surface was acknowledged.
+    """
+    surface = str((params or {}).get("surface") or "").strip()
+    if not surface:
+        return None
+    from chief_engineer.display_names import display_name
+
+    surface_name = display_name(surface)
+    announce_geometry(emit, name=surface,
+                      label=f"reference body: {surface_name}")
+    script.engineer(
+        f"• Reference body received: {surface_name}. "
+        f"• The surface is on file as the reference shape for this study. "
+        f"• The screen itself runs on the parametric {family} family; the "
+        f"uploaded surface is not meshed or solved by this screen.")
+    return surface_name
+
+
 def announce_field(emit, beat: str, path, label: str) -> None:
     """Tell the control room a solved surface is painted and ready to render.
 

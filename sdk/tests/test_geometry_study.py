@@ -827,5 +827,85 @@ class ActRegisterTests(unittest.TestCase):
             self.assertNotIn(fragment, memo, fragment)
 
 
+class ReplayLevelsTests(unittest.TestCase):
+    """A stored refinement study written by the standalone uq scripts carries
+    refinement indices, no tags, and possibly a duplicated cell count (the
+    NACA 4412 ladder is exactly this shape). The replay path must render it
+    rather than take the act down, with every cell count and Cd untouched."""
+
+    _UQ_SCRIPT_LEVELS = [
+        {"cells": 67826, "cd": 0.02892, "mission": "uq-x-r1", "refinement": 1},
+        {"cells": 67826, "cd": 0.02892, "mission": "uq-x-r2", "refinement": 2},
+        {"cells": 137569, "cd": 0.02167, "mission": "uq-x-r3", "refinement": 3},
+        {"cells": 337334, "cd": 0.01892, "mission": "uq-x-r4", "refinement": 4},
+    ]
+
+    def test_uq_script_levels_without_tags_are_renderable(self):
+        from workflows.geometry_study import _ladder_rows, _replay_levels
+        levels = _replay_levels(self._UQ_SCRIPT_LEVELS,
+                                production_cells=337334)
+        self.assertEqual([lv["cells"] for lv in levels],
+                         [67826, 137569, 337334])
+        self.assertEqual([lv["tag"] for lv in levels],
+                         ["coarse", "medium", "production"])
+        self.assertEqual([lv["cd"] for lv in levels],
+                         [0.02892, 0.02167, 0.01892])
+        rows = _ladder_rows(levels)
+        self.assertEqual(rows[0][0], "Production mesh")
+        self.assertEqual(rows[0][1], "337,334")
+        self.assertEqual({row[0] for row in rows[1:]},
+                         {"Coarse rung", "Middle rung"})
+
+    def test_in_act_levels_keep_their_own_tags(self):
+        from workflows.geometry_study import _replay_levels
+        stored = [{"cells": 100, "cd": 0.1, "tag": "production"},
+                  {"cells": 50, "cd": 0.11, "tag": "medium"},
+                  {"cells": 20, "cd": 0.12, "tag": "coarse"}]
+        levels = _replay_levels(stored, production_cells=100)
+        self.assertEqual([lv["tag"] for lv in levels],
+                         ["coarse", "medium", "production"])
+
+
+class FreestreamBasisTests(unittest.TestCase):
+    """A Reynolds number stated in the prompt reaches the solve: it converts
+    to the freestream speed through the working reference length and the
+    case's air viscosity, with the derivation narrated. An explicit velocity
+    always wins; neither stated leaves the generic default."""
+
+    def test_explicit_velocity_wins_over_a_stated_reynolds(self):
+        from workflows.geometry_study import freestream_basis
+        velocity, line = freestream_basis({"velocity": 30.0,
+                                           "reynolds": 6e6}, 1.2)
+        self.assertEqual(velocity, 30.0)
+        self.assertEqual(line, "")
+
+    def test_stated_reynolds_sets_the_speed_through_the_chord(self):
+        from workflows.geometry_study import (AIR_KINEMATIC_VISCOSITY,
+                                              freestream_basis)
+        velocity, line = freestream_basis({"reynolds": 6e6}, 1.2)
+        self.assertAlmostEqual(velocity,
+                               6e6 * AIR_KINEMATIC_VISCOSITY / 1.2)
+        self.assertAlmostEqual(velocity, 75.0)
+        self.assertIn("You stated Reynolds 6e+06", line)
+        self.assertIn("1.2 m", line)
+        self.assertIn("75.0 m/s", line)
+
+    def test_neither_stated_keeps_the_generic_default(self):
+        from workflows.geometry_study import freestream_basis
+        velocity, line = freestream_basis({}, 5.0)
+        self.assertEqual(velocity, 100.0)
+        self.assertEqual(line, "")
+
+    def test_stated_chord_reaches_the_scale_basis(self):
+        # The router's reference_length param (stated as "chord 1.2 m") wins
+        # the scale basis, so the solved body is scaled to the stated chord.
+        from workflows.geometry_study import scale_basis
+        reference, lines = scale_basis("naca0015_sail.stl", 5.0,
+                                       {"reference_length": 1.2})
+        self.assertEqual(reference, 1.2)
+        self.assertTrue(any("you stated a reference length of 1.2 m" in line
+                            for line in lines), lines)
+
+
 if __name__ == "__main__":
     unittest.main()

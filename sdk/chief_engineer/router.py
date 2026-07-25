@@ -92,7 +92,7 @@ _UNSEEN = re.compile(
 _GEOMETRY_RUN = re.compile(
     r"\b(run|simulate|solve|mesh|analyse|analyze|study)\b[^.]{0,40}?"
     r"\b(geometry|stl|obj|surface|model|body|bike|motorbike|motorcycle|"
-    r"aircraft|airplane|plane|wing|car|hull|case|simulation)\b",
+    r"aircraft|airplane|plane|wing|sail|car|hull|case|simulation)\b",
     re.I)
 _SURFACE_FILE = re.compile(r"\b([\w.-]+\.(?:stl|obj))\b", re.I)
 # The owner asking the lab to leave compute headroom on the box ("don't use all
@@ -120,6 +120,8 @@ _NAMED_BODIES: tuple[tuple["re.Pattern[str]", str, str | None], ...] = (
      "naca4412_wing.stl", "naca4412_wing"),
     (re.compile(r"\bnaca[\s-]*0012\b|\b0012\b", re.I),
      "naca0012_wing.stl", "naca0012_wing"),
+    (re.compile(r"\bnaca[\s-]*0015\b|\b0015\b", re.I),
+     "naca0015_sail.stl", "naca0015_sail"),
     (re.compile(r"\b(?:b[\s-]?52|stratofortress)\b", re.I), "b52.stl", None),
     (re.compile(r"\b(?:motorcycle|motorbike|motor[\s-]?bike)\b", re.I),
      "motorBike.obj", None),
@@ -209,8 +211,14 @@ def out_of_scope_domain(text: str) -> str | None:
             return name
     return None
 _NUMBER_UNIT = re.compile(r"(\d+(?:\.\d+)?)\s*(minute|min|hour|hr|day)s?\b", re.I)
+# A stated reference length, either way round: "1.2 m long / 1.2 m span" or
+# "chord 1.2 m / span of 1.2 m / reference length 1.2 m". The chord of a wing
+# IS its reference length, so a stated chord flows to the geometry study's
+# scale basis the same way a stated length does.
 _REFERENCE_LENGTH = re.compile(
-    r"(\d+(?:\.\d+)?)\s*(?:m|metre|meter)s?\s*(?:long|length|span|wide)\b", re.I)
+    r"(\d+(?:\.\d+)?)\s*(?:m|metre|meter)s?\s*(?:long|length|span|wide)\b|"
+    r"\b(?:chord|span|reference\s+length)\s*(?:of|=|:)?\s*"
+    r"(\d+(?:\.\d+)?)\s*(?:m|metre|meter)s?\b", re.I)
 _REYNOLDS = re.compile(r"\bre(?:ynolds)?\s*(?:number)?\s*(?:of|=|:)?\s*"
                        r"([\d.]+(?:e[+-]?\d+)?)\b", re.I)
 
@@ -389,7 +397,8 @@ def classify(request: str) -> Route:
     if reynolds:
         params["reynolds"] = reynolds
     if length_match:
-        params["reference_length"] = float(length_match.group(1))
+        params["reference_length"] = float(
+            length_match.group(1) or length_match.group(2))
 
     rationale = {
         RACE_COMPARISON: (
@@ -440,22 +449,29 @@ def classify(request: str) -> Route:
     return Route(intent, confidence, rationale, tuple(reasons), params)
 
 
+# Intents that keep their route when a surface is uploaded with the prompt:
+# each of these acts accepts the surface honestly on its own terms (starting
+# geometry, raced wing, reference body) rather than being rerouted.
+_SURFACE_KEEPS_ROUTE = (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON, VALVE_STUDY,
+                        SHAPE_OPTIMIZATION)
+
+
 def apply_surface(route: Route, surface: str | None) -> Route:
     """Fold an uploaded surface into an already-classified route.
 
     An aircraft optimisation keeps its route and takes the surface as the
     starting geometry for the search; a race comparison keeps its route and
-    races on the uploaded wing; a shape optimisation likewise stays on its
-    route. Anything else with an uploaded surface means "run it on this body"
-    and becomes a full geometry study.
+    races on the uploaded wing; a valve study keeps its route and holds the
+    surface as the reference body while the parametric orifice family runs
+    the screen; a shape optimisation likewise keeps its route with the
+    surface on file. Anything else with an uploaded surface means "run it on
+    this body" and becomes a full geometry study.
     """
     surface = (surface or "").strip()
     if not surface:
         return route
-    if route.intent in (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON):
-        route.params["surface"] = surface
-    elif route.intent != SHAPE_OPTIMIZATION:
-        route.params["surface"] = surface
+    route.params["surface"] = surface
+    if route.intent not in _SURFACE_KEEPS_ROUTE:
         route.intent = GEOMETRY_STUDY
         route.confidence = max(route.confidence, 0.9)
     return route
