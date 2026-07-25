@@ -695,10 +695,129 @@ def _smooth_grid(filled, weight, radius: int = 3, passes: int = 2):
     return np.where(mass > 1e-12, smoothed / np.maximum(mass, 1e-12), 0.0)
 
 
+# ---------------------------------------------------------------------------
+# Streamline overlay: the flow's own paths over the pressure shading
+# ---------------------------------------------------------------------------
+# The volume output carries U alongside p, so the same mid-span slice that
+# shades the static pressure can carry the flow's actual paths: a handful of
+# thin, translucent strokes seeded on an upstream column, denser toward the
+# body so the bending around the section is where the eye lands, integrated
+# left to right by matplotlib's streamplot on the same fine grid as the
+# pressure fill. The strokes stay quiet so they never fight the colour field.
+_STREAM_COLOR = "#545a61"    # plot_theme.DIM: slate strokes over the field
+STREAM_LINEWIDTH = 0.8
+STREAM_ALPHA = 0.6
+STREAM_SEEDS = 15            # odd, so the stagnation streamline is seeded
+STREAM_DENSITY = 3.0
+
+
+def silhouette_mask(points_xy, silhouette):
+    """Even-odd inside mask of flat (N, 2) points against the section loops.
+
+    The exact body mask of the slice figure, extracted pure so the pressure
+    fill and the streamline velocity mask share one definition: a point is
+    inside when an odd number of loops contain it, so a loop inside a loop
+    (a hub inside a tyre) carves fluid back out. Returns a bool (N,) array.
+    """
+    import numpy as np
+    from matplotlib.path import Path as MplPath
+
+    flat = np.asarray(points_xy, dtype=np.float64)
+    inside = np.zeros(len(flat), dtype=bool)
+    for loop in silhouette or []:
+        loop = np.asarray(loop, dtype=np.float64)
+        if len(loop) < 3:
+            continue
+        boxed = ((flat[:, 0] >= loop[:, 0].min())
+                 & (flat[:, 0] <= loop[:, 0].max())
+                 & (flat[:, 1] >= loop[:, 1].min())
+                 & (flat[:, 1] <= loop[:, 1].max()))
+        if not boxed.any():
+            continue
+        hits = MplPath(loop).contains_points(flat[boxed])
+        inside[np.flatnonzero(boxed)[hits]] ^= True
+    return inside
+
+
+def read_volume_vector(vtu_path: str | Path, field: str = "U"):
+    """Read points, cells, and one cell-centred VECTOR field from a .vtu.
+
+    Same reader as :func:`read_volume_field`; the flat value stream is
+    reshaped to (C, 3), which is how foamToVTK writes U. Returns
+    ``(points (N,3), connectivity, offsets, vectors (C,3))`` or None.
+    """
+    volume = read_volume_field(vtu_path, field)
+    if volume is None:
+        return None
+    points, connectivity, offsets, values = volume
+    if values.size == 0 or values.size % 3 != 0:
+        return None
+    return points, connectivity, offsets, values.reshape(-1, 3)
+
+
+def inplane_velocity_grid(u, v, vel_u, vel_v, grid_x, grid_y, body_mask=None):
+    """Interpolate scattered in-plane velocity components onto the fine grid.
+
+    The same linear triangulated interpolation the pressure shading uses,
+    applied to both in-plane components of the cell-centre velocity. Grid
+    points with no data (outside the slice's hull) or inside the body mask
+    come out NaN, so the streamline integrator terminates there instead of
+    stepping through the section. Returns ``(uu, vv)`` float arrays of shape
+    ``(len(grid_y), len(grid_x))``.
+    """
+    import numpy as np
+    from matplotlib.tri import LinearTriInterpolator, Triangulation
+
+    u = np.asarray(u, dtype=np.float64)
+    v = np.asarray(v, dtype=np.float64)
+    triangulation = Triangulation(u, v)
+    mesh_x, mesh_y = np.meshgrid(np.asarray(grid_x, dtype=np.float64),
+                                 np.asarray(grid_y, dtype=np.float64))
+    uu = LinearTriInterpolator(
+        triangulation, np.asarray(vel_u, dtype=np.float64))(mesh_x, mesh_y)
+    vv = LinearTriInterpolator(
+        triangulation, np.asarray(vel_v, dtype=np.float64))(mesh_x, mesh_y)
+    uu = uu.filled(np.nan)
+    vv = vv.filled(np.nan)
+    if body_mask is not None:
+        uu[body_mask] = np.nan
+        vv[body_mask] = np.nan
+    return uu, vv
+
+
+def streamline_seeds(view_box, *, center_v: float | None = None,
+                     n_lines: int = STREAM_SEEDS, x_fraction: float = 0.02,
+                     cluster: float = 2.2):
+    """Seed points on an upstream column, denser toward the body centreline.
+
+    Seeds sit just inside the left edge of the view so every line flows left
+    to right. Their vertical spacing follows a sinh map about ``center_v``
+    (the body's own centreline): tight near the body where the flow bends,
+    sparse in the far field where the lines run straight. ``n_lines`` is
+    forced odd so the exact centreline (the stagnation streamline) is always
+    seeded. Returns an (n, 2) array of (x, y) points inside the view.
+    """
+    import numpy as np
+
+    u_lo, u_hi, v_lo, v_hi = (float(x) for x in view_box)
+    if center_v is None:
+        center_v = 0.5 * (v_lo + v_hi)
+    n = max(3, int(n_lines) | 1)
+    x0 = u_lo + float(x_fraction) * (u_hi - u_lo)
+    t = np.linspace(-1.0, 1.0, n)
+    shaped = np.sinh(cluster * t) / math.sinh(cluster)
+    half = max(v_hi - center_v, center_v - v_lo)
+    ys = center_v + half * shaped
+    pad = 0.02 * (v_hi - v_lo)
+    keep = (ys >= v_lo + pad) & (ys <= v_hi - pad)
+    return np.column_stack([np.full(int(keep.sum()), x0), ys[keep]])
+
+
 def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
                         xlabel: str, ylabel: str, body_label: str = "",
                         station_note: str = "", view_box=None,
                         silhouette=None, grid_shape=SLICE_GRID_SHAPE,
+                        velocity=None, seed_points=None,
                         figsize=(11.4, 6.2), dpi: int = 150) -> dict | None:
     """Render the smooth pressure field around the exact body silhouette.
 
@@ -712,13 +831,17 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     crisp dark filled outline and the interpolated field is masked inside it
     (even-odd over the loops, so a loop inside a loop is fluid again).
     Without a silhouette the body mask falls back to hole-bridging triangles
-    of the cell triangulation. Returns metadata about what was drawn,
-    including every string placed on the figure so tests hold the register.
+    of the cell triangulation. ``velocity`` is an optional pair of scattered
+    in-plane velocity components aligned one-to-one with ``u``/``v``: when
+    given, streamlines of that field are overlaid on the pressure shading
+    (thin translucent strokes, seeded from ``seed_points`` or an upstream
+    column from :func:`streamline_seeds`, masked by the same silhouette as
+    the fill). Returns metadata about what was drawn, including every string
+    placed on the figure so tests hold the register.
     """
     import numpy as np
     from matplotlib.cm import ScalarMappable
     from matplotlib.colors import TwoSlopeNorm, to_rgba
-    from matplotlib.path import Path as MplPath
     from matplotlib.tri import LinearTriInterpolator, Triangulation
 
     from .plot_theme import BG, DIM, INK, MUTED, _pyplot, style_axes
@@ -744,6 +867,9 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     if near.sum() < 3:
         return None
     u, v, values, footprint = u[near], v[near], values[near], footprint[near]
+    if velocity is not None:
+        velocity = (np.asarray(velocity[0], dtype=np.float64)[near],
+                    np.asarray(velocity[1], dtype=np.float64)[near])
 
     triangulation = Triangulation(u, v)
 
@@ -763,20 +889,7 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
         # Exact body mask: even-odd over the section loops, so nested loops
         # (a hub inside a tyre) carve fluid back out.
         flat = np.column_stack([mesh_x.ravel(), mesh_y.ravel()])
-        inside = np.zeros(len(flat), dtype=bool)
-        for loop in silhouette:
-            loop = np.asarray(loop, dtype=np.float64)
-            if len(loop) < 3:
-                continue
-            boxed = ((flat[:, 0] >= loop[:, 0].min())
-                     & (flat[:, 0] <= loop[:, 0].max())
-                     & (flat[:, 1] >= loop[:, 1].min())
-                     & (flat[:, 1] <= loop[:, 1].max()))
-            if not boxed.any():
-                continue
-            hits = MplPath(loop).contains_points(flat[boxed])
-            inside[np.flatnonzero(boxed)[hits]] ^= True
-        body_mask = inside.reshape(mesh_x.shape)
+        body_mask = silhouette_mask(flat, silhouette).reshape(mesh_x.shape)
     else:
         # No surface on file: mask grid points that fall in hole-bridging
         # triangles (longest edge far beyond the local cell size), which is
@@ -824,6 +937,37 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
             ax.plot(ring[:, 0], ring[:, 1], color=INK, linewidth=1.0,
                     alpha=0.9, zorder=3, solid_joinstyle="round")
 
+    # Streamline overlay: the in-plane velocity resampled onto the very same
+    # grid as the pressure fill, NaN inside the silhouette and outside the
+    # data hull so the integrator can never step through the body. Thin
+    # translucent strokes between the fill (1) and the outline (3).
+    stream_meta = None
+    if velocity is not None:
+        vel_uu, vel_vv = inplane_velocity_grid(
+            u, v, velocity[0], velocity[1], grid_x, grid_y,
+            body_mask=(body_mask | no_data))
+        seeds = np.asarray(seed_points if seed_points is not None
+                           else streamline_seeds((u_lo, u_hi, v_lo, v_hi)),
+                           dtype=np.float64)
+        stroke = to_rgba(_STREAM_COLOR, STREAM_ALPHA)
+        stream = ax.streamplot(
+            grid_x, grid_y, np.ma.masked_invalid(vel_uu),
+            np.ma.masked_invalid(vel_vv), start_points=seeds,
+            density=STREAM_DENSITY, integration_direction="both",
+            broken_streamlines=False, color=stroke,
+            linewidth=STREAM_LINEWIDTH, arrowsize=0.8, zorder=2)
+        segments = [np.asarray(s, dtype=np.float64)
+                    for s in stream.lines.get_segments()]
+        speed = np.hypot(vel_uu, vel_vv)
+        finite = np.isfinite(speed)
+        stream_meta = {
+            "n_seeds": int(len(seeds)),
+            "seed_points": seeds,
+            "segments": segments,
+            "speed_max": (float(np.nanmax(speed)) if finite.any() else 0.0),
+            "speed_min": (float(np.nanmin(speed)) if finite.any() else 0.0),
+        }
+
     # One annotated key value: the stagnation peak, the warmest point of the
     # whole field, where the flow comes to rest on the nose.
     peak_pool = np.flatnonzero(in_view) if in_view.sum() >= 16 else np.arange(values.size)
@@ -858,7 +1002,10 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
     note = ("Incompressible solve: p is kinematic pressure, p over rho; "
             "multiply by rho = 1.2 kg/m3 (air) for Pa.\n"
             "Red high, blue low; the dark silhouette is the body "
-            "cross-section." + (f" {station_note}" if station_note else ""))
+            "cross-section." + (f" {station_note}" if station_note else "")
+            + ("\nThin strokes: streamlines of the in-plane velocity from "
+               "the same solved volume field, seeded upstream."
+               if stream_meta else ""))
     fig.text(0.01, 0.008, note, color=MUTED, fontsize=8.5,
              family="monospace", va="bottom")
 
@@ -872,6 +1019,8 @@ def render_slice_figure(u, v, values, footprint, out_png: str | Path, *,
             "annotation": annotation, "stagnation": float(values[peak]),
             "value_range": (lo, hi), "renderer": "smooth-grid",
             "grid_shape": tuple(grid_shape),
+            "view_box": (u_lo, u_hi, v_lo, v_hi),
+            "streamlines": stream_meta,
             "silhouette_loops": len(silhouette or [])}
 
 
@@ -882,7 +1031,8 @@ def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
                           span_axis: int, plane_axes=None, body_bounds=None,
                           body_label: str = "", surface_mesh=None,
                           figsize=(11.4, 6.2), dpi: int = 150,
-                          field: str = "p") -> dict | None:
+                          field: str = "p",
+                          overlay_velocity_field: str | None = None) -> dict | None:
     """Extract the mid-span slab from a volume file and render the field.
 
     ``span_axis`` is the axis the slicing plane is normal to; ``plane_axes``
@@ -893,7 +1043,9 @@ def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
     ``surface_mesh`` is the body's own triangle mesh in case coordinates
     (from :func:`load_surface_mesh`): when given, the silhouette is the exact
     plane cross-section of that surface rather than anything inferred from
-    the volume cells.
+    the volume cells. ``overlay_velocity_field`` names a vector field in the
+    same volume file (``"U"``): when given and present, its in-plane
+    components on the same slice cells ride the figure as streamlines.
     """
     import numpy as np
 
@@ -929,6 +1081,14 @@ def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
     u = centres[keep, axis_u]
     v = centres[keep, axis_v]
     footprint = np.maximum(extents[keep, axis_u], extents[keep, axis_v])
+
+    # In-plane velocity on the same slice cells, for the streamline overlay.
+    velocity = None
+    if overlay_velocity_field:
+        vector = read_volume_vector(vtu_path, overlay_velocity_field)
+        if vector is not None and len(vector[3]) >= len(centres):
+            vectors = vector[3][:len(centres)]
+            velocity = (vectors[keep, axis_u], vectors[keep, axis_v])
 
     if body_bounds:
         # Frame on the body: room ahead and above, more behind for the wake.
@@ -969,12 +1129,19 @@ def render_pressure_slice(vtu_path: str | Path, out_png: str | Path, *,
                     + ("the cell layer crossing the plane."
                        if half_used == 0.0 else
                        f"slab widened to {2 * half_used:.3g} m."))
+    # Streamline seeds cluster about the body's own centreline when the
+    # bounds are known; otherwise about the middle of the view.
+    seed_points = None
+    if velocity is not None and body_bounds:
+        seed_points = streamline_seeds(
+            tuple(view), center_v=0.5 * (b_lo[axis_v] + b_hi[axis_v]))
     return render_slice_figure(
         u, v, values[keep], footprint, out_png,
         xlabel=f"{_AXIS_NAMES[axis_u]}  [m]",
         ylabel=f"{_AXIS_NAMES[axis_v]}  [m]",
         body_label=body_label, station_note=station_note, view_box=view,
-        silhouette=silhouette, figsize=figsize, dpi=dpi)
+        silhouette=silhouette, velocity=velocity, seed_points=seed_points,
+        figsize=figsize, dpi=dpi)
 
 
 def extract_pressure_slice(remote_case: str, out_png: str | Path, wsl_prefix,
