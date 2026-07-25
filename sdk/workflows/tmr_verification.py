@@ -476,23 +476,26 @@ functions
 """
 
 
-def fv_schemes(limited: bool = False) -> str:
+def fv_schemes(limited: bool = False, transient: bool = False) -> str:
     """Discretization schemes. ``limited`` swaps the orthogonal-mesh
     laplacian/snGrad for limited corrected forms; the C-grid airfoil blocks
     carry real non-orthogonality (up to 70 degrees on the coarse rung) that
-    the plate and bump meshes simply do not have."""
+    the plate and bump meshes simply do not have. ``transient`` selects
+    implicit Euler time marching for the time-accurate runs."""
     grad = "cellLimited Gauss linear 1" if limited else "Gauss linear"
     lap = ("Gauss linear limited corrected 0.5" if limited
            else "Gauss linear corrected")
     sng = "limited corrected 0.5" if limited else "corrected"
+    ddt = "Euler" if transient else "steadyState"
+    bounded = "" if transient else "bounded "
     return _foam_header("dictionary", "fvSchemes", "system") + f"""
-ddtSchemes      {{ default steadyState; }}
+ddtSchemes      {{ default {ddt}; }}
 gradSchemes     {{ default {grad}; }}
 laplacianSchemes {{ default {lap}; }}
 snGradSchemes   {{ default {sng}; }}
-""" + """
+
 divSchemes
-{
+{{
     // Momentum second order; turbulence advection first-order upwind.
     // The A/B on the coarse grid: linearUpwind on k and omega left a
     // persistent leading-edge bounding oscillation (5997 bounding events,
@@ -500,14 +503,16 @@ divSchemes
     // run converge through residualControl. Turbulence advection is
     // negligible against production and destruction in this boundary layer,
     // and the measured observed order reports whatever the ladder delivers.
+    // The "bounded" form is a steady-state device and is dropped for the
+    // time-accurate runs.
     default                         none;
-    div(phi,U)                      bounded Gauss linearUpwind grad(U);
-    div(phi,k)                      bounded Gauss upwind;
-    div(phi,omega)                  bounded Gauss upwind;
+    div(phi,U)                      {bounded}Gauss linearUpwind grad(U);
+    div(phi,k)                      {bounded}Gauss upwind;
+    div(phi,omega)                  {bounded}Gauss upwind;
     div((nuEff*dev2(T(grad(U)))))   Gauss linear;
-}
-interpolationSchemes { default linear; }
-wallDist        { method meshWave; }
+}}
+interpolationSchemes {{ default linear; }}
+wallDist        {{ method meshWave; }}
 """
 
 
@@ -2538,6 +2543,348 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
         f"{timings['simpleFoam']:.1f} s")
     return _extract_record(level, out_dir, remote, timings, None,
                            airfoil, log)
+
+
+# -- time-accurate treatment of the coarse-rung limit cycle -----------------
+# The steady runs isolated a sustained wake-driven force oscillation on the
+# TMR C-grids under second-order incompressible solves. The honest number for
+# such a state is a time-average with its envelope, from a genuinely
+# time-accurate solve, never a snapshot of whatever phase a steady iteration
+# happened to stop in.
+
+def time_weighted_stats(times: Sequence[float], values: Sequence[float],
+                        t_start: float) -> dict[str, float] | None:
+    """Trapezoidal time-weighted mean and peak-to-trough envelope of a
+    signal over [t_start, end]. Time weighting matters because an adaptive
+    time step makes the samples unevenly spaced."""
+    window = [(t, v) for t, v in zip(times, values) if t >= t_start]
+    if len(window) < 3:
+        return None
+    area = 0.0
+    for (t0, v0), (t1, v1) in zip(window, window[1:]):
+        area += 0.5 * (v0 + v1) * (t1 - t0)
+    span = window[-1][0] - window[0][0]
+    if span <= 0:
+        return None
+    lo = min(v for _, v in window)
+    hi = max(v for _, v in window)
+    return {"mean": area / span, "lo": lo, "hi": hi, "band": hi - lo,
+            "window_start": window[0][0], "window_end": window[-1][0]}
+
+
+def measure_period(times: Sequence[float], values: Sequence[float],
+                   t_start: float) -> float | None:
+    """Mean period of an oscillation from its upward mean-crossings over
+    [t_start, end]; None when fewer than two full crossings exist (no
+    period may then be quoted)."""
+    stats = time_weighted_stats(times, values, t_start)
+    if stats is None:
+        return None
+    mean = stats["mean"]
+    crossings = []
+    window = [(t, v) for t, v in zip(times, values) if t >= t_start]
+    for (t0, v0), (t1, v1) in zip(window, window[1:]):
+        if v0 < mean <= v1:
+            frac = (mean - v0) / (v1 - v0) if v1 != v0 else 0.0
+            crossings.append(t0 + frac * (t1 - t0))
+    if len(crossings) < 3:
+        return None
+    gaps = [b - a for a, b in zip(crossings, crossings[1:])]
+    return sum(gaps) / len(gaps)
+
+
+def pimple_control_dict(end_time: float, dt0: float, *, patch: str,
+                        aref: float, drag_dir: str, lift_dir: str,
+                        max_co: float = 1.5, adjustable: bool = True) -> str:
+    # A fixed step exists for restarts seeded from a steady field: the
+    # impulsive adjustment there collapses an adaptive step to 1e-5 and the
+    # run crawls; implicit Euler rides the few spiky steps out instead.
+    return _foam_header("dictionary", "controlDict", "system") + f"""
+application     pimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         {end_time};
+deltaT          {dt0};
+adjustTimeStep  {'yes' if adjustable else 'no'};
+maxCo           {max_co};
+maxDeltaT       {end_time / 200.0};
+writeControl    adjustableRunTime;
+writeInterval   {end_time};
+purgeWrite      1;
+writeFormat     ascii;
+writePrecision  10;
+timeFormat      general;
+timePrecision   8;
+
+functions
+{{
+    forceCoeffs1
+    {{
+        type            forceCoeffs;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        patches         ({patch});
+        rho             rhoInf;
+        rhoInf          1.0;
+        magUInf         {U_INF};
+        lRef            1.0;
+        Aref            {aref};
+        CofR            (0 0 0);
+        dragDir         {drag_dir};
+        liftDir         {lift_dir};
+        pitchAxis       (0 0 1);
+    }}
+    yPlus1
+    {{
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        executeControl  onEnd;
+        writeControl    onEnd;
+    }}
+}}
+"""
+
+
+def pimple_fv_solution() -> str:
+    return _foam_header("dictionary", "fvSolution", "system") + """
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-08;
+        relTol          0.01;
+    }
+    pFinal
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-08;
+        relTol          0;
+    }
+    "(U|k|omega)"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-09;
+        relTol          0.01;
+    }
+    "(U|k|omega)Final"
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-09;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    nOuterCorrectors    2;
+    nCorrectors         2;
+    nNonOrthogonalCorrectors 1;
+}
+
+relaxationFactors
+{
+    fields    { p 0.3; pFinal 1; }
+    equations { "(U|k|omega)" 0.7; "(U|k|omega)Final" 1; }
+}
+"""
+
+
+def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
+                       log: Callable[[str], None] = print, *,
+                       end_time: float = 30.0, dt0: float = 0.002,
+                       transient_fraction: float = 0.4,
+                       init_from: str | None = None,
+                       adjustable_dt: bool = True) -> dict[str, Any]:
+    """Time-accurate pimpleFoam run of one (grid, alpha), reporting the
+    time-averaged coefficients with their limit-cycle envelope.
+
+    The average starts after ``transient_fraction`` of the run; the record
+    carries the window, the band, and the measured period (None when fewer
+    than three mean-crossings fit the window, in which case no period is
+    quoted and the averaging quality must be judged accordingly).
+
+    ``init_from`` (a WSL time-directory path from a completed steady run on
+    the SAME converted grid) seeds the march with a developed turbulent
+    field. Without it the freestream-cold start stays effectively laminar
+    for far longer than any affordable window: measured, a 30-unit cold
+    start ended at Cd 0.00033 with max y+ 0.5 and no oscillation at all,
+    because SST transition in genuine time is slow at 0.039 percent
+    freestream turbulence, a shortcut steady pseudo-time quietly takes.
+    """
+    prefix = f"tmr-naca-t-a{alpha_deg:g}"
+    remote = f"{_RUN_ROOT}/{prefix}-{level.name}"
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    case_root = _REPO_ROOT / "models" / "tmr" / "naca0012"
+    grid_src = case_root / "grids" / NACA_GRID_FILES[level.name]
+
+    case = case_root / f"t-a{alpha_deg:g}" / level.name
+    (case / "system").mkdir(parents=True, exist_ok=True)
+    (case / "constant").mkdir(exist_ok=True)
+    dicts = {
+        "system/controlDict": control_dict(100, patch="PLACEHOLDER"),
+        "system/fvSchemes": fv_schemes(limited=True, transient=True),
+        "system/fvSolution": pimple_fv_solution(),
+        "constant/transportProperties": transport_properties(NACA_NU),
+        "constant/turbulenceProperties": turbulence_properties(),
+    }
+    for rel, text in dicts.items():
+        with (case / rel).open("w", newline="\n") as handle:
+            handle.write(text)
+    shutil.copy(grid_src, case / "grid.p3dfmt")
+
+    staged = _wsl(
+        f"rm -rf {remote} && mkdir -p {_RUN_ROOT} && "
+        f"cp -r \"$(wslpath '{case}')\" {remote} && "
+        f"test -f {remote}/system/controlDict && echo STAGED")
+    if "STAGED" not in staged.stdout:
+        raise RuntimeError(f"{level.name}: staging failed")
+
+    timings: dict[str, float] = {}
+    for name, command, timeout in (
+            ("plot3dToFoam", "plot3dToFoam -noBlank grid.p3dfmt", 900),
+            ("autoPatch", "autoPatch 80 -overwrite", 900)):
+        start = time.monotonic()
+        result = _wsl(f"cd {remote} && openfoam2606 {command} "
+                      f"> log.{name} 2>&1 && echo DONE", timeout=timeout)
+        timings[name] = round(time.monotonic() - start, 1)
+        if "DONE" not in result.stdout:
+            raise RuntimeError(f"{level.name}/{name} failed")
+
+    for item in ("boundary", "points", "faces"):
+        _wsl(f"cp {remote}/constant/polyMesh/{item} "
+             f"\"$(wslpath '{out_dir}')\"/mesh.{item}", timeout=300)
+    patches = parse_boundary_patches(
+        (out_dir / "mesh.boundary").read_text(errors="replace"))
+    points, faces = parse_polymesh_points_faces(
+        (out_dir / "mesh.points").read_text(errors="replace"),
+        (out_dir / "mesh.faces").read_text(errors="replace"))
+    roles, thickness, lift_axis, span_axis = classify_naca_patches(
+        points, faces, patches)
+    airfoil = next(n for n, r in roles.items() if r == "airfoil")
+    log(f"[tmr-naca-t:{level.name}] a{alpha_deg:g} patches ok, "
+        f"lift axis {'xyz'[lift_axis]}")
+
+    fields_dir = out_dir / "0"
+    shutil.rmtree(fields_dir, ignore_errors=True)
+    fields_dir.mkdir(parents=True)
+    for name, text in naca_fields_tmr(alpha_deg, roles, lift_axis).items():
+        with (fields_dir / name).open("w", newline="\n") as handle:
+            handle.write(text)
+    rad = math.radians(alpha_deg)
+    control = pimple_control_dict(
+        end_time, dt0, patch=airfoil, aref=thickness,
+        drag_dir=_axis_vector(math.cos(rad), math.sin(rad), lift_axis),
+        lift_dir=_axis_vector(-math.sin(rad), math.cos(rad), lift_axis),
+        adjustable=adjustable_dt)
+    with (out_dir / "controlDict.solve").open("w", newline="\n") as handle:
+        handle.write(control)
+    # potentialFoam needs its Phi entry; swap fvSolution for the init, then
+    # restore the PIMPLE one for the march.
+    with (out_dir / "fvSolution.init").open("w", newline="\n") as handle:
+        handle.write(fv_solution(non_orth_correctors=1, potential=True,
+                                 p_solver="PCG"))
+    type_edits = " && ".join(
+        f"openfoam2606 foamDictionary -entry entry0/{name}/type -set "
+        f"{'empty' if role == 'frontAndBack' else 'wall'} "
+        f"constant/polyMesh/boundary > /dev/null"
+        for name, role in roles.items()
+        if role == "frontAndBack" or name == airfoil)
+    pushed = _wsl(
+        f"cd {remote} && rm -rf 0 && mkdir 0 && "
+        f"cp \"$(wslpath '{fields_dir}')\"/* 0/ && "
+        f"cp \"$(wslpath '{out_dir / 'controlDict.solve'}')\" "
+        f"system/controlDict && "
+        f"cp \"$(wslpath '{out_dir / 'fvSolution.init'}')\" "
+        f"system/fvSolution && {type_edits} && echo PUSHED", timeout=300)
+    if "PUSHED" not in pushed.stdout:
+        raise RuntimeError(f"{level.name}: push failed")
+
+    if init_from:
+        seeded = _wsl(
+            f"test -f {init_from}/U && "
+            f"cp {init_from}/U {init_from}/p {init_from}/k "
+            f"{init_from}/omega {init_from}/nut {remote}/0/ && "
+            f"cp {init_from}/phi {remote}/0/ 2>/dev/null; "
+            f"test -f {remote}/0/k && echo SEEDED", timeout=300)
+        if "SEEDED" not in seeded.stdout:
+            raise RuntimeError(
+                f"{level.name}: seeding from {init_from} failed")
+        log(f"[tmr-naca-t:{level.name}] fields seeded from {init_from}")
+    else:
+        start = time.monotonic()
+        result = _wsl(f"cd {remote} && openfoam2606 potentialFoam -writephi "
+                      f"> log.potentialFoam 2>&1 && echo DONE", timeout=1800)
+        timings["potentialFoam"] = round(time.monotonic() - start, 1)
+        if "DONE" not in result.stdout:
+            raise RuntimeError(f"{level.name}: potentialFoam failed")
+    solution = pimple_fv_solution()
+    with (out_dir / "fvSolution.march").open("w", newline="\n") as handle:
+        handle.write(solution)
+    _wsl(f"cp \"$(wslpath '{out_dir / 'fvSolution.march'}')\" "
+         f"{remote}/system/fvSolution", timeout=120)
+
+    start = time.monotonic()
+    log(f"[tmr-naca-t:{level.name}] a{alpha_deg:g} pimpleFoam started "
+        f"(T = {end_time:g})")
+    result = _wsl(f"cd {remote} && openfoam2606 pimpleFoam "
+                  f"> log.pimpleFoam 2>&1 && echo DONE", timeout=7200)
+    timings["pimpleFoam"] = round(time.monotonic() - start, 1)
+    _wsl(f"cp {remote}/log.pimpleFoam \"$(wslpath '{out_dir}')\"/ || true")
+    if "DONE" not in result.stdout:
+        tail = _wsl(f"tail -20 {remote}/log.pimpleFoam").stdout
+        raise RuntimeError(f"{level.name}/pimpleFoam failed:\n{tail}")
+    log(f"[tmr-naca-t:{level.name}] pimpleFoam finished in "
+        f"{timings['pimpleFoam']:.1f} s")
+
+    shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
+    _wsl(f"cp -r {remote}/postProcessing \"$(wslpath '{out_dir}')\"/",
+         timeout=300)
+    coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
+    history = parse_coefficient_history(
+        coeff_files[-1].read_text(errors="replace"))
+    times = history["Time"]
+    t_start = transient_fraction * end_time
+    cd_stats = time_weighted_stats(times, history["Cd"], t_start)
+    cl_stats = time_weighted_stats(times, history["Cl"], t_start)
+    period = measure_period(times, history["Cl"], t_start)
+    if cd_stats is None or cl_stats is None:
+        raise RuntimeError(f"{level.name}: averaging window empty")
+    n_periods = ((cd_stats["window_end"] - cd_stats["window_start"]) / period
+                 if period else None)
+    yplus_files = sorted((out_dir / "postProcessing").rglob("yPlus.dat"))
+    yplus = (parse_yplus_dat(yplus_files[-1].read_text(errors="replace"),
+                             airfoil) if yplus_files else None)
+    record = {
+        "level": level.name, "tmr_nodes": level.tmr_nodes,
+        "cells": level.cells, "alpha_deg": alpha_deg,
+        "solver": "pimpleFoam, time accurate",
+        "end_time": end_time, "steps": len(times),
+        "cd_mean": cd_stats["mean"], "cd_band": cd_stats["band"],
+        "cd_lo": cd_stats["lo"], "cd_hi": cd_stats["hi"],
+        "cl_mean": cl_stats["mean"], "cl_band": cl_stats["band"],
+        "cl_lo": cl_stats["lo"], "cl_hi": cl_stats["hi"],
+        "averaging_window": [cd_stats["window_start"],
+                             cd_stats["window_end"]],
+        "period": period, "periods_in_window": n_periods,
+        "yplus": yplus or {"min": float("nan"), "max": float("nan"),
+                           "average": float("nan")},
+        "wall_seconds": sum(timings.values()),
+        "timings": timings,
+    }
+    log(f"[tmr-naca-t:{level.name}] a{alpha_deg:g}: "
+        f"Cl {cl_stats['mean']:+.5f} (band {cl_stats['band']:.4f}), "
+        f"Cd {cd_stats['mean']:+.6f} (band {cd_stats['band']:.5f}), "
+        f"period {period if period else float('nan'):.3f}, "
+        f"{len(times)} steps, wall {record['wall_seconds']:.0f} s")
+    return record
 
 
 def stop_requested(out_root: Path | None = None) -> bool:

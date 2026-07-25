@@ -29,11 +29,17 @@
     "The TMR coarse grid's own wall spacing gives max y+ near 10 at this Reynolds number; that is the reference family's coarse rung, not a choice of ours",
     "Grids are the TMR point files themselves, converted with plot3dToFoam; the wake cut closes through the converter's point merge"
   ],
-  "generated_unix": 1785010692,
+  "generated_unix": 1785013791,
   "findings_2026_07_25": [
     "Alpha 10, 225x65 grid: a sustained force oscillation under second-order momentum advection at two relaxation levels (16000 and 24000 iteration budgets); the swing grows and shrinks with a period of thousands of iterations and never decays",
     "Alpha 0, 113x33 grid: the same oscillation, antisymmetric (Cl swings of 0.3 on a symmetric case)",
     "Root cause isolated by scheme substitution on the alpha 0 rung: first-order momentum is perfectly steady (Cd 0.0229, overdiffused and not usable for verification), TVD limitedLinear reduces the cycle to about 3e-4 around Cd 0.0090 but never flattens over 15000 iterations; the feedback lives in the wake and trailing-edge convection",
     "The published CFL3D results converge the same grids with a compressible implicit solver and different numerical dissipation; a time-accurate solve with averaged coefficients, or a dissipation study, is the honest next step"
+  ],
+  "findings_2026_07_25_transient": [
+    "Cold-start pimpleFoam on the 113x33 grid at alpha 0 (30 convective units, adaptive step at Courant 1.5, 735 steps, 188 s): the flow settles to a QUASI-STEADY state with Cd 0.00033 and max y+ 0.5, far below even a laminar boundary layer, with no oscillation; at 0.039 percent freestream turbulence, SST transition in genuine time is far slower than any affordable window, a shortcut steady pseudo-time quietly takes",
+    "Seeding the march from the developed steady field triggers an impulsive adjustment (Cl spikes to -6.5) that collapses the adaptive step to 1e-5 units and the run crawls (0.007 units in 8 minutes)",
+    "The same seeded start with a fixed step of 0.005 overflows by 1.7 units: the adjustment cannot be ridden out at that step either",
+    "Consequence: whether the steady-solver oscillation is a physical limit cycle or a pseudo-time artifact remains OPEN; no time-averaged coefficient with an envelope is quotable from this round, and none is quoted"
   ]
 }

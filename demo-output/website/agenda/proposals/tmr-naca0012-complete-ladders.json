@@ -1,15 +1,15 @@
 {
   "id": "tmr-naca0012-complete-ladders",
   "objective": "Complete the NACA 0012 ladders on the TMR-distributed grids: 225x65 and 449x129 at alpha 10, then full ladders at alpha 0 and 15, with observed order and Richardson values against the published finest-grid results",
-  "rationale": "The conversion pipeline is proven and the 113x33 rung at alpha 10 converged flat in 95 seconds, but the finer rungs sustain a wake-driven force oscillation under steady second-order incompressible solves (isolated by scheme substitution); the ladder needs either a time-accurate solve reporting averaged coefficients with an envelope, or a quantified dissipation study, before any comparison is claimed",
+  "rationale": "Steady solves sustain a wake-driven oscillation on these grids; a 75-minute time-accurate round showed a cold start stays effectively laminar for far longer than an affordable window and a steady-field seed destabilizes the march at any step tried. The case needs a long time-accurate run (hundreds of convective units) or a ramped restart strategy, budgeted as hours, not minutes",
   "citations": [
     "NASA Langley Turbulence Modeling Resource: NACA 0012 validation case and distributed grids (turbmodels.larc.nasa.gov)",
     "TMR CFL3D SST results, n0012clcd_cfl3d_sst.dat (tmbwg.github.io/turbmodels)"
   ],
-  "est_core_min": 150,
+  "est_core_min": 480,
   "expected_knowledge_gain": "First lifting-body ladder; whether the verification discipline holds when pressure drag and lift dominate",
   "source_kind": "challenge",
   "status": "queued",
-  "created_at": "2026-07-25T16:18:12",
-  "launch_prompt": "Complete the NACA 0012 ladders on the TMR-distributed grids using a time-accurate approach: pimpleFoam (or simpleFoam with a documented stabilization whose effect is quantified on the coarse rung), coefficients reported as a converged mean with a stated envelope, STOP file honored before every launch, and no agreement claim beyond what the envelope supports. Start from demo-output/website/tmr/naca0012_status.json."
+  "created_at": "2026-07-25T17:09:51",
+  "launch_prompt": "Resolve the NACA 0012 coarse-rung state honestly: run pimpleFoam on the 113x33 TMR grid from the cold start for at least 300 convective units (detached, polled), watching transition onset via y+ and Cd; if a limit cycle emerges, average over 10 periods with the envelope; if the flow stays steady, report that the steady-solver oscillation is a pseudo-time artifact and quote the steady state instead. Only then extend up the ladder. Start from demo-output/website/tmr/naca0012_status.json and honor the STOP file."
 }

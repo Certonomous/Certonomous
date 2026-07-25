@@ -10,6 +10,8 @@ from __future__ import annotations
 import math
 import unittest
 
+from workflows.tmr_verification import measure_period, time_weighted_stats
+
 from workflows.tmr_verification import (
     BANNED_CARD_WORDS, BUMP_LEVELS, CFL3D_BUMP_SST, CFL3D_NACA_SST,
     CFL3D_SST_V, FUN3D_BUMP_SST, FUN3D_NACA_SST, FUN3D_SST_V, LEVELS,
@@ -475,6 +477,36 @@ class NacaCase(unittest.TestCase):
         self.assertIn("(0.98480775 0.00000000 0.17364818)", fields["U"])
         self.assertIn("noSlip", fields["U"])
         self.assertIn("omegaWallFunction", fields["omega"])
+
+
+class TimeAccurateStatistics(unittest.TestCase):
+    def _sine(self, period=1.7, mean=1.0, amp=0.1, dt=0.01, t_end=10.0):
+        ts = [i * dt for i in range(int(t_end / dt) + 1)]
+        vs = [mean + amp * math.sin(2 * math.pi * t / period) for t in ts]
+        return ts, vs
+
+    def test_time_weighted_mean_and_envelope_of_a_sine(self):
+        ts, vs = self._sine()
+        stats = time_weighted_stats(ts, vs, 3.0)
+        self.assertAlmostEqual(stats["mean"], 1.0, places=2)
+        self.assertAlmostEqual(stats["band"], 0.2, places=3)
+        self.assertAlmostEqual(stats["window_start"], 3.0, places=9)
+
+    def test_mean_is_time_weighted_not_sample_weighted(self):
+        # Uneven sampling biased toward the peak must not bias the mean.
+        ts = [0.0, 1.0, 1.01, 1.02, 1.03, 2.0]
+        vs = [0.0, 2.0, 2.0, 2.0, 2.0, 0.0]
+        stats = time_weighted_stats(ts, vs, 0.0)
+        self.assertAlmostEqual(stats["mean"], 1.0, delta=0.06)
+
+    def test_period_recovered_from_mean_crossings(self):
+        ts, vs = self._sine(period=1.7)
+        self.assertAlmostEqual(measure_period(ts, vs, 3.0), 1.7, places=2)
+
+    def test_period_refused_without_enough_crossings(self):
+        ts, vs = self._sine(period=50.0, t_end=10.0)
+        self.assertIsNone(measure_period(ts, vs, 3.0))
+        self.assertIsNone(time_weighted_stats([1.0], [2.0], 0.0))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,42 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    defaultFaces
+    {
+        type            zeroGradient;
+    }
+    auto0
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+    auto1
+    {
+        type            empty;
+    }
+    auto2
+    {
+        type            empty;
+    }
+    auto3
+    {
+        type            zeroGradient;
+    }
+    auto4
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+}
