@@ -729,6 +729,75 @@ class GuiRenderingPins(unittest.TestCase):
         self.assertNotIn('label=f"rolling mean', source)
         self.assertNotIn('"rolling mean', source)
 
+    def test_race_verdict_renders_core_minutes_only(self):
+        # The race card's verdict quotes the act's own headline unit
+        # ("Measured speedup Xx in core-minutes."); the wall figure stays in
+        # the payload as measured data but is never rendered on the card.
+        html = (SDK / "chief_engineer" / "control_room.html").read_text(
+            encoding="utf-8")
+        self.assertIn("Measured speedup <b>${esc(p.speedup_core_min)}"
+                      "×</b> in core-minutes.", html)
+        self.assertNotIn("p.speedup_wall", html)
+
+
+# --------------------------------------------------------------------------
+# Result card (owner review, 2026-07-25)
+# --------------------------------------------------------------------------
+
+class ResultCardPins(unittest.TestCase):
+    """The result card: content vertically centered inside an unchanged box,
+    and no settle-share clause one line under the headline band. The share
+    ("envelope N% of value") measures how flat the settled history is; it is
+    a different number from the headline's combined 95% band, and the two
+    side by side misread as a contradiction. The clause is dropped on the
+    card only; reports, transcripts and certificates keep the full reason."""
+
+    _HTML = SDK / "chief_engineer" / "control_room.html"
+    # Python mirror of the exact strip renderResult applies to the verdict
+    # reason; the literal pin below keeps the two from drifting apart.
+    _STRIP = r";\s*envelope\s+[\d.]+%\s+of\s+value\s*$"
+
+    def test_card_content_is_vertically_centered(self):
+        html = self._HTML.read_text(encoding="utf-8")
+        rule = re.search(r"\.result-card \{([^}]*)\}", html).group(1)
+        self.assertIn("flex-direction: column", rule)
+        self.assertIn("justify-content: center", rule)
+        # Outer box untouched: same margin, padding and border as before.
+        self.assertIn("margin: 0 18px 10px; padding: 10px 14px;", rule)
+        # The headline row keeps its old inline layout inside the column.
+        self.assertIn(".result-card .r-head { display: flex; "
+                      "align-items: baseline; gap: 10px; flex-wrap: wrap; }",
+                      html)
+        self.assertIn('<div class="r-head">', html)
+
+    def test_card_drops_the_envelope_share_clause(self):
+        html = self._HTML.read_text(encoding="utf-8")
+        # The JS literal and the Python mirror must stay identical.
+        self.assertIn(
+            r".replace(/;\s*envelope\s+[\d.]+%\s+of\s+value\s*$/, '')", html)
+        from chief_engineer.lab import trust
+        # The exact reason the B-52 card carried: settle scatter near zero
+        # under a 0.0472 ± 0.019 headline.
+        reason = trust(relative_error=1e-6)["reason"]
+        self.assertIn("envelope 0.0% of value", reason)
+        self.assertEqual(re.sub(self._STRIP, "", reason),
+                         "a selected-solver result")
+        # Any share value strips, not just the 0.0% case.
+        wider = trust(relative_error=0.402)["reason"]
+        self.assertIn("envelope 40.2% of value", wider)
+        self.assertEqual(re.sub(self._STRIP, "", wider),
+                         "a selected-solver result")
+
+    def test_reasons_without_the_share_clause_pass_through(self):
+        from chief_engineer.lab import trust
+        for reason in (
+                trust(relative_error=None)["reason"],
+                trust(converged=False)["reason"],
+                trust(in_validated_regime=False)["reason"],
+                "every evaluation on both lanes ran the selected solver; "
+                "the paths agree to 98%"):
+            self.assertEqual(re.sub(self._STRIP, "", reason), reason)
+
 
 # --------------------------------------------------------------------------
 # Pacing

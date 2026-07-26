@@ -240,10 +240,14 @@
   .lg-dot.ok { background: rgb(232,146,106); }
   .lg-dot.bad { background: rgba(120,130,140,.6); }
   .lg-ring { width: 9px; height: 9px; border-radius: 50%; border: 2px solid #57a5ff; display: inline-block; }
-  .result-card { margin: 0 18px 10px; padding: 10px 14px; border: 1px solid var(--line-2); background: rgba(87,165,255,.05); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  /* result card: a column with centered justification so the content sits with
+     symmetric breathing room above and below, the same balance as the plot
+     cards under it — outer box unchanged (Katie, 2026-07-25). */
+  .result-card { margin: 0 18px 10px; padding: 10px 14px; border: 1px solid var(--line-2); background: rgba(87,165,255,.05); display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .result-card .r-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
   .result-card .rv { font: 800 24px var(--cond); color: var(--fg); }
   .result-card .rq { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
-  .result-card .re { color: var(--dim); font: 10px var(--mono); width: 100%; }
+  .result-card .re { color: var(--dim); font: 10px var(--mono); }
   /* Report figures: equal columns, one shared gutter, borders that line up
      with the result rows above — no stitched-together look. */
   .memo-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 10px 0 6px; }
@@ -1046,9 +1050,12 @@ function raceResult(p) {
   };
   bars.innerHTML = row('mc', 'full Monte-Carlo', mc.core_minutes, mc.wall_seconds, mc.n_solves)
     + row('rom', 'reduced-order', rom.core_minutes, rom.wall_seconds, rom.n_solves);
+  // Core-minutes is the act's own headline unit ("Measured speedup Xx in
+  // core-minutes."); the wall figure stays in the payload as measured data
+  // but is not rendered here (owner, 2026-07-25).
   $('raceVerdict').innerHTML =
-    `Measured speedup <b>${esc(p.speedup_core_min)}×</b> in core-minutes `
-    + `(wall ${esc(p.speedup_wall)}×). ${esc(p.agreement || '')}`;
+    `Measured speedup <b>${esc(p.speedup_core_min)}×</b> in core-minutes. `
+    + `${esc(p.agreement || '')}`;
   setHidden('raceCard', false);
 }
 function drawRace() {
@@ -1664,9 +1671,15 @@ function renderResult(p) {
   const head = p.ci != null
     ? `${p.value} ± ${p.ci} (${p.confidence || '95%'})`
     : (p.value ?? '—');
-  rc.innerHTML = `<b class="rv">${esc(head)}</b><span class="rq">${esc(p.quantity||'result')}</span>`
-    + verdictBadge(p.tier)
-    + `<span class="re">${esc([p.envelope, p.reason].filter(Boolean).join(' · '))}</span>`;
+  // The "envelope N% of value" share measures settle-window flatness, a
+  // DIFFERENT number from the headline's ± band one line above; on the card
+  // that juxtaposition misread as a contradiction, so the clause is dropped
+  // here (owner). The full reason stays untouched on the report,
+  // transcript and certificate.
+  const reason = (p.reason || '').replace(/;\s*envelope\s+[\d.]+%\s+of\s+value\s*$/, '');
+  rc.innerHTML = `<div class="r-head"><b class="rv">${esc(head)}</b><span class="rq">${esc(p.quantity||'result')}</span>`
+    + verdictBadge(p.tier) + `</div>`
+    + `<span class="re">${esc([p.envelope, reason].filter(Boolean).join(' · '))}</span>`;
   rc.hidden = false;
 }
 

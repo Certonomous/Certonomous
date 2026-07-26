@@ -56,7 +56,6 @@ def _core_entry(p: MissionProperties) -> str:
     if p.kind == "one-parameter-sweep":
         return bullets(
             f"One {p.smoothness} parameter, {p.regime} regime: a few anchors pin the curve",
-            "Ensemble bracketing the range, fitted to a response surface",
             "Rejected: single point (prices one setting as the range); a fine grid (cost, no info)")
     # parametric-optimization
     if p.smoothness == "smooth" and p.regime.startswith("steady"):

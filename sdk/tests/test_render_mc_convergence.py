@@ -4,7 +4,9 @@ The script's estimator arithmetic (the act's 95 percent band, per-sample
 peaks, the sequential resampled band, the power-law slope fit, the guarantee
 line, the run-count staircase, and the reduced-order surface residual) is
 exercised on synthetic data with known answers. No solver output, no reads
-of the recorded mission artifacts, no rendering.
+of the recorded mission artifacts, no files rendered. The owner-reviewed
+figure wording (title, legend, axis labels, annotation) is pinned on live
+axes built from synthetic stories.
 """
 from __future__ import annotations
 
@@ -219,6 +221,63 @@ class RomConvergenceTests(unittest.TestCase):
         curve = mcc.rom_convergence(anchors, {"l_d": f(3.0)},
                                     x_lo=0.0, x_hi=10.0)
         self.assertEqual([p["n_runs"] for p in curve], [3, 4, 5, 6])
+
+
+class FigureWordingPins(unittest.TestCase):
+    """The owner-reviewed figure wording (2026-07-25), pinned on live axes."""
+
+    @classmethod
+    def setUpClass(cls):
+        f = lambda x: -0.5 * (x - 4.0) ** 2 + 18.0        # noqa: E731
+        anchors = [{"alpha": x, "l_d": f(x)} for x in (0.0, 3.3, 6.7, 10.0)]
+        confirm = {"l_d": f(4.0) - 0.084}
+        xs = [a["alpha"] for a in anchors]
+        ys = [a["l_d"] for a in anchors]
+        cls.story = {
+            "peak_sd": 0.136,
+            "rom_curve": mcc.rom_convergence(anchors, confirm,
+                                             x_lo=0.0, x_hi=10.0),
+            "surrogate": mcc.quadratic_peak_residual(xs, ys, confirm["l_d"],
+                                                     x_lo=0.0, x_hi=10.0),
+            "n_rom_runs": 5,
+        }
+        plt = mcc._pyplot()
+        cls.plt = plt
+        cls.fig, cls.ax = mcc._base_axes(plt, cls.story)
+        mcc._draw_rom(cls.ax, cls.story, annotate=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.plt.close(cls.fig)
+
+    def test_title_is_the_owner_cut(self):
+        self.assertEqual(mcc.TITLE, "MC convergence vs Reduced model")
+
+    def test_axis_labels_carry_no_log_scale_note_but_axes_stay_log(self):
+        self.assertEqual(self.ax.get_xlabel(), "solver runs  $N$")
+        self.assertEqual(self.ax.get_ylabel(), "error band on peak $L/D$")
+        self.assertEqual(self.ax.get_xscale(), "log")
+        self.assertEqual(self.ax.get_yscale(), "log")
+
+    def test_guarantee_legend_entry_is_just_the_name(self):
+        _, labels = self.ax.get_legend_handles_labels()
+        self.assertIn("theoretical guarantee", labels)
+        joined = " ".join(labels)
+        self.assertNotIn("error falls as 1 over sqrt N", joined)
+        self.assertNotIn("anchored at the measured variance", joined)
+
+    def test_reduced_order_legend_entry_stays(self):
+        _, labels = self.ax.get_legend_handles_labels()
+        self.assertIn("reduced-order model: converges in 5 runs", labels)
+
+    def test_annotation_stops_at_the_envelope_value(self):
+        notes = [t.get_text() for t in self.ax.texts]
+        self.assertIn("reduced-order model: converges in 5 solver runs\n"
+                      "envelope $\\pm$0.084", notes)
+        blob = " ".join(notes)
+        self.assertNotIn("confirmed by its final run", blob)
+        self.assertNotIn("model error, measured at the next recorded run",
+                         blob)
 
 
 if __name__ == "__main__":

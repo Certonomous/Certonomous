@@ -168,8 +168,9 @@ class WordingPins(unittest.TestCase):
     def test_two_ways_sentence_replaces_the_opaque_one(self):
         self.assertIn(
             "Two ways to find one smooth peak: sweep the whole ensemble "
-            "with Monte Carlo, or fit a surface from a few anchor solves.",
+            "with Monte Carlo, or solve in a reduced order space.",
             self.said)
+        self.assertNotIn("fit a surface from a few anchor solves", self.said)
         self.assertNotIn("Two admissible methods", self.said)
         self.assertNotIn("brute the ensemble", self.said)
         self.assertNotIn("anchor a surface", self.said)
@@ -177,14 +178,30 @@ class WordingPins(unittest.TestCase):
     def test_staged_delay_disclaimer_removed(self):
         self.assertNotIn("No delays are staged", self.said)
 
-    def test_contrast_bullet_rides_in_the_same_emitted_entry(self):
-        # Owner rule: bullets are rows within ONE emitted entry, never a
-        # separate entry per bullet.
-        entries = [p["message"] for e, p in self.events
+    def test_contrast_line_is_the_numericists_emitted_once(self):
+        # Owner cut (2026-07-25): the contrast line moves to the
+        # numericist voice, emitted exactly once.
+        entries = [(p["role"], p["message"]) for e, p in self.events
                    if e == "transcript.entry"]
-        watch = [m for m in entries if "Watch the reduced-order lane" in m]
-        self.assertEqual(len(watch), 1)
-        self.assertIn("The Monte-Carlo lane needs all", watch[0])
+        contrast = [(r, m) for r, m in entries
+                    if "The Monte-Carlo lane needs all" in m]
+        self.assertEqual(len(contrast), 1)
+        self.assertEqual(contrast[0][0], "NUMERICIST")
+
+    def test_owner_cut_lines_are_gone(self):
+        # Owner cuts (2026-07-25), removed entirely from the transcript.
+        self.assertNotIn("envelopes mean different things", self.said)
+        self.assertNotIn("Both lanes are live now", self.said)
+        self.assertNotIn("Watch the reduced-order lane", self.said)
+        self.assertNotIn("Ensemble bracketing the range", self.said)
+
+    def test_speedup_is_stated_in_core_minutes_only(self):
+        # Owner cut (2026-07-25): no wall multiplier beside the speedup.
+        self.assertIn("in core-minutes.", self.said)
+        self.assertNotIn("(wall", self.said)
+        report = [p for e, p in self.events if e == "report.ready"][0]
+        self.assertIn("in core-minutes.", report["summary"])
+        self.assertNotIn("(wall", report["summary"])
 
     def test_envelope_contrast_derives_from_configured_counts(self):
         total_mc = 3 * len(rs.ALPHAS)
@@ -345,6 +362,9 @@ class RaceCertificateConvention(unittest.TestCase):
             self.assertIn(token, self.text)
         # No mesh block on a meshless act; no method names on the sealed page.
         self.assertNotIn("Mesh Validity", self.text)
+        # Owner cut (2026-07-25): the speedup is core-minutes only.
+        self.assertNotIn("x wall", self.text)
+        self.assertNotIn("wall ", self.text)
         for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra",
                        "GCI", "least-squares"):
             self.assertNotIn(banned, self.text)

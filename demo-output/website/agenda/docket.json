@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-25T19:18:19+00:00",
+ "generated_at": "2026-07-25T23:35:22+00:00",
  "proposals": [
   {
    "id": "r1-monitor-walltime-rule",
@@ -136,6 +136,20 @@
    "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention.",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "agp-beadb3545c04",
+   "objective": "Add a fifth refinement rung to the B-52 Stratofortress-class airframe grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.0551, 0.0448, 0.0491, 0.0472 across the rungs, and the record states the verdict as: rungs not monotone; conservative band, largest spread times 1.25. A further rung can settle the observed order.",
+   "citations": [
+    "B-52 Stratofortress-class airframe grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 193,880 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-25T23:35:19+00:00"
   },
   {
    "id": "agp-f493fff26990",
@@ -326,6 +340,22 @@
    "created_at": "2026-07-25T02:07:58+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "r2-closure-coefficient-uncertainty",
+   "objective": "Give the model channel a measured parametric basis: propagate published k-omega SST closure-coefficient intervals through solves on the motorcycle held mesh and report the resulting drag envelope as coefficient-interval evidence alongside the current transferred estimate",
+   "rationale": "The model channel today rests on closure-family spread and validation-history transfer; neither measures how much of the answer rides on the closure coefficients themselves. The Schaefer papers supply defensible epistemic intervals with named provenance for every SST coefficient (beta-star in [0.0784, 0.1024] from Wilcox's measured stress ratio, a1 in [0.31, 0.40] which may only be increased, kappa in [0.38, 0.42] from pipe-flow experiments) and show SST is the most coefficient-sensitive of the common RANS models, with beta-star dominating drag and skin friction and a1 rising wherever the flow separates - directly relevant to a bluff body carrying a rider. The recipe holds the 353,578-cell motorcycle mesh and numerics fixed, restarts each case from the converged baseline (the papers' own cost trick), and solves one-at-a-time corner cases for the five coefficients the papers found significant: beta-star, a1, sigma-w1, beta-star/beta1, beta-star/beta2, each at its interval bounds with a1 varied upward only. Ten solves at about six minutes each from measured motorcycle solve times gives roughly 60 core-minutes; the drag envelope across the set is a measured coefficient-interval band, reported as an interval (no probability density assumed), never folded into the quadrature u_val as a sigma. If the band is material against the numerical channel of plus or minus 0.00053 on Cd, a second stage promotes the top three coefficients to a 20-sample Latin Hypercube set (order-2 response surface at oversampling 2, per the papers' design) and runs the new Sobol analysis layer for variance shares, about 120 further core-minutes. Caveat carried honestly: the intervals' provenance is flow-independent but the papers' sensitivity rankings are transonic; our solves measure the incompressible separated-flow ranking locally, which is the point.",
+   "citations": [
+    "Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows, Schaefer, Hosder, West, Rumsey, Carlson and Kleb, AIAA Journal 55(1), 2017",
+    "Uncertainty Quantification and Sensitivity Analysis of SA Turbulence Model Coefficients in Two and Three Dimensions, Schaefer, Cary, Mani and Spalart, AIAA 2017-1710"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate",
+   "expected_knowledge_gain": "A measured coefficient-interval band on the motorcycle Cd for the model channel, a ranking of the five SST coefficients by drag swing in an incompressible separated flow (testing whether the papers' transonic ranking of beta-star first and a1-in-separation transfers), and a standing perturbed-coefficient recipe reusable on any held mesh",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-25",
+   "launch_prompt": "Run a closure-coefficient uncertainty mission on the motorcycle held mesh: hold mesh and numerics fixed, restart every case from the converged baseline, and solve one-at-a-time corner cases for the five significant SST coefficients - beta-star in [0.0784, 0.1024], a1 in [0.31, 0.40] upward only, sigma-w1 in [0.3, 0.7], beta-star/beta1 in [1.19, 1.31], beta-star/beta2 in [1.05, 1.45] - ten solves at about six minutes each. Report the Cd envelope across the set as the measured coefficient-interval band for the model channel, shown alongside (not replacing) the transferred estimate and stated as an interval, and rank the coefficients by swing. If the band is material against the numerical channel, promote the top three coefficients to a 20-sample Latin Hypercube set and run the Sobol analysis layer for variance shares with the earned-badge convention."
   },
   {
    "id": "agp-527efc1cbb44",

@@ -328,7 +328,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.researcher(
         ("" if stated_solver else "• Both lanes solve with VSPAERO. ") +
         "• Two ways to find one smooth peak: sweep the whole ensemble with "
-        "Monte Carlo, or fit a surface from a few anchor solves. "
+        "Monte Carlo, or solve in a reduced order space. "
         "• The only honest question is what each path costs. "
         "• So we run them side by side and measure.")
     roster.idle(CHIEF_RESEARCHER)
@@ -355,10 +355,6 @@ def main(request: str | None = None, params: dict | None = None,
         f"fitted surface, one confirmation = {total_rom} solver runs. "
         f"• Same peak, same ±{TOLERANCE_DEG:g}° tolerance, the same box: "
         f"{MAX_WORKERS} slots split evenly, {ROM_WORKERS} per lane.")
-    script.numericist(
-        "• The two envelopes mean different things: the Monte-Carlo band is "
-        "the stated input spread; the reduced-order band is the surrogate's "
-        "residual against one confirming solver run.")
 
     if emit:
         emit("race.init", {
@@ -378,10 +374,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "running both lanes", "working")
     roster.set_workers(MAX_WORKERS, "shared solver slots")
-    script.engineer(
-        "• Both lanes are live now, two reserved slots each on one box. "
-        "• Watch the reduced-order lane cross the line first, then the "
-        "Monte-Carlo lane keeps solving to earn its envelope. "
+    script.numericist(
         f"• The Monte-Carlo lane needs all {total_mc} solves to reach a "
         f"confidence band this tight; the reduced-order lane gets there "
         f"with {total_rom}.")
@@ -439,8 +432,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"{2 * mc['peak_sem']:.2f}; reduced-order {rom['confirmed']:.2f} at "
         f"{rom['alpha_star']:g}°, and they agree to {agreement_pct}%. "
         f"• Cost: {cm_mc:.1f} core-min versus {cm_rom:.1f} core-min. "
-        f"• Measured speedup {speedup_cm}× in core-minutes "
-        f"(wall {speedup_wall}×).")
+        f"• Measured speedup {speedup_cm}× in core-minutes.")
 
     if emit:
         emit("race.result", {
@@ -489,8 +481,7 @@ def main(request: str | None = None, params: dict | None = None,
                         f"peak L/D {rom['confirmed']:.2f} at "
                         f"{rom['alpha_star']:g}°. They agree to "
                         f"{agreement_pct}%; the measured speedup is "
-                        f"{speedup_cm}× in core-minutes "
-                        f"(wall {speedup_wall}×)."),
+                        f"{speedup_cm}× in core-minutes."),
             "figures": []})
 
     # The three uncertainty channels, every value measured in THIS run:
@@ -549,8 +540,7 @@ def main(request: str | None = None, params: dict | None = None,
                  "envelope": f"{2 * mc['peak_sem']:.2f}", **verdict},
                 {"quantity": "Measured speedup, reduced-order vs full "
                              "ensemble sweep",
-                 "value": f"{speedup_cm}x in core-minutes",
-                 "envelope": f"wall {speedup_wall}x"},
+                 "value": f"{speedup_cm}x in core-minutes"},
             ],
             # Structured result block: Title Case labels, verbatim numbers.
             "result_fields": [
@@ -558,8 +548,7 @@ def main(request: str | None = None, params: dict | None = None,
                              f"{rom['alpha_star']:g} deg"),
                 ("Band (95%)", f"±{2 * mc['peak_sem']:.2f}"),
                 ("Agreement", f"{agreement_pct}%"),
-                ("Speedup", f"{speedup_cm}x core-minutes, "
-                            f"{speedup_wall}x wall"),
+                ("Speedup", f"{speedup_cm}x core-minutes"),
                 ("Solver Runs", f"{mc['n_solves']} ensemble lane, "
                                 f"{rom['n_solves']} reduced-order lane"),
                 ("Cost", f"{cm_mc:.1f} vs {cm_rom:.1f} core-min"),

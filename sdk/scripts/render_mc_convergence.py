@@ -400,6 +400,7 @@ def _pyplot():
 
 X_LIM = (1.8, 105.0)
 Y_LIM = (0.05, 2.4)
+TITLE = "MC convergence vs Reduced model"
 
 
 def _base_axes(plt, story):
@@ -408,9 +409,8 @@ def _base_axes(plt, story):
     ax.set_yscale("log")
     ax.set_xlim(*X_LIM)
     ax.set_ylim(*Y_LIM)
-    ax.set_xlabel("solver runs  $N$  (log scale)", color=INK, fontsize=13)
-    ax.set_ylabel(r"error band on peak $L/D$  (log scale)",
-                  color=INK, fontsize=13)
+    ax.set_xlabel("solver runs  $N$", color=INK, fontsize=13)
+    ax.set_ylabel(r"error band on peak $L/D$", color=INK, fontsize=13)
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
     for spine in ("left", "bottom"):
@@ -430,8 +430,7 @@ def _base_axes(plt, story):
     grid_n = np.geomspace(2, 100, 200)
     ax.plot(grid_n, guarantee_half_width(story["peak_sd"], grid_n),
             color=INK, linewidth=1.6, linestyle=(0, (6, 4)), alpha=0.85,
-            label="theoretical guarantee: error falls as 1 over sqrt N "
-                  "(anchored at the measured variance)")
+            label="theoretical guarantee")
     return fig, ax
 
 
@@ -491,8 +490,7 @@ def _draw_rom(ax, story, upto_n=None, *, annotate: bool):
         res = story["surrogate"]["residual"]
         ax.annotate(
             f"reduced-order model: converges in {n_rom} solver runs\n"
-            f"envelope $\\pm${res:.3f}, confirmed by its final run\n"
-            f"(model error, measured at the next recorded run)",
+            f"envelope $\\pm${res:.3f}",
             xy=(0.30, 0.155), xycoords="axes fraction", ha="left",
             fontsize=10.5, color=INK)
 
@@ -509,9 +507,8 @@ def render_hero(story: dict, out_png: Path) -> Path:
         f"$\\pm${hw:.3f} at {n88} runs\npublished $\\pm$0.10 (95%)",
         xy=(0.985, 0.035), xycoords="axes fraction", ha="right",
         va="bottom", fontsize=10.5, color=INK, weight="bold")
-    ax.set_title(
-        "Monte-Carlo convergence, measured: the NACA race",
-        color=INK, fontsize=14, loc="left", pad=14, weight="bold")
+    ax.set_title(TITLE, color=INK, fontsize=14, loc="left", pad=14,
+                 weight="bold")
     leg = ax.legend(frameon=False, fontsize=9.5, loc="upper right",
                     bbox_to_anchor=(0.995, 0.97), labelcolor=INK)
     for text in leg.get_texts():
@@ -545,9 +542,8 @@ def render_frames(story: dict, out_dir: Path) -> list[Path]:
             "\n".join(lines),
             xy=(0.985, 0.035), xycoords="axes fraction", ha="right",
             va="bottom", fontsize=11.5, color=INK, weight="bold")
-        ax.set_title(
-            "Monte-Carlo convergence, measured: the NACA race",
-            color=INK, fontsize=14, loc="left", pad=14, weight="bold")
+        ax.set_title(TITLE, color=INK, fontsize=14, loc="left", pad=14,
+                     weight="bold")
         leg = ax.legend(frameon=False, fontsize=9.5, loc="upper right",
                         bbox_to_anchor=(0.995, 0.97), labelcolor=INK)
         for text in leg.get_texts():
