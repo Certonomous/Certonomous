@@ -16,7 +16,7 @@ Every number is read from the recorded artifacts, nothing is invented:
 * mission-output/race-study/work/mc/mc-s{S}a{A}/result.json  (88 files)
 * mission-output/race-study/work/rom/rom-*/result.json       (5 files)
 * the act's published numbers live in
-  mission-output/race-study/certificate.pdf (C-2026-2960).
+  mission-output/race-study/certificate.pdf (C-2026-9704).
 
 The estimator study: the act's Monte-Carlo band is 2 * stdev / sqrt(m) over
 the m per-sample peaks, and one ensemble member costs 11 solver runs (a full
@@ -313,8 +313,8 @@ def build_story(work: Path = WORK, *, orderings: int = ORDERINGS,
 def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
     """Every checkable claim in the deliverable, checked against the records
     and the act's certificate (mission-output/race-study/certificate.pdf,
-    C-2026-2960: peak L/D 18.14 +- 0.06 at 95 percent, input channel 0.060,
-    speedup 14.8x core-minutes, 88 + 5 solver runs, residual 0.084)."""
+    C-2026-9704: peak L/D 18.14 +- 0.06 at 95 percent, input channel 0.065,
+    speedup 16.7x core-minutes, 88 + 5 solver runs, residual 0.084)."""
     checks = []
 
     slope = story["slope_rms"]
@@ -327,9 +327,9 @@ def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
     hw = story["hw_final"]
     checks.append({
         "name": "N = 88 half-width reproduces the act's published band",
-        "pass": round(hw, 2) == 0.06 and round(hw, 3) == 0.060,
-        "detail": f"recomputed +-{hw:.4f}; certificate C-2026-2960 publishes "
-                  f"+-0.06 (95 percent) with input channel 0.060. The +-0.07 "
+        "pass": round(hw, 2) == 0.06 and round(hw, 3) == 0.065,
+        "detail": f"recomputed +-{hw:.4f}; certificate C-2026-9704 publishes "
+                  f"+-0.06 (95 percent) with input channel 0.065. The +-0.07 "
                   f"band belongs to the earlier race-benchmark passes "
                   f"(demo-output/website/race/benchmarks.md), not this act."})
 
@@ -345,16 +345,16 @@ def run_checks(story: dict, *, slope_tol: float = 0.05) -> list[dict]:
 
     spd = story["speedup_solver_time"]
     checks.append({
-        "name": "measured speedup reproduces the act's 14.8x",
-        "pass": round(spd, 1) == 14.8 or round(spd) == 15,
+        "name": "measured speedup reproduces the act's 16.7x",
+        "pass": round(spd, 1) == 16.7 or round(spd) == 17,
         "detail": f"recorded solver time {story['mc_seconds']:.1f} s over 88 "
                   f"runs vs {story['rom_seconds']:.1f} s over 5 runs = "
-                  f"{spd:.2f}x; certificate says 14.8x core-minutes"})
+                  f"{spd:.2f}x; certificate says 16.7x core-minutes"})
 
     spr = story["seconds_per_run"]
     checks.append({
-        "name": "per-run wall cost matches the stated 4.80 s",
-        "pass": abs(spr - 4.80) < 0.01,
+        "name": "per-run wall cost matches the stated 4.25 s",
+        "pass": abs(spr - 4.25) < 0.01,
         "detail": f"mean recorded elapsed over the 88 ensemble runs "
                   f"{spr:.3f} s per solver run"})
 
@@ -589,9 +589,9 @@ artifacts; nothing is synthesized.
 | reduced-order solver runs | {story['n_rom_runs']} | mission-output/race-study/work/rom (4 anchors + 1 confirmation, result.json each) |
 | peak L/D, ensemble mean | {story['peak_mean']:.2f} | mean of the 8 per-sample peaks below |
 | peak L/D, reduced-order confirmed | {story['rom']['confirm']['l_d']:.2f} at alpha {story['rom']['confirm']['alpha']:g} | work/rom/rom-confirm/result.json |
-| ensemble 95% band at 88 runs | +-{story['hw_final']:.3f} (published +-0.06) | 2 x stdev / sqrt(8) over the per-sample peaks; certificate C-2026-2960 |
+| ensemble 95% band at 88 runs | +-{story['hw_final']:.3f} (published +-0.06) | 2 x stdev / sqrt(8) over the per-sample peaks; certificate C-2026-9704 |
 | reduced-order envelope | +-{story['surrogate']['residual']:.3f} | recorded confirmation {story['rom']['confirm']['l_d']:.4f} vs surface prediction {story['surrogate']['predicted']:.4f} from the 4 recorded anchors; certificate says residual 0.084 |
-| measured speedup, solver time | {story['speedup_solver_time']:.1f}x | {story['mc_seconds']:.1f} s over 88 runs vs {story['rom_seconds']:.1f} s over 5 runs (elapsed_s in every result.json); certificate says 14.8x core-minutes |
+| measured speedup, solver time | {story['speedup_solver_time']:.1f}x | {story['mc_seconds']:.1f} s over 88 runs vs {story['rom_seconds']:.1f} s over 5 runs (elapsed_s in every result.json); certificate says 16.7x core-minutes |
 | measured cost per run | {story['seconds_per_run']:.2f} s | mean elapsed_s over the 88 ensemble records |
 | fitted convergence slope | {story['slope_rms']:+.3f} | log-log fit over the root mean square curve, N = 22..88; guarantee is -1/2 |
 | ensemble standard deviation | {story['peak_sd']:.4f} | stdev of the 8 per-sample peaks; anchors the guarantee line |
@@ -635,8 +635,8 @@ curve starts at 3 runs. Every value is a recorded solver result.
 ## Provenance note on the published band
 
 The race act's own certificate (mission-output/race-study/certificate.pdf,
-C-2026-2960, issued 2026-07-26T02:01:54Z) publishes peak L/D 18.14 +- 0.06
-at 95 percent with input channel 0.060, speedup 14.8x core-minutes, 88 + 5
+C-2026-9704, issued 2026-07-26T02:16:51Z) publishes peak L/D 18.14 +- 0.06
+at 95 percent with input channel 0.065, speedup 16.7x core-minutes, 88 + 5
 solver runs. The +-0.07 band circulating with the value 18.14 belongs to
 the earlier race-benchmark passes (demo-output/website/race/benchmarks.md:
 pass1 18.10 +- 0.07, pass2 18.20 +- 0.07); this panel reproduces the race
