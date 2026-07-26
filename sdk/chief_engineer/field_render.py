@@ -134,7 +134,16 @@ def load_field_surface(sources, *, field: str = "p",
         else:
             all_field.extend([0.0] * len(faces))
     payload, display_values = _package_painted(all_v, all_f, all_field, max_faces, name)
-    _attach_field(payload, display_values, field)
+    # The reported physical extremes must come from the undecimated per-face
+    # data (``all_field``, one value per source triangle, straight out of
+    # foamToVTK) rather than from ``display_values``: those have already been
+    # through vertex-clustering aggregation for any body over ``max_faces``,
+    # which averages the stagnation peak into its cooler neighbours (see
+    # ``_package_painted``'s docstring). Reporting the min/max of the
+    # undecimated source list means display simplification can never change
+    # the physics the JSON claims to carry.
+    physical_range = (min(all_field), max(all_field)) if all_field else None
+    _attach_field(payload, display_values, field, physical_range=physical_range)
     return payload
 
 
@@ -242,31 +251,67 @@ def _package_painted(vertices, faces, face_values, max_faces: int, name: str):
     return payload, display_values
 
 
-def _attach_field(payload: dict[str, Any], face_values, field: str) -> None:
-    """Carry a normalised field value per kept face, plus its physical range.
+def _attach_field(payload: dict[str, Any], face_values, field: str, *,
+                  physical_range: tuple[float, float] | None = None) -> None:
+    """Carry a normalised field value per kept face, plus two distinct ranges.
 
     ``face_values`` must already be one-to-one with ``payload["faces"]`` —
     :func:`_package_painted` guarantees that for both the decimated and the
     untouched path.
+
+    Two ranges are reported, and a future consumer must not confuse them:
+
+    * ``min``/``max`` — the PHYSICAL range: the true extremes of the solved
+      field, i.e. what the solver actually computed. When ``physical_range``
+      is given (the caller's undecimated, pre-clustering per-face values)
+      that is what is reported; a decimated body's averaged display faces
+      never get to define the physical extremes, since clustering dilutes a
+      sharp stagnation peak into its cooler neighbours. When the caller has
+      no undecimated data to hand (e.g. a direct unit-test call), this falls
+      back to the true min/max of ``face_values`` itself — never to the
+      clipped percentiles below, so this key is always an unclipped extreme.
+    * ``color_min``/``color_max`` (aliased as ``display_min``/``display_max``
+      for the existing GUI legend) — a robust 2nd/98th percentile CLIP, so a
+      single stagnation spike does not flatten the whole surface to one
+      colour. This is a display device only. Anything that renders a
+      colorbar must label it as the display/color-mapping range, never as
+      the field's maximum — a colorbar stating the clipped high as "the"
+      maximum misinforms the viewer about the true peak pressure.
     """
     if not face_values:
         payload["field"] = None
         return
     sampled = face_values
-    # Clip to robust percentiles: a single stagnation spike would otherwise
-    # flatten the whole surface to one colour. The 2nd/98th keep the real
-    # pressure variation across the wings and body visible.
+    # Clip to robust percentiles for the COLOUR MAP only: a single stagnation
+    # spike would otherwise flatten the whole surface to one colour. The
+    # 2nd/98th keep the real pressure variation across the wings and body
+    # visible. This clipped pair must never be reported as the field's
+    # physical min/max (that was the bug: it understated every published
+    # peak pressure by clipping away the real extreme and then mislabeling
+    # the clipped value as the maximum).
     ordered = sorted(sampled)
-    lo = ordered[max(0, int(0.02 * len(ordered)))]
-    hi = ordered[min(len(ordered) - 1, int(0.98 * len(ordered)))]
-    span = (hi - lo) or 1.0
+    color_lo = ordered[max(0, int(0.02 * len(ordered)))]
+    color_hi = ordered[min(len(ordered) - 1, int(0.98 * len(ordered)))]
+    span = (color_hi - color_lo) or 1.0
+    if physical_range is not None:
+        true_min, true_max = physical_range
+    else:
+        true_min, true_max = min(sampled), max(sampled)
     payload["field"] = {
         "name": field,
-        "min": lo,
-        "max": hi,
-        # 0..1 per drawn face, for the colormap in the browser.
-        "values": [round(min(1.0, max(0.0, (v - lo) / span)), 4) for v in sampled],
-        "display_min": round(lo, 1), "display_max": round(hi, 1),
+        # Physical range: the solver's own unclipped extremes. This is what
+        # any reported/published Cp_max or Cp_min must be read from.
+        "min": true_min,
+        "max": true_max,
+        # 0..1 per drawn face, for the colormap in the browser. Normalised
+        # against the CLIPPED color range, not the physical one, so one
+        # stagnation spike does not wash out the rest of the surface.
+        "values": [round(min(1.0, max(0.0, (v - color_lo) / span)), 4)
+                   for v in sampled],
+        # Color-mapping range only (clipped percentiles): label any colorbar
+        # built from this as the display range, not the field's maximum.
+        "color_min": round(color_lo, 1), "color_max": round(color_hi, 1),
+        "display_min": round(color_lo, 1), "display_max": round(color_hi, 1),
     }
 
 

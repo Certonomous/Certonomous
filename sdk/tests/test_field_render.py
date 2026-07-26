@@ -128,7 +128,8 @@ class NonDecimatedFrozenPipelineTests(unittest.TestCase):
         golden = {
             "bounds": {"max": [1.0, 1.0, 0.0], "min": [0.0, 0.0, 0.0]},
             "faces": [[0, 1, 2], [1, 3, 2]],
-            "field": {"display_max": 30.0, "display_min": 20.0,
+            "field": {"color_max": 30.0, "color_min": 20.0,
+                      "display_max": 30.0, "display_min": 20.0,
                       "max": 30.0, "min": 20.0, "name": "p",
                       "values": [0.0, 1.0]},
             "name": "surface",
