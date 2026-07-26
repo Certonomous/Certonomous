@@ -146,8 +146,10 @@ def _package_painted(vertices, faces, face_values, max_faces: int, name: str):
 
     Below the decimation threshold this defers to :func:`geometry._package`
     unchanged and passes the per-face values straight through — the pipeline
-    for non-decimated bodies (motorbike, B-52) is byte-identical, which is the
-    frozen-rendering acceptance bar.
+    for non-decimated bodies (the B-52's 15,684 merged patch faces, the NACA
+    sections) is byte-identical, which is the frozen-rendering acceptance bar.
+    The motorbike is NOT one of them: its 72 patches merge to 101,137 faces
+    and take the decimated branch below.
 
     Above the threshold ``_package`` decimates by vertex clustering, so source
     face *i* has no relationship to display face *i*: sampling the value list
