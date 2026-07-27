@@ -56,9 +56,9 @@ BODIES = {
     "b52": {
         "case": "study-b52",
         "case_field_json": "b52_field.json",
-        "span_axis": 1,
-        "plane_axes": (0, 2),
-        "body_label": "B-52 fuselage at 20 m/s",
+        "span_axis": 0,
+        "plane_axes": (2, 1),
+        "body_label": "B-52 fuselage at 100 m/s",
         "surface_file": None,
         "surface_scale": 1.0,
     },
