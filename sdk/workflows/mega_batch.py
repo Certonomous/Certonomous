@@ -463,6 +463,59 @@ def run_batch(
 
 
 # --------------------------------------------------------------------------
+# Single-instance lock
+# --------------------------------------------------------------------------
+#
+# Added 2026-07-27 after an audit of the ledger found 55 duplicated indices in
+# 186,838-186,893, every pair written between 05:11:15 and 05:12:52 on
+# 2026-07-27 -- BEFORE the outage, not across the restart. ``claim_next`` runs
+# on one thread and adds to ``done`` the moment it hands an index out, so a
+# single session physically cannot emit the same index twice. Two sessions can.
+# ``runner.pid`` was dated 05:11 and held PID 2303296, so a second runner was
+# launched while the 03:21 runner was still alive, and both appended for the
+# ~100 s until the box died.
+#
+# This is the same failure mode as the historical 1,168-duplicate episode in
+# 59,899-61,068. The ledger is append-only and the distiller de-duplicates
+# prefer-ok, so no measurement is lost -- but the distinct-evaluation count is
+# corrupted every time it happens. Refusing the second launch is the fix.
+
+def _pid_is_live_runner(pid: int) -> bool:
+    """True if ``pid`` is alive AND looks like another mega-batch runner.
+
+    Checked against the cmdline so a recycled PID belonging to some unrelated
+    process can never block a legitimate start.
+    """
+    try:
+        cmdline = Path(f"/proc/{pid}/cmdline").read_bytes().decode("utf-8", "replace")
+    except (FileNotFoundError, ProcessLookupError, PermissionError):
+        return False
+    return "mega_batch" in cmdline
+
+
+def acquire_runner_lock(pid_file: Path, *, force: bool = False, log=print) -> bool:
+    """Claim ``pid_file`` for this process. False means refuse to start."""
+    if pid_file.exists():
+        try:
+            existing = int(pid_file.read_text().strip())
+        except (ValueError, OSError):
+            existing = None
+        if existing is not None and existing != os.getpid() and _pid_is_live_runner(existing):
+            if not force:
+                log(
+                    f"[mega-batch] REFUSING TO START: another runner is live at PID "
+                    f"{existing} (per {pid_file}). Two concurrent runners duplicate "
+                    f"ledger indices -- this exact mistake corrupted 55 rows on "
+                    f"2026-07-27. Stop it first, or pass --force if you are certain."
+                )
+                return False
+            log(f"[mega-batch] --force given; starting alongside live PID {existing}")
+    pid_file.parent.mkdir(parents=True, exist_ok=True)
+    pid_file.write_text(str(os.getpid()))
+    return True
+
+
+# --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
 
@@ -490,7 +543,17 @@ def main(argv: list[str] | None = None) -> int:
                         help="stop gracefully when free disk falls below this (GiB)")
     parser.add_argument("--min-avail-mem-gb", type=float, default=2.0,
                         help="stop gracefully when available memory falls below this (GiB)")
+    parser.add_argument("--pid-file", type=Path, default=None,
+                        help="single-instance lock file (default: runner.pid beside the ledger)")
+    parser.add_argument("--force", action="store_true",
+                        help="start even if another live runner holds the pid file")
     args = parser.parse_args(argv)
+
+    pid_file = args.pid_file
+    if pid_file is None:
+        pid_file = args.ledger.parent / "runner.pid"
+    if not acquire_runner_lock(pid_file.resolve(), force=args.force):
+        return 1
 
     stop_file = args.stop_file
     if stop_file is None:
