@@ -40,5 +40,88 @@
     },
     "verdict": "Split verdict. For estimands the surrogate tracks (anything that varies with alpha, e.g. the sweep-mean L/D), MFMC at the MC lane's own 449 s budget would have cut estimator variance by 150.1x (rho 0.9967, cost ratio 1e+07) \u2014 equivalently, matched the MC lane's error using roughly 1% of its budget. For the question the race actually asked \u2014 peak L/D under the Reynolds spread at fixed alpha \u2014 the recorded surrogate carries no Reynolds dependence, its lane is constant across the ensemble, and MFMC would NOT have beaten the race's approach at any budget: fusion needs a cheap model that moves with the uncertain input."
   },
-  "evidence_stage": "offline-evidence-measured"
+  "evidence_stage": "offline-evidence-measured",
+  "reynolds_aware_evidence": {
+    "measured_at": "2026-07-27",
+    "script": "sdk/scripts/run_reynolds_surrogate_evidence.py",
+    "reynolds_range": {
+      "train_val_domain_re": [
+        700000.0,
+        1300000.0
+      ],
+      "observed_race_span_re": [
+        800618.7455959716,
+        1091315.8107000827
+      ],
+      "re_ref": 1000000.0
+    },
+    "data_split": {
+      "train_n": 25,
+      "val_n": 16,
+      "train_alphas": [
+        0.0,
+        2.5,
+        5.0,
+        7.5,
+        10.0
+      ],
+      "train_res": [
+        700000.0,
+        850000.0,
+        1020000.0,
+        1150000.0,
+        1300000.0
+      ],
+      "val_alphas": [
+        1.25,
+        3.75,
+        6.25,
+        8.75
+      ],
+      "val_res": [
+        775000.0,
+        925000.0,
+        1075000.0,
+        1225000.0
+      ]
+    },
+    "surrogate_accuracy": {
+      "train": {
+        "n": 25,
+        "rmse": 0.22043926201340153,
+        "max_abs_error": 0.40161779926125263,
+        "r2": 0.9943415753138448
+      },
+      "val": {
+        "n": 16,
+        "rmse": 0.26255054729953625,
+        "max_abs_error": 0.45037759939684463,
+        "r2": 0.9892565472435462
+      },
+      "overfit_flag": false
+    },
+    "full_set_case": {
+      "n_pairs": 88,
+      "rho_old": 0.99669,
+      "rho_new": 0.996917,
+      "variance_ratio_old": 0.00663469118653504,
+      "variance_ratio_new": 0.006217646933309041,
+      "variance_ratio_new_empirical": 0.016240051632875965
+    },
+    "fixed_alpha_estimand": {
+      "peak_alpha_deg": 0.0,
+      "n_samples": 8,
+      "hi_sigma": 0.1272,
+      "lo_sigma_old": 0.0,
+      "lo_sigma_new": 0.106852,
+      "rho_old": null,
+      "degenerate_old": true,
+      "rho_new": 0.999702,
+      "variance_ratio_new": 0.0006162437846787011,
+      "variance_ratio_new_empirical": 0.07478966192205498,
+      "pays_new": true,
+      "mfmc_now_wins": true
+    },
+    "verdict": "For the race's actual estimand (peak L/D under the Reynolds spread at fixed alpha), the Reynolds-aware surrogate moves the correlation from UNDEFINED (constant lane) to 0.9997, and MFMC NOW WINS: variance ratio 0.0006 (1622.73x vs the direct approach) at the estimand's own 41 s budget. On the full alpha x Reynolds paired set the correlation moved from 0.9967 to 0.9969 and the variance ratio from 0.00663 to 0.00622 (160.8x vs direct MC)."
+  }
 }
