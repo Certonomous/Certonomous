@@ -1,0 +1,151 @@
+{
+  "generated_at": "2026-07-27T04:35:41.264011+00:00",
+  "measured_date": "2026-07-27",
+  "purpose": "Round 2: extends the closure-challenge trained entry from periodic-hills-only correction to also cover DUCT (via a new mesh-reconstructed gradU/walldist feature set and a newly trained DUCT-specific model) and NASA_2DWMH (via mesh-reconstructed gradU and the existing round-1 PH model, pre-registered choice, no matching-family training data exists for NASA_2DWMH).",
+  "harness_check": {
+    "benchmark_repo_commit": "deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "eval_package_repo_commit": "1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "eval_package_reported_version": "0.2.1",
+    "matches_round1_provenance": true,
+    "confirmation_method": "re-read git rev-parse HEAD of both scratch clones and closure_challenge.__version__ at run time; compared against the values recorded in closure_challenge_rans_floor.json's provenance block from round 1's own harness-evidence run."
+  },
+  "checks": {
+    "baseline_reproduces_0_1036_under_this_harness_invocation": true,
+    "measured_floor_this_run": 0.1036,
+    "leakage_check": {
+      "ph_train_val_test_disjoint": true,
+      "duct_train_val_test_disjoint": true,
+      "nasa_2dwmh_has_no_family_training_data": true,
+      "nasa_2dwmh_model_choice_preregistered_before_test_scoring": true,
+      "ground_truth_test_npz_touched_only_via": "closure_challenge.score()/evaluate_by_case(), called once on the final 8-case predictions dict",
+      "gradu_walldist_reconstructed_from": "RANS U field + raw polyMesh geometry only (no ground truth of any kind used)"
+    },
+    "duct_train_vs_validation_divergence_flag": false
+  },
+  "field_availability_by_case": {
+    "AR_1_Ret_360/AR_3_Ret_360/AR_14_Ret_180 (DUCT)": {
+      "present": [
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "p",
+        "phi",
+        "C (constant/, static mesh)",
+        "V (constant/)"
+      ],
+      "missing": [
+        "gradU",
+        "walldist"
+      ],
+      "reconstructed": [
+        "gradU (Green-Gauss from mesh + RANS U + BCs)",
+        "walldist (nearest wall-patch-face-centre)"
+      ]
+    },
+    "NASA_2DWMH": {
+      "present": [
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "p",
+        "phi",
+        "C",
+        "walldist (all shipped in 2000/)"
+      ],
+      "missing": [
+        "gradU"
+      ],
+      "reconstructed": [
+        "gradU (Green-Gauss from mesh + RANS U + BCs)"
+      ]
+    }
+  },
+  "mesh_reconstruction_validation": {
+    "script": "sdk/scripts/validate_closure_mesh_recon.py",
+    "cell_centres_volumes_vs_shipped_C_V_on_DUCT_AR_1_Ret_360": "PASS (max abs err ~1e-13 on C, ~5e-22 on V)",
+    "gradU_vs_shipped_gradU_on_PH_training_cases": "PASS (pooled relative Frobenius error 0.0012-0.0029, Pearson r 0.9997-1.0000, checked on 3 different periodic-hills training cases, never a test/val case)",
+    "walldist_vs_shipped_walldist_on_PH_training_cases": "PASS (Pearson r 1.0000, mean relative error <0.1%)",
+    "note": "OpenFOAM's own shipped gradU storage convention was found empirically to be the transpose of the textbook (1/V)*sum(Uf (x) Sf) Green-Gauss formula; closure_mesh_recon.py transposes to match it (documented in-line). This does not affect round 1's Pope-invariant features either way, since all 5 invariants are unchanged under a global transpose of gradU."
+  },
+  "duct_model": {
+    "train_cases": [
+      "AR_1_Ret_180",
+      "AR_3_Ret_180",
+      "AR_5_Ret_180",
+      "AR_10_Ret_180"
+    ],
+    "validation_case_held_out": [
+      "AR_7_Ret_180"
+    ],
+    "test_cases": [
+      "AR_1_Ret_360",
+      "AR_3_Ret_360",
+      "AR_14_Ret_180"
+    ],
+    "n_train_cells": 41971,
+    "train_pooled_scaled_mae": 0.0202,
+    "train_pooled_scaled_mae_per_case": {
+      "AR_1_Ret_180": 0.0364,
+      "AR_3_Ret_180": 0.0293,
+      "AR_5_Ret_180": 0.0208,
+      "AR_10_Ret_180": 0.0161
+    },
+    "validation_pooled_scaled_mae": 0.0203,
+    "validation_pooled_scaled_mae_per_case": {
+      "AR_7_Ret_180": 0.0203
+    },
+    "validation_raw_rans_identity_on_same_cells": 0.0807
+  },
+  "nasa_2dwmh_model": {
+    "model_used": "round-1 periodic-hills-trained model (pre-registered choice; no matching-family training data exists for NASA_2DWMH in this benchmark release)",
+    "result": "NASA_2DWMH regressed slightly under this model (0.0621 floor -> 0.0632 corrected, +0.0011 worse). Reported honestly, not reverted: reverting after seeing this per-case result would require a second, test-truth-informed scoring call, which the hard rules forbid. The one official score()/evaluate_by_case() call already made is final for this entry."
+  },
+  "second_priority_diagnostic_ph_degraded_cases": {
+    "question": "why did alpha_05_4071_4048 (0.0461->0.0723) and alpha_05_4071_2024 (0.0719->0.0974) get WORSE under round 1's PH correction, while alpha_15_13929_4048 (0.1320->0.0501) and alpha_15_13929_2024 (0.2049->0.1011) improved dramatically?",
+    "observation": "the two degraded cases are exactly the two whose RAW RANS floor was already far BETTER than the training-set average (floor 0.0461/0.0719 vs a ~0.12 mean raw-RANS scaled-MAE over the 21 PH training cases per round 1's train_raw_rans_identity_on_same_cells=0.1204); the two improved cases had floors far WORSE than that average (0.1320/0.2049). alpha_05 is the mildest hill-angle geometry in the family (weakest adverse pressure gradient, least separation), which is exactly where k-omega SST is already closest to LES.",
+    "hypothesis": "the trained correction is a single global regression fit to minimize average error across the whole training distribution (dominated by more-separated, harder cases); it has no mechanism to detect 'this cell already has almost no RANS-LES gap, output near-zero correction'. It therefore applies a similar-magnitude nonzero correction everywhere, which closes a large gap on hard cases but adds net noise/bias on cases that were already accurate, since there is little real gap left to close there.",
+    "not_pursued_this_run": "adding model capacity (e.g. a magnitude-gating term, predicting confidence/shrinkage toward zero correction, or an ensemble) was NOT implemented this run because the primary task (DUCT/NASA reconstruction) already produced a large net improvement (0.0869->0.0741) and this was scoped as the second priority, only required if reconstruction proved impossible. It did not."
+  },
+  "official_test_harness_result": {
+    "round1_overall": 0.0869,
+    "round1_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0723,
+      "alpha_05_4071_2024": 0.0974,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "round2_extended_overall": 0.0741,
+    "round2_extended_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0723,
+      "alpha_05_4071_2024": 0.0974,
+      "AR_1_Ret_360": 0.0919,
+      "AR_3_Ret_360": 0.0862,
+      "AR_14_Ret_180": 0.0303,
+      "NASA_2DWMH": 0.0632
+    },
+    "rans_identity_floor_overall_this_run": 0.1036,
+    "rans_identity_floor_per_case_this_run": {
+      "alpha_15_13929_4048": 0.132,
+      "alpha_15_13929_2024": 0.2049,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "delta_vs_round1": -0.0128,
+    "improves_on_round1": true,
+    "delta_vs_floor": -0.0296,
+    "beats_floor": true,
+    "delta_vs_docket_rank4_0_0779": -0.0038
+  }
+}
