@@ -22,14 +22,15 @@
   ],
   "fingerprint": "c8bbf70374542fbd",
   "numerical": {
-    "band_abs": 0.006367624102174725,
-    "band_rel": 0.62716,
+    "band_abs": 0.007206904996527777,
+    "band_rel": 0.70982,
     "observed_order": 1.696,
-    "order_used": 1.696,
+    "order_used": null,
     "clamped": false,
-    "method": "3-mesh study (r = 1.16), observed order p = 1.70; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014)",
-    "conclusive": true,
-    "value_working": 0.010153170333333334
+    "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "conclusive": false,
+    "value_working": 0.010153170333333334,
+    "recheck_note": "RE-GATED 2026-07-27 under the corrected eca_hoekstra_band() (uq-b52-ladder-monotonicity fix): the old gate certified this at p = 1.70 (inside [0.5, 2.5], monotone) with band_abs 0.006367624102174725, conclusive=true. The new extrapolation-sanity guard catches what the order-window check missed: the Richardson-extrapolated value is 0.005059071051593566, which is BELOW the entire measured range [0.010153170333333334, 0.015918694330555556], not a limit, a divergence signal. No mesh was re-solved and no measured Cd or cell count above was changed; only the certification verdict and the (now conservative, factor-1.25-on-spread) band are corrected."
   },
   "provenance": [
     "naca0015_sail-rung-coarse",

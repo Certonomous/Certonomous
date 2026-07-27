@@ -514,6 +514,15 @@ def _band_bullet(band: dict) -> str:
     if band.get("monotone") is False:
         return (f"• Rungs not monotone; conservative band, largest spread "
                 f"times 1.25: ±{band['band_abs']:.2g} on Cd.")
+    if not band.get("clamped") and band.get("conclusive") is False:
+        # Monotone, order inside the credible window, and STILL rejected:
+        # the increment-trend or extrapolation-sanity guard fired (the
+        # B-52 near-miss). The band below is the conservative spread*1.25
+        # fallback, never the fitted GCI number, so it must not be cited
+        # to Eca & Hoekstra as if it were.
+        return (f"• Ladder not in the asymptotic range (increments growing "
+                f"or extrapolation diverging); conservative band, largest "
+                f"spread times 1.25: ±{band['band_abs']:.2g} on Cd.")
     note = (f"• Numerical uncertainty from 3 meshes: "
             f"±{band['band_abs']:.2g} on Cd (Eca & Hoekstra 2014).")
     if band.get("clamped"):
@@ -737,7 +746,16 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         else:
             parts.append("Grid-refinement study on meshes of this case")
         order = num.get("observed_order")
-        if order is not None:
+        if order is not None and not num.get("clamped") \
+                and num.get("conclusive") is False:
+            # Monotone, order inside the credible window, and still
+            # rejected: the increment-trend or extrapolation-sanity guard
+            # fired. Say so plainly rather than quoting a bare order that
+            # would read as an ordinary clean fit.
+            parts.append(f"Observed order {order:.2f}, but the ladder is "
+                         "not in the asymptotic range; conservative band, "
+                         "largest spread times 1.25")
+        elif order is not None:
             parts.append(f"Observed order {order:.2f}"
                          + ("; limited to the theoretical range for the band"
                             if num.get("clamped") else ""))

@@ -255,11 +255,16 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     # Guard 2 (extrapolation sanity): the Richardson-extrapolated value must
     # land at or very near the measured range of the ladder. An
     # extrapolation that lands outside the data it was fitted from is a
-    # divergence signal, not a limit.
+    # divergence signal, not a limit. "The ladder" is every distinct rung
+    # this call was given, not only the three used for the local fit -- a
+    # coarser rung that was dropped for the order solve is still measured
+    # data, and folding it in only ever makes this guard MORE permissive.
     phi0 = f3 + e21 / (r21 ** p - 1.0) if r21 ** p != 1.0 else None
-    lo, hi = min(f1, f2, f3), max(f1, f2, f3)
-    tol = EXTRAPOLATION_TOL_FRAC * (hi - lo)
-    extrapolation_ok = phi0 is not None and (lo - tol) <= phi0 <= (hi + tol)
+    all_values = [v for _, v in distinct]
+    range_lo, range_hi = min(all_values), max(all_values)
+    tol = EXTRAPOLATION_TOL_FRAC * (range_hi - range_lo)
+    extrapolation_ok = (phi0 is not None
+                       and (range_lo - tol) <= phi0 <= (range_hi + tol))
     clamped = not (p_lo <= p <= p_hi)
     # These two guards only gate the case that would otherwise be certified
     # "conclusive": an order p already outside [p_lo, p_hi] is clamped and
@@ -269,7 +274,9 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     # that looks clean -- monotone, p inside the window -- yet is still not
     # asymptotic, which is exactly what the order-window check alone misses.
     if not clamped and (not shrinking or not extrapolation_ok):
-        spread = hi - lo
+        # The conservative fallback band, matching the non-monotone
+        # branch's convention: largest spread of the fit triple times 1.25.
+        spread = max(f1, f2, f3) - min(f1, f2, f3)
         result.update({
             "observed_order": round(p, 3), "order_used": None,
             "clamped": False, "band_abs": 1.25 * spread, "monotone": True,
