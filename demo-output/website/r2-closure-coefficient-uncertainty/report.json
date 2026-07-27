@@ -624,7 +624,7 @@
   "second_stage_trigger": {
     "condition_in_agenda": "if the band is material against the numerical channel of plus or minus 0.00053 on Cd, promote the top three coefficients to a 20-sample Latin Hypercube set (~120 more core-minutes)",
     "condition_met": true,
-    "action_taken_this_run": "NOT RUN. Flagging the trigger as met is this run's job; launching the second stage is a scheduling decision left to the supervisor."
+    "action_taken_this_run": "RUN AND COMPLETED in a later session (this update): the previous agent's detached stage-two driver (/tmp/closure_uq/stage2/stage2_driver.py) had already run all 20 LHS samples to completion (ALL_DONE.json, 2026-07-26T08:33 UTC) before the host was restarted; the handover note claiming it was still 'AUTHORISED AND RUNNING' at resume time was stale. This update reads the 20 per-sample markers as-is (none re-run, none dropped) and reports the measured LHS band below."
   },
   "convergence_verdict_per_run": [
     {
@@ -874,5 +874,969 @@
       "joint_up_peak_to_peak": 0.0001746
     },
     "physical_or_pseudo_time_view": "View, offered for the parallel NACA 0012 question: the oscillation here is most plausibly physical in ORIGIN, a bluff-body wake instability of a massively separated flow at Reynolds number of order 10^6 that steady RANS renders as a limit cycle, though its amplitude and period as computed are pseudo-time artifacts and not time-accurate measurements. The evidence is that the cycle amplitude tracks modelled turbulent damping systematically: joint_up, whose coefficients (a1 0.40, betaStar 0.0784) raise eddy viscosity in the separated region, extinguishes the cycle almost completely (window std 0.0000402), while joint_down, whose coefficients lower it, shows the largest cycle in the study (std 0.0024, peak to peak 0.0112), with the nominal-coefficient samples in between (ptp about 0.002). A pure pseudo-time artifact would not be expected to respond this systematically to the turbulence closure. A bluff body at this Reynolds number is also a much stronger candidate for genuinely physical unsteadiness than an airfoil."
+  },
+  "stage_two_lhs": {
+    "purpose": "Model uncertainty channel: build a MEASURED parametric basis (not a transferred estimate) by sampling the joint 3-factor epistemic box for the top three SST coefficients by stage-one OAT swing (a1, betaStar, betaStar/beta2 ratio) with a designed Latin Hypercube, per docs/UNCERTAINTY-DOCTRINE.md's queued coefficient-interval propagation recipe.",
+    "resume_audit": {
+      "handover_claim": "status note said stage two was 'AUTHORISED AND RUNNING, launched detached with per sample markers so it survives agent death'",
+      "process_table_check": "checked at 2026-07-27T03:35Z per instruction: no stage2_driver.py process exists; host has been restarted since stage two ran",
+      "marker_audit_finding": "all 20 final markers (s2_01.json .. s2_20.json) already present under /tmp/closure_uq/stage2/markers/, plus ALL_DONE.json (core_minutes_stage2=115.34388445159833), all timestamped 2026-07-26 08:04-08:33 UTC, i.e. BEFORE the restart. Stage two had already run to completion; it was not resumed and not re-run in this session. No BUDGET_STOP.json and no *.FAILED.json marker exist.",
+      "verdict": "20 of 20 samples were already done at resume; 0 were run in this session."
+    },
+    "design": {
+      "seed": 20260726,
+      "n_samples": 20,
+      "scheme": "maximin Latin Hypercube (best of 2000 random LHS by min pairwise distance)",
+      "min_pairwise_distance_unit_cube_sq": 0.06427763601423125,
+      "intervals": {
+        "a1": [
+          0.31,
+          0.4
+        ],
+        "betaStar": [
+          0.0784,
+          0.1024
+        ],
+        "ratio_betaStar_beta2": [
+          1.05,
+          1.45
+        ]
+      },
+      "beta2_rule": "beta2 = betaStar_sample / ratio_sample (published interval binds the ratio)",
+      "held_at_nominal": {
+        "alphaOmega1": 0.5,
+        "beta1": 0.075,
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "provenance_check": "stage2_design.json seed field is the mandated 20260726 and the scheme is the mandated maximin LHS (best-of-2000 draws by min pairwise distance), matching the handover spec verbatim; every marker's overrides were compared field-for-field against this design file's samples and all 20 matched exactly (no drift, no fresh draw)."
+    },
+    "settings_identity_check": {
+      "verdict": "IDENTICAL to stage one and to each other",
+      "evidence": "stage2_driver.py imports and reuses stage one's driver.py run_sample() and continue_run.py continue_sample() unchanged: same base_case, same decomposed_300_ref restart cache (t=300 archived converged state), same NPROC=4, same mesh (353,578 cells, not touched), same nominal coefficient set, same forceCoeffs/motorBikeGroup QoI. The only per-sample difference across all 20 stage-two runs and the stage-one runs is the coefficient overrides dict, which is exactly what the study varies."
+    },
+    "convergence_protocol": "leg1 = 100-iteration restart from t=300; accepted if the longest stationary suffix (halves agree within suffix std) is >=100 iterations AND window std <= 0.0015 (the joint_down lesson: a large limit cycle needs an extended window, not a short one). Otherwise extended in up to 3 further 300-iteration legs, re-tested on the full concatenated post-restart series each time, exactly the stage-one/joint-corner discipline.",
+    "convergence_summary": {
+      "n_samples": 20,
+      "n_plateaued": 20,
+      "n_failed": 0,
+      "n_dropped": 0,
+      "leg_count_histogram": {
+        "1_leg_(100_iter,_plateaued_immediately)": 4,
+        "2_legs_(400_iter_total)": 16,
+        "3_or_more_legs": 0
+      },
+      "verdict": "20/20 CONVERGED (plateaued), 0 FAILED, 0 dropped from the record."
+    },
+    "per_sample_table": [
+      {
+        "name": "s2_01",
+        "unit_cube": [
+          0.8145590480683131,
+          0.6852234511634816,
+          0.5816831362363604
+        ],
+        "factors": {
+          "a1": 0.3833103143261482,
+          "betaStar": 0.09484536282792357,
+          "ratio_betaStar_beta2": 1.282673254494544
+        },
+        "overrides": {
+          "a1": 0.3833103143261482,
+          "betaStar": 0.09484536282792357,
+          "beta2": 0.07394351016175102
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07394351016175102,
+          "betaStar": 0.09484536282792357,
+          "a1": 0.3833103143261482,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.4213219065,
+        "cd_std_over_window": 0.0014204209719684351,
+        "cd_min_in_window": 0.416908,
+        "cd_max_in_window": 0.4238493,
+        "peak_to_peak": 0.006941299999999984,
+        "core_minutes": 6.607713994866693
+      },
+      {
+        "name": "s2_02",
+        "unit_cube": [
+          0.6759031747824202,
+          0.5868921649653083,
+          0.9220556720461615
+        ],
+        "factors": {
+          "a1": 0.37083128573041785,
+          "betaStar": 0.0924854119591674,
+          "ratio_betaStar_beta2": 1.4188222688184646
+        },
+        "overrides": {
+          "a1": 0.37083128573041785,
+          "betaStar": 0.0924854119591674,
+          "beta2": 0.06518463516659162
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.06518463516659162,
+          "betaStar": 0.0924854119591674,
+          "a1": 0.37083128573041785,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 1,
+        "iterations_total_post_restart": 100,
+        "stationary_suffix_len": 100,
+        "plateaued": true,
+        "qoi_window_n": 100,
+        "cd_mean_over_oscillation_window": 0.416249018,
+        "cd_std_over_window": 0.0004678867415048207,
+        "cd_min_in_window": 0.415402,
+        "cd_max_in_window": 0.4172647,
+        "peak_to_peak": 0.001862699999999995,
+        "core_minutes": 1.736433446600131
+      },
+      {
+        "name": "s2_03",
+        "unit_cube": [
+          0.9961573419820718,
+          0.8437695238317758,
+          0.6973405412840006
+        ],
+        "factors": {
+          "a1": 0.3996541607783865,
+          "betaStar": 0.09865046857196262,
+          "ratio_betaStar_beta2": 1.3289362165136003
+        },
+        "overrides": {
+          "a1": 0.3996541607783865,
+          "betaStar": 0.09865046857196262,
+          "beta2": 0.07423265868302344
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07423265868302344,
+          "betaStar": 0.09865046857196262,
+          "a1": 0.3996541607783865,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.41989394325,
+        "cd_std_over_window": 0.0007207832186270971,
+        "cd_min_in_window": 0.4169948,
+        "cd_max_in_window": 0.4208888,
+        "peak_to_peak": 0.0038940000000000086,
+        "core_minutes": 7.062796993800051
+      },
+      {
+        "name": "s2_04",
+        "unit_cube": [
+          0.5570862895660225,
+          0.8834020311058997,
+          0.07996300593897546
+        ],
+        "factors": {
+          "a1": 0.36013776606094206,
+          "betaStar": 0.0996016487465416,
+          "ratio_betaStar_beta2": 1.0819852023755903
+        },
+        "overrides": {
+          "a1": 0.36013776606094206,
+          "betaStar": 0.0996016487465416,
+          "beta2": 0.09205453875696057
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.09205453875696057,
+          "betaStar": 0.0996016487465416,
+          "a1": 0.36013776606094206,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42469492375,
+        "cd_std_over_window": 0.0020437484687972113,
+        "cd_min_in_window": 0.4166542,
+        "cd_max_in_window": 0.4268059,
+        "peak_to_peak": 0.010151700000000041,
+        "core_minutes": 6.7139415883997575
+      },
+      {
+        "name": "s2_05",
+        "unit_cube": [
+          0.24768007641981615,
+          0.7868981342747966,
+          0.8000675278997388
+        ],
+        "factors": {
+          "a1": 0.33229120687778346,
+          "betaStar": 0.09728555522259512,
+          "ratio_betaStar_beta2": 1.3700270111598956
+        },
+        "overrides": {
+          "a1": 0.33229120687778346,
+          "betaStar": 0.09728555522259512,
+          "beta2": 0.07100995413238677
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07100995413238677,
+          "betaStar": 0.09728555522259512,
+          "a1": 0.33229120687778346,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.41331495474999996,
+        "cd_std_over_window": 0.0012071281106110644,
+        "cd_min_in_window": 0.409139,
+        "cd_max_in_window": 0.4164176,
+        "peak_to_peak": 0.007278600000000024,
+        "core_minutes": 7.927573817999898
+      },
+      {
+        "name": "s2_06",
+        "unit_cube": [
+          0.47051792852329444,
+          0.9783090031506976,
+          0.8520128559531053
+        ],
+        "factors": {
+          "a1": 0.3523466135670965,
+          "betaStar": 0.10187941607561675,
+          "ratio_betaStar_beta2": 1.3908051423812422
+        },
+        "overrides": {
+          "a1": 0.3523466135670965,
+          "betaStar": 0.10187941607561675,
+          "beta2": 0.073252113449326
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.073252113449326,
+          "betaStar": 0.10187941607561675,
+          "a1": 0.3523466135670965,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 1,
+        "iterations_total_post_restart": 100,
+        "stationary_suffix_len": 100,
+        "plateaued": true,
+        "qoi_window_n": 100,
+        "cd_mean_over_oscillation_window": 0.41477287500000004,
+        "cd_std_over_window": 0.000673385017560532,
+        "cd_min_in_window": 0.4136673,
+        "cd_max_in_window": 0.4166547,
+        "peak_to_peak": 0.0029873999999999734,
+        "core_minutes": 1.702742587866669
+      },
+      {
+        "name": "s2_07",
+        "unit_cube": [
+          0.03409841600093402,
+          0.24151553423896063,
+          0.6081567659345437
+        ],
+        "factors": {
+          "a1": 0.31306885744008406,
+          "betaStar": 0.08419637282173506,
+          "ratio_betaStar_beta2": 1.2932627063738176
+        },
+        "overrides": {
+          "a1": 0.31306885744008406,
+          "betaStar": 0.08419637282173506,
+          "beta2": 0.06510384348576283
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.06510384348576283,
+          "betaStar": 0.08419637282173506,
+          "a1": 0.31306885744008406,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 210,
+        "plateaued": true,
+        "qoi_window_n": 210,
+        "cd_mean_over_oscillation_window": 0.41003167190476186,
+        "cd_std_over_window": 0.0010441125152018493,
+        "cd_min_in_window": 0.4083197,
+        "cd_max_in_window": 0.4121434,
+        "peak_to_peak": 0.0038236999999999854,
+        "core_minutes": 6.557288928866425
+      },
+      {
+        "name": "s2_08",
+        "unit_cube": [
+          0.38999376074986225,
+          0.48916685981654284,
+          0.42275223810417806
+        ],
+        "factors": {
+          "a1": 0.3450994384674876,
+          "betaStar": 0.09014000463559703,
+          "ratio_betaStar_beta2": 1.2191008952416713
+        },
+        "overrides": {
+          "a1": 0.3450994384674876,
+          "betaStar": 0.09014000463559703,
+          "beta2": 0.07393974115467114
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07393974115467114,
+          "betaStar": 0.09014000463559703,
+          "a1": 0.3450994384674876,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.41999193525,
+        "cd_std_over_window": 0.0014939708225171064,
+        "cd_min_in_window": 0.4165604,
+        "cd_max_in_window": 0.4227218,
+        "peak_to_peak": 0.0061613999999999836,
+        "core_minutes": 6.448388580199632
+      },
+      {
+        "name": "s2_09",
+        "unit_cube": [
+          0.8601336322750738,
+          0.1281247484219462,
+          0.17489829293704634
+        ],
+        "factors": {
+          "a1": 0.3874120269047567,
+          "betaStar": 0.08147499396212671,
+          "ratio_betaStar_beta2": 1.1199593171748186
+        },
+        "overrides": {
+          "a1": 0.3874120269047567,
+          "betaStar": 0.08147499396212671,
+          "beta2": 0.07274817282439643
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07274817282439643,
+          "betaStar": 0.08147499396212671,
+          "a1": 0.3874120269047567,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42730480550000005,
+        "cd_std_over_window": 0.002270488214485984,
+        "cd_min_in_window": 0.4170845,
+        "cd_max_in_window": 0.4300462,
+        "peak_to_peak": 0.012961699999999965,
+        "core_minutes": 6.40672266666661
+      },
+      {
+        "name": "s2_10",
+        "unit_cube": [
+          0.2545551114538454,
+          0.2540494959224815,
+          0.11469522460925627
+        ],
+        "factors": {
+          "a1": 0.3329099600308461,
+          "betaStar": 0.08449718790213956,
+          "ratio_betaStar_beta2": 1.0958780898437026
+        },
+        "overrides": {
+          "a1": 0.3329099600308461,
+          "betaStar": 0.08449718790213956,
+          "beta2": 0.07710455084852623
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07710455084852623,
+          "betaStar": 0.08449718790213956,
+          "a1": 0.3329099600308461,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.4215297625,
+        "cd_std_over_window": 0.0015808072035810522,
+        "cd_min_in_window": 0.4164384,
+        "cd_max_in_window": 0.4240148,
+        "peak_to_peak": 0.007576400000000039,
+        "core_minutes": 6.625951583999995
+      },
+      {
+        "name": "s2_11",
+        "unit_cube": [
+          0.16612341890412657,
+          0.365652214784142,
+          0.33987529015043166
+        ],
+        "factors": {
+          "a1": 0.32495110770137137,
+          "betaStar": 0.08717565315481941,
+          "ratio_betaStar_beta2": 1.1859501160601726
+        },
+        "overrides": {
+          "a1": 0.32495110770137137,
+          "betaStar": 0.08717565315481941,
+          "beta2": 0.07350701515543029
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07350701515543029,
+          "betaStar": 0.08717565315481941,
+          "a1": 0.32495110770137137,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.41681788599999997,
+        "cd_std_over_window": 0.0010165459538574722,
+        "cd_min_in_window": 0.4147351,
+        "cd_max_in_window": 0.4185956,
+        "peak_to_peak": 0.003860499999999989,
+        "core_minutes": 6.887080633799876
+      },
+      {
+        "name": "s2_12",
+        "unit_cube": [
+          0.09751848715014158,
+          0.6290657100386321,
+          0.2887899753050699
+        ],
+        "factors": {
+          "a1": 0.3187766638435127,
+          "betaStar": 0.09349757704092718,
+          "ratio_betaStar_beta2": 1.165515990122028
+        },
+        "overrides": {
+          "a1": 0.3187766638435127,
+          "betaStar": 0.09349757704092718,
+          "beta2": 0.0802199007421066
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.0802199007421066,
+          "betaStar": 0.09349757704092718,
+          "a1": 0.3187766638435127,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 1,
+        "iterations_total_post_restart": 100,
+        "stationary_suffix_len": 100,
+        "plateaued": true,
+        "qoi_window_n": 100,
+        "cd_mean_over_oscillation_window": 0.415917808,
+        "cd_std_over_window": 0.00046482929246767886,
+        "cd_min_in_window": 0.415095,
+        "cd_max_in_window": 0.4168199,
+        "peak_to_peak": 0.0017249000000000292,
+        "core_minutes": 1.7441729704665099
+      },
+      {
+        "name": "s2_13",
+        "unit_cube": [
+          0.637938894517714,
+          0.9380439355936264,
+          0.49734969716614524
+        ],
+        "factors": {
+          "a1": 0.3674145005065943,
+          "betaStar": 0.10091305445424703,
+          "ratio_betaStar_beta2": 1.248939878866458
+        },
+        "overrides": {
+          "a1": 0.3674145005065943,
+          "betaStar": 0.10091305445424703,
+          "beta2": 0.08079896891901318
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.08079896891901318,
+          "betaStar": 0.10091305445424703,
+          "a1": 0.3674145005065943,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42012005275,
+        "cd_std_over_window": 0.0009061897859402499,
+        "cd_min_in_window": 0.4167097,
+        "cd_max_in_window": 0.4213869,
+        "peak_to_peak": 0.0046771999999999925,
+        "core_minutes": 6.864786068199949
+      },
+      {
+        "name": "s2_14",
+        "unit_cube": [
+          0.9156359647671988,
+          0.02209560089413809,
+          0.5185798028566477
+        ],
+        "factors": {
+          "a1": 0.3924072368290479,
+          "betaStar": 0.07893029442145931,
+          "ratio_betaStar_beta2": 1.257431921142659
+        },
+        "overrides": {
+          "a1": 0.3924072368290479,
+          "betaStar": 0.07893029442145931,
+          "beta2": 0.06277102807262394
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.06277102807262394,
+          "betaStar": 0.07893029442145931,
+          "a1": 0.3924072368290479,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42441982899999997,
+        "cd_std_over_window": 0.00166477956290285,
+        "cd_min_in_window": 0.41716,
+        "cd_max_in_window": 0.4265813,
+        "peak_to_peak": 0.009421300000000021,
+        "core_minutes": 6.881142868133368
+      },
+      {
+        "name": "s2_15",
+        "unit_cube": [
+          0.5342538595312055,
+          0.09954898175708098,
+          0.01468048782716182
+        ],
+        "factors": {
+          "a1": 0.3580828473578085,
+          "betaStar": 0.08078917556216994,
+          "ratio_betaStar_beta2": 1.0558721951308647
+        },
+        "overrides": {
+          "a1": 0.3580828473578085,
+          "betaStar": 0.08078917556216994,
+          "beta2": 0.07651416140582898
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.07651416140582898,
+          "betaStar": 0.08078917556216994,
+          "a1": 0.3580828473578085,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42598449975,
+        "cd_std_over_window": 0.0020835774300646806,
+        "cd_min_in_window": 0.4167768,
+        "cd_max_in_window": 0.4286664,
+        "peak_to_peak": 0.0118896,
+        "core_minutes": 6.607787673066438
+      },
+      {
+        "name": "s2_16",
+        "unit_cube": [
+          0.7480692940797546,
+          0.31754477214339577,
+          0.7282121835861436
+        ],
+        "factors": {
+          "a1": 0.37732623646717794,
+          "betaStar": 0.0860210745314415,
+          "ratio_betaStar_beta2": 1.3412848734344573
+        },
+        "overrides": {
+          "a1": 0.37732623646717794,
+          "betaStar": 0.0860210745314415,
+          "beta2": 0.06413333679904873
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.06413333679904873,
+          "betaStar": 0.0860210745314415,
+          "a1": 0.37732623646717794,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.41966672000000005,
+        "cd_std_over_window": 0.0009038735969702832,
+        "cd_min_in_window": 0.4169401,
+        "cd_max_in_window": 0.4213629,
+        "peak_to_peak": 0.0044228000000000045,
+        "core_minutes": 6.893879437066547
+      },
+      {
+        "name": "s2_17",
+        "unit_cube": [
+          0.14216895168412366,
+          0.44726235049605484,
+          0.9743253898131228
+        ],
+        "factors": {
+          "a1": 0.3227952056515711,
+          "betaStar": 0.08913429641190532,
+          "ratio_betaStar_beta2": 1.439730155925249
+        },
+        "overrides": {
+          "a1": 0.3227952056515711,
+          "betaStar": 0.08913429641190532,
+          "beta2": 0.06191041845242365
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.06191041845242365,
+          "betaStar": 0.08913429641190532,
+          "a1": 0.3227952056515711,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.4107374635,
+        "cd_std_over_window": 0.0016193947284302717,
+        "cd_min_in_window": 0.4082792,
+        "cd_max_in_window": 0.4163726,
+        "peak_to_peak": 0.008093399999999973,
+        "core_minutes": 7.063650521533418
+      },
+      {
+        "name": "s2_18",
+        "unit_cube": [
+          0.31918166761807265,
+          0.18823014618972816,
+          0.7750202819210934
+        ],
+        "factors": {
+          "a1": 0.33872635008562657,
+          "betaStar": 0.08291752350855347,
+          "ratio_betaStar_beta2": 1.3600081127684374
+        },
+        "overrides": {
+          "a1": 0.33872635008562657,
+          "betaStar": 0.08291752350855347,
+          "beta2": 0.06096840359265671
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.06096840359265671,
+          "betaStar": 0.08291752350855347,
+          "a1": 0.33872635008562657,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 1,
+        "iterations_total_post_restart": 100,
+        "stationary_suffix_len": 100,
+        "plateaued": true,
+        "qoi_window_n": 100,
+        "cd_mean_over_oscillation_window": 0.415815076,
+        "cd_std_over_window": 0.00048206548229882674,
+        "cd_min_in_window": 0.4149667,
+        "cd_max_in_window": 0.4170756,
+        "peak_to_peak": 0.002108899999999969,
+        "core_minutes": 1.7840524041333992
+      },
+      {
+        "name": "s2_19",
+        "unit_cube": [
+          0.43109868012741775,
+          0.7173339330565583,
+          0.22427567029124645
+        ],
+        "factors": {
+          "a1": 0.3487988812114676,
+          "betaStar": 0.0956160143933574,
+          "ratio_betaStar_beta2": 1.1397102681164986
+        },
+        "overrides": {
+          "a1": 0.3487988812114676,
+          "betaStar": 0.0956160143933574,
+          "beta2": 0.08389501882033036
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.08389501882033036,
+          "betaStar": 0.0956160143933574,
+          "a1": 0.3487988812114676,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42205857274999997,
+        "cd_std_over_window": 0.0017292032365319116,
+        "cd_min_in_window": 0.4165677,
+        "cd_max_in_window": 0.4250228,
+        "peak_to_peak": 0.008455099999999993,
+        "core_minutes": 6.60585477906643
+      },
+      {
+        "name": "s2_20",
+        "unit_cube": [
+          0.7719593488666637,
+          0.5209940705689586,
+          0.37716252229848884
+        ],
+        "factors": {
+          "a1": 0.37947634139799974,
+          "betaStar": 0.09090385769365501,
+          "ratio_betaStar_beta2": 1.2008650089193955
+        },
+        "overrides": {
+          "a1": 0.37947634139799974,
+          "betaStar": 0.09090385769365501,
+          "beta2": 0.0756986480732379
+        },
+        "coeffs_used": {
+          "alphaK1": 0.85,
+          "alphaK2": 1.0,
+          "alphaOmega1": 0.5,
+          "alphaOmega2": 0.856,
+          "gamma1": 0.5555555555555556,
+          "gamma2": 0.44,
+          "beta1": 0.075,
+          "beta2": 0.0756986480732379,
+          "betaStar": 0.09090385769365501,
+          "a1": 0.37947634139799974,
+          "b1": 1.0,
+          "c1": 10.0
+        },
+        "n_legs": 2,
+        "iterations_total_post_restart": 400,
+        "stationary_suffix_len": 400,
+        "plateaued": true,
+        "qoi_window_n": 400,
+        "cd_mean_over_oscillation_window": 0.42344202175,
+        "cd_std_over_window": 0.0016206938750430132,
+        "cd_min_in_window": 0.4169141,
+        "cd_max_in_window": 0.4254891,
+        "peak_to_peak": 0.008575,
+        "core_minutes": 6.2219229068665305
+      }
+    ],
+    "band": {
+      "quantity_of_interest": "Cd",
+      "n_samples": 20,
+      "baseline_cd": 0.416148,
+      "min": 0.41003167190476186,
+      "min_at_sample": "s2_07",
+      "max": 0.42730480550000005,
+      "max_at_sample": "s2_09",
+      "band_width": 0.017273133595238188,
+      "band_pct_of_baseline": 4.150718877716146,
+      "mean_of_sample_means": 0.41920428629523815,
+      "std_of_sample_means_population": 0.004764170798904865,
+      "std_of_sample_means_sample_n_minus_1": 0.004887936105312626,
+      "numerical_channel_half_width_cd": 0.00053,
+      "numerical_channel_full_width_cd": 0.00106,
+      "ratio_lhs_band_to_numerical_channel_full_width": 16.2954090521115,
+      "material": true,
+      "material_statement": "MATERIAL: the 20-sample LHS band (0.017273 Cd, 4.15% of baseline) is about 16.3x the numerical channel's full width (+/-0.00053 Cd, i.e. 0.00106 total). Not folded into any quadrature sigma; reported as a measured interval alongside the transferred estimate."
+    },
+    "oscillation_note": "Every sample Cd above is a MEAN OVER A STATIONARY OSCILLATION WINDOW (qoi_window_n iterations), never a point value, per this study's established convention. Per-sample peak-to-peak ranges 0.001725 to 0.012962 Cd across the 20 samples (10.0 to 75.0% of the LHS band width itself), comparable in scale to stage one's one-at-a-time per-sample peak-to-peak of 0.0017-0.0033 (8-16% of that band). The largest single-sample oscillation (s2_09... see table) reaches a peak-to-peak that is a substantial fraction of the whole between-sample spread, so a reader taking any one LHS sample as a point value would materially misstate its own precision.",
+    "comparison_to_corner_envelope": {
+      "corner_envelope_min": 0.4074039,
+      "corner_envelope_max": 0.4390491,
+      "corner_envelope_width": 0.03164520000000004,
+      "corner_envelope_label": "linear-superposition approximation from 2 of 32 full-factorial corners (12/32 sampled overall)",
+      "lhs_band_width": 0.017273133595238188,
+      "lhs_band_narrower_than_corner_envelope": true,
+      "lhs_band_as_pct_of_corner_envelope": 54.583739699032286,
+      "finding": "The LHS band (0.017273 Cd) is NARROWER than the two-corner envelope (0.031645 Cd), at 54.6% of its width. Per the standing rule, this is NOT read as the LHS superseding or tightening the joint estimate; it is explained by three measured, structural differences, not by interactions being unimportant:",
+      "reason_1_fewer_factors_moved": "The LHS varies only the top 3 of 5 coefficient families (a1, betaStar, betaStar/beta2 ratio); alphaOmega1 (sigma-w1) and betaStar/beta1 stay at nominal in every LHS sample, while BOTH joint corners moved all 5 to their bounds. Stage one's own OAT deltas put the combined contribution of the two omitted factors at about +0.000477 Cd toward joint_up (sigma_w1_lo +0.000391 + ratio_beta1_lo +0.0000861) and about -0.000977 Cd toward joint_down (sigma_w1_hi -0.000255 + ratio_beta1_hi -0.000722): real, but only a few percent of the 0.0143 gap between the two envelope widths.",
+      "reason_2_maximin_lhs_avoids_vertices_by_construction": "A maximin LHS design explicitly spreads points away from box corners (that is what min-pairwise-distance optimizes for), so no sample lands at or near the exact vertex the joint corners occupy. In the unit cube over (a1, betaStar, ratio), the nearest LHS sample to the 'all factors push Cd up' vertex (1,0,0) is s2_09 at Euclidean distance 0.258 (and it IS the LHS maximum, cd_mean=0.427305); the nearest to the 'all factors push Cd down' vertex (0,1,1) is s2_05 at distance 0.383. By design, the LHS never samples the vertex itself.",
+      "reason_3_measured_super_additivity_at_the_true_vertex": "Stage one's own superposition test found the joint_up corner exceeds the linear (additive) prediction by +0.0044905 Cd (24.4% of the predicted swing), resolved outside every oscillation scale involved: a real super-additive interaction at the vertex itself. Since the LHS band is built entirely from interior points and the true vertex response is measured to overshoot a smooth interior extrapolation there, the LHS envelope is expected to fall short of the corner extremum on structural grounds, independent of sample count.",
+      "additional_observation": "The LHS minimum (s2_07, cd_mean=0.410032) sits far from the 'down' vertex in unit-cube distance (0.854, not the nearest point to it) yet is the lowest of all 20 sample means; the response surface over this 3-factor box is not simply monotonic toward either vertex, corroborating rather than contradicting the interactions-matter finding from stage one.",
+      "conclusion": "Both bands are kept, not merged: the two-corner pair remains the wider, worst-case-oriented linear-superposition bound (0.4074-0.4390, 12/32 corners sampled); the 20-sample LHS band (0.4100-0.4273) is the measured, near-uniform characterization of the box INTERIOR and is the appropriate parametric basis for a distributional (not worst-case) treatment of the model channel. Neither is claimed to supersede the other."
+    },
+    "model_uncertainty_channel_statement": "MEASURED PARAMETRIC BASIS (replaces the 'queued' status in docs/UNCERTAINTY-DOCTRINE.md's model-channel recipe): a 20-sample maximin Latin Hypercube (seed 20260726) over the published epistemic intervals for the three most drag-sensitive k-omega SST closure coefficients (a1, betaStar, betaStar/beta2), solved on the held 353,578-cell motorcycle mesh restarted from the identical converged baseline, gives a measured Cd envelope of 0.410032 to 0.427305 (width 0.017273 Cd, 4.15% of baseline), carried as an interval alongside u_val and never converted to a sigma inside the quadrature, per doctrine. This interior/distributional band sits inside, and must be read alongside rather than in place of, the wider 0.4074-0.4390 (0.0316 Cd, 7.6%) two-corner worst-case envelope from the 12/32 sampled full-factorial corners; the gap between them is explained above, not papered over. Both bands are roughly an order of magnitude wider than the numerical channel (+/-0.00053 Cd).",
+    "core_minutes_stage_two": {
+      "total": 115.34388445159833,
+      "matches_ALL_DONE_marker": true,
+      "note": "run at NPROC=4 per sample by the earlier session (before this resume); this session ran 0 additional core-minutes since all 20 were already complete."
+    },
+    "failures": [],
+    "generated_at": "2026-07-27T03:41:33.482546+00:00"
   }
 }

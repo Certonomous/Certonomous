@@ -47,17 +47,27 @@ problem.").
    conceptual screen value and a solved value, the measured screen-vs-solve
    discrepancy IS direct model-channel evidence for the screen (airliner:
    |screen L/D - VSPAERO L/D| across the 9 finalists).
-   Coefficient-interval propagation (queued): a measured parametric basis
-   for this channel - perturbed-coefficient solve sets on a held mesh using
-   the published epistemic intervals for the k-omega SST closure
-   coefficients, band = the min/max envelope across the set, carried as an
-   interval alongside u_val and never converted to a sigma inside the
-   quadrature. Per "Uncertainty Quantification of Turbulence Model Closure
-   Coefficients for Transonic Wall-Bounded Flows" and "Uncertainty
-   Quantification and Sensitivity Analysis of SA Turbulence Model
-   Coefficients in Two and Three Dimensions" (Schaefer et al.). See
-   proposal r2-closure-coefficient-uncertainty; the current recipe above
-   stands unchanged until it lands.
+   Coefficient-interval propagation (landed 2026-07-27, motorbike case): a
+   measured parametric basis for this channel - perturbed-coefficient solve
+   sets on a held mesh using the published epistemic intervals for the
+   k-omega SST closure coefficients, band = the min/max envelope across the
+   set, carried as an interval alongside u_val and never converted to a
+   sigma inside the quadrature. Per "Uncertainty Quantification of
+   Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows"
+   and "Uncertainty Quantification and Sensitivity Analysis of SA
+   Turbulence Model Coefficients in Two and Three Dimensions" (Schaefer et
+   al.). Two measured bands now stand side by side, deliberately not
+   merged: a two-corner (12/32 full-factorial corners sampled)
+   linear-superposition worst-case envelope, 0.4074-0.4390 Cd (0.0316,
+   7.6% of baseline); and a 20-sample maximin LHS (seed 20260726) over the
+   top three coefficients by measured swing, 0.4100-0.4273 Cd (0.0173,
+   4.15%), which characterizes the box interior and is narrower than the
+   corner envelope for structural reasons (fewer factors moved, maximin
+   avoids vertices, the vertex response is measured super-additive), not
+   because interactions stopped mattering. See
+   demo-output/website/r2-closure-coefficient-uncertainty/report.json
+   (stage_two_lhs) and proposal r2-closure-coefficient-uncertainty for the
+   full evidence.
 
 ## Standing product rules that bind these
 - Never a fake number; every displayed value traces to a computation.
