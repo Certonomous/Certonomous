@@ -47,10 +47,10 @@ notes: >
   an opt-in add_layers path (every other body's mesh is unchanged); this
   wing was re-meshed with layers sized from a target y+ 30 at this Re
   (sdk/scripts/naca4412_credential_repair.py) and solved on a 3-rung ladder:
-    - medium  263,359 cells: Cd 0.024478, Cl 0.251922 (non-ortho 64.99, max
+    - medium  263,359 cells: Cd 0.024478, Cl 0.251922 (non-ortho 58.37, max
       skew 1.107, both mesh gates pass; layers 9.2/12, 94.2% of target
       thickness)
-    - fine    645,251 cells: Cd 0.018262, Cl 0.209547 (non-ortho 58.37, max
+    - fine    645,251 cells: Cd 0.018262, Cl 0.209547 (non-ortho 64.99, max
       skew 3.323, both mesh gates pass; layers 9.34/12, 94.5% of target
       thickness) -- GRADED RUNG, see below
     - finer 1,849,113 cells: Cd 0.018327, Cl 0.250179 (non-ortho 74.96 --

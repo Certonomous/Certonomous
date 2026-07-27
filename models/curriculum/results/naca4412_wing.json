@@ -32,7 +32,7 @@
         "cd": 0.024478019838095238, "cl": 0.2519217621904762,
         "cd_std_last_window": 6.058658494058972e-07,
         "converged_iterations": 126,
-        "max_non_orthogonality": 64.989619, "max_skewness": 1.1072287,
+        "max_non_orthogonality": 58.374353, "max_skewness": 1.1072287,
         "mesh_gates_pass": true,
         "layers_target": 12, "layers_achieved_avg": 9.2,
         "layer_thickness_pct_of_target": 94.2,
@@ -44,7 +44,7 @@
         "cd": 0.018262420944444444, "cl": 0.20954745755555554,
         "cd_std_last_window": 7.598081674942027e-06,
         "converged_iterations": 113,
-        "max_non_orthogonality": 58.374353, "max_skewness": 3.3232022,
+        "max_non_orthogonality": 64.989619, "max_skewness": 3.3232022,
         "mesh_gates_pass": true,
         "layers_target": 12, "layers_achieved_avg": 9.34,
         "layer_thickness_pct_of_target": 94.5,
@@ -92,7 +92,7 @@
     {
       "quantity": "Mesh (graded rung)",
       "value": "645,251 cells",
-      "envelope": "max non-orthogonality 58.374353, max skewness 3.3232022",
+      "envelope": "max non-orthogonality 64.989619, max skewness 3.3232022",
       "tier": "SOLVER-BACKED",
       "reason": "passes both mesh-quality gates; boundary layers resolved (12 layers requested, 9.34 achieved on average, 94.5% of target thickness)"
     },
