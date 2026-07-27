@@ -1,3 +1,10 @@
+/*--------------------------------*- C++ -*---------------------------------*\ 
+| ========                 |                                                 | 
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           | 
+|  \    /   O peration     | Version:  v1812                                 | 
+|   \  /    A nd           | Web:      www.OpenFOAM.com                      | 
+|    \/     M anipulation  |                                                 | 
+\*--------------------------------------------------------------------------*/ 
 FoamFile
 {
     version     2.0;
@@ -6,11 +13,25 @@ FoamFile
     location    "system";
     object      decomposeParDict;
 }
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 numberOfSubdomains     3;
 
 method                 scotch;
 
+kahipCoeffs 
+{ 
+    config                  fast;
+    imbalance              0.01;
+} 
+simpleCoeffs 
+{ 
+    n                  (2 2 1);
+    delta              0.001;
+} 
+
 distributed            false;
 
 roots();
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -89,9 +89,13 @@ daOptions = {
 
 # Mesh deformation setup. No symmetry planes: this is a genuine 3D external
 # domain (unlike the tutorial's z-thin, symmetry-plane-bounded 2D mesh).
+# IDWarp still requires the 'symmetryPlanes' key to be present (it refuses to
+# auto-detect symmetry for OpenFOAM/PLOT3D meshes even when there are none),
+# so pass an explicit empty list.
 meshOptions = {
     "gridFile": os.getcwd(),
     "fileType": "OpenFOAM",
+    "symmetryPlanes": [],
 }
 
 
