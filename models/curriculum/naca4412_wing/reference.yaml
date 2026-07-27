@@ -1,8 +1,8 @@
 # Experimental reference for the NACA 4412 finite wing at zero incidence.
 name: naca4412_wing
 title: NACA 4412 wing, zero incidence
-cd: 0.030
-cd_range: [0.008, 0.045]
+cd: 0.013570             # derived, see notes and sdk/scripts/derive_naca4412_reference.py
+cd_range: [0.009822, 0.017318]
 area_basis: planform         # chord*span = 1 x 3 = 3 m^2
 reynolds: 1.0e6
 reynolds_basis: chord
@@ -10,30 +10,75 @@ regime:
   label: attached, cambered section carrying lift at zero incidence
   reynolds_valid: [3.0e5, 6.0e6]
   reynolds_independent: false
-tolerance: 0.35              # wide: 3D induced drag on a low-aspect wing dominates and is uncertain;
-                             # brought in line with the lab's widest other band (flat_plate 0.35) --
-                             # 0.40 admitted both a 3.6% and a 37% deviation as equally valid, which
-                             # has no discriminating power and rewards the coarsest, least-resolved mesh.
-confidence: low
-reference_type: hand-set estimate, not a published measurement
-source: "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)"
-conditions: "alpha = 0, chord-Reynolds ~ 1e6, aspect ratio ~ 3, extruded straight"
+tolerance: 0.2762            # derived, not picked to pass or fail: RSS of the section-drag
+                             # citation range, the induced-drag e-bracket, and the wing's own
+                             # 3-rung grid-study spread in Cd and Cl (see notes below and
+                             # sdk/scripts/derive_naca4412_reference.py). Wide because the grid
+                             # component dominates: the ladder behind this body is not converged.
+confidence: low              # kept low: the grid study behind the graded solve is NOT conclusive
+reference_type: "derived (section drag + induced drag), not a published wind-tunnel measurement of this exact wing"
+source: "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed."
+conditions: "alpha = 0, chord-Reynolds ~ 1e6, aspect ratio 2.9991 (measured off the STL), extruded straight"
 solve:
   streamwise_axis: 0         # chord along X; face the flow chord-first
   velocity: 15.0             # with c=1 m and nu=1.5e-5, gives Re_c ~ 1e6
 notes: >
-  The cd value above (0.030) is a hand-set estimate, not a published
-  measurement: it was entered directly in this file with no computation and
-  no supporting script behind it. The cited Abbott & von Doenhoff figure is
-  the two-dimensional SECTION drag (~0.006-0.009), a different quantity from
-  the three-dimensional coefficient of an aspect-ratio-3 wing, so it anchors
-  the low end of the picture rather than the number itself. The 4412 is
-  cambered, so at zero incidence it already carries lift (section Cl ~ 0.4);
-  a finite aspect-ratio-3 wing adds substantial induced drag on top of the
-  section value, so the measured three-dimensional coefficient is expected
-  somewhere in the 0.008-0.045 range and is genuinely uncertain. The
-  confidence is marked low by design, and the tier logic honors that: this
-  body cannot carry a VALIDATED chip against a reference this uncertain, only
-  SOLVER-BACKED, until a lift-and-induced-drag breakdown replaces this
-  estimate with an actual computation. Referenced to planform area, so no
-  rebasing.
+  2026-07-27: cd replaced. The previous value (0.030) was a hand-set estimate
+  entered directly in this file with no computation and no supporting script
+  behind it (see git history, commit 5336dd5). It is superseded by
+  sdk/scripts/derive_naca4412_reference.py, a committed, runnable derivation:
+  Cd_reference = Cd_section + Cd_induced. Cd_section = 0.0075 +/- 0.0015
+  (midpoint and half-width of the cited Abbott & von Doenhoff section-drag
+  range -- unchanged, that citation was already sound). Cd_induced =
+  Cl^2/(pi*e*AR) with AR = 2.9991 (measured directly off this wing's own
+  STL, not assumed to be "~3") and Cl taken at the wing's own solved
+  condition, e bracketed 0.70-0.85 per Anderson (low end for a low-aspect-
+  ratio, untapered, unswept planform like this one; Raymer's empirical
+  Oswald formula was checked and rejected for this wing -- it extrapolates
+  outside its fitted AR range and predicts LESS induced drag at low AR, the
+  wrong direction; see the script for the arithmetic). The tolerance
+  (0.2762) is the derivation's own RSS'd uncertainty budget, fixed before
+  any comparison: the section-drag citation range, the e-bracket, AND (the
+  dominant term) the wing's own mesh-refinement-ladder spread in Cd and Cl.
+
+  Re-meshing, 2026-07-27: the archived case behind the previous credential
+  had addLayers false at Re 1e6 (no boundary-layer cells at all) and
+  archived no polyMesh, so it was not reproducible. external_aero.py gained
+  an opt-in add_layers path (every other body's mesh is unchanged); this
+  wing was re-meshed with layers sized from a target y+ 30 at this Re
+  (sdk/scripts/naca4412_credential_repair.py) and solved on a 3-rung ladder:
+    - medium  263,359 cells: Cd 0.024478, Cl 0.251922 (non-ortho 64.99, max
+      skew 1.107, both mesh gates pass; layers 9.2/12, 94.2% of target
+      thickness)
+    - fine    645,251 cells: Cd 0.018262, Cl 0.209547 (non-ortho 58.37, max
+      skew 3.323, both mesh gates pass; layers 9.34/12, 94.5% of target
+      thickness) -- GRADED RUNG, see below
+    - finer 1,849,113 cells: Cd 0.018327, Cl 0.250179 (non-ortho 74.96 --
+      FAILS the lab's own 70-degree gate; layers 6/12, only 58.3% of target
+      thickness -- degraded, not improved, over the other two rungs)
+  Cd and Cl are NOT monotonic across this ladder (medium->fine Cd fell 25%;
+  fine->finer Cd moved <1% but Cl swung back up 19%), so the ladder is
+  recorded grid_conclusive: false; no Richardson/observed-order fit is
+  used on non-asymptotic data. The "finer" rung's own independent mesh-
+  quality-gate failure and collapsed layer coverage is the leading
+  suspect for the non-monotonicity, and is why more cells was not treated
+  as more trustworthy here. The 645,251-cell ("fine") rung is the graded
+  point: it is the only rung that both passes both mesh-quality gates AND
+  achieves full layer coverage. y+ on that rung: min 7.37, max 261.3,
+  average 33.4 (face mean); by WALL AREA (not just face count): 82.4% of
+  the wetted surface sits below y+ 30 (viscous sublayer/buffer layer,
+  handled by the blended near-wall treatments in use here --
+  nutkWallFunction, omegaWallFunction, kqRWallFunction -- but outside the
+  classic log-law-only window a y+-30 target implies), 17.6% sits in the
+  classic log-law window 30-300, 0% exceeds 300.
+
+  Verdict: measured Cd 0.018262 is ~35% from this derived reference (Cd
+  0.013570), outside the +/-27.6% band even after that band was widened to
+  include the grid-study's own noise -- NOT VALIDATED, on the arithmetic,
+  independent of and in addition to the grid-conclusive gate. This is
+  recorded as a genuine result, not adjusted to pass: a fully-turbulent
+  RANS closure (kOmegaSST, no transition model) run from the leading edge
+  is well known to over-predict profile drag relative to natural-transition
+  wind-tunnel section data (the Abbott & von Doenhoff figure this reference
+  is anchored to) -- a plausible, but unconfirmed, contributor to the gap
+  that is noted here for the next investigation, not assumed as the answer.

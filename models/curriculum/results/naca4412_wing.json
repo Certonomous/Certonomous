@@ -2,58 +2,118 @@
   "name": "naca4412_wing",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 4.41,
-  "cd_measured": "0.02892",
-  "cd_compared": 0.0289,
+  "wall_minutes": 4.64,
+  "cd_measured": "0.018262",
+  "cl_measured": "0.209547",
+  "cd_compared": 0.0183,
   "area_basis": "planform",
   "basis_note": "already on the reference's planform-area basis",
-  "relative_error": 0.036,
-  "envelope": "\u00b14.6e-07",
-  "tier": "VALIDATED",
-  "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
-  "reference_cd": 0.03,
-  "reference_source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
-  "finished_at": "2026-07-23T04:17:19+00:00",
+  "relative_error": 0.3458,
+  "envelope": "±7.6e-06 over the final 20% of iterations",
+  "tier": "SOLVER-BACKED",
+  "verdict": "NOT VALIDATED",
+  "reason": "measured Cd 0.0183 is 35% from the derived reference Cd 0.01357 (Cd_section: Abbott & von Doenhoff (1959), NACA 4412 section polar 0.006-0.009; Cd_induced: Cl^2/(pi*e*AR), e 0.70-0.85 Anderson, at this wing's own solved Cl and AR), outside the ±27.6% band; the mesh-refinement ladder behind this solve is also not grid-conclusive (Cd and Cl non-monotonic across 263,359/645,251/1,849,113 cells)",
+  "reference_cd": 0.01357,
+  "reference_source": "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed.",
+  "finished_at": "2026-07-27T04:09:34+00:00",
+  "history": {
+    "previous_credential": {
+      "cd_measured": 0.02892, "reference_cd_then": 0.03, "tolerance_then": 0.4,
+      "tier_then": "VALIDATED",
+      "why_superseded": "reference (0.03) was hand-set with no derivation script; the 67,826-cell mesh behind the 0.02892 measurement had addLayers false at Re 1e6 (no boundary-layer cells) and archived no polyMesh (not reproducible). See models/curriculum/naca4412_wing/reference.yaml notes and sdk/scripts/derive_naca4412_reference.py."
+    }
+  },
+  "grid_study": {
+    "grid_conclusive": false,
+    "note": "3-rung ladder, all with resolved boundary layers (add_layers=True, target y+ 30), sdk/scripts/naca4412_credential_repair.py. Cd and Cl were NOT monotonic: medium->fine Cd fell 25% (0.024478->0.018262), fine->finer Cd moved <1% (0.018262->0.018327) but Cl swung back up 19% (0.209547->0.250179). No Richardson/observed-order fit performed on non-asymptotic data. The finer (1,849,113-cell) rung independently failed the lab's own mesh non-orthogonality gate (74.96 deg, gate 70 deg) and achieved only 58.3% of its target boundary-layer thickness (vs ~94% on the other two rungs) -- degraded, not improved, at the largest cell count -- the leading suspect for the non-monotonicity. The graded rung (fine, 645,251 cells) is the only one passing both mesh gates with full layer coverage.",
+    "rungs": [
+      {
+        "tag": "medium", "cells": 263359, "refinement": 3,
+        "cd": 0.024478019838095238, "cl": 0.2519217621904762,
+        "cd_std_last_window": 6.058658494058972e-07,
+        "converged_iterations": 126,
+        "max_non_orthogonality": 64.989619, "max_skewness": 1.1072287,
+        "mesh_gates_pass": true,
+        "layers_target": 12, "layers_achieved_avg": 9.2,
+        "layer_thickness_pct_of_target": 94.2,
+        "y_plus_min": 7.9358764, "y_plus_max": 386.84775, "y_plus_average_face_mean": 35.211027,
+        "y_plus_area_fraction": {"below_30": 0.753, "in_30_to_300": 0.247, "above_300": 0.0002}
+      },
+      {
+        "tag": "fine", "cells": 645251, "refinement": 4,
+        "cd": 0.018262420944444444, "cl": 0.20954745755555554,
+        "cd_std_last_window": 7.598081674942027e-06,
+        "converged_iterations": 113,
+        "max_non_orthogonality": 58.374353, "max_skewness": 3.3232022,
+        "mesh_gates_pass": true,
+        "layers_target": 12, "layers_achieved_avg": 9.34,
+        "layer_thickness_pct_of_target": 94.5,
+        "y_plus_min": 7.3673662, "y_plus_max": 261.34966, "y_plus_average_face_mean": 33.36179,
+        "y_plus_area_fraction": {"below_30": 0.824, "in_30_to_300": 0.176, "above_300": 0.0},
+        "graded": true
+      },
+      {
+        "tag": "finer", "cells": 1849113, "refinement": 5,
+        "cd": 0.018327306772727273, "cl": 0.250178721,
+        "cd_std_last_window": 9.47967081597516e-07,
+        "converged_iterations": 135,
+        "max_non_orthogonality": 74.962218, "max_skewness": 2.030437,
+        "mesh_gates_pass": false,
+        "mesh_gate_failure": "non-orthogonality 74.96 deg exceeds the 70 deg gate",
+        "layers_target": 12, "layers_achieved_avg": 6.0,
+        "layer_thickness_pct_of_target": 58.3,
+        "y_plus_min": 3.2799039, "y_plus_max": 242.56849, "y_plus_average_face_mean": 37.184205,
+        "y_plus_area_fraction": {"below_30": 0.739, "in_30_to_300": 0.261, "above_300": 0.0}
+      }
+    ]
+  },
   "report_results": [
     {
       "quantity": "Drag coefficient",
-      "value": "0.02892",
-      "envelope": "\u00b14.6e-07 over the final 50 iterations",
-      "tier": "VALIDATED",
-      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)"
+      "value": "0.018262",
+      "envelope": "±7.6e-06 over the final 20% of iterations",
+      "tier": "SOLVER-BACKED",
+      "reason": "converged, real solve on the graded (fine, 645,251-cell, layer-resolved) rung; not validated against the derived reference (see below)"
     },
     {
       "quantity": "Lift coefficient",
-      "value": "0.2694",
-      "envelope": "\u00b16.7e-06",
-      "tier": "VALIDATED",
-      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)"
+      "value": "0.209547",
+      "envelope": "±see grid_study for the ladder's own Cl spread (0.2095-0.2519)",
+      "tier": "SOLVER-BACKED",
+      "reason": "converged on the graded rung; NOT grid-converged across the 3-rung ladder (see grid_study)"
     },
     {
-      "quantity": "Drag vs experiment",
-      "value": "Cd 0.0289 vs 0.03",
-      "envelope": "4% apart, \u00b140% band",
-      "tier": "VALIDATED",
-      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)"
+      "quantity": "Drag vs derived reference",
+      "value": "Cd 0.0183 vs 0.01357",
+      "envelope": "35% apart, ±27.6% band",
+      "tier": "SOLVER-BACKED",
+      "reason": "measured Cd 0.0183 is 35% from the derived reference Cd 0.01357, outside the ±27.6% band"
     },
     {
-      "quantity": "Mesh",
-      "value": "67,826 cells",
-      "envelope": "max non-orthogonality 33.270917, max skewness 1.4609207",
-      "tier": "VALIDATED",
-      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+      "quantity": "Mesh (graded rung)",
+      "value": "645,251 cells",
+      "envelope": "max non-orthogonality 58.374353, max skewness 3.3232022",
+      "tier": "SOLVER-BACKED",
+      "reason": "passes both mesh-quality gates; boundary layers resolved (12 layers requested, 9.34 achieved on average, 94.5% of target thickness)"
+    },
+    {
+      "quantity": "Grid-refinement study",
+      "value": "263,359 / 645,251 / 1,849,113 cells",
+      "envelope": "Cd 0.024478 / 0.018262 / 0.018327; Cl 0.251922 / 0.209547 / 0.250179",
+      "tier": "SOLVER-BACKED",
+      "reason": "non-monotonic in both Cd and Cl; NOT grid-conclusive; no observed-order fit performed on non-asymptotic data"
     }
   ],
   "comparison": {
-    "measured_cd": 0.0289,
-    "compared_cd": 0.0289,
-    "reference_cd": 0.03,
-    "relative_error": 0.036,
-    "tolerance": 0.4,
+    "measured_cd": 0.0183,
+    "compared_cd": 0.0183,
+    "reference_cd": 0.01357,
+    "relative_error": 0.3458,
+    "tolerance": 0.2762,
     "area_basis": "planform",
     "basis_note": "already on the reference's planform-area basis",
-    "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
-    "solved_reynolds": null,
+    "source": "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed.",
+    "solved_reynolds": 1000300.0205324497,
     "regime": "attached, cambered section carrying lift at zero incidence"
   }
 }

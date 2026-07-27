@@ -2,61 +2,118 @@
   "body": "naca4412_wing",
   "levels": [
     {
-      "cells": 67826,
-      "cd": 0.02892,
-      "mission": "uq-naca4412_wing-r1",
-      "refinement": 1,
-      "wall_minutes": 1.7,
-      "tag": "coarse"
-    },
-    {
-      "cells": 137569,
-      "cd": 0.02167,
-      "mission": "uq-naca4412_wing-r3",
+      "cells": 263359,
+      "cd": 0.024478019838095238,
+      "cl": 0.2519217621904762,
+      "mission": "credential-repair-naca4412-medium",
       "refinement": 3,
-      "wall_minutes": 2.2,
-      "tag": "medium"
+      "wall_seconds_mesh": 29,
+      "wall_seconds_solve": 46,
+      "tag": "medium",
+      "add_layers": true,
+      "max_non_orthogonality": 64.989619,
+      "max_skewness": 1.1072287,
+      "mesh_gates_pass": true,
+      "layers_target": 12,
+      "layers_achieved_avg": 9.2,
+      "layer_thickness_pct_of_target": 94.2,
+      "y_plus_min": 7.9358764,
+      "y_plus_max": 386.84775,
+      "y_plus_average_face_mean": 35.211027,
+      "y_plus_area_fraction": {"below_30": 0.753, "in_30_to_300": 0.247, "above_300": 0.0002}
     },
     {
-      "cells": 337334,
-      "cd": 0.01892,
-      "mission": "uq-naca4412_wing-r4",
+      "cells": 645251,
+      "cd": 0.018262420944444444,
+      "cl": 0.20954745755555554,
+      "mission": "credential-repair-naca4412-fine",
       "refinement": 4,
-      "wall_minutes": 9.0,
-      "tag": "production"
+      "wall_seconds_mesh": 82,
+      "wall_seconds_solve": 84,
+      "tag": "fine",
+      "add_layers": true,
+      "max_non_orthogonality": 58.374353,
+      "max_skewness": 3.3232022,
+      "mesh_gates_pass": true,
+      "layers_target": 12,
+      "layers_achieved_avg": 9.34,
+      "layer_thickness_pct_of_target": 94.5,
+      "y_plus_min": 7.3673662,
+      "y_plus_max": 261.34966,
+      "y_plus_average_face_mean": 33.36179,
+      "y_plus_area_fraction": {"below_30": 0.824, "in_30_to_300": 0.176, "above_300": 0.0},
+      "graded": true
+    },
+    {
+      "cells": 1849113,
+      "cd": 0.018327306772727273,
+      "cl": 0.250178721,
+      "mission": "credential-repair-naca4412-finer",
+      "refinement": 5,
+      "wall_seconds_mesh": 1574,
+      "wall_seconds_solve": 279,
+      "tag": "finer",
+      "add_layers": true,
+      "max_non_orthogonality": 74.962218,
+      "max_skewness": 2.030437,
+      "mesh_gates_pass": false,
+      "mesh_gate_failure": "non-orthogonality 74.96 deg exceeds the lab's 70 deg gate (geometry_study.MAX_NON_ORTHOGONALITY)",
+      "layers_target": 12,
+      "layers_achieved_avg": 6.0,
+      "layer_thickness_pct_of_target": 58.3,
+      "y_plus_min": 3.2799039,
+      "y_plus_max": 242.56849,
+      "y_plus_average_face_mean": 37.184205,
+      "y_plus_area_fraction": {"below_30": 0.739, "in_30_to_300": 0.261, "above_300": 0.0}
     }
   ],
-  "updated_utc": "2026-07-25T18:42:08Z",
-  "closures": {
-    "kOmegaSST": 0.02167,
-    "kEpsilon": 0.03389452738333333,
-    "SpalartAllmaras": 0.024160782536
+  "updated_utc": "2026-07-27T04:09:34Z",
+  "numerical": {
+    "conclusive": false,
+    "method": "3-rung ladder (263,359 / 645,251 / 1,849,113 cells), all with resolved boundary layers (add_layers=True, target y+ 30). Cd and Cl are NOT monotonic across the ladder, so no Richardson extrapolation or observed-order fit is performed -- fitting an order to non-asymptotic data would manufacture false precision.",
+    "cd_range_observed": [0.018262420944444444, 0.024478019838095238],
+    "cl_range_observed": [0.20954745755555554, 0.2519217621904762],
+    "why_not_conclusive": "medium->fine Cd fell 25% (0.024478->0.018262); fine->finer Cd moved <1% (0.018262->0.018327) but Cl swung back up 19% (0.209547->0.250179). The finer (largest, 1,849,113-cell) rung independently failed the lab's own mesh non-orthogonality gate (74.96 deg vs a 70 deg gate) and achieved only 58.3% of its target boundary-layer thickness (vs ~94% on the other two rungs), so its apparent near-plateau in Cd is not trusted as evidence of grid convergence.",
+    "graded_rung": "fine (645,251 cells) -- the only rung passing both mesh-quality gates with full layer coverage",
+    "band_used_in_reference": {
+      "note": "the reference derivation (sdk/scripts/derive_naca4412_reference.py) folds this ladder's own Cd/Cl spread into its acceptance band as a direct numerical-uncertainty term, rather than computing an observed order.",
+      "numerical_half_width_abs": 0.0033843774260715388
+    }
   },
-  "model": {
-    "band_abs": 0.006112263691666666,
-    "method": "inter-closure spread (screening estimate)",
-    "members": {
+  "superseded": {
+    "reason": "2026-07-27: this earlier ladder had addLayers false at Re 1e6 (no boundary-layer cells at all) and archived no polyMesh, so it was not reproducible. Replaced by the layered ladder above (levels[]).",
+    "levels": [
+      {"cells": 67826, "cd": 0.02892, "mission": "uq-naca4412_wing-r1", "refinement": 1, "wall_minutes": 1.7, "tag": "coarse"},
+      {"cells": 137569, "cd": 0.02167, "mission": "uq-naca4412_wing-r3", "refinement": 3, "wall_minutes": 2.2, "tag": "medium"},
+      {"cells": 337334, "cd": 0.01892, "mission": "uq-naca4412_wing-r4", "refinement": 4, "wall_minutes": 9.0, "tag": "production"}
+    ],
+    "closures": {
       "kOmegaSST": 0.02167,
       "kEpsilon": 0.03389452738333333,
       "SpalartAllmaras": 0.024160782536
     },
-    "screening_estimate": true
-  },
-  "fingerprint": "3a4b75b1f37b6a61",
-  "numerical": {
-    "band_abs": 0.0030923267720942,
-    "band_rel": 0.16342,
-    "observed_order": 4.625,
-    "order_used": 2.5,
-    "clamped": true,
-    "method": "3-mesh study (r = 1.35), observed order p = 4.62; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
-    "conclusive": false,
-    "value_working": 0.018922308558333333
-  },
-  "provenance": [
-    "uq-naca4412_wing-r1",
-    "uq-naca4412_wing-r3",
-    "uq-naca4412_wing-r4"
-  ],
-  "fingerprint_note": "re-keyed 2026-07-24: the ladder rungs solved with the registry velocity hint 15.0 m/s (see provenance runs); the original key had recorded the runner default 100.0 by mistake. No measured number changed."
+    "model": {
+      "band_abs": 0.006112263691666666,
+      "method": "inter-closure spread (screening estimate)",
+      "members": {
+        "kOmegaSST": 0.02167,
+        "kEpsilon": 0.03389452738333333,
+        "SpalartAllmaras": 0.024160782536
+      },
+      "screening_estimate": true
+    },
+    "fingerprint": "3a4b75b1f37b6a61",
+    "numerical": {
+      "band_abs": 0.0030923267720942,
+      "band_rel": 0.16342,
+      "observed_order": 4.625,
+      "order_used": 2.5,
+      "clamped": true,
+      "method": "3-mesh study (r = 1.35), observed order p = 4.62; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+      "conclusive": false,
+      "value_working": 0.018922308558333333
+    },
+    "provenance": ["uq-naca4412_wing-r1", "uq-naca4412_wing-r3", "uq-naca4412_wing-r4"],
+    "fingerprint_note": "re-keyed 2026-07-24: the ladder rungs solved with the registry velocity hint 15.0 m/s (see provenance runs); the original key had recorded the runner default 100.0 by mistake. No measured number changed."
+  }
 }
