@@ -815,3 +815,152 @@ verdict above). Per that explicit gating condition, Phase 2 was not attempted th
   `diagnose_chain.py`, `diagnose_chain2.py`, `diagnose_partials.py`, `diagnose_frozen.py` -- scripts as run
 - `work_refined/NACA0012_Airfoil_Incompressible_refined/checkAll8Refined.py` -- script as run
 
+## 12. Session 2026-07-27 (continued): the frozen wall-distance candidate, tested to a decisive result
+
+This session picked up section 11.3's identified-but-unconfirmed candidate exactly where it was left off
+("do not repeat" instructions followed: no diagnose_warp*/diagnose_chain* work redone). Two things were
+attempted, per the task's own two prescribed routes. Route 1 (make `forceMeshWaveFrozen=False` actually run)
+is now understood, not just retried. Route 2 (quantify the omitted term directly) was carried out to
+completion and gives a decisive, if unexpected, answer. Bottom line stated up front: **the frozen
+wall-distance mechanism is CONFIRMED to exist exactly as hypothesized, but is REFUTED as the explanation for
+the idx0/idx1/idx6 FD-vs-adjoint disagreement.** No number anywhere in this section is fabricated or
+tolerance-loosened; every figure below is read directly from a log file named in 12.5.
+
+### 12.1 Route 1, revisited: why `forceMeshWaveFrozen=False` crashes, precisely (source-level, container-verified)
+
+Inside the `dafoam/opt-packages:latest` container, `grep -rn yWall src/adjoint/` locates every place the
+field is read or written:
+
+- `src/adjoint/DAModel/DATurbulenceModel/DASpalartAllmaras.C:94`, `DASpalartAllmarasFv3.C:104`,
+  `DAkOmegaSST.C:125`, `DAkOmegaSSTLM.C:177` all do
+  `y_(mesh.thisDb().lookupObject<volScalarField>("yWall"))` -- every DAFoam turbulence model that needs a
+  wall distance looks up an object literally named `"yWall"` in the registry.
+- The **only** code that ever registers an object under that literal name is
+  `src/adjoint/DAMisc/meshWaveFrozen/meshWaveFrozenPatchDistMethod.C`, whose constructors build
+  `y_(IOobject("yWall", ...), ...)`. Stock OpenFOAM's own `meshWave` patchDistMethod (what `fvSchemes`
+  falls back to when `forceMeshWaveFrozen` is `False`) registers its result under the standard `wallDist`
+  machinery's own name, not `"yWall"` -- so the moment the frozen class is bypassed, the lookup above has
+  nothing to find. This is exactly why the serial test in section 11.3 produced a clean
+  `failed lookup of yWall` fatal error immediately after `Selecting patchDistMethod meshWave` printed: the
+  case correctly switched methods, and the switch itself is what breaks the lookup.
+- The header comment in `meshWaveFrozenPatchDistMethod.H` (not previously quoted in this document) states
+  the mechanism and the reason for it in the developers' own words: *"Basically, we compute the wall
+  distance only once and save it to y_. When the mesh is deformed during optimization, we will NOT update
+  y_. The reason we do this is that the meshWave function is not AD in parallel so it will impact the
+  adjoint derivative. Also, not updating the wall distance during optimization has little impact on CFD."*
+  This directly explains both section 11.3 crashes: parallel SEGVs because plain `meshWave` genuinely "is
+  not AD in parallel" (the developers' own words, not a guess this session made), and serial fails on the
+  `yWall` lookup because the non-frozen class never registers under that name. **Route 1 is now explained,
+  not merely blocked** -- disabling `forceMeshWaveFrozen` cannot produce a working, trustworthy comparison in
+  this installation, by the maintainers' own design, and no source patch was attempted to force it (patching
+  a not-parallel-AD-safe algorithm back into the parallel adjoint path would reproduce exactly the failure
+  mode the developers describe, for no evidential gain -- see 12.4).
+
+### 12.2 Route 2: measuring d(yWall)/d(shape) directly, via DAFoam's own field-query API
+
+Rather than editing/rebuilding DAFoam (Route 1) or relying on a geometric proxy, this session used the
+solver's own exposed API, `pyDASolvers.getOFField(fieldName, "scalar", array)`
+(`src/pyDASolvers/pyDASolvers.pyx`, wrapping `DASolver::getOFField` in `DASolver.C:1253`, which does
+`meshPtr_->thisDb().lookupObject<volScalarField>(fieldName)` -- the identical registry lookup the
+turbulence models use), reachable in Python as
+`prob.model.scenario1.aero_post.functionals.DASolver.solver.getOFField("yWall", "scalar", arr)`. This reads
+the live, currently-registered field with no file I/O and no proxy approximation.
+
+A new case copy, `work_refined/NACA0012_Airfoil_Incompressible_probe/` (identical `constant/` (14720-cell
+refined mesh), `system/`, `FFD/`, `0.orig/` to the section 11.2 case; no source files touched), and a new
+script `probeFreshY.py` were used to run **9 independent, brand-new processes** (`mpirun -np 4`, capped to 3
+host CPU cores via `docker run --cpus=3`), each doing exactly one `prob.set_val("dvs.shape", ...)` followed
+by exactly one `prob.run_model()` -- baseline, idx0 at h=+-1e-4 (the section 11.2 FD step), idx1 at h=+-1e-4,
+idx6 at h=+-1e-4, idx4 (control, a well-agreeing component) at h=+-1e-4, and idx0 at a much larger,
+unambiguously shape-changing step of 0.05. After each run, `yWall` was read via `getOFField` and reduced
+(MPI min/max/sum) to a global min/max/mean over all 14720 cells.
+
+**Result: in all 9 runs, global `yWall` min/max/mean were bit-identical to 10 printed significant figures:
+`min=5.2095665138e-04`, `max=1.8292100778e+01`, `mean=2.6516752604e+00`.** This includes the 0.05-step run,
+which is a clearly real, large geometry change: its CD (`0.01810495098120565`) differs from baseline
+(`0.01814605531303470`) by 0.23%, a solidly converged, physically meaningful difference (residual norm2
+`4.75e-06` at `primalMinResTol=1e-11`, same as every other run in this document).
+
+**Cross-validation that this is not a stale/cached `getOFField` bug:** the same two runs (baseline and the
+0.05-step run) also queried the pressure field `p` via the identical API. `p` changed substantially and
+sensibly between the two runs (`p_mean`: `-2.4020459735` to `-2.1394578907`; `p_min`: `-89.12` to `-81.82`;
+`p_max`: `50.17` to `49.90`), proving `getOFField` faithfully returns live, run-specific solver state. In the
+very same two runs, `yWall` did not move by even the smallest printed digit. This rules out a Python/API
+artifact and leaves only one explanation: **`yWall` genuinely never responds to shape, at any perturbation
+size tested (1e-4 to 0.05, a 500x range), in any process (fresh or reused).**
+
+### 12.3 Fresh-process FD reproduces the established (persistent-process) FD, ruling out a process-lifetime confound
+
+Before drawing conclusions from 12.2, this session checked whether "fresh, single-shot process" FD differs
+at all from section 11.2's persistent-process (`prob.check_totals`-style, one process reused for baseline +
+all 16 perturbations) FD, since a difference would itself be informative. Central differences from the 12.2
+probe runs (h=1e-4):
+
+| idx | Jfd (this session, fresh single-shot process) | Jfd (section 11.2, persistent process, established) | Jan (section 11.2, adjoint, established) |
+|---|---|---|---|
+| 0 | -0.0027593046 | -0.002758638 | -0.003303428 |
+| 1 | +0.0063258933 | +0.006326557 | +0.005406883 |
+| 6 | -0.0052204825 | -0.005219931 | -0.001775589 |
+| 4 (control) | +0.0291452744 | +0.029145566 | +0.028411665 |
+
+Fresh-process FD matches established persistent-process FD to 0.001%-0.02% at all four components (well
+within normal step-size/solver noise) -- **not** to the adjoint. This is expected given 12.2's finding: since
+`yWall` is frozen at the pristine, undeformed mesh at construction time regardless of whether the process is
+fresh or long-lived, there is no "fresh vs. reused" distinction for this particular field, and no reason for
+the two FD methodologies to disagree. This also incidentally re-validates the new probe case/script against
+the established numbers (same mesh, same tolerance, same baseline CD to 10 significant figures: `1.81460553e-02` both ways).
+
+### 12.4 Verdict: mechanism confirmed to exist; refuted as the explanation for the FD-vs-adjoint gap
+
+Section 11.3 posed the hypothesis as: the adjoint omits d(yWall)/d(shape), while FD (which just re-solves
+the primal at perturbed shapes) presumably captures it, and the difference is the gap. Section 12.2-12.3
+show this framing is not correct for this installation: **d(yWall)/d(shape) is measured at exactly zero not
+only in the adjoint (by design) but in every finite-difference computation this installation can produce**,
+because `yWall` is computed once, unconditionally, at case/solver construction time (before any design
+variable is ever set), in both the persistent-process FD loop used throughout this document and in
+brand-new, single-shot processes alike. FD and the adjoint are, provably, differentiating the *exact same*
+frozen-`yWall` discrete function throughout this entire investigation -- there is no accessible regime in
+this DAFoam v5.0.0 installation in which FD reflects a "complete" wall-distance-shape coupling that the
+adjoint is missing. Consequently:
+
+- **Confirmed** (source-level, in the developers' own comment, and now empirically, via direct field query
+  across 9 independent runs spanning 1e-4 to 0.05-sized perturbations at idx0, idx1, idx4, idx6): DAFoam's
+  `forceMeshWaveFrozen` freezes `yWall` at the pristine, undeformed mesh, unconditionally, for the entire
+  life of a process, and this is why `forceMeshWaveFrozen=False` cannot be made to run in this installation
+  (12.1).
+- **Refuted**: this omission is the explanation for the idx0/idx1/idx6 FD-vs-adjoint disagreement reported
+  in sections 8.2 and 11.2. The omitted term's measured contribution to the FD estimate of dCD/dShape is
+  exactly zero at every one of idx0, idx1, idx6 (and the idx4 control) -- it cannot be "the right size and
+  sign to close the gaps," because the two quantities being compared (Jan and Jfd) already, identically,
+  both exclude it. No fix was applied, because there is nothing here to fix that would change either
+  measured number: unfreezing `yWall` (even if Route 1's crashes could be worked around) would change the
+  *adjoint's* Jacobian, and section 12.2-12.3 show it would leave the *FD* baseline this document has always
+  compared against completely unchanged (FD does not see a frozen-vs-unfrozen distinction either way, since
+  it never observes an unfrozen `yWall` in the first place). Per the standing hard rule, this refutation is
+  reported plainly rather than dressed up or reframed as a partial confirmation.
+
+**What remains:** the root cause of the idx0/idx1/idx6 disagreement (11.94%-19.75%, 11.66%-14.54%, and a
+sign-reversal-to-65.98% respectively, per the section 11.2 two-mesh-resolution table) is still not
+identified. The frozen-wall-distance mechanism is a real, confirmed, source-verified design choice in this
+DAFoam installation, and a legitimate reason `forceMeshWaveFrozen=False` cannot be tested directly here --
+but it is not the mechanism behind the specific defect this investigation was chartered to explain. The
+leading-edge localization noted in 11.3 (idx0/idx1 nearest the LE, idx6 the LE mode itself) remains an
+unexplained coincidence, not a mechanism, now that its best-supported candidate has been directly measured
+and found not to apply. Do not use this DAFoam installation's dCD/dshape for shape components 0, 1, or 6
+without independent verification; the cause of their disagreement with finite differences is open.
+
+### 12.5 Evidence files added this session
+
+- `probe_baseline_run1.log` -- baseline sanity probe (`idx=-1`), confirms `CD0` matches section 11.2's
+  `1.814605531269509e-02` to 10 significant figures
+- `probe_idx0_1eneg4_run1.log`, `probe_idx0_neg1e-4_run1.log`, `probe_idx1_1e-4_run1.log`,
+  `probe_idx1_neg1e-4_run1.log`, `probe_idx6_1e-4_run1.log`, `probe_idx6_neg1e-4_run1.log`,
+  `probe_idx4_1e-4_run1.log`, `probe_idx4_neg1e-4_run1.log` -- the 8 h=+-1e-4 fresh-process probes behind the
+  12.3 table
+- `probe_idx0_LARGE_run1.log`, `probe_baseline_pcheck_run1.log`, `probe_idx0_LARGE_pcheck_run1.log` -- the
+  large-perturbation (0.05) and `p`-field cross-validation runs behind 12.2's decisive result
+- `run_all_probes.log`, `pcheck_wrapper.log` -- wrapper-script stdout for the batched probe runs
+- `work_refined/NACA0012_Airfoil_Incompressible_probe/` -- new case copy (mesh/FFD/system/0.orig identical to
+  the section 11.2 refined case), `probeFreshY.py` (the fresh-process CD+field probe script),
+  `run_all_probes.sh` (batch driver)
+

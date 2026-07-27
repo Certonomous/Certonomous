@@ -1,0 +1,854 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar
+Date   : Jul 27 2026
+Time   : 04:34:16
+Host   : 224b7de1018e
+PID    : 406
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+
+Decomposing mesh
+
+
+
+--> FOAM FATAL ERROR: (openfoam-2506)
+Case is already decomposed with 4 domains, use the -force option or manually
+remove processor directories before decomposing. e.g.,
+    rm -rf /home/dafoamuser/mount/processor*
+
+
+    From decomposePar
+    in file decomposePar.C at line 645.
+
+FOAM exiting
+
+
+Unable to run decomposePar, the domain has been already decomposed?
+
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 4
+Hosts  :
+(
+    (224b7de1018e 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+[2] UPstream::init : could not attach buffer
+[1] [0] UPstream::init : could not attach buffer
+[3] UPstream::init : could not attach buffer
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 4
+Hosts  :
+(
+    (224b7de1018e 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+UPstream::init : could not attach buffer
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 14720
+Global Faces: 59366
+Global Xv: 91260
+Undecomposed points: 29900
+Global Adjoint States: 132966
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 14720
+Global Faces: 59366
+Global Xv: 91260
+Undecomposed points: 29900
+Global Adjoint States: 132966
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+Init solver done! ElapsedClockTime 0.000000 s
+Init solver done! ElapsedCpuTime 0.380000 s
+initState: 
+6
+(
+nuTilda 4.499999999999931e-05
+phi 0
+U1 0
+U2 0
+p 0
+U0 9.999999999999565
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting primal boundary conditions...
+Setting U = (10 0 0) at inout
+Setting primal boundary conditions...
+Setting p = 0 at inout
+Setting primal boundary conditions...
+Setting nuTilda = 4.5e-05 at inout
+Setting nut wall BC for wing. BCType=nutUSpaldingWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 4
+Hosts  :
+(
+    (224b7de1018e 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+Finalising parallel run
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 9.999999999999999e-12;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        U0
+        {
+            variable        U;
+            patches         1 ( inout );
+            value           3 ( 10 0 0 );
+        }
+        p0
+        {
+            variable        p;
+            patches         1 ( inout );
+            value           1 ( 0 );
+        }
+        nuTilda0
+        {
+            variable        nuTilda;
+            patches         1 ( inout );
+            value           1 ( 4.5e-05 );
+        }
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               10;
+        p               50;
+        nuTilda         0.00045;
+        phi             1;
+    }
+    function
+    {
+        CD
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   parallelToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+        CL
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   normalToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+        patchV
+        {
+            type            patchVelocity;
+            patches         1 ( inout );
+            flowAxis        x;
+            normalAxis      y;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  1 ( wing );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 4
+Hosts  :
+(
+    (224b7de1018e 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+#------------------------------#
+ Total Volume Nodes :     30420 
+#------------------------------#
+Finalising parallel run
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000   0.000)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       460 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('inout', [0]), ('procBoundary0to1', [1]), ('procBoundary0to3', [2]), ('symmetry1', [3]), ('symmetry2', [4]), ('wing', [5]), ('allSurfaces', [0, 1, 2, 3, 4, 5]), ('allWalls', [5]), ('designSurfaces', [5])])
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-17.97860191669893 -19.32942971040372 0) (19.10692317187388 19.32947523149186 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-1.936862123876157e-19 -8.464239990167459e-20 -1.209338983755686e-15) OK.
+    Max cell openness = 2.725443630512425e-16 OK.
+    Max aspect ratio = 167.4991949160338 OK.
+    Minimum face area = 9.682824179307911e-07. Maximum face area = 1.867132160298538.  Face area magnitudes OK.
+    Min volume = 9.682824181757869e-08. Max volume = 0.1867132160265834.  Total volume = 112.3943466037512.  Cell volumes OK.
+    Mesh non-orthogonality Max: 26.96120744585154 average: 1.896789707078928
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.8621999566452568 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 0.9999999999974114 finalRes: 0.0839085404376233 nIters: 7
+U1 initRes: 1 finalRes: 0.08173578083801364 nIters: 7
+U2 initRes: 0.999999969251738 finalRes: 0.08064807115552784 nIters: 7
+p initRes: 1 finalRes: 0.09044711409091823 nIters: 8
+Time step continuity errors : sum local = 0.0005968868905146555
+                                 global = -7.713976030080576e-05
+                             cumulative = -7.713976030080576e-05
+nuTilda initRes: 0.9999999999272104 finalRes: 0.07632221479009736 nIters: 7
+Bounding nuTilda>1e-16
+CD: 0.9537580183573299 final: 0.9537580183573299
+CL: -0.09277960759618009 final: -0.09277960759618009
+yPlus min: 26.68545064345854 max: 46.72157867073884 mean: 44.25163389600841
+ExecutionTime = 1.01 s  ClockTime = 1 s
+
+Time = 100
+
+U0 initRes: 0.00491479720515738 finalRes: 0.0004845287189621172 nIters: 5
+U1 initRes: 0.004471974940996056 finalRes: 0.0004173762076902735 nIters: 6
+U2 initRes: 0.00175403710830806 finalRes: 0.0001559718241727173 nIters: 4
+p initRes: 0.003614587871986347 finalRes: 0.0002877822429498015 nIters: 3
+Time step continuity errors : sum local = 8.979522621899333e-06
+                                 global = -1.410948786115246e-07
+                             cumulative = -7.728085517941729e-05
+nuTilda initRes: 0.0001558787550740186 finalRes: 1.066152872254356e-05 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01809474009906263 final: 0.01809474009906263
+CL: 0.4546105841184759 final: 0.4546105841184759
+yPlus min: 5.742125127753515 max: 58.22928279335763 mean: 31.578729491669
+ExecutionTime = 2.27 s  ClockTime = 3 s
+
+Time = 200
+
+U0 initRes: 0.0004796413688160286 finalRes: 3.687051204265918e-05 nIters: 6
+U1 initRes: 0.0001483540547055452 finalRes: 1.36900787869418e-05 nIters: 6
+U2 initRes: 9.782624199536134e-05 finalRes: 7.898746484557758e-06 nIters: 5
+p initRes: 0.0001548915321343589 finalRes: 1.228361917271322e-05 nIters: 4
+Time step continuity errors : sum local = 3.804322968902295e-07
+                                 global = -2.45773643740278e-08
+                             cumulative = -7.730543254379132e-05
+nuTilda initRes: 2.321817246385902e-05 finalRes: 1.63205397189269e-06 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.0192934236013908 final: 0.0192934236013908
+CL: 0.499283384470458 final: 0.499283384470458
+yPlus min: 4.829275295629346 max: 58.57680412529933 mean: 32.07563484413446
+ExecutionTime = 3.72 s  ClockTime = 5 s
+
+Time = 300
+
+U0 initRes: 6.206168697886346e-05 finalRes: 5.644515409315802e-06 nIters: 6
+U1 initRes: 3.299500968215717e-05 finalRes: 2.770360588522337e-06 nIters: 6
+U2 initRes: 8.894831840047988e-06 finalRes: 6.4676946226756e-07 nIters: 6
+p initRes: 2.530838413499859e-05 finalRes: 2.112107686388527e-06 nIters: 4
+Time step continuity errors : sum local = 6.6293793509167e-08
+                                 global = 1.236750939305198e-08
+                             cumulative = -7.729306503439827e-05
+nuTilda initRes: 7.733341539173608e-07 finalRes: 6.035901236909676e-08 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01833394588278734 final: 0.01833394588278734
+CL: 0.5129235507934483 final: 0.5129235507934483
+yPlus min: 4.896293439897181 max: 59.04770060413594 mean: 32.05440308668185
+ExecutionTime = 5.22 s  ClockTime = 7 s
+
+Time = 400
+
+U0 initRes: 1.421403847713501e-05 finalRes: 1.20533252375689e-06 nIters: 6
+U1 initRes: 5.833906370287314e-06 finalRes: 5.202957330035115e-07 nIters: 6
+U2 initRes: 2.238831604031802e-06 finalRes: 2.213795734382601e-07 nIters: 5
+p initRes: 5.18197126688983e-06 finalRes: 4.372277168603139e-07 nIters: 4
+Time step continuity errors : sum local = 1.375523156815385e-08
+                                 global = 2.761460005114429e-09
+                             cumulative = -7.729030357439315e-05
+nuTilda initRes: 2.601821355328765e-07 finalRes: 2.137622903809751e-08 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01819050751575742 final: 0.01819050751575742
+CL: 0.51616193718093 final: 0.51616193718093
+yPlus min: 4.877726196886998 max: 59.13497040131682 mean: 32.05676905660511
+ExecutionTime = 6.56 s  ClockTime = 8 s
+
+Time = 500
+
+U0 initRes: 3.027747277262007e-06 finalRes: 2.614017383845142e-07 nIters: 6
+U1 initRes: 1.319244535053544e-06 finalRes: 1.156303071750226e-07 nIters: 6
+U2 initRes: 4.277608364511424e-07 finalRes: 3.026364084589507e-08 nIters: 6
+p initRes: 1.046454008665818e-06 finalRes: 9.504833155296164e-08 nIters: 4
+Time step continuity errors : sum local = 2.991709215802118e-09
+                                 global = 5.423364397842747e-10
+                             cumulative = -7.728976123795337e-05
+nuTilda initRes: 4.291508157795178e-08 finalRes: 3.919939112101839e-09 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01815778586923189 final: 0.01815778586923189
+CL: 0.5168211281774762 final: 0.5168211281774762
+yPlus min: 4.875254828715184 max: 59.15358271187888 mean: 32.05721184198603
+ExecutionTime = 7.99 s  ClockTime = 10 s
+
+Time = 600
+
+U0 initRes: 6.386916527773883e-07 finalRes: 5.501780907156367e-08 nIters: 6
+U1 initRes: 2.771784140985594e-07 finalRes: 2.430359825245289e-08 nIters: 6
+U2 initRes: 9.200747477059223e-08 finalRes: 6.427768325131208e-09 nIters: 6
+p initRes: 2.433573918683611e-07 finalRes: 2.007887144300512e-08 nIters: 4
+Time step continuity errors : sum local = 6.320624306335989e-10
+                                 global = 1.199840760196291e-10
+                             cumulative = -7.728964125387735e-05
+nuTilda initRes: 9.827310706421791e-09 finalRes: 8.7175465660017e-10 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01815083500270804 final: 0.01815083500270804
+CL: 0.5169627325188836 final: 0.5169627325188836
+yPlus min: 4.874683028699009 max: 59.15756362646903 mean: 32.05730332778099
+ExecutionTime = 9.529999999999999 s  ClockTime = 12 s
+
+Time = 700
+
+U0 initRes: 1.370982514226316e-07 finalRes: 1.183772639350524e-08 nIters: 6
+U1 initRes: 5.975930772702229e-08 finalRes: 5.242716283331716e-09 nIters: 6
+U2 initRes: 1.951304971389648e-08 finalRes: 1.381855943327983e-09 nIters: 6
+p initRes: 5.067596326906771e-08 finalRes: 4.346031839680004e-09 nIters: 4
+Time step continuity errors : sum local = 1.368116884692169e-10
+                                 global = 2.527240258664289e-11
+                             cumulative = -7.728961598147476e-05
+nuTilda initRes: 1.959383156607494e-09 finalRes: 1.80939087938256e-10 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814937161794075 final: 0.01814937161794075
+CL: 0.5169929156220134 final: 0.5169929156220134
+yPlus min: 4.874558949271687 max: 59.15842372708826 mean: 32.05733493393738
+ExecutionTime = 11.05 s  ClockTime = 14 s
+
+Time = 800
+
+U0 initRes: 3.031571784688146e-08 finalRes: 2.619832468081553e-09 nIters: 6
+U1 initRes: 1.321432896750503e-08 finalRes: 1.159068624537469e-09 nIters: 6
+U2 initRes: 4.250424475751622e-09 finalRes: 3.036331608105774e-10 nIters: 6
+p initRes: 1.115641207994223e-08 finalRes: 9.601255564598187e-10 nIters: 4
+Time step continuity errors : sum local = 3.022465378172498e-11
+                                 global = 5.419813013436635e-12
+                             cumulative = -7.728961056166175e-05
+nuTilda initRes: 4.178923051945462e-10 finalRes: 3.990829207077379e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814905980228403 final: 0.01814905980228403
+CL: 0.5169995337848633 final: 0.5169995337848633
+yPlus min: 4.874529037616184 max: 59.15860980741306 mean: 32.05734380371943
+ExecutionTime = 12.93 s  ClockTime = 17 s
+
+Time = 900
+
+U0 initRes: 6.606058118375419e-09 finalRes: 5.713175791846442e-10 nIters: 6
+U1 initRes: 2.89150216358224e-09 finalRes: 2.535430991906346e-10 nIters: 6
+U2 initRes: 9.310929771231849e-10 finalRes: 6.647619944216868e-11 nIters: 6
+p initRes: 2.394723923831387e-09 finalRes: 2.097536310551426e-10 nIters: 4
+Time step continuity errors : sum local = 6.603062178530243e-12
+                                 global = 1.196570388507463e-12
+                             cumulative = -7.728960936509136e-05
+nuTilda initRes: 9.101724590877492e-11 finalRes: 8.616237251833964e-12 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814899081161315 final: 0.01814899081161315
+CL: 0.5170009825219635 final: 0.5170009825219635
+yPlus min: 4.874522701938423 max: 59.15865070617195 mean: 32.05734560442425
+ExecutionTime = 14.39 s  ClockTime = 19 s
+
+Time = 1000
+
+U0 initRes: 1.446891747028284e-09 finalRes: 1.24960466453157e-10 nIters: 6
+U1 initRes: 6.298053465790786e-10 finalRes: 5.527975201553348e-11 nIters: 6
+U2 initRes: 2.09299325751807e-10 finalRes: 1.49276353023706e-11 nIters: 6
+p initRes: 5.22504820464125e-10 finalRes: 4.580391727049652e-11 nIters: 4
+Time step continuity errors : sum local = 1.441981812963394e-12
+                                 global = 2.617849428754329e-13
+                             cumulative = -7.728960910330642e-05
+nuTilda initRes: 2.041245767580148e-11 finalRes: 1.915261147623299e-12 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814897572621949 final: 0.01814897572621949
+CL: 0.517001299925224 final: 0.517001299925224
+yPlus min: 4.874521293398916 max: 59.15865963583695 mean: 32.05734597348124
+ExecutionTime = 15.52 s  ClockTime = 20 s
+
+Time = 1100
+
+U0 initRes: 3.156902074225481e-10 finalRes: 2.727486150102597e-11 nIters: 6
+U1 initRes: 1.37642419023527e-10 finalRes: 1.207664865898592e-11 nIters: 6
+U2 initRes: 5.114004192767011e-11 finalRes: 3.705323209341963e-12 nIters: 6
+p initRes: 1.142474576305688e-10 finalRes: 9.997825950635901e-12 nIters: 4
+Time step continuity errors : sum local = 3.147765494177614e-13
+                                 global = 5.718725564149867e-14
+                             cumulative = -7.728960904611916e-05
+nuTilda initRes: 4.437988124919676e-12 finalRes: 4.165243286871761e-13 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.0181489724244559 final: 0.0181489724244559
+CL: 0.5170013691445917 final: 0.5170013691445917
+yPlus min: 4.874520990281273 max: 59.15866158578864 mean: 32.05734605310678
+ExecutionTime = 17.07 s  ClockTime = 22 s
+
+Time = 1200
+
+U0 initRes: 6.890037132496809e-11 finalRes: 5.952937001304419e-12 nIters: 6
+U1 initRes: 3.004612025213255e-11 finalRes: 2.63620075045825e-12 nIters: 6
+U2 initRes: 1.804468307252037e-11 finalRes: 1.358550923889377e-12 nIters: 6
+p initRes: 2.496035748087924e-11 finalRes: 2.182623352261063e-12 nIters: 4
+Time step continuity errors : sum local = 6.887031190139335e-14
+                                 global = 1.247729520464553e-14
+                             cumulative = -7.728960903364186e-05
+nuTilda initRes: 9.681220518600999e-13 finalRes: 9.09038468739597e-14 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.0181489717041267 final: 0.0181489717041267
+CL: 0.5170013842549717 final: 0.5170013842549717
+yPlus min: 4.874520923974434 max: 59.15866201141205 mean: 32.05734607060329
+ExecutionTime = 18.39 s  ClockTime = 24 s
+
+Time = 1300
+
+U0 initRes: 1.504110776053168e-11 finalRes: 1.29982285931981e-12 nIters: 6
+U1 initRes: 6.557508306018179e-12 finalRes: 5.754007051742433e-13 nIters: 6
+U2 initRes: 1.127071855426843e-11 finalRes: 8.72604821793575e-13 nIters: 6
+p initRes: 5.473344381209062e-12 finalRes: 4.766867878272035e-13 nIters: 4
+Time step continuity errors : sum local = 1.543146117575233e-14
+                                 global = 2.746102773760142e-15
+                             cumulative = -7.728960903089575e-05
+nuTilda initRes: 2.115097612169281e-13 finalRes: 1.988163238805623e-14 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814897154688919 final: 0.01814897154688919
+CL: 0.5170013875536579 final: 0.5170013875536579
+yPlus min: 4.874520909493932 max: 59.15866210433177 mean: 32.05734607441909
+ExecutionTime = 19.76 s  ClockTime = 26 s
+
+Time = 1327
+Minimal residual 9.972841227983019e-12 satisfied the prescribed tolerance 9.999999999999999e-12
+
+CD: 0.01814897153209521 final: 0.01814897153209521
+CL: 0.5170013878640616 final: 0.5170013878640616
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (1.438912112117552e-06 1.447226900544898e-06 1.738015224049951e-12)
+U Residual Mean: (7.121606957186561e-09 2.332769607415204e-09 7.891066501325665e-15)
+U Residual Max: (1.772059476934373e-07 2.890574251068756e-07 1.624984970530468e-13)
+p Residual Norm2: 2.173281015659619e-07
+p Residual Mean: 1.075610285627552e-10
+p Residual Max: 6.925587221353234e-08
+nuTilda Residual Norm2: 2.030559712753227e-10
+nuTilda Residual Mean: 4.025934559521884e-13
+nuTilda Residual Max: 1.93813265972686e-11
+phi Residual Norm2: 1.014584323356715e-09
+phi Residual Mean: 1.638524932570447e-12
+phi Residual Max: 1.29128812687761e-10
+Total Residual Norm2: 2.052356290317485e-06
+ 
+ 
+PROBE rank=1 idx=4 step=1.000000e-04 CD=1.814897153209521e-02 nCells=3648 yWall_min=8.9299778992e-04 yWall_max=1.8288218589e+01 yWall_mean=2.6430566371e+00
+PROBE rank=2 idx=4 step=1.000000e-04 CD=1.814897153209521e-02 nCells=3648 yWall_min=8.9381942713e-04 yWall_max=1.8292100753e+01 yWall_mean=2.6602700763e+00
+PROBE rank=3 idx=4 step=1.000000e-04 CD=1.814897153209521e-02 nCells=3712 yWall_min=5.2095665499e-04 yWall_max=1.8291562889e+01 yWall_mean=2.6435756929e+00
+PROBE rank=0 idx=4 step=1.000000e-04 CD=1.814897153209521e-02 nCells=3712 yWall_min=5.2095665138e-04 yWall_max=1.8292100778e+01 yWall_mean=2.6597982249e+00
+PROBE_GLOBAL idx=4 step=1.000000e-04 CD=1.814897153209521e-02 nCellsGlobal=14720 yWall_min=5.2095665138e-04 yWall_max=1.8292100778e+01 yWall_mean=2.6516752604e+00
+PROBE DONE
+Finalising parallel run
+Finalising parallel run
