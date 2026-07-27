@@ -40,6 +40,71 @@ class LadderMath(unittest.TestCase):
         self.assertGreaterEqual(out["band_abs"], 3.0 * 0.49)
 
 
+class LadderAsymptoticGuards(unittest.TestCase):
+    """ladder_band gets the same two guards as eca_hoekstra_band.
+
+    Monotone plus an in-window observed order is not sufficient here either:
+    ladder_band's window is wider ([0.5, 4.0], not [0.5, 2.5]), but the same
+    2026-07-27 B-52 near-miss (monotone, p = 2.25, growing increments, a
+    Richardson extrapolation far outside the measured range) would have been
+    certified conclusive by the order-window check alone. The TMR flat plate
+    proves the guards do not reject a genuinely converging ladder.
+    """
+
+    # B-52, same-recipe rungs 3/4/5/6 (cells 135779, 193880, 255358, 330950;
+    # only the last three are distinct-and-monotone-fit-eligible here).
+    B52_CELLS = [135779, 193880, 255358, 330950]
+    B52_CD = [0.049053, 0.047196, 0.049573, 0.052275]
+
+    # TMR flat plate: cells 816, 3264, 13056, 52224.
+    TMR_CELLS = [816, 3264, 13056, 52224]
+    TMR_CD = [0.0026686916613, 0.0027811695632, 0.0028342538677,
+              0.0028564381699]
+
+    def test_b52_increments_grow_and_are_rejected(self):
+        # Increments (magnitudes) GROW: 0.00186 -> 0.00238 -> 0.00270, the
+        # opposite of asymptotic shrinkage.
+        increments = [abs(b - a) for a, b in
+                     zip(self.B52_CD, self.B52_CD[1:])]
+        self.assertLess(increments[0], increments[1])
+        self.assertLess(increments[1], increments[2])
+
+        out = uq.ladder_band(self.B52_CELLS, self.B52_CD)
+        # Monotone, and p lands inside ladder_band's own [0.5, 4.0] window,
+        # so the order-window check alone would have certified this.
+        self.assertTrue(out["monotone"])
+        self.assertAlmostEqual(out["observed_order"], 2.253, places=2)
+        self.assertFalse(out["conclusive"])
+        self.assertEqual(out["method"], uq.LADDER_GROWING_INCREMENT_NOTE)
+        # The conservative fallback stands: factor-3 on the full observed
+        # range, not the (much tighter, and wrong) fitted GCI band.
+        spread = max(self.B52_CD) - min(self.B52_CD)
+        self.assertAlmostEqual(out["band_abs"], 3.0 * spread, places=10)
+
+    def test_b52_richardson_value_is_far_outside_the_measured_range(self):
+        out = uq.ladder_band(self.B52_CELLS, self.B52_CD)
+        lo, hi = min(self.B52_CD[-3:]), max(self.B52_CD[-3:])
+        self.assertIsNotNone(out["richardson_extrapolated"])
+        self.assertGreater(out["richardson_extrapolated"], hi)
+        width = hi - lo
+        self.assertGreater(out["richardson_extrapolated"] - hi, width)
+
+    def test_tmr_flat_plate_still_certifies(self):
+        # Increments shrink: 0.000112 -> 0.0000531 -> 0.0000222.
+        increments = [abs(b - a) for a, b in
+                     zip(self.TMR_CD, self.TMR_CD[1:])]
+        self.assertGreater(increments[0], increments[1])
+        self.assertGreater(increments[1], increments[2])
+
+        out = uq.ladder_band(self.TMR_CELLS, self.TMR_CD)
+        self.assertTrue(out["monotone"])
+        self.assertTrue(out["conclusive"])
+        self.assertIn("GCI band, Fs = 1.25", out["method"])
+        lo, hi = min(self.TMR_CD[-3:]), max(self.TMR_CD[-3:])
+        self.assertGreater(out["richardson_extrapolated"], hi)
+        self.assertLess(out["richardson_extrapolated"] - hi, 0.25 * (hi - lo))
+
+
 class DegenerateLadder(unittest.TestCase):
     """Two distinct meshes are not a ladder.
 

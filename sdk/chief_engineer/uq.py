@@ -123,16 +123,41 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
             break
         p = p_new
     clean = 0.5 <= p <= 4.0
+    # Guards per commit e4b0ff1 (eca_hoekstra_band): monotone plus an
+    # observed order inside the credible window is not sufficient for
+    # "asymptotic" -- the 2026-07-27 B-52 near-miss was monotone with
+    # p = 2.25 (inside this window too) yet a human rejected it because its
+    # Cd increments GROW with refinement and its Richardson extrapolation
+    # lands far outside the whole measured range. Both checks are shared
+    # with eca_hoekstra_band via _asymptotic_guard so the two certifiers
+    # cannot drift apart on what counts as asymptotic. They only gate the
+    # case that would otherwise be certified (clean); an order already
+    # outside the window is already non-conclusive below and is not
+    # double-penalized.
+    asymptotic_note: str | None = None
+    phi0: float | None = None
+    if clean:
+        all_values = [v for _, v in distinct]
+        shrinking, extrapolation_ok, phi0 = _asymptotic_guard(
+            f1, f2, f3, e21, e32, r21, p, all_values)
+        if not shrinking or not extrapolation_ok:
+            clean = False
+            asymptotic_note = (LADDER_GROWING_INCREMENT_NOTE if not shrinking
+                              else LADDER_DIVERGENT_EXTRAPOLATION_NOTE)
     if clean:
         gci = 1.25 * abs(e21) / (r21 ** p - 1.0)
         gci_middle = gci * r21 ** p
         method = (f"3-mesh ladder (r = {r21:.2f}), observed order "
                   f"p = {p:.2f}; GCI band, Fs = 1.25")
     else:
+        # Same conservative fallback the non-monotone branch above already
+        # uses (factor-3 on the full observed-values range): a guard
+        # failure never gets its own, different band formula.
         gci = 3.0 * (max(values) - min(values))
         gci_middle = gci
-        method = (f"3-mesh ladder, observed order p = {p:.2f} outside the "
-                  f"credible range; conservative factor-3 band")
+        method = asymptotic_note or (
+            f"3-mesh ladder, observed order p = {p:.2f} outside the "
+            f"credible range; conservative factor-3 band")
     result.update({
         "observed_order": round(p, 3),
         "band_abs": gci,
@@ -140,6 +165,7 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
         "monotone": True,
         "method": method,
         "conclusive": clean,
+        "richardson_extrapolated": phi0,
     })
     return result
 
@@ -174,6 +200,38 @@ DIVERGENT_EXTRAPOLATION_NOTE = (
 # the bad case, so the guard is not a knife's edge on the one fixture that
 # must pass.
 EXTRAPOLATION_TOL_FRAC = 0.15
+
+# ladder_band's own conservative-fallback convention is factor-3 on the
+# observed range (not eca_hoekstra_band's factor-1.25), so its guard-failure
+# notes say so rather than reusing GROWING_INCREMENT_NOTE /
+# DIVERGENT_EXTRAPOLATION_NOTE verbatim (those hardcode "times 1.25").
+LADDER_GROWING_INCREMENT_NOTE = (
+    "successive increments GROW with refinement instead of shrinking; "
+    "ladder not in the asymptotic range, conservative factor-3 band")
+LADDER_DIVERGENT_EXTRAPOLATION_NOTE = (
+    "Richardson-extrapolated value falls outside the measured range; "
+    "ladder not in the asymptotic range, conservative factor-3 band")
+
+
+def _asymptotic_guard(f1: float, f2: float, f3: float, e21: float,
+                      e32: float, r21: float, p: float,
+                      all_values: Sequence[float],
+                      ) -> tuple[bool, bool, float | None]:
+    """Shared increment-trend and extrapolation-sanity guard math.
+
+    Used by both eca_hoekstra_band and ladder_band so the two grid-
+    convergence certifiers can never drift apart on what counts as
+    "asymptotic" (commit e4b0ff1's fix, extended to ladder_band). Returns
+    (shrinking, extrapolation_ok, richardson_extrapolated); each caller keeps
+    its own conservative-fallback band formula and method text.
+    """
+    shrinking = abs(e21) < abs(e32)
+    phi0 = f3 + e21 / (r21 ** p - 1.0) if r21 ** p != 1.0 else None
+    range_lo, range_hi = min(all_values), max(all_values)
+    tol = EXTRAPOLATION_TOL_FRAC * (range_hi - range_lo)
+    extrapolation_ok = (phi0 is not None
+                       and (range_lo - tol) <= phi0 <= (range_hi + tol))
+    return shrinking, extrapolation_ok, phi0
 
 
 def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
@@ -251,7 +309,6 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     # increments must SHRINK on refinement. |e21| is the finer-pair change,
     # |e32| the coarser-pair change; |e21| >= |e32| means the solution is
     # moving away, not settling, no matter how clean p looks.
-    shrinking = abs(e21) < abs(e32)
     # Guard 2 (extrapolation sanity): the Richardson-extrapolated value must
     # land at or very near the measured range of the ladder. An
     # extrapolation that lands outside the data it was fitted from is a
@@ -259,12 +316,9 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     # this call was given, not only the three used for the local fit -- a
     # coarser rung that was dropped for the order solve is still measured
     # data, and folding it in only ever makes this guard MORE permissive.
-    phi0 = f3 + e21 / (r21 ** p - 1.0) if r21 ** p != 1.0 else None
     all_values = [v for _, v in distinct]
-    range_lo, range_hi = min(all_values), max(all_values)
-    tol = EXTRAPOLATION_TOL_FRAC * (range_hi - range_lo)
-    extrapolation_ok = (phi0 is not None
-                       and (range_lo - tol) <= phi0 <= (range_hi + tol))
+    shrinking, extrapolation_ok, phi0 = _asymptotic_guard(
+        f1, f2, f3, e21, e32, r21, p, all_values)
     clamped = not (p_lo <= p <= p_hi)
     # These two guards only gate the case that would otherwise be certified
     # "conclusive": an order p already outside [p_lo, p_hi] is clamped and
