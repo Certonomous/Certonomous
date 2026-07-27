@@ -1,0 +1,63 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+DAOption created. DASolver initialized.
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWave
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+
+
+--> FOAM FATAL ERROR: (openfoam-2506)
+
+    failed lookup of yWall (objectRegistry region0)
+    available objects of type volScalarField:
+6(nut nuTilda nu alphaPorosity p nuTildaRes)
+
+
+    From const Type& Foam::objectRegistry::lookupObject(const Foam::word&, bool) const [with Type = Foam::GeometricField<double, Foam::fvPatchField, Foam::volMesh>]
+    in file /home/dockeruser/OpenFOAM/OpenFOAM-v2506/src/OpenFOAM/lnInclude/objectRegistryTemplates.C at line 628.
+
+FOAM exiting
+

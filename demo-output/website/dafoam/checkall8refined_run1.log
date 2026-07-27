@@ -1,0 +1,1106 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar
+Date   : Jul 27 2026
+Time   : 03:54:43
+Host   : 6ab4f6ac1129
+PID    : 407
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+
+Decomposing mesh
+
+
+
+--> FOAM FATAL ERROR: (openfoam-2506)
+Case is already decomposed with 4 domains, use the -force option or manually
+remove processor directories before decomposing. e.g.,
+    rm -rf /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/processor*
+
+
+    From decomposePar
+    in file decomposePar.C at line 645.
+
+FOAM exiting
+
+
+Unable to run decomposePar, the domain has been already decomposed?
+
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined
+nProcs : 4
+Hosts  :
+(
+    (6ab4f6ac1129 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+[2] UPstream::init : could not attach buffer
+[1] UPstream::init : could not attach buffer
+[3] UPstream::init : could not attach buffer
+[0] UPstream::init : could not attach buffer
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined
+nProcs : 4
+Hosts  :
+(
+    (6ab4f6ac1129 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 14720
+Global Faces: 59366
+Global Xv: 91260
+Undecomposed points: 29900
+Global Adjoint States: 132966
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 14720
+Global Faces: 59366
+Global Xv: 91260
+Undecomposed points: 29900
+Global Adjoint States: 132966
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 230 faces
+Init solver done! ElapsedClockTime 1.000000 s
+Init solver done! ElapsedCpuTime 0.340000 s
+initState: 
+6
+(
+nuTilda 4.499999999999931e-05
+phi 0
+U1 0.7186261168880589
+U2 1.682292430796204e-08
+p 0
+U0 9.865439152805386
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting primal boundary conditions...
+Setting U = (10 0 0) at inout
+Setting primal boundary conditions...
+Setting p = 0 at inout
+Setting primal boundary conditions...
+Setting nuTilda = 4.5e-05 at inout
+Setting nut wall BC for wing. BCType=nutUSpaldingWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined
+nProcs : 4
+Hosts  :
+(
+    (6ab4f6ac1129 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+Finalising parallel run
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 9.999999999999999e-12;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        U0
+        {
+            variable        U;
+            patches         1 ( inout );
+            value           3 ( 10 0 0 );
+        }
+        p0
+        {
+            variable        p;
+            patches         1 ( inout );
+            value           1 ( 0 );
+        }
+        nuTilda0
+        {
+            variable        nuTilda;
+            patches         1 ( inout );
+            value           1 ( 4.5e-05 );
+        }
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               10;
+        p               50;
+        nuTilda         0.00045;
+        phi             1;
+    }
+    function
+    {
+        CD
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   parallelToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+        CL
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   normalToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+        patchV
+        {
+            type            patchVelocity;
+            patches         1 ( inout );
+            flowAxis        x;
+            normalAxis      y;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  1 ( wing );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined
+nProcs : 4
+Hosts  :
+(
+    (6ab4f6ac1129 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+#------------------------------#
+ Total Volume Nodes :     30420 
+#------------------------------#
+Finalising parallel run
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000   0.000)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       460 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('inout', [0]), ('procBoundary0to1', [1]), ('procBoundary0to3', [2]), ('symmetry1', [3]), ('symmetry2', [4]), ('wing', [5]), ('allSurfaces', [0, 1, 2, 3, 4, 5]), ('allWalls', [5]), ('designSurfaces', [5])])
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-17.978601419427 -19.329452531629 0) (19.10692371664801 19.329452557122 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (4.727773725247318e-19 3.888975161090536e-20 -6.644656411196655e-17) OK.
+    Max cell openness = 2.824314411007537e-16 OK.
+    Max aspect ratio = 167.4971796573037 OK.
+    Minimum face area = 9.683111135831537e-07. Maximum face area = 1.867132084761879.  Face area magnitudes OK.
+    Min volume = 9.683111141642576e-08. Max volume = 0.1867132084730527.  Total volume = 112.3943459376043.  Cell volumes OK.
+    Mesh non-orthogonality Max: 26.95959996482282 average: 1.896733627901376
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.8620395852406649 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 0.02011475684318286 finalRes: 0.001941592898889084 nIters: 6
+U1 initRes: 0.01786669601070677 finalRes: 0.001769231020158788 nIters: 6
+U2 initRes: 0.001596888422832378 finalRes: 0.0001134429454508895 nIters: 7
+p initRes: 1 finalRes: 0.09389697204938538 nIters: 5
+Time step continuity errors : sum local = 0.0002043070253951852
+                                 global = 1.783202637375144e-05
+                             cumulative = 1.783202637375144e-05
+nuTilda initRes: 0.9999999998650368 finalRes: 0.06869398172691951 nIters: 6
+Bounding nuTilda>1e-16
+CD: 0.03604125877203476 final: 0.03604125877203476
+CL: 0.4675605339319511 final: 0.4675605339319511
+yPlus min: 6.936262669017936 max: 54.92728378397929 mean: 30.62347131443645
+ExecutionTime = 0.98 s  ClockTime = 2 s
+
+Time = 100
+
+U0 initRes: 0.0001936527415578996 finalRes: 1.472252157983377e-05 nIters: 5
+U1 initRes: 0.0001349144985896931 finalRes: 1.036557616962394e-05 nIters: 6
+U2 initRes: 0.00256316932814227 finalRes: 0.0001898632172416544 nIters: 3
+p initRes: 0.0006012646019983515 finalRes: 4.868716552055502e-05 nIters: 2
+Time step continuity errors : sum local = 1.519038541123974e-06
+                                 global = 1.390124755101917e-07
+                             cumulative = 1.797103884926163e-05
+nuTilda initRes: 4.239788930605119e-05 finalRes: 4.076418769132281e-06 nIters: 2
+Bounding nuTilda>1e-16
+CD: 0.01844751846861947 final: 0.01844751846861947
+CL: 0.5056361521163707 final: 0.5056361521163707
+yPlus min: 4.953679697319654 max: 58.90422872440883 mean: 32.06096554529594
+ExecutionTime = 1.97 s  ClockTime = 3 s
+
+Time = 200
+
+U0 initRes: 3.422165425446739e-05 finalRes: 2.353055465628739e-06 nIters: 6
+U1 initRes: 8.851466958568147e-06 finalRes: 7.373568288493239e-07 nIters: 6
+U2 initRes: 5.13498501022136e-05 finalRes: 4.200883092681648e-06 nIters: 5
+p initRes: 4.30429849357931e-05 finalRes: 3.172316664727861e-06 nIters: 2
+Time step continuity errors : sum local = 9.97195002778383e-08
+                                 global = 8.338258389528856e-09
+                             cumulative = 1.797937710765116e-05
+nuTilda initRes: 2.004670599174919e-06 finalRes: 1.321361249888498e-07 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01824331610514017 final: 0.01824331610514017
+CL: 0.5148824764982098 final: 0.5148824764982098
+yPlus min: 4.872928067713952 max: 59.10199189286927 mean: 32.05514935131897
+ExecutionTime = 2.96 s  ClockTime = 4 s
+
+Time = 300
+
+U0 initRes: 7.552349413959666e-06 finalRes: 6.751008072397736e-07 nIters: 6
+U1 initRes: 3.629530512196503e-06 finalRes: 3.072314133699504e-07 nIters: 6
+U2 initRes: 8.808862579077568e-06 finalRes: 6.447891950331516e-07 nIters: 6
+p initRes: 2.839335813622337e-06 finalRes: 2.451396902694843e-07 nIters: 4
+Time step continuity errors : sum local = 7.714157431112117e-09
+                                 global = 8.555881520596059e-10
+                             cumulative = 1.798023269580322e-05
+nuTilda initRes: 8.712664886935935e-08 finalRes: 6.325749715241232e-09 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01816730239046154 final: 0.01816730239046154
+CL: 0.5162586997993492 final: 0.5162586997993492
+yPlus min: 4.870393822603501 max: 59.14327870552128 mean: 32.05729136089631
+ExecutionTime = 3.97 s  ClockTime = 6 s
+
+Time = 400
+
+U0 initRes: 1.467977430674145e-06 finalRes: 1.262584848063983e-07 nIters: 6
+U1 initRes: 6.48254117127186e-07 finalRes: 5.66829840678704e-08 nIters: 6
+U2 initRes: 1.793559500055159e-06 finalRes: 1.726431348266817e-07 nIters: 5
+p initRes: 5.54335096002716e-07 finalRes: 4.60552388416501e-08 nIters: 4
+Time step continuity errors : sum local = 1.449656825102959e-09
+                                 global = 3.014224436302986e-10
+                             cumulative = 1.798053411824685e-05
+nuTilda initRes: 2.558720145329629e-08 finalRes: 2.162200768189356e-09 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.0181504230760394 final: 0.0181504230760394
+CL: 0.5166014392627652 final: 0.5166014392627652
+yPlus min: 4.868963754408322 max: 59.15283492065817 mean: 32.05737300093291
+ExecutionTime = 5.01 s  ClockTime = 7 s
+
+Time = 500
+
+U0 initRes: 3.125543642735884e-07 finalRes: 2.68847938255319e-08 nIters: 6
+U1 initRes: 1.338748233930935e-07 finalRes: 1.180104772166624e-08 nIters: 6
+U2 initRes: 4.019934273684112e-07 finalRes: 3.955174228371208e-08 nIters: 5
+p initRes: 1.081871418282572e-07 finalRes: 9.821098937691536e-09 nIters: 4
+Time step continuity errors : sum local = 3.091496981670934e-10
+                                 global = 5.892817795396337e-11
+                             cumulative = 1.79805930464248e-05
+nuTilda initRes: 4.818130469137348e-09 finalRes: 4.437818611730713e-10 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814696746434418 final: 0.01814696746434418
+CL: 0.5166706836076008 final: 0.5166706836076008
+yPlus min: 4.868703526548889 max: 59.15482027753159 mean: 32.05740483371338
+ExecutionTime = 6.05 s  ClockTime = 8 s
+
+Time = 600
+
+U0 initRes: 6.95141491440871e-08 finalRes: 6.034071829228066e-09 nIters: 6
+U1 initRes: 3.081246092297627e-08 finalRes: 2.690619301337837e-09 nIters: 6
+U2 initRes: 1.355764789472375e-07 finalRes: 9.675191766201854e-09 nIters: 6
+p initRes: 2.637494972087824e-08 finalRes: 2.211354190732036e-09 nIters: 4
+Time step continuity errors : sum local = 6.961004121065935e-11
+                                 global = 1.218971911499482e-11
+                             cumulative = 1.798060523614392e-05
+nuTilda initRes: 8.682433831659914e-10 finalRes: 8.632860673332768e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814625817274849 final: 0.01814625817274849
+CL: 0.5166857270048494 final: 0.5166857270048494
+yPlus min: 4.868636677454773 max: 59.15524144332077 mean: 32.05742770500042
+ExecutionTime = 7.09 s  ClockTime = 10 s
+
+Time = 700
+
+U0 initRes: 1.490947561268881e-08 finalRes: 1.288237463110577e-09 nIters: 6
+U1 initRes: 6.518358295915408e-09 finalRes: 5.722074407498434e-10 nIters: 6
+U2 initRes: 9.339105276323207e-08 finalRes: 7.265964265836119e-09 nIters: 6
+p initRes: 5.443823266947185e-09 finalRes: 4.738973805859917e-10 nIters: 4
+Time step continuity errors : sum local = 1.491763996733975e-11
+                                 global = 2.783263514955946e-12
+                             cumulative = 1.798060801940744e-05
+nuTilda initRes: 2.12530721930497e-10 finalRes: 1.965781390653742e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.0181460989589881 final: 0.0181460989589881
+CL: 0.5166890255028923 final: 0.5166890255028923
+yPlus min: 4.868623018949514 max: 59.15533536410507 mean: 32.05743142219528
+ExecutionTime = 8.09 s  ClockTime = 11 s
+
+Time = 800
+
+U0 initRes: 3.3157577157495e-09 finalRes: 2.863788974884925e-10 nIters: 6
+U1 initRes: 1.440506273950434e-09 finalRes: 1.264354655531743e-10 nIters: 6
+U2 initRes: 8.296591711189789e-08 finalRes: 6.584749781250953e-09 nIters: 6
+p initRes: 1.19028384756487e-09 finalRes: 1.048941775474899e-10 nIters: 4
+Time step continuity errors : sum local = 3.301968893769322e-12
+                                 global = 5.897583845682747e-13
+                             cumulative = 1.798060860916582e-05
+nuTilda initRes: 4.595206815439555e-11 finalRes: 4.376907016315772e-12 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814606493734611 final: 0.01814606493734611
+CL: 0.5166897491825245 final: 0.5166897491825245
+yPlus min: 4.868619693987696 max: 59.15535564812217 mean: 32.05743233939629
+ExecutionTime = 9.09 s  ClockTime = 12 s
+
+Time = 900
+
+U0 initRes: 7.205637533579215e-10 finalRes: 6.226892129748845e-11 nIters: 6
+U1 initRes: 3.144326097622443e-10 finalRes: 2.758145342849439e-11 nIters: 6
+U2 initRes: 7.531202650257064e-08 finalRes: 6.080569513864062e-09 nIters: 6
+p initRes: 2.614834480042083e-10 finalRes: 2.282172580929662e-11 nIters: 4
+Time step continuity errors : sum local = 7.184294072837916e-13
+                                 global = 1.306172539982027e-13
+                             cumulative = 1.798060873978308e-05
+nuTilda initRes: 1.013209258714373e-11 finalRes: 9.49641608181943e-13 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814605738603431 final: 0.01814605738603431
+CL: 0.516689907247976 final: 0.516689907247976
+yPlus min: 4.868619005246644 max: 59.15536010398711 mean: 32.05743251910695
+ExecutionTime = 10.12 s  ClockTime = 14 s
+
+Time = 1000
+
+U0 initRes: 1.573173993014915e-10 finalRes: 1.359247836645822e-11 nIters: 6
+U1 initRes: 6.857751895123092e-11 finalRes: 6.016919588832936e-12 nIters: 6
+U2 initRes: 7.408294905763697e-08 finalRes: 5.839556216909019e-09 nIters: 6
+p initRes: 5.687697530308398e-11 finalRes: 4.983214648502057e-12 nIters: 4
+Time step continuity errors : sum local = 1.56863575496016e-13
+                                 global = 2.845478552649992e-14
+                             cumulative = 1.798060876823786e-05
+nuTilda initRes: 2.206485624733942e-12 finalRes: 2.07313227417701e-13 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814605574287866 final: 0.01814605574287866
+CL: 0.5166899417446892 final: 0.5166899417446892
+yPlus min: 4.86861885332993 max: 59.15536107581233 mean: 32.05743255913268
+ExecutionTime = 11.11 s  ClockTime = 15 s
+
+Time = 1100
+
+U0 initRes: 3.435609993554436e-11 finalRes: 2.968027227249289e-12 nIters: 6
+U1 initRes: 1.496551052380421e-11 finalRes: 1.313231161656598e-12 nIters: 6
+U2 initRes: 7.252604431934817e-08 finalRes: 5.76245606447973e-09 nIters: 6
+p initRes: 1.245751673304743e-11 finalRes: 1.087367692246881e-12 nIters: 4
+Time step continuity errors : sum local = 3.442824008148479e-14
+                                 global = 6.259932804506855e-15
+                             cumulative = 1.798060877449779e-05
+nuTilda initRes: 4.836756152185051e-13 finalRes: 4.539564641878306e-14 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.01814605538411515 final: 0.01814605538411515
+CL: 0.5166899492770395 final: 0.5166899492770395
+yPlus min: 4.868618820137313 max: 59.15536128795021 mean: 32.05743256780255
+ExecutionTime = 12.21 s  ClockTime = 17 s
+
+Time = 1182
+Minimal residual 9.862292382095831e-12 satisfied the prescribed tolerance 9.999999999999999e-12
+
+CD: 0.01814605531269471 final: 0.01814605531269471
+CL: 0.5166899507763191 final: 0.5166899507763191
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (1.422607178131505e-06 1.430563776573248e-06 1.162496902243768e-12)
+U Residual Mean: (7.040858968773258e-09 2.306554711648101e-09 4.032921282880744e-15)
+U Residual Max: (1.751495801727287e-07 2.857086656149477e-07 1.384908874304383e-13)
+p Residual Norm2: 2.148549109380542e-07
+p Residual Mean: 1.063453393671988e-10
+p Residual Max: 6.8462695607329e-08
+nuTilda Residual Norm2: 2.005381454726132e-10
+nuTilda Residual Mean: 3.976597934175669e-13
+nuTilda Residual Max: 1.914268251419432e-11
+phi Residual Norm2: 1.003053393952566e-09
+phi Residual Mean: 1.619934855369771e-12
+phi Residual Max: 1.277291053910329e-10
+Total Residual Norm2: 2.028912906263353e-06
+ 
+ 
+CHECKALL8REF BASELINE_CD 1.814605531269471e-02
+Computing d[CD]/d[aero_states]^T * psi 13.07 s
+Computing d[CD]/d[aero_vol_coords]^T * psi 13.13 s
+Computing d[CD]/d[patchV]^T * psi 13.47 s
+Checking if Coloring file exists..
+dRdWColoring_4.bin exists.
+Moving time 1182 to 0.0001
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error:                                                            |
+| /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/processor0/0.0001 |
+| already exists, moving failed!                                               |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error: 'scenario1.coupling.solver' <class DAFoamSolver>: Error    |
+| calling solve_linear(),                                                      |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error:                                                            |
+| /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/processor1/0.0001 |
+| already exists, moving failed!                                               |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error: 'scenario1.coupling.solver' <class DAFoamSolver>: Error    |
+| calling solve_linear(),                                                      |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error:                                                            |
+| /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/processor2/0.0001 |
+| already exists, moving failed!                                               |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error: 'scenario1.coupling.solver' <class DAFoamSolver>: Error    |
+| calling solve_linear(),                                                      |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error:                                                            |
+| /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/processor3/0.0001 |
+| already exists, moving failed!                                               |
++------------------------------------------------------------------------------+
+
+
++------------------------------------------------------------------------------+
+| pyDAFoam Error: 'scenario1.coupling.solver' <class DAFoamSolver>: Error    |
+| calling solve_linear(),                                                      |
++------------------------------------------------------------------------------+
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/checkAll8Refined.py", line 132, in <module>
+    totals = prob.compute_totals(of=["scenario1.aero_post.CD"], wrt=["dvs.shape"])
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    model._solve_linear(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
+    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
+    with self._call_user_function('solve_linear'):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    raise err_type(
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuseTraceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/checkAll8Refined.py", line 132, in <module>
+    totals = prob.compute_totals(of=["scenario1.aero_post.CD"], wrt=["dvs.shape"])
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    model._solve_linear(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
+    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
+    with self._call_user_function('solve_linear'):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    raise err_type(
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuseTraceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/checkAll8Refined.py", line 132, in <module>
+    totals = prob.compute_totals(of=["scenario1.aero_post.CD"], wrt=["dvs.shape"])
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    model._solve_linear(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
+    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
+    with self._call_user_function('solve_linear'):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    raise err_type(
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuseTraceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/NACA0012_Airfoil_Incompressible_refined/checkAll8Refined.py", line 132, in <module>
+    totals = prob.compute_totals(of=["scenario1.aero_post.CD"], wrt=["dvs.shape"])
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    model._solve_linear(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
+    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
+    with self._call_user_function('solve_linear'):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    raise err_type(
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+r/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+r/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+r/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 483, in solve_linear
+    solutionTime, renamed = DASolver.renameSolution(self.solution_counter)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/pyDAFoam.py", line 1543, in renameSolution
+    raise Error("%s already exists, moving failed!" % dst)
+dafoam.pyDAFoam.Error
+Finalising parallel run
+Finalising parallel run
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[10704,1],1]
+  Exit code:    1
+--------------------------------------------------------------------------

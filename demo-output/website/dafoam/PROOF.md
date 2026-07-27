@@ -636,3 +636,182 @@ verified by the evidence in sections 5 through 8.1.**
   actually be reached rather than stalling at the old iteration cap. In the event, no run needed anywhere
   close to 3000 iterations (all converged within the low hundreds via warm start, per `stepstudy2_run1.log`),
   so this was a safety margin, not a workaround for an actual stall.
+## 11. Session 2026-07-27: root-cause investigation, mesh-refinement corroboration on ALL 8 components, and a formal retraction
+
+This section documents a follow-up investigation into the root cause of the idx0/1/6 disagreement
+identified in section 8.2. It (a) rules out one more alternative explanation, (b) extends the
+mesh-refinement check from section 8.2's 3 flagged components to all 8, (c) identifies but cannot
+empirically confirm one concrete candidate mechanism, and (d) formally retracts two auxiliary scripts
+written this session as invalid evidence. Nothing in this section loosens any tolerance; the verdict
+remains "unresolved" for 3 of 8 components, stated plainly in section 11.6.
+
+### 11.1 Ruled out: FFD/DVGeo Jacobian and design-variable convention (already established, restated)
+
+Unchanged from section 8: the purely-geometric constraints (`thickcon`, `volcon`, `rcon`), which use the
+identical `nom_addShapeFunctionDV` shape definitions and DVGeo Jacobian as `dCD/dshape` -- including the
+near-leading-edge geometry (`leList` at `x=1e-4`) -- match FD to 1e-10 to 1e-13 relative error. Since idx0,
+idx1, and idx6 are only 3 of the 8 shape components sharing that exact same Jacobian, and the Jacobian
+itself checks out to machine precision everywhere including at the LE, a point-ordering or sign-convention
+bug in the shape-function/DVGeo layer is ruled out.
+
+### 11.2 Ruled out: plain coarse-mesh spatial discretization error (new this session, decisive)
+
+`checkAll8Refined.py` (in `work_refined/NACA0012_Airfoil_Incompressible_refined/`) recomputes the FULL
+8-component adjoint AND a single-step (`h=1e-4`) central-difference FD for all 8 shape components on the
+refined mesh (14720 cells, `primalMinResTol=1e-11`), extending the section 8.2 refined-mesh test (which
+only recomputed FD for the 3 flagged components). Raw stdout: `checkall8refined_run2.log`. All 17 primal
+solves in this run converged cleanly to the prescribed 1e-11 tolerance (verified by grepping `Minimal
+residual` in the log). Full before/after table, adjoint (`Jan`) vs FD (`Jfd`), coarse mesh (4032 cells,
+section 8) vs refined mesh (14720 cells, this run):
+
+| idx | Jan (coarse) | Jfd (coarse) | rel err (coarse) | Jan (refined) | Jfd (refined) | rel err (refined) |
+|---|---|---|---|---|---|---|
+| 0 | -0.01134164 | -0.01013201 | 11.94% | -0.003303428 | -0.002758638 | **+19.75%** |
+| 1 | -0.02217957 | -0.01986298 | 11.66% | +0.005406883 | +0.006326557 | **-14.54%** |
+| 2 |  0.00679851 |  0.00726477 | -6.42% | +0.006395491 | +0.006727379 | -4.93% |
+| 3 |  0.01238016 |  0.01290202 | -4.05% | +0.015740751 | +0.016071505 | -2.06% |
+| 4 |  0.03893831 |  0.03998417 | -2.62% | +0.028411665 | +0.029145566 | -2.52% |
+| 5 |  0.04234250 |  0.04339009 | -2.41% | +0.034428941 | +0.035152972 | -2.06% |
+| 6 |  0.00569075 | -0.00105305 | sign-reversed | -0.001775589 | -0.005219931 | **-65.98%** |
+| 7 |  0.00346681 |  0.00353164 | -1.84% | -0.000760338 | -0.000749015 | +1.51% |
+
+**Reading this table honestly:** refining the mesh 3.65x (4032->14720 cells) and tightening
+`primalMinResTol` a further 3 orders of magnitude (1e-8->1e-11) did NOT shrink the idx0/idx1 disagreement
+(it grew, from 11.9%/11.7% to 19.8%/14.5%). idx6's sign-vs-FD disagreement resolves on the refined mesh
+(both adjoint and FD are now negative) but the magnitude gap, now cleanly measurable instead of dominated
+by a near-zero denominator, is a large 66%. **This rules out plain coarse-mesh spatial-discretization error
+as the (sole) explanation**: a genuine truncation-error artifact should shrink under 3.65x refinement, not
+hold steady or grow.
+
+Also notable, and not previously reported: idx1's and idx7's ADJOINT values (not just their FD comparisons)
+both change sign between the coarse and refined mesh. For idx1, FD changes sign too, in the same direction
+as the adjoint (both meshes: adjoint and FD agree in sign with each other, ~11-15% gap persists) -- this is
+a shared, mesh-dependent physical/numerical sensitivity at this design station, not new evidence against the
+adjoint specifically. For idx7 the same holds: coarse mesh has adjoint +0.00347 / FD +0.00353 (agree,
+1.84%); refined mesh has adjoint -0.000760 / FD -0.000749 (agree, 1.51%) -- both flipped sign together and
+remain in tight agreement at both resolutions. **idx7, which one earlier side-experiment this session
+(section 11.4 below) appeared to flag as suspect, is fully exonerated by this direct, same-quantity,
+same-pipeline refined-mesh FD check: it remains one of the best-agreeing components (1.5-1.8% across two
+mesh resolutions).**
+
+Cosine similarity, refined mesh, all 8 components: **0.997437** (4.10 degrees), improving from the coarse
+mesh's 0.993452 (6.56 degrees); excluding idx0/1/6: **0.999990** (0.25 degrees), tighter than the coarse
+mesh's equivalent (0.999983, 0.33 degrees). The descent-direction alignment is good and gets slightly
+better with refinement, consistent with idx2-5 and idx7 remaining well-resolved and dominant in magnitude
+at both resolutions; it is not evidence that idx0/1/6 are correct.
+
+**Updated verdict after mesh refinement: the same 5 of 8 components (idx 2, 3, 4, 5, 7) are independently
+verified at two mesh resolutions (coarse and 3.65x refined) to relative errors of 1.5% to 6.4%. The same 3
+of 8 components (idx 0, 1, 6) show a disagreement that survives (and for idx0/idx1 slightly worsens under)
+mesh refinement. This is the most complete, most mesh-independence-checked characterization of the defect
+produced so far.**
+
+### 11.3 Candidate mechanism identified, not confirmed: frozen wall-distance omits a shape-sensitivity term
+
+`daOptions["forceMeshWaveFrozen"]` defaults to `True` in this DAFoam installation (confirmed: it is active
+in every run in this document; the printed option dictionary in `diagnose_run1.log` shows
+`forceMeshWaveFrozen 1;`). Per the comment in `pyDAFoam.py` (`packages/miniconda3/.../dafoam/pyDAFoam.py`,
+line ~435): *"force to use meshWaveFrozen in fvSchemes->wallDist->method, regardless of what is actually set
+in fvSchemes. meshWaveFrozen improves the parallel adjoint accuracy."* This freezes the wall-distance field
+at the baseline mesh and does not differentiate d(wallDistance)/d(shape) as the shape design variables
+deform the mesh -- textbook description of "an incomplete mesh-deformation sensitivity term," one of the
+candidates named for this investigation. It should matter most exactly where d(wallDistance)/d(shape) is
+largest: the highest-curvature part of the airfoil, the leading edge -- exactly the region where idx0, idx1
+(interior FFD stations nearest the LE) and idx6 (the LE combo mode itself) sit, and exactly the region idx2-5
+(mid-chord/aft) and idx7 (TE combo) are not.
+
+Attempted direct test: `diagnose_frozen.py`, identical to `stepStudy.py`/`runScript.py` except
+`daOptions["forceMeshWaveFrozen"] = False` (the only change). Two attempts:
+
+- **Parallel (`mpirun -np 4`, matching every trusted number in this document):** the primal SEGFAULTs
+  (PETSc "Caught signal number 11 SEGV") in all 4 MPI ranks, immediately after completing only the very
+  first SIMPLE iteration (`diagnose_frozen_run1.log`).
+- **Serial (`python`, np=1, a quick sanity check only -- not directly comparable to the np=4 production
+  numbers):** a clean, non-fabricated `FOAM FATAL ERROR: failed lookup of yWall (objectRegistry region0)`
+  from the SpalartAllmaras turbulence model, meaning the real (non-frozen) `meshWave` patch-distance method
+  requires a `yWall` field object that this case is not set up to provide (`diagnose_frozen_serial_run1.log`).
+
+**Neither path produces a working before/after comparison.** This candidate mechanism is consistent with
+every piece of localization evidence gathered (LE-adjacent components fail, mid-chord/aft/TE components do
+not; the mechanism is specifically a mesh-deformation-sensitivity omission, one of the named candidates;
+disabling it is fatal in a way that matches the developers' own comment that the frozen path exists
+specifically to keep the *parallel* adjoint from misbehaving) but **it is not empirically confirmed**. It
+remains the best-supported candidate by elimination, not a proven root cause.
+
+### 11.4 Formal retraction: two auxiliary scripts from this session are not valid evidence
+
+Two scripts written this session (`work/NACA0012_Airfoil_Incompressible/diagnose_warp.py` and
+`diagnose_chain.py`/`diagnose_chain2.py`) produced numbers that looked alarming in isolation (large,
+widespread AD-vs-FD disagreement in `diagnose_warp_exact_run1.log`'s `verifyWarpDeriv` self-check; 6-of-8
+components including two sign reversals in `diagnose_chain2_run1.log`'s dot-product consistency check).
+Both are formally retracted as evidence for this investigation, for concrete reasons, not merely a hunch:
+
+- Both ran in **serial** (`python`, nProcs=1), unlike every trusted number anywhere else in this document,
+  which all use `mpirun -np 4`. IDWarp's own default option comment says `meshWaveFrozen` "improves the
+  **parallel** adjoint accuracy" -- a serial-only mesh-warping test is the wrong regime to trust for this
+  question.
+- `diagnose_chain2.py` measures `dot(w, dXv/dShape_idx)` for an **arbitrary fixed random seed `w`** on the
+  raw volume-mesh coordinates, via `mesh.warpDeriv`/`DVGeo.totalSensitivityProd`, with **no CFD and no flow
+  adjoint anywhere in it**. This is not `dCD/dShape`. Proof the two are not interchangeable: in the real,
+  trusted `dCD/dShape` check (section 11.2's table), idx7 is one of the best-agreeing components (1.5-1.8%
+  at both mesh resolutions) and idx4 is a middling ~2.5-2.6%; in `diagnose_chain2`, idx7 shows a sign
+  reversal (~119% disagreement) and idx4 shows near-perfect agreement (~0.1%) -- the opposite ranking. That
+  inversion is itself the evidence these auxiliary scripts have a methodology problem (most likely the
+  serial/parallel mismatch above, compounded by unclear internal indexing semantics in IDWarp's compiled
+  `verifyWarpDeriv` self-test, which this investigation could not independently audit from Python), not
+  evidence of a 6-of-8 mesh-chain defect. **Section 11.2's full 8-component, same-pipeline, same-quantity,
+  two-mesh-resolution check supersedes both of these scripts. Their numbers should not be read alongside
+  the `dCD/dShape` figures anywhere in this document.**
+
+### 11.5 Not pursued: OpenMDAO `check_partials` on the mesh-warper component
+
+`diagnose_partials.py` attempted to use OpenMDAO's own `check_partials` scoped to
+`scenario1.aero_pre.warper` (the `DAFoamWarper` component that calls `mesh.warpDeriv`/`mesh.warpMesh()`) as
+a framework-native alternative to hand-rolled isolation scripts. It did not complete: it was killed by a
+550s wrapper timeout (`diagnose_partials_run1.log`, exit 124), almost certainly because each finite-
+difference perturbation re-triggers something markedly more expensive than an isolated mesh warp (possibly
+a full group re-solve). Abandoned as too costly for the session's compute budget; it established nothing,
+positive or negative.
+
+### 11.6 Plain verdict (session 2026-07-27)
+
+**Root cause: not conclusively identified. Ruled out with evidence: FD/residual-tolerance noise (section
+8.2), FFD/DVGeo Jacobian or shape-DV sign/ordering convention (section 8, restated in 11.1), and plain
+coarse-mesh spatial-discretization error (section 11.2, new -- the disagreement survives, and for idx0/idx1
+slightly worsens, under 3.65x mesh refinement). Best remaining candidate: DAFoam's forced frozen
+wall-distance field omitting d(wallDistance)/d(shape) from the adjoint's mesh-sensitivity chain, localized
+exactly where that omission would be largest (the leading edge) -- but this could not be empirically
+confirmed because disabling it crashes this DAFoam v5.0.0 installation both in parallel (SEGV) and serial
+(missing `yWall` field), in different ways, on the very first primal iteration. Two auxiliary scripts from
+this session are formally retracted as unreliable (serial-vs-parallel mismatch; wrong quantity measured).
+
+**dCD/dshape components 2, 3, 4, 5, and 7 are verified at two independent mesh resolutions (1.5% to 6.4%
+relative error). Components 0, 1, and 6 remain genuinely wrong, confirmed not to be a finite-difference or
+coarse-mesh-discretization artifact by direct evidence at two mesh resolutions, with a plausible but
+unconfirmed mechanism. Per the standing instruction to state "unresolved" rather than loosen any tolerance:
+this is unresolved for 3 of 8 components.** Do not use this DAFoam installation's dCD/dshape for shape
+components 0, 1, or 6 (or, more conservatively, any shape mode at or adjacent to an airfoil leading edge)
+without independent verification.
+
+**Phase 2 gating:** the task's own instruction is to attempt the inventory-case gradient check "only after
+Phase 1 resolves." Phase 1 has not resolved (3 of 8 components remain genuinely disagreeing, per the
+verdict above). Per that explicit gating condition, Phase 2 was not attempted this session.
+
+### 11.7 Evidence files added this session
+
+- `diagnose_run1.log`, `diagnose_warp_run1.log`, `diagnose_warp_exact_run1.log` -- retracted (11.4);
+  serial-only IDWarp `verifyWarpDeriv` self-checks
+- `diagnose_chain_run1.log`, `diagnose_chain2_run1.log` -- retracted (11.4); serial, wrong-quantity
+  mesh-chain dot-product checks
+- `diagnose_partials_run1.log` -- abandoned (11.5); timed out, established nothing
+- `diagnose_frozen_run1.log` (parallel, SEGV), `diagnose_frozen_serial_run1.log` (serial, `yWall` fatal
+  error) -- the `forceMeshWaveFrozen=False` test (11.3); both failed, no working comparison obtained
+- `checkall8refined_run1.log` -- first attempt, failed (`renameSolution` collision with stale
+  `processorN/<time>` directories left over from `stepStudyRefined.py`'s earlier perturbed solves, owned by
+  root; cleaned with `sudo rm -rf`)
+- `checkall8refined_run2.log` -- the decisive full-8-component refined-mesh run reported in 11.2, clean
+  exit, all 17 primal solves converged to 1e-11
+- `work/NACA0012_Airfoil_Incompressible/diagnose.py`, `diagnose_warp.py`, `diagnose_warp_exact.py`,
+  `diagnose_chain.py`, `diagnose_chain2.py`, `diagnose_partials.py`, `diagnose_frozen.py` -- scripts as run
+- `work_refined/NACA0012_Airfoil_Incompressible_refined/checkAll8Refined.py` -- script as run
+

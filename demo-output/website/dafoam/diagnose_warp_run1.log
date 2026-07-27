@@ -1,0 +1,595 @@
+2026-07-27 03:29:44.967019: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-07-27 03:29:44.992755: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 4032
+Global Faces: 16254
+Global Xv: 24948
+Undecomposed points: 8316
+Global Adjoint States: 36414
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 4032
+Global Faces: 16254
+Global Xv: 24948
+Undecomposed points: 8316
+Global Adjoint States: 36414
+
+SIMPLE: no convergence criteria found. Calculations will run for 3000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+Init solver done! ElapsedClockTime 0.000000 s
+Init solver done! ElapsedCpuTime 0.310000 s
+initState: 
+6
+(
+nuTilda 4.499999999999846e-05
+phi 0
+U1 0
+U2 0
+p 0
+U0 10.00000000000001
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting primal boundary conditions...
+Setting U = (10 0 0) at inout
+Setting primal boundary conditions...
+Setting p = 0 at inout
+Setting primal boundary conditions...
+Setting nuTilda = 4.5e-05 at inout
+Setting nut wall BC for wing. BCType=nutUSpaldingWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible
+nProcs : 1
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 1e-08;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        U0
+        {
+            variable        U;
+            patches         1 ( inout );
+            value           3 ( 10 0 0 );
+        }
+        p0
+        {
+            variable        p;
+            patches         1 ( inout );
+            value           1 ( 0 );
+        }
+        nuTilda0
+        {
+            variable        nuTilda;
+            patches         1 ( inout );
+            value           1 ( 4.5e-05 );
+        }
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               10;
+        p               50;
+        nuTilda         0.00045;
+        phi             1;
+    }
+    function
+    {
+        CD
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   parallelToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+        CL
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   normalToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+        patchV
+        {
+            type            patchVelocity;
+            patches         1 ( inout );
+            flowAxis        x;
+            normalAxis      y;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  1 ( wing );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount/NACA0012_Airfoil_Incompressible',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/NACA0012_Airfoil_Incompressible
+nProcs : 1
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+#------------------------------#
+ Total Volume Nodes :      8316 
+#------------------------------#
+I/O    : uncollated
+#--------------------------------#
+ Unique Surface Nodes :       252 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000   0.000)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+OrderedDict([('inout', [0]), ('symmetry1', [1]), ('symmetry2', [2]), ('wing', [3]), ('allSurfaces', [0, 1, 2, 3]), ('allWalls', [3]), ('designSurfaces', [3])])
+ Welcome to verifyWarpDeriv
+ Checking           60  degrees of freedom
+ Doing centered differnce with h:   9.9999999999999995E-007
+ Running AD Version
+DOF:    0 OrigVal:  0.998826867023     AD:  7.50036233308     FD: -597.551867422     Err(%):  205.0845475    
+DOF:    1 OrigVal:  0.142446401303E-02 AD:  8.37253750875     FD:  219.810669841     Err(%):  185.3231312    
+DOF:    2 OrigVal:   0.00000000000     AD:-0.714238629364E-01 FD:-0.714238631462E-01 Err(%): 0.2937718454E-06
+DOF:    3 OrigVal:  0.996808545509     AD:  7.85055227775     FD:  32.5828933311     Err(%):  122.3360546    
+DOF:    4 OrigVal:  0.170687456152E-02 AD:  8.70050466526     FD:  186.246301734     Err(%):  182.1479411    
+DOF:    5 OrigVal:   0.00000000000     AD:-0.121370973762     FD:-0.121370973959     Err(%): 0.1621140265E-06
+DOF:    6 OrigVal:  0.994386441288     AD:  7.82666313396     FD: -1.02338971643     Err(%): -260.1704299    
+DOF:    7 OrigVal:  0.204492003084E-02 AD:  8.04756626868     FD: -54.2670350575     Err(%):  269.6465492    
+DOF:    8 OrigVal:   0.00000000000     AD:-0.145269413684     FD:-0.145269413852     Err(%): 0.1154285241E-06
+DOF:    9 OrigVal:  0.991479726841     AD:  7.49867602451     FD: 0.206021117280E-01 Err(%): -198.9040378    
+DOF:   10 OrigVal:  0.244921566393E-02 AD:  8.80208517401     FD: -43.8324785688     Err(%):  300.5079797    
+DOF:   11 OrigVal:   0.00000000000     AD:-0.172863358847     FD:-0.172863359065     Err(%): 0.1261713186E-06
+DOF:   12 OrigVal:  0.987991408503     AD:  7.76308506799     FD:  1.40038724965     Err(%): -138.8708908    
+DOF:   13 OrigVal:  0.293249010910E-02 AD:  8.25576820305     FD: -36.5281610572     Err(%):  316.8032468    
+DOF:   14 OrigVal:   0.00000000000     AD:-0.204429748309     FD:-0.204429748522     Err(%): 0.1041099848E-06
+DOF:   15 OrigVal:  0.983805057771     AD:  8.63424172681     FD:  8.61242248075     Err(%):-0.2530256958    
+DOF:   16 OrigVal:  0.350975134935E-02 AD:  8.39879868856     FD:  9.77572760688     Err(%):  15.15229499    
+DOF:   17 OrigVal:   0.00000000000     AD:-0.240114328105     FD:-0.240114328232     Err(%): 0.5293003022E-07
+DOF:   18 OrigVal:  0.978780913695     AD:  11.5577483120     FD:  16.8313501054     Err(%):  37.15230203    
+DOF:   19 OrigVal:  0.419866079631E-02 AD:  11.7178410341     FD:  52.2017508377     Err(%):  126.6713651    
+DOF:   20 OrigVal:   0.00000000000     AD:-0.304930482946     FD:-0.304930483603     Err(%): 0.2152172642E-06
+DOF:   21 OrigVal:  0.972751203059     AD:  12.3060424373     FD:  11.4851616272     Err(%): -6.900708412    
+DOF:   22 OrigVal:  0.501995431438E-02 AD:  12.2032402175     FD:  8.42654191717     Err(%): -36.61403960    
+DOF:   23 OrigVal:   0.00000000000     AD:-0.363213020178     FD:-0.363213020748     Err(%): 0.1569368701E-06
+DOF:   24 OrigVal:  0.965514497742     AD:  12.7300383344     FD:  6.72560746384     Err(%): -61.72430289    
+DOF:   25 OrigVal:  0.599774739889E-02 AD:  13.1493586725     FD: -28.7677619217     Err(%):  536.7657618    
+DOF:   26 OrigVal:   0.00000000000     AD:-0.427883916545     FD:-0.427883917174     Err(%): 0.1468988599E-06
+DOF:   27 OrigVal:  0.956828978916     AD:  14.4182590306     FD:  9.14214001462     Err(%): -44.78802762    
+DOF:   28 OrigVal:  0.716014901070E-02 AD:  13.8568788921     FD: -22.8847568509     Err(%):  813.9595132    
+DOF:   29 OrigVal:   0.00000000000     AD:-0.498392806046     FD:-0.498392806721     Err(%): 0.1353948661E-06
+DOF:   30 OrigVal:  0.946404273624     AD:  14.0079378095     FD:  9.27809554570     Err(%): -40.62385544    
+DOF:   31 OrigVal:  0.853937773789E-02 AD:  14.1598388021     FD: -18.7302369376     Err(%):  1439.265235    
+DOF:   32 OrigVal:   0.00000000000     AD:-0.573683654728     FD:-0.573683655275     Err(%): 0.9523767151E-07
+DOF:   33 OrigVal:  0.933891747097     AD:  14.6530539832     FD:  10.3419802969     Err(%): -34.49544128    
+DOF:   34 OrigVal:  0.101725341500E-01 AD:  14.5198725277     FD: -15.4358870793     Err(%):  6540.454964    
+DOF:   35 OrigVal:   0.00000000000     AD:-0.652183639247     FD:-0.652183639698     Err(%): 0.6913174034E-07
+DOF:   36 OrigVal:  0.918872683801     AD:  14.7267322280     FD:  10.9415193138     Err(%): -29.49334440    
+DOF:   37 OrigVal:  0.121011752126E-01 AD:  16.3197424573     FD: -9.84591141324     Err(%): -808.3514597    
+DOF:   38 OrigVal:   0.00000000000     AD:-0.731918302088     FD:-0.731918302647     Err(%): 0.7638009921E-07
+DOF:   39 OrigVal:  0.900844267972     AD:  16.1274384024     FD:  12.9067559338     Err(%): -22.18544404    
+DOF:   40 OrigVal:  0.143719765781E-01 AD:  16.1347243408     FD: -5.97989667933     Err(%): -435.5489184    
+DOF:   41 OrigVal:   0.00000000000     AD:-0.790964560434     FD:-0.790964561096     Err(%): 0.8369706344E-07
+DOF:   42 OrigVal:  0.880113389848     AD:  15.4898869269     FD:  13.1657734812     Err(%): -16.22097284    
+DOF:   43 OrigVal:  0.169249400871E-01 AD:  15.9288810355     FD: 0.736059826204     Err(%): -182.3327348    
+DOF:   44 OrigVal:   0.00000000000     AD:-0.768686751074     FD:-0.768686751621     Err(%): 0.7120137368E-07
+DOF:   45 OrigVal:  0.859375235863     AD:  21.8051688314     FD:  20.4958434343     Err(%): -6.190515673    
+DOF:   46 OrigVal:  0.194181062413E-01 AD:  22.1400347876     FD:  15.2075153496     Err(%): -37.12435976    
+DOF:   47 OrigVal:   0.00000000000     AD:-0.629070458889     FD:-0.629070460801     Err(%): 0.3038660037E-06
+DOF:   48 OrigVal:  0.838630118357     AD:  20.0338264605     FD:  19.0791979814     Err(%): -4.881384105    
+DOF:   49 OrigVal:  0.218526519114E-01 AD:  21.2166079347     FD:  17.3265724308     Err(%): -20.18533742    
+DOF:   50 OrigVal:   0.00000000000     AD:-0.581740598511     FD:-0.581740600353     Err(%): 0.3166664110E-06
+DOF:   51 OrigVal:  0.817878322654     AD:  20.9559129109     FD:  19.5614203037     Err(%): -6.883437268    
+DOF:   52 OrigVal:  0.242296094159E-01 AD:  22.0427286553     FD:  14.3339255875     Err(%): -42.38324402    
+DOF:   53 OrigVal:   0.00000000000     AD:-0.540493085053     FD:-0.540493086955     Err(%): 0.3518383058E-06
+DOF:   54 OrigVal:  0.797120085936     AD:  19.8434225824     FD:  18.5110886834     Err(%): -6.947469046    
+DOF:   55 OrigVal:  0.265496501650E-01 AD:  21.0057924079     FD:  13.9655156154     Err(%): -40.26315966    
+DOF:   56 OrigVal:   0.00000000000     AD:-0.510326280857     FD:-0.510326282637     Err(%): 0.3487934204E-06
+DOF:   57 OrigVal:  0.776355577730     AD:  19.8890263713     FD:  19.0420983086     Err(%): -4.350904679    
+DOF:   58 OrigVal:  0.288128807034E-01 AD:  19.7662803957     FD:  17.2948537661     Err(%): -13.33702643    
+DOF:   59 OrigVal:   0.00000000000     AD:-0.491046764863     FD:-0.491046766620     Err(%): 0.3577664412E-06
+DOF:   60 OrigVal:  0.755584980877     AD:  20.0007438540     FD:  19.1461378498     Err(%): -4.366151106    
+ Welcome to verifyWarpDeriv
+ Checking           60  degrees of freedom
+ Doing centered differnce with h:   1.0000000000000000E-004
+ Running AD Version
+DOF:    0 OrigVal:  0.998826867023     AD:  7.50036233308     FD: -595.982272918     Err(%):  205.0981090    
+DOF:    1 OrigVal:  0.142446401303E-02 AD:  8.37253750875     FD:  219.748872397     Err(%):  185.3191552    
+DOF:    2 OrigVal:   0.00000000000     AD:-0.714238629364E-01 FD:-0.706136215320E-01 Err(%): -1.140883912    
+DOF:    3 OrigVal:  0.996808545509     AD:  7.85055227775     FD:  32.5926475628     Err(%):  122.3547859    
+DOF:    4 OrigVal:  0.170687456152E-02 AD:  8.70050466526     FD:  186.218590056     Err(%):  182.1454031    
+DOF:    5 OrigVal:   0.00000000000     AD:-0.121370973762     FD:-0.120221377558     Err(%):-0.9516826155    
+DOF:    6 OrigVal:  0.994386441288     AD:  7.82666313396     FD: -1.03750192848     Err(%): -261.1269579    
+DOF:    7 OrigVal:  0.204492003084E-02 AD:  8.04756626868     FD: -54.2333315280     Err(%):  269.6973730    
+DOF:    8 OrigVal:   0.00000000000     AD:-0.145269413684     FD:-0.144709211277     Err(%):-0.3863749664    
+DOF:    9 OrigVal:  0.991479726841     AD:  7.49867602451     FD: 0.123913245465E-01 Err(%): -199.3401031    
+DOF:   10 OrigVal:  0.244921566393E-02 AD:  8.80208517401     FD: -43.8126347659     Err(%):  300.5649472    
+DOF:   11 OrigVal:   0.00000000000     AD:-0.172863358847     FD:-0.172355081007     Err(%):-0.2944673759    
+DOF:   12 OrigVal:  0.987991408503     AD:  7.76308506799     FD:  1.39549099273     Err(%): -139.0520542    
+DOF:   13 OrigVal:  0.293249010910E-02 AD:  8.25576820305     FD: -36.5164329542     Err(%):  316.8517199    
+DOF:   14 OrigVal:   0.00000000000     AD:-0.204429748309     FD:-0.203826266338     Err(%):-0.2956389859    
+DOF:   15 OrigVal:  0.983805057771     AD:  8.63424172681     FD:  8.61025162723     Err(%):-0.2782349018    
+DOF:   16 OrigVal:  0.350975134935E-02 AD:  8.39879868856     FD:  9.78075264328     Err(%):  15.20338901    
+DOF:   17 OrigVal:   0.00000000000     AD:-0.240114328105     FD:-0.238293944699     Err(%):-0.7610166922    
+DOF:   18 OrigVal:  0.978780913695     AD:  11.5577483120     FD:  16.8304658529     Err(%):  37.14722955    
+DOF:   19 OrigVal:  0.419866079631E-02 AD:  11.7178410341     FD:  52.2036724852     Err(%):  126.6735696    
+DOF:   20 OrigVal:   0.00000000000     AD:-0.304930482946     FD:-0.301136432111     Err(%): -1.252023742    
+DOF:   21 OrigVal:  0.972751203059     AD:  12.3060424373     FD:  11.4839670734     Err(%): -6.911097396    
+DOF:   22 OrigVal:  0.501995431438E-02 AD:  12.2032402175     FD:  8.42937393444     Err(%): -36.58156214    
+DOF:   23 OrigVal:   0.00000000000     AD:-0.363213020178     FD:-0.359505281343     Err(%): -1.026053672    
+DOF:   24 OrigVal:  0.965514497742     AD:  12.7300383344     FD:  6.72440727971     Err(%): -61.74044919    
+DOF:   25 OrigVal:  0.599774739889E-02 AD:  13.1493586725     FD: -28.7650438269     Err(%):  536.8243799    
+DOF:   26 OrigVal:   0.00000000000     AD:-0.427883916545     FD:-0.424490452546     Err(%):-0.7962379259    
+DOF:   27 OrigVal:  0.956828978916     AD:  14.4182590306     FD:  9.14146697199     Err(%): -44.79502060    
+DOF:   28 OrigVal:  0.716014901070E-02 AD:  13.8568788921     FD: -22.8830830490     Err(%):  814.0733647    
+DOF:   29 OrigVal:   0.00000000000     AD:-0.498392806046     FD:-0.494103712200     Err(%):-0.8643040591    
+DOF:   30 OrigVal:  0.946404273624     AD:  14.0079378095     FD:  9.27759608144     Err(%): -40.62901671    
+DOF:   31 OrigVal:  0.853937773789E-02 AD:  14.1598388021     FD: -18.7291909126     Err(%):  1439.548930    
+DOF:   32 OrigVal:   0.00000000000     AD:-0.573683654728     FD:-0.568143697136     Err(%):-0.9703669443    
+DOF:   33 OrigVal:  0.933891747097     AD:  14.6530539832     FD:  10.3419625306     Err(%): -34.49560796    
+DOF:   34 OrigVal:  0.101725341500E-01 AD:  14.5198725277     FD: -15.4352373919     Err(%):  6544.955152    
+DOF:   35 OrigVal:   0.00000000000     AD:-0.652183639247     FD:-0.645015320599     Err(%): -1.105199568    
+DOF:   36 OrigVal:  0.918872683801     AD:  14.7267322280     FD:  10.9415723231     Err(%): -29.49287046    
+DOF:   37 OrigVal:  0.121011752126E-01 AD:  16.3197424573     FD: -9.84545096775     Err(%): -808.2797467    
+DOF:   38 OrigVal:   0.00000000000     AD:-0.731918302088     FD:-0.723344023093     Err(%): -1.178382598    
+DOF:   39 OrigVal:  0.900844267972     AD:  16.1274384024     FD:  12.9069317161     Err(%): -22.18409887    
+DOF:   40 OrigVal:  0.143719765781E-01 AD:  16.1347243408     FD: -5.97969117385     Err(%): -435.5360569    
+DOF:   41 OrigVal:   0.00000000000     AD:-0.790964560434     FD:-0.784990042149     Err(%):-0.7582094403    
+DOF:   42 OrigVal:  0.880113389848     AD:  15.4898869269     FD:  13.1651554196     Err(%): -16.22563652    
+DOF:   43 OrigVal:  0.169249400871E-01 AD:  15.9288810355     FD: 0.736052086606     Err(%): -182.3329123    
+DOF:   44 OrigVal:   0.00000000000     AD:-0.768686751074     FD:-0.767298040220     Err(%):-0.1808235162    
+DOF:   45 OrigVal:  0.859375235863     AD:  21.8051688314     FD:  20.4950318820     Err(%): -6.194471550    
+DOF:   46 OrigVal:  0.194181062413E-01 AD:  22.1400347876     FD:  15.2074743141     Err(%): -37.12462030    
+DOF:   47 OrigVal:   0.00000000000     AD:-0.629070458889     FD:-0.627574812152     Err(%):-0.2380380162    
+DOF:   48 OrigVal:  0.838630118357     AD:  20.0338264605     FD:  19.0795413791     Err(%): -4.879585340    
+DOF:   49 OrigVal:  0.218526519114E-01 AD:  21.2166079347     FD:  17.3265146065     Err(%): -20.18566775    
+DOF:   50 OrigVal:   0.00000000000     AD:-0.581740598511     FD:-0.578743364326     Err(%):-0.5165490056    
+DOF:   51 OrigVal:  0.817878322654     AD:  20.9559129109     FD:  19.5608890593     Err(%): -6.886149863    
+DOF:   52 OrigVal:  0.242296094159E-01 AD:  22.0427286553     FD:  14.3339385360     Err(%): -42.38315775    
+DOF:   53 OrigVal:   0.00000000000     AD:-0.540493085053     FD:-0.538372934521     Err(%):-0.3930331467    
+DOF:   54 OrigVal:  0.797120085936     AD:  19.8434225824     FD:  18.5103610458     Err(%): -6.951395197    
+DOF:   55 OrigVal:  0.265496501650E-01 AD:  21.0057924079     FD:  13.9654177801     Err(%): -40.26383182    
+DOF:   56 OrigVal:   0.00000000000     AD:-0.510326280857     FD:-0.507885531396     Err(%):-0.4794188068    
+DOF:   57 OrigVal:  0.776355577730     AD:  19.8890263713     FD:  19.0419054248     Err(%): -4.351917138    
+DOF:   58 OrigVal:  0.288128807034E-01 AD:  19.7662803957     FD:  17.2948038270     Err(%): -13.33731390    
+DOF:   59 OrigVal:   0.00000000000     AD:-0.491046764863     FD:-0.486992590524     Err(%):-0.8290411458    
+DOF:   60 OrigVal:  0.755584980877     AD:  20.0007438540     FD:  19.1458450873     Err(%): -4.367679483    
+DIAGWARP evalMode = fast
+DIAGWARP warpmeshdof = 24948
+DIAGWARP solvermeshdof = 24948
+DIAGWARP === verifyWarpDeriv over first 60 dof, h=1e-6 ===
+DIAGWARP === verifyWarpDeriv over first 60 dof, h=1e-4 ===
+DIAGWARP DONE
