@@ -1,0 +1,135 @@
+{
+  "generated_at": "2026-07-27T03:32:16.210501+00:00",
+  "measured_date": "2026-07-27",
+  "purpose": "First genuinely trained closure-challenge entry (periodic-hills sub-family only), scored through the benchmark's own harness, measured against the versioned RANS-identity floor (0.1036) and the recorded rank-4 target (0.0779).",
+  "scope_limitation": "Correction trained and applied only to the 4 periodic-hill test cases. The other 4 test cases (AR_1_Ret_360, AR_3_Ret_360, AR_14_Ret_180, NASA_2DWMH) are passed through UNMODIFIED raw RANS (identical to the floor) because the benchmark does not ship gradU (DUCT/CBFS/PH_Breuer) or walldist/mesh-C in solved time directories (DUCT/CBFS/PH_Breuer) needed for the same invariant feature set, and reconstructing those fields from the mesh was out of scope for this run.",
+  "metric_definition": {
+    "per_case": "scaled MAE = mean(||U_pred - U_true||) over 1000 fixed eval points, divided by mean(||U_true||)",
+    "overall": "plain mean of the 8 per-case scaled MAE values, lower is better",
+    "source": "closure_challenge/eval.py (identical package/commit as the floor evidence)"
+  },
+  "data_split": {
+    "train_cases": [
+      "alpha_05_10071_3036",
+      "alpha_05_4071_3036",
+      "alpha_05_7071_2024",
+      "alpha_05_7071_3036",
+      "alpha_05_7071_4048",
+      "alpha_075",
+      "alpha_10_12000_2024",
+      "alpha_10_12000_3036",
+      "alpha_10_12000_4048",
+      "alpha_10_6000_2024",
+      "alpha_10_6000_3036",
+      "alpha_10_6000_4048",
+      "alpha_10_9000_2024",
+      "alpha_10_9000_3036",
+      "alpha_10_9000_4048",
+      "alpha_125",
+      "alpha_15_10929_2024",
+      "alpha_15_10929_3036",
+      "alpha_15_10929_4048",
+      "alpha_15_13929_3036",
+      "alpha_15_7929_3036"
+    ],
+    "validation_cases_held_out": [
+      "alpha_05_10071_4048",
+      "alpha_05_10071_2024",
+      "alpha_15_7929_4048",
+      "alpha_15_7929_2024"
+    ],
+    "test_cases_official": [
+      "AR_14_Ret_180",
+      "AR_1_Ret_360",
+      "AR_3_Ret_360",
+      "NASA_2DWMH",
+      "alpha_05_4071_2024",
+      "alpha_05_4071_4048",
+      "alpha_15_13929_2024",
+      "alpha_15_13929_4048"
+    ],
+    "n_train_cells": 327600
+  },
+  "features": [
+    "I1_S2",
+    "I2_W2",
+    "I3_S3",
+    "I4_W2S",
+    "I5_W2S2",
+    "Re_y",
+    "tke_ratio"
+  ],
+  "model": "HistGradientBoostingRegressor x3 (one per velocity component), max_iter=300, max_depth=6, learning_rate=0.05",
+  "checks": {
+    "baseline_reproduces_0_1036_under_this_harness_invocation": true,
+    "measured_floor_this_run": 0.1036,
+    "train_validation_test_leakage": {
+      "train_val_test_disjoint": true,
+      "ground_truth_test_npz_touched_only_via": "closure_challenge.score()/evaluate_by_case(), called once on the final predictions dict",
+      "model_fit_only_on": "_PH_TRAIN (21 cases); validation and test cells never appear in X_train/y_train"
+    },
+    "train_vs_validation_divergence_flag": false
+  },
+  "scores": {
+    "train_pooled_scaled_mae": 0.062,
+    "train_pooled_scaled_mae_per_case": {
+      "alpha_05_10071_3036": 0.0649,
+      "alpha_05_4071_3036": 0.0719,
+      "alpha_05_7071_2024": 0.0618,
+      "alpha_05_7071_3036": 0.0589,
+      "alpha_05_7071_4048": 0.0661,
+      "alpha_075": 0.0418,
+      "alpha_10_12000_2024": 0.0726,
+      "alpha_10_12000_3036": 0.0519,
+      "alpha_10_12000_4048": 0.0426,
+      "alpha_10_6000_2024": 0.0852,
+      "alpha_10_6000_3036": 0.0555,
+      "alpha_10_6000_4048": 0.0545,
+      "alpha_10_9000_2024": 0.0754,
+      "alpha_10_9000_3036": 0.0371,
+      "alpha_10_9000_4048": 0.0357,
+      "alpha_125": 0.0528,
+      "alpha_15_10929_2024": 0.1055,
+      "alpha_15_10929_3036": 0.0662,
+      "alpha_15_10929_4048": 0.0462,
+      "alpha_15_13929_3036": 0.0704,
+      "alpha_15_7929_3036": 0.0688
+    },
+    "train_raw_rans_identity_on_same_cells": 0.1204,
+    "validation_pooled_scaled_mae": 0.0876,
+    "validation_pooled_scaled_mae_per_case": {
+      "alpha_05_10071_4048": 0.0772,
+      "alpha_05_10071_2024": 0.0858,
+      "alpha_15_7929_4048": 0.0463,
+      "alpha_15_7929_2024": 0.131
+    },
+    "validation_raw_rans_identity_on_same_cells": 0.1298
+  },
+  "official_test_harness_result": {
+    "trained_entry_overall": 0.0869,
+    "trained_entry_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0723,
+      "alpha_05_4071_2024": 0.0974,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "rans_identity_floor_overall_this_run": 0.1036,
+    "rans_identity_floor_per_case_this_run": {
+      "alpha_15_13929_4048": 0.132,
+      "alpha_15_13929_2024": 0.2049,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "delta_vs_floor": -0.0167,
+    "beats_floor": true,
+    "delta_vs_docket_rank4_0_0779": 0.009
+  }
+}
