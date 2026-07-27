@@ -137,8 +137,18 @@ def _vector(values) -> str:
 def build_case(case_dir: str | Path, surface_file: str, geometry: dict[str, Any],
                *, velocity: float = 100.0, viscosity: float = 1.5e-5,
                scale: float = 1.0, refinement: int = 2,
-               iterations: int = 300) -> dict[str, Any]:
-    """Write the whole case; return the reference values it was built with."""
+               iterations: int = 300, add_layers: bool = False,
+               n_surface_layers: int = 12,
+               first_layer_thickness: float | None = None,
+               layer_expansion_ratio: float = 1.2) -> dict[str, Any]:
+    """Write the whole case; return the reference values it was built with.
+
+    ``add_layers`` is opt-in and off by default so every existing caller keeps
+    its current (layerless, wall-function-on-a-cell-face) mesh unchanged. Pass
+    it explicitly, with a ``first_layer_thickness`` sized for the case's own
+    Reynolds number, to get an actual boundary-layer-resolved prism stack
+    instead of the flat cut cells snappyHexMesh leaves at the wall by default.
+    """
     case = Path(case_dir)
     for sub in ("0", "constant/triSurface", "system"):
         (case / sub).mkdir(parents=True, exist_ok=True)
@@ -177,7 +187,10 @@ def build_case(case_dir: str | Path, surface_file: str, geometry: dict[str, Any]
     (case / "system" / "blockMeshDict").write_text(_block_mesh(box_min, box_max, cells))
     (case / "system" / "snappyHexMeshDict").write_text(
         _snappy(surface_file, centre, box_min, box_max, stream, length, refinement,
-                body_min=low, body_max=high))
+                body_min=low, body_max=high, add_layers=add_layers,
+                n_surface_layers=n_surface_layers,
+                first_layer_thickness=first_layer_thickness,
+                layer_expansion_ratio=layer_expansion_ratio))
     (case / "system" / "meshQualityDict").write_text(_MESH_QUALITY)
     (case / "system" / "surfaceFeatureExtractDict").write_text(_features(surface_file))
     (case / "system" / "controlDict").write_text(
@@ -229,7 +242,10 @@ def _block_mesh(low, high, cells) -> str:
 
 
 def _snappy(surface_file: str, centre, low, high, stream: int, length: float,
-            refinement: int, body_min=None, body_max=None) -> str:
+            refinement: int, body_min=None, body_max=None, *,
+            add_layers: bool = False, n_surface_layers: int = 12,
+            first_layer_thickness: float | None = None,
+            layer_expansion_ratio: float = 1.2) -> str:
     inside = list(centre)
     # A point inside the domain but well clear of the body: step downstream so
     # it can never land on the surface itself.
@@ -256,8 +272,35 @@ def _snappy(surface_file: str, centre, low, high, stream: int, length: float,
                   f"            levels ((1e15 {max(1, near - 1)}));\n"
                   "        }\n    }\n\n")
 
+    layers_on = "true" if add_layers else "false"
+    if add_layers and first_layer_thickness:
+        # Absolute sizing (relativeSizes false): the first cell height was
+        # sized in the caller from a target y+ at the case's own Reynolds
+        # number, not left to a fraction of whatever cell snappyHexMesh
+        # happens to leave at the surface.
+        layers_controls = (
+            "addLayersControls\n{\n    relativeSizes false;\n"
+            f"    layers {{ body {{ nSurfaceLayers {n_surface_layers}; }} }}\n"
+            f"    expansionRatio {layer_expansion_ratio:g};\n"
+            f"    firstLayerThickness {first_layer_thickness:.6g};\n"
+            f"    minThickness {first_layer_thickness * 0.05:.6g};\n"
+            "    nGrow 0;\n    featureAngle 60;\n"
+            "    nRelaxIter 5;\n    nSmoothSurfaceNormals 1;\n    nSmoothNormals 3;\n"
+            "    nSmoothThickness 10;\n    maxFaceThicknessRatio 0.5;\n"
+            "    maxThicknessToMedialRatio 0.3;\n    minMedialAxisAngle 90;\n"
+            "    nBufferCellsNoExtrude 0;\n    nLayerIter 60;\n    nRelaxedIter 20;\n}\n\n")
+    else:
+        layers_controls = (
+            "addLayersControls\n{\n    relativeSizes true;\n    layers {}\n"
+            "    expansionRatio 1.0;\n    finalLayerThickness 0.3;\n"
+            "    minThickness 0.1;\n    nGrow 0;\n    featureAngle 60;\n"
+            "    nRelaxIter 3;\n    nSmoothSurfaceNormals 1;\n    nSmoothNormals 3;\n"
+            "    nSmoothThickness 10;\n    maxFaceThicknessRatio 0.5;\n"
+            "    maxThicknessToMedialRatio 0.3;\n    minMedialAxisAngle 90;\n"
+            "    nBufferCellsNoExtrude 0;\n    nLayerIter 50;\n}\n\n")
+
     return (_header("dictionary", "system", "snappyHexMeshDict")
-            + "castellatedMesh true;\nsnap            true;\naddLayers       false;\n\n"
+            + f"castellatedMesh true;\nsnap            true;\naddLayers       {layers_on};\n\n"
             + "geometry\n{\n"
             + f"    body\n    {{\n        type triSurfaceMesh;\n        file \"{surface_file}\";\n    }}\n"
             + region_geometry
@@ -277,13 +320,7 @@ def _snappy(surface_file: str, centre, low, high, stream: int, length: float,
             + "    nSolveIter      30;\n    nRelaxIter      5;\n"
             + "    nFeatureSnapIter 10;\n    implicitFeatureSnap false;\n"
             + "    explicitFeatureSnap true;\n    multiRegionFeatureSnap false;\n}\n\n"
-            + "addLayersControls\n{\n    relativeSizes true;\n    layers {}\n"
-            + "    expansionRatio 1.0;\n    finalLayerThickness 0.3;\n"
-            + "    minThickness 0.1;\n    nGrow 0;\n    featureAngle 60;\n"
-            + "    nRelaxIter 3;\n    nSmoothSurfaceNormals 1;\n    nSmoothNormals 3;\n"
-            + "    nSmoothThickness 10;\n    maxFaceThicknessRatio 0.5;\n"
-            + "    maxThicknessToMedialRatio 0.3;\n    minMedialAxisAngle 90;\n"
-            + "    nBufferCellsNoExtrude 0;\n    nLayerIter 50;\n}\n\n"
+            + layers_controls
             + "meshQualityControls\n{\n    #include \"meshQualityDict\"\n}\n\n"
             + "writeFlags ( scalarLevels layerSets layerFields );\nmergeTolerance 1e-6;\n")
 
