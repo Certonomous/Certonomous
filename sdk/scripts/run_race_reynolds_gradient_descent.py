@@ -1,5 +1,5 @@
-"""Gradient-driven design optimization on the race act's ROM lane, extended
-into the newly-available Reynolds dimension.
+"""Gradient walk of the race act's Reynolds-aware ROM surface -- and why the
+result is a SENSITIVITY measurement, not a design optimization.
 
 BASELINE (measured before this script existed, not touched here): the race
 act's reduced-order lane (``workflows.race_benchmark.run_rom_path``, reusing
@@ -14,29 +14,52 @@ variable there -- it was pinned at the one nominal value throughout.
 WHAT'S NEW: commit 069cf13 added ``chief_engineer.reynolds_surrogate``, a
 quadratic-in-(alpha, Re) response surface trained on 25 real VSPAERO anchors
 and validated on 16 held-out points (train r2 0.994, val r2 0.989), valid over
-Re in [0.70e6, 1.30e6]. This is the first time Re has been available to an
-optimizer here.
+Re in [0.70e6, 1.30e6].
 
-THIS SCRIPT'S OPTIMIZATION PROBLEM:
-  objective   : maximise predicted L/D(alpha, Re) on the NACA 4412 finite wing
-  design vars : alpha in [0, 10] deg (the race's own alpha domain)
-                Re    in [0.70e6, 1.30e6] (the surrogate's validated domain,
-                         which brackets the race's own observed sampled span
-                         [800619, 1091316])
-  constraints : box bounds only; the confirmation solve must return a finite
-                polar (no solver failure) to count
-  method      : real (analytic) gradient of the fitted quadratic surface,
-                projected gradient ASCENT (maximising) in normalized
-                coordinates, starting at the race ROM lane's own converged
-                design (alpha=0 deg, Re=1.0e6) -- i.e. this walks the existing
-                converged answer further, along the one axis that just became
-                available.
+CORRECTED FRAMING (this is the important part): Reynolds number is NOT a
+design variable. It is an operating condition, set by flight speed, wing size,
+and air properties -- not something a wing designer can dial. The surrogate's
+two inputs are one true design variable (alpha) and one operating condition
+(Re). Walking Re is not "optimizing the design"; it is measuring how the
+already-fixed wing's L/D responds to the condition it flies in.
+
+What the descent below actually shows, honestly stated:
+  - Gradient magnitude NEVER vanished (it stayed at 8.5-8.8 in normalized
+    units for all 15 recorded steps). A converged interior optimum has a
+    gradient that goes to ~0; this one did not.
+  - Alpha stayed pinned at its own lower bound (0 deg) the entire walk --
+    already at the boundary optimum the ORIGINAL alpha-only ROM lane found.
+  - Re ran monotonically to the surrogate's upper validated bound (1.30e6)
+    and stopped there only because the box stopped it, not because the
+    gradient vanished.
+  A monotone climb that stops at the edge of the validated domain, on both
+  axes, is a SENSITIVITY TREND, not an optimization outcome: there is no
+  interior stationary point in this domain for the lab to report as "the
+  optimal design." The single design axis available (alpha) was already at
+  its own optimum before this script ran; nothing here moved it.
+
+WHAT THIS SCRIPT ACTUALLY MEASURES: the Reynolds sensitivity of L/D for this
+fixed wing -- how much L/D changes from Re=1.00e6 to Re=1.30e6 at alpha held
+at its already-optimal value, with both endpoints confirmed by fresh real
+VSPAERO solves. That is a real, useful, honestly-obtained number. It is not a
+design improvement, because Re is not something the lab built or chose --
+the wing itself did not change between the two confirmation points.
+
+PLAIN VERDICT: no gradient-driven DESIGN optimization is currently possible
+for this wing with the surrogates that exist. The only differentiable
+surrogate on hand spans one design variable (alpha) and one operating
+condition (Re); alpha is pinned at a bound with a real, non-vanishing outward
+gradient (the wing is already as good as this alpha domain allows), and Re
+cannot be redesigned. A genuine design-gradient result would need a second
+real design variable -- planform, camber, thickness, twist -- fit into a
+differentiable surrogate the way alpha and Re were. None currently exists in
+this lab's inventory for this wing.
 
 Every anchor solve is read from the cached VSPAERO results already on disk
 from commit 069cf13's evidence run (``mission-output/reynolds-surrogate/work``,
 ``reuse_prior=True`` -- identical cache-reuse contract used everywhere else in
-this codebase). The BASELINE confirmation and the CONVERGED-DESIGN
-confirmation are both solved FRESH here (``reuse_prior=False``) so both
+this codebase). The two confirmation points (Re=1.00e6 and Re=1.30e6, both at
+alpha=0 deg) are both solved FRESH here (``reuse_prior=False``) so both
 numbers come from this run, on this machine, back to back.
 
 Run (2-core cap)::
@@ -136,10 +159,20 @@ def _finite_diff_grad(coeff, alpha, re, h_alpha=1e-3, h_re=100.0):
 
 
 def descend(coeff):
-    """Projected gradient ASCENT (maximising L/D) in normalized (alpha, u)
-    coordinates, mirroring workflows.shape_optimization.descend's contract:
-    every step computed, every iterate clamped to bounds, full trajectory
-    returned. Nothing here is interpolated or padded."""
+    """Projected gradient walk (ascent on the fitted L/D surface) in
+    normalized (alpha, u) coordinates, mirroring workflows.shape_optimization.
+    descend's contract: every step computed, every iterate clamped to
+    bounds, full trajectory returned. Nothing here is interpolated or
+    padded.
+
+    NOTE ON WHAT THIS IS: one of the two axes walked here (Re) is an
+    operating condition, not a design variable (see the module docstring).
+    The walk below is real gradient ascent on the surface -- the mechanism
+    is genuine -- but its result is a Reynolds-sensitivity trend, not a
+    design optimum: the raw gradient never vanishes on this domain (see
+    ``gradient_norm_normalized`` in every recorded step), so the walk always
+    stops because it hit the box, not because it found a stationary point.
+    """
     a_range = ALPHA_HI - ALPHA_LO
     u_lo, u_hi = (RE_LO - RE_REF) / RE_REF, (RE_HI - RE_REF) / RE_REF
     u_range = u_hi - u_lo
@@ -274,7 +307,7 @@ def main() -> int:
                        and gcheck['abs_error']['d_re'] < 1e-9)
     print(f"  VERDICT: {'PASS' if grad_check_pass else 'FAIL'}")
 
-    print("\nSTEP 4 -- gradient-driven descent (ascent on L/D) over (alpha, Re), "
+    print("\nSTEP 4 -- gradient walk of the fitted surface over (alpha, Re), "
           f"start alpha={START_ALPHA:g} deg, Re={START_RE:.3e}")
     trajectory, descent_meta = descend(coeff)
     for i, pt in enumerate(trajectory):
@@ -285,14 +318,30 @@ def main() -> int:
     steps = len(trajectory) - 1
     in_domain = (ALPHA_LO - 1e-9 <= converged["alpha"] <= ALPHA_HI + 1e-9
                 and RE_LO - 1e-9 <= converged["re"] <= RE_HI + 1e-9)
-    print(f"\n  converged after {steps} steps: alpha*={converged['alpha']:.4f} deg, "
-          f"Re*={converged['re']:.5e}, predicted L/D={converged['objective']:.4f}")
+    final_gnorm = trajectory[-1]["gradient_norm_normalized"]
+    alpha_pinned = abs(converged["alpha"] - ALPHA_LO) < 1e-6
+    re_pinned = abs(converged["re"] - RE_HI) < 1.0
+    print(f"\n  walk stopped after {steps} steps at alpha={converged['alpha']:.4f} deg, "
+          f"Re={converged['re']:.5e}, predicted L/D={converged['objective']:.4f}")
+    print(f"  raw gradient norm at the stop point: {final_gnorm:.4e} "
+          f"(NOT ~0 -- it never vanished across the whole walk, see the "
+          f"per-step trace above)")
     print(f"  VALIDITY DOMAIN CHECK: alpha in [{ALPHA_LO},{ALPHA_HI}], "
           f"Re in [{RE_LO:.2e},{RE_HI:.2e}] -- "
           f"{'INSIDE -- PASS' if in_domain else 'OUTSIDE -- FAIL (extrapolation)'}")
+    print(f"  alpha pinned at its own bound: {alpha_pinned}   "
+          f"Re pinned at its own bound: {re_pinned}")
+    print("  VERDICT: this is NOT a converged design optimum. Both design "
+          "axes stopped at a box edge with a non-vanishing gradient, which "
+          "means the walk found a MONOTONE SENSITIVITY TREND, not a "
+          "stationary point. Re is an operating condition, not something "
+          "the lab can redesign, so the correct reading is: L/D is "
+          "monotonically sensitive to Re over this range, at the alpha the "
+          "original (alpha-only) ROM lane already converged to.")
 
     print("\nSTEP 5 -- confirmation: fresh real VSPAERO solves (reuse_prior=False) "
-          "at the BASELINE design and at the CONVERGED design")
+          "at the BASELINE condition (Re=1.00e6) and at the STOP POINT the walk "
+          "reached (Re=1.30e6), same wing, same alpha")
     confirm_api = VspAeroWingApi(CONFIRM_WORK, reuse_prior=False)
 
     def _confirm(alpha, re, tag):
@@ -315,18 +364,60 @@ def main() -> int:
 
     predicted_at_converged = converged["objective"]
     gap = converged_l_d - predicted_at_converged
-    print(f"\n  SURROGATE VS SOLVER GAP at the converged design: predicted "
+    print(f"\n  SURROGATE VS SOLVER GAP at the stop point: predicted "
           f"{predicted_at_converged:.4f}  vs  confirmed {converged_l_d:.4f}  "
-          f"-> gap {gap:+.4f} L/D ({abs(gap) / converged_l_d * 100:.2f}% of value)")
+          f"-> gap {gap:+.4f} L/D ({abs(gap) / converged_l_d * 100:.2f}% of "
+          f"value). This point was interpolated, not trained on -- the gap "
+          f"sits well inside the surrogate's own {vq['rmse']:.2f} L/D "
+          f"validation RMSE, which is a good result FOR THE SURROGATE: it "
+          f"predicts the solver correctly at a held-out-style point.")
 
-    improvement_abs = converged_l_d - baseline_l_d
-    improvement_pct = improvement_abs / baseline_l_d * 100
-    print(f"\n  MEASURED IMPROVEMENT vs baseline (both confirmed by fresh "
-          f"solver runs this session): {improvement_abs:+.4f} L/D "
-          f"({improvement_pct:+.2f}%)")
+    sensitivity_abs = converged_l_d - baseline_l_d
+    sensitivity_pct = sensitivity_abs / baseline_l_d * 100
+    print(f"\n  MEASURED REYNOLDS SENSITIVITY (NOT a design improvement -- "
+          f"Re is an operating condition, the wing itself is unchanged "
+          f"between these two points; both confirmed by fresh solver runs "
+          f"this session): L/D changes {sensitivity_abs:+.4f} "
+          f"({sensitivity_pct:+.2f}%) from Re={START_RE:.2e} to "
+          f"Re={converged['re']:.2e}, at alpha held fixed at "
+          f"{converged['alpha']:g} deg.")
+    print("\n  PLAIN VERDICT: no gradient-driven DESIGN optimization is "
+          "currently possible for this wing with the surrogates that exist. "
+          "The only differentiable surrogate on hand spans one design "
+          "variable (alpha, already pinned at its own bound with a real, "
+          "non-vanishing gradient) and one operating condition (Re, not "
+          "redesignable). A genuine design-gradient result needs a second "
+          "true design variable -- planform, camber, thickness, twist -- in "
+          "a differentiable surrogate; none exists for this wing today.")
 
     report = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "framing": {
+            "reynolds_is_operating_condition_not_design_variable": True,
+            "outcome": "sensitivity_trend_not_converged_design_optimum",
+            "why": (
+                "Both walked axes stopped at a box edge (alpha at its own "
+                "lower bound, Re at the surrogate's upper validated bound) "
+                "with a non-vanishing gradient (~8.5-8.8 normalized units "
+                "throughout, see descent.trajectory). No interior "
+                "stationary point exists in this domain. Re is an operating "
+                "condition (airspeed/size/fluid properties), not something "
+                "the lab can redesign, so this result is read as a measured "
+                "Reynolds sensitivity of L/D at a fixed, already-optimal "
+                "alpha -- not a design improvement."
+            ),
+            "design_optimization_currently_possible": False,
+            "design_optimization_verdict": (
+                "No gradient-driven design optimization is currently "
+                "possible for this wing with the surrogates that exist. "
+                "The only differentiable surrogate spans one design "
+                "variable (alpha, pinned at its own bound) and one "
+                "operating condition (Re). A real design-gradient result "
+                "requires a second true design variable (planform, camber, "
+                "thickness, twist) in a differentiable surrogate; none "
+                "exists in this lab's inventory for this wing today."
+            ),
+        },
         "baseline_recorded_prior_run": baseline_recorded,
         "surrogate_fit": {"coefficients": coeff, "train": tq, "val": vq,
                           "re_ref": RE_REF, "domain": {"alpha": [ALPHA_LO, ALPHA_HI],
@@ -334,20 +425,29 @@ def main() -> int:
         "gradient_check": {**gcheck, "pass": grad_check_pass},
         "descent": {"start": {"alpha": START_ALPHA, "re": START_RE},
                    "trajectory": trajectory, "steps": steps,
-                   "meta": descent_meta},
+                   "meta": descent_meta,
+                   "final_gradient_norm_normalized": final_gnorm,
+                   "gradient_vanished": final_gnorm <= 1e-2,
+                   "alpha_pinned_at_bound": alpha_pinned,
+                   "re_pinned_at_bound": re_pinned},
         "domain_check": {"in_domain": in_domain,
                          "alpha_bounds": [ALPHA_LO, ALPHA_HI],
                          "re_bounds": [RE_LO, RE_HI]},
         "confirmation": {
             "baseline": {"alpha": START_ALPHA, "re": START_RE,
                         "confirmed_l_d": baseline_l_d, "solve_seconds": baseline_s},
-            "converged": {"alpha": converged["alpha"], "re": converged["re"],
-                         "predicted_l_d": predicted_at_converged,
-                         "confirmed_l_d": converged_l_d,
-                         "gap": gap, "solve_seconds": converged_s},
+            "stop_point": {"alpha": converged["alpha"], "re": converged["re"],
+                          "predicted_l_d": predicted_at_converged,
+                          "confirmed_l_d": converged_l_d,
+                          "gap": gap, "gap_pct_of_value": abs(gap) / converged_l_d * 100,
+                          "gap_within_val_rmse": abs(gap) <= vq["rmse"],
+                          "solve_seconds": converged_s},
         },
-        "measured_improvement": {"absolute_l_d": improvement_abs,
-                                 "percent": improvement_pct},
+        "measured_reynolds_sensitivity_not_a_design_improvement": {
+            "absolute_l_d": sensitivity_abs, "percent": sensitivity_pct,
+            "alpha_held_fixed_deg": converged["alpha"],
+            "re_from": START_RE, "re_to": converged["re"],
+        },
     }
     out_path = OUT / "gradient_descent_result.json"
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

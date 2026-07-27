@@ -1,5 +1,12 @@
 {
-  "generated_at": "2026-07-27T04:32:39Z",
+  "generated_at": "2026-07-27T04:39:10Z",
+  "framing": {
+    "reynolds_is_operating_condition_not_design_variable": true,
+    "outcome": "sensitivity_trend_not_converged_design_optimum",
+    "why": "Both walked axes stopped at a box edge (alpha at its own lower bound, Re at the surrogate's upper validated bound) with a non-vanishing gradient (~8.5-8.8 normalized units throughout, see descent.trajectory). No interior stationary point exists in this domain. Re is an operating condition (airspeed/size/fluid properties), not something the lab can redesign, so this result is read as a measured Reynolds sensitivity of L/D at a fixed, already-optimal alpha -- not a design improvement.",
+    "design_optimization_currently_possible": false,
+    "design_optimization_verdict": "No gradient-driven design optimization is currently possible for this wing with the surrogates that exist. The only differentiable surrogate spans one design variable (alpha, pinned at its own bound) and one operating condition (Re). A real design-gradient result requires a second true design variable (planform, camber, thickness, twist) in a differentiable surrogate; none exists in this lab's inventory for this wing today."
+  },
   "baseline_recorded_prior_run": {
     "anchors": [
       {
@@ -282,7 +289,11 @@
     "meta": {
       "max_move_per_step": 0.03333333333333333,
       "tolerance": 0.001
-    }
+    },
+    "final_gradient_norm_normalized": 8.819610248466132,
+    "gradient_vanished": false,
+    "alpha_pinned_at_bound": true,
+    "re_pinned_at_bound": true
   },
   "domain_check": {
     "in_domain": true,
@@ -300,19 +311,24 @@
       "alpha": 0.0,
       "re": 1000000.0,
       "confirmed_l_d": 18.140687390989,
-      "solve_seconds": 4.124817848205566
+      "solve_seconds": 3.8454201221466064
     },
-    "converged": {
+    "stop_point": {
       "alpha": 0.0,
       "re": 1300000.0,
       "predicted_l_d": 18.600440044239242,
       "confirmed_l_d": 18.480110409021,
       "gap": -0.12032963521824058,
-      "solve_seconds": 4.245534658432007
+      "gap_pct_of_value": 0.6511304995207284,
+      "gap_within_val_rmse": true,
+      "solve_seconds": 3.9793262481689453
     }
   },
-  "measured_improvement": {
+  "measured_reynolds_sensitivity_not_a_design_improvement": {
     "absolute_l_d": 0.3394230180320008,
-    "percent": 1.8710592973483569
+    "percent": 1.8710592973483569,
+    "alpha_held_fixed_deg": 0.0,
+    "re_from": 1000000.0,
+    "re_to": 1300000.0
   }
 }
