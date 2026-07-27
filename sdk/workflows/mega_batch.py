@@ -288,6 +288,41 @@ def distill_learning(ledger_path: Path, log=print) -> None:
 
 
 # --------------------------------------------------------------------------
+# Resource guards
+# --------------------------------------------------------------------------
+#
+# Added after the 2026-07-27 outage. The instance went unreachable at ~05:12:56
+# UTC while two DAFoam adjoint containers and this batch shared 30 GB of RAM
+# with no swap; the last sysstat sample (05:10:03) recorded 460 MB free and
+# committed memory at 112.90% of RAM. There was no OOM kill and no disk
+# exhaustion in the logs -- the box livelocked in reclaim before the OOM killer
+# could act. These guards stop the batch cleanly while headroom still exists,
+# rather than letting it participate in a second such livelock.
+
+RESOURCE_CHECK_SECONDS = 10.0
+
+
+def free_disk_gb(path: Path) -> float:
+    """GiB free on the filesystem holding ``path``."""
+    return shutil.disk_usage(path).free / (1024 ** 3)
+
+
+def available_mem_gb() -> float:
+    """GiB of MemAvailable, the kernel's own estimate of allocatable memory.
+
+    Returns ``inf`` if /proc/meminfo is unreadable, so a parsing problem can
+    never stop a healthy batch.
+    """
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            if line.startswith("MemAvailable:"):
+                return float(line.split()[1]) / (1024 ** 2)
+    except Exception:
+        pass
+    return float("inf")
+
+
+# --------------------------------------------------------------------------
 # Continuous run loop
 # --------------------------------------------------------------------------
 
@@ -299,12 +334,16 @@ def run_batch(
     max_tasks: int | None = None,
     max_seconds: float | None = None,
     stop_file: Path | None = None,
+    min_free_disk_gb: float = 20.0,
+    min_avail_mem_gb: float = 2.0,
     log=print,
 ) -> dict[str, int]:
     """Stream designs through ``workers`` slots, appending each result.
 
     Stops when any of the bounds is hit: ``max_tasks`` completed *this session*,
-    ``max_seconds`` elapsed, or ``stop_file`` appears. Resumes from the ledger.
+    ``max_seconds`` elapsed, ``stop_file`` appears, free disk falls below
+    ``min_free_disk_gb``, or available memory falls below ``min_avail_mem_gb``.
+    Resumes from the ledger.
     """
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
     (work_root / "cylinder").mkdir(parents=True, exist_ok=True)
@@ -312,6 +351,12 @@ def run_batch(
 
     done = load_done_indices(ledger_path)
     log(f"[mega-batch] resuming: {len(done)} indices already in ledger")
+    log(
+        f"[mega-batch] baseline: workers={workers} "
+        f"free_disk={free_disk_gb(work_root):.1f} GB "
+        f"avail_mem={available_mem_gb():.1f} GB; "
+        f"guards stop at disk<{min_free_disk_gb:.1f} GB, mem<{min_avail_mem_gb:.1f} GB"
+    )
 
     start = time.time()
     next_index = 0
@@ -319,12 +364,44 @@ def run_batch(
     completed_this_session = 0
     stats = {"ok": 0, "failed": 0, CYLINDER: 0, WING: 0}
 
+    # Resource guards are sampled at most once every RESOURCE_CHECK_SECONDS so
+    # the tight submit loop does not spam syscalls. ``guard_trip`` latches: once
+    # a guard fires the batch stops for good this session and the reason is
+    # reported at the end, so a stop is never silent.
+    guard_state = {"last_check": 0.0, "trip": None}
+
+    def resource_guard_tripped() -> str | None:
+        if guard_state["trip"] is not None:
+            return guard_state["trip"]
+        now = time.time()
+        if now - guard_state["last_check"] < RESOURCE_CHECK_SECONDS:
+            return None
+        guard_state["last_check"] = now
+        disk = free_disk_gb(work_root)
+        if disk < min_free_disk_gb:
+            guard_state["trip"] = (
+                f"free disk {disk:.1f} GB below the {min_free_disk_gb:.1f} GB floor"
+            )
+            log(f"[mega-batch] RESOURCE GUARD: {guard_state['trip']} -- draining and stopping")
+            return guard_state["trip"]
+        mem = available_mem_gb()
+        if mem < min_avail_mem_gb:
+            guard_state["trip"] = (
+                f"available memory {mem:.1f} GB below the {min_avail_mem_gb:.1f} GB floor"
+            )
+            log(f"[mega-batch] RESOURCE GUARD: {guard_state['trip']} -- draining and stopping")
+            return guard_state["trip"]
+        return None
+
     def should_stop() -> bool:
         if stop_file is not None and stop_file.exists():
             return True
         if max_seconds is not None and (time.time() - start) >= max_seconds:
             return True
         if max_tasks is not None and submitted_this_session >= max_tasks:
+            return True
+        tripped = resource_guard_tripped()
+        if tripped is not None:
             return True
         return False
 
@@ -373,12 +450,15 @@ def run_batch(
     distill_learning(ledger_path, log=log)
 
     total = len(load_done_indices(ledger_path))
+    reason = guard_state["trip"]
     log(
         f"[mega-batch] session done: completed {completed_this_session} "
         f"(ok {stats['ok']}, failed {stats['failed']}); ledger total {total}"
+        + (f"; STOPPED BY RESOURCE GUARD: {reason}" if reason else "")
     )
     stats["ledger_total"] = total
     stats["session_completed"] = completed_this_session
+    stats["guard_trip"] = reason
     return stats
 
 
@@ -406,6 +486,10 @@ def main(argv: list[str] | None = None) -> int:
                         help="stop after N seconds of wall time")
     parser.add_argument("--stop-file", type=Path, default=None,
                         help="stop gracefully when this file appears")
+    parser.add_argument("--min-free-disk-gb", type=float, default=20.0,
+                        help="stop gracefully when free disk falls below this (GiB)")
+    parser.add_argument("--min-avail-mem-gb", type=float, default=2.0,
+                        help="stop gracefully when available memory falls below this (GiB)")
     args = parser.parse_args(argv)
 
     stop_file = args.stop_file
@@ -419,6 +503,8 @@ def main(argv: list[str] | None = None) -> int:
         max_tasks=args.max_tasks,
         max_seconds=args.max_seconds,
         stop_file=stop_file,
+        min_free_disk_gb=args.min_free_disk_gb,
+        min_avail_mem_gb=args.min_avail_mem_gb,
     )
     return 0
 
