@@ -129,6 +129,86 @@ class EcaHoekstraBand(unittest.TestCase):
             self.assertNotIn("→", out["method"])
 
 
+class AsymptoticGuards(unittest.TestCase):
+    """Monotone plus an in-window observed order is not sufficient.
+
+    The 2026-07-27 B-52 near-miss: the (production, fine-uq, finer2) triple
+    is nominally monotone with p = 2.25, inside [0.5, 2.5], and the old gate
+    would have certified it at +/-0.0157. A human rejected it for two
+    reasons the gate did not check: the Cd increments GROW with refinement
+    (the opposite of asymptotic shrinkage), and the Richardson extrapolation
+    lands far outside the whole measured range. Both are now hard guards
+    that downgrade the verdict; the TMR flat plate proves the guards do not
+    reject a genuinely converging ladder.
+    """
+
+    # B-52, same-recipe rungs 3/4/5/6 (cells 135779, 193880, 255358, 330950;
+    # only the last three are distinct-and-monotone-fit-eligible here).
+    B52_CELLS = [135779, 193880, 255358, 330950]
+    B52_CD = [0.049053, 0.047196, 0.049573, 0.052275]
+
+    # TMR flat plate: cells 816, 3264, 13056, 52224.
+    TMR_CELLS = [816, 3264, 13056, 52224]
+    TMR_CD = [0.0026686916613, 0.0027811695632, 0.0028342538677,
+              0.0028564381699]
+
+    def test_b52_increments_grow_and_are_rejected(self):
+        # Sanity on the raw numbers before the gate even runs: the human's
+        # first reason. Increments (magnitudes) GROW: 0.00186 -> 0.00238 ->
+        # 0.00270, the opposite of asymptotic shrinkage.
+        increments = [abs(b - a) for a, b in
+                     zip(self.B52_CD, self.B52_CD[1:])]
+        self.assertEqual(len(increments), 3)
+        self.assertLess(increments[0], increments[1])
+        self.assertLess(increments[1], increments[2])
+
+        out = uq.eca_hoekstra_band(self.B52_CELLS, self.B52_CD)
+        # The triple used is the last three by cells: monotone, and p would
+        # land inside the accept window on the order test alone.
+        self.assertTrue(out["monotone"])
+        self.assertAlmostEqual(out["observed_order"], 2.253, places=2)
+        # The old gate's own logic would have called this conclusive on the
+        # order test alone; the new guard must not.
+        self.assertFalse(out["conclusive"])
+        self.assertEqual(out["method"], uq.GROWING_INCREMENT_NOTE)
+        # The conservative band stands: max spread * 1.25 on the fit triple,
+        # not the (much tighter, and wrong) fitted GCI band of ~0.0157.
+        spread = max(self.B52_CD[-3:]) - min(self.B52_CD[-3:])
+        self.assertAlmostEqual(out["band_abs"], 1.25 * spread, places=10)
+        self.assertGreater(out["band_abs"], 0.006)
+
+    def test_b52_richardson_value_is_far_outside_the_measured_range(self):
+        # The human's second, independent reason: even ignoring the
+        # increment trend, the extrapolated "limit" is not a limit.
+        out = uq.eca_hoekstra_band(self.B52_CELLS, self.B52_CD)
+        lo, hi = min(self.B52_CD[-3:]), max(self.B52_CD[-3:])
+        self.assertIsNotNone(out["richardson_extrapolated"])
+        self.assertGreater(out["richardson_extrapolated"], hi)
+        # It's not just outside -- it's outside by multiples of the whole
+        # measured range, i.e. a divergence, not a marginal overshoot.
+        width = hi - lo
+        self.assertGreater(out["richardson_extrapolated"] - hi, width)
+
+    def test_tmr_flat_plate_still_certifies(self):
+        # Increments shrink: 0.000112 -> 0.0000531 -> 0.0000222.
+        increments = [abs(b - a) for a, b in
+                     zip(self.TMR_CD, self.TMR_CD[1:])]
+        self.assertGreater(increments[0], increments[1])
+        self.assertGreater(increments[1], increments[2])
+
+        out = uq.eca_hoekstra_band(self.TMR_CELLS, self.TMR_CD)
+        self.assertTrue(out["monotone"])
+        self.assertFalse(out["clamped"])
+        self.assertTrue(out["conclusive"])
+        self.assertIn("Eca and Hoekstra 2014", out["method"])
+        # The Richardson value (~0.0028724) sits just above the measured
+        # range (up to 0.0028564381699) -- close enough that the guard must
+        # accept it, unlike the B-52 case's multi-range-width overshoot.
+        lo, hi = min(self.TMR_CD[-3:]), max(self.TMR_CD[-3:])
+        self.assertGreater(out["richardson_extrapolated"], hi)
+        self.assertLess(out["richardson_extrapolated"] - hi, 0.25 * (hi - lo))
+
+
 class Spreads(unittest.TestCase):
     def test_spread_is_half_range_and_labeled(self):
         out = uq.spread_estimate(

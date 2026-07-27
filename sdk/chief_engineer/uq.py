@@ -147,6 +147,33 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
 ORDER_CLAMP_NOTE = "observed order limited to the theoretical range"
 NON_MONOTONE_NOTE = ("rungs not monotone; conservative band, largest spread "
                      "times 1.25")
+GROWING_INCREMENT_NOTE = (
+    "successive Cd increments GROW with refinement instead of shrinking; "
+    "ladder not in the asymptotic range, conservative band, largest spread "
+    "times 1.25")
+DIVERGENT_EXTRAPOLATION_NOTE = (
+    "Richardson-extrapolated value falls outside the measured range; ladder "
+    "not in the asymptotic range, conservative band, largest spread times "
+    "1.25")
+
+# Tolerance for the extrapolation-sanity guard, as a fraction of the
+# measured ladder's range width (max - min of the three rungs used in the
+# fit). The Richardson value must land within [lo - tol, hi + tol] or the
+# fit is rejected as a divergence signal, not a limit.
+#
+# Calibrated against the two fixtures on hand:
+#   - TMR flat plate (816/3264/13056/52224 cells): shrinking increments,
+#     Richardson value 0.0028724 sits ~8.5% of the range width above the
+#     top of the measured range [0.0026687, 0.0028564] -- a good,
+#     genuinely-converging ladder that must still be accepted.
+#   - B-52 (193880/255358/330950 cells): Richardson value 0.0648 sits
+#     ~247% of the range width above the top of [0.047196, 0.052275] -- a
+#     ladder a human rejected as not asymptotic.
+# 0.15 (15% of the range width) clears the good case with roughly 1.8x
+# margin to spare while remaining more than an order of magnitude below
+# the bad case, so the guard is not a knife's edge on the one fixture that
+# must pass.
+EXTRAPOLATION_TOL_FRAC = 0.15
 
 
 def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
@@ -165,6 +192,26 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
       max spread * 1.25 and says NON_MONOTONE_NOTE plainly;
     - fewer than three DISTINCT cell counts is no study at all: band None,
       the caller must refuse to report one (the B-52 degenerate-rung lesson).
+
+    Monotone is necessary but not sufficient for "asymptotic", per the B-52
+    ladder that a human rejected on inspection even though it was monotone
+    and its p landed inside [p_lo, p_hi] (the 2026-07-27 near-miss: a
+    193880/255358/330950 triple with p = 2.25). Two more guards, both of
+    which DOWNGRADE the verdict to not-conclusive (never a mere warning,
+    because these bands feed live mission channels) and fall back to the
+    same conservative spread * 1.25 band as the non-monotone case:
+
+    - increment trend: a converging ladder's successive Cd increments must
+      SHRINK on refinement (|e21| < |e32|); growing increments mean the
+      solution is moving away, not settling, however clean p looks
+      (GROWING_INCREMENT_NOTE);
+    - extrapolation sanity: the Richardson-extrapolated value phi0 must land
+      within EXTRAPOLATION_TOL_FRAC of the ladder's own measured range; an
+      extrapolation outside the data it was fitted from is a divergence
+      signal, not a limit (DIVERGENT_EXTRAPOLATION_NOTE).
+
+    A ladder that fails either guard never has its band silently widened or
+    narrowed by the fit that failed; the conservative fallback band stands.
     """
     distinct: list[tuple[float, float]] = []
     for c, v in zip(cells, values):
@@ -200,7 +247,37 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
             p = p_new
             break
         p = p_new
+    # Guard 1 (increment trend): a converging ladder's successive Cd
+    # increments must SHRINK on refinement. |e21| is the finer-pair change,
+    # |e32| the coarser-pair change; |e21| >= |e32| means the solution is
+    # moving away, not settling, no matter how clean p looks.
+    shrinking = abs(e21) < abs(e32)
+    # Guard 2 (extrapolation sanity): the Richardson-extrapolated value must
+    # land at or very near the measured range of the ladder. An
+    # extrapolation that lands outside the data it was fitted from is a
+    # divergence signal, not a limit.
+    phi0 = f3 + e21 / (r21 ** p - 1.0) if r21 ** p != 1.0 else None
+    lo, hi = min(f1, f2, f3), max(f1, f2, f3)
+    tol = EXTRAPOLATION_TOL_FRAC * (hi - lo)
+    extrapolation_ok = phi0 is not None and (lo - tol) <= phi0 <= (hi + tol)
     clamped = not (p_lo <= p <= p_hi)
+    # These two guards only gate the case that would otherwise be certified
+    # "conclusive": an order p already outside [p_lo, p_hi] is clamped and
+    # marked not-conclusive by that mechanism regardless, so a ladder run
+    # off the credible-order rails (e.g. a manufactured sub-0.5-order decay)
+    # is not double-penalized here; the guards exist to catch the ladder
+    # that looks clean -- monotone, p inside the window -- yet is still not
+    # asymptotic, which is exactly what the order-window check alone misses.
+    if not clamped and (not shrinking or not extrapolation_ok):
+        spread = hi - lo
+        result.update({
+            "observed_order": round(p, 3), "order_used": None,
+            "clamped": False, "band_abs": 1.25 * spread, "monotone": True,
+            "conclusive": False, "asymptotic": False,
+            "richardson_extrapolated": phi0,
+            "method": (GROWING_INCREMENT_NOTE if not shrinking
+                      else DIVERGENT_EXTRAPOLATION_NOTE)})
+        return result
     p_used = min(max(p, p_lo), p_hi)
     band = fs * abs(e21) / (r21 ** p_used - 1.0)
     # No method jargon on any surface this string can reach (doctrine: GCI
@@ -213,7 +290,8 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     result.update({
         "observed_order": round(p, 3), "order_used": round(p_used, 3),
         "clamped": clamped, "band_abs": band, "monotone": True,
-        "conclusive": not clamped, "method": method})
+        "conclusive": not clamped, "method": method,
+        "asymptotic": True, "richardson_extrapolated": phi0})
     return result
 
 
