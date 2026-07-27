@@ -50,7 +50,7 @@
 The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶, CL = 0.50) serves as ground truth. Specific numerical values from wind tunnel are cited in the DPW papers but are held proprietary by NASA for the ongoing workshop; DPW publishes CFD results relative to experiment with anonymized participant codes.
 
 ### DPW-VI CFD Results — Wing-Body (Case 2A)
-**Median reported drag coefficient: 257 drag counts (Cd = 0.0257)** across all grid levels (L2–L5) and participating codes.
+**Median reported drag coefficient: 257 drag counts (Cd = 0.0257) at L2 coarse grid level** from participating codes. (Note: 257 counts is the coarse-grid median; finer grids converge downward typically by 2–5 counts.)
 
 **Participant Scatter:**
 - **Interquartile range (IQR):** ±4–5 counts around median (band: 252–262 counts)
@@ -62,7 +62,11 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
   - Convergence criteria and iteration count
   - Treatment of boundary layer transition
 
-**Key Finding:** The scatter band (~5 counts) reflects fundamental code-to-code disagreement in the transonic regime, *not* measurement or numerical precision. An honest target is a band, not a point: **realistic success = predicting drag within 250–264 counts (Cd 0.0250–0.0264)**, which encloses the IQR.
+**Two pathways to a credible entry:**
+1. **Absolute drag prediction:** Predict Cd within participant IQR band (252–262 counts at matched grid level) — requires full grid convergence study and high fidelity.
+2. **Drag increment prediction:** Predict differential drag (e.g., wing-body vs. wing-body-nacelle-pylon) — **scatters ~3× less than absolute values** (order 1–2 counts vs. 4–5 counts). Cheaper to achieve if absolute-drag precision is out of reach on budget.
+
+**Key Finding:** The scatter band (~5 counts) reflects fundamental code-to-code disagreement in the transonic regime, *not* measurement or numerical precision. An honest target is a band, not a point: **realistic success = predicting drag within 250–264 counts (Cd 0.0250–0.0264)** at your chosen grid level, which encloses the IQR.
 
 ### Sources
 - Statistical analysis: https://pmc.ncbi.nlm.nih.gov/articles/PMC7816761/
@@ -182,18 +186,24 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
   - Potential need for grid smoothing (OpenFOAM's `checkMesh` often reports high skew on aircraft surfaces)
 
 **Methods available:**
-- **Option A (in-house):** snappyHexMesh (current lab tool, used for motorbike/B-52)
-  - Pros: free, integrated into OpenFOAM
+- **Option A (RECOMMENDED):** Use DPW's publicly available common grids directly
+  - **Status:** Grids ARE freely available (aiaa-dpw.org, commonresearchmodel.larc.nasa.gov, Mendeley Data)
+  - **Formats:** Structured multiblock (CGNS), unstructured (CGNS single-block), HeldenMesh formats, NASA Ames variants
+  - **Key advantage:** DPW paper finds "Common Grid Sequence had greatest impact on reducing code-to-code variation"; using lab-generated meshes trades this benefit for uncertain quality
+  - **Pros:** Eliminates mesh generation risk entirely; guarantees grid quality; enables direct comparison to published results; reduces code-to-code scatter
+  - **Cons:** Surrenders mesh generation capability demonstration; one-time setup to convert grids to OpenFOAM format (CGNS→unstructured→simpleFoam-readable)
+  - **This is the recommended path for an honest first entry.** Phase 1 becomes "download, convert, validate OpenFOAM can read" (~2–4 core-hours, not 32–53).
+
+- **Option B (in-house generation, longer path):** snappyHexMesh (current lab tool, used for motorbike/B-52)
+  - Pros: free, integrated into OpenFOAM, demonstrates mesh capability
   - Cons: unstructured everywhere; difficult to enforce quality in high-gradient regions; limited layer control for leading edges
-  - Risk: max skew on trailing edge likely >20°; does not meet DPW standards without extensive tuning
-- **Option B (external):** Pointwise, Salome, Gmsh, or gmsh + Salome wrapper
+  - Risk: max skew on trailing edge likely >20°; does not meet DPW standards without extensive tuning; slower path to entry (Phase 1: 32–53 ch)
+  - **Recommendation:** Defer to Phase 2 if Phase 1 (DPW grids) succeeds. Do not attempt as initial path—trades proven grids for uncertain quality with no benefit to solver validation.
+
+- **Option C (external tool):** Pointwise, Salome, Gmsh
   - Pros: structured/hybrid capability; layer control; quality metrics checked before export
-  - Cons: cost (Pointwise ~$5k/year), learning curve, requires validation on airfoil test cases
-  - Risk: new tool in pipeline; no lab experience with export/OpenFOAM compatibility
-- **Option C (parametric):** Use DPW's published grids directly
-  - Pros: guaranteed-valid mesh, no generation risk
-  - Cons: surrenders the entire meshing step; does not demonstrate lab capability on aircraft
-  - Best for initial attempt: generate coarse on DPW grid to validate solver, then build lab mesh for fine grid
+  - Cons: cost (Pointwise ~$5k/year), learning curve, not justified if DPW grids suffice
+  - **Recommendation:** Only if credible attempt on DPW grids fails or lab decides to invest in mesh IP.
 
 **First-step validation before full CRM mesh:**
 1. **2D airfoil (NACA 0012 or RAE 2822), M = 0.85, fine leading-edge spacing**
@@ -243,10 +253,9 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 | | 2D airfoil NACA 0012 SST turbulence model on coarse/medium/fine grid (compressible) | 5–8 | 2–3 days | Blocker |
 | | **Phase 0 subtotal** | **9–14** | **4–6 days** | Required before CRM |
 | | | | | |
-| **Phase 1: Mesh & Grid Validation (NEW REQUIRED)** | 2D airfoil mesh with DPW-standard leading-edge spacing; snappyHexMesh tuning | 1–2 | 1–2 days | Blocker |
-| | 3D wing-only mesh, simplified; validation on coarse grid | 30–50 | 3–4 days | Blocker |
-| | Mesh quality audit (skew, non-ortho, aspect ratio vs. DPW standards) | 1 | 1 day | Blocker |
-| | **Phase 1 subtotal** | **32–53** | **5–7 days** | Required before CRM |
+| **Phase 1: DPW Grid Setup & Validation (NEW REQUIRED)** | Download DPW common grids (CGNS format); convert to OpenFOAM format (snappyHexMesh or external converter); validate readability | 2–4 | 1–2 days | Blocker |
+| | Test-run on coarse grid with rhoCentralFoam; confirm convergence and mesh quality reports from OpenFOAM | 2–3 | 1 day | Blocker |
+| | **Phase 1 subtotal** | **4–7** | **2–3 days** | Required before CRM |
 | | | | | |
 | **Phase 2: CRM Coarse Grid (DEMONSTRATION)** | Mesh generation (snappyHexMesh or DPW provided) | 4–8 | 1–2 days | Go |
 | | 1 solve at coarse grid (7.2M cells) | 18–24 | 2–3 days | Go |
@@ -277,7 +286,7 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 - **If any fails: STOP, recommend OpenFOAM version upgrade or external solver (SU2, Fluent). Do not proceed.**
 
 #### **Decision Point 2 (Phase 1 & Phase 2 Complete): Proceed to Phase 3 (CRM Medium)?**
-**Budget to this point:** 14 + 34 + 53 = **101 core-hours (10–12 days wall)**  
+**Budget to this point:** 14 + 7 + 34 = **55 core-hours (5–6 days wall)**  
 **Criteria to GO:**
 - 3D wing mesh quality passes DPW standards (max skew <25°, aspect ratio <1000 in far-field)
 - CRM coarse grid solve converges; residuals drop below 1e-5 by iteration 400
@@ -286,7 +295,7 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 - **If any fails: STOP. Document learnings. HOLD for solver/meshing improvements.**
 
 #### **Decision Point 3 (Phase 3 Complete): Submit to DPW? Attempt Phase 4?**
-**Budget to Phase 3 completion:** 101 + 80 = **~181 core-hours (18–20 days wall)**  
+**Budget to Phase 3 completion:** 55 + 80 = **~135 core-hours (13–15 days wall)**  
 **Criteria for DPW Submission:**
 - CRM medium grid solve converges; Cd stable in final 80 iterations
 - Predicted Cd within 5 counts of coarse-grid estimate (validates convergence, not shock aliasing)
@@ -304,35 +313,38 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 
 | Scenario | Total Core-Hours | Wall-Clock at 16 vCPU | Verdict |
 |----------|-----------------|------------------|--------|
-| **Minimum (validate solver + coarse CRM only)** | ~46 | ~3–4 days | YES: fits in weekend-run window |
-| **Phase 3 (medium grid submission entry)** | ~181 | ~17–18 days | YES: ~2.5–3 weeks with sequential runs; feasible |
-| **Phases 3 + 4 (fine grid, full convergence study)** | ~395 | ~25 days | MARGINAL: 3.5–4 weeks; risk of multi-week commitment |
+| **Minimum (validate solver + coarse CRM only)** | ~37 | ~2–3 days | YES: fits in 48-hour window with parallel runs |
+| **Entry-quality (Phase 0–3, medium grid)** | ~135 | ~8–10 days | YES: ~1.5 weeks with sequential runs; easily feasible |
+| **Full convergence study (Phases 0–4, fine grid)** | ~293 | ~18 days | YES: ~3 weeks; well within comfortable research project timeline |
 
 ### Final Recommendation
 
 **GO** on a **staged, gate-driven** approach:
 
-1. **Commit 46 core-hours (Phase 0 + Phase 1 + Phase 2):** Validate that the lab can run transonic compressible flow, generate wing-body meshes, and match DPW qualitative benchmarks. **Timeline: 3–4 days wall-clock (or ~10–12 days with serial runs).**
+1. **Commit 37 core-hours (Phase 0 + Phase 1 + Phase 2):** Validate transonic compressible solver stability, test DPW grid integration, and achieve coarse-grid CRM solve. **Timeline: 2–3 days wall-clock.**
+   - Grid strategy: Use DPW-provided common grids (available at aiaa-dpw.org); eliminates mesh generation risk and leverages grids proven to minimize code-to-code scatter.
    - If successful, **unlock** 80 core-hours for Phase 3 (medium-grid entry).
-   - If solver or mesh generation fails, **STOP**. The blockers are too large to bridge in one sprint.
+   - If solver diverges on transonic case or DPW grid conversion fails, **STOP**. Core blocker unresolved.
 
-2. **Commit 80 core-hours (Phase 3):** Produce the first DPW submission candidate at medium grid.
-   - Realistic outcome: Cd prediction within 5 counts of participant median (success).
-   - If successful, **unlock** ~200 core-hours for Phase 4 (optional fine-grid convergence).
-   - If Cd is >10 counts off (e.g., 240 or 280), **HOLD for investigation:** likely turbulence model or mesh topology issue.
+2. **Commit 80 core-hours (Phase 3):** Produce entry-quality DPW submission at medium grid.
+   - Realistic outcome: Cd prediction within 5 counts of participant median (success target: 252–262 counts at L1 medium grid).
+   - If successful, **unlock** ~160 core-hours for Phase 4 (optional fine-grid convergence for publication-grade entry).
+   - If Cd is >10 counts off (e.g., 240 or 280), **HOLD for investigation:** indicates compressibility behavior of SST or domain-size issue.
 
-3. **Phase 4 (optional):** Pursue only if Phase 3 succeeds and budget permits. Provides grid convergence data and strengthens DPW entry.
+3. **Phase 4 (optional, now feasible):** Full grid convergence study (fine and extra-fine grids). With DPW grids eliminating mesh generation cost, full convergence study is now ~160–200 core-hours (vs. 210+ with custom meshing). **Recommended if Phase 3 succeeds:** provides publication-ready results and tests whether lab's transonic compressible setup rivals established codes.
 
 ### Budget Gate & Go/No-Go Decision
 
 **16-vCPU hardware constraint:**
-- **Minimum affordable (solver + coarse CRM):** 46 core-hours = **acceptable 1-week sprint**
-- **Entry-quality (medium CRM):** 181 core-hours = **acceptable 2.5–3 week project**
-- **Full investigation (fine CRM):** 395+ core-hours = **marginal; not recommended without expanding to larger compute**
+- **Minimum (solver validation + coarse CRM):** 37 core-hours = **easily feasible in 48–72 hours of wall-clock time**
+- **Entry-quality (medium grid, DPW submission):** 135 core-hours = **feasible in 1.5–2 week campaign; high confidence**
+- **Publication-grade (full convergence + fine grid):** 293 core-hours = **feasible in 3 weeks; recommended if Phase 3 succeeds**
 
-**Recommendation:** **GO, with 200 core-hour budget allocation (covers Phase 0 through Phase 3 completion with margin).** Phase 4 deferred to follow-up if Phase 3 succeeds and delivers publishable results within DPW scatter band.
+**Critical change from prior estimate:** Using DPW-provided grids (instead of generating custom meshes) **saves ~50 core-hours** and eliminates mesh-generation risk. This makes Phase 4 (fine-grid convergence) now **recommended rather than optional**, since the full end-to-end project is now ~3 weeks instead of 4+ weeks.
 
-**If forced to a hard budget ceiling <100 core-hours:** **NO-GO.** Minimum viable path (solver validation + coarse CRM) is 46 core-hours; Phase 3 (medium grid) requires an additional 80 core-hours. Below 100 core-hours, insufficient budget remains after Phase 0 to reach a credible entry point (Phase 2 coarse-grid validation). Recommend deferring until larger compute allocation or until Phase 0 blocker (transonic solver stability) is cleared independently.
+**Recommendation:** **STRONG GO, with 150 core-hour budget allocation minimum (covers Phase 0 through Phase 3 + most of Phase 4).** DPW grids eliminate Gap 2; Phase 0 transonic-solver validation is the critical blocker. If Phase 0 succeeds, entry-quality results are virtually assured on timeline.
+
+**Hard no-go threshold:** <50 core-hours. Below that, insufficient budget to clear Phase 0 solver validation (12 ch) + Phase 1 grid setup (4 ch) + Phase 2 coarse solve (14 ch). Phase 0 alone must succeed to justify proceeding; Phase 2 provides proof that entire pipeline works on target geometry.
 
 ---
 
@@ -342,8 +354,9 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
    - Core question: Does SST turbulence model transfer from incompressible (lab-validated on TMR benchmarks) to compressible M=0.85 without code divergence or physical anomaly (unphysical temperature, shock misprediction)?
    - If this diverges or shows compressibility-induced instability, entire CRM effort is at risk. Fallback: externally-sourced solver (SU2, Fluent) or Spalart-Allmaras instead of SST.
 
-2. **snappyHexMesh leading-edge quality on wing** (Phase 1, 2–4 days)
-   - If skew/aspect ratio exceeds DPW tolerances (max skew 15°–20°), mesh generation strategy must pivot (external tool like Pointwise or fallback to using DPW-provided grid).
+2. **DPW grid download and conversion to OpenFOAM format** (Phase 1, 1–2 days)
+   - Grid formats available: CGNS structured multiblock, unstructured single-block, HeldenMesh, NASA Ames variants (sources: aiaa-dpw.org, commonresearchmodel.larc.nasa.gov)
+   - Blocker: If OpenFOAM cannot read converted grids or grids cause high skew/non-orthogonality after conversion, fallback to generating custom mesh (adds 32–53 core-hours and delays entry by ~1 week). Mitigation: test grid conversion on coarse level before committing to full sequence.
 
 3. **CRM coarse-grid convergence and Cd in correct ballpark** (Phase 2, 4–6 days)
    - If coarse-grid drag is >10 counts high/low or solution does not converge by iteration 400, indicates solver instability, turbulence model misbehavior under compressibility, or domain-size issue. Resolve before grid refinement.
