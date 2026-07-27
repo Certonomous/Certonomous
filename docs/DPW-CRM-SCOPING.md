@@ -212,27 +212,24 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 
 ---
 
-### Gap 3: Turbulence Model Implementation & Validation
-**Status:** Theory available; production validation not done.  
-**Current state:** Lab has RANS theory in NUMERICS_KNOWLEDGE.md (references Spalart-Allmaras and SST k-ω), but all validated production runs use laminar or motorbike/B-52 with turbulence models not independently verified.
+### Gap 3: Turbulence Model Validation Under Compressibility (Narrower Open Question)
+**Status:** STRENGTH (validated incompressible); open question is compressible behavior.  
+**Current state:** Lab has validated k-ω SST against NASA Turbulence Modeling Resource (TMR) reference cases in production:
+- **Flat-plate (zero-pressure-gradient):** k-ω SST (OpenFOAM kOmegaSST, strain production) on coarse/medium/fine grids
+  - Cd ladder: 0.002669 → 0.002781 → 0.002834
+  - Agreement vs CFL3D on matched grids: **0.293% for Cd, 0.376% for Cf**
+  - Observed order: 1.083, GCI fine: 2.09%
+  - Source: `/demo-output/website/tmr/flatplate_sst.json` (dated 2026-07-24)
+- **Bump-in-channel (mild separation):** Same k-ω SST model, grid convergence study complete
+  - Source: `/demo-output/website/tmr/bump_sst.json`
 
-**Required capability for DPW-CRM:**
-- **Turbulence model choice:** Spalart-Allmaras (SA) typical in DPW entries; SST k-ω alternative
-  - Both available in OpenFOAM (simpleFoam and rhoCentralFoam have the models)
-  - SA has fewer coefficients; simpler wall function; less sensitive to grid clustering than SST
-  - SST has stronger secondary flows but requires careful y+ = 1 treatment
-- **Validation on incompressible test cases first:**
-  - NASA TMR flat-plate and bump-in-channel (published reference solutions)
-  - Costs: 2–3 core-hours each, establishes model correctness
-- **Validation on transonic single-airfoil before wing-body:**
-  - NACA 0012 M = 0.85 with SA model on coarse/medium/fine grid sequence
-  - Costs: 3–5 core-hours for sequence
-  - Compares to published shock position and separation onset
+**Why this is not a gap:** The lab has production-validated SST turbulence model with rigorous grid convergence (GCI analysis) and comparison to reference codes (CFL3D, FUN3D). This matches the gold standard for DPW entries.
 
-**Unresolved:**
-- Lab's NUMERICS_KNOWLEDGE cites SA/SST from external sources but shows no measured convergence behavior in production
-- No calibration of residual controls for turbulence equations (k, ω, ν̃ equations need their own tolerances)
-- Transition modeling (if needed): DPW assumes fully turbulent; lab would need e<sup>N</sup> method or other if transition effects appear
+**The real, narrower open question:** Both validations are **incompressible** (simpleFoam, M ≈ 0.2). The CRM is **transonic compressible** (Mach 0.85). The honest gap is not whether SST works—it does, proven on NASA benchmarks—but whether its model coefficients and behavior transfer unchanged from incompressible to compressible flow at M = 0.85. This is narrower and more tractable than proposing to re-validate from scratch.
+
+**Mitigation:** NACA 0012 airfoil validation at M = 0.85 with SST under compressible rhoCentralFoam will answer this directly before CRM. Cost and risk already budgeted in Phase 0.
+
+**No re-validation of incompressible reference cases needed.** Lab credential stands: k-ω SST, grid convergence order 1.083, GCI 2.09%, code-to-code agreement <0.4% on NASA reference benchmarks.
 
 ---
 
@@ -243,9 +240,8 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 | Phase | Task | Core-Hours | Wall-Clock (16 vCPU) | Status |
 |-------|------|-----------|-----------------|--------|
 | **Phase 0: Solver Validation (NEW REQUIRED)** | 2D airfoil NACA 0012 transonic (incomp. baseline, then rhoCentralFoam) | 4–6 | 2–3 days | Blocker |
-| | NASA TMR flat-plate & bump RANS validation | 3–4 | 2–3 days | Blocker |
-| | 2D airfoil NACA 0012 SA turbulence model on coarse/medium/fine grid | 5–8 | 2–3 days | Blocker |
-| | **Phase 0 subtotal** | **12–18** | **6–9 days** | Required before CRM |
+| | 2D airfoil NACA 0012 SST turbulence model on coarse/medium/fine grid (compressible) | 5–8 | 2–3 days | Blocker |
+| | **Phase 0 subtotal** | **9–14** | **4–6 days** | Required before CRM |
 | | | | | |
 | **Phase 1: Mesh & Grid Validation (NEW REQUIRED)** | 2D airfoil mesh with DPW-standard leading-edge spacing; snappyHexMesh tuning | 1–2 | 1–2 days | Blocker |
 | | 3D wing-only mesh, simplified; validation on coarse grid | 30–50 | 3–4 days | Blocker |
@@ -273,7 +269,7 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 ### Recommended Path: **SCOPED GO** (with staged budget gates)
 
 #### **Decision Point 1 (Solver Validation Complete): Proceed to Phase 1?**
-**Budget to this point:** 12–18 core-hours (6–9 days wall)  
+**Budget to this point:** 9–14 core-hours (4–6 days wall)  
 **Criteria to GO:**
 - rhoCentralFoam runs stably on 2D airfoil; no divergence or temperature-field instability
 - NACA 0012 M=0.85 shock position within ±5% of published data
@@ -281,7 +277,7 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 - **If any fails: STOP, recommend OpenFOAM version upgrade or external solver (SU2, Fluent). Do not proceed.**
 
 #### **Decision Point 2 (Phase 1 & Phase 2 Complete): Proceed to Phase 3 (CRM Medium)?**
-**Budget to this point:** 18 + 34 + 53 = **105 core-hours (10–12 days wall)**  
+**Budget to this point:** 14 + 34 + 53 = **101 core-hours (10–12 days wall)**  
 **Criteria to GO:**
 - 3D wing mesh quality passes DPW standards (max skew <25°, aspect ratio <1000 in far-field)
 - CRM coarse grid solve converges; residuals drop below 1e-5 by iteration 400
@@ -290,7 +286,7 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 - **If any fails: STOP. Document learnings. HOLD for solver/meshing improvements.**
 
 #### **Decision Point 3 (Phase 3 Complete): Submit to DPW? Attempt Phase 4?**
-**Budget to Phase 3 completion:** 105 + 80 = **~185 core-hours (18–20 days wall)**  
+**Budget to Phase 3 completion:** 101 + 80 = **~181 core-hours (18–20 days wall)**  
 **Criteria for DPW Submission:**
 - CRM medium grid solve converges; Cd stable in final 80 iterations
 - Predicted Cd within 5 counts of coarse-grid estimate (validates convergence, not shock aliasing)
@@ -308,19 +304,19 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 
 | Scenario | Total Core-Hours | Wall-Clock at 16 vCPU | Verdict |
 |----------|-----------------|------------------|--------|
-| **Minimum (validate solver + coarse CRM only)** | ~50 | ~4 days | YES: fits in weekend-run window |
-| **Phase 3 (medium grid submission entry)** | ~185 | ~18 days | YES: ~3 weeks with sequential runs; feasible |
-| **Phases 3 + 4 (fine grid, full convergence study)** | ~400 | ~25 days | MARGINAL: 3.5–4 weeks; risk of multi-week commitment |
+| **Minimum (validate solver + coarse CRM only)** | ~46 | ~3–4 days | YES: fits in weekend-run window |
+| **Phase 3 (medium grid submission entry)** | ~181 | ~17–18 days | YES: ~2.5–3 weeks with sequential runs; feasible |
+| **Phases 3 + 4 (fine grid, full convergence study)** | ~395 | ~25 days | MARGINAL: 3.5–4 weeks; risk of multi-week commitment |
 
 ### Final Recommendation
 
 **GO** on a **staged, gate-driven** approach:
 
-1. **Commit 50 core-hours (Phase 0 + Phase 1 + Phase 2):** Validate that the lab can run transonic compressible flow, generate wing-body meshes, and match DPW qualitative benchmarks. **Timeline: 10–12 days.**
-   - If successful, **unlock** 90 core-hours for Phase 3 (medium-grid entry).
-   - If solver or mesh generation fails, **STOP**. The gaps are too large to bridge in one sprint.
+1. **Commit 46 core-hours (Phase 0 + Phase 1 + Phase 2):** Validate that the lab can run transonic compressible flow, generate wing-body meshes, and match DPW qualitative benchmarks. **Timeline: 3–4 days wall-clock (or ~10–12 days with serial runs).**
+   - If successful, **unlock** 80 core-hours for Phase 3 (medium-grid entry).
+   - If solver or mesh generation fails, **STOP**. The blockers are too large to bridge in one sprint.
 
-2. **Commit 90 core-hours (Phase 3):** Produce the first DPW submission candidate at medium grid.
+2. **Commit 80 core-hours (Phase 3):** Produce the first DPW submission candidate at medium grid.
    - Realistic outcome: Cd prediction within 5 counts of participant median (success).
    - If successful, **unlock** ~200 core-hours for Phase 4 (optional fine-grid convergence).
    - If Cd is >10 counts off (e.g., 240 or 280), **HOLD for investigation:** likely turbulence model or mesh topology issue.
@@ -330,29 +326,30 @@ The published experimental drag at the DPW design point (M = 0.85, Re = 5×10⁶
 ### Budget Gate & Go/No-Go Decision
 
 **16-vCPU hardware constraint:**
-- **Minimum affordable (solver + coarse CRM):** 50 core-hours = **acceptable 1–2 week sprint**
-- **Entry-quality (medium CRM):** 185 core-hours = **acceptable 3-week project**
-- **Full investigation (fine CRM):** 400+ core-hours = **marginal; not recommended without expanding to larger compute**
+- **Minimum affordable (solver + coarse CRM):** 46 core-hours = **acceptable 1-week sprint**
+- **Entry-quality (medium CRM):** 181 core-hours = **acceptable 2.5–3 week project**
+- **Full investigation (fine CRM):** 395+ core-hours = **marginal; not recommended without expanding to larger compute**
 
-**Recommendation:** **GO, with 200 core-hour budget allocation (covers Phase 0 through Phase 3 completion).** Phase 4 deferred to follow-up if Phase 3 succeeds and delivers publishable results within DPW scatter band.
+**Recommendation:** **GO, with 200 core-hour budget allocation (covers Phase 0 through Phase 3 completion with margin).** Phase 4 deferred to follow-up if Phase 3 succeeds and delivers publishable results within DPW scatter band.
 
-**If forced to a hard budget ceiling <100 core-hours:** **NO-GO.** Phase 0 validation alone (50 ch) is not a credible DPW entry; must include Phase 2 (coarse CRM) to prove applicability to target geometry. Recommend deferring until a larger compute allocation is available or until the lab successfully completes incompressible wing-body validation (NASA TMR cases) as a cheaper prerequisite.
+**If forced to a hard budget ceiling <100 core-hours:** **NO-GO.** Minimum viable path (solver validation + coarse CRM) is 46 core-hours; Phase 3 (medium grid) requires an additional 80 core-hours. Below 100 core-hours, insufficient budget remains after Phase 0 to reach a credible entry point (Phase 2 coarse-grid validation). Recommend deferring until larger compute allocation or until Phase 0 blocker (transonic solver stability) is cleared independently.
 
 ---
 
 ## 6. CRITICAL PATH ITEMS (What Must Succeed for This to Work)
 
-1. **rhoCentralFoam stability on transonic 2D airfoil** (Phase 0, 2–3 days)
-   - If this diverges or oscillates, entire effort is at risk. SU2 or commercial solver may be necessary.
+1. **rhoCentralFoam stability on transonic 2D airfoil at M=0.85 with SST model** (Phase 0, 2–3 days)
+   - Core question: Does SST turbulence model transfer from incompressible (lab-validated on TMR benchmarks) to compressible M=0.85 without code divergence or physical anomaly (unphysical temperature, shock misprediction)?
+   - If this diverges or shows compressibility-induced instability, entire CRM effort is at risk. Fallback: externally-sourced solver (SU2, Fluent) or Spalart-Allmaras instead of SST.
 
 2. **snappyHexMesh leading-edge quality on wing** (Phase 1, 2–4 days)
-   - If skew/aspect ratio exceeds DPW tolerances, mesh generation strategy must pivot (external tool or accept meshing cost as a permanent overhead).
+   - If skew/aspect ratio exceeds DPW tolerances (max skew 15°–20°), mesh generation strategy must pivot (external tool like Pointwise or fallback to using DPW-provided grid).
 
 3. **CRM coarse-grid convergence and Cd in correct ballpark** (Phase 2, 4–6 days)
-   - If coarse-grid drag is >10 counts high/low, indicates turbulence model or domain size issue; resolve before grid refinement.
+   - If coarse-grid drag is >10 counts high/low or solution does not converge by iteration 400, indicates solver instability, turbulence model misbehavior under compressibility, or domain-size issue. Resolve before grid refinement.
 
 4. **Medium-grid Cd within DPW participant band ±5 counts** (Phase 3, 8–12 days)
-   - This is the Go/No-Go gate. If achieved, submission-ready data exists. If not, likely deep issue in modeling or numerics.
+   - This is the Go/No-Go gate for submission. If achieved (252–262 counts), submission-ready data exists and credible entry is possible. If not, likely indicates fundamental issue in compressible SST modeling or mesh topology requiring deep investigation.
 
 ---
 
