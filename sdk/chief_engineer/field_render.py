@@ -114,13 +114,148 @@ def _read_patch(vtp_path: str | Path, field: str):
     return vertices, faces, face_values
 
 
+def _patch_cell_values(vtp_path: str | Path, field: str) -> list[float] | None:
+    """The solver's OWN per-wall-face values for one patch, or None.
+
+    ``_read_patch`` above prefers the per-POINT array because interpolating
+    it to face centres gives the smooth surface the viewport wants. That
+    averaging is a display choice, and it is lossy at exactly the place that
+    matters: a stagnation peak sits on one wall face, and every node of that
+    face is shared with cooler neighbours, so the nodal round trip shaves the
+    peak before any decimation has even run. Measured on the NACA 4412 wing,
+    the solver's own wall maximum is p/rho 100.09 and the nodal-averaged
+    version of the same patch reads 95.66, which at q 112.5 is Cp 0.889
+    against 0.850.
+
+    So the reported physics is read from ``CellData`` instead: those are the
+    finite-volume wall values the solver actually wrote, one per boundary
+    face, with no interpolation anywhere in the path. Returns one value per
+    source polygon (not per fan triangle, which is the same set of numbers
+    and therefore the same extremes), or None when the file carries no cell
+    array for this field, in which case the caller falls back to the nodal
+    per-face values.
+    """
+    try:
+        text = Path(vtp_path).read_text(errors="replace")
+    except OSError:
+        return None
+    header_bytes = 8 if (_HEADER_TYPE.search(text) or [""])[0] == "UInt64" or \
+        "header_type='UInt64'" in text else 4
+    cell_section = _CELLDATA.search(text)
+    if not cell_section:
+        return None
+    values = _named(cell_section.group(0), field, header_bytes)
+    return list(values) if values else None
+
+
+# The incompressible stagnation bound. With p_inf as the reference pressure
+# and q = U^2/2 the kinematic dynamic pressure, no point in a steady
+# incompressible flow with no energy addition can exceed Cp = 1: that is the
+# whole freestream kinetic energy converted to pressure. A wall value above it
+# is not a pressure, it is a numerical artifact, and in practice it means
+# degenerate cells.
+CP_STAGNATION_BOUND = 1.0
+# There is NO corresponding hard lower bound. Incompressible potential flow
+# over a circular cylinder already reaches Cp -3, and real accelerating
+# corners go lower, so a large negative Cp is not by itself a defect. This
+# threshold is therefore a mesh-degeneracy SIGNAL, not a violation test: it
+# counts how much of the surface sits in territory that is possible but
+# strongly suggestive of sliver cells when it appears on a handful of faces.
+CP_SUCTION_OUTLIER = -2.0
+
+
+def cp_bound_report(values, *, q: float, p_inf: float = 0.0,
+                    bound: float = CP_STAGNATION_BOUND,
+                    suction_outlier: float = CP_SUCTION_OUTLIER
+                    ) -> dict[str, Any] | None:
+    """Check a wall field's reported extremes against the Cp = 1 bound.
+
+    ``values`` are the solver's own per-wall-face kinematic pressures, the
+    same undecimated list the reported physical range is taken from. Cp is
+    ``(p - p_inf) / q``.
+
+    This never alters a measured value. It is a disclosure: the physical
+    range must stay exactly what the solver wrote, and a consumer that is
+    about to display it needs to know when that number is outside what
+    incompressible flow permits. A bound-violating maximum means the mesh has
+    degenerate faces, so the report carries what a caller needs to choose
+    between the two honest presentations:
+
+    * the robust colour window (``color_min``/``color_max``) with the
+      violation disclosed, or
+    * the raw extreme with ``caveat`` attached as the mesh caveat.
+
+    ``max_cp_within_bound`` supports a third, narrower option: the largest
+    value on the body that IS physically admissible, which on the motorbike
+    is the real stagnation peak of Cp 0.992 sitting under a single sliver-cell
+    face at 1.119.
+
+    Returns None when ``q`` is missing or not positive, since Cp is undefined
+    without it.
+    """
+    if not values or not q or q <= 0:
+        return None
+    total = len(values)
+    cps = [(v - p_inf) / q for v in values]
+    over = [c for c in cps if c > bound]
+    under = [c for c in cps if c < suction_outlier]
+    within = [c for c in cps if c <= bound]
+    cp_max, cp_min = max(cps), min(cps)
+    report: dict[str, Any] = {
+        "q_kinematic": q,
+        "p_inf": p_inf,
+        "faces": total,
+        "min": cp_min,
+        "max": cp_max,
+        "stagnation_bound": bound,
+        # The headline flag. False means the reported physical maximum is not
+        # a physically attainable pressure.
+        "within_stagnation_bound": not over,
+        "over_bound": {
+            "count": len(over),
+            "fraction": len(over) / total,
+            "extreme_cp": cp_max if over else None,
+            "max_cp_within_bound": max(within) if within else None,
+        },
+        "suction_outliers": {
+            "threshold_cp": suction_outlier,
+            "count": len(under),
+            "fraction": len(under) / total,
+            "extreme_cp": cp_min if under else None,
+            "note": ("Cp has no hard lower bound (potential flow over a "
+                     "cylinder reaches -3), so this is a mesh-degeneracy "
+                     "signal, not a bound violation."),
+        },
+    }
+    if over:
+        report["caveat"] = (
+            f"Reported physical maximum Cp {cp_max:.3f} exceeds the "
+            f"incompressible stagnation bound of {bound:g} on {len(over)} of "
+            f"{total} wall faces ({100 * len(over) / total:.3f}%). Values "
+            "above the bound are degenerate sliver cells, a mesh quality "
+            "defect, not a physical pressure. The highest bound-respecting "
+            f"value on this body is Cp {max(within):.3f}. Present either the "
+            "robust colour window with this disclosed, or the raw extreme "
+            "with this caveat attached.")
+    return report
+
+
 def load_field_surface(sources, *, field: str = "p",
-                       max_faces: int = 30000, name: str = "surface") -> dict[str, Any]:
-    """Read one patch file or merge several into a painted wireframe payload."""
+                       max_faces: int = 30000, name: str = "surface",
+                       q_kinematic: float | None = None,
+                       p_inf: float = 0.0) -> dict[str, Any]:
+    """Read one patch file or merge several into a painted wireframe payload.
+
+    ``q_kinematic`` (and optionally ``p_inf``) turn on the Cp bound check on
+    the reported physical range, attached as ``field["cp"]``. Without them Cp
+    is undefined, so the block is simply absent and the payload is exactly
+    what it was before.
+    """
     paths = [sources] if isinstance(sources, (str, Path)) else list(sources)
     all_v: list[list[float]] = []
     all_f: list[list[int]] = []
     all_field: list[float] = []
+    all_physical: list[float] = []
     for path in paths:
         try:
             vertices, faces, values = _read_patch(path, field)
@@ -133,8 +268,30 @@ def load_field_surface(sources, *, field: str = "p",
             all_field.extend(values)
         else:
             all_field.extend([0.0] * len(faces))
+        # The reported physics comes from the solver's own wall-face values
+        # where the file carries them, and only falls back to the nodal path
+        # when it does not.
+        cell_values = _patch_cell_values(path, field)
+        if cell_values:
+            all_physical.extend(cell_values)
+        elif values and len(values) == len(faces):
+            all_physical.extend(values)
     payload, display_values = _package_painted(all_v, all_f, all_field, max_faces, name)
-    _attach_field(payload, display_values, field)
+    # The reported physical extremes are taken UNDECIMATED and UNINTERPOLATED,
+    # before clustering has seen the data, so no display simplification can
+    # change the physics the JSON claims to carry. ``display_values`` must
+    # never be the source: for any body over ``max_faces`` those have already
+    # been through vertex-clustering aggregation, which averages a stagnation
+    # peak into its cooler neighbours (see ``_package_painted``'s docstring).
+    source = all_physical or all_field
+    physical_range = (min(source), max(source)) if source else None
+    # The bound check runs on the very same undecimated list the reported
+    # range comes from, so the flag can never describe a different population
+    # than the number it qualifies.
+    cp_report = (cp_bound_report(source, q=q_kinematic, p_inf=p_inf)
+                 if q_kinematic else None)
+    _attach_field(payload, display_values, field,
+                  physical_range=physical_range, cp_report=cp_report)
     return payload
 
 
@@ -242,32 +399,77 @@ def _package_painted(vertices, faces, face_values, max_faces: int, name: str):
     return payload, display_values
 
 
-def _attach_field(payload: dict[str, Any], face_values, field: str) -> None:
-    """Carry a normalised field value per kept face, plus its physical range.
+def _attach_field(payload: dict[str, Any], face_values, field: str, *,
+                  physical_range: tuple[float, float] | None = None,
+                  cp_report: dict[str, Any] | None = None) -> None:
+    """Carry a normalised field value per kept face, plus two distinct ranges.
 
     ``face_values`` must already be one-to-one with ``payload["faces"]`` —
     :func:`_package_painted` guarantees that for both the decimated and the
     untouched path.
+
+    Two ranges are reported, and a future consumer must not confuse them:
+
+    * ``min``/``max``: the PHYSICAL range, the true extremes of the solved
+      field, i.e. what the solver actually computed. When ``physical_range``
+      is given (the caller's undecimated, pre-clustering per-face values)
+      that is what is reported; a decimated body's averaged display faces
+      never get to define the physical extremes, since clustering dilutes a
+      sharp stagnation peak into its cooler neighbours. When the caller has
+      no undecimated data to hand (e.g. a direct unit-test call), this falls
+      back to the true min/max of ``face_values`` itself, never to the
+      clipped percentiles below, so this key is always an unclipped extreme.
+    * ``color_min``/``color_max`` (aliased as ``display_min``/``display_max``
+      for the existing GUI legend): a robust 2nd/98th percentile CLIP, so a
+      single stagnation spike does not flatten the whole surface to one
+      colour. This is a display device only. Anything that renders a
+      colorbar must label it as the display/color-mapping range, never as
+      the field's maximum. A colorbar stating the clipped high as "the"
+      maximum misinforms the viewer about the true peak pressure.
+
+    ``cp_report`` (from :func:`cp_bound_report`) rides along as ``cp`` when
+    given: it does not change any reported value, it discloses whether the
+    physical maximum is inside the Cp = 1 stagnation bound.
     """
     if not face_values:
         payload["field"] = None
         return
     sampled = face_values
-    # Clip to robust percentiles: a single stagnation spike would otherwise
-    # flatten the whole surface to one colour. The 2nd/98th keep the real
-    # pressure variation across the wings and body visible.
+    # Clip to robust percentiles for the COLOUR MAP only: a single stagnation
+    # spike would otherwise flatten the whole surface to one colour. The
+    # 2nd/98th keep the real pressure variation across the wings and body
+    # visible. This clipped pair must never be reported as the field's
+    # physical min/max (that was the bug: it understated every published
+    # peak pressure by clipping away the real extreme and then mislabeling
+    # the clipped value as the maximum).
     ordered = sorted(sampled)
-    lo = ordered[max(0, int(0.02 * len(ordered)))]
-    hi = ordered[min(len(ordered) - 1, int(0.98 * len(ordered)))]
-    span = (hi - lo) or 1.0
+    color_lo = ordered[max(0, int(0.02 * len(ordered)))]
+    color_hi = ordered[min(len(ordered) - 1, int(0.98 * len(ordered)))]
+    span = (color_hi - color_lo) or 1.0
+    if physical_range is not None:
+        true_min, true_max = physical_range
+    else:
+        true_min, true_max = min(sampled), max(sampled)
     payload["field"] = {
         "name": field,
-        "min": lo,
-        "max": hi,
-        # 0..1 per drawn face, for the colormap in the browser.
-        "values": [round(min(1.0, max(0.0, (v - lo) / span)), 4) for v in sampled],
-        "display_min": round(lo, 1), "display_max": round(hi, 1),
+        # Physical range: the solver's own unclipped extremes. This is what
+        # any reported/published Cp_max or Cp_min must be read from.
+        "min": true_min,
+        "max": true_max,
+        # 0..1 per drawn face, for the colormap in the browser. Normalised
+        # against the CLIPPED color range, not the physical one, so one
+        # stagnation spike does not wash out the rest of the surface.
+        "values": [round(min(1.0, max(0.0, (v - color_lo) / span)), 4)
+                   for v in sampled],
+        # Color-mapping range only (clipped percentiles): label any colorbar
+        # built from this as the display range, not the field's maximum.
+        "color_min": round(color_lo, 1), "color_max": round(color_hi, 1),
+        "display_min": round(color_lo, 1), "display_max": round(color_hi, 1),
     }
+    if cp_report is not None:
+        # A disclosure attached to the physical range, never a correction to
+        # it: the values above stay exactly what the solver wrote.
+        payload["field"]["cp"] = cp_report
 
 
 # Names of patches that are the flow domain — the wind-tunnel / farfield box —
@@ -324,7 +526,9 @@ def _body_patches(patches: list[Path]) -> list[Path]:
 def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
                       *, field: str = "p", name: str = "surface",
                       input_triangles: int | None = None,
-                      min_fraction: float = 0.15) -> str | None:
+                      min_fraction: float = 0.15,
+                      q_kinematic: float | None = None,
+                      p_inf: float = 0.0) -> str | None:
     """Run foamToVTK, merge every body patch, and write a painted-surface JSON.
 
     The body may be one patch (``body``) or a group of dozens (the motorBike's
@@ -374,9 +578,21 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
         _log.warning("field-paint patch selection suspect: no body patch left "
                      "after excluding domain boundaries — falling back to wireframe")
         return None
-    payload = load_field_surface(patches, field=field, name=name)
+    payload = load_field_surface(patches, field=field, name=name,
+                                 q_kinematic=q_kinematic, p_inf=p_inf)
     if not payload.get("field"):
         return None
+    cp = (payload.get("field") or {}).get("cp")
+    if cp and not cp["within_stagnation_bound"]:
+        # Surfaced in the log as well as the JSON: a bound-violating wall
+        # value is a mesh quality signal and should not need a JSON reader to
+        # be noticed.
+        _log.warning("field-paint: %s reported physical Cp_max %.3f exceeds "
+                     "the stagnation bound on %d of %d wall faces (%.3f%%) - "
+                     "degenerate cells; highest admissible value is Cp %.3f",
+                     name, cp["max"], cp["over_bound"]["count"], cp["faces"],
+                     100 * cp["over_bound"]["fraction"],
+                     cp["over_bound"]["max_cp_within_bound"])
     # Face-count sanity check: the painted body should be a large fraction of
     # the input surface, not a handful of flat domain rectangles.
     body_faces = int(payload.get("triangles_total", 0))

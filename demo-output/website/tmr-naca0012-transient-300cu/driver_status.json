@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "record": {
+    "level": "coarse",
+    "tmr_nodes": "113x33",
+    "cells": 3584,
+    "alpha_deg": 0.0,
+    "solver": "pimpleFoam, time accurate",
+    "end_time": 300.0,
+    "steps": 8817,
+    "cd_mean": 0.0007083435527024855,
+    "cd_band": 0.00054356930662,
+    "cd_lo": 0.00047828077078,
+    "cd_hi": 0.0010218500774,
+    "cl_mean": -9.551719708339497e-06,
+    "cl_band": 0.00033609615353999997,
+    "cl_lo": -0.00019489120212,
+    "cl_hi": 0.00014120495142,
+    "averaging_window": [
+      120.00724,
+      300.0
+    ],
+    "period": 0.41548709638663367,
+    "periods_in_window": 433.209025178743,
+    "yplus": {
+      "min": 0.19710282499,
+      "max": 0.7744225062,
+      "average": 0.42818188111
+    },
+    "wall_seconds": 611.8000000000001,
+    "timings": {
+      "plot3dToFoam": 0.3,
+      "autoPatch": 0.3,
+      "potentialFoam": 0.5,
+      "pimpleFoam": 610.7
+    }
+  },
+  "driver_wall_seconds": 612.5936560160008,
+  "driver_core_minutes": 10.209894266933345
+}

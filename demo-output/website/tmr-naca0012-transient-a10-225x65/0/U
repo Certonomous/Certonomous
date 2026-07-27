@@ -1,0 +1,44 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0.98480775 0.00000000 0.17364818);
+
+boundaryField
+{
+    defaultFaces
+    {
+        type            zeroGradient;
+    }
+    auto0
+    {
+        type            inletOutlet;
+        inletValue      uniform (0.98480775 0.00000000 0.17364818);
+        value           uniform (0.98480775 0.00000000 0.17364818);
+    }
+    auto1
+    {
+        type            empty;
+    }
+    auto2
+    {
+        type            empty;
+    }
+    auto3
+    {
+        type            noSlip;
+    }
+    auto4
+    {
+        type            inletOutlet;
+        inletValue      uniform (0.98480775 0.00000000 0.17364818);
+        value           uniform (0.98480775 0.00000000 0.17364818);
+    }
+}

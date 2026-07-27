@@ -11,9 +11,14 @@ venv/
 
 # Runtime output (regenerated each run)
 mission-output/
+chief-engineer-runs/
 sdk/chief-engineer-runs/
 sdk/mission-output/
 **/.sabotage/
+
+# ParaView crash backtraces from headless start attempts
+paraview.*.btr
+paraview.*,*.btr
 
 # Mega-batch live/transient files (durable on disk, kept out of git churn)
 demo-output/website/mega-batch/work/

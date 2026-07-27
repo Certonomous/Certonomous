@@ -10,6 +10,9 @@ FoamFile
 
 ddtSchemes      { default steadyState; }
 gradSchemes     { default Gauss linear; }
+laplacianSchemes { default Gauss linear corrected; }
+snGradSchemes   { default corrected; }
+
 divSchemes
 {
     // Momentum second order; turbulence advection first-order upwind.
@@ -19,13 +22,13 @@ divSchemes
     // run converge through residualControl. Turbulence advection is
     // negligible against production and destruction in this boundary layer,
     // and the measured observed order reports whatever the ladder delivers.
+    // The "bounded" form is a steady-state device and is dropped for the
+    // time-accurate runs.
     default                         none;
     div(phi,U)                      bounded Gauss linearUpwind grad(U);
     div(phi,k)                      bounded Gauss upwind;
     div(phi,omega)                  bounded Gauss upwind;
     div((nuEff*dev2(T(grad(U)))))   Gauss linear;
 }
-laplacianSchemes { default Gauss linear corrected; }
 interpolationSchemes { default linear; }
-snGradSchemes   { default corrected; }
 wallDist        { method meshWave; }

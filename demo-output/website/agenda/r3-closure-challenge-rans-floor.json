@@ -1,0 +1,60 @@
+{
+  "id": "r3-closure-challenge-rans-floor",
+  "objective": "Reproduce the closure-challenge benchmark's own published leaderboard through its own scoring code, and measure a zero-ML RANS-identity reference floor through that same code, with the generating script and the resulting numbers versioned in this repository so any displayed figure has a re-derivable source behind it",
+  "rationale": "MOST IMPORTANT FINDING FIRST: the lab's docket previously recorded, with no supporting detail, a public leaderboard target of rank 4, overall 0.0779, and 8 unlabeled per-case numbers for github.com/rmcconke/closure-challenge-benchmark. Cloning the benchmark repo and its companion MIT-licensed evaluation package (github.com/rmcconke/closure-challenge) and running the benchmark's OWN scripts/eval_submissions.py against its OWN bundled ground truth reproduced that exact figure: Montoya, Oulghelou, and Cinnella at rank 4, overall 0.0779, per-case 0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464, matching the previously-recorded target_per_case values exactly. That is an independent confirmation, from the source harness, that a number this lab was already displaying was real and accurately transcribed, not fabricated. This is now versioned: sdk/scripts/run_closure_challenge_evidence.py performs the reproduction itself (it does not merely trust our transcription) and writes the check into demo-output/website/closure_challenge_rans_floor.json every time it runs. What the benchmark actually is: an ongoing, non-conference challenge (McConkey, Buchanan, Smidt, Bodner, Dwight, Cinnella; arXiv:2603.28884) for data-driven RANS turbulence closure, scored as per-case scaled MAE (mean(||U_pred - U_true||) over 1000 fixed evaluation points, divided by mean(||U_true||)) averaged over 8 named held-out test cases: alpha_15_13929_4048, alpha_15_13929_2024, alpha_05_4071_4048, alpha_05_4071_2024 (periodic hills), AR_1_Ret_360, AR_3_Ret_360, AR_14_Ret_180 (rectangular duct), NASA_2DWMH (wall-mounted hump). SECOND MEASURED RESULT: since the repo publishes no official zero-ML comparison point, one was built and versioned here: the converged k-omega SST velocity field the benchmark already ships as an input feature, unmodified by any training or fitted parameter, nearest-neighbor interpolated onto the official evaluation points and scored with the unmodified closure_challenge.score(). Measured overall: 0.1036 (per case: alpha_15_13929_4048 0.132, alpha_15_13929_2024 0.2049, alpha_05_4071_4048 0.0461, alpha_05_4071_2024 0.0719, AR_1_Ret_360 0.1288, AR_3_Ret_360 0.1243, AR_14_Ret_180 0.059, NASA_2DWMH 0.0621), about 0.0257 above the recorded rank-4 target. FRAMING, stated deliberately: 0.1036 should be presented as a reference floor that quantifies how much the published, trained entries add over raw RANS, not as a baseline or as this lab's entry -- it involved no learning, no fitted parameter, and no submission was made. Calling it a 'baseline' invites the reading that it was a modeling attempt; it was not. License and submission position, stated plainly: the evaluation-code package (closure-challenge) is MIT; the data and leaderboard repository (closure-challenge-benchmark) carries no LICENSE file and its GitHub API license field is null, so its redistribution terms are unstated, which is why no benchmark data of any kind was copied into this repository. Submission is by CSV predictions on the 8 test cases, interpolated onto the provided evaluation points, emailed to the steward (Ryley McConkey) with an author list and references. The leaderboard is explicitly open, 'anytime'. The one binding rule, carried forward to the companion trained-baseline proposal because it constrains all future work here: it is strictly forbidden to train or validate on any of the 8 named test cases; violation withdraws the entry automatically.",
+  "citations": [
+    "github.com/rmcconke/closure-challenge-benchmark, README and scripts/eval_submissions.py, commit deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "github.com/rmcconke/closure-challenge, src/closure_challenge/eval.py and dataset_utils.py, commit 1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "McConkey, Buchanan, Smidt, Bodner, Dwight, Cinnella, 'The Closure Challenge: a benchmark task for machine learning in turbulence modelling', arXiv:2603.28884 (existence and title confirmed live)"
+  ],
+  "url": "https://github.com/rmcconke/closure-challenge-benchmark",
+  "est_core_min": 0.02,
+  "cost_basis": "measured: sdk/scripts/run_closure_challenge_evidence.py, which performs both the leaderboard reproduction and the RANS-identity floor computation, ran in under 1 second of wall time on 4 cores (taskset -c 0-3); this line item is complete, not an estimate",
+  "expected_knowledge_gain": "Independent, source-verified confirmation that this lab's previously-displayed external leaderboard figures (rank 4, 0.0779, 8 per-case values) are accurate; a corrected, concrete understanding of what the benchmark measures and requires, in place of a bare cited score; and a versioned, re-derivable zero-ML reference floor (overall 0.1036) that any future trained attempt here must be measured against",
+  "source_kind": "challenge",
+  "status": "done",
+  "created_at": "2026-07-26",
+  "artifacts": {
+    "script": "sdk/scripts/run_closure_challenge_evidence.py",
+    "evidence_file": "demo-output/website/closure_challenge_rans_floor.json",
+    "note": "Re-run the script any time to regenerate the evidence file from fresh scratch clones; nothing in this repository is a substitute for those clones, and no benchmark data is stored here"
+  },
+  "license_and_submission": {
+    "eval_code_license": "MIT (closure-challenge package, declared in its pyproject.toml)",
+    "data_repo_license": "none stated (no LICENSE file in closure-challenge-benchmark; GitHub API license field is null)",
+    "data_copied_into_this_repo": false,
+    "submission_mechanism": "CSV predictions on the 8 test cases, interpolated onto the provided evaluation points, emailed to the steward (Ryley McConkey) with author list and references",
+    "leaderboard_open": "yes, explicitly 'anytime', 4 entries currently listed",
+    "binding_rule": "strictly forbidden to train or validate on any of the 8 named test cases; a violation automatically withdraws the submission"
+  },
+  "framing_guidance": "Label the 0.1036 figure a 'RANS-identity reference floor' (how much the published entries add over raw RANS), not a 'baseline' or an 'entry' -- no training occurred and nothing was submitted to the challenge",
+  "evidence": {
+    "measured_at": "2026-07-26",
+    "standard_stage": "Stage 1 - repository-verified facts, a reproduced external result, and a measured zero-ML floor, all via the benchmark's own harness",
+    "script": "sdk/scripts/run_closure_challenge_evidence.py",
+    "leaderboard_reproduction": {
+      "authors": "Montoya, Oulghelou, and Cinnella",
+      "overall": 0.0779,
+      "per_case": [0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464],
+      "matches_docket_recorded_target": true
+    },
+    "rans_identity_reference_floor": {
+      "overall": 0.1036,
+      "per_case": {
+        "alpha_15_13929_4048": 0.132,
+        "alpha_15_13929_2024": 0.2049,
+        "alpha_05_4071_4048": 0.0461,
+        "alpha_05_4071_2024": 0.0719,
+        "AR_1_Ret_360": 0.1288,
+        "AR_3_Ret_360": 0.1243,
+        "AR_14_Ret_180": 0.059,
+        "NASA_2DWMH": 0.0621
+      },
+      "no_training_performed": true
+    },
+    "benchmark_repo_commit": "deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "eval_package_repo_commit": "1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "identities_hold": true
+  },
+  "evidence_stage": "offline-evidence-measured"
+}

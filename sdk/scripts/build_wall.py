@@ -32,7 +32,7 @@ _SDK = Path(__file__).resolve().parents[1]
 if str(_SDK) not in sys.path:
     sys.path.insert(0, str(_SDK))
 
-from chief_engineer import lab_stats  # noqa: E402
+from chief_engineer import lab, lab_stats  # noqa: E402
 
 _REPO = _SDK.parent
 _OUT = _REPO / "demo-output" / "website" / "wall"
@@ -53,11 +53,23 @@ _DISPLAY = {
 # Bodies treated as canonical calibration geometry (collapse into one row).
 _CANONICAL = set(_DISPLAY)
 
-_TIER_RANK = {"VALIDATED": 0, "REFERENCE REGIME MISMATCH": 1,
-              "TREND ONLY": 2, "NEEDS WORK": 3}
+_TIER_RANK = {"VALIDATED": 0, "SOLVER-BACKED": 1, "RESEARCH MODEL": 2,
+              "REFERENCE REGIME MISMATCH": 3, "TREND ONLY": 4,
+              "UNCONVERGED": 5, "NEEDS WORK": 6}
 
 
 def _credentials_from_disk() -> list[dict]:
+    """One card per stored credential, re-derived at build time.
+
+    A result file records what one mission measured on the mesh it solved. The
+    refinement ladder for that same case can finish hours later on a finer
+    mesh, and the grading rules can tighten after the file was written; both
+    used to stop at the file, so the wall could keep showing the coarsest rung
+    of a finished ladder under a tier the current rules would refuse.
+    ``lab.displayed_credential`` closes that gap from measurement alone: the
+    finest rung anchored to this credential's own ladder, graded against the
+    reference as it stands on disk. The stored files are never rewritten.
+    """
     cards: list[dict] = []
     if not _RESULTS.exists():
         return cards
@@ -68,15 +80,23 @@ def _credentials_from_disk() -> list[dict]:
             continue
         if not data.get("name"):
             continue
+        shown = lab.displayed_credential(data)
         cards.append({
             "name": data["name"],
-            "tier": data.get("tier") or "NEEDS WORK",
-            "measured": data.get("cd_measured"),
-            "envelope": data.get("envelope"),
-            "reference_cd": data.get("reference_cd"),
-            "source": data.get("reference_source"),
-            "reason": data.get("reason"),
+            "tier": shown["tier"] or "NEEDS WORK",
+            # ONE number on the card: the coefficient on the reference's own
+            # area basis, the same one the reason text quotes a percentage of.
+            "measured": shown["on_reference_basis"],
+            "measured_raw": shown["measured"],
+            "area_basis": shown["area_basis"],
+            "cells": shown["cells"],
+            "envelope": shown["envelope"],
+            "reference_cd": shown["reference_cd"],
+            "source": shown["source"],
+            "reason": shown["reason"],
             "wall_minutes": data.get("wall_minutes"),
+            "finest_rung": shown["superseded"],
+            "rung_provenance": shown["provenance"],
         })
     cards.sort(key=lambda c: (_TIER_RANK.get(c["tier"], 9), c["name"]))
     return cards

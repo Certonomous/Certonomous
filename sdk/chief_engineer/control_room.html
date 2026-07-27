@@ -225,6 +225,16 @@
   .legend .bar { flex: 1; height: 7px; background: linear-gradient(90deg, #3b4cc0, #7aa0e0, #f2f2f2, #e8926a, #b40426); }
   .legend span, .legend b { font: 9px var(--mono); }
   .legend span { color: var(--muted); }
+  /* The colour bar is a CLIPPED 2nd/98th percentile window, so its two end
+     labels are display values, not the field's extremes. The tag says so and
+     the physical range rides alongside, on its own line, so nobody reads the
+     bar's high end as the peak pressure. */
+  .legend { flex-wrap: wrap; }
+  .legend .lg-tag { color: var(--dim); letter-spacing: .06em; text-transform: uppercase; }
+  .legend .lg-phys { flex-basis: 100%; color: var(--dim); }
+  /* A physical extreme outside the Cp = 1 stagnation bound is a mesh defect,
+     so it is called out rather than shown as an ordinary reading. */
+  .legend .lg-phys.lg-warn { color: var(--bad, #e0685f); }
   .plots { display: flex; gap: 8px; padding: 11px 18px; overflow-x: auto; flex: 0 0 auto; border-top: 1px solid var(--line); }
   .plots:empty { display: none; }
   .plots img { height: 88px; border: 1px solid var(--line-2); cursor: pointer; }
@@ -450,7 +460,7 @@
            body over the charts, and hiding the stage for a race hid the race. -->
       <div class="stage-wrap" id="stageWrap"><canvas id="viewportCanvas"></canvas><div class="viewport-empty" id="viewportEmpty">The mission's surface renders here, painted by the solved field once it lands.</div><div class="kill-banner" id="killBanner" hidden><span class="kb-dot"></span><span class="kb-msg" id="killBannerMsg"></span></div></div>
       <div class="viewport-foot" id="viewportFoot"><span id="viewportLabel">No surface loaded</span><span id="viewportStats"></span></div>
-      <div class="legend" id="legend"><span id="legendLo">—</span><span class="bar"></span><span id="legendHi">—</span><b id="legendName">pressure</b></div>
+      <div class="legend" id="legend"><span class="lg-tag">colour range</span><span id="legendLo">-</span><span class="bar"></span><span id="legendHi">-</span><b id="legendName">pressure</b><span class="lg-phys" id="legendPhys"></span></div>
 
       <!-- Split-screen race view: two lanes race the same objective, one path
            brute-force Monte-Carlo, one reduced-order, both real and timed. -->
@@ -1403,8 +1413,36 @@ async function loadField(p) {
     $('viewportLabel').textContent = p.label || $('viewportLabel').textContent;
     if (mesh.field) {
       $('legend').classList.add('on');
-      $('legendLo').textContent = mesh.field.display_min; $('legendHi').textContent = mesh.field.display_max;
-      $('legendName').textContent = (mesh.field.name||'p') === 'p' ? 'pressure (Pa)' : mesh.field.name;
+      // Two ranges, kept apart on purpose. The bar's end labels are the
+      // COLOUR window: a 2nd/98th percentile clip that stops one stagnation
+      // spike flattening the whole body to a single hue. They are NOT the
+      // field's extremes, and labelling them as such is the defect this
+      // legend was corrected for. The solver's true min/max ride below.
+      const fld = mesh.field;
+      const colorLo = fld.color_min !== undefined ? fld.color_min : fld.display_min;
+      const colorHi = fld.color_max !== undefined ? fld.color_max : fld.display_max;
+      $('legendLo').textContent = colorLo; $('legendHi').textContent = colorHi;
+      $('legendName').textContent = (fld.name||'p') === 'p' ? 'pressure (Pa)' : fld.name;
+      const clipped = fld.min !== undefined && fld.max !== undefined
+        && (Number(fld.min) < Number(colorLo) || Number(fld.max) > Number(colorHi));
+      const fmtF = v => Math.abs(v) >= 100 ? (+v).toFixed(0) : +(+v).toPrecision(3);
+      // A physical maximum above Cp 1 is not an attainable pressure, it is a
+      // degenerate-cell artifact. The value still shows, because it is what
+      // the solver wrote, but it never shows unqualified.
+      const cp = fld.cp;
+      const unbounded = cp && cp.within_stagnation_bound === false;
+      $('legendPhys').textContent = (fld.min === undefined || fld.max === undefined)
+        ? ''
+        : `physical range (solver extremes): ${fmtF(fld.min)} to ${fmtF(fld.max)}`
+          + (clipped ? '; colour bar above is clipped for display' : '')
+          + (unbounded
+              ? `  |  WARNING Cp ${(+cp.max).toFixed(3)} exceeds the stagnation bound of `
+                + `${cp.stagnation_bound} on ${cp.over_bound.count} of ${cp.faces} faces `
+                + `(${(100 * cp.over_bound.fraction).toFixed(3)}%): degenerate cells, not a `
+                + `physical pressure. Highest admissible value Cp `
+                + `${(+cp.over_bound.max_cp_within_bound).toFixed(3)}.`
+              : '');
+      $('legendPhys').classList.toggle('lg-warn', !!unbounded);
     }
     drawGeometry();
   } catch (e) {}

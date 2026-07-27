@@ -71,8 +71,8 @@
   <div class="cred-kicker">Certonomous · laboratory credentials</div>
   <h2 class="cred-title">What this lab has measured</h2>
     <div class="cred-counters">
-      <div class="cred-counter"><span class="cred-counter-value">24,076</span><span class="cred-counter-label">missions run</span></div>
-      <div class="cred-counter"><span class="cred-counter-value">42.215</span><span class="cred-counter-label">solver core-hours</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">72,298</span><span class="cred-counter-label">missions run</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">101.534</span><span class="cred-counter-label">solver core-hours</span></div>
       <div class="cred-counter"><span class="cred-counter-value">8</span><span class="cred-counter-label">knowledge entries</span></div>
       <div class="cred-counter"><span class="cred-counter-value">8</span><span class="cred-counter-label">experimental anchors</span></div>
       <div class="cred-counter"><span class="cred-counter-value">2</span><span class="cred-counter-label">benchmarks active</span></div>
@@ -81,7 +81,7 @@
     <details class="cal-suite">
       <summary>
         <span class="cal-title">Calibration suite</span>
-        <span class="cal-sub">8 canonical bodies benchmarked against published experiment · 4 validated within band</span>
+        <span class="cal-sub">8 canonical bodies benchmarked against published experiment · 1 validated within band</span>
         <span class="cal-hint">expand</span>
       </summary>
       <div class="cal-table-wrap">
@@ -90,31 +90,24 @@
         <tbody>
         <tr>
           <td class="cal-body">Ahmed body — 25° slant</td>
-          <td class="cal-num">Cd 0.08978 vs 0.285</td>
+          <td class="cal-num">Cd 0.3219 vs 0.285</td>
           <td class="cal-env">±1.6e-06</td>
           <td><span class="vtier vt-validated">VALIDATED</span></td>
           <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
         </tr>
         <tr>
+          <td class="cal-body">Ahmed body — 35° slant</td>
+          <td class="cal-num">Cd 0.3141 vs 0.26</td>
+          <td class="cal-env">±1.8e-06</td>
+          <td></td>
+          <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
+        </tr>
+        <tr>
           <td class="cal-body">Cube</td>
-          <td class="cal-num">Cd 1.112 vs 1.05</td>
-          <td class="cal-env">±0.0061</td>
-          <td><span class="vtier vt-validated">VALIDATED</span></td>
+          <td class="cal-num">Cd 1.104 vs 1.05</td>
+          <td class="cal-env">±0.0078 across the 3-mesh refinement study</td>
+          <td></td>
           <td class="cal-src">Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)</td>
-        </tr>
-        <tr>
-          <td class="cal-body">Flat plate</td>
-          <td class="cal-num">Cd 0.03238 vs 0.03</td>
-          <td class="cal-env">±2e-06</td>
-          <td><span class="vtier vt-validated">VALIDATED</span></td>
-          <td class="cal-src">thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces</td>
-        </tr>
-        <tr>
-          <td class="cal-body">NACA 4412 wing</td>
-          <td class="cal-num">Cd 0.02892 vs 0.03</td>
-          <td class="cal-env">±4.6e-07</td>
-          <td><span class="vtier vt-validated">VALIDATED</span></td>
-          <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)</td>
         </tr>
         <tr>
           <td class="cal-body">Circular cylinder</td>
@@ -124,18 +117,11 @@
           <td class="cal-src">Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)</td>
         </tr>
         <tr>
-          <td class="cal-body">Sphere</td>
-          <td class="cal-num">Cd 0.09484 vs 0.47</td>
-          <td class="cal-env">±0.00012</td>
+          <td class="cal-body">Flat plate</td>
+          <td class="cal-num">Cd 0.03238 vs 0.03</td>
+          <td class="cal-env">±2e-06</td>
           <td></td>
-          <td class="cal-src">Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory</td>
-        </tr>
-        <tr>
-          <td class="cal-body">Ahmed body — 35° slant</td>
-          <td class="cal-num">Cd 0.0876 vs 0.26</td>
-          <td class="cal-env">±1.8e-06</td>
-          <td></td>
-          <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
+          <td class="cal-src">thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces</td>
         </tr>
         <tr>
           <td class="cal-body">NACA 0012 wing</td>
@@ -143,6 +129,20 @@
           <td class="cal-env">±2.5e-07</td>
           <td></td>
           <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data</td>
+        </tr>
+        <tr>
+          <td class="cal-body">NACA 4412 wing</td>
+          <td class="cal-num">Cd 0.01892 vs 0.03</td>
+          <td class="cal-env">±0.0031 across the 3-mesh refinement study</td>
+          <td></td>
+          <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)</td>
+        </tr>
+        <tr>
+          <td class="cal-body">Sphere</td>
+          <td class="cal-num">Cd 0.0948 vs 0.47</td>
+          <td class="cal-env">±0.00012</td>
+          <td></td>
+          <td class="cal-src">Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory</td>
         </tr>
         </tbody>
       </table>

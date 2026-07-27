@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from chief_engineer import uq
+from chief_engineer import lab, uq
 from chief_engineer.lab import VALIDATED, trust
 
 
@@ -41,12 +41,21 @@ class LadderMath(unittest.TestCase):
 
 
 class DegenerateLadder(unittest.TestCase):
+    """Two distinct meshes are not a ladder.
+
+    This used to be written with the NACA 4412 numbers and a duplicated coarse
+    rung, which asserted that the 4412 ladder is degenerate. It is not: that
+    body has three distinct rungs, 67,826 / 137,569 / 337,334 cells, and they
+    fall monotonically. The degeneracy rule is a property of the math, so it is
+    exercised on neutral numbers here, and the real 4412 ladder is measured for
+    what it is in RealNaca4412Ladder below.
+    """
+
     def test_identical_meshes_collapse_to_the_honest_sentence(self):
-        out = uq.ladder_band([67826, 67826, 137569],
-                             [0.02892, 0.02892, 0.02167])
+        out = uq.ladder_band([50000, 50000, 100000], [0.4, 0.4, 0.3])
         self.assertFalse(out["conclusive"])
         self.assertEqual(out["method"], uq.DEGENERATE)
-        self.assertAlmostEqual(out["band_abs"], 3.0 * (0.02892 - 0.02167), places=8)
+        self.assertAlmostEqual(out["band_abs"], 3.0 * (0.4 - 0.3), places=8)
 
     def test_four_levels_use_last_three_distinct(self):
         cells = [1000, 1000, 8000, 64000]
@@ -228,6 +237,143 @@ class TransferredModelBand(unittest.TestCase):
         self._seed_pool()
         self.assertIsNone(uq.transferred_model_band(None))
         self.assertIsNone(uq.transferred_model_band(0.0))
+
+
+class RealNaca4412Ladder(unittest.TestCase):
+    """The measured NACA 4412 ladder, and what it is allowed to certify.
+
+    Three distinct meshes of one case, falling monotonically: 0.02892 at
+    67,826 cells, 0.02167 at 137,569, 0.01892 at 337,334. The band lands at
+    16.3 percent of the working value and the observed order comes out at 4.6
+    from a second-order scheme, so it is clamped and the study is NOT
+    conclusive. That is the state the tier logic has to honour.
+    """
+
+    CELLS = [67826, 137569, 337334]
+    CD = [0.02892, 0.02167, 0.01892]
+
+    def test_the_ladder_is_monotone_and_three_distinct_rungs(self):
+        self.assertEqual(len(set(self.CELLS)), 3)
+        self.assertTrue(self.CD[0] > self.CD[1] > self.CD[2])
+
+    def test_band_is_clamped_and_inconclusive(self):
+        out = uq.eca_hoekstra_band(self.CELLS, self.CD)
+        self.assertTrue(out["monotone"])
+        self.assertAlmostEqual(out["observed_order"], 4.625, places=2)
+        self.assertTrue(out["clamped"])
+        self.assertFalse(out["conclusive"])
+        self.assertAlmostEqual(out["band_abs"] / self.CD[-1], 0.16342, places=4)
+
+    def test_a_clamped_ladder_cannot_certify_the_reference(self):
+        # The corrected expectation. Agreement inside the band used to be the
+        # whole test for VALIDATED; a reference whose own confidence is low,
+        # or a grid study that came back inconclusive, now blocks the chip and
+        # the result reads SOLVER-BACKED instead.
+        reference = {"cd": 0.030, "tolerance": 0.35, "confidence": "low",
+                     "source": "a hand-set estimate"}
+        verdict = lab.validate_against_reference(
+            measured_cd=self.CD[0], reference=reference, grid_conclusive=False)
+        self.assertEqual(verdict["tier"], lab.SOLVER_BACKED)
+        self.assertIn("low-confidence estimate", verdict["reason"])
+        self.assertIn("inconclusive", verdict["reason"])
+        # The comparison is still reported in full; only the chip is refused.
+        self.assertAlmostEqual(verdict["comparison"]["relative_error"], 0.036,
+                               places=3)
+
+    def test_each_blocker_stands_on_its_own(self):
+        solid = {"cd": 0.030, "tolerance": 0.35, "confidence": "high",
+                 "source": "a published measurement"}
+        self.assertEqual(
+            lab.validate_against_reference(measured_cd=self.CD[0],
+                                           reference=solid,
+                                           grid_conclusive=True)["tier"],
+            VALIDATED)
+        self.assertEqual(
+            lab.validate_against_reference(measured_cd=self.CD[0],
+                                           reference=solid,
+                                           grid_conclusive=False)["tier"],
+            lab.SOLVER_BACKED)
+        # No ladder on record for this setup is not evidence of a problem.
+        self.assertEqual(
+            lab.validate_against_reference(measured_cd=self.CD[0],
+                                           reference=solid,
+                                           grid_conclusive=None)["tier"],
+            VALIDATED)
+        low = dict(solid, confidence="low")
+        self.assertEqual(
+            lab.validate_against_reference(measured_cd=self.CD[0],
+                                           reference=low,
+                                           grid_conclusive=True)["tier"],
+            lab.SOLVER_BACKED)
+
+    def test_the_finest_rung_is_what_the_credential_displays(self):
+        # The propagation gap: the credential was written on the coarsest rung
+        # and the ladder finished later, so the wall kept showing 0.02892 on a
+        # 67,826-cell mesh while 0.01892 on 337,334 cells sat on disk.
+        record = {
+            "name": "naca4412_wing", "ok": True,
+            "cd_measured": "0.02892", "cd_compared": 0.0289,
+            "basis_note": "already on the reference's planform-area basis",
+            "tier": VALIDATED, "reason": "within 4% of the reference",
+            "report_results": [{"quantity": "Mesh", "value": "67,826 cells"}],
+        }
+        study = {
+            "levels": [{"cells": c, "cd": v, "mission": f"uq-r{i}"}
+                       for i, (c, v) in enumerate(zip(self.CELLS, self.CD), 1)],
+            "numerical": {"conclusive": False, "band_abs": 0.00309},
+        }
+        reference = {"cd": 0.030, "tolerance": 0.35, "confidence": "low",
+                     "source": "a hand-set estimate"}
+        shown = lab.displayed_credential(record, reference=reference,
+                                         study=study)
+        self.assertTrue(shown["superseded"])
+        self.assertEqual(shown["measured"], "0.01892")
+        self.assertEqual(shown["cells"], 337334)
+        self.assertEqual(shown["tier"], lab.SOLVER_BACKED)
+        self.assertNotEqual(shown["tier"], VALIDATED)
+
+    def test_a_ladder_that_is_not_this_credentials_never_moves_it(self):
+        # A stored study whose rungs never touched this credential's mesh is a
+        # different setup; it may neither supply the displayed value nor gate
+        # the tier.
+        record = {
+            "name": "naca4412_wing", "ok": True,
+            "cd_measured": "0.02892", "cd_compared": 0.0289,
+            "basis_note": "already on the reference's planform-area basis",
+            "report_results": [{"quantity": "Mesh", "value": "40,000 cells"}],
+        }
+        study = {
+            "levels": [{"cells": c, "cd": v} for c, v in zip(self.CELLS, self.CD)],
+            "numerical": {"conclusive": False, "band_abs": 0.00309},
+        }
+        reference = {"cd": 0.030, "tolerance": 0.35, "confidence": "high",
+                     "source": "a published measurement"}
+        shown = lab.displayed_credential(record, reference=reference,
+                                         study=study)
+        self.assertFalse(shown["superseded"])
+        self.assertEqual(shown["measured"], "0.02892")
+        self.assertIsNone(shown["grid_conclusive"])
+        self.assertEqual(shown["tier"], VALIDATED)
+
+    def test_a_rebased_credential_keeps_its_area_ratio_on_the_finer_rung(self):
+        record = {
+            "name": "ahmed_25", "ok": True,
+            "cd_measured": "0.1", "cd_compared": 0.35,
+            "basis_note": "rebased from the measured planform area onto frontal area",
+            "report_results": [{"quantity": "Mesh", "value": "1,000 cells"}],
+        }
+        study = {"levels": [{"cells": 1000, "cd": 0.1},
+                            {"cells": 2000, "cd": 0.09},
+                            {"cells": 4000, "cd": 0.08}],
+                 "numerical": {"conclusive": True, "band_abs": 0.001}}
+        reference = {"cd": 0.28, "tolerance": 0.15, "confidence": "high",
+                     "area_basis": "frontal", "source": "a published measurement"}
+        shown = lab.displayed_credential(record, reference=reference,
+                                         study=study)
+        self.assertEqual(shown["measured"], "0.08")
+        # 0.08 carried onto frontal area by the record's own 3.5x ratio.
+        self.assertAlmostEqual(shown["compared"], 0.28, places=2)
+        self.assertEqual(shown["tier"], VALIDATED)
 
 
 class HonestyRails(unittest.TestCase):

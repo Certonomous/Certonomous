@@ -114,7 +114,12 @@ def _learned_root() -> Path:
     override = os.environ.get("CERTONOMOUS_LESSONS_DIR")
     if override:
         return Path(override)
-    workdir = Path(os.environ.get("CHIEF_ENGINEER_WORKDIR", "./chief-engineer-runs"))
+    # Anchored to the package, never to the caller's cwd: a relative default
+    # forks the lessons store into a second copy whenever the process starts
+    # from a different directory, and lessons written there are never read back.
+    workdir = Path(os.environ.get(
+        "CHIEF_ENGINEER_WORKDIR",
+        Path(__file__).resolve().parents[1] / "chief-engineer-runs"))
     state = Path(os.environ.get(
         "CHIEF_ENGINEER_STATE_DIR", str(workdir.resolve() / "mission-state")))
     return state / "lessons"

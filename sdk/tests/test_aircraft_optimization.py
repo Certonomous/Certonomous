@@ -114,6 +114,8 @@ class WorkflowTests(unittest.TestCase):
         _redirect_output(self)
 
     def test_main_runs_and_reports_a_feasible_optimum(self):
+        from workflows import aircraft_optimization as aopt
+
         events = {}
         verdict = {}
         certificate = {}
@@ -125,8 +127,12 @@ class WorkflowTests(unittest.TestCase):
             if event == "certificate.ready":
                 certificate.update(payload)
 
-        rc = main(request="Optimize the L/D of an airliner for 300 passengers, "
-                          "6000 km range, takeoff 85 m/s, landing 72 m/s", emit=emit)
+        # This test asserts the solver-less RESEARCH MODEL path, independent
+        # of whether a native VSPAERO happens to be reachable on the host
+        # running the suite.
+        with mock.patch.object(aopt.vspaero, "available", return_value=False):
+            rc = main(request="Optimize the L/D of an airliner for 300 passengers, "
+                              "6000 km range, takeoff 85 m/s, landing 72 m/s", emit=emit)
         self.assertEqual(rc, 0)
         self.assertGreater(events.get("landscape.point", 0), 10)
         self.assertEqual(events.get("report.ready"), 1)
@@ -365,7 +371,11 @@ class TranscriptTableTests(unittest.TestCase):
         events = []
         emit = lambda e, p: events.append((e, p))
         if api is None:
-            rc = aopt.main(request=self.REQUEST, emit=emit)
+            # The solver-less path: mocked False independent of whatever
+            # VSPAERO happens to be reachable on the host running the suite.
+            with mock.patch.object(aopt.vspaero, "available",
+                                   return_value=False):
+                rc = aopt.main(request=self.REQUEST, emit=emit)
         else:
             with mock.patch.object(aopt.vspaero, "available",
                                    return_value=True), \

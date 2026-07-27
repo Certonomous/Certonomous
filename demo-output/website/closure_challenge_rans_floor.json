@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-07-26T06:51:32.522224+00:00",
+  "measured_date": "2026-07-26",
+  "purpose": "Machine-readable, re-derivable evidence behind the closure-challenge RANS-identity reference floor and the independent reproduction of the docket's recorded external leaderboard figures. No benchmark data files are stored in this repository; every number here is regenerated from a scratch clone plus this script.",
+  "no_benchmark_data_in_repo": true,
+  "provenance": {
+    "benchmark_repo_url": "https://github.com/rmcconke/closure-challenge-benchmark",
+    "benchmark_repo_commit": "deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "benchmark_repo_commit_date": "2026-05-04 14:33:33 -0400",
+    "eval_package_repo_url": "https://github.com/rmcconke/closure-challenge",
+    "eval_package_repo_commit": "1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "eval_package_repo_commit_date": "2026-03-26 14:19:03 -0400",
+    "eval_package_reported_version": "0.2.1",
+    "scratch_clone_dirs_used_this_run": {
+      "benchmark": "/home/ubuntu/closure-challenge-benchmark",
+      "eval_package": "/home/ubuntu/closure-challenge-pkg"
+    },
+    "script": "sdk/scripts/run_closure_challenge_evidence.py"
+  },
+  "metric_definition": {
+    "per_case": "scaled MAE = mean(||U_pred - U_true||) over the case's 1000 fixed evaluation points, divided by mean(||U_true||)",
+    "overall": "plain mean of the 8 per-case scaled MAE values, lower is better",
+    "source": "closure_challenge/eval.py, evaluate_individual_case() and score()"
+  },
+  "leaderboard_reproduction": {
+    "description": "Reproduces the benchmark's OWN rank-4 submission (Montoya, Oulghelou, and Cinnella) through the benchmark's OWN scorer, to check the figures already displayed in this lab's benchmarks.json before this run.",
+    "measured_overall": 0.0779,
+    "measured_per_case": [
+      0.068,
+      0.1364,
+      0.0591,
+      0.0882,
+      0.0895,
+      0.0866,
+      0.0487,
+      0.0464
+    ],
+    "matches_docket_recorded_target": true,
+    "docket_recorded_target": {
+      "overall": 0.0779,
+      "per_case": [
+        0.068,
+        0.1364,
+        0.0591,
+        0.0882,
+        0.0895,
+        0.0866,
+        0.0487,
+        0.0464
+      ]
+    }
+  },
+  "rans_identity_reference_floor": {
+    "description": "Zero-ML, zero-training reference point: the k-omega SST RANS velocity field the benchmark ships as an input feature, unmodified, interpolated onto the official evaluation points and scored with the unmodified closure_challenge.score(). This is a floor that quantifies how much the published entries add over raw RANS -- it is not itself a competing submission and should not be presented as one.",
+    "interpolation_method": "nearest-neighbor (scipy NearestNDInterpolator), the same method the package's own README/tests use as their example",
+    "overall_score": 0.1036,
+    "per_case_scores": {
+      "alpha_15_13929_4048": 0.132,
+      "alpha_15_13929_2024": 0.2049,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "comparison_to_docket_rank4": 0.0257
+  },
+  "no_ml_framework_installed": true,
+  "packages_used": [
+    "numpy",
+    "scipy",
+    "Ofpp",
+    "closure_challenge"
+  ]
+}

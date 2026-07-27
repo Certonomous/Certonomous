@@ -12,7 +12,9 @@ module's job is to frame, total, and phrase.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Iterable
 
 # --------------------------------------------------------------------------
@@ -306,6 +308,7 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
                                converged: bool = True,
                                in_validated_regime: bool = True,
                                calibrated: bool = True,
+                               grid_conclusive: bool | None = None,
                                solved_reynolds: float | None = None) -> dict[str, Any]:
     """Grade a measured drag coefficient against a published experiment.
 
@@ -319,6 +322,18 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
     actually matches rather than quietly failing against the wrong one. An
     unconverged or off-regime solve never validates on agreement alone. The
     measured value is always rebased onto the reference area first.
+
+    Landing inside the band is necessary but not sufficient: a reference can
+    only validate a solve when the reference itself is trustworthy and the
+    solve's own grid sensitivity is settled. ``reference["confidence"]``
+    marked "low" means the number being compared against was never itself a
+    solid measurement (a hand-set estimate, a wide guess), so agreement with
+    it proves nothing; and when a grid-refinement study exists for this exact
+    setup (``grid_conclusive`` not None) and it came back inconclusive, the
+    solve has not settled onto a mesh-independent value yet, so there is
+    nothing stable to call validated. Either condition, on an otherwise
+    in-band result, drops the tier to SOLVER-BACKED rather than VALIDATED --
+    the comparison is still reported, honestly, as insufficient to validate.
     """
     cd_ref = float(reference["cd"])
     tolerance = float(reference.get("tolerance", 0.15))
@@ -326,6 +341,11 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
     cd_cmp, basis_note = _rebase(measured_cd, reference,
                                  planform_area=planform_area, frontal_area=frontal_area)
     relative_error = abs(cd_cmp - cd_ref) / abs(cd_ref) if cd_ref else None
+    # A reference can only validate a solve when it is itself trustworthy and
+    # the ladder behind the solve has settled. Both checks are driven purely
+    # by the reference and study metadata passed in -- no per-body special case.
+    low_confidence = str(reference.get("confidence", "")).strip().lower() == "low"
+    grid_inconclusive = grid_conclusive is False
 
     comparison = {
         "measured_cd": round(measured_cd, 4),
@@ -352,10 +372,23 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
         verdict = {"tier": SOLVER_BACKED,
                    "reason": (f"mesh skewness above guidance; the numerical channel "
                               f"carries the residual, not a comparison with {source}")}
-    elif relative_error is not None and relative_error <= tolerance:
+    elif (relative_error is not None and relative_error <= tolerance
+          and not low_confidence and not grid_inconclusive):
         verdict = {"tier": VALIDATED,
                    "reason": (f"within {relative_error * 100:.0f}% of {source}, "
                               f"Cd {cd_ref:g} (band ±{tolerance * 100:.0f}%)")}
+    elif relative_error is not None and relative_error <= tolerance:
+        blockers = []
+        if low_confidence:
+            blockers.append("that reference is itself a low-confidence estimate, "
+                            "not a settled measurement")
+        if grid_inconclusive:
+            blockers.append("the grid-refinement study for this setup came back inconclusive")
+        verdict = {"tier": SOLVER_BACKED,
+                   "reason": (f"within {relative_error * 100:.0f}% of {source}, "
+                              f"Cd {cd_ref:g} (band ±{tolerance * 100:.0f}%), but "
+                              + " and ".join(blockers)
+                              + "; not enough to call it validated")}
     else:
         alt = _matching_alternate(reference, cd_cmp)
         if alt:
@@ -437,6 +470,174 @@ def grade_drag_area(*, measured_cd: float, reference_area_m2: float,
                               f"({source_short})")}
     verdict["comparison"] = comparison
     return verdict
+
+
+# --------------------------------------------------------------------------
+# Credential propagation: the finest rung on record is the one displayed
+# --------------------------------------------------------------------------
+
+CURRICULUM_DIR = (Path(__file__).resolve().parents[2] / "models" / "curriculum")
+
+_CELLS_IN_TEXT = re.compile(r"([\d,]+)\s*cells")
+
+
+def reference_on_disk(body: str) -> dict[str, Any] | None:
+    """The curriculum reference for a body, read fresh from its own file.
+
+    Read at display time rather than trusted from a stored record, so a
+    reference that has since been corrected (a band tightened, a confidence
+    marked low) governs the tier the surface shows.
+    """
+    path = CURRICULUM_DIR / body / "reference.yaml"
+    if not path.exists():
+        return None
+    try:
+        import yaml
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return None
+    if not isinstance(data, dict):
+        return None
+    data.setdefault("name", body)
+    return data
+
+
+def recorded_cells(record: dict) -> int | None:
+    """The mesh a stored credential was measured on, read from its own record."""
+    for item in record.get("report_results") or []:
+        if str(item.get("quantity", "")).strip().lower() == "mesh":
+            found = _CELLS_IN_TEXT.search(str(item.get("value", "")))
+            if found:
+                return int(found.group(1).replace(",", ""))
+    return None
+
+
+def finest_rung(record: dict, study: dict | None) -> dict | None:
+    """The finest mesh of a refinement ladder anchored to this credential.
+
+    A stored ladder counts as this credential's own only when one of its rungs
+    ran on the credential's mesh, the same anchoring rule the in-act ladder
+    applies before it replays a stored study. When the anchored ladder reaches
+    further than the recorded mesh, its finest rung is a later and better
+    measurement of the same case, and it is the one the wall owes the reader.
+    Returns None when there is no anchored ladder or nothing finer on it.
+    """
+    levels = [lv for lv in (study or {}).get("levels", [])
+              if lv.get("cells") and lv.get("cd") is not None]
+    if not levels:
+        return None
+    mine = recorded_cells(record)
+    if mine is None or not any(int(lv["cells"]) == int(mine) for lv in levels):
+        return None
+    best = max(levels, key=lambda lv: int(lv["cells"]))
+    if int(best["cells"]) <= int(mine):
+        return None
+    return {"cells": int(best["cells"]), "cd": float(best["cd"]),
+            "mission": best.get("mission"), "recorded_cells": int(mine)}
+
+
+def displayed_credential(record: dict, *, reference: dict | None = None,
+                         study: dict | None = None) -> dict[str, Any]:
+    """What a stored credential should show today, re-derived from measurement.
+
+    A result file is the as-run archive of one mission: the mesh it solved, the
+    force it measured, and the tier the grading rules gave it that night. Two
+    things move afterwards. A refinement ladder can measure the SAME case on a
+    finer mesh hours later, and the grading rules themselves can tighten.
+    Neither used to reach the displayed credential, so a wall could keep
+    showing the coarsest rung of a finished ladder under a tier the current
+    rules would refuse. This re-derives the display from measurement only: the
+    finest anchored rung wins, the area basis carries over from the record's
+    own rebasing, and the verdict is re-graded against the reference as it
+    stands on disk. No number is invented here and none is edited; the stored
+    record keeps its own history untouched.
+    """
+    body = record.get("name", "")
+    if reference is None:
+        reference = reference_on_disk(body)
+    if study is None:
+        from chief_engineer import uq as uq_studies
+        study = uq_studies.load_study(body)
+
+    raw = record.get("cd_measured")
+    try:
+        measured = None if raw is None else float(raw)
+    except (TypeError, ValueError):
+        measured = None
+    compared = record.get("cd_compared")
+    # The record's own basis note says whether a rebase happened; when it did,
+    # the planform-to-frontal ratio is a property of the geometry and carries
+    # straight over to any other mesh of the same body.
+    note = str(record.get("basis_note") or "")
+    ratio = 1.0
+    if note.startswith("rebased") and measured and compared:
+        ratio = float(compared) / measured
+
+    numerical = (study or {}).get("numerical") or {}
+    grid_conclusive = numerical.get("conclusive") if numerical else None
+    rung = finest_rung(record, study)
+
+    display: dict[str, Any] = {
+        "measured": record.get("cd_measured"),
+        "on_reference_basis": record.get("cd_measured"),
+        "envelope": record.get("envelope"),
+        "cells": recorded_cells(record),
+        "superseded": False,
+        "provenance": None,
+        "tier": record.get("tier") or UNCONVERGED,
+        "reason": record.get("reason"),
+        "relative_error": record.get("relative_error"),
+        "reference_cd": (reference or {}).get("cd", record.get("reference_cd")),
+        "source": (reference or {}).get("source", record.get("reference_source")),
+        "area_basis": record.get("area_basis"),
+        "basis_note": record.get("basis_note"),
+    }
+
+    if rung:
+        measured = rung["cd"]
+        display.update({
+            "measured": f"{measured:.4g}",
+            "cells": rung["cells"],
+            "superseded": True,
+            "provenance": rung.get("mission"),
+        })
+        band = numerical.get("band_abs")
+        rungs = len((study or {}).get("levels") or [])
+        display["envelope"] = (
+            f"±{float(band):.2g} across the {rungs}-mesh refinement study"
+            if band else f"finest mesh on record, {rung['cells']:,} cells")
+    else:
+        # Nothing finer on record: a ladder that is not anchored to this
+        # credential's mesh says nothing about this solve, so it must not gate
+        # its tier either.
+        if not (study or {}).get("levels") or recorded_cells(record) is None:
+            grid_conclusive = None
+        elif not any(int(lv.get("cells", 0)) == int(recorded_cells(record))
+                     for lv in (study or {}).get("levels", [])):
+            grid_conclusive = None
+
+    display["grid_conclusive"] = grid_conclusive
+    # ONE consistently rebased number: the figure a surface prints and the
+    # percentage it prints beside it have to come from the same measurement on
+    # the same area basis, whichever rung is being shown.
+    if measured is not None:
+        display["on_reference_basis"] = f"{measured * ratio:.4g}"
+
+    if reference and reference.get("cd") is not None and measured is not None:
+        verdict = validate_against_reference(
+            measured_cd=measured * ratio, reference=reference,
+            converged=bool(record.get("ok", True)),
+            grid_conclusive=grid_conclusive)
+        comparison = verdict.get("comparison") or {}
+        display.update({
+            "tier": verdict["tier"],
+            "reason": verdict["reason"],
+            "relative_error": comparison.get("relative_error"),
+            "compared": comparison.get("compared_cd"),
+        })
+        if ratio != 1.0:
+            display["basis_note"] = note
+    return display
 
 
 # --------------------------------------------------------------------------

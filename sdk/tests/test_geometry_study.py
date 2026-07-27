@@ -16,7 +16,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from chief_engineer import uq
+from chief_engineer import lab, uq
 from chief_engineer.lab import (ComputeLedger, Roster, SOLVER_BACKED,
                                 UNCONVERGED, VALIDATED, grade_drag_area)
 from chief_engineer.transcript import Transcript
@@ -898,13 +898,19 @@ class ActRegisterTests(unittest.TestCase):
 
 class ReplayLevelsTests(unittest.TestCase):
     """A stored refinement study written by the standalone uq scripts carries
-    refinement indices, no tags, and possibly a duplicated cell count (the
-    NACA 4412 ladder is exactly this shape). The replay path must render it
-    rather than take the act down, with every cell count and Cd untouched."""
+    refinement indices and no tags. The replay path must render it rather than
+    take the act down, with every cell count and Cd untouched.
+
+    The NACA 4412 fixture below is the ladder as it stands on record: three
+    DISTINCT rungs, falling monotonically. It used to be written here with a
+    duplicated 67,826-cell rung, which made the lab's own reference ladder read
+    as a degenerate two-mesh record; that expectation was wrong and is gone.
+    Duplicate-rung handling is still covered, on numbers that are not this
+    body's, in test_duplicate_cell_counts_collapse.
+    """
 
     _UQ_SCRIPT_LEVELS = [
         {"cells": 67826, "cd": 0.02892, "mission": "uq-x-r1", "refinement": 1},
-        {"cells": 67826, "cd": 0.02892, "mission": "uq-x-r2", "refinement": 2},
         {"cells": 137569, "cd": 0.02167, "mission": "uq-x-r3", "refinement": 3},
         {"cells": 337334, "cd": 0.01892, "mission": "uq-x-r4", "refinement": 4},
     ]
@@ -925,6 +931,15 @@ class ReplayLevelsTests(unittest.TestCase):
         self.assertEqual({row[0] for row in rows[1:]},
                          {"Coarse rung", "Middle rung"})
 
+    def test_duplicate_cell_counts_collapse(self):
+        from workflows.geometry_study import _replay_levels
+        stored = [{"cells": 5000, "cd": 0.5, "refinement": 1},
+                  {"cells": 5000, "cd": 0.5, "refinement": 2},
+                  {"cells": 20000, "cd": 0.45, "refinement": 3},
+                  {"cells": 80000, "cd": 0.43, "refinement": 4}]
+        levels = _replay_levels(stored, production_cells=80000)
+        self.assertEqual([lv["cells"] for lv in levels], [5000, 20000, 80000])
+
     def test_in_act_levels_keep_their_own_tags(self):
         from workflows.geometry_study import _replay_levels
         stored = [{"cells": 100, "cd": 0.1, "tag": "production"},
@@ -933,6 +948,50 @@ class ReplayLevelsTests(unittest.TestCase):
         levels = _replay_levels(stored, production_cells=100)
         self.assertEqual([lv["tag"] for lv in levels],
                          ["coarse", "medium", "production"])
+
+
+class GridEvidenceGovernsTheChip(unittest.TestCase):
+    """The mission's own refinement study decides whether the chip may say
+    VALIDATED, and it decides on THIS run's ladder.
+
+    The act used to hand ``converged=True`` to the grader and stop there, so a
+    case whose study recorded conclusive false, a band of 16.3 percent of the
+    value, and an observed order clamped down from 4.6 still read VALIDATED on
+    agreement alone. The grid outcome now reaches the grader, and because the
+    ladder runs after the first pass at the verdict, a fresh ladder that
+    disagrees with the stored flag re-grades the verdict before it is emitted.
+    """
+
+    def test_the_grader_is_told_the_grid_outcome(self):
+        source = (SDK / "workflows" / "geometry_study.py").read_text(
+            encoding="utf-8")
+        self.assertIn("grid_conclusive=grid_conclusive", source)
+        # And the ladder's own result governs afterwards, not only a stored one.
+        self.assertIn('refine.get("conclusive") is not None', source)
+        self.assertIn('refine["conclusive"] != grid_conclusive', source)
+
+    def test_a_measured_inconclusive_ladder_refuses_the_chip(self):
+        # The ladder as measured on this lab's NACA 4412 case.
+        band = uq.eca_hoekstra_band([67826, 137569, 337334],
+                                    [0.02892, 0.02167, 0.01892])
+        self.assertFalse(band["conclusive"])
+        reference = {"cd": 0.030, "tolerance": 0.35, "confidence": "medium",
+                     "source": "a published measurement"}
+        chip = lab.validate_against_reference(
+            measured_cd=0.02892, reference=reference,
+            converged=True, grid_conclusive=band["conclusive"])
+        self.assertEqual(chip["tier"], lab.SOLVER_BACKED)
+        # The same agreement with a settled ladder behind it still validates,
+        # so the gate is the grid evidence, not a blanket refusal.
+        clean = uq.eca_hoekstra_band([1000, 8000, 64000],
+                                     [1.04, 1.01, 1.0025])
+        self.assertTrue(clean["conclusive"])
+        self.assertEqual(
+            lab.validate_against_reference(
+                measured_cd=0.02892, reference=reference,
+                converged=True,
+                grid_conclusive=clean["conclusive"])["tier"],
+            lab.VALIDATED)
 
 
 class FreestreamBasisTests(unittest.TestCase):

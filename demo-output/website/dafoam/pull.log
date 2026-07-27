@@ -1,0 +1,7 @@
+latest: Pulling from dafoam/opt-packages
+097ae9f9e9f3: Pulling fs layer
+097ae9f9e9f3: Download complete
+097ae9f9e9f3: Pull complete
+Digest: sha256:9d45679d55fd47f5ca7afd99cabb86c7c2729cf2acf34c438eb33af5290f07fc
+Status: Downloaded newer image for dafoam/opt-packages:latest
+docker.io/dafoam/opt-packages:latest

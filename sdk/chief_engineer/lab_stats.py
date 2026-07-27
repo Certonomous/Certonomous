@@ -247,6 +247,18 @@ def _fleet_learning() -> dict[str, Any]:
     }
 
 
+# Fallback only: used if benchmarks.json has not been generated yet or is
+# missing the key. The live value always comes from closure_raw["our_entry"]
+# below, which build_benchmarks.py writes into benchmarks.json; that file is
+# the single source of truth for this status text, so this literal and the
+# one in scripts/build_benchmarks.py must be kept in sync.
+_NO_ENTRY_YET = (
+    "No entry submitted. Measured a zero-training RANS reference floor of "
+    "0.1036 overall, scored by the benchmark's own unmodified code; worse "
+    "than every published entry, since it reflects no learned correction"
+)
+
+
 def research_programs() -> dict[str, Any]:
     """The lab's real research programmes, framed as work in progress.
 
@@ -268,7 +280,12 @@ def research_programs() -> dict[str, Any]:
         "target_rank": closure_raw.get("target_rank", 4),
         "target_overall": closure_raw.get("target_overall"),
         "target_per_case": closure_raw.get("target_per_case", []),
-        "our_entry": "baseline in training",
+        "our_entry": closure_raw.get("our_entry", _NO_ENTRY_YET),
+        # Zero-training RANS-identity reference floor, not a submission and
+        # not a trained result; see the our_entry text above, which always
+        # states that plainly wherever this card is rendered.
+        "our_score": closure_raw.get("our_score"),
+        "our_per_case": closure_raw.get("our_per_case", []),
         "target": "top 4",
         "repo": "github.com/rmcconke/closure-challenge-benchmark",
     }

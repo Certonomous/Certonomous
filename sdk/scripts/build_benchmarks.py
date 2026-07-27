@@ -13,9 +13,14 @@ Re-run near end of shift so the numbers reflect the final ledger count::
 
     python sdk/scripts/build_benchmarks.py
 
-The closure-challenge board is the PUBLIC leaderboard target only. We display no
-"our score" — the entry is honestly "baseline in training, winners not yet
-beaten". A real computed score is added only when one is measured.
+The closure-challenge board is the PUBLIC leaderboard target only. No entry has
+been submitted and none has been trained, and the status says exactly that.
+``our_score`` carries one genuinely measured, auditable number: a zero-training
+RANS-identity reference floor, scored through the benchmark's own unmodified
+code (evidence and a re-runnable script live at
+demo-output/website/closure_challenge_rans_floor.json and
+sdk/scripts/run_closure_challenge_evidence.py). It is a floor, not a
+competing entry, and the entry text says so every time it is shown.
 """
 
 from __future__ import annotations
@@ -50,7 +55,17 @@ _SOLVER_LABEL = {
     "reduced-order": "Valve cycle\n(reduced-order)",
 }
 
-# Public closure-challenge leaderboard target (rank #4). Target values only.
+# Public closure-challenge leaderboard target (rank #4). Target values only,
+# reproduced independently against the benchmark's own scorer (see
+# demo-output/website/closure_challenge_rans_floor.json). Our own status
+# stays honest below: no entry submitted, no training performed. our_score is
+# not a submission or a trained result -- it is a zero-training RANS-identity
+# reference floor (the benchmark's own unmodified k-omega SST input field,
+# scored with the benchmark's own code), which is why it sits worse than
+# every published entry. This literal is the single source for the status
+# text: build_benchmarks.py writes it into benchmarks.json, and
+# lab_stats.research_programs() reads it back from that file rather than
+# holding its own copy.
 _CLOSURE = {
     "name": "Closure-challenge benchmark",
     "status": "ACTIVE RESEARCH",
@@ -58,8 +73,11 @@ _CLOSURE = {
     "target_rank": 4,
     "target_overall": 0.0779,
     "target_per_case": [0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464],
-    "our_entry": "baseline in training — winners not yet beaten. Target: top 4.",
-    "our_score": None,   # never displayed until a real computed score exists
+    "our_entry": "No entry submitted. Measured a zero-training RANS reference floor of "
+                 "0.1036 overall, scored by the benchmark's own unmodified code; worse "
+                 "than every published entry, since it reflects no learned correction",
+    "our_score": 0.1036,   # RANS-identity floor, not a submission; see comment above
+    "our_per_case": [0.132, 0.2049, 0.0461, 0.0719, 0.1288, 0.1243, 0.059, 0.0621],
 }
 
 # Speed benchmark — measured on this machine, 2026-07-23 (BG-1's NACA 4412
@@ -155,7 +173,7 @@ def render_png(data: dict, out_path: Path) -> None:
     })
 
     fig, axes = plt.subplots(2, 2, figsize=(13, 9))
-    fig.suptitle("Certonomous — laboratory benchmarks",
+    fig.suptitle("Certonomous: laboratory benchmarks",
                  fontsize=18, fontweight="bold", color=_INK, x=0.5, y=0.98)
     tot = data["totals"]
     fig.text(0.5, 0.938,
@@ -211,12 +229,12 @@ def render_png(data: dict, out_path: Path) -> None:
     ax.text(len(cases) - 0.5, cc["target_overall"],
             f"  overall target {cc['target_overall']}", ha="right", va="bottom",
             fontsize=10, fontweight="bold", color=_INK)
-    ax.set_title(f"Closure-challenge benchmark — {cc['status']}", fontsize=13,
+    ax.set_title(f"Closure-challenge benchmark: {cc['status']}", fontsize=13,
                  fontweight="bold", color=_INK, loc="left")
     ax.set_ylabel("target score (lower is better)")
     ax.set_xlabel(f"{cc['board']} target, rank #{cc['target_rank']}")
     ax.grid(axis="x", visible=False)
-    ax.text(0.02, 0.94, "our entry: " + cc["our_entry"], transform=ax.transAxes,
+    ax.text(0.02, 0.94, "our entry: " + cc["our_entry"] + ".", transform=ax.transAxes,
             fontsize=9.5, color=_INK2, va="top", wrap=True,
             bbox=dict(boxstyle="round,pad=0.4", fc="#f2f1ec", ec=_GRID))
 

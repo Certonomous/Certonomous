@@ -56,7 +56,7 @@ functions
         executeControl  onEnd;
         writeControl    onEnd;
     }
-    plateCf
+    wallCf
     {
         type            surfaces;
         libs            (sampling);

@@ -1302,15 +1302,44 @@ def main(request: str | None = None, params: dict | None = None,
     why = caveats[0] if caveats else ""
     comparison = None
     drag_area_cmp = None
+
+    # The setup fingerprint keys every stored band; a mismatch means the
+    # refinement study runs fresh rather than quoting a stale number. Computed
+    # here, before the verdict, so a completed grid-refinement study for this
+    # exact setup can govern the verdict rather than being learned about only
+    # after VALIDATED was already handed out.
+    from chief_engineer import uq as uq_studies
+    if familiar:
+        study_fp = uq_studies.setup_fingerprint(
+            body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
+            velocity=20.0, refinement="tutorial-5-6", iterations=iterations)
+    else:
+        study_fp = uq_studies.setup_fingerprint(
+            body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
+            velocity=float(params.get("velocity", 100.0)),
+            refinement=int(params.get("refinement", 3)),
+            iterations=iterations)
+    # No study on record for this exact setup means nothing to gate on yet
+    # (None); a study on record hands its own measured "conclusive" flag to
+    # the verdict rather than the call site silently assuming convergence.
+    grid_conclusive = None
+    existing_study = uq_studies.load_study(label) or {}
+    if existing_study.get("fingerprint") == study_fp:
+        grid_conclusive = (existing_study.get("numerical") or {}).get("conclusive")
+
     if reference and "cd" in reference:
         # The lab holds an experiment for this body: grade the force against it,
-        # which is the only path that can reach VALIDATED.
+        # which is the only path that can reach VALIDATED. ``converged`` is the
+        # ITERATIVE gate (the force history settled), which is a separate
+        # question from mesh independence; that second question is answered by
+        # ``grid_conclusive`` above and re-answered by the ladder further down.
         from chief_engineer.lab import validate_against_reference
         verdict = validate_against_reference(
             measured_cd=drag["value"], reference=reference,
             planform_area=report.get("planform_area"),
             frontal_area=report.get("frontal_area"),
             converged=True, in_validated_regime=gate_ok, calibrated=skew_ok,
+            grid_conclusive=grid_conclusive,
             solved_reynolds=report.get("reference", {}).get("reynolds"))
         # Keep the comparison IN the verdict: the suite writer and the wall
         # read it downstream — popping it here was the wall-arithmetic bug.
@@ -1372,20 +1401,6 @@ def main(request: str | None = None, params: dict | None = None,
                 headers=("Coefficient", "Value", "Band (95%)", "Window"),
                 rows=coefficient_rows, table_id=f"coefficients-{label}")
 
-    # The setup fingerprint keys every stored band; a mismatch means the
-    # refinement study runs fresh rather than quoting a stale number.
-    from chief_engineer import uq as uq_studies
-    if familiar:
-        study_fp = uq_studies.setup_fingerprint(
-            body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
-            velocity=20.0, refinement="tutorial-5-6", iterations=iterations)
-    else:
-        study_fp = uq_studies.setup_fingerprint(
-            body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
-            velocity=float(params.get("velocity", 100.0)),
-            refinement=int(params.get("refinement", 3)),
-            iterations=iterations)
-
     # The grid-refinement study runs INSIDE the act: two cheaper rungs of the
     # same case, the Eca & Hoekstra band on Cd across the three meshes, and
     # the band lands in the numerical channel of this mission's certificate.
@@ -1402,6 +1417,34 @@ def main(request: str | None = None, params: dict | None = None,
             "• The refinement study did not complete; detail is in the run "
             "logs, and no band is reported from a partial ladder.")
         refine = None
+
+    # The ladder that just ran IS this mission's grid-convergence evidence, and
+    # it lands after the first pass at the verdict. Letting the earlier pass
+    # stand would hand out a chip the mission's own study contradicts, which is
+    # how a case with a measured band_rel of 0.16 and a clamped observed order
+    # kept reading VALIDATED. So the measured outcome governs: when the fresh
+    # ladder disagrees with whatever was on record before it, the verdict is
+    # re-graded from it before anything is emitted, and the change is said out
+    # loud rather than swapped in quietly.
+    if (refine is not None and refine.get("conclusive") is not None
+            and refine["conclusive"] != grid_conclusive
+            and reference and "cd" in reference):
+        from chief_engineer.lab import validate_against_reference
+        grid_conclusive = bool(refine["conclusive"])
+        before = verdict.get("tier")
+        verdict = validate_against_reference(
+            measured_cd=drag["value"], reference=reference,
+            planform_area=report.get("planform_area"),
+            frontal_area=report.get("frontal_area"),
+            converged=True, in_validated_regime=gate_ok, calibrated=skew_ok,
+            grid_conclusive=grid_conclusive,
+            solved_reynolds=report.get("reference", {}).get("reynolds"))
+        comparison = verdict.get("comparison")
+        if verdict.get("tier") != before:
+            script.numericist(
+                f"• The refinement study just measured settles the grade: the "
+                f"chip moves from {before} to {verdict['tier']} on this run's "
+                f"own grid evidence, not on the agreement alone.")
 
     lookup = uq_studies.channels_for(label, study_fp)
     model_extra = ""

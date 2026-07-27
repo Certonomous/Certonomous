@@ -43,7 +43,9 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
+import shlex
 import shutil
 import subprocess
 import time
@@ -84,7 +86,8 @@ R_X_UP = 40.0         # upstream block shrinks toward the leading edge
 # SIMPLE residual normalization plateaus long before residualControl would
 # fire, so each level runs a fixed, generous iteration budget and must then
 # PROVE its own flatness through the tail-spread gate in run_level.
-ITERATIONS = {"coarse": 3000, "medium": 4000, "fine": 5000}
+ITERATIONS = {"coarse": 3000, "medium": 4000, "fine": 5000,
+              "finer": 9000, "finest": 15000}
 
 REFERENCE_SOURCE = ("turbmodels.larc.nasa.gov 2D flat plate, SST-V "
                     "convergence data (mirror tmbwg.github.io/turbmodels, "
@@ -129,6 +132,18 @@ LEVELS = (
     GridLevel("coarse", "35x25", 8, 26, 24),
     GridLevel("medium", "69x49", 16, 52, 48),
     GridLevel("fine", "137x97", 32, 104, 96),
+)
+
+# The two finest TMR family grids, queued in demo-output/website/agenda/
+# proposals/tmr-flatplate-finest-grids.json to anchor the ladder in the
+# asymptotic range. Kept as a separate tuple (same convention as BUMP_LEVELS
+# and NACA_LEVELS below) rather than appended to LEVELS in place, since
+# test_ladder_matches_the_tmr_cell_counts pins LEVELS to the three-rung pilot;
+# both tuples share the same fixed gradings (R_Y, R_X_PLATE, R_X_UP), doubling
+# nx_up/nx_plate/ny again from "fine" exactly as the pilot triple doubles.
+FINEST_LEVELS = (
+    GridLevel("finer", "273x193", 64, 208, 192),    # 52224 cells
+    GridLevel("finest", "545x385", 128, 416, 384),  # 208896 cells
 )
 
 
@@ -705,45 +720,80 @@ def write_case(root: Path, level: GridLevel) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# WSL execution (same launcher pattern as the Head Engineer, kept local so
-# this module stays standalone; nothing here touches head_engineer state)
+# OpenFOAM execution: native by default, honoring OPENFOAM_RUN_PREFIX the
+# same way chief_engineer/openfoam.py does. A launcher prefix (for example a
+# WSL wrapper) still works if someone sets one; nothing here requires WSL.
 # ---------------------------------------------------------------------------
 
-_WSL = ["wsl", "-d", "Ubuntu", "-u", "foam", "--"]
-_RUN_ROOT = "~/certonomous-runs"
+_RUN_ROOT = os.environ.get("CERTONOMOUS_TMR_RUN_ROOT",
+                           str(Path.home() / "certonomous-runs"))
 
 
-def _wsl(command: str, timeout: float = 600.0) -> subprocess.CompletedProcess:
-    preamble = ("for rc in /usr/lib/openfoam/openfoam*/etc/bashrc; do "
-                "source \"$rc\" >/dev/null 2>&1; break; done; ")
-    return subprocess.run([*_WSL, "bash", "-c", preamble + command],
-                          capture_output=True, text=True, timeout=timeout)
+def _run_prefix() -> list[str]:
+    """The launcher prefix, split into argv the same way openfoam.py resolves
+    OPENFOAM_RUN_PREFIX. Empty when the OpenFOAM toolchain is already on
+    PATH; a single wrapper token ("openfoam2606" on this host) or a longer
+    launcher list (a WSL invocation, say) when the caller sets it that way."""
+    raw = os.environ.get("OPENFOAM_RUN_PREFIX", "")
+    return raw.split() if raw else []
+
+
+def _foam(args: list[str], cwd: Path, log_name: str,
+          timeout: float = 600.0) -> subprocess.CompletedProcess:
+    """Run one OpenFOAM utility or solver natively in ``cwd``.
+
+    Output is captured to ``log_name`` under ``cwd``, matching what the
+    previous WSL-hosted commands wrote, so downstream log parsing is
+    unchanged. There is no remote shell and no bashrc-sourcing preamble: the
+    run prefix (``openfoam2606`` on this host) already sets up the OpenFOAM
+    environment before the executable runs.
+    """
+    command = [*_run_prefix(), *args]
+    log_path = Path(cwd) / log_name
+    with log_path.open("w") as log_file:
+        return subprocess.run(command, stdout=log_file,
+                              stderr=subprocess.STDOUT, cwd=str(cwd),
+                              timeout=timeout)
+
+
+def _copy_best_effort(src: Path, dst: Path) -> None:
+    """Copy an artifact (file or directory) out of the run root; a missing
+    or unreadable source is not fatal here, only the caller's own checks on
+    the extracted record are."""
+    try:
+        if src.is_dir():
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+        elif src.exists():
+            shutil.copy2(src, dst)
+    except OSError:
+        pass
 
 
 def _stage_and_mesh(level: GridLevel, case_root: Path, out_dir: Path,
                     remote: str, writer: Callable[[Path, GridLevel], Path],
                     log: Callable[[str], None]) -> dict[str, float]:
-    """Stage a case into WSL, blockMesh and checkMesh it; return step timings."""
-    case_win = writer(case_root, level)
+    """Stage a case into the run root, blockMesh and checkMesh it; return
+    step timings."""
+    case_dir = writer(case_root, level)
     out_dir.mkdir(parents=True, exist_ok=True)
-    staged = _wsl(
-        f"rm -rf {remote} && mkdir -p {_RUN_ROOT} && "
-        f"cp -r \"$(wslpath '{case_win}')\" {remote} && "
-        f"test -f {remote}/system/controlDict && echo STAGED")
-    if "STAGED" not in staged.stdout:
-        raise RuntimeError(f"staging {level.name} failed: "
-                           f"{(staged.stderr or staged.stdout)[:300]}")
+    remote_dir = Path(remote)
+    shutil.rmtree(remote_dir, ignore_errors=True)
+    remote_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(case_dir, remote_dir)
+    if not (remote_dir / "system" / "controlDict").exists():
+        raise RuntimeError(f"staging {level.name} failed: no controlDict "
+                           f"landed in {remote_dir}")
     timings: dict[str, float] = {}
     for step in ("blockMesh", "checkMesh"):
         start = time.monotonic()
         log(f"[tmr:{level.name}] {step} started")
-        result = _wsl(f"cd {remote} && openfoam2606 {step} "
-                      f"> log.{step} 2>&1 && echo DONE", timeout=600)
+        result = _foam([step], remote_dir, f"log.{step}", timeout=600)
         timings[step] = round(time.monotonic() - start, 1)
-        _wsl(f"cp {remote}/log.{step} \"$(wslpath '{out_dir}')\"/ || true")
-        if "DONE" not in result.stdout:
-            tail = _wsl(f"tail -20 {remote}/log.{step}").stdout
-            raise RuntimeError(f"{level.name}/{step} failed:\n{tail}")
+        _copy_best_effort(remote_dir / f"log.{step}", out_dir / f"log.{step}")
+        if result.returncode != 0:
+            tail = (remote_dir / f"log.{step}").read_text(errors="replace")
+            raise RuntimeError(f"{level.name}/{step} failed:\n"
+                               + "\n".join(tail.splitlines()[-20:]))
         log(f"[tmr:{level.name}] {step} finished in {timings[step]:.1f} s")
     return timings
 
@@ -752,19 +802,20 @@ def _extract_record(level: GridLevel, out_dir: Path, remote: str,
                     timings: dict[str, float], station: float | None,
                     yplus_patch: str,
                     log: Callable[[str], None]) -> dict[str, Any]:
-    """Pull one solved case's results back to Windows and extract the record.
+    """Pull one solved case's results out of the run root and extract the
+    record.
 
     Raises on anything unextractable or unconverged: a broken rung must never
     be papered over with a partial number.
     """
     out_dir = Path(out_dir)
+    remote_dir = Path(remote)
     # A fresh copy every time: a leftover postProcessing tree from an earlier
     # attempt would nest the new one inside it and could offer stale files to
     # the extraction globs below.
     shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
-    _wsl(f"cp {remote}/log.simpleFoam \"$(wslpath '{out_dir}')\"/ || true")
-    _wsl(f"cp -r {remote}/postProcessing \"$(wslpath '{out_dir}')\"/",
-         timeout=300)
+    _copy_best_effort(remote_dir / "log.simpleFoam", out_dir / "log.simpleFoam")
+    _copy_best_effort(remote_dir / "postProcessing", out_dir / "postProcessing")
 
     coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
     if not coeff_files:
@@ -842,7 +893,7 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
               station: float | None = CF_STATION, yplus_patch: str = "plate",
               solver_timeout: float = 5400.0,
               init_potential: bool = False) -> dict[str, Any]:
-    """Mesh and solve one ladder level in WSL, pull results back, extract."""
+    """Mesh and solve one ladder level natively, extract the record."""
     remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
     out_dir = Path(out_dir)
     timings = _stage_and_mesh(level, case_root, out_dir, remote, writer, log)
@@ -850,13 +901,13 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
         _run_potential_init(level, remote, timings, log)
     start = time.monotonic()
     log(f"[tmr:{level.name}] simpleFoam started")
-    result = _wsl(f"cd {remote} && openfoam2606 simpleFoam "
-                  f"> log.simpleFoam 2>&1 && echo DONE",
-                  timeout=solver_timeout)
+    result = _foam(["simpleFoam"], Path(remote), "log.simpleFoam",
+                   timeout=solver_timeout)
     timings["simpleFoam"] = round(time.monotonic() - start, 1)
-    if "DONE" not in result.stdout:
-        tail = _wsl(f"tail -20 {remote}/log.simpleFoam").stdout
-        raise RuntimeError(f"{level.name}/simpleFoam failed:\n{tail}")
+    if result.returncode != 0:
+        tail = (Path(remote) / "log.simpleFoam").read_text(errors="replace")
+        raise RuntimeError(f"{level.name}/simpleFoam failed:\n"
+                           + "\n".join(tail.splitlines()[-20:]))
     log(f"[tmr:{level.name}] simpleFoam finished in "
         f"{timings['simpleFoam']:.1f} s")
     return _extract_record(level, out_dir, remote, timings, station,
@@ -869,12 +920,13 @@ def _run_potential_init(level: GridLevel, remote: str,
     """Initialize U and phi from a potential solve before the RANS march."""
     start = time.monotonic()
     log(f"[tmr:{level.name}] potentialFoam started")
-    result = _wsl(f"cd {remote} && openfoam2606 potentialFoam -writephi "
-                  f"> log.potentialFoam 2>&1 && echo DONE", timeout=1800)
+    result = _foam(["potentialFoam", "-writephi"], Path(remote),
+                   "log.potentialFoam", timeout=1800)
     timings["potentialFoam"] = round(time.monotonic() - start, 1)
-    if "DONE" not in result.stdout:
-        tail = _wsl(f"tail -20 {remote}/log.potentialFoam").stdout
-        raise RuntimeError(f"{level.name}/potentialFoam failed:\n{tail}")
+    if result.returncode != 0:
+        tail = (Path(remote) / "log.potentialFoam").read_text(errors="replace")
+        raise RuntimeError(f"{level.name}/potentialFoam failed:\n"
+                           + "\n".join(tail.splitlines()[-20:]))
     log(f"[tmr:{level.name}] potentialFoam finished in "
         f"{timings['potentialFoam']:.1f} s")
 
@@ -884,9 +936,9 @@ def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
                         writer: Callable[[Path, GridLevel], Path] = write_case,
                         remote_prefix: str = "tmr-flatplate",
                         init_potential: bool = False) -> dict[str, float]:
-    """Stage, mesh, and start the solve DETACHED inside WSL.
+    """Stage, mesh, and start the solve DETACHED, running natively.
 
-    For rungs whose solve outlives any sane foreground window. The nohup'd
+    For rungs whose solve outlives any sane foreground window. The detached
     process writes its exit code to ``solve.exit`` when done; the caller polls
     :func:`solver_exit_status` and then runs :func:`collect_level`. Returns
     the mesh-step timings so the eventual record carries the full wall clock.
@@ -896,18 +948,22 @@ def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
                               writer, log)
     if init_potential:
         _run_potential_init(level, remote, timings, log)
-    # setsid puts the solver in its own session so WSL's per-session cleanup
-    # cannot reap it when this command's wsl.exe exits, and the launching
-    # shell stays alive (sleep) until the solver has demonstrably opened its
-    # log. A bare "nohup ... &" here dies with the session — measured, not
-    # theorized: the first launch attempt left no log and no exit file.
-    launched = _wsl(
-        f"cd {remote} && rm -f solve.exit && "
-        f"setsid nohup bash -c 'cd {remote} && openfoam2606 simpleFoam "
-        f"> log.simpleFoam 2>&1; echo $? > solve.exit' "
-        f"< /dev/null >/dev/null 2>&1 & sleep 3; "
-        f"test -f {remote}/log.simpleFoam && echo LAUNCHED", timeout=120)
-    if "LAUNCHED" not in launched.stdout:
+    remote_dir = Path(remote)
+    exit_file = remote_dir / "solve.exit"
+    exit_file.unlink(missing_ok=True)
+    log_path = remote_dir / "log.simpleFoam"
+    log_path.unlink(missing_ok=True)
+    # A new session so the solver outlives this call, and this process too if
+    # the caller polls from a later invocation; the exit code is written to
+    # solve.exit since nothing stays around to capture a return value.
+    command = [*_run_prefix(), "simpleFoam"]
+    wrapper = (f"{shlex.join(command)} > log.simpleFoam 2>&1; "
+              f"echo $? > solve.exit")
+    subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),
+                     start_new_session=True, stdin=subprocess.DEVNULL,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(3)
+    if not log_path.exists():
         raise RuntimeError(f"{level.name}: detached solve failed to launch")
     log(f"[tmr:{level.name}] simpleFoam launched detached in {remote}")
     return timings
@@ -917,7 +973,10 @@ def solver_exit_status(level: GridLevel,
                        remote_prefix: str = "tmr-flatplate") -> int | None:
     """Exit code of a detached solve, or None while it is still running."""
     remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
-    raw = _wsl(f"cat {remote}/solve.exit 2>/dev/null").stdout.strip()
+    exit_file = Path(remote) / "solve.exit"
+    if not exit_file.exists():
+        return None
+    raw = exit_file.read_text(errors="replace").strip()
     return int(raw) if raw.isdigit() or (raw and raw.lstrip("-").isdigit()) \
         else None
 
@@ -939,6 +998,74 @@ def collect_level(level: GridLevel, out_dir: Path,
         timings["simpleFoam"] = round(solve_seconds, 1)
     return _extract_record(level, Path(out_dir), remote, timings, station,
                            yplus_patch, log)
+
+
+# ---------------------------------------------------------------------------
+# MPI-parallel solve path: added for the two finest flat-plate rungs (52224
+# and 208896 cells), whose serial cost runs to hours. decomposePar and mpirun
+# run under the same _run_prefix() as every other step in this module; the
+# force/Cf/yPlus function objects all reduce to a single merged file under
+# postProcessing regardless of rank count, so _extract_record needs no
+# changes and collect_level/solver_exit_status above are reused as-is.
+# ---------------------------------------------------------------------------
+
+def _decompose_par_dict(ranks: int) -> str:
+    return (_foam_header("dictionary", "decomposeParDict", "system")
+            + f"numberOfSubdomains {ranks};\nmethod          scotch;\n")
+
+
+def launch_level_solver_parallel(level: GridLevel, case_root: Path,
+                                 out_dir: Path, ranks: int = 4,
+                                 log: Callable[[str], None] = print, *,
+                                 writer: Callable[[Path, GridLevel], Path] = write_case,
+                                 remote_prefix: str = "tmr-flatplate",
+                                 init_potential: bool = False) -> dict[str, float]:
+    """Stage, mesh, decompose into ``ranks`` subdomains, and start
+    ``mpirun -np ranks simpleFoam -parallel`` DETACHED.
+
+    Mirrors :func:`launch_level_solver` exactly (same remote layout, same
+    ``solve.exit`` contract), so :func:`solver_exit_status` and
+    :func:`collect_level` work unchanged on a parallel launch.
+    """
+    remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
+    timings = _stage_and_mesh(level, case_root, Path(out_dir), remote,
+                              writer, log)
+    if init_potential:
+        _run_potential_init(level, remote, timings, log)
+    remote_dir = Path(remote)
+    with (remote_dir / "system" / "decomposeParDict").open(
+            "w", newline="\n") as handle:
+        handle.write(_decompose_par_dict(ranks))
+    start = time.monotonic()
+    log(f"[tmr:{level.name}] decomposePar started ({ranks} subdomains)")
+    result = _foam(["decomposePar", "-force"], remote_dir, "log.decomposePar",
+                   timeout=900)
+    timings["decomposePar"] = round(time.monotonic() - start, 1)
+    if result.returncode != 0:
+        tail = (remote_dir / "log.decomposePar").read_text(errors="replace")
+        raise RuntimeError(f"{level.name}/decomposePar failed:\n"
+                           + "\n".join(tail.splitlines()[-20:]))
+    log(f"[tmr:{level.name}] decomposePar finished in "
+        f"{timings['decomposePar']:.1f} s")
+
+    exit_file = remote_dir / "solve.exit"
+    exit_file.unlink(missing_ok=True)
+    log_path = remote_dir / "log.simpleFoam"
+    log_path.unlink(missing_ok=True)
+    command = [*_run_prefix(), "mpirun", "-np", str(ranks), "simpleFoam",
+              "-parallel"]
+    wrapper = (f"{shlex.join(command)} > log.simpleFoam 2>&1; "
+              f"echo $? > solve.exit")
+    subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),
+                     start_new_session=True, stdin=subprocess.DEVNULL,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(3)
+    if not log_path.exists():
+        raise RuntimeError(f"{level.name}: detached parallel solve failed "
+                           f"to launch")
+    log(f"[tmr:{level.name}] mpirun simpleFoam ({ranks} ranks) launched "
+        f"detached in {remote}")
+    return timings
 
 
 # ---------------------------------------------------------------------------
@@ -987,7 +1114,7 @@ def build_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "case": "TMR 2D zero-pressure-gradient flat plate",
         "model": "k-omega SST (OpenFOAM kOmegaSST, strain production)",
-        "solver": "simpleFoam, incompressible, OpenFOAM v2606 under WSL",
+        "solver": "simpleFoam, incompressible, OpenFOAM v2606",
         "conditions": {
             "re_per_unit_length": U_INF / NU,
             "plate_length": PLATE_LENGTH,
@@ -1423,7 +1550,7 @@ def build_bump_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "case": "TMR 2D bump-in-channel",
         "model": "k-omega SST (OpenFOAM kOmegaSST, strain production)",
-        "solver": "simpleFoam, incompressible, OpenFOAM v2606 under WSL",
+        "solver": "simpleFoam, incompressible, OpenFOAM v2606",
         "conditions": {
             "re_per_unit_length": U_INF / BUMP_NU,
             "wall_length": BUMP_WALL_LENGTH,
@@ -2126,7 +2253,7 @@ def build_naca_summary(alpha_deg: float,
         "case": "TMR NACA 0012 airfoil validation",
         "alpha_deg": alpha_deg,
         "model": "k-omega SST (OpenFOAM kOmegaSST, strain production)",
-        "solver": "simpleFoam, incompressible, OpenFOAM v2606 under WSL",
+        "solver": "simpleFoam, incompressible, OpenFOAM v2606",
         "conditions": {
             "re_per_chord": U_INF / NACA_NU, "mach_reference": 0.15,
             "k_inf": NACA_K_INF, "omega_inf": NACA_OMEGA_INF,
@@ -2411,6 +2538,7 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
     """
     prefix = f"tmr-naca-a{alpha_deg:g}"
     remote = f"{_RUN_ROOT}/{prefix}-{level.name}"
+    remote_dir = Path(remote)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     case_root = _REPO_ROOT / "models" / "tmr" / "naca0012"
@@ -2437,30 +2565,29 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
             handle.write(text)
     shutil.copy(grid_src, case / "grid.p3dfmt")
 
-    staged = _wsl(
-        f"rm -rf {remote} && mkdir -p {_RUN_ROOT} && "
-        f"cp -r \"$(wslpath '{case}')\" {remote} && "
-        f"test -f {remote}/system/controlDict && echo STAGED")
-    if "STAGED" not in staged.stdout:
+    shutil.rmtree(remote_dir, ignore_errors=True)
+    remote_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(case, remote_dir)
+    if not (remote_dir / "system" / "controlDict").exists():
         raise RuntimeError(f"{level.name}: staging failed")
 
     timings: dict[str, float] = {}
-    for name, command, timeout in (
-            ("plot3dToFoam", "plot3dToFoam -noBlank grid.p3dfmt", 900),
-            ("autoPatch", "autoPatch 80 -overwrite", 900)):
+    for name, args, timeout in (
+            ("plot3dToFoam", ["plot3dToFoam", "-noBlank", "grid.p3dfmt"], 900),
+            ("autoPatch", ["autoPatch", "80", "-overwrite"], 900)):
         start = time.monotonic()
-        result = _wsl(f"cd {remote} && openfoam2606 {command} "
-                      f"> log.{name} 2>&1 && echo DONE", timeout=timeout)
+        result = _foam(args, remote_dir, f"log.{name}", timeout=timeout)
         timings[name] = round(time.monotonic() - start, 1)
-        _wsl(f"cp {remote}/log.{name} \"$(wslpath '{out_dir}')\"/ || true")
-        if "DONE" not in result.stdout:
-            tail = _wsl(f"tail -15 {remote}/log.{name}").stdout
-            raise RuntimeError(f"{level.name}/{name} failed:\n{tail}")
+        _copy_best_effort(remote_dir / f"log.{name}", out_dir / f"log.{name}")
+        if result.returncode != 0:
+            tail = (remote_dir / f"log.{name}").read_text(errors="replace")
+            raise RuntimeError(f"{level.name}/{name} failed:\n"
+                               + "\n".join(tail.splitlines()[-15:]))
 
-    # Pull the mesh description back and classify the boundary.
+    # Pull the mesh description and classify the boundary.
     for item in ("boundary", "points", "faces"):
-        _wsl(f"cp {remote}/constant/polyMesh/{item} "
-             f"\"$(wslpath '{out_dir}')\"/mesh.{item}", timeout=300)
+        _copy_best_effort(remote_dir / "constant" / "polyMesh" / item,
+                          out_dir / f"mesh.{item}")
     patches = parse_boundary_patches(
         (out_dir / "mesh.boundary").read_text(errors="replace"))
     points, faces = parse_polymesh_points_faces(
@@ -2491,41 +2618,54 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
         lift_dir=_axis_vector(-math.sin(rad), math.cos(rad), lift_axis))
     with (out_dir / "controlDict.solve").open("w", newline="\n") as handle:
         handle.write(control)
-    type_edits = " && ".join(
-        f"openfoam2606 foamDictionary -entry entry0/{name}/type -set "
-        f"{'empty' if role == 'frontAndBack' else 'wall'} "
-        f"constant/polyMesh/boundary > /dev/null"
-        for name, role in roles.items()
-        if role in ("frontAndBack",) or name == airfoil)
-    pushed = _wsl(
-        f"cd {remote} && rm -rf 0 && mkdir 0 && "
-        f"cp \"$(wslpath '{fields_dir}')\"/* 0/ && "
-        f"cp \"$(wslpath '{out_dir / 'controlDict.solve'}')\" "
-        f"system/controlDict && {type_edits} && echo PUSHED", timeout=300)
-    if "PUSHED" not in pushed.stdout:
-        raise RuntimeError(f"{level.name}: field/boundary push failed: "
-                           f"{(pushed.stderr or pushed.stdout)[:300]}")
 
-    for name, command, timeout in (
-            ("checkMesh", "checkMesh", 900),
-            ("potentialFoam", "potentialFoam -writephi", 1800)):
+    remote_zero = remote_dir / "0"
+    shutil.rmtree(remote_zero, ignore_errors=True)
+    remote_zero.mkdir()
+    for item in fields_dir.iterdir():
+        shutil.copy2(item, remote_zero / item.name)
+    shutil.copy2(out_dir / "controlDict.solve",
+                remote_dir / "system" / "controlDict")
+    boundary_edits = [
+        (name, "empty" if role == "frontAndBack" else "wall")
+        for name, role in roles.items()
+        if role in ("frontAndBack",) or name == airfoil]
+    for name, value in boundary_edits:
+        result = _foam(["foamDictionary", "-entry", f"entry0/{name}/type",
+                       "-set", value, "constant/polyMesh/boundary"],
+                       remote_dir, "log.foamDictionary", timeout=120)
+        if result.returncode != 0:
+            tail = (remote_dir / "log.foamDictionary").read_text(
+                errors="replace")
+            raise RuntimeError(
+                f"{level.name}: boundary edit for {name} failed:\n"
+                + "\n".join(tail.splitlines()[-15:]))
+
+    for name, args, timeout in (
+            ("checkMesh", ["checkMesh"], 900),
+            ("potentialFoam", ["potentialFoam", "-writephi"], 1800)):
         start = time.monotonic()
-        result = _wsl(f"cd {remote} && openfoam2606 {command} "
-                      f"> log.{name} 2>&1 && echo DONE", timeout=timeout)
+        result = _foam(args, remote_dir, f"log.{name}", timeout=timeout)
         timings[name] = round(time.monotonic() - start, 1)
-        _wsl(f"cp {remote}/log.{name} \"$(wslpath '{out_dir}')\"/ || true")
-        if "DONE" not in result.stdout:
-            tail = _wsl(f"tail -15 {remote}/log.{name}").stdout
-            raise RuntimeError(f"{level.name}/{name} failed:\n{tail}")
+        _copy_best_effort(remote_dir / f"log.{name}", out_dir / f"log.{name}")
+        if result.returncode != 0:
+            tail = (remote_dir / f"log.{name}").read_text(errors="replace")
+            raise RuntimeError(f"{level.name}/{name} failed:\n"
+                               + "\n".join(tail.splitlines()[-15:]))
 
     if detach:
-        launched = _wsl(
-            f"cd {remote} && rm -f solve.exit && "
-            f"setsid nohup bash -c 'cd {remote} && openfoam2606 simpleFoam "
-            f"> log.simpleFoam 2>&1; echo $? > solve.exit' "
-            f"< /dev/null >/dev/null 2>&1 & sleep 3; "
-            f"test -f {remote}/log.simpleFoam && echo LAUNCHED", timeout=120)
-        if "LAUNCHED" not in launched.stdout:
+        exit_file = remote_dir / "solve.exit"
+        exit_file.unlink(missing_ok=True)
+        log_path = remote_dir / "log.simpleFoam"
+        log_path.unlink(missing_ok=True)
+        command = [*_run_prefix(), "simpleFoam"]
+        wrapper = (f"{shlex.join(command)} > log.simpleFoam 2>&1; "
+                  f"echo $? > solve.exit")
+        subprocess.Popen(["bash", "-c", wrapper], cwd=str(remote_dir),
+                         start_new_session=True, stdin=subprocess.DEVNULL,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(3)
+        if not log_path.exists():
             raise RuntimeError(f"{level.name}: detached solve failed to launch")
         log(f"[tmr-naca:{level.name}] a{alpha_deg:g} solve launched detached")
         timings["airfoil_patch"] = airfoil  # smuggled for collect_level
@@ -2533,12 +2673,12 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
 
     start = time.monotonic()
     log(f"[tmr-naca:{level.name}] a{alpha_deg:g} simpleFoam started")
-    result = _wsl(f"cd {remote} && openfoam2606 simpleFoam "
-                  f"> log.simpleFoam 2>&1 && echo DONE", timeout=14400)
+    result = _foam(["simpleFoam"], remote_dir, "log.simpleFoam", timeout=14400)
     timings["simpleFoam"] = round(time.monotonic() - start, 1)
-    if "DONE" not in result.stdout:
-        tail = _wsl(f"tail -20 {remote}/log.simpleFoam").stdout
-        raise RuntimeError(f"{level.name}/simpleFoam failed:\n{tail}")
+    if result.returncode != 0:
+        tail = (remote_dir / "log.simpleFoam").read_text(errors="replace")
+        raise RuntimeError(f"{level.name}/simpleFoam failed:\n"
+                           + "\n".join(tail.splitlines()[-20:]))
     log(f"[tmr-naca:{level.name}] simpleFoam finished in "
         f"{timings['simpleFoam']:.1f} s")
     return _extract_record(level, out_dir, remote, timings, None,
@@ -2710,16 +2850,17 @@ def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
     than three mean-crossings fit the window, in which case no period is
     quoted and the averaging quality must be judged accordingly).
 
-    ``init_from`` (a WSL time-directory path from a completed steady run on
-    the SAME converted grid) seeds the march with a developed turbulent
-    field. Without it the freestream-cold start stays effectively laminar
-    for far longer than any affordable window: measured, a 30-unit cold
-    start ended at Cd 0.00033 with max y+ 0.5 and no oscillation at all,
-    because SST transition in genuine time is slow at 0.039 percent
-    freestream turbulence, a shortcut steady pseudo-time quietly takes.
+    ``init_from`` (a time-directory path from a completed steady run on the
+    SAME converted grid) seeds the march with a developed turbulent field.
+    Without it the freestream-cold start stays effectively laminar for far
+    longer than any affordable window: measured, a 30-unit cold start ended
+    at Cd 0.00033 with max y+ 0.5 and no oscillation at all, because SST
+    transition in genuine time is slow at 0.039 percent freestream
+    turbulence, a shortcut steady pseudo-time quietly takes.
     """
     prefix = f"tmr-naca-t-a{alpha_deg:g}"
     remote = f"{_RUN_ROOT}/{prefix}-{level.name}"
+    remote_dir = Path(remote)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     case_root = _REPO_ROOT / "models" / "tmr" / "naca0012"
@@ -2740,27 +2881,25 @@ def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
             handle.write(text)
     shutil.copy(grid_src, case / "grid.p3dfmt")
 
-    staged = _wsl(
-        f"rm -rf {remote} && mkdir -p {_RUN_ROOT} && "
-        f"cp -r \"$(wslpath '{case}')\" {remote} && "
-        f"test -f {remote}/system/controlDict && echo STAGED")
-    if "STAGED" not in staged.stdout:
+    shutil.rmtree(remote_dir, ignore_errors=True)
+    remote_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(case, remote_dir)
+    if not (remote_dir / "system" / "controlDict").exists():
         raise RuntimeError(f"{level.name}: staging failed")
 
     timings: dict[str, float] = {}
-    for name, command, timeout in (
-            ("plot3dToFoam", "plot3dToFoam -noBlank grid.p3dfmt", 900),
-            ("autoPatch", "autoPatch 80 -overwrite", 900)):
+    for name, args, timeout in (
+            ("plot3dToFoam", ["plot3dToFoam", "-noBlank", "grid.p3dfmt"], 900),
+            ("autoPatch", ["autoPatch", "80", "-overwrite"], 900)):
         start = time.monotonic()
-        result = _wsl(f"cd {remote} && openfoam2606 {command} "
-                      f"> log.{name} 2>&1 && echo DONE", timeout=timeout)
+        result = _foam(args, remote_dir, f"log.{name}", timeout=timeout)
         timings[name] = round(time.monotonic() - start, 1)
-        if "DONE" not in result.stdout:
+        if result.returncode != 0:
             raise RuntimeError(f"{level.name}/{name} failed")
 
     for item in ("boundary", "points", "faces"):
-        _wsl(f"cp {remote}/constant/polyMesh/{item} "
-             f"\"$(wslpath '{out_dir}')\"/mesh.{item}", timeout=300)
+        _copy_best_effort(remote_dir / "constant" / "polyMesh" / item,
+                          out_dir / f"mesh.{item}")
     patches = parse_boundary_patches(
         (out_dir / "mesh.boundary").read_text(errors="replace"))
     points, faces = parse_polymesh_points_faces(
@@ -2791,62 +2930,73 @@ def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
     with (out_dir / "fvSolution.init").open("w", newline="\n") as handle:
         handle.write(fv_solution(non_orth_correctors=1, potential=True,
                                  p_solver="PCG"))
-    type_edits = " && ".join(
-        f"openfoam2606 foamDictionary -entry entry0/{name}/type -set "
-        f"{'empty' if role == 'frontAndBack' else 'wall'} "
-        f"constant/polyMesh/boundary > /dev/null"
+
+    remote_zero = remote_dir / "0"
+    shutil.rmtree(remote_zero, ignore_errors=True)
+    remote_zero.mkdir()
+    for item in fields_dir.iterdir():
+        shutil.copy2(item, remote_zero / item.name)
+    shutil.copy2(out_dir / "controlDict.solve",
+                remote_dir / "system" / "controlDict")
+    shutil.copy2(out_dir / "fvSolution.init",
+                remote_dir / "system" / "fvSolution")
+    boundary_edits = [
+        (name, "empty" if role == "frontAndBack" else "wall")
         for name, role in roles.items()
-        if role == "frontAndBack" or name == airfoil)
-    pushed = _wsl(
-        f"cd {remote} && rm -rf 0 && mkdir 0 && "
-        f"cp \"$(wslpath '{fields_dir}')\"/* 0/ && "
-        f"cp \"$(wslpath '{out_dir / 'controlDict.solve'}')\" "
-        f"system/controlDict && "
-        f"cp \"$(wslpath '{out_dir / 'fvSolution.init'}')\" "
-        f"system/fvSolution && {type_edits} && echo PUSHED", timeout=300)
-    if "PUSHED" not in pushed.stdout:
-        raise RuntimeError(f"{level.name}: push failed")
+        if role == "frontAndBack" or name == airfoil]
+    for name, value in boundary_edits:
+        result = _foam(["foamDictionary", "-entry", f"entry0/{name}/type",
+                       "-set", value, "constant/polyMesh/boundary"],
+                       remote_dir, "log.foamDictionary", timeout=120)
+        if result.returncode != 0:
+            tail = (remote_dir / "log.foamDictionary").read_text(
+                errors="replace")
+            raise RuntimeError(
+                f"{level.name}: boundary edit for {name} failed:\n"
+                + "\n".join(tail.splitlines()[-15:]))
 
     if init_from:
-        seeded = _wsl(
-            f"test -f {init_from}/U && "
-            f"cp {init_from}/U {init_from}/p {init_from}/k "
-            f"{init_from}/omega {init_from}/nut {remote}/0/ && "
-            f"cp {init_from}/phi {remote}/0/ 2>/dev/null; "
-            f"test -f {remote}/0/k && echo SEEDED", timeout=300)
-        if "SEEDED" not in seeded.stdout:
-            raise RuntimeError(
-                f"{level.name}: seeding from {init_from} failed")
+        init_dir = Path(init_from)
+        required = ("U", "p", "k", "omega", "nut")
+        if not all((init_dir / name).exists() for name in required):
+            raise RuntimeError(f"{level.name}: seeding from {init_from} "
+                               f"failed (missing one of {required})")
+        for name in required:
+            shutil.copy2(init_dir / name, remote_zero / name)
+        phi_src = init_dir / "phi"
+        if phi_src.exists():
+            shutil.copy2(phi_src, remote_zero / "phi")
         log(f"[tmr-naca-t:{level.name}] fields seeded from {init_from}")
     else:
         start = time.monotonic()
-        result = _wsl(f"cd {remote} && openfoam2606 potentialFoam -writephi "
-                      f"> log.potentialFoam 2>&1 && echo DONE", timeout=1800)
+        result = _foam(["potentialFoam", "-writephi"], remote_dir,
+                       "log.potentialFoam", timeout=1800)
         timings["potentialFoam"] = round(time.monotonic() - start, 1)
-        if "DONE" not in result.stdout:
+        if result.returncode != 0:
             raise RuntimeError(f"{level.name}: potentialFoam failed")
     solution = pimple_fv_solution()
     with (out_dir / "fvSolution.march").open("w", newline="\n") as handle:
         handle.write(solution)
-    _wsl(f"cp \"$(wslpath '{out_dir / 'fvSolution.march'}')\" "
-         f"{remote}/system/fvSolution", timeout=120)
+    shutil.copy2(out_dir / "fvSolution.march",
+                remote_dir / "system" / "fvSolution")
 
     start = time.monotonic()
     log(f"[tmr-naca-t:{level.name}] a{alpha_deg:g} pimpleFoam started "
         f"(T = {end_time:g})")
-    result = _wsl(f"cd {remote} && openfoam2606 pimpleFoam "
-                  f"> log.pimpleFoam 2>&1 && echo DONE", timeout=7200)
+    result = _foam(["pimpleFoam"], remote_dir, "log.pimpleFoam", timeout=7200)
     timings["pimpleFoam"] = round(time.monotonic() - start, 1)
-    _wsl(f"cp {remote}/log.pimpleFoam \"$(wslpath '{out_dir}')\"/ || true")
-    if "DONE" not in result.stdout:
-        tail = _wsl(f"tail -20 {remote}/log.pimpleFoam").stdout
-        raise RuntimeError(f"{level.name}/pimpleFoam failed:\n{tail}")
+    _copy_best_effort(remote_dir / "log.pimpleFoam",
+                      out_dir / "log.pimpleFoam")
+    if result.returncode != 0:
+        tail = (remote_dir / "log.pimpleFoam").read_text(errors="replace")
+        raise RuntimeError(f"{level.name}/pimpleFoam failed:\n"
+                           + "\n".join(tail.splitlines()[-20:]))
     log(f"[tmr-naca-t:{level.name}] pimpleFoam finished in "
         f"{timings['pimpleFoam']:.1f} s")
 
     shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
-    _wsl(f"cp -r {remote}/postProcessing \"$(wslpath '{out_dir}')\"/",
-         timeout=300)
+    _copy_best_effort(remote_dir / "postProcessing",
+                      out_dir / "postProcessing")
     coeff_files = sorted((out_dir / "postProcessing").rglob("coefficient*.dat"))
     history = parse_coefficient_history(
         coeff_files[-1].read_text(errors="replace"))

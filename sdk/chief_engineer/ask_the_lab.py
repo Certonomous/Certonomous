@@ -141,7 +141,9 @@ def _coverage(query: set[str], chosen: list[Source]) -> float:
 
 
 def _mission_state_root() -> Path:
-    workdir = Path(os.environ.get("CHIEF_ENGINEER_WORKDIR", "./chief-engineer-runs"))
+    workdir = Path(os.environ.get(
+        "CHIEF_ENGINEER_WORKDIR",
+        Path(__file__).resolve().parents[1] / "chief-engineer-runs"))
     return Path(os.environ.get(
         "CHIEF_ENGINEER_STATE_DIR", str(workdir.resolve() / "mission-state")))
 

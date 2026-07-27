@@ -25,7 +25,7 @@ from urllib.parse import parse_qs, urlparse
 from .adapters import SoftwareAdapterRegistry, synthetic_registry
 from .api import SyntheticApi
 from .events import EventBus
-from . import lab_stats
+from . import lab, lab_stats
 
 # Kept public for the module entrypoint and any external caller.
 HERE = _PACKAGE_DIR = Path(__file__).resolve().parent
@@ -49,7 +49,8 @@ def _credentials_root() -> Path:
 
 
 def _state_root() -> Path:
-    workdir = Path(os.environ.get("CHIEF_ENGINEER_WORKDIR", "./chief-engineer-runs")).resolve()
+    workdir = Path(os.environ.get(
+        "CHIEF_ENGINEER_WORKDIR", HERE.parent / "chief-engineer-runs")).resolve()
     root = Path(os.environ.get("CHIEF_ENGINEER_STATE_DIR", str(workdir / "mission-state"))).resolve()
     root.mkdir(parents=True, exist_ok=True)
     return root
@@ -98,19 +99,25 @@ def _credentials() -> list[dict]:
         # ONE number everywhere: the wall displays the coefficient on the
         # reference's own area basis — the same figure the verdict was judged
         # on and the reason text quotes. The raw solver value stays available
-        # as measured_raw for the evidence trail.
-        compared = data.get("cd_compared")
-        tier = data.get("tier") or "UNCONVERGED"
+        # as measured_raw for the evidence trail. The record is re-derived at
+        # serve time so a refinement ladder that finished after the file was
+        # written surfaces its finest rung here too, graded against the
+        # reference as it stands on disk; the file itself is not rewritten.
+        shown = lab.displayed_credential(data)
+        compared = shown.get("compared", data.get("cd_compared"))
+        tier = shown["tier"] or "UNCONVERGED"
         cards.append({
             "name": name,
             "tier": _LEGACY_TIERS.get(tier, tier),
-            "measured": compared if compared is not None else data.get("cd_measured"),
-            "measured_raw": data.get("cd_measured"),
-            "area_basis": data.get("area_basis"),
-            "envelope": data.get("envelope"),
-            "reference_cd": data.get("reference_cd"),
-            "source": data.get("reference_source"),
-            "reason": data.get("reason"),
+            "measured": compared if compared is not None else shown["measured"],
+            "measured_raw": shown["measured"],
+            "cells": shown["cells"],
+            "finest_rung": shown["superseded"],
+            "area_basis": shown["area_basis"],
+            "envelope": shown["envelope"],
+            "reference_cd": shown["reference_cd"],
+            "source": shown["source"],
+            "reason": shown["reason"],
             "wall_minutes": data.get("wall_minutes"),
             "finished_at": data.get("finished_at"),
         })
@@ -753,7 +760,8 @@ def _registry(mission_id: str = "capabilities") -> SoftwareAdapterRegistry:
     if _adapter_name().startswith("openfoam"):
         from .openfoam import openfoam_registry
 
-        workdir = Path(os.environ.get("CHIEF_ENGINEER_WORKDIR", "./chief-engineer-runs"))
+        workdir = Path(os.environ.get(
+            "CHIEF_ENGINEER_WORKDIR", HERE.parent / "chief-engineer-runs"))
         return openfoam_registry(workdir / mission_id / "openfoam")
     latency = float(os.environ.get("CHIEF_SYNTHETIC_LATENCY_S", "0.16"))
     return synthetic_registry(lambda _handle: SyntheticApi(latency_s=latency))

@@ -1,0 +1,878 @@
+{
+  "generated_at": "2026-07-26T07:08:55.261705+00:00",
+  "agenda_entry": "demo-output/website/agenda/proposals/r2-closure-coefficient-uncertainty.json",
+  "objective": "Give the model channel a measured parametric basis: propagate published k-omega SST closure-coefficient intervals through solves on the motorcycle held mesh and report the resulting drag envelope as coefficient-interval evidence alongside the current transferred estimate.",
+  "design_followed": {
+    "source": "agenda entry recorded the Schaefer intervals numerically; used exactly those, no re-derivation",
+    "scheme": "one-at-a-time corner cases at published interval bounds (a1 upward only), five coefficients, restart every case from the converged baseline",
+    "quantity_of_interest": "Cd (drag coefficient), forceCoeffs function object, motorBikeGroup patches",
+    "n_samples_planned": 10,
+    "n_samples_completed": 10
+  },
+  "design_disclosure_one_at_a_time_vs_joint": {
+    "what_was_run": "5 coefficient families (betaStar, a1, sigma-w1, betaStar/beta1, betaStar/beta2), each perturbed ONE AT A TIME: one coefficient moved to a published interval bound, every other coefficient held at its nominal SST value. This is exactly the design the agenda entry specified (its own words: 'solves one-at-a-time corner cases for the five coefficients').",
+    "corners_run": "10 total: 1 baseline (all nominal) + 9 one-at-a-time corners (2 each for betaStar, sigma-w1, betaStar/beta1, betaStar/beta2, plus 1 for a1 since its lower bound equals its nominal value). This is ALL of the one-at-a-time corners available; none were skipped.",
+    "corners_in_the_full_joint_box": "32 (2^5), if every coefficient's two interval bounds are treated as levels in a full factorial. Of those 32, only the 10 we ran have zero or one coefficient away from nominal; the other 22 corners move two or more coefficients at once and were NOT sampled.",
+    "what_the_reported_band_is": "A SENSITIVITY SWEEP, not the joint parametric range. It shows how far Cd moves when exactly one coefficient is pushed to a published bound, and it ranks the coefficients by that one-at-a-time swing. It is a valid, cited, measured result for that question.",
+    "what_the_reported_band_is_not": "It is NOT the full joint uncertainty range coefficient uncertainty could produce. The one-at-a-time envelope is a lower bound on the true joint range: if several coefficients can push Cd in the same direction simultaneously, as the measured signs below suggest they can, the true joint corner would move further than any single one-at-a-time sample did. This report's 'band' section below is therefore a sensitivity-sweep envelope and should be read and labelled as such, not substituted for a joint parametric band.",
+    "measured_oat_signs": [
+      {
+        "name": "beta_star_lo",
+        "coeff": "betaStar",
+        "signed_cd_swing_from_baseline": 0.004542
+      },
+      {
+        "name": "beta_star_hi",
+        "coeff": "betaStar",
+        "signed_cd_swing_from_baseline": -0.002757
+      },
+      {
+        "name": "a1_hi",
+        "coeff": "a1",
+        "signed_cd_swing_from_baseline": 0.01241
+      },
+      {
+        "name": "sigma_w1_lo",
+        "coeff": "sigma-w1 (alphaOmega1)",
+        "signed_cd_swing_from_baseline": 0.000391
+      },
+      {
+        "name": "sigma_w1_hi",
+        "coeff": "sigma-w1 (alphaOmega1)",
+        "signed_cd_swing_from_baseline": -0.000255
+      },
+      {
+        "name": "ratio_beta1_lo",
+        "coeff": "betaStar/beta1",
+        "signed_cd_swing_from_baseline": 8.6e-05
+      },
+      {
+        "name": "ratio_beta1_hi",
+        "coeff": "betaStar/beta1",
+        "signed_cd_swing_from_baseline": -0.000722
+      },
+      {
+        "name": "ratio_beta2_lo",
+        "coeff": "betaStar/beta2",
+        "signed_cd_swing_from_baseline": 0.000982
+      },
+      {
+        "name": "ratio_beta2_hi",
+        "coeff": "betaStar/beta2",
+        "signed_cd_swing_from_baseline": -0.007991
+      }
+    ],
+    "cheap_joint_extreme_proposal": {
+      "description": "Two additional runs, each moving all five coefficients at once to the bound their one-at-a-time sign favors: one corner with every coefficient set to push Cd up (betaStar=0.0784, a1=0.40, alphaOmega1=0.3, beta1 at ratio 1.19, beta2 at ratio 1.05), one corner with every coefficient set to push Cd down (betaStar=0.1024, a1=0.31 nominal since it cannot decrease, alphaOmega1=0.7, beta1 at ratio 1.31, beta2 at ratio 1.45). This is an approximate linear-superposition estimate of the joint envelope's extremes, not a rigorous joint UQ; it assumes the coefficients act close to additively, which the one-at-a-time data cannot itself confirm or rule out.",
+      "estimated_cost": "2 more restart runs at the same 4-core budget. Based on this run's actual costs (1.6-1.8 core-minutes for a plateaued sample, 6.5 core-minutes for one that needed the 300-iteration extension), a conservative estimate is 4 to 16 core-minutes for the pair, well inside the 33 core-minutes remaining against the 60 core-minute stage-1 budget.",
+      "status": "AUTHORIZED AND RUN after the original report was written. Both corners completed and plateaued; see joint_corner_results and superposition_test in this section. The original text of this proposal is preserved above unchanged."
+    },
+    "corners_sampled_of_full_factorial": "With 5 two-level factors the full joint factorial has 32 corners. The one-at-a-time set sampled 10 of them (zero or one coefficient away from nominal); the two joint corners bring the sampled count to 12 of 32. The other 20 corners were NOT sampled, so the joint envelope below is a linear-superposition approximation, never a rigorous joint band.",
+    "joint_corner_results": {
+      "protocol": "Each corner restarts from the identical archived t=300 converged state, exactly like the one-at-a-time samples. Corners built from the MEASURED one-at-a-time signs: joint_up moves all five coefficients to the bound that raised Cd (betaStar 0.0784, a1 0.40, alphaOmega1 0.3, beta1 0.09/1.19, beta2 0.09/1.05); joint_down moves the four movable coefficients to the bound that lowered Cd (betaStar 0.1024, alphaOmega1 0.7, beta1 0.09/1.31, beta2 0.09/1.45) with a1 held at nominal 0.31 because its published interval is upward only.",
+      "joint_up": {
+        "cd_mean_over_stationary_window": 0.4390491,
+        "cd_std_over_window": 4.02e-05,
+        "window": "iterations 701-1000",
+        "legs": "300-400, 400-700, 700-1000 (two extensions needed before plateau)",
+        "core_minutes": 11.6542
+      },
+      "joint_down": {
+        "cd_mean_over_stationary_window": 0.4074039,
+        "cd_std_over_window": 0.0023583,
+        "window": "iterations 701-1300",
+        "legs": "300-400, 400-700, 700-1000, 1000-1300 (three extensions; the last confirmed a stationary limit cycle rather than drift)",
+        "core_minutes": 17.4039
+      },
+      "salvage_note": "The joint corner runs were launched by the previous agent before it was killed. Its joint_down continuation initially failed to launch because the continuation script was invoked as continue_run.py from /home/ubuntu/Certonomous instead of /tmp/closure_uq where the script lives; a retry from the correct directory completed at 07:14:44. All legs were verified line by line against the raw postProcessing/forceCoeffs1/*/coefficient.dat files before being used; solver logs end with a clean End / Finalising parallel run."
+    },
+    "superposition_test": {
+      "purpose": "The two corners are a test of linear superposition, not merely a wider envelope. The prediction for each corner is the baseline Cd plus the sum of the measured one-at-a-time deltas of the coefficients being moved, computed and recorded before the corner solves were taken to plateau.",
+      "baseline_cd_mean_used": 0.41614783333333333,
+      "a1_low_and_high_effects_stated_separately": {
+        "a1_low_effect_on_cd": 0.0,
+        "a1_low_note": "exactly zero BY CONSTRUCTION, not by measurement: the published Schaefer interval for a1 is [0.31, 0.40] and its lower bound coincides with the SST nominal 0.31, so the baseline run IS the a1-low sample and no separate solve exists. The local-minimum question (both a1 bounds raising Cd) cannot arise within the published interval because there is no bound below nominal; this study has no evidence about Cd for a1 below 0.31.",
+        "a1_high_effect_on_cd": 0.0124102,
+        "a1_high_note": "measured, a1_hi (a1=0.40) minus baseline, converged tail means"
+      },
+      "joint_up": {
+        "predicted_by_superposition": 0.43455856333333337,
+        "measured_cd_mean": 0.4390491,
+        "absolute_difference": 0.0044905,
+        "relative_difference_pct_of_prediction": 1.033,
+        "difference_as_pct_of_predicted_swing": 24.4,
+        "noise_gate": "the prediction error +0.004491 is compared against every oscillation scale in the chain: joint_up's own window std 0.0000402 and peak to peak 0.000175, the baseline's peak to peak 0.0019, and the largest one-at-a-time window std 0.00081. It exceeds all of them by at least a factor of 2.4 (and its own by two orders of magnitude). VERDICT: a real, resolved super-additive interaction, not limit-cycle noise."
+      },
+      "joint_down": {
+        "predicted_by_superposition": 0.4044235466666667,
+        "measured_cd_mean": 0.4074039,
+        "absolute_difference": 0.0029804,
+        "relative_difference_pct_of_prediction": 0.737,
+        "difference_as_pct_of_predicted_swing": -25.4,
+        "noise_gate": "the prediction error +0.002980 is SMALLER than joint_down's own limit-cycle amplitude (half peak to peak 0.0056, window std 0.0024). At this corner superposition cannot be distinguished from limit-cycle noise at this resolution; no claim is made either way."
+      },
+      "cross_check_with_stationary_window_means": "Rebuilding the predictions from stationary-window means instead of the original tail-window QoIs changes nothing material: predicted joint_up 0.434668 vs measured 0.4390491 (error +0.004381), predicted joint_down 0.405904 vs measured 0.4074039 (error +0.001500). The up corner conclusion is unchanged; the down corner error remains inside its cycle amplitude.",
+      "conclusion": "The evidence supports the interactions-matter branch. At the up corner, where every oscillation is small enough to resolve the question, the measured Cd exceeds the superposition prediction by +0.004491, which is 24.4 percent of the predicted swing and at least 2.4x every oscillation scale involved; the one-at-a-time deltas do NOT compose additively there. Both corners land ABOVE their predictions, i.e. the flow responds super-additively upward. The down corner alone is inconclusive because its limit cycle (std 0.0024) is as large as its prediction error. Consequence: the corner pair gives a linear-superposition approximation of the joint envelope, roughly 0.4074 to 0.4390 in means (width 0.0316 Cd, 7.6 percent of baseline, versus 0.0204 for the one-at-a-time band), but it must NOT be sold as a joint band, and a defensible joint band needs the stage-two LHS or Sobol design. Whether to spend those 120 core-minutes is the supervisor's call; this run only reports the measured superposition failure.",
+      "envelope_label": "LINEAR-SUPERPOSITION APPROXIMATION ONLY. 12 of the 32 corners of the full 2^5 factorial were sampled (10 one-at-a-time plus these 2 joint corners); the true joint extremes could lie beyond either corner, and the up corner's measured super-additivity is direct evidence that additive composition misses real interaction effects."
+    }
+  },
+  "coefficient_intervals": {
+    "source_citations": [
+      "Uncertainty Quantification of Turbulence Model Closure Coefficients for Transonic Wall-Bounded Flows, Schaefer, Hosder, West, Rumsey, Carlson and Kleb, AIAA Journal 55(1), 2017",
+      "Uncertainty Quantification and Sensitivity Analysis of SA Turbulence Model Coefficients in Two and Three Dimensions, Schaefer, Cary, Mani and Spalart, AIAA 2017-1710"
+    ],
+    "note": "intervals quoted verbatim from the agenda entry's rationale/launch_prompt fields, which recorded them numerically",
+    "coefficients": {
+      "betaStar": {
+        "nominal": 0.09,
+        "interval": [
+          0.0784,
+          0.1024
+        ],
+        "openfoam_key": "betaStar"
+      },
+      "a1": {
+        "nominal": 0.31,
+        "interval": [
+          0.31,
+          0.4
+        ],
+        "note": "increased only, per the agenda entry",
+        "openfoam_key": "a1"
+      },
+      "sigma-w1": {
+        "nominal": 0.5,
+        "interval": [
+          0.3,
+          0.7
+        ],
+        "openfoam_key": "alphaOmega1"
+      },
+      "betaStar/beta1": {
+        "nominal": 1.2,
+        "interval": [
+          1.19,
+          1.31
+        ],
+        "note": "beta1 backed out from betaStar held at 0.09 nominal",
+        "openfoam_key": "beta1 (derived)"
+      },
+      "betaStar/beta2": {
+        "nominal": 1.086957,
+        "interval": [
+          1.05,
+          1.45
+        ],
+        "note": "beta2 backed out from betaStar held at 0.09 nominal",
+        "openfoam_key": "beta2 (derived)"
+      }
+    },
+    "nominal_source": "src/TurbulenceModels/turbulenceModels/Base/kOmegaSST/kOmegaSSTBase.C, OpenFOAM v2606, constructor default dimensioned<scalar> values"
+  },
+  "held_mesh": {
+    "case_path_used_for_this_study": "/usr/lib/openfoam/openfoam2606/tutorials/incompressible/simpleFoam/motorBike (system/ and constant/transportProperties, turbulenceProperties template; NOT modified in place, copied to scratch)",
+    "mesh_cache_source": "/home/ubuntu/certonomous-runs/.mesh-cache/uq-motorBike-fine/polyMesh (copied, not modified)",
+    "converged_baseline_solve_cache_source": "/home/ubuntu/certonomous-runs/.solve-cache/motorBike-c353578-i300/300 (copied, not modified)",
+    "cell_count_from_checkMesh_own_output": 353578,
+    "checkMesh_verdict": "1 failed check (max skewness 8.94, 13 highly skew faces). Same held mesh, not re-meshed, not modified",
+    "scratch_path": "/tmp/closure_uq"
+  },
+  "baseline_reproduction_check": {
+    "archived_lab_value_source": "/home/ubuntu/certonomous-runs/.solve-cache/motorBike-c353578-i300/postProcessing/forceCoeffs1/0/coefficient.dat, final row (t=300)",
+    "archived_cd_at_t300": 0.4160137,
+    "our_baseline_restart_run": {
+      "protocol": "restart from the identical archived t=300 converged state, standard (unperturbed) SST coefficients, 100 more iterations",
+      "cd_min": 0.4152003,
+      "cd_max": 0.4170718,
+      "cd_tail30_mean": 0.41614783333333333,
+      "cd_tail30_std": 0.0004595393311664314
+    },
+    "verdict": "REPRODUCED: archived value 0.4160137 falls inside our baseline restart run's own Cd oscillation band"
+  },
+  "per_sample_table": [
+    {
+      "name": "baseline",
+      "coeff_family": null,
+      "interval": null,
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.416148,
+      "cd_std": 0.00046,
+      "wall_seconds_total": 24.44,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.63
+    },
+    {
+      "name": "beta_star_lo",
+      "coeff_family": "betaStar",
+      "interval": [
+        0.0784,
+        0.1024
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "betaStar": 0.0784,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.42069,
+      "cd_std": 0.000701,
+      "wall_seconds_total": 98.3,
+      "extended_for_convergence": true,
+      "convergence_note": "leg1 (100 restart iterations) still drifting monotonically (not plateaued); extended 300 more iterations, tail-150 of extension used as converged QoI",
+      "core_minutes": 6.553
+    },
+    {
+      "name": "beta_star_hi",
+      "coeff_family": "betaStar",
+      "interval": [
+        0.0784,
+        0.1024
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "betaStar": 0.1024,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.413391,
+      "cd_std": 0.000473,
+      "wall_seconds_total": 24.49,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.633
+    },
+    {
+      "name": "a1_hi",
+      "coeff_family": "a1",
+      "interval": [
+        0.31,
+        0.4
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "betaStar": 0.09,
+        "a1": 0.4,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.428558,
+      "cd_std": 0.000239,
+      "wall_seconds_total": 97.87,
+      "extended_for_convergence": true,
+      "convergence_note": "leg1 (100 restart iterations) still drifting monotonically (not plateaued); extended 300 more iterations, tail-150 of extension used as converged QoI",
+      "core_minutes": 6.525
+    },
+    {
+      "name": "sigma_w1_lo",
+      "coeff_family": "sigma-w1 (alphaOmega1)",
+      "interval": [
+        0.3,
+        0.7
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.3,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.416539,
+      "cd_std": 0.000438,
+      "wall_seconds_total": 26.56,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.771
+    },
+    {
+      "name": "sigma_w1_hi",
+      "coeff_family": "sigma-w1 (alphaOmega1)",
+      "interval": [
+        0.3,
+        0.7
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.7,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0828,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.415893,
+      "cd_std": 0.000448,
+      "wall_seconds_total": 27.1,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.807
+    },
+    {
+      "name": "ratio_beta1_lo",
+      "coeff_family": "betaStar/beta1",
+      "interval": [
+        1.19,
+        1.31
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.07563025210084033,
+        "beta2": 0.0828,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.416234,
+      "cd_std": 0.000456,
+      "wall_seconds_total": 25.34,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.69
+    },
+    {
+      "name": "ratio_beta1_hi",
+      "coeff_family": "betaStar/beta1",
+      "interval": [
+        1.19,
+        1.31
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.06870229007633587,
+        "beta2": 0.0828,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.415426,
+      "cd_std": 0.000461,
+      "wall_seconds_total": 24.64,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.643
+    },
+    {
+      "name": "ratio_beta2_lo",
+      "coeff_family": "betaStar/beta2",
+      "interval": [
+        1.05,
+        1.45
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.0857142857142857,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.417129,
+      "cd_std": 0.000378,
+      "wall_seconds_total": 25.56,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.704
+    },
+    {
+      "name": "ratio_beta2_hi",
+      "coeff_family": "betaStar/beta2",
+      "interval": [
+        1.05,
+        1.45
+      ],
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.5,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.075,
+        "beta2": 0.06206896551724138,
+        "betaStar": 0.09,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.408157,
+      "cd_std": 0.000686,
+      "wall_seconds_total": 25.34,
+      "extended_for_convergence": false,
+      "convergence_note": "plateaued within the 100-iteration restart window (tail-30 used)",
+      "core_minutes": 1.689
+    },
+    {
+      "name": "joint_up",
+      "coeff_family": "joint corner (up)",
+      "interval": null,
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.3,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.07563025210084033,
+        "beta2": 0.0857142857142857,
+        "betaStar": 0.0784,
+        "a1": 0.4,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.439049,
+      "cd_std": 4e-05,
+      "wall_seconds_total": 174.81,
+      "extended_for_convergence": true,
+      "convergence_note": "leg1 tail-30 at iter 400 was 0.4369794 and still climbing; leg2 (300 more iterations) tail-150 was 0.4389796 with thirds still creeping; leg3 (300 more) plateaued to a near fixed point: third-of-window means 0.4390252, 0.4390554, 0.4390666, window std 4.02e-05. Converged, essentially no limit cycle at this corner.",
+      "core_minutes": 11.654
+    },
+    {
+      "name": "joint_down",
+      "coeff_family": "joint corner (down; a1 at nominal, upward-only interval)",
+      "interval": null,
+      "coeffs_used": {
+        "alphaK1": 0.85,
+        "alphaK2": 1.0,
+        "alphaOmega1": 0.7,
+        "alphaOmega2": 0.856,
+        "gamma1": 0.5555555555555556,
+        "gamma2": 0.44,
+        "beta1": 0.06870229007633587,
+        "beta2": 0.06206896551724138,
+        "betaStar": 0.1024,
+        "a1": 0.31,
+        "b1": 1.0,
+        "c1": 10.0
+      },
+      "cd_mean": 0.407404,
+      "cd_std": 0.002358,
+      "wall_seconds_total": 261.06,
+      "extended_for_convergence": true,
+      "convergence_note": "converged to a stationary LIMIT CYCLE, not a fixed point: 50-iteration block means of leg3 (0.404064 to 0.409959) and leg4 (0.405306 to 0.409995) occupy the same band with no shift of the band itself; leg4 half means differ by 0.0016 against a within-leg std of 0.0020. QoI is the mean over the 600-iteration stationary window; the cycle's std is 0.0024 and peak to peak is 0.0112. Cross-check: mean over 401-1300 is 0.407533, within 0.00013 of the reported window mean.",
+      "core_minutes": 17.404
+    }
+  ],
+  "band": {
+    "quantity_of_interest": "Cd",
+    "baseline_cd": 0.416148,
+    "perturbed_set_n": 9,
+    "min": 0.408157,
+    "max": 0.428558,
+    "mean": 0.416891,
+    "std": 0.005194,
+    "band_width": 0.020401,
+    "band_pct_of_baseline": 4.902,
+    "numerical_channel_half_width_cd": 0.00053,
+    "numerical_channel_full_width_cd": 0.00106,
+    "material": true,
+    "material_statement": "MATERIAL: the coefficient-interval band (0.02040 Cd, 4.90% of baseline) is about 19.2x wider than the stated numerical channel (+/- 0.00053 Cd). This is not folded into any quadrature sigma; it is reported as a measured interval alongside the transferred estimate."
+  },
+  "extended_samples_before_after": [
+    {
+      "name": "a1_hi",
+      "pre_extension_tail30_mean_of_leg1_100iter": 0.429262,
+      "pre_extension_note": "this is what would have been reported if leg1's 100 restart iterations had been trusted as converged",
+      "post_extension_converged_mean_tail150_of_leg2_300iter": 0.428558,
+      "correction": -0.000704
+    },
+    {
+      "name": "beta_star_lo",
+      "pre_extension_tail30_mean_of_leg1_100iter": 0.420554,
+      "pre_extension_note": "this is what would have been reported if leg1's 100 restart iterations had been trusted as converged",
+      "post_extension_converged_mean_tail150_of_leg2_300iter": 0.42069,
+      "correction": 0.000135
+    },
+    {
+      "name": "joint_up",
+      "pre_extension_tail30_mean_of_leg1_100iter": 0.4369794,
+      "pre_extension_note": "this is what would have been reported if leg1's 100 restart iterations had been trusted as converged",
+      "after_first_extension_tail150_mean_at_iter700": 0.4389796,
+      "post_plateau_mean_iterations_701_1000": 0.4390491,
+      "correction_from_leg1": 0.0020697
+    },
+    {
+      "name": "joint_down",
+      "pre_extension_tail30_mean_of_leg1_100iter": 0.4078337,
+      "pre_extension_note": "this is what would have been reported if leg1's 100 restart iterations had been trusted as converged",
+      "after_first_extension_tail150_mean_at_iter700": 0.4083438,
+      "after_second_extension_tail150_mean_at_iter1000": 0.4047563,
+      "post_plateau_mean_iterations_701_1300": 0.4074039,
+      "correction_from_leg1": -0.0004298,
+      "note": "the swing between the iter-700 and iter-1000 tail values (0.0036) is the limit cycle itself, not drift; the third extension showed the 50-block band stationary, so the QoI is the mean over the full 600-iteration cycle window rather than any single tail"
+    }
+  ],
+  "coefficient_ranking_by_drag_swing": [
+    {
+      "coeff_family": "a1",
+      "max_abs_cd_swing_from_baseline": 0.01241,
+      "at_sample": "a1_hi",
+      "signed_swing": 0.01241
+    },
+    {
+      "coeff_family": "betaStar/beta2",
+      "max_abs_cd_swing_from_baseline": 0.007991,
+      "at_sample": "ratio_beta2_hi",
+      "signed_swing": -0.007991
+    },
+    {
+      "coeff_family": "betaStar",
+      "max_abs_cd_swing_from_baseline": 0.004542,
+      "at_sample": "beta_star_lo",
+      "signed_swing": 0.004542
+    },
+    {
+      "coeff_family": "betaStar/beta1",
+      "max_abs_cd_swing_from_baseline": 0.000722,
+      "at_sample": "ratio_beta1_hi",
+      "signed_swing": -0.000722
+    },
+    {
+      "coeff_family": "sigma-w1 (alphaOmega1)",
+      "max_abs_cd_swing_from_baseline": 0.000391,
+      "at_sample": "sigma_w1_lo",
+      "signed_swing": 0.000391
+    }
+  ],
+  "ranking_finding": "a1 (upward only) produces the largest drag swing, ahead of betaStar/beta2, betaStar itself, betaStar/beta1, and sigma-w1 last. The Schaefer papers rank betaStar first for transonic wall-bounded flows; this incompressible, separated bluff-body flow does NOT reproduce that ranking; a1 dominates instead, consistent with the papers' own note that a1 matters most wherever the flow separates. This is the local, flow-dependent finding the agenda entry's caveat anticipated.",
+  "core_minutes": {
+    "estimate": 60,
+    "actual_total": 26.91,
+    "actual_samples_only": 26.642,
+    "actual_setup_overhead": 0.268,
+    "setup_breakdown": {
+      "checkMesh_measured": 0.021166666666666667,
+      "decomposePar_measured": 0.013866666666666666,
+      "calibration_trial_10iter_4core_measured": 0.23293333333333335
+    },
+    "ratio_actual_to_estimate": 0.4485,
+    "note": "Two samples (a1_hi, beta_star_lo) needed 300 extra restart iterations beyond the standard 100 because their Cd was still drifting, not plateaued, at iteration 400; this consumed extra core-minutes beyond the original per-sample estimate but the total remains well under the 60 core-minute stage-1 budget.",
+    "joint_corner_addendum": {
+      "joint_up_core_minutes": 11.6542,
+      "joint_down_core_minutes": 17.4039,
+      "joint_total": 29.0581,
+      "note": "joint_up needed legs 300-400, 400-700, 700-1000; joint_down needed a fourth leg 1000-1300 to establish that its oscillation is a stationary limit cycle rather than drift. All legs ran on 4 cores via mpirun."
+    },
+    "actual_total_including_joint_corners": 55.968,
+    "ratio_actual_to_estimate_including_joint_corners": 0.9328
+  },
+  "second_stage_trigger": {
+    "condition_in_agenda": "if the band is material against the numerical channel of plus or minus 0.00053 on Cd, promote the top three coefficients to a 20-sample Latin Hypercube set (~120 more core-minutes)",
+    "condition_met": true,
+    "action_taken_this_run": "NOT RUN. Flagging the trigger as met is this run's job; launching the second stage is a scheduling decision left to the supervisor."
+  },
+  "convergence_verdict_per_run": [
+    {
+      "name": "baseline",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "beta_star_lo",
+      "status": "CONVERGED",
+      "extended": true,
+      "note": "leg1 (100 restart iterations) still drifting monotonically (not plateaued); extended 300 more iterations, tail-150 of extension used as converged QoI"
+    },
+    {
+      "name": "beta_star_hi",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "a1_hi",
+      "status": "CONVERGED",
+      "extended": true,
+      "note": "leg1 (100 restart iterations) still drifting monotonically (not plateaued); extended 300 more iterations, tail-150 of extension used as converged QoI"
+    },
+    {
+      "name": "sigma_w1_lo",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "sigma_w1_hi",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "ratio_beta1_lo",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "ratio_beta1_hi",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "ratio_beta2_lo",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "ratio_beta2_hi",
+      "status": "CONVERGED",
+      "extended": false,
+      "note": "plateaued within the 100-iteration restart window (tail-30 used)"
+    },
+    {
+      "name": "joint_up",
+      "status": "CONVERGED",
+      "extended": true,
+      "note": "two 300-iteration extensions; plateaued to a near fixed point (window std 4.02e-05) over iterations 701-1000"
+    },
+    {
+      "name": "joint_down",
+      "status": "CONVERGED (stationary limit cycle)",
+      "extended": true,
+      "note": "three 300-iteration extensions; converged to a stationary limit cycle, mean 0.4074039 over iterations 701-1300, cycle std 0.0024, peak to peak 0.0112; leg3 and leg4 50-block bands coincide, so the band is stationary and the mean is a converged answer"
+    }
+  ],
+  "failures": [
+    {
+      "what": "joint_down continuation launch by the previous agent",
+      "error": "python3: can't open file '/home/ubuntu/Certonomous/continue_run.py': [Errno 2] No such file or directory",
+      "cause": "the continuation script lives at /tmp/closure_uq/continue_run.py; it was invoked by relative path from the repo directory",
+      "resolution": "a retry from the correct directory completed before the agent was killed (07:14:44); the resulting data was verified line by line against raw coefficient.dat and salvaged, then extended to plateau by this run. No solver run failed; this was a launch-path error only."
+    }
+  ],
+  "scope_note": "No em dashes. No numbers fabricated or smoothed; every Cd value above is copied from solver forceCoeffs output. Archived case and mesh/solve caches were not modified; all work was done in /tmp/closure_uq on copies. Joint-corner addendum: all corner work was likewise done in /tmp/closure_uq on copies; every corner Cd series was verified against its raw coefficient.dat before use; no archived cache was touched.",
+  "updated_at": "2026-07-26T08:20:00+00:00",
+  "update_note": "Extended in place after the main study: two authorized joint corner runs (joint_up, joint_down) salvaged from scratch, verified against raw coefficient.dat, extended to plateau, and analysed as a linear superposition test; plus an oscillation structure section covering every sample. Everything from the original report is preserved.",
+  "oscillation_structure": {
+    "why_this_section_exists": "The joint_down corner exposed that these steady SIMPLE solves do not all settle to a fixed point: several settle onto a stationary limit cycle. An oscillating force coefficient is not automatically an unconverged solve; the operative distinction is between a solution whose mean is still moving (genuinely unconverged, any number is arbitrary) and one that has settled onto a repeating oscillation with stable mean and amplitude (converged, but the answer is a mean plus a spread, not a point). Every Cd in this study is therefore a MEAN OVER AN OSCILLATION and is reported here with its own spread.",
+    "stationary_window_rule": "longest suffix of the series, stepping by 10 iterations, whose two halves have means differing by less than the suffix's own standard deviation; this accepts a stationary oscillation (halves agree within the cycle spread) and rejects drift (halves separated by more than the spread)",
+    "spread_measure_choice": "Both the window standard deviation and the peak to peak excursion are reported for every sample. The std is judged the more honest routine measure because a single extreme iteration dominates peak to peak over long windows; peak to peak is included so a reader can see the full excursion a single-snapshot reading could have returned.",
+    "per_sample": [
+      {
+        "name": "baseline",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 100,
+        "mean_over_stationary_window": 0.416118,
+        "std_over_window": 0.0004824,
+        "cd_min_in_window": 0.4152003,
+        "cd_max_in_window": 0.4170718,
+        "peak_to_peak": 0.0018715,
+        "previously_reported_cd_mean": 0.41614783333333333,
+        "shift_of_mean_vs_previously_reported": -2.98e-05
+      },
+      {
+        "name": "beta_star_lo",
+        "series_used": "extension leg, iterations 401-700",
+        "stationary_window_n_iterations": 300,
+        "mean_over_stationary_window": 0.4208194,
+        "std_over_window": 0.0006039,
+        "cd_min_in_window": 0.4194521,
+        "cd_max_in_window": 0.4217209,
+        "peak_to_peak": 0.0022688,
+        "previously_reported_cd_mean": 0.420689562,
+        "shift_of_mean_vs_previously_reported": 0.0001298
+      },
+      {
+        "name": "beta_star_hi",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 100,
+        "mean_over_stationary_window": 0.4140393,
+        "std_over_window": 0.0007855,
+        "cd_min_in_window": 0.4127369,
+        "cd_max_in_window": 0.4160746,
+        "peak_to_peak": 0.0033377,
+        "previously_reported_cd_mean": 0.41339083666666665,
+        "shift_of_mean_vs_previously_reported": 0.0006485
+      },
+      {
+        "name": "a1_hi",
+        "series_used": "extension leg, iterations 401-700",
+        "stationary_window_n_iterations": 280,
+        "mean_over_stationary_window": 0.4288658,
+        "std_over_window": 0.0006162,
+        "cd_min_in_window": 0.4281599,
+        "cd_max_in_window": 0.4309078,
+        "peak_to_peak": 0.0027479,
+        "previously_reported_cd_mean": 0.42855802800000004,
+        "shift_of_mean_vs_previously_reported": 0.0003078
+      },
+      {
+        "name": "sigma_w1_lo",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 70,
+        "mean_over_stationary_window": 0.4164051,
+        "std_over_window": 0.0005801,
+        "cd_min_in_window": 0.4153746,
+        "cd_max_in_window": 0.4173379,
+        "peak_to_peak": 0.0019633,
+        "previously_reported_cd_mean": 0.41653903999999997,
+        "shift_of_mean_vs_previously_reported": -0.0001339
+      },
+      {
+        "name": "sigma_w1_hi",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 100,
+        "mean_over_stationary_window": 0.4159343,
+        "std_over_window": 0.0004722,
+        "cd_min_in_window": 0.4150368,
+        "cd_max_in_window": 0.4167995,
+        "peak_to_peak": 0.0017627,
+        "previously_reported_cd_mean": 0.41589278,
+        "shift_of_mean_vs_previously_reported": 4.15e-05
+      },
+      {
+        "name": "ratio_beta1_lo",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 80,
+        "mean_over_stationary_window": 0.4161409,
+        "std_over_window": 0.0005363,
+        "cd_min_in_window": 0.4152449,
+        "cd_max_in_window": 0.4171227,
+        "peak_to_peak": 0.0018778,
+        "previously_reported_cd_mean": 0.4162339266666667,
+        "shift_of_mean_vs_previously_reported": -9.3e-05
+      },
+      {
+        "name": "ratio_beta1_hi",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 100,
+        "mean_over_stationary_window": 0.415659,
+        "std_over_window": 0.0005157,
+        "cd_min_in_window": 0.4147543,
+        "cd_max_in_window": 0.4165158,
+        "peak_to_peak": 0.0017615,
+        "previously_reported_cd_mean": 0.41542631333333335,
+        "shift_of_mean_vs_previously_reported": 0.0002327
+      },
+      {
+        "name": "ratio_beta2_lo",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 60,
+        "mean_over_stationary_window": 0.4169085,
+        "std_over_window": 0.0005245,
+        "cd_min_in_window": 0.4159748,
+        "cd_max_in_window": 0.4176467,
+        "peak_to_peak": 0.0016719,
+        "previously_reported_cd_mean": 0.41712933999999996,
+        "shift_of_mean_vs_previously_reported": -0.0002208
+      },
+      {
+        "name": "ratio_beta2_hi",
+        "series_used": "restart leg, iterations 301-400",
+        "stationary_window_n_iterations": 50,
+        "mean_over_stationary_window": 0.4086251,
+        "std_over_window": 0.0008105,
+        "cd_min_in_window": 0.4074477,
+        "cd_max_in_window": 0.4098087,
+        "peak_to_peak": 0.002361,
+        "previously_reported_cd_mean": 0.40815711666666665,
+        "shift_of_mean_vs_previously_reported": 0.0004679
+      },
+      {
+        "name": "joint_up",
+        "series_used": "leg3, iterations 701-1000",
+        "stationary_window_n_iterations": 300,
+        "mean_over_stationary_window": 0.4390491,
+        "std_over_window": 4.02e-05,
+        "cd_min_in_window": 0.4389647,
+        "cd_max_in_window": 0.4391393,
+        "peak_to_peak": 0.0001746,
+        "previously_reported_cd_mean": null,
+        "shift_of_mean_vs_previously_reported": null
+      },
+      {
+        "name": "joint_down",
+        "series_used": "legs 3 and 4, iterations 701-1300",
+        "stationary_window_n_iterations": 600,
+        "mean_over_stationary_window": 0.4074039,
+        "std_over_window": 0.0023583,
+        "cd_min_in_window": 0.4017223,
+        "cd_max_in_window": 0.412945,
+        "peak_to_peak": 0.0112227,
+        "previously_reported_cd_mean": null,
+        "shift_of_mean_vs_previously_reported": null
+      }
+    ],
+    "consistency_with_previously_reported_means": "For the ten original samples the stationary-window means differ from the previously reported tail-window cd_mean values by at most 0.00065 (largest at beta_star_hi), inside every sample's own oscillation spread. The previously reported means stand; this section adds the spread structure around them rather than revising them.",
+    "band_restated_with_oscillation_visible": {
+      "statement": "The 0.020401 Cd (4.90 percent) one-at-a-time band is a spread of MEANS. Each mean carries its own limit-cycle spread: peak to peak 0.0016719 to 0.0033377 Cd across the ten original samples (8 to 16 percent of the band width), 0.000175 at the joint_up corner, and 0.011223 at the joint_down corner (35 percent of the 0.0316 corner-to-corner superposition envelope). A reader taking 0.0204 Cd as the total uncertainty while a single sample can wander 0.006 Cd from its own mean within a window would overstate the precision; both numbers belong together.",
+      "oat_band_width_of_means": 0.020401,
+      "oat_per_sample_peak_to_peak_range": [
+        0.0016719,
+        0.0033377
+      ],
+      "joint_corner_envelope_width_of_means_superposition_approximation": 0.031645,
+      "joint_down_peak_to_peak": 0.0112227,
+      "joint_up_peak_to_peak": 0.0001746
+    },
+    "physical_or_pseudo_time_view": "View, offered for the parallel NACA 0012 question: the oscillation here is most plausibly physical in ORIGIN, a bluff-body wake instability of a massively separated flow at Reynolds number of order 10^6 that steady RANS renders as a limit cycle, though its amplitude and period as computed are pseudo-time artifacts and not time-accurate measurements. The evidence is that the cycle amplitude tracks modelled turbulent damping systematically: joint_up, whose coefficients (a1 0.40, betaStar 0.0784) raise eddy viscosity in the separated region, extinguishes the cycle almost completely (window std 0.0000402), while joint_down, whose coefficients lower it, shows the largest cycle in the study (std 0.0024, peak to peak 0.0112), with the nominal-coefficient samples in between (ptp about 0.002). A pure pseudo-time artifact would not be expected to respond this systematically to the turbulence closure. A bluff body at this Reynolds number is also a much stronger candidate for genuinely physical unsteadiness than an airfoil."
+  }
+}

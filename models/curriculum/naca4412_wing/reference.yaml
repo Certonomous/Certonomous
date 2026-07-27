@@ -10,18 +10,30 @@ regime:
   label: attached, cambered section carrying lift at zero incidence
   reynolds_valid: [3.0e5, 6.0e6]
   reynolds_independent: false
-tolerance: 0.40              # wide: 3D induced drag on a low-aspect wing dominates and is uncertain
+tolerance: 0.35              # wide: 3D induced drag on a low-aspect wing dominates and is uncertain;
+                             # brought in line with the lab's widest other band (flat_plate 0.35) --
+                             # 0.40 admitted both a 3.6% and a 37% deviation as equally valid, which
+                             # has no discriminating power and rewards the coarsest, least-resolved mesh.
 confidence: low
+reference_type: hand-set estimate, not a published measurement
 source: "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)"
 conditions: "alpha = 0, chord-Reynolds ~ 1e6, aspect ratio ~ 3, extruded straight"
 solve:
   streamwise_axis: 0         # chord along X; face the flow chord-first
   velocity: 15.0             # with c=1 m and nu=1.5e-5, gives Re_c ~ 1e6
 notes: >
-  The 4412 is cambered, so at zero incidence it already carries lift
-  (section Cl ~ 0.4). The two-dimensional profile drag is small (~0.006-0.009),
-  but a finite aspect-ratio-3 wing adds substantial induced drag on top of it,
-  so the measured three-dimensional coefficient is expected around 0.02-0.03
-  and is genuinely uncertain. The reference band is wide and the confidence low
-  by design: read this body as a trend case unless a lift-and-induced-drag
-  breakdown is added. Referenced to planform area, so no rebasing.
+  The cd value above (0.030) is a hand-set estimate, not a published
+  measurement: it was entered directly in this file with no computation and
+  no supporting script behind it. The cited Abbott & von Doenhoff figure is
+  the two-dimensional SECTION drag (~0.006-0.009), a different quantity from
+  the three-dimensional coefficient of an aspect-ratio-3 wing, so it anchors
+  the low end of the picture rather than the number itself. The 4412 is
+  cambered, so at zero incidence it already carries lift (section Cl ~ 0.4);
+  a finite aspect-ratio-3 wing adds substantial induced drag on top of the
+  section value, so the measured three-dimensional coefficient is expected
+  somewhere in the 0.008-0.045 range and is genuinely uncertain. The
+  confidence is marked low by design, and the tier logic honors that: this
+  body cannot carry a VALIDATED chip against a reference this uncertain, only
+  SOLVER-BACKED, until a lift-and-induced-drag breakdown replaces this
+  estimate with an actual computation. Referenced to planform area, so no
+  rebasing.

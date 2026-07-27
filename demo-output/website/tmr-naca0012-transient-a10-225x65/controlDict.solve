@@ -1,0 +1,54 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+
+application     pimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         300.0;
+deltaT          0.002;
+adjustTimeStep  yes;
+maxCo           1.5;
+maxDeltaT       1.5;
+writeControl    adjustableRunTime;
+writeInterval   300.0;
+purgeWrite      1;
+writeFormat     ascii;
+writePrecision  10;
+timeFormat      general;
+timePrecision   8;
+
+functions
+{
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        patches         (auto3);
+        rho             rhoInf;
+        rhoInf          1.0;
+        magUInf         1.0;
+        lRef            1.0;
+        Aref            1.0;
+        CofR            (0 0 0);
+        dragDir         (0.98480775 0.00000000 0.17364818);
+        liftDir         (-0.17364818 0.00000000 0.98480775);
+        pitchAxis       (0 0 1);
+    }
+    yPlus1
+    {
+        type            yPlus;
+        libs            (fieldFunctionObjects);
+        executeControl  onEnd;
+        writeControl    onEnd;
+    }
+}

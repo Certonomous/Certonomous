@@ -1,110 +1,292 @@
 {
   "counters": {
-    "missions_run": 24076,
-    "solver_core_hours": 42.215,
+    "missions_run": 72298,
+    "solver_core_hours": 101.534,
     "knowledge_entries": 8,
     "experimental_anchors": 8,
     "benchmarks_active": 2,
     "detail": {
-      "ledger_evaluations": 24076,
-      "ledger_failed": 0,
+      "ledger_evaluations": 72298,
+      "ledger_failed": 72,
       "persisted_missions": 0,
       "per_solver": {
         "openfoam-cylinder": {
-          "count": 8025,
-          "wall_seconds": 71021.6
+          "count": 24063,
+          "wall_seconds": 171962.2
         },
         "reduced-order": {
-          "count": 8026,
-          "wall_seconds": 8.4
+          "count": 24124,
+          "wall_seconds": 22.4
         },
         "vspaero-wing": {
-          "count": 8025,
-          "wall_seconds": 80942.6
+          "count": 24111,
+          "wall_seconds": 193539.5
         }
       }
+    },
+    "research": {
+      "closure": {
+        "title": "Closure-challenge benchmark",
+        "status": "ACTIVE RESEARCH",
+        "board": "public leaderboard",
+        "target_rank": 4,
+        "target_overall": 0.0779,
+        "target_per_case": [
+          0.068,
+          0.1364,
+          0.0591,
+          0.0882,
+          0.0895,
+          0.0866,
+          0.0487,
+          0.0464
+        ],
+        "our_entry": "No entry submitted. Measured a zero-training RANS reference floor of 0.1036 overall, scored by the benchmark's own unmodified code; worse than every published entry, since it reflects no learned correction",
+        "our_score": 0.1036,
+        "our_per_case": [
+          0.132,
+          0.2049,
+          0.0461,
+          0.0719,
+          0.1288,
+          0.1243,
+          0.059,
+          0.0621
+        ],
+        "target": "top 4",
+        "repo": "github.com/rmcconke/closure-challenge-benchmark"
+      },
+      "speed": {
+        "title": "Reduced-order speed benchmark",
+        "status": "measured",
+        "case": "NACA 4412",
+        "full_core_min": 45.4,
+        "reduced_core_min": 2.1,
+        "speedup_x": 21.5
+      },
+      "fleet_learning": {
+        "title": "Learning from the fleet ledger",
+        "status": "ACTIVE RESEARCH",
+        "summary": "Distilled from 71879 rows of the mega-batch ledger (71807 completed evaluations); every relationship carries measured fit quality, never assertion.",
+        "available": true,
+        "generated_at": "2026-07-26T08:00:50Z",
+        "row_count": 71879,
+        "ok_rows": 71807,
+        "failed_rows": 72,
+        "families": [
+          {
+            "solver": "openfoam-cylinder",
+            "label": "OpenFOAM cylinder solves",
+            "ok": 23899,
+            "failed": 62,
+            "failure_rate": 0.0026
+          },
+          {
+            "solver": "reduced-order",
+            "label": "reduced-order valve evaluations",
+            "ok": 23960,
+            "failed": 0,
+            "failure_rate": 0.0
+          },
+          {
+            "solver": "vspaero-wing",
+            "label": "VSPAERO wing polars",
+            "ok": 23948,
+            "failed": 10,
+            "failure_rate": 0.0004
+          }
+        ],
+        "best_wing": {
+          "ledger_index": 40402,
+          "aspect_ratio": 15.99,
+          "sweep_deg": 16.94,
+          "L_D": 47.1
+        },
+        "highlights": [
+          "Across 23948 wing polars, higher aspect ratio raises L/D: about +1.89 in L/D per unit of aspect ratio, and the fit explains 93 percent of the variance (r2 = 0.93). That is a strong relationship, measured, not assumed.",
+          "The induced-drag rows imply a span efficiency near 1.02 (spread 0.02 over 23948 polars), pulled straight from cl and cdi.",
+          "Best wing seen so far: L/D 47.1 at aspect ratio 16.0 and sweep 16.9 deg (ledger row 40402).",
+          "Over 23899 cylinder solves in the steady-laminar band, Cd falls with Re with a log-log slope of -0.43 (r2 = 1.00), consistent with laminar drag theory.",
+          "100 percent of the 23899 cylinder solves converged to residual tolerance.",
+          "Across 23960 reduced-order valve evaluations, wider opening angles cut cycle-weighted loss (slope -148.6 Pa per degree, r2 = 0.75); the lowest loss seen is 1267 Pa at 85.0 deg (ledger row 11072).",
+          "Reliability: 72 of 71879 attempted evaluations failed (0 percent); every failure stays in the ledger and counts against the fleet.",
+          "All of the above rests on 71807 completed evaluations in the fleet ledger; nothing here is asserted without a row behind it."
+        ]
+      },
+      "queued": [
+        {
+          "name": "Harmonic-balance cycle solve",
+          "note": "periodic flow solved in the frequency domain, not marched in time"
+        },
+        {
+          "name": "Unsteady fluid-structure interaction",
+          "note": "leaflet motion coupled to the flow it drives"
+        },
+        {
+          "name": "Non-Newtonian rheology",
+          "note": "shear-thinning blood models for the valve agenda"
+        }
+      ],
+      "challenges": [
+        {
+          "title": "AIAA Drag Prediction Workshop (NASA Common Research Model)",
+          "host": "AIAA, with the NASA Common Research Model",
+          "url": "aiaa-dpw.org",
+          "what": "a standing public forum that grades CFD drag predictions on the NASA Common Research Model against published wind-tunnel data",
+          "status": "target identified",
+          "entry": "our external-aerodynamics RANS pipeline on the Common Research Model, graded against the published experimental drag",
+          "lead": true
+        },
+        {
+          "title": "NASA Turbulence Modeling Resource verification cases",
+          "host": "NASA Langley / Turbulence Model Benchmarking Working Group",
+          "url": "tmbwg.github.io/turbmodels",
+          "what": "the reference verification cases, including the 2D flat plate and bump-in-channel, that a RANS code must reproduce on refined grids",
+          "status": "flat plate and bump measured",
+          "entry": "flat plate and bump-in-channel each run on a 3-grid ladder against the published CFL3D values: flat-plate Cd 0.002834 vs 0.002826 at matched grid size, bump Cd 0.003567 vs 0.003607; NACA 0012 airfoil next",
+          "lead": true
+        },
+        {
+          "title": "FDA medical-device CFD benchmark (nozzle and blood pump)",
+          "host": "U.S. Food and Drug Administration, Critical Path Initiative",
+          "url": "github.com/OSEL-DAM/CFD-and-Blood-Damage-Benchmarks",
+          "what": "the FDA benchmark nozzle and centrifugal blood-pump geometries with particle-image-velocimetry validation data for internal blood flow",
+          "status": "scoping",
+          "entry": "our reduced-order internal-flow screen and a RANS nozzle solve, aligned with the valve agenda and graded against the published velocity fields",
+          "lead": false
+        },
+        {
+          "title": "Automotive CFD Prediction Workshop (DrivAer)",
+          "host": "AutoCFD steering committee (Oxford, Ford, and partners)",
+          "url": "autocfd.org",
+          "what": "a road-car aerodynamics benchmark on the DrivAer model, correlated against Pininfarina wind-tunnel measurements",
+          "status": "target identified",
+          "entry": "our external-aerodynamics RANS pipeline, the one that already runs the motorBike body, carried onto the DrivAer geometry",
+          "lead": false
+        }
+      ]
     }
   },
   "credentials": [
     {
       "name": "ahmed_25",
       "tier": "VALIDATED",
-      "measured": "0.08978",
+      "measured": "0.3219",
+      "measured_raw": "0.08978",
+      "area_basis": "frontal",
+      "cells": 45753,
       "envelope": "\u00b11.6e-06",
       "reference_cd": 0.285,
       "source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
       "reason": "within 13% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.285 (band \u00b115%)",
-      "wall_minutes": 2.95
-    },
-    {
-      "name": "cube",
-      "tier": "VALIDATED",
-      "measured": "1.112",
-      "envelope": "\u00b10.0061",
-      "reference_cd": 1.05,
-      "source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)",
-      "reason": "within 6% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%)",
-      "wall_minutes": 4.6
-    },
-    {
-      "name": "flat_plate",
-      "tier": "VALIDATED",
-      "measured": "0.03238",
-      "envelope": "\u00b12e-06",
-      "reference_cd": 0.03,
-      "source": "thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces",
-      "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%)",
-      "wall_minutes": 5.63
-    },
-    {
-      "name": "naca4412_wing",
-      "tier": "VALIDATED",
-      "measured": "0.02892",
-      "envelope": "\u00b14.6e-07",
-      "reference_cd": 0.03,
-      "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
-      "reason": "within 4% of Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03 (band \u00b140%)",
-      "wall_minutes": 4.41
-    },
-    {
-      "name": "cylinder",
-      "tier": "REFERENCE REGIME MISMATCH",
-      "measured": "0.5464",
-      "envelope": "\u00b12.1e-05",
-      "reference_cd": 0.74,
-      "source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)",
-      "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend",
-      "wall_minutes": 1.77
-    },
-    {
-      "name": "sphere",
-      "tier": "REFERENCE REGIME MISMATCH",
-      "measured": "0.09484",
-      "envelope": "\u00b10.00012",
-      "reference_cd": 0.47,
-      "source": "Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory",
-      "reason": "measured Cd 0.095 matches the supercritical (post-drag-crisis) regime (Cd ~0.09, Achenbach 1972 (supercritical branch, Cd ~ 0.07-0.10)), not the subcritical (laminar separation, wide wake) reference Cd 0.47; steady fully-turbulent RANS delays boundary-layer separation and reproduces the post-drag-crisis wake, so the coefficient reads supercritical even when the solve Reynolds number is subcritical\n \u2014 a like-for-like comparison against the reference is not available, so this is neither validated nor a plain trend",
-      "wall_minutes": 5.24
+      "wall_minutes": 2.95,
+      "finest_rung": false,
+      "rung_provenance": null
     },
     {
       "name": "ahmed_35",
-      "tier": "TREND ONLY",
-      "measured": "0.0876",
+      "tier": "SOLVER-BACKED",
+      "measured": "0.3141",
+      "measured_raw": "0.0876",
+      "area_basis": "frontal",
+      "cells": 45813,
       "envelope": "\u00b11.8e-06",
       "reference_cd": 0.26,
       "source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
-      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend",
-      "wall_minutes": 3.06
+      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26, outside the \u00b115% band",
+      "wall_minutes": 3.06,
+      "finest_rung": false,
+      "rung_provenance": null
+    },
+    {
+      "name": "cube",
+      "tier": "SOLVER-BACKED",
+      "measured": "1.104",
+      "measured_raw": "1.104",
+      "area_basis": "frontal",
+      "cells": 299493,
+      "envelope": "\u00b10.0078 across the 3-mesh refinement study",
+      "reference_cd": 1.05,
+      "source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks)",
+      "reason": "within 5% of Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (rectangular and cubic blocks), Cd 1.05 (band \u00b115%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated",
+      "wall_minutes": 4.6,
+      "finest_rung": true,
+      "rung_provenance": "cube-production"
+    },
+    {
+      "name": "cylinder",
+      "tier": "SOLVER-BACKED",
+      "measured": "0.5464",
+      "measured_raw": "0.5464",
+      "area_basis": "frontal",
+      "cells": 29470,
+      "envelope": "\u00b12.1e-05",
+      "reference_cd": 0.74,
+      "source": "Hoerner, Fluid-Dynamic Drag (1965), Ch. 3 (finite-aspect cylinders in crossflow)",
+      "reason": "measured Cd 0.546 matches the supercritical / fully-turbulent regime (Cd ~0.5, Hoerner (1965), supercritical branch below the subcritical 0.74), not the subcritical crossflow, free-end relief reference Cd 0.74; fully-turbulent steady RANS under-predicts the subcritical base drag of the finite cylinder, landing near the supercritical branch rather than the subcritical reference\n; no like-for-like comparison available",
+      "wall_minutes": 1.77,
+      "finest_rung": false,
+      "rung_provenance": null
+    },
+    {
+      "name": "flat_plate",
+      "tier": "SOLVER-BACKED",
+      "measured": "0.03238",
+      "measured_raw": "0.03238",
+      "area_basis": "planform",
+      "cells": 108711,
+      "envelope": "\u00b12e-06",
+      "reference_cd": 0.03,
+      "source": "thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces",
+      "reason": "within 8% of thin-airfoil / finite-wing theory; consistent with Hoerner, Fluid-Dynamic Drag, lifting surfaces, Cd 0.03 (band \u00b135%), but that reference is itself a low-confidence estimate, not a settled measurement; not enough to call it validated",
+      "wall_minutes": 5.63,
+      "finest_rung": false,
+      "rung_provenance": null
     },
     {
       "name": "naca0012_wing",
-      "tier": "TREND ONLY",
+      "tier": "SOLVER-BACKED",
       "measured": "0.02229",
+      "measured_raw": "0.02229",
+      "area_basis": "planform",
+      "cells": 67356,
       "envelope": "\u00b12.5e-07",
       "reference_cd": 0.009,
       "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data",
-      "reason": "measured Cd 0.022 is 148% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data, Cd 0.009 \u2014 outside the \u00b130% band, so it stands as a trend",
-      "wall_minutes": 3.04
+      "reason": "measured Cd 0.022 is 148% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data, Cd 0.009, outside the \u00b130% band",
+      "wall_minutes": 3.04,
+      "finest_rung": false,
+      "rung_provenance": null
+    },
+    {
+      "name": "naca4412_wing",
+      "tier": "SOLVER-BACKED",
+      "measured": "0.01892",
+      "measured_raw": "0.01892",
+      "area_basis": "planform",
+      "cells": 337334,
+      "envelope": "\u00b10.0031 across the 3-mesh refinement study",
+      "reference_cd": 0.03,
+      "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
+      "reason": "measured Cd 0.019 is 37% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03, outside the \u00b135% band",
+      "wall_minutes": 4.41,
+      "finest_rung": true,
+      "rung_provenance": "uq-naca4412_wing-r4"
+    },
+    {
+      "name": "sphere",
+      "tier": "SOLVER-BACKED",
+      "measured": "0.0948",
+      "measured_raw": "0.09484",
+      "area_basis": "frontal",
+      "cells": 99532,
+      "envelope": "\u00b10.00012",
+      "reference_cd": 0.47,
+      "source": "Achenbach 1972, J. Fluid Mech. 54:565; consistent with Schlichting, Boundary-Layer Theory",
+      "reason": "measured Cd 0.095 matches the supercritical (post-drag-crisis) regime (Cd ~0.09, Achenbach 1972 (supercritical branch, Cd ~ 0.07-0.10)), not the subcritical (laminar separation, wide wake) reference Cd 0.47; steady fully-turbulent RANS delays boundary-layer separation and reproduces the post-drag-crisis wake, so the coefficient reads supercritical even when the solve Reynolds number is subcritical\n; no like-for-like comparison available",
+      "wall_minutes": 5.24,
+      "finest_rung": false,
+      "rung_provenance": null
     }
   ]
 }

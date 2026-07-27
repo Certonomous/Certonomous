@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "error": "TimeoutExpired: Command '['openfoam2606', 'pimpleFoam']' timed out after 21599.99998268 seconds",
+  "driver_wall_seconds": 21606.15623575,
+  "driver_core_minutes": 360.10260392916666
+}

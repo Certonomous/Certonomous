@@ -14,12 +14,68 @@ Two bars, both enforced here:
   byte-identical — the on-camera look is frozen (golden payload check).
 """
 
+import base64
 import json
 import math
+import struct
+import tempfile
 import unittest
+from pathlib import Path
 
-from chief_engineer.field_render import _attach_field, _package_painted
+from chief_engineer.field_render import (_attach_field, _package_painted,
+                                         _patch_cell_values, _read_patch,
+                                         cp_bound_report, load_field_surface)
 from chief_engineer.geometry import _package
+
+
+def _b64(fmt: str, data) -> str:
+    """One VTK XML binary DataArray body: UInt64 byte-count header + payload."""
+    payload = struct.pack(f"<{len(data)}{fmt}", *data)
+    return base64.b64encode(struct.pack("<Q", len(payload)) + payload).decode()
+
+
+def _write_vtp(path, n: int, point_values, cell_values=None) -> None:
+    """Write an ``n`` by ``n`` quad sheet as a foamToVTK-dialect .vtp patch.
+
+    Same wire format ``_read_patch`` parses off a real ``foamToVTK
+    -surfaceFields`` patch: base64 binary DataArrays with a UInt64 byte-count
+    header, quads in Polys (so the reader's fan triangulation runs), and the
+    field in PointData (so its per-point to per-face averaging runs too).
+    ``cell_values`` adds the CellData array a real patch also carries, one
+    value per quad; pass None to emit a file with no CellData at all.
+    """
+    points = []
+    for i in range(n):
+        for j in range(n):
+            points.extend([i / (n - 1.0), j / (n - 1.0), 0.0])
+    connectivity, offsets = [], []
+    for i in range(n - 1):
+        for j in range(n - 1):
+            v = i * n + j
+            connectivity.extend([v, v + 1, v + n + 1, v + n])
+            offsets.append(len(connectivity))
+    n_quads = len(offsets)
+    cell_block = ""
+    if cell_values is not None:
+        cell_block = ("<CellData><DataArray type='Float64' Name='p' "
+                      f"format='binary'>{_b64('d', list(cell_values))}"
+                      "</DataArray></CellData>\n")
+    Path(path).write_text(
+        "<?xml version='1.0'?>\n"
+        "<VTKFile type='PolyData' version='1.0' byte_order='LittleEndian' "
+        "header_type='UInt64'>\n<PolyData>\n"
+        f"<Piece NumberOfPoints='{n * n}' NumberOfPolys='{n_quads}'>\n"
+        "<Points><DataArray type='Float64' Name='Points' "
+        "NumberOfComponents='3' format='binary'>"
+        f"{_b64('d', points)}</DataArray></Points>\n"
+        "<Polys><DataArray type='Int64' Name='connectivity' format='binary'>"
+        f"{_b64('q', connectivity)}</DataArray>"
+        "<DataArray type='Int64' Name='offsets' format='binary'>"
+        f"{_b64('q', offsets)}</DataArray></Polys>\n"
+        "<PointData><DataArray type='Float64' Name='p' format='binary'>"
+        f"{_b64('d', list(point_values))}</DataArray></PointData>\n"
+        f"{cell_block}"
+        "</Piece>\n</PolyData>\n</VTKFile>\n", encoding="utf-8")
 
 
 def _clustered_fixture():
@@ -128,7 +184,8 @@ class NonDecimatedFrozenPipelineTests(unittest.TestCase):
         golden = {
             "bounds": {"max": [1.0, 1.0, 0.0], "min": [0.0, 0.0, 0.0]},
             "faces": [[0, 1, 2], [1, 3, 2]],
-            "field": {"display_max": 30.0, "display_min": 20.0,
+            "field": {"color_max": 30.0, "color_min": 20.0,
+                      "display_max": 30.0, "display_min": 20.0,
                       "max": 30.0, "min": 20.0, "name": "p",
                       "values": [0.0, 1.0]},
             "name": "surface",
@@ -153,6 +210,277 @@ class NonDecimatedFrozenPipelineTests(unittest.TestCase):
         self.assertEqual(payload["field"]["values"], [0.0, 0.3333, 0.6667, 1.0])
         self.assertEqual(payload["field"]["min"], 10.0)
         self.assertEqual(payload["field"]["max"], 40.0)
+
+
+class ReportedPhysicalRangeRegressionTests(unittest.TestCase):
+    """The understated-peak-pressure bug: pinned so it cannot silently return.
+
+    Every published pressure-painted body (NACA 4412 wing, motorbike, B-52)
+    reported a Cp_max far below the solver's own value because two stages
+    diluted or clipped the peak and then the diluted/clipped number was
+    written into the JSON as if it were the field's physical extreme:
+    vertex-clustering decimation averages a sharp stagnation peak into its
+    cooler neighbours, and the 2nd/98th percentile colour clip drops the
+    real extreme outright. The reported ``min``/``max`` must always equal the
+    true range of the UNDECIMATED, UNCLIPPED input data, to a tight
+    tolerance, regardless of which branch (decimated or not) is taken and
+    regardless of what the colour map clips to for display.
+    """
+
+    def test_decimated_body_reports_the_undiluted_extreme(self):
+        # A large sheet (3,042 faces, well above max_faces=400 so clustering
+        # triggers) that is otherwise flat, with a single stagnation-like
+        # spike planted on one interior face and a single suction-like spike
+        # on another. Each extreme is 1 face in 3,042 (0.03%), so clustering
+        # blends both away completely: measured, the decimated display values
+        # come back dead flat at 1.0. That is the wing's own failure mode
+        # (0.6% of its faces carried the peak) reproduced in miniature, and
+        # it means this test genuinely distinguishes a reported range taken
+        # from the undecimated source from one taken from the display faces.
+        vertices, faces, values = [], [], []
+        for i in range(40):
+            for j in range(40):
+                vertices.append([i / 39.0, j / 39.0, 0.0])
+        for i in range(39):
+            for j in range(39):
+                v = i * 40 + j
+                faces.append([v, v + 1, v + 41])
+                faces.append([v, v + 41, v + 40])
+                values.extend([1.0, 1.0])
+        values[0] = 1000.0       # the stagnation-like peak
+        values[1000] = -1000.0   # the suction-like peak
+        max_faces = 400
+        self.assertGreater(len(faces), max_faces)  # decimation must trigger
+
+        payload, display_values = _package_painted(
+            vertices, faces, values, max_faces, "sheet")
+        # This is exactly what load_field_surface computes: the physical
+        # range from the UNDECIMATED per-face list, before clustering ever
+        # sees it.
+        physical_range = (min(values), max(values))
+        _attach_field(payload, display_values, "p", physical_range=physical_range)
+
+        field = payload["field"]
+        # The reported physical range must equal the true range of the input
+        # data to a tight tolerance. This is the assertion the bug violated.
+        self.assertAlmostEqual(field["min"], min(values), places=9)
+        self.assertAlmostEqual(field["max"], max(values), places=9)
+        self.assertAlmostEqual(field["min"], -1000.0, places=9)
+        self.assertAlmostEqual(field["max"], 1000.0, places=9)
+        # The decimated display values cannot produce this range on their
+        # own: proof the reported range truly bypassed clustering rather
+        # than surviving it by coincidence.
+        self.assertGreater(min(display_values), -1000.0 + 1.0)
+        self.assertLess(max(display_values), 1000.0 - 1.0)
+        # The colour range is a distinct, clipped window: never mistakeable
+        # for the physical one, and nowhere near the true extremes.
+        self.assertLess(field["color_max"], field["max"])
+        self.assertGreater(field["color_min"], field["min"])
+        self.assertNotEqual(
+            (field["color_min"], field["color_max"]),
+            (field["min"], field["max"]))
+
+    def test_load_field_surface_reports_the_true_range_of_its_input(self):
+        # End to end through the public entry point, on a real .vtp written
+        # in the same binary VTK XML dialect foamToVTK emits: the reported
+        # min/max must equal the true extremes of the per-face values the
+        # reader derived, to a tight tolerance, even though the body is far
+        # over max_faces and every stage downstream of the read dilutes or
+        # clips them.
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = Path(tmp) / "body.vtp"
+            n = 40
+            point_values = [1.0] * (n * n)
+            point_values[0] = 3000.0      # a lone stagnation-like point
+            point_values[n * n - 1] = -3000.0
+            _write_vtp(vtp, n, point_values)
+
+            _, faces, face_values = _read_patch(vtp, "p")
+            self.assertEqual(len(face_values), len(faces))
+            true_lo, true_hi = min(face_values), max(face_values)
+            self.assertGreater(true_hi, 900.0)   # the peak survived the read
+            self.assertLess(true_lo, -900.0)
+
+            payload = load_field_surface(vtp, field="p", max_faces=400,
+                                         name="body")
+            self.assertGreater(payload["triangles_total"], 400)
+            self.assertLess(payload["triangles_shown"],
+                            payload["triangles_total"])  # decimation ran
+            field = payload["field"]
+            self.assertAlmostEqual(field["min"], true_lo, places=9)
+            self.assertAlmostEqual(field["max"], true_hi, places=9)
+            # And the colour window is still the clipped, display-only one.
+            self.assertLess(field["color_max"], field["max"])
+            self.assertGreater(field["color_min"], field["min"])
+
+    def test_reported_range_prefers_the_solver_own_wall_cell_values(self):
+        # foamToVTK writes the wall field twice: per point (which the display
+        # path interpolates to face centres, smooth but lossy at a peak) and
+        # per cell (the finite-volume wall values the solver actually wrote).
+        # The reported physics must come from the cell array. Measured on the
+        # NACA 4412 wing the two disagree by Cp 0.8897 against 0.8503, so
+        # reading the wrong one silently understates every published peak.
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = Path(tmp) / "body.vtp"
+            n = 40
+            n_quads = (n - 1) * (n - 1)
+            point_values = [1.0] * (n * n)
+            cell_values = [1.0] * n_quads
+            cell_values[0] = 500.0     # the solver's own peak, one wall face
+            cell_values[7] = -500.0
+            _write_vtp(vtp, n, point_values, cell_values=cell_values)
+
+            # The nodal path alone cannot see either extreme: it is flat.
+            _, faces, nodal = _read_patch(vtp, "p")
+            self.assertEqual(min(nodal), 1.0)
+            self.assertEqual(max(nodal), 1.0)
+            self.assertEqual(_patch_cell_values(vtp, "p"), cell_values)
+
+            payload = load_field_surface(vtp, field="p", max_faces=400,
+                                         name="body")
+            field = payload["field"]
+            self.assertAlmostEqual(field["min"], -500.0, places=9)
+            self.assertAlmostEqual(field["max"], 500.0, places=9)
+
+    def test_reported_range_falls_back_to_nodal_without_cell_data(self):
+        # A patch file with no CellData at all (an older foamToVTK write):
+        # the reported range is still a true, unclipped extreme, taken from
+        # the nodal-derived per-face values, never from the colour clip.
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = Path(tmp) / "body.vtp"
+            n = 40
+            point_values = [1.0] * (n * n)
+            point_values[0] = 3000.0
+            _write_vtp(vtp, n, point_values, cell_values=None)
+
+            self.assertIsNone(_patch_cell_values(vtp, "p"))
+            _, faces, nodal = _read_patch(vtp, "p")
+            payload = load_field_surface(vtp, field="p", max_faces=400,
+                                         name="body")
+            field = payload["field"]
+            self.assertAlmostEqual(field["min"], min(nodal), places=9)
+            self.assertAlmostEqual(field["max"], max(nodal), places=9)
+            self.assertGreater(field["max"], 900.0)
+
+    def test_attach_field_falls_back_to_its_own_values_when_undecimated(self):
+        # A caller with no separate undecimated source (e.g. a body below
+        # the decimation threshold, where face_values already ARE the
+        # undecimated per-face data) still gets the true min/max of what it
+        # passed, not the percentile-clipped window.
+        values = [5.0, -50.0, 7.0, 8.0, 40.0]
+        payload = {"faces": [[0, 1, 2]] * len(values)}
+        _attach_field(payload, values, "p")
+        self.assertEqual(payload["field"]["min"], -50.0)
+        self.assertEqual(payload["field"]["max"], 40.0)
+
+
+class CpStagnationBoundFlagTests(unittest.TestCase):
+    """The reported physical range is disclosed, never corrected.
+
+    The motorbike's true wall maximum is Cp 1.119 on a single sliver face in
+    the front brake-disc gap. That value is what the solver wrote and it must
+    keep being reported, but Cp cannot exceed 1 in incompressible flow, so a
+    consumer displaying it unqualified would put a physically impossible
+    number on screen. These tests pin the disclosure: the value stays, and a
+    flag alongside it says the bound is broken, by how many faces, and what
+    the highest admissible value is instead.
+    """
+
+    def test_violating_field_is_flagged_without_altering_the_extreme(self):
+        q = 200.0
+        # 1 face over the bound, 3 in suction-outlier territory, 996 ordinary.
+        values = [(-30.0) for _ in range(996)]
+        values += [-500.0, -450.0, -410.0]     # Cp -2.50, -2.25, -2.05
+        values += [223.855]                    # Cp 1.1193, the sliver face
+        values[0] = 198.37                     # Cp 0.9918, the real peak
+        report = cp_bound_report(values, q=q)
+
+        self.assertFalse(report["within_stagnation_bound"])
+        self.assertEqual(report["faces"], 1000)
+        self.assertAlmostEqual(report["max"], 223.855 / q, places=6)
+        self.assertEqual(report["over_bound"]["count"], 1)
+        self.assertAlmostEqual(report["over_bound"]["fraction"], 0.001, places=9)
+        self.assertAlmostEqual(report["over_bound"]["extreme_cp"],
+                               223.855 / q, places=6)
+        # The consumer's "robust but still physical" option.
+        self.assertAlmostEqual(report["over_bound"]["max_cp_within_bound"],
+                               198.37 / q, places=6)
+        # The low end is an outlier count, NOT a violation: Cp has no hard
+        # lower bound, and the report must not imply one.
+        self.assertEqual(report["suction_outliers"]["count"], 3)
+        self.assertIn("no hard lower bound", report["suction_outliers"]["note"])
+        self.assertNotIn("violation", report["suction_outliers"]["note"].lower()
+                         .replace("not a bound violation", ""))
+        self.assertIn("caveat", report)
+        self.assertIn("mesh quality", report["caveat"])
+
+    def test_clean_field_is_flagged_as_within_bound(self):
+        # The wing and the B-52: every wall face admissible, so the flag says
+        # so, no caveat is emitted, and the suction counter stays empty.
+        q = 112.5
+        values = [-119.632, 100.0875, 5.0, -40.0]   # Cp -1.063 .. 0.890
+        report = cp_bound_report(values, q=q)
+        self.assertTrue(report["within_stagnation_bound"])
+        self.assertEqual(report["over_bound"]["count"], 0)
+        self.assertIsNone(report["over_bound"]["extreme_cp"])
+        self.assertAlmostEqual(report["over_bound"]["max_cp_within_bound"],
+                               100.0875 / q, places=6)
+        self.assertEqual(report["suction_outliers"]["count"], 0)
+        self.assertNotIn("caveat", report)
+        # Cp -1.063 is perfectly physical and must not be counted anywhere.
+        self.assertLess(report["min"], -1.0)
+
+    def test_p_inf_is_subtracted_and_recorded(self):
+        # Cross-validation against a number this lab derived by a completely
+        # separate route. `validation_numbers.json` records the NACA 4412
+        # wing's global_max_cp as 0.8892004618710941, computed by the
+        # standalone validation script from its own wall survey. Feeding this
+        # function the exact solver wall maximum out of the .vtp CellData
+        # (100.08747863769531 m2/s2), the measured p_inf and q reproduces
+        # that constant bit for bit, which is what makes the CellData path
+        # trustworthy as the source of reported physics.
+        wall_max = 100.08747863769531
+        p_inf = 0.05242667719721794
+        report = cp_bound_report([wall_max], q=112.5, p_inf=p_inf)
+        self.assertEqual(report["max"], 0.8892004618710941)
+        self.assertEqual(report["p_inf"], p_inf)
+        self.assertEqual(report["q_kinematic"], 112.5)
+        self.assertTrue(report["within_stagnation_bound"])
+
+    def test_report_is_none_without_a_dynamic_pressure(self):
+        # Cp is undefined without q, so the block is absent rather than
+        # guessed. No silent q = 1 fallback.
+        self.assertIsNone(cp_bound_report([1.0, 2.0], q=None))
+        self.assertIsNone(cp_bound_report([1.0, 2.0], q=0.0))
+        self.assertIsNone(cp_bound_report([], q=200.0))
+
+    def test_load_field_surface_attaches_and_omits_the_block(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = Path(tmp) / "body.vtp"
+            n = 40
+            n_quads = (n - 1) * (n - 1)
+            cell_values = [-30.0] * n_quads
+            cell_values[0] = 223.855      # Cp 1.1193 at q 200: over the bound
+            cell_values[1] = 198.37       # Cp 0.9918: the real peak
+            _write_vtp(vtp, n, [1.0] * (n * n), cell_values=cell_values)
+
+            # Without q: no cp block, and the payload is otherwise unchanged.
+            plain = load_field_surface(vtp, field="p", max_faces=400, name="b")
+            self.assertNotIn("cp", plain["field"])
+
+            flagged = load_field_surface(vtp, field="p", max_faces=400,
+                                         name="b", q_kinematic=200.0)
+            cp = flagged["field"]["cp"]
+            self.assertFalse(cp["within_stagnation_bound"])
+            self.assertEqual(cp["over_bound"]["count"], 1)
+            self.assertEqual(cp["faces"], n_quads)
+            # The disclosure did not touch the reported physical range.
+            self.assertEqual(flagged["field"]["min"], plain["field"]["min"])
+            self.assertEqual(flagged["field"]["max"], plain["field"]["max"])
+            self.assertAlmostEqual(flagged["field"]["max"], 223.855, places=6)
+            # And the flag describes the same population the range came from.
+            self.assertAlmostEqual(cp["max"], flagged["field"]["max"] / 200.0,
+                                   places=9)
 
 
 if __name__ == "__main__":

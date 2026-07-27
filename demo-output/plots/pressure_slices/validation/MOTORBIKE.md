@@ -1,5 +1,11 @@
 # Motorbike surface-pressure field: triple-check before it stays on camera
 
+> **CORRECTED 2026-07-26.** This check missed a reporting defect that was
+> inside its own scope. The original text below is kept intact; the section
+> **"Correction: the reported range was the colour clip"** at the end of this
+> document states what was wrong, what the corrected numbers are, and what
+> still stands. Read that section before quoting any range from this page.
+
 Scope: the painted motorbike surface pressure served to the GUI
 (`mission-output/geometry-study/motorBike_field.json`) and the pressure the
 website slice was rendered from. Everything below is read from the solved
@@ -167,3 +173,186 @@ the decimation of a very slightly different source mesh.
 - Numbers: `motorbike_validation_numbers.json` in this directory, written by
   the same run that rendered the evidence figure.
 - Evidence figure: `motorBike_cp_validation.png`.
+
+## Correction: the reported range was the colour clip
+
+*Added 2026-07-26. Nothing above is deleted. This section records one defect
+this check did not catch, the corrected numbers, and which of the original
+findings survive unchanged.*
+
+### What was wrong
+
+Section 2 of this document measured the "colour window" and reported it as
+`[-155.23, 88.34]` m2/s2, and section 3 confirmed the served JSON carried the
+"identical window". Both statements are true. What was never asked is
+whether that window was also being written into the served JSON as the
+field's `min` and `max`, that is, as the physical extremes of the solved
+field. It was.
+
+`_attach_field` in `sdk/chief_engineer/field_render.py` clipped the painted
+values to the 2nd and 98th percentile, which is a legitimate colour-mapping
+device that keeps one stagnation spike from flattening the body to a single
+hue, and then wrote those two clipped numbers out under the keys `min` and
+`max`. Any consumer reading `field["max"]` to state a peak pressure got the
+98th percentile of the display faces instead of the peak.
+
+Two stages compounded before the clip even ran, and both were also being
+allowed to set the reported physics:
+
+1. **Nodal interpolation.** `_read_patch` prefers the per-point pressure
+   array and averages it to face centres, because that is what makes the
+   painted surface look smooth. Every node of a peak face is shared with
+   cooler neighbours, so the peak is shaved before anything else happens. On
+   this body the solver's own wall maximum is p/rho 223.85 and the
+   nodal-averaged version of the same patch reads 195.18.
+2. **Vertex-clustering decimation.** The motorbike is decimated (101,137
+   source triangles to 19,110 display faces, as section 2 already states), and
+   each display face carries the mean of the source faces that merged into
+   it. That is correct for display and wrong for reporting an extreme.
+
+### Corrected numbers
+
+Re-measured 2026-07-26 from the same solved case in the run cache
+(`~/certonomous-runs/.solve-cache/motorBike-c353688-i300/300`, mesh
+`~/certonomous-runs/.mesh-cache/motorBike/polyMesh`), 67 body patches,
+44,032 wall cells, q = 200 m2/s2. The 44,032 wall-cell count and the 0.5%
+suction threshold of Cp -1.231 both reproduce this document's own section 1
+exactly, so this is the same survey, read at a different stage.
+
+| Stage | p/rho low | p/rho high | Cp low | Cp high |
+|---|---|---|---|---|
+| Solver's own wall cells (the physics) | -824.34 | 223.85 | **-4.1218** | **+1.1192** |
+| Nodal-averaged per face (display input) | -540.84 | 195.18 | -2.7043 | +0.9758 |
+| **Reported before the fix** (2/98 clip of display faces) | -155.23 | 88.34 | **-0.7762** | **+0.4416** |
+| **Reported after the fix** (solver wall cells) | -824.34 | 223.85 | **-4.1218** | **+1.1192** |
+| Colour window after the fix (unchanged, now labelled as such) | -155.2 | 88.3 | -0.7761 | +0.4414 |
+
+The reported high moved from Cp 0.4416 to Cp 1.1192, a factor of 2.5. The
+reported low moved from Cp -0.7762 to Cp -4.1218, a factor of 5.3.
+
+Cp here is `(p - p_inf) / q` with the p_inf of 0.0140 m2/s2 that section 1
+measured, which is why these differ in the fourth decimal from a bare `p/q`.
+
+**Plainly stated: the gap between the raw wall Cp and the displayed and
+published Cp was this reporting defect, not mesh resolution alone.** This
+document's section 1 had already measured the true wall extremes correctly
+and stated them (Cp 1.119 in the brake-disc gap, 0.992 elsewhere); the defect
+was that the number the JSON published under `max` was a different, much
+smaller number, and nobody compared the two.
+
+### What the two reported extremes actually are
+
+Both are real faces, both were already identified in section 1, and neither
+has been excluded or softened, because the reported number must equal what
+the solver computed:
+
+- **Cp +1.1192**, p/rho 223.85, is the single face in the front
+  brake-disc/fork channel that section 1 already flagged as exceeding the
+  stagnation bound: 1 face in 44,032, a sliver cell in a gap closed to about
+  a millimetre. It is now the reported maximum, and it should be, because it
+  is the largest value the solver wrote on this wall. The physically
+  meaningful stagnation peak elsewhere on the body remains Cp 0.992, as
+  section 1 states.
+- **Cp -4.1218**, p/rho -824.34, sits on `motorBike_fr-wh-tyre%37`. It is
+  likewise an outlier of the same character: 43 of 44,032 faces (0.098%) read
+  below Cp -2, and the 0.5% suction threshold is Cp -1.231.
+
+Consumers that want a robust peak rather than a true extreme should read
+`color_min`/`color_max`, which is exactly what those keys are for, and must
+label them as the display range.
+
+### The bound flag: this body fails the Cp = 1 check, and says so
+
+Cp cannot exceed 1 at a stagnation point in incompressible flow. That is a
+hard physical bound, not a convention, so a field labelled as the physical
+range that carries Cp 1.1192 would put an impossible number in front of a
+viewer. The value is not changed and not excluded, because it is what the
+solver wrote. Instead the served JSON now carries a disclosure beside it, in
+`field["cp"]`:
+
+| Key | Motorbike value |
+|---|---|
+| `q_kinematic`, `p_inf` | 200, 0.0140 |
+| `faces` | 44,032 |
+| `min`, `max` | -4.1218, +1.1192 |
+| `stagnation_bound` | 1.0 |
+| **`within_stagnation_bound`** | **false** |
+| `over_bound.count`, `.fraction` | 1, 2.27e-05 (**0.0023%**) |
+| `over_bound.max_cp_within_bound` | **+0.9935** |
+| `suction_outliers.count`, `.fraction` | 43, 0.0977% below Cp -2 |
+| `caveat` | ready-to-display sentence, quoted below |
+
+The 0.0023% reproduces this document's own section 1 figure for the same
+face exactly, which confirms the flag is counting the population section 1
+described.
+
+`max_cp_within_bound` is Cp 0.9935, while section 1 reports Cp 0.9918 as the
+maximum "outside the brake-disc gap". These are two different exclusions and
+both are correct: section 1 excluded the whole 427-face gap box, whereas the
+flag excludes only the faces that actually break the bound, so it keeps the
+admissible gap faces and lands slightly higher.
+
+There is deliberately **no** lower-bound violation test. Cp has no hard lower
+bound (incompressible potential flow over a cylinder already reaches -3), so
+the 43 faces below Cp -2 are recorded as `suction_outliers`, with a note
+saying in the JSON itself that this is a mesh-degeneracy signal rather than a
+violation. Reporting Cp -4.1218 as "out of bounds" would be its own false
+physics claim.
+
+The `caveat` string is written to be displayed verbatim:
+
+> Reported physical maximum Cp 1.119 exceeds the incompressible stagnation
+> bound of 1 on 1 of 44032 wall faces (0.002%). Values above the bound are
+> degenerate sliver cells, a mesh quality defect, not a physical pressure.
+> The highest bound-respecting value on this body is Cp 0.993. Present either
+> the robust colour window with this disclosed, or the raw extreme with this
+> caveat attached.
+
+That gives a consumer the means to take either honest route without having to
+re-derive anything. `extract_and_paint` also emits the same finding as a log
+warning, so a bound-violating wall value does not depend on somebody opening
+the JSON to be noticed.
+
+**Mesh quality signal.** A wall Cp above 1 is evidence of degenerate cells,
+and this body has them in the front brake-disc channel and on the front tyre
+while still passing the boundary-skewness gate that was applied when it was
+remeshed (max skew 3.99). That is worth carrying to whoever is looking at
+mesh quality gating: the gate did not catch these faces.
+
+### The fix
+
+`sdk/chief_engineer/field_render.py` now reports two clearly distinct ranges:
+
+- `min`/`max`: the physical range, read from the solver's own `CellData` wall
+  values before any interpolation, clustering or clipping.
+- `color_min`/`color_max` (with `display_min`/`display_max` kept as aliases
+  for the existing GUI legend): the 2nd/98th percentile colour window, a
+  display device only.
+- `cp`: the stagnation-bound disclosure described above, present whenever the
+  case's q is known.
+
+The GUI legend in `sdk/chief_engineer/control_room.html` now tags the colour
+bar as the colour range, prints the physical range beside it, and shows the
+bound warning when one is present. `sdk/tests/test_field_render.py` pins the
+invariant.
+
+### What still stands, unchanged
+
+- Every physics invariant in section 1. Those were read from the solver's own
+  wall values and are unaffected.
+- The whole of section 2's old-versus-new attribution: RMS dCp 0.0043 from
+  the remesh, neighbour-face correlation 0.892 against a pre-fix 0.422, and
+  98.1% of the colour-window change being the earlier decimation-
+  correspondence fix. Those are statements about the colour window and about
+  the paint's spatial correspondence, and both remain correct.
+- Section 3's served-JSON integrity result. The served values were, and are,
+  the solver's own values. The defect was in the two summary numbers
+  alongside them, not in the per-face data.
+
+### Regenerated artifact
+
+`regenerated/motorBike_field.json` in this directory, produced by the fixed
+pipeline from the cached solve. The provenance copy at
+`mission-output/geometry-study/motorBike_field.json` is deliberately left
+untouched; it will pick up the corrected keys the next time the geometry
+study runs.

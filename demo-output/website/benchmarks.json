@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-07-23T16:49:32Z",
-  "ledger": "C:\\Users\\mouza\\github-cleanup\\Certonomous\\demo-output\\website\\mega-batch\\ledger.jsonl",
+  "generated_at": "2026-07-26T06:59:26Z",
+  "ledger": "/home/ubuntu/Certonomous/demo-output/website/mega-batch/ledger.jsonl",
   "totals": {
-    "evaluations_ok": 24076,
-    "evaluations_failed": 0,
-    "wall_span_hours": 12.931,
-    "observed_throughput_per_hr": 1861.9,
-    "core_hours": 42.215
+    "evaluations_ok": 65759,
+    "evaluations_failed": 72,
+    "wall_span_hours": 75.096,
+    "observed_throughput_per_hr": 875.7,
+    "core_hours": 97.117
   },
   "per_solver": {
     "openfoam-cylinder": {
       "label": "real-solve",
-      "count": 8025,
-      "mean_wall_s": 8.85,
-      "median_wall_s": 3.771,
-      "min_wall_s": 1.899,
+      "count": 21884,
+      "mean_wall_s": 7.653,
+      "median_wall_s": 4.369,
+      "min_wall_s": 0.634,
       "max_wall_s": 16310.017,
-      "per_worker_throughput_per_hr": 406.8
+      "per_worker_throughput_per_hr": 470.4
     },
     "vspaero-wing": {
       "label": "real-solve",
-      "count": 8025,
-      "mean_wall_s": 10.086,
-      "median_wall_s": 5.85,
-      "min_wall_s": 5.504,
+      "count": 21931,
+      "mean_wall_s": 8.304,
+      "median_wall_s": 5.874,
+      "min_wall_s": 5.174,
       "max_wall_s": 16304.611,
-      "per_worker_throughput_per_hr": 356.9
+      "per_worker_throughput_per_hr": 433.5
     },
     "reduced-order": {
       "label": "reduced-order-eval",
-      "count": 8026,
+      "count": 21944,
       "mean_wall_s": 0.001,
       "median_wall_s": 0.001,
       "min_wall_s": 0.0,
-      "max_wall_s": 0.425,
-      "per_worker_throughput_per_hr": 3451218.3
+      "max_wall_s": 0.432,
+      "per_worker_throughput_per_hr": 3534762.2
     }
   },
   "closure_challenge": {
@@ -53,8 +53,18 @@
       0.0487,
       0.0464
     ],
-    "our_entry": "baseline in training \u2014 winners not yet beaten. Target: top 4.",
-    "our_score": null
+    "our_entry": "No entry submitted. Measured a zero-training RANS reference floor of 0.1036 overall, scored by the benchmark's own unmodified code; worse than every published entry, since it reflects no learned correction",
+    "our_score": 0.1036,
+    "our_per_case": [
+      0.132,
+      0.2049,
+      0.0461,
+      0.0719,
+      0.1288,
+      0.1243,
+      0.059,
+      0.0621
+    ]
   },
   "speed_benchmark": {
     "name": "Reduced-order speed benchmark",
