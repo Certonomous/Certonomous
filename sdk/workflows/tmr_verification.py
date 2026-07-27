@@ -2733,6 +2733,35 @@ def measure_period(times: Sequence[float], values: Sequence[float],
     return sum(gaps) / len(gaps)
 
 
+def halves_drift(times: Sequence[float], values: Sequence[float],
+                 t_start: float, t_end: float) -> dict[str, float] | None:
+    """Split [t_start, t_end] at its midpoint and time-weight-average each
+    half separately.
+
+    A genuine time-average requires the window to be STATIONARY: the mean
+    over the first half must agree with the mean over the second half,
+    within the same window that ``time_weighted_stats`` folds into one
+    number. A transient that is still developing (e.g. k-omega SST ramping
+    up from a cold, low-freestream-turbulence start) produces a whole-window
+    mean that is a snapshot of an ongoing trend, not a converged value, and
+    the two half-window means will disagree by far more than run-to-run
+    period noise. None when either half lacks enough samples to average (the
+    caller must then treat drift as unknown, not as passing).
+    """
+    mid = 0.5 * (t_start + t_end)
+    first_half = [(t, v) for t, v in zip(times, values) if t_start <= t <= mid]
+    first = time_weighted_stats([t for t, _ in first_half],
+                                [v for _, v in first_half], t_start)
+    second = time_weighted_stats(times, values, mid)
+    if first is None or second is None:
+        return None
+    denom = max(abs(first["mean"]), abs(second["mean"]))
+    if denom == 0:
+        return None
+    return {"first_half_mean": first["mean"], "second_half_mean": second["mean"],
+            "relative_drift": abs(second["mean"] - first["mean"]) / denom}
+
+
 def pimple_control_dict(end_time: float, dt0: float, *, patch: str,
                         aref: float, drag_dir: str, lift_dir: str,
                         max_co: float = 1.5, adjustable: bool = True) -> str:
@@ -3007,6 +3036,27 @@ def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
     period = measure_period(times, history["Cl"], t_start)
     if cd_stats is None or cl_stats is None:
         raise RuntimeError(f"{level.name}: averaging window empty")
+    # A whole-window time-average is only meaningful if the window is
+    # STATIONARY. Without this check a Cd that is still ramping up (SST
+    # turbulence slowly developing from a cold, low-freestream-turbulence
+    # start) silently reports its whole-window mean as if it were a
+    # converged value, when it is really a snapshot partway through an
+    # ongoing trend — measured on the 300-convective-unit alpha=0 coarse
+    # rung, Cd rose 0.00032 -> 0.00089 monotonically in five successive
+    # 60-unit chunks with no sign of leveling off, a 37% first-half vs
+    # second-half drift on the very window the mean was quoted from. Reject
+    # anything past a much smaller drift than that; a real limit cycle's two
+    # halves agree far better than 10%.
+    drift = halves_drift(times, history["Cd"],
+                         cd_stats["window_start"], cd_stats["window_end"])
+    if drift is not None and drift["relative_drift"] > 0.10:
+        raise RuntimeError(
+            f"{level.name}: Cd mean still drifting across the averaging "
+            f"window (first half {drift['first_half_mean']:.6f}, second "
+            f"half {drift['second_half_mean']:.6f}, "
+            f"{100 * drift['relative_drift']:.0f}% relative drift); this is "
+            f"a mid-transient snapshot, not a stationary time-average, and "
+            f"must not be quoted as Cd")
     n_periods = ((cd_stats["window_end"] - cd_stats["window_start"]) / period
                  if period else None)
     yplus_files = sorted((out_dir / "postProcessing").rglob("yPlus.dat"))
@@ -3019,6 +3069,7 @@ def run_naca_transient(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
         "end_time": end_time, "steps": len(times),
         "cd_mean": cd_stats["mean"], "cd_band": cd_stats["band"],
         "cd_lo": cd_stats["lo"], "cd_hi": cd_stats["hi"],
+        "cd_relative_drift": drift["relative_drift"] if drift else None,
         "cl_mean": cl_stats["mean"], "cl_band": cl_stats["band"],
         "cl_lo": cl_stats["lo"], "cl_hi": cl_stats["hi"],
         "averaging_window": [cd_stats["window_start"],

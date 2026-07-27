@@ -10,7 +10,8 @@ from __future__ import annotations
 import math
 import unittest
 
-from workflows.tmr_verification import measure_period, time_weighted_stats
+from workflows.tmr_verification import (halves_drift, measure_period,
+                                        time_weighted_stats)
 
 from workflows.tmr_verification import (
     BANNED_CARD_WORDS, BUMP_LEVELS, CFL3D_BUMP_SST, CFL3D_NACA_SST,
@@ -507,6 +508,25 @@ class TimeAccurateStatistics(unittest.TestCase):
         ts, vs = self._sine(period=50.0, t_end=10.0)
         self.assertIsNone(measure_period(ts, vs, 3.0))
         self.assertIsNone(time_weighted_stats([1.0], [2.0], 0.0))
+
+    def test_halves_drift_is_tiny_on_a_genuine_limit_cycle(self):
+        ts, vs = self._sine()
+        drift = halves_drift(ts, vs, 3.0, 10.0)
+        self.assertLess(drift["relative_drift"], 0.001)
+
+    def test_halves_drift_flags_a_still_developing_ramp(self):
+        # A monotonically rising mean (turbulence still ramping up under a
+        # cold, low-freestream-turbulence start) with a small sine riding on
+        # top, mirroring the measured 300-convective-unit NACA 0012 alpha=0
+        # coarse-rung history (Cd rose 0.00032 -> 0.00089, no leveling off).
+        ts = [i * 0.01 for i in range(3001)]
+        vs = [0.0003 + 0.0006 * (t / 30.0) + 5e-5 * math.sin(2 * math.pi * t / 0.4)
+              for t in ts]
+        drift = halves_drift(ts, vs, 12.0, 30.0)
+        self.assertGreater(drift["relative_drift"], 0.10)
+
+    def test_halves_drift_none_without_enough_samples_each_half(self):
+        self.assertIsNone(halves_drift([1.0, 2.0], [1.0, 2.0], 0.0, 2.0))
 
 
 if __name__ == "__main__":
