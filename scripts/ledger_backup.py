@@ -36,69 +36,93 @@ def md5_file(path: Path) -> str:
     return hash_md5.hexdigest()
 
 
-def truncate_to_last_complete_line(path: Path) -> int:
-    """Read file from start, find first invalid JSON line, truncate from there.
+def truncate_to_last_complete_line(path: Path) -> tuple[int, bool, list[int]]:
+    """Drop a partial TAIL line only. Never truncate at an interior bad line.
 
-    Returns the final line count after truncation.
+    The ledger is append-only, so the only line that can be genuinely partial is
+    the LAST one, caught mid-write. An unparseable line in the MIDDLE is historical
+    corruption (the source has one at line 61438 from an old unsynchronised
+    concurrent-append incident) and it is real data that must be preserved, not a
+    stopping point.
+
+    An earlier version of this function truncated at the FIRST invalid line, which
+    silently discarded 122,800 of 184,237 rows because that torn line sits a third
+    of the way in. That is why this function reports what it dropped.
+
+    Returns (kept_line_count, dropped_partial_tail, interior_bad_line_numbers).
     """
-    # Read entire file
     with open(path, "r") as f:
         lines = f.readlines()
 
     if not lines:
-        return 0
+        return 0, False, []
 
-    # Scan from the start and find the first invalid line
-    truncate_at_line = len(lines)  # Default: keep all
-    for i, line in enumerate(lines):
-        line_text = line.rstrip('\n')
-        if not line_text:  # Skip empty lines
+    # Strip trailing blank lines first so the "last line" is a real one.
+    while lines and not lines[-1].rstrip("\n"):
+        lines.pop()
+
+    if not lines:
+        return 0, False, []
+
+    # Only the final line may be dropped, and only if it does not parse.
+    dropped_tail = False
+    try:
+        json.loads(lines[-1].rstrip("\n"))
+    except json.JSONDecodeError:
+        lines.pop()
+        dropped_tail = True
+
+    # Everything else is kept. Record interior bad lines; never truncate at them.
+    interior_bad = []
+    for i, line in enumerate(lines, 1):
+        text = line.rstrip("\n")
+        if not text:
             continue
         try:
-            json.loads(line_text)
+            json.loads(text)
         except json.JSONDecodeError:
-            # This line is incomplete/corrupted, truncate from here
-            truncate_at_line = i
-            break
-
-    # Write back only the valid lines up to (but not including) the first bad line
-    valid_lines = lines[:truncate_at_line]
-    # Remove any trailing empty lines
-    while valid_lines and not valid_lines[-1].rstrip('\n'):
-        valid_lines.pop()
+            interior_bad.append(i)
 
     with open(path, "w") as f:
-        f.writelines(valid_lines)
+        f.writelines(lines)
 
-    return len(valid_lines)
+    return len(lines), dropped_tail, interior_bad
 
 
-def verify_jsonl(path: Path) -> tuple[int, set[int]]:
-    """Verify all lines are valid JSON and extract index values.
+def verify_jsonl(path: Path) -> tuple[int, set[int], list[int]]:
+    """Count parseable rows and collect index values, scanning the WHOLE file.
 
-    Returns: (line_count, set_of_index_values)
-    Raises: ValueError if any line fails to parse
+    Returns: (parseable_row_count, set_of_index_values, unparseable_line_numbers)
+
+    This never raises and never stops early. The source ledger legitimately
+    contains one historical torn line (61438) from an old unsynchronised
+    concurrent-append incident, and that line is real evidence that must survive
+    in the backup.
+
+    Two earlier bugs lived here: raising on any interior bad line, and `break`ing
+    out of the scan whenever a short bad line appeared. Both meant a corrupt line
+    a third of the way in stopped the whole verification, so the reported row
+    count described only the prefix before it rather than the file.
     """
-    line_count = 0
+    parseable = 0
     indices = set()
+    bad_lines = []
 
-    with open(path, "r") as f:
+    with open(path, "r", errors="replace") as f:
         for line_num, line in enumerate(f, 1):
-            line = line.rstrip('\n')
-            if not line:  # Skip empty lines silently
+            line = line.rstrip("\n")
+            if not line:
                 continue
             try:
                 record = json.loads(line)
-                line_count += 1
-                if "index" in record:
-                    indices.add(record["index"])
-            except json.JSONDecodeError as e:
-                # If it's mostly empty, treat as end of valid data
-                if len(line.strip()) < 50:
-                    break
-                raise ValueError(f"Line {line_num} is not valid JSON: {e}")
+            except json.JSONDecodeError:
+                bad_lines.append(line_num)
+                continue
+            parseable += 1
+            if "index" in record:
+                indices.add(record["index"])
 
-    return line_count, indices
+    return parseable, indices, bad_lines
 
 
 def create_backup(source: Path, backup_dir: Path) -> Path:
@@ -117,13 +141,30 @@ def create_backup(source: Path, backup_dir: Path) -> Path:
     print(f"Copying ledger from {source} to {backup_path}...")
     shutil.copy2(source, backup_path)
 
-    # Truncate to last complete line
-    print("Truncating to last complete JSON line...")
-    final_line_count = truncate_to_last_complete_line(backup_path)
+    # Drop a partial tail line only. Interior bad lines are preserved.
+    print("Checking for a partial tail line...")
+    final_line_count, dropped_tail, interior_bad = truncate_to_last_complete_line(backup_path)
+    print(f"  kept {final_line_count} lines; partial tail dropped: {dropped_tail}")
+    if interior_bad:
+        print(f"  interior unparseable lines PRESERVED (historical): {interior_bad}")
+
+    # Guard: a backup must not be materially smaller than its source. This exists
+    # because a previous version truncated at the first interior bad line and
+    # silently kept only 61,437 of 184,237 rows.
+    with open(source, "r", errors="replace") as _s:
+        source_lines = sum(1 for _ in _s)
+    if final_line_count < source_lines - 10:
+        raise SystemExit(
+            f"ABORT: backup has {final_line_count} lines but source has {source_lines}. "
+            f"A backup may only lose a single partial tail line. Refusing to write a "
+            f"truncated backup or rotate good snapshots out behind it."
+        )
 
     # Verify all lines parse
     print("Verifying all JSON lines parse correctly...")
-    line_count, indices = verify_jsonl(backup_path)
+    line_count, indices, bad_lines = verify_jsonl(backup_path)
+    print(f"  parseable rows: {line_count}; distinct indices: {len(indices)}; "
+          f"unparseable lines preserved: {bad_lines or 'none'}")
 
     # Compute checksum
     print("Computing MD5 checksum...")
