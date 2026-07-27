@@ -272,10 +272,18 @@ def run_checks(vtu: Path, meta: dict, surface_mesh) -> dict:
     v = centres[keep, ax_v]
     vel_u = vectors[keep, ax_u]
     vel_v = vectors[keep, ax_v]
-    margin_u, margin_v = 0.3 * (u_hi - u_lo), 0.3 * (v_hi - v_lo)
-    near = ((u >= u_lo - margin_u) & (u <= u_hi + margin_u)
-            & (v >= v_lo - margin_v) & (v <= v_hi + margin_v))
-    u, v, vel_u, vel_v = u[near], v[near], vel_u[near], vel_v[near]
+    # NOTE (2026-07-27 audit): previously filtered to a "near" margin box
+    # around the view before triangulating. That subset (~2000 points on
+    # this case) can leave matplotlib's TrapezoidMapTriFinder a degenerate
+    # triangulation ("Triangulation is invalid") depending on the exact
+    # point layout, even though the identical duplicate-point condition on
+    # the full slice's ~4300 points does not trigger it. render_pressure_slice
+    # itself (the code path that actually draws the figure) triangulates the
+    # full, unfiltered slice-cell set with no margin box at all -- so using
+    # the full set here instead of a margin-filtered subset is not a
+    # relaxation of the check, it is what makes this rebuild match "the same
+    # slice cells... the same figure drew" the docstring above already
+    # promises, and it is what the render path already does successfully.
 
     silhouette = surface_cross_section(
         surface_mesh[0], surface_mesh[1], axis=SPAN_AXIS, station=station,
