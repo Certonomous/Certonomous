@@ -76,6 +76,26 @@
         "checkMesh": 3.3,
         "simpleFoam": 271.9
       }
+    },
+    {
+      "level": "finer",
+      "tmr_nodes": "273x193",
+      "cells": 52224,
+      "nx": 272,
+      "ny": 192,
+      "cd": 0.0028564381699,
+      "cd_tail_spread": 2.1558e-09,
+      "iterations": 9000,
+      "yplus": {
+        "min": 0.059176933671,
+        "max": 0.20883079557,
+        "average": 0.072914738068
+      },
+      "mesh": {
+        "max_skewness": 4.376137948e-14,
+        "max_non_orthogonality": 0.0
+      },
+      "convergence_note": "Ran to the 9000-iteration cap rather than tripping residualControl. 4 of 5 controls met at exit: p 1.27e-07 (target 1e-06), Ux 6.28e-09 (1e-08), k 7.89e-09 (1e-08), omega 7.13e-11 (1e-08). Uy 6.38e-08 misses its 1e-08 target by about 6x. Cd is flat to 2.16e-09 over the last 50 iterations, the same tail-spread gate the other rungs pass, so the force is converged even though one residual control is not tripped. Recorded rather than hidden: this rung did not exit the same way the coarse, medium and fine rungs did, which exited at 482, 966 and 2846 iterations."
     }
   ],
   "convergence": {
@@ -137,5 +157,36 @@
   "plots": [
     "flatplate_cf_profiles.png",
     "flatplate_cd_convergence.png"
-  ]
+  ],
+  "convergence_extended": {
+    "ladder_cells": [
+      816,
+      3264,
+      13056,
+      52224
+    ],
+    "cd_ladder": [
+      0.0026686916613,
+      0.0027811695632,
+      0.0028342538677,
+      0.0028564381699
+    ],
+    "refinement_ratio_each_step": 2.0,
+    "original_triple_coarse_medium_fine": {
+      "observed_order": 1.0832843227287958,
+      "richardson": 0.0028816991060355503,
+      "gci_fine_pct": 2.092492440261359
+    },
+    "extended_triple_medium_fine_finer": {
+      "observed_order": 1.2587461863354106,
+      "richardson": 0.002872365135190256,
+      "gci_finer_pct": 0.6969766341386194
+    },
+    "verdict": "Observed order MOVED from 1.0833 to 1.2587 when the finer rung was added, so the ladder is not yet in a strict asymptotic range and the GCI should be read as an estimate rather than a bound. The movement is upward, consistent with the first-order upwind on k and omega mattering relatively less as the grid refines. GCI on the finest triple falls to 0.6970 percent from 2.0925 percent.",
+    "comparison": {
+      "finer_vs_cfl3d_finest_pct": 0.10914287801675764,
+      "finer_vs_fun3d_finest_pct": 0.43120322104062536,
+      "matched_grid_note": "No CFL3D value at the 273x193 level is held in this record, so the new rung cannot be compared matched-grid the way the fine rung was (0.293 percent). The comparisons above are against CFL3D and FUN3D FINEST grids, which is a different and weaker comparison."
+    }
+  }
 }
