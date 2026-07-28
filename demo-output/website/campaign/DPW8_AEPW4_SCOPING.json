@@ -1,0 +1,281 @@
+{
+  "report": "DPW-8 & AePW-4 joint workshop: scoping report",
+  "date": "2026-07-28",
+  "status": "RESEARCH AND PLANNING ONLY -- no solver run, no compute spent",
+  "builds_on": [
+    "docs/DPW-CRM-SCOPING.md (2026-07-27, DPW-VI/DPW-VII generic CRM scoping -- this report supersedes it for the DPW-8/AePW-4 joint activity specifically and does not repeat its core-hour derivation, which still stands as a secondary cross-check)",
+    "demo-output/website/dafoam/ladder-a/A6_crm_wingbody.md (2026-07-28, our largest converged primal to date: 579,072-cell CRM wing-alone, CD=0.02090143 vs DAFoam tutorial published 0.02090, 0.0067% deviation; DPW4_Aircraft wing-body-tail tutorial explicitly inspected and rejected on time-box grounds -- ships snappyHexMesh refinement levels 9-12, 200,000,000-cell cap, 192-rank decomposeParDict default)"
+  ],
+  "workshop_identity": {
+    "name": "AIAA Drag Prediction and Aeroelastic Prediction Workshop -- \"A Collaborative Approach to Multidisciplinary Drag and Aeroelasticity\"",
+    "constituents": "8th AIAA Drag Prediction Workshop (DPW-8) + 4th AIAA Aeroelastic Prediction Workshop (AePW-4), run as one true joint activity (shared working groups, joint final session), not mere co-location",
+    "dates": "Saturday June 6 and Sunday June 7, 2026",
+    "location": "San Diego, CA -- pre-conference workshop immediately before AIAA AVIATION Forum & Expo 2026 (Hillcrest AB/C rooms)",
+    "status_as_of_this_report": "CONCLUDED. Today is 2026-07-28; the event occurred ~7.5 weeks before this report was written. Checked, not assumed -- the report author's naive prior was that a 2026 workshop might still be upcoming; the logistics page (Last-Updated 2026-06-02) and the January-2026 SciTech deck confirm the June 6-7, 2026 date, and today's date postdates it.",
+    "post_workshop_results": "NOT ESTABLISHED. Searched aiaa-dpw.org (homepage, references.html) and arc.aiaa.org/NTRS for a DPW-8 summary paper; none found as of this search. Not unusual: DPW-VI's Journal of Aircraft summary papers appeared roughly 2 years after the 2016 workshop, and DPW-7's summary (Tinoco, AIAA 2023-3492) appeared about 1 year after the 2022 workshop.",
+    "schedule_slip_noted": "The original 2024 kickoff schedule (kickoff_presentation_v2.pdf, SciTech 2024) proposed the workshop for July 19-20, 2025 in Las Vegas. The event actually occurred June 6-7, 2026 in San Diego -- an ~11-month slip from the original plan. Relevant context: this program's own schedule discipline runs looser than its stated plan.",
+    "working_groups": [
+      {"name": "Source of Scatter", "scope": "DPW-centric", "leads": "Marshall Galbraith, Kevin Holst"},
+      {"name": "Wind Tunnel / Test Environment", "scope": "DPW-centric", "leads": "Sheida Hosseini, Melissa Rivers, Ben Rider"},
+      {"name": "Static Aeroelastic Deformation", "scope": "joint/hybrid", "leads": "Ben Rider, Stefan Keye, Garrett McHugh"},
+      {"name": "Buffet", "scope": "joint/hybrid", "leads": "Brent Pomeroy, Bret Stanford, Andrea Sansica, Daniella Raveh, Hadar Ben-Gida"},
+      {"name": "High-Angle (HAWG)", "scope": "AePW-centric", "leads": "Pawel Chwalowski", "focus": "transonic buffet and flutter"},
+      {"name": "High-Speed (HSWG)", "scope": "AePW-centric", "leads": "Kirk Brouwer", "focus": "supersonic/hypersonic flow over flexible panels/plates"},
+      {"name": "Large-Deflection (LDWG)", "scope": "AePW-centric", "leads": "Rafael Palacios", "focus": "slender wings, large nonlinear deformation (HALE/sailplane class)"}
+    ],
+    "participation": {
+      "open": "worldwide, AIAA membership not required, CFD/analysis submission optional -- attendance alone is welcome",
+      "fee": "Early Member $399 / Early Non-Member $549 / Early Student $99; Standard Member $499 / Non-Member $649 / Student $149; Virtual $299 (in-person strongly encouraged)",
+      "note": "this fee gates conference ATTENDANCE only, not data/grid access, which is open anonymous HTTP -- verified by direct download, see data_availability"
+    },
+    "sources": [
+      {"claim": "joint workshop identity, structure, objectives", "url": "https://www.aiaa-dpw.org/", "tier": "primary (organizing committee site)"},
+      {"claim": "dates, venue, cost", "url": "https://www.aiaa-dpw.org/logistics.html", "tier": "primary, Last-Updated 2026-06-02"},
+      {"claim": "7 working groups, Jan-2026 status ('limited submissions to date', 'computational cost can be prohibitive')", "url": "https://www.aiaa-dpw.org/ref/scitech_2026.pdf", "tier": "primary (organizing committee slide deck, SciTech Jan 15 2026)"},
+      {"claim": "original 2024 schedule proposal (July 2025 Las Vegas), later superseded", "url": "https://www.aiaa-dpw.org/ref/kickoff_presentation_v2.pdf", "tier": "primary, superseded by logistics.html"},
+      {"claim": "AePW-4 working group descriptions (HAWG/HSWG/LDWG)", "url": "https://nescacademy.nasa.gov/workshops/AePW4/public", "tier": "primary (NASA NESC Academy)"}
+    ]
+  },
+  "case_matrix": {
+    "verification_activities": [
+      {
+        "id": "V1",
+        "name": "ONERA OAT15A airfoil",
+        "geometry": "2D airfoil, 230mm chord, 780mm span option",
+        "flow": "Mach 0.73, Re_c=3e6, T_static=271K",
+        "variants": [
+          {"id": "V1a", "purpose": "grid convergence + polar", "alpha_deg": [1.36, 1.50, 2.50, 3.00, 3.10], "grids": "levels 1-6, 4 required"},
+          {"id": "V1b", "purpose": "extended polar / buffet, unsteady", "alpha_deg": [3.25, 3.40, 3.50, 3.60, 3.90], "grids": "levels 1-6"},
+          {"id": "V1c", "purpose": "scatter-reduction reprise", "note": "optimized grids, common 1000-chord farfield, residuals to ~1e-10"}
+        ],
+        "required": true,
+        "cell_counts_by_level": "NOT ESTABLISHED -- 4 committee grid families exist (Cadence structured+unstructured, ONERA-Deck, ONERA-Rizzi), each shipped as one bundled zip (284MB unstructured / 554MB structured for the Cadence family; unzipped, not counted). Flagged as the single most actionable next step."
+      },
+      {
+        "id": "V2",
+        "name": "Joukowski airfoil",
+        "geometry": "2D analytic airfoil",
+        "flow": "Mach 0.15, Re_c=6e6, alpha=0 deg, T_static=520R",
+        "grids": "levels 1-6, 4 required, python-generated 'Classic' family encouraged",
+        "cell_counts_by_level": "NOT ESTABLISHED"
+      },
+      {
+        "id": "V3",
+        "name": "DPW-III wing increment (W1/W2 wing planforms)",
+        "flow": "Mach 0.76, Re_c=5e6, T_static=580R",
+        "variants": [
+          {"id": "V3a", "purpose": "grid convergence", "alpha_deg": 0.5, "grids": "levels 1-6"},
+          {"id": "V3b", "purpose": "polar", "alpha_deg_range": [-1.0, 3.0], "grid": "level 3 or 4"}
+        ],
+        "cell_counts_by_level": "NOT ESTABLISHED"
+      },
+      {
+        "id": "V4",
+        "name": "NASA CRM finite element model",
+        "purpose": "static structural deformation validation only, no flow solve",
+        "cell_counts_by_level": "n/a -- structural mesh, not a CFD grid"
+      }
+    ],
+    "study_configurations": [
+      {
+        "id": "Config A",
+        "geometry": "JAXA CRM Wing/Body/Tail, model scale",
+        "flow": "Mach 0.85, unsteady RANS",
+        "variants": [
+          {"id": "Test Case 2", "type": "rigid", "alpha_deg": [1.22, 2.29, 4.84, 5.89], "Re": 1.515e6, "grids": "optional, levels 1-6"},
+          {"id": "Test Case 3", "type": "FSI", "alpha_deg": [3.05, 3.61, 4.70], "Re": 2.27e6, "grids": "levels 1-6"}
+        ]
+      },
+      {
+        "id": "Config B",
+        "geometry": "NASA CRM Wing/Body, aeroelastic deflections from ETW LoQ182 test",
+        "flow": "Mach 0.85, Re_c=5.0e6, T_static=100F",
+        "note_overlap": "this Mach/Re pair is the same flow-condition family as our own repo's A6 CRM_Wing run (579,072 cells, wing-alone, CD=0.02090143 -- but that run has no fuselage and no aeroelastic deflection; Config B requires both",
+        "variants": [
+          {"id": "Test Case 2a", "purpose": "grid convergence", "alpha_deg": 2.50, "grids": "levels 1-6, 4 required"},
+          {"id": "Test Case 2b", "purpose": "alpha sweep", "alpha_deg_range": [-1.50, 4.25], "grid": "level 3 or 4", "CL": "0.50 +/- 0.0001"},
+          {"id": "Test Case 2a(E)", "purpose": "elastic grid convergence", "CL": 0.50, "Qinf_lb_per_sqft": 1384, "grids": "levels 1-6"},
+          {"id": "Test Case 2b(E)", "purpose": "elastic alpha sweep", "alpha_deg_range": [-1.50, 4.25], "grid": "level 3 or 4"},
+          {"id": "Test Case 2b(S)", "purpose": "with mounting strut", "alpha_deg_range": [-1.50, 4.25], "grid": "level 3 or 4"}
+        ],
+        "cell_counts_by_level": {
+          "level_3_medium_measured_direct": "92,668,226 to 92,991,190 total cells (tets+pyramids+prisms+hexes) across the 8 alpha-deformed variants; ~68.9M to 69.1M points",
+          "source": "https://dpw.larc.nasa.gov/DPW8/Scatter/Test_Case_2/Cadence_Grids.REV00/CGNS/README.txt -- PRIMARY, direct measurement, DPW-8's own Cadence unstructured CGNS grid for this exact case",
+          "level_1_tiny_derived": "~11.6 million cells -- DERIVED, not directly measured, using the primary-source growth formula from the DPW-8 gridding guidelines ([(L+2)/(L+1)]^3 per level: L2/L3 factor=(4/3)^3=2.370, L1/L2 factor=(3/2)^3=3.375; 92.9M / 2.370 / 3.375 = 11.6M)",
+          "growth_formula_source": "https://www.aiaa-dpw.org/ref/gridding_guidelines_v3_07012024.pdf, slide 'Surface Spacing (CRM)': 'Grow next-finer grid in family by approximately [(L+2)/(L+1)]^3 in size'"
+        }
+      },
+      {
+        "id": "Config C",
+        "geometry": "NASA CRM Wing/Body/Tail, aeroelastic deflections",
+        "flow": "Mach 0.85, Re_c=5.0e6, T_static=100F",
+        "variants": [
+          {"id": "Test Case 3b", "purpose": "alpha sweep", "alpha_deg_range": [-1.50, 4.25], "CL": "0.50 +/- 0.0001"},
+          {"id": "Test Case 3b(S)", "purpose": "with strut", "alpha_deg_range": [-1.50, 4.25], "CL": "0.50 +/- 0.0001"}
+        ]
+      },
+      {
+        "id": "Config D",
+        "geometry": "NASA CRM Wing/Body/Nacelle/Pylon, aeroelastic deflections",
+        "flow": "Mach 0.85, Re_c=5.0e6, T_static=100F",
+        "variants": [
+          {"id": "Test Case 4a(E)", "purpose": "elastic grid convergence", "CL": "0.50 +/- 0.0001", "Qinf_lb_per_sqft": 1384, "grids": "levels 1-6"},
+          {"id": "Test Case 4b(E)", "purpose": "elastic alpha sweep", "alpha_deg_range": [-1.50, 4.25], "grid": "level 3 or 4", "Qinf_lb_per_sqft": 1384}
+        ]
+      }
+    ],
+    "common_specs": {
+      "turbulence_model": "\"French Vanilla SA-(neg) (All-terms)\" -- a specific, fully-qualified Spalart-Allmaras variant, not generic 'SA'",
+      "wall": "adiabatic (not isothermal)",
+      "convergence": "residuals to ~1e-10 (machine precision)",
+      "our_production_standard_for_comparison": "1e-5 (p) / 1e-6 (U) per docs/NUMERICS_KNOWLEDGE.md -- DPW's own bar is roughly 4-5 orders of magnitude tighter"
+    },
+    "aepw4_working_group_cases": {
+      "HAWG_high_angle": {
+        "mandatory_case": "flutter prediction at Mach 0.80, alpha sweep 0-6 deg",
+        "optional_cases": "Mach 0.78, 0.76, 0.74 at alpha=3 deg",
+        "geometry": "CRM-derived wing configuration with provided FEM",
+        "grid_scale": "same CRM-scale grid problem as Config B/C -- no separate smaller grid found",
+        "source": "https://nescacademy.nasa.gov/workshops/AePW4/public/wg/high_angle"
+      },
+      "HSWG_high_speed": {
+        "geometries": [
+          "AFRL/SSC RC-19 clamped thin metallic panel (representative reusable-hypersonic-vehicle skin panel)",
+          "UNSW HyMAX cantilever aluminum plate, 2mm thick, 130mm x 80mm, wedge angle 2 deg (mandatory, laminar) or 10 deg (optional, transitional)"
+        ],
+        "flow": [
+          {"case": "RC-19", "mach": "1.92 +/- 0.02", "T": "295.95 +/- 2.25 K", "p": "345.92 +/- 1.12 kPa"},
+          {"case": "HyMAX", "mach": "5.8 +/- 0.06", "T": "580 +/- 30 K", "wall_T": "300 +/- 2 K"}
+        ],
+        "structural_data_provided": "digital image correlation (DIC) displacement, PSD/oscillation amplitude, Schlieren vertical-displacement tracking, 100-point laser line scan",
+        "note": "geometrically far smaller than any CRM configuration -- flagged as the more plausible aeroelastic entry point IF pursued, though it requires a supersonic/hypersonic FSI capability we have not stood up",
+        "source": "https://nescacademy.nasa.gov/workshops/AePW4/public/wg/high_speed"
+      },
+      "LDWG_large_deflection": {
+        "scope": "nonlinear static equilibrium + dynamic stability (LCO) about large-deflection states, HALE/sailplane-class slender wings",
+        "case_matrix_detail": "NOT ESTABLISHED beyond stated objectives -- working-group page has no case table; detail apparently lives only in dated slide decks not fetched in this pass",
+        "source": "https://nescacademy.nasa.gov/workshops/AePW4/public/wg/large_deflection"
+      }
+    }
+  },
+  "data_availability": {
+    "grids": {
+      "url": "https://dpw.larc.nasa.gov/DPW8/",
+      "access": "open, anonymous, no login/registration observed -- verified directly: multiple multi-hundred-MB to multi-GB files downloaded via plain curl (HTTP 200, no auth challenge) from both dpw.larc.nasa.gov and the DPW-7 legacy tree it still hosts",
+      "structure": "static directory listing with 5 subfolders matching working groups (Buffet, ONERA_OAT15A, Scatter, Static_Deformation, Test_Environment), each with per-provider (Cadence, Helden, NASA Ames, ONERA, JAXA, DLR) grid subfolders, most recently modified 2026-05-19 (Static_Deformation) -- confirms grids were still being added up to the June 2026 workshop",
+      "providers": "Cadence/Pointwise, Helden Aerospace, NASA Ames (all committee-supplied per aiaa-dpw.org/grids.html); DLR, ONERA, NLR, JAXA, Vassberg (legacy DPW-7 tree, same CRM geometry lineage, still hosted and downloadable)"
+    },
+    "geometry": {
+      "note": "\"A large portion of Common Research Model used for the DPW-8/AePW-4 geometry is the same as was utilized in DPW-7.\"",
+      "primary_source_geometry_zip": "https://aiaa-dpw.larc.nasa.gov/Workshop7/Geometry/2021-03-02_Version_01/DPW7geometries.zip (referenced from a DPW-8 README, IGES format, includes wing-body-tail surfaces at multiple aeroelastically-deformed alpha stations)",
+      "jaxa_geometry_portal": "https://cfdws.chofu.jaxa.jp/apc/dpw/geometry.html"
+    },
+    "experimental_data": {
+      "crm_search_engine": "https://commonresearchmodel.larc.nasa.gov/experiment-results-search/ (NTF, ETW, JAXA tests)",
+      "oat15a_data": "referenced on aiaa-dpw.org/experiment.html but exact access path/registration status for raw tabulated experimental values NOT independently verified in this pass -- secondary discussion only"
+    },
+    "structural_fem_data": {
+      "url": "https://dpw.larc.nasa.gov/DPW8/Static_Deformation/Test_Case_2/FEM_Models/",
+      "contents": [
+        "NASA_CRM_FULLSPAN_WBT0.REV00 -- sourced from https://commonresearchmodel.larc.nasa.gov/fem-file/wingbodytail0-deg-configuration/",
+        "NASA_CRM_HALFSPAN_FEM.REV00 -- generated specifically for DPW-8/AePW-4, semispan model"
+      ],
+      "access": "open, anonymous, same directory tree as the grids -- verified"
+    },
+    "registration_gates": {
+      "attendance": "paid AIAA registration required to attend the June 6-7, 2026 event (already past)",
+      "official_submission_credit": "requires emailing dpwaiaa@gmail.com for a participant ID before submitting to the shared GitHub results repository -- this gates OFFICIAL credit/inclusion in workshop statistics, not data or grid access",
+      "grid_and_geometry_download": "NO registration gate found -- directly verified by anonymous download"
+    }
+  },
+  "grid_sizes_decisive_numbers": {
+    "dpw8_own_measured": {
+      "case": "Config B, CRM Wing/Body, Cadence unstructured CGNS, Level 3 (Medium)",
+      "cells": "92,668,226 - 92,991,190 (8 alpha variants)",
+      "tier": "verified-from-primary-source (direct README on the workshop's own grid server)"
+    },
+    "dpw8_derived_coarsest": {
+      "case": "Config B, Level 1 (Tiny), same grid family",
+      "cells_estimate": "~11.6 million",
+      "tier": "derived (primary-source growth-rate formula applied to a primary-source measured point) -- not itself directly measured"
+    },
+    "dpw7_cross_validation_same_crm_geometry_lineage": [
+      {
+        "provider": "DLR (unstructured hybrid, Solar mesher)",
+        "tiny_L1": {"points": 11698938, "elements": 31589359},
+        "coarse_L2": {"points": 25007998, "elements": 64334695},
+        "medium_L3": {"points": 47064610, "elements": 130749024},
+        "fine_L4": {"points": 76507952, "elements": 224104611},
+        "extra_L5": {"points": 118857926, "elements": 367929107},
+        "source": "https://dpw.larc.nasa.gov/DPW7/DLR_Grids.REV00/Readme-DLR-Grids_v1a.txt",
+        "tier": "verified-from-primary-source"
+      },
+      {
+        "provider": "Vassberg (structured multiblock/overset, NASA)",
+        "tiny_L1": 5286597,
+        "coarse_L2": 17644325,
+        "medium_L3": 41590149,
+        "fine_L4": 80957925,
+        "extrafine_L5": 139581509,
+        "ultrafine_L6": 221294757,
+        "units": "grid points (structured, sum across 5 point-matched zones)",
+        "source": "https://dpw.larc.nasa.gov/DPW7/Vassberg_Grids.REV00/Vassberg_DPW7_GridFamilyDimensions.pdf",
+        "tier": "verified-from-primary-source"
+      },
+      {
+        "provider": "JAXA (unstructured mixed)",
+        "tiny": {"nodes": 8698930, "total_elements": 25294690},
+        "source": "https://dpw.larc.nasa.gov/DPW7/JAXA_Grids.REV00/Readme_1_Tiny.txt",
+        "tier": "verified-from-primary-source"
+      }
+    ],
+    "triangulated_conclusion": "Three independently-generated DPW-7 grid families for the same CRM wing-body(-tail) geometry, plus DPW-8's own directly-measured Level-3 grid, all agree: the coarsest ('Tiny'/Level-1) member of any credible grid family for this geometry lands in the 5-31 million cell/point range, with the unstructured families (the ones most comparable to our own OpenFOAM/snappyHexMesh pipeline) clustering at 8-12 million. This is not a workshop-arbitrary number -- it is set by the CRM's own geometric complexity plus the gridding guidelines' wall-spacing/farfield requirements (y+~1 at Re=5e6-30e6, farfield >100 chords)."
+  },
+  "methodology_transferable_regardless_of_participation": [
+    "Explicit, formulaic 6-member grid-family growth rule keyed to a 'Level' index ([(L+2)/(L+1)]^3 per level), not ad hoc refinement -- enables proper Richardson extrapolation / GCI across the whole family, not just dual-mesh comparison.",
+    "y+-anchored wall-normal spacing tables pre-computed for two Reynolds-number regimes (5e6 and 30e6), with an explicit growth-rate ceiling (<1.2x normal to walls) and a minimum-2-constant-spacing-cells-at-the-wall rule -- directly reusable in our own snappyHexMesh/pyHyp layer specs on any future case, independent of whether we ever touch a DPW grid.",
+    "Fully-qualified turbulence-model naming as a documented scatter-reduction lever: 'French Vanilla SA-(neg) (All-terms)' is a specific SA variant, not generic 'SA' -- the workshop's own history (Source of Scatter WG) treats ambiguous turbulence-model specification as a measured source of code-to-code disagreement.",
+    "Convergence discipline to ~1e-10 (machine precision) for the scatter-reduction case, a bar roughly 10^4-10^5x tighter than our production standard of 1e-5/1e-6 -- worth treating as an aspirational ceiling for our own doctrine, not something to match on every case.",
+    "Standardized force/moment, surface-cut, spanload, and bending/twist submission templates in a common Tecplot ASCII schema -- the DPW convention of decomposing pressure vs. friction drag and reporting participant scatter as an explicit IQR/std band (captured for DPW-VI in docs/DPW-CRM-SCOPING.md: IQR 252-262 counts) is the field's state of the art for honestly quantifying code-to-code disagreement, and is directly transferable to how this lab reports its own campaign uncertainty.",
+    "The 'drag increment vs. absolute drag' distinction (increments scatter ~3x less than absolute values) -- already captured in the prior scoping report, reconfirmed here as still the field's cheapest path to a credible number if absolute-drag precision is out of reach."
+  ],
+  "feasibility_verdict": {
+    "hardware_baseline": {
+      "largest_converged_primal": "579,072 cells (CRM_Wing, wing-alone, DAFoam tutorial CD match to 0.0067%), 16 vCPU / 32 GiB host, 431s wall / 28.7 core-min for 1000 SIMPLE iterations to 1e-8 residual on every field",
+      "adjoint_memory_wall": "works at 63,920 cells; Jacobian-assembly OOM at 156,089 cells; also OOMs at 399,360 cells under both 12GB and 18GB container caps -- the wall sits somewhere in [63,920, 156,089] cells and is structural (OpenMDAO's reverse-mode sweep builds a mesh-sized d[residuals]/d[vol_coords] Jacobian block regardless of which wrt= is requested), not simply memory-cap-tunable",
+      "corroborating_evidence": "DAFoam's own DPW4_Aircraft tutorial (the actual wing-body-tail case) was independently rejected on time-box grounds because it ships snappyHexMesh refinement levels 9-12, a 200,000,000-cell cap, and 192-rank decomposeParDict -- i.e. the tutorial vendor itself assumes HPC scale for a true CRM wing-body-tail case"
+    },
+    "per_case_verdicts": [
+      {
+        "case": "V1/V2/V3 2D verification cases (OAT15A, Joukowski, DPW-III wing increment)",
+        "verdict": "UNRESOLVED -- plausible but not confirmed feasible",
+        "reasoning": "grid cell counts not directly established (bundled zips not unzipped); 2D/near-2D scale strongly suggests 10^4-10^6 cells per level by convention, which would be inside our demonstrated envelope. Flagged as the single most actionable next step: download and inspect (no compute) before any commitment."
+      },
+      {
+        "case": "Config B/C/D CRM Wing/Body(-Tail)(-Nacelle-Pylon), Test Cases 2a/2b/3b/4a/4b (the DPW-8 headline drag cases) and HAWG flutter case",
+        "verdict": "NOT FEASIBLE on this hardware at any offered grid level",
+        "reasoning": "coarsest available grid in this geometry's lineage is ~11.6M cells (DPW-8, derived) to 5.3-31.6M cells (DPW-7, three independent providers, directly measured). That is 9x-55x our largest-ever converged primal (579,072 cells) and 75x-495x our adjoint's already-failing threshold (156,089 cells). The workshop's own 6-grid Richardson requirement and 1e-10 convergence bar multiply the effective cost several-fold beyond a single solve at the coarsest level."
+      },
+      {
+        "case": "HSWG small-panel cases (RC-19, HyMAX)",
+        "verdict": "GEOMETRICALLY SMALLER, GATED BY MISSING CAPABILITY -- not a size problem, a capability problem",
+        "reasoning": "no published grid-size figures found, but a 130mm x 80mm cantilever plate and a clamped panel are 2-3 orders of magnitude smaller in domain extent than a full CRM aircraft. This lab has demonstrated supersonic rhoCentralFoam accuracy (<1% vs exact theory on wedge/cone/diamond, F3 campaign) but has NOT stood up a structural/FSI solver for panel flutter -- a different, currently-missing capability, not a mesh-size wall."
+      }
+    ],
+    "what_a_bigger_machine_would_need": {
+      "primal_only_at_coarsest_CRM_grid": "roughly 20x our current largest converged case (11.6M vs 579,072 cells). Our 32 GiB host was NOT memory-bound at 579,072 cells (30GB free throughout the A6 run) -- if primal RAM scales close to linearly with cell count (unlike the adjoint, which is structurally worse), the coarsest CRM grid might fit in well under 32GB IF partitioned across substantially more ranks than our current 4-16-vCPU ceiling allows for sane wall-time -- DAFoam's own DPW4_Aircraft tutorial defaults to 192 ranks for exactly this reason. This is a compute/rank-count problem more than a hard memory wall, for the primal alone.",
+      "adjoint_at_any_CRM_scale": "categorically out of reach by adding RAM alone -- A3/A6's own finding is that the OOM is structural (an unavoidable mesh-sized Jacobian block in OpenMDAO's reverse-mode sweep), not simply memory-cap-tunable. Would need either a genuinely much larger dedicated-RAM host with empirically-measured peak RSS on a small case first, or an untested matrix-free adjoint path (adjUseColoring=False) that trades memory for an unknown runtime cost.",
+      "full_6-grid_Richardson_family_to_Level_6": "hundreds of millions of cells at the finest level (221M-368M cells/points across the three DPW-7 families measured) -- squarely multi-node HPC-cluster territory, not a single-box upgrade. This matches the prior scoping report's independent DPW-VI estimate (7.2M-714M cell family) almost exactly, unsurprising since DPW-8 continues the DPW-7 geometry lineage."
+    },
+    "coarsest_feasible_entry": "NONE identified among the DPW-8/AePW-4 CRM-scale cases (Configs A-D, HAWG) at any grid level offered -- every measured or derived 'Tiny'/Level-1 grid for this geometry, across four independent providers spanning DPW-7 and DPW-8, is 9x or more beyond our largest-ever converged case. The 2D verification cases (V1/V2/V3) remain an open, unconfirmed possibility pending a cheap next step (unzip and count), not a settled feasible entry."
+  },
+  "recommendation": {
+    "do_not": "attempt any DPW-8/AePW-4 CRM-configuration (Config A/B/C/D) or HAWG submission on current hardware -- every measured coarsest grid is far beyond what this lab has ever converged, and the adjoint fails at a fraction of even that coarsest number.",
+    "do": [
+      "download and unzip the OAT15A (V1) grid bundles (already located, ~284MB unstructured / ~554MB structured, anonymous HTTP, no compute cost) and count actual per-level cells before committing to anything further -- this is the one open question standing between 'not feasible' and 'plausible' for this workshop family.",
+      "if V1/V2/V3 cell counts land inside our proven envelope (order 10^4-10^6), consider an OFF-CYCLE, NON-SUBMITTED validation run reusing our proven F2-campaign transonic pipeline (rhoCentralFoam/kOmegaSST) against DPW-8's own committee-supplied OAT15A grid, purely to cross-check our own numbers against a workshop-standard grid -- not as a workshop submission (the June 2026 event has already passed).",
+      "bank the transferable methodology (grid-family growth formula, y+-anchored spacing tables, fully-qualified turbulence-model naming, IQR/std scatter reporting, drag-increment-vs-absolute distinction) into our own doctrine regardless of whether we ever touch DPW/AePW data directly.",
+      "treat the FEM/structural data (NASA_CRM_FULLSPAN_WBT0, NASA_CRM_HALFSPAN_FEM, both openly downloadable) as a possible future resource if this lab ever stands up a structural/FSI solver -- not actionable today, since we have no aeroelastic coupling capability."
+    ]
+  }
+}

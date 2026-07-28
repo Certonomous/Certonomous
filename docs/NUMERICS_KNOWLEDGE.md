@@ -626,6 +626,62 @@ it, matching this file's existing convention.
   method producing a solver-composable correction (not a standalone field
   sample) on one of our three flow families; none was found in this pass.
 
+## DPW-8/AePW-4 scoping — grid-size and methodology claims (added 2026-07-28)
+
+From `demo-output/website/campaign/DPW8_AEPW4_SCOPING.md` (full case matrix, data availability,
+and feasibility verdict). Recorded here as durable claim→source→gate entries since the scoping
+report itself is a point-in-time artifact.
+
+- **The DPW-8/AePW-4 joint workshop ran June 6-7, 2026 in San Diego and had already concluded by
+  the time this was checked (2026-07-28, ~7.5 weeks after).** Source:
+  [aiaa-dpw.org/logistics.html](https://www.aiaa-dpw.org/logistics.html) (page states
+  "Last Updated June 2, 2026") — tier (a), primary organizing-committee site. *Gate*: n/a, status
+  claim, re-check only if planning any future DPW/AePW cycle.
+- **DPW-8's own CRM Wing/Body grid (Config B, Cadence unstructured CGNS, "Source of Scatter" WG
+  Test Case 2, Level 3/Medium) is 92.7-93.0 million cells.** Source: primary README co-located
+  with the grid files,
+  `https://dpw.larc.nasa.gov/DPW8/Scatter/Test_Case_2/Cadence_Grids.REV00/CGNS/README.txt` — tier
+  (a), direct measurement (a Tecplot-style tabulation of tets/pyramids/prisms/hexes per alpha
+  variant, not a summary claim). *Gate*: none needed to trust the number; would need re-fetch only
+  if the committee revises the REV00 grids.
+- **The coarsest ("Tiny"/Level-1) member of that same DPW-8 grid family is ~11.6 million cells
+  (derived, not directly measured)**, using the gridding guidelines' own growth formula
+  `[(L+2)/(L+1)]^3` applied backward from the measured L3 point. Source:
+  [gridding_guidelines_v3_07012024.pdf](https://www.aiaa-dpw.org/ref/gridding_guidelines_v3_07012024.pdf),
+  slide "Surface Spacing (CRM)" — tier (a) for the formula, derived (not tier-a) for the resulting
+  L1 number. *Gate*: cross-validated (see next entry) — treat as solid until a party publishes a
+  directly-measured DPW-8 L1 count.
+- **Three independent DPW-7 grid providers for the same CRM wing-body(-tail) geometry all put
+  their coarsest grid family member at 5-31 million cells/points**, corroborating the DPW-8
+  estimate above: DLR unstructured hybrid Tiny = 31,589,359 elements (11,698,938 points, source
+  `https://dpw.larc.nasa.gov/DPW7/DLR_Grids.REV00/Readme-DLR-Grids_v1a.txt`); Vassberg structured
+  multiblock/overset L1.Tiny = 5,286,597 points (source
+  `https://dpw.larc.nasa.gov/DPW7/Vassberg_Grids.REV00/Vassberg_DPW7_GridFamilyDimensions.pdf`);
+  JAXA unstructured mixed Tiny = 25,294,690 elements (8,698,930 nodes, source
+  `https://dpw.larc.nasa.gov/DPW7/JAXA_Grids.REV00/Readme_1_Tiny.txt`) — all tier (a), direct
+  primary-source measurements. *Gate*: this triangulation is itself the gate — four independent
+  sources agreeing to within one order of magnitude is strong enough to act on without further
+  verification.
+- **Conclusion this lab should treat as load-bearing:** the coarsest published grid for the
+  DPW CRM wing-body(-tail) geometry, across two workshop generations and four independent
+  providers, is never below ~5 million cells and typically 8-12 million for unstructured
+  families — this is 9-55x our own largest-ever converged primal (579,072 cells, A6) and
+  75-495x our adjoint's already-measured OOM threshold (156,089 cells, A3/A6). *Gate for
+  revisiting*: a materially bigger host (see A6's own rank-count reasoning: DAFoam's
+  DPW4_Aircraft tutorial defaults to 192 ranks) or a genuinely smaller committee-supplied grid
+  family (none found in this pass) would be required before re-opening the CRM-scale question.
+- **DPW/AePW grid-family construction and reporting conventions worth adopting regardless of
+  participation:** a formulaic 6-member growth rule keyed to a Level index
+  (`[(L+2)/(L+1)]^3`, enabling real Richardson/GCI across the family rather than dual-mesh
+  comparison), pre-computed y+-anchored wall-spacing tables for two Reynolds regimes, a
+  fully-qualified turbulence-model name ("French Vanilla SA-(neg) (All-terms)") as a documented
+  scatter-reduction lever, and reporting participant scatter as an explicit IQR/std band. Source:
+  same gridding_guidelines_v3 PDF plus
+  [testcases.html](https://www.aiaa-dpw.org/TestCases/testcases.html) — tier (a). *Gate*: no
+  further verification needed to start using the growth formula and spacing-table pattern in our
+  own snappyHexMesh/pyHyp specs; this is a methodology adoption, not a claim requiring a
+  reproduction gate.
+
 ## Open innovation directions (Numericist backlog)
 
 - GCI-based discretization-error channel alongside the GP epistemic layer.
