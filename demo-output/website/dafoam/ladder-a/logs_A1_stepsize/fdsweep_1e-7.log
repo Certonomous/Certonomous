@@ -1,0 +1,1942 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar
+Date   : Jul 28 2026
+Time   : 04:54:36
+Host   : ip-172-31-43-247
+PID    : 267
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/ladder-a1-naca0012
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [2] (region region0)
+
+Finished decomposition in 0 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+Processor 0
+    Number of cells = 2016
+    Number of points = 4224
+    Number of faces shared with processor 1 = 64
+    Number of processor patches = 1
+    Number of processor faces = 64
+    Number of boundary faces = 4158
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+Processor 1
+    Number of cells = 2016
+    Number of points = 4224
+    Number of faces shared with processor 0 = 64
+    Number of processor patches = 1
+    Number of processor faces = 64
+    Number of boundary faces = 4158
+
+Number of processor faces = 64
+Max number of cells = 2016 (0% above average 2016)
+Max number of processor patches = 1 (0% above average 1)
+Max number of faces between processors = 64 (0% above average 64)
+
+Time = 0
+
+Processor 0: field transfer
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Processor 1: field transfer
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+End
+
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/ladder-a1-naca0012
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+[0] UPstream::init : could not attach buffer
+[1] UPstream::init : could not attach buffer
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/ladder-a1-naca0012
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 4032
+Global Faces: 16318
+Global Xv: 25344
+Undecomposed points: 8316
+Global Adjoint States: 36478
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+4
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+)
+Global Cells: 4032
+Global Faces: 16318
+Global Xv: 25344
+Undecomposed points: 8316
+Global Adjoint States: 36478
+
+SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+    Adding all faces of patches: (wing) ...
+    Found matching patch wing with 126 faces
+Init solver done! ElapsedClockTime 0.000000 s
+Init solver done! ElapsedCpuTime 0.250000 s
+initState: 
+6
+(
+nuTilda 4.500000000000217e-05
+phi 0
+U1 0
+U2 0
+p 0
+U0 10.00000000000015
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting primal boundary conditions...
+Setting U = (10 0 0) at inout
+Setting primal boundary conditions...
+Setting p = 0 at inout
+Setting primal boundary conditions...
+Setting nuTilda = 4.5e-05 at inout
+Setting nut wall BC for wing. BCType=nutUSpaldingWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/ladder-a1-naca0012
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+Finalising parallel run
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 1e-08;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        U0
+        {
+            variable        U;
+            patches         1 ( inout );
+            value           3 ( 10 0 0 );
+        }
+        p0
+        {
+            variable        p;
+            patches         1 ( inout );
+            value           1 ( 0 );
+        }
+        nuTilda0
+        {
+            variable        nuTilda;
+            patches         1 ( inout );
+            value           1 ( 4.5e-05 );
+        }
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               10;
+        p               50;
+        nuTilda         0.00045;
+        phi             1;
+    }
+    function
+    {
+        CD
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   parallelToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+        CL
+        {
+            type            force;
+            source          patchToFace;
+            patches         1 ( wing );
+            directionMode   normalToFlow;
+            patchVelocityInputName patchV;
+            scale           0.2;
+        }
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+        patchV
+        {
+            type            patchVelocity;
+            patches         1 ( inout );
+            flowAxis        x;
+            normalAxis      y;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  1 ( wing );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount/ladder-a1-naca0012',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/ladder-a1-naca0012
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+#------------------------------#
+ Total Volume Nodes :      8448 
+#------------------------------#
+Finalising parallel run
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000   0.000)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       252 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('inout', [0]), ('procBoundary0to1', [1]), ('symmetry1', [2]), ('symmetry2', [3]), ('wing', [4]), ('allSurfaces', [0, 1, 2, 3, 4]), ('allWalls', [4]), ('designSurfaces', [4])])
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-17.36955992934097 -18.580929029828 0) (18.72808974732804 18.580929008908 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (1.306540180385999e-19 -4.180928577235196e-19 5.672622979343512e-16) OK.
+    Max cell openness = 2.647572244145361e-16 OK.
+    Max aspect ratio = 97.87218721638284 OK.
+    Minimum face area = 2.254099143164308e-06. Maximum face area = 4.224820321497278.  Face area magnitudes OK.
+    Min volume = 2.254099144856892e-07. Max volume = 0.422482032106397.  Total volume = 105.2804018655528.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891598092847 average: 2.547934581911865
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754647905 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 0.9999999999987094 finalRes: 0.08240773103290355 nIters: 7
+U1 initRes: 1 finalRes: 0.08007995203822876 nIters: 7
+U2 initRes: 0.9999999554390596 finalRes: 0.07268393220932351 nIters: 7
+p initRes: 1 finalRes: 0.07187397990410722 nIters: 5
+Time step continuity errors : sum local = 0.0005118255752470035
+                                 global = -0.0002147973597912893
+                             cumulative = -0.0002147973597912893
+nuTilda initRes: 0.9999999999994288 finalRes: 0.07775220995390689 nIters: 7
+Bounding nuTilda>1e-16
+CD: 0.5134283813042979 final: 0.5134283813042979
+CL: -0.04735005829205319 final: -0.04735005829205319
+yPlus min: 48.427160900542 max: 83.46943413795927 mean: 78.5052645091826
+ExecutionTime = 0.51 s  ClockTime = 0 s
+
+Time = 100
+
+U0 initRes: 0.0006511379032105874 finalRes: 4.821350669665884e-05 nIters: 6
+U1 initRes: 0.0005602160955192194 finalRes: 5.513923276255421e-05 nIters: 5
+U2 initRes: 0.001257053179405664 finalRes: 8.915904984469259e-05 nIters: 5
+p initRes: 0.004572993158884976 finalRes: 0.0002985841256299898 nIters: 3
+Time step continuity errors : sum local = 7.486274122170795e-06
+                                 global = 2.955844809515611e-06
+                             cumulative = -0.0002118415149817737
+nuTilda initRes: 4.857441934071923e-05 finalRes: 4.159896838915736e-06 nIters: 2
+Bounding nuTilda>1e-16
+CD: 0.02195940525460195 final: 0.02195940525460195
+CL: 0.4820488556561873 final: 0.4820488556561873
+yPlus min: 14.76217836832865 max: 100.1804613092615 mean: 60.22718010574255
+ExecutionTime = 1.02 s  ClockTime = 1 s
+
+Time = 200
+
+U0 initRes: 1.461712219358176e-05 finalRes: 1.174806869404198e-06 nIters: 6
+U1 initRes: 1.200755024437199e-05 finalRes: 9.549773580137554e-07 nIters: 6
+U2 initRes: 1.924826759307126e-05 finalRes: 1.695734256537362e-06 nIters: 5
+p initRes: 1.708445654867035e-05 finalRes: 1.171929980820245e-06 nIters: 3
+Time step continuity errors : sum local = 2.97930536082814e-08
+                                 global = -4.564845611502323e-10
+                             cumulative = -0.0002118419714663348
+nuTilda initRes: 3.658825790524557e-07 finalRes: 3.58470881353768e-08 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02094090710210191 final: 0.02094090710210191
+CL: 0.498172600562674 final: 0.498172600562674
+yPlus min: 14.26012555845825 max: 101.0569468598949 mean: 59.96225903599317
+ExecutionTime = 1.53 s  ClockTime = 1 s
+
+Time = 300
+
+U0 initRes: 5.292272932750685e-07 finalRes: 4.213923210164576e-08 nIters: 6
+U1 initRes: 4.64261735106737e-07 finalRes: 3.558179108521869e-08 nIters: 6
+U2 initRes: 8.173396001410862e-07 finalRes: 6.111836559474882e-08 nIters: 5
+p initRes: 9.932086205866696e-07 finalRes: 8.301870726667985e-08 nIters: 2
+Time step continuity errors : sum local = 2.111694514612639e-09
+                                 global = 5.005437607156939e-11
+                             cumulative = -0.0002118419214119587
+nuTilda initRes: 1.742450932730459e-08 finalRes: 1.465324231600644e-09 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091159378076924 final: 0.02091159378076924
+CL: 0.4987468184647176 final: 0.4987468184647176
+yPlus min: 14.24985836787034 max: 101.0842086106887 mean: 59.95703502496877
+ExecutionTime = 2.03 s  ClockTime = 2 s
+
+Time = 400
+
+U0 initRes: 1.304874201737753e-08 finalRes: 9.648178152901668e-10 nIters: 6
+U1 initRes: 1.050013925017425e-08 finalRes: 7.689918483276391e-10 nIters: 6
+U2 initRes: 4.953544328305407e-08 finalRes: 4.792237090131385e-09 nIters: 5
+p initRes: 3.250174177381142e-08 finalRes: 1.890504525044521e-09 nIters: 2
+Time step continuity errors : sum local = 4.808840568242922e-11
+                                 global = 3.215168439177059e-13
+                             cumulative = -0.0002118419210904419
+nuTilda initRes: 5.725655422898753e-10 finalRes: 4.273798481589864e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091052898117485 final: 0.02091052898117485
+CL: 0.4987649981000701 final: 0.4987649981000701
+yPlus min: 14.24953306917098 max: 101.0851042561296 mean: 59.95687650896587
+ExecutionTime = 2.55 s  ClockTime = 2 s
+
+Time = 435
+Minimal residual 9.646409714038222e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.0209105098587985 final: 0.0209105098587985
+CL: 0.4987652667308054 final: 0.4987652667308054
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0002105327983258587 0.0002330165586608974 1.110205286501277e-12)
+U Residual Mean: (1.5840547055946e-06 6.405153862492725e-07 8.466176891510717e-15)
+U Residual Max: (5.405370757216588e-05 0.0001012390903269988 1.569068997107427e-13)
+p Residual Norm2: 7.141263244826142e-05
+p Residual Mean: 1.027564027778892e-07
+p Residual Max: 3.259231539034248e-05
+nuTilda Residual Norm2: 8.982893799957654e-08
+nuTilda Residual Mean: 3.078842823559093e-10
+nuTilda Residual Max: 1.687064342536775e-08
+phi Residual Norm2: 3.229452109274434e-07
+phi Residual Mean: 8.041198399928111e-10
+phi Residual Max: 8.133465440628386e-08
+Total Residual Norm2: 0.0003220569083518035
+ 
+ 
+FDSWEEP step=1.0e-07 BASELINE_CD=2.091050985879850e-02
+Computing d[CD]/d[aero_states]^T * psi 2.64 s
+Computing d[CD]/d[aero_vol_coords]^T * psi 2.68 s
+Computing d[CD]/d[patchV]^T * psi 2.84 s
+Checking if Coloring file exists..
+dRdWColoring_2.bin exists.
+Moving time 435 to 0.0001
+Driver total derivatives for iteration: 1
+---------------------------------------------
+Computing dRdWTPC 3.1 s
+Initializing dRdWCon. 3.1 s
+dRdWCon Created. 3.83 s
+Reading Coloring dRdWColoring_2
+Validating Coloring...
+No Conflicting Colors Found!
+Partial derivative matrix created. 3.87 s
+dRdWTPC: 0 of 375, ExecutionTime: 3.87 s
+dRdWTPC: 100 of 375, ExecutionTime: 4.59 s
+dRdWTPC: 200 of 375, ExecutionTime: 5.31 s
+dRdWTPC: 300 of 375, ExecutionTime: 6.03 s
+dRdWTPC: 374 of 375, ExecutionTime: 6.54 s
+Solver Type: gmres
+GMRES Restart: 1000
+ASM Overlap: 1
+Global PC Iters: 0
+Local PC Iters: 1
+Mat ReOrdering: rcm
+ILU PC Fill Level: 1
+GMRES Max Iterations: 1000
+GMRES Relative Tolerance: 1e-06
+GMRES Absolute Tolerance: 1e-14
+Solving Linear Equation... 6.37 s
+Main iteration 0 KSP Residual norm 3.216467351428e-02 6.49 s. 
+Main iteration 100 KSP Residual norm 1.160017526641e-05 8.84 s. 
+Main iteration 164 KSP Residual norm 3.177553666748e-08 10.52 s 
+**Completed**! Total iterations: 164. PetscConvergedReason: 2. 10.52 s
+Residual tolerance satisfied, solution finished!
+Computing d[aero_residuals]/d[aero_vol_coords]^T * psi 10.57 s
+Computing d[aero_residuals]/d[patchV]^T * psi 10.89 s
+FDSWEEP step=1.0e-07 ADJOINT idx=0 value=-1.134166189414765e-02
+FDSWEEP step=1.0e-07 ADJOINT idx=1 value=-2.217954850367528e-02
+FDSWEEP step=1.0e-07 ADJOINT idx=2 value=6.798534080782308e-03
+FDSWEEP step=1.0e-07 ADJOINT idx=3 value=1.238018588499110e-02
+FDSWEEP step=1.0e-07 ADJOINT idx=4 value=3.893834958886989e-02
+FDSWEEP step=1.0e-07 ADJOINT idx=5 value=4.234249725549186e-02
+FDSWEEP step=1.0e-07 ADJOINT idx=6 value=5.690764277189245e-03
+FDSWEEP step=1.0e-07 ADJOINT idx=7 value=3.466797184914756e-03
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 435
+    Overall domain bounding box (-17.36955992886273 -18.58092900861845 0) (18.72808974789967 18.58092903011879 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (2.874388396791604e-19 -2.613080360719641e-20 -7.941736313314038e-16) OK.
+    Max cell openness = 2.562248329479257e-16 OK.
+    Max aspect ratio = 97.87218721579816 OK.
+    Minimum face area = 2.254099143164006e-06. Maximum face area = 4.224820321726964.  Face area magnitudes OK.
+    Min volume = 2.254099144856544e-07. Max volume = 0.4224820321293653.  Total volume = 105.2804018677172.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891597632407 average: 2.547934783658387
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754610161 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 002
+Previous solution time 435 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 2.96237158724558e-09 finalRes: 2.148295051603617e-10 nIters: 6
+U1 initRes: 3.033029726165645e-09 finalRes: 2.361882020531753e-10 nIters: 6
+U2 initRes: 0.02237187714845371 finalRes: 0.001672312363195219 nIters: 7
+p initRes: 6.041836620673893e-08 finalRes: 4.385424737650025e-09 nIters: 5
+Time step continuity errors : sum local = 1.115512578974032e-10
+                                 global = -8.514201858942611e-11
+                             cumulative = -0.0002118420062324605
+nuTilda initRes: 3.106544730144299e-10 finalRes: 3.038287506495173e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091044479206786 final: 0.02091044479206786
+CL: 0.4987657323313446 final: 0.4987657323313446
+yPlus min: 14.24953023861695 max: 101.0851183243854 mean: 59.95687412205775
+ExecutionTime = 11.32 s  ClockTime = 11 s
+
+Time = 55
+Minimal residual 9.900144713463752e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050470997659 final: 0.02091050470997659
+CL: 0.4987654337634479 final: 0.4987654337634479
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001525632808391082 0.0001168197147872915 5.330995430085325e-07)
+U Residual Mean: (9.664365407156202e-07 6.612821047762066e-07 1.154484858972725e-09)
+U Residual Max: (3.22132293604227e-05 3.749712300304964e-05 2.156690993008931e-07)
+p Residual Norm2: 3.927271812784258e-05
+p Residual Mean: 1.553545650852733e-07
+p Residual Max: 2.235100157226612e-05
+nuTilda Residual Norm2: 2.62080330341135e-08
+nuTilda Residual Mean: 8.046605256973129e-11
+nuTilda Residual Max: 5.682191873402037e-09
+phi Residual Norm2: 4.285088995533659e-07
+phi Residual Mean: 1.014199137509526e-09
+phi Residual Max: 4.529740910502509e-08
+Total Residual Norm2: 0.0001961255090863666
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 55
+    Overall domain bounding box (-17.3695599298312 -18.58092905113926 0) (18.72808974674408 18.58092898759515 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-1.045232144329759e-19 1.306540180412199e-19 1.151923721730706e-15) OK.
+    Max cell openness = 2.469883524184132e-16 OK.
+    Max aspect ratio = 97.87218721695469 OK.
+    Minimum face area = 2.254099143164287e-06. Maximum face area = 4.224820321264881.  Face area magnitudes OK.
+    Min volume = 2.254099144856798e-07. Max volume = 0.4224820320831578.  Total volume = 105.2804018633868.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.7489159851487 average: 2.547934380088344
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754684099 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 003
+Previous solution time 55 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.953486080421048e-09 finalRes: 1.362379435583296e-10 nIters: 7
+U1 initRes: 2.58249879221709e-09 finalRes: 1.791970120973508e-10 nIters: 7
+U2 initRes: 0.003866069451728828 finalRes: 0.0002863029823296627 nIters: 7
+p initRes: 1.133452486151461e-07 finalRes: 6.227466657329378e-09 nIters: 5
+Time step continuity errors : sum local = 1.584068660051371e-10
+                                 global = 1.013345044175065e-10
+                             cumulative = -0.0002118419048979561
+nuTilda initRes: 3.714394083700495e-10 finalRes: 3.546062312740904e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091063404813772 final: 0.02091063404813772
+CL: 0.4987645069583233 final: 0.4987645069583233
+yPlus min: 14.24952911229824 max: 101.0851211496959 mean: 59.95687589905059
+ExecutionTime = 11.82 s  ClockTime = 12 s
+
+Time = 77
+Minimal residual 9.920438152208837e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.0209105046831569 final: 0.0209105046831569
+CL: 0.4987652469198299 final: 0.4987652469198299
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001912860640522375 0.0001335537385601282 6.646857802389874e-11)
+U Residual Mean: (8.549711473882209e-07 4.836570955169138e-07 1.628767048197084e-13)
+U Residual Max: (4.792931638064601e-05 5.876839020402258e-05 2.614607496985666e-11)
+p Residual Norm2: 3.085784532075749e-05
+p Residual Mean: 1.193230517804176e-07
+p Residual Max: 9.983364891559985e-06
+nuTilda Residual Norm2: 9.030630023766116e-09
+nuTilda Residual Mean: 3.253430760095415e-11
+nuTilda Residual Max: 2.088115226747061e-09
+phi Residual Norm2: 3.281224690153512e-07
+phi Residual Mean: 7.250632742059475e-10
+phi Residual Max: 4.076423273863625e-08
+Total Residual Norm2: 0.0002353280130960505
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=0 CD_plus=2.091050470997659e-02 CD_minus=2.091050468315690e-02 fd=1.340984268072276e-04
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 77
+    Overall domain bounding box (-17.36955992982581 -18.58092900867913 0) (18.72808974674763 18.58092903005827 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-6.532700902056557e-20 8.10054911855013e-19 1.672594086251533e-15) OK.
+    Max cell openness = 2.732604250332996e-16 OK.
+    Max aspect ratio = 97.87218721599821 OK.
+    Minimum face area = 2.25409914316125e-06. Maximum face area = 4.224820321760925.  Face area magnitudes OK.
+    Min volume = 2.25409914485362e-07. Max volume = 0.422482032132761.  Total volume = 105.2804018634154.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891597414675 average: 2.547934379374179
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754616278 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 004
+Previous solution time 77 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.935620703952507e-09 finalRes: 1.912746456111741e-10 nIters: 6
+U1 initRes: 2.534632267409595e-09 finalRes: 2.495169482383196e-10 nIters: 6
+U2 initRes: 0.002923236715091673 finalRes: 0.0002202349372245796 nIters: 7
+p initRes: 1.247378337672537e-07 finalRes: 8.31808719567163e-09 nIters: 4
+Time step continuity errors : sum local = 2.1158568225614e-10
+                                 global = 1.295576286911946e-11
+                             cumulative = -0.0002118418919421932
+nuTilda initRes: 4.180149854158924e-10 finalRes: 3.707259380141043e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.0209105934869627 final: 0.0209105934869627
+CL: 0.4987661166794023 final: 0.4987661166794023
+yPlus min: 14.24952354094326 max: 101.0851221440255 mean: 59.95687261854399
+ExecutionTime = 12.43 s  ClockTime = 12 s
+
+Time = 89
+Minimal residual 9.92659990488224e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050305693092 final: 0.02091050305693092
+CL: 0.4987654721103187 final: 0.4987654721103187
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001032282281456769 6.428781611988436e-05 7.22201550630442e-13)
+U Residual Mean: (4.747122819135478e-07 2.813341563160917e-07 5.656833017381042e-15)
+U Residual Max: (2.948075553632634e-05 1.909710621106342e-05 1.174924853381642e-13)
+p Residual Norm2: 1.966150136564097e-05
+p Residual Mean: 7.096537704369801e-08
+p Residual Max: 4.221218844607324e-06
+nuTilda Residual Norm2: 7.842813694589539e-09
+nuTilda Residual Mean: 2.685209704376696e-11
+nuTilda Residual Max: 1.427007255539411e-09
+phi Residual Norm2: 2.114470522693874e-07
+phi Residual Mean: 4.506271435607754e-10
+phi Residual Max: 3.422826400965959e-08
+Total Residual Norm2: 0.0001231893250037385
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 89
+    Overall domain bounding box (-17.36955992885867 -18.5809290509945 0) (18.72808974790541 18.58092898773976 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-2.221118306613233e-19 -4.442236613226467e-19 4.641365430924087e-16) OK.
+    Max cell openness = 2.428722556020974e-16 OK.
+    Max aspect ratio = 97.87218721677358 OK.
+    Minimum face area = 2.254099143167223e-06. Maximum face area = 4.224820321232681.  Face area magnitudes OK.
+    Min volume = 2.254099144859631e-07. Max volume = 0.4224820320799379.  Total volume = 105.2804018676877.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891598778025 average: 2.547934784429787
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754680028 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 005
+Previous solution time 89 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 2.274575743024539e-09 finalRes: 1.595359807965649e-10 nIters: 7
+U1 initRes: 2.782381588725225e-09 finalRes: 2.718964494767202e-10 nIters: 6
+U2 initRes: 0.004956545429090994 finalRes: 0.0003772981726510578 nIters: 7
+p initRes: 1.476373142447279e-07 finalRes: 5.459081104176233e-09 nIters: 5
+Time step continuity errors : sum local = 1.388617044561636e-10
+                                 global = -1.35434779783944e-11
+                             cumulative = -0.0002118419054856712
+nuTilda initRes: 5.348099367539675e-10 finalRes: 3.443184992278129e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091019215286094 final: 0.02091019215286094
+CL: 0.4987645995183336 final: 0.4987645995183336
+yPlus min: 14.2495271941609 max: 101.0851099163114 mean: 59.95687830073166
+ExecutionTime = 13.09 s  ClockTime = 13 s
+
+Time = 100
+
+U0 initRes: 4.547317301557892e-10 finalRes: 2.85903293838109e-11 nIters: 5
+U1 initRes: 7.01102603166219e-10 finalRes: 4.420907134092373e-11 nIters: 5
+U2 initRes: 4.143110023859143e-09 finalRes: 3.078775135261053e-10 nIters: 5
+p initRes: 1.093652144865335e-08 finalRes: 1.011968029391085e-09 nIters: 2
+Time step continuity errors : sum local = 2.574125211201049e-11
+                                 global = -1.429232731688773e-12
+                             cumulative = -0.0002118419069149039
+nuTilda initRes: 1.16726225989354e-11 finalRes: 7.510426154851735e-13 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091050669854449 final: 0.02091050669854449
+CL: 0.498765213334392 final: 0.498765213334392
+yPlus min: 14.2495253006462 max: 101.0851379103966 mean: 59.95686875545237
+ExecutionTime = 13.59 s  ClockTime = 14 s
+
+Time = 102
+Minimal residual 9.638769646242381e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050591401755 final: 0.02091050591401755
+CL: 0.4987652089745731 final: 0.4987652089745731
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (4.528479628897974e-05 3.529438631965105e-05 6.947291949716407e-13)
+U Residual Mean: (2.442616967758254e-07 1.569370297191428e-07 5.308717289609932e-15)
+U Residual Max: (1.432219528396672e-05 1.365655212737238e-05 1.009651107504752e-13)
+p Residual Norm2: 1.628146825323882e-05
+p Residual Mean: 3.947792161986171e-08
+p Residual Max: 7.240970642835999e-06
+nuTilda Residual Norm2: 5.604430898823061e-09
+nuTilda Residual Mean: 1.936267638717575e-11
+nuTilda Residual Max: 1.036020494129448e-09
+phi Residual Norm2: 1.033507108355118e-07
+phi Residual Mean: 2.480276943911107e-10
+phi Residual Max: 1.22024955814177e-08
+Total Residual Norm2: 5.967833276722352e-05
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=1 CD_plus=2.091050305693092e-02 CD_minus=2.091050591401755e-02 fd=-1.428543314890840e-02
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 102
+    Overall domain bounding box (-17.3695599296935 -18.58092901024514 0) (18.72808974707722 18.58092902848909 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (1.110559153309316e-19 3.135696432873363e-19 1.26694082775927e-15) OK.
+    Max cell openness = 2.380197672519367e-16 OK.
+    Max aspect ratio = 97.87218720431802 OK.
+    Minimum face area = 2.254099142741322e-06. Maximum face area = 4.224820321732565.  Face area magnitudes OK.
+    Min volume = 2.254099144434139e-07. Max volume = 0.4224820321299254.  Total volume = 105.2804018673705.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891591221751 average: 2.547934690473659
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464753745138 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 006
+Previous solution time 102 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.678013975415906e-09 finalRes: 1.559019815743634e-10 nIters: 6
+U1 initRes: 2.202714043245959e-09 finalRes: 1.929686575679538e-10 nIters: 6
+U2 initRes: 0.00253541105962958 finalRes: 0.0001846892581976515 nIters: 7
+p initRes: 1.128129791749001e-07 finalRes: 7.064083128691648e-09 nIters: 4
+Time step continuity errors : sum local = 1.79687809974484e-10
+                                 global = 3.029524705990895e-11
+                             cumulative = -0.0002118418766196568
+nuTilda initRes: 4.193693000397098e-10 finalRes: 3.436969766113423e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091059827637232 final: 0.02091059827637232
+CL: 0.4987656346938426 final: 0.4987656346938426
+yPlus min: 14.24952632490527 max: 101.0851359600855 mean: 59.95686903505572
+ExecutionTime = 13.83 s  ClockTime = 14 s
+
+Time = 76
+Minimal residual 9.753695780462763e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050621031395 final: 0.02091050621031395
+CL: 0.4987654533200288 final: 0.4987654533200288
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.000165508226620879 9.767078816653172e-05 6.470047934904019e-11)
+U Residual Mean: (7.56983487229891e-07 4.302129713061304e-07 1.68237654776944e-13)
+U Residual Max: (3.325796744491072e-05 3.036617945184616e-05 1.402814201250126e-11)
+p Residual Norm2: 4.407642580966633e-05
+p Residual Mean: 1.251757334887571e-07
+p Residual Max: 2.072539745618944e-05
+nuTilda Residual Norm2: 1.272441659940843e-08
+nuTilda Residual Mean: 4.665023226354045e-11
+nuTilda Residual Max: 2.185012655575595e-09
+phi Residual Norm2: 3.722599192731634e-07
+phi Residual Mean: 6.76244314782704e-10
+phi Residual Max: 6.874191412736541e-08
+Total Residual Norm2: 0.0001971685218075573
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 76
+    Overall domain bounding box (-17.36955992897855 -18.58092904928105 0) (18.72808974758761 18.58092898945656 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (3.135696432979565e-19 1.567848216489782e-19 1.110431820829785e-15) OK.
+    Max cell openness = 2.845407304057117e-16 OK.
+    Max aspect ratio = 97.87218722855191 OK.
+    Minimum face area = 2.254099143587923e-06. Maximum face area = 4.224820321264423.  Face area magnitudes OK.
+    Min volume = 2.254099145279898e-07. Max volume = 0.422482032083112.  Total volume = 105.2804018637314.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891605125489 average: 2.547934473489006
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464755558439 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 007
+Previous solution time 76 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.116960396288535e-09 finalRes: 9.611873042585828e-11 nIters: 6
+U1 initRes: 1.501820668724203e-09 finalRes: 1.273368765848946e-10 nIters: 6
+U2 initRes: 0.03527000682710359 finalRes: 0.003503347627997345 nIters: 6
+p initRes: 9.919983120396978e-08 finalRes: 5.479599142845102e-09 nIters: 5
+Time step continuity errors : sum local = 1.393836256385982e-10
+                                 global = 1.66891682079794e-11
+                             cumulative = -0.0002118418599304887
+nuTilda initRes: 4.90224141961185e-10 finalRes: 3.425780935642952e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091062441206063 final: 0.02091062441206063
+CL: 0.4987654073252526 final: 0.4987654073252526
+yPlus min: 14.24952712019599 max: 101.0851231105758 mean: 59.95687432498706
+ExecutionTime = 14.43 s  ClockTime = 14 s
+
+Time = 51
+Minimal residual 9.016849669125814e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050246424785 final: 0.02091050246424785
+CL: 0.4987652403748201 final: 0.4987652403748201
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0002152179576021859 0.0002325198737504796 7.059342547893397e-07)
+U Residual Mean: (9.767247835988558e-07 8.186955220447938e-07 1.717702600648368e-09)
+U Residual Max: (6.646311749136657e-05 0.0001081209068729549 2.475542833115039e-07)
+p Residual Norm2: 6.583662092779655e-05
+p Residual Mean: 1.497345598751298e-07
+p Residual Max: 4.102743895117318e-05
+nuTilda Residual Norm2: 3.416623744416532e-08
+nuTilda Residual Mean: 1.08172893761024e-10
+nuTilda Residual Max: 7.230856616349639e-09
+phi Residual Norm2: 3.570212805391185e-07
+phi Residual Mean: 8.485763666819525e-10
+phi Residual Max: 4.297417405845008e-08
+Total Residual Norm2: 0.0003236036906360684
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=2 CD_plus=2.091050621031395e-02 CD_minus=2.091050246424785e-02 fd=1.873033051574824e-02
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 51
+    Overall domain bounding box (-17.36955992898373 -18.58092901038722 0) (18.72808974758037 18.58092902834711 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (2.61308036081663e-19 3.658312505143282e-19 -1.612202239052389e-16) OK.
+    Max cell openness = 2.843620970078315e-16 OK.
+    Max aspect ratio = 97.87218719547344 OK.
+    Minimum face area = 2.254099143493818e-06. Maximum face area = 4.224820321766151.  Face area magnitudes OK.
+    Min volume = 2.254099145186221e-07. Max volume = 0.4224820321332835.  Total volume = 105.2804018637141.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891589835062 average: 2.547934473536512
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464753748294 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 008
+Previous solution time 51 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.198131202501249e-09 finalRes: 1.092173436386778e-10 nIters: 6
+U1 initRes: 1.595754059519328e-09 finalRes: 1.418375454860609e-10 nIters: 6
+U2 initRes: 0.01023697403916945 finalRes: 0.0009755667529179682 nIters: 6
+p initRes: 1.003967157247543e-07 finalRes: 4.877950318354672e-09 nIters: 4
+Time step continuity errors : sum local = 1.240796258620752e-10
+                                 global = 5.235010479475777e-13
+                             cumulative = -0.0002118418594069876
+nuTilda initRes: 5.107795609777391e-10 finalRes: 4.798004961550737e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091049191767208 final: 0.02091049191767208
+CL: 0.4987652128897927 final: 0.4987652128897927
+yPlus min: 14.24952643642563 max: 101.0851216601738 mean: 59.95687369497143
+ExecutionTime = 14.9 s  ClockTime = 15 s
+
+Time = 46
+Minimal residual 9.094086077742641e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050765667658 final: 0.02091050765667658
+CL: 0.4987654405462524 final: 0.4987654405462524
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001984291392423527 0.0002628260533719226 1.198263916842079e-06)
+U Residual Mean: (1.049985854194763e-06 8.597085556114968e-07 3.362876762731419e-09)
+U Residual Max: (6.265937543048494e-05 0.0001215589816752072 3.633107225233147e-07)
+p Residual Norm2: 8.940915735010237e-05
+p Residual Mean: 2.014283024470277e-07
+p Residual Max: 5.064471881289791e-05
+nuTilda Residual Norm2: 3.217552434058745e-08
+nuTilda Residual Mean: 1.193032517276699e-10
+nuTilda Residual Max: 6.556873881400724e-09
+phi Residual Norm2: 4.135833424464117e-07
+phi Residual Mean: 9.317206285272172e-10
+phi Residual Max: 6.363407444736393e-08
+Total Residual Norm2: 0.000341243700267766
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 46
+    Overall domain bounding box (-17.36955992969519 -18.58092904934966 0) (18.72808974707837 18.58092898938784 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (3.201023441891059e-19 2.090464288581916e-19 4.691364573330918e-16) OK.
+    Max cell openness = 2.476496118341199e-16 OK.
+    Max aspect ratio = 97.87218723715304 OK.
+    Minimum face area = 2.25409914283487e-06. Maximum face area = 4.224820321226536.  Face area magnitudes OK.
+    Min volume = 2.254099144527558e-07. Max volume = 0.4224820320793235.  Total volume = 105.2804018673899.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891606213866 average: 2.547934690497984
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464755538805 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 009
+Previous solution time 46 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.541344701231584e-09 finalRes: 1.438787108729239e-10 nIters: 6
+U1 initRes: 1.826707321424082e-09 finalRes: 1.670437783769103e-10 nIters: 6
+U2 initRes: 0.02210494330429809 finalRes: 0.002101184169011946 nIters: 6
+p initRes: 1.125491820155139e-07 finalRes: 5.805989939250051e-09 nIters: 5
+Time step continuity errors : sum local = 1.476859569277295e-10
+                                 global = -2.393476137502649e-12
+                             cumulative = -0.0002118418618004637
+nuTilda initRes: 6.324090937053529e-10 finalRes: 6.055954339912214e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.0209104107933559 final: 0.0209104107933559
+CL: 0.498765528747751 final: 0.498765528747751
+yPlus min: 14.24952708074545 max: 101.085120288861 mean: 59.95687461756432
+ExecutionTime = 15.36 s  ClockTime = 15 s
+
+Time = 50
+Minimal residual 9.741232189017383e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050158917741 final: 0.02091050158917741
+CL: 0.4987652383996457 final: 0.4987652383996457
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0002366301422361428 0.0001108636565307759 7.027960188789548e-07)
+U Residual Mean: (1.060111109739786e-06 6.098387425828636e-07 1.703475139951552e-09)
+U Residual Max: (5.834260377923783e-05 3.263028677480406e-05 2.617412239465849e-07)
+p Residual Norm2: 6.068654820092547e-05
+p Residual Mean: 1.437831194491722e-07
+p Residual Max: 3.103970784525632e-05
+nuTilda Residual Norm2: 5.088054675710992e-08
+nuTilda Residual Mean: 1.435789582882689e-10
+nuTilda Residual Max: 1.179348337395506e-08
+phi Residual Norm2: 3.73297999219191e-07
+phi Residual Mean: 8.328733009912761e-10
+phi Residual Max: 4.926854519295045e-08
+Total Residual Norm2: 0.0002682686480919541
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=3 CD_plus=2.091050765667658e-02 CD_minus=2.091050158917741e-02 fd=3.033749584879786e-02
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 50
+    Overall domain bounding box (-17.36955992989184 -18.58092900837553 0) (18.7280897468164 18.58092903036096 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (5.879430811666347e-20 2.613080360740598e-20 6.803924532529667e-16) OK.
+    Max cell openness = 2.446088964529935e-16 OK.
+    Max aspect ratio = 97.87218885120605 OK.
+    Minimum face area = 2.254099093100562e-06. Maximum face area = 4.224820321760784.  Face area magnitudes OK.
+    Min volume = 2.254099094792932e-07. Max volume = 0.422482032132747.  Total volume = 105.2804018668682.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891746589724 average: 2.54793465547619
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464809961327 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 010
+Previous solution time 50 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.035947408982085e-09 finalRes: 9.331651918724189e-11 nIters: 6
+U1 initRes: 1.445900494725434e-09 finalRes: 1.220468501877956e-10 nIters: 6
+U2 initRes: 0.008450962581745526 finalRes: 0.0006581053324937187 nIters: 6
+p initRes: 9.724232577384793e-08 finalRes: 6.593200964723501e-09 nIters: 4
+Time step continuity errors : sum local = 1.677099432943386e-10
+                                 global = 7.769735785169767e-14
+                             cumulative = -0.0002118418617227664
+nuTilda initRes: 6.253874663994952e-10 finalRes: 5.468501099399054e-11 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091048130171586 final: 0.02091048130171586
+CL: 0.4987648190493035 final: 0.4987648190493035
+yPlus min: 14.24952688618495 max: 101.0851249517683 mean: 59.95687303577352
+ExecutionTime = 15.83 s  ClockTime = 16 s
+
+Time = 47
+Minimal residual 9.699132521280147e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091051202398021 final: 0.02091051202398021
+CL: 0.4987656101843618 final: 0.4987656101843618
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0002186870539293126 0.0001638888333321478 5.004790243401356e-07)
+U Residual Mean: (1.338492230951893e-06 8.025608473787409e-07 1.401946857642798e-09)
+U Residual Max: (7.657204105271376e-05 4.807475579582388e-05 1.570127697229193e-07)
+p Residual Norm2: 5.430082808933136e-05
+p Residual Mean: 1.418193505670204e-07
+p Residual Max: 2.252948317462419e-05
+nuTilda Residual Norm2: 5.037190875696607e-08
+nuTilda Residual Mean: 1.740510511162731e-10
+nuTilda Residual Max: 1.058654872726153e-08
+phi Residual Norm2: 3.54605627081126e-07
+phi Residual Mean: 9.359249002317149e-10
+phi Residual Max: 4.231219624525548e-08
+Total Residual Norm2: 0.0002786261580329016
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 47
+    Overall domain bounding box (-17.36955992880425 -18.58092905121584 0) (18.72808974782537 18.58092898751941 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-2.155791297662822e-19 1.829156252562395e-19 -7.363823348571567e-16) OK.
+    Max cell openness = 2.65783700172521e-16 OK.
+    Max aspect ratio = 97.87218710117418 OK.
+    Minimum face area = 2.254099193190942e-06. Maximum face area = 4.224820321235971.  Face area magnitudes OK.
+    Min volume = 2.254099194883418e-07. Max volume = 0.4224820320802668.  Total volume = 105.2804018642363.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891723975984 average: 2.547934508316057
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464795370177 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 011
+Previous solution time 47 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.662613871158769e-09 finalRes: 1.243178404417268e-10 nIters: 6
+U1 initRes: 1.866312160612119e-09 finalRes: 1.404099819284517e-10 nIters: 6
+U2 initRes: 0.01129711047279705 finalRes: 0.0007959750157823554 nIters: 6
+p initRes: 1.159482901727491e-07 finalRes: 1.139140235486798e-08 nIters: 4
+Time step continuity errors : sum local = 2.897611477953151e-10
+                                 global = 6.057185485285554e-11
+                             cumulative = -0.0002118418011509115
+nuTilda initRes: 9.822177272502475e-10 finalRes: 6.612521660538843e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091065315972404 final: 0.02091065315972404
+CL: 0.4987664046283091 final: 0.4987664046283091
+yPlus min: 14.24952580253966 max: 101.085125420817 mean: 59.95687425429708
+ExecutionTime = 16.29 s  ClockTime = 16 s
+
+Time = 53
+Minimal residual 9.464948189060425e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.0209104963630659 final: 0.0209104963630659
+CL: 0.4987650785568697 final: 0.4987650785568697
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001956451250262598 0.0001890765488717862 5.577520316952606e-08)
+U Residual Mean: (1.371615568321762e-06 7.225110357859062e-07 1.526994935199711e-10)
+U Residual Max: (5.469099426136381e-05 5.708705066354014e-05 1.969584604428308e-08)
+p Residual Norm2: 5.568464172372629e-05
+p Residual Mean: 1.088515228307941e-07
+p Residual Max: 2.888382274544307e-05
+nuTilda Residual Norm2: 6.512752427111758e-08
+nuTilda Residual Mean: 2.204088003278836e-10
+nuTilda Residual Max: 1.307978241694948e-08
+phi Residual Norm2: 2.877865197844596e-07
+phi Residual Mean: 8.16792426516332e-10
+phi Residual Max: 4.977738131586115e-08
+Total Residual Norm2: 0.0002777189690627096
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=4 CD_plus=2.091051202398021e-02 CD_minus=2.091049636306590e-02 fd=7.830457154217596e-02
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 53
+    Overall domain bounding box (-17.36955992879166 -18.58092900870292 0) (18.72808974783825 18.58092903003361 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (3.135696432965981e-19 7.839241082414952e-20 1.97056727577589e-16) OK.
+    Max cell openness = 2.757803798536703e-16 OK.
+    Max aspect ratio = 97.87218749311978 OK.
+    Minimum face area = 2.254099192693944e-06. Maximum face area = 4.224820321767561.  Face area magnitudes OK.
+    Min volume = 2.254099194384583e-07. Max volume = 0.4224820321334247.  Total volume = 105.2804018642295.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.7489175447008 average: 2.547934508308043
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464799725188 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 012
+Previous solution time 53 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.885141629224654e-09 finalRes: 1.313126755927079e-10 nIters: 6
+U1 initRes: 2.003704416817506e-09 finalRes: 1.547323847072679e-10 nIters: 6
+U2 initRes: 0.03026370033191672 finalRes: 0.002116338222033766 nIters: 6
+p initRes: 1.149613316517547e-07 finalRes: 8.424633454749548e-09 nIters: 4
+Time step continuity errors : sum local = 2.14295956783064e-10
+                                 global = 5.001219386545641e-11
+                             cumulative = -0.0002118417511387177
+nuTilda initRes: 9.138660486652266e-10 finalRes: 5.767809800498877e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091039194164244 final: 0.02091039194164244
+CL: 0.4987642209515398 final: 0.4987642209515398
+yPlus min: 14.24952796402025 max: 101.0851195374376 mean: 59.95687393676432
+ExecutionTime = 16.78 s  ClockTime = 17 s
+
+Time = 48
+Minimal residual 9.432938676389133e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091051396619759 final: 0.02091051396619759
+CL: 0.4987655709974192 final: 0.4987655709974192
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0002171668160095818 0.0002348459557274903 2.432263171948461e-07)
+U Residual Mean: (1.494297860705959e-06 7.945731974491617e-07 6.226276232408154e-10)
+U Residual Max: (6.083753214625176e-05 8.900131342670647e-05 9.012176690265463e-08)
+p Residual Norm2: 6.575059406371135e-05
+p Residual Mean: 1.382716027663511e-07
+p Residual Max: 2.679958159503936e-05
+nuTilda Residual Norm2: 5.895422437669464e-08
+nuTilda Residual Mean: 2.086761508642062e-10
+nuTilda Residual Max: 1.18899054691107e-08
+phi Residual Norm2: 3.31122276282285e-07
+phi Residual Mean: 8.793863820535574e-10
+phi Residual Max: 5.513667659924232e-08
+Total Residual Norm2: 0.0003265537655480834
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 48
+    Overall domain bounding box (-17.36955992990004 -18.5809290509768 0) (18.72808974680852 18.58092898775842 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-9.79905135277133e-20 -2.613080360739021e-20 1.863176046712717e-15) OK.
+    Max cell openness = 2.660879209992579e-16 OK.
+    Max aspect ratio = 97.87218845797237 OK.
+    Minimum face area = 2.254099093642294e-06. Maximum face area = 4.224820321225169.  Face area magnitudes OK.
+    Min volume = 2.254099095336467e-07. Max volume = 0.4224820320791866.  Total volume = 105.2804018668766.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891715850352 average: 2.54793465561227
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.43246480558126 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 013
+Previous solution time 48 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 2.23255369889695e-09 finalRes: 1.620239805784335e-10 nIters: 6
+U1 initRes: 2.223451799486105e-09 finalRes: 1.707403313646108e-10 nIters: 6
+U2 initRes: 0.01015957180470268 finalRes: 0.000719641800502058 nIters: 6
+p initRes: 1.194404454062097e-07 finalRes: 8.60620635452661e-09 nIters: 4
+Time step continuity errors : sum local = 2.189145781436136e-10
+                                 global = 3.595948734816353e-11
+                             cumulative = -0.0002118417151792303
+nuTilda initRes: 9.510773141439302e-10 finalRes: 5.952847701076022e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091058195584784 final: 0.02091058195584784
+CL: 0.4987664959013262 final: 0.4987664959013262
+yPlus min: 14.24952627740333 max: 101.0851234320142 mean: 59.95687397101882
+ExecutionTime = 17.24 s  ClockTime = 17 s
+
+Time = 52
+Minimal residual 9.062348033279381e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091049679155984 final: 0.02091049679155984
+CL: 0.4987651060434738 final: 0.4987651060434738
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001958355816540043 0.000157615384954719 1.259693665822131e-07)
+U Residual Mean: (1.25813607527545e-06 6.317478054101391e-07 2.831203380007075e-10)
+U Residual Max: (4.540174631983973e-05 5.100328780827112e-05 5.310942534970947e-08)
+p Residual Norm2: 4.768687943615277e-05
+p Residual Mean: 9.639762065268023e-08
+p Residual Max: 2.070894647306643e-05
+nuTilda Residual Norm2: 6.478320718980084e-08
+nuTilda Residual Mean: 2.129592703408329e-10
+nuTilda Residual Max: 1.335778305871865e-08
+phi Residual Norm2: 2.415656990008385e-07
+phi Residual Mean: 6.706302916596379e-10
+phi Residual Max: 4.444699845802335e-08
+Total Residual Norm2: 0.0002558677422139743
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=5 CD_plus=2.091051396619759e-02 CD_minus=2.091049679155984e-02 fd=8.587318875083461e-02
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 52
+    Overall domain bounding box (-17.36955992812475 -18.58092902984164 0) (18.72808974850401 18.58092900889389 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (0 2.613080360732956e-20 6.365160099982409e-16) OK.
+    Max cell openness = 2.659545187660113e-16 OK.
+    Max aspect ratio = 97.87218721634228 OK.
+    Minimum face area = 2.254099143165109e-06. Maximum face area = 4.224820321506763.  Face area magnitudes OK.
+    Min volume = 2.254099144857585e-07. Max volume = 0.4224820321073455.  Total volume = 105.2804018672653.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.748915981388 average: 2.547934477672396
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464754646907 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 014
+Previous solution time 52 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 2.625724104090082e-09 finalRes: 2.216378900953745e-10 nIters: 6
+U1 initRes: 2.217241417614827e-09 finalRes: 1.930643448822655e-10 nIters: 6
+U2 initRes: 0.01829020615836888 finalRes: 0.001602871243444205 nIters: 6
+p initRes: 1.369529082350976e-07 finalRes: 9.719017781407994e-09 nIters: 4
+Time step continuity errors : sum local = 2.472208976596885e-10
+                                 global = 3.511886404102163e-12
+                             cumulative = -0.0002118417116673439
+nuTilda initRes: 5.283507015051605e-10 finalRes: 3.726817304514268e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091027227532332 final: 0.02091027227532332
+CL: 0.4987645284442405 final: 0.4987645284442405
+yPlus min: 14.24953376613824 max: 101.0851054963852 mean: 59.95687323755114
+ExecutionTime = 17.73 s  ClockTime = 18 s
+
+Time = 100
+
+U0 initRes: 5.502631683777106e-10 finalRes: 5.18505879083986e-11 nIters: 4
+U1 initRes: 7.706341815212239e-10 finalRes: 7.035298086115743e-11 nIters: 4
+U2 initRes: 9.699159621674403e-09 finalRes: 9.512036760394361e-10 nIters: 5
+p initRes: 1.176243981449427e-08 finalRes: 7.603029128544264e-10 nIters: 3
+Time step continuity errors : sum local = 1.933971447627e-11
+                                 global = -1.093598589290428e-11
+                             cumulative = -0.0002118417226033298
+nuTilda initRes: 3.565346319154973e-12 finalRes: 2.353643269785425e-13 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091050395181007 final: 0.02091050395181007
+CL: 0.4987652975421729 final: 0.4987652975421729
+yPlus min: 14.24953275662027 max: 101.0851055497866 mean: 59.95686987938956
+ExecutionTime = 18.23 s  ClockTime = 18 s
+
+Time = 107
+Minimal residual 9.720904415231235e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050436990489 final: 0.02091050436990489
+CL: 0.4987652999895075 final: 0.4987652999895075
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (2.984766002881533e-05 2.159560740651179e-05 6.250019223567976e-13)
+U Residual Mean: (1.429297045367486e-07 8.856344485339094e-08 4.254199999783067e-15)
+U Residual Max: (8.189432719518663e-06 8.621789675089531e-06 9.801670278642306e-14)
+p Residual Norm2: 7.991644936359799e-06
+p Residual Mean: 2.375192550623314e-08
+p Residual Max: 2.562335693055235e-06
+nuTilda Residual Norm2: 8.490297673726539e-10
+nuTilda Residual Mean: 3.114722874016208e-12
+nuTilda Residual Max: 2.356630611773395e-10
+phi Residual Norm2: 6.921869105052944e-08
+phi Residual Mean: 1.736594867398348e-10
+phi Residual Max: 6.887922320326143e-09
+Total Residual Norm2: 3.769780164928474e-05
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 107
+    Overall domain bounding box (-17.36955993055545 -18.58092902982941 0) (18.72808974615296 18.5809290089061 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (1.437194198446144e-19 -3.919620541216756e-19 1.529981744080534e-15) OK.
+    Max cell openness = 2.54726937907081e-16 OK.
+    Max aspect ratio = 97.87218721642529 OK.
+    Minimum face area = 2.254099143163353e-06. Maximum face area = 4.224820321486986.  Face area magnitudes OK.
+    Min volume = 2.254099144855776e-07. Max volume = 0.4224820321053679.  Total volume = 105.2804018638354.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891598049619 average: 2.547934686184525
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.4324647546493 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 015
+Previous solution time 107 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 2.321636751795828e-09 finalRes: 2.280227732524837e-10 nIters: 6
+U1 initRes: 2.168353230332107e-09 finalRes: 1.88473695273344e-10 nIters: 6
+U2 initRes: 0.007205875090471875 finalRes: 0.0005490344708370407 nIters: 7
+p initRes: 1.624326366542504e-07 finalRes: 1.160816300403214e-08 nIters: 5
+Time step continuity errors : sum local = 2.952747878299992e-10
+                                 global = 8.077824593524184e-11
+                             cumulative = -0.0002118416418250839
+nuTilda initRes: 2.599621475952372e-10 finalRes: 1.753348031672493e-11 nIters: 5
+Bounding nuTilda>1e-16
+CD: 0.02091088896021412 final: 0.02091088896021412
+CL: 0.4987655493730089 final: 0.4987655493730089
+yPlus min: 14.24952088849503 max: 101.0851365627726 mean: 59.95687155013177
+ExecutionTime = 18.49 s  ClockTime = 18 s
+
+Time = 100
+
+U0 initRes: 1.225126228287511e-09 finalRes: 8.011626172772777e-11 nIters: 5
+U1 initRes: 1.733356539784426e-09 finalRes: 1.700483768904869e-10 nIters: 4
+U2 initRes: 8.479091368214032e-09 finalRes: 6.816732434554827e-10 nIters: 5
+p initRes: 2.481301902202429e-08 finalRes: 1.301559290339536e-09 nIters: 3
+Time step continuity errors : sum local = 3.310753242713101e-11
+                                 global = 1.76673995464339e-11
+                             cumulative = -0.0002118416241576843
+nuTilda initRes: 6.555914370467919e-12 finalRes: 6.286580231278989e-13 nIters: 3
+Bounding nuTilda>1e-16
+CD: 0.02091050580973289 final: 0.02091050580973289
+CL: 0.4987653826844178 final: 0.4987653826844178
+yPlus min: 14.24952123309904 max: 101.0851389600186 mean: 59.95687806020897
+ExecutionTime = 19 s  ClockTime = 19 s
+
+Time = 117
+Minimal residual 8.741014730672329e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.0209105046675093 final: 0.0209105046675093
+CL: 0.4987653786114679 final: 0.4987653786114679
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (1.706966593018804e-05 1.430360822479049e-05 6.085641961758265e-13)
+U Residual Mean: (9.971985715240672e-08 6.769364843510258e-08 4.109913979080257e-15)
+U Residual Max: (4.653158157452708e-06 5.840601673412493e-06 1.240331357434311e-13)
+p Residual Norm2: 5.116538138419388e-06
+p Residual Mean: 1.370427847694469e-08
+p Residual Max: 1.911733757820768e-06
+nuTilda Residual Norm2: 9.915449987835966e-10
+nuTilda Residual Mean: 3.399294254039175e-12
+nuTilda Residual Max: 1.696032331625879e-10
+phi Residual Norm2: 4.852147127303338e-08
+phi Residual Mean: 1.361620169576389e-10
+phi Residual Max: 5.132161001069611e-09
+Total Residual Norm2: 2.285055844076361e-05
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=6 CD_plus=2.091050436990489e-02 CD_minus=2.091050466750930e-02 fd=-1.488022031981284e-03
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 117
+    Overall domain bounding box (-17.36955992969827 -18.58092902981761 0) (18.72808974694687 18.58092900891835 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (6.532700901893212e-21 -2.613080360757285e-20 8.502268349186461e-16) OK.
+    Max cell openness = 2.770182344373926e-16 OK.
+    Max aspect ratio = 97.87221754693502 OK.
+    Minimum face area = 2.254096898482179e-06. Maximum face area = 4.224820321499825.  Face area magnitudes OK.
+    Min volume = 2.254096900175981e-07. Max volume = 0.4224820321066516.  Total volume = 105.2804018661568.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891422676783 average: 2.547934785859117
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464947735241 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 016
+Previous solution time 117 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 1.418047530198148e-09 finalRes: 1.28694472585131e-10 nIters: 6
+U1 initRes: 1.41537254120371e-09 finalRes: 1.070833598460149e-10 nIters: 6
+U2 initRes: 0.002703926780878188 finalRes: 0.0001956390990352272 nIters: 7
+p initRes: 1.041815934996086e-07 finalRes: 5.636745039444899e-09 nIters: 5
+Time step continuity errors : sum local = 1.433808908266974e-10
+                                 global = 1.664369262905327e-12
+                             cumulative = -0.0002118416224933151
+nuTilda initRes: 2.298780493751313e-10 finalRes: 2.054121847511195e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091031392928826 final: 0.02091031392928826
+CL: 0.4987652584350976 final: 0.4987652584350976
+yPlus min: 14.24952716303204 max: 101.0851235318896 mean: 59.95687680424722
+ExecutionTime = 19.3 s  ClockTime = 19 s
+
+Time = 100
+
+U0 initRes: 5.157145047001181e-10 finalRes: 4.542006517228449e-11 nIters: 4
+U1 initRes: 7.473288676989472e-10 finalRes: 7.08411225600872e-11 nIters: 4
+U2 initRes: 3.623521946808232e-08 finalRes: 2.735040296369733e-09 nIters: 6
+p initRes: 1.162500576573115e-08 finalRes: 7.673495988424803e-10 nIters: 3
+Time step continuity errors : sum local = 1.951893825868175e-11
+                                 global = -9.510448731532768e-12
+                             cumulative = -0.0002118416320037638
+nuTilda initRes: 1.775269863159932e-12 finalRes: 1.111686045921049e-13 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091050445940304 final: 0.02091050445940304
+CL: 0.4987654070037729 final: 0.4987654070037729
+yPlus min: 14.24952640158992 max: 101.085123922875 mean: 59.9568730747495
+ExecutionTime = 19.8 s  ClockTime = 20 s
+
+Time = 107
+Minimal residual 9.722729600512765e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050476577977 final: 0.02091050476577977
+CL: 0.4987654087630828 final: 0.4987654087630828
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (3.394341184023181e-05 2.972601424642331e-05 5.975346943694806e-13)
+U Residual Mean: (1.518019899087427e-07 9.839311739790741e-08 4.276503076060524e-15)
+U Residual Max: (1.11509041289537e-05 1.426345716026844e-05 1.010752045861271e-13)
+p Residual Norm2: 8.588886838634616e-06
+p Residual Mean: 2.381066267052717e-08
+p Residual Max: 2.788287445152281e-06
+nuTilda Residual Norm2: 5.426354718027709e-10
+nuTilda Residual Mean: 1.615113250997132e-12
+nuTilda Residual Max: 2.211194803843887e-10
+phi Residual Norm2: 7.433901625834397e-08
+phi Residual Mean: 1.911452289157014e-10
+phi Residual Max: 7.159749348884701e-09
+Total Residual Norm2: 4.593000799090735e-05
+ 
+ 
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py:1011: DerivativesWarning:Inefficient choice of derivative mode.  You chose 'rev' for a problem with 10 design variables and 25 response variables (objectives and nonlinear constraints).
+DAInputVolCoord. 
+Setting volume coordinates. 
+DAInputPatchVelocity. 
+Setting UMag = 10 AoA = 5.13918623195176 degs at 1(inout)
+Checking mesh quality for time = 107
+    Overall domain bounding box (-17.36955992898324 -18.58092902989198 0) (18.72808974770961 18.58092900884399 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-6.336719874907758e-19 -4.442236613337397e-19 -3.430991567580579e-16) OK.
+    Max cell openness = 2.4810811383994e-16 OK.
+    Max aspect ratio = 97.87215688603321 OK.
+    Minimum face area = 2.254101387936184e-06. Maximum face area = 4.224820321492614.  Face area magnitudes OK.
+    Min volume = 2.25410138962722e-07. Max volume = 0.4224820321059307.  Total volume = 105.2804018649487.  Cell volumes OK.
+    Mesh non-orthogonality Max: 22.74891772666193 average: 2.547934378090086
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 1.432464561661672 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 017
+Previous solution time 107 found and deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+U0 initRes: 5.399295871497747e-10 finalRes: 3.746356710078025e-11 nIters: 5
+U1 initRes: 6.886634188882537e-10 finalRes: 4.398475156779479e-11 nIters: 5
+U2 initRes: 0.004305484801440675 finalRes: 0.0004242434959863191 nIters: 5
+p initRes: 4.73989901805717e-08 finalRes: 3.262905675394276e-09 nIters: 4
+Time step continuity errors : sum local = 8.299793439971578e-11
+                                 global = -8.863765580815258e-13
+                             cumulative = -0.0002118416328901404
+nuTilda initRes: 2.541987647888003e-10 finalRes: 1.919078891069293e-11 nIters: 4
+Bounding nuTilda>1e-16
+CD: 0.02091050082073928 final: 0.02091050082073928
+CL: 0.4987653974324557 final: 0.4987653974324557
+yPlus min: 14.24952638704604 max: 101.0851239023942 mean: 59.95687389315635
+ExecutionTime = 20.06 s  ClockTime = 20 s
+
+Time = 47
+Minimal residual 9.470293390023337e-09 satisfied the prescribed tolerance 1e-08
+
+CD: 0.02091050232522765 final: 0.02091050232522765
+CL: 0.4987652945293721 final: 0.4987652945293721
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.0001625262191304473 0.0001102719722881357 5.979608350115717e-08)
+U Residual Mean: (7.475304548029622e-07 4.312547875659562e-07 1.540950483250559e-10)
+U Residual Max: (5.081843255538843e-05 4.448587264960224e-05 1.934117334473058e-08)
+p Residual Norm2: 2.879078130308136e-05
+p Residual Mean: 6.82674261525807e-08
+p Residual Max: 1.455081724937355e-05
+nuTilda Residual Norm2: 8.879386065294238e-09
+nuTilda Residual Mean: 3.775934858934926e-11
+nuTilda Residual Max: 1.386213468895623e-09
+phi Residual Norm2: 1.993147057298252e-07
+phi Residual Mean: 5.377750336763831e-10
+phi Residual Max: 2.077375373724912e-08
+Total Residual Norm2: 0.0001985034816973305
+ 
+ 
+FDSWEEP step=1.0e-07 FD idx=7 CD_plus=2.091050476577977e-02 CD_minus=2.091050232522765e-02 fd=1.220276057284364e-02
+FDSWEEP step=1.0e-07 SUMMARY an_mag=6.460294387919781e-02 fd_mag=1.230130585102697e-01 abs_err=6.504856217940330e-02 rel_err=5.287939586834415e-01 rel_err_pct=52.879396
+FDSWEEP step=1.0e-07 DONE
+Finalising parallel run
+Finalising parallel run

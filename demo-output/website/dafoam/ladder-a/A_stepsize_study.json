@@ -1,0 +1,97 @@
+{
+  "title": "Ladder A priority probe: finite-difference step-size sweep on A1 NACA0012 dCD/dshape",
+  "date_utc": "2026-07-28",
+  "purpose": "Four Ladder-A rung verdicts (A1, A2, A4, A5) have been graded against a 1-12% shape-derivative FD tolerance band that was inferred from A1 alone (11.43%) and never step-swept. A2 later achieved 1.71% on a larger mesh with more DVs, showing the band is too loose. This probe sweeps the central-difference step size on A1 itself to determine whether A1's 11.43% is a step-size artifact (adjoint fine) or a real, step-independent gradient defect (adjoint has a real error), and to derive a defensible FD tolerance from data instead of a single n=1 point.",
+  "case": {
+    "name": "ladder-a1-naca0012",
+    "tutorial_source": "DAFoam/tutorials NACA0012_Airfoil/incompressible (official, unmodified)",
+    "run_dir": "/home/ubuntu/certonomous-runs/ladder-a1-naca0012",
+    "mesh_cells": 4032,
+    "mpi_ranks": 2,
+    "docker_image": "dafoam/opt-packages:latest",
+    "docker_flags": "--rm --network=host --memory=4g",
+    "primalMinResTol": 1.0e-8,
+    "objective_checked": "scenario1.aero_post.CD wrt dvs.shape (8 FFD shape DVs)",
+    "config_reused_from": "A1_naca0012_incompressible.json (commit 7879bf9), runScript.py Top class verbatim",
+    "script": "fdStepSweep.py (new, this probe) -- same daOptions/meshOptions/Top class as runScript.py; only the central-difference step size varies across invocations. For each step: 1 baseline run_model, 1 compute_totals (adjoint, all 8 components), then 8 x (plus/minus run_model) central differences, one component perturbed at a time with all others held at 0 -- identical in substance to what OpenMDAO's check_totals does internally.",
+    "rel_err_formula": "norm(Jan - Jfd) / norm(Jfd), the same metric OpenMDAO's check_totals prints as 'Relative Error (Jan - Jfd) / Jfd' -- verified byte-for-byte against check_totals_run2.log at step=1e-3 (11.427% reproduced independently to 5 significant figures, minor tail digits differ due to normal run-to-run floating point, same as this stack's documented ~16-sig-fig reproducibility)."
+  },
+  "adjoint_8vector_CD_wrt_shape": {
+    "idx0": -1.134166189414765e-02,
+    "idx1": -2.217954850367528e-02,
+    "idx2": 6.798534080782308e-03,
+    "idx3": 1.238018588499110e-02,
+    "idx4": 3.893834958886989e-02,
+    "idx5": 4.234249725549186e-02,
+    "idx6": 5.690764277189245e-03,
+    "idx7": 3.466797184914756e-03,
+    "note": "Recomputed fresh at every one of the 12 step invocations; bit-stable to 7+ significant figures across all runs -- adjoint determinism is not in question."
+  },
+  "sweep_table": [
+    {"step": 1e-8, "rel_err_pct": 94.951, "an_mag": 6.460294e-02, "fd_mag": 4.378724e-01, "cosine_full": 0.407346, "rel_err_pct_excl_idx0_1_6": 91.714, "cosine_excl_idx0_1_6": 0.614994, "status": "ok", "regime": "roundoff-dominated"},
+    {"step": 1e-7, "rel_err_pct": 52.879, "an_mag": 6.460294e-02, "fd_mag": 1.230131e-01, "cosine_full": 0.948435, "rel_err_pct_excl_idx0_1_6": 51.676, "cosine_excl_idx0_1_6": 0.997429, "status": "ok", "regime": "roundoff-dominated"},
+    {"step": 1e-6, "rel_err_pct": 17.640, "an_mag": 6.460294e-02, "fd_mag": 7.260808e-02, "cosine_full": 0.989345, "rel_err_pct_excl_idx0_1_6": 14.904, "cosine_excl_idx0_1_6": 0.999660, "status": "ok", "regime": "roundoff-dominated"},
+    {"step": 1e-5, "rel_err_pct": 12.270, "an_mag": 6.460294e-02, "fd_mag": 6.609960e-02, "cosine_full": 0.992560, "rel_err_pct_excl_idx0_1_6": 5.238, "cosine_excl_idx0_1_6": 0.999853, "status": "ok (1 transient container failure, retried, real result)", "regime": "transition"},
+    {"step": 1e-4, "rel_err_pct": 11.520, "an_mag": 6.460294e-02, "fd_mag": 6.502682e-02, "cosine_full": 0.993343, "rel_err_pct_excl_idx0_1_6": 2.985, "cosine_excl_idx0_1_6": 0.999975, "status": "ok", "regime": "well-converged plateau"},
+    {"step": 1e-3, "rel_err_pct": 11.427, "an_mag": 6.460294e-02, "fd_mag": 6.489575e-02, "cosine_full": 0.993451, "rel_err_pct_excl_idx0_1_6": 2.689, "cosine_excl_idx0_1_6": 0.999983, "status": "ok -- this is A1's original baseline point, reproduced independently", "regime": "well-converged plateau"},
+    {"step": 5e-3, "rel_err_pct": 10.469, "an_mag": 6.460294e-02, "fd_mag": 6.487011e-02, "cosine_full": 0.994506, "rel_err_pct_excl_idx0_1_6": 2.637, "cosine_excl_idx0_1_6": 0.999983, "status": "ok", "regime": "well-converged plateau"},
+    {"step": 1e-2, "rel_err_pct": 8.943, "an_mag": 6.460294e-02, "fd_mag": 6.490108e-02, "cosine_full": 0.995993, "rel_err_pct_excl_idx0_1_6": 2.609, "cosine_excl_idx0_1_6": 0.999982, "status": "ok", "regime": "well-converged plateau"},
+    {"step": 2e-2, "rel_err_pct": 4.282, "an_mag": 6.460294e-02, "fd_mag": 6.521022e-02, "cosine_full": 0.999118, "rel_err_pct_excl_idx0_1_6": 2.542, "cosine_excl_idx0_1_6": 0.999980, "status": "ok -- coincidental low point, see interpretation", "regime": "well-converged plateau"},
+    {"step": 3e-2, "rel_err_pct": 9.829, "an_mag": 6.460294e-02, "fd_mag": 6.650580e-02, "cosine_full": 0.995448, "rel_err_pct_excl_idx0_1_6": 2.477, "cosine_excl_idx0_1_6": 0.999976, "status": "ok", "regime": "truncation-error growing"},
+    {"step": 5e-2, "rel_err_pct": null, "status": "FAILED -- primal solution did not converge for idx6 (+step): residual stalled at 4.8e-5 vs 1e-8 tolerance, iteration cap (1000) reached, DAFoam raised AnalysisError('Primal solution failed!'). idx0-idx5 completed and are recorded; idx6, idx7 not obtained. Not fabricated.", "regime": "primal breakdown", "partial_fd": {"idx0": -1.038492e-02, "idx1": -2.761331e-02, "idx2": 7.116581e-03, "idx3": 1.316887e-02, "idx4": 3.964790e-02, "idx5": 4.313635e-02}},
+    {"step": 1e-1, "rel_err_pct": null, "status": "FAILED -- primal solution failed on the very first perturbed solve (idx0, +step); mesh/solver could not converge at this shape-DV magnitude. Only the baseline and adjoint were obtained before failure. Not fabricated.", "regime": "primal breakdown"}
+  ],
+  "failures_recorded_honestly": [
+    {"step": "1e-5", "attempt": 1, "result": "container exited 1 mid-run (crashed during idx0/idx1 perturbed solves, ~19s in, no OOM/error signature found in dmesg or docker events -- likely a transient container/mesh-redecompose race)", "action": "retried once with identical command, retry succeeded cleanly and produced the value used in the table (fdsweep_1e-5_retry.log). The failed attempt's log (fdsweep_1e-5.log) is kept on disk, not deleted, not used for any number."},
+    {"step": "5e-2", "attempt": 1, "result": "genuine, reproducible-in-character solver failure: primal residual stalled at 4.8e-5 for idx6 (+0.05 perturbation), never reaching the 1e-8 tolerance within the 1000-iteration cap. This is a real numerical failure of the SIMPLE solver at that shape magnitude for that specific control point (the leading-edge combo mode), not a script bug -- idx0-idx5 converged fine at the same step."},
+    {"step": "1e-1", "attempt": 1, "result": "genuine solver failure on the very first perturbed solve (idx0). Not swept further at this step."}
+  ],
+  "per_component_relative_error_pct_vs_step": {
+    "note": "(fd - adjoint) / adjoint, per component, per step. idx0, idx1, idx6 are the three components PROOF.md previously localized as disagreeing (idx0, idx1 near the leading edge; idx6 the leading-edge combo mode). idx2,3,4,5,7 are the other five.",
+    "idx0": {"1e-8": -1450.2, "1e-7": -101.2, "1e-6": -18.5, "1e-5": -13.7, "1e-4": -11.3, "1e-3": -10.7, "5e-3": -10.7, "1e-2": -10.7, "2e-2": -10.3, "3e-2": -9.8, "5e-2": -8.4, "1e-1": null},
+    "idx1": {"1e-8": -370.9, "1e-7": -35.6, "1e-6": -16.0, "1e-5": -12.8, "1e-4": -10.8, "1e-3": -10.4, "5e-3": -10.2, "1e-2": -9.6, "2e-2": -6.5, "3e-2": -1.1, "5e-2": 24.5, "1e-1": null},
+    "idx2": {"1e-8": 1634.5, "1e-7": 175.5, "1e-6": 34.7, "1e-5": 16.5, "1e-4": 8.0, "1e-3": 6.9, "5e-3": 6.8, "1e-2": 6.8, "2e-2": 6.5, "3e-2": 6.1, "5e-2": 4.7, "1e-1": null},
+    "idx3": {"1e-8": -1077.9, "1e-7": 145.0, "1e-6": 18.6, "1e-5": 9.7, "1e-4": 4.9, "1e-3": 4.2, "5e-3": 4.1, "1e-2": 4.2, "2e-2": 4.6, "3e-2": 5.1, "5e-2": 6.4, "1e-1": null},
+    "idx4": {"1e-8": -92.7, "1e-7": 101.1, "1e-6": 16.2, "1e-5": 5.0, "1e-4": 3.0, "1e-3": 2.7, "5e-3": 2.6, "1e-2": 2.6, "2e-2": 2.5, "3e-2": 2.3, "5e-2": 1.8, "1e-1": null},
+    "idx5": {"1e-8": 737.6, "1e-7": 102.8, "1e-6": 17.2, "1e-5": 4.6, "1e-4": 2.7, "1e-3": 2.5, "5e-3": 2.4, "1e-2": 2.4, "2e-2": 2.3, "3e-2": 2.2, "5e-2": 1.9, "1e-1": null},
+    "idx6": {"1e-8": -635.1, "1e-7": -126.1, "1e-6": -110.4, "1e-5": -117.4, "1e-4": -118.5, "1e-3": -118.5, "5e-3": -106.8, "1e-2": -88.2, "2e-2": -24.5, "3e-2": 110.0, "5e-2": null, "1e-1": null},
+    "idx7": {"1e-8": 2694.8, "1e-7": 252.0, "1e-6": 54.8, "1e-5": 17.5, "1e-4": 3.0, "1e-3": 1.9, "5e-3": 1.6, "1e-2": 1.5, "2e-2": 1.6, "3e-2": 2.3, "5e-2": null, "1e-1": null}
+  },
+  "squared_error_contribution_pct_at_step_1e-3": {
+    "idx0": 2.66, "idx1": 9.75, "idx2": 0.39, "idx3": 0.49, "idx4": 1.99, "idx5": 2.00, "idx6": 82.70, "idx7": 0.01,
+    "note": "idx6 alone accounts for 82.7% of the squared (Jan-Jfd) norm at A1's original step -- matches PROOF.md's independently-derived 82.7% exactly."
+  },
+  "curve_shape_verdict": {
+    "full_8component_vector_norm": "NOT a clean V and NOT flat -- noisy/non-monotonic across the well-converged plateau (1e-3 to 3e-2): 11.43% -> 11.52% -> 10.47% -> 8.94% -> 4.28% (2e-2) -> 9.83% (3e-2), then primal breakdown at 5e-2. Below 1e-4 it rises monotonically and steeply (11.5% -> 17.6% -> 52.9% -> 95.0%) as roundoff takes over, which IS classic FD V-curve behavior on the small-step side. The dip to 4.28% at step=2e-2 is a coincidental crossing, not a genuine converged minimum: it is caused entirely by idx6's erratic, sign-unstable FD estimate passing near the adjoint's magnitude at that one step before overshooting 2x by 3e-2 and causing outright primal-solver failure by 5e-2. There is no step at which idx6 is a stable, trustworthy FD estimate.",
+    "excluding_idx0_idx1_idx6": "FLAT and low across the entire well-converged plateau: 2.99% (1e-4), 2.69% (1e-3), 2.64% (5e-3), 2.61% (1e-2), 2.54% (2e-2), 2.48% (3e-2). Cosine similarity 0.99998 at every one of those steps. This is the textbook 'flat curve = real agreement, not noise' signature -- for 5 of 8 components the harness and adjoint are demonstrably sound and step-independent.",
+    "idx0_and_idx1_individually": "Flat and step-independent across 1e-6 to 3e-2: idx0 sits at -8% to -14%, idx1 at -1% to -16% (excluding the 5e-2 outlier which is itself inside a failing solve). This is a real, stable, step-independent disagreement, not roundoff noise -- it does not shrink as step shrinks through the well-converged window.",
+    "idx6_individually": "Sign-flipped (wrong sign vs adjoint) and magnitude-unstable across nearly the entire usable range: -88% to -119% relative error from step=1e-6 through 1e-2, briefly crossing correct order-of-magnitude near 2e-2, then overshooting to +110% at 3e-2, then the solver itself fails to converge at 5e-2 for this exact component. No step size produces a trustworthy idx6 estimate."
+  },
+  "verdict": {
+    "is_11.43pct_a_stepsize_artefact": "NO, predominantly. idx6 alone drives 74-83% of the squared-difference norm at every well-converged step tested, and its FD estimate is unstable/wrong-signed everywhere except a narrow coincidental crossing near step=2e-2 -- not a resolvable, step-independent gradient. idx0 and idx1 contribute a further ~10-16% of the norm and disagree by a STABLE ~9-16% across 3+ decades of step size (1e-6 to 3e-2), which is definitionally not a step-size artifact (a step artifact would shrink toward zero somewhere in that window; this doesn't). The correct reading is the FLAT-CURVE branch of the task's own decision rule: 'the disagreement is real and step-independent, i.e. something in the gradient' -- for 3 of 8 components, exactly matching and independently reconfirming PROOF.md's prior leading-edge localization (idx0, idx1 near the LE, idx6 the LE combo mode itself).",
+    "is_any_of_it_a_stepsize_artefact": "Partially, at the margins only. A1's original step (1e-3) is inside the well-converged plateau, not in the roundoff-dominated regime, so its 11.43% was not itself corrupted by a bad step choice -- but the plateau's aggregate number is genuinely noisy step-to-step (8.9% to 11.5%) purely as a byproduct of idx6's instability, meaning the raw vector-norm percentage is a fragile statistic that swings for reasons unrelated to step quality. The 5 well-behaved components (excl. idx0/1/6) are unaffected by step choice within 1e-4 to 3e-2 and agree to ~2.5-3.0% throughout -- confirming the harness itself (same conclusion the geometric-constraint and flow-parameter derivatives already supported).",
+    "cross_validation_against_PROOF_md": "Exact agreement with the prior, independently-run investigation: squared-error contribution of idx6 at step=1e-3 here is 82.70% vs PROOF.md's 82.7%; cosine excluding idx0/1/6 here is 0.999983 vs PROOF.md's 0.999983; cosine including all 8 here is 0.993451 vs PROOF.md's 0.993452. This probe was run fresh, independently, from a different script, and reproduces PROOF.md's numbers to 5-6 significant figures -- strong confirmation neither run was a fluke."
+  },
+  "recommended_fd_step_size": {
+    "value": "1e-3 to 1e-2 (central, step_calc=abs)",
+    "basis": "Below ~1e-4 the CD difference between +/-step perturbations falls below the primal's residual noise floor (primalMinResTol=1e-8) and the FD derivative degrades monotonically and severely (11.5% -> 95% relative error from 1e-4 down to 1e-8). Above ~3e-2 the shape perturbation is large enough that the leading-edge control points (idx6 specifically) push the mesh/primal solver into non-convergence (documented failures at 5e-2 and 1e-1). 1e-3 to 1e-2 is the widest window in which every one of the 8 components produces a real, converged central-difference estimate; A1's original choice of 1e-3 was already inside this safe window, so the step choice itself was not the problem."
+  },
+  "recommended_fd_tolerance_for_grading_future_shape_derivatives": {
+    "value": "Do not grade on the aggregate vector-norm relative-error percentage alone. Report (a) vector-norm relative error at a step confirmed to be in the well-converged plateau (verified by a 2-3 point step check, not assumed), AND (b) per-component or cosine-similarity agreement, AND (c) a flag on any component whose FD estimate changes sign or moves by >50% of its own magnitude across one decade of step size (that is the idx6 signature and it is diagnostic of a real defect, not noise). For a case with NO such flagged components, this dataset shows the achievable, harness-sound floor is approximately 2.5-5% vector-norm relative error (2.5-3.0% here at 4032 cells; A2 independently achieved 1.71% at 38304 cells with 96 DVs, consistent with the floor tightening on finer meshes/more DVs). Recommend a PASS band of <=5% vector-norm error WITH no flagged components, a CONDITIONAL band of 5-15% requiring a per-component breakdown before grading, and treat >15% or any sign-flipped/unstable component as FAIL pending investigation regardless of the aggregate percentage. The previously used 1-12% band is retired: its sole supporting data point (A1's 11.43%) is now shown to be a number in which one badly-conditioned component contributes 74-83% of the squared error, which is not what '1-12% is normal, generically fine variation' implies.",
+    "old_band_retired": "1-12%, inferred from A1 alone (n=1), now shown to conflate a genuine ~2.5-3% harness-sound floor with an 83%-idx6-driven sign-flip defect and a stable ~10-16% two-component bias -- three different phenomena averaged into one misleading aggregate number."
+  },
+  "a4_verdict_reassessment": {
+    "a4_reported": "10.04% CD wrt shape FD error, 1 scalar shape DV, 2777 cells, previously graded PASS under the retired 1-12% band",
+    "was_a4_itself_step_swept": "No -- this probe only swept A1. No A4-specific step-size data exists.",
+    "reasoning": "A4 has a single scalar shape DV, so it cannot exhibit A1's vector-norm dilution/cancellation dynamics (there is no 'idx6 dominates the squared-error norm' effect possible with one component) -- A4's 10.04% is a raw, undiluted single-component disagreement. In THIS case, the two components with a genuine, stable, step-independent disagreement (idx0, idx1) sit at 9-16% relative error across 3+ decades of step -- i.e. a single shape component in this problem class CAN legitimately carry a real, non-artifactual ~10% disagreement that no step-size choice resolves. A4's 10.04% falls squarely in that same numeric range, not in the harness-sound ~2.5-5% floor this probe established for well-behaved components. Nothing here proves A4's adjoint is wrong -- A4 is a different case (Ahmed body, different mesh, different FFD) and no equivalent step sweep or per-component check has been run on it.",
+    "verdict": "A4's PASS should be DOWNGRADED to CONDITIONAL / UNVERIFIED, not left standing and not flipped to FAIL. The sole basis for its original PASS (the 1-12% band inferred from A1 alone) is retired by this probe's findings. A4's own number (10.04%) sits at a level this probe now associates with real, step-independent per-component defects rather than clean agreement, in the one case (A1) where the composition has actually been examined. Recommended next action: run this same step-size-sweep protocol (1e-3, 1e-2, plus a roundoff check at 1e-5 and a large-step check at ~3e-2) directly on A4 before re-confirming or reversing its verdict."
+  },
+  "hard_rules_compliance": {
+    "no_fabricated_numbers": "Every value in sweep_table and per_component tables is read directly from a completed docker/mpirun DAFoam run's stdout, logged to demo-output/website/dafoam/ladder-a/logs_A1_stepsize/ (see file list). Failed steps (5e-2, 1e-1) are reported as failures with the partial data actually obtained, not filled in or estimated.",
+    "single_variable_only": "Only the central-difference step size (-step argument) was varied across the 12 runs. daOptions, meshOptions, mesh, MPI rank count (2), primalMinResTol (1e-8), and the Top class/FFD/DV setup are byte-identical to A1's own runScript.py in every invocation.",
+    "processorN_trap": "Encountered and handled per the known trap: 'sudo rm -rf processor0 processor1 processor*' was run before every single docker invocation in this probe.",
+    "mpi_ranks": 2,
+    "docker_flags_used": "--rm --network=host --memory=4g (never raised)",
+    "nothing_left_running": "All docker containers exited (--rm); verified with 'docker ps -a' showing zero running containers at the end of this probe. processor0/processor1 directories removed after the final run."
+  }
+}
