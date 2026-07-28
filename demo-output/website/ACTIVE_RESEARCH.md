@@ -84,8 +84,8 @@ official tutorial's.**
 | Rung | Status | Result |
 | --- | --- | --- |
 | B1 | **COMPLETE** | Ranked reproduction plans written; benchmark clone and public leaderboard located on this box |
-| B2 | running | Uncorrected duct baseline |
-| B3 | queued, costed at 420 core-min | The field inversion itself |
+| B2 | **COMPLETE, verified** | Uncorrected duct baseline reproduced to 0.16% and 0.64% |
+| B3 | running | The field inversion itself |
 | B4 | queued | Feed findings back into the closure track |
 
 **Top pick:** Wu, Zhang and Zhang, AIAA Journal 63(2), 2025, 687-706. They invert
@@ -95,6 +95,37 @@ without seeing them. Rejected candidates were reported with reasons rather than
 padded: one leaderboard entry is gradient-free rather than field-inversion, two
 foundational papers have zero case-geometry overlap, and one paper's citation
 could not be pinned down and was reported as a gap instead of guessed.
+
+### B2 — the duct baseline is reproduced, and the pipeline was validated before it was trusted
+
+The benchmark clone turned out to ship **the paper authors' own uncorrected
+case directories** — mesh, boundary conditions, `fvOptions`, and the original
+run log. Re-solved as-is on this box and scored through the benchmark's own
+unmodified scorer:
+
+| case | ours | published floor | deviation | field vs field |
+| --- | --- | --- | --- | --- |
+| AR_1_Ret_360 | 0.1290 | 0.1288 | +0.0002 (0.16%) | 0.023% |
+| AR_3_Ret_360 | 0.1251 | 0.1243 | +0.0008 (0.64%) | 0.09% |
+
+**The sanity check is what makes these trustworthy:** scoring the benchmark's
+*own* baseline field through our scorer reproduced 0.1288 and 0.1243 exactly,
+confirming the scoring pipeline before any of our own numbers were believed.
+30.9 core-min total.
+
+Three deviations documented with cause rather than smoothed over: a custom
+frozen-turbulence library whose source is not distributed anywhere in the public
+clone (stock SST substituted, measured as effectively inert at under 0.1% field
+agreement, but **not** verified against the library's own source); an OpenFOAM
+fork mismatch between the original Foundation build and this box's ESI build,
+worth 10 to 13 percent in iteration count but only 0.02 to 0.09 percent in the
+converged field; and a renamed diagnostics function object, dropped with no
+effect on the solved field.
+
+**Blocker found and flagged rather than worked around:** the CBFS reference
+fields use `#include`-macro'd dictionaries that the field parser silently fails
+on, returning nothing at all. A silent empty read is precisely the failure that
+manufactures a fake result, so it was handed to B3 as the first thing to fix.
 
 ## Ladder C — closure challenge
 
