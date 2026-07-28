@@ -1,0 +1,15 @@
+{
+ "id": "dafoam-simplec-comparison-audit",
+ "objective": "Audit every comparison between a DAFoam result and a plain OpenFOAM baseline for the silently dropped consistent pressure correction",
+ "rationale": "The Ahmed body rung measured its adjoint capable primal 22.05 percent away from our own validated baseline on the same mesh, boundary conditions and turbulence model. The cause is that the baseline sets consistent yes, selecting the consistent variant of the pressure correction, and the adjoint solver does not implement it and runs the plain variant instead without warning. On this geometry the two land on different branches of a documented bistable wake, so the discrepancy is a change of solution branch rather than a tolerance. Any credential or comparison that puts the two solvers side by side inherits this, and neither number is wrong on its own terms",
+ "citations": [
+  "Certonomous Ahmed body adjoint rung, measured 2026-07-28",
+  "Ahmed, Ramm and Faltin, SAE 840300 (1984)"
+ ],
+ "est_core_min": 25,
+ "cost_basis": "estimate, a scan of existing case settings plus a re-run of any comparison found to be affected",
+ "expected_knowledge_gain": "Removal of a silent apples to oranges comparison from the credentials wall, and a stated solver equivalence caveat wherever the two are compared",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}

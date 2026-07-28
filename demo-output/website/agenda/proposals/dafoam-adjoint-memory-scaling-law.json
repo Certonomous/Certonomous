@@ -1,0 +1,14 @@
+{
+ "id": "dafoam-adjoint-memory-scaling-law",
+ "objective": "Measure the adjoint peak memory as a function of cell count so case feasibility can be predicted before a run rather than discovered by failure",
+ "rationale": "Adjoint runs succeeded at 4032 and 4800 cells and failed at 99840 and 399360, with eight mitigations ruled out including container caps at 12 and 18 gigabytes, two and four rank decomposition, restart count, and preconditioner fill. Restricting the requested derivative to two variables did not help, because the reverse mode sweep touches every upstream input regardless, so the mesh sized Jacobian blocks are built either way. The wall is therefore real but its location is only known to lie between ten thousand and one hundred thousand cells, and it was measured while other work shared the host. A profiled curve over four or five small cases turns that into a number that tells us in advance which rungs are feasible",
+ "citations": [
+  "Certonomous Ladder A adjoint rungs, measured 2026-07-28"
+ ],
+ "est_core_min": 40,
+ "cost_basis": "measured, the smallest rung cost 3.51 core minutes so a sweep of five sizes with peak memory sampling is bounded",
+ "expected_knowledge_gain": "A predictive feasibility rule for every future adjoint case, replacing case by case discovery of the same wall",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}

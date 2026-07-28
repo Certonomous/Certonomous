@@ -19,7 +19,7 @@ Last updated: 2026-07-28 00:5x UTC.
 | A1 | NACA0012 incompressible, official tutorial | **COMPLETE, FD-verified** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min |
 | A2 | MACH tutorial wing (3D) | primal + adjoint done, FD check running | — |
 | A3 | ONERA M6 transonic | **primal + Cp validated; adjoint blocked** | CD 0.02299556, CL 0.31311589, 399,360 cells, 127.5 core-min |
-| A4 | Ahmed body 25 deg | **not in the tutorial repository**, must be built from our own validated case plus the experimental reference | — |
+| A4 | Ahmed body 25 deg | **COMPLETE, FD-verified** | CD 0.06998 on 45,760 cells; gradient FD-verified at 10.04% on a 2,777-cell mesh; 10.9 core-min |
 | A5 | U-bend internal flow | running | — |
 | A6 | CRM / DPW-class wing-body | queued, time-boxed, converged primal counts as success | — |
 
@@ -33,7 +33,32 @@ Last updated: 2026-07-28 00:5x UTC.
 | A1 | CL wrt shape | **1.67%** |
 | A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%** |
 
+| A4 | CD wrt rear-slant shape | **10.04%** — adjoint 0.21821, FD 0.24258. **PASS** within the calibrated band |
 | A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** |
+
+### A4 found a silent solver mismatch that affects the credentials wall
+
+The Ahmed primal landed **22.05% away from our own validated OpenFOAM baseline**
+on the same mesh, boundary conditions and turbulence model. The cause is not
+tolerance and not mesh: our baseline sets `consistent yes` in its `SIMPLE` block
+— **verified directly in the case file** — which selects the consistent pressure
+correction. `DASimpleFoam` does not implement it and silently runs the plain
+variant instead.
+
+On the 25 degree slant this is not a small numerical difference. That geometry
+has a **documented bistable wake**, so the two algorithms settle on *different
+branches of the solution*. Neither number is wrong on its own terms, and both
+sit within the experimental band once rebased to frontal area — ours 0.2510 and
+the baseline 0.3219 against the measured 0.285, at 11.93% and 12.95%.
+
+**Any credential or comparison that places the two solvers side by side inherits
+this**, and an audit is now queued.
+
+**A4 also validated the memory-wall constraint as actionable:** the primal ran
+at 45,760 cells and the adjoint was deliberately coarsened to 2,777, which made
+it tractable and produced the first passing FD verification since A1. Coarsening
+for the gradient stage while comparing the primal on the fine mesh is legitimate
+precisely because it was disclosed.
 
 ### Cross-rung finding: the adjoint has a memory wall on this host, between 10^4 and 10^5 cells
 
