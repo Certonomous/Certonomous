@@ -1,0 +1,173 @@
+{
+  "family": "F7",
+  "title": "Marine / free-surface capability",
+  "date": "2026-07-28",
+  "repo_commit": "4824eb7",
+  "solver": "OpenFOAM v2606 interFoam (VOF, laminar), native, no Docker",
+  "navyfoam_decision": {
+    "status": "not pursued",
+    "reason": "gated behind HPCMP CREATE-SH, DoD-aligned account, 1-2 week approval",
+    "record": "demo-output/website/campaign/NAVYFOAM_FINDING.md"
+  },
+  "process_caps": {
+    "max_mpi_ranks": 4,
+    "foreground_only": true,
+    "processes_left_running": 0
+  },
+  "ladder": [
+    {
+      "rung": "a",
+      "name": "Dam break vs Martin & Moyce (1952)",
+      "status": "reached",
+      "feasibility": "pass",
+      "physics": "pass",
+      "gate": "fail",
+      "config": {
+        "case_type": "square-column collapse (Martin & Moyce 1952 Part IV)",
+        "a_m": 0.05715,
+        "a_in": 2.25,
+        "domain": "15a wide x 2a tall x thin single-cell slab (2D, empty front/back)",
+        "gravity": [0, -9.81, 0],
+        "fluids": {"water": {"rho": 1000, "nu": 1e-06}, "air": {"rho": 1, "nu": 1.48e-05}, "sigma": 0.07},
+        "turbulence_model": "laminar",
+        "nondimensionalisation": {"T": "t*sqrt(g/a)", "Z": "x_front/a", "source": "arXiv:2108.08769 (Xie 2021), Sec 3.3.2 / Fig 7, verified against page image not just text extraction"}
+      },
+      "reference_data": {
+        "source": "Martin & Moyce (1952), original tabulated data not located; digitised from Fig. 7 of arXiv:2108.08769 (Xie 2021) which plots the 1952 experimental points",
+        "digitisation_method": "programmatic pixel-position detection (axis-tick pixel clusters for calibration, cross-marker centroid detection), not manual eyeballing",
+        "digitisation_uncertainty": "approx +/-0.05 in T, +/-0.02 in Z",
+        "front_position_points_T_Z": [
+          [3.90, 6.00], [4.49, 7.00], [5.17, 8.00], [5.91, 9.00],
+          [6.74, 10.00], [7.72, 11.00], [8.58, 12.00], [9.53, 13.00]
+        ],
+        "column_height_points_T_h": [
+          [0.00, 1.00], [0.80, 0.89], [1.29, 0.78], [1.74, 0.67],
+          [2.15, 0.56], [2.57, 0.44], [3.08, 0.33], [4.27, 0.22], [6.30, 0.11]
+        ]
+      },
+      "runs": [
+        {
+          "case": "damBreak_MM_a2p25in_coarse",
+          "cells": 1920,
+          "dx_over_a": 0.125,
+          "top_bc": "atmosphere (open)",
+          "mpi_ranks": 1,
+          "wall_time_s": 2.62,
+          "core_minutes": 0.044,
+          "config_hash_sha256_12": "11a773ca7105",
+          "role": "feasibility"
+        },
+        {
+          "case": "damBreak_MM_a2p25in_medium",
+          "cells": 12000,
+          "dx_over_a": 0.05,
+          "top_bc": "atmosphere (open)",
+          "mpi_ranks": 4,
+          "wall_time_s": 12.50,
+          "core_minutes": 0.833,
+          "config_hash_sha256_12": "e8b76eafc854",
+          "role": "BC-sensitivity control"
+        },
+        {
+          "case": "damBreak_MM_a2p25in_medium_closedbox",
+          "cells": 12000,
+          "dx_over_a": 0.05,
+          "top_bc": "wall (closed box, matches reference paper)",
+          "mpi_ranks": 4,
+          "wall_time_s": 18.34,
+          "core_minutes": 1.223,
+          "config_hash_sha256_12": "bf44ead3c90a",
+          "role": "primary gate"
+        }
+      ],
+      "total_core_minutes": 2.4,
+      "feasibility_evidence": {
+        "checkMesh": "clean, max skewness 1e-13, aspect ratio 1",
+        "solver_completion": "reached endTime=0.8s (T~10.5) on all 3 runs, no divergence, no FPE",
+        "max_courant": 0.52,
+        "target_max_courant": 0.5,
+        "alpha_boundedness": "within MULES numerical tolerance (~1e-6), no unbounded blow-up",
+        "mass_conservation": {
+          "coarse": "0.0333->0.0328 (~1.6% drift)",
+          "medium_closedbox": "0.033333 constant, exact 1/30, machine precision"
+        }
+      },
+      "gate_result": {
+        "primary_metric": "surge front position Z vs nondimensional time T",
+        "case_used": "damBreak_MM_a2p25in_medium_closedbox",
+        "comparison": [
+          {"T": 3.90, "Z_ref": 6.00, "Z_sim": 6.62, "deviation_pct": 10.4},
+          {"T": 4.49, "Z_ref": 7.00, "Z_sim": 7.64, "deviation_pct": 9.2},
+          {"T": 5.17, "Z_ref": 8.00, "Z_sim": 8.82, "deviation_pct": 10.2},
+          {"T": 5.91, "Z_ref": 9.00, "Z_sim": 10.09, "deviation_pct": 12.1},
+          {"T": 6.74, "Z_ref": 10.00, "Z_sim": 11.50, "deviation_pct": 15.0},
+          {"T": 7.72, "Z_ref": 11.00, "Z_sim": 13.14, "deviation_pct": 19.4},
+          {"T": 8.58, "Z_ref": 12.00, "Z_sim": 14.56, "deviation_pct": 21.3},
+          {"T": 9.53, "Z_ref": 13.00, "Z_sim": 14.42, "deviation_pct": 10.9, "note": "confounded by proximity to domain far wall (15a)"}
+        ],
+        "mean_deviation_pct": 13.6,
+        "max_abs_deviation_pct": 21.3,
+        "verdict": "FAIL",
+        "coarse_mesh_same_metric": {
+          "mean_deviation_pct": -13.2,
+          "max_abs_deviation_pct": 22.7,
+          "note": "sign flipped vs medium mesh -- refinement did NOT converge toward reference, ruling out simple under-resolution as sole cause"
+        },
+        "bc_control_test": {
+          "hypothesis": "open-top atmosphere BC lets air vent too easily, over-speeding the front vs the reference paper's fully closed box",
+          "result": "REFUTED -- closed-box rerun gave essentially identical front trajectory to open-top run"
+        },
+        "secondary_check": {
+          "metric": "column height decay",
+          "case_used": "damBreak_MM_a2p25in_medium_closedbox",
+          "comparison": [
+            {"T": 0.80, "h_ref": 0.89, "h_sim": 0.848, "deviation_pct": -4.7},
+            {"T": 1.29, "h_ref": 0.78, "h_sim": 0.713, "deviation_pct": -8.6},
+            {"T": 1.74, "h_ref": 0.67, "h_sim": 0.601, "deviation_pct": -10.4},
+            {"T": 2.15, "h_ref": 0.56, "h_sim": 0.507, "deviation_pct": -9.4},
+            {"T": 2.57, "h_ref": 0.44, "h_sim": 0.423, "deviation_pct": -3.9},
+            {"T": 3.08, "h_ref": 0.33, "h_sim": 0.344, "deviation_pct": 4.3},
+            {"T": 4.27, "h_ref": 0.22, "h_sim": 0.223, "deviation_pct": 1.2},
+            {"T": 6.30, "h_ref": 0.11, "h_sim": 0.131, "deviation_pct": 19.2, "note": "near edge of digitised reference range"}
+          ],
+          "mean_deviation_pct": -1.5,
+          "max_abs_deviation_pct": 19.2,
+          "interpretation": "bulk column depletion tracks the reference much more closely than the leading-edge front position"
+        }
+      },
+      "cause": [
+        "Not a boundary-condition artifact (ruled out by closed-box vs open-top A/B test)",
+        "Not simple under-resolution (mesh refinement flipped the sign of the error rather than converging)",
+        "Correlated with near-wall sampling height used to define front position from the discretised VOF field; the leading edge is thin and not vertical at these resolutions",
+        "Bulk quantity (column height decay), less sensitive to this effect, agrees with reference to within ~10%"
+      ],
+      "lesson": [
+        "A single alpha=0.5 crossing at the first cell above the floor is not a mesh-independent front-position definition for VOF dam-break validation; needs either a genuine multi-mesh Richardson study or an isosurface-based front extraction",
+        "Programmatic pixel-position digitisation (axis-tick calibration + marker centroid detection) of a published figure is more reliable than eyeballing and should be the default method going forward",
+        "Gate failed as measured; shipped as a documented failure per campaign hard rules"
+      ],
+      "blocked_by_this_result": ["rung b (Wigley hull)", "rung c (workshop hull)"]
+    },
+    {
+      "rung": "b",
+      "name": "Wigley hull wave resistance",
+      "status": "blocked",
+      "reason": "rung (a) did not pass its gate; hard rule forbids starting (b) before (a) passes"
+    },
+    {
+      "rung": "c",
+      "name": "Workshop hull (DTMB 5415 / KCS)",
+      "status": "blocked",
+      "reason": "depends on rung (b)"
+    }
+  ],
+  "artifacts": {
+    "cases_dir": "demo-output/website/campaign/F7_runs/",
+    "scripts": [
+      "demo-output/website/campaign/F7_runs/extract_front.py",
+      "demo-output/website/campaign/F7_runs/gate_compare.py"
+    ],
+    "plot": "demo-output/website/campaign/F7_runs/F7_damBreak_gate_comparison.png",
+    "digitisation_source": "arXiv:2108.08769 (Xie, 2021), Fig. 7"
+  }
+}
