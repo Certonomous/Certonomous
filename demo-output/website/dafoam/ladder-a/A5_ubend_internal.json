@@ -230,5 +230,86 @@
     "primal": "Converged to a genuine numerical fixed point; objective (TP1, TP2) stable to 7-8 sig figs over the last 400 iterations; field residuals plateau above primalMinResTol=1e-8, a known characteristic of this case class.",
     "adjoint": "Computed successfully, GMRES converged (86 iters, PetscConvergedReason=2), reproducible bit-for-bit across independent cold starts.",
     "fd_verification": "Does NOT cleanly pass. Only 5/27 shapexUpper components land within the previously-calibrated <=12% band (Ladder A1, NACA0012); 2 components flip sign; aggregate vector-norm relative error 46.6%. A step-size diagnostic on one component rules out 'needs a bigger FD step' as the fix. Reported as a documented, unresolved finding -- adjoint mechanics work (GMRES converges, results reproduce) but rigorous FD confidence in this shape-derivative gradient is not established by this rung's data on this coarse mesh."
+  },
+  "addendum_primal_convergence_hypothesis_test": {
+    "note": "Follow-up test requested by the coordinator after the record above was written. All fields above (46.6% aggregate, 5/27 within 12%, 2 sign flips, TP1=88.11838267130871, TP2=35.7731663319629, config_hash=36bd8442...) are the as-measured original result and are UNCHANGED by this addendum.",
+    "hypothesis": "FD-vs-adjoint agreement is gated by primal convergence: the adjoint is exact for the discrete converged state; a residual-plateau primal means the adjoint linearizes about a non-solution point while each FD perturbation resolves to a different point on the same non-converged manifold, producing FD noise no step size fixes. Candidate mechanism offered: Total Residual Norm2=55.776 is dominated by T=41.16, a field outside the objective/adjoint (addToAdjoint:False) but still part of the coupled primal state -- a CHT-family carryover.",
+    "step1_convergence_attempts": [
+      {
+        "change": "endTime 1000 -> 5000, nothing else changed",
+        "command": "run_model only",
+        "result": "Residuals bit-identical to 10+ significant figures across the extended range (p initRes = 0.00022576249734... at iter 900 through iter 5000; Total Residual Norm2 unchanged, 55.776...).",
+        "conclusion": "Not a slow asymptote -- a genuine fixed point of the discrete SIMPLE iteration reached well before iteration 1000. More iterations alone do nothing."
+      },
+      {
+        "change": "Added SIMPLE residualControl (p/U/T/nuTilda all 1e-8, matching A1's bar); tightened solvers (p: GAMG relTol 0.1->0.01, tolerance 0->1e-10; U/T/nuTilda/etc: smoothSolver relTol 0.1->0.01, tolerance 0->1e-10, nSweeps 1->2); endTime raised to 10000 as safety cap. Disclosed explicitly: this is a real deviation from the official tutorial's fvSolution/controlDict.",
+        "command": "run_model only, then compute_totals",
+        "result": {
+          "residualControl_triggered_early_exit": false,
+          "ran_full_iterations": 10000,
+          "p_initRes": {"stock_iter1000": 0.0002257624979593885, "tightened_iter10000": 0.0002056814952615635, "pct_change": -8.9},
+          "T_residual_norm2": {"stock": 41.160, "tightened": 43.504, "pct_change": 5.7, "direction": "worse"},
+          "nuTilda_initRes_order": {"stock_approx": 2.6e-4, "tightened": 0.0003620107497040659, "direction": "worse"},
+          "total_residual_norm2": {"stock": 55.776, "tightened": 59.324, "pct_change": 6.4, "direction": "worse"},
+          "primalMinResTol_1e-8_reached": false
+        },
+        "conclusion": "primalMinResTol=1e-8 not reached for p, T, or nuTilda despite an order-of-magnitude tighter inner solve and 10x the iterations. Tightening made the aggregate residual metric slightly worse, not better -- consistent with a genuine limit cycle (plausibly Dean-vortex secondary flow in this curved duct that steady RANS/SIMPLE cannot fully suppress on a 4800-cell mesh), not an under-resolved linear solve or under-iterated outer loop."
+      }
+    ],
+    "T_specific_mechanism_assessment": "For this case, transportProperties has a constant nu (no T-dependent properties, no buoyancy), so momentum/pressure residuals do not depend on T at all (dR_U/dT=0, dR_p/dT=0), and the objective (TP1, TP2 = functions of p, U only) does not depend on T. In exact arithmetic this makes T's reverse-mode adjoint row mathematically decoupled from the U/p rows that matter for OBJ.val. Empirically consistent: tightening T's solve did not improve FD/adjoint agreement, and T's own residual got slightly worse under tightening, undercutting 'T is the dominant blocker' for this specific objective. Did not go further and literally remove/freeze the T equation (would need solver-level surgery beyond fvSolution/controlDict; the tightening evidence was already decisive).",
+    "step1_config_change": "endTime reverted to 1000 (matching original run's cost) for the head-to-head FD rerun in step 2, since step1 showed 1000 vs 10000 iterations reach the same fixed point. Tightened residualControl/solver-tolerance changes kept.",
+    "new_config_hash_sha256": "ae476e6ca529f0e7d1e14b07644d90a67f69f1f10bd5e99a64454a98ad3b30f0",
+    "new_config_hash_inputs": ["runScript.py", "system/fvSolution (tightened)", "system/fvSchemes"],
+    "step2_rerun": {
+      "of": "OBJ.val",
+      "wrt": "shapexUpper",
+      "step": 0.0001,
+      "form": "central",
+      "step_calc": "abs",
+      "endTime": 1000,
+      "compute_totals_tightened": {
+        "TP1": 88.11834517951668,
+        "TP2": 35.77316763274566,
+        "pressure_loss": 52.34517754677102,
+        "vs_original_pressure_loss": 52.34521633934581,
+        "note": "Differs in the 6th significant figure -- noise-level shift, not a materially different design point.",
+        "adjoint_gmres_iterations": 87,
+        "petsc_converged_reason": 2
+      },
+      "check_totals_endtime10000_attempt": {
+        "result": "TIMED OUT at the 600s foreground cap, did not finish",
+        "cause": "55 FD primal solves at 10x the iteration count (10000 vs 1000) needs ~35-40 minutes, exceeding the single-call foreground timeout.",
+        "log_file": "logs/A5_check_totals_tightened_endtime10000_TIMEDOUT_run1.log",
+        "killed_at_execution_time_s": 587.37
+      },
+      "check_totals_endtime1000_tightened_solvers": {
+        "result": "ok, completed in 280s",
+        "log_file": "logs/A5_check_totals_tightened_run2.log",
+        "analytic_magnitude": 19.38710,
+        "fd_magnitude": 33.23868,
+        "rel_error_norm_pct": 46.21,
+        "components_within_12pct_band": 4,
+        "components_total": 27,
+        "sign_flips": 3,
+        "sign_flip_indices": [2, 8, 17]
+      }
+    },
+    "before_after_comparison": {
+      "p_initRes": {"original": 0.0002257624979593885, "tightened": 0.0002056814952615635, "verdict": "~9% better, still nowhere near 1e-8"},
+      "total_residual_norm2": {"original": 55.776, "tightened": 59.324, "verdict": "worse"},
+      "analytic_magnitude": {"original": 19.384, "tightened": 19.387, "verdict": "unchanged"},
+      "fd_magnitude": {"original": 33.409, "tightened": 33.239, "verdict": "unchanged"},
+      "aggregate_relative_error_pct": {"original": 46.64, "tightened": 46.21, "verdict": "no material change (delta 0.4 points)"},
+      "components_within_12pct": {"original": 5, "tightened": 4, "verdict": "slightly worse"},
+      "sign_flips": {"original": 2, "tightened": 3, "verdict": "slightly worse -- idx 2 newly flips"}
+    },
+    "verdict": "HYPOTHESIS REFUTED for the convergence-tightening tested here. Tightening residualControl/linear-solver tolerances by 1-2 orders of magnitude and running 10x more iterations did not move p/T/nuTilda anywhere near A1's 1e-8 bar (the plateau is a genuine fixed point, confirmed by bit-identical 1000-vs-5000-vs-10000-iteration residuals), and the resulting FD-vs-adjoint agreement is statistically the same as before (46.6% -> 46.2%), with per-component band membership and sign flips getting marginally worse, not better. This rules out 'primal convergence plateau alone explains the FD gap' as this rung's answer. Evidence points instead at the other candidate already named in the original record: coarse-mesh (4800-cell) / non-smooth mesh-warp response to single-FFD-point shape perturbations, compounded by a residual plateau that is itself likely a genuine secondary-flow (Dean-vortex) limit cycle intrinsic to steady RANS on this U-bend geometry at this resolution. A mesh-refinement study (analogous to A1's own follow-up) would be the natural next test but is outside this rung's scope.",
+    "lab_wide_implication": "The clean rule hypothesized -- 'no FD verification is meaningful until the primal is converged' -- is not established as SUFFICIENT by this data; a non-converged primal is clearly not ideal, but pushing convergence harder does not automatically fix FD/adjoint agreement when the residual plateau is a hard limit cycle rather than an under-iterated/under-tolerant solve. Actionable version this rung supports: check whether the residual plateau is a genuine fixed point (extend iterations and retighten solver tolerances; if the residual doesn't move, more of the same won't help) before spending FD-verification budget -- and if it is a hard plateau, look to mesh resolution / geometry smoothness rather than solver tolerances.",
+    "additional_blocker": {
+      "id": "check_totals_10x_iteration_count_exceeds_foreground_timeout",
+      "description": "check_totals at endTime=10000 (10x the original iteration count) needs ~35-40 min for the 55-eval FD sweep; killed by the Bash tool's 10-minute timeout mid-sweep.",
+      "fix": "Confirmed via the iteration-count diagnostic (step1) that 1000 vs 10000 iterations reach the same fixed point, then reran the FD sweep at endTime=1000 (tightened solver tolerances only) -- valid because the residual plateau is iteration-count-independent here.",
+      "lesson": "Before scaling up endTime for a check_totals sweep, do a cheap run_model-only check at the higher endTime first to confirm it's actually buying convergence, since the FD sweep's cost multiplies by the same factor per component."
+    }
   }
 }
