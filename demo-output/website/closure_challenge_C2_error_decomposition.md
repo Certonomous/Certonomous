@@ -43,20 +43,50 @@ essentially noise by comparison.
 **Effort should target the alpha_05 periodic-hill regime and nothing else.**
 Chasing the NASA hump would recover at most 2% of the available term.
 
-## The pattern is physically interpretable, which is what makes it actionable
+## The pattern — first framing, then the correction to it
 
-Within the periodic-hill family the correction splits cleanly by alpha:
+**My first reading was that this is an alpha-regime failure**, since within the
+periodic-hill family the split looked clean: `alpha_15` gave the model's best
+performance anywhere (−62.0%, −50.7%) and `alpha_05` its worst (+56.8%, +35.5%).
 
-| regime | effect |
-| --- | --- |
-| `alpha_15` (both Re) | −62.0% and −50.7% — the model's best performance anywhere |
-| `alpha_05` (both Re) | +56.8% and +35.5% — the model's worst performance anywhere |
+**That framing is wrong, and I am replacing it.** Two facts kill it:
 
-The same trained model helps enormously in one regime and hurts badly in the
-other, consistently across both Reynolds numbers in each. That is not random
-scatter; it is a **domain-of-validity failure**. The correction is calibrated
-for the alpha_15 regime and is being extrapolated into a regime where it does
-not hold.
+1. **The training split already contains alpha_05 cases** — five of them
+   (`alpha_05_10071_3036`, `alpha_05_4071_3036`, `alpha_05_7071_2024`,
+   `alpha_05_7071_3036`, `alpha_05_7071_4048`), plus two more held out in
+   validation. The model was *not* extrapolating into an unseen regime. It saw
+   alpha_05 data, trained on it (per-case train MAE 0.0589–0.0719, unremarkable),
+   and still degrades alpha_05 at test.
+2. **NASA_2DWMH is not a periodic hill at all**, yet it sits in the same
+   degraded group. An alpha-regime story cannot explain it.
+
+### The framing that does hold: the model hurts where RANS was already good
+
+Ordering the five PH-model cases by how bad the uncorrected baseline was:
+
+| floor (RANS error) | delta | outcome |
+| --- | --- | --- |
+| 0.0461 | +0.0262 | HURT |
+| 0.0621 (NASA_2DWMH) | +0.0011 | HURT |
+| 0.0719 | +0.0255 | HURT |
+| 0.1320 | −0.0819 | helped |
+| 0.2049 | −0.1038 | helped |
+
+**Clean separation with no overlap.** The PH model hurts for every floor
+≤ 0.0719 and helps for every floor ≥ 0.1320 — a gap of 0.0601 with nothing in
+it. Pearson r between floor and delta is **−0.9418**.
+
+**Caveat stated plainly: n = 5.** A correlation of −0.94 on five points is
+suggestive, not established. It is offered as the better hypothesis, not as a
+result. What earns it precedence over the alpha framing is not the r value but
+that it explains **all three** regressions with one mechanism — including the
+one the alpha story cannot touch.
+
+The duct model does **not** follow this rule: it helps at floor 0.0590. That is
+consistent with the mechanism rather than against it — the duct model is applied
+in-family, where it has genuine competence, whereas the PH model is being asked
+to correct flows whose baseline error is already near the model's own noise
+floor. **When there is little to fix, a correction can only add error.**
 
 ## The fix must be test-blind — stating this explicitly because the obvious move is cheating
 
