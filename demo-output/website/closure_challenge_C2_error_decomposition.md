@@ -113,6 +113,86 @@ If step 3 fails — if no test-blind criterion separates the regimes — then th
 honest outcome is that this correction's domain cannot be identified a priori,
 and that is itself a publishable finding about the model class (Ladder B4).
 
+---
+
+# ADDENDUM — the floor was the wrong yardstick. Second correction to this document.
+
+Ladder B1 found the benchmark's own scratch clone still on this box at
+`/home/ubuntu/closure-challenge-benchmark/`, whose `README.md` carries the
+**public leaderboard with full per-case scores**. I verified it directly.
+
+**This is not leakage.** The leaderboard publishes competitors' aggregate scores,
+not test ground truth. No ground-truth field is read and no scoring call is
+made. Using it to target research effort is legitimate; it tells us where others
+do better, not what the answers are.
+
+## Where we actually stand
+
+| Rank | Entry | Overall |
+| --- | --- | --- |
+| 1 | Reissmann, Fang, and Sandberg | 0.0595 |
+| 2 | Wu and Zhang | 0.0624 |
+| 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
+| — | **ours (unsubmitted)** | **0.0741** |
+| 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
+
+We sit **between rank 3 and rank 4**, 0.0004 off rank 3 — far closer than
+"beats the rank-4 target" conveyed.
+
+## Per-case against rank 2, and against the best score anywhere on the board
+
+| case | ours | Wu & Zhang | gap | best on board | gap vs best |
+| --- | --- | --- | --- | --- | --- |
+| alpha_15_13929_4048 | 0.0501 | 0.0813 | −0.0312 | 0.0592 | **−0.0091** |
+| alpha_15_13929_2024 | 0.1011 | 0.1195 | −0.0184 | 0.1195 | **−0.0184** |
+| alpha_05_4071_4048 | 0.0723 | 0.0569 | +0.0154 | 0.0569 | +0.0154 |
+| alpha_05_4071_2024 | 0.0974 | 0.0848 | +0.0126 | 0.0760 | +0.0214 |
+| AR_1_Ret_360 | 0.0919 | 0.0455 | **+0.0464** | 0.0387 | +0.0532 |
+| AR_3_Ret_360 | 0.0862 | 0.0399 | **+0.0463** | 0.0341 | +0.0521 |
+| AR_14_Ret_180 | 0.0303 | 0.0350 | −0.0047 | 0.0325 | **−0.0022** |
+| NASA_2DWMH | 0.0632 | 0.0364 | +0.0268 | 0.0364 | +0.0268 |
+
+**We hold the best score on the entire leaderboard on three of eight cases** —
+both alpha_15 cases and AR_14_Ret_180. That is a genuinely strong result and it
+was invisible against the floor.
+
+## The deficit is the ducts, not alpha_05
+
+Decomposing the +0.0117 gap to rank 2:
+
+| case | share of deficit |
+| --- | --- |
+| AR_1_Ret_360 | **31.5%** |
+| AR_3_Ret_360 | **31.4%** |
+| NASA_2DWMH | 18.2% |
+| alpha_05_4071_4048 | 10.4% |
+| alpha_05_4071_2024 | 8.5% |
+
+**AR_1 and AR_3 together are 62.9% of the deficit.** My earlier recommendation
+to target the alpha_05 regime is superseded: those two cases are 18.9% combined
+and are the *smallest* recoverable terms on the board.
+
+**Both earlier framings were measuring against the wrong reference.** Against
+the floor, the ducts looked like wins (−28.6%, −30.7%) — and they are. But
+competitors reach 0.0455 and 0.0399 on the same cases where we reach 0.0919 and
+0.0862. Beating "do nothing" is not the bar.
+
+Note this does not retract the finding above that we actively *hurt* on three
+cases versus the floor; that remains true and worth 0.0066. It is simply the
+smaller of the two available terms.
+
+## The reproduction target and the targeting answer are the same paper
+
+Wu, Zhang & Zhang (AIAA Journal 63(2), 2025, arXiv:2402.16355) — B1's top pick —
+field-invert a β(x) field on the SST ω-destruction term using **DAFoam's own
+discrete adjoint**, train only on the public CBFS case, and **zero-shot
+generalize to DUCT**, scoring 0.0455 / 0.0399 on exactly the two cases that are
+62.9% of our deficit.
+
+**B2/B3 should reproduce that duct result specifically.** It is simultaneously
+the literature reproduction (Ladder B) and the highest-value closure work
+(Ladder C), and it runs on the stack we already have verified through Ladder A.
+
 ## Recommended next action
 
 Train a second, alpha_05-regime model on the alpha_05 *training* cases if such
