@@ -1,0 +1,16 @@
+{
+ "id": "closure-duct-field-inversion",
+ "objective": "Reproduce the rank two entry's field inversion on the square duct cases, inverting a correction field on the turbulence destruction term through the discrete adjoint",
+ "rationale": "The two square duct test cases are 62.9 percent of our entire deficit to the rank two entry: we score 0.0919 and 0.0862 where they score 0.0455 and 0.0399. Their method trains only on a public separated flow case and generalizes to the ducts without seeing them, so it is reproducible without touching test truth, and it runs on the adjoint stack already verified this session against the official airfoil tutorial",
+ "citations": [
+  "Wu, Zhang and Zhang, AIAA Journal volume 63 number 2 (2025), pages 687 to 706",
+  "Closure challenge benchmark leaderboard and per case scores, retrieved 2026-07-28",
+  "Certonomous Ladder A airfoil adjoint verification, measured 2026-07-28"
+ ],
+ "est_core_min": 420,
+ "cost_basis": "estimate from the paper's stated iteration count combined with our own measured per solve adjoint cost; flagged as needing a timed pilot before it is trusted",
+ "expected_knowledge_gain": "The largest single recoverable term on the benchmark, plus a reproduction of a published adjoint field inversion end to end on our own stack",
+ "source_kind": "reading",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}

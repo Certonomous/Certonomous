@@ -1,0 +1,15 @@
+{
+ "id": "closure-baseline-error-estimator-gate",
+ "objective": "Build a baseline error estimator, trained on training and validation cases only, that withholds the closure correction where the uncorrected model is already accurate",
+ "rationale": "Our correction is worse than doing nothing on three of the eight benchmark test cases, costing 0.0066 on the eight case mean, which is 1.7 times the current margin over the fourth ranked entry. The pattern is clean: the periodic hill trained model hurts at every baseline error at or below 0.0719 and helps at every baseline error at or above 0.1320, with a gap of 0.0601 and nothing in it. Baseline error is not knowable at test time, so the gate must predict it from features the test cases expose, and must be fitted and validated without touching any test case",
+ "citations": [
+  "Certonomous closure challenge error decomposition, measured 2026-07-28",
+  "Closure challenge benchmark leaderboard and per case scores, retrieved 2026-07-28"
+ ],
+ "est_core_min": 45,
+ "cost_basis": "estimate, model fitting on cached feature sets already reconstructed for round two; no new flow solves",
+ "expected_knowledge_gain": "Recovery of the loss term without a second scoring call, and a stated domain of validity for the correction, which is itself a result about the model class",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}

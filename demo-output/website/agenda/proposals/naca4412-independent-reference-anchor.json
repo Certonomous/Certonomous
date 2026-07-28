@@ -1,0 +1,16 @@
+{
+ "id": "naca4412-independent-reference-anchor",
+ "objective": "Anchor the NACA 4412 credential reference on a lift coefficient independent of the solve being graded, replacing the current self-referential anchor",
+ "rationale": "The reference is built as section drag plus induced drag evaluated at the solve's own lift, so a solve that over-predicts lift is graded against a wider band. Measured tonight: a 25.0 percent lift over-prediction inflates the induced term by 56.2 percent and lifts the whole band with it. Grading each rung against its own anchor puts the two best-resolved rungs out of band at 94.2 and 94.5 percent layer coverage while the worst-resolved rung at 4.4 percent coverage passes. The grade can be bought by getting lift wrong in the generous direction, so no verdict from this method is currently trustworthy",
+ "citations": [
+  "Certonomous NACA 4412 credential verdict, measured 2026-07-28",
+  "Abbott and von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar",
+  "Anderson, Fundamentals of Aerodynamics, span efficiency bracket"
+ ],
+ "est_core_min": 15,
+ "cost_basis": "estimate, derivation is arithmetic once the anchor source is chosen; no new solves required",
+ "expected_knowledge_gain": "A credential grade that cannot be moved by the error it is meant to detect, and a reusable pattern for every bottom-up reference in the wall",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}

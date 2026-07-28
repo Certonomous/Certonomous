@@ -1,0 +1,15 @@
+{
+ "id": "dafoam-shape-derivative-step-size-study",
+ "objective": "Establish whether the shape derivative disagreement against finite difference is a step size artefact by sweeping the difference step across several decades",
+ "rationale": "On the official unmodified airfoil tutorial the geometric constraints verify to 4.4e-14 and the flow parameter derivatives to 0.232 percent, so the harness is sound, yet the drag shape derivative shows 11.43 percent on the difference vector norm while the two gradient magnitudes agree to 0.451 percent. Same length, different direction is the signature of per component difference noise rather than a scale error, and step size is the first thing that would move it. Every future adjoint claim on a shape variable rests on knowing whether that 11 percent is the check or the gradient",
+ "citations": [
+  "Certonomous Ladder A airfoil adjoint verification, measured 2026-07-28",
+  "DAFoam verification documentation for the incompressible solver, retrieved 2026-07-28"
+ ],
+ "est_core_min": 35,
+ "cost_basis": "measured, the tutorial rung cost 3.51 core minutes so a sweep of eight step sizes plus reruns is bounded",
+ "expected_knowledge_gain": "A defensible tolerance for every future shape derivative verification, separating check error from gradient error",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}

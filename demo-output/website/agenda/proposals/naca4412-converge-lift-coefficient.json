@@ -1,0 +1,14 @@
+{
+ "id": "naca4412-converge-lift-coefficient",
+ "objective": "Identify and remove the remaining driver of lift non-monotonicity on the NACA 4412 refinement ladder so the ladder reaches the asymptotic range",
+ "rationale": "Repairing boundary layer coverage from 58.3 to 77.0 percent closed only 26.5 percent of the lift gap to the next rung, and extrapolating the coverage trend to equal coverage still leaves 9.4 percent. Drag is effectively invariant across a 17.7 fold change in coverage at 0.037 percent, so the remaining driver is not near wall resolution. The pressure and induced split and the tip and wake treatment at aspect ratio 3 are the untested suspects. Until lift converges the numerical half width of 0.0033839 dominates the acceptance band",
+ "citations": [
+  "Certonomous NACA 4412 refinement ladder, four rungs measured 2026-07-27 and 2026-07-28"
+ ],
+ "est_core_min": 220,
+ "cost_basis": "estimate from measured cost of the 2.09 million cell rung at 37.4 core minutes, allowing for a tip refinement study and one further rung",
+ "expected_knowledge_gain": "An asymptotic ladder, a defensible observed order, and a materially tighter acceptance band on a wall credential",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-28"
+}
