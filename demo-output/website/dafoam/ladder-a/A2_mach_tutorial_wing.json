@@ -1,0 +1,208 @@
+{
+  "case_name": "A2-mach-wing",
+  "tutorial_source": "DAFoam/dafoam-tutorials MACH_Tutorial_Wing (official, unmodified); aero-only variant runScript_AeroOnly.py used instead of the docs-documented aerostructural runScript.py, per this ladder's aero-only preference instruction",
+  "docs_page_checked": "https://dafoam.github.io/tutorials-aerostruct-mach-wing.html",
+  "docs_reported_drag_reduction": null,
+  "docs_reported_drag_reduction_note": "Docs page (and its GitHub markdown source) states problem setup only (CL_target=0.5, 96 shape DVs, 7 twist DVs, 1 AoA DV, 118 constraints, ~38k cells, Mach~0.3/Re~30M); no before/after CD or drag-reduction percentage is reported for this case. Context only, not a target: CRM wing tutorial reports 7.6% reduction, ADODG3 wing tutorial reports 17.2%.",
+  "date_utc": "2026-07-28",
+  "solver": "DARhoSimpleFoam",
+  "docker_image": "dafoam/opt-packages:latest",
+  "mpi_ranks": 4,
+  "mesh_cells": 38304,
+  "checkMesh_result": "OK: max aspect ratio 684.4, max non-orthogonality 66.97 (threshold 70), max skewness 1.339",
+  "config_hash_sha256": "eb4a04a6306d916be31afd181e9987eef29a9c62310e3e1fb55ca1dc67d63a82",
+  "config_hash_inputs": [
+    "runScript_AeroOnly.py",
+    "system/fvSolution",
+    "system/fvSchemes"
+  ],
+  "flow_conditions": {
+    "U0_m_s": 100.0,
+    "p0": 101325.0,
+    "T0": 300.0,
+    "nuTilda0": 4.5e-5,
+    "aoa0_deg": 4.0,
+    "CL_target": 0.5,
+    "A0": 45.5
+  },
+  "design_variables": {
+    "shape": 96,
+    "twist": 7,
+    "patchV": 2,
+    "total": 105
+  },
+  "stages": [
+    {
+      "name": "mesh_preprocessing",
+      "command": "preProcessing.sh (wget surface geometry + cgns_utils coarsen + pyHyp genWingMesh.py + plot3dToFoam + autoPatch + createPatch + renumberMesh)",
+      "ranks": 1,
+      "wall_time_s": 30,
+      "core_minutes": 0.5,
+      "result": "ok",
+      "measured": { "nCells": 38304 }
+    },
+    {
+      "name": "checkMesh",
+      "ranks": 1,
+      "wall_time_s": 10,
+      "core_minutes": 0.17,
+      "result": "ok"
+    },
+    {
+      "name": "primal_run_model",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript_AeroOnly.py -task run_model",
+      "ranks": 4,
+      "wall_time_s": 21,
+      "core_minutes": 1.40,
+      "start_utc": "2026-07-28T00:18:45Z",
+      "end_utc": "2026-07-28T00:19:06Z",
+      "result": "ok",
+      "log_file": "run_model_stdout.log"
+    },
+    {
+      "name": "compute_totals",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript_AeroOnly.py -task compute_totals",
+      "ranks": 4,
+      "wall_time_s": 490,
+      "core_minutes": 32.67,
+      "start_utc": "2026-07-28T00:20:52Z",
+      "end_utc": "2026-07-28T00:29:02Z",
+      "result": "ok",
+      "log_file": "compute_totals_run1.log"
+    },
+    {
+      "name": "check_totals_attempt_1",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript_AeroOnly.py -task check_totals",
+      "ranks": 4,
+      "wall_time_s": 3107,
+      "core_minutes": 207.13,
+      "start_utc": "2026-07-28T00:50:44Z",
+      "end_utc": "2026-07-28T01:42:31Z",
+      "result": "failed",
+      "log_file": "check_totals_run1_INCOMPLETE_prereboot.log",
+      "progress_at_failure": "170 of 210 FD perturbation solves complete (81%)",
+      "blocker": {
+        "cause": "Kernel OOM-killed the container's 4 python ranks at 01:37:05Z (cgroup memory cap hit, --memory=12g, ~10.6GB total-vm per rank) under heavy multi-agent host memory contention; host then took a separate clean orderly reboot at 01:42:43Z, tearing down the session.",
+        "recoverable": false,
+        "recoverable_reason": "prob.check_totals(compact_print=False) only prints its comparison table after all 210 perturbations complete; no partial table exists in the log.",
+        "fix": "Waited for host to return to a clean/idle state, sudo rm -rf processor* (stale root-owned state), reran from scratch as attempt 2."
+      }
+    },
+    {
+      "name": "check_totals_attempt_2",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript_AeroOnly.py -task check_totals",
+      "ranks": 4,
+      "wall_time_s": 3153,
+      "core_minutes": 210.20,
+      "start_utc": "2026-07-28T02:31:54Z",
+      "end_utc": "2026-07-28T03:24:27Z",
+      "result": "ok",
+      "log_file": "check_totals_run1.log",
+      "accepted": true,
+      "primal_solves_completed": 211,
+      "exit_code": 0
+    },
+    {
+      "name": "optimization_run_driver",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript_AeroOnly.py -task run_driver",
+      "ranks": 4,
+      "wall_time_s": 3606,
+      "core_minutes": 240.40,
+      "start_utc": "2026-07-28T03:26:19Z",
+      "end_utc": "2026-07-28T04:26:25Z",
+      "result": "time_boxed_partial",
+      "log_file": "opt_run_driver.log",
+      "optimizer": "IPOPT",
+      "optimizer_settings": { "tol": 1e-5, "constr_viol_tol": 1e-5, "max_iter": 100 },
+      "time_box_min": 60,
+      "iterations_completed": 47,
+      "termination": "SIGTERM at 60-minute deadline; containers confirmed stopped cleanly, no leftover processes"
+    }
+  ],
+  "totals": {
+    "useful_wall_time_s": 7310,
+    "useful_wall_time_min": 121.8,
+    "useful_core_minutes": 485.34,
+    "useful_core_hours": 8.09,
+    "wasted_wall_time_s": 3107,
+    "wasted_core_minutes": 207.13,
+    "grand_total_core_minutes": 692.47,
+    "grand_total_core_hours": 11.54
+  },
+  "primal_convergence": {
+    "final_iter": 1000,
+    "residual_tolerance": 1.0e-8,
+    "CD": 0.02772949388,
+    "CL": 0.4775877833,
+    "final_residuals": {
+      "U0": 9.56052968e-09,
+      "U1": 1.202580476e-08,
+      "U2": 1.185193088e-09,
+      "p": 1.006775059e-07,
+      "nuTilda": 4.319179098e-07
+    },
+    "yPlus": { "min": 68.78746014, "max": 1266.541892, "mean": 321.950799 }
+  },
+  "fd_verification_table": {
+    "step": 0.001,
+    "form": "central",
+    "step_calc": "abs",
+    "calibration_reference": "A1 (NACA0012, official unmodified tutorial): geometric constraints wrt shape 4.4e-14-1.4e-10 (machine precision); CD/CL wrt patchV ~0.232%; CL wrt shape ~1.67%; CD wrt shape ~11.43% (difference-vector norm; magnitudes agree to 0.451%, i.e. directional per-component noise not a scale error). 1-12% shape-derivative gap treated as normal for this problem class.",
+    "rows": [
+      { "derivative": "CD wrt patchV (U0, AoA)", "analytic_magnitude": 5.615356e-03, "fd_magnitude": 5.616540e-03, "abs_error": 1.192085e-06, "rel_error": 2.122454e-04, "rel_error_pct": 0.0212 },
+      { "derivative": "CD wrt shape (96)", "analytic_magnitude": 4.801625e-02, "fd_magnitude": 4.858158e-02, "abs_error": 8.325869e-04, "rel_error": 1.713791e-02, "rel_error_pct": 1.71 },
+      { "derivative": "CD wrt twist (7)", "analytic_magnitude": 1.922238e-03, "fd_magnitude": 1.922103e-03, "abs_error": 7.478526e-06, "rel_error": 3.890805e-03, "rel_error_pct": 0.389 },
+      { "derivative": "CL wrt patchV (U0, AoA)", "analytic_magnitude": 7.040571e-02, "fd_magnitude": 7.040500e-02, "abs_error": 1.021434e-06, "rel_error": 1.450798e-05, "rel_error_pct": 0.00145 },
+      { "derivative": "CL wrt shape (96)", "analytic_magnitude": 8.480582e-01, "fd_magnitude": 8.572992e-01, "abs_error": 9.988934e-03, "rel_error": 1.165163e-02, "rel_error_pct": 1.17 },
+      { "derivative": "CL wrt twist (7)", "analytic_magnitude": 2.371825e-02, "fd_magnitude": 2.398459e-02, "abs_error": 2.687753e-04, "rel_error": 1.120617e-02, "rel_error_pct": 1.12 },
+      { "derivative": "geometry.thickcon wrt shape", "analytic_magnitude": 9.718825e+00, "fd_magnitude": 9.718825e+00, "abs_error": 9.285216e-12, "rel_error": 9.553846e-13, "rel_error_pct": 9.55e-11 },
+      { "derivative": "geometry.thickcon wrt twist", "analytic_magnitude": 4.127369e-15, "fd_magnitude": 3.351352e-12, "abs_error": 3.351467e-12, "rel_error": 1.000034, "rel_error_pct": 100.0, "note": "both values are numerically zero (noise-floor ratio, not a real gradient disagreement); thickcon genuinely does not depend on twist in this parameterization" },
+      { "derivative": "geometry.volcon wrt shape", "analytic_magnitude": 3.357042e-01, "fd_magnitude": 3.357042e-01, "abs_error": 1.186017e-12, "rel_error": 3.532922e-12, "rel_error_pct": 3.53e-10 },
+      { "derivative": "geometry.volcon wrt twist", "analytic_magnitude": 2.722885e-08, "fd_magnitude": 2.722884e-08, "abs_error": 3.455266e-13, "rel_error": 1.268973e-05, "rel_error_pct": 0.00127 },
+      { "derivative": "geometry.lecon wrt shape (linear)", "analytic_magnitude": 4.0, "fd_magnitude": 4.0, "abs_error": 0.0, "rel_error": 0.0, "rel_error_pct": 0.0 },
+      { "derivative": "geometry.tecon wrt shape (linear)", "analytic_magnitude": 4.0, "fd_magnitude": 4.0, "abs_error": 0.0, "rel_error": 0.0, "rel_error_pct": 0.0 }
+    ]
+  },
+  "gate_verdict": {
+    "passed": true,
+    "reasoning": "CD/shape (1.71%) and CL/shape (1.17%) both within the calibrated 1-12% normal band and tighter than A1's 11.43%/1.67%; CD/CL wrt patchV (0.0212%/0.00145%) tighter than A1's 0.232%; all geometric-constraint-wrt-shape derivatives at machine precision. Proceeded to documented optimization."
+  },
+  "optimization_result": {
+    "optimizer": "IPOPT",
+    "time_boxed": true,
+    "time_box_min": 60,
+    "converged": false,
+    "iterations_completed": 47,
+    "baseline_CL_matched": {
+      "iteration": 0,
+      "CD": 0.029619634,
+      "note": "findFeasibleDesign adjusted AoA to hit CL_target=0.5 before optimizer iteration 0; this is the correct apples-to-apples baseline, not the raw run_model CD=0.02772949 at CL=0.4776"
+    },
+    "best_logged": { "iteration": 42, "CD": 0.021241776 },
+    "last_logged": { "iteration": 47, "CD": 0.021244538, "inf_pr": 1.44e-05, "inf_du": 9.00e-05, "tol_target": 1e-05 },
+    "last_evaluated_point_at_kill": { "driver_iteration": 50, "CD": 0.02124151, "CL": 0.49994819, "geometry_volcon": 1.0000783, "geometry_thickcon_range": [0.50, 1.73] },
+    "achieved_drag_reduction_pct": 28.28,
+    "achieved_drag_reduction_basis": "(0.029619634 - 0.021244538) / 0.029619634, at matched CL=0.5, partial/time-boxed, not converged to optimizer's own 1e-5 tolerance",
+    "tutorial_reference_reduction_pct": null,
+    "tutorial_reference_note": "No reduction figure documented for this specific tutorial; context-only figures from other DAFoam wing tutorials: CRM 7.6%, ADODG3 17.2% (different geometries/conditions, not a validated comparison)"
+  },
+  "blockers": [
+    {
+      "id": "check_totals_attempt_1_oom_reboot",
+      "description": "First check_totals run destroyed at 81% completion by a container OOM cgroup-kill followed by a clean host reboot mid-session; not a gradient/numerics issue.",
+      "cost_core_minutes": 207.13,
+      "resolution": "Reran from a clean/idle host as attempt 2 (accepted)."
+    },
+    {
+      "id": "stale_processor_dirs",
+      "description": "Root-owned processorN/ directories left behind by --rm docker runs collide with the next stage's automatic redecomposition from 0/.",
+      "resolution": "sudo rm -rf processor* before each new -task invocation on the same case dir."
+    },
+    {
+      "id": "optimization_not_converged",
+      "description": "47/~100 IPOPT major iterations completed within the 60-minute time box; objective plateaued in a tight band but first-order optimality/feasibility metrics (1.4e-5, 9.0e-5) had not yet reached the 1e-5 target when time ran out.",
+      "resolution": "Reported as an honest partial result per instructions; not claimed as a converged optimum."
+    }
+  ],
+  "lesson": "The costly failures tonight were infrastructure, not numerics: check_totals on a 105-DV case (vs 8 on the NACA0012 A1 case) is an hour-plus, all-or-nothing run because prob.check_totals() buffers its comparison table until every one of the 210 FD perturbations finishes -- losing it to an OOM/reboot at 81% complete meant zero partial credit and a full 3.5-core-hour rerun. The --memory=12g cgroup cap did exactly its job (killed the container cleanly, not the host), which validates the sizing discipline this ladder has been using; wide-DV cases should be budgeted assuming a multi-hour, must-not-be-interrupted check_totals window. Numerically, this 105-DV 3D wing case verified its adjoint at least as well as the 8-DV NACA0012 airfoil case (A1) across every derivative category -- reassuring evidence that DAFoam's discrete adjoint accuracy does not degrade with design-variable count or geometric complexity on this problem class."
+}
