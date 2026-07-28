@@ -1,0 +1,48 @@
+{
+  "family": "F6c",
+  "case_group": "DUCT",
+  "date": "2026-07-28",
+  "description": "Secondary-flow magnitude comparison: B2's already-converged uncorrected kOmegaSST RANS baseline vs the benchmark's own shipped DNS reference field (U_LES), for AR_1_Ret_360 and AR_3_Ret_360.",
+  "leakage_note": "No new CFD, no fitting/tuning/selection against test-case ground truth. Pure post-processing of already-existing forward RANS solves against the benchmark's own shipped DNS reference.",
+  "dns_provenance": {
+    "original_source": "https://www.vinuesalab.com/duct/",
+    "shipped_location": "closure-challenge-benchmark/data/DUCT/{case}/0/U_LES (same mesh as RANS field)",
+    "independently_refetched": false
+  },
+  "cases": {
+    "AR_1_Ret_360": {
+      "n_cells": 3025,
+      "rans_source_iteration": 456,
+      "U_bulk_ms": 33.07768683775868,
+      "rans_secondary_rms_ms": 2.0148612881093344e-16,
+      "rans_secondary_rms_pct_Ubulk": 6.091300452755178e-16,
+      "dns_secondary_rms_ms": 0.7343502417227699,
+      "dns_secondary_rms_pct_Ubulk": 2.220077375194501,
+      "rans_captured_pct_of_dns": 0.0
+    },
+    "AR_3_Ret_360": {
+      "n_cells": 8748,
+      "rans_source_iteration": 1700,
+      "U_bulk_ms": 38.447507844629634,
+      "rans_secondary_rms_ms": 9.119308114653603e-16,
+      "rans_secondary_rms_pct_Ubulk": 2.3718853641972512e-15,
+      "dns_secondary_rms_ms": 0.7960251207337389,
+      "dns_secondary_rms_pct_Ubulk": 2.070420595141196,
+      "rans_captured_pct_of_dns": 0.0
+    }
+  },
+  "verdict": "GATE MEASURED, FAIL AS EXPECTED. Linear eddy-viscosity kOmegaSST predicts exactly zero secondary flow (machine precision) in both cases; DNS shows 2.07-2.22% of bulk velocity. Documented, literature-consistent structural limitation of the Boussinesq hypothesis, not a setup error -- directly explains the AR_1_Ret_360/AR_3_Ret_360 deficit contribution.",
+  "cost": {"new_cfd_core_minutes": 0, "analysis_wall_s": 5},
+  "blocked": [
+    "AR_14_Ret_180 baseline not yet reproduced by this campaign (case files available, not run this rung)",
+    "Spatial secondary-flow vortex-pattern comparison not attempted (bulk RMS magnitude only)"
+  ],
+  "evidence_files": {
+    "report": "demo-output/website/dafoam/f6c_duct_dns/F6c_duct_vs_dns.md",
+    "script": "demo-output/website/dafoam/f6c_duct_dns/secondary_flow_gate.py",
+    "per_case_json": [
+      "demo-output/website/dafoam/f6c_duct_dns/AR_1_Ret_360_secondary_flow_gate.json",
+      "demo-output/website/dafoam/f6c_duct_dns/AR_3_Ret_360_secondary_flow_gate.json"
+    ]
+  }
+}

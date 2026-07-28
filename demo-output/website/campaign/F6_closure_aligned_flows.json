@@ -1,0 +1,55 @@
+{
+  "family": "F6",
+  "title": "Closure-aligned flows",
+  "date": "2026-07-28",
+  "docket_priority_order": ["F6a_nasa_hump", "F6c_duct_vs_dns", "F6b_periodic_hills"],
+  "prioritization_basis": "demo-output/website/closure_challenge_C2_error_decomposition.md deficit breakdown: AR_1_Ret_360 31.5%, AR_3_Ret_360 31.4%, NASA_2DWMH 18.2%, alpha_05 combined 18.9%",
+  "leakage_compliance": "No fitting, tuning, or selection against test-case ground truth anywhere in this work. All comparisons are single forward RANS solves or re-analysis of already-converged forward solves.",
+  "total_new_compute_core_minutes": 5.25,
+  "sub_families": {
+    "F6a_nasa_hump": {
+      "status": "complete, all rungs climbed, gate reached",
+      "rungs": ["feasibility", "physics", "gate"],
+      "gate_vs_nasa_experiment": {
+        "separation_xc": {"ours": 0.6544, "reference": 0.665, "deviation_pct": -1.59},
+        "reattachment_xc": {"ours": 1.2534, "reference": 1.100, "deviation_pct": 13.95}
+      },
+      "cross_check_vs_nasa_own_sst": {
+        "separation_xc_deviation_pct": 0.06,
+        "reattachment_within_published_range": true
+      },
+      "sanity_checks": {
+        "field_vs_benchmark_shipped_baseline_max_deviation_pct": 0.02,
+        "benchmark_scorer_deviation_pct": 0.16
+      },
+      "verdict": "GATE REACHED. Baseline independently verified correct; deviation from experiment is the documented, expected linear-eddy-viscosity SST bubble-length over-prediction.",
+      "core_minutes": 5.25,
+      "report": "demo-output/website/dafoam/f6a_nasa_hump/F6a_nasa_hump.md",
+      "report_json": "demo-output/website/dafoam/f6a_nasa_hump/F6a_nasa_hump.json"
+    },
+    "F6c_duct_vs_dns": {
+      "status": "complete, gate reached (baseline reproduction already done in B2)",
+      "rungs_this_session": ["gate (feasibility/physics done previously in B2)"],
+      "gate_secondary_flow_vs_dns": {
+        "AR_1_Ret_360": {"rans_pct_of_dns": 0.0, "dns_secondary_rms_pct_Ubulk": 2.22},
+        "AR_3_Ret_360": {"rans_pct_of_dns": 0.0, "dns_secondary_rms_pct_Ubulk": 2.07}
+      },
+      "verdict": "GATE MEASURED, FAIL AS EXPECTED AND DOCUMENTED. Linear eddy-viscosity RANS captures 0% of DNS secondary-flow magnitude in both cases -- structural model limitation, directly explains AR_1/AR_3 deficit contribution.",
+      "core_minutes": 0,
+      "report": "demo-output/website/dafoam/f6c_duct_dns/F6c_duct_vs_dns.md",
+      "report_json": "demo-output/website/dafoam/f6c_duct_dns/F6c_duct_vs_dns.json"
+    },
+    "F6b_periodic_hills": {
+      "status": "not attempted",
+      "reason": "docket-conditional on time remaining after F6a and F6c; both completed to gate rung, remaining budget spent on write-up and cross-validation instead of opening a third family",
+      "core_minutes": 0
+    }
+  },
+  "blocked_items": [
+    "F6a: velocity-profile/Reynolds-stress comparison at sampling stations x/c=0.65-1.3 not attempted (out of ordered gate scope)",
+    "F6a: Cp reference-pressure convention not independently verified against NASA's own method",
+    "F6c: AR_14_Ret_180 baseline not yet reproduced (case files available, not prioritized -- not in docket deficit breakdown)",
+    "F6c: spatial secondary-flow vortex-pattern comparison not attempted (bulk RMS magnitude only)",
+    "F6b: entirely unstarted, needs a feasibility rung to open"
+  ]
+}

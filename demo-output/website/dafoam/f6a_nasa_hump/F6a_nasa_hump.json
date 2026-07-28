@@ -1,0 +1,74 @@
+{
+  "family": "F6a",
+  "case": "NASA_2DWMH",
+  "date": "2026-07-28",
+  "description": "Staged RANS baseline (feasibility -> physics -> gate) for the benchmark's NASA 2D wall-mounted hump test case, gated against NASA's own published experimental validation data.",
+  "leakage_note": "Single forward uncorrected RANS solve, no fitting/tuning/selection against test-case ground truth. Same operation as the published closure_challenge_rans_floor.json.",
+  "case_setup": {
+    "source": "/home/ubuntu/closure-challenge-benchmark/data/NASA_2DWMH/",
+    "chord_m": 0.42,
+    "Re_c": 936000,
+    "Mach": 0.1,
+    "Uinf_ms": 34.62531106959954,
+    "n_cells": 51626,
+    "solver": "simpleFoam (OpenFOAM v2606)",
+    "turbulence_model": "kOmegaSST (stock; substituted for the unavailable custom AugmentedkOmegaSST/baseline=true)",
+    "mpi_ranks": 4,
+    "residual_control": {"U": 5e-7, "p": 5e-7, "k": 5e-7, "omega": 1e-10}
+  },
+  "rungs": [
+    {"name": "feasibility", "iterations": "0-100", "wall_s": 4.25, "core_min": 0.28, "result": "runs clean, no crash, residuals falling"},
+    {"name": "physics", "iterations": "0-800", "wall_s": 37.58, "core_min": 2.51, "result": "separation bubble present: Cf sign changes at x/c=0.6544 (sep) and x/c=1.2574 (reattach), pre-convergence"},
+    {"name": "gate", "iterations": "800-1772", "wall_s": 36.99, "core_min": 2.47, "result": "SIMPLE auto-converged at iteration 1772, all residualControl thresholds met"}
+  ],
+  "total_cost": {"iterations": 1772, "wall_s": 78.82, "core_minutes": 5.25},
+  "gate_vs_nasa_experiment": {
+    "source_url": "https://tmbwg.github.io/turbmodels/nasahump_val_sst.html",
+    "separation_xc": {"ours": 0.6544, "nasa_experiment": 0.665, "deviation": -0.0106, "deviation_pct": -1.59},
+    "reattachment_xc": {"ours": 1.2534, "nasa_experiment": 1.100, "deviation": 0.1534, "deviation_pct": 13.95},
+    "verdict": "separation: close agreement; reattachment: documented SST bubble-length over-prediction (expected, literature-consistent)"
+  },
+  "cross_check_vs_nasa_own_sst_cfd": {
+    "source_url": "https://tmbwg.github.io/turbmodels/nasahump_val_sst.html",
+    "grid": "817x217 (NASA's own, different mesh/code: CFL3D/FUN3D)",
+    "separation_xc": {"ours": 0.6544, "nasa_sst": 0.654, "deviation": 0.0004, "deviation_pct": 0.06},
+    "reattachment_xc": {"ours": 1.2534, "nasa_sst_range": [1.25, 1.27], "within_range": true},
+    "note": "near-exact match confirms our baseline is correctly set up, not buggy"
+  },
+  "sanity_check_field_vs_benchmark_shipped_baseline": {
+    "benchmark_baseline_model": "AugmentedkOmegaSST, baseline=true (custom library, not available to us)",
+    "benchmark_baseline_iteration": 2000,
+    "separation_xc": {"ours": 0.6544, "benchmark": 0.6544, "deviation": 0.0},
+    "reattachment_xc": {"ours": 1.2534, "benchmark": 1.2531, "deviation": 0.0003, "deviation_pct": 0.02}
+  },
+  "sanity_check_benchmark_scorer": {
+    "our_score": 0.0622,
+    "reproduced_benchmark_baseline_score": 0.0621,
+    "published_floor": 0.0621,
+    "deviation_ours_minus_floor": 0.0001,
+    "deviation_pct": 0.16,
+    "internal_field_scaled_mae_pct": 0.02
+  },
+  "cp_vs_experiment": {
+    "n_overlap_points": 110,
+    "mae": 0.0341,
+    "exp_cp_range": [-0.8724, 0.3084],
+    "scaled_mae_pct": 2.89,
+    "caveat": "Cp reference pressure = mean p over 5 most-upstream wall points (x/c<~-1.9), not independently verified against NASA's own referencing convention"
+  },
+  "deviations_documented": [
+    "libfrozenIncompressibleTurbulenceModels.so / AugmentedkOmegaSST not available -> substituted stock kOmegaSST; measured inert (0.00-0.02% deviation vs benchmark's own shipped field)",
+    "#includeFunc residuals/convergenceProbes/singleGraph_* dropped (v2606 caseDicts path mismatch, same as ladder B2); wallShearStress+wallValues reinstated as inline controlDict functions",
+    "Cp reference pressure convention not independently verified against NASA's exact method",
+    "wallShearStress function object sign convention is force-on-wall (opposite of standard Cf); standard Cf = -wallShearStress_x/(0.5 Uinf^2) used throughout"
+  ],
+  "verdict": "GATE REACHED. Baseline independently verified correct (matches NASA's own SST CFD to <0.1% on separation, within their reattachment range; matches benchmark's own field/scorer to <0.2%). Comparison to real NASA experiment shows the expected, literature-documented linear-eddy-viscosity SST deficiency (reattachment +13.9% too far downstream), not a setup error.",
+  "evidence_files": {
+    "report": "demo-output/website/dafoam/f6a_nasa_hump/F6a_nasa_hump.md",
+    "case_dir": "demo-output/website/dafoam/f6a_nasa_hump/case/",
+    "nasa_experimental_data": "demo-output/website/dafoam/f6a_nasa_hump/nasa_experimental_reference/",
+    "gate_analysis_script": "demo-output/website/dafoam/f6a_nasa_hump/case/hump_gate_analysis.py",
+    "cp_compare_script": "demo-output/website/dafoam/f6a_nasa_hump/case/cp_compare.py",
+    "scorer_script": "demo-output/website/dafoam/f6a_nasa_hump/score_our_baseline.py"
+  }
+}
