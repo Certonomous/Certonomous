@@ -1,0 +1,116 @@
+{
+  "rung": "B3",
+  "date": "2026-07-28",
+  "scope": "Macro-expanding CBFS LES reader; DASimpleFoam primal on CBFS; timed adjoint pilot on CBFS (design-variable and objective substituted, disclosed); stage 4 gated on stage 3",
+  "stage1_macro_reader": {
+    "status": "done_verified",
+    "problem": "Ofpp.parse_internal_field returns None (no exception) on CBFS 0/U_LES etc. because those files use #include + $name macro substitution that Ofpp's line scanner does not resolve",
+    "second_bug_found": "0/p_LES has a duplicate 'internalField' key: a placeholder 'uniform 0' BEFORE the #include block, legitimately shadowed (OpenFOAM last-entry-wins) by the real macro'd value AFTER it. A naive macro-expand-then-rescan approach reproduces Ofpp's first-match bug as a silently WRONG (not missing) value. Fixed via an explicit last-wins entries dict.",
+    "verification": {
+      "roundtrip_exact_match": true,
+      "roundtrip_method": "synthesized a #include+$name macro'd file from CBFS's own 0/U inlet boundary data (150 vectors, already Ofpp-parseable with no macros), parsed via macro reader, compared np.array_equal (exact) against plain-Ofpp ground truth on the same numbers",
+      "negative_control_plain_ofpp_returns_none": true,
+      "duplicate_key_regression_test_pass": true
+    },
+    "cbfs_les_fields_resolved": {
+      "U_LES": {"shape": [21000, 3], "min": [-0.12958815, -0.10861459, -0.00505762], "max": [1.03126099, 0.06305218, 0.00277107], "mean": [0.831715073, -0.0148255978, -0.0000197683745]},
+      "k_LES": {"shape": [21000], "min": 2.811433487501853e-08, "max": 0.03752600700079405, "mean": 0.004054497542452569},
+      "tauij_LES": {"shape": [21000, 6], "min": [0.0, -0.0159463280, -0.000458734344, 7.00000014e-09, -0.000212757135, 0.0], "max": [0.03665551, 0.00218071, 0.00053551, 0.02064884, 0.00031479, 0.02343796], "mean": [0.00387593722, -0.000618102175, 0.0000778819204, 0.00170128536, 0.000000308887258, 0.00253177251]},
+      "p_LES": {"shape": [21000], "min": -0.09096583606925687, "max": 0.10917070686032862, "mean": 0.042919990991652106, "note": "was silently 0.0 (placeholder shadowing bug) before the duplicate-key fix"}
+    },
+    "files": [
+      "demo-output/website/dafoam/ladder-b/duct_baseline/macro_field_reader.py",
+      "demo-output/website/dafoam/ladder-b/duct_baseline/verify_macro_reader.py"
+    ]
+  },
+  "stage2_dasimplefoam_primal": {
+    "status": "done",
+    "case_fixes_applied": [
+      {"issue": "transportProperties missing Pr/Prt", "cause": "DAFoam DASimpleFoam wrapper unconditionally reads these even without an energy equation", "fix": "added Pr 0.7, Prt 1.0 (standard air, matches lab's naca0012 case); inert for momentum/turbulence equations solved"},
+      {"issue": "2D empty-type frontAndBack patch not supported by DAFoam mesh warping (IDWarp)", "cause": "DACheckMesh fatal error: 'Mesh geometric directions is less than 3 and not supported'", "fix": "converted frontAndBack from empty to symmetry in polyMesh/boundary and 0/{U,p,k,omega,nut}; declared both z-planes via meshOptions symmetryPlanes; standard DAFoam 2D workaround, same pattern as lab's naca0012 case"},
+      {"issue": "primalBC.useWallFunction:True forcibly overrides CBFS's real wall BCs", "cause": "confirmed via log grep: BCType changed nutLowReWallFunction->nutkWallFunction, k fixedValue 1e-15->kqRWallFunction; a genuine physics change, not solver noise", "fix": "primalBC: {} (no override); rejected after measuring 19% field deviation with the override active", "measured_impact_of_bug": "up to 19% k-field scaled MAE vs B2 baseline with the override active"},
+      {"issue": "0/phi with symmetry-type frontAndBack crashes decomposePar", "cause": "surfaceScalarField on a symmetry patch requires explicit 'value' entry, unlike volField symmetry", "fix": "deleted 0/phi; OpenFOAM recomputes it from U at solver start (standard, most cases ship no initial phi)"}
+    ],
+    "reproduction_vs_b2_converged_field": {
+      "warm_start_source": "duct_baseline/CBFS/30000/{U,p,k,omega,nut,phi}",
+      "primalMinResTol": 1e-06,
+      "ranks": 1,
+      "convergence_trend_scaled_mae": [
+        {"iterations": 300, "U": 0.0082, "p": 0.0586, "k": 0.0518, "omega": 0.0182, "nut": 0.0293},
+        {"iterations": 500, "U": 0.00149, "p": 0.00922, "k": 0.0180, "omega": 0.0123, "nut": 0.00725},
+        {"iterations": 1000, "U": 0.000907, "p": 0.00284, "k": 0.0144, "omega": 0.01198, "nut": 0.00481},
+        {"iterations": 1223, "converged_tol_satisfied": true, "U": 0.000865, "p": 0.00233, "k": 0.01414, "omega": 0.01198, "nut": 0.00460}
+      ],
+      "comparison_note": "B2's own cross-solver-family agreement (OpenFOAM-7 orig vs our v2606 reproduction, plain OpenFOAM, no DAFoam) was 0.068% for CBFS U. Our DAFoam-vs-plain-OpenFOAM U agreement (0.087%) is comparable; p/k/omega are 3-20x looser, plausibly from DAFoam-bundled v2506 vs our plain-OpenFOAM v2606 point-release gap plus AD-instrumented solver internals -- not further decomposed this rung."
+    },
+    "primal_cost_measured": [
+      {"config": "cold IC, run_model", "ranks": 1, "iterations": 100, "wall_s": 19.79, "s_per_iter": 0.198},
+      {"config": "warm IC (B2 field), run_model, to tol 1e-6", "ranks": 1, "iterations": 1223, "wall_s": 234.97, "s_per_iter": 0.192},
+      {"config": "warm IC + patchV-perturbed inlet", "ranks": 4, "iterations": 500, "wall_s": 21.06, "s_per_iter": 0.042},
+      {"config": "warm IC + patchV-perturbed inlet, to tol 1e-6", "ranks": 4, "iterations": 1580, "wall_s_approx": 104, "s_per_iter_approx": 0.066}
+    ]
+  },
+  "stage3_timed_adjoint_pilot": {
+    "status": "blocked",
+    "design_variable_substitution": {
+      "actual_paper_dv": "spatially-varying beta(x) field multiplying SST omega destruction term, via a custom OpenFOAM turbulence library not distributed in the public benchmark clone (documented in B2)",
+      "pilot_substitute": "inlet patchVelocity (magnitude+angle)",
+      "justification": "adjoint linear-solve cost is dominated by one transpose solve of the residual Jacobian (sized by full state vector), structurally independent of which design variable's sensitivity is requested",
+      "disclosed_side_effect": "overwrites CBFS's real nonuniform inlet profile with a uniform one, for this pilot only; stage 2's reproduction check used a separate script with no design variable and real BCs untouched"
+    },
+    "objective_function": {
+      "type": "DAFoam native DAFunctionVariance (mode=field, source=allCells)",
+      "reference_field": "0/UData, written from CBFS's own macro-resolved LES U_LES field (stage 1 output)",
+      "leakage_status": "none -- CBFS is the paper's training case, not a scored test case"
+    },
+    "second_silent_failure_found": {
+      "bug": "DAFunctionVariance hardcodes reading reference data from literal folder '0' regardless of the case's actual startFrom/startTime. With startFrom=latestTime and stray intermediate time dirs on disk, DAFoam's parallel auto-decomposition (-np 4) only decomposed the run's actual start time, never '0', so processorN/0/UData did not exist.",
+      "symptom": "DAFunctionVariance printed a WARNING and silently used isRefData_=0, giving functionValue=0.0 exactly and an all-zero adjoint RHS; GMRES 'converged' in 0 iterations with a fake zero residual",
+      "caught_by": "checking the printed objective value ([0.]) and grepping the WARNING rather than trusting the reported success",
+      "fix": "forced startFrom=startTime, startTime=0; cleared all stray intermediate time directories so decomposition always covers '0'"
+    },
+    "blocker": {
+      "symptom": "PETSc KSPConvergedReason = -9 (DIVERGED_NANORINF) at GMRES iteration 0, nonzero initial residual (~7.1e-4) but zero actual iterations completed",
+      "reproduced_across": [
+        {"variant": "pilot run 5", "primalMinResTol": 1e-4, "objective": "variance (CBFS LES)", "pcFillLevel": 1, "result": "diverged reason -9"},
+        {"variant": "pilot run 6", "primalMinResTol": 1e-6, "objective": "variance (CBFS LES)", "pcFillLevel": 1, "result": "diverged reason -9, residual 7.0916e-4 (nearly identical to run 5's 7.099e-4)"},
+        {"variant": "diagnostic 1", "primalMinResTol": 1e-6, "objective": "force (CD), standard type proven in naca0012 case", "pcFillLevel": 1, "result": "diverged reason -9"},
+        {"variant": "diagnostic 2", "primalMinResTol": 1e-6, "objective": "force (CD)", "pcFillLevel": 4, "result": "diverged reason -9"}
+      ],
+      "ruled_out": ["primal under-convergence (tightened 100x, no change)", "custom objective function specifics (standard force objective fails identically)", "shallow ILU fill level (fill level 4 fails identically)", "mesh quality (DACheckMesh: max aspect ratio 14.76, max non-orth 33.3deg, max skewness 0.26, all well within thresholds and reported OK)"],
+      "root_cause_resolved": false,
+      "status": "open blocker, not routed around"
+    },
+    "measured_cost_components_4ranks": {
+      "primal_resolve_warm_start_patchV_perturbed_to_tol_1e6": {"iterations": 1580, "wall_s_approx": 104},
+      "adjoint_coloring_onetime_cached": {"wall_s": 25.4, "note": "measured once before the reference-data bug was found; cached to dRdWColoring_4.bin afterward"},
+      "drdwtpc_jacobian_partial_derivative_matrix_construction": {"wall_s": 13.1, "note": "recurs per adjoint call; same run as coloring measurement"},
+      "gmres_linear_solve_itself": {"measured": false, "reason": "solver never completes a single iteration due to the DIVERGED_NANORINF blocker; this is the dominant, iteration-count-scaling cost B1 flagged as the key unknown"}
+    },
+    "implied_total_inversion_cost": "cannot be honestly estimated -- B1's 140-420 core-minute range assumed the GMRES solve executes; with zero measured GMRES iterations, extrapolation would be fabricated. Fixed per-call overhead alone (~13-38s per call at 4 ranks, before any GMRES iteration) is consistent with, but does not confirm, B1's lower bound."
+  },
+  "stage4_full_inversion": {
+    "status": "did_not_run",
+    "reason": "correctly gated by stage 3's unresolved adjoint blocker, per docket instruction"
+  },
+  "memory": {
+    "container_memory_cap_gb": 6,
+    "oom_kills_observed": false,
+    "docker_exit_codes_seen": [0, 1, 2, 59],
+    "peak_rss_measurement_attempted": true,
+    "peak_rss_measurement_succeeded": false,
+    "peak_rss_measurement_bug": "docker-stats-based sampler had a race condition (checked container-running state before docker run had finished creating the named container), captured zero data points across 6 attempts",
+    "memavailable_gb_range_observed": [12.3, 20.6],
+    "concurrent_load": "2-3 other DAFoam agents + mega-batch process running throughout"
+  },
+  "leakage_statement": {
+    "ground_truth_read": [
+      {"file": "duct_baseline/CBFS/0/{U_LES,k_LES,tauij_LES,p_LES}", "case": "CBFS", "is_test_case": false, "reason": "CBFS is the paper's field-inversion training case, explicitly not one of the 8 scored closure-challenge test cases", "used_for": "stage 1 macro-reader verification; writing 0/UData as the stage 3 adjoint pilot's reference field"},
+      {"file": "duct_baseline/CBFS/30000/{U,p,k,omega,nut,phi}", "case": "CBFS", "is_test_case": false, "note": "our own B2-produced converged plain-OpenFOAM baseline, not LES ground truth; used to warm-start the DAFoam primal (stage 2) and as the stage-2 comparison target"}
+    ],
+    "ground_truth_not_read": ["AR_1_Ret_360 (test case)", "AR_3_Ret_360 (test case)"],
+    "compliant": true,
+    "note": "No duct compute was run this rung at all -- stage 4, the first point at which duct data could legitimately enter for final forward scoring only, did not run."
+  },
+  "commit": "local only, not pushed"
+}
