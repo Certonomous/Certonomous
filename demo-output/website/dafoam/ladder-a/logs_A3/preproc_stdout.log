@@ -1,0 +1,63 @@
+Generating mesh..
+Downloading surface mesh m6_surfaceMesh_fine.cgns.tar.gz
+--2026-07-28 00:30:05--  https://github.com/dafoam/files/releases/download/v1.0.0/m6_surfaceMesh_fine.cgns.tar.gz
+Resolving github.com (github.com)... 140.82.114.4
+Connecting to github.com (github.com)|140.82.114.4|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://release-assets.githubusercontent.com/github-production-release-asset/280272296/9f99d400-c793-11ea-8e8a-a748e7fbcbce?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-07-28T01%3A20%3A21Z&rscd=attachment%3B+filename%3Dm6_surfaceMesh_fine.cgns.tar.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-07-28T00%3A19%3A36Z&ske=2026-07-28T01%3A20%3A21Z&sks=b&skv=2018-11-09&sig=9DkpjtSK4ihFWOlqcs28SlpTwLrt8cg4wtMFBOUrPEE%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc4NTE5ODkwNiwibmJmIjoxNzg1MTk4NjA2LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.-Qpl12oAqp-XKc5DzdEf3mbhcJAwtUG-51NwFb-PaaU&response-content-disposition=attachment%3B%20filename%3Dm6_surfaceMesh_fine.cgns.tar.gz&response-content-type=application%2Foctet-stream [following]
+--2026-07-28 00:30:06--  https://release-assets.githubusercontent.com/github-production-release-asset/280272296/9f99d400-c793-11ea-8e8a-a748e7fbcbce?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-07-28T01%3A20%3A21Z&rscd=attachment%3B+filename%3Dm6_surfaceMesh_fine.cgns.tar.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-07-28T00%3A19%3A36Z&ske=2026-07-28T01%3A20%3A21Z&sks=b&skv=2018-11-09&sig=9DkpjtSK4ihFWOlqcs28SlpTwLrt8cg4wtMFBOUrPEE%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc4NTE5ODkwNiwibmJmIjoxNzg1MTk4NjA2LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.-Qpl12oAqp-XKc5DzdEf3mbhcJAwtUG-51NwFb-PaaU&response-content-disposition=attachment%3B%20filename%3Dm6_surfaceMesh_fine.cgns.tar.gz&response-content-type=application%2Foctet-stream
+Resolving release-assets.githubusercontent.com (release-assets.githubusercontent.com)... 185.199.110.133, 185.199.108.133, 185.199.109.133, ...
+Connecting to release-assets.githubusercontent.com (release-assets.githubusercontent.com)|185.199.110.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2214383 (2.1M) [application/octet-stream]
+Saving to: 'm6_surfaceMesh_fine.cgns.tar.gz'
+
+     0K .......... .......... .......... .......... ..........  2% 14.9M 0s
+    50K .......... .......... .......... .......... ..........  4% 97.3M 0s
+   100K .......... .......... .......... .......... ..........  6% 58.0M 0s
+   150K .......... .......... .......... .......... ..........  9% 41.1M 0s
+   200K .......... .......... .......... .......... .......... 11%  133M 0s
+   250K .......... .......... .......... .......... .......... 13% 58.7M 0s
+   300K .......... .......... .......... .......... .......... 16% 78.7M 0s
+   350K .......... .......... .......... .......... .......... 18% 70.6M 0s
+   400K .......... .......... .......... .......... .......... 20%  361M 0s
+   450K .......... .......... .......... .......... .......... 23%  119M 0s
+   500K .......... .......... .......... .......... .......... 25%  391M 0s
+   550K .......... .......... .......... .......... .......... 27% 64.8M 0s
+   600K .......... .......... .......... .......... .......... 30%  101M 0s
+   650K .......... .......... .......... .......... .......... 32%  405M 0s
+   700K .......... .......... .......... .......... .......... 34% 99.2M 0s
+   750K .......... .......... .......... .......... .......... 36%  385M 0s
+   800K .......... .......... .......... .......... .......... 39%  401M 0s
+   850K .......... .......... .......... .......... .......... 41%  215M 0s
+   900K .......... .......... .......... .......... .......... 43%  394M 0s
+   950K .......... .......... .......... .......... .......... 46% 80.0M 0s
+  1000K .......... .......... .......... .......... .......... 48%  282M 0s
+  1050K .......... .......... .......... .......... .......... 50%  405M 0s
+  1100K .......... .......... .......... .......... .......... 53%  199M 0s
+  1150K .......... .......... .......... .......... .......... 55%  405M 0s
+  1200K .......... .......... .......... .......... .......... 57%  106M 0s
+  1250K .......... .......... .......... .......... .......... 60%  316M 0s
+  1300K .......... .......... .......... .......... .......... 62%  386M 0s
+  1350K .......... .......... .......... .......... .......... 64%  388M 0s
+  1400K .......... .......... .......... .......... .......... 67%  392M 0s
+  1450K .......... .......... .......... .......... .......... 69%  239M 0s
+  1500K .......... .......... .......... .......... .......... 71%  382M 0s
+  1550K .......... .......... .......... .......... .......... 73%  299M 0s
+  1600K .......... .......... .......... .......... .......... 76%  388M 0s
+  1650K .......... .......... .......... .......... .......... 78%  375M 0s
+  1700K .......... .......... .......... .......... .......... 80%  384M 0s
+  1750K .......... .......... .......... .......... .......... 83% 97.9M 0s
+  1800K .......... .......... .......... .......... .......... 85%  381M 0s
+  1850K .......... .......... .......... .......... .......... 87%  384M 0s
+  1900K .......... .......... .......... .......... .......... 90%  184M 0s
+  1950K .......... .......... .......... .......... .......... 92%  286M 0s
+  2000K .......... .......... .......... .......... .......... 94%  347M 0s
+  2050K .......... .......... .......... .......... .......... 97%  423M 0s
+  2100K .......... .......... .......... .......... .......... 99%  342M 0s
+  2150K .......... ..                                         100%  307M=0.02s
+
+2026-07-28 00:30:06 (130 MB/s) - 'm6_surfaceMesh_fine.cgns.tar.gz' saved [2214383/2214383]
+
+m6_surfaceMesh_fine.cgns
+Generating mesh.. Done!

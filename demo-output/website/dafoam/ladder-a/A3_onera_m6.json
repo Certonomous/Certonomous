@@ -1,0 +1,157 @@
+{
+  "case_name": "A3_onera_m6_transonic",
+  "tutorial_source": "DAFoam/tutorials Onera_M6_Wing (official; the only variant in the repo, transonic by construction: solverName=DARhoSimpleCFoam)",
+  "tutorial_source_commit": "d3b7e38b058aba2a98a74092e15c41ec455c570d",
+  "date_utc": "2026-07-28",
+  "solver": "DARhoSimpleCFoam",
+  "docker_image": "dafoam/opt-packages:latest",
+  "mpi_ranks_cap": 4,
+  "flow_condition_modification": {
+    "note": "Tutorial defaults U0=285.0 m/s, aoa0=2.75 deg were changed to U0=291.6 m/s, aoa0=3.06 deg to reproduce the standard NASA-TMR / AGARD AR-138 Case 2308 validation point (M=0.84 traditional / 0.8395 measured, alpha=3.06 deg) self-consistently with this case's own gas properties (T0=300K, molWeight=28.97, Cp=1005 -> gamma=1.39973, a_inf=347.16 m/s). Verified after the fact: M_inf computed from the actual solved state = 0.839968.",
+    "U0_tutorial_default": 285.0,
+    "U0_used": 291.6,
+    "aoa0_tutorial_default_deg": 2.75,
+    "aoa0_used_deg": 3.06,
+    "M_inf_computed": 0.839968,
+    "M_inf_target_traditional": 0.84,
+    "M_inf_experimental_measured": 0.8395,
+    "Re_root_chord_computed": "~1.5e7 (rho_inf=1.1768 kg/m3, U0=291.6, c_root=0.8059m, mu=1.8e-5)",
+    "Re_root_chord_experimental": 11.72e6,
+    "Re_mismatch_note": "Computed Re is ~28-31% above the experimental 11.72e6; this stems from the tutorial's molecular viscosity (mu=1.8e-5, standard air) not being re-tuned to match Re exactly. Not corrected, since doing so would require an unphysical viscosity change; flagged as a caveat for the Cp comparison, secondary to the well-matched Mach/AoA."
+  },
+  "config_hash_sha256": {
+    "pristine_tutorial": "0d125f04e6a78b5e33d0153fff255afee4813ec918c41d99cce2cbd606060921",
+    "primal_stage_fine_mesh": "862b39b4cc6a47a07a3693e8d92fca1a909d225f081aac41267a83b17d28c1ff",
+    "check_totals_stage_fine_mesh": "c388e6b22795b4ded85f2f8b47c06432218c0e4e02d822e8532234ad149fe976",
+    "check_totals_stage_coarse_and_vcoarse_mesh": "ca712b4b726c206163d804e7ebfe97c9ef4301a288293ca9649c6fea0852480a"
+  },
+  "config_hash_inputs": ["runScript.py", "system/fvSolution", "system/fvSchemes"],
+  "mesh": {
+    "fine_2x_coarsen_tutorial_default": {"cells": 399360, "surface_faces": 6240, "layers": 64, "used_for": "primal, Cp comparison"},
+    "coarse_3x_coarsen": {"cells": 99840, "used_for": "adjoint FD-check attempt, failed"},
+    "vcoarse_4x_coarsen": {"cells": 24960, "used_for": "adjoint FD-check attempt, failed with unrelated decompose/read crash"}
+  },
+  "stage_1_primal": {
+    "work_dir": "/home/ubuntu/certonomous-runs/A3-onera-m6-transonic",
+    "primalMinResTol": 1.0e-8,
+    "primalMinResTolDiff": 100,
+    "time_box_minutes": 60,
+    "runs": [
+      {
+        "name": "run_model_run1", "endTime": 1000, "startFrom": "startTime", "ranks": 4,
+        "wall_time_s_approx": 193, "core_minutes_approx": 12.9,
+        "result": "FAILED -- AnalysisError('Primal solution failed!'); DAFoam's own primalMaxRes/primalMinResTol > primalMinResTolDiff(100) gate not satisfied at endTime=1000",
+        "log": "logs_A3/run_model_run1.log"
+      },
+      {
+        "name": "run_model_run2", "endTime": 3000, "startFrom": "latestTime (continued from run1's t=1000 state)", "ranks": 4,
+        "wall_time_s_approx": 475, "core_minutes_approx": 31.7,
+        "result": "PASSED the relaxed primalMinResTolDiff=100 gate (no AnalysisError); CD=0.02299556, CL=0.31311590 at t=3000",
+        "log": "logs_A3/run_model_run2.log"
+      },
+      {
+        "name": "run_model_run3", "endTime": 6000, "startFrom": "latestTime (continued from run2's t=3000 state)", "ranks": 4,
+        "wall_time_s": 1244.2, "core_minutes": 82.9,
+        "result": "ACCEPTED. CD=0.0229955633492643, CL=0.3131158872361974 at t=6000",
+        "log": "logs_A3/run_model_run3.log"
+      }
+    ],
+    "accepted_result": {
+      "CD": 0.0229955633492643,
+      "CL": 0.3131158872361974,
+      "note_on_convergence": "DAFoam never printed the strict 'Minimal residual X satisfied the prescribed tolerance 1e-08' message (that requires primalMaxRes < 1.0e-8 exactly); it also never raised AnalysisError (which requires primalMaxRes / 1e-8 > 100, i.e. primalMaxRes > 1e-6). So the accepted state satisfies 1e-8 <= primalMaxRes <= 1e-6 by construction, though the exact value is not printed in this code path (only printed on the exact-satisfied or the failure branch, neither of which fired). Per-field OpenFOAM linear-solve residuals plateaued at finalRes ~1e-8 to 4e-8 (U0,U1,U2,he,p,nuTilda) from t~1500 through t=6000 without further improvement -- CD and CL are bit-stable to 6 significant figures over the final 3000 iterations. This is the classic residual floor of a shock-containing transonic steady-RANS SIMPLE solution (shock cells are non-smooth and never drive the discrete residual to machine zero); it is not a sign of non-convergence in the practical sense used by this framework.",
+      "yPlus_range": "5.2 to 103.5, mean ~33.8 (wall functions, useWallFunction=True)"
+    },
+    "total_wall_time_s_approx": 1912.2,
+    "total_core_minutes_approx": 127.5,
+    "time_box_status": "Each individual attempt's own compute time was well under the 60-min box (max single run 1244s = 20.7 min); across the 3 attempts needed to reach an accepted state, total container wall-time was ~31.9 min, still inside the 60-min primal time-box."
+  },
+  "stage_2_cp_comparison": {
+    "reference_source": {
+      "citation": "Schmitt, V. and Charpin, F., 'Pressure Distributions on the ONERA-M6-Wing at Transonic Mach Numbers,' AGARD Advisory Report AR-138, May 1979.",
+      "secondary_citable_source": "Destarac, D. and Dumont, A., 'ONERA M6 Wing Test-Case, Original and TMR', NASA Turbulence Modeling Resource, https://tmbwg.github.io/turbmodels/onerawingnumerics_val.html (mirror of the former turbmodels.larc.nasa.gov page), data file case_2308.dat (fetched and archived verbatim as logs_A3/case_2308.dat), PDF ONERA_M6_Test_Case_TMR.pdf",
+      "test_case": "Case 2308 (a.k.a. Run 308): M_inf=0.8395 (measured) / 0.84 (traditional, per Destarac&Dumont), alpha=3.06 deg, Re_c=11.72e6",
+      "eta_station_to_section_mapping": {"1": 0.20, "2": 0.44, "3": 0.65, "4": 0.80, "5": 0.90, "6": 0.96, "7": 0.99},
+      "eta_mapping_source": "Table 3, Destarac & Dumont NASA TMR PDF"
+    },
+    "cfd_extraction_method": "foamToVTK -patches (wing) -latestTime -parallel (writes wing.vtp with cell-data p), cell-data-to-point-data averaging, vtkCutter at z=eta*b_semi (exact geometric cut, not a nearest-face band), c_root=0.8059m, b_semi=1.1963m (Destarac&Dumont). Cp = (p - p0) / (0.5*rho_inf*U0^2), freestream state from this case's own thermophysicalProperties + BCs, not re-derived from the solution.",
+    "upper_lower_split_method": "sign of local thickness coordinate (y in CFD frame, Z/L in AGARD frame) at each x/c",
+    "comparison_method": "both curves linearly interpolated onto common x/c query grid (0.05 to 0.95, step 0.05); pointwise deviation = CFD - EXP",
+    "results_by_station": [
+      {"eta": 0.20, "surface": "upper", "n_common": 19, "rms_dev": 0.0741, "max_dev": 0.1772, "mean_bias": -0.0274},
+      {"eta": 0.20, "surface": "lower", "n_common": 19, "rms_dev": 0.0196, "max_dev": 0.0417, "mean_bias": 0.0066},
+      {"eta": 0.44, "surface": "upper", "n_common": 19, "rms_dev": 0.0662, "max_dev": 0.1702, "mean_bias": -0.0152},
+      {"eta": 0.44, "surface": "lower", "n_common": 18, "rms_dev": 0.0128, "max_dev": 0.0229, "mean_bias": -0.0031},
+      {"eta": 0.65, "surface": "upper", "n_common": 19, "rms_dev": 0.0814, "max_dev": 0.2563, "mean_bias": -0.0008},
+      {"eta": 0.65, "surface": "lower", "n_common": 18, "rms_dev": 0.0153, "max_dev": 0.0353, "mean_bias": -0.0100},
+      {"eta": 0.80, "surface": "upper", "n_common": 19, "rms_dev": 0.0799, "max_dev": 0.2745, "mean_bias": -0.0064},
+      {"eta": 0.80, "surface": "lower", "n_common": 18, "rms_dev": 0.0165, "max_dev": 0.0288, "mean_bias": -0.0107},
+      {"eta": 0.90, "surface": "upper", "n_common": 19, "rms_dev": 0.0704, "max_dev": 0.2680, "mean_bias": 0.0053},
+      {"eta": 0.90, "surface": "lower", "n_common": 18, "rms_dev": 0.0265, "max_dev": 0.0762, "mean_bias": -0.0006},
+      {"eta": 0.96, "surface": "upper", "n_common": 19, "rms_dev": 0.0491, "max_dev": 0.1532, "mean_bias": 0.0035},
+      {"eta": 0.96, "surface": "lower", "n_common": 18, "rms_dev": 0.0129, "max_dev": 0.0226, "mean_bias": -0.0044},
+      {"eta": 0.99, "surface": "upper", "n_common": 19, "rms_dev": 0.1139, "max_dev": 0.2451, "mean_bias": 0.0652},
+      {"eta": 0.99, "surface": "lower", "n_common": 18, "rms_dev": 0.0149, "max_dev": 0.0370, "mean_bias": -0.0035}
+    ],
+    "shock_location_analysis": {
+      "method": "x/c of steepest positive dCp/d(x/c) on the upper (suction) surface within x/c in [0.15, 0.85], native point spacing (no interpolation smoothing)",
+      "results": [
+        {"eta": 0.20, "cfd_xoc": 0.6717, "cfd_slope": 4.78, "exp_xoc": 0.5753, "exp_slope": 3.65, "shift_xoc": 0.0964},
+        {"eta": 0.44, "cfd_xoc": 0.5987, "cfd_slope": 5.03, "exp_xoc": 0.5243, "exp_slope": 6.54, "shift_xoc": 0.0744},
+        {"eta": 0.65, "cfd_xoc": 0.5206, "cfd_slope": 4.97, "exp_xoc": 0.4752, "exp_slope": 8.44, "shift_xoc": 0.0454},
+        {"eta": 0.80, "cfd_xoc": 0.3735, "cfd_slope": 4.70, "exp_xoc": 0.3750, "exp_slope": 7.53, "shift_xoc": -0.0015},
+        {"eta": 0.90, "cfd_xoc": 0.3059, "cfd_slope": 9.49, "exp_xoc": 0.2798, "exp_slope": 15.91, "shift_xoc": 0.0262},
+        {"eta": 0.96, "cfd_xoc": 0.2417, "cfd_slope": 9.89, "exp_xoc": 0.2000, "exp_slope": 14.39, "shift_xoc": 0.0416},
+        {"eta": 0.99, "cfd_xoc": 0.2220, "cfd_slope": 6.70, "exp_xoc": 0.1999, "exp_slope": 13.51, "shift_xoc": 0.0221}
+      ]
+    },
+    "cause_of_deviation": "Consistent, physically coherent signature across all 7 stations: (1) pressure/lower surface agrees tightly (RMS 0.013-0.027, max 0.023-0.076 Cp), consistent with a smooth, shock-free, attached boundary layer there; (2) suction/upper surface, which carries the shock, shows much larger deviation (RMS 0.049-0.114, max 0.15-0.27 Cp); (3) at every station but one (eta=0.80, -0.0015, essentially exact) the CFD shock sits AFT of the experimental shock by 0.02-0.10 x/c; (4) the CFD shock's Cp gradient (slope) is consistently shallower than the experiment's, especially outboard (eta=0.90-0.99: CFD slope ~7-10 vs experimental ~14-16). This pattern -- smeared, aft-shifted shock, correct pressure surface -- is the textbook signature of shock-capturing numerical/mesh diffusion on a coarse mesh with an upwind-biased scheme (div(phi,U) is Gauss linearUpwindV, div(phid,p) is Gauss limitedLinear 1.0) rather than a gross solver error. Contributing factors, in decreasing likely importance: (a) mesh resolution -- 399,360 cells for a full 3D transonic wing is modest for shock-resolving CFD (published M6 validation studies typically use 2-6M+ cells); (b) wall-function RANS (yPlus 5-103, mean 33.8) rather than a resolved near-wall layer; (c) the Re mismatch noted above (~1.5e7 vs 11.72e6 experimental, ~28% high) can thicken/thin the boundary layer and shift shock-induced separation onset slightly; (d) the primal's residual floor (see stage_1_primal note) means the shock position itself may carry a small amount of unconverged jitter, though CD/CL stability to 6 digits argues this is a minor contributor. The eta=0.99 upper-surface station (largest RMS=0.114, largest bias=+0.065) is additionally affected by 3D wingtip-vortex/tip-cap interaction, which a mesh this coarse is unlikely to resolve well."
+  },
+  "stage_3_adjoint_fd_check": {
+    "status": "BLOCKED -- no FD-verified gradient obtained. Documented per the task's own hard rule that a documented blocker is a valid result.",
+    "requested_gradient": "of=scenario1.aero_post.CD, wrt=patchV (U0, AoA) -- restricted from the full DV set (twist + ~100+ FFD shape points + patchV) to keep the run tractable; this restriction is disclosed in runScript.py and did not, by itself, fix the blocker (see root cause below).",
+    "attempts": [
+      {
+        "mesh": "fine, 399360 cells", "container_memory_cap": "12g", "ranks": 4,
+        "outcome": "OOM (signal 9) during 'Calculating [state] Coloring..' / early adjoint total-derivative computation, ~150-160s of adjoint compute after a ~130s primal.",
+        "log": "logs_A3/check_totals_fine_12g_run1.log"
+      },
+      {
+        "mesh": "fine, 399360 cells", "container_memory_cap": "18g", "ranks": 4,
+        "outcome": "OOM (signal 9) at the exact same step ('Checking if Coloring file exists..'). This attempt was first cut short by an external clean host reboot at 01:42:43 UTC (unrelated to this job -- confirmed by the coordinator); retried after reboot with identical config and failed again at the identical step, ruling out the reboot as the cause.",
+        "log": "logs_A3/check_totals_fine_18g_run4.log"
+      },
+      {
+        "mesh": "fine, 399360 cells", "container_memory_cap": "18g", "ranks": 2,
+        "outcome": "Did not OOM inside the container cap, but drove host MemAvailable down to 1.77 GB (below the 6 GB safety floor) at the same step; killed manually to protect other agents sharing the host, per the explicit memory-safety instruction.",
+        "log": "not saved (killed pre-completion by operator action)"
+      },
+      {
+        "mesh": "coarse, 99840 cells (one extra cgns_utils coarsen pass)", "container_memory_cap": "8g", "ranks": 4,
+        "config": "adjEqnOption default (pcFillLevel=1, gmresRestart=1000, implicit)",
+        "outcome": "Coloring step SUCCEEDED this time (1391 colors, ~1087s, cached to dRdWColoring_4.bin) -- confirms coloring memory scales with mesh size and the coarser mesh made that specific step fit. Jacobian assembly (dRdWTPC) then completed. OOM (signal 9) during 'Solving Linear Equation...' (GMRES with default 1000-vector restart).",
+        "log": "logs_A3/check_totals_coarse_run1_default.log"
+      },
+      {
+        "mesh": "coarse, 99840 cells", "container_memory_cap": "8g", "ranks": 4,
+        "config": "gmresRestart reduced 1000 -> 200 (coloring cache reused)",
+        "outcome": "OOM (signal 9) at the SAME point in the GMRES solve as the default-restart attempt -- disproves the hypothesis that Krylov-subspace size was the dominant memory cost.",
+        "log": "logs_A3/check_totals_coarse_run2_gmresRestart200.log"
+      },
+      {
+        "mesh": "coarse, 99840 cells", "container_memory_cap": "8g", "ranks": 4,
+        "config": "pcFillLevel reduced 1 -> 0 (ILU(0) instead of ILU(1)), gmresRestart=200 (coloring cache reused)",
+        "outcome": "GMRES got past the previous failure point and reported 'Completed! Total iterations: 200. PetscConvergedReason: -5' (PETSc reason -5 = KSP_DIVERGED_BREAKDOWN, a NEGATIVE/failure code despite the script printing 'Residual tolerance satisfied' -- this is not a trustworthy converged adjoint solve, just a GMRES breakdown that happened to exit the loop). Immediately afterward, OOM (signal 9) during the next step, 'Computing d[aero_residuals]/d[aero_vol_coords]^T * psi' -- the mesh-sized residual-vs-mesh-coordinate sensitivity matrix required by the mphys/DAFoam coupling group's reverse-mode sweep, structurally computed regardless of the wrt=patchV restriction.",
+        "log": "logs_A3/check_totals_coarse_run3_pcFillLevel0.log"
+      },
+      {
+        "mesh": "vcoarse, 24960 cells (two extra coarsen passes)", "container_memory_cap": "8g", "ranks": 4,
+        "outcome": "New, unrelated failure mode (reproduced twice, identically): SEGV / 'cannot open file, unexpected class name, expected volScalarField' during/after decomposePar, before any adjoint computation starts. Not a memory issue (host MemAvailable ~20GB throughout both attempts). Root cause not diagnosed given time constraints; possibly a race condition in DAFoam's internal decomposePar invocation at this very small partition size (6240 cells/rank), or a field-file read/write collision. Two independent attempts, identical failure, both times.",
+        "log": "logs_A3/check_totals_vcoarse_run1.log"
+      }
+    ],
+    "root_cause_assessment": "The dominant, reproducible blocker is memory demand in the adjoint total-derivative computation for the compressible (DARhoSimpleCFoam, 6 coupled fields/cell) mphys/DAFoam coupling group, which -- because OpenMDAO's reverse-mode total-derivative sweep for a given 'of' (here CD) structurally touches every upstream input in the model graph, including 'aero_vol_coords' (mesh coordinates) -- requires computing/storing mesh-sized Jacobian pieces (d[state_residuals]/d[vol_coords], d[state_residuals]/d[state]) regardless of which 'wrt' variable is ultimately requested. This was confirmed by: (a) the memory wall reproducing at the identical step across 12g/18g caps and across 2 vs 4 ranks on the fine mesh; (b) a 4x cell-count reduction (399k -> 99.8k) moving the failure point further into the pipeline (past coloring, past Jacobian assembly, past a nominal GMRES pass) but not eliminating it; (c) neither GMRES restart size nor ILU fill level -- both genuine, disclosed mitigation attempts -- fixed it, because the failure recurred one step later in the pipeline each time rather than being GMRES/ILU-specific.",
+    "recommendation_for_next_session": "Either (a) dedicate a host/container with materially more free RAM (tens of GB) to just this job with nothing else running concurrently, or (b) profile DAJacCon/DASolver's peak RSS on a small case to get a real per-DOF memory scaling number before picking a mesh size, or (c) investigate whether DAFoam exposes a genuinely matrix-free adjoint path (avoiding the coloring/explicit-Jacobian machinery in DAJacCon.C entirely) for compressible solvers -- adjUseColoring=False was found in pyDAFoam.py but trades the memory problem for an intractable runtime problem (finite-difference-per-state-DOF) and was not attempted for that reason."
+  },
+  "lesson": "For a 3D compressible (6-field) DAFoam adjoint on a mesh in the 1e5-1e6 cell range, budget host memory empirically before scheduling the FD-verification stage -- the adjoint's peak memory is NOT simply proportional to mesh size in an easily-predictable way (a 4x cell reduction did not yield a 4x memory reduction; it only moved the failure one pipeline stage later), and it is dominated by a structural byproduct of the reverse-mode total-derivative sweep (mesh-sized d[residuals]/d[vol_coords]) that persists even when the requested wrt= is a small, unrelated scalar/vector like patchV. A documented, well-diagnosed OOM blocker across multiple independently-reasoned mitigation attempts (rank count, memory cap, mesh coarsening, GMRES restart size, ILU fill level) is more informative and more honest than papering over it with an uncontrolled memory-cap escalation."
+}
