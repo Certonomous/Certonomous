@@ -1,0 +1,202 @@
+{
+  "case_name": "ladder-a1-naca0012",
+  "tutorial_source": "DAFoam/tutorials NACA0012_Airfoil/incompressible (official, unmodified)",
+  "date_utc": "2026-07-28",
+  "solver": "DASimpleFoam",
+  "docker_image": "dafoam/opt-packages:latest",
+  "mpi_ranks": 2,
+  "mesh_cells": 4032,
+  "config_hash_sha256": "05ed038bea199592dd613d3d4d11c063296351609af3f7b70847cb35557d790e",
+  "config_hash_inputs": [
+    "runScript.py",
+    "system/fvSolution",
+    "system/fvSchemes",
+    "constant/transportProperties"
+  ],
+  "flow_conditions": {
+    "U0_m_s": 10.0,
+    "p0": 0.0,
+    "nuTilda0": 4.5e-5,
+    "aoa0_deg": 5.13918623195176,
+    "CL_target": 0.5,
+    "rho0": 1.0,
+    "A0": 0.1
+  },
+  "stages": [
+    {
+      "name": "mesh_preprocessing",
+      "command": "preProcessing.sh (pyHyp + plot3dToFoam + autoPatch + createPatch + renumberMesh)",
+      "ranks": 1,
+      "wall_time_s": 5,
+      "core_minutes": 0.08,
+      "start_utc": "2026-07-28T00:16:55Z",
+      "end_utc": "2026-07-28T00:17:00Z",
+      "result": "ok",
+      "measured": {
+        "nPoints": 8316,
+        "nCells": 4032,
+        "nFaces": 16254,
+        "nInternalFaces": 7938
+      }
+    },
+    {
+      "name": "compute_totals",
+      "command": "mpirun --allow-run-as-root -np 2 python runScript.py -task compute_totals",
+      "ranks": 2,
+      "wall_time_s": 39,
+      "core_minutes": 1.30,
+      "start_utc": "2026-07-28T00:18:15Z",
+      "end_utc": "2026-07-28T00:18:54Z",
+      "result": "ok",
+      "log_file": "compute_totals_run1.log"
+    },
+    {
+      "name": "check_totals_attempt_1",
+      "command": "mpirun --allow-run-as-root -np 2 python runScript.py -task check_totals",
+      "ranks": 2,
+      "wall_time_s": 10,
+      "core_minutes": 0.33,
+      "start_utc": "2026-07-28T00:19:10Z",
+      "end_utc": "2026-07-28T00:19:20Z",
+      "result": "failed",
+      "log_file": "check_totals_run1.log",
+      "blocker": {
+        "error": "dafoam.pyDAFoam.Error: /home/dafoamuser/mount/ladder-a1-naca0012/processor0/0.0001 already exists, moving failed!",
+        "cause": "processor0/ and processor1/ still held intermediate (0.0001) and converged (384) timestep dirs from the preceding compute_totals run; check_totals's fresh primal tried to checkpoint into 0.0001 and DAFoam's move logic errored on the pre-existing directory instead of overwriting.",
+        "fix": "sudo rm -rf processor0 processor1 (root-owned from container writes), then rerun; DAFoam auto-redecomposes from 0/ + constant/polyMesh/ at MPI startup."
+      }
+    },
+    {
+      "name": "check_totals_attempt_2",
+      "command": "mpirun --allow-run-as-root -np 2 python runScript.py -task check_totals",
+      "ranks": 2,
+      "wall_time_s": 54,
+      "core_minutes": 1.80,
+      "start_utc": "2026-07-28T00:20:00Z",
+      "end_utc": "2026-07-28T00:20:54Z",
+      "result": "ok",
+      "log_file": "check_totals_run2.log",
+      "accepted": true,
+      "primal_solves_converged": 21,
+      "tracebacks": 0
+    }
+  ],
+  "totals": {
+    "wall_time_s": 108,
+    "wall_time_min": 1.8,
+    "core_minutes": 3.51
+  },
+  "primal_convergence": {
+    "final_time_iter": 435,
+    "residual_achieved": 9.646409714038222e-09,
+    "residual_tolerance": 1.0e-08,
+    "CD": 0.0209105098587985,
+    "CL": 0.4987652667308054,
+    "residual_norms": {
+      "U": [0.0002105327983258587, 0.0002330165586608974, 1.110205286501277e-12],
+      "p": 7.141263244826142e-05,
+      "nuTilda": 8.982893799957654e-08,
+      "phi": 3.229452109274434e-07,
+      "total": 0.0003220569083518035
+    },
+    "reproducibility_check": {
+      "description": "check_totals run2 baseline primal, fresh cold start, same case",
+      "CD": 0.0209105098587985,
+      "note": "bit-identical to compute_totals run, 16 significant digits"
+    }
+  },
+  "adjoint": {
+    "CD_gmres_iterations": 164,
+    "CL_gmres_iterations": 165,
+    "petsc_converged_reason": 2
+  },
+  "result_vs_reference": {
+    "reference": "CL_target = 0.5 (tutorial's documented lift constraint)",
+    "measured_CL": 0.4987652667308054,
+    "deviation_pct": 0.247,
+    "stated_cause": "AoA held fixed at the tutorial's shipped aoa0 (run_model/compute_totals/check_totals path used here, not run_driver's findFeasibleDesign CL solve); a small, expected deviation, not an error."
+  },
+  "fd_verification_table": {
+    "step": 0.001,
+    "form": "central",
+    "step_calc": "abs",
+    "rows": [
+      {
+        "derivative": "CD wrt patchV (U0, AoA)",
+        "analytic": 4.601100e-03,
+        "fd": 4.611728e-03,
+        "abs_error": 1.068431e-05,
+        "rel_error": 2.316770e-03,
+        "rel_error_pct": 0.232
+      },
+      {
+        "derivative": "CD wrt shape (8 FFD vars)",
+        "analytic": 6.460294e-02,
+        "fd": 6.489575e-02,
+        "abs_error": 7.415918e-03,
+        "rel_error": 1.142743e-01,
+        "rel_error_pct": 11.43,
+        "magnitude_agreement_pct": 0.451,
+        "note": "11.43% is the (Jan-Jfd) vector norm relative to Jfd norm; the two vectors' own magnitudes (Jan=6.460294e-02, Jfd=6.489575e-02) agree to 0.451%. Disagreement is directional (per-component), not a scale/bias error."
+      },
+      {
+        "derivative": "CL wrt patchV (U0, AoA)",
+        "analytic": 1.345505e-01,
+        "fd": 1.342447e-01,
+        "abs_error": 3.108463e-04,
+        "rel_error": 2.315520e-03,
+        "rel_error_pct": 0.232
+      },
+      {
+        "derivative": "CL wrt shape (8 FFD vars)",
+        "analytic": 4.958230e+00,
+        "fd": 4.978006e+00,
+        "abs_error": 8.316740e-02,
+        "rel_error": 1.670697e-02,
+        "rel_error_pct": 1.67
+      },
+      {
+        "derivative": "geometry.volcon wrt shape",
+        "analytic": 5.225577e+00,
+        "fd": 5.225577e+00,
+        "abs_error": 2.281799e-13,
+        "rel_error": 4.366597e-14,
+        "rel_error_pct": 4.37e-12
+      },
+      {
+        "derivative": "geometry.thickcon wrt shape",
+        "analytic": 4.006319e+01,
+        "fd": 4.006319e+01,
+        "abs_error": 5.068010e-12,
+        "rel_error": 1.265004e-13,
+        "rel_error_pct": 1.27e-11
+      },
+      {
+        "derivative": "geometry.rcon wrt shape",
+        "analytic": 3.784176e+01,
+        "fd": 3.784176e+01,
+        "abs_error": 5.159691e-09,
+        "rel_error": 1.363491e-10,
+        "rel_error_pct": 1.36e-08
+      },
+      {
+        "derivative": "volcon/thickcon/rcon wrt patchV",
+        "analytic": 0.0,
+        "fd": 0.0,
+        "abs_error": 0.0,
+        "rel_error": null,
+        "note": "0/0, expected: pure geometric constraints do not depend on flow speed/AoA"
+      }
+    ]
+  },
+  "interpretation": [
+    "Geometric constraints (volcon/thickcon/rcon wrt shape) verify to 4.4e-14-1.4e-10 relative error, i.e. machine precision -- same FFD/DVGeo Jacobian chain as the CD/CL shape derivatives, proving the harness itself is sound.",
+    "Flow-parameter derivatives (wrt patchV) verify to 0.232% for both CD and CL -- tight, same order of magnitude as this lab's naca0015_sail coarse-case flow-parameter agreement (0.017%/0.032%).",
+    "CD wrt shape: 11.43% relative error on the difference-vector norm, but the two vectors' magnitudes agree to 0.451% -- the disagreement is directional (per-component), not a systematic scale error.",
+    "CL wrt shape: 1.67% relative error, within the 'few percent, not a failure' calibration range.",
+    "This is the official unmodified tutorial at default settings; ~11% FD-vs-adjoint disagreement on the shape gradient is what this problem class produces out of the box here -- recorded as a calibration data point for this installation/problem class, not a general law (n=1 case).",
+    "Prior-session investigation on this same case (PROOF.md, np=4) localized the disagreement to 3 of 8 shape components (idx0, idx1 near the leading edge, idx6 the LE combo mode) that survive 3.65x mesh refinement, and identified forceMeshWaveFrozen=True (frozen wall-distance in the adjoint) as a candidate (not proven) mechanism. This run's aggregate 11.43% figure is consistent with that prior, independently-run finding."
+  ],
+  "blocker_summary": "check_totals attempt 1 failed due to stale processorN/ state from the prior compute_totals run; fixed by removing processor0/1 and rerunning (attempt 2, accepted).",
+  "lesson": "Do not launch a task that reruns the primal from 0/ (e.g. check_totals) into a case directory still holding processorN/ state from a previous container invocation, even a successful one -- DAFoam's checkpoint-move logic errors on pre-existing timestep directories rather than overwriting them. rm -rf processor* (as sudo, container writes as root against the host bind mount) between independent task invocations on the same case dir; DAFoam redecomposes automatically from 0/ + constant/polyMesh/ at MPI startup."
+}
