@@ -49,7 +49,13 @@ while true; do
         if awk -v m="$mem" -v f="$RESTART_MEM_GB" 'BEGIN{exit !(m+0 >= f+0)}'; then
             echo "[keeper] $(date -u +%FT%TZ) batch down, MemAvailable ${mem}GB >= ${RESTART_MEM_GB}GB, restarting" >> "$KEEPLOG"
             cd "$REPO/sdk" || exit 1
-            setsid nohup python3 "$BATCH" --workers "$WORKERS" \
+            # -u is not cosmetic. Python block-buffers stdout when it is a file,
+            # so runner.log can lag minutes behind reality: on 2026-07-28 the
+            # batch had been running 35 minutes and appending to the ledger with
+            # NOTHING in runner.log, which reads exactly like a hung process.
+            # Unbuffered output makes the log an honest progress signal, which
+            # matters because the idle detector and the operator both read it.
+            setsid nohup python3 -u "$BATCH" --workers "$WORKERS" \
                 --min-free-disk-gb 20 --min-avail-mem-gb 2 \
                 >> "$LOG" 2>> "$ERR" < /dev/null &
             disown
