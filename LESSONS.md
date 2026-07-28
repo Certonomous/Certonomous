@@ -142,6 +142,61 @@ sleep 20; done` is more robust than any captured PID. Then confirm the expected
 output artifact exists before declaring success — a process exiting is not the
 same as a job succeeding.
 
+## L-7. "Converge harder" is not the default fix for gradient disagreement — first ask whether the plateau is a genuine fixed point
+
+**The rule.** When a finite-difference check disagrees with an adjoint on a case
+whose primal sits at a residual plateau, do **not** assume tightening the solve
+will fix it. Check cheaply first — re-run the primal at 5x or 10x the iteration
+count and compare residuals. If they are unchanged, the plateau is a genuine
+fixed point of the discrete iteration, more iterations and tighter tolerances
+cannot help, and the next lever is **mesh resolution or geometry smoothness**,
+not solver settings.
+
+**Why.** I formed this hypothesis as supervisor from two rungs: A1's primal
+converged to 9.6e-9 and its shape derivatives verified at 11.43% with no sign
+flips, while A5's primal plateaued at 2.3e-4 and its check gave 46.6% with 2
+sign flips. Five orders of magnitude apart in convergence, four times the error.
+I proposed that the adjoint, being exact only for the discrete converged state,
+was being linearised about a non-solution.
+
+**It was tested and refuted.** Adding `residualControl` at A1's 1e-8 bar,
+tightening solver tolerances by one to two orders of magnitude, and extending
+`endTime` from 1000 to 5000 to 10000 produced:
+
+| metric | before | after |
+| --- | --- | --- |
+| p initRes | 2.2576e-04 | 2.0568e-04 (9% better, still nowhere near 1e-8) |
+| total residual norm2 | 55.776 | 59.324 — **worse** |
+| FD aggregate error | 46.64% | **46.21% — no material change** |
+| components within 12% | 5 of 27 | 4 of 27 — slightly worse |
+| sign flips | 2 | 3 — slightly worse |
+
+Iterations 1000 through 10000 produced **bit-identical residuals**. This was
+never under-iteration; it is a true fixed point, plausibly the curved duct's
+secondary-flow structure, which a coarse steady solve cannot resolve away.
+
+**I also asserted a mechanism that was wrong.** I argued that temperature, at
+residual 41.16 of the 55.776 total, was polluting the state the adjoint
+linearises about. For this case `transportProperties` carries a constant
+viscosity with no temperature dependence and no buoyancy, and the objective is a
+pure function of pressure and velocity — so temperature's adjoint row is
+**analytically decoupled** from the rows the gradient depends on. It had no
+channel into the result, in exact arithmetic, and tightening its solve
+predictably did nothing.
+
+**How to apply.** Two supervisory habits, not one:
+1. Before prescribing "converge it properly", spend one cheap run establishing
+   whether convergence is even *available*. A plateau that survives a 10x
+   iteration increase is telling you something about the physics or the mesh.
+2. **A correlation across two rungs is a hypothesis, not a finding.** I stated
+   n=2 with more confidence than it earned, and attached a mechanism I had not
+   checked against the case's own transport properties. The correct framing
+   would have been "here is a candidate and here is the one-variable test",
+   which is what the test itself ended up being — the framing around it was
+   overconfident. Compare the discipline applied elsewhere the same night, where
+   an n=5 correlation of −0.94 and an n=4 AUC of 1.0 were both explicitly
+   labelled suggestive rather than established.
+
 ## L-4. Absence of an error message is not absence of the error
 
 **The rule.** When diagnosing a failure, establish whether the failure mode

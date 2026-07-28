@@ -59,11 +59,41 @@ and still solves temperature, which is excluded from both the objective and the
 adjoint yet remains in the primal state and far from converged. **The state the
 adjoint linearises about is polluted by a field the adjoint cannot see.**
 
-A one-variable test is running: converge A5's primal to A1's standard, change
-nothing else, and re-run the identical FD check. Confirmation would give the lab
-a hard precondition — **no FD verification is meaningful until the primal is
-converged** — which is worth more than the rung itself. Refutation points at
-coarse-mesh warp non-smoothness instead and is equally reportable.
+### The test ran. The hypothesis is **REFUTED**.
+
+| metric | before | after tightening |
+| --- | --- | --- |
+| p initRes | 2.2576e-04 | 2.0568e-04 (9% better, still far from 1e-8) |
+| total residual norm2 | 55.776 | 59.324 — **worse** |
+| FD aggregate error | 46.64% | **46.21% — no material change** |
+| components within 12% | 5 of 27 | 4 of 27 |
+| sign flips | 2 | 3 |
+
+`residualControl` at A1's 1e-8 bar, solver tolerances tightened one to two
+orders of magnitude, `endTime` extended 1000 → 5000 → 10000. **Iterations 1000
+through 10000 produced bit-identical residuals** — never under-iteration, but a
+true fixed point of the discrete iteration, plausibly the curved duct's
+secondary-flow structure which a coarse steady solve cannot resolve away. The
+tightened design point differs from the original only in the 6th significant
+figure (pressure loss 52.34517755 against 52.34521634), so this is the same
+state, not a better-converged one.
+
+**The mechanism I proposed was also wrong.** I argued temperature, at 41.16 of
+the 55.776 total, was polluting the linearisation point. But this case carries
+constant viscosity with no temperature dependence and no buoyancy, and the
+objective is a pure function of pressure and velocity — temperature's adjoint
+row is **analytically decoupled** from the rows the gradient depends on. It had
+no channel into the result, and tightening its solve predictably did nothing.
+
+**The rule that replaces it** (now L-7): do not assume "converge harder" fixes
+gradient disagreement. Establish first, with one cheap high-iteration run,
+whether convergence is even available. A plateau that survives a tenfold
+iteration increase is reporting something about the physics or the mesh, and the
+next lever is resolution or geometry smoothness, not solver settings.
+
+A5's original measured numbers stand untouched in the record; this is an
+appended addendum. **A1's 11.43% therefore remains unexplained**, and the
+step-size study already in the proposal queue is the next probe.
 
 **The calibration that governs every later rung.** The geometric constraints
 verifying at machine precision proves the harness, the deformation chain and the
