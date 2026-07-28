@@ -498,6 +498,134 @@ r2-closure-coefficient-uncertainty.
 - `docs/papers/` — PDFs Sanaa supplies (the paywalled list above). Each gets a
   distilled entry here upon reading.
 
+## Reading round M1 — closure methods taxonomy (read 2026-07-28)
+
+Program M1 built `docs/research/CLOSURE_METHODS.md`, a living taxonomy of the
+ML-closure landscape organised by method class, anchored on the Duraisamy–
+Iaccarino–Xiao review. Reading and writing only — no solver run, no compute
+launched. Every source below resolved at a DOI/arXiv/publisher/ADS record
+before being written down; verification tier (a/b/c) is carried from that
+document. Format: claim, then source, then the gate/evidence that would test
+it, matching this file's existing convention.
+
+- **Turbulence modelling's own taxonomy separates "correct the model" from
+  "correct the answer," and eigenvalue-perturbation UQ needs no training
+  data at all.** Source: Duraisamy, Iaccarino, Xiao, *Annu. Rev. Fluid
+  Mech.* 51 (2019): 357–377, DOI `10.1146/annurev-fluid-010518-040547`,
+  arXiv:1804.00183 — tier (a). *Gate*: this is the backbone our own
+  closure-challenge entry is placed against in `CLOSURE_METHODS.md`'s
+  "Where Certonomous sits" section; the gate that tests it is whether our
+  entry's measured cross-case behaviour (helps where RANS is worst, hurts
+  where RANS is already good) matches the structural prediction a
+  "corrects the answer, no invariance guarantee" class makes — it does,
+  per `demo-output/website/closure_challenge_C2_error_decomposition.md`.
+- **Field inversion + ML (FIML): invert a corrective field through the
+  adjoint, then regress it onto local features.** Sources: Parish &
+  Duraisamy, *J. Comput. Phys.* 305 (2016): 758–774, DOI
+  `10.1016/j.jcp.2015.11.012` — tier (a); Singh & Duraisamy, *Phys. Fluids*
+  28.4 (2016): 045110, DOI `10.1063/1.4947045` — tier (b); Singh, Medida &
+  Duraisamy, *AIAA J.* 55.7 (2017): 2215–2227, DOI `10.2514/1.J055595`,
+  arXiv:1608.03990 — tier (a), full text read by Ladder B1; Wu, Zhang &
+  Zhang, *AIAA J.* 63.2 (2025): 687–706, DOI `10.2514/1.J064416`,
+  arXiv:2402.16355 — tier (a), full text + submission doc read by Ladder
+  B1. *Gate*: the Wu/Zhang/Zhang duct zero-shot result (0.0455/0.0399 on
+  `AR_1_Ret_360`/`AR_3_Ret_360`) is the number Ladder B is trying to
+  reproduce; the gate is whether Ladder B3's blocked adjoint
+  (`PETSc KSP_DIVERGED_NANORINF`) can be unblocked and the full CBFS-
+  trained field inversion reproduced to within a stated tolerance of those
+  two scores.
+- **Tensor-basis neural networks embed Galilean/rotational invariance by
+  construction via a complete invariant tensor basis, with code publicly
+  released.** Source: Ling, Kurzawski & Templeton, *J. Fluid Mech.* 807
+  (2016): 155–166, OSTI 1333570 — tier (a); code at
+  `github.com/sandialabs/tbnn` (BSD-3-Clause, confirmed via repository
+  description). *Gate*: TBNN's duct-flow demonstration case is the same
+  physical phenomenon (secondary flows) as our own DUCT test family;
+  running the public Sandia code against our own DUCT baseline fields
+  (already on disk from Ladder B2) would test whether the invariance
+  guarantee alone (with no zero-shot field-inversion training) recovers
+  any of the gap to the rank-2 leaderboard entry.
+- **Symbolic/sparse-regression closures (SpaRTA, GEP) build the same kind
+  of invariant candidate library as TBNN but output an inspectable
+  formula; SpaRTA's frozen-training code is public, GEP's is not
+  confirmed public.** Sources: Schmelzer, Dwight & Cinnella, *Flow Turbul.
+  Combust.* 104 (2020): 579–603, DOI `10.1007/s10494-019-00089-x`,
+  arXiv:1905.07510 — tier (a), code at `github.com/shmlzr/general_earsm`;
+  Weatheritt & Sandberg, *J. Comput. Phys.* 325 (2016): 22–37, DOI
+  `10.1016/j.jcp.2016.08.015` — tier (a), code not confirmed public
+  (tier (b) on that specific sub-claim). *Gate*: SpaRTA's own
+  cross-validation family (periodic hills, converging-diverging channel,
+  curved backward-facing step) overlaps our PH test family; the gate is
+  whether the public `general_earsm` code, retrained or reused, beats our
+  current 0.0741 on the PH-only sub-score without touching duct/hump.
+- **SGS/LES neural closures predict subgrid flux from resolved features,
+  with translation equivariance as a structural byproduct of local
+  convolution but no Galilean/rotational guarantee; one representative's
+  code is public.** Sources: Beck, Flad & Munz, *J. Comput. Phys.* 398
+  (2019): 108910, DOI `10.1016/j.jcp.2019.108910` — tier (a); Maulik, San,
+  Rasheed & Vedula, *J. Fluid Mech.* 858 (2019): 122–144 — tier (a), code
+  at `github.com/Romit-Maulik/ML_2D_Turbulence`. *Gate*: not directly
+  gateable against our benchmark, which is RANS-only (no SGS-flux ground
+  truth in any of the 8 test cases) — recorded for taxonomic completeness,
+  ranked last in the M2 ordering for exactly this reason.
+- **Eigenvalue/eigenvector perturbation of the Reynolds-stress
+  anisotropy tensor gives realizability by construction and needs no
+  training data — the cheapest reproducible class in the taxonomy.**
+  Sources: Emory, Larsson & Iaccarino, *Phys. Fluids* 25.11 (2013):
+  110822, DOI `10.1063/1.4824659` — tier (a); Iaccarino, Mishra & Ghili,
+  *Phys. Rev. Fluids* 2.2 (2017): 024605, DOI
+  `10.1103/PhysRevFluids.2.024605` — tier (a); Xiao, Wu, Wang, Sun & Roy,
+  *J. Comput. Phys.* 324 (2016): 115–136, DOI `10.1016/j.jcp.2016.05.038`,
+  arXiv:1508.06315 — tier (a), extends the base method with sparse-
+  observation Bayesian calibration. *Gate*: ranked #1 in the M2
+  ordering precisely because the gate is nearly free — apply the
+  eigendecomposition-and-reproject algorithm directly to the RANS fields
+  this program already has converged (F6a's hump, B2's duct baseline, our
+  own PH cases) and check whether the resulting envelope actually brackets
+  the LES/experimental ground truth on the training-family cases, without
+  needing any new adjoint infrastructure or training run.
+- **Hybrids: a deep-kernel NN-mean+GP-residual closure exists in the LES
+  literature; Bayesian Model-Scenario Averaging mixes multiple closures
+  under sparse calibration data; sparse variational GPs are the scalable
+  backbone for both, and this lab already has an in-house closure paper
+  in exactly this sub-class.** Sources: Wenzel, Kurz, Beck, Santin &
+  Haasdonk, LSSC 2021 proceedings, DOI `10.1007/978-3-030-97549-4_47`,
+  arXiv:2103.13655 — tier (a); Edeling, Cinnella, Dwight & Bijl,
+  *J. Comput. Phys.* 258 (2014): 73–94, DOI `10.1016/j.jcp.2013.10.027`
+  — tier (a); Edeling, Cinnella & Dwight, *J. Comput. Phys.* 275 (2014):
+  65–91, DOI `10.1016/j.jcp.2014.06.046` — tier (a); Titsias, AISTATS 2009,
+  PMLR 5:567–574 — tier (a); Hensman, Fusi & Lawrence, UAI 2013,
+  arXiv:1309.6835 — tier (a); Mouzahir et al., "Sparse and Deep Gaussian
+  Processes closure for 2-D fluids and ocean flows," MIT OSM26 — tier (a),
+  already local at `docs/papers/Mouzahir_et_all_OSM26_Sparse_GP_Closure.pdf`
+  and already indexed above (Reading round R0, "Previously paywalled").
+  *Gate*: ranked #2 in the M2 ordering, directly after eigenvalue
+  perturbation — the gate is building the in-house SVGP closure against
+  our own under-resolved periodic-hill/duct cells and checking whether its
+  posterior variance is large exactly where C2's error decomposition shows
+  our current point-corrector hurts (floor error ≤ 0.07), which would
+  confirm the GP's distance-from-training-data signal is the missing
+  ingredient our current gradient-boosted-tree corrector lacks.
+- **Diffusion/generative and neural-operator classes are not yet suitable
+  for equation-embedded closure use — a structural gap, not a data-
+  maturity one — and the one same-flow-family head-to-head comparison
+  found says the physics-structured alternative currently wins.** Source:
+  Dehtyriov, MacArt & Sirignano, arXiv:2605.26358 (2026) — tier (a) on
+  existence/authorship/benchmark result, tier (b) on the specific
+  mechanistic framing (conservation/BC/coupling structure lost by pure
+  operator surrogates), benchmarks DeepONet against a physics-structured
+  closure on square-duct and periodic-hill cases — the same flow families
+  as our own benchmark. Diffusion-model survey: multiple 2023–2026 papers
+  found (conditional diffusion for turbulence generation, DDPM airfoil-
+  flow uncertainty in *AIAA Journal* 2024, conditional flow matching for
+  near-wall turbulence) — none verified to embed as a corrective term
+  inside a solved RANS/LES equation set; tier (b), recorded as a class
+  survey rather than individual per-paper verification since none clears
+  the closure bar. *Gate*: not ranked in M2 — the gate that would change
+  this verdict is a future paper demonstrating a generative/operator
+  method producing a solver-composable correction (not a standalone field
+  sample) on one of our three flow families; none was found in this pass.
+
 ## Open innovation directions (Numericist backlog)
 
 - GCI-based discretization-error channel alongside the GP epistemic layer.
