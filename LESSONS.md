@@ -94,6 +94,54 @@ the follow-up to change one variable so the result is decisive either way.
 
 ---
 
+## L-5. A dispatched agent will orphan its own long job — the supervisor must arm the collector
+
+**The rule.** When dispatching an agent that launches a long-running solve, do
+not tell it to "run detached and collect once" and leave it there. Either
+instruct it explicitly to **block until its job finishes** (foreground run, or
+`wait` on the PID) so it is still alive to collect, **or** arm your own
+collector at the supervisor level. Never rely on a monitor the agent sets up
+for itself.
+
+**Why.** On 2026-07-28 this happened **three times in a row**, with three
+different agents on three different tasks. Each launched its solve, set up a
+background monitor, reported something like "waiting for the monitor to notify
+me", and ended its turn — which killed the monitor. In every case the job was
+still running correctly; the *result collection* was what died. Had the
+supervisor not checked, three completed solves would have been silently lost.
+
+It was caused by my own briefing line, "run detached and collect once; do not
+sit in a tight polling loop" — written to avoid wasteful polling, and reasonably
+read as "launch it and exit."
+
+**How to apply.**
+1. Prefer: tell the agent to run the job in the **foreground** with a generous
+   timeout. Simple, and it cannot orphan.
+2. Always: arm a supervisor-side watcher keyed on the **process name or an
+   output artifact**, not on a PID captured at launch — see L-6.
+3. When an agent reports "waiting" or "standing by", treat that as a **handoff
+   to you**, not as work in progress. Verify what is actually running before
+   believing either "done" or "in flight".
+
+## L-6. Capture a PID from the thing you launched, not from the shell that launched it
+
+**The rule.** `$!` and `pgrep -f <script> | head -1` both routinely return the
+wrapper shell or a transient, not the long-lived worker. Key waits on a stable
+identifier — the process *name*, a lock file the job itself writes, or an output
+artifact appearing.
+
+**Why.** Twice on 2026-07-28 a watcher fired within seconds and reported a job
+"finished" that was in fact still running: once `$!` captured a wrapper `bash`
+(so `runner.pid` held the wrong PID for the mega-batch), and once
+`pgrep | head -1` grabbed a transient during process startup, making a 36-minute
+mesh look like a 19-second crash. Both were caught only by checking `ps` before
+believing the result.
+
+**How to apply.** `while pgrep -f "<distinctive script name>" >/dev/null; do
+sleep 20; done` is more robust than any captured PID. Then confirm the expected
+output artifact exists before declaring success — a process exiting is not the
+same as a job succeeding.
+
 ## L-4. Absence of an error message is not absence of the error
 
 **The rule.** When diagnosing a failure, establish whether the failure mode
