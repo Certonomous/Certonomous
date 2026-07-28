@@ -1,0 +1,16 @@
+FoamFile { version 2.0; format ascii; class dictionary; object surfaceSampleDict; }
+type surfaces;
+libs (sampling);
+interpolationScheme cellPoint;
+surfaceFormat raw;
+fields (p rho T);
+surfaces
+(
+    coneSurface
+    {
+        type patch;
+        patches (cone);
+        interpolate false;
+        triangulate false;
+    }
+);

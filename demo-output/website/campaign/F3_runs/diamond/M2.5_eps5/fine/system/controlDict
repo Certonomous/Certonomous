@@ -1,0 +1,42 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+application     rhoCentralFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         4.800000;
+deltaT          1e-5;
+writeControl    runTime;
+writeInterval   1.600000;
+purgeWrite      2;
+writeFormat     ascii;
+writePrecision  8;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable true;
+adjustTimeStep  yes;
+maxCo           0.4;
+maxDeltaT       1e-3;
+
+functions
+{
+    forces1
+    {
+        type            forces;
+        libs            (forces);
+        patches         (obstacle);
+        rho             rhoInf;
+        rhoInf          1;
+        CofR            (0.5 0 0);
+        writeControl    writeTime;
+    }
+}

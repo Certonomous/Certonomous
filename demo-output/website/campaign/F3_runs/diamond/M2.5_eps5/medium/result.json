@@ -1,0 +1,15 @@
+{
+  "case_dir": "diamond/M2.5_eps5/medium",
+  "M": 2.5,
+  "eps_deg": 5.0,
+  "res_level": "medium",
+  "ncells": 8000,
+  "t_mesh_s": 0.2887585163116455,
+  "t_run_s": 28.994404077529907,
+  "Fx_slab": 0.000293022774,
+  "Fx_per_span_total": 0.05860455479999999,
+  "cd_exact": 0.01343028,
+  "cd_computed": 0.01339532681142857,
+  "deviation": -3.4953188571430066e-05,
+  "deviation_pct": -0.2602565886297982
+}

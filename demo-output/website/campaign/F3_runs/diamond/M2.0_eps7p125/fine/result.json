@@ -1,0 +1,15 @@
+{
+  "case_dir": "diamond/M2.0_eps7p125/fine",
+  "M": 2.0,
+  "eps_deg": 7.125,
+  "res_level": "fine",
+  "ncells": 32000,
+  "t_mesh_s": 0.43245363235473633,
+  "t_run_s": 200.72814750671387,
+  "Fx_slab": 0.000507324008,
+  "Fx_per_span_total": 0.1014648016,
+  "cd_exact": 0.036331,
+  "cd_computed": 0.036237429142857144,
+  "deviation": -9.357085714285784e-05,
+  "deviation_pct": -0.25755100917359236
+}

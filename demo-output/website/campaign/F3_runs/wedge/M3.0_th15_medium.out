@@ -1,0 +1,18 @@
+{
+  "case_dir": "wedge/M3.0_th15/medium",
+  "M": 3.0,
+  "theta_deg": 15.0,
+  "res_level": "medium",
+  "ncells": 7200,
+  "t_mesh_s": 0.2695639133453369,
+  "t_run_s": 18.121703386306763,
+  "t_sample_s": 0.3204307556152344,
+  "beta_exact_deg": 32.2404,
+  "beta_computed_deg": 32.847660503998185,
+  "fit_r2": 0.9985924118959038,
+  "beta_all_stations_deg": 33.27283248339875,
+  "fit_r2_all_stations": 0.9988759148426222,
+  "p_wall_mean": 2.7932512121212123,
+  "p_wall_std": 0.040534515313931,
+  "latest_time": "2.6000172"
+}

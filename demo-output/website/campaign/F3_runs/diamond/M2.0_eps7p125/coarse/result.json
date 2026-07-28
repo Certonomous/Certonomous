@@ -1,0 +1,15 @@
+{
+  "case_dir": "diamond/M2.0_eps7p125/coarse",
+  "M": 2.0,
+  "eps_deg": 7.125,
+  "res_level": "coarse",
+  "ncells": 2000,
+  "t_mesh_s": 0.24619221687316895,
+  "t_run_s": 10.811303853988647,
+  "Fx_slab": 0.000505843186,
+  "Fx_per_span_total": 0.1011686372,
+  "cd_exact": 0.036331,
+  "cd_computed": 0.03613165614285714,
+  "deviation": -0.0001993438571428613,
+  "deviation_pct": -0.5486880546719366
+}
