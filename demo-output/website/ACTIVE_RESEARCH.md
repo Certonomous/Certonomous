@@ -33,6 +33,38 @@ Last updated: 2026-07-28 00:5x UTC.
 | A1 | CL wrt shape | **1.67%** |
 | A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%** |
 
+| A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** |
+
+### Cross-rung finding: FD agreement appears to be gated by primal convergence
+
+Neither rung could see this alone. Placed side by side:
+
+| rung | primal state | FD shape-derivative result |
+| --- | --- | --- |
+| A1 | residual **9.646e-09** against tolerance 1e-08, converged | 11.43%, **no sign flips** |
+| A5 | p initRes plateau **2.2576e-04**; total field residual norm2 **55.776** | 46.6%, **2 sign flips** |
+
+Five orders of magnitude apart in primal convergence; four times the FD error,
+plus sign flips. **Hypothesis: the adjoint is exact for the discrete converged
+state, so if the primal sits at a residual plateau the adjoint is linearised
+about a point that is not a solution, while each finite-difference perturbation
+re-solves to a slightly different point on that same non-converged manifold.**
+The difference between those is noise no step size can remove — which is
+precisely what A5's own step-size sweep found when the FD estimate failed to
+converge toward the adjoint value as the step grew.
+
+A supporting detail from A5's record: the 55.776 total is dominated by
+temperature at 41.16. That case descends from a conjugate-heat-transfer family
+and still solves temperature, which is excluded from both the objective and the
+adjoint yet remains in the primal state and far from converged. **The state the
+adjoint linearises about is polluted by a field the adjoint cannot see.**
+
+A one-variable test is running: converge A5's primal to A1's standard, change
+nothing else, and re-run the identical FD check. Confirmation would give the lab
+a hard precondition — **no FD verification is meaningful until the primal is
+converged** — which is worth more than the rung itself. Refutation points at
+coarse-mesh warp non-smoothness instead and is equally reportable.
+
 **The calibration that governs every later rung.** The geometric constraints
 verifying at machine precision proves the harness, the deformation chain and the
 check itself are sound — so the 11.43% cannot be waved away as a broken rig.
