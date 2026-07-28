@@ -78,9 +78,25 @@
 | **Flow models** | RANS (single-phase equivalent via multiphase) | RANS + LES | Turbulence options; LES for unsteady regimes |
 | **Free surface** | Volume-fraction (VoF); general | VoF optimized for ship/propulsor wake | Sharp interface capture in naval flows |
 | **Hull coupling** | None (geometry-only) | Hull-propulsor interaction, forces | Realistic resistance + propulsion prediction |
-| **Propeller modeling** | None | Rotor-stator coupling, actuator models | Direct propeller efficiency (2–4% improvements demonstrated) |
+| **Propeller modeling** | None | Rotor-stator coupling, actuator models | Direct propeller efficiency modelling |
 | **Ship dynamics** | None | 6-DoF rigid-body motion | Seakeeping, maneuvering, wave loads |
-| **Validation suite** | None provided | Naval hull benchmarks (Wigley, DPW, combat shapes) | Pre-qualified for naval applications |
+| **Validation suite** | None provided | Naval hull benchmarks (Wigley-class and combat hull forms) | Pre-qualified for naval applications |
+
+> **Two corrections applied by the supervisor on review, 2026-07-28.**
+>
+> 1. This table originally claimed propeller efficiency "2-4% improvements
+>    demonstrated". **That figure carried no citation** — the sourcing in this
+>    document covers availability and licensing, not the capability table — and
+>    it has been removed rather than left standing. If a real published figure
+>    exists it should be added with its source; an unsourced quantitative claim
+>    is exactly the kind of number this lab does not ship.
+> 2. The validation-suite row originally listed **"DPW"** among naval hull
+>    benchmarks. DPW is the AIAA **Drag Prediction Workshop**, a transonic
+>    *aircraft* case — it appears in this campaign's own reading list under
+>    aircraft methodology, not marine. Removed.
+>
+> The document's core finding is unaffected: it rests on the DTIC record, the
+> CREATE access portal and the CREATE-SH program page, all of which resolve.
 
 **Key addition:** NavyFOAM is a **multi-physics integration layer** around OpenFOAM, adding naval-specific models and validated calibration. interFoam is a solver; NavyFOAM is an application framework.
 
