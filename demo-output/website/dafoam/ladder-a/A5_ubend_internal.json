@@ -1,0 +1,234 @@
+{
+  "case_name": "ladder-a5-ubend-pressureloss",
+  "tutorial_source": "DAFoam/tutorials UBend_Channel (official) -- objective adapted from weighted PL+HFX blend to pure pressure loss; see md for full disclosure",
+  "tutorial_source_note": "Brief pointed at UBend_CHT (CHT-only, funtofem/MELD coupled, mesh downloaded). UBend_Channel is the tutorials repo's own aero/pressure-loss single-discipline variant; used instead of standing up CHT coupling.",
+  "tutorials_repo_commit": "d3b7e38b058aba2a98a74092e15c41ec455c570d",
+  "date_utc": "2026-07-28",
+  "solver": "DASimpleFoam",
+  "docker_image": "dafoam/opt-packages:latest",
+  "container_openfoam_version": "v2506",
+  "case_foamfile_version_label": "v1812",
+  "mpi_ranks": 4,
+  "mesh_cells": 4800,
+  "mesh_points": 5967,
+  "mesh_faces": 15496,
+  "mesh_internal_faces": 13304,
+  "config_hash_sha256": "36bd8442e7a1e3737d6b9e2567e0bfdb676631fb1f23938558b9a078b8b468b7",
+  "config_hash_inputs": ["runScript.py", "system/fvSolution", "system/fvSchemes"],
+  "objective_adaptation": {
+    "stock_objective": "val = scalePL*(TP1-TP2) + scaleHFX*HFX  (CPL_weight=0.5, weighted blend of pressure loss and wall heat flux)",
+    "adapted_objective": "val = TP1 - TP2  (pure total-pressure loss, inlet minus outlet)",
+    "change": "Replaced the weighted-sum ExecComp and dropped the OBJ.HFX connection. HFX function still computed by the solver (addToAdjoint set False) but not part of the objective or adjoint."
+  },
+  "flow_conditions": {
+    "U0_m_s": 8.4,
+    "p0": 0.0,
+    "fluid": "nu=1.5e-5 (air-like), Pr=0.7, Prt=1.0",
+    "turbulence_model": "SpalartAllmaras (RAS, wall functions)"
+  },
+  "stages": [
+    {
+      "name": "mesh_preprocessing",
+      "command": "preProcessing.sh (blockMesh + renumberMesh)",
+      "ranks": 1,
+      "wall_time_s": 1,
+      "core_minutes": 0.02,
+      "start_utc": "2026-07-28T00:52:00Z",
+      "end_utc": "2026-07-28T00:52:01Z",
+      "result": "ok",
+      "measured": {"nPoints": 5967, "nCells": 4800, "nFaces": 15496, "nInternalFaces": 13304}
+    },
+    {
+      "name": "compute_totals",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript.py -task compute_totals",
+      "ranks": 4,
+      "wall_time_s": 54,
+      "core_minutes": 3.6,
+      "start_utc": "2026-07-28T00:52:13Z",
+      "end_utc": "2026-07-28T00:53:07Z",
+      "result": "ok",
+      "log_file": "logs/A5_compute_totals_run1.log"
+    },
+    {
+      "name": "check_totals_run1",
+      "command": "mpirun --allow-run-as-root -np 4 python runScript.py -task check_totals  (of=OBJ.val, wrt=shapexUpper, 27 comps, central, step=1e-4 abs)",
+      "ranks": 4,
+      "wall_time_s": 227,
+      "core_minutes": 15.13,
+      "start_utc": "2026-07-28T00:54:44Z",
+      "end_utc": "2026-07-28T00:58:31Z",
+      "result": "ok",
+      "log_file": "logs/A5_check_totals_run1.log",
+      "note": "processor0-3 removed with sudo rm -rf before this run (Ladder A1's known trap); no stale-state crash this time."
+    },
+    {
+      "name": "diagnostic_probe_driver_nested_script",
+      "command": "bash -lc './probe_driver.sh' (nested script sourcing loadDAFoam.sh)",
+      "ranks": 4,
+      "wall_time_s": 1,
+      "core_minutes": 0.07,
+      "start_utc": "2026-07-28T00:59:32Z",
+      "end_utc": "2026-07-28T00:59:33Z",
+      "result": "failed",
+      "blocker": {
+        "error": "pop_var_context: head of shell_variables not a function context",
+        "cause": "OpenFOAM config.sh/bashrc chain does not tolerate being sourced from inside a script invoked as a nested shell (bash -lc './script.sh') rather than inlined into the top-level -lc string.",
+        "fix": "Inline the full command sequence directly into the single bash -lc '...' string passed to docker run instead of calling out to a separate .sh file."
+      }
+    },
+    {
+      "name": "diagnostic_probe_positive_and_base",
+      "command": "mpirun -np 4 python runScript.py -task probe -probeIdx 0 -probeDelta {0.0, 1e-4, 1e-3, 1e-2} (3 negative-delta legs failed, see blocker)",
+      "ranks": 4,
+      "wall_time_s": 68,
+      "core_minutes": 4.53,
+      "start_utc": "2026-07-28T00:59:45Z",
+      "end_utc": "2026-07-28T01:00:53Z",
+      "result": "partial_ok",
+      "log_file": "logs/A5_probe_positive_run1.log",
+      "blocker": {
+        "error": "runScript.py: error: argument -probeDelta: expected one argument",
+        "cause": "argparse single-dash flag parses '-1e-4' as a second flag token, not a negative-valued argument to -probeDelta.",
+        "fix": "Use the equals-sign form: -probeDelta=-1e-4"
+      }
+    },
+    {
+      "name": "diagnostic_probe_negative_retry",
+      "command": "mpirun -np 4 python runScript.py -task probe -probeIdx 0 -probeDelta={-1e-4,-1e-3,-1e-2}",
+      "ranks": 4,
+      "wall_time_s": 39,
+      "core_minutes": 2.6,
+      "start_utc": "2026-07-28T01:01:07Z",
+      "end_utc": "2026-07-28T01:01:46Z",
+      "result": "ok",
+      "log_file": "logs/A5_probe_negative_run1.log"
+    }
+  ],
+  "totals": {
+    "wall_time_s": 390,
+    "wall_time_min": 6.5,
+    "core_minutes": 25.95
+  },
+  "primal_convergence": {
+    "endTime_iters": 1000,
+    "residual_control": "none in fvSolution (unmodified from tutorial); SIMPLE ran fixed 1000 steps",
+    "objective_stable_from_iter": 600,
+    "TP1_final": 88.11838267130871,
+    "TP2_final": 35.7731663319629,
+    "pressure_loss_objective": 52.34521633934581,
+    "objective_units": "kinematic pressure, p/rho (m^2/s^2), OpenFOAM incompressible convention",
+    "p_field_residual_plateau": {
+      "initRes_iter900": 0.0002257624939542488,
+      "initRes_iter1000": 0.0002257624979593885,
+      "finalRes_iter1000": 1.311467703738508e-05,
+      "note": "initRes unchanged to 10 sig figs between iter 900 and 1000: genuine fixed point of the case's default relaxation factors, not a stall fixable by more iterations."
+    },
+    "dafoam_field_residual_norm2_at_convergence": {
+      "U": [25.549, 24.010, 10.625],
+      "p": 8.616,
+      "T": 41.160,
+      "nuTilda": 0.652,
+      "phi": 0.065,
+      "total": 55.776
+    },
+    "reproducibility_check": {
+      "description": "-task probe baseline (delta=0), cold start from 0/, independent invocation from compute_totals",
+      "OBJ_val": 52.34521633934580,
+      "note": "bit-identical to compute_totals value (52.34521633934581) to 15-16 significant digits"
+    }
+  },
+  "adjoint": {
+    "combined_gmres_iterations": 86,
+    "petsc_converged_reason": 2,
+    "ksp_residual_initial": 12.437,
+    "ksp_residual_final": 1.0849e-04,
+    "d_obj_d_shapexUpper": [0.23711358, -0.43555559, -0.41765751, 1.96883727, -0.10505221, -1.3953011, 1.61077383, 0.90578111, -0.84337258, 7.81935558, 4.80044882, 3.90871135, -4.43512493, -0.91203487, 0.55598334, -13.86041673, -3.77483865, -0.62881205, -4.33825856, -0.94864214, 1.90894278, -1.78264732, -1.17260622, -2.25173312, -0.96908608, 0.74690602, -1.95653977]
+  },
+  "fd_verification_table": {
+    "of": "OBJ.val",
+    "wrt": "shapexUpper",
+    "step": 0.0001,
+    "form": "central",
+    "step_calc": "abs",
+    "analytic_magnitude": 19.38364,
+    "fd_magnitude": 33.40851,
+    "abs_error_norm": 15.58097,
+    "rel_error_norm": 0.4663773,
+    "rel_error_norm_pct": 46.64,
+    "openmdao_flagged": true,
+    "components_within_12pct_band": 5,
+    "components_total": 27,
+    "sign_flips": 2,
+    "sign_flip_indices": [8, 17],
+    "rows": [
+      {"idx": 0, "analytic": 0.23711358, "fd": 0.11014272, "rel_error_pct": 115.28, "sign_match": true},
+      {"idx": 1, "analytic": -0.43555559, "fd": -0.46795044, "rel_error_pct": 6.92, "sign_match": true},
+      {"idx": 2, "analytic": -0.41765751, "fd": -0.41318594, "rel_error_pct": 1.08, "sign_match": true},
+      {"idx": 3, "analytic": 1.96883727, "fd": 0.70507069, "rel_error_pct": 179.24, "sign_match": true},
+      {"idx": 4, "analytic": -0.10505221, "fd": -0.43988042, "rel_error_pct": 76.12, "sign_match": true},
+      {"idx": 5, "analytic": -1.3953011, "fd": -1.21264221, "rel_error_pct": 15.06, "sign_match": true},
+      {"idx": 6, "analytic": 1.61077383, "fd": 1.36334461, "rel_error_pct": 18.15, "sign_match": true},
+      {"idx": 7, "analytic": 0.90578111, "fd": 1.32813824, "rel_error_pct": 31.80, "sign_match": true},
+      {"idx": 8, "analytic": -0.84337258, "fd": 0.78391094, "rel_error_pct": 207.59, "sign_match": false},
+      {"idx": 9, "analytic": 7.81935558, "fd": 11.56847782, "rel_error_pct": 32.41, "sign_match": true},
+      {"idx": 10, "analytic": 4.80044882, "fd": 7.26987125, "rel_error_pct": 33.97, "sign_match": true},
+      {"idx": 11, "analytic": 3.90871135, "fd": 8.17581134, "rel_error_pct": 52.19, "sign_match": true},
+      {"idx": 12, "analytic": -4.43512493, "fd": -10.30517542, "rel_error_pct": 56.96, "sign_match": true},
+      {"idx": 13, "analytic": -0.91203487, "fd": -1.25570429, "rel_error_pct": 27.37, "sign_match": true},
+      {"idx": 14, "analytic": 0.55598334, "fd": 4.64654844, "rel_error_pct": 88.03, "sign_match": true},
+      {"idx": 15, "analytic": -13.86041673, "fd": -24.27272214, "rel_error_pct": 42.90, "sign_match": true},
+      {"idx": 16, "analytic": -3.77483865, "fd": -4.30296296, "rel_error_pct": 12.27, "sign_match": true},
+      {"idx": 17, "analytic": -0.62881205, "fd": 2.90530257, "rel_error_pct": 121.64, "sign_match": false},
+      {"idx": 18, "analytic": -4.33825856, "fd": -8.3270225, "rel_error_pct": 47.90, "sign_match": true},
+      {"idx": 19, "analytic": -0.94864214, "fd": -0.35516609, "rel_error_pct": 167.10, "sign_match": true},
+      {"idx": 20, "analytic": 1.90894278, "fd": 4.82273715, "rel_error_pct": 60.42, "sign_match": true},
+      {"idx": 21, "analytic": -1.78264732, "fd": -3.07833484, "rel_error_pct": 42.09, "sign_match": true},
+      {"idx": 22, "analytic": -1.17260622, "fd": -0.94309108, "rel_error_pct": 24.34, "sign_match": true},
+      {"idx": 23, "analytic": -2.25173312, "fd": -1.37501596, "rel_error_pct": 63.76, "sign_match": true},
+      {"idx": 24, "analytic": -0.96908608, "fd": -1.05939121, "rel_error_pct": 8.52, "sign_match": true},
+      {"idx": 25, "analytic": 0.74690602, "fd": 0.7642915, "rel_error_pct": 2.27, "sign_match": true},
+      {"idx": 26, "analytic": -1.95653977, "fd": -1.90571577, "rel_error_pct": 2.67, "sign_match": true}
+    ]
+  },
+  "step_size_diagnostic_idx0": {
+    "description": "Manual central FD on shapexUpper[0] only, at 3 step sizes, via -task probe",
+    "analytic": 0.23711358,
+    "rows": [
+      {"step": 0.0001, "obj_plus": 52.34524387027182, "obj_minus": 52.34522044921939, "fd_central": 0.1171052622, "rel_error_pct": 50.6},
+      {"step": 0.001, "obj_plus": 52.34534755468928, "obj_minus": 52.34509948237295, "fd_central": 0.124036158, "rel_error_pct": 47.7},
+      {"step": 0.01, "obj_plus": 52.34656274087725, "obj_minus": 52.34534566614248, "fd_central": 0.0608537367, "rel_error_pct": 74.3}
+    ],
+    "interpretation": "FD estimate does not monotonically converge toward the adjoint value as step grows 1e-4 to 1e-2 -- rules out 'just needs a bigger step' as the sole fix. Candidate causes (not isolated): (1) primal field-residual plateau (~2.3e-4) comparable in magnitude to some OBJ.val perturbation deltas; (2) coarse 4800-cell block-structured mesh producing a locally non-smooth volume-mesh-warp response to single-FFD-point shape moves."
+  },
+  "result_vs_reference": {
+    "reference": "Stock UBend_Channel/runScript.py documents CPL0 = 85.23 - 35.62 = 49.61 (baseline pressure-loss normalization constant from the original tutorial author's run)",
+    "measured_pressure_loss": 52.34521633934581,
+    "deviation_pct": 5.5,
+    "stated_cause": "Container OpenFOAM is v2506; case FoamFile headers (and a convertToMeters IOWarning at blockMesh time) say v1812 -- a ~6-year solver-version gap plausibly explaining a modest baseline shift. Mesh, BCs, fvSolution/fvSchemes were not modified from the official tutorial."
+  },
+  "blockers_and_lessons": [
+    {
+      "id": "nested_script_sourcing_openfoam_bashrc",
+      "severity": "minor, quickly diagnosed",
+      "description": "bash -lc './probe_driver.sh' (a wrapper script that itself sources loadDAFoam.sh) crashed instantly with 'pop_var_context: head of shell_variables not a function context'.",
+      "fix": "Inline the full command sequence into the single top-level bash -lc '...' string instead of delegating to a nested .sh file."
+    },
+    {
+      "id": "argparse_negative_value_single_dash",
+      "severity": "minor, quickly diagnosed",
+      "description": "'-probeDelta -1e-4' parsed as two flags by argparse (single-dash convention), erroring 'expected one argument'.",
+      "fix": "Use '-probeDelta=-1e-4' (equals-sign form)."
+    },
+    {
+      "id": "check_totals_stale_processor_trap_A1",
+      "severity": "avoided (did not recur)",
+      "description": "Ladder A1's known trap (processorN/ left over from compute_totals causing check_totals to crash on 'already exists, moving failed') was preempted this run by sudo rm -rf processor* before check_totals -- ran clean on first try.",
+      "fix": "n/a -- preventive action taken, confirms A1's lesson generalizes."
+    }
+  ],
+  "bottom_line": {
+    "primal": "Converged to a genuine numerical fixed point; objective (TP1, TP2) stable to 7-8 sig figs over the last 400 iterations; field residuals plateau above primalMinResTol=1e-8, a known characteristic of this case class.",
+    "adjoint": "Computed successfully, GMRES converged (86 iters, PetscConvergedReason=2), reproducible bit-for-bit across independent cold starts.",
+    "fd_verification": "Does NOT cleanly pass. Only 5/27 shapexUpper components land within the previously-calibrated <=12% band (Ladder A1, NACA0012); 2 components flip sign; aggregate vector-norm relative error 46.6%. A step-size diagnostic on one component rules out 'needs a bigger FD step' as the fix. Reported as a documented, unresolved finding -- adjoint mechanics work (GMRES converges, results reproduce) but rigorous FD confidence in this shape-derivative gradient is not established by this rung's data on this coarse mesh."
+  }
+}

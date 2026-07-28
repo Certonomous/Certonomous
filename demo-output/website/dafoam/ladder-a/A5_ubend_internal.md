@@ -1,0 +1,275 @@
+# Ladder A5 — U-bend internal-flow adjoint, pressure-loss objective
+
+Date: 2026-07-28 (host time, AWS Linux, 16 vCPU / 32 GiB RAM instance)
+
+## Case selection and adaptation (mandatory disclosure)
+
+The brief pointed at `/home/ubuntu/dafoam-tutorials/UBend_CHT/` and instructed: inspect it,
+and if it's CHT-only, look for an aero/pressure-loss variant, or adapt it, and say so explicitly.
+
+`UBend_CHT` **is** CHT-only: its `runScript.py` builds a coupled `ScenarioAeroThermal` with a
+`MeldThermalBuilder` (funtofem) joining a `DASimpleFoam` fluid domain to a `DAHeatTransferFoam`
+solid domain, and its objective is `scalePL*(TP1-TP2) + scaleTM*Tmean` — pressure loss AND mean
+outlet temperature, coupled. Its mesh also isn't generated locally: `preProcessing.sh` downloads
+a prebuilt `CHT_ubend_mesh.zip` from a GitHub release. Standing this up correctly (funtofem +
+MELD thermal coupling + two solvers + a download dependency) is real extra machinery this rung
+does not need.
+
+The tutorials repo ships a second, purpose-built case for exactly this situation:
+`/home/ubuntu/dafoam-tutorials/UBend_Channel/` (commit `d3b7e38` in the tutorials repo, dated
+2026-05-16). It is single-discipline (`ScenarioAerodynamic`, `DASimpleFoam` only, no thermal
+solid domain, no funtofem), meshed locally with `blockMesh` (no download), and its stock
+objective is already `scalePL*(TP1-TP2) + scaleHFX*HFX` — a weighted blend of pressure loss and
+wall heat flux. **I used `UBend_Channel` as the aero/pressure-loss variant called for in the
+brief, and adapted its objective to pure pressure loss** by replacing the weighted-sum `OBJ`
+`ExecComp` (`val = scalePL*(TP1-TP2) + scaleHFX*HFX`) with `val = TP1 - TP2` and dropping the
+`OBJ.HFX` connection (the `HFX` function is still computed by the solver — it's just no longer
+part of the objective or adjoint). This is a one-line-of-substance change; everything else —
+mesh (`blockMeshDict`), BCs (`0.orig/*`), solver options, FFD (`UBendDuctFFDSym.xyz`), and DV
+setup — is byte-identical to the official tutorial. Working copy:
+`demo-output/website/dafoam/ladder-a/A5_work/UBend_Channel_pressureloss/` (copied from the
+tutorials repo, not a mutation of it). Solver `DASimpleFoam` (steady incompressible SIMPLE,
+Spalart-Allmaras, RAS with wall functions). 4 MPI ranks throughout (matches the case's own
+`decomposeParDict numberOfSubdomains 4`, within the 4-rank cap).
+
+Docker: `dafoam/opt-packages:latest`, `--network=host --memory=10g`. Container OpenFOAM is
+`v2506`; the case's `FoamFile` headers say `v1812` (an IOWarning about `convertToMeters` vs
+`scale` fired during `blockMesh`, harmless) — noted because it plausibly explains part of the
+baseline deviation reported below.
+
+## Config hash
+
+sha256 of the concatenation `runScript.py + system/fvSolution + system/fvSchemes`, taken from
+the case as actually run (post-adaptation, before any run generated additional files):
+
+```
+36bd8442e7a1e3737d6b9e2567e0bfdb676631fb1f23938558b9a078b8b468b7
+```
+
+## Mesh
+
+Generated in-container via `preProcessing.sh` (`blockMesh` + `renumberMesh`, both local, no
+download). Measured from `log.meshGeneration`:
+
+```
+nPoints: 5967
+nCells: 4800
+nFaces: 15496
+nInternalFaces: 13304
+```
+
+Patches: `inlet` (96 faces), `outlet` (96 faces), `ubend` (wall), `ubendup` (wall), `sym`
+(symmetry plane — this is a half-model).
+
+## Stage wall-time and core-minutes (measured, not estimated)
+
+| stage | ranks | wall time | core-minutes | result |
+|---|---|---|---|---|
+| mesh preprocessing (`preProcessing.sh`) | 1 (serial) | ~1 s (00:52:00Z→00:52:01Z) | 0.02 | OK, 4800 cells |
+| `compute_totals` (primal + adjoint + total derivs, all 6 DV groups) | 4 | 54 s (00:52:13Z→00:53:07Z) | 3.6 | OK |
+| `check_totals` run1 (FD verify, of=OBJ.val wrt=shapexUpper, 27 comps, central, step=1e-4 abs) | 4 | 227 s (00:54:44Z→00:58:31Z) | 15.13 | OK (ran clean — no stale-`processorN` crash, see lesson) |
+| diagnostic: `probe_driver.sh` nested-script attempt | 4 | ~1 s (00:59:32Z→00:59:33Z) | 0.07 | **FAILED — see lesson** |
+| diagnostic: manual FD probe, idx0, +1e-4/+1e-3/+1e-2 & base | 4 | 68 s (00:59:45Z→01:00:53Z) | 4.53 | partial OK (negative-delta legs failed, see lesson) |
+| diagnostic: manual FD probe, idx0, −1e-4/−1e-3/−1e-2 (retry) | 4 | 39 s (01:01:07Z→01:01:46Z) | 2.6 | OK |
+| **total** | | **~390 s (~6.5 min)** | **~25.95 core-min** | |
+
+## Primal convergence (from `compute_totals_run1.log`)
+
+SIMPLE ran the full fixed `endTime = 1000` (no `residualControl` block in this case's
+`fvSolution`; `SIMPLE: no convergence criteria found. Calculations will run for 1000 steps.` is
+printed by OpenFOAM itself, unmodified from the official tutorial). Objective trajectory:
+
+```
+Time = 1     TP1: 2869.524210823638   TP2: 9.245003703993847
+Time = 100   TP1: 87.96005291968729   TP2: 35.76444728119155
+Time = 200   TP1: 88.12054694259008   TP2: 35.77317367564675
+Time = 400   TP1: 88.11849246103276   TP2: 35.77314575494255
+Time = 600   TP1: 88.11838177212337   TP2: 35.77316531829783
+Time = 800   TP1: 88.11838265242606   TP2: 35.77316633668674
+Time = 900   TP1: 88.11838266580405   TP2: 35.77316632783899
+Time = 1000  TP1: 88.11838267130871   TP2: 35.7731663319629
+```
+
+TP1/TP2 are stable to 7-8 significant digits from iteration ~600 onward — the objective itself
+has clearly converged. The *field* residuals (OpenFOAM's own per-equation `initRes`/`finalRes`,
+and DAFoam's un-normalized `Printing Primal Residual Statistics` diagnostic) tell a more honest
+story: they reach a **flat numerical fixed point**, not a monotone descent to
+`primalMinResTol = 1e-8`:
+
+```
+p initRes (Time=900):  0.0002257624939542488   finalRes: 1.31146789379517e-05
+p initRes (Time=1000): 0.0002257624979593885   finalRes: 1.311467703738508e-05
+```
+
+`p`'s `initRes` is unchanged to 10 significant figures between iterations 900 and 1000 — the
+SIMPLE loop has reached a genuine fixed point of this case's default relaxation factors
+(`p`: 0.30, `U`/`T`/`nuTilda`: 0.70, unmodified from the tutorial), not a stall that more
+iterations would fix. This kind of small non-vanishing residual floor is a known characteristic
+of steady RANS on U-bend/duct geometries with secondary (Dean-vortex) flow — not something this
+rung introduced.
+
+DAFoam's own field-residual-norm diagnostic (`Printing Primal Residual Statistics`, printed once
+at the end of the primal, un-normalized, used internally for the adjoint RHS) at Time=1000:
+
+```
+U Residual Norm2: (25.549 24.010 10.625)
+p Residual Norm2: 8.616
+T Residual Norm2: 41.160
+nuTilda Residual Norm2: 0.652
+phi Residual Norm2: 0.065
+Total Residual Norm2: 55.776
+```
+
+**Converged pressure-loss objective: TP1 − TP2 = 88.11838267130871 − 35.7731663319629 =
+52.34521633934581** (kinematic pressure units, m²/s², i.e. `p/ρ` per OpenFOAM incompressible
+convention). Reproduced bit-identically (`5.234521633934580e+01`) by the independent `-task
+probe` baseline run (`probe_all_run1.log`), a cold-start-from-`0/` reproducibility check.
+
+## Adjoint
+
+GMRES/PETSc solved for both `TP1` and `TP2` adjoints in a single combined linear solve (shared
+`d[R]/d[W]` system): **86 total iterations, `PetscConvergedReason: 2`** (converged), reaching
+KSP residual norm `1.08e-4` from an initial `1.24e+01`. Total derivatives were computed for the
+objective against all 6 design-variable groups (`shapexUpper/y/z`, `shapexLower/y/z`, 27
+components each, 162 total). Full total-derivative dictionary is in
+`compute_totals_run1.log`; `shapexUpper` (the group used for FD verification below):
+
+```
+d(OBJ.val)/d(shapexUpper) = [ 0.23711358, -0.43555559, -0.41765751,  1.96883727, -0.10505221,
+                              -1.3953011 ,  1.61077383,  0.90578111, -0.84337258,  7.81935558,
+                               4.80044882,  3.90871135, -4.43512493, -0.91203487,  0.55598334,
+                             -13.86041673, -3.77483865, -0.62881205, -4.33825856, -0.94864214,
+                               1.90894278, -1.78264732, -1.17260622, -2.25173312, -0.96908608,
+                               0.74690602, -1.95653977]
+```
+
+## FD verification
+
+`check_totals` known-trap check (per Ladder A1's finding): `processor0-3/` were present after
+`compute_totals` (root-owned, container writes). `sudo rm -rf processor*` before `check_totals` —
+this run had **no** `already exists, moving failed` crash; it completed clean on the first try.
+
+`of=["OBJ.val"], wrt=["shapexUpper"]` (ONE total-derivative group, 27 shape components), central
+FD, `step=1e-4`, `step_calc="abs"` — OpenMDAO's own summary:
+
+```
+Analytic Magnitude: 1.938364e+01
+      Fd Magnitude: 3.340851e+01
+Absolute Error (Jan - Jfd): 1.558097e+01  *
+Relative Error (Jan - Jfd)/Jfd: 4.663773e-01  *   <- 46.6%, OpenMDAO flags this
+```
+
+Per-component breakdown (analytic vs. FD, relative error, sign):
+
+| idx | analytic | FD (step=1e-4) | rel. err % | sign match |
+|---|---|---|---|---|
+| 0 | 0.23711 | 0.11014 | 115.3 | yes |
+| 1 | -0.43556 | -0.46795 | 6.9 | yes |
+| 2 | -0.41766 | -0.41319 | 1.1 | yes |
+| 3 | 1.96884 | 0.70507 | 179.2 | yes |
+| 4 | -0.10505 | -0.43988 | 76.1 | yes |
+| 5 | -1.39530 | -1.21264 | 15.1 | yes |
+| 6 | 1.61077 | 1.36334 | 18.1 | yes |
+| 7 | 0.90578 | 1.32814 | 31.8 | yes |
+| 8 | -0.84337 | 0.78391 | 207.6 | **NO (sign flip)** |
+| 9 | 7.81936 | 11.56848 | 32.4 | yes |
+| 10 | 4.80045 | 7.26987 | 34.0 | yes |
+| 11 | 3.90871 | 8.17581 | 52.2 | yes |
+| 12 | -4.43512 | -10.30518 | 57.0 | yes |
+| 13 | -0.91203 | -1.25570 | 27.4 | yes |
+| 14 | 0.55598 | 4.64655 | 88.0 | yes |
+| 15 | -13.86042 | -24.27272 | 42.9 | yes |
+| 16 | -3.77484 | -4.30296 | 12.3 | yes |
+| 17 | -0.62881 | 2.90530 | 121.6 | **NO (sign flip)** |
+| 18 | -4.33826 | -8.32702 | 47.9 | yes |
+| 19 | -0.94864 | -0.35517 | 167.1 | yes |
+| 20 | 1.90894 | 4.82274 | 60.4 | yes |
+| 21 | -1.78265 | -3.07833 | 42.1 | yes |
+| 22 | -1.17261 | -0.94309 | 24.3 | yes |
+| 23 | -2.25173 | -1.37502 | 63.8 | yes |
+| 24 | -0.96909 | -1.05939 | 8.5 | yes |
+| 25 | 0.74691 | 0.76429 | 2.3 | yes |
+| 26 | -1.95654 | -1.90572 | 2.7 | yes |
+
+**5 of 27 components (idx 1, 2, 16, 24, 25) fall within the ≤12% band this lab calibrated on
+the official unmodified NACA0012 shape-derivative case (Ladder A1). 22 of 27 do not, and 2
+(idx 8, 17) flip sign entirely.**
+
+### Step-size diagnostic (idx 0, manual `-task probe`, single-component central FD)
+
+To find out whether this is ordinary small-step FD noise (which A1's NACA0012 case exhibited,
+1-12%) that would shrink with a bigger step, I ran component 0 (`shapexUpper[0]`) at three step
+sizes:
+
+| step | OBJ(+step) | OBJ(-step) | central FD | analytic | rel. err % |
+|---|---|---|---|---|---|
+| 1e-4 | 52.34524387027182 | 52.34522044921939 | 0.1171 | 0.23711 | 50.6 |
+| 1e-3 | 52.34534755468928 | 52.34509948237295 | 0.1240 | 0.23711 | 47.7 |
+| 1e-2 | 52.34656274087725 | 52.34534566614248 | 0.0609 | 0.23711 | 74.3 |
+
+The FD estimate does **not** monotonically converge toward the adjoint value as the step grows
+from 1e-4 to 1e-2 (0.117 → 0.124 → 0.061) — it stays in the same wrong neighborhood, then moves
+further away. That rules out "just too small a step, dominated by primal-residual noise" as the
+*sole* explanation (a pure noise floor would show FD converging toward the true value as step
+increases, before turning over into truncation error at even larger steps). Two candidate causes,
+neither conclusively isolated within this rung's scope:
+
+1. **Primal residual floor is the same order as the signal.** `p`'s field-residual plateau
+   (`initRes` ≈ 2.26e-4, `T` residual norm 41.2) is comparable to or larger than several of the
+   `OBJ.val` perturbation deltas being differenced (as small as ~2.3e-5 at step 1e-4) — a
+   textbook setup for FD noise to dominate at small steps.
+2. **Coarse mesh (4800 cells) / non-smooth mesh-warp response.** This is a 6-block structured
+   mesh at fairly low resolution; a shape move at a single FFD control point near a block
+   junction can plausibly produce a locally non-smooth volume-mesh deformation that a
+   single global FD step size can't cleanly resolve, while the adjoint's linearization is exact
+   about the (converged-enough) baseline state regardless.
+
+I did not chase this further (root-causing which of the two dominates, or refining the mesh,
+would be a separate investigation, and the brief says stop after FD verification — no
+optimization, and by extension no case redesign).
+
+## Result vs. reference
+
+Stock (unmodified) `UBend_Channel/runScript.py` documents a baseline `CPL0 = 85.23 - 35.62 =
+49.61` (its own weighted-objective normalization constant, presumably from the original
+author's run). This run's TP1/TP2 at the same undeformed baseline shape:
+**TP1 − TP2 = 52.345**, a **5.5% deviation** from `CPL0`. Plausible causes: the container's
+OpenFOAM is `v2506`; the case's `FoamFile` headers (and the `convertToMeters` IOWarning at
+`blockMesh` time) say `v1812` — a ~6-year solver-version gap in a case whose numerics
+(GAMG tolerances, wall-function formulation defaults) are known to have shifted across that span.
+5.5% is a modest, plausibly solver-version-driven baseline deviation, not evidence of a setup
+error (the mesh, BCs, and `fvSolution`/`fvSchemes` were not touched).
+
+## Blockers/lessons (documented, not hidden)
+
+1. **`bash -lc './script.sh'` sourcing `loadDAFoam.sh` from a nested script file crashes.**
+   `probe_driver.sh`, invoked as `bash -lc './probe_driver.sh'` inside the container, failed
+   instantly with `pop_var_context: head of shell_variables not a function context` — an
+   OpenFOAM `config.sh` / bash quirk when its `etc/bashrc` chain is sourced from inside a
+   script invoked as a nested shell rather than inlined into the top-level `-lc` string.
+   **Fix:** inline the whole loop directly into the single `bash -lc '...'` string passed to
+   `docker run` (as done for the successful probe runs) instead of `source`-ing DAFoam and then
+   calling out to a separate `.sh` file.
+2. **argparse single-dash flags reject negative values.** `-probeDelta -1e-4` was parsed by
+   Python's `argparse` as two separate (unrecognized) flags, not one flag with a negative
+   argument (`error: argument -probeDelta: expected one argument`). **Fix:** use
+   `-probeDelta=-1e-4` (equals-sign form), which argparse accepts unambiguously.
+3. **`check_totals` known trap (from Ladder A1) did not recur this run** — `processor*` was
+   removed with `sudo rm -rf processor*` before calling `check_totals`, and it completed clean.
+   Confirms A1's lesson (clean `processor*` state between task invocations in the same case dir)
+   generalizes to this case.
+
+## Bottom line
+
+- **Primal:** converged to a genuine numerical fixed point (objective stable to 7-8 significant
+  digits over the last 400 SIMPLE iterations); field residuals plateau above `primalMinResTol`,
+  a known characteristic of this case class, not a defect introduced here.
+- **Adjoint:** computed successfully, GMRES converged (86 iters, `PetscConvergedReason: 2`),
+  reproducible bit-for-bit across independent cold starts.
+- **FD verification: does NOT cleanly pass.** Only 5/27 shape-gradient components land within
+  this lab's previously-calibrated ≤12% band; 2 components flip sign; the aggregate
+  vector-norm relative error is 46.6%. A step-size diagnostic on one component rules out "just
+  needs a bigger FD step" as the fix. **This is reported as a documented, unresolved
+  finding, not papered over as a pass** — the adjoint mechanics are demonstrably working
+  (GMRES converges, results reproduce), but rigorous FD confidence in the shape-derivative
+  gradient on this specific coarse mesh/case is not established by this rung's data.
