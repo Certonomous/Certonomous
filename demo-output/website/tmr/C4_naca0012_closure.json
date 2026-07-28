@@ -1,0 +1,109 @@
+{
+  "id": "C4-naca0012-closure",
+  "case": "TMR NACA 0012 airfoil validation, time-accurate closure attempt",
+  "generated_unix": 1785022500,
+  "session_date_utc": "2026-07-28",
+  "budget": {
+    "owner_approval": "Owner-approved (LADDER C4 night-queue directive). Spend cap CANNOT be verified from this instance: no IAM role, no ~/.aws, no AWS_* env vars, no aws CLI (demo-output/website/agenda/BLOCKERS.md item B-1). This record states actual core-minutes precisely and does NOT claim the spend was checked against a limit.",
+    "est_core_min": 480,
+    "est_source": "demo-output/website/agenda/proposals/tmr-naca0012-complete-ladders.json, est_core_min field",
+    "actual_core_min_this_session": 5.0,
+    "actual_core_min_this_session_detail": "One bounded, foreground, single-rank pimpleFoam confirmatory burst on the medium rung (300 s wall = 5.0 core-minutes, 1 rank, under the 4-rank cap). No other compute was run this session.",
+    "actual_core_min_prior_sessions_same_grid_alpha": 419.43,
+    "actual_core_min_prior_sessions_detail": "2026-07-26 attempts on the SAME (medium, alpha=10) pair, cited as evidence, not re-run: cold start 21568.94 s = 359.48 core-min (~/certonomous-runs/tmr-naca-t-a10-medium/log.pimpleFoam); steady-field-seeded restart 3593.13 s = 59.89 core-min (~/certonomous-runs/tmr-naca-t-a10-medium-seeded/log.pimpleFoam). Neither reached 1 convective unit.",
+    "estimate_held": false,
+    "estimate_verdict": "NO. The 480 core-minute estimate covers the WHOLE proposal (225x65 and 449x129 at alpha 10, then full ladders at alpha 0 and 15). Measured this session and cross-checked against two prior-session attempts, a single (grid, alpha) pair on the medium rung alone needs an estimated 11,700-30,300 core-minutes just to reach a 30-convective-unit window -- a window ALREADY SHOWN insufficient for stationarity on the coarse rung -- and roughly 117,000-303,000 core-minutes for the 'hundreds of convective units' the proposal's own rationale says is required. That is 24x to 630x the entire 480-minute budget for one rung, before the stationarity gate can even be evaluated. The estimate undercounts the time-accurate approach's true cost by 1-3 orders of magnitude."
+  },
+  "rungs": [
+    {
+      "level": "coarse",
+      "tmr_nodes": "113x33",
+      "cells": 3584,
+      "alpha_deg": 10.0,
+      "status": "measured, established prior to this session -- NOT re-derived",
+      "solver": "simpleFoam, steady, 5000 iterations",
+      "wall_seconds": 95.2,
+      "coefficients": {
+        "cl": 1.1164357439,
+        "cd": 0.0044948532678,
+        "cd_pressure": -0.001479113051,
+        "cd_viscous": 0.005973966318
+      },
+      "comparison_vs_cfl3d": "No comparison claim is made. The published CFL3D SST values are finest-grid (897x257) only; a single coarse rung on this ladder supports no convergence or accuracy claim, per naca0012_status.json.",
+      "source": "demo-output/website/tmr/naca0012_status.json, measured block",
+      "lesson": "The one trustworthy number this case has. Left untouched this session."
+    },
+    {
+      "level": "medium",
+      "tmr_nodes": "225x65",
+      "cells": 14336,
+      "alpha_deg": 10.0,
+      "status": "attempted, time-accurate solve NOT AFFORDABLE within budget -- documented and stopped",
+      "solver": "pimpleFoam, time accurate, cold start (potentialFoam init), maxCo 1.5, adjustTimeStep yes",
+      "run_this_session": {
+        "dir": "~/certonomous-runs/C4-naca-t-a10-medium-confirm (scratch, not in repo; mesh/fields/dicts reused from the already-staged 2026-07-26 case to avoid redundant meshing cost, then reset to t=0)",
+        "wall_seconds": 300,
+        "core_minutes": 5.0,
+        "ranks": 1,
+        "convective_time_reached": 0.0049518293,
+        "steps": 165,
+        "deltaT_final": 3.756979621e-05,
+        "deltaT_trend": "grew from 4.057481699e-07 at the impulsive start, plateaued (not still shrinking) around 3.7e-5 for the back half of the burst",
+        "courant_max_at_end": 1.497543474,
+        "rate_units_per_second": 1.6506e-05,
+        "rate_units_per_core_minute": 9.9037e-04
+      },
+      "prior_session_evidence_cited": [
+        {
+          "run": "cold start, 2026-07-26",
+          "dir": "~/certonomous-runs/tmr-naca-t-a10-medium",
+          "execution_time_s": 21568.94,
+          "core_minutes": 359.48,
+          "convective_time_reached": 0.9254526,
+          "rate_units_per_second": 4.2903e-05
+        },
+        {
+          "run": "seeded from developed steady field, maxCo 5.0, 2026-07-26",
+          "dir": "~/certonomous-runs/tmr-naca-t-a10-medium-seeded",
+          "execution_time_s": 3593.13,
+          "core_minutes": 59.89,
+          "convective_time_reached": 0.018052714,
+          "rate_units_per_second": 5.008e-06,
+          "note": "Cl reads ~1.42 during this crawl, far from any expected converged value -- the impulsive adjustment from the steady seed has not settled, same failure mode already documented in naca0012_status.json for the coarse/alpha0 case, now confirmed on medium/alpha10 too"
+        }
+      ],
+      "stationarity_gate": {
+        "invoked": false,
+        "verdict": "NOT REACHED, not a pass and not a drift-fail. The run never approaches the averaging window start (0.4 x end_time in run_naca_transient's convention); halves_drift() has nothing to evaluate. This is a distinct, upstream failure mode from a drifting mean -- it is reported as such, not forced through the gate."
+      },
+      "coefficients": null,
+      "comparison_vs_cfl3d": "None computed. No coefficient may be quoted from 0.005 convective units of march; doing so would violate the no-fabrication rule.",
+      "cause": [
+        "Adaptive Courant-limited timestep (maxCo 1.5) plateaus at deltaT ~3.7e-5 on the medium grid, versus an effective ~0.041 units/step measured on the coarse grid's own transient run (30 units / 735 steps) -- about a 1,100x smaller step. Combined with 4x the cell count per step, this yields the measured ~9,700x slower wall-clock rate per convective unit than the coarse rung's transient march.",
+        "Independent, measured contributing cause: the converted TMR medium mesh has severe cell-quality defects. checkMesh on the same mesh (demo-output/website/tmr/runs/naca-a10-medium/log.checkMesh) reports max aspect ratio 26446226.94 on 1822 cells, 170 severely non-orthogonal faces (>70 degrees), and 'Failed 1 mesh checks'. Consistent with that, the confirmatory log shows the pressure PCG solve repeatedly hitting its 1000-iteration cap without full convergence ('No Iterations 1000' on both p and pFinal blocks) -- each of the already-too-few affordable timesteps is itself expensive.",
+        "Seeding from the developed steady field (tried 2026-07-26) does not rescue this: it crawls even slower (5.0e-6 units/s) than the cold start, working through an impulsive adjustment shock, the same failure mode already documented for the coarse/alpha0 rung in naca0012_status.json."
+      ],
+      "lesson": "Time-accurate averaging on this grid is not a budget problem that more core-minutes inside the 480 estimate can fix; it is a 1-3 order of magnitude gap. MPI parallelism would not close it either: the bottleneck is timestep COUNT under a Courant limit set by cell geometry, not per-step throughput, so adding ranks raises core-minute cost without proportionally cutting wall-clock steps needed."
+    },
+    {
+      "level": "fine",
+      "tmr_nodes": "449x129",
+      "cells": 57344,
+      "alpha_deg": 10.0,
+      "status": "NOT ATTEMPTED -- 0 core-minutes spent",
+      "reason": "Fine is the next TMR family doubling (4x medium's cell count) with correspondingly finer near-wall and leading-edge spacing. Extrapolating the coarse-to-medium collapse already measured (~9700x slowdown per convective unit for one grid doubling) makes a fine-rung transient attempt certain to be far less affordable than medium's already-measured 24x-630x-over-budget result. Spending foreground core-minutes to confirm a near-certain outcome was judged not worthwhile; this is a documented, reasoned stop, not an oversight.",
+      "coefficients": null,
+      "comparison_vs_cfl3d": null
+    }
+  ],
+  "overall_lesson": "The coarse rung remains the only trustworthy NACA 0012 lift/drag number this project has. The medium and fine rungs' blocker (a wake-driven oscillation that never decays under the steady solver) cannot be resolved by throwing the proposal's 480-core-minute time-accurate budget at it: the honest, now twice-measured (2026-07-26 and 2026-07-28) rate shows that budget is 1-3 orders of magnitude short for even ONE (grid, alpha) pair. Closing the medium/fine rungs needs either a fundamentally cheaper approach (fixed larger implicit step with a stability study rather than a Courant-limited adaptive one, a compressible/preconditioned solver matching CFL3D's own numerics, or a coarser but valid stationarity target) or a budget reset that is explicit about needing tens of thousands of core-minutes per rung, not hundreds.",
+  "deviations_restated_not_new": [
+    "Incompressible simpleFoam/pimpleFoam analog of the M=0.15 case",
+    "No point-vortex farfield correction",
+    "TMR coarse grid's own wall spacing gives max y+ near 10 at this Reynolds number",
+    "Grids are the TMR point files themselves, converted with plot3dToFoam"
+  ],
+  "pending": [
+    "A steady or time-averaged closure for the medium and fine rungs at every alpha remains open. This session establishes, with fresh measurement, that the proposal's time-accurate budget cannot reach it; the next honest step is a budget or method reset, not another attempt inside 480 core-minutes."
+  ]
+}
