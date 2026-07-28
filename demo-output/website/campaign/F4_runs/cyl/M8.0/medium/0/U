@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (8.0 0 0);
+
+boundaryField
+{
+    cylinder
+    {
+        type            slip;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    farfield
+    {
+        type            fixedValue;
+        value           uniform (8.0 0 0);
+    }
+    bottom
+    {
+        type            symmetryPlane;
+    }
+    defaultFaces
+    {
+        type            empty;
+    }
+}

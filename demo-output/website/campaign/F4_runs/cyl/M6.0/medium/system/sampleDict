@@ -1,0 +1,16 @@
+FoamFile { version 2.0; format ascii; class dictionary; object sampleDict; }
+type sets;
+libs (sampling);
+interpolationScheme cellPoint;
+setFormat raw;
+fields (p rho T);
+sets
+(
+    r0 { type uniform; axis distance; start (-1.00000000 0.00000000 0); end (-1.70000000 0.00000000 0); nPoints 400; }
+    r1 { type uniform; axis distance; start (-0.97814760 0.20791169 0); end (-1.66285092 0.35344987 0); nPoints 400; }
+    r2 { type uniform; axis distance; start (-0.91354546 0.40673664 0); end (-1.55302728 0.69145229 0); nPoints 400; }
+    r3 { type uniform; axis distance; start (-0.80901699 0.58778525 0); end (-1.37532889 0.99923493 0); nPoints 400; }
+    r4 { type uniform; axis distance; start (-0.66913061 0.74314483 0); end (-1.13752203 1.26334620 0); nPoints 400; }
+    r5 { type uniform; axis distance; start (-0.50000000 0.86602540 0); end (-0.85000000 1.47224319 0); nPoints 400; }
+    r6 { type uniform; axis distance; start (-0.30901699 0.95105652 0); end (-0.52532889 1.61679608 0); nPoints 400; }
+);
