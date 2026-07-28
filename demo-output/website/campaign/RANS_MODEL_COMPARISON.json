@@ -1,0 +1,134 @@
+{
+  "title": "RANS turbulence-model comparison -- is F6c/F7a fixable by model choice?",
+  "date": "2026-07-28",
+  "repo": "/home/ubuntu/Certonomous",
+  "question": "Two campaign gates failed under kOmegaSST (F6c square duct, F7a dam break). Is that fixable by changing turbulence model, or structural?",
+
+  "f7a_dam_break_judgement": {
+    "question": "Is F7a's +13.6% mean / +21.3% max surge-front deviation vs Martin & Moyce fixable by turbulence model choice?",
+    "verdict": "NO -- not even applicable. Turbulence modelling was never active in F7a.",
+    "evidence": "F7_runs/damBreak_MM_{coarse,medium,medium_closedbox}/constant/turbulenceProperties reads 'simulationType laminar;' in all three F7a cases (checked directly, not inferred). No RASModel, no kOmegaSST, no turbulence closure of any kind was solved.",
+    "physical_reasoning": "Dam break / gravity current collapse over ~0.1-1 s is an inertia-gravity-driven free-surface problem (Froude-scaled, Fr~O(1)); physical Re~4e4 is high enough that the bulk collapse dynamics are governed by pressure/gravity balance, not turbulent Reynolds stresses, and this is the standard treatment in essentially all VOF dam-break validations in the literature per the original F7 report.",
+    "root_cause_already_identified_in_F7_report": "Mesh-dependent, sign-flipping error when refining a/8->a/20 (ruled out simple under-resolution); BC choice (open vs closed top) ruled out by direct A/B test; error concentrated at the thin near-wall leading edge, correlated with the near-wall probe height used to define the alpha=0.5 front crossing on a VOF field -- a front-tracking/interface-capturing definition issue, not a closure-model issue.",
+    "compute_spent_on_this_judgement": "0 core-minutes -- settled by reading the case's own already-existing constant/turbulenceProperties files, per the hard rule against burning compute proving something a direct dictionary read already answers.",
+    "conclusion": "F7a is not a turbulence-model problem. Swapping kOmegaSST for anything else would change nothing because kOmegaSST (or any RAS model) was never invoked in this case. No further F7 compute was run."
+  },
+
+  "f6c_duct_prediction": {
+    "statement": "Secondary flow of the second kind in a straight non-circular duct is driven by anisotropy in the cross-plane normal Reynolds stresses (tau_yy != tau_zz). Every LINEAR (Boussinesq) eddy-viscosity model -- SpalartAllmaras, kEpsilon, realizableKE, kOmega, kOmegaSST -- computes the Reynolds stress as an isotropic function of the mean strain rate (tau_ij = -2*nu_t*S_ij + (2/3)*k*delta_ij), which has zero deviatoric normal-stress anisotropy in the duct cross-plane by construction. These models therefore CANNOT produce secondary flow of the second kind, regardless of coefficients, wall treatment, or convergence. Only a NONLINEAR eddy-viscosity model (quadratic/cubic stress-strain relation) or a full Reynolds-stress transport model (RSM) has the structural capacity to generate it.",
+    "made_before_running": true
+  },
+
+  "openfoam_version": "2606 (OpenCFD/ESI build 481094f-20260618)",
+  "models_available_in_this_box": {
+    "linear_incompressible_RAS": ["SpalartAllmaras","kEpsilon","RNGkEpsilon","realizableKE","LaunderSharmaKE","kEpsilonPhitF","kOmega","kOmegaSST","kOmegaSSTSAS","kOmegaSSTLM","GEKO"],
+    "nonlinear_incompressible_RAS": ["LienCubicKE (cubic, Lien-Chen-Leschziner 1996)","ShihQuadraticKE (quadratic)"],
+    "reynolds_stress_RAS": ["LRR (Launder-Reece-Rodi)","SSG (Speziale-Sarkar-Gatski, quadratic pressure-strain)","EBRSM (elliptic-blending RSM)"],
+    "note": "confirmed via `strings libincompressibleTurbulenceModels.so` and $FOAM_SRC/TurbulenceModels/incompressible/turbulentTransportModels/turbulentTransportModels.C; not via caseDicts listing, which was empty on this box."
+  },
+
+  "case": {
+    "source_case": "F6c square/rectangular duct benchmark, AR_1_Ret_360",
+    "mesh_reused_from": "demo-output/website/dafoam/ladder-b/duct_baseline/AR_1_Ret_360 (B2, commit e2c45ab) -- mesh, transportProperties, fvSchemes, fvOptions (meanVelocityForce), boundary conditions all reused verbatim, NOT re-meshed",
+    "cells": 3025,
+    "geometry": "quarter square duct (symmetry planes on 2 sides, exploits the known 8-fold symmetry of the secondary-flow pattern), streamwise-cyclic, wall-resolved (nutLowReWallFunction), Re_tau=342, Re_b=5693, driven by meanVelocityForce fvOption",
+    "solver": "simpleFoam, steady RANS",
+    "scope_note": "Only AR_1_Ret_360 was run in this sweep (not AR_3_Ret_360) to keep new compute minimal -- the physics question (zero vs nonzero secondary flow) does not depend on aspect ratio; kOmegaSST already showed zero on both AR_1 and AR_3 in F6c.",
+    "dns_reference_pct_Ubulk": 2.22,
+    "dns_reference_source": "shipped 0/U_LES field, vinuesalab.com/duct, same mesh, per F6c_duct_vs_dns.md"
+  },
+
+  "results": [
+    {
+      "model": "kOmegaSST",
+      "formulation_class": "linear (Boussinesq)",
+      "status": "reused baseline, not re-run",
+      "iterations": 456,
+      "core_minutes": 0.0,
+      "core_minutes_note": "0 new compute -- reused B2's already-converged field per instructions",
+      "secondary_flow_pct_Ubulk": 6.1e-16,
+      "pct_of_dns_captured": 0.0,
+      "converged_cleanly": true,
+      "verdict": "confirms prediction: exactly zero (machine precision)"
+    },
+    {
+      "model": "SpalartAllmaras",
+      "formulation_class": "linear (Boussinesq)",
+      "status": "converged, default settings",
+      "iterations": 354,
+      "core_minutes": 0.081,
+      "secondary_flow_pct_Ubulk": 6.64e-16,
+      "pct_of_dns_captured": 0.0,
+      "converged_cleanly": true,
+      "verdict": "confirms prediction: exactly zero (machine precision)"
+    },
+    {
+      "model": "kEpsilon",
+      "formulation_class": "linear (Boussinesq)",
+      "status": "converged, default settings",
+      "iterations": 597,
+      "core_minutes": 0.133,
+      "secondary_flow_pct_Ubulk": 5.54e-16,
+      "pct_of_dns_captured": 0.0,
+      "converged_cleanly": true,
+      "verdict": "confirms prediction: exactly zero (machine precision)"
+    },
+    {
+      "model": "realizableKE",
+      "formulation_class": "linear (Boussinesq) -- 'realizable' refers to Cmu satisfying realizability constraints, not to a nonlinear stress-strain relation; still isotropic normal-stress hypothesis",
+      "status": "crashed twice (floating-point divide-by-zero in the C_mu blending formula, at iteration 1, reproducible from both a uniform initial condition and a warm-started converged-field initial condition) before converging cleanly on a 3rd attempt with FOAM_SIGFPE trapping disabled and momentum/turbulence under-relaxation reduced (U 0.9->0.5, k/epsilon 0.8->0.4) -- a numerics-only, non-tuning fix; continuity residual confirmed small and stable (~1e-13) at convergence, field confirmed free of NaN/Inf",
+      "iterations": 2921,
+      "core_minutes": 0.757,
+      "core_minutes_note": "0.757 core-min total, INCLUDING the two crashed attempts (0.062+0.047 core-min) -- reported honestly, not just the successful run",
+      "secondary_flow_pct_Ubulk": 9.21e-16,
+      "pct_of_dns_captured": 0.0,
+      "converged_cleanly": true,
+      "verdict": "confirms prediction: exactly zero (machine precision), once a trustworthy converged solution was obtained. Separately: numerically fragile with default OpenFOAM v2606 settings on this low-Re wall-resolved mesh -- a reportable robustness finding, orthogonal to the anisotropy question."
+    },
+    {
+      "model": "kOmega",
+      "formulation_class": "linear (Boussinesq)",
+      "status": "converged, default settings",
+      "iterations": 274,
+      "core_minutes": 0.077,
+      "secondary_flow_pct_Ubulk": 7.90e-16,
+      "pct_of_dns_captured": 0.0,
+      "converged_cleanly": true,
+      "verdict": "confirms prediction: exactly zero (machine precision)"
+    },
+    {
+      "model": "LienCubicKE",
+      "formulation_class": "NONLINEAR (cubic eddy-viscosity, Lien-Chen-Leschziner 1996) -- adds cubic strain/vorticity terms to the Reynolds-stress tensor, giving nonzero normal-stress anisotropy",
+      "status": "crashed twice (same divide-by-zero failure mode as realizableKE, at iteration 1, cold and warm-started) before converging on a 3rd attempt with FOAM_SIGFPE disabled + reduced under-relaxation. A first attempt at this 3rd-attempt recipe (default relaxation, FPE trap merely disabled) 'completed' 2370 iterations passing the k/epsilon residual gate but was REJECTED as untrustworthy: continuity residual ('time step continuity errors: sum local') exploded to ~1200-3000 and never decayed, ~9 orders of magnitude above the other models -- discarded, not reported. Only the run with BOTH FPE-trap-off AND reduced relaxation (U 0.9->0.5, k/epsilon 0.8->0.4) produced a solution with small, stable continuity residual (~8e-4, decaying) and no NaN/Inf in the field -- this is the one reported below.",
+      "iterations": 4780,
+      "core_minutes": 2.201,
+      "core_minutes_note": "2.201 core-min total across ALL 5 attempts (2 crashes + 1 discarded unstable run + 2-part successful run), reported honestly",
+      "secondary_flow_pct_Ubulk": 0.1743,
+      "secondary_flow_max_pct_Ubulk": 0.4758,
+      "pct_of_dns_captured": 7.85,
+      "converged_cleanly": true,
+      "verdict": "PREDICTION HOLDS AND IS CONFIRMED: nonzero secondary flow, ~9 orders of magnitude above the linear models' machine-precision zero. But the magnitude recovered (0.174% Ubulk) is only 7.85% of the DNS value (2.22% Ubulk) -- the mechanism is structurally restored, the quantity is not close to fully recovered."
+    }
+  ],
+
+  "models_available_but_not_run": {
+    "ShihQuadraticKE": "nonlinear, quadratic -- same family as LienCubicKE, not run for time/compute budget once LienCubicKE had already confirmed the prediction",
+    "LRR": "Reynolds-stress transport model (linear pressure-strain) -- available, not run: needs a transported symmetric-tensor R field plus new wall BCs, materially more setup than the k-epsilon-family models which all share one 0/ field set; flagged as the natural next step since RSMs typically recover secondary-flow magnitude closer to DNS than cubic k-epsilon in the literature",
+    "SSG": "Reynolds-stress transport model (quadratic pressure-strain) -- available, not run, same reason as LRR",
+    "EBRSM": "elliptic-blending RSM -- available, not run, same reason as LRR"
+  },
+
+  "totals": {
+    "new_core_minutes_f6c_sweep": 3.249,
+    "new_core_minutes_f7a_judgement": 0.0,
+    "new_core_minutes_total": 3.249,
+    "mpi_ranks_used": 1,
+    "note": "all runs serial (1 rank), well inside the 2-4 rank cap; run strictly sequentially in the foreground, nothing left running; MemAvailable checked before and after (~30 GB free throughout, mega-batch and other agents coexisting)"
+  },
+
+  "final_verdict": {
+    "f7a_dam_break": "NOT APPLICABLE -- no turbulence model was active in the failing case (laminar VOF). Turbulence-model choice cannot fix or worsen this gate. The cause is a free-surface front-tracking/interface-definition issue, already correctly diagnosed in the original F7 report.",
+    "f6c_duct_secondary_flow": "FIXABLE IN KIND, NOT YET IN DEGREE, by model choice. Every linear (Boussinesq) RAS model tested -- SpalartAllmaras, kEpsilon, realizableKE, kOmega, kOmegaSST -- gives secondary flow at floating-point machine precision (~1e-15-1e-16% Ubulk), confirming this is a structural limitation of the closure class, not a tuning or convergence artifact (5/5 linear models agree to the bit). Switching to a NONLINEAR closure (LienCubicKE) restores a genuinely nonzero secondary-flow field (0.174% Ubulk, ~9 orders of magnitude above the linear models) -- the qualitative fix works. But it only recovers 7.85% of the DNS magnitude (2.22% Ubulk), so a straight LienCubicKE swap would not, by itself, pass the original F6c gate. A full Reynolds-stress model (LRR/SSG/EBRSM, available in this OpenFOAM build but not run this session) is the literature-indicated next step most likely to close more of the remaining gap, alongside or instead of a data-driven closure correction.",
+    "which_model_if_yes": "LienCubicKE demonstrated the mechanism; a full RSM (SSG or EBRSM, untested) is the recommended next attempt for magnitude, not LienCubicKE alone."
+  }
+}

@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      epsilon;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// epsilonInlet = Cmu * kInlet * omegaInlet = 0.09 * 0.02 * 10.0
+// (consistent conversion from the baseline kOmegaSST k/omega inlet state,
+// not fitted/tuned -- same turbulence intensity level as the SST baseline)
+epsilonInlet    0.018;
+
+dimensions      [0 2 -3 0 0 0 0];
+
+internalField   uniform $epsilonInlet;
+
+boundaryField
+{
+    "(wallTop|wallSide)"
+    {
+        type            epsilonWallFunction;
+        value           uniform $epsilonInlet;
+    }
+
+    inflow
+    {
+        type            cyclic;
+    }
+    outflow
+    {
+        type            cyclic;
+    }
+
+    "(symmetryBottom|symmetrySide)"
+    {
+        type            symmetry;
+    }
+
+}
+
+// ************************************************************************* //

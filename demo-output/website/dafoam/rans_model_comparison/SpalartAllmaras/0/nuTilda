@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      nuTilda;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "../caseDef"
+
+// standard SA initialisation ~5*nu (OpenFOAM tutorial convention)
+nuTildaInlet    #calc "5.0*$nu";
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform $nuTildaInlet;
+
+boundaryField
+{
+    "(wallTop|wallSide)"
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+
+    inflow
+    {
+        type            cyclic;
+    }
+    outflow
+    {
+        type            cyclic;
+    }
+
+    "(symmetryBottom|symmetrySide)"
+    {
+        type            symmetry;
+    }
+
+}
+
+// ************************************************************************* //

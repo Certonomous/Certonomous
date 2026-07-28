@@ -1,0 +1,82 @@
+{
+  "SpalartAllmaras": {
+    "log": {
+      "converged": true,
+      "iterations": 354,
+      "exec_time_s": 3.13,
+      "crashed": false
+    },
+    "final_time_dir": "354",
+    "n_cells": 3025,
+    "Ubulk_ms": 33.25824038753058,
+    "secondary_rms_ms": 2.2083322205185787e-16,
+    "secondary_rms_pct_Ubulk": 6.6399550751534735e-16,
+    "secondary_max_pct_Ubulk": 4.665996181740622e-15,
+    "pct_of_DNS_captured": 2.9909707545736364e-14,
+    "has_nan_or_inf": false
+  },
+  "kEpsilon": {
+    "log": {
+      "converged": true,
+      "iterations": 597,
+      "exec_time_s": 6.29,
+      "crashed": false
+    },
+    "final_time_dir": "597",
+    "n_cells": 3025,
+    "Ubulk_ms": 33.45763914121323,
+    "secondary_rms_ms": 1.855088598101558e-16,
+    "secondary_rms_pct_Ubulk": 5.544589055646948e-16,
+    "secondary_max_pct_Ubulk": 7.885434877488906e-15,
+    "pct_of_DNS_captured": 2.4975626376788052e-14,
+    "has_nan_or_inf": false
+  },
+  "realizableKE": {
+    "log": {
+      "converged": true,
+      "iterations": 2921,
+      "exec_time_s": 38.6,
+      "crashed": false
+    },
+    "final_time_dir": "2921",
+    "n_cells": 3025,
+    "Ubulk_ms": 32.138443332403305,
+    "secondary_rms_ms": 2.960185464501362e-16,
+    "secondary_rms_pct_Ubulk": 9.210730693719634e-16,
+    "secondary_max_pct_Ubulk": 5.66876566325265e-15,
+    "pct_of_DNS_captured": 4.148977789963799e-14,
+    "has_nan_or_inf": false
+  },
+  "kOmega": {
+    "log": {
+      "converged": true,
+      "iterations": 274,
+      "exec_time_s": 2.98,
+      "crashed": false
+    },
+    "final_time_dir": "274",
+    "n_cells": 3025,
+    "Ubulk_ms": 33.46729479741157,
+    "secondary_rms_ms": 2.6424577885531784e-16,
+    "secondary_rms_pct_Ubulk": 7.895642012743593e-16,
+    "secondary_max_pct_Ubulk": 9.315506308722427e-15,
+    "pct_of_DNS_captured": 3.5565955012358525e-14,
+    "has_nan_or_inf": false
+  },
+  "LienCubicKE": {
+    "log": {
+      "converged": true,
+      "iterations": 4780,
+      "exec_time_s": 53.13,
+      "crashed": false
+    },
+    "final_time_dir": "4780",
+    "n_cells": 3025,
+    "Ubulk_ms": 34.89806901239669,
+    "secondary_rms_ms": 0.06082569361388819,
+    "secondary_rms_pct_Ubulk": 0.17429529866618507,
+    "secondary_max_pct_Ubulk": 0.4757745058212569,
+    "pct_of_DNS_captured": 7.851139579557884,
+    "has_nan_or_inf": false
+  }
+}
