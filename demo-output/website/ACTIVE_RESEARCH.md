@@ -296,6 +296,75 @@ fields use `#include`-macro'd dictionaries that the field parser silently fails
 on, returning nothing at all. A silent empty read is precisely the failure that
 manufactures a fake result, so it was handed to B3 as the first thing to fix.
 
+## Campaign F6 — closure-aligned separated flows
+
+### F6a NASA wall-mounted hump — GATE REACHED
+
+| quantity | ours | NASA experiment | deviation |
+| --- | --- | --- | --- |
+| separation x/c | 0.6544 | 0.665 | **−1.59%** |
+| reattachment x/c | 1.2534 | 1.100 | **+13.95%** |
+
+**The +13.95% is not our error, and the cross-checks are what establish that.**
+Against NASA's *own published SST CFD*, our separation point differs by 0.06%
+and our reattachment sits inside their published 1.25–1.27 range. Against the
+benchmark's shipped baseline field, ≤0.02%. Through the benchmark's own scorer,
+0.0622 against the published floor of 0.0621, +0.16%.
+
+So our solver reproduces NASA's SST result almost exactly, and **both** miss the
+experiment the same way. The deviation is the documented linear-eddy-viscosity
+over-prediction of bubble length — a **turbulence-model deficiency, not a solver
+error**. Reference data was fetched live from the relocated TMR site, not
+recalled. 5.25 core-min for all three rungs.
+
+### F6c square duct vs DNS — GATE MEASURED, FAIL, and the failure is structural
+
+| case | DNS secondary flow (% of U_bulk) | RANS captures |
+| --- | --- | --- |
+| AR_1_Ret_360 | 2.22% | **0.0%** |
+| AR_3_Ret_360 | 2.07% | **0.0%** |
+
+Uncorrected k-omega SST produces **exactly zero** secondary flow — machine
+precision, ~1e-15% of bulk. This is not a resolution or convergence artefact; a
+linear Boussinesq closure has zero normal-stress anisotropy by construction, and
+secondary flow of the second kind is driven entirely by that anisotropy. The
+model *cannot* produce it. Zero new CFD was spent: B2's converged baselines were
+reused. 0 core-min.
+
+### Supervisor analysis: the duct deficit is NOT mainly the missing secondary flow
+
+The obvious inference from F6c is that the ducts dominate our deficit because
+the secondary flow is missing. **I checked, and that inference is wrong.**
+
+| case | our error | secondary flow absent | **max share explained** | rank-2 total error |
+| --- | --- | --- | --- | --- |
+| AR_1_Ret_360 | 9.19% | 2.22% | **24%** | 4.55% |
+| AR_3_Ret_360 | 8.62% | 2.07% | **24%** | 3.99% |
+
+Since the secondary flow is entirely absent, it can account for at most its own
+magnitude. **At least 76% of our duct error is streamwise-profile error.**
+
+And the decisive comparison: **rank 2's total error (4.55%, 3.99%) is smaller
+than our streamwise-only remainder (~7.0%, ~6.6%).** A scalar correction on the
+turbulence destruction term does not create anisotropy either, so rank 2 is
+almost certainly carrying the same ~2.2% secondary-flow floor — meaning their
+streamwise error is roughly 2.3% against our 7.0%. **They are about three times
+better at the part that dominates.**
+
+*Caveat: scaled MAE does not decompose exactly, so these are bounds and
+estimates, not an exact error budget.*
+
+**Two consequences, and they point in different directions:**
+1. **B3's field inversion is well targeted after all.** The dominant term is the
+   streamwise profile, which is exactly what a scalar eddy-viscosity correction
+   can fix. Unblocking the GMRES failure remains the highest-value single task.
+2. **~2.2% is a floor for the entire linear-eddy-viscosity class**, ours and
+   rank 2's alike. Rank 2 at ~4.0–4.6% is already within twice that floor.
+   Beating it needs a closure that resolves anisotropy — which is precisely the
+   **TBNN and SpaRTA** classes named as M2's next two reproductions. F6c has now
+   supplied the physics argument for that ordering, rather than it resting on
+   convenience.
+
 ## Ladder C — closure challenge
 
 **Closure metric movement tonight: NONE. 0.0741, unchanged since round 2.**
