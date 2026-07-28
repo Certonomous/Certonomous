@@ -101,6 +101,38 @@ worse than doing nothing on three cases against the uncorrected baseline, worth
 0.0066 on the mean, which is 1.7 times our margin over rank 4. Both terms are
 real; the duct term is the larger by a factor of eight.
 
+### C1 — training line: test-blind baseline-error gate **BUILT AND VALIDATED**
+
+A gate that predicts, from features the test cases legitimately expose, whether
+the correction should be applied at all. Fitted on the 21 training cases,
+checked on the 4 held-out validation cases, **never on a test case**.
+
+| Result | Value |
+| --- | --- |
+| Features after screening | 3 (p90 of two Pope invariants, plus a backflow-fraction separation proxy) |
+| Separation on held-out validation | **AUC 1.0** |
+| Threshold set from training data alone | classified **4 of 4** validation cases correctly |
+| Trivial always-apply baseline | 3 of 4 |
+| Compute | ~0.06 core-min, single core, no flow solve |
+
+**Two things make this trustworthy rather than merely good-looking.** First, the
+agent's own first attempt — a 15-feature model — overfit and was reported, not
+buried: training cross-validation looked strong at r +0.93 while validation
+collapsed to r +0.25 with the wrong rank order and one prediction twice outside
+the observed training range. Feature screening to 3 was the fix. Second, the
+n=4 caveat is stated plainly: with only one positive label, an AUC of 1.0 has
+roughly a 1-in-4 chance of arising by luck. **Encouraging, not established** —
+the same caution C2 applied to its own n=5 finding.
+
+**Leakage independently verified by the supervisor, not merely asserted.** The
+script loads only the training and validation splits, imports the test list
+solely to assert that it never intersects them, and never calls the benchmark's
+scoring function. The only matches for a test-case name anywhere in the file are
+in the docstring, one of which is the sentence stating it does not touch them.
+
+**Not applied to the test set, and no scoring call made.** Producing a validated
+gate is the deliverable; deciding to spend the single shot is not tonight's call.
+
 ### C3 — NACA 4412 credential: **NOT VALIDATED**
 
 Not because a number missed, but because the grading method is self-referential:
