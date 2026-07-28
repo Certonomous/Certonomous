@@ -1,0 +1,143 @@
+{
+  "rung": "B2",
+  "purpose": "Reproduce the uncorrected k-omega SST RANS baseline for the closure-challenge square-duct test cases (AR_1_Ret_360, AR_3_Ret_360) with our own stack, document every deviation from the paper/benchmark's own baseline with its cause, and (time permitting) do the same for CBFS, the field-inversion training case in Wu/Zhang/Zhang. Field inversion itself is OUT OF SCOPE (that is B3).",
+  "generated_at": "2026-07-28T01:28:00Z",
+  "date_measured": "2026-07-28",
+  "leakage_statement": "No fitting, tuning, or selection was performed against any test-case ground truth. AR_1_Ret_360 and AR_3_Ret_360 predictions were scored exactly once each, forward-only, through the benchmark's own unmodified evaluate_individual_case(), the same operation already used to produce the published closure_challenge_rans_floor.json. CBFS is not one of the benchmark's 8 scored test cases (it is the paper's training case), so no leakage exposure applies to it either way.",
+  "environment": {
+    "solver": "simpleFoam (plain OpenFOAM, not DAFoam -- this is an uncorrected baseline, no adjoint needed)",
+    "our_openfoam_version": "v2606 (OpenCFD/ESI fork), build _481094f-20260618",
+    "original_case_openfoam_version": "OpenFOAM-7 (OpenFOAM Foundation fork), build 7-3bcbaf946ae9, per the shipped log.run headers in the benchmark clone",
+    "ranks": 1,
+    "host": "this box, /home/ubuntu/Certonomous",
+    "mem_available_at_start_kb": 20391012,
+    "mem_available_after_all_runs_kb": 13018728
+  },
+  "data_provenance": {
+    "benchmark_repo": "https://github.com/rmcconke/closure-challenge-benchmark",
+    "benchmark_repo_local_clone": "/home/ubuntu/closure-challenge-benchmark",
+    "case_source_note": "The benchmark clone ships the ACTUAL OpenFOAM case directories the authors used to generate their published baseline fields, including caseDef, fieldDef, fvOptions and the original log.run -- these are literally the '00Baseline/beta11' (beta=1, uncorrected) case directories from the paper authors' own thesis codebase, confirmed via data/extract_duct_cases.sh and the log.run Case: path (.../finalCases/rectDuct/AR_1_Ret_360/00Baseline/beta11).",
+    "eval_package_repo": "https://github.com/rmcconke/closure-challenge",
+    "eval_package_local_clone": "/home/ubuntu/closure-challenge-pkg",
+    "scoring_environment": "~/closure-venv (numpy, scipy, Ofpp, closure_challenge==0.2.1)"
+  },
+  "cases": {
+    "AR_1_Ret_360": {
+      "mesh_cells": 3025,
+      "geometry": "quarter-duct (symmetry planes), aspect ratio 1, periodic (cyclic) streamwise inflow/outflow, wall functions top/side",
+      "case_params": {"h_channel_half_height_m": 0.001, "AR": 1, "Re_b": 5693, "Re_tau": 341.9805, "nu": 1.5e-5},
+      "turbulence_model": "kOmegaSST",
+      "config_sha256_of_system_and_0_and_transport_turbulence_properties": "5aeed3c15d078932f8dafc3e48a0c0ca5344e4bb925d7df61b2c098ec42e6d04",
+      "our_run": {
+        "converged_at_iteration": 456,
+        "execution_time_s_cpu": 6.13,
+        "clock_time_s_wall": 8,
+        "core_minutes": 0.133,
+        "residualControl_met": {"k": "5e-6", "omega": "1e-10"}
+      },
+      "original_run_from_shipped_log": {
+        "converged_at_iteration": 405,
+        "execution_time_s_cpu": 7.88,
+        "clock_time_s_wall": 15
+      },
+      "iteration_count_deviation_pct": 12.6,
+      "scoring": {
+        "our_score_at_eval_points": 0.129,
+        "reproduced_benchmark_baseline_score_at_eval_points": 0.1288,
+        "published_floor_json_value": 0.1288,
+        "deviation_ours_minus_published_floor_absolute": 0.0002,
+        "deviation_ours_minus_published_floor_relative_pct": 0.16,
+        "internal_field_scaled_mae_ours_vs_benchmark_baseline_field": 0.000231,
+        "internal_field_scaled_mae_pct": 0.023
+      }
+    },
+    "AR_3_Ret_360": {
+      "mesh_cells": 8748,
+      "geometry": "quarter-duct (symmetry planes), aspect ratio 3, periodic (cyclic) streamwise inflow/outflow, wall functions top/side",
+      "case_params": {"h_channel_half_height_m": 0.001, "AR": 3, "Re_b": 5817, "Re_tau": 335.8783, "nu": 1.5e-5},
+      "turbulence_model": "kOmegaSST",
+      "config_sha256_of_system_and_0_and_transport_turbulence_properties": "509fd4cd92170e523c66621a3e72e61c33430fab2121d22fc03f8de67ae00529",
+      "our_run": {
+        "converged_at_iteration": 1700,
+        "execution_time_s_cpu": 73.09,
+        "clock_time_s_wall": 76,
+        "core_minutes": 1.267,
+        "residualControl_met": {"k": "5e-6", "omega": "1e-10"}
+      },
+      "original_run_from_shipped_log": {
+        "converged_at_iteration": 1540,
+        "execution_time_s_cpu": 88.78,
+        "clock_time_s_wall": 96
+      },
+      "iteration_count_deviation_pct": 10.4,
+      "scoring": {
+        "our_score_at_eval_points": 0.1251,
+        "reproduced_benchmark_baseline_score_at_eval_points": 0.1243,
+        "published_floor_json_value": 0.1243,
+        "deviation_ours_minus_published_floor_absolute": 0.0008,
+        "deviation_ours_minus_published_floor_relative_pct": 0.64,
+        "internal_field_scaled_mae_ours_vs_benchmark_baseline_field": 0.000915,
+        "internal_field_scaled_mae_pct": 0.09
+      }
+    },
+    "CBFS": {
+      "note": "NOT a closure-challenge scored test case (it is the paper's field-inversion TRAINING case). Run for evidence completeness per the B2 task's optional instruction. No published floor exists for it; comparison is field-vs-field against the benchmark's own shipped baseline, not a leaderboard score.",
+      "mesh_cells": 21000,
+      "geometry": "curved backward-facing step, 2D",
+      "turbulence_model": "kOmegaSST",
+      "config_sha256_of_system_and_0_and_transport_turbulence_properties": "ae8d9e97d1e1cf8c184d1b35897c44aca148687eb25d786c2a5abdac058c7466",
+      "our_run": {
+        "ran_to_fixed_endtime_iteration": 30000,
+        "execution_time_s_cpu": 1753.31,
+        "clock_time_s_wall": 1770,
+        "core_minutes": 29.5,
+        "note_on_stopping_criterion": "fvSolution's residualControl on p is set to 1e-15 (effectively disabled) and U/k/omega controls are commented out in the shipped case, so this case is designed to run to the fixed endTime rather than stop on an automatic residual test. We preserved this behavior (did not add our own early-stop) since B2's job is faithful reproduction, not our own convergence policy."
+      },
+      "original_run_from_shipped_log": {
+        "ran_to_fixed_endtime_iteration": 30000
+      },
+      "field_comparison": {
+        "internal_field_scaled_mae_ours_vs_benchmark_baseline_field": 0.000675,
+        "internal_field_scaled_mae_pct": 0.068,
+        "les_ground_truth_comparison": "NOT COMPLETED. Ofpp.parse_internal_field cannot resolve OpenFOAM #include macros; CBFS's 0/U_LES uses #include \"interpolatedFields/U_internalField\" etc., which Ofpp returns as None rather than expanding. This is a real tooling gap, not a fabricated result -- flagged explicitly for B3, which will need either a macro-expanding reader or to pre-resolve the includes with `foamDictionary`/`postProcess` before parsing."
+      }
+    }
+  },
+  "deviations_documented": [
+    {
+      "id": "custom_turbulence_library_unavailable",
+      "cause": "Original controlDict for all DUCT and CBFS baseline cases loads libs ( \"libfrozenIncompressibleTurbulenceModels.so\" ), a custom library from the paper authors' own thesis codebase (log.run Case: paths show .../thesis/finalCases/... and .../inversion/TurbFOAM-7-Cases/...). This library's source is not present anywhere in the public closure-challenge-benchmark clone (grep -rl across the whole repo finds zero hits outside the controlDict references themselves) and is not part of stock OpenFOAM.",
+      "action_taken": "Removed the libs entry; RASModel kOmegaSST resolves to OpenFOAM v2606's stock implementation instead.",
+      "risk_assessment": "Likely inert for these baseline (beta=1, uncorrected) cases specifically: the custom library's purpose (per fvSchemes divSchemes entries referencing bijDelta/useRST/xi_ramp) is to support optional Reynolds-stress correction terms used in the paper's CORRECTED (beta != 1, field-inverted) variants; the baseline cases' fvOptions define only meanVelocityForce, with no reference to useRST or any custom field. The measured field-level agreement (scaled MAE 0.02-0.09% across all 3 cases, see per-case results above) is consistent with this being inert, but this was NOT independently verified against the custom library's own source, since that source could not be obtained. If B3 needs bit-for-bit parity with the paper's own baseline (rather than the <0.1% agreement already achieved), this gap should be revisited.",
+      "not_fabricated": "We did not guess at the missing library's internals or claim stock kOmegaSST is provably identical to it -- we report the measured field agreement and flag the assumption explicitly."
+    },
+    {
+      "id": "openfoam_fork_version_mismatch",
+      "cause": "Original baseline was generated with OpenFOAM-7 (OpenFOAM Foundation fork, openfoam.org). This box has OpenFOAM v2606 (OpenCFD/ESI fork, openfoam.com) installed, not any Foundation-lineage version. These are different code lineages with the same dictionary-file compatibility in the vast majority of cases but not guaranteed bit-identical numerics (different default linear-solver internals, different GAMG agglomeration heuristics, etc.).",
+      "action_taken": "Ran the shipped case files as-is (after the two documented removals below) on v2606; did not attempt to install a Foundation-fork OpenFOAM-7 side by side.",
+      "measured_effect": "Iteration count to convergence differs by 10-13% (AR_1: 456 vs 405; AR_3: 1700 vs 1540) but the converged FIELD differs by only 0.02-0.09% scaled MAE against the benchmark's own baseline field -- consistent with a numerics/convergence-path difference, not a physics or setup difference."
+    },
+    {
+      "id": "postprocessing_function_objects_dropped",
+      "cause": "Original controlDict functions block used #includeFunc residuals, which #includeEtc's caseDicts/postProcessing/numerical/residuals.cfg. OpenFOAM v2606 renamed the equivalent function object to solverInfo and does not ship residuals.cfg at that path (confirmed: $FOAM_ETC/caseDicts/postProcessing/numerical/ contains only solverInfo{,.cfg} on this box). CBFS also used several #includeFunc singleGraph_x* function objects (sampling-line diagnostics).",
+      "action_taken": "Dropped the entire functions{} block for all 3 runs (residuals, convergenceProbes, singleGraph_x0..x8). These are diagnostics/postProcessing only -- they log/sample the solution, they do not feed back into it -- so this does not affect the solved field. Confirmed by the near-zero field-vs-field deviation reported above.",
+      "not_fabricated": "We did not attempt to reproduce the paper's own residual-convergence or velocity-profile plots (Figures cited in B1) this rung -- only the converged field, which is what B2 scopes."
+    }
+  ],
+  "core_minutes_total": {
+    "AR_1_Ret_360": 0.133,
+    "AR_3_Ret_360": 1.267,
+    "CBFS": 29.5,
+    "total": 30.9
+  },
+  "comparison_to_paper": {
+    "note": "Wu, Zhang & Zhang (AIAA J 2025 / arXiv:2402.16355) do not train or report on the square-duct cases at all -- per B1's research, the closure-challenge submission (Wu and Zhang, rank 2) scores DUCT purely by zero-shot generalization of a model trained only on CBFS. Neither the paper nor the submission description document publishes an uncorrected-SST-only numeric score for AR_1_Ret_360 or AR_3_Ret_360 distinct from the benchmark's own shared RANS-identity floor -- that floor IS the relevant 'paper's baseline' reference point here, because Wu & Zhang's corrected SST-QCRC model starts from the exact same benchmark-shipped SST field we just reproduced (same case directories, same solver family, same turbulence model). We therefore compare against the floor (closure_challenge_rans_floor.json) as the paper-equivalent baseline reference, and report that comparison above per case."
+  },
+  "lesson": "The benchmark's own scratch clone ships the actual solved case directories (mesh, dictionaries, and the original log.run) behind its published RANS-identity floor -- not just the final interpolated field. That let this rung do a genuine apples-to-apples baseline reproduction (same mesh, same BCs, same turbulence model, same fvOptions) rather than a from-scratch case build, and the result is a strong result: our independently-run OpenFOAM v2606 baseline agrees with the benchmark's own OpenFOAM-7 baseline to within 0.02-0.09% internal-field scaled MAE despite two forks and a missing custom library. This means B3 (field inversion) can trust this baseline setup without re-deriving it, and does not need to chase down the missing libfrozenIncompressibleTurbulenceModels.so source before starting -- the measured agreement already brackets that risk as small. The one real gap for B3 is CBFS's LES ground-truth field, which uses #include-macro'd OpenFOAM dictionaries that Ofpp cannot parse; B3 will need foamDictionary or a macro-aware reader to extract it as a field-inversion target.",
+  "b3_needs_next": [
+    "A macro-expanding OpenFOAM field reader (or a foamDictionary/postProcess pre-resolution step) to extract CBFS's 0/U_LES (and k_LES, tauij_LES) as usable field-inversion targets -- Ofpp fails silently (returns None) on the #include-based interpolatedFields structure used there.",
+    "A DAFoam DASimpleFoam case built from these same case directories (0/, constant/, system/, caseDef, fvOptions) to confirm the adjoint runs cleanly on this exact mesh/BC/fvOptions combination before committing to the beta(x) field-inversion optimization loop.",
+    "A short timed pilot (a handful of SLSQP/adjoint iterations on CBFS, timed) to resolve B1's flagged cost uncertainty (140-420 core-minutes estimated, dominated by whether each iteration re-converges the primal from a warm start cheaply or expensively) before committing a full field-inversion budget.",
+    "A decision on whether to reproduce the paper's CBFS-only training + zero-shot duct generalization route, or attempt training directly against the duct cases' own available LES/DNS reference fields (would require checking the DUCT case directories for an equivalent to CBFS's tauij_LES/U_LES fields -- not yet checked this rung, out of B2's scope)."
+  ]
+}

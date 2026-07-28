@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// DEVIATION (B2, documented, same as AR_1_Ret_360/AR_3_Ret_360): original
+// controlDict loaded "libfrozenIncompressibleTurbulenceModels.so", a custom
+// library from the paper authors' thesis codebase, not distributed in the
+// public closure-challenge-benchmark clone. Removed; RASModel kOmegaSST
+// resolves to OpenFOAM v2606's stock implementation. CBFS is not one of our
+// 8 scored test cases (it is the paper's TRAINING case), so this run has no
+// leakage exposure either way.
+// libs ( "libfrozenIncompressibleTurbulenceModels.so" );
+
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         30000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   30000;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  15;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   15;
+
+runTimeModifiable yes;
+
+
+// DEVIATION (B2, documented): same residuals.cfg path issue as the DUCT
+// cases (v2606 renamed it to solverInfo); singleGraph_x* function objects
+// reference postProcessing sample lines not needed for the converged field.
+// Dropped, diagnostics only, does not affect the solved field.
+functions
+{
+}
+// ************************************************************************* //

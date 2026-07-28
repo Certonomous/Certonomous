@@ -1,0 +1,24 @@
+{
+  "per_case": {
+    "AR_1_Ret_360": {
+      "max_coord_diff_same_mesh_sanity_check": 0.0,
+      "our_converged_iteration": "456",
+      "benchmark_converged_iteration": "405",
+      "our_score_at_eval_points": 0.129,
+      "reproduced_benchmark_score_at_eval_points": 0.1288,
+      "published_floor_json_value": 0.1288,
+      "deviation_ours_minus_published_floor": 0.0002,
+      "internal_field_scaled_mae_ours_vs_benchmark_baseline": 0.000231
+    },
+    "AR_3_Ret_360": {
+      "max_coord_diff_same_mesh_sanity_check": 0.0,
+      "our_converged_iteration": "1700",
+      "benchmark_converged_iteration": "1540",
+      "our_score_at_eval_points": 0.1251,
+      "reproduced_benchmark_score_at_eval_points": 0.1243,
+      "published_floor_json_value": 0.1243,
+      "deviation_ours_minus_published_floor": 0.0008,
+      "internal_field_scaled_mae_ours_vs_benchmark_baseline": 0.000915
+    }
+  }
+}
