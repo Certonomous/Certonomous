@@ -151,6 +151,57 @@ A5's original measured numbers stand untouched in the record; this is an
 appended addendum. **A1's 11.43% therefore remains unexplained**, and the
 step-size study already in the proposal queue is the next probe.
 
+### RESOLVED — the step-size sweep settles it: A1's 11.43% is REAL, not a check artefact
+
+The priority probe swept the finite-difference step across eight decades on A1,
+reproducing the original 11.43% exactly at step 1e-3 before doing anything else.
+
+| step | aggregate error | | step | aggregate error |
+| --- | --- | --- | --- | --- |
+| 1e-8 | 94.95% | | 1e-3 | **11.43%** (reproduces A1) |
+| 1e-7 | 52.88% | | 5e-3 | 10.47% |
+| 1e-6 | 17.64% | | 1e-2 | 8.94% |
+| 1e-5 | 12.27% | | 2e-2 | 4.28% |
+| 1e-4 | 11.52% | | 3e-2 | 9.83% |
+| | | | 5e-2, 1e-1 | primal failed |
+
+**Not a clean V, and not flat.** Roundoff blow-up below 1e-4, solver failure
+above 3e-2, and a noisy non-monotonic plateau between. **The step was never the
+problem** — A1's original 1e-3 was a fine choice.
+
+**The disagreement is three specific components.** Excluding idx0, idx1 and
+idx6, the remaining five components sit **dead flat at 2.5 to 3.0% across the
+whole plateau** with cosine similarity 0.99998 — the harness is sound there.
+**idx6 is sign-inverted at essentially every step**, holding −110% to −118%
+relative error across three decades, and alone drives **74 to 83% of the squared
+error norm**. idx0 and idx1 carry a stable 9 to 16% disagreement.
+
+**This independently reproduces the prior session's `PROOF.md` finding to four
+and six significant figures** — 82.70% versus 82.7% for idx6's contribution, and
+cosine 0.999983 versus 0.999983. Two separate investigations, different sessions,
+same numbers. That is about as strong as corroboration gets here.
+
+### The old band is RETIRED. New grading standard.
+
+| verdict | criterion |
+| --- | --- |
+| **PASS** | ≤5% aggregate **and** no flagged component |
+| **CONDITIONAL** | 5 to 15% |
+| **FAIL** | >15%, **or** any sign-flipped / unstable component regardless of aggregate |
+
+**Grading on the aggregate vector norm alone is now proven fragile:** on the
+same case at the same step window it swings between 4.3% and 11.5% purely from
+how one bad component happens to land. A single defective component can hide
+inside a healthy-looking norm, and a healthy gradient can be dragged below the
+line by one.
+
+**Consequence for A4, as I flagged when A2 landed: its 10.04% is downgraded from
+PASS to CONDITIONAL / unverified.** The reasoning is sharper than mine was — A4
+has only **one** scalar design variable, so it cannot hide behind vector-norm
+dilution, and its number sits in the range of A1's genuinely defective
+components rather than the harness-sound 2.5 to 5% floor. The same sweep should
+be run on A4 directly before its gradient is trusted.
+
 ### RECALIBRATION — the "1 to 12 percent is normal" band was built on n=1 and is too loose
 
 I derived that band from A1 alone and handed it to every subsequent agent as
