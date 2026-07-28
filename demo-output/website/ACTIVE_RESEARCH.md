@@ -17,7 +17,7 @@ Last updated: 2026-07-28 00:5x UTC.
 | Rung | Case | Status | Headline measured result |
 | --- | --- | --- | --- |
 | A1 | NACA0012 incompressible, official tutorial | **COMPLETE, FD-verified** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min |
-| A2 | MACH tutorial wing (3D) | primal + adjoint done, FD check running | — |
+| A2 | MACH tutorial wing (3D) | **COMPLETE, FD-verified, optimization run** | CD 0.02772949, CL 0.47759, 38,304 cells; **28.28% drag reduction** at matched CL, time-boxed; 692.5 core-min |
 | A3 | ONERA M6 transonic | **primal + Cp validated; adjoint blocked** | CD 0.02299556, CL 0.31311589, 399,360 cells, 127.5 core-min |
 | A4 | Ahmed body 25 deg | **COMPLETE, FD-verified** | CD 0.06998 on 45,760 cells; gradient FD-verified at 10.04% on a 2,777-cell mesh; 10.9 core-min |
 | A5 | U-bend internal flow | running | — |
@@ -150,6 +150,38 @@ next lever is resolution or geometry smoothness, not solver settings.
 A5's original measured numbers stand untouched in the record; this is an
 appended addendum. **A1's 11.43% therefore remains unexplained**, and the
 step-size study already in the proposal queue is the next probe.
+
+### RECALIBRATION — the "1 to 12 percent is normal" band was built on n=1 and is too loose
+
+I derived that band from A1 alone and handed it to every subsequent agent as
+settled. A2 shows it is not.
+
+| rung | cells | CD wrt shape, FD error | shape DVs |
+| --- | --- | --- | --- |
+| A4 Ahmed body | 2,777 | 10.04% | 1 scalar |
+| A1 NACA0012 | 4,032 | 11.43% | 20 |
+| A5 U-bend | 4,800 | **46.60%** | 27 |
+| **A2 MACH wing** | 38,304 | **1.71%** | 96 |
+
+**The spread is 1.71% to 46.60% — a factor of 27.** A2 demonstrates that 1.71%
+is achievable on a *larger* mesh with *more* design variables, which is the
+opposite of what "shape derivatives are just noisy" would predict. A1's 11.43%
+is therefore not a floor imposed by the method; it is specific to A1, and
+`PROOF.md` already localises it to three leading-edge control points.
+
+**Consequence I have to own: A4 was graded PASS at 10.04% against this band.**
+Its measured numbers are sound and stand unchanged, but **the verdict label
+rests on a threshold that no longer looks defensible** — 10.04% is 5.9 times the
+best result achieved tonight. A4 should be read as "within the observed spread,
+well above the best achieved", not as a clean pass.
+
+**This is the same error I made with the primal-convergence hypothesis**:
+generalising from too few points and propagating it as established. There it was
+n=2; here it was n=1, and it travelled further because four agents were briefed
+with it. The step-size study already in the queue is now the priority probe —
+until it runs, the honest statement is that **the acceptable FD tolerance for
+shape derivatives on this stack is not yet established**, and rung verdicts that
+hinge on it are provisional.
 
 **The calibration that governs every later rung.** The geometric constraints
 verifying at machine precision proves the harness, the deformation chain and the
