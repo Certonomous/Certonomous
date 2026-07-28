@@ -1,0 +1,505 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+#--------------------#
+ Total Nodes:   12258 
+ Unique Nodes:  11205 
+ Total Faces:   11136 
+#--------------------#
+ Normal orientation check ...
+ Normals are consistent!
+ Determining topology ...
+ Topology complete.
+#--------------------#
+Grid Ratio:  1.2704 
+#--------------------#
+#-------------------------------------------------------------------------------------------------------------------#
+# Grid | CPU  | Sub | KSP | nAvg |  Sl  | Sensor | Sensor | Min     | Min     |  deltaS  | March    | cMax  | Ratio |
+# Lvl  | Time | Its | Its |      |      | Max    | Min    | Quality | Volume  |          | Distance |       | kMax  |
+#-------------------------------------------------------------------------------------------------------------------#
+      2    0.1     2     5      0  0.128  1.00489  0.18590  0.11991  0.634E-11  0.605E-04  0.105E-03  0.2620  0.0000 
+      3    0.1     2     5      0  0.144  1.00602  0.21377  0.05570  0.943E-11  0.732E-04  0.232E-03  0.2563  1.4100 
+      4    0.1     3     5      0  0.161  1.00706  0.27400  0.14600  0.183E-10  0.974E-04  0.474E-03  0.2579  1.3833 
+      5    0.2     2     5      0  0.169  1.00789  0.30793  0.25770  0.350E-10  0.118E-03  0.679E-03  0.2605  1.3060 
+      6    0.2     2     5      0  0.177  1.00880  0.34418  0.34214  0.672E-10  0.143E-03  0.927E-03  0.2641  1.3353 
+      7    0.3     2     5      0  0.185  1.00974  0.38082  0.37005  0.126E-09  0.173E-03  0.123E-02  0.2689  1.3109 
+      8    0.3     3     5      0  0.196  1.01129  0.43412  0.38165  0.229E-09  0.230E-03  0.180E-02  0.2786  1.2932 
+      9    0.3     2     5      0  0.203  1.01304  0.46279  0.38985  0.400E-09  0.278E-03  0.228E-02  0.2870  1.2727 
+     10    0.4     2     6      0  0.210  1.01501  0.48786  0.38803  0.659E-09  0.336E-03  0.286E-02  0.3030  1.2803 
+     11    0.4     3     6      0  0.221  1.01825  0.52263  0.38706  0.106E-08  0.448E-03  0.398E-02  0.3413  1.2726 
+     12    0.5     2     6      0  0.228  1.02048  0.54124  0.38709  0.167E-08  0.542E-03  0.492E-02  0.3686  1.2723 
+     13    0.5     3     6      0  0.239  1.02496  0.56598  0.38725  0.267E-08  0.721E-03  0.671E-02  0.4186  1.2725 
+     14    0.6     2     6      0  0.246  1.02880  0.58072  0.38826  0.423E-08  0.872E-03  0.822E-02  0.4606  1.2730 
+     15    0.6     3     6      0  0.258  1.03485  0.59103  0.38551  0.674E-08  0.116E-02  0.111E-01  0.5330  1.2736 
+     16    0.7     2     6      0  0.265  1.03856  0.59531  0.38274  0.107E-07  0.141E-02  0.136E-01  0.5979  1.2742 
+     17    0.7     3     6      0  0.277  1.04199  0.60310  0.37993  0.171E-07  0.187E-02  0.182E-01  0.7033  1.2744 
+     18    0.8     2     7      0  0.286  1.04269  0.60900  0.37847  0.272E-07  0.226E-02  0.221E-01  0.8017  1.2746 
+     19    0.8     3     7      0  0.298  1.04022  0.61911  0.37630  0.435E-07  0.301E-02  0.296E-01  0.9765  1.2742 
+     20    0.9     2     7      0  0.307  1.03779  0.62653  0.37499  0.696E-07  0.364E-02  0.359E-01  1.1101  1.2735 
+     21    0.9     3     8      0  0.321  1.03187  0.63824  0.37275  0.112E-06  0.485E-02  0.480E-01  1.3298  1.2724 
+     22    1.0     2     8      0  0.330  1.02766  0.64636  0.37119  0.181E-06  0.587E-02  0.582E-01  1.4902  1.2720 
+     23    1.0     3     9      0  0.345  1.03457  0.65878  0.36889  0.293E-06  0.781E-02  0.776E-01  1.7508  1.2727 
+     24    1.1     2    10      0  0.355  1.04053  0.66509  0.36723  0.462E-06  0.945E-02  0.940E-01  1.9400  1.2751 
+     25    1.1     3    11      0  0.370  1.05056  0.67448  0.36494  0.720E-06  0.126E-01  0.125E+00  2.2532  1.2772 
+     26    1.2     2    12      0  0.381  1.06039  0.67942  0.36325  0.113E-05  0.152E-01  0.152E+00  2.4817  1.2796 
+     27    1.2     3    14      0  0.398  1.08121  0.68693  0.36124  0.178E-05  0.203E-01  0.202E+00  2.8554  1.2807 
+     28    1.3     2    15      0  0.410  1.09555  0.69169  0.35989  0.281E-05  0.245E-01  0.245E+00  3.1271  1.2825 
+     29    1.4     3    17      0  0.428  1.11233  0.69913  0.35817  0.445E-05  0.326E-01  0.326E+00  3.5692  1.2841 
+     30    1.4     2    19      0  0.440  1.11709  0.70426  0.35712  0.709E-05  0.395E-01  0.394E+00  3.8874  1.2876 
+     31    1.5     3    21      0  0.459  1.11707  0.71261  0.35579  0.113E-04  0.526E-01  0.525E+00  4.6099  1.2875 
+     32    1.6     2    22      0  0.472  1.11853  0.71745  0.35440  0.182E-04  0.620E-01  0.634E+00  5.0000  1.2908 
+     33    1.7     3    21      0  0.491  1.11292  0.73957  0.34728  0.307E-04  0.707E-01  0.819E+00  5.0000  1.3147 
+     34    1.8     3    21      0  0.508  1.11227  0.75932  0.33902  0.535E-04  0.807E-01  0.103E+01  5.0000  1.3240 
+     35    1.9     3    21      0  0.524  1.11969  0.77358  0.33221  0.951E-04  0.922E-01  0.127E+01  5.0000  1.3227 
+     36    2.0     4    20      0  0.545  1.13631  0.78727  0.32700  0.172E-03  0.110E+00  0.165E+01  5.0000  1.3212 
+     37    2.1     4    20      0  0.565  1.15325  0.79766  0.32309  0.315E-03  0.132E+00  0.209E+01  5.0000  1.3158 
+     38    2.2     5    17      0  0.587  1.14849  0.83327  0.31611  0.602E-03  0.128E+00  0.271E+01  5.0000  1.3274 
+     39    2.4     6    15      0  0.606  1.11723  0.88543  0.29588  0.130E-02  0.109E+00  0.334E+01  5.0000  1.4368 
+     40    2.6    10    14      0  0.628  1.07922  0.92783  0.28100  0.296E-02  0.887E-01  0.423E+01  5.0000  1.4241 
+     41    3.0    16    14      0  0.651  1.04455  0.95333  0.27475  0.638E-02  0.726E-01  0.538E+01  5.0000  1.3823 
+     42    3.5    23    15      0  0.674  1.02311  0.96891  0.27203  0.888E-02  0.640E-01  0.678E+01  5.0000  1.3388 
+     43    4.3    32    16      0  0.699  1.01078  0.97739  0.27371  0.134E-01  0.636E-01  0.862E+01  5.0000  1.3062 
+     44    5.3    38    17      0  0.724  1.00045  0.98076  0.27866  0.228E-01  0.724E-01  0.109E+02  5.0000  1.2920 
+     45    6.3    40    18      0  0.751  0.99553  0.98184  0.28500  0.433E-01  0.915E-01  0.139E+02  5.0000  1.2836 
+     46    7.3    39    18      0  0.778  0.99229  0.97859  0.29125  0.889E-01  0.123E+00  0.177E+02  5.0000  1.2777 
+     47    8.3    36    19      0  0.807  0.99015  0.97644  0.29664  0.190E+00  0.170E+00  0.224E+02  5.0000  1.2736 
+     48    9.2    33    19      0  0.836  0.98856  0.97502  0.30087  0.410E+00  0.237E+00  0.285E+02  5.0000  1.2710 
+     49   10.0    30    19      0  0.867  0.98705  0.97399  0.30403  0.890E+00  0.329E+00  0.362E+02  5.0000  1.2690 
+#-------------------------------------------------------------------------------------------------------------------#
+# Grid | CPU  | Sub | KSP | nAvg |  Sl  | Sensor | Sensor | Min     | Min     |  deltaS  | March    | cMax  | Ratio |
+# Lvl  | Time | Its | Its |      |      | Max    | Min    | Quality | Volume  |          | Distance |       | kMax  |
+#-------------------------------------------------------------------------------------------------------------------#
+     50   10.8    28    19      0  0.899  0.98558  0.97320  0.30631  0.192E+01  0.457E+00  0.461E+02  5.0000  1.2674 
+     51   11.5    25    19      0  0.931  0.98426  0.97262  0.30789  0.412E+01  0.625E+00  0.584E+02  5.0000  1.2662 
+     52   12.2    24    20      0  0.966  0.98324  0.97220  0.30892  0.878E+01  0.860E+00  0.745E+02  5.0000  1.2655 
+     53   12.8    22    20      0  1.001  0.98266  0.97192  0.30954  0.186E+02  0.117E+01  0.948E+02  5.0000  1.2651 
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : plot3dToFoam -noBlank volumeMesh.xyz
+Date   : Jul 28 2026
+Time   : 04:50:16
+Host   : ip-172-31-43-247
+PID    : 306
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Reading 26 blocks
+block 0 nx:17 ny:33 nz:53
+block 1 nx:33 ny:17 nz:53
+block 2 nx:17 ny:5 nz:53
+block 3 nx:33 ny:25 nz:53
+block 4 nx:25 ny:33 nz:53
+block 5 nx:5 ny:33 nz:53
+block 6 nx:33 ny:33 nz:53
+block 7 nx:33 ny:33 nz:53
+block 8 nx:5 ny:25 nz:53
+block 9 nx:9 ny:33 nz:53
+block 10 nx:33 ny:9 nz:53
+block 11 nx:33 ny:9 nz:53
+block 12 nx:9 ny:33 nz:53
+block 13 nx:5 ny:33 nz:53
+block 14 nx:33 ny:5 nz:53
+block 15 nx:9 ny:5 nz:53
+block 16 nx:25 ny:5 nz:53
+block 17 nx:33 ny:5 nz:53
+block 18 nx:25 ny:33 nz:53
+block 19 nx:33 ny:25 nz:53
+block 20 nx:33 ny:33 nz:53
+block 21 nx:33 ny:33 nz:53
+block 22 nx:5 ny:9 nz:53
+block 23 nx:5 ny:17 nz:53
+block 24 nx:33 ny:17 nz:53
+block 25 nx:17 ny:33 nz:53
+Reading block points
+block 0:
+Reading 29733 x coordinates...
+Reading 29733 y coordinates...
+Reading 29733 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 1:
+Reading 29733 x coordinates...
+Reading 29733 y coordinates...
+Reading 29733 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 2:
+Reading 4505 x coordinates...
+Reading 4505 y coordinates...
+Reading 4505 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 3:
+Reading 43725 x coordinates...
+Reading 43725 y coordinates...
+Reading 43725 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 4:
+Reading 43725 x coordinates...
+Reading 43725 y coordinates...
+Reading 43725 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 5:
+Reading 8745 x coordinates...
+Reading 8745 y coordinates...
+Reading 8745 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 6:
+Reading 57717 x coordinates...
+Reading 57717 y coordinates...
+Reading 57717 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 7:
+Reading 57717 x coordinates...
+Reading 57717 y coordinates...
+Reading 57717 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 8:
+Reading 6625 x coordinates...
+Reading 6625 y coordinates...
+Reading 6625 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 9:
+Reading 15741 x coordinates...
+Reading 15741 y coordinates...
+Reading 15741 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 10:
+Reading 15741 x coordinates...
+Reading 15741 y coordinates...
+Reading 15741 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 11:
+Reading 15741 x coordinates...
+Reading 15741 y coordinates...
+Reading 15741 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 12:
+Reading 15741 x coordinates...
+Reading 15741 y coordinates...
+Reading 15741 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 13:
+Reading 8745 x coordinates...
+Reading 8745 y coordinates...
+Reading 8745 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 14:
+Reading 8745 x coordinates...
+Reading 8745 y coordinates...
+Reading 8745 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 15:
+Reading 2385 x coordinates...
+Reading 2385 y coordinates...
+Reading 2385 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 16:
+Reading 6625 x coordinates...
+Reading 6625 y coordinates...
+Reading 6625 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 17:
+Reading 8745 x coordinates...
+Reading 8745 y coordinates...
+Reading 8745 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 18:
+Reading 43725 x coordinates...
+Reading 43725 y coordinates...
+Reading 43725 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 19:
+Reading 43725 x coordinates...
+Reading 43725 y coordinates...
+Reading 43725 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 20:
+Reading 57717 x coordinates...
+Reading 57717 y coordinates...
+Reading 57717 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 21:
+Reading 57717 x coordinates...
+Reading 57717 y coordinates...
+Reading 57717 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 22:
+Reading 2385 x coordinates...
+Reading 2385 y coordinates...
+Reading 2385 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 23:
+Reading 4505 x coordinates...
+Reading 4505 y coordinates...
+Reading 4505 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 24:
+Reading 29733 x coordinates...
+Reading 29733 y coordinates...
+Reading 29733 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+block 25:
+Reading 29733 x coordinates...
+Reading 29733 y coordinates...
+Reading 29733 z coordinates...
+Looking at cell 0 0 0 to determine orientation.
+Right-handed block.
+
+Merged points within 1e-15 distance. Merged from 649674 down to 593865 points.
+Creating cells
+Creating boundary patches
+--> FOAM Warning : 
+    From Foam::polyMesh::polyMesh(const Foam::IOobject&, Foam::pointField&&, const Foam::cellShapeList&, const Foam::faceListList&, const Foam::wordList&, const Foam::wordList&, const Foam::word&, const Foam::word&, const Foam::wordList&, bool)
+    in file meshes/polyMesh/polyMeshFromShapeMesh.C at line 635
+    Found 29344 undefined faces in mesh; adding to default patch defaultFaces
+Writing polyMesh
+End
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : autoPatch 45 -overwrite
+Date   : Jul 28 2026
+Time   : 04:50:24
+Host   : ip-172-31-43-247
+PID    : 307
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create polyMesh for time = 0
+
+Mesh read in = 1.69 s
+
+
+Feature:45
+minCos :0.7071067811865476
+
+Assigned 10816 faces to patch auto0
+
+Assigned 7072 faces to patch auto1
+
+Assigned 11136 faces to patch auto2
+
+Assigned 320 faces to patch auto3
+
+End
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : createPatch -overwrite
+Date   : Jul 28 2026
+Time   : 04:50:33
+Host   : ip-172-31-43-247
+PID    : 308
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+
+Reading "system/createPatchDict"
+
+
+
+Adding patches to mesh region0
+
+Adding new patch wing from 
+{
+    type            wall;
+    nFaces          0;
+    startFace       0;
+}
+
+Adding new patch inout from 
+{
+    type            patch;
+    nFaces          0;
+    startFace       0;
+}
+
+Adding new patch sym from 
+{
+    type            symmetry;
+    nFaces          0;
+    startFace       0;
+}
+
+
+
+
+Repatching mesh region0
+
+Moving faces from patch auto0 to patch 5
+Moving faces from patch auto3 to patch 5
+Moving faces from patch auto2 to patch 6
+Moving faces from patch auto1 to patch 7
+Doing topology modification to order faces.
+
+Not synchronising points.
+
+Removing patches with no faces in them.
+
+Removed zero-sized patch defaultFaces type wall at position 0
+Removed zero-sized patch auto0 type patch at position 1
+Removed zero-sized patch auto1 type patch at position 2
+Removed zero-sized patch auto2 type patch at position 3
+Removed zero-sized patch auto3 type patch at position 4
+
+
+Writing repatched mesh region0 to 0
+
+End
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : renumberMesh -overwrite
+Date   : Jul 28 2026
+Time   : 04:50:41
+Host   : ip-172-31-43-247
+PID    : 309
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = constant
+
+Mesh region0 size: 579072
+Before renumbering
+    band           : 522541
+    profile        : 8150140364
+
+Using renumber-method: CuthillMcKee [default]
+
+Reading fields
+
+After renumbering
+    band           : 6371
+    profile        : 2697454381
+
+Writing mesh to "constant"
+
+Timings:
+    read mesh   : 1.672737592
+    read fields : 0.000150162
+    decompose   : 0
+    cell-cells  : 0
+    renumber    : 0.157928362
+    write       : 6.418813796
+TotalTime = 8.653168225 s
+
+ExecutionTime = 8.630000000000001 s  ClockTime = 9 s
+
+End
+

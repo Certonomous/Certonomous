@@ -1,0 +1,39 @@
+Generating mesh..
+Downloading surface mesh CRM_surfMesh.cgns.tar.gz
+--2026-07-28 04:50:01--  https://github.com/dafoam/files/releases/download/v1.0.0/CRM_surfMesh.cgns.tar.gz
+Resolving github.com (github.com)... 140.82.113.4
+Connecting to github.com (github.com)|140.82.113.4|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://release-assets.githubusercontent.com/github-production-release-asset/280272296/c8bdda00-9472-11eb-9b4c-e299c5c72775?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-07-28T05%3A36%3A00Z&rscd=attachment%3B+filename%3DCRM_surfMesh.cgns.tar.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-07-28T04%3A35%3A42Z&ske=2026-07-28T05%3A36%3A00Z&sks=b&skv=2018-11-09&sig=aEtUtDxdwFMAkmVNwI%2Bh39NqstCH%2FHr%2BhDLBAA1lqXM%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc4NTIxNDQyOCwibmJmIjoxNzg1MjE0MTI4LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.fXC9MQ_iJELZ5rboIB2RDdqemYB4wJRiGjVMHyhEQSc&response-content-disposition=attachment%3B%20filename%3DCRM_surfMesh.cgns.tar.gz&response-content-type=application%2Foctet-stream [following]
+--2026-07-28 04:50:01--  https://release-assets.githubusercontent.com/github-production-release-asset/280272296/c8bdda00-9472-11eb-9b4c-e299c5c72775?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-07-28T05%3A36%3A00Z&rscd=attachment%3B+filename%3DCRM_surfMesh.cgns.tar.gz&rsct=application%2Foctet-stream&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-07-28T04%3A35%3A42Z&ske=2026-07-28T05%3A36%3A00Z&sks=b&skv=2018-11-09&sig=aEtUtDxdwFMAkmVNwI%2Bh39NqstCH%2FHr%2BhDLBAA1lqXM%3D&jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmVsZWFzZS1hc3NldHMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIiwia2V5Ijoia2V5MSIsImV4cCI6MTc4NTIxNDQyOCwibmJmIjoxNzg1MjE0MTI4LCJwYXRoIjoicmVsZWFzZWFzc2V0cHJvZHVjdGlvbi5ibG9iLmNvcmUud2luZG93cy5uZXQifQ.fXC9MQ_iJELZ5rboIB2RDdqemYB4wJRiGjVMHyhEQSc&response-content-disposition=attachment%3B%20filename%3DCRM_surfMesh.cgns.tar.gz&response-content-type=application%2Foctet-stream
+Resolving release-assets.githubusercontent.com (release-assets.githubusercontent.com)... 185.199.111.133, 185.199.110.133, 185.199.108.133, ...
+Connecting to release-assets.githubusercontent.com (release-assets.githubusercontent.com)|185.199.111.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1015901 (992K) [application/octet-stream]
+Saving to: 'CRM_surfMesh.cgns.tar.gz'
+
+     0K .......... .......... .......... .......... ..........  5% 41.0M 0s
+    50K .......... .......... .......... .......... .......... 10%  324M 0s
+   100K .......... .......... .......... .......... .......... 15% 42.1M 0s
+   150K .......... .......... .......... .......... .......... 20%  254M 0s
+   200K .......... .......... .......... .......... .......... 25% 47.4M 0s
+   250K .......... .......... .......... .......... .......... 30%  278M 0s
+   300K .......... .......... .......... .......... .......... 35% 60.4M 0s
+   350K .......... .......... .......... .......... .......... 40%  107M 0s
+   400K .......... .......... .......... .......... .......... 45%  379M 0s
+   450K .......... .......... .......... .......... .......... 50% 96.3M 0s
+   500K .......... .......... .......... .......... .......... 55%  123M 0s
+   550K .......... .......... .......... .......... .......... 60%  400M 0s
+   600K .......... .......... .......... .......... .......... 65% 90.5M 0s
+   650K .......... .......... .......... .......... .......... 70%  305M 0s
+   700K .......... .......... .......... .......... .......... 75%  216M 0s
+   750K .......... .......... .......... .......... .......... 80%  339M 0s
+   800K .......... .......... .......... .......... .......... 85% 85.6M 0s
+   850K .......... .......... .......... .......... .......... 90%  128M 0s
+   900K .......... .......... .......... .......... .......... 95%  385M 0s
+   950K .......... .......... .......... .......... ..        100%  345M=0.009s
+
+2026-07-28 04:50:01 (113 MB/s) - 'CRM_surfMesh.cgns.tar.gz' saved [1015901/1015901]
+
+surfMesh.cgns
+Generating mesh.. Done!

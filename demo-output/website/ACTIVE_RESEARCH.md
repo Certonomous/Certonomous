@@ -21,7 +21,7 @@ Last updated: 2026-07-28 00:5x UTC.
 | A3 | ONERA M6 transonic | **primal + Cp validated; adjoint blocked** | CD 0.02299556, CL 0.31311589, 399,360 cells, 127.5 core-min |
 | A4 | Ahmed body 25 deg | **COMPLETE, FD-verified** | CD 0.06998 on 45,760 cells; gradient FD-verified at 10.04% on a 2,777-cell mesh; 10.9 core-min |
 | A5 | U-bend internal flow | running | — |
-| A6 | CRM / DPW-class wing-body | queued, time-boxed, converged primal counts as success | — |
+| A6 | CRM wing (wing-alone; DPW4 wing-body rejected on time-box grounds), transonic | **COMPLETE, converged primal, matches published tutorial baseline** | CD 0.0209014, CL 0.5000146, 579,072 cells, matches DAFoam's own published tutorial CD=0.02090 to 0.0067%; adjoint not attempted (known-infeasible per A3, mesh 1.45x A3's OOM point); 38.4 core-min |
 
 ### Consolidated FD verification table (every adjoint rung)
 
