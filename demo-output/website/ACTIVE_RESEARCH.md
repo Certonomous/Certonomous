@@ -18,7 +18,7 @@ Last updated: 2026-07-28 00:5x UTC.
 | --- | --- | --- | --- |
 | A1 | NACA0012 incompressible, official tutorial | **COMPLETE, FD-verified** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min |
 | A2 | MACH tutorial wing (3D) | primal + adjoint done, FD check running | — |
-| A3 | ONERA M6 transonic | running | — |
+| A3 | ONERA M6 transonic | **primal + Cp validated; adjoint blocked** | CD 0.02299556, CL 0.31311589, 399,360 cells, 127.5 core-min |
 | A4 | Ahmed body 25 deg | **not in the tutorial repository**, must be built from our own validated case plus the experimental reference | — |
 | A5 | U-bend internal flow | running | — |
 | A6 | CRM / DPW-class wing-body | queued, time-boxed, converged primal counts as success | — |
@@ -35,7 +35,38 @@ Last updated: 2026-07-28 00:5x UTC.
 
 | A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** |
 
-### Cross-rung finding: FD agreement appears to be gated by primal convergence
+### Cross-rung finding: the adjoint has a memory wall on this host, between 10^4 and 10^5 cells
+
+This one held up, and it constrains the whole ladder.
+
+| rung | cells | adjoint outcome |
+| --- | --- | --- |
+| A1 NACA0012 | 4,032 | works, FD verified |
+| A5 U-bend | 4,800 | works, GMRES converged in 86 iterations |
+| A3 ONERA M6 | 399,360 | **OOM** in the mesh-sized residual/volume-coordinate Jacobian assembly |
+| A3 coarsened | 99,840 | **still OOM** |
+
+Eight independent mitigations were tried on A3 and ruled out: 12 GB and 18 GB
+container caps, 4-rank and 2-rank decomposition, GMRES restart 1000 to 200, and
+preconditioner fill level 1 to 0. The 2-rank attempt drove the host to 1.77 GB
+free and was killed manually rather than left to run — the right call, given
+this box has been taken down twice in two nights by memory exhaustion.
+
+**The working envelope for adjoint work on this instance is order 10^3 to 10^4
+cells, not 10^5.** Consequences, stated now rather than discovered later:
+
+- **A6 (CRM / DPW-class) cannot produce a gradient here.** The queue already
+  scoped it as "converged primal is success, gradient is stretch" — that
+  judgement is now backed by measurement rather than caution.
+- **A4 was briefed to build the smallest mesh that still resolves the 25 degree
+  slant separation**, and to coarsen further for the adjoint stage specifically.
+  Verifying a gradient on a coarser mesh than the primal comparison is
+  legitimate as long as it is disclosed.
+- A genuine matrix-free adjoint path exists (`adjUseColoring=False`) but trades
+  the memory for a runtime cost that was not attempted and should not be assumed
+  tractable.
+
+### Refuted cross-rung finding: FD agreement is NOT gated by primal convergence
 
 Neither rung could see this alone. Placed side by side:
 
