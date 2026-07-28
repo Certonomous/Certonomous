@@ -1,9 +1,14 @@
 """Mega-batch runner — continuous REAL solver evaluations into a durable ledger.
 
 This is the all-night accumulator for the website. It streams an unbounded,
-*deterministic* sequence of designs — interleaved OpenFOAM 2D cylinder solves
-and VSPAERO vortex-lattice wing polars — through a bounded pool of workers, and
-appends every finished evaluation as one JSON line to a durable ledger.
+*deterministic* sequence of designs through a bounded pool of workers, and
+appends every finished evaluation as one JSON line to a durable ledger. Five
+solver families are interleaved: steady laminar OpenFOAM cylinders, VSPAERO
+vortex-lattice wing polars, a reduced-order valve-cycle screen, unsteady 2D
+vortex-shedding cylinders (pimpleFoam, genuinely shedding), and transonic
+NACA0012 airfoils (rhoSimpleFoam, a real shock forms) — see
+``demo-output/website/mega-batch/PHYSICS_FAMILIES.md`` for each family's
+design space, validation gate, and measured per-evaluation cost.
 
 Two properties make it demo-safe:
 
@@ -49,10 +54,29 @@ if str(_SDK_ROOT) not in sys.path:
 
 from chief_engineer.openfoam import OpenFoamCylinderApi  # noqa: E402
 from chief_engineer.vspaero import VspAeroWingApi  # noqa: E402
+from chief_engineer.head_engineer import parse_coefficient_history  # noqa: E402
+from workflows import cylinder_vortex_shedding as cvs  # noqa: E402
+from workflows import transonic_airfoil as ta  # noqa: E402
 
 CYLINDER = "openfoam-cylinder"
 WING = "vspaero-wing"
 VALVE = "reduced-order"
+CYLINDER_UNSTEADY = "openfoam-cylinder-unsteady"
+TRANSONIC_AIRFOIL = "rhosimplefoam-naca0012-transonic"
+
+# Family 1 (unsteady 2D vortex shedding) batch parameters, measured and
+# locked in against the Roshko/Williamson Strouhal gate (PHYSICS_FAMILIES.md):
+# end_time=90 with the 0.1 cross-stream perturbation lands the Re=100 case
+# within 0.7% of St = 0.198*(1 - 19.7/Re) after the halves-drift stationarity
+# gate passes; end_time=70 left more drift (6.5%) and end_time=60 with the
+# module's own default 0.02 perturbation never reached the limit cycle at
+# all (Cl was still rising every sample at t=60). Measured cost ~230-270s/eval.
+UNSTEADY_CYLINDER_END_TIME = 90.0
+UNSTEADY_CYLINDER_PERTURBATION = 0.1
+
+# Family 2 (transonic) batch parameters -- see PHYSICS_FAMILIES.md for the
+# convergence study this iteration cap is measured against.
+TRANSONIC_ITERATIONS = 2000
 
 # Seed offset keeps this sequence stable and distinct from any other sampler.
 _SEED_BASE = 90_210
@@ -65,18 +89,43 @@ _SEED_BASE = 90_210
 def design_for_index(index: int) -> dict[str, Any]:
     """Map an integer index to a solver + design, deterministically.
 
-    A 3-way interleave (index % 3) holds a balanced mix over a long run:
-    cylinder solves, wing polars, and reduced-order valve-cycle evaluations.
-    Ranges stay physically sensible: cylinders in the steady-laminar band
-    (Re ~10-45, where simpleFoam converges), wings at transport-like aspect
-    ratios and sweep, valve opening angles across the physiological range.
+    An 11-way interleave (index % 11) holds a mix over a long run:
+
+    - kind 0-2 (3/11): steady simpleFoam cylinder, Re ~10-45 (unchanged --
+      this is the ORIGINAL, cheap, always-converges family).
+    - kind 3-4 (2/11): VSPAERO wing polars (unchanged).
+    - kind 5   (1/11): reduced-order valve-cycle evaluations (unchanged).
+    - kind 6-8 (3/11): Family 1 -- pimpleFoam unsteady 2D vortex shedding,
+      Re 100-1000 (genuinely shedding, well above the steady family's Re<=45
+      cap). Validated against the Roshko/Williamson Strouhal correlation for
+      Re 100-200; see PHYSICS_FAMILIES.md.
+    - kind 9-10 (2/11): Family 2 -- rhoSimpleFoam transonic NACA0012, Mach
+      0.7-0.85 (a real shock forms). See PHYSICS_FAMILIES.md for the shock-
+      position validation.
 
     The valve rows are honest reduced-order evaluations (``solver='reduced-order'``),
     NOT solves — a cycle-decomposition orifice screen, three phase points each.
+    The two new families cost far more per evaluation (~minutes, not
+    seconds) than the original three, by design -- this is the mega-batch's
+    deliberate trade of raw throughput for real physics depth.
     """
     rng = random.Random(_SEED_BASE + index)
-    kind = index % 3
-    if kind == 0:
+    kind = index % 11
+    if kind in (6, 7, 8):
+        reynolds = round(rng.uniform(100.0, 1000.0), 3)
+        return {
+            "solver": CYLINDER_UNSTEADY,
+            "design": {"reynolds": reynolds},
+        }
+    if kind in (9, 10):
+        mach = round(rng.uniform(0.70, 0.85), 4)
+        alpha_deg = round(rng.uniform(0.0, 3.0), 3)
+        reynolds = round(rng.uniform(3.0e6, 7.0e6), 0)
+        return {
+            "solver": TRANSONIC_AIRFOIL,
+            "design": {"mach": mach, "alpha_deg": alpha_deg, "reynolds": reynolds},
+        }
+    if kind in (0, 1, 2):
         diameter = round(rng.uniform(0.5, 2.0), 4)
         velocity = round(rng.uniform(0.5, 2.5), 4)
         re_target = rng.uniform(10.0, 45.0)
@@ -92,7 +141,7 @@ def design_for_index(index: int) -> dict[str, Any]:
                 "mesh_refinement": refinement,
             },
         }
-    if kind == 1:
+    if kind in (3, 4):
         span = round(rng.uniform(20.0, 70.0), 3)
         aspect = rng.uniform(6.0, 16.0)
         area = round(span * span / aspect, 3)
@@ -138,6 +187,121 @@ def _run_cylinder(index: int, design: dict[str, float], work_root: Path) -> dict
     metrics = {k: raw[k] for k in keys if k in raw}
     shutil.rmtree(case_dir, ignore_errors=True)
     return metrics
+
+
+def _run_cylinder_unsteady(index: int, design: dict[str, float], work_root: Path) -> dict[str, Any]:
+    """pimpleFoam laminar vortex shedding, Re 100-1000 -- Family 1 (unsteady 2D).
+
+    Reuses cylinder_vortex_shedding.build_case verbatim for the mesh (O-grid
+    annulus, boundary-layer-resolved, laminar) and fvSchemes/fvSolution/
+    controlDict, and the exact same stationarity-gated averaging
+    (time_weighted_stats / measure_period / halves_drift) that the transient
+    NACA 0012 defect (commit 6606434) added -- a mean quoted over a window
+    whose two halves disagree by more than 10% is refused, not reported. Runs
+    directly in ``work_root``, one directory per index (no shared remote-copy
+    path), so concurrent workers never collide the way cylinder_vortex_
+    shedding.run_case's fixed ``cyl-re{reynolds:g}`` path could.
+
+    The one deliberate change from the module's own demo default: the
+    cross-stream perturbation that seeds the shedding instability is raised
+    from 0.02 to UNSTEADY_CYLINDER_PERTURBATION (0.1) -- measured directly
+    against this batch's end_time budget (0.02 left the wake still growing,
+    not at its limit cycle, at t=60; 0.1 reaches stationarity and lands the
+    Re=100-200 Strouhal numbers within 5% of the Roshko/Williamson curve --
+    see PHYSICS_FAMILIES.md for the three validation runs).
+    """
+    reynolds = float(design["reynolds"])
+    end_time = UNSTEADY_CYLINDER_END_TIME
+    # 0.01D was tuned and validated for the Re 100-200 gate band; above it,
+    # tighten the wall-normal first cell (thinner boundary layer) so the
+    # mesh does not silently under-resolve the higher-Re cases.
+    first_cell = 0.01 if reynolds <= 200.0 else 0.01 * (200.0 / reynolds) ** 0.5
+    dt0 = 0.005 * min(1.0, 200.0 / reynolds)
+
+    case_dir = work_root / "cylinder-unsteady" / f"case-{index:06d}"
+    shutil.rmtree(case_dir, ignore_errors=True)
+    case_dir.mkdir(parents=True, exist_ok=True)
+    params = cvs.build_case(
+        case_dir, reynolds=reynolds, farfield_diameters=15.0,
+        n_radial=45, n_tangential=48, first_cell=first_cell,
+        end_time=end_time, dt0=dt0,
+    )
+    fields = cvs.initial_fields(perturbation=UNSTEADY_CYLINDER_PERTURBATION)
+    (case_dir / "0" / "U").write_text(fields["U"])
+
+    timings: dict[str, float] = {}
+    for step, args in (("blockMesh", ["blockMesh"]),
+                       ("checkMesh", ["checkMesh", "-allTopology", "-allGeometry"])):
+        start = time.time()
+        result = cvs._foam(args, case_dir, f"log.{step}", timeout=300)
+        timings[step] = round(time.time() - start, 1)
+        if step == "blockMesh" and result.returncode != 0:
+            raise RuntimeError(f"cylinder-unsteady #{index}: blockMesh failed")
+
+    start = time.time()
+    result = cvs._foam(["pimpleFoam"], case_dir, "log.pimpleFoam", timeout=900)
+    timings["pimpleFoam"] = round(time.time() - start, 1)
+    if result.returncode != 0:
+        tail = (case_dir / "log.pimpleFoam").read_text(errors="replace")
+        raise RuntimeError(f"cylinder-unsteady #{index}: pimpleFoam failed:\n"
+                           + "\n".join(tail.splitlines()[-20:]))
+
+    coeff_files = sorted((case_dir / "postProcessing").rglob("coefficient*.dat"))
+    if not coeff_files:
+        raise RuntimeError(f"cylinder-unsteady #{index}: no forceCoeffs output")
+    history = parse_coefficient_history(coeff_files[-1].read_text(errors="replace"))
+    times = history.get("Time", [])
+    t_start = 0.5 * end_time
+    cd_stats = cvs.time_weighted_stats(times, history["Cd"], t_start)
+    cl_stats = cvs.time_weighted_stats(times, history["Cl"], t_start)
+    period = cvs.measure_period(times, history["Cl"], t_start)
+    if cd_stats is None or cl_stats is None:
+        raise RuntimeError(f"cylinder-unsteady #{index}: averaging window empty "
+                           f"(ran to t={times[-1] if times else 0:g})")
+    drift = cvs.halves_drift(times, history["Cd"], cd_stats["window_start"], cd_stats["window_end"])
+    if drift is None:
+        raise RuntimeError(f"cylinder-unsteady #{index}: halves_drift undefined "
+                           f"-- stationarity unknown, Cd/St refused")
+    if drift["relative_drift"] > 0.10:
+        raise RuntimeError(
+            f"cylinder-unsteady #{index}: Cd still drifting across the averaging "
+            f"window ({100 * drift['relative_drift']:.1f}% relative drift) -- "
+            f"not a stationary time-average, Cd/St refused")
+    strouhal = (cvs.DIAMETER / (period * cvs.U_INF)) if period else None
+    st_ref = 0.198 * (1.0 - 19.7 / reynolds) if 50.0 <= reynolds <= 200.0 else None
+    st_dev_pct = (100.0 * abs(strouhal - st_ref) / st_ref
+                 if (strouhal and st_ref) else None)
+    metrics = {
+        "reynolds": reynolds, "cells": params["n_radial"] * params["n_tangential"] * 4,
+        "end_time_cap": end_time, "perturbation": UNSTEADY_CYLINDER_PERTURBATION,
+        "steps": len(times),
+        "cd_mean": cd_stats["mean"], "cd_band": cd_stats["band"],
+        "cd_relative_drift": drift["relative_drift"],
+        "cl_mean": cl_stats["mean"], "cl_band": cl_stats["band"],
+        "period": period, "strouhal": strouhal,
+        "strouhal_roshko_ref": st_ref, "strouhal_deviation_pct": st_dev_pct,
+    }
+    shutil.rmtree(case_dir, ignore_errors=True)
+    return metrics
+
+
+def _run_transonic_airfoil(index: int, design: dict[str, float], work_root: Path) -> dict[str, Any]:
+    """rhoSimpleFoam NACA0012, Mach 0.7-0.85 -- Family 2 (transonic).
+
+    See ``workflows.transonic_airfoil`` for the mesh, solver setup, and the
+    documented validation approach (shock position vs. the classical M=0.8/
+    alpha=1.25 deg inviscid two-shock benchmark). Iteration count is fixed
+    and bounded (TRANSONIC_ITERATIONS); the case directory is removed after
+    the ledger metrics are extracted, same as every other family.
+    """
+    case_dir = work_root / "transonic-naca0012" / f"case-{index:06d}"
+    record = ta.run_case(
+        mach=float(design["mach"]), alpha_deg=float(design["alpha_deg"]),
+        reynolds=float(design["reynolds"]), work_dir=case_dir,
+        iterations=TRANSONIC_ITERATIONS, timeout=900,
+    )
+    shutil.rmtree(case_dir, ignore_errors=True)
+    return record
 
 
 def _run_wing(index: int, design: dict[str, float], work_root: Path) -> dict[str, Any]:
@@ -218,6 +382,10 @@ def run_task(index: int, work_root: Path) -> dict[str, Any]:
             metrics = _run_cylinder(index, design, work_root)
         elif solver == WING:
             metrics = _run_wing(index, design, work_root)
+        elif solver == CYLINDER_UNSTEADY:
+            metrics = _run_cylinder_unsteady(index, design, work_root)
+        elif solver == TRANSONIC_AIRFOIL:
+            metrics = _run_transonic_airfoil(index, design, work_root)
         else:
             metrics = _run_valve(index, design)
         record["metrics"] = metrics
@@ -348,6 +516,8 @@ def run_batch(
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
     (work_root / "cylinder").mkdir(parents=True, exist_ok=True)
     (work_root / "wing").mkdir(parents=True, exist_ok=True)
+    (work_root / "cylinder-unsteady").mkdir(parents=True, exist_ok=True)
+    (work_root / "transonic-naca0012").mkdir(parents=True, exist_ok=True)
 
     done = load_done_indices(ledger_path)
     log(f"[mega-batch] resuming: {len(done)} indices already in ledger")
