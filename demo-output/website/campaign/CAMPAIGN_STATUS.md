@@ -215,10 +215,29 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 
 ---
 
-## F4 — Hypersonic Blunt Body
+## F4 — Hypersonic Blunt Body (2D cylinder, Mach 6-8)
 
-- **Status:** **NOT STARTED**
-- **Reason:** Queued separately, out of scope for this campaign session (would require density-based shock-capturing central scheme, Sutherland transport model, blunt-body bow-shock mesh resolution, citable hypersonic reference)
+- **Status:** **STALE entry corrected 2026-07-29 night session.** This
+  family was fully run and gated on 2026-07-28 (`F4_hypersonic_blunt_body.md`,
+  same date this status file was compiled) — the "NOT STARTED" line below was
+  never updated to match. Caught by the same L-1 check applied to F9 this
+  session: read the repository before trusting the docket.
+- **Solver:** `rhoCentralFoam` (density-based, shock-capturing), inviscid
+  (μ=0), 2D circular cylinder (not axisymmetric sphere — a real, disclosed
+  geometric choice; Billig's correlation gives separate citable coefficients
+  for cylinder-wedge vs. sphere-cone).
+- **Reference:** Anderson, *Hypersonic and High-Temperature Gas Dynamics*,
+  2nd ed. (AIAA, 2006) — Billig (1967) shock-standoff correlation (§5.4) and
+  modified-Newtonian surface-Cp theory (§3.3), both fetched and OCR'd from
+  the primary source (an initial web-search-summarized coefficient, 4.76,
+  was caught wrong against the textbook's actual printed 4.67).
+- **Rung reached:** Feasibility → Physics → **Gate (2 gates: shock standoff, windward Cp)**, all 3 Mach numbers (6, 7, 8), 3 mesh levels each (1,000/4,000/16,000 cells).
+- **Gate 1 (shock standoff vs. Billig):** M=6 fine +2.06%±0.4%, M=7 fine +2.33%±0.4% (both resolved above measurement noise — real ~2-2.3% high bias), M=8 fine +0.70%±0.8% (within its own noise floor, consistent with Billig but not resolved to 0.7%). Explicitly non-monotonic with mesh refinement; the swings beyond scatter are attributed to a genuine resolution-dependent bias in the peak-density-gradient shock detector, not the solver.
+- **Gate 2 (windward Cp vs. modified Newtonian):** RMS 3.87-3.91% of Cp_max at fine mesh, all 3 Mach numbers, clean near-monotonic grid convergence. Deviation grows toward the shoulder (θ≳33°) — a known, Mach-independent limitation of Newtonian theory (neglects shock-layer thickness/streamline curvature), not a CFD artifact.
+- **Verdict:** **GATE REACHED, both gates PASS**, with caveats stated plainly (M=8 standoff not resolved above noise; standoff detector has a real resolution-dependent bias documented, not hidden).
+- **Cost:** 14.66 core-minutes, all 9 runs, single-core, foreground.
+- **Stretch rung (viscous SWBLI):** Not attempted — needs a turbulence model, wall-resolved mesh, and its own citable experimental separation-length reference; documented as a next step, not rushed.
+- **Full record:** `demo-output/website/campaign/F4_hypersonic_blunt_body.md`, `F4_hypersonic_blunt_body.json`.
 
 ---
 
@@ -230,7 +249,47 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 
 ## F9 — Pulsatile Valve
 
-- **Status:** **NOT STARTED** (no record file exists; out of scope — would require moving-mesh or immersed-boundary unsteady 3D with real leaflet geometry)
+- **Status:** **CORRECTED 2026-07-29 night session — this entry was stale.** A
+  fixed-leaflet axisymmetric idealization (not the moving-mesh/immersed-boundary
+  full case scoped out below) was already built, run, and mostly analyzed by
+  2026-07-29 ~04:15 UTC; the write-up just hadn't been finished before this
+  status file was last compiled. Corrected per L-1 discipline (check the
+  repository before trusting the docket).
+- **Geometry:** Fixed-leaflet limit of the real 3-leaflet valve (`models/curriculum/aortic_valve`),
+  represented as an axisymmetric sharp-edged orifice plate of matching
+  effective area at 65° opening (beta=0.906), 4,944-cell wedge mesh.
+- **Solver:** `pimpleFoam`, laminar, sinusoidal pulsatile inflow — replaces the
+  mega-batch's reduced-order (`solver="reduced-order"`) valve family's
+  algebraic sharp-orifice correlation with a real solved flow.
+- **Rung reached:** Feasibility → Physics → **Gate (3 gates: quasi-steady limit, Womersley profile, ROM deviation)**
+- **Gate 1 (quasi-steady limit) — PASS:** cycle-mean CFD Δp within −1.58%
+  (alpha=16.73, physiological) and +0.22% (alpha=8.36) of the value predicted
+  by the CFD's own steady dp(Q) power-law map; direction of the gap is
+  physically coherent across the two alpha values tested.
+- **Gate 2 (Womersley profile) — FAIL, cause identified:** 20–414% mean
+  absolute relative error vs. the closed-form Womersley (1955) solution at 8
+  phase/alpha combinations. Attributed to comparison-basis mismatch (probe
+  station 2 diameters upstream of a weak, 81%-open restriction, so
+  convective acceleration flattens the CFD profile relative to the theory's
+  undisturbed-pipe assumption), not a solver defect — see
+  `NOT_PASSING_REGISTER.md` Group 4 and `F9_pulsatile_valve.md` §5 for the
+  full record and a cheap falsifiable follow-up.
+- **Gate 3 (ROM deviation) — pre-registered prediction confirmed in direction
+  and order of magnitude:** measured cycle-weighted CFD loss 110.71 Pa vs.
+  the ROM's 1849.77 Pa, **−94.0%**. Predicted ("far below... order 150–250 Pa")
+  before the data was read. Root cause: the ROM's fixed Cd=0.62 is an
+  ISO-5167 sharp-orifice constant calibrated for beta ≤ 0.75; this geometry's
+  beta=0.906 is outside that range, and the CFD's own independently measured
+  discharge coefficient (1.91–1.95 across a 4× flow sweep) confirms the real
+  value is over 3× the ROM's assumption.
+- **Verdict:** **GATE REACHED, mixed (2 PASS / 1 FAIL-with-cause).** Not a
+  clean sweep, reported as such. Total compute for the whole gated family:
+  well under 35 core-minutes.
+- **Shipped:** No — a gate with a documented FAIL component does not go in
+  the control room per the owner's promotional-surface rule; it lives in
+  the evidence record (`F9_pulsatile_valve.md`, `NOT_PASSING_REGISTER.md`).
+- **Full record:** `demo-output/website/campaign/F9_pulsatile_valve.md`,
+  `F9_pulsatile_valve.json`, `F9_work/f9_analysis.json`.
 
 ---
 
@@ -256,21 +315,60 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 | **F7a** | Dam break | Re~4e4 | Free-surface wave | 2D | Unsteady | Feasibility→Physics→**Gate FAIL** | Front position Z(T) | +13.6% mean (21.3% max) | **GATE FAILED** | 2.4 |
 | **F7b** | Wigley hull | – | – | – | – | **BLOCKED** (F7a gate fail) | – | – | – | 0 |
 | **F7c** | Workshop hull | – | – | – | – | **BLOCKED** (F7b blocked) | – | – | – | 0 |
-| **F4** | Hypersonic blunt | – | – | – | – | **NOT STARTED** | – | – | queued separately | 0 |
-| **F8** | Rotating machinery | – | – | – | – | **NOT STARTED** | – | – | no record | 0 |
-| **F9** | Pulsatile valve | – | – | – | – | **NOT STARTED** | – | – | no record | 0 |
+| **F4** | Hypersonic blunt (M6-8, cylinder) | M=6-8 | Inviscid hypersonic | 2D | Steady | Feasibility→Physics→**Gate** | Billig standoff / mod. Newtonian Cp | standoff +0.7-2.3%; Cp RMS 3.87-3.91% | **GATE REACHED** | 14.66 |
+| **F8** | Rotating machinery (MRF, UAE Phase VI Seq. S, 7 m/s) | – | Turbulent, rotating frame | 3D | Steady MRF | Physics attempted, **UNCONVERGED** | Hand et al. 2001, NREL/TP-500-29494 (found, not yet applied) | force still oscillating +-30% at t=1500, no "SIMPLE solution converged" | **NOT A RESULT** (see below) | not gated |
+| **F9** | Pulsatile valve (fixed-leaflet orifice) | Re~8.4e3 pipe | Pulsatile laminar, orifice | Axisym | Unsteady | Feasibility→Physics→**Gate** | Womersley (1955) profile; own steady map; ROM | Gate1 PASS (-1.6%/+0.2%); Gate2 FAIL (20-414%, cause ID'd); Gate3 -94.0% vs ROM (pre-registered) | **GATE REACHED, mixed** | <35 |
 | **F10** | 3D RANS batch | – | – | – | – | **NOT STARTED** | – | – | no record | 0 |
 
 ---
 
 ## Explicitly Not Started
 
-**F4, F8, F9, F10** have produced no record files as of 2026-07-28. Each remains unstarted per campaign ladder doctrine:
+**F10** has produced no record file as of 2026-07-29. **F4, F8, F9 were
+previously listed here as of 2026-07-28 and are NOT unstarted** — that line
+was stale for F4 and F9 (both fully run and at least partially gated the
+same day or the day after this file was last compiled) and materially
+incomplete for F8 (a real MRF rotating-machinery physics run exists on disk,
+with blade-force output, but no reference gate has been found or applied
+yet — see below). Corrected 2026-07-29 night session per L-1.
 
-- **F4 (Hypersonic):** Queued separately; not scoped for this session
-- **F8 (Rotating machinery):** Not started; no feasibility rung initiated
-- **F9 (Pulsatile valve):** Not started; out of scope (needs moving-mesh unsteady 3D)
-- **F10 (3D viscous RANS batch):** Not started; no record file
+- **F4 (Hypersonic):** **GATE REACHED**, see above — this line was wrong.
+- **F8 (Rotating machinery):** Feasibility + a `simpleFoam` MRF run to
+  endTime=1500 exist on disk (`F8_runs/phase6_mrf/`, NREL/NASA-Ames UAE Phase
+  VI Sequence S wind turbine, whole-domain single MRF zone, 7 m/s inlet —
+  explicitly commented in the case as "the low-speed attached-flow point,"
+  the easiest of the sequence). **Checked this session against L-14/L-15
+  ("read the solver's own convergence statement, not a residual that looks
+  small"): `grep -c "SIMPLE solution converged" log.simpleFoam` returns 0.
+  Never converged.** Worse than a slow plateau: `postProcessing/bladeForces`
+  shows the force history still swinging violently at t=1300-1500 (Fx
+  683-1064 N, a ~30% range; Fy -336 to +280 N, including sign reversals) with
+  no visible settling trend across the observed window — this is genuinely
+  further along than "no feasibility rung initiated" (the previous line) but
+  is NOT a usable physics result and must not be read as one. A citable
+  reference DOES already exist and was found this session: Hand, M.M. et al.
+  (2001), *Unsteady Aerodynamics Experiment Phase VI...*, NREL/TP-500-29494 —
+  publishes low-speed-shaft torque and blade root bending moment vs. wind
+  speed for exactly this Sequence S test, including the 7 m/s point already
+  set up here. **Do not gate against it yet.** The oscillation could be (a)
+  genuine rotor-wake unsteadiness a frozen-rotor steady MRF model cannot
+  represent (a known MRF limitation for bluff, separating rotor wakes — not
+  tested here), (b) an under-relaxation/numerics issue fixable within the
+  same steady framework (also not tested), or (c) something else — this is
+  an untested set of hypotheses, not a diagnosis, per L-3 ("an untested
+  hypothesis is not a refuted one"). Logged as a genuine Group 3 solver
+  convergence failure in `NOT_PASSING_REGISTER.md`, not glossed over.
+- **F9 (Pulsatile valve):** **GATE REACHED, mixed**, see above — this line
+  was wrong ("out of scope, needs moving-mesh" describes a *different*,
+  harder case than the fixed-leaflet idealization that was actually built
+  and run).
+- **F10 (3D viscous RANS batch):** Not started; no record file. (Note: the
+  mega-batch's own `AHMED_VISCOUS_3D` family, `sdk/workflows/mega_batch.py`,
+  is internally labelled "Family F10" in its own comments and IS shipped —
+  this campaign-status F10 and the mega-batch's F10 label appear to be two
+  different namings for related-but-not-identical scope; not reconciled
+  this session, flagged so the next reader doesn't assume either doc is
+  wrong.)
 
 ---
 
@@ -278,6 +376,7 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 
 1. **F6c (duct secondary flow):** GATE MEASURED, FAIL. Linear eddy-viscosity RANS cannot produce Prandtl secondary flow; captures 0% of DNS magnitude. Expected, structural, documented.
 2. **F7a (dam break front):** GATE FAILED. Mean deviation +13.6%, max 21.3%, systematically growing. Cause: VOF numerical smearing of thin leading edge. Blocks F7b and F7c per hard ladder rule.
+3. **F9 Gate 2 (Womersley profile):** GATE FAILED as a point comparison, 20-414% error. Cause identified: probe station close enough to a weak (81%-open) orifice that convective acceleration flattens the profile relative to the closed form's undisturbed-pipe assumption — comparison-basis mismatch, not a solver defect. Gates 1 and 3 on the same family PASS / confirm-as-predicted.
 
 ---
 
@@ -286,11 +385,14 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 - **F1:** Transonic 3D wing Cp validation (gate reached; adjoint blocked by memory)
 - **F2:** Transonic 2D airfoil shock position (shipped in mega-batch)
 - **F3:** Supersonic exact-theory wedge/cone/diamond (all gates passed)
+- **F4:** Hypersonic blunt-body standoff + Cp (both gates passed, M=6-8) — **status corrected this session, was mislabeled NOT STARTED**
 - **F5a:** Unsteady cylinder vortex shedding (shipped in mega-batch)
 - **F6a:** Turbulent separated flow (NASA hump, gate reached)
 - **F6c:** Duct secondary flow (gate fail, shipped as documented failure)
+- **F9:** Pulsatile valve, mixed gate (2 PASS / 1 FAIL-with-cause) — **status corrected this session, was mislabeled NOT STARTED**; per the owner's rule, the FAIL component keeps this out of the control room even though it is evidence-record complete.
 
 **Not shipped:**
 - **F6b:** Periodic hills (not attempted, time-boxed)
 - **F7a–c:** Marine free-surface (F7a gate fail blocks F7b/c)
-- **F4, F8, F9, F10:** Not started
+- **F8:** Rotating machinery — physics run exists, no reference gate yet
+- **F10:** Not started

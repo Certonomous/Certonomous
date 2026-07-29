@@ -72,6 +72,23 @@ narrow band contains it. All public surfaces were corrected the same evening.
 stale; the statistics were recomputed from the raw force file rather than from the
 note.
 
+### Added 2026-07-29 night session
+
+**F9 pulsatile valve (`pulsatile_physio`) was also recorded stale, the same way.**
+`f9_analysis.json` said "fewer than 2 full cycles available; periodicity not
+established," dated from a mid-run snapshot at t=1.469. The actual run had
+already finished its full 3 cycles (t=0→2.7) hours earlier — clean completion,
+no crash, bounded Courant, continuity errors ~1e-10. Re-running the
+already-written `analyze_f9.py` (zero core-minutes, pure post-processing)
+shows periodicity established to 7.0e-7 relative drift and completes Gates
+1–3: Gate 1 (quasi-steady limit) PASS at two independent alpha values
+(−1.58%, +0.22%); Gate 3 (ROM comparison) confirms the session's own
+pre-registered prediction in direction and order of magnitude (−94.0% vs.
+predicted "far below, order 150–250 Pa"); Gate 2 (Womersley profile) FAILS
+as a point comparison (20–414% error across phases and two alpha values) —
+see the new Group 4 entry below for the cause. Full record:
+`demo-output/website/campaign/F9_pulsatile_valve.md`.
+
 ---
 
 ## GROUP 1: ADJOINT MEMORY WALL
@@ -202,6 +219,15 @@ Cases where the solver either did not converge to its own gate, diverged during 
 - **To resolve:** (a) Larger, finer meshes (500k–1M) to reach asymptotic range, or (b) controlled ablation study: fix nearBody level at 2 for all rungs and vary only background blockMesh density.
 - **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/uq-studies/b52.json`.
 
+### F8 UAE Phase VI wind turbine (MRF) — never converged, force still oscillating at endTime
+
+- **What:** Family F8 (rotating machinery), NREL/NASA-Ames UAE Phase VI Sequence S wind turbine, whole-domain single-cellZone MRF (`simpleFoam`, k-omega... SA per `0/nuTilda`), 7 m/s inlet — the case's own comment names this "the low-speed attached-flow point," i.e. deliberately the easiest operating point in the sequence. Run to `endTime=1500` (SIMPLE pseudo-iterations), 4-rank decomposition.
+- **How it failed:** `grep -c "SIMPLE solution converged" log.simpleFoam` returns **0** — checked this session per L-14/L-15 rather than eyeballing residual magnitude. The residuals themselves confirm it: p initial residual still ~0.38 at iteration 1500 (target 1e-4), U initial residuals 0.009-0.15. `postProcessing/bladeForces` force history is not merely slow to converge, it is actively oscillating with no visible decay through the observed window: Fx ranges 683-1064 N (~30% peak-to-peak) and Fy ranges -336 to +280 N — including sign reversals — across t=1000-1500, the back fifth of the run.
+- **Root cause:** Not established. Two live, untested hypotheses, distinguished per L-3 as hypotheses and not findings: (a) a real physical mechanism (rotor-wake/tip-vortex unsteadiness) that a frozen-rotor steady MRF model cannot represent, which would mean this case needs a transient rotating approach (sliding mesh / AMI) instead of more steady iterations; (b) a numerics issue (under-relaxation, scheme choice) fixable within the existing steady MRF framework. Neither has been tested.
+- **To resolve:** Cheapest test first (P1, control before doubt): extend the same steady run further (e.g. 2x endTime) and check whether the oscillation amplitude decays — if it does not decay at all over a further doubling, that is evidence for (a) over (b) without needing to build a new case.
+- **Reference already found and citable, not yet applied:** Hand, M.M., Simms, D.A., Fingersh, L.J., Jager, D.W., Cotrell, J.R., Schreck, S., Larwood, S.M. (2001), *Unsteady Aerodynamics Experiment Phase VI: Wind Tunnel Test Configurations and Available Data Campaigns*, NREL/TP-500-29494 — publishes low-speed-shaft torque and root bending moment vs. wind speed for Sequence S, including this exact 7 m/s point. Per the campaign's hard rule (a gate needs its citable reference obtained BEFORE the run — already satisfied here, the reference existed before this session started, it just was never written down), this reference is ready to use once a converged force number exists to compare against it.
+- **Evidence:** `/home/ubuntu/Certonomous/demo-output/website/campaign/F8_runs/phase6_mrf/` (`log.simpleFoam`, `postProcessing/bladeForces/0/force.dat`, `constant/MRFProperties`).
+
 ### naca4412 Wing Mesh Ladder — non-monotonic
 
 - **What:** 3D cambered wing NACA4412, resolved boundary layers, three mesh rungs (medium 263.4k → fine 645.3k → finer 1.85M cells).
@@ -266,6 +292,14 @@ Cases where the CFD result lies in a different physical regime than the referenc
 - **To resolve:** (a) Derive 3D finite-wing reference as Cd_section + Cd_induced (Cl²/(π·e·AR)) using solver-measured Cl and wing aspect ratio, or (b) use published 3D NACA0012 wing data at matched Re/span/condition instead of section data.
 - **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/results/naca0012_wing.json` (tier: TREND ONLY; reason cites 148% vs ±30% band).
 
+### F9 pulsatile valve — Womersley profile gate vs. undisturbed-pipe theory
+
+- **What:** F9 (pulsatile valve-orifice CFD, `sdk/workflows/valve_pulsatile_cfd.py`), Gate 2. Radial velocity-profile comparison between the CFD (9-probe sweep, 2 pipe diameters upstream of the orifice plate) and the closed-form Womersley (1955) oscillatory-pipe-flow solution, at 4 phases per cycle, two independent Womersley numbers (alpha=16.73, alpha=8.36).
+- **How it failed:** Mean absolute relative error 20–414% across all 8 phase/alpha combinations tested. At the most extreme point (alpha=8.36, t/T=0.75), the analytic solution predicts near-wall flow reversal (negative velocity) that the CFD does not show at all — CFD profile is uniform, positive, and plug-like (flatness 1.00) at exactly the phase where theory predicts the most structure.
+- **Root cause:** Comparison-basis mismatch, not a solver defect. The probe station sits only 2 diameters upstream of a beta=0.906 (81%-open) orifice — close enough that convective acceleration toward the restriction is already flattening the velocity profile (a well-known favorable-pressure-gradient effect), while the Womersley closed form assumes an undisturbed, unrestricted straight pipe. The CFD is very likely resolving real physics the reference theory does not model, the same class of error as the NACA0012-wing entry above (2D section theory vs. 3D finite-wing CFD) and the sphere/cylinder regime-mismatch entries: right answer, wrong reference.
+- **To resolve:** Re-run the profile probe further upstream (4–5 diameters, still inside the existing straight section) and check whether the gap closes — a falsifiable, near-zero-cost follow-up (post-processing on the existing solution if a probe can be added after the fact, otherwise one short re-solve). If the gap does not close, the entrance-length hypothesis is wrong and needs a different explanation.
+- **Evidence:** `/home/ubuntu/Certonomous/demo-output/website/campaign/F9_pulsatile_valve.md` (§5, Gate 2); `demo-output/website/campaign/F9_work/f9_analysis.json`.
+
 ---
 
 ## GROUP 5: NEVER RUN OR INCOMPLETE
@@ -290,10 +324,10 @@ Cases where the case was set up but never executed, or intermediate stages were 
 | --- | --- | --- |
 | 1. Adjoint memory wall | 5 | Structural OpenMDAO reverse-mode Jacobian-size blocker; working envelope ~10k cells |
 | 2. Gradient-accuracy defects | 2 | Sign-flipped or unstable adjoint-vs-FD disagreement, root cause unidentified |
-| 3. Solver convergence failures | 10 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders |
-| 4. Reference/regime mismatches | 3 | RANS chose wrong physics branch, or comparison basis not equivalent |
+| 3. Solver convergence failures | 11 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders |
+| 4. Reference/regime mismatches | 4 | RANS chose wrong physics branch, or comparison basis not equivalent |
 | 5. Never run or incomplete | 1 | Scaffolding only, never executed |
-| **TOTAL** | **21** | |
+| **TOTAL** | **23** | |
 
 ---
 
