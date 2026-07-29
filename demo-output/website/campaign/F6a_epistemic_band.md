@@ -16,6 +16,19 @@ agent **before any of these runs executed** and is scored below unedited.
 > board, SPC speaking notes) were corrected from this same finding and
 > should already agree with it.
 
+> **2026-07-29, later, more severe.** The same defect that broke channel 1
+> (a number reported as converged that was not) is present in **channel 3's
+> `oneC` and `twoC` corners — the two runs that carry the band's lower
+> edge, 0.5278**. Neither printed `SIMPLE solution converged`; `oneC`'s wall
+> shear trace is not a bubble at all (230+ sign crossings across the whole
+> domain, velocity limiter active on 63% of cells — numerical noise, not a
+> flow feature; the reported 0.5278 is an artifact of a search window
+> finding the first crossing inside it, not a real reattachment location).
+> Only `threeC` (1.1069) is genuinely converged. **The gate column below and
+> "2026-07-29, later: the channel-3 corners were never gate-checked" at the
+> end of this file are the correction; the "CONTAINS" verdict in the next
+> section is not safe to treat as established until that section is read.**
+
 ## The binary test
 
 > Does a defensible model-form uncertainty band on hump reattachment `x/c`
@@ -34,13 +47,21 @@ matters more than the pass.**
 | C1 | kEpsilon | 0.6679 | 1.1437 | +3.97% | YES (k final 4.35e-7) |
 | C1 | SpalartAllmaras | 0.6541 | 1.2061 | +9.65% | NO, oscillating floor not a gap — see below |
 | C1 | realizableKE | 0.6639 | 1.2503 | +13.66% | YES (k final 4.38e-8) |
-| C3 | oneC (one-component limit) | 0.5250 | 0.5278 | **−52.02%** | — |
-| C3 | twoC (two-component limit) | 0.6242 | 0.6701 | −39.08% | — |
-| C3 | threeC (isotropic limit) | 0.6589 | 1.1069 | **+0.63%** | — |
+| C3 | oneC (one-component limit) | 0.5250\* | 0.5278\* | **−52.02%\*** | **NO** — not a residual floor, not converging at all: Ux Initial 0.16, Uz Initial 0.12 (5-6 orders over gate), 63% of cells velocity-limited, wall trace is 230+ noise crossings, not a bubble |
+| C3 | twoC (two-component limit) | 0.6242\* | 0.6701\* | −39.08%\* | **NO** — Uz Initial 3.25e-4 (650× over), omega Initial 8.79e-7 (8,790× over its 1e-10 gate); fragmented (5 crossings in the main-bubble region plus an unrelated reattach at x/c 1.48) |
+| C3 | threeC (isotropic limit) | 0.6589 | 1.1069 | **+0.63%** | **YES** — printed "SIMPLE solution converged in 2948 iterations," all Initial residuals under gate |
 
-**Band across all completed runs: [0.5278, 1.2534].** Experiment 1.100 lies
-inside. **CONTAINS.** (Unchanged by the channel-1 rework — the full band was
-always carried by channel 3's corners, see point 2 below.)
+\*oneC and twoC's separation/reattachment numbers are starred because they
+are not measurements of a converged flow feature — see "2026-07-29, later:
+the channel-3 corners were never gate-checked" at the end of this file
+before using them for anything.
+
+**Band across all completed runs: [0.5278, 1.2534] — AS PREVIOUSLY STATED,
+BUT THE LOWER EDGE IS NOT A CONVERGED NUMBER.** Experiment 1.100 lies
+inside the stated interval, but 0.5278 is extracted from a diverged,
+noise-dominated run (see below), not a genuine reattachment measurement.
+The "CONTAINS" verdict below predates this check and should be read
+alongside the correction at the end of this file, not on its own.
 
 ## Reading it honestly — three things matter more than the verdict
 
@@ -701,3 +722,213 @@ every other point in this sweep. Results were not available at the time
 this section was written; they will be appended as a further dated update
 rather than folded into this one, so the sequence of what was known when
 stays honest.
+
+---
+
+## 2026-07-29, later: the channel-3 corners were never gate-checked
+
+Prompted by the r4 sweep's pattern (every non-control point past Delta=0.05
+fails its gate) — the obvious next question was whether the original
+Delta=1 corner runs that this whole study's headline claim rests on had
+ever actually been checked the same way. They had not. Checked now, exactly
+as everything above: `SIMPLE solution converged` string, Initial residual
+against `residualControl` (`(U|p|k)` 5e-7, `omega` 1e-10), source
+`solve_registry/uq_oneC_20260729T023701Z.log`,
+`uq_twoC_20260729T023709Z.log`, `uq_threeC_20260729T023709Z.log`.
+
+### oneC — not a residual floor, not converging at all
+
+Zero occurrences of `SIMPLE solution converged`; ran to the `endTime=3800`
+cap. At t=3800: **Ux Initial residual = 0.162, Uz Initial = 0.123** — five
+to six orders of magnitude over gate, not a near-miss (k = 9.03e-4, omega =
+4.99e-5, both several orders over their own thresholds too). The velocity
+limiter is active on **62.67% of cells, 20.99% of faces** at the final
+iteration. The wall-shear trace is not a bubble: the gate script finds
+**230+ sign crossings spanning the entire domain**, x/c = −2.02 to +1.58 —
+the same signature as this sweep's Delta=0.50/0.75 divergence, numerical
+noise rather than a flow feature. **The published 0.5278 is the first
+"sep→reattach" crossing the analysis script's `[0.3, 1.6]` search window
+happens to find inside an otherwise chaotic field.** It is not a physical
+reattachment location and should not be used as one. No resume was ever
+attempted for this run (unlike kOmega/kEpsilon/realizableKE/SA in channel
+1, each of which got a documented fix); a precursor feasibility run shows
+the same instability as early as t≈1792 (p Initial residual 0.17 there
+too) — this was never close to settling, not a fluke of one run.
+
+### twoC — also not converged, fragmented rather than pure noise
+
+Zero occurrences of `SIMPLE solution converged`. At t=3800: Uz Initial =
+3.25e-4 (650× over gate), p Initial = 5.95e-5 (119× over), **omega Initial
+= 8.79e-7 (8,790× over its 1e-10 gate)**, k Initial = 7.86e-5 (157× over).
+Not pure noise like oneC — the main crossing (sep 0.6242, reattach 0.6701,
+the published number) is real in the sense of being a genuine local
+feature, but it is immediately followed by four more small
+separation/reattachment pairs between x/c 0.69–0.80, then an unrelated
+reattachment far downstream at x/c 1.48. Multi-valued and non-converged,
+same class of problem as this sweep's Delta=0.10–0.225 points.
+
+### threeC — genuinely converged, trust this one
+
+`SIMPLE solution converged in 2948 iterations` — printed, real. All Initial
+residuals under gate at that step (Ux 9.83e-9, Uz 6.29e-9, p 6.52e-9, omega
+9.70e-11, k 2.08e-8). Clean single bubble (plus the small leading-edge
+artifact present in every case in this family), sep 0.6589 / reattach
+1.1069. This number — publicly quoted as the closest single check to the
+experiment — is solid.
+
+### What this means for the flagship claim
+
+The band `[0.5278, 1.2534]` reported as "CONTAINS" the +13.95% experimental
+miss has its **lower edge built on a diverged, noise-dominated run**, not a
+converged measurement — the same defect class as the channel-1 kOmega
+misread earlier this same day, except more severe (that one was a genuine
+slow transient that finished converging on a longer run; `oneC` shows no
+sign of ever settling and is majority velocity-limited). `twoC`, also
+load-bearing in the published table, is likewise not converged. **Channel
+3 alone currently has no genuinely converged number below the experimental
+value of 1.100** — `threeC` (1.1069) sits just above it. Excluding `oneC`
+and `twoC` as their own gate requires, the only real, converged number
+anywhere in this entire study that falls below 1.100 is channel 1's kOmega
+at 1.0722. This does not mean the band fails to contain — it means the
+"CONTAINS" verdict currently rests on a different, weaker foundation than
+the one stated in the "Measured" table at the top of this file, and the
+public surfaces that quote 0.5278 and the channel-3-designed-bound
+narrative should be re-examined against this finding, the same way they
+already were once today for the channel-1 reversal.
+
+---
+
+## 2026-07-29, later still: what the literature says this sweep actually is, and the two diagnostics land
+
+### Delta is the field's own "moderation factor" — this was not an idiosyncratic sweep
+
+`LITERATURE_REPRODUCTION_REVIEW.md` section 2, read in full: Heyse, Mishra
+& Iaccarino (2021, JGPPS, open access, DOI 10.33737/jgpps/134643) apply the
+same full-corner eigenvalue perturbation (their `Delta_B`, our channel 3's
+method exactly) and report, quoted directly: *"the perturbations had an
+effect on the convergence of the solver... the convergence difficulties
+were dependent on the particular limiting state."* Convergence difficulty
+being **corner-dependent** is a property the method's own developers
+report, on a different (milder, gradual-expansion) geometry, not something
+peculiar to this project's setup. Matha & Morsbach (2023, DLR,
+arXiv:2303.06149 / *Physics of Fluids* 35(6):065130) report that the
+field's standard response to a hard-converging corner is a **moderation
+factor `f`** (sometimes called an "under-relaxation factor" in other
+publications) that weakens the perturbation below the full corner to
+recover a steady solution — and explicitly not a switch to an
+unsteady/URANS solver.
+
+**Our `Delta` parameter is exactly this moderation factor**, by
+construction (`system/fvOptions`: `deltaR = blendDelta * 2k(bPert - bB)`,
+a linear scaling of the full-corner forcing). This sweep was not an
+unusual experiment bolted onto the method — it was the field's own
+documented remedy, applied systematically, with every point checked
+against a hard convergence gate rather than accepted on inspection. Framed
+this way, the result reads differently: **the standard remedy does not
+rescue the corners in the range this band would need them in.** Eight
+moderation values (0.10 through 0.75) were tried; none converged; the two
+that did (0.00, 0.05) sit on the far side of the experimental value from
+where the band needs a converged floor. That is a specific, checkable
+claim about a documented field practice failing on this specific case, not
+a complaint about this project's own setup.
+
+### Do the literature's stated moderation values match what we tried?
+
+Checked directly against both sources (Heyse et al. full text already read
+in the literature review; re-fetched here specifically searching for
+numeric values, plus a fresh fetch of the Matha & Morsbach arXiv text).
+**Neither paper states a specific numeric moderation value used in common
+practice.** Heyse et al. only ever uses the full corner, `Delta_B=1.0` (their
+data-driven variant predicts a spatially-varying strength via a trained
+model, not a constant practitioners could quote). Matha & Morsbach name
+the practice and cite two further sources (their refs 22, 23) for its
+origin, but those were not retrieved this session — first by the literature
+review, and confirmed again now by a direct fetch of the arXiv PDF, whose
+extracted text contains no numeric `f` value either. **This is a genuine
+gap, not a convenient one**: it means neither "our failing range (0.10-0.75)
+brackets normal practice" nor "our converged Delta=0.05 is unusually
+gentle" can be asserted from what has actually been read. What can be said
+is narrower and still worth stating: Delta=0.05 is the smallest moderation
+this sweep tried short of the unperturbed baseline, it is the only
+moderated (nonzero) point that converged, and it moved the reattachment
+*away* from the experiment (1.2534 → 1.3077, +18.88% vs. the baseline's
++13.95%) rather than toward it. Whatever the field's typical `f` turns out
+to be, the direction of this one converged, moderated data point is itself
+a result about the method on this case, not a curiosity to set aside:
+on the hump, at least the first step of moderation in this direction makes
+the over-prediction worse, not better.
+
+### The corner-dependence test, and it narrows the claim usefully
+
+If convergence difficulty is corner-dependent (Heyse et al.'s own finding),
+the cheap check is whether our three corners behave differently from each
+other at the same nominal strength. They do, sharply: **`threeC`
+(isotropic) converges cleanly at full strength (Delta=1, 2948 iterations,
+gate met). `oneC` (one-component) does not converge at any tested Delta
+from 0.10 to 1.0 — the entire range past the control points — and `twoC`
+(two-component) also fails at its own full strength.** This is the same
+asymmetry Heyse et al. report on their diffuser, now shown on a harder
+geometry and with a resolution the earlier report did not have: **it is
+not "perturbation breaks the solve," it is "the `oneC`/`twoC` corners break
+the solve, `threeC` does not."** That is a narrower, more useful statement
+than a blanket claim about the method — it points at the one-component and
+two-component limiting states specifically (the two extremes that suppress
+or redirect turbulent shear stress most aggressively) as the source of the
+difficulty, consistent with `threeC` sitting closest to the Boussinesq
+baseline of the three corners and thus requiring the least departure from
+a state the solver already knows how to hold steady.
+
+### The two diagnostics have landed: neither rescues convergence, and refinement makes it worse
+
+Both diagnostics — one variable changed each, neither replacing the
+original Delta=0.25 sweep point — ran to the same t=3800 cap and the same
+gate. **Neither converged.**
+
+| variant | `SIMPLE solution converged`? | Initial residuals at t=3800 (gate: U/p/k 5e-7, omega 1e-10) | crossings |
+| --- | --- | --- | --- |
+| original (unlimited scheme, 51,626 cells) | 0 occurrences | Ux 2.68e-7, Uz 2.59e-6, p 4.73e-6, omega 7.79e-9, k 2.44e-8 | 3 (sep 0.6396, reattach 0.7111, sep 0.8468 unmatched) |
+| `boundedU` (limited scheme, same 51,626-cell mesh) | 0 occurrences | Ux 1.96e-7, Uz 1.62e-6, p 1.97e-6, omega 5.99e-9, k 2.68e-8 | 3 (sep 0.6395, reattach 0.7119, sep 0.8383 unmatched) — essentially identical to the original |
+| `finemesh` (unlimited scheme, 206,504 cells, 4× refined) | 0 occurrences | Ux 1.75e-4, Uz 7.76e-3, p 1.04e-3, omega 1.05e-7, k 7.39e-6 | 13 (multiply-fragmented near-wall bubble plus a long downstream tail to x/c≈1.60) |
+
+**Bounding the momentum convection scheme to match the (already-bounded)
+turbulence-quantity scheme improved the residual magnitude by roughly 2×
+but did not converge, and left the flow topology essentially unchanged** —
+the crossing locations move by less than 0.001 in x/c from the original.
+Whatever is driving the non-convergence, it is not primarily the
+unbounded-gradient momentum reconstruction; that was a plausible, testable
+hypothesis and it did not hold up.
+
+**Refining the mesh 4× did not converge either, and made every residual
+substantially worse** — 2 to 3 orders of magnitude worse than the original
+51,626-cell case's already-failing residuals, with the velocity field
+(Uz) alone now 15,500× over its gate rather than 5×. The wall-shear trace
+also gained structure rather than losing it: 13 crossings instead of 3,
+with a topology — a near-wall remnant bubble plus a long, multiply-broken
+downstream tail extending to the edge of the sampled domain — that closely
+resembles what this sweep found at Delta=0.20-0.225, not a cleaner version
+of the original Delta=0.25 result.
+
+**Verdict.** A genuine coarse-mesh discretization artifact would be
+expected to improve, or at worst stay flat, under refinement — refineMesh
+here did neither; residuals got dramatically worse and the flow revealed
+more structure, not less. A genuine scheme artifact from the unbounded
+momentum reconstruction would be expected to at least partially resolve
+under a bounded scheme — it did not; the topology barely moved. Neither
+of the two most obvious "our own setup is at fault" explanations survives
+contact with its own diagnostic. On the evidence gathered — two
+single-variable probes, not an exhaustive search of mesh/scheme space —
+**the non-convergence at this Delta looks like a property of the flow
+under this perturbation on a steady RANS (SIMPLE) formulation, not an
+artifact of the specific 51,626-cell mesh or the specific unbounded
+momentum scheme this sweep happened to start with.** This is stated as the
+best current reading of the two tests actually run, not as a proof that no
+mesh or scheme anywhere would converge — that would require a broader
+search than two points, and is exactly the kind of overclaim this study
+has been warned against making. Combined with the literature finding
+above (corner-dependent convergence difficulty is a documented property of
+this method, and the standard remedy — moderation — does not rescue
+`oneC`/`twoC` anywhere in the tested range on this case), the honest
+summary is: **on the NASA hump specifically, the `oneC` and `twoC`
+eigenvalue-perturbation corners appear to have no accessible steady RANS
+solution between their converged control point and the full corner, on
+every mesh and scheme variant tried so far.**
