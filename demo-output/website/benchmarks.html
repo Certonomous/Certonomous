@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Certonomous — Research Benchmarks</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#8b949e;
+    --good:#3fb950; --warn:#d29922; --bad:#f85149; --accent:#58a6ff;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#ffffff;--panel:#f6f8fa;--line:#d0d7de;--ink:#1f2328;--dim:#656d76;
+          --good:#1a7f37;--warn:#9a6700;--bad:#cf222e;--accent:#0969da;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 24px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+  h1{margin:0 0 6px;font-size:27px;letter-spacing:-.02em}
+  .sub{color:var(--dim);font-size:14px}
+  h2{font-size:19px;margin:44px 0 6px;letter-spacing:-.01em}
+  .lede{color:var(--dim);font-size:14px;margin:0 0 16px;max-width:75ch}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+         padding:18px 20px;margin:16px 0}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .kpi .n{font:600 27px/1.15 var(--mono);letter-spacing:-.02em}
+  .kpi .l{color:var(--dim);font-size:12px;text-transform:uppercase;letter-spacing:.07em;margin-top:5px}
+  .kpi .f{color:var(--dim);font-size:12px;margin-top:7px}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+  th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+  td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  tr.us{background:color-mix(in srgb,var(--accent) 13%,transparent)}
+  tr.us td{font-weight:600}
+  .tag{display:inline-block;font:600 10.5px/1 var(--mono);padding:4px 7px;border-radius:5px;
+       letter-spacing:.05em;vertical-align:middle}
+  .t-good{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+  .t-warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+  .t-bad{background:color-mix(in srgb,var(--bad) 20%,transparent);color:var(--bad)}
+  .win{color:var(--good);font-weight:600}
+  .note{border-left:3px solid var(--accent);padding:10px 0 10px 15px;margin:16px 0;
+        color:var(--dim);font-size:13.5px;max-width:80ch}
+  .note b{color:var(--ink)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+         color:var(--dim);font-size:12.5px}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--panel);
+       padding:1.5px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Research benchmarks</h1>
+  <div class="sub">Every number measured on this lab's own hardware and reproducible from the repository.
+  Failures and unconverged results are shown alongside passes.</div>
+</header>
+
+<!-- ============================ 1 ============================ -->
+<h2>1 · Active research benchmark — ML turbulence closure challenge</h2>
+<p class="lede">A public, ongoing benchmark with a strict rule: training or validating on any
+test case withdraws the submission. Scored once, through the benchmark's own harness.</p>
+
+<div class="grid">
+  <div class="kpi"><div class="n">0.0741</div><div class="l">our score</div>
+    <div class="f">vs 0.1036 uncorrected baseline</div></div>
+  <div class="kpi"><div class="n" style="color:var(--good)">3 of 8</div><div class="l">cases best on board</div>
+    <div class="f">better than every published entry</div></div>
+  <div class="kpi"><div class="n">1</div><div class="l">scoring call used</div>
+    <div class="f">pre-registered, no retries</div></div>
+  <div class="kpi"><div class="n">28.5%</div><div class="l">below baseline</div>
+    <div class="f">0.1036 → 0.0741</div></div>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th>Rank</th><th>Entry</th><th class="n">Overall</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Reissmann, Fang &amp; Sandberg</td><td class="n">0.0595</td></tr>
+<tr><td>2</td><td>Wu &amp; Zhang</td><td class="n">0.0624</td></tr>
+<tr><td>3</td><td>Liu, Wang, Zhao &amp; Xiao</td><td class="n">0.0737</td></tr>
+<tr class="us"><td>—</td><td>Certonomous <span class="tag t-warn">UNSUBMITTED</span></td><td class="n">0.0741</td></tr>
+<tr><td>4</td><td>Montoya, Oulghelou &amp; Cinnella</td><td class="n">0.0779</td></tr>
+</tbody></table></div>
+
+<p class="lede" style="margin-top:22px">Per case, against the uncorrected baseline. Lower is better.</p>
+<div class="scroll"><table>
+<thead><tr><th>Test case</th><th class="n">Baseline</th><th class="n">Ours</th><th class="n">Change</th><th>Board</th></tr></thead>
+<tbody>
+<tr><td>alpha_15_13929_4048</td><td class="n">0.1320</td><td class="n">0.0501</td><td class="n win">−62.0%</td><td class="win">best on board</td></tr>
+<tr><td>alpha_15_13929_2024</td><td class="n">0.2049</td><td class="n">0.1011</td><td class="n win">−50.7%</td><td class="win">best on board</td></tr>
+<tr><td>AR_14_Ret_180</td><td class="n">0.0590</td><td class="n">0.0303</td><td class="n win">−48.6%</td><td class="win">best on board</td></tr>
+<tr><td>AR_3_Ret_360</td><td class="n">0.1243</td><td class="n">0.0862</td><td class="n win">−30.7%</td><td></td></tr>
+<tr><td>AR_1_Ret_360</td><td class="n">0.1288</td><td class="n">0.0919</td><td class="n win">−28.6%</td><td></td></tr>
+<tr><td>alpha_05_4071_2024</td><td class="n">0.0719</td><td class="n">0.0974</td><td class="n" style="color:var(--bad)">+35.5%</td><td></td></tr>
+<tr><td>alpha_05_4071_4048</td><td class="n">0.0461</td><td class="n">0.0723</td><td class="n" style="color:var(--bad)">+56.8%</td><td></td></tr>
+<tr><td>NASA_2DWMH</td><td class="n">0.0621</td><td class="n">0.0632</td><td class="n" style="color:var(--bad)">+1.8%</td><td></td></tr>
+</tbody></table></div>
+
+<div class="note"><b>Three cases got worse, and they are shown.</b> The correction helps most where the
+baseline was worst and hurts where the baseline was already accurate. That pattern was measured, not
+assumed, and it points at a known structural limit: our correction adjusts the answer rather than the
+model. A fix worth 0.0066 was located and deliberately <i>not</i> taken — claiming it would have
+required selecting on test scores, which invalidates the entry.</div>
+
+<!-- ============================ 2 ============================ -->
+<h2>2 · Gradient verification — discrete adjoint against finite difference</h2>
+<p class="lede">Adjoint gradients are the engine of large-scale design optimisation and are notoriously
+easy to get subtly wrong. Every rung below was verified against finite differences before any
+optimisation result was allowed to stand.</p>
+
+<div class="grid">
+  <div class="kpi"><div class="n">6 / 6</div><div class="l">rungs completed</div>
+    <div class="f">airfoil → 3D wing → transonic → bluff body → internal → CRM</div></div>
+  <div class="kpi"><div class="n">4.4e−14</div><div class="l">tightest verification</div>
+    <div class="f">geometric constraint, machine precision</div></div>
+  <div class="kpi"><div class="n">28.3%</div><div class="l">drag reduction, 3D wing</div>
+    <div class="f">at matched lift · time-boxed, not converged</div></div>
+  <div class="kpi"><div class="n">0.0067%</div><div class="l">CRM vs published</div>
+    <div class="f">579,072-cell primal</div></div>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th>Derivative</th><th class="n">Adjoint vs FD</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>Geometric constraints wrt shape</td><td class="n">4.4e−14</td><td><span class="tag t-good">MACHINE PRECISION</span></td></tr>
+<tr><td>Drag wrt flow parameters</td><td class="n">0.232%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Lift wrt flow parameters</td><td class="n">0.232%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Lift wrt shape</td><td class="n">1.67%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Drag wrt shape (3D wing, 96 vars)</td><td class="n">1.71%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Drag wrt shape (airfoil, 8 vars)</td><td class="n">11.43%</td><td><span class="tag t-bad">FAIL</span></td></tr>
+</tbody></table></div>
+
+<div class="note"><b>The failing row is the most informative one.</b> An eight-decade step-size sweep
+proved the 11.43% is a real gradient defect, not a checking artefact — one component is sign-inverted
+at every step size and carries 74–83% of the error. The result independently reproduced a prior
+investigation to four significant figures. It also retired our own grading standard: a band inferred
+from a single case was too loose, and a passing verdict elsewhere was downgraded when the evidence
+improved.</div>
+
+<!-- ============================ 3 ============================ -->
+<h2>3 · Hard-case campaign — gated against published references</h2>
+<p class="lede">Every family carries an external quantitative gate: exact theory, published experiment,
+DNS, or workshop data. A failed gate ships as a documented failure.</p>
+
+<div class="scroll"><table>
+<thead><tr><th>Case</th><th>Regime</th><th>Gate</th><th class="n">Result</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>Supersonic wedge</td><td>M 2–4, inviscid</td><td>Oblique-shock theory (exact)</td><td class="n">0.01–0.07%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Diamond airfoil</td><td>supersonic</td><td>Shock-expansion wave drag (exact)</td><td class="n">0.18–0.26%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Supersonic cone</td><td>axisymmetric</td><td>Taylor–Maccoll (exact)</td><td class="n">0.19–0.29%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Hypersonic cylinder</td><td>M 6–8</td><td>Billig shock standoff</td><td class="n">0.70–2.33%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>ONERA M6 wing</td><td>3D transonic, M 0.84</td><td>AGARD Cp, 7 span stations</td><td class="n">0.013–0.027 RMS</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>CRM wing</td><td>3D transonic, M 0.85</td><td>Published tutorial baseline</td><td class="n">0.0067%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>NASA wall-mounted hump</td><td>separated</td><td>NASA experiment, separation</td><td class="n">−1.59%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Cylinder shedding</td><td>unsteady, Re 100–1000</td><td>Roshko–Williamson Strouhal</td><td class="n">0.7%</td><td><span class="tag t-good">PASS</span></td></tr>
+<tr><td>Square duct secondary flow</td><td>Re<sub>τ</sub> 360</td><td>DNS</td><td class="n">0% captured</td><td><span class="tag t-bad">FAIL</span></td></tr>
+<tr><td>Dam break</td><td>free surface</td><td>Martin &amp; Moyce surge front</td><td class="n">+13.6%</td><td><span class="tag t-bad">FAIL</span></td></tr>
+</tbody></table></div>
+
+<div class="note"><b>Both failures were diagnosed rather than filed.</b> The duct failure is structural:
+linear turbulence models produce <i>exactly zero</i> secondary flow — machine zero, confirmed across
+five models. Reynolds-stress models then bracketed the DNS value at 55% and 207%, proving the
+mechanism is reachable. The dam-break failure turned out to be the measurement, not the physics: the
+front-position definition was mesh-dependent and swung the answer by more than 40 percentage points.
+The gate stays failed until the comparison itself is rebuilt.</div>
+
+<!-- ============================ 4 ============================ -->
+<h2>4 · Uncertainty quantification on a known model error</h2>
+<p class="lede">The NASA hump has a documented, published model-form error. The test: does our
+uncertainty band contain it — without being tuned to?</p>
+
+<div class="grid">
+  <div class="kpi"><div class="n" style="color:var(--good)">CONTAINS</div><div class="l">verdict</div>
+    <div class="f">band [0.53, 1.25] holds the true 1.100</div></div>
+  <div class="kpi"><div class="n">+13.95%</div><div class="l">known model error</div>
+    <div class="f">reattachment over-prediction</div></div>
+  <div class="kpi"><div class="n" style="color:var(--bad)">FAILS</div><div class="l">inter-model spread alone</div>
+    <div class="f">[1.13, 1.25] excludes the truth</div></div>
+  <div class="kpi"><div class="n">+0.63%</div><div class="l">best single perturbation</div>
+    <div class="f">isotropic limit vs experiment</div></div>
+</div>
+
+<div class="note"><b>The honest reading.</b> The band contains the error, and that was predicted in
+writing before the runs. But it is wide — a factor of 2.4 — and the containment is carried by
+physics-based anisotropy bounds, not by sampling several turbulence models. Sampling members of one
+model class does not sample the error of the class itself: an inter-model band alone would have
+missed the truth entirely. Containment is necessary, not sufficient; the open question is how tight
+the band can be made while still containing.</div>
+
+<footer>
+  Sources: closure-challenge harness (single scoring call, leakage-guarded) ·
+  DAFoam discrete adjoint with finite-difference verification ·
+  AGARD AR-138 · NASA Turbulence Modeling Resource · Martin &amp; Moyce (1952) ·
+  Ahmed, Ramm &amp; Faltin (1984) · Roshko–Williamson correlation ·
+  Billig (1967) · benchmark DNS reference fields.
+  Full records and raw logs under <code>demo-output/website/</code>.
+</footer>
+
+</div>
+</body>
+</html>
