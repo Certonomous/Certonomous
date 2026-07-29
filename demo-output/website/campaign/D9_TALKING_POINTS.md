@@ -16,15 +16,21 @@ before the run.
 - Before we ran the wider set of checks, we wrote down what we expected our
   uncertainty band to show and committed it to the record.
 - The band we predicted would contain the true answer does contain it.
-- Simply comparing several similar turbulence models to each other would not
-  have been enough. That narrower comparison misses the true answer
-  entirely.
-- What actually contains the true answer is a band built from the physics of
-  turbulence anisotropy, not from more opinions of the same kind.
 - The band is wide. We say that plainly. Containment is necessary. It is not
   sufficient on its own.
 - The honest and still meaningful claim is that our machinery bounded a real,
   published error and said so in advance.
+- **And then we broke our own second prediction.** We had also predicted that
+  just comparing several turbulence models against each other would not be
+  enough to catch the true answer. That was true, right up until we finished
+  a model run that had never actually met our own convergence standard.
+  Converged properly, it crosses to the other side of the experiment, and
+  that narrower comparison now catches the true answer after all.
+- We went looking at our own headline claim rather than defending it, and it
+  did not survive. The number that had been propping it up was unfinished.
+- That is the part worth saying out loud on camera: the machinery is only as
+  good as the discipline behind it, and the discipline has to include
+  checking the results you like.
 
 ## The numbers, so nothing gets misquoted
 
@@ -33,7 +39,8 @@ before the run.
 | Experiment reattachment x/c | 1.100 |
 | Our baseline reattachment x/c | 1.2534 |
 | Baseline error vs experiment | +13.95% |
-| Narrower channel, several turbulence models only | 1.1299 to 1.2534, misses the experiment |
+| Narrower channel, several turbulence models only | 1.0722 to 1.2534, contains the experiment |
+| That same channel before the unconverged model was finished | 1.1299 to 1.2534, missed it |
 | Full band, physics based anisotropy bounds included | 0.5278 to 1.2534, contains the experiment |
 | Closest single check to the experiment | 1.1069, +0.63% |
 

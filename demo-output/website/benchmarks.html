@@ -184,19 +184,24 @@ Lower rows are the channels that make up the band.</p>
 <tbody>
 <tr><td>NASA experiment</td><td class="n">1.100</td><td>reference</td><td></td></tr>
 <tr><td>Our baseline turbulence model</td><td class="n">1.2534</td><td>+13.95% vs experiment</td><td></td></tr>
-<tr><td>Several turbulence models compared to each other</td><td class="n">1.1299 to 1.2534</td><td>misses the experiment</td><td></td></tr>
+<tr><td>Several turbulence models compared to each other</td><td class="n">1.0722 to 1.2534</td><td>contains the experiment</td><td></td></tr>
 <tr class="us"><td>Full band, physics based anisotropy bounds included</td><td class="n">0.5278 to 1.2534</td><td>contains the experiment</td><td><span class="tag t-good">CONTAINS</span></td></tr>
 <tr><td>Closest single check to the experiment</td><td class="n">1.1069</td><td>+0.63% vs experiment</td><td></td></tr>
 </tbody></table></div>
 
 <div class="note"><b>Why this is the important one.</b> A model that is confidently wrong is worse
 than one that says how wrong it might be. The prediction that our band would contain this error was
-written down before the runs that tested it, so it could not be fitted after the fact. The band is
-wide, so containment here is necessary, not sufficient. What makes it more than a wide guess is that
-the narrower channel, built only from comparing several turbulence models to each other, misses the
-experimental value entirely. Containment only comes from the channel built on physics based anisotropy
-bounds. Sampling more members of one model class does not sample the error of the class itself. This
-result stands on one case; it has not yet been tested on a second.</div>
+written down before the runs that tested it, so it could not be fitted after the fact, and the band
+does contain it. The band is wide, so containment here is necessary, not sufficient. This result
+stands on one case; it has not yet been tested on a second.
+
+<br><br><b>We also broke one of our own predictions, and it is worth more than the one that held.</b>
+We had predicted that the narrower channel, built only from comparing several turbulence models to
+each other, would miss the experimental value. It did miss it — until we went back and finished a
+model that had never met its own convergence standard. Converged properly, that model moves from
+above the experimental value to below it, and the narrow channel now contains the experiment after
+all. The original claim rested on an unfinished number. We found that ourselves, by checking our own
+headline rather than defending it, and the correction is recorded in full.</div>
 
 <footer>
   Sources: closure-challenge harness, four pre-registered scoring calls across three rounds ·
