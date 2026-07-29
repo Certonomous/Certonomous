@@ -219,3 +219,85 @@ failure.
 **How to apply.** Cross-check against a channel with a different failure mode —
 filesystem mtimes, `sar`/`sysstat` samples, artifact contents. Ask "if this had
 happened, what would have recorded it, and was that recorder alive?"
+
+---
+
+# PROCESS DOCTRINE (P1-P5) — how to act, not just what to know
+
+These are standing rules for how work is conducted. Unlike L-1..L-7, which
+record what went wrong, these govern the method itself.
+
+## P1. Control before doubt
+
+Before publishing a hypothesis that contradicts a report, run the cheapest
+control experiment.
+
+Earned three times in one session. The worst instance: C4 reported the TMR
+medium rung unaffordable, citing a max aspect ratio of 26.4 million and a failed
+checkMesh. I published the doubt that degenerate cells were holding the timestep
+hostage — then ran `checkMesh` on the COARSE grid, which works fine and cheaply,
+and found **20.6 million aspect ratio and the same failed check**. The control
+took one command and refuted my objection outright. **A mechanism claimed from
+one suggestive number is a draft, not a finding.**
+
+## P2. Prediction-first runs
+
+Any comparative study writes its prediction down before executing. Confirmations
+and refutations count only if the prediction predates the data.
+
+The RANS model sweep did this correctly: it stated that linear Boussinesq models
+cannot produce secondary flow of the second kind at any coefficient setting, then
+measured five of them at 5.5e-16 to 9.2e-16 — machine zero — against a nonlinear
+model at 0.174. A prediction written afterwards would have been worth nothing.
+
+## P3. Zero-compute checks first
+
+Read the dictionaries, configs and git log before burning cores.
+
+The F7a diagnosis cost **zero core-minutes**: `constant/turbulenceProperties`
+said `simulationType laminar`, so no turbulence model had ever been active and
+the entire model-comparison question was inapplicable. Reading one file
+prevented a whole false investigation.
+
+## P4. No orphaned runs
+
+Every launched solve gets a collector armed **at launch**, and an agent may not
+report "finished" while its PID list is alive.
+
+This pattern recurred **three times before the rule was written and three more
+after** — the ladder agent twice, the DPW agent once. Discipline demonstrably
+does not fix it; see D12, which moves the responsibility into the launcher.
+
+## P5. One change per rung
+
+In any debugging ladder, exactly one variable moves per attempt, logged.
+Compound fixes that work teach nothing, because the cause stays unattributed.
+
+---
+
+## L-8. The sign-flip diagnostic protocol
+
+**The rule.** When mesh refinement **flips the sign** of an error rather than
+reducing it, under-resolution is DISQUALIFIED as the sole cause. Refinement that
+merely shrinks an error is consistent with convergence; refinement that reverses
+it is not. The diagnosis must then walk this order, cheapest-and-most-often-
+guilty first:
+
+1. **The comparison itself.** Verify the reference definition before touching
+   the solver: what exactly was measured, the initial geometry, the time origin
+   and non-dimensionalisation, and how the experiment differs from the idealised
+   setup (e.g. instantaneous versus finite gate release).
+2. **Boundary and initial conditions.** Wall treatment, outlet, initialisation.
+3. **Scheme sensitivity.** Interface-capturing controls, compression settings,
+   discretisation variants.
+4. **Time-step and mesh convergence, SEPARATED.** Refine each independently so
+   their effects cannot alias into one another.
+
+**Why.** F7a dam break deviated +13.6% mean on the surge front, and the coarse
+mesh **undershot by −13.2%** while the medium overshot — a sign flip across
+refinement. Turbulence was ruled out at zero cost (the case is laminar). The
+remaining suspects are ordered above by cost and by how often each is actually
+the culprit.
+
+**The gate stays FAIL until the sign flip is EXPLAINED, not merely reduced.**
+A number that moves closer to the reference for unknown reasons is not a fix.
