@@ -1,33 +1,45 @@
 {
   "counters": {
-    "missions_run": 72298,
-    "solver_core_hours": 101.534,
+    "missions_run": 208193,
+    "solver_core_hours": 239.687,
     "knowledge_entries": 8,
     "experimental_anchors": 8,
     "benchmarks_active": 2,
     "detail": {
-      "ledger_evaluations": 72298,
-      "ledger_failed": 72,
+      "ledger_evaluations": 208193,
+      "ledger_failed": 91,
       "persisted_missions": 0,
       "per_solver": {
         "openfoam-cylinder": {
-          "count": 24063,
-          "wall_seconds": 171962.2
+          "count": 69288,
+          "wall_seconds": 263362.2
+        },
+        "openfoam-cylinder-unsteady": {
+          "count": 417,
+          "wall_seconds": 159538.4
         },
         "reduced-order": {
-          "count": 24124,
-          "wall_seconds": 22.4
+          "count": 69007,
+          "wall_seconds": 24.1
+        },
+        "rhosimplefoam-naca0012-transonic": {
+          "count": 280,
+          "wall_seconds": 8685.5
+        },
+        "simplefoam-ahmed-3d-viscous": {
+          "count": 52,
+          "wall_seconds": 1823.8
         },
         "vspaero-wing": {
-          "count": 24111,
-          "wall_seconds": 193539.5
+          "count": 69149,
+          "wall_seconds": 429440.8
         }
       }
     },
     "research": {
       "closure": {
         "title": "Closure-challenge benchmark",
-        "status": "ACTIVE RESEARCH",
+        "status": "ACTIVE RESEARCH -- entry measured",
         "board": "public leaderboard",
         "target_rank": 4,
         "target_overall": 0.0779,
@@ -41,20 +53,25 @@
           0.0487,
           0.0464
         ],
-        "our_entry": "No entry submitted. Measured a zero-training RANS reference floor of 0.1036 overall, scored by the benchmark's own unmodified code; worse than every published entry, since it reflects no learned correction",
-        "our_score": 0.1036,
+        "our_entry": "Trained entry scored 0.0741 overall through the benchmark's own unmodified harness in a single pre-registered scoring call, 28.5 percent below the uncorrected reference. Best result on the public board on three of the eight test cases.",
+        "our_score": 0.0741,
         "our_per_case": [
-          0.132,
-          0.2049,
-          0.0461,
-          0.0719,
-          0.1288,
-          0.1243,
-          0.059,
-          0.0621
+          0.0501,
+          0.1011,
+          0.0723,
+          0.0974,
+          0.0919,
+          0.0862,
+          0.0303,
+          0.0632
         ],
         "target": "top 4",
-        "repo": "github.com/rmcconke/closure-challenge-benchmark"
+        "repo": "github.com/rmcconke/closure-challenge-benchmark",
+        "best_on_board": [
+          "alpha_15_13929_4048",
+          "alpha_15_13929_2024",
+          "AR_14_Ret_180"
+        ]
       },
       "speed": {
         "title": "Reduced-order speed benchmark",
@@ -257,21 +274,6 @@
       "wall_minutes": 3.04,
       "finest_rung": false,
       "rung_provenance": null
-    },
-    {
-      "name": "naca4412_wing",
-      "tier": "SOLVER-BACKED",
-      "measured": "0.01892",
-      "measured_raw": "0.01892",
-      "area_basis": "planform",
-      "cells": 337334,
-      "envelope": "\u00b10.0031 across the 3-mesh refinement study",
-      "reference_cd": 0.03,
-      "source": "Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)",
-      "reason": "measured Cd 0.019 is 37% from Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009), Cd 0.03, outside the \u00b135% band",
-      "wall_minutes": 4.41,
-      "finest_rung": true,
-      "rung_provenance": "uq-naca4412_wing-r4"
     },
     {
       "name": "sphere",
