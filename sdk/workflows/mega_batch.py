@@ -10,8 +10,11 @@ NACA0012 airfoils (rhoSimpleFoam, a real shock forms), and -- Family F10 --
 the Ahmed body in 3D viscous RANS (simpleFoam, k-omega SST, wall functions,
 snappyHexMesh), the batch's only genuinely 3D viscous CFD family: see
 ``demo-output/website/mega-batch/PHYSICS_FAMILIES.md`` for each family's
-design space, validation gate, and measured per-evaluation cost, and
-``demo-output/website/mega-batch/F10_3D_VISCOUS_FAMILY.md`` for F10 specifically.
+design space, validation gate, and measured per-evaluation cost,
+``demo-output/website/mega-batch/F10_3D_VISCOUS_FAMILY.md`` for F10
+specifically, and ``demo-output/website/mega-batch/F10_YPLUS_FIX.md`` for
+why F10's mesh refinement now follows Reynolds number instead of being
+fixed across the whole design space.
 
 Two properties make it demo-safe:
 
@@ -96,6 +99,20 @@ TRANSONIC_ITERATIONS = 2000
 # study's (and geometry_study.py's own) AIR_KINEMATIC_VISCOSITY convention.
 AHMED_GEOMETRY_DIR = _SDK_ROOT / "geometry"
 AHMED_REFINEMENT = 2
+# refinement=2's first cell grows too far from the wall once Re climbs past
+# ~2.8e6, pushing average y+ over the [30,500] wall-function ceiling -- see
+# F10_YPLUS_FIX.md for the measured evidence (17/52 F10 rows failed the y+
+# gate this way). The mesh now follows Reynolds number instead of being a
+# single fixed recipe across the whole [1.5e6, 4.0e6] design space:
+# refinement stays at 2 below the threshold (cheaper, and already
+# comfortably in-band there) and steps up to 3 at/above it. Measured,
+# real-dispatch numbers (F10_YPLUS_FIX.md): refinement=2 gives y+avg 255.85
+# at Re=1.53e6, 438.99 at Re=2.73e6, 451.38 at Re=2.81e6 (all PASS) but
+# 628.19 at Re=3.99e6 (FAIL); refinement=3 gives y+avg 463.89 at Re=3.99e6
+# (PASS, ~7% margin under the 500 ceiling) and 190.88 / 325.48 at the
+# lower/mid points (confirms the switch is not a knife-edge).
+AHMED_REFINEMENT_RE_THRESHOLD = 2.8e6
+AHMED_REFINEMENT_HIGH_RE = 3
 AHMED_ITERATIONS = 250
 AHMED_VISCOSITY = 1.5e-5
 # Quality gates, non-negotiable -- an evaluation failing any of these is
@@ -464,6 +481,24 @@ def _ahmed_add_yplus_function(control_dict_path: Path) -> None:
     control_dict_path.write_text(text[: -len(marker)] + yplus_block)
 
 
+def _ahmed_refinement_for_reynolds(reynolds: float) -> int:
+    """Mesh refinement level, following Reynolds number -- see F10_YPLUS_FIX.md.
+
+    A single fixed-refinement mesh cannot support the whole F10 design
+    space: the first cell's absolute height is set by the mesh alone, but
+    wall shear (and therefore y+ at that fixed height) grows with Re, so a
+    mesh sized for the bottom of the range overshoots the [30, 500]
+    wall-function band at the top. Rather than widen the gate, the mesh
+    itself now follows Re: refinement=2 (the original, validated recipe)
+    below the measured threshold, refinement=3 at/above it. Both branches
+    are measured, not assumed -- see F10_YPLUS_FIX.md for the four
+    real-dispatch data points this threshold is set from.
+    """
+    if reynolds >= AHMED_REFINEMENT_RE_THRESHOLD:
+        return AHMED_REFINEMENT_HIGH_RE
+    return AHMED_REFINEMENT
+
+
 def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) -> dict[str, Any]:
     """Ahmed body, simpleFoam, k-omega SST wall functions -- Family F10.
 
@@ -496,6 +531,7 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
 
     geometry = analyse_surface(source, streamwise_axis=0)
     velocity = reynolds * AHMED_VISCOSITY / geometry["length"]
+    refinement = _ahmed_refinement_for_reynolds(reynolds)
 
     case_dir = work_root / "ahmed-viscous" / f"case-{index:06d}"
     shutil.rmtree(case_dir, ignore_errors=True)
@@ -503,7 +539,7 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
     shutil.copy(source, case_dir / "constant" / "triSurface" / stl_name)
 
     build_case(case_dir, stl_name, geometry, velocity=velocity,
-              viscosity=AHMED_VISCOSITY, scale=1.0, refinement=AHMED_REFINEMENT,
+              viscosity=AHMED_VISCOSITY, scale=1.0, refinement=refinement,
               iterations=AHMED_ITERATIONS)
     _ahmed_add_yplus_function(case_dir / "system" / "controlDict")
 
@@ -611,6 +647,7 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
         "slant_deg": slant,
         "reynolds": reynolds,
         "velocity": round(velocity, 3),
+        "mesh_refinement": refinement,
         "cells": mesh_stats.get("cells"),
         "checkmesh_ok": mesh_stats.get("mesh_ok"),
         "max_non_orthogonality": non_ortho,

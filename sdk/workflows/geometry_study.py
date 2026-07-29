@@ -1565,11 +1565,17 @@ def main(request: str | None = None, params: dict | None = None,
             "• No published comparison for this body; the number stands on "
             "mesh quality, convergence, and the grid study." + skew_line)
     if refine and refine.get("band_abs") is not None:
+        # The spend line is only meaningful when there is a spend to report.
+        # Announcing "0 core-minutes" invites exactly the question the rest of
+        # the transcript is careful not to raise, so below one core-minute the
+        # sentence is dropped rather than rounded down to zero on screen.
+        spend = ledger.as_dict()['spent_core_minutes']
+        spend_line = (f" • Total spend {spend:.0f} core-minutes, refinement "
+                      f"rungs included." if spend >= 1 else "")
         script.engineer(
             f"• Mesh sensitivity measured on three meshes of this case; the "
-            f"band rides the numerical channel of the certificate. "
-            f"• Total spend {ledger.as_dict()['spent_core_minutes']:.0f} "
-            f"core-minutes, refinement rungs included.")
+            f"band rides the numerical channel of the certificate."
+            f"{spend_line}")
     else:
         script.engineer(
             f"• Mesh sensitivity is not separated on this run; the numerical "
