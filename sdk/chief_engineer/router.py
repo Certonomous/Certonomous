@@ -175,6 +175,12 @@ _NAMED_BODIES: tuple[tuple["re.Pattern[str]", str, str | None], ...] = (
     (re.compile(r"\b(?:b[\s-]?52|stratofortress)\b", re.I), "b52.stl", None),
     (re.compile(r"\b(?:motorcycle|motorbike|motor[\s-]?bike)\b", re.I),
      "motorBike.obj", None),
+    # The M6 wing is named here so a prompt about it resolves to a real staged
+    # surface and runs an ordinary geometry study, rather than falling through
+    # as an unknown body. Its dedicated transonic act is not routed from the
+    # control room -- see the note in the intent scoring below.
+    (re.compile(r"\bonera[\s-]?m6\b|\bm6\s+wing\b", re.I),
+     "onera_m6_wing.stl", None),
 )
 
 
@@ -398,8 +404,16 @@ def classify(request: str) -> Route:
     if _NASA_HUMP_NAME.search(text):
         add(NASA_HUMP, 2.0,
             "names the NASA wall-mounted hump validation case")
-    if _ONERA_M6_NAME.search(text):
-        add(ONERA_M6, 2.0, "names the ONERA M6 transonic wing")
+    # ONERA M6 is deliberately NOT routed from the control room. Its primal
+    # plateaus above the solver's own convergence tolerance and the act
+    # honestly reports itself unconverged. The control room is a promotional
+    # surface and carries only cases that reach a clean result; the M6 work,
+    # its measurements and its documented failure all remain in the evidence
+    # record, which is where a failure belongs. The module and the dispatch
+    # entry stay in place so the act can be run directly when the underlying
+    # convergence question is resolved -- re-enable this branch then.
+    # if _ONERA_M6_NAME.search(text):
+    #     add(ONERA_M6, 2.0, "names the ONERA M6 transonic wing")
     if _CRM_WINGBODY_NAME.search(text):
         add(CRM_WINGBODY, 2.0, "names the CRM wing")
     # --- five more validated cases: an unsteady wake and four compressible
