@@ -676,3 +676,65 @@ of them got checked.
 each by going to the primary evidence I had skipped. That is the system working,
 but it should not be load-bearing: a supervisor who ships three wrong conclusions
 in a session is spending the team's attention on corrections instead of research.
+
+---
+
+## L-17. Reverting a decision is not the same as reverting its consequences
+
+**The rule.** When a staged setup is found to encode a decision that must be
+reverted (a turbulence model, a solver choice, anything with downstream
+effects), reverting the decision itself is not enough. Every OTHER parameter
+that was chosen *because of* that decision has to be individually re-examined
+against the convention being restored to — not assumed innocent because "no
+reason to distrust it." A partial revert produces a hybrid case that passes
+every internal-consistency check (it is not lying about what it is) and
+matches neither the old convention nor the new one, and nothing about
+inspecting that one case will show you this. It only becomes visible when a
+sibling case, built cleanly on the restored convention, gives a different
+answer to the same question.
+
+**Why.** The F5a cylinder ladder's Re=3900 rung was staged as kOmegaSST URANS
+by an interrupted agent, caught by L-11, and reverted to laminar before
+launch — turbulence model and 0/ fields fixed, and the mesh (n_radial,
+n_tangential, first_cell, dt0) was deliberately left alone, reasoned as
+"Re 3900-specific choices, not the turbulence-model fork, and there is no
+reason to distrust them." That reasoning was sound in isolation and wrong in
+context: the near-wall first-cell height had been sized for the URANS
+staging's own y+-targeting formula, not this ladder's laminar
+boundary-layer-resolving formula (`0.01*sqrt(200/Re)`), and the two formulas
+disagree by 55% at this Re (0.003517 vs 0.002265). `case_preflight.sh`
+passed the reverted case cleanly — `model: laminar`, every required field
+present — because a mesh sized for the wrong solver is not a preflight-
+checkable defect; it looks exactly like a legitimate engineering choice for
+the case in front of you. The defect only surfaced when a THIRD rung
+(Re=10,000, built fresh on the laminar formula in the same session) produced
+a visibly different first-cell number for a comparable step, prompting the
+question "why does this ladder now have two different near-wall
+conventions" — a question that cannot be asked from inside any single case.
+
+**How it was sized, not just asserted.** Counting mesh cells whose outer
+radial edge falls inside an order-of-magnitude boundary-layer-thickness
+estimate (`delta/D = C/sqrt(Re)`, C swept 1-5 to bound the estimate's own
+uncertainty, since no precise cylinder-specific BL-thickness citation was in
+hand — stated as an engineering estimate, not a literature value) shows the
+effect is not cosmetic: at C=3, Re=1000's rung resolves the boundary layer
+with 13 cells, Re=3900 SHOULD resolve it with 14 (the laminar-formula
+convention keeps this roughly flat as Re rises, by design), but the mesh
+that actually ran resolves it with only **10** — fewer than the lower-Re
+rung before it, which is backwards from what a Re-consistent convention
+should ever produce. The direction (coarser, not finer) is conservative for
+any single result taken alone, exactly as first argued — but "conservative
+for one result" and "comparable across a ladder" are different claims, and
+only the second is what a ladder is built to deliver.
+
+**How to apply.** When reverting a staged decision, first enumerate every
+parameter the ORIGINAL (wrong) decision could plausibly have influenced —
+not just the flag that names it. For a turbulence-model revert, that
+list is at minimum: near-wall cell height (y+-target vs. resolved-BL
+target), and possibly time-step (URANS and laminar can tolerate different
+Courant numbers near the wall) and turbulence-model-dependent scheme
+choices in fvSchemes. Check each one explicitly against the sibling
+convention rather than inheriting it. If checking against a sibling isn't
+possible yet (this is the first rung of its kind), that is itself the
+signal to compute the intended-convention value independently — from the
+formula, not from what shipped — before trusting what was staged.
