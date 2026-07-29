@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-29T22:15:00Z",
+ "generated_at": "2026-07-29T23:04:27+00:00",
  "proposals": [
   {
    "id": "r1-monitor-walltime-rule",
@@ -465,6 +465,23 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "r5-a5-second-gradient-defect",
+   "objective": "Identify the cause of the U-bend case's gradient failure, now known not to share the mesh-warp defect found on the airfoil, by isolating each remaining link of its derivative chain against a finite difference of that link",
+   "rationale": "The airfoil's shape-derivative defect was resolved today and traced to the mesh warp's own linearisation. The U-bend was then tested against the same mechanism and CLEARED: its design variables are all single-point, and its two sign-flipped components agree with a finite difference of the warp to 0.32 to 1.30 percent. Yet its real verification still fails badly, at 46.6 percent aggregate with only 5 of 27 components in band, and it carries the same immunities that misled the airfoil investigation for months: a step-size sweep excludes truncation error, and tightening the primal made it worse rather than better, taking two sign flips to three. So this is a second, independent defect and nothing is known about it. The link-by-link isolation strategy is what finally worked on the airfoil after six wrong mechanisms, and it should be applied here rather than guessing again. Three features distinguish this case and are the natural first suspects: an internal duct flow rather than external aerodynamics, an objective that is a pressure difference between two patches rather than an integrated force, and a half model with a symmetry plane. A two-patch difference objective and a symmetry plane are both constructions that can carry a sign error.",
+   "citations": [
+    "Certonomous shape-derivative root-cause study, the resolved airfoil case and the U-bend scope test, 2026-07-29",
+    "Certonomous DAFoam case survey, U-bend verification record"
+   ],
+   "est_core_min": 60.0,
+   "cost_basis": "estimate, from the U-bend's own measured 26 core-minutes per full verification cycle",
+   "expected_knowledge_gain": "The lab's last unexplained gradient failure. Resolving it would mean every shape derivative here is either verified or has a named, understood defect, which is the precondition for trusting any optimisation result built on them.",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T22:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
    "id": "dafoam-adjoint-memory-scaling-law",
    "objective": "Measure the adjoint peak memory as a function of cell count so case feasibility can be predicted before a run rather than discovered by failure",
    "rationale": "Adjoint runs succeeded at 4032 and 4800 cells and failed at 99840 and 399360, with eight mitigations ruled out including container caps at 12 and 18 gigabytes, two and four rank decomposition, restart count, and preconditioner fill. Restricting the requested derivative to two variables did not help, because the reverse mode sweep touches every upstream input regardless, so the mesh sized Jacobian blocks are built either way. The wall is therefore real but its location is only known to lie between ten thousand and one hundred thousand cells, and it was measured while other work shared the host. A profiled curve over four or five small cases turns that into a number that tells us in advance which rungs are feasible",
@@ -510,6 +527,23 @@
    "created_at": "2026-07-28",
    "decided_at": "2026-07-29T20:28:00+00:00",
    "decision_note": "Built and validated in a prior session (C1: AUC 1.0, 4/4 correct on held-out PH validation, fit on train only) but deliberately not applied to the test set pending a separate decision. That decision was made this session (round 3, sdk/scripts/apply_closure_ph_gate.py): the frozen gate was evaluated on the 4 official PH test cases using RANS-derived features only (no ground truth), recovering 0.0065 of the predicted 0.0066 term. Overall score moved 0.0741 -> 0.0676 in a single new official scoring call (the 4th on this benchmark). Record: demo-output/website/closure_challenge_trained_entry_round3_gated.json."
+  },
+  {
+   "id": "r5-warp-linearisation-workaround",
+   "objective": "Establish whether the mesh-warp linearisation defect can be avoided in practice by expressing an opposing-direction combination design variable as a weighted set of single-point variables, and whether the resulting gradient then verifies",
+   "rationale": "The defect is now understood in two parts, both measured: the warp's linearisation is wrong for opposing-direction combination modes wherever they occur, and whether that reaches a real gradient depends on whether the error overlaps the objective's own sensitivity field. Single-point variables never show it -- confirmed across three cases. That suggests a workaround available today, without waiting on an upstream fix: a combination mode is a linear combination of point motions, so the same shape freedom can be expressed as several single-point variables and combined afterwards, where the chain rule is ours rather than the library's. If the reconstructed gradient then agrees with a finite difference, every blocked optimisation using combination modes becomes runnable now. Falsified if the reconstruction disagrees too, which would locate the defect deeper than the mode construction and be worth knowing for the same reason.",
+   "citations": [
+    "Certonomous mesh-warp linearisation study, necessary and sufficient conditions measured, 2026-07-29",
+    "Certonomous upstream defect report on the mesh-warp derivative"
+   ],
+   "est_core_min": 45.0,
+   "cost_basis": "measured, from the airfoil's 3.5 core-minute verification cycle across several variable constructions",
+   "expected_knowledge_gain": "Turns a documented upstream defect from a blocker into a known workaround, on our own schedule rather than someone else's release cycle.",
+   "source_kind": "capability",
+   "status": "proposed",
+   "created_at": "2026-07-29T22:15:00Z",
+   "decided_at": null,
+   "decision_note": null
   },
   {
    "id": "agp-d64295666c56",
@@ -625,6 +659,24 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "r5-convergence-wall-not-memory",
+   "objective": "Determine why one case family's adjoint fails to converge at every mesh size tested while another family converges on a larger mesh, and whether the failing family can be fixed by conditioning rather than by hardware or coarsening",
+   "rationale": "This proposal was written a few hours ago around a cell-count threshold and that framing is now dead; the measurement that killed it is the reason the question is worth more, not less. Within one transonic, shock-containing, compressible case family the adjoint returns the same linear-solver breakdown at 21,840 cells, at 79,560 cells and at 99,840 cells -- a 4.6-fold range with no exceptions. Within a separate incompressible family it converges cleanly at 63,920 cells, a LARGER mesh than the smallest failing one. So the failure does not track mesh size at all, and three consequences follow. Coarsening as an escape route is definitively dead rather than merely unpromising, which retires a strategy this lab has spent real time on. Buying hardware cannot help, since the smallest failing case peaked at 5.9 GB with the host holding over 20 GB free. And the discriminator is a property of the case, with the obvious candidate being what distinguishes the two families: six transported fields including temperature, transonic, shock-containing, against four or five, incompressible, smooth. An adjoint that is ill-conditioned because the primal carries a shock would be ill-conditioned at any resolution, which is exactly the pattern observed. Testing it means attacking the conditioning directly -- scaling, equilibration, a restarted or flexible Krylov variant -- at a mesh small enough to iterate on quickly, which the 21,840-cell case now provides at seven minutes per attempt. Falsified if the breakdown survives every conditioning treatment at the small mesh, in which case the limitation is structural to this solver's discrete adjoint for shock-containing flows, and that is a finding worth publishing rather than working around.",
+   "citations": [
+    "Certonomous adjoint envelope, per-family convergence measurements across a 4.6-fold mesh range, 2026-07-29",
+    "Saad, Iterative Methods for Sparse Linear Systems, on breakdown and equilibration"
+   ],
+   "est_core_min": 90.0,
+   "cost_basis": "measured, from the 420-second 21,840-cell run now established as the cheapest reproduction of the failure",
+   "expected_knowledge_gain": "Decides whether an entire class of cases -- transonic and shock-containing, which is most of external aerodynamics worth optimising -- is reachable by this adjoint at all. It also hands us a cheap test bed: a seven-minute case that reproduces the failure exactly, where previously the cheapest reproduction took sixteen minutes and was assumed to need a large mesh.",
+   "source_kind": "measurement",
+   "status": "approved",
+   "created_at": "2026-07-29T22:15:00Z",
+   "decided_at": "2026-07-29T23:04:27+00:00",
+   "decision_note": null,
+   "dismiss_reason": "Approved to run. The owner directed tonight that research directions be proposed, assessed and FOLLOWED continuously rather than queued, which is the authorisation this needed. It is also now the highest-leverage open question in the lab: the memory half of the envelope is settled and well fitted, and it does not matter, because the transonic family's adjoint diverges at every mesh size measured. A cheap reproducer exists at 21,840 cells and seven minutes per attempt, so conditioning experiments that were previously assumed to need a large mesh can now be iterated quickly."
+  },
+  {
    "id": "r4-coarse-adjoint-prolongation",
    "objective": "Determine whether a gradient computed on a coarse adjoint mesh is accurate enough to drive optimization on a fine primal mesh, by measuring gradient direction agreement (cosine similarity, not just magnitude) between coarse and fine adjoints on the one case where both are affordable",
    "rationale": "The adjoint memory wall blocks four cases and the reflex response is to buy a bigger machine. That may be the wrong purchase. Optimization does not need an accurate gradient magnitude; it needs an accurate gradient DIRECTION, because the line search recovers the step length. If the coarse-mesh adjoint points the same way as the fine-mesh adjoint, the wall stops being a blocker and becomes a cost-management technique, and it does so on hardware we already own. A4 already exercises this pattern informally, using a 2,777-cell adjoint mesh against a 45,760-cell primal, but nobody has measured whether the resulting direction is right - only that its magnitude lands within 10.04 percent on a single scalar design variable, which says nothing about direction in a many-variable space. The measurement wanted is cosine similarity across the full design-variable vector at several coarsening ratios, on a case small enough that the fine-mesh adjoint is affordable as ground truth.",
@@ -689,6 +741,24 @@
    "source_kind": "measurement",
    "status": "proposed",
    "created_at": "2026-07-28"
+  },
+  {
+   "id": "r5-perturbation-destroys-its-own-measurand",
+   "objective": "Test whether the anisotropy-perturbation uncertainty method destroys the very quantity it is built to bound, by establishing at what perturbation magnitude the separation bubble stops being a single closing structure and whether a converged solution exists beyond that point at all",
+   "rationale": "Today's sweep produced a result more interesting than the curve it was meant to produce. Only two perturbation magnitudes met their convergence gate, and the larger of the two moved the reattachment point AWAY from the experiment rather than toward it. Every magnitude that moves toward the experimental value failed to converge, with severity rising in step, and the flow fragments into multiple separation and reattachment events from a magnitude of 0.10 onward. So the scalar the band is built on stops being well defined in exactly the range where the band would have to be tightened. If non-convergence and fragmentation are the same phenomenon, then tightening is not merely circular, it is unreachable, and that is a genuine intrinsic limit of the method rather than a failure of this attempt. Separation position stayed single-valued and smooth throughout, which extends the known separation-is-easy-reattachment-is-hard asymmetry from accuracy into numerical well-posedness. Distinguishing an intrinsic limit from a mesh-and-scheme artefact is the crux, because only the second is fixable.",
+   "citations": [
+    "Certonomous hump band-tightening sweep, gate-checked points, 2026-07-29",
+    "Emory, Iaccarino et al., eigenvalue perturbation and the barycentric map",
+    "NASA Turbulence Modeling Resource, wall-mounted hump experiment"
+   ],
+   "est_core_min": 250.0,
+   "cost_basis": "estimate, several hump solves at the measured case cost plus one refined-mesh variant",
+   "expected_knowledge_gain": "A stated limit of the uncertainty machinery, established by us before anyone else finds it. A method that cannot be tightened past the point where its own measurand dissolves is a bounded tool, and saying so is worth more than an unfalsifiable claim of generality.",
+   "source_kind": "challenge",
+   "status": "proposed",
+   "created_at": "2026-07-29T22:15:00Z",
+   "decided_at": null,
+   "decision_note": null
   },
   {
    "id": "tmr-flatplate-finest-grids",
@@ -758,75 +828,6 @@
    "created_at": "2026-07-25T17:39:39+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
-  },
-  {
-   "id": "r5-convergence-wall-not-memory",
-   "objective": "Determine why one case family's adjoint fails to converge at every mesh size tested while another family converges on a larger mesh, and whether the failing family can be fixed by conditioning rather than by hardware or coarsening",
-   "rationale": "This proposal was written a few hours ago around a cell-count threshold and that framing is now dead; the measurement that killed it is the reason the question is worth more, not less. Within one transonic, shock-containing, compressible case family the adjoint returns the same linear-solver breakdown at 21,840 cells, at 79,560 cells and at 99,840 cells -- a 4.6-fold range with no exceptions. Within a separate incompressible family it converges cleanly at 63,920 cells, a LARGER mesh than the smallest failing one. So the failure does not track mesh size at all, and three consequences follow. Coarsening as an escape route is definitively dead rather than merely unpromising, which retires a strategy this lab has spent real time on. Buying hardware cannot help, since the smallest failing case peaked at 5.9 GB with the host holding over 20 GB free. And the discriminator is a property of the case, with the obvious candidate being what distinguishes the two families: six transported fields including temperature, transonic, shock-containing, against four or five, incompressible, smooth. An adjoint that is ill-conditioned because the primal carries a shock would be ill-conditioned at any resolution, which is exactly the pattern observed. Testing it means attacking the conditioning directly -- scaling, equilibration, a restarted or flexible Krylov variant -- at a mesh small enough to iterate on quickly, which the 21,840-cell case now provides at seven minutes per attempt. Falsified if the breakdown survives every conditioning treatment at the small mesh, in which case the limitation is structural to this solver's discrete adjoint for shock-containing flows, and that is a finding worth publishing rather than working around.",
-   "citations": [
-    "Certonomous adjoint envelope, per-family convergence measurements across a 4.6-fold mesh range, 2026-07-29",
-    "Saad, Iterative Methods for Sparse Linear Systems, on breakdown and equilibration"
-   ],
-   "est_core_min": 90.0,
-   "cost_basis": "measured, from the 420-second 21,840-cell run now established as the cheapest reproduction of the failure",
-   "expected_knowledge_gain": "Decides whether an entire class of cases -- transonic and shock-containing, which is most of external aerodynamics worth optimising -- is reachable by this adjoint at all. It also hands us a cheap test bed: a seven-minute case that reproduces the failure exactly, where previously the cheapest reproduction took sixteen minutes and was assumed to need a large mesh.",
-   "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-29T22:15:00Z",
-   "decided_at": null,
-   "decision_note": null
-  },
-  {
-   "id": "r5-a5-second-gradient-defect",
-   "objective": "Identify the cause of the U-bend case's gradient failure, now known not to share the mesh-warp defect found on the airfoil, by isolating each remaining link of its derivative chain against a finite difference of that link",
-   "rationale": "The airfoil's shape-derivative defect was resolved today and traced to the mesh warp's own linearisation. The U-bend was then tested against the same mechanism and CLEARED: its design variables are all single-point, and its two sign-flipped components agree with a finite difference of the warp to 0.32 to 1.30 percent. Yet its real verification still fails badly, at 46.6 percent aggregate with only 5 of 27 components in band, and it carries the same immunities that misled the airfoil investigation for months: a step-size sweep excludes truncation error, and tightening the primal made it worse rather than better, taking two sign flips to three. So this is a second, independent defect and nothing is known about it. The link-by-link isolation strategy is what finally worked on the airfoil after six wrong mechanisms, and it should be applied here rather than guessing again. Three features distinguish this case and are the natural first suspects: an internal duct flow rather than external aerodynamics, an objective that is a pressure difference between two patches rather than an integrated force, and a half model with a symmetry plane. A two-patch difference objective and a symmetry plane are both constructions that can carry a sign error.",
-   "citations": [
-    "Certonomous shape-derivative root-cause study, the resolved airfoil case and the U-bend scope test, 2026-07-29",
-    "Certonomous DAFoam case survey, U-bend verification record"
-   ],
-   "est_core_min": 60.0,
-   "cost_basis": "estimate, from the U-bend's own measured 26 core-minutes per full verification cycle",
-   "expected_knowledge_gain": "The lab's last unexplained gradient failure. Resolving it would mean every shape derivative here is either verified or has a named, understood defect, which is the precondition for trusting any optimisation result built on them.",
-   "source_kind": "gate",
-   "status": "proposed",
-   "created_at": "2026-07-29T22:15:00Z",
-   "decided_at": null,
-   "decision_note": null
-  },
-  {
-   "id": "r5-warp-linearisation-workaround",
-   "objective": "Establish whether the mesh-warp linearisation defect can be avoided in practice by expressing an opposing-direction combination design variable as a weighted set of single-point variables, and whether the resulting gradient then verifies",
-   "rationale": "The defect is now understood in two parts, both measured: the warp's linearisation is wrong for opposing-direction combination modes wherever they occur, and whether that reaches a real gradient depends on whether the error overlaps the objective's own sensitivity field. Single-point variables never show it -- confirmed across three cases. That suggests a workaround available today, without waiting on an upstream fix: a combination mode is a linear combination of point motions, so the same shape freedom can be expressed as several single-point variables and combined afterwards, where the chain rule is ours rather than the library's. If the reconstructed gradient then agrees with a finite difference, every blocked optimisation using combination modes becomes runnable now. Falsified if the reconstruction disagrees too, which would locate the defect deeper than the mode construction and be worth knowing for the same reason.",
-   "citations": [
-    "Certonomous mesh-warp linearisation study, necessary and sufficient conditions measured, 2026-07-29",
-    "Certonomous upstream defect report on the mesh-warp derivative"
-   ],
-   "est_core_min": 45.0,
-   "cost_basis": "measured, from the airfoil's 3.5 core-minute verification cycle across several variable constructions",
-   "expected_knowledge_gain": "Turns a documented upstream defect from a blocker into a known workaround, on our own schedule rather than someone else's release cycle.",
-   "source_kind": "capability",
-   "status": "proposed",
-   "created_at": "2026-07-29T22:15:00Z",
-   "decided_at": null,
-   "decision_note": null
-  },
-  {
-   "id": "r5-perturbation-destroys-its-own-measurand",
-   "objective": "Test whether the anisotropy-perturbation uncertainty method destroys the very quantity it is built to bound, by establishing at what perturbation magnitude the separation bubble stops being a single closing structure and whether a converged solution exists beyond that point at all",
-   "rationale": "Today's sweep produced a result more interesting than the curve it was meant to produce. Only two perturbation magnitudes met their convergence gate, and the larger of the two moved the reattachment point AWAY from the experiment rather than toward it. Every magnitude that moves toward the experimental value failed to converge, with severity rising in step, and the flow fragments into multiple separation and reattachment events from a magnitude of 0.10 onward. So the scalar the band is built on stops being well defined in exactly the range where the band would have to be tightened. If non-convergence and fragmentation are the same phenomenon, then tightening is not merely circular, it is unreachable, and that is a genuine intrinsic limit of the method rather than a failure of this attempt. Separation position stayed single-valued and smooth throughout, which extends the known separation-is-easy-reattachment-is-hard asymmetry from accuracy into numerical well-posedness. Distinguishing an intrinsic limit from a mesh-and-scheme artefact is the crux, because only the second is fixable.",
-   "citations": [
-    "Certonomous hump band-tightening sweep, gate-checked points, 2026-07-29",
-    "Emory, Iaccarino et al., eigenvalue perturbation and the barycentric map",
-    "NASA Turbulence Modeling Resource, wall-mounted hump experiment"
-   ],
-   "est_core_min": 250.0,
-   "cost_basis": "estimate, several hump solves at the measured case cost plus one refined-mesh variant",
-   "expected_knowledge_gain": "A stated limit of the uncertainty machinery, established by us before anyone else finds it. A method that cannot be tightened past the point where its own measurand dissolves is a bounded tool, and saying so is worth more than an unfalsifiable claim of generality.",
-   "source_kind": "challenge",
-   "status": "proposed",
-   "created_at": "2026-07-29T22:15:00Z",
-   "decided_at": null,
-   "decision_note": null
   }
  ]
 }
