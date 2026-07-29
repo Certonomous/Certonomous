@@ -180,11 +180,18 @@ def rows() -> list[dict]:
                             "mission-output/nasa-hump/"))
 
     # ---- ONERA M6 and CRM: separate engine, may not have run yet ---------
-    for act, label, gate in (
+    # ``expect`` is the quantity the act was BUILT to grade. When a run reports
+    # a different quantity, the intended gate was not evaluated -- and the row
+    # has to say so. Printing the intended gate's description beside a number
+    # measured on something else reads as "we tested that and missed", which is
+    # a different and much worse claim than "we never got far enough to test
+    # it". The ONERA M6 primal fails before any field is written, so its Cp
+    # gate is not missed; it is unreachable.
+    for act, label, gate, expect in (
             ("onera-m6", "ONERA M6 wing",
-             "Cp at 7 spanwise stations vs AGARD AR-138"),
+             "Cp at 7 spanwise stations vs AGARD AR-138", "Cp"),
             ("crm-wingbody", "CRM wing-body",
-             "Drag vs DAFoam CRM_Wing tutorial, Cd 0.02090 +/-2%")):
+             "Drag vs DAFoam CRM_Wing tutorial, Cd 0.02090 +/-2%", "Drag")):
         t = _transcript(act)
         if not t:
             out.append(_pending(label, gate, f"mission-output/{act}/"))
@@ -194,7 +201,11 @@ def rows() -> list[dict]:
         vr = _verdict_rows(text)
         if vr:
             r = vr[0]
-            out.append(_row(label, gate, r["ref"], r["got"], r["dev"],
+            shown = gate
+            if expect.lower() not in r["q"].lower():
+                shown = (f"{r['q']} vs its own tolerance "
+                         f"(intended gate, {gate}, NOT evaluated)")
+            out.append(_row(label, shown, r["ref"], r["got"], r["dev"],
                             _verdict_line(text) or _tolerance_verdict(r["dev"]),
                             src))
             continue
