@@ -461,6 +461,29 @@ cases only (`AR_1/3/5/10_Ret_180`), no validation/test case touched, no
 `score()` call, Ladder B3 not touched. Compute: 17.5s / 2-core cap / 170 MB
 peak RSS.
 
+**New (this session): a general, cross-family generalization-failure
+criterion, part of it proven.** A model trained exclusively on cases where
+two input dimensions are algebraically forced to zero (the DUCT model, per
+§0b) has zero learned dependence on them; fed a case where they are
+genuinely nonzero, it breaks catastrophically (3.9x-10.4x baseline error),
+6 of 6 times tested. Not a proxy: verified with a same-case/same-viscosity,
+different-model controlled comparison (`CBFS`, `PH_Breuer`, each scored
+under both models -- the label flips, viscosity does not), and by checking
+the DUCT model correctly reads no-mismatch on its own validation case
+(rules out "which model" as a trivial stand-in). A naive statistical
+analogue (feature-range coverage) was tested and rejected: it fires on 9 of
+9 instances including the one that helped, i.e. zero true negatives -- the
+same "looks-strong-secretly-a-proxy" failure §0b already caught, caught
+again and stated plainly rather than reported at face value. What it
+cannot do: rank ordinary (non-catastrophic) generalization quality, say
+anything about the PH model's own out-of-family behavior (no equivalent
+proof exists there), or claim to generalize past the 2 model families
+tested. Not applied to any test case. Full account:
+`CLOSURE_CHALLENGE_STATUS.md` §0c,
+`demo-output/website/closure_challenge_generalization_criterion.json`,
+`sdk/scripts/closure_generalization_criterion.py`. Compute: 268s / 2-core
+cap / 289 MB peak RSS. Ladder B3 not touched.
+
 ### C2 — where the deficit lives
 
 | case | share of the gap to rank 2 |

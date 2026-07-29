@@ -139,6 +139,90 @@ field structurally cannot provide on its own).
 
 ---
 
+## 0c. A cross-family generalization-failure criterion
+
+**One-sentence answer**: a criterion exists and part of it is proven, not
+fitted — when a model has been trained exclusively on cases where two of its
+seven input dimensions are algebraically forced to zero, feeding it a case
+where those dimensions are genuinely nonzero causes catastrophic breakdown
+(3.9×–10.4× the baseline error, not merely "worse than doing nothing"),
+every single time it was tested (6 of 6); the analogous purely-statistical
+criterion (how many input features fall outside the training range) turned
+out to be a proxy for nothing but the base rate and is rejected.
+
+**Why this was asked, and how it stays inside the leakage rule**: round 3
+showed a family-specific gate recovers real score. The general question —
+what property of a case predicts, without its ground truth, that a
+correction trained elsewhere will hurt — needed genuinely new evidence, not
+reanalysis. Built by cross-applying the two already-fitted models (PH,
+DUCT — unchanged, reproduced deterministically) to NON-TEST probe cases only:
+the 4 PH validation cases, the 1 DUCT validation case (`AR_7_Ret_180`), and
+the benchmark's own two single-variation, all-training cases per its README
+(`CBFS`, `PH_Breuer`, i.e. `PHLL10595`). **None of the 8 official test cases
+is touched** — checked by an explicit assertion in the script, not just
+prose — and no `closure_challenge.score()` call is made. Ground truth is
+read only for these four non-test case families, exactly the same category
+of access round 1/2/C1 already use for their own train/validation scores.
+Script: `sdk/scripts/closure_generalization_criterion.py`. Record:
+`demo-output/website/closure_challenge_generalization_criterion.json`.
+Does not touch Ladder B3.
+
+**The proven half.** The DUCT model was trained exclusively on RANS fields
+where `I3_S3` and `I4_W2S` are identically zero (§0b's algebraic result), so
+by construction it has learned zero dependence on those two dimensions —
+literally nothing to fall back on. Any case with non-negligible `I3_S3`/
+`I4_W2S` is a genuine, provable extrapolation for that model, not a fitted
+correlation. Measured: applying the DUCT model to the 4 PH validation cases,
+`CBFS`, and `PH_Breuer` (6 out-of-family applications) broke catastrophically
+in all 6 — corrected error 3.9×–10.4× the baseline, versus ordinary
+generalization-quality variation (−0.077 to +0.054) on every instance where
+the mismatch does not fire.
+
+**Evidence it is not a proxy — the checks the coordinator asked for by
+name**:
+- *Not a viscosity proxy*: `CBFS` and `PH_Breuer` were each scored under
+  **both** models — same case, same `nu`, only the model differs — and the
+  label flips (False for PH, True for DUCT) while `nu` does not. A
+  viscosity-driven proxy cannot produce that.
+- *Not just "source model == DUCT"*: the DUCT model's own validation case
+  (`AR_7_Ret_180`) correctly reads no-mismatch — the label tracks the
+  target case's own regime relative to the model's training regime, not
+  which model is asking.
+- *The naive statistical analogue was tested and rejected as a proxy*: a
+  "how many of 15 features fall outside the training range ≥ 3" criterion
+  scored a superficially higher accuracy (0.889 vs 0.778) — but it fires on
+  **9 of 9** out-of-family instances, including the one that actually
+  helped (a false positive), meaning zero true negatives. Its accuracy is
+  just restating the 8-of-9 base rate. This is exactly the barycentric-map
+  failure mode flagged after §0b, caught and rejected on the same evidence
+  standard.
+
+**What it cannot predict, stated plainly**:
+- It says nothing about the PH model's own out-of-family behavior — PH's
+  training data spans a real range of `I3_S3`/`I4_W2S`, so there is no
+  equivalent proof for it, only weak statistics (n=3 probe cases) with no
+  criterion that survived the proxy check.
+- It cannot rank or size the ordinary (non-catastrophic) generalization
+  variation at all — outcomes there ranged from clearly helped (−0.077) to
+  clearly hurt (+0.054) with no criterion tested that separates them; that
+  remains the job of a family-specific gate like C1/round 3, not this one.
+- The evidence is asymmetric by direction: 6 instances test "a model with a
+  proven blind spot receives a case outside it" (all correctly flagged);
+  only 1 instance tests the reverse direction ("a model with real
+  information receives a degenerate-regime case," PH on `AR_7_Ret_180`,
+  correctly near-neutral). One point is not a second proof.
+- This has been tested on exactly two model families. Whether the principle
+  ("a model has no defense against inputs that were constant in its
+  training data") generalizes beyond these two specific models is not yet
+  known and would need a third, independently trained model to say.
+- Not applied to any test case, and no decision about applying it has been
+  made — exactly the round-3 precedent: build and validate first, apply
+  later as a separate, explicit decision.
+
+**Compute**: 268 s (4.5 min) wall time on a 2-core cap, peak RSS 289 MB.
+
+---
+
 ## 1. The metric, precisely
 
 - **Per-case score**: scaled MAE = `mean(||U_pred − U_true||)` over the
