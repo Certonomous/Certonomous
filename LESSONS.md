@@ -562,3 +562,43 @@ else, looking at something unrelated.
 tracked. The same goes for `postProcessing/`, sampled `.xy` and `.raw` output,
 and decomposed `processor*/` state. `.gitignore` now covers these, but ignore
 rules only stop the next one — history keeps what it was given.
+
+## L-14. A convergence claim must read the residual the gate actually tests
+
+**What happened, twice on the same study.** OpenFOAM prints two residuals per
+field per iteration: the **Initial** residual, before the linear solve, and the
+**Final** residual, after it. `residualControl` gates on the *Initial* residual —
+that is the one that measures whether the outer SIMPLE loop has converged. The
+Final residual only says the linear solver did its job this iteration, which it
+almost always does.
+
+A hump perturbation point was carried forward as *"converged cleanly, k 1.67e-9,
+omega 4.25e-11."* Both numbers were real. Both were **Final** residuals. The
+Initial residuals for p, Uz and omega sat 10 to 150 times over the gate with no
+decaying trend, and omega's was **rising** over the last 1200 iterations. The run
+never printed `SIMPLE solution converged`. The same misreading had already
+occurred on SpalartAllmaras in the same study.
+
+**Why it is so easy.** The Final residual is smaller, sometimes by orders of
+magnitude, so it looks like the better number. It is right next to the one you
+want, in the same block of output, and it flatters the result. Nobody reading
+`k 1.67e-9` against a `5e-7` gate thinks to ask which of the two residuals they
+are holding.
+
+**The rule.** Never assert convergence from a residual value alone. Check for the
+solver's own statement:
+
+    grep -c "SIMPLE solution converged" log.<solver>
+
+If that string is absent, the run did not meet `residualControl`, whatever the
+residuals look like. If you must read residuals directly, read `residualControl`
+out of `fvSolution` first, confirm which fields it names, and read the **Initial**
+residual for exactly those fields — a gate can also name a field the model does
+not transport, in which case it can never fire at all (that one cost this lab two
+RSM runs that ground on to 140,000 iterations while already converged).
+
+**What it cost here.** A whole conclusion. "The response is strongly nonlinear
+and the containment break lies between Delta 0 and 0.25" rested on that point.
+With only the genuinely gate-met points, the break cannot be located at all — and
+the two that did converge both sit on the *far* side of the experimental value.
+The finding reversed, not merely weakened.
