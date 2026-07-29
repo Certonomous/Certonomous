@@ -380,3 +380,38 @@ else's work, get the second sample **before** sending the accusation, not after.
 This is the same family as L-6. There the trap was reading a PID that belonged
 to the wrapper rather than the solver; here it is reading a directory mid-write.
 Both are one observation of a moving system, mistaken for its state.
+
+## L-10. `pgrep -f` and `pkill -f` match the shell that is running them
+
+**What happened, twice in one session.**
+
+First: `pkill -f "chief_engineer.server"` to restart the control room. The
+pattern matched my own bash command line, which contained that string, so the
+shell killed itself. Exit 144, no restart, and for a moment it looked as though
+the server had taken the shell down with it.
+
+Second, and worse because it was silent: two background waiters built as
+
+    while pgrep -f rebuild_caches.py >/dev/null; do sleep 30; done
+
+Each waiter's own command line contains `rebuild_caches.py`, so each matched
+itself and would have waited forever. The rebuild had actually finished — all
+four bodies were cached and the log showed four `REBUILT` lines — while two
+watchers sat there reporting it still running. I only noticed because I checked
+the log directly instead of trusting the watcher.
+
+**The rule.** A `-f` pattern is matched against every process's full command
+line, including the one you are typing it into. Two habits fix it:
+
+- Bracket a character so the pattern cannot match itself:
+  `pgrep -f "[r]ebuild_caches.py"`.
+- Better, when the target is a known program, match the executable rather than
+  the command line: `pgrep -x python3` and then confirm via `/proc/<pid>/cmdline`.
+
+And the check that would have caught it either way: **verify the thing you are
+waiting on by its own evidence**, not by the watcher's opinion. The rebuild log
+already said it was done.
+
+Same family as [L-6](#l-6-capture-a-pid-from-the-thing-you-launched-not-from-the-shell-that-launched-it)
+and [L-9](#l-9-a-directory-count-is-a-sample-not-a-state): a measurement that
+silently includes the observer.
