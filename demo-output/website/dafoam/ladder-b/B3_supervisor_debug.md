@@ -143,3 +143,91 @@ failed launch.
 | 5 | preconditioner family swap | not yet run |
 | 6 | row scaling / Jacobian equilibration | not yet run |
 | 7 | objective regularisation | not yet run |
+
+---
+
+## Rung 3.5 — full cell-by-cell non-finite scan of the converged primal state: KILLED, zero compute
+
+**Hypothesis under test (specific, falsifiable):** a non-finite value is
+already present in the converged primal state — poisoning operator/RHS
+assembly *before* GMRES does anything — and iteration-0 failure invariant
+across all 4 configurations (2 primal tolerances, 2 objective types, 2 ILU
+fill levels) is the tell, since each of those is downstream of the state and
+none would change a poisoned input. This extends "The primal state is
+clean" above, which only checked `k`, `omega`, `nut`, `p` by min/max —
+**`U` and `UData` were never checked**, and no scan before this one was
+literally cell-by-cell (min/max on an array already containing a stray NaN
+would itself read back as NaN, but a single Inf hiding among otherwise-finite
+values would not always show as a suspicious min/max, and neither check
+touched the mesh geometry the operator is actually assembled on).
+
+**Test, zero solver compute:** every numeric token in the converged-state
+field files DAFoam actually reads (`0/{U,p,k,omega,nut,UData}`, matching
+`startFrom=startTime; startTime=0`, so `0/` **is** the converged, B2-matching
+state the adjoint starts from — not merely an IC) plus every field in
+`constant/` the adjoint's mesh/operator assembly reads
+(`transportProperties`, `turbulenceProperties`,
+`polyMesh/{points,faces,owner,neighbour,boundary}`), scanned line-by-line for
+(a) literal `nan`/`inf` text tokens and (b) every parsed numeric token
+checked with `math.isfinite`. Script:
+`/tmp/claude-1000/-home-ubuntu-Certonomous/982d6244-5800-47f3-a450-80ce0b0a24b7/scratchpad/scan_nonfinite.py`
+(pure Python, no Ofpp/numpy dependency, so it needs no DAFoam container).
+
+**Result: 886,833 numeric tokens scanned across 13 files. Zero non-finite
+numeric hits. Zero literal nan/inf text hits. Every file CLEAN**, including
+`U` and `UData` (not previously checked) and the full mesh geometry.
+`stage2_serial_run4.log`'s own `DACheckMesh` output additionally confirms
+cell volumes are not degenerate either (`Min volume = 0.000436797937655153`,
+`Cell volumes OK`), closing the one geometry-adjacent gap a pure text scan
+can't see directly.
+
+**Verdict: HYPOTHESIS KILLED.** The primal state is not merely "clean by
+summary statistic" — it is finite cell-by-cell, field-by-field, with no
+narrower channel (a field the residual doesn't weight, a stray boundary
+entry, a mesh file) left unchecked. The NaN/Inf is generated *during*
+adjoint operator assembly or the KSP solve itself, not inherited.
+
+**Moving to operator assembly, as instructed — and one more zero-compute
+elimination falls out of the ladder's own existing evidence before any new
+run is needed.** DAFoam's discrete adjoint solves `dR/dW^T * psi = -dF/dW`
+via GMRES; the design-variable Jacobian `dR/dX_DV` (here, `patchV`) is only
+ever used *after* `psi` is found, to form the total derivative
+`dF/dX = ... - psi^T * dR/dX` — it does not participate in the KSP operator
+or its preconditioner at all. And `dF/dW` (built from whichever objective is
+active) enters only as the RHS: PETSc's printed initial residual norm
+(`7.09e-4`, `7.092e-4`/`7.099e-4` across the tolerance variants) is a clean
+finite number for *both* the variance objective and the standard force (CD)
+objective in the existing diagnostic runs — if either objective's derivative
+were producing NaN/Inf, that would show up in the RHS/initial-residual norm
+itself, not survive as a clean finite number and only misbehave one
+iteration later. So:
+- **`DAFunctionVariance`'s own derivative bug: excluded as the mechanism.**
+  Diagnostic 1/2 already swapped it out for the standard CD objective
+  (proven working in naca0012) and got the identical `-9` at iteration 0 —
+  consistent with the RHS argument above, not a coincidence.
+- **The `patchV` design-variable Jacobian: excluded as the mechanism.**
+  It is structurally downstream of the KSP solve that is failing; a NaN/Inf
+  detected *inside* GMRES iteration 0 cannot originate from a Jacobian block
+  GMRES never touches.
+
+**Single next most likely mechanism:** a *derivative* singularity (not a
+*value* singularity — already ruled out above) inside `dR/dW^T` itself or
+its ILU preconditioner, most plausibly from the SST low-Re near-wall
+closure's steep derivative terms (e.g. `d(sqrt(k))/dk = 1/(2*sqrt(k))`,
+cross-diffusion `~1/omega` terms in F1/F2 blending) evaluated at the
+wall-adjacent cells where `k`'s Dirichlet BC is `1e-15` — the same mechanism
+rung 1 targeted, but rung 1 floored `k` via `primalVarBounds`, which clamps
+the *solved/perturbed* field, not necessarily a hard `fixedValue` BC entry;
+it may not have touched the coloring-perturbed values actually exercised
+during `dRdWTPC` construction, so rung 1's "REFUTED" may not have exercised
+this exact channel. **What would test it, cheaply, without a new mechanism
+being invented:** rung 4, already on this ladder's own list and not yet
+run — the frozen-turbulence adjoint. Freezing the turbulence-model
+derivative terms out of `dR/dW` isolates whether the turbulence-closure
+Jacobian block is where the non-finite entry is generated: if the frozen
+variant clears `DIVERGED_NANORINF`, the closure-derivative singularity is
+confirmed; if it still diverges identically, suspicion moves to rung 6 (row
+scaling/equilibration of the base-flow Jacobian) instead.
+
+**B3 remains blocked.** This rung spent no solver time (2-core/2GB budget,
+file-scan only) and correctly did not attempt rung 3/4 compute itself.
