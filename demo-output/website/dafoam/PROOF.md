@@ -1378,6 +1378,14 @@ confirmation, not a refutation: **this inverts the working assumption of the ent
 The finite-difference check_totals result for idx6 was right. The discrete adjoint was wrong.** This
 is the first of seven tested mechanisms (six refuted, this one confirmed) to survive direct measurement.
 
+**Important complication found in the very next session, read section 16 before treating this as the
+complete picture:** idx7 (A1's OTHER opposing-direction combo mode, the trailing edge, established
+clean in the real `dCD/dShape` check at two mesh resolutions) fails this SAME `warpDeriv`
+self-consistency test just as badly as idx6 (112-114% relative error, sign-flipped). The combination-mode
+construction is confirmed necessary for this failure mode but is NOT sufficient to predict which
+component's real gradient ends up corrupted -- section 16.2 has the full result and the best-supported
+(not yet confirmed) explanation.
+
 **What is not yet established, stated plainly so it is not overclaimed:** *why* `warpDeriv` is wrong
 specifically for a combination mode and not for single-station modes has not been traced into IDWarp's
 own source in this session -- the coordinator's own explanation (a combination mode exercises a
@@ -1410,4 +1418,176 @@ next steps, not completed here.
   `probewarpderiv_idx4_np4_seed2026_h1e-5_run1.log`, `probewarpderiv_idx6_np4_seed2026_h1e-5_run1.log`
   -- the 8 raw runs (2 components x 2 seeds/step-size variants x serial+parallel) behind the section
   15.3 table
+
+## 16. Session 2026-07-29 (continued): scope test -- is the defect specific to combination modes? A major complication found and reported plainly
+
+The coordinator asked whether the `warpDeriv` defect confirmed in section 15 is specific to
+COMBINATION shape modes (a DV that moves several FFD points, some in opposing directions -- idx6's
+construction) as opposed to single-station modes, using A5 (U-Bend Channel, idx8/idx17 sign-flipped,
+same step-independent/tightening-immune signature as A1) as the test case, and A2 (96 shape DVs, no
+sign flips) as a paper check. Testing this surfaced a result that complicates, without overturning,
+section 15's finding, and it is reported here exactly as measured, not smoothed over.
+
+### 16.1 A5 (U-Bend Channel): tested directly, does NOT carry the same `warpDeriv` defect
+
+A5's own `runScript.py` (`ladder-a/A5_work/UBend_Channel_pressureloss/runScript.py`) builds its
+FD-checked DV group, `shapexUpper` (27 components, idx8/idx17 sign-flipped per
+`A5_ubend_internal.md`'s per-component table), via `self.geometry_aero.nom_addLocalDV(dvName=
+"shapexUpper", pointSelect=PS, axis="x")`. `nom_addLocalDV` is a thin wrapper confirmed by reading it
+directly in the container this session (`pygeo/mphys/__init__.py`'s `OM_DVGEOCOMP.nom_addLocalDV`):
+it calls `self.DVGeo.addLocalDV(dvName, axis=axis, pointSelect=pointSelect)` and returns the point
+count as the DV count -- **one FFD point moving along one axis per DV, unconditionally.** There is no
+opposing-direction, multi-point combination construction available in this DV family at all: every
+one of A5's 27 `shapexUpper` components, including idx8 and idx17, is structurally a single-station
+mode by A1's own classification.
+
+New script this session, `ladder-a/A5_work/UBend_Channel_pressureloss/probeWarpDerivA5.py` --
+byte-identical method to section 15's `probeWarpDeriv.py` (same dot-product identity, same explicit
+MPI allreduce, same `--cpus=3 --memory=3g`, `mpirun -np 4` matching A5's own `decomposeParDict`), built
+from A5's own `daOptionsAero`/`meshOptions`/DV setup. Tested idx8 and idx17 (both seeds 2026 and 42)
+against two controls, idx2 and idx26 (the two cleanest-agreeing components in A5's own real
+`check_totals` table, 1.1% and 2.7% respectively):
+
+| component | seed | FD_scalar | AN_scalar | rel_err | sign |
+|---|---|---|---|---|---|
+| idx2 (control) | 2026 | 41.2593 | 41.2625 | **0.0078%** | agree |
+| idx26 (control) | 2026 | 41.8169 | 41.8201 | **0.0075%** | agree |
+| idx8 (real-check sign-flip) | 2026 | 30.1271 | 30.0309 | **0.32%** | agree |
+| idx8 (real-check sign-flip) | 42 | 30.8182 | 30.7076 | **0.36%** | agree |
+| idx17 (real-check sign-flip) | 2026 | 28.8697 | 28.4947 | **1.30%** | agree |
+| idx17 (real-check sign-flip) | 42 | 29.8975 | 29.5167 | **1.27%** | agree |
+
+**No sign flip anywhere. idx8 and idx17 do show somewhat more disagreement than the controls (0.32-1.30%
+vs. 0.0075-0.0078%, roughly 40-170x larger) -- a real, small, honestly-reported effect, not nothing --
+but this is categorically different from idx6/idx7's 108-149%, sign-flipped failure.** `mesh.warpDeriv`
+is NOT the cause of A5's idx8/idx17 defect. A5's own defect is a different, still-unidentified
+mechanism -- most consistent with A5's own already-completed finding (`A5_ubend_internal.md`) that the
+primal never reaches anywhere near `primalMinResTol=1e-8` (a genuine numerical fixed point, not
+under-iteration) and that TIGHTENING primal convergence made the sign-flip count WORSE (2->3), the
+opposite of A1's decisive result (tightening 4 orders of magnitude changed nothing, ruling noise out
+for A1). A5's signature only superficially resembles A1's (step-independent, sign-flipped aggregate);
+the mechanism behind it is not the one found in section 15.
+
+**This refutes the "one defect explains both of this lab's gradient-accuracy failures" hypothesis, as
+stated.** A1 and A5 do not share a root cause. The lab has (at least) two distinct gradient-accuracy
+defect mechanisms, not one.
+
+### 16.2 A1's own idx7 (the TE combo mode): a complication that must be reported plainly
+
+Before concluding "combination modes are the trigger" from A5's negative result, the more direct test
+was run: A1's own `runScript.py` defines TWO combo modes with the identical opposing-direction
+construction (`for i in [0, pts.shape[0]-1]: shapes.append({pts[i,0,*]: dir_y, pts[i,1,*]: -dir_y})`)
+-- idx6 (i=0, the LE) and **idx7 (i=pts.shape[0]-1, the TE)**. idx7 has been established as clean in
+the REAL `dCD/dShape` check in every session of this investigation: 1.8% (coarse mesh, section 8.1.1),
+1.51% (refined mesh, 3.65x, section 11.2), no sign flip at either resolution -- one of the best-agreeing
+components in the whole 8-vector. Section 15 only tested idx6 against the control idx4; idx7, the one
+component that would directly test whether the "opposing-direction combo" construction ALONE predicts
+`warpDeriv` failure, was not tested. It was tested now: same script (`probeWarpDeriv.py`), same method,
+`--idx 7`, 2 seeds, `np=4`:
+
+| component | seed | FD_scalar | AN_scalar | rel_err | sign |
+|---|---|---|---|---|---|
+| idx7 (real-check: CLEAN, 1.5-1.8%) | 2026 | -7.4350 | 1.0593 | **114.2%** | **FLIPPED** |
+| idx7 (real-check: CLEAN, 1.5-1.8%) | 42 | -7.6036 | 0.9709 | **112.8%** | **FLIPPED** |
+
+**idx7 fails this dot-product `warpDeriv` self-consistency test exactly as badly as idx6 does -- same
+order of relative error (112-114% vs. idx6's 108-149%), same sign flip -- despite idx7's real,
+twice-independently-verified `dCD/dShape` gradient being clean.** This is not a small discrepancy to
+wave away. Stated plainly, per the standing hard rule: **being an opposing-direction combination mode
+is necessary for this failure mode in A1 (no single-station component -- idx4 here, idx0-5 and the rest
+of the 8-vector elsewhere in this document -- has ever shown anything resembling it) but it is NOT
+SUFFICIENT to predict corruption of a given objective's real gradient.** idx6 and idx7 are built by the
+identical construction and both fail the SAME generic, direction-agnostic self-consistency check on
+`warpDeriv` -- yet only idx6's real `dCD/dShape` is wrong.
+
+**Best-supported explanation, not yet confirmed:** the dot-product test in sections 15-16 uses a FIXED,
+ARBITRARY random seed `w` on the volume-mesh output space -- a direction-agnostic probe of whether
+`warpDeriv` is a correct linearization AT ALL, in some direction. It is not the same seed the real CD
+adjoint uses; the real chain's effective seed is `dCD/dXv`, the force-objective's own reverse-mode
+sensitivity to volume-mesh coordinates, which is not arbitrary -- it is concentrated wherever the flow
+solution is most sensitive to the wall shape, physically the leading-edge stagnation/suction-peak
+region for a force-integral objective at this Reynolds number and angle of attack, not the trailing
+edge. A generic random `w` will detect a `warpDeriv` linearization error in whatever subspace it lives
+in regardless of where that is; the real objective's own gradient will only be corrupted by the
+FRACTION of that error that overlaps `dCD/dXv`'s own direction. Under this explanation, `warpDeriv`
+genuinely mis-linearizes the opposing-direction combo construction at BOTH the LE and the TE (confirmed,
+this section), but only the LE error survives contraction with `dCD/dXv` at meaningful magnitude,
+because CD's own adjoint sensitivity is concentrated there. **This is a hypothesis consistent with
+every number measured so far, not a confirmed mechanism** -- the decisive test would repeat this
+section's probe using the REAL `dCD/dXv` seed (obtained from an actual CD adjoint solve) in place of
+the random `w`, for idx6 and idx7, and check whether THAT weighted comparison discriminates the way the
+real `check_totals` result does. That test requires a CFD+adjoint solve, is out of the "pure geometry,
+no CFD" scope given for this session, and was **not performed**. It is the clear next step, not
+completed here.
+
+**What section 15's finding was and was not shown to be, restated precisely so nothing is overclaimed:**
+`mesh.warpDeriv` IS confirmed, by direct, reproducible measurement, to be an incorrect linearization of
+the actual nonlinear mesh warp for A1's opposing-direction combination-mode construction (both idx6 and
+idx7), independent of random seed, step size, and serial-vs-parallel execution. What is NOT yet shown
+is that this specific inconsistency is the mechanism by which idx6's real `dCD/dShape` ends up
+sign-flipped while idx7's does not -- that requires the objective-weighted follow-up test named above.
+Section 15's bottom-line verdict (the finite-difference `check_totals` result for idx6 was right, not
+an artifact) is unaffected by this complication and remains well-supported independently by sections
+13-14's clean-output evidence; what changes is only the precision of the causal claim about *why*.
+
+### 16.3 A2 (MACH Tutorial Wing): checked on paper, no compute run
+
+Per the coordinator's request, checked without running anything, from the actual retained source file
+(`/home/ubuntu/dafoam-tutorials/MACH_Tutorial_Wing/runScript_AeroOnly.py`, the exact script A2's own
+session used, still on disk). A2's two DV groups:
+
+- **`shape` (96 components, the one FD-verified to 1.71% CD / 1.17% CL, no sign flips):**
+  `self.geometry.nom_addLocalDV(dvName="shape", pointSelect=PS)` -- the identical `nom_addLocalDV` API
+  as A5, confirmed by reading the source directly (line ~152). One FFD point per DV, no opposing-
+  direction combination construction anywhere in this group. Structurally identical in kind to A5's
+  clean components (idx2, idx26) and A1's clean single-station components (idx4, and the rest of the
+  8-vector besides idx6/idx7). **This is consistent with, and does not refute, the rule that
+  single-station local DVs do not carry this defect** -- 96 single-station DVs, zero sign flips,
+  exactly as the rule predicts.
+- **`twist` (7 components, FD-verified to 0.389% CD / 1.12% CL, no sign flips):** built via
+  `nom_addGlobalDV(dvName="twist", value=..., func=twist)`, a smooth spanwise-rotation function that
+  moves MANY FFD points together as a coordinated group -- multi-point, but NOT an opposing-direction
+  pair construction like idx6/idx7's "two points move apart to hold a reference point fixed." This is a
+  genuinely different kind of coupling and does not directly test the coordinator's narrower
+  "opposing-direction" rule either way. Worth recording plainly: A2's twist DVs are multi-point-coupled
+  and clean, so "any DV that touches more than one point is suspect" (a broader version of the rule than
+  the coordinator stated) is refuted by this data point; the narrower, coordinator-stated
+  "opposing-direction" version is untouched by it.
+
+### 16.4 Direct answer to the scope question
+
+**Is the defect specific to combination modes?** Necessary, not sufficient, and "combination mode" needs
+to be read narrowly (opposing-direction point-pair construction, not any multi-point coupling):
+
+- Every single-station local DV tested anywhere in this investigation -- A1's idx4 (and the rest of its
+  8-vector besides idx6/idx7), A5's idx2/idx8/idx17/idx26 (ALL structurally single-station, including
+  the two "suspect" ones), and A2's 96 `shape` DVs (on paper) -- is clean of this specific `warpDeriv`
+  defect. A5's idx8/idx17 sign flips are real but come from a different mechanism entirely (16.1).
+- A1's two opposing-direction combo modes, idx6 and idx7, BOTH fail the `warpDeriv` self-consistency
+  test, identically in character (~110-150% relative error, sign-flipped, direction-agnostic seed).
+  But only idx6 is wrong in the real `dCD/dShape` check; idx7 is clean.
+- A2's `twist` DVs (multi-point-coupled, not opposing-direction) are clean, so multi-point coupling
+  alone is not the trigger -- specifically the opposing-direction construction is implicated.
+- **The predictive rule this investigation can currently support: an opposing-direction combination
+  mode is a NECESSARY red flag for this `warpDeriv` defect (no single-station DV anywhere has shown it,
+  across three independent cases/parameterizations) but it is NOT SUFFICIENT to predict that a given
+  objective's real gradient will be corrupted (idx7 is proof by counterexample, within A1 itself).**
+  Whether a specific opposing-direction DV's real gradient is corrupted appears to depend on that
+  objective's own adjoint sensitivity direction (16.2's hypothesis, not yet confirmed) -- so today's
+  actionable, defensible guidance is: **flag every opposing-direction/combination shape DV for
+  independent FD verification before trusting its gradient; do not assume a clean sibling (like idx7)
+  means the construction itself is safe for a different objective, and do not assume single-station DVs
+  need this scrutiny at all** (none has shown the defect in this investigation, across A1, A5, and A2).
+
+### 16.5 Evidence files added this session
+
+- `ladder-a/A5_work/UBend_Channel_pressureloss/probeWarpDerivA5.py` -- the A5 dot-product/adjoint-identity
+  probe (`nom_addLocalDV`-based `shapexUpper` DV construction, otherwise identical method to
+  `probeWarpDeriv.py`)
+- `probewarpderiv_a5_idx2_np1_run1.log`, `probewarpderiv_a5_idx2_seed2026_np4_run1.log`,
+  `probewarpderiv_a5_idx26_seed2026_np4_run1.log`, `probewarpderiv_a5_idx8_seed2026_np4_run1.log`,
+  `probewarpderiv_a5_idx8_seed42_np4_run1.log`, `probewarpderiv_a5_idx17_seed2026_np4_run1.log`,
+  `probewarpderiv_a5_idx17_seed42_np4_run1.log` -- the 7 raw A5 runs behind the section 16.1 table
+- `probewarpderiv_idx7_np4_seed2026_h1e-4_run1.log`, `probewarpderiv_idx7_np4_seed42_h1e-4_run1.log`
+  -- the 2 raw A1-idx7 runs behind the section 16.2 table (using the section 15 script, unmodified)
 

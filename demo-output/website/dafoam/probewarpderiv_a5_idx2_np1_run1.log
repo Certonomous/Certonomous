@@ -1,0 +1,475 @@
+2026-07-29 21:07:49.471429: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-07-29 21:07:49.498363: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-08
+    field U	 tolerance 1e-08
+    field T	 tolerance 1e-08
+    field nuTilda	 tolerance 1e-08
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Reading field T
+
+Reading field alphat
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+T volScalarState
+)
+Global Cells: 4800
+Global Faces: 15496
+Global Xv: 17901
+Undecomposed points: 5967
+Global Adjoint States: 44296
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-08
+    field U	 tolerance 1e-08
+    field T	 tolerance 1e-08
+    field nuTilda	 tolerance 1e-08
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (inlet) ...
+    Found matching patch inlet with 96 faces
+    Adding all faces of patches: (outlet) ...
+    Found matching patch outlet with 96 faces
+    Adding all faces of patches: (ubend) ...
+    Found matching patch ubend with 1232 faces
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-08
+    field U	 tolerance 1e-08
+    field T	 tolerance 1e-08
+    field nuTilda	 tolerance 1e-08
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model SpalartAllmaras
+Selecting patchDistMethod meshWaveFrozen
+ft2 term: inactive
+No MRF models present
+
+Reading field T
+
+Reading field alphat
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+nuTilda modelState
+phi surfaceScalarState
+p volScalarState
+T volScalarState
+)
+Global Cells: 4800
+Global Faces: 15496
+Global Xv: 17901
+Undecomposed points: 5967
+Global Adjoint States: 44296
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-08
+    field U	 tolerance 1e-08
+    field T	 tolerance 1e-08
+    field nuTilda	 tolerance 1e-08
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+    Adding all faces of patches: (inlet) ...
+    Found matching patch inlet with 96 faces
+    Adding all faces of patches: (outlet) ...
+    Found matching patch outlet with 96 faces
+    Adding all faces of patches: (ubend) ...
+    Found matching patch ubend with 1232 faces
+Init solver done! ElapsedClockTime 0.000000 s
+Init solver done! ElapsedCpuTime 0.340000 s
+initState: 
+7
+(
+nuTilda 0.001500000000000045
+phi 0
+U1 0
+U2 0
+p 0
+T 293.1499999999885
+U0 8.400000000000572
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting nut wall BC for ubend. BCType=nutUSpaldingWallFunction
+Setting nut wall BC for ubendup. BCType=nutUSpaldingWallFunction
+Setting alphat wall BC for ubendBCType=incompressible::alphatWallFunction. Default Prt=0.85
+Setting alphat wall BC for ubendupBCType=incompressible::alphatWallFunction. Default Prt=0.85
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 1e-08;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               8.4;
+        p               35.28;
+        nuTilda         0.001;
+        phi             1;
+        T               300;
+    }
+    function
+    {
+        TP1
+        {
+            type            totalPressure;
+            source          patchToFace;
+            patches         1 ( inlet );
+            scale           1;
+            addToAdjoint    1;
+        }
+        TP2
+        {
+            type            totalPressure;
+            source          patchToFace;
+            patches         1 ( outlet );
+            scale           1;
+            addToAdjoint    1;
+        }
+        HFX
+        {
+            type            wallHeatFlux;
+            source          patchToFace;
+            patches         1 ( ubend );
+            scale           1;
+            addToAdjoint    0;
+        }
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+        q_convect
+        {
+            type            thermalCouplingOutput;
+            patches         1 ( ubend );
+            components      1 ( thermalCoupling );
+        }
+    }
+    designSurfaces  1 ( ubend );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 10000000;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering natural;
+        pcFillLevel     2;
+        gmresMaxIters   3000;
+        gmresRestart    3000;
+        gmresRelTol     1e-05;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    10000;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering cell;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 1;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod daCustom;
+    unsteadyCompOutput
+    {
+    }
+}
+
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Reading the OpenFOAM mesh..
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+#------------------------------#
+ Total Volume Nodes :      5967 
+#------------------------------#
+I/O    : uncollated
+#--------------------------------#
+ Unique Surface Nodes :      1479 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+Checking if we need to compress the mesh files
+Checking if we need to compress the mesh files
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
++--------------------------------------------------------+
+OrderedDict([('inlet', [0]), ('outlet', [1]), ('sym', [2]), ('ubend', [3]), ('ubendup', [4]), ('allSurfaces', [0, 1, 2, 3, 4]), ('allWalls', [3, 4]), ('designSurfaces', [3])])
+A5WARPDERIV pts.shape = (23, 3, 3)
+A5WARPDERIV nShape (shapexUpper) = 27
+A5WARPDERIV_RESULT idx=2 h=1.000e-04 seed=2026 nRanks=1 nXvGlobal=17901 FD_scalar=3.641561878433e+01 AN_scalar=3.641861625695e+01 abs_diff=-2.997473e-03 rel_err=8.231283e-05
+A5WARPDERIV_DONE idx=2 nRanks=1

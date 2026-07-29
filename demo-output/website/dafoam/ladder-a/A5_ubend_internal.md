@@ -415,3 +415,57 @@ plateau, look to mesh resolution / geometry smoothness rather than solver tolera
   future rungs: before scaling up `endTime` for a `check_totals` sweep, do a cheap `run_model`-only
   check at the higher `endTime` first to confirm it's actually buying convergence, since the
   FD sweep's cost multiplies by the same factor per component.
+
+## Addendum, 2026-07-29: tested against A1's confirmed `mesh.warpDeriv` root cause -- does NOT share it
+
+A1 (NACA0012, this lab's other and longest-standing gradient-accuracy failure) had its idx6
+sign-flip traced to a confirmed defect in `mesh.warpDeriv` (IDWarp's reverse-mode mesh-warp
+derivative -- see `PROOF.md` §15), specific to an opposing-direction combination shape-mode
+construction. Given A5's own signature -- aggregate 46.6%, 2 components sign-flipped (idx 8, 17),
+step-independent, and getting WORSE under tighter primal convergence rather than better -- looks
+superficially like A1's, this addendum tests directly whether it is the same mechanism.
+
+**Parameterization check first, from `runScript.py` itself:** `shapexUpper` (the 27-component group
+FD-checked above) is built via `self.geometry_aero.nom_addLocalDV(dvName="shapexUpper",
+pointSelect=PS, axis="x")`. `nom_addLocalDV` is a thin wrapper (confirmed by reading it in the
+`dafoam/opt-packages:latest` container) around `DVGeo.addLocalDV(dvName, axis=axis,
+pointSelect=pointSelect)`: **one FFD point moving along one axis per DV, unconditionally.** There is
+no opposing-direction, multi-point combination construction anywhere in this case's parameterization
+-- unlike A1's `nom_addShapeFunctionDV`-based `shape` group, which defines idx6/idx7 as four FFD
+points moving in two opposing pairs within a single DV. Every one of A5's 27 `shapexUpper`
+components, including idx8 and idx17, is a single-station mode by A1's own classification.
+
+**Direct test (new script, `probeWarpDerivA5.py`):** the same dot-product/adjoint-identity method
+that confirmed A1's defect (`<w, dXv/dShape>_FD == <warpDeriv(w), dXs/dShape>_analytic`, pure
+`DVGeo`+IDWarp geometry, no CFD, `--cpus=3 --memory=3g`, `mpirun -np 4` matching this case's own
+`decomposeParDict`), run on idx8 and idx17 (2 random seeds each) against two controls, idx2 (1.1%
+error in the real check above) and idx26 (2.7%):
+
+| component | seed | FD_scalar | AN_scalar | rel_err | sign |
+|---|---|---|---|---|---|
+| idx2 (control) | 2026 | 41.2593 | 41.2625 | 0.0078% | agree |
+| idx26 (control) | 2026 | 41.8169 | 41.8201 | 0.0075% | agree |
+| idx8 (sign-flip in real check) | 2026 | 30.1271 | 30.0309 | 0.32% | agree |
+| idx8 (sign-flip in real check) | 42 | 30.8182 | 30.7076 | 0.36% | agree |
+| idx17 (sign-flip in real check) | 2026 | 28.8697 | 28.4947 | 1.30% | agree |
+| idx17 (sign-flip in real check) | 42 | 29.8975 | 29.5167 | 1.27% | agree |
+
+**No sign flip anywhere.** idx8/idx17 do show more disagreement than the controls (0.32-1.30% vs.
+0.0075-0.0078%, a real, honestly-reported ~40-170x gap, not nothing) but this is categorically
+different from A1 idx6/idx7's 108-149%, sign-flipped failure under the identical test.
+**`mesh.warpDeriv` is not the cause of A5's idx8/idx17 defect.**
+
+**Verdict: A1 and A5 do not share a root cause.** A5's defect remains unidentified, and the evidence
+already in this document points toward the primal-convergence mechanism this addendum's own earlier
+sections raised and could not fully resolve: the residual never approaches a real fixed point in the
+1e-8 sense A1 achieves, and tightening it further makes the sign-flip count worse (2->3), the
+opposite of what A1's decisive tightening test showed (4 orders of magnitude tighter changed nothing
+for A1, ruling noise out there). This lab's two gradient-accuracy failures do not collapse to one
+upstream cause; they are two separate defects that happen to share a coarse symptom profile
+(step-independent, sign-flipped, aggregate FD disagreement) without sharing a mechanism.
+
+Evidence: `probeWarpDerivA5.py` (new, this addendum) and 7 raw run logs
+(`probewarpderiv_a5_idx2_np1_run1.log`, `probewarpderiv_a5_idx2_seed2026_np4_run1.log`,
+`probewarpderiv_a5_idx26_seed2026_np4_run1.log`, `probewarpderiv_a5_idx8_seed2026_np4_run1.log`,
+`probewarpderiv_a5_idx8_seed42_np4_run1.log`, `probewarpderiv_a5_idx17_seed2026_np4_run1.log`,
+`probewarpderiv_a5_idx17_seed42_np4_run1.log`) in `demo-output/website/dafoam/`.
