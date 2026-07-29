@@ -197,6 +197,15 @@ def rows() -> list[dict]:
             out.append(_row(label, gate, r["ref"], r["got"], r["dev"],
                             _verdict_line(text) or _tolerance_verdict(r["dev"]),
                             src))
+            continue
+        # An act can run, fail honestly, and produce no graded row -- an
+        # unconverged primal never reaches the quantity its gate compares.
+        # That is NOT the same as an act that has not run, and a table that
+        # prints PENDING for both is lying by omission about which is which.
+        tier = _verdict_line(text)
+        if tier:
+            out.append(_row(label, gate, "-", "not evaluated",
+                            "-", tier, src))
         else:
             out.append(_pending(label, gate, src))
 
@@ -210,6 +219,7 @@ def main() -> int:
 
     data = rows()
     ready = sum(1 for r in data if r["measured"] != PENDING)
+    graded = sum(1 for r in data if r["deviation"] not in (PENDING, "-"))
 
     if args.md:
         print("| act | gate | reference | measured | deviation | verdict | artifact |")
@@ -226,7 +236,7 @@ def main() -> int:
             print(f"    measured  {r['measured']}")
             print(f"    deviation {r['deviation']}   -> {r['verdict']}")
             print(f"    artifact  {r['source']}")
-    print(f"\n{ready} of {len(data)} acts have produced a graded result.")
+    print(f"\n{ready} of {len(data)} acts have run; {graded} carry a graded number.")
     return 0
 
 
