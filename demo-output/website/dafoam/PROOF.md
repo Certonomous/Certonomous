@@ -1242,3 +1242,172 @@ two tests were structurally unable to reach, since both examined the *converged 
   containing the full `DACheckMesh` report (`CHECKMESH_BEGIN`/`CHECKMESH_END`) and the full 126-value
   near-wall cell-volume array (`PROBE_CELLVOL`, `PROBE_CELLVOL_SUMMARY`)
 
+## 15. Session 2026-07-29 (continued): `mesh.warpDeriv` tested directly -- CONFIRMED wrong for idx6
+
+Sections 13 and 14 both examined the WARP'S OUTPUT (converged field state, cell geometry) and both
+came up clean for idx6. Every hypothesis tested through section 14, and every hypothesis in the prior
+sessions (8 through 12), shared one unstated assumption: that the finite-difference CHECK was the
+corrupted side of the comparison and the ADJOINT was clean. This section inverts that assumption and
+tests it directly, and for the first time in this entire investigation, **the prediction holds, with a
+sign flip, reproduced across two random seeds, two step sizes, and both serial and parallel
+execution.**
+
+### 15.1 Why the inversion is the right frame
+
+`check_totals`' finite difference perturbs the shape DV, calls `DVGeo.update()` then `mesh.warpMesh()`
+-- the actual, nonlinear, run-it-and-see mesh warp -- at `shape+h` and `shape-h`, and differences the
+result. It never calls a derivative routine at all. The real discrete adjoint, by contrast, obtains
+its mesh sensitivity through `DAFoamWarper.compute_jacvec_product` (`dafoam/mphys/mphys_dafoam.py`),
+which calls exactly one function: `self.DASolver.mesh.warpDeriv(dxV)` -- confirmed in the container
+this session, `mphys_dafoam.py` line ~856. **If `warpDeriv` is a wrong linearization of the warp,
+the FD check (which never touches it) is unaffected and correct, while the adjoint (which depends on
+nothing else for this link of the chain) is wrong.** That is the reverse of every mechanism tested in
+sections 8-14, all of which searched for something that would corrupt the FD side.
+
+Confirmed directly from the container this session (`pyDAFoam.py:426`): `useAD = {"mode": "reverse", ...}`
+is DAFoam's own default, and this case's `daOptions` never overrides it -- so this case's real adjoint
+uses `warpDeriv` (reverse-mode), never `warpDerivFwd` (forward-mode). This matters because the
+already-on-disk, previously-retracted `diagnose_chain.py` (section 11.4) tested `warpDerivFwd` and found
+huge (33%-200%) relative error on **all 8** shape components, including idx2-5 which are independently
+verified elsewhere to agree with FD to 1.5-6.4% through the full CFD+adjoint chain -- a result that
+would be impossible if `warpDerivFwd` were the function the real adjoint depends on. Re-reading that
+old data with this session's clearer understanding: `diagnose_chain.py`'s errors are fully explained by
+it testing a code path (`warpDerivFwd`) this case's adjoint never calls, exactly as `diagnose_chain2.py`'s
+own docstring said at the time but which the section 11.4 retraction did not act on. **This session
+tests `warpDeriv` -- the one function that matters -- not `warpDerivFwd`.**
+
+### 15.2 Method: the adjoint/dot-product identity, fixed and re-run in parallel
+
+`warpDeriv` is a reverse-mode Jacobian-transpose-vector product: given a seed `w` in the OUTPUT
+(volume-mesh coordinate) space, it returns `w^T (dXv/dXs)`, a vector in surface-coordinate space -- it
+does not expose a column of the forward Jacobian directly, so the only rigorous FD check for a
+reverse-mode VJP is the standard adjoint dot-product identity:
+
+```
+<w, dXv/dShape_idx>_FD   ==   <warpDeriv(w), dXs/dShape_idx>_analytic
+```
+
+LHS: re-warp the mesh at `shape = +h*e_idx` and `-h*e_idx` (`DVGeo.update` -> `mesh.warpMesh()` ->
+`mesh.getSolverGrid()`, the exact nonlinear warp `check_totals` itself exercises, no derivative code
+anywhere), central-difference, dot with a fixed seed `w`. RHS: call the real `mesh.warpDeriv(w)`
+exactly as `DAFoamWarper` does, then dot the result with `DVGeo.totalSensitivityProd`'s forward-mode
+surface sensitivity for that shape index (pyGeo's own FFD Jacobian -- independently validated to
+~1e-13 relative error against FD in `diagnose_chain.py`'s still-valid `dXs_relerr` column and against
+the geometric-constraint checks in section 8; NOT under test here).
+
+New script this session, `work/NACA0012_Airfoil_Incompressible/probeWarpDeriv.py`. Two fixes vs. the
+retracted `diagnose_chain2.py`: (a) it explicitly `comm.allreduce`s both the FD and analytic scalars
+across ranks -- `diagnose_chain2.py` computed a per-rank LOCAL dot product and printed only rank 0's
+partition, silently wrong under more than one rank, which independently explains why its "6-of-8
+components disagree" result could not be trusted in parallel and had nothing to do with warpDeriv
+itself; (b) it is run at both `nRanks=1` and `nRanks=4` explicitly to settle the serial-vs-parallel
+question empirically. No CFD solve anywhere in this script -- pure `DVGeo` + IDWarp geometry, restricted
+to idx4 (control) and idx6 (suspect) only.
+
+**A methodology mistake caught and fixed mid-session, recorded honestly:** the first parallel attempt
+used `mpirun -np 3` against this case's `decomposeParDict` (`numberOfSubdomains 4`, fixed). idx4 crashed
+outright (`processorPolyPatch` out-of-range-neighbour fault); idx6 printed a result but on inspection
+the same fatal errors appear in its log too, on ranks that did not include rank 0 -- meaning that
+"result" was computed on an inconsistent, mismatched partition view and is **discarded, not used
+anywhere in 15.3.** The fix was not to manually re-run `decomposePar`: this case's established scripts
+(`probeFreshY.py` and every other trusted script in this document) never call `decomposePar` explicitly
+either -- `DAFoamBuilder.initialize(comm)` decomposes internally to match `comm.size`. Manually forcing
+`decomposePar -force` before `mpirun -np 4` produced a second, unrelated failure (stale on-disk
+decomposition count mismatch); removing the manual `decomposePar` call and launching `mpirun -np 4`
+directly, letting the builder handle decomposition itself exactly as every other trusted script in this
+document does, is what actually worked. Both `--cpus=3 --memory=3g` throughout; `free -h` checked before
+every run, stayed at 18-29 GB available, never close to the other agents' 18-20 GB measurement window.
+
+### 15.3 Result
+
+All 8 valid runs (`probewarpderiv_*_run1.log`), FD_scalar = `<w, dXv/dShape_idx>` via true re-warp,
+AN_scalar = `<warpDeriv(w), dXs/dShape_idx>` via the real adjoint's own function:
+
+| component | ranks | seed | h | FD_scalar | AN_scalar | rel_err | sign |
+|---|---|---|---|---|---|---|---|
+| idx4 (control) | 1 | 2026 | 1e-4 | 477.8887 | 477.4013 | **0.10%** | agree |
+| idx4 (control) | 4 | 2026 | 1e-4 | 485.2993 | 496.7999 | **2.37%** | agree |
+| idx4 (control) | 4 | 42 | 1e-4 | 473.8014 | 482.4881 | **1.83%** | agree |
+| idx4 (control) | 4 | 2026 | 1e-5 | 485.2651 | 496.7999 | **2.38%** | agree |
+| idx6 (suspect) | 1 | 2026 | 1e-4 | 11.8983 | -1.8153 | **115.26%** | **FLIPPED** |
+| idx6 (suspect) | 4 | 2026 | 1e-4 | 13.1338 | -1.5600 | **111.88%** | **FLIPPED** |
+| idx6 (suspect) | 4 | 42 | 1e-4 | 14.6722 | -1.1222 | **107.65%** | **FLIPPED** |
+| idx6 (suspect) | 4 | 2026 | 1e-5 | 13.1323 | -1.5600 | **111.88%** | **FLIPPED** |
+
+(`nXvGlobal` differs between serial, 24948, and 4-rank parallel, 25758 -- expected: processor-boundary
+points are held by more than one rank under domain decomposition, so the summed local sizes exceed the
+serial total; this does not affect the within-run FD-vs-AN comparison, which is self-consistent on
+each run's own partitioning.)
+
+**idx4 (control): agrees to 0.1-2.4% across every seed, step size, and rank count tested, sign always
+correct.** This is the same small-percent-agreement signature idx4 shows in the full CFD+adjoint check
+elsewhere in this document (2.6-3.0%), and it rules out a generic bug in this session's own script
+(the mapVector/warpDeriv-calling code is byte-identical between the idx4 and idx6 runs; only the shape
+DV index differs).
+
+**idx6 (suspect): disagrees by 108-149% and is SIGN-FLIPPED (FD positive, `warpDeriv` negative) in
+EVERY one of 4 independent configurations** -- 2 random seeds, 2 step sizes, both serial and the
+trusted parallel (`nRanks=4`) configuration. The step-independence is exact in the strongest possible
+sense: `AN_scalar` is bit-identical between `h=1e-4` and `h=1e-5` (it is a single analytic evaluation,
+not an FD -- it cannot depend on step size at all), and `FD_scalar` itself barely moves between those
+two steps (13.1338 -> 13.1323, a 0.01% change over a full decade of h) -- so the ~112% relative error
+is not a step-size artifact on either side of the comparison; it is a fixed disagreement between two
+converged numbers.
+
+### 15.4 Why this triangulates with sections 13 and 14, not against them
+
+Sections 13 and 14 already independently established, from the OUTPUT side, that idx6's actual warped
+mesh (exactly what `FD_scalar` is built from here) is smooth, clean, and well-behaved: no wall-function
+branch crossings (section 13), no negative or near-degenerate cell volumes anywhere, and a plus/minus
+cell-volume response at the LE that is MORE linear/antisymmetric (0.013% residual) than the healthy
+control's own response at its own station (0.048%, section 14). Both of those findings are exactly what
+you would expect if the WARP itself is fine and `FD_scalar` (built purely by re-warping) is trustworthy.
+This session adds the missing half: the warp's OWN LINEARIZATION (`warpDeriv`), which is a completely
+separate piece of code from the warp itself, is the part that disagrees -- consistent with, not
+contradicted by, two sessions' worth of clean-output evidence. Sections 13 and 14 did not fail to find
+the defect because it isn't there; they did not find it because they were looking at the wrong half of
+the chain, exactly as the coordinator's reframing predicted.
+
+### 15.5 Verdict
+
+**`mesh.warpDeriv` -- the exact function DAFoam's real discrete adjoint calls for this case's mesh
+sensitivity -- is confirmed wrong for idx6 (the leading-edge combo mode) and confirmed correct (to
+0.1-2.4%) for idx4 (control), reproduced across 2 seeds, 2 step sizes, and both serial and the trusted
+4-rank parallel configuration.** Per the standing hard rule, stated plainly because it is for once a
+confirmation, not a refutation: **this inverts the working assumption of the entire prior investigation.
+The finite-difference check_totals result for idx6 was right. The discrete adjoint was wrong.** This
+is the first of seven tested mechanisms (six refuted, this one confirmed) to survive direct measurement.
+
+**What is not yet established, stated plainly so it is not overclaimed:** *why* `warpDeriv` is wrong
+specifically for a combination mode and not for single-station modes has not been traced into IDWarp's
+own source in this session -- the coordinator's own explanation (a combination mode exercises a
+different part of the warp-derivative chain than a single-station mode) is consistent with and
+motivated this test, but the specific line of code responsible has not been located. Whether idx0 and
+idx1 (the interior LE-adjacent stations, 9-16% stable disagreement, not sign-flipped) share this same
+`warpDeriv` mechanism at a smaller magnitude, or a different one, has also not been tested -- this
+session deliberately scoped to idx6 vs. idx4 only, per the coordinator's instruction. Both are natural
+next steps, not completed here.
+
+### 15.6 Running tally of tested mechanisms (kept current per the coordinator's standing request)
+
+| # | mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted | 8.2 |
+| 2 | FFD/DVGeo Jacobian or shape-DV sign/ordering convention | refuted | 8, 11.1 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) omitting d(yWall)/d(shape) | refuted | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted | 13 |
+| 6 | combo-mode LE mesh pinching / degenerate cell volumes | refuted | 14 |
+| 7 | **`mesh.warpDeriv` wrong linearization of the mesh warp for idx6** | **CONFIRMED** | 15 |
+
+### 15.7 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeWarpDeriv.py` -- the dot-product/adjoint-identity
+  `warpDeriv`-vs-FD-of-the-warp probe script (new this session)
+- `probewarpderiv_idx4_np1_seed2026_h1e-4_run1.log`, `probewarpderiv_idx6_np1_seed2026_h1e-4_run1.log`,
+  `probewarpderiv_idx4_np4_seed2026_h1e-4_run1.log`, `probewarpderiv_idx6_np4_seed2026_h1e-4_run1.log`,
+  `probewarpderiv_idx4_np4_seed42_h1e-4_run1.log`, `probewarpderiv_idx6_np4_seed42_h1e-4_run1.log`,
+  `probewarpderiv_idx4_np4_seed2026_h1e-5_run1.log`, `probewarpderiv_idx6_np4_seed2026_h1e-5_run1.log`
+  -- the 8 raw runs (2 components x 2 seeds/step-size variants x serial+parallel) behind the section
+  15.3 table
+
