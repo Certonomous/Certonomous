@@ -9,6 +9,71 @@
 
 ---
 
+---
+
+## What moved on 2026-07-29 evening, after this register was compiled
+
+The register below is kept as compiled. This section records what changed in the
+hours after, because a failure register that silently absorbs its own resolutions
+stops being a record of anything.
+
+### Resolved
+
+**The airfoil leading-edge shape derivative (Group 2).** Root cause found after
+seven tested mechanisms, six refuted. The mesh warp's own linearisation is wrong
+for opposing-direction combination shape variables: 108-149 percent error and a
+flipped sign under a generic test seed, 634 percent under the real objective seed,
+against a single-point control agreeing to 0.1-2.7 percent. The verdict INVERTS
+the assumption the whole investigation was built on -- the finite-difference check
+was right and the discrete adjoint was wrong. Two conditions, both measured: the
+opposing-direction construction is necessary, and the error must overlap the
+objective's own sensitivity field to reach a real gradient, which is why the
+leading-edge mode is corrupted and the trailing-edge mode with identical
+construction is clean. A fileable upstream defect report exists and is unfiled.
+
+### Reclassified, which changes what a fix would cost
+
+**Group 1 is not only a memory wall.** Measured this evening: the adjoint
+completes at 63,920 cells and breaks down at 79,560 cells with over 4 GB of memory
+headroom still unused, then breaks down again at 99,840. In this range the
+CONVERGENCE limit binds before the MEMORY limit. A larger machine would not buy a
+larger mesh. The group's "to resolve" column, which pointed at hardware, now
+points at conditioning -- scaling, equilibration, or a different Krylov method,
+none of which needs a purchase. The memory scaling law is still worth completing,
+but it answers a conditional question: what box would be needed IF the numerical
+problem were solved.
+
+### Narrowed
+
+**The U-bend gradient failure (Group 2)** was tested against the airfoil's
+newly-found mechanism and CLEARED -- its variables are all single-point and its
+sign-flipped components agree with a finite difference of the warp to 0.32-1.30
+percent. It remains a genuine second defect with an unknown cause, now being
+isolated link by link.
+
+**The field-inversion adjoint failure (Group 3).** Two more mechanisms eliminated:
+the converged state holds no non-finite value, verified cell by cell across every
+field the adjoint reads; and the perturbation applied during Jacobian colouring is
+additive-only, read from the single source site that applies it, so it cannot
+drive turbulence quantities negative as had been proposed. A separate abort during
+colouring validation was traced to a diagnostic script omitting a setup call, not
+to the case. Four mechanisms now eliminated.
+
+### Corrected
+
+**The hump turbulence sweep (Group 3)** is complete: all four comparison models
+now hold converged numbers. This FALSIFIED a pre-registered prediction of this
+lab's own -- the narrow inter-model band was published as failing to contain the
+experiment, and it only failed while one model sat short of its convergence gate.
+Converged, that model crosses to the other side of the experimental value and the
+narrow band contains it. All public surfaces were corrected the same evening.
+
+**A cylinder rung recorded here as incomplete had in fact finished.** The note was
+stale; the statistics were recomputed from the raw force file rather than from the
+note.
+
+---
+
 ## GROUP 1: ADJOINT MEMORY WALL
 
 Structural architectural block: OpenMDAO's reverse-mode sweep builds a mesh-sized `d[residuals]/d[vol_coords]` Jacobian unconditionally for any requested total derivative, regardless of the requested `wrt=` argument. This block grows with mesh size and is not escapable by mesh coarsening alone (8 independent mitigations tried and ruled out on A3: memory caps 12g/18g, rank decomposition 4/2, GMRES restart reduction, ILU fill level reduction). The working envelope on this host is approximately 10³–10⁴ cells for DAFoam adjoints; the failure boundary lies between 63,920 cells (naca0015_sail_coarse, succeeds) and 99,840 cells (A3 coarse, OOM).
