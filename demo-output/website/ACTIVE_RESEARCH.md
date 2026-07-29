@@ -438,8 +438,27 @@ cases), and AR_14_Ret_180 at 0.0303 against 0.0325.
 (Term 2, the larger of the two identified recoverable terms) remains gated
 on the DAFoam/PETSc adjoint GMRES `KSP_DIVERGED_NANORINF` failure (Ladder
 B3) — a CFD-solving problem, out of scope for a 2-core/3GB data-and-fitting
-compute budget. That is next session's highest-value target once a solving
-budget is available.
+compute budget, and another agent is actively working it (not duplicated
+here). That is the highest-value target once a solving budget is available.
+
+**New (this session): feature-expressivity audit answers the cheaper prior
+question — can the existing DUCT feature set express the missing correction
+at all, before spending more capacity or another adjoint session on it?**
+One-sentence answer: not fully blind, but two of its seven features
+(`I3_S3`, `I4_W2S`) are *provably, always* zero on this entire flow family
+(RANS produces exactly zero secondary flow, and that algebraic form makes
+those two invariants vanish identically for any shear rates — verified both
+on real data and over 50,000 random shear pairs), and of the five that
+remain, the component that most drives secondary-flow generation
+(`b_yy - b_zz`, normal-stress difference) is not reliably predictable
+(held-out R²=0.04, one fold strongly negative), while the other (`b_yz`,
+shear) carries only a weak but consistent signal (held-out R²=0.27). Full
+account: `demo-output/website/CLOSURE_CHALLENGE_STATUS.md` §0b,
+`demo-output/website/closure_challenge_duct_anisotropy_expressivity.json`,
+`sdk/scripts/closure_duct_anisotropy_expressivity.py`. Scope: DUCT training
+cases only (`AR_1/3/5/10_Ret_180`), no validation/test case touched, no
+`score()` call, Ladder B3 not touched. Compute: 17.5s / 2-core cap / 170 MB
+peak RSS.
 
 ### C2 — where the deficit lives
 

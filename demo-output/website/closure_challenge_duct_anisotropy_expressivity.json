@@ -1,0 +1,249 @@
+{
+  "generated_at": "2026-07-29T20:39:25.492637+00:00",
+  "measured_date": "2026-07-29",
+  "purpose": "Feature-expressivity audit: does the 7-feature Pope-invariant RANS feature set (used by the closure-challenge DUCT velocity-correction model) carry any information about the true LES Reynolds-stress anisotropy that drives secondary flow of the second kind? Asked before spending further model-capacity effort on the existing pipeline.",
+  "scope": {
+    "duct_training_cases_used": [
+      "AR_1_Ret_180",
+      "AR_3_Ret_180",
+      "AR_5_Ret_180",
+      "AR_10_Ret_180"
+    ],
+    "duct_validation_case_touched": false,
+    "duct_test_cases_touched": false,
+    "ladder_b3_touched": false,
+    "closure_challenge_score_call_made": false
+  },
+  "data_consistency_checks": {
+    "AR_1_Ret_180": 3.27376593305479e-07,
+    "AR_3_Ret_180": 4.6408326828395864e-07,
+    "AR_5_Ret_180": 1.2815897862167178e-06,
+    "AR_10_Ret_180": 1.0938982499621129e-06
+  },
+  "per_case": {
+    "AR_1_Ret_180": {
+      "n_cells": 2209,
+      "tauij_k_les_consistency_max_rel_err": 3.27376593305479e-07,
+      "streamwise_x_fraction_of_mean_abs_U": 1.0,
+      "aniso_mag_mean": 0.6537,
+      "aniso_mag_max": 0.8165,
+      "b_yz_mean_abs": 0.00735,
+      "b_yy_minus_zz_mean_abs": 0.07798,
+      "x_b_range": [
+        0.5407,
+        1.0
+      ],
+      "y_b_range": [
+        0.0,
+        0.7026
+      ]
+    },
+    "AR_3_Ret_180": {
+      "n_cells": 6627,
+      "tauij_k_les_consistency_max_rel_err": 4.6408326828395864e-07,
+      "streamwise_x_fraction_of_mean_abs_U": 1.0,
+      "aniso_mag_mean": 0.6042,
+      "aniso_mag_max": 0.8165,
+      "b_yz_mean_abs": 0.0067,
+      "b_yy_minus_zz_mean_abs": 0.09061,
+      "x_b_range": [
+        0.5243,
+        1.0
+      ],
+      "y_b_range": [
+        0.0,
+        0.6842
+      ]
+    },
+    "AR_5_Ret_180": {
+      "n_cells": 11045,
+      "tauij_k_les_consistency_max_rel_err": 1.2815897862167178e-06,
+      "streamwise_x_fraction_of_mean_abs_U": 1.0,
+      "aniso_mag_mean": 0.5923,
+      "aniso_mag_max": 0.8165,
+      "b_yz_mean_abs": 0.00575,
+      "b_yy_minus_zz_mean_abs": 0.09202,
+      "x_b_range": [
+        0.5287,
+        1.0
+      ],
+      "y_b_range": [
+        0.0,
+        0.6801
+      ]
+    },
+    "AR_10_Ret_180": {
+      "n_cells": 22090,
+      "tauij_k_les_consistency_max_rel_err": 1.0938982499621129e-06,
+      "streamwise_x_fraction_of_mean_abs_U": 1.0,
+      "aniso_mag_mean": 0.5784,
+      "aniso_mag_max": 0.8165,
+      "b_yz_mean_abs": 0.00436,
+      "b_yy_minus_zz_mean_abs": 0.09409,
+      "x_b_range": [
+        0.5335,
+        1.0
+      ],
+      "y_b_range": [
+        0.0,
+        0.6804
+      ]
+    }
+  },
+  "targets": {
+    "b_yz": "cross-plane shear component of the LES anisotropy tensor b_ij = tau_ij/(2k) - delta_ij/3; directly implicated in the streamwise-vorticity generation mechanism for secondary flow of the second kind",
+    "b_yy_minus_zz": "cross-plane normal-stress-difference component of b_ij; the other term directly implicated in the same generation mechanism",
+    "aniso_mag": "Frobenius norm of the full b_ij tensor -- overall departure from isotropy, NOT specific to the cross-plane/secondary-flow direction; included for comparison ('how anisotropic' vs 'which direction')",
+    "x_b": "barycentric-map x-coordinate (Banerjee et al. 2007) -- component-ality state",
+    "y_b": "barycentric-map y-coordinate"
+  },
+  "feature_names": [
+    "I1_S2",
+    "I2_W2",
+    "I3_S3",
+    "I4_W2S",
+    "I5_W2S2",
+    "Re_y",
+    "tke_ratio"
+  ],
+  "structural_degeneracy_i3_i4": {
+    "claim": "For any RANS mean field of the form U=(u(y,z),0,0) -- i.e. exactly zero secondary flow, which is what a linear-eddy-viscosity RANS solve on a duct always produces -- the Pope invariants I3_S3=tr(S_hat^3) and I4_W2S=tr(W_hat^2 S_hat) vanish IDENTICALLY for any shear rates a=du/dy, b=du/dz. This is an algebraic identity, not a property of this dataset.",
+    "observed_on_this_runs_actual_duct_training_data": {
+      "I3_S3_max_abs_value_over_41971_cells": 3.3402040259110995e-14,
+      "I4_W2S_max_abs_value_over_41971_cells": 1.113401341970366e-14
+    },
+    "independent_analytic_proof_50000_random_shear_pairs": {
+      "I3_S3_max_abs_value": 0.0,
+      "I4_W2S_max_abs_value": 0.0
+    },
+    "consequence": "2 of the 7 features (I3_S3, I4_W2S) carry ZERO information for the entire DUCT flow family, by mathematical necessity, regardless of what the true anisotropy is doing -- not a training-data limitation, not fixable by more data or more model capacity. Effective feature count for this flow family is 5, not 7, and the two lost dimensions are exactly the ones that couple S and W asymmetrically -- the kind of coupling a purely-streamwise-shear mean field can never produce."
+  },
+  "correlations_pearson_r": {
+    "b_yz": {
+      "I1_S2": -0.1043,
+      "I2_W2": 0.1043,
+      "I3_S3": 0.0,
+      "I4_W2S": 0.0,
+      "I5_W2S2": 0.088,
+      "Re_y": 0.0455,
+      "tke_ratio": -0.3529
+    },
+    "b_yy_minus_zz": {
+      "I1_S2": 0.2125,
+      "I2_W2": -0.2125,
+      "I3_S3": 0.0,
+      "I4_W2S": 0.0,
+      "I5_W2S2": -0.1841,
+      "Re_y": 0.1489,
+      "tke_ratio": 0.2365
+    },
+    "aniso_mag": {
+      "I1_S2": -0.2763,
+      "I2_W2": 0.2763,
+      "I3_S3": 0.0,
+      "I4_W2S": 0.0,
+      "I5_W2S2": 0.2459,
+      "Re_y": -0.9298,
+      "tke_ratio": 0.2989
+    },
+    "x_b": {
+      "I1_S2": -0.0283,
+      "I2_W2": 0.0283,
+      "I3_S3": 0.0,
+      "I4_W2S": 0.0,
+      "I5_W2S2": 0.0259,
+      "Re_y": -0.6381,
+      "tke_ratio": 0.4787
+    },
+    "y_b": {
+      "I1_S2": 0.394,
+      "I2_W2": -0.394,
+      "I3_S3": 0.0,
+      "I4_W2S": 0.0,
+      "I5_W2S2": -0.3501,
+      "Re_y": 0.9843,
+      "tke_ratio": -0.1432
+    }
+  },
+  "feature_degeneracy_vs_wall_distance": {
+    "I1_S2": 0.433,
+    "I2_W2": -0.433,
+    "I3_S3": 0.0,
+    "I4_W2S": 0.0,
+    "I5_W2S2": -0.3834,
+    "tke_ratio": -0.1108
+  },
+  "held_out_r2_leave_one_case_out": {
+    "b_yz": {
+      "per_fold_r2": {
+        "AR_1_Ret_180": 0.3311,
+        "AR_3_Ret_180": 0.3591,
+        "AR_5_Ret_180": 0.3313,
+        "AR_10_Ret_180": 0.1563
+      },
+      "pooled_held_out_r2": 0.2689,
+      "pearson_r_pred_vs_actual": 0.5275
+    },
+    "b_yy_minus_zz": {
+      "per_fold_r2": {
+        "AR_1_Ret_180": -0.6912,
+        "AR_3_Ret_180": -0.0147,
+        "AR_5_Ret_180": 0.099,
+        "AR_10_Ret_180": 0.0385
+      },
+      "pooled_held_out_r2": 0.0409,
+      "pearson_r_pred_vs_actual": 0.2285
+    },
+    "aniso_mag": {
+      "per_fold_r2": {
+        "AR_1_Ret_180": 0.7282,
+        "AR_3_Ret_180": 0.8668,
+        "AR_5_Ret_180": 0.9005,
+        "AR_10_Ret_180": 0.9251
+      },
+      "pooled_held_out_r2": 0.9042,
+      "pearson_r_pred_vs_actual": 0.9509
+    },
+    "x_b": {
+      "per_fold_r2": {
+        "AR_1_Ret_180": 0.0668,
+        "AR_3_Ret_180": 0.4989,
+        "AR_5_Ret_180": 0.594,
+        "AR_10_Ret_180": 0.6621
+      },
+      "pooled_held_out_r2": 0.5951,
+      "pearson_r_pred_vs_actual": 0.7718
+    },
+    "y_b": {
+      "per_fold_r2": {
+        "AR_1_Ret_180": 0.9668,
+        "AR_3_Ret_180": 0.9592,
+        "AR_5_Ret_180": 0.9674,
+        "AR_10_Ret_180": 0.9734
+      },
+      "pooled_held_out_r2": 0.9699,
+      "pearson_r_pred_vs_actual": 0.9849
+    }
+  },
+  "verdict": {
+    "q1_does_the_feature_set_predict_component_ality_barycentric_position": {
+      "answer": "yes, strongly (held-out R^2 up to 0.97 on y_b) -- but this is a misleading yes.",
+      "why_misleading": "y_b correlates +0.9843 with Re_y (wall distance) alone. Component-ality (near-wall turbulence approaching the 2-component limit) is universal wall-bounded-flow physics, present in every RANS/LES comparison regardless of secondary flow. A model recovering it from wall distance is recovering textbook near-wall behavior, not anything about the duct's corner-driven secondary flow specifically."
+    },
+    "q2_two_of_seven_features_are_structurally_dead_for_this_entire_flow_family": {
+      "answer": "yes, proven, not estimated",
+      "detail": "2 of the 7 features (I3_S3, I4_W2S) carry ZERO information for the entire DUCT flow family, by mathematical necessity, regardless of what the true anisotropy is doing -- not a training-data limitation, not fixable by more data or more model capacity. Effective feature count for this flow family is 5, not 7, and the two lost dimensions are exactly the ones that couple S and W asymmetrically -- the kind of coupling a purely-streamwise-shear mean field can never produce."
+    },
+    "q3_do_the_remaining_features_predict_the_orientation_specific_secondary_flow_generation_terms_b_yz_and_b_yy_minus_zz": {
+      "answer": "mixed, and the honest answer is 'weakly, and not reliably'",
+      "b_yz": "pooled held-out R^2=+0.2689, consistently positive across all 4 held-out folds ([0.3311, 0.3591, 0.3313, 0.1563]) -- a real, if modest and noisy, generalizing signal.",
+      "b_yy_minus_zz": "pooled held-out R^2=+0.0409, one fold strongly NEGATIVE ([-0.6912, -0.0147, 0.099, 0.0385]) -- essentially no reliable signal; the normal-stress-difference component of the generation mechanism is not usably predictable from these features."
+    },
+    "overall_statement": "This is not a clean 'blind' or 'not blind' result, and forcing it into one would misrepresent it. Two of the seven features are PROVABLY, exactly, always zero for any duct RANS field (I3_S3, I4_W2S) -- a hard structural loss, not a data limitation. Of the remaining five, the strong-looking R^2 on barycentric position and anisotropy magnitude is mostly a restatement of universal near-wall physics (wall distance alone explains it), not evidence the model can localize secondary flow. Of the two components that actually drive secondary-flow GENERATION, one (b_yz) carries a real but weak generalizing signal; the other (b_yy-b_zz) does not reliably generalize at all (a held-out fold went strongly negative). Conclusion: the current feature set is not fully blind to secondary flow, but it is too thin and too unreliable on the component that matters most to support a confident velocity-correction model -- more model capacity on THESE SAME SEVEN FEATURES is not the fix; the fix, if there is a cheap one, is adding features that explicitly break the parallel-shear degeneracy (e.g. genuine 3D velocity-gradient cross-terms once secondary flow itself is present in an input field, which RANS alone will never supply -- consistent with Ladder B3's field-inversion approach being the right recovery route, not a substitute for it)."
+  },
+  "compute": {
+    "elapsed_seconds": 17.3,
+    "cores_cap": 2,
+    "n_cells_total": 41971
+  }
+}

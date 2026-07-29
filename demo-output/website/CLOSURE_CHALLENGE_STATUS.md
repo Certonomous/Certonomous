@@ -1,7 +1,8 @@
-# Closure Challenge — status as of 2026-07-29 (round 3)
+# Closure Challenge — status as of 2026-07-29 (round 3 + anisotropy audit)
 
-Read-only status report except for the new §0 below. All figures are quoted
-from already-recorded, re-derivable artifacts; sources are cited per section.
+Read-only status report except for the new §0 and §0b below. All figures are
+quoted from already-recorded, re-derivable artifacts; sources are cited per
+section.
 
 Sources: `/home/ubuntu/closure-challenge-benchmark/README.md` (benchmark
 rules + public leaderboard); `demo-output/website/closure_challenge_rans_floor.json`;
@@ -73,6 +74,68 @@ no CFD solve.
 
 Round 3 record: `demo-output/website/closure_challenge_trained_entry_round3_gated.json`.
 Script: `sdk/scripts/apply_closure_ph_gate.py`.
+
+---
+
+## 0b. Feature-expressivity audit: is the DUCT feature set blind to secondary flow?
+
+**One-sentence answer**: not fully blind, but two of its seven features are
+*provably, always* zero on this entire flow family, and of what remains, the
+component that most drives secondary-flow generation is only unreliably
+predictable — so more model capacity on these same seven features is not the
+fix; the fix, if there is a cheap one, is different features.
+
+**Why this was asked, and why it does not touch Ladder B3**: Term 2 (the
+duct streamwise/anisotropy deficit) is blocked on a real DAFoam/PETSc GMRES
+failure, and another agent is actively working that blocker right now — not
+duplicated here. Before spending another adjoint-debugging session, the
+cheaper prior question is whether the *existing* feature set could ever
+express the missing correction at all, even with unlimited model capacity.
+Answered by projecting the 7 Pope-invariant features (I1_S2, I2_W2, I3_S3,
+I4_W2S, I5_W2S2, Re_y, tke_ratio) against the true LES Reynolds-stress
+anisotropy tensor on a Lumley/barycentric map, using **only the 4 DUCT
+training cases** (`AR_1_Ret_180`, `AR_3_Ret_180`, `AR_5_Ret_180`,
+`AR_10_Ret_180`) — never the DUCT validation case, never any of the 3 DUCT
+test cases, no `score()` call. Script: `sdk/scripts/closure_duct_anisotropy_expressivity.py`.
+Record: `demo-output/website/closure_challenge_duct_anisotropy_expressivity.json`.
+
+**Finding 1 — a proven structural degeneracy, not a statistical one.** RANS
+produces exactly zero secondary flow on every DUCT training case (streamwise
+fraction of mean |U| = 1.0000 on all 4), so the RANS mean field has the form
+U=(u(y,z), 0, 0). For *any* gradient of that form, `I3_S3 = tr(S_hat^3)` and
+`I4_W2S = tr(W_hat^2 S_hat)` vanish identically — verified both on this run's
+actual data (max |value| ~1e-14, machine epsilon) and independently over
+50,000 random shear-rate pairs (exact zero, analytically). **Two of the
+seven features carry zero information for the entire DUCT family, by
+mathematical necessity — not fixable by more data or more model capacity.**
+
+**Finding 2 — the strong-looking barycentric R² is mostly a red herring.**
+Held-out R² (leave-one-training-case-out, 4-fold) predicting barycentric
+position from the remaining 5 features reaches 0.97 on `y_b` — but `y_b`
+correlates 0.9843 with wall distance (`Re_y`) alone. Near-wall turbulence
+approaching the two-component limit is universal wall-bounded-flow physics,
+present in every RANS/LES comparison; recovering it says nothing about the
+duct's corner-driven secondary flow specifically.
+
+**Finding 3 — the components that actually matter are weak and one is
+unreliable.** Isolating the two anisotropy components directly implicated in
+the secondary-flow generation mechanism (Prandtl's secondary flow of the
+second kind): `b_yz` (cross-plane shear) reaches held-out R²=0.27, positive
+and consistent across all 4 folds (0.16–0.36) — a real but modest signal.
+`b_yy − b_zz` (normal-stress difference) reaches held-out R²=0.04, with one
+fold strongly **negative** (−0.69) — not a reliable, generalizing signal.
+
+**Consequence for where effort should go next**: this is a genuine negative
+result for the current feature pipeline, stated plainly rather than
+papered over. It does not redirect effort toward Ladder B3 (already in
+progress elsewhere) or away from it — it explains, mechanistically, *why*
+a scalar-velocity-correction model on this feature set has a structural
+ceiling on the DUCT cases regardless of tuning, and points at what a
+cheap feature-side fix would need to supply: information that breaks the
+parallel-shear degeneracy (something RANS's own zero-secondary-flow mean
+field structurally cannot provide on its own).
+
+**Compute**: 17.5 s wall time on a 2-core cap, peak RSS 170 MB.
 
 ---
 
