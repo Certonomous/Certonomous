@@ -654,8 +654,8 @@
    "objective": "Test whether A1's sign-flipped leading-edge shape derivative (idx6) is caused by discrete non-differentiability at the wall-function switching threshold, by measuring whether leading-edge cells cross that threshold under the finite-difference perturbation",
    "rationale": "A1's CD/shape check fails on one component: idx6, the leading-edge combo mode, is sign-flipped and accounts for 82.7 percent of the squared-error norm. It is step-independent, survives a 3.65x mesh refinement, and the frozen-wall-distance mechanism was measured to contribute exactly zero. Root cause is unidentified and this is the deepest open question in the ladder. A mechanism nobody has tested: the Spalart-Allmaras wall-function branch is a discrete switch on the near-wall cell state. If leading-edge cells cross that switch between the plus and minus finite-difference perturbations, the function being differenced is not continuous there, so the finite difference is estimating the slope across a step rather than a derivative, and the adjoint, which linearizes one branch only, is right while the check is wrong. That would explain step-independence, which a truncation-error story cannot, and it would explain why only the leading edge misbehaves while mid-chord and aft components agree to 1.5-6.4 percent. The measurement is cheap: instrument the near-wall cell state at each perturbed configuration and count threshold crossings. If none cross, the hypothesis dies and we have eliminated it for good.",
    "citations": [
-    "Certonomous PROOF.md sections 8.2 and 12, leading-edge localisation of the A1 defect",
-    "Certonomous DAFoam Case Status, cross-rung finding 2",
+    "Certonomous internal root-cause study of the leading-edge shape derivative, sections on localisation and on the frozen-wall-distance mechanism",
+    "Certonomous DAFoam case survey, cross-rung finding on the airfoil shape-derivative disagreement",
     "Spalart & Allmaras (1992), one-equation turbulence model for aerodynamic flows"
    ],
    "est_core_min": 25.0,
@@ -740,7 +740,7 @@
   {
    "id": "r4-asymptotic-range-ladders",
    "objective": "Determine whether the non-asymptotic verdicts on the Ahmed body and B-52 refinement ladders come from an insufficient refinement ratio or from genuinely non-monotone grid convergence, by re-running each with a constant ratio and reporting the observed order of accuracy",
-   "rationale": "Two headline geometries report ladders not in the asymptotic range, and both consequently carry conservative bands rather than extrapolated ones - the B-52 at plus or minus 0.0063 on a Cd of 0.0472, which is 13 percent, and the Ahmed body downgraded from VALIDATED to SOLVER-BACKED specifically because its ladder was inconclusive. The existing ladders use unequal and in places small cell-count ratios, and the B-52's rungs are non-monotone: 0.0551, 0.0448, 0.0491, 0.0472, 0.0496, 0.0523 as cells rise. Standard practice requires a constant refinement ratio to compute an observed order p at all, and without p there is no Richardson extrapolation and no grid-convergence index. The current verdicts may therefore be reporting a defect in the experiment design rather than in the solutions. This is worth settling because it is the difference between two flagship bodies being VALIDATED and not.",
+   "rationale": "Two headline geometries report ladders not in the asymptotic range, and both consequently carry conservative bands rather than extrapolated ones - the B-52 at plus or minus 0.0063 on a Cd of 0.0472, which is 13 percent, and the Ahmed body held back from the validated tier specifically because its ladder was inconclusive. The existing ladders use unequal and in places small cell-count ratios, and the B-52's rungs are non-monotone: 0.0551, 0.0448, 0.0491, 0.0472, 0.0496, 0.0523 as cells rise. Standard practice requires a constant refinement ratio to compute an observed order p at all, and without p there is no Richardson extrapolation and no grid-convergence index. The current verdicts may therefore be reporting a defect in the experiment design rather than in the solutions. This is worth settling because it is the difference between two flagship bodies being VALIDATED and not.",
    "citations": [
     "Roache, Verification and Validation in Computational Science and Engineering",
     "ASME V&V 20 standard on grid-convergence index",
@@ -748,7 +748,7 @@
    ],
    "est_core_min": 400.0,
    "cost_basis": "measured, from the B-52's own 1,267-second and motorBike's 1,022-second rebuild times; three constant-ratio rungs per body on two bodies",
-   "expected_knowledge_gain": "Either an observed order of accuracy and a defensible extrapolated value for the lab's two most-filmed geometries, or hard evidence that these flows do not converge monotonically on this mesh family, which is itself a real finding about snapped-hex meshes on complex geometry and worth publishing.",
+   "expected_knowledge_gain": "Either an observed order of accuracy and a defensible extrapolated value for the lab's two headline geometries, or hard evidence that these flows do not converge monotonically on this mesh family, which is itself a real finding about snapped-hex meshes on complex geometry and worth publishing.",
    "source_kind": "measurement",
    "status": "proposed",
    "created_at": "2026-07-29T20:15:00Z",
