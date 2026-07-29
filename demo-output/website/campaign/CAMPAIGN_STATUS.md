@@ -103,6 +103,37 @@
 - **Cost:** ~230–290 s per evaluation (low-minute budget satisfied)
 - **Shipped:** Yes (mega-batch family, "Family 1")
 
+### F5a Reynolds ladder (separate, deeper investigation beyond the shipped batch above)
+
+Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
+
+- **Re 1000:** Cd=1.4678, St=0.2343, Cl_rms=0.9666 (2D laminar). **GATED, point
+  reference:** Jiang & Cheng (2017) *JFM* 832:170-188 run matched 2D and 3D DNS
+  at this exact Re. Our result agrees with independent 2D DNS to 1.3-6.2% (Cd,
+  St, Cl_rms all move together — the solver-correctness check) and over-predicts
+  the 3D DNS/experiment consensus by +41-45% (Cd), +8.5-11.6% (St), and
+  380-710% (Cl_rms) — large, directionally consistent, and mechanistically
+  explained by the same paper (weaker/longer 3D recirculation region, spanwise
+  phase decorrelation collapsing integrated Cl_rms). This is the deviation
+  figure the previous record explicitly said it did not have.
+- **Re 2000:** Cd=1.5879, St=0.2421 (2D laminar). Previously recorded
+  **INCOMPLETE at 63%**; that run had actually finished (t=0-90,
+  3965.11 s) before this correction — the incomplete note was stale (L-1).
+  **GATED, banded, lower confidence:** no point-value 3D or 2D reference found
+  at exactly Re=2000 despite a genuine search (paywalled Norberg 2003,
+  Williamson 1996, Fey/König/Eckelmann 1998, no Unpaywall OA copy of any).
+  Gated instead against the Zdravkovich (1990/1997) subcritical-regime
+  Cd/St-plateau band (Cd~1.0-1.2, St~0.19-0.21): over-predicts by +32-59% (Cd)
+  and +15-27% (St), consistent in direction and rough magnitude with Re 1000.
+  Reported as weaker evidence than Re 1000's gate, not equalized to match it.
+- **Re 3900:** launched 2026-07-29 20:30 UTC (2D laminar, 44,000-cell mesh),
+  predicted ~6,390 s. A pre-staged kOmegaSST (2D URANS) setup was found and
+  **reverted to laminar before launch** — it would have silently forked the
+  ladder's methodology on its most important rung (see LESSONS.md L-11). Rich
+  published reference data exists at this Re (PIV, DNS, LES, DES from six
+  independent sources), so this rung should produce the ladder's first
+  point-gated, high-confidence result above Re 1000.
+
 ---
 
 ## F6a — NASA 2D Wall-Mounted Hump (Separated Flow)

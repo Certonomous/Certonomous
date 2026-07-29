@@ -964,3 +964,140 @@ without independent verification; the cause of their disagreement with finite di
   the section 11.2 refined case), `probeFreshY.py` (the fresh-process CD+field probe script),
   `run_all_probes.sh` (batch driver)
 
+## 13. Session 2026-07-29: wall-function branch-crossing hypothesis, tested and killed
+
+A new, previously-untested mechanism was proposed for the idx0/idx1/idx6 defect: that DAFoam's SA
+wall treatment contains a discrete (non-differentiable) branch on near-wall cell state, and that if a
+leading-edge wall face crosses that branch between the plus and minus evaluations of a central
+difference, the FD estimate is measuring the secant slope across a kink rather than a derivative --
+which would make the FD **check** wrong and the **adjoint** right, the opposite of every prior
+session's working assumption. This section tests that hypothesis directly, on this case's real
+source code and real converged fields, budget-capped at 3 cores / 3 GB (`--cpus=3 --memory=3g`),
+serial (`np=1`, deliberately -- see 13.2), never exceeding budget.
+
+### 13.1 Locating the actual discrete branch (source-level)
+
+This case's `0.orig/nut` uses `nutUSpaldingWallFunction` on the `wing` patch -- Spalding's law, a
+single smooth formula valid across all y+ regimes, specifically chosen in the OpenFOAM/DAFoam
+ecosystem to avoid the classic hard y+-regime switch that plain `nutkWallFunction`/`nutUWallFunction`
+have. DAFoam does not use the stock OpenFOAM class for this BC; it overrides it at the same runtime-
+selection name with its own differentiated version,
+`src/adjoint/DAMisc/nutUSpaldingWallFunctionDF/nutUSpaldingWallFunctionFvPatchScalarFieldDF.C`
+(confirmed by reading it directly out of the `dafoam/opt-packages:latest` container). Reading
+`calcNut()` and `calcUTau()` line by line, there is exactly one genuine hard branch in the whole
+class:
+
+```cpp
+tmp<scalarField> tnutw(
+    max(scalar(0), sqr(calcUTau(magGradU)) / (magGradU + ROOTVSMALL) - nuw));
+```
+
+i.e. the wall-face turbulent viscosity `nutw` is clipped to exactly `0` whenever the raw Newton-
+converged value would be negative -- a genuine kink at `nutw == 0`. (Two other candidate branches
+were read and ruled out as inactive for this case: `if (tolerance_ != 1.e-14)` is never taken because
+`daOptions` never overrides the wall-function tolerance, so `tolerance_` stays at its `1.e-14`
+default; and `if (ROOTVSMALL < ut)` guards only against a literal near-machine-zero initial Newton
+seed, not a physical regime.)
+
+### 13.2 Measurement: does any wing-patch face cross the `nutw == 0` clip?
+
+`getOFField` (the only field-query API DAFoam exposes to Python) only returns a `volScalarField`'s
+**internal** field -- a wall function's face value lives in the `boundaryField`, which is not
+reachable through that API. So this session read it the direct way: off disk, from the field file
+OpenFOAM itself writes at convergence. `DASolver::solve()` calls `runTime.writeNow()`
+(`DASolver.C:205`) the moment `primalMaxRes < primalMinResTol`, regardless of `writeInterval` -- so
+every converged run leaves the wing patch's exact 126-face `nutw` array sitting in
+`<time>/nut(.gz)`'s `boundaryField` block. Run serial (`np=1`, capped `--cpus=3 --memory=3g`)
+specifically so that block lands in one plain file at `<caseDir>/<time>/nut`, with no processorN
+merging needed and the full 126-face patch visible in one place after a single `run_model()` call.
+Script: `work/NACA0012_Airfoil_Incompressible/probeWallBranch.py` (new this session). Five fresh,
+independent, single-shot processes were run: baseline (`shape=0`), idx6 at `+1e-4`/`-1e-4` (the
+defective LE combo mode), idx4 at `+1e-4`/`-1e-4` (control -- a well-agreeing, large-magnitude
+component, 2.6-3.0% FD error in every prior session). `h=1e-4` is the step already established
+(section 8.2, `A_stepsize_study.json`) to sit inside the well-converged, step-independent FD plateau
+for this exact case, so this is not a step-size artifact of the measurement itself.
+
+**Sanity cross-check (methodology validity, before trusting the result):** baseline CD from this
+serial probe, `2.091051001294601e-02`, matches the trusted np=4 production baseline
+(`2.091050986768742e-02`) to 8 significant figures. Central-difference `(CD+ - CD-)/(2h)` computed
+directly from this session's own 5 CD values gives idx6 = **-1.0661e-3** (established fresh-process
+value at this same step, section 8.2.3: -1.06544e-3 -- matches to 4 sig figs, sign negative, same as
+every trusted number in this document) and idx4 = **+3.9993e-2** (adjoint = +0.038938, ~2.6% off, the
+same healthy-agreement band established in every prior session). This confirms the probe reproduces
+the case's own established, trusted behavior in both directions (the broken one and the healthy one)
+before drawing any conclusion from the new measurement.
+
+**Result, read directly from the parsed `nut` boundaryField blocks (raw values and zero/near-zero
+counts in `probewallbranch_*_run1.log`, `PROBE`/`PROBE_VALUES`/`PROBE_ZEROMASK` lines):**
+
+| config | nZero (== 0.0 exactly) | global min nutw | at true LE stagnation face (idx 63) |
+|---|---|---|---|
+| baseline | 0 / 126 | 5.935e-06 | 5.9350e-06 |
+| idx6, h=+1e-4 | 0 / 126 | 5.940e-06 | 5.9402e-06 |
+| idx6, h=-1e-4 | 0 / 126 | 5.930e-06 | 5.9298e-06 |
+| idx4, h=+1e-4 | 0 / 126 | 5.933e-06 | 5.9335e-06 |
+| idx4, h=-1e-4 | 0 / 126 | 5.937e-06 | 5.9365e-06 |
+
+**Zero wing-patch faces are clipped (`nutw == 0`) at baseline, at either sign of idx6's perturbation,
+or at either sign of idx4's perturbation. Crossing count: idx6 = 0, idx4 (control) = 0.** The global
+minimum `nutw` anywhere on the patch, at every one of the 5 configurations, sits at the physical
+leading-edge stagnation face (patch index 63) at a stable ~5.93-5.94e-06 -- roughly 400x above the
+`max(0, ...)` clip floor, not near it. Under the h=1e-4 perturbation, that face's value moves by
++0.18%/-0.11% for idx6 and by -0.05%/-0.08% for idx4 (full 8-face near-LE table in the raw logs) --
+small, smooth, and not meaningfully more erratic for the broken component (idx6) than for the healthy
+control (idx4). No face anywhere on the patch, at any configuration tested, is within an order of
+magnitude of the branch.
+
+### 13.3 Verdict: the branch-crossing hypothesis is dead, cleanly
+
+**The coordinator's stated prediction ("idx6 crosses, idx4 does not") did not hold. Neither crosses.
+Both counts are exactly zero.** This is not "inconclusive" or "small effect below detection" --
+the measured nutw values sit ~400x away from the clip floor and move by well under a fifth of a
+percent between the plus and minus evaluations, at the exact face (the LE stagnation point, patch
+index 63) where the wall function's own physics makes this branch most likely to be approached. The
+one genuine hard branch that exists in DAFoam's actual, differentiated, container-verified wall-
+function source code for this case's actual boundary condition (`nutUSpaldingWallFunctionFvPatchScalarFieldDF`,
+Spalding's law, deliberately branch-free-by-formula across y+ regimes save this one clip) is never
+engaged anywhere on the wing patch, for either the defective component or the healthy control, at
+this case's own already-established well-converged FD step size. **Per the standing hard rule, this
+refutation is reported plainly: the SA wall-function switching-threshold hypothesis, as specifically
+and testably framed (a discrete branch on near-wall cell state that the plus/minus FD evaluations
+straddle), is refuted for A1 by direct measurement, not merely unconfirmed.**
+
+This adds a fourth ruled-out mechanism to the three already eliminated (FD/residual-tolerance noise,
+section 8.2; FFD/DVGeo Jacobian or shape-DV convention, section 8/11.1; plain coarse-mesh spatial-
+discretization error, section 11.2) and supersedes the frozen-wall-distance mechanism already
+separately refuted in section 12. **Root cause of the idx0/idx1/idx6 defect remains unidentified.**
+Two concrete, not-yet-tested candidates remain, both flagged by the coordinator going into this
+session and untouched by it: (1) idx6 is the LE **combo** mode (the only shape function whose FFD
+control points move the LE point and its mirror in *opposite* directions simultaneously to hold the
+LE fixed, per `runScript.py`'s `configure()`), unlike every one of idx0-idx5 which are single
+interior stations -- nobody has yet checked whether that combined perturbation produces a smooth
+volume-mesh deformation at the LE the same way a single-station perturbation does; (2) negative or
+near-degenerate cell volumes appearing transiently at the leading edge under either sign of
+perturbation, not yet checked via `checkMesh`/`DACheckMesh` output on the perturbed (not just
+baseline) meshes.
+
+### 13.4 Preflight check added
+
+Per the task's own instruction ("a wall-function case cannot be gradient-verified by finite
+difference at the wall without first checking for branch crossings" -- which this session's own
+result does NOT bear out for this specific mechanism, but the check is generically cheap and worth
+having on file for future cases that DO use a hard-switch wall function like `nutkWallFunction`), a
+`--check-wall-branch` note was considered for `scripts/case_preflight.sh` and NOT added: preflight
+runs before a solve, with no converged fields to inspect, so a real branch-crossing check can only
+run post-hoc (as `probeWallBranch.py` does here, off two already-converged perturbed solves) --
+bolting a no-op flag onto preflight for a check it structurally cannot perform would be misleading,
+not useful. `probeWallBranch.py` is kept in the case directory as the reusable, ready-to-run
+diagnostic for any future case using a hard-switching wall function.
+
+### 13.5 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeWallBranch.py` -- the fresh-process, off-disk
+  `nut` boundaryField probe script (new this session)
+- `probewallbranch_baseline_run1.log`, `probewallbranch_idx6_plus_run1.log`,
+  `probewallbranch_idx6_minus_run1.log`, `probewallbranch_idx4_plus_run1.log`,
+  `probewallbranch_idx4_minus_run1.log` -- the 5 raw runs behind this section's table, each
+  containing the full 126-value `nut` wing-patch array (`PROBE_VALUES`) and per-face zero mask
+  (`PROBE_ZEROMASK`)
+

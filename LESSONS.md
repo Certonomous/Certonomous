@@ -415,3 +415,49 @@ already said it was done.
 Same family as [L-6](#l-6-capture-a-pid-from-the-thing-you-launched-not-from-the-shell-that-launched-it)
 and [L-9](#l-9-a-directory-count-is-a-sample-not-a-state): a measurement that
 silently includes the observer.
+
+## L-11. A staged case that passes preflight can still encode an undocumented change of experimental variable
+
+**The rule.** When inheriting a case directory left behind by an interrupted
+agent, `case_preflight.sh` passing is necessary but not sufficient. Preflight
+checks *internal* consistency — do the fields on disk match the model named in
+`turbulenceProperties`, is the decomposition stale, and so on. It has no memory
+of what a sibling case in the same ladder did, so it cannot catch a **silent
+fork in methodology**: a case that is internally consistent but no longer
+comparable to the rungs before it. That check has to be made by eye — diff the
+new case's `constant/turbulenceProperties` and `0/` field list against the
+previous rung's — every time a case is inherited rather than freshly built.
+
+**Why.** The F5a cylinder Reynolds ladder ran Re 100 through Re 2000
+deliberately laminar: the bare incompressible Navier-Stokes equations, no
+turbulence model, because the whole point of the ladder is to measure what an
+*un-modelled* 2D solve predicts against 3D reality, so any deviation can be
+attributed to dimensionality and nothing else. The Re 3900 case, staged by an
+interrupted agent instance before this session began, had `simulationType RAS`
+with `kOmegaSST` and matching `0/k`, `0/omega`, `0/nut` fields — a complete,
+internally consistent kOmegaSST setup that `case_preflight.sh` passed cleanly,
+reporting `model: kOmegaSST` with every required field present.
+
+Launching it as staged would have moved two variables in the same rung:
+Reynolds number (the intended one) and turbulence closure (never decided or
+logged). A deviation at Re 3900 measured against that run could not have been
+attributed to dimensionality vs turbulence-model error vs the Re increase —
+exactly the compound-change failure P5 exists to prevent, on the one rung of
+this ladder ("the rung that matters") with the richest published reference
+data to grade it against.
+
+**How to apply.** Before launching an inherited case: diff its
+`constant/turbulenceProperties` and `0/` field list against the most recent
+prior rung in the same series. If they differ, that difference is either (a)
+an intentional, undocumented decision the previous agent made and never wrote
+down, or (b) accidental template contamination (see the false alarm this
+avoided: `system/fvSchemes` in the same cases carries `div(phi,k)` /
+`div(phi,omega)` entries inherited from an unrelated turbulence-model template
+in *every* rung, including the laminar ones — those are inert and harmless
+because no `k`/`omega` fields exist to trigger them, so a schemes-file diff
+alone would have produced a false positive). Distinguish the two by checking
+whether the file that actually switches physics (`turbulenceProperties`) is
+the one that changed, not files that merely carry dead configuration. Revert
+silently-forked methodology to match the established convention unless there
+is a documented, deliberate reason to change it — and if there is, log the
+change as its own decision, on its own rung, so it can be attributed later.
