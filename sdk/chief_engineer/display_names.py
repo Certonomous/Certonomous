@@ -40,6 +40,11 @@ _DISPLAY_NAMES: dict[str, str] = {
     "plate": "Canonical calibration body: plate",
     "flat_plate": "Canonical calibration body: plate",
     "cylinder": "Canonical calibration body: cylinder",
+    "cylinder_shedding": "Circular cylinder, unsteady vortex shedding configuration",
+    "supersonic_wedge": "Compression wedge, 15 degree ramp",
+    "supersonic_cone": "Axisymmetric cone, 10 degree half angle",
+    "diamond_airfoil": "Symmetric diamond airfoil",
+    "hypersonic_cylinder": "Circular cylinder, blunt body leading edge",
 }
 
 

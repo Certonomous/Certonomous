@@ -656,6 +656,11 @@ LITERATURE = {
     "gp": "Gaussian Processes for Machine Learning (Rasmussen & Williams)",
     "mesh-quality": "OpenFOAM mesh-quality guidance",
     "cfd-2030": "the NASA CFD Vision 2030 study",
+    "roshko-williamson": "Roshko (1954) and Williamson (1996) on cylinder-wake vortex shedding",
+    "oblique-shock": "the theta-beta-M oblique-shock relations (Anderson, Fundamentals of Aerodynamics)",
+    "taylor-maccoll": "the Taylor-Maccoll conical-flow solution (Anderson, Modern Compressible Flow)",
+    "shock-expansion": "shock-expansion theory for a symmetric diamond airfoil (Anderson)",
+    "billig": "the Billig (1967) shock-standoff correlation (Anderson, Hypersonic and High-Temperature Gas Dynamics)",
 }
 
 

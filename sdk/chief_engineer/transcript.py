@@ -107,7 +107,7 @@ class Transcript:
         return seen
 
     def render(self) -> str:
-        header = f"=== Certonomous mission transcript — {self.mission} ==="
+        header = f"=== Certonomous mission transcript: {self.mission} ==="
         return "\n".join([header, *(entry.render() for entry in self.entries)])
 
     def save(self, path: str | Path) -> Path:

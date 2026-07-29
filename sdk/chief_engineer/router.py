@@ -44,7 +44,42 @@ UNSEEN_GEOMETRY = "unseen-geometry"
 UNCERTAINTY_REDUCTION = "uncertainty-reduction"
 GEOMETRY_STUDY = "geometry-study"
 RACE_COMPARISON = "race-comparison"
+CYLINDER_VORTEX_SHEDDING = "cylinder-vortex-shedding"
+SUPERSONIC_WEDGE = "supersonic-wedge"
+SUPERSONIC_CONE = "supersonic-cone"
+DIAMOND_AIRFOIL = "diamond-airfoil-wave-drag"
+HYPERSONIC_CYLINDER = "hypersonic-cylinder"
 GENERAL_MISSION = "general-mission"
+
+# Five validated cases, each with its own analytic gate rather than a
+# published-experiment tolerance band: an unsteady wake against the
+# Roshko-Williamson Strouhal correlation, and four compressible bodies
+# against exact or near-exact inviscid theory (oblique-shock relations,
+# Taylor-Maccoll, shock-expansion wave drag, the Billig correlation). Each
+# fires on its own vocabulary so a plain-language request lands on the right
+# act rather than the generic geometry study.
+_VORTEX_SHEDDING = re.compile(
+    r"\b(vortex\s+shedding|strouhal|von[\s-]?k[aá]rm[aá]n|k[aá]rm[aá]n\s+street|"
+    r"shedding\s+frequency|periodic\s+wake|unsteady\s+cylinder)\b", re.I)
+_SUPERSONIC_WEDGE = re.compile(
+    r"\b(supersonic\s+wedge|oblique\s+shock|compression\s+wedge|"
+    r"wedge\s+half[\s-]?angle|weak\s+oblique\s+shock)\b", re.I)
+_SUPERSONIC_CONE = re.compile(
+    r"\b(supersonic\s+cone|taylor[\s-]?maccoll|conical\s+shock|"
+    r"cone\s+half[\s-]?angle)\b", re.I)
+_DIAMOND_AIRFOIL = re.compile(
+    r"\b(diamond\s+airfoil|biconvex\s+airfoil|double[\s-]?wedge\s+airfoil|"
+    r"shock[\s-]?expansion|wave\s+drag)\b", re.I)
+_HYPERSONIC_CYLINDER = re.compile(
+    r"\b(hypersonic\s+cylinder|shock\s+standoff|billig|blunt[\s-]?body|"
+    r"bow\s+shock)\b", re.I)
+# The four hardest validated cases, each wired as its own act rather than a
+# generic geometry study: the gate, the framing, and the output beat are all
+# specific to the body and the publication it is graded against.
+AHMED_BODY = "ahmed-body"
+NASA_HUMP = "nasa-hump"
+ONERA_M6 = "onera-m6"
+CRM_WINGBODY = "crm-wingbody"
 
 # Optimising lift-to-drag for an aircraft against mission requirements is a
 # distinct beat from the OpenFOAM shape sweep: it searches a wing design space.
@@ -59,6 +94,21 @@ _MISSION_REQ = re.compile(
 # cardiac cycle. Routes to the multi-point (cycle-decomposition) workflow.
 _VALVE = re.compile(
     r"\b(valve|leaflet|cardiac|pulsatile|systol\w+|orifice)\b", re.I)
+
+# The four hardest validated cases -- named-body patterns that outrank the
+# generic geometry-study scoring, so each gets its own act framing and its
+# own gate rather than being folded into the general geometry study.
+_AHMED_BODY_NAME = re.compile(
+    r"\bahmed\b.{0,20}\bbody\b|\bahmed\s*body\b|\b25\s*(?:deg(?:ree)?s?)?\s*"
+    r"slant\b", re.I)
+_NASA_HUMP_NAME = re.compile(
+    r"\bnasa\b.{0,20}\bhump\b|\bwall[\s-]?mounted\s+hump\b|"
+    r"\b(?:glauert[\s-]?goldschmied)\b.{0,10}\bhump\b|\b2d\s*wmh\b", re.I)
+_ONERA_M6_NAME = re.compile(
+    r"\bonera\b.{0,10}\bm6\b|\bm6\s+wing\b|\bonera[\s-]?m6\b", re.I)
+_CRM_WINGBODY_NAME = re.compile(
+    r"\bcrm\b.{0,10}\bwing\b|\bcrm[\s-]?wing\b|\bcommon\s+research\s+model\b|"
+    r"\bdpw\b.{0,10}\bwing\b", re.I)
 
 # A head-to-head speed comparison — a full Monte-Carlo sweep against a
 # reduced-order path on the same objective, both timed. The "race" act: it
@@ -340,6 +390,35 @@ def classify(request: str) -> Route:
     if _VALVE.search(text):
         add(VALVE_STUDY, 1.7,
             "screens a pulsatile internal flow by decomposing the cycle into phase points")
+    # --- the four hardest validated cases: named-body patterns outrank the
+    # generic geometry-study score so each keeps its own act and gate ---
+    if _AHMED_BODY_NAME.search(text):
+        add(AHMED_BODY, 2.0,
+            "names the Ahmed reference body, 25 degree slant")
+    if _NASA_HUMP_NAME.search(text):
+        add(NASA_HUMP, 2.0,
+            "names the NASA wall-mounted hump validation case")
+    if _ONERA_M6_NAME.search(text):
+        add(ONERA_M6, 2.0, "names the ONERA M6 transonic wing")
+    if _CRM_WINGBODY_NAME.search(text):
+        add(CRM_WINGBODY, 2.0, "names the CRM wing")
+    # --- five more validated cases: an unsteady wake and four compressible
+    # bodies, each gated against theory rather than a published band ---
+    if _VORTEX_SHEDDING.search(text):
+        add(CYLINDER_VORTEX_SHEDDING, 2.0,
+            "names vortex shedding or the Strouhal number off a cylinder")
+    if _SUPERSONIC_WEDGE.search(text):
+        add(SUPERSONIC_WEDGE, 2.0,
+            "names a supersonic wedge or an oblique shock")
+    if _SUPERSONIC_CONE.search(text):
+        add(SUPERSONIC_CONE, 2.0,
+            "names a supersonic cone or the Taylor-Maccoll relation")
+    if _DIAMOND_AIRFOIL.search(text):
+        add(DIAMOND_AIRFOIL, 2.0,
+            "names a diamond or biconvex airfoil, or asks for wave drag")
+    if _HYPERSONIC_CYLINDER.search(text):
+        add(HYPERSONIC_CYLINDER, 2.0,
+            "names a hypersonic cylinder or a shock standoff distance")
     # --- aircraft L/D optimization against mission requirements ---
     hold_workers = bool(_HOLD_WORKERS.search(text))
     if _LIFT_DRAG.search(text) and (_AIRCRAFT.search(text) or _MISSION_REQ.search(text)):
@@ -413,6 +492,41 @@ def classify(request: str) -> Route:
             "periodic, so I will decompose it into a few steady phase points, "
             "solve each, and cycle-weight the result — after the Chief Researcher "
             "rules the decomposition admissible for this Womersley number."),
+        AHMED_BODY: (
+            "Reading this as the Ahmed reference body, 25 degree slant. I will "
+            "mesh and solve it end to end and grade the converged drag against "
+            "Ahmed, Ramm & Faltin 1984, within ±15%."),
+        NASA_HUMP: (
+            "Reading this as the NASA wall-mounted hump. I will solve the "
+            "staged case and grade the converged separation and reattachment "
+            "against NASA's own published experiment."),
+        ONERA_M6: (
+            "Reading this as the ONERA M6 transonic wing. I will solve the "
+            "staged case and grade the converged surface pressure against the "
+            "AGARD reference at its seven published span stations."),
+        CRM_WINGBODY: (
+            "Reading this as the CRM wing. I will solve the staged case and "
+            "grade the converged drag against its published reference value."),
+        CYLINDER_VORTEX_SHEDDING: (
+            "Reading this as the unsteady cylinder wake. I will solve the "
+            "periodic shedding end to end and grade the measured Strouhal "
+            "number against the Roshko-Williamson correlation, within 0.7%."),
+        SUPERSONIC_WEDGE: (
+            "Reading this as flow over a supersonic wedge. I will solve the "
+            "case end to end and grade the measured shock angle against the "
+            "exact oblique-shock relations."),
+        SUPERSONIC_CONE: (
+            "Reading this as flow over a supersonic cone. I will solve the "
+            "case end to end and grade the measured shock cone against the "
+            "exact Taylor-Maccoll solution."),
+        DIAMOND_AIRFOIL: (
+            "Reading this as flow over a diamond airfoil. I will solve the "
+            "case end to end and grade the measured wave drag against exact "
+            "shock-expansion theory."),
+        HYPERSONIC_CYLINDER: (
+            "Reading this as hypersonic flow over a blunt cylinder. I will "
+            "solve the case end to end and grade the measured shock standoff "
+            "distance against the Billig correlation, within 0.70%."),
         AIRCRAFT_OPTIMIZATION: (
             "Reading this as an aircraft lift-to-drag optimisation against mission "
             "requirements. I will fix the requirements, search a wing design space "
@@ -494,4 +608,19 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                       "output": "unseen-geometry"},
     UNCERTAINTY_REDUCTION: {"module": "workflows.uncertainty_reduction",
                             "output": "uncertainty-reduction"},
+    AHMED_BODY: {"module": "workflows.ahmed_body", "output": "ahmed-body"},
+    NASA_HUMP: {"module": "workflows.nasa_hump", "output": "nasa-hump"},
+    ONERA_M6: {"module": "workflows.onera_m6", "output": "onera-m6"},
+    CRM_WINGBODY: {"module": "workflows.crm_wingbody", "output": "crm-wingbody"},
+    CYLINDER_VORTEX_SHEDDING: {
+        "module": "workflows.cylinder_vortex_shedding",
+        "output": "cylinder-vortex-shedding"},
+    SUPERSONIC_WEDGE: {"module": "workflows.supersonic_wedge",
+                       "output": "supersonic-wedge"},
+    SUPERSONIC_CONE: {"module": "workflows.supersonic_cone",
+                      "output": "supersonic-cone"},
+    DIAMOND_AIRFOIL: {"module": "workflows.diamond_airfoil",
+                      "output": "diamond-airfoil"},
+    HYPERSONIC_CYLINDER: {"module": "workflows.hypersonic_cylinder",
+                          "output": "hypersonic-cylinder"},
 }
