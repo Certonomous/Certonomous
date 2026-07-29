@@ -1,0 +1,69 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-8;
+        relTol          0.1;
+        smoother        GaussSeidel;
+    }
+
+    "(U|k|epsilon)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0.1;
+    }
+
+
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+
+    // k-epsilon-family transports (k, epsilon) instead of baseline's (k,
+    // omega). Same 5e-7 bracket the baseline used for "(U|p|k)" extended to
+    // epsilon -- single change (field name), same convergence criterion.
+    residualControl
+    {
+        "(U|p|k|epsilon)" 5e-7;
+    }
+    consistent          yes;
+}
+
+relaxationFactors
+{
+
+    equations
+    {
+        // DEVIATION (D9, documented): dropped from 0.7 to 0.3, same fix and
+        // same reason as channel1_rans_sweep/kEpsilon (see that file's
+        // comment) -- realizableKE hit the identical divergence pattern
+        // (see solve_registry/hump_realizableKE_20260729T035037Z.log).
+        U               0.9;
+        k               0.3;
+        epsilon         0.3;
+    }
+}
+
+
+// ************************************************************************* //

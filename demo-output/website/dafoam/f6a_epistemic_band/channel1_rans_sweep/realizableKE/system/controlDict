@@ -1,0 +1,99 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// DEVIATION (F6a, documented, same pattern as ladder B2 for the duct cases):
+// original controlDict loaded "libfrozenIncompressibleTurbulenceModels.so",
+// a custom library from the paper authors' thesis codebase, not distributed
+// in the public closure-challenge-benchmark clone and not part of stock
+// OpenFOAM. Removed here; RASModel kOmegaSST (see constant/turbulenceProperties)
+// resolves to OpenFOAM v2606's stock implementation instead.
+// libs ( "libfrozenIncompressibleTurbulenceModels.so" );
+
+#include "../fieldDef"
+
+startFrom       latestTime;
+
+stopAt          endTime;
+
+endTime         2000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+// D9: was $endTime (2000), which relies on the write firing exactly at a
+// multiple of writeInterval counted from THIS run's own start. That's fine
+// when startTime=0, but this case is seeded from a mapped initial condition
+// at time "1" (see INIT_NOTE.txt) -- 1999 steps from t=1 to t=2000 never
+// crosses a multiple of 2000, so the solver ran to completion (residuals
+// well converged, "End" printed) and wrote NOTHING, silently. Switched to a
+// small period so a checkpoint is guaranteed regardless of start-time
+// alignment.
+writeInterval   100;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+// DEVIATION: #includeFunc residuals/convergenceProbes/singleGraph_* dropped
+// (same v2606 caseDicts-path finding as B2). wallShearStress + wallValues
+// reinstated below as inline definitions (not #includeFunc, which failed
+// when invoked standalone via postProcess -- the sampledSurfaces "wallValues"
+// object needs wallShearStress already registered in the same run) so both
+// execute in sequence at each writeTime, matching the case's own
+// postProcess.sh intent (wallShearStress then wallValues sampling it).
+functions
+{
+    wallShearStress
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+        writeFields     yes;
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+
+    wallValues
+    {
+        type            surfaces;
+        libs            ("libsampling.so");
+        writeControl    writeTime;
+        surfaceFormat   raw;
+        fields          $wallValuesFields;
+        surfaces
+        (
+            wallValues
+            {
+                type        patch;
+                patches     (bottom);
+            }
+        );
+    }
+}
+
+
+// ************************************************************************* //

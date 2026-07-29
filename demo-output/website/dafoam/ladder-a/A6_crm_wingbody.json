@@ -30,7 +30,7 @@
     "T0_K": 300.0,
     "p0_Pa": 101325.0,
     "aoa0_deg": 2.11031707,
-    "M_inf_computed": 0.850,
+    "M_inf_computed": 0.85,
     "M_inf_computation": "a_inf = sqrt(gamma*R*T0), gamma=Cp/(Cp-R)=1005/(1005-286.99)=1.39972 from molWeight=28.97 Cp=1005, a_inf=347.15 m/s; M=295/347.15=0.8498",
     "CL_target": 0.5,
     "note": "run_model task uses fixed aoa0 from the tutorial defaults (not the CL-seeking optimizer); it happened to converge almost exactly to CL=0.5, indicating the tutorial's stock aoa0 was already tuned for this mesh/BC combination."
@@ -38,9 +38,16 @@
   "mesh": {
     "cells": 579072,
     "generation_method": "pyHyp hyperbolic extrusion (N=53 layers, s0=1e-4, marchDist=25*3.758151) from official CRM_surfMesh.cgns.tar.gz (github.com/dafoam/files), one cgns_utils coarsen pass, plot3dToFoam + autoPatch(45) + createPatch + renumberMesh",
-    "patches": {"wing": 11136, "inout": 11136, "sym": 7072},
+    "patches": {
+      "wing": 11136,
+      "inout": 11136,
+      "sym": 7072
+    },
     "ranks": 4,
-    "cells_per_rank_range": [145096, 146096],
+    "cells_per_rank_range": [
+      145096,
+      146096
+    ],
     "mesh_gen_wall_time_s_approx": 40,
     "mesh_gen_core_min_approx": 0.7,
     "checkMesh": {
@@ -55,7 +62,7 @@
     }
   },
   "primal": {
-    "primalMinResTol": 1.0e-8,
+    "primalMinResTol": 1e-08,
     "runs": [
       {
         "name": "attempt_1_discarded",
@@ -92,17 +99,61 @@
     "time_box_min": 75,
     "time_box_status": "well inside; ~61 minutes of margin unused",
     "residual_history": [
-      {"t": 1,    "CD": 0.0402452345676245,  "CL": 0.005111139200644266},
-      {"t": 100,  "CD": 0.03864382429624073, "CL": 0.3411838398073669},
-      {"t": 200,  "CD": 0.03117585080584735, "CL": 0.40362227137906},
-      {"t": 300,  "CD": 0.02248915990682303, "CL": 0.4791134169837613},
-      {"t": 400,  "CD": 0.02098850050994683, "CL": 0.4974525740380885},
-      {"t": 500,  "CD": 0.0208449029298164,  "CL": 0.500169184225855},
-      {"t": 600,  "CD": 0.02088300318018382, "CL": 0.5001786622700883},
-      {"t": 700,  "CD": 0.02090107562010679, "CL": 0.5000507542657709},
-      {"t": 800,  "CD": 0.02090260625462841, "CL": 0.5000130745553835},
-      {"t": 900,  "CD": 0.02090180942133302, "CL": 0.5000130615218661},
-      {"t": 1000, "CD": 0.02090143421526141, "CL": 0.5000146055201552}
+      {
+        "t": 1,
+        "CD": 0.0402452345676245,
+        "CL": 0.005111139200644266
+      },
+      {
+        "t": 100,
+        "CD": 0.03864382429624073,
+        "CL": 0.3411838398073669
+      },
+      {
+        "t": 200,
+        "CD": 0.03117585080584735,
+        "CL": 0.40362227137906
+      },
+      {
+        "t": 300,
+        "CD": 0.02248915990682303,
+        "CL": 0.4791134169837613
+      },
+      {
+        "t": 400,
+        "CD": 0.02098850050994683,
+        "CL": 0.4974525740380885
+      },
+      {
+        "t": 500,
+        "CD": 0.0208449029298164,
+        "CL": 0.500169184225855
+      },
+      {
+        "t": 600,
+        "CD": 0.02088300318018382,
+        "CL": 0.5001786622700883
+      },
+      {
+        "t": 700,
+        "CD": 0.02090107562010679,
+        "CL": 0.500050754265771
+      },
+      {
+        "t": 800,
+        "CD": 0.02090260625462841,
+        "CL": 0.5000130745553835
+      },
+      {
+        "t": 900,
+        "CD": 0.02090180942133302,
+        "CL": 0.5000130615218661
+      },
+      {
+        "t": 1000,
+        "CD": 0.02090143421526141,
+        "CL": 0.5000146055201552
+      }
     ],
     "final_field_residuals_t1000": {
       "U0_finalRes": 1.742194091036054e-09,
@@ -133,7 +184,7 @@
       "quoted_figure": "the original CD was 0.02090 (before the tutorial's own shape optimization reduces it to 0.01932, a 7.6% reduction -- optimization not attempted here, primal only)",
       "case_match": "Mach 0.85, Re 5e6, CL=0.5, ~579K cells, DARhoSimpleCFoam -- same case specification as run tonight",
       "our_CD": 0.02090143421526141,
-      "reference_CD": 0.02090,
+      "reference_CD": 0.0209,
       "deviation_pct": 0.0067,
       "deviation_counts": 0.021,
       "interpretation": "Essentially an exact reproduction of the tutorial's own published baseline -- validates that tonight's pipeline reproduces the officially documented behavior of this exact case. NOT evidence about DPW-VI wing-body drag-prediction accuracy; no such claim is made."
@@ -153,7 +204,7 @@
       "A3_fine_OOM_cells": 399360,
       "ratio_vs_A3_fine": 1.45,
       "A3_coarse_OOM_cells": 99840,
-      "ratio_vs_A3_coarse": 5.80
+      "ratio_vs_A3_coarse": 5.8
     },
     "true_dpw_grid_scale_cells": "7.2 million (L0 coarse) per docs/DPW-CRM-SCOPING.md -- two further orders of magnitude beyond this mesh",
     "what_a_gradient_would_need": "A host with materially more free RAM dedicated solely to this job with peak DAJacCon/DASolver RSS measured empirically first, OR DAFoam's untested adjUseColoring=False matrix-free path (trades memory for an unmeasured runtime cost). Neither attempted tonight."
@@ -174,5 +225,23 @@
       "runScript.py"
     ],
     "full_case_dir_not_committed": "/home/ubuntu/certonomous-runs/A6-crm-wing/ (large OpenFOAM binary/processor state, regenerable from pristine tutorial clone + documented commands)"
+  },
+  "cd": 0.02090143421526141,
+  "cd_reference": 0.0209,
+  "cl": 0.5000146055201552,
+  "deviation": "+0.007%",
+  "verdict": "PASS",
+  "control_room_reproduction": {
+    "note": "A fresh reproduction of this same case through the wired control-room act (workflows.crm_wingbody, act 9), on the compute host, not a re-derivation: unmodified CRM_Wing tutorial recipe, DARhoSimpleCFoam, mpirun -np 4, 1000 iterations.",
+    "mission_id": "crm-wingbody-crm_wingbody",
+    "cells": 579072,
+    "converged_iteration": 1000,
+    "cold_wall_seconds": 511.0,
+    "warm_wall_seconds": 1.17,
+    "warm_bit_identical_to_cold": true,
+    "certificate_tier": "VALIDATED",
+    "certificate_reached": true,
+    "gate": "+/-2% vs Cd 0.02090 (DAFoam CRM_Wing tutorial baseline)",
+    "recorded_utc": "2026-07-29T19:10:06Z"
   }
 }

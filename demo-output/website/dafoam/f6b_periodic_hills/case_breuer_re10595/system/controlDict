@@ -1,0 +1,97 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// libfrozenIncompressibleTurbulenceModels.so dropped: not distributed in the
+// public benchmark clone / not part of stock OpenFOAM (same finding as
+// F6a/F6c). Case uses stock kOmegaSST directly, no "baseline" augmented
+// model requested here, so nothing depends on that library for the forward
+// solve.
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;//writeNow
+
+endTime         10000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   1000;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  15;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   15;
+
+runTimeModifiable yes;//true;
+
+// #includeFunc residuals dropped: caseDicts/postProcessing/numerical/
+// residuals.cfg does not exist at that path in v2606 (same B2/F6a finding).
+// Solver residuals are read directly from the run log instead.
+// wallShearStress + wallValues reinstated as inline definitions (F6a
+// pattern) so both execute in sequence at each writeTime -- the sampledSurfaces
+// "wallValues" object needs wallShearStress already registered in the same run.
+functions
+{
+  #includeFunc  singleGraph_x0
+  #includeFunc  singleGraph_x1
+  #includeFunc  singleGraph_x2
+  #includeFunc  singleGraph_x3
+  #includeFunc  singleGraph_x4
+  #includeFunc  singleGraph_x5
+  #includeFunc  singleGraph_x6
+  #includeFunc  singleGraph_x7
+  #includeFunc  singleGraph_x8
+  #includeFunc convergenceProbes
+
+    wallShearStress
+    {
+        type            wallShearStress;
+        libs            (fieldFunctionObjects);
+        writeFields     yes;
+        executeControl  writeTime;
+        writeControl    writeTime;
+    }
+
+    wallValues
+    {
+        type            surfaces;
+        libs            ("libsampling.so");
+        writeControl    writeTime;
+        surfaceFormat   raw;
+        fields          (wallShearStress p);
+        surfaces
+        (
+            wallValues
+            {
+                type        patch;
+                patches     (bottomWall);
+            }
+        );
+    }
+}
+// ************************************************************************* //

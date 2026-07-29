@@ -1,0 +1,14 @@
+D9: realizableKE diverged from a uniform-freestream cold start twice (once at
+relax=0.7 -> SIGFPE by t=527, once at relax=0.15+upwind -> still diverging,
+>75% of cells velocity-limited by t~1200). The instability onsets within the
+first ~15 iterations, before under-relaxation has much effect, and is
+specific to realizableKE's variable-Cmu formulation under the hump's initial
+high-shear transient -- NOT present in plain kEpsilon from the identical
+cold start with the same relaxation fix.
+
+Fix applied here: initialize from kEpsilon's own converged t=2000 solution
+(U, p, k, epsilon, nut, phi) instead of the uniform-freestream 0/ state.
+This is a standard multi-stage RANS restart strategy (same mesh, same field
+names/dimensions, physically consistent) -- NOT a fit to the experimental
+target; kEpsilon's converged field carries no information about the NASA
+measurement. Relaxation kept at 0.3 (same as kEpsilon's working fix).

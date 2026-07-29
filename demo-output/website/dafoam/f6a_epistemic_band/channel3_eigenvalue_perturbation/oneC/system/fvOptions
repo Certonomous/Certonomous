@@ -1,0 +1,124 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// D9 channel 3 -- eigenvalue-perturbation model-form UQ (Emory, Larsson &
+// Iaccarino, Phys. Fluids 25, 110822 (2013); Iaccarino, Mishra & Ghili,
+// Phys. Rev. Fluids 2, 024605 (2017)). Full corner projection (Delta=1),
+// eigenvectors fixed (orientation preserved from the converged kOmegaSST
+// baseline), recomputed live from the evolving U/k/nut fields each outer
+// SIMPLE iteration (a coupled, not frozen, propagation -- documented choice,
+// see F6a_epistemic_band.md). perturbCorner selects which barycentric-map
+// vertex the local Reynolds-stress anisotropy eigenvalues are projected
+// onto: oneC = (-1/3,-1/3,2/3), twoC = (-1/3,1/6,1/6), threeC(isotropic) =
+// (0,0,0), in ascending-eigenvalue order to match Foam::eigenValues().
+
+limitVelocity1
+{
+    type            limitVelocity;
+    selectionMode   all;
+    max             70;
+}
+
+UQEigenPerturb
+{
+    type            vectorCodedSource;
+    active          true;
+    name            uqEigPerturb;
+
+    vectorCodedSourceCoeffs
+    {
+        selectionMode   all;
+        fields          (U);
+        name            uqEigPerturb;
+
+        perturbCorner   oneC;
+
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+
+        codeCorrect
+        #{
+        #};
+
+        codeConstrain
+        #{
+        #};
+
+        codeAddSup
+        #{
+            const fvMesh& mesh = this->mesh();
+            const volVectorField& U = eqn.psi();
+            const volScalarField& k = mesh.lookupObject<volScalarField>("k");
+            const volScalarField& nut = mesh.lookupObject<volScalarField>("nut");
+
+            const word corner(this->coeffs().get<word>("perturbCorner"));
+
+            vector eLambda(Zero);
+            if (corner == "oneC")
+            {
+                eLambda = vector(-1.0/3.0, -1.0/3.0, 2.0/3.0);
+            }
+            else if (corner == "twoC")
+            {
+                eLambda = vector(-1.0/3.0, 1.0/6.0, 1.0/6.0);
+            }
+            else if (corner == "threeC")
+            {
+                eLambda = vector(0, 0, 0);
+            }
+            else
+            {
+                FatalErrorInFunction
+                    << "perturbCorner must be oneC, twoC or threeC, got "
+                    << corner << exit(FatalError);
+            }
+
+            const volSymmTensorField Sij("Sij", symm(fvc::grad(U)));
+            const dimensionedScalar kSmall("kSmall", k.dimensions(), 1e-8);
+            const volScalarField bCoeff("bCoeff", (-1.0)*nut/max(k, kSmall));
+            volSymmTensorField bBoussField("bBoussField", bCoeff*Sij);
+
+            volSymmTensorField deltaR
+            (
+                "deltaR",
+                2.0*k*bBoussField - 2.0*k*bBoussField
+            );
+
+            const scalar kMinCell = 1e-8;
+            forAll(k, celli)
+            {
+                if (k[celli] < kMinCell) continue;
+
+                const symmTensor& bB = bBoussField[celli];
+                const vector eVals(eigenValues(bB));
+                const tensor eVecs(eigenVectors(bB, eVals));
+
+                const symmTensor bPert =
+                    eLambda.x()*sqr(eVecs.x())
+                  + eLambda.y()*sqr(eVecs.y())
+                  + eLambda.z()*sqr(eVecs.z());
+
+                deltaR.primitiveFieldRef()[celli] = 2.0*k[celli]*(bPert - bB);
+            }
+
+            eqn += fvc::div(deltaR);
+        #};
+    }
+}
+
+// ************************************************************************* //

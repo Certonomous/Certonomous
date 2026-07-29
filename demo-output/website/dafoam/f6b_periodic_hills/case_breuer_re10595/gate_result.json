@@ -1,0 +1,74 @@
+{
+  "ubar": 0.72,
+  "mesh": "PH_Breuer (Re_H=10595, Lx=9h, Ly=3.035h)",
+  "shipped_rans_baseline": {
+    "source": "/home/ubuntu/closure-challenge-benchmark/data/PH_Breuer/10000/wallShearStress",
+    "iteration": 10000,
+    "cf_zero_crossings_x_over_h": [
+      0.25901505747495196,
+      7.64389533736766
+    ]
+  },
+  "frohlich_2005_les_reference": {
+    "citation": "Frohlich, J., Mellen, C.P., Rodi, W., Temmerman, L., Leschziner, M.A. (2005). Highly resolved large-eddy simulation of separated flow in a channel with streamwise periodic constrictions. J. Fluid Mech. 526, 19-66.",
+    "separation_x_over_h": 0.2,
+    "reattachment_x_over_h_range": [
+      4.6,
+      4.7
+    ],
+    "reynolds_number": 10595,
+    "re_definition": "Re_H = U_bulk(hill crest) * h / nu"
+  },
+  "profile_scaled_mae_vs_LES": {
+    "shipped_rans_baseline": {
+      "per_station": {
+        "x0": {
+          "x_over_h": 0,
+          "n_points": 129,
+          "scaled_mae_percent": 8.779
+        },
+        "x1": {
+          "x_over_h": 1,
+          "n_points": 131,
+          "scaled_mae_percent": 7.107
+        },
+        "x2": {
+          "x_over_h": 2,
+          "n_points": 131,
+          "scaled_mae_percent": 7.953
+        },
+        "x3": {
+          "x_over_h": 3,
+          "n_points": 131,
+          "scaled_mae_percent": 10.212
+        },
+        "x4": {
+          "x_over_h": 4,
+          "n_points": 130,
+          "scaled_mae_percent": 15.071
+        },
+        "x5": {
+          "x_over_h": 5,
+          "n_points": 130,
+          "scaled_mae_percent": 16.048
+        },
+        "x6": {
+          "x_over_h": 6,
+          "n_points": 131,
+          "scaled_mae_percent": 18.713
+        },
+        "x7": {
+          "x_over_h": 7,
+          "n_points": 131,
+          "scaled_mae_percent": 16.242
+        },
+        "x8": {
+          "x_over_h": 8,
+          "n_points": 130,
+          "scaled_mae_percent": 12.477
+        }
+      },
+      "overall_percent": 12.511333333333333
+    }
+  }
+}

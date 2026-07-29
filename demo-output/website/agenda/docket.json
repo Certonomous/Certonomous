@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-29T20:21:20+00:00",
+ "generated_at": "2026-07-29T20:36:33+00:00",
  "proposals": [
   {
    "id": "r1-monitor-walltime-rule",
@@ -332,10 +332,11 @@
    "cost_basis": "estimate, from A1's measured 3.51 core-min per full check_totals cycle",
    "expected_knowledge_gain": "Either the root cause of the lab's longest-standing gradient defect, or the elimination of the most plausible remaining mechanism. Both outcomes end a line of inquiry rather than extending it. If confirmed, it also tells every future user of this stack that a wall-function case cannot be gradient-verified by finite difference at the wall without checking for branch crossings first, which is a transferable result, not a local fix.",
    "source_kind": "gate",
-   "status": "proposed",
+   "status": "done",
    "created_at": "2026-07-29T20:15:00Z",
-   "decided_at": null,
-   "decision_note": null
+   "decided_at": "2026-07-29T20:36:33+00:00",
+   "decision_note": null,
+   "dismiss_reason": "Hypothesis tested and KILLED. The differentiated wall-function source bound to this boundary condition was read directly and shown to contain exactly one genuine discrete branch, a clip to zero; two other candidate branches are provably inactive for this configuration. Wall-face values were then measured for five fresh independent runs - baseline, the suspect mode plus and minus, and a healthy control mode plus and minus. Zero of 126 wall faces are clipped at any configuration; the global minimum sits about 400 times above the clip floor and moves by under 0.2 percent, no more erratically for the broken mode than for the healthy control. The probe was validated by reproducing this case's own established finite-difference values to four significant figures, so the null result is a measurement rather than a broken instrument. Root cause remains unidentified. Successor hypothesis in flight: the suspect mode is the only combination mode among otherwise single-station modes, and its opposite-direction motion at a high-curvature leading edge may degrade cell quality asymmetrically between the two perturbation directions, so the check differences across two differently-degraded meshes while the adjoint linearises about the undegraded one."
   },
   {
    "id": "credential-layer-coverage-gate",
