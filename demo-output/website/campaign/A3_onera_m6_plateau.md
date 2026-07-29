@@ -75,6 +75,17 @@ the solver itself refused, and any use of them must say so:
 - CL 0.31311587
 - yPlus min 5.21, max 103.5, mean 33.8
 
+These three survive because the solver prints them every iteration. Nothing
+else does.
+
 The gate this act was built to test — surface pressure against AGARD AR-138 at
-seven span stations, eta 0.20 to 0.99 — is therefore **not evaluated**. No Cp
-deviation is claimed.
+seven span stations, eta 0.20 to 0.99 — is **not evaluated**, and the reason is
+stronger than editorial caution. DAFoam raises its error at the residual gate
+**after the iteration loop but before any field write**, so the case directory
+holds `0/` and no `3000/`. There is no converged field on disk to cut. The Cp
+comparison could not be run even if we wanted to run it, so no Cp deviation is
+claimed and none could be.
+
+*(That distinction — cannot be computed, rather than unwise to report — was
+established by the act's own agent checking the case directory rather than
+assuming from the log, and it is the more honest statement.)*
