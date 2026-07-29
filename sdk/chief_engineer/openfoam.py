@@ -79,6 +79,45 @@ _RADIAL_GRADING = 40.0        # cell-size expansion from cylinder to farfield
 _MAX_ITERATIONS = 2000
 
 
+def host_launch_prefix() -> list[str]:
+    """The argv prefix that reaches the OpenFOAM toolchain on THIS host.
+
+    One code path, both hosts. Resolution order:
+
+    1. ``OPENFOAM_RUN_PREFIX`` when set, split on whitespace. Explicit wins.
+    2. Native: if the toolchain is reachable from this process, no prefix at
+       all. On Linux the solver binaries live behind the ``openfoam2606``
+       launcher rather than on PATH, so callers still invoke that wrapper;
+       what they must NOT do is prepend a WSL hop that does not exist here.
+    3. WSL fallback, for the Windows laptop where the toolchain lives inside
+       a distribution and must be reached through ``wsl``.
+
+    Before this existed, two modules hard-coded the WSL form. On a Linux host
+    there is no ``wsl`` binary, so every act died before writing a log file --
+    the case directory was staged and then nothing happened, with no error
+    surfaced.
+    """
+    explicit = os.environ.get("OPENFOAM_RUN_PREFIX")
+    if explicit:
+        return explicit.split()
+    if shutil.which("openfoam2606") or available():
+        return []
+    if shutil.which("wsl"):
+        return ["wsl", "-d", "Ubuntu", "-u", "foam", "--"]
+    return []
+
+
+def host_run_prefix() -> list[str]:
+    """Like :func:`host_launch_prefix` but including the ``openfoam2606``
+    launcher itself, for callers that pass a prefix to an API rather than
+    building a ``bash -c`` line of their own."""
+    base = host_launch_prefix()
+    launcher = shutil.which("openfoam2606")
+    if base and shutil.which("wsl") and base[0] == "wsl":
+        return [*base, "openfoam2606"]
+    return ["openfoam2606"] if launcher else []
+
+
 def available() -> bool:
     """True when the real OpenFOAM toolchain is reachable from this process."""
     if os.environ.get("OPENFOAM_RUN_PREFIX"):

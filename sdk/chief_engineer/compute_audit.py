@@ -24,7 +24,11 @@ import subprocess
 from dataclasses import dataclass, field
 from typing import Any
 
-WSL = ["wsl", "-d", "Ubuntu", "-u", "foam", "--"]
+# Host-derived, not hard-coded: a WSL hop that does not exist on this
+# machine made the probe fail and report "compute node unreachable"
+# with 0 cores and 0 GB, on a box with 16 cores and 30 GB.
+from .openfoam import host_launch_prefix  # noqa: E402
+WSL = host_launch_prefix()
 SOLVER_PATTERN = "simpleFoam|snappyHexMesh|potentialFoam|blockMesh|interFoam|pimpleFoam"
 LOAD_MARKER = "certonomous-load"
 

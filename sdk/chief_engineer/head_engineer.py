@@ -35,13 +35,18 @@ from email.message import EmailMessage
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
+from .openfoam import host_launch_prefix
 from .log_signatures import (
     classify_wall_time,
     detect_oscillatory_divergence,
     detect_residual_stall,
 )
 
-WSL = ["wsl", "-d", "Ubuntu", "-u", "foam", "--"]
+# Resolved per host, never hard-coded. On the Linux compute box there is no
+# ``wsl`` binary, and a hard-coded WSL hop made every act die silently before
+# writing a log; on the Windows laptop the toolchain genuinely does live behind
+# ``wsl``. One code path serves both -- see openfoam.host_launch_prefix.
+WSL = host_launch_prefix()
 RUN_ROOT = "~/certonomous-runs"
 # The snapped mesh from a cold run is cached here, keyed by body, so a warm run
 # reuses it and skips the long snappyHexMesh stage. The cache holds the PATH

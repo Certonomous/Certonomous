@@ -13,7 +13,10 @@ SDK = Path(__file__).resolve().parents[1]
 if str(SDK) not in sys.path:
     sys.path.insert(0, str(SDK))
 
-RUN_PREFIX = ["wsl", "-d", "Ubuntu", "-u", "foam", "--", "openfoam2606"]
+# Resolved per host rather than hard-coded to WSL. See
+# chief_engineer.openfoam.host_run_prefix for why.
+from chief_engineer.openfoam import host_run_prefix  # noqa: E402
+RUN_PREFIX = host_run_prefix()
 OUT_ROOT = Path(os.environ.get(
     "CERTONOMOUS_OUTPUT",
     Path(__file__).resolve().parents[2] / "mission-output"))
