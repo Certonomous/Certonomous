@@ -35,6 +35,20 @@ construction, real gradient CLEAN), with w = the captured real dCD/dXv instead
 of np.random. The prediction under test: idx6 should still disagree badly,
 idx7 should now agree (unlike the random-seed test, where both failed alike).
 
+EXTENDED (second use of this script, same session): also tests idx0 and idx1,
+A1's other two flagged components -- both are real, step-independent 9-16%
+disagreements in the established check_totals record (PROOF.md sections 8.1-8.2),
+NOT sign-flipped, and BOTH are single-station modes by A1's own classification
+(interior FFD stations, not the opposing-direction LE/TE combo construction that
+defines idx6/idx7 -- see runScript.py's DV-construction loop: idx0/idx1 come
+from the `for i in range(1, pts.shape[0]-1)` single-point branch, not the
+`for i in [0, pts.shape[0]-1]` combo branch). Since the confirmed warpDeriv
+defect (section 15) was never observed on any single-station DV anywhere in
+this investigation (A1's own idx2-5, A5's 27 shapexUpper components, A2's 96
+shape DVs), the prediction here is that idx0/idx1 should come back CLEAN under
+this real-seed identity -- if they do not, they need a separate mechanism and
+A1 has two distinct defects, not one.
+
 No number here is adjusted, no seed is picked to fit -- w is whatever the real
 adjoint chain actually produced this run, taken verbatim.
 """
@@ -268,7 +282,7 @@ if Xv0_check.size != nXvLocal:
     )
 
 results = []
-for idx in [4, 6, 7]:
+for idx in [0, 1, 4, 6, 7]:
     for h in [1e-4, 1e-5]:
         ePlus = np.zeros(nShape)
         ePlus[idx] = h

@@ -1743,3 +1743,68 @@ session is that the one open piece of it (why idx6 and idx7 diverge despite an i
 - `probewarpderiv_realseed_idx4_idx6_idx7_np4_run1.log` -- raw stdout (primal convergence, adjoint GMRES
   log, the `REALSEED_RESULT` lines behind the section 17.3 table) behind this session's result
 
+## 18. Session 2026-07-29 (continued): idx0/idx1 tested under the real seed -- CLEAN of the warpDeriv defect, A1 confirmed to have two distinct mechanisms
+
+The coordinator's second open question: idx0 and idx1 (the interior LE-adjacent single-station FFD
+stations) carry a real, step-independent 9-16% disagreement each in the established `check_totals`
+record (section 8.1.1: idx0 11.94%, idx1 11.66%, both same-sign, NOT flipped) -- by the rule this
+investigation established (opposing-direction combination construction is NECESSARY for the `warpDeriv`
+defect; idx0/idx1 are single-station, structurally identical in kind to A1's own clean idx2-5 and every
+clean single-station DV in A5/A2), they should NOT carry this defect. Untested until now (section 15
+deliberately scoped to idx6/idx4 only).
+
+Extended `probeWarpDerivRealSeed.py`'s idx loop from `[4, 6, 7]` to `[0, 1, 4, 6, 7]` -- same script, same
+real captured `dCD/dXv` seed, same run (one primal + one CD adjoint solve, 12.9s total,
+`realseed_idx01_out.log`, `work/NACA0012_Airfoil_Incompressible/`):
+
+| idx | h | FD_scalar (real seed) | AN_scalar (real seed) | rel_err | sign | established `check_totals` rel. err (§8.1.1) |
+|---|---|---|---|---|---|---|
+| 0 | 1e-4 | -1.013378e-02 | -1.134164e-02 | **11.92%** | agree | 11.94% |
+| 0 | 1e-5 | -1.013394e-02 | -1.134164e-02 | **11.92%** | agree | 11.94% |
+| 1 | 1e-4 | -1.987770e-02 | -2.217957e-02 | **11.58%** | agree | 11.66% |
+| 1 | 1e-5 | -1.987788e-02 | -2.217957e-02 | **11.58%** | agree | 11.66% |
+| 4 | -- | (unchanged from section 17.3, reproduced bit-for-bit as a same-run sanity check) | | 2.65% | agree | -- |
+| 6 | -- | (unchanged from section 17.3) | | 634.0% | FLIPPED | -- |
+| 7 | -- | (unchanged from section 17.3) | | 1.74% | agree | -- |
+
+**idx0 and idx1 come back CLEAN of the pathological `warpDeriv` signature.** No sign flip, and the
+magnitude (11.92%/11.58%) matches the independently-measured real `check_totals` value (11.94%/11.66%)
+to within 0.02-0.08 percentage points -- i.e. this geometry-side reconstruction via `warpDeriv` adds NO
+excess disagreement beyond what the real, full-chain gradient already showed. This is categorically
+different from idx6, where the real-seed test showed a 634% gap and a flipped sign that the real
+`check_totals` number (11.43% aggregate, sign-flipped single component) already flagged as anomalous.
+For idx0/idx1, `warpDeriv` is simply reproducing the same, already-documented 9-16% gap -- it is not
+introducing or amplifying anything.
+
+**Conclusion: A1 has two distinct gradient-accuracy mechanisms, not one.** Mechanism 7 (`warpDeriv`
+mis-linearizing opposing-direction combination modes, reaching the gradient only where it overlaps
+`dCD/dXv`) explains idx6 (and would explain idx7 if idx7's real gradient were corrupted, which it is
+not). It does NOT explain idx0/idx1 -- their 9-16% disagreement needs a separate cause, which this
+session did not chase further (out of scope for this question) but which sections 8.1.2/11.2 of this
+document already characterized empirically without identifying a mechanism: step-independent (a genuine
+plateau, not FD noise) and, notably, WORSENING under mesh refinement (11.9%/11.7% -> 19.8%/14.5% at
+3.65x refinement, section 11.2) -- the opposite of a discretization error shrinking under refinement,
+and the opposite of idx6's behavior (sign flip, `warpDeriv`-traced, refinement-insensitive in the sense
+that it was never about mesh resolution). Whatever mechanism 8 turns out to be, it is confirmed here to
+be a different one from mechanism 7, localized to idx0/idx1 specifically (both interior LE-adjacent
+single-station modes), not general to all single-station DVs (A1's own idx2-5 are clean).
+
+### 18.1 Running tally, updated
+
+| # | mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted | 8.2 |
+| 2 | FFD/DVGeo Jacobian or shape-DV sign/ordering convention | refuted | 8, 11.1 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) omitting d(yWall)/d(shape) | refuted | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted | 13 |
+| 6 | combo-mode LE mesh pinching / degenerate cell volumes | refuted | 14 |
+| 7 | `mesh.warpDeriv` wrong linearization of opposing-direction combo modes, reaching the real gradient only where the defect overlaps `dCD/dXv` | **CONFIRMED (idx6 only, of idx6/idx7)** | 15, 16, 17 |
+| 8 | idx0/idx1's 9-16%, non-sign-flipped, refinement-WORSENING disagreement | **CONFIRMED DISTINCT from #7 (not `warpDeriv`); own mechanism not yet identified** | 18 |
+
+### 18.2 Evidence
+
+- `work/NACA0012_Airfoil_Incompressible/probeWarpDerivRealSeed.py` -- idx loop extended from `[4,6,7]`
+  to `[0,1,4,6,7]` this session (same script, same method as section 17)
+- `work/NACA0012_Airfoil_Incompressible/realseed_idx01_out.log` -- raw stdout for this run
+
