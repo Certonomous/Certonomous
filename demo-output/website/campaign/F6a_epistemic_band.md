@@ -5,13 +5,16 @@ interrupted four times (three host restarts, one API failure) without landing a
 record. The prediction file `f6a_epistemic_band/PREDICTION.md` was written by the
 agent **before any of these runs executed** and is scored below unedited.
 
-> **2026-07-29 update, in progress.** Channel 1 was incomplete and its lower
-> edge was resting on an unconverged number. Finishing it changes the
-> headline finding below (section 1) -- not just its margin, its **sign**.
-> See "2026-07-29: channel 1 completed, and the under-coverage claim breaks"
-> further down. `realizableKE` and a newly-discovered `SpalartAllmaras` gate
-> miss are still being worked; this note will be reconciled into the body
-> once all four channel-1 models are honestly converged.
+> **2026-07-29 update, reconciled.** Section 1 below originally scored the
+> pre-registered "channel 1 alone under-covers" prediction as CORRECT. It
+> is not — channel 1 was incomplete, its lower edge (kOmega) was resting on
+> an unconverged number, and finishing the sweep flips the verdict. Section
+> 1 has been rewritten in place to say so; the full evidence (per-model logs,
+> residuals, the SA oscillation, and the corrected baseline check) is in
+> "2026-07-29: channel 1 completed" further down. This is the corrected
+> version — the three public surfaces (benchmarks.html, Active Research
+> board, SPC speaking notes) were corrected from this same finding and
+> should already agree with it.
 
 ## The binary test
 
@@ -21,39 +24,60 @@ agent **before any of these runs executed** and is scored below unedited.
 **Answer: YES — but the band is very wide, and where the width comes from
 matters more than the pass.**
 
-## Measured
+## Measured (2026-07-29, channel 1 fully re-converged)
 
-| channel | model / corner | separation x/c | reattachment x/c | vs experiment |
-| --- | --- | --- | --- | --- |
-| — | **NASA experiment** | 0.6650 | **1.1000** | — |
-| — | kOmegaSST (our baseline) | 0.6544 | 1.2534 | **+13.95%** |
-| C1 | SpalartAllmaras | 0.6544 | 1.2092 | +9.93% |
-| C1 | kOmega | 0.6592 | 1.1299 | +2.71% |
-| C3 | oneC (one-component limit) | 0.5250 | 0.5278 | **−52.02%** |
-| C3 | twoC (two-component limit) | 0.6242 | 0.6701 | −39.08% |
-| C3 | threeC (isotropic limit) | 0.6589 | 1.1069 | **+0.63%** |
+| channel | model / corner | separation x/c | reattachment x/c | vs experiment | gate |
+| --- | --- | --- | --- | --- | --- |
+| — | **NASA experiment** | 0.6650 | **1.1000** | — | — |
+| — | kOmegaSST (our baseline) | — | 1.2534 | **+13.95%** | YES, converged in 1772 iter (checked 2026-07-29, see below) |
+| C1 | kOmega | 0.6620 | 1.0722 | **−2.53%** | YES (k final 1.37e-7) |
+| C1 | kEpsilon | 0.6679 | 1.1437 | +3.97% | YES (k final 4.35e-7) |
+| C1 | SpalartAllmaras | 0.6541 | 1.2061 | +9.65% | NO, oscillating floor not a gap — see below |
+| C1 | realizableKE | 0.6639 | 1.2503 | +13.66% | YES (k final 4.38e-8) |
+| C3 | oneC (one-component limit) | 0.5250 | 0.5278 | **−52.02%** | — |
+| C3 | twoC (two-component limit) | 0.6242 | 0.6701 | −39.08% | — |
+| C3 | threeC (isotropic limit) | 0.6589 | 1.1069 | **+0.63%** | — |
 
 **Band across all completed runs: [0.5278, 1.2534].** Experiment 1.100 lies
-inside. **CONTAINS.**
+inside. **CONTAINS.** (Unchanged by the channel-1 rework — the full band was
+always carried by channel 3's corners, see point 2 below.)
 
 ## Reading it honestly — three things matter more than the verdict
 
-### 1. Channel 1 alone does NOT contain the truth, exactly as predicted
+### 1. Channel 1 alone DOES contain the truth — the pre-registered prediction was FALSIFIED
 
-Inter-model spread over the linear eddy-viscosity models spans **[1.1299,
-1.2534]** — and the experimental 1.100 sits **below all of them**. Every linear
-model over-predicts the bubble.
+**This section originally said the opposite, scored as CORRECT, on the
+strength of a table where one of the four channel-1 entries (kOmega) had not
+met its own convergence gate.** Converged honestly, channel 1 now reads:
 
-The agent's prediction said precisely this, before running: *"the hump's
+| model | reattachment x/c | vs 1.100 | side | gate |
+| --- | --- | --- | --- | --- |
+| kOmega | 1.0722 | −2.53% | **under** | met |
+| kEpsilon | 1.1437 | +3.97% | over | met |
+| SpalartAllmaras | 1.2061 | +9.65% | over | not formally met (see below) |
+| realizableKE | 1.2503 | +13.66% | over | met |
+
+**Channel-1 range: [1.0722, 1.2503]. Experiment 1.100 is INSIDE it.** Three of
+four models over-predict; kOmega alone under-predicts, by a small margin. The
+range straddles the experimental value because the models disagree about
+which *side* of it they land on, not because any one of them was designed to
+bound it.
+
+The pre-registered prediction said the opposite would happen: *"the hump's
 bubble-length over-prediction is understood in the literature as a shared
-property of the whole linear-eddy-viscosity class ... expect all four to land in
-roughly the same neighborhood, not below it. **Prediction: channel 1 alone
-under-covers.**"* **That prediction is CORRECT.**
+property of the whole linear-eddy-viscosity class ... expect all four to land
+in roughly the same neighborhood, not below it. **Prediction: channel 1 alone
+under-covers.**"* **That prediction is FALSE.** It looked correct only while
+kOmega's number was propped up by 5800 fewer iterations than it needed — see
+"2026-07-29: channel 1 completed" below for the full account, including why
+this is the finding with the most teeth in the study precisely *because* it
+overturns the punchiest sentence in the original result, not despite that.
 
-This is the finding with the most teeth. **A band built from inter-model spread
-alone would have failed**, and it would have failed for a structural reason:
-sampling several members of one model class does not sample the error of the
-class itself.
+**What this does and does not mean for the underlying literature claim:**
+see "Straddling by disagreement is not the same as bracketing by
+construction" further down — the four-model spread containing 1.100 is a
+different, weaker kind of fact than channel 3's designed bounds containing
+it, and the two should not be read the same way.
 
 ### 2. The containment is carried by the eigenvalue perturbation, and that is
 the method behaving as designed
@@ -92,13 +116,25 @@ the literature was not incorporated in these runs.
 
 ## Caveats carried
 
-- **kOmega did not meet its residual gate** (k final ~2.8e-6 against a 5e-7 bar)
-  and is therefore an unconverged number. It defines the lower edge of the
-  channel-1 range, so that edge is soft. **RESOLVED 2026-07-29, see below —
-  and the fix changed the sign of kOmega's deviation, not just its size.**
-- `kEpsilon` and `realizableKE` case directories exist but have no converged time
-  directory — they did not complete, and no numbers are claimed for them.
-  **kEpsilon RESOLVED 2026-07-29. realizableKE in progress.**
+- ~~kOmega did not meet its residual gate~~ **RESOLVED 2026-07-29.** Converged
+  to k final residual 1.37e-7 at t=8000. The fix changed the sign of kOmega's
+  deviation, not just its size — see below.
+- ~~kEpsilon and realizableKE case directories exist but have no converged
+  time directory~~ **RESOLVED 2026-07-29.** Both diverged for different
+  reasons and both are now converged and gate-met — see below.
+- **SpalartAllmaras does not formally meet its gate as of 2026-07-29**
+  (Ux final residual oscillates in a ~5e-7 to ~2e-6 band rather than decaying
+  through it; nuTilda and Uz are under the bar). This was not previously
+  checked or flagged. Unlike kOmega's case, the reattachment *number* itself
+  is stable across 2200 extra iterations (1.2092 → 1.2071 → 1.2061, a 0.26%
+  drift) while the residual oscillates — treated as a converged-in-practice
+  value with the gate miss reported honestly rather than as an open item.
+  See "SpalartAllmaras: predicted before reading the result" below.
+- The baseline kOmegaSST case (+13.95%, the number the whole study is
+  answering to) was independently checked 2026-07-29 given two of four
+  channel-1 models turned out to have unmet gates: it converged cleanly,
+  "SIMPLE solution converged in 1772 iterations" against endTime=2000, U/p/k
+  at 5e-7 and omega at 1e-10. Not a soft number.
 - Separation is far better predicted than reattachment across every entry, which
   is consistent with the documented behaviour: these models get the onset roughly
   right and the recovery wrong.
@@ -158,7 +194,7 @@ both models were silently tracking a field that doesn't exist for them.
 kEpsilon result: separation x/c=0.6679, reattachment x/c=**1.1437**, **+3.97%**
 vs experiment.
 
-### realizableKE: harder divergence, different root cause, in progress
+### realizableKE: harder divergence, different root cause, now converged
 
 realizableKE diverged even at k=epsilon=0.3 (velocity-limiting hit 75-95% of
 cells within ~15-25 iterations — a much faster, more severe blowup than
@@ -176,77 +212,149 @@ of the uniform-freestream `0/` state, documented in
 `channel1_rans_sweep/realizableKE/INIT_NOTE.txt`. This is a standard
 multi-stage RANS restart strategy, not a fit to the experimental target:
 kEpsilon's converged field carries no information about the NASA measurement,
-only about the flow physics both models solve. A short foreground test from
-this IC (relaxation back at 0.3, original schemes) ran cleanly to k final
-residual 6.8e-7 by t~980 with zero cells velocity-limited. Status: launched
-for the full run; result to be folded in here once it lands.
+only about the flow physics both models solve. Converged from that IC at
+relaxation 0.3, original schemes: k final residual 4.38e-8, epsilon 1.01e-8,
+both far under the 5e-7 gate.
 
-### A finding the original brief didn't flag: SpalartAllmaras *also* missed its gate
+A second bug surfaced along the way: `writeInterval $endTime` (only write at
+the literal end) combined with resuming from a synthetic start time of "1"
+meant the run could converge, print "End", and write **nothing** — no
+crash, no error, confirmed-converged residuals sitting only in the log, zero
+new field data on disk. Caught by checking for the expected time directory
+rather than trusting "the process exited cleanly." Fixed by switching to
+periodic `writeInterval 100`; final numbers taken from t=1901 (last
+checkpoint, residuals already ~4e-8, an order of magnitude under gate).
 
-While re-checking convergence status of all four channel-1 models (not just
-the one the brief named), the case-directory `log.simpleFoam` for SA turned
-out to be a stale fragment from an earlier aborted attempt (its last entry is
-t=369; the case's actual `2000/` directory postdates it by 8 minutes). The
-authoritative log is `solve_registry/hump_SpalartAllmaras_20260729T023234Z.log`,
-and at t=2000 it shows: **Ux final residual 8.86e-7, Uz final residual
-1.51e-6, nuTilda final residual 1.263e-6** — all above the case's own 5e-7
-gate (`residualControl "(U|p|nuTilda)" 5e-7`). SA's published +9.93% is
-therefore *also* an unconverged number, exactly the same class of problem
-kOmega had, just never checked. Fix (extend `endTime`, resume from
-`latestTime`, no relaxation or gate changes) is queued and will run next;
-SA's number may move, though a swing large enough to change its side of 1.100
-would need to be roughly 4x kOmega's swing in relative terms, which is not
-expected but will be measured, not assumed.
+realizableKE result: separation x/c=0.6639, reattachment x/c=**1.2503**,
+**+13.66%** vs experiment — the largest over-prediction of the four
+channel-1 models, close to the kOmegaSST baseline's own +13.95%.
+
+### SpalartAllmaras: predicted before reading the result
+
+Re-checking convergence status of all four channel-1 models (not just the
+one the brief named) turned up a second unmet gate. The case-directory
+`log.simpleFoam` for SA was a stale fragment from an earlier aborted attempt
+(last entry t=369; the case's actual `2000/` directory postdates it by 8
+minutes). The authoritative log,
+`solve_registry/hump_SpalartAllmaras_20260729T023234Z.log`, shows at t=2000:
+**Ux final residual 8.86e-7, Uz 1.51e-6, nuTilda 1.263e-6** — all above the
+5e-7 gate. Extended `endTime` 2000→3200 and resumed.
+
+**Prediction, written before reading the resumed run's result:** nuTilda and
+Ux/Uz were decaying cleanly and monotonically at t=2000, the same pattern
+kOmega showed right before it moved substantially. If SA behaves like
+kOmega, the number could move a lot. I do not expect that, for a reason
+visible before the final answer: at t=3200 (1200 more iterations), Ux had
+*not* continued its clean decay — after reaching ~5.4e-7 near t=2600 it
+began oscillating with growing amplitude, plateauing around 1.8e-6, while
+the reattachment number itself barely moved (1.2092 → 1.2071, a 0.17% drift)
+over those same 1200 iterations. That is the signature of a small persistent
+unsteady mode (plausibly shear-layer flapping near reattachment) holding the
+formal SIMPLE residual up while the mean solution is already close to
+stationary — a residual floor, not a slow monotonic transient. **Prediction:
+extending further will not bring the reattachment number materially closer
+to 1.100; it will stay in the 1.19-1.21 neighborhood, and Ux will keep
+oscillating rather than cross the gate.** I would be surprised, and would
+need to retract this, if the extended run instead showed continued
+monotonic drift at anything like kOmega's rate.
+
+**Result at t=4200 (2200 more iterations):** Ux final residual 1.446e-6 —
+still oscillating, still has not crossed 5e-7 (its oscillation envelope is
+slowly decaying, ~1.86e-6 at t=3201 down to ~1.45e-6 by t=4200, but nowhere
+near done). Reattachment x/c: **1.2061** — down from 1.2071, a further 0.08%
+drift. Total drift from t=2000 to t=4200 (2200 iterations): **1.2092 →
+1.2061, −0.26%.** The prediction holds: SA is not moving toward 1.100, and
+more iterations mostly cycle the residual rather than the physical answer.
+
+**Reported honestly: SA's gate is NOT formally met** (Ux residual has not
+crossed 5e-7; nuTilda and Uz have). No further extension is planned — the
+evidence above (three checkpoints across 2200 iterations, reattachment
+stable to within 0.3%) supports treating 1.2061 as the physically converged
+value despite the open residual, rather than chasing an oscillating
+bookkeeping number for diminishing returns. This is reported as a plateau
+with its value, per the study's own standing rule for models that will not
+cleanly converge — not resolved by relaxing the gate, because the gate was
+never relaxed and still reads NO.
 
 ### Does the pre-registered "channel 1 alone under-covers" claim survive?
 
-**No — and it already breaks without waiting for realizableKE or the SA
-re-run.** The claim, stated in `PREDICTION.md` before any of these runs
+**No.** The claim, stated in `PREDICTION.md` before any of these runs
 executed, was that all four channel-1 models would land on the
 over-predicting side of 1.100, because the bubble-length bias is a property
-of the whole linear-eddy-viscosity class, not a per-model quirk. With kOmega
-now honestly converged at 1.0722 (**under** 1.100) sitting alongside SA
-(1.2092, over — pending its own re-check) and kEpsilon (1.1437, over), the
-channel-1 range already straddles the experimental value:
+of the whole linear-eddy-viscosity class, not a per-model quirk. All four
+channel-1 models are now honestly converged (SA's residual gate is the one
+exception, and its physical answer is stable — see above), and the range is:
 
-**Channel 1 range (kOmega, kEpsilon, SA-as-currently-reported; realizableKE
-pending): [1.0722, 1.2092]. Experiment 1.100 is INSIDE this range.**
+**Channel 1 range: [1.0722, 1.2503]. Experiment 1.100 is INSIDE this range.**
+kOmega alone under-predicts (−2.53%); kEpsilon, SA, and realizableKE all
+over-predict (+3.97%, +9.65%, +13.66%).
 
 That is the opposite of "channel 1 alone under-covers." The pre-registered
-prediction is **falsified** by the completed sweep, not confirmed. This does
-not mean the underlying literature claim (linear EVMs share a reattachment
-bias) is wrong in general — kOmega is still close to the other models in
-absolute terms (1.07 vs 1.14-1.21, a much tighter spread than channel 3's
-corners) and the SST *baseline* (1.2534) and SA and kEpsilon are all still
-over-predicting by comparable amounts. What changed is a boundary condition:
+prediction is **falsified**, not confirmed. This does not mean the
+underlying literature claim (linear EVMs share a reattachment bias) is wrong
+in general — three of four models still over-predict by comparable amounts,
+and kOmega's under-prediction is a small margin (−2.53%) next to how far the
+others over-predict (up to +13.66%). What changed is a boundary condition:
 kOmega happens to sit *just* on the near side of 1.100 rather than just past
 it, and "under-covers" as a binary claim about whether the class straddles
 the experimental value is exactly the kind of claim a difference of ~0.03 in
 x/c can flip. The claim was falsifiable and it was falsified — reported as
 such, not softened.
 
-**Falsifiability, stated before reading final numbers (per the record's own
-practice):** the claim breaks if and only if at least one channel-1 model
-converges to reattachment x/c < 1.100 while at least one other converges to
-x/c > 1.100 (a straddle), OR all four converge to x/c < 1.100 (a clean
-reversal). kOmega crossing to 1.0722 already satisfies the straddle
-condition against SA (1.2092) and kEpsilon (1.1437), independent of what
-realizableKE or the SA re-check produce. Those two remaining numbers can
-change the range's exact edges and could in principle produce the "clean
-reversal" case instead of "straddle" (if SA's re-check also drops below
-1.100), but they cannot un-break the claim — the straddle is already locked
-in by three independently-converged numbers.
+**Falsifiability, as stated mid-investigation (before realizableKE or SA's
+extension landed):** the claim breaks if and only if at least one channel-1
+model converges to reattachment x/c < 1.100 while at least one other
+converges to x/c > 1.100 (a straddle), or all four converge to x/c < 1.100
+(a clean reversal). kOmega's crossing to 1.0722 already satisfied the
+straddle condition against SA and kEpsilon before either realizableKE or
+SA's extension ran; both landed as predicted (over-predicting, not flipping
+the outcome) and the final range confirms a straddle, not a reversal.
 
-### Updated table (channel 1, in progress)
+### Straddling by disagreement is not the same as bracketing by construction
+
+Channel 1's range now contains 1.100. Channel 3's range also contains 1.100.
+These look like the same kind of result and are not.
+
+Channel 3's `oneC`/`twoC` corners are **deliberately constructed** extremal
+states of the Emory/Iaccarino barycentric-map perturbation — a method
+designed to bound plausible Reynolds-stress anisotropy. If that method is
+implemented correctly, containing the truth is closer to a *guarantee* than
+a *finding*: the corners are chosen precisely to overshoot in both
+directions. Containment there validates the machinery, not the specific
+number.
+
+Channel 1's range contains 1.100 for a different and much less structural
+reason: four independent closure models, none of them designed to bound
+anything, happened to disagree about which side of 1.100 they land on. That
+disagreement is not large — kOmega's under-prediction (−2.53%) and the
+others' over-predictions (+3.97% to +13.66%) are all modest compared to
+channel 3's designed spread (−52% to +14%). The straddle exists because
+kOmega's converged value (1.0722) happens to sit 0.0278 below 1.100, a gap
+about half the size of the gap between kOmega and kEpsilon, the next-closest
+model. Nothing about the RANS closure literature predicts *that specific
+margin*; it is what four particular coefficient sets and wall treatments
+produced on this particular mesh. A slightly different mesh, a slightly
+different convergence point, or a fifth linear model could easily have
+landed the whole class on one side, exactly as `PREDICTION.md` expected.
+
+The practical consequence: channel 1's containment should not be read as
+"inter-model spread is a validated uncertainty band, use it going forward."
+It is closer to a coincidence that happened to be informative — worth
+reporting exactly as measured, not worth promoting to a method. Channel 3
+remains the part of this study that is a *method*; channel 1, even now that
+it contains the truth, is a *sample of four points that disagreed enough to
+straddle it once*.
+
+### Final table (channel 1 complete)
 
 | channel | model / corner | separation x/c | reattachment x/c | vs experiment | gate met |
 | --- | --- | --- | --- | --- | --- |
 | — | **NASA experiment** | 0.6650 | **1.1000** | — | — |
-| — | kOmegaSST (our baseline) | 0.6544 | 1.2534 | +13.95% | not re-checked here |
-| C1 | SpalartAllmaras | 0.6544 | 1.2092 | +9.93% | **NO (1.26e-6 vs 5e-7) — re-run queued** |
-| C1 | kOmega | 0.6620 | **1.0722** | **−2.53%** | **YES (1.37e-7)** |
-| C1 | kEpsilon | 0.6679 | 1.1437 | +3.97% | **YES (4.35e-7)** |
-| C1 | realizableKE | — | — | — | run in progress |
+| — | kOmegaSST (our baseline) | — | 1.2534 | +13.95% | **YES** (1772 iter, checked 2026-07-29) |
+| C1 | kOmega | 0.6620 | **1.0722** | **−2.53%** | **YES** (k final 1.37e-7) |
+| C1 | kEpsilon | 0.6679 | 1.1437 | +3.97% | **YES** (k final 4.35e-7) |
+| C1 | SpalartAllmaras | 0.6541 | 1.2061 | +9.65% | **NO** (Ux oscillates ~1.4e-6; physically stable, see above) |
+| C1 | realizableKE | 0.6639 | 1.2503 | +13.66% | **YES** (k final 4.38e-8) |
 
 Separation x/c for kOmega also moved slightly with convergence (0.6592 →
 0.6620); still close to the other models', consistent with the standing
