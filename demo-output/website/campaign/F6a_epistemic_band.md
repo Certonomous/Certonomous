@@ -432,6 +432,14 @@ when.
 
 ### The containment-breaking Delta cannot be established from converged data
 
+> **Update, same day, later.** The "untested window" this section describes
+> below was filled a few hours after this was written — Delta=0.175, 0.20,
+> 0.225 were run and none of them converged either. See "2026-07-29, later:
+> the decisive window filled" at the end of this file for the gate-checked
+> table and the resulting verdict. The paragraph below is left as written,
+> since it was true when it was written and the gap it describes is exactly
+> what got tested next.
+
 The two converged points (0.00 → 1.2534, 0.05 → 1.3077) are both above
 1.100, and 0.05 moved *away* from the experiment relative to 0.00, not
 toward it — the response is non-monotonic near the origin before whatever
@@ -529,3 +537,167 @@ as for model accuracy.
   documented (Delta=0.10, not 0.25), and is a standing objection to reading
   "reattachment x/c" as a single comparable scalar in that regime — not an
   artifact of any one non-converged run.
+
+---
+
+## 2026-07-29, later: the decisive window filled — the correlation holds, not just at the extremes
+
+The gap identified above — Delta=0.175, 0.20, 0.225 never run, sitting
+exactly where the containment crossing would have to be if the trend from
+0.15 to 0.25 were smooth — was filled the same day. All three checked
+against the gate the same way as everything above: `SIMPLE solution
+converged` string count, and each field's **Initial** residual against
+`residualControl` (`(U|p|k)` 5e-7, `omega` 1e-10) — not the Final residual.
+Holding the L-14 line explicitly this time, since it is the exact trap that
+cost this study the Delta=0.25 conclusion earlier the same day.
+
+### Gate-checked: none of the three converged
+
+| Delta | `SIMPLE solution converged`? | Initial residuals at t=3800 (gate: U/p/k 5e-7, omega 1e-10) | verdict |
+| --- | --- | --- | --- |
+| 0.175 | 0 occurrences | Ux 1.00e-7 (ok), Uz 1.41e-6 (fail), p 1.70e-6 (fail), omega 5.45e-10 (fail, 5.4× over), k 9.94e-9 (ok) | **NOT converged** |
+| 0.20 | 0 occurrences | Ux 1.47e-6 (fail), Uz 1.27e-5 (fail), p 2.09e-5 (fail), omega 3.00e-8 (fail, 300× over), k 1.30e-6 (fail) | **NOT converged** — worst of the three |
+| 0.225 | 0 occurrences | Ux 1.97e-7 (ok), Uz 2.01e-6 (fail), p 1.97e-6 (fail), omega 9.41e-10 (fail, 9.4× over), k 8.70e-9 (ok) | **NOT converged** |
+
+Tracked over the last 1800 iterations (t=2000→3800), none of the three
+show a decaying trend on their failing fields — p and Uz oscillate around a
+plateau at 0.175 and 0.225, and at 0.20 the p residual is trending *up*
+(4.19e-5 → 6.08e-5 → 9.22e-5 → 1.13e-4 across that window, i.e. getting
+worse, not better, as the run proceeds). Same signature as Delta=0.25:
+residual floor, not slow convergence caught mid-transient.
+
+**Every single run at Delta ≥ 0.10 has now failed its gate.** That is seven
+non-control points (0.10, 0.15, 0.175, 0.20, 0.225, 0.25 by residual floor;
+0.50, 0.75 by outright divergence — eight, counting both) covering the
+entire tested range beyond the two converged control points, with zero
+exceptions. This is no longer three data points at the extremes — it is
+continuous coverage of the interval that matters, and the correlation
+between "moves toward or past 1.100" and "fails to converge" holds across
+all of it.
+
+### What actually happens in the window, and it is not a smooth interpolation between 0.15 and 0.25
+
+The wall-shear crossings in this window are not a tidy bridge between
+Delta=0.15's ~1.36–1.38 and Delta=0.25's ~0.71. Instead the bubble
+structure re-organizes: a short bubble reappears near the same location as
+the fully-converged control (sep ~0.64–0.65, reattach ~0.70–0.72), followed
+by a second separation that does not close until far downstream — x/c 1.38
+at Delta=0.175, 1.42 at Delta=0.20, and by Delta=0.225 the flow downstream
+of x/c≈1.46 breaks into a cluster of six more sign crossings packed into
+0.13 of a chord, right at the edge of the sampled domain:
+
+- Delta=0.175: sep 0.6495 → reattach 0.7191 → sep 0.7336 → reattach 1.3778 (4 crossings)
+- Delta=0.20: sep 0.6474 → reattach 0.7089 → sep 0.7624 → reattach 1.4216 → sep 1.4415 → reattach 1.4461 → sep 1.5950 (7 crossings)
+- Delta=0.225: sep 0.6434 → reattach 0.7049 → sep 0.7984 → reattach 1.4621 → [6 more crossings between 1.46 and 1.59] (13 crossings total downstream of the leading edge)
+
+None of this is a single-valued "reattachment x/c." Reporting any one
+number from this window as *the* reattachment point would misrepresent
+what the wall-shear trace actually shows.
+
+### Verdict on the correlation: it holds across the decisive interval, not just at the extremes
+
+Per this task's earlier framing, three failed points at the extremes
+(0.25, 0.50, 0.75) were a pattern, not a result. Eight failed points
+covering Delta=0.10 through 0.75 continuously, including the exact window
+where a containment crossing would have to sit, is a different kind of
+evidence. Combined with the topology finding above — the bubble does not
+smoothly shrink through this window, it splits into a near-wall remnant of
+the control-case bubble plus a much longer, increasingly fragmented
+downstream structure — the working interpretation is:
+
+**Tightening this band by scanning Delta for containment is not merely
+circular here. On the evidence gathered on this mesh with these schemes,
+no genuinely converged, single-bubble steady solution exists anywhere in
+the Delta range that would be needed to bring reattachment down to 1.100.**
+That is a stronger and more useful claim than "we could not tighten it" —
+it says *why*: the perturbation strong enough to move the mean flow toward
+the experimental value also pushes it into a flow topology (a
+short near-wall bubble plus a long, unsteady downstream separated region)
+that a steady RANS solve cannot represent as a fixed point on this
+discretization. Whether that limit is intrinsic to the physics or an
+artifact of this specific mesh/scheme combination is exactly what the two
+diagnostics below are for — this section reports the observation, not the
+attribution.
+
+### Are the non-convergence and the fragmentation the same phenomenon, or two?
+
+**The same phenomenon, on the evidence gathered.** Every converged run
+(0.00, 0.05) has a single clean bubble. Every non-converged run (0.10
+through 0.75) is fragmented, and fragmentation severity tracks
+non-convergence severity step for step: 0.10/0.15 have a small
+secondary crossing riding on a mild residual floor; 0.175/0.20/0.225 have a
+genuinely split bubble structure (near-field remnant plus a long,
+increasingly multi-valued downstream region) riding on a residual floor
+that in one case (0.20) is actively getting worse with iteration count; 0.50
+and 0.75 are total numerical noise riding on outright divergence. There is
+no run in this sweep where one occurs without the other. The coherent
+reading is that a genuinely steady SIMPLE iteration requires a genuinely
+steady flow topology to converge *to*; once the perturbation is strong
+enough to push the mean flow into a state with more than one candidate
+separation/reattachment structure, there is no single fixed point for the
+outer iteration to find, and what gets logged as a "residual floor" is the
+iteration hunting between quasi-steady states that a true unsteady
+simulation would resolve as a low-frequency oscillation (bubble
+pulsing/shear-layer flapping) rather than a bug. This reading is
+consistent with, not a repeat of, the SpalartAllmaras residual-floor entry
+elsewhere in this record, which showed the same signature (oscillating
+residual, near-stationary mean field) from an unrelated cause (a model
+difference, not an imposed anisotropy perturbation) — the mechanism
+proposed here is specific to this sweep and has not been independently
+confirmed, which is exactly what the mesh and scheme diagnostics below
+test.
+
+### Separation stays well-posed while reattachment does not — worth stating on its own
+
+Across every point in this sweep that has not fully diverged (Delta=0.00
+through 0.225), the *first* separation crossing is a single, smooth,
+monotonically decreasing number, fragmentation-free even where everything
+downstream of it is not: 0.6544 → 0.6534 (0.05) → 0.6523 (0.10) → 0.6507
+(0.15) → 0.6495 (0.175) → 0.6474 (0.20) → 0.6434 (0.225) → 0.6396 (0.25).
+Reattachment, over that same span, goes from a single converged number, to
+two crossings, to a split bubble with a downstream tail that fragments
+into more crossings the higher Delta goes. Only at Delta=0.50/0.75, where
+the solution has diverged outright, does separation stop being
+well-behaved too — but that is total solution breakdown, a different and
+more severe failure than fragmentation. This extends the pattern already
+on record from channel 1 ("separation onset is the easy part, recovery is
+the hard part," a statement about *accuracy*) into a statement about
+*numerical well-posedness*: separation location is not just easier to get
+right, it is easier to compute a fixed point for. It stays a well-posed
+scalar quantity across the entire range where reattachment stops being one.
+
+### Diagnostics launched to separate an intrinsic limit from a fixable artifact
+
+Two single-variable probes were launched at the already-established
+failing point Delta=0.25, neither replacing the original non-converged
+sweep point, neither touching a gate or a relaxation factor:
+
+- **`oneC_delta0.25_boundedU`** — one change: `div(phi,U)` switched from
+  `bounded Gauss linearUpwind unlimited` to `bounded Gauss linearUpwind
+  limited`, i.e. the momentum convection scheme now uses the same bounded
+  gradient reconstruction (`cellLimited Gauss linear 1`) that k and omega's
+  convection already used. The asymmetry — turbulence quantities bounded,
+  momentum not — was present in every case in this sweep and is a
+  plausible numerical (not physical) contributor to instability in a
+  reversing/recirculating shear layer.
+- **`oneC_delta0.25_finemesh`** — same case, mesh refined 4× in the two
+  physically relevant in-plane directions via `refineMesh -dict
+  ... -all` (51,626 → 206,504 cells; confirmed via edge-length statistics,
+  not assumed, that the true empty/spanwise direction was left untouched;
+  `checkMesh` reports a valid mesh, max non-orthogonality 43.1°, max
+  skewness 0.74). One mechanical fix was required and is recorded here
+  because it touches case files: `refineMesh` does not remap hardcoded
+  nonuniform boundary-profile lists (`U_inlet`, `k_inlet`, `omega_inlet`,
+  `p_inlet`, `p_outlet`, each a literal 83-entry list describing the
+  inlet/outlet boundary-layer profile), so the first launch attempt failed
+  immediately with a field-size mismatch (83 vs. the refined patch's 166
+  faces). Fixed by duplicating each entry onto its two child faces in
+  order — the same piecewise-constant mapping `refineMesh` performs
+  automatically for internal fields — not by altering any value. This is a
+  mesh-topology fix, not a tuning of the physics or the gate.
+
+Both were run to the same t=3800 cap and the same residualControl gate as
+every other point in this sweep. Results were not available at the time
+this section was written; they will be appended as a further dated update
+rather than folded into this one, so the sequence of what was known when
+stays honest.
