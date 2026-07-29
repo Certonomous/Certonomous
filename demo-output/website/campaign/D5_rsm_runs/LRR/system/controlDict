@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// DEVIATION (B2, documented): original controlDict loaded
+// "libfrozenIncompressibleTurbulenceModels.so", a custom library from the
+// paper authors' thesis codebase. It is NOT distributed in the public
+// closure-challenge-benchmark clone (no source, no .so, no submodule) and
+// is not part of stock OpenFOAM. Removed here; RASModel kOmegaSST resolves
+// to OpenFOAM v2606's stock implementation instead. This case (00Baseline/
+// beta11, i.e. beta=1 uncorrected) has no fvOptions term referencing the
+// custom RST/beta fields, so this substitution should be inert for the
+// baseline -- but it is NOT independently verified against the custom
+// library's source, since that source could not be obtained.
+// libs ( "libfrozenIncompressibleTurbulenceModels.so" );
+
+
+startFrom       latestTime;
+
+stopAt          writeNow;
+
+endTime         500000;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   $endTime;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+// DEVIATION (B2, documented): original functions block included
+// "residuals" (#includeEtc caseDicts/postProcessing/numerical/residuals.cfg)
+// and "convergenceProbes". OpenFOAM v7 (Foundation) ships residuals.cfg;
+// OpenFOAM v2606 (OpenCFD/ESI, this box's install) renamed the equivalent
+// function object to "solverInfo" and does not ship residuals.cfg at the
+// same path -- confirmed by directory listing
+// ($FOAM_ETC/caseDicts/postProcessing/numerical/ contains only
+// solverInfo{,.cfg} in v2606). Both function objects are diagnostics/
+// postProcessing only (convergence probes, residual logging) and do not
+// affect the solved field. Dropped rather than ported, since B2's scope is
+// the converged baseline field, not the paper's diagnostic plots.
+functions
+{
+}
+
+
+// ************************************************************************* //

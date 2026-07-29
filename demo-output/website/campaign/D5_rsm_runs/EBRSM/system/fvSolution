@@ -82,7 +82,7 @@ relaxationFactors
     {
         U               0.9;
         "(k|omega)"     0.8;
-        "(R|epsilon|f)"   0.5;
+        "(R|epsilon|f)"   0.3;
     }
 }
 
