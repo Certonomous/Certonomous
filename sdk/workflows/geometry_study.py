@@ -1150,7 +1150,7 @@ def main(request: str | None = None, params: dict | None = None,
                         time.sleep(per_point)
             elapsed = max(1.0, time.time() - started)
             ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            stage_row("simpleFoam", elapsed, note)
+            stage_row("selected solver", elapsed, note)
             roster.set_workers(0)
         else:
             for step, base, note in (
