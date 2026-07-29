@@ -12,6 +12,43 @@ Last updated: 2026-07-28 00:5x UTC.
 
 ---
 
+## Headline result: the uncertainty machinery predicted a NASA model error before the run
+
+On the NASA wall mounted hump, our model form uncertainty band contains the
+documented reattachment error, and the prediction that it would was written
+down before the runs executed.
+
+The product thesis is that the lab bounds its own trust. This is that thesis
+tested against a real, independently published model form bias, not against
+our own numbers.
+
+The scientifically serious part is what the inter model spread alone would
+have missed. The linear turbulence models cluster above the experimental
+value. None of them reach it on their own. Containment only comes once the
+band includes physics based anisotropy bounds, not more members of the same
+model family. Sampling several members of one model class does not sample the
+error of the class itself.
+
+| Quantity | Value |
+| --- | --- |
+| Experiment reattachment x/c | 1.100 |
+| Our baseline reattachment x/c | 1.2534, a +13.95% error |
+| Inter model spread alone | 1.1299 to 1.2534, does not contain the experiment |
+| Full band across all channels | 0.5278 to 1.2534, contains the experiment |
+| Closest single perturbation to experiment | 1.1069, +0.63% |
+
+- The prediction was committed to the record before any of the runs that
+  scored it.
+- The band is wide, a factor of roughly 2.4. Containment is necessary. It is
+  not sufficient on its own.
+- The honest claim is that the machinery bounded a real published error and
+  said so in advance, not that the uncertainty is tight.
+- The ambition ahead is to tighten the band while it still holds the truth,
+  and to test the same machinery against another independently documented
+  case.
+
+---
+
 ## Ladder A — DAFoam verification and reproduction
 
 | Rung | Case | Status | Headline measured result |
