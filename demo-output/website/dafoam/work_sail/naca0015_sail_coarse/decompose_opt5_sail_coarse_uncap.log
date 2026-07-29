@@ -1,0 +1,109 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar -force
+Date   : Jul 29 2026
+Time   : 22:07:38
+Host   : ip-172-31-43-247
+PID    : 243
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/case
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [3] (region region0)
+
+Finished decomposition in 0.13 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+Reading hexRef8 data : cellLevel
+Reading hexRef8 data : pointLevel
+Reading hexRef8 data : level0Edge
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+Processor 0
+    Number of cells = 21184
+    Number of points = 26702
+    Number of faces shared with processor 1 = 764
+    Number of faces shared with processor 2 = 445
+    Number of processor patches = 2
+    Number of processor faces = 1209
+    Number of boundary faces = 3324
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+Processor 1
+    Number of cells = 21356
+    Number of points = 25033
+    Number of faces shared with processor 0 = 764
+    Number of faces shared with processor 2 = 1068
+    Number of processor patches = 2
+    Number of processor faces = 1832
+    Number of boundary faces = 3720
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+Processor 2
+    Number of cells = 21380
+    Number of points = 24488
+    Number of faces shared with processor 0 = 445
+    Number of faces shared with processor 1 = 1068
+    Number of processor patches = 2
+    Number of processor faces = 1513
+    Number of boundary faces = 3756
+
+Number of processor faces = 2277
+Max number of cells = 21380 (0.3441802252815963% above average 21306.66666666667)
+Max number of processor patches = 2 (0% above average 2)
+Max number of faces between processors = 1832 (20.68511198945982% above average 1518)
+
+Time = 0
+
+Processor 0: field transfer
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Processor 1: field transfer
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Processor 2: field transfer
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+
+End
+
