@@ -1737,12 +1737,11 @@ async function uploadSurface(e) {
   finally { e.target.value = ''; }
 }
 
-// The on-screen missions run motorBike, b52 and the NACA 4412 wing. Per the
-// owner directive the wall shows the active-research programmes and the graded
-// rows for these mission bodies only; the wider graded library is curated off
-// the wall (the server serves mission bodies alone, and no case-library
-// section renders here).
-const MISSION_BODIES = new Set(['motorBike', 'b52', 'naca4412_wing']);
+// Curation lives in ONE place: the server's _WALL_BODIES. This used to hold a
+// second copy of that list, and the two drifted -- bodies added server-side
+// were silently filtered back out here, so the wall kept showing a single card
+// while the endpoint was serving four. The wall now renders what the server
+// serves.
 async function loadCredentials() {
   const host = $('credentials');
   try {
@@ -1772,7 +1771,7 @@ async function loadCredentials() {
     // Mission bodies only: every card comes straight from a graded
     // /api/credentials row, and the server already curates the wall to the
     // bodies the on-screen missions run.
-    const missionRows = rows.filter(r => MISSION_BODIES.has(r.name));
+    const missionRows = rows;
     const missionCards = missionRows.length
       ? `<div class="cred-subhead"><span class="eyebrow">Mission bodies</span>`
         + `<div class="cred-src">Graded rows for the bodies the missions on screen run.</div></div>`
