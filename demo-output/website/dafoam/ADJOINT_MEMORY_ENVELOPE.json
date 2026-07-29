@@ -1,0 +1,152 @@
+{
+  "directive": "D3",
+  "date_utc": "2026-07-29",
+  "status": "partial -- options 1 and 2 measured, options 3 and 4 queued, option 5 partial (cross-case envelope only, controlled sweep still needed)",
+  "prior_wall_going_in": {
+    "works_cells": [4032, 63920],
+    "fails_cells": {
+      "156089": "dies mid Jacobian-coloring",
+      "99840": "OOM at 8g container cap (prior session); this session: fits under 20g with new levers but adjoint DIVERGED_BREAKDOWN",
+      "399360": "OOM at both 12g and 18g container caps"
+    },
+    "eight_prior_mitigations_ruled_out": [
+      "12g container memory cap", "18g container memory cap",
+      "4-rank decomposition", "2-rank decomposition",
+      "gmresRestart 1000->200", "pcFillLevel 1->0"
+    ],
+    "structural_cause": "OpenMDAO reverse-mode sweep for any requested total derivative unconditionally builds a mesh-sized d[residuals]/d[vol_coords] Jacobian block, regardless of the requested wrt=",
+    "3d_mesh_factor": "DAFoam rejects OpenFOAM empty patches (DACheckGeometry.C:278, 'Mesh geometric directions is less than 3 and not supported'), reproduced in ladder-b/B3_work/fixA_kbounds/stage2_serial_run3.log:471. Every nominally-2D DAFoam case is a true 3D solve; both Jacobian blocks are sized for the 3D mesh."
+  },
+  "options": [
+    {
+      "id": 1,
+      "name": "matrix-free / Jacobian-free adjoint (adjUseColoring=False)",
+      "predicted_effect": "Source-confirmed (DAJacCon.C ~line 1946): brute-force fallback assigns one unique color per matrix row instead of graph-coloring (375 colors for A1's 4032-cell case). Predicted ~53x more residual evaluations for this case, growing with mesh size (state DOFs / colors).",
+      "case": "A1 NACA0012, 4032 cells, 2 ranks",
+      "runs": [
+        {
+          "tag": "v1_cache_contaminated",
+          "cache_state": "stale dRdWColoring_2.bin from an earlier unrelated session present at launch",
+          "wall_s": 302,
+          "peak_rss_mib": 1188.864,
+          "outcome": "INCONCLUSIVE -- log shows it read the cached 375-color file, never exercised the brute-force path. Discarded.",
+          "time_boxed_s": 300
+        },
+        {
+          "tag": "v2_cache_deleted",
+          "cache_state": "no coloring cache file (verified absent before launch)",
+          "wall_s": 15,
+          "peak_rss_mib": 1137.664,
+          "exit_code": 1,
+          "outcome": "CRASH -- DAColoring.C:1021 'Conflicting Colors Found', during dRdWTPC preconditioner coloring validation, before the adjoint GMRES solve"
+        },
+        {
+          "tag": "v3_cache_deleted_reverified_no_timebox",
+          "cache_state": "no coloring cache file (verified absent before launch, no auto-kill this time)",
+          "wall_s": 15,
+          "peak_rss_mib": 1130.496,
+          "exit_code": 1,
+          "outcome": "CRASH -- identical to v2, reproduced. row 0 and row 18239 both assigned 'color 0' and flagged as conflicting; dRdWTPC coloring is read unconditionally (DASolver.C:1043, not gated by adjUseColoring, no prior existence check unlike the main dRdW coloring path at DASolver.C:718-737)."
+        }
+      ],
+      "measured_before": "n/a (crashes, no adjoint solve reached)",
+      "measured_after": "n/a (crashes, no adjoint solve reached)",
+      "verdict": "RULED OUT -- reproducibly crashes in preconditioner coloring setup (2/2 clean attempts) whenever no pre-existing valid coloring cache exists on disk. Cannot rescue the OOM cases (99840, 399360 cells) because they never complete a coloring pass in the first place, so they can never have that cache. Stronger finding than the anticipated 'trades memory for runtime' -- it does not reach the point where that tradeoff could even be evaluated.",
+      "do_not_retry": "on any case that has never had a successful coloring run"
+    },
+    {
+      "id": 2,
+      "name": "reduced ILU fill / alternative preconditioner families",
+      "preconditioner_family_check": {
+        "method": "source read only, no run needed",
+        "source": "DALinearEqn.C lines 185-267",
+        "finding": "PC stack is hardcoded: global PC = PCASM (adjEqnOption.asmOverlap tunable), local/sub-domain PC = PCILU (adjEqnOption.pcFillLevel tunable, already ruled out 1->0 in prior session). No user-facing switch to Jacobi or block-Jacobi -- compiled in, not exposed via daOptions.",
+        "verdict": "NOT AVAILABLE without patching and recompiling libDASolver.so -- out of scope, definitively ruled out by source inspection"
+      },
+      "new_levers_found": {
+        "maxResConLv4JacPCMat": "per-field connectivity level for the reduced dRdWTPC preconditioner matrix, default 2, lowered to 1",
+        "jacLowerBounds": "Jacobian entry sparsification threshold, default 1e-30 (effectively off), raised to 1e-12 (dRdW) / 1e-10 (dRdWPC)",
+        "prior_session_status": "neither was tried in A3's original 8 mitigations"
+      },
+      "measured_small_case": {
+        "case": "A1 NACA0012, 4032 cells, 2 ranks, coloring cache intact (clean control)",
+        "baseline": {
+          "config": "pcFillLevel=1 (default), default connectivity",
+          "peak_rss_mib": 2185.216, "wall_s": 31,
+          "gmres_iters": [164, 165], "petsc_converged_reason": [2, 2],
+          "CD": 0.0209105098587985, "CL": 0.4987652667308054
+        },
+        "sparsify_variant": {
+          "config": "maxResConLv4JacPCMat=1 all fields, jacLowerBounds raised",
+          "peak_rss_mib": 1538.048, "wall_s": 47,
+          "gmres_iters": [422, 435], "petsc_converged_reason": [2, 2],
+          "CD": 0.0209105098587985, "CL": 0.4987652667308054,
+          "note": "bit-identical CD/CL to baseline; GMRES still converges cleanly"
+        },
+        "memory_delta_pct": -29.6,
+        "runtime_delta_x": 1.5,
+        "verdict": "WORKS -- genuine, previously-untried, disclosed ~30% peak-RSS reduction with correctness fully preserved, at a modest 1.5x runtime cost. Best result of the whole study so far."
+      },
+      "measured_near_wall_case": {
+        "case": "A3 ONERA M6 coarse, 99840 cells, DARhoSimpleCFoam (compressible, transonic, SA), 4 ranks -- OOM'd at 8g in the prior session",
+        "runs": [
+          {
+            "tag": "sparsify_plus_pcFillLevel0",
+            "config": "sparsify levers stacked on prior session's pcFillLevel=0",
+            "memcap": "20g", "peak_rss_mib": 18421.76, "wall_s": 524, "exit_code": 0,
+            "petsc_converged_reason_CD_CL": [-5, -5],
+            "note": "DIVERGED_BREAKDOWN on both. Process completes and prints a full derivative dict and 'Residual tolerance satisfied' despite the -5 code -- same false-success pattern the prior A3 session already caught once (attempt #6). Derivatives NOT trustworthy."
+          },
+          {
+            "tag": "sparsify_plus_pcFillLevel1_reverted",
+            "config": "sparsify levers, pcFillLevel reverted to 1 (default) to test whether fill=0 specifically caused the breakdown",
+            "memcap": "20g", "peak_rss_mib": 20480.0, "peak_censored_at_cap": true, "wall_s": 403, "exit_code": 0,
+            "petsc_converged_reason_CD_CL": [-5, -5],
+            "note": "Still DIVERGED_BREAKDOWN -- rules out pcFillLevel as the cause of the breakdown. Also needs >= the full 20 GB test cap (censored, true peak unknown, only a lower bound)."
+          }
+        ],
+        "verdict": "SPLIT RESULT -- memory blocker and convergence blocker are SEPARATE on this case. The sparsify levers measurably shrink memory (completes under 20g where 8g OOM'd in the prior session -- a real, disclosed win) but do NOT fix, and are not shown to cause, DIVERGED_BREAKDOWN, which reproduces at both fill=0 and fill=1. No working (converged) adjoint gradient obtained at 99840 cells by any combination tried, this session or before."
+      }
+    },
+    {
+      "id": 3,
+      "name": "more ranks (8, 16)",
+      "status": "NOT YET RUN this session",
+      "predicted_effect": "Per-rank peak RSS should drop roughly proportional to rank count for domain-decomposed state/Jacobian data; fixed per-rank overhead (MPI, PETSc, OpenFOAM runtime, Python/OpenMDAO) does not shrink and may grow slightly with inter-rank communication buffers, so returns should diminish past some rank count.",
+      "queued": true
+    },
+    {
+      "id": 4,
+      "name": "coarse-adjoint-mesh boundary",
+      "status": "NOT YET RUN this session (partial answer from existing cross-rung data)",
+      "known_boundary": "Adjoint succeeds at 63920 cells (naca0015_sail_coarse, FD-verified PASS) and fails at 99840 cells (A3 coarse -- OOM at 8g, and per option 2, DIVERGED_BREAKDOWN even with more memory) and 156089 cells (dies mid-coloring). The working/failing boundary is therefore between 63920 and 99840 cells, narrower than the previously-stated 10^3-10^4 order-of-magnitude estimate.",
+      "queued": ["probe ~80000 cells to pin the boundary more precisely", "check whether A4's fine mesh (45760 cells, primal-only so far) can run a direct adjoint without coarsening to the already-proven 2777"]
+    },
+    {
+      "id": 5,
+      "name": "scaling-law study (bytes per cell)",
+      "status": "PARTIAL -- cross-case envelope only, not yet a controlled single-geometry sweep",
+      "caveat": "Each data point below is a different pre-existing case (different solver, field count, rank count, design-variable count). A global bytes/cell constant fit across all of them would overstate precision; reported as an honest envelope, not a regression.",
+      "data_points": [
+        {"case": "A1 NACA0012", "cells": 4032, "solver": "DASimpleFoam (incompressible, SA)", "ranks": 2, "peak_rss_mib": 2185.216, "censored": false},
+        {"case": "A5 U-Bend", "cells": 4800, "solver": "DASimpleFoam (incompressible, SA)", "ranks": 4, "peak_rss_mib": 2664.448, "censored": false},
+        {"case": "naca0015_sail_coarse", "cells": 63920, "solver": "DASimpleFoam (incompressible, SA)", "ranks": 3, "peak_rss_mib": 10240.0, "censored": true, "censor_note": "hit exactly the 10g test cap; true peak higher, needs re-measurement at a materially higher cap"},
+        {"case": "A3 ONERA M6 coarse (sparsify levers)", "cells": 99840, "solver": "DARhoSimpleCFoam (compressible, transonic, SA, +T field)", "ranks": 4, "peak_rss_mib": [18421.76, 20480.0], "censored": "partially (fill1 variant censored at 20g)", "note": "different solver family, not directly comparable to the incompressible points; GMRES diverged on this case (see option 2), so this is a memory-only data point"}
+      ],
+      "same_family_naive_ratio": {
+        "note": "4032->2185MiB and 4800->2664MiB alone give a NEGATIVE intercept on a 2-point line (nonphysical), meaning these two points are not a clean controlled pair either (different rank counts, different DV counts). A real bytes/cell constant needs a controlled same-geometry sweep.",
+        "4032_cells_mib_per_cell": 0.542,
+        "4800_cells_mib_per_cell": 0.555
+      },
+      "qualitative_conclusion": "Peak RSS crosses from ~2-3 GiB at 4-5k cells to double-digit GiB by 99,840 cells (compressible case) -- consistent with, not contradicting, the previously-established 12g/18g OOM wall at 399,360 cells.",
+      "queued": "controlled sweep: 3-4 more points on ONE mesh family (reuse A1 NACA0012 geometry/pyHyp recipe at different resolutions), same rank count and DV set throughout, to fit a defensible linear model and predicted ceiling"
+    }
+  ],
+  "hardware_recommendation": {
+    "status": "WITHHELD -- options 1-5 not yet exhausted (3 and 4 not run this session, 5 is partial). Per directive, this only goes to the docket as a costed proposal once the sequence completes. Nothing provisioned.",
+    "provisional_note": "The 99,840-cell transonic case alone needs >=18.4-20.5 GB peak RSS even with every memory lever tried so far, and still does not produce a usable gradient at that size (DIVERGED_BREAKDOWN, a separate blocker from memory). 399,360 cells has never completed under 18 GB."
+  },
+  "commit_discipline": "git add of specific paths only, never -A -- concurrent agents share this repo",
+  "raw_logs_uncommitted_scratchpad": "/tmp/claude-1000/-home-ubuntu-Certonomous/982d6244-5800-47f3-a450-80ce0b0a24b7/scratchpad/logs/",
+  "solve_registry_records": "demo-output/website/solve_registry/d3_*"
+}
