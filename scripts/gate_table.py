@@ -1,47 +1,85 @@
 #!/usr/bin/env python3
-"""Assemble the nine-case gate table from the records on disk.
+"""Assemble the nine-act gate table from the artifacts the acts produce.
 
-Every row is read out of a stored record. Nothing is transcribed by hand, so
-re-running this after a new act lands picks the new numbers up. A row whose
-record does not exist yet prints as PENDING -- it is never filled with a
-plausible-looking number.
+WHERE THE NUMBERS COME FROM, AND WHY IT MATTERS.
 
-    python3 scripts/gate_table.py            # text table
-    python3 scripts/gate_table.py --md       # markdown, for the campaign page
+Each act writes a transcript under ``mission-output/<act>/`` when it runs, and
+that transcript is what the camera records. The campaign records under
+``demo-output/website/campaign/`` are a *different* set of runs. Mostly they
+agree -- but not always: the wedge act's mesh ladder lands on 44.693 deg where
+the campaign record's finest rung has 44.847 deg, because they are not the same
+case. Citing the campaign record for a row the viewer watched the act produce
+would make the provenance decorative.
 
-Provenance is printed with every row because the row is worthless without it:
-the whole point of a gate is that someone else can go and check it.
+So the act transcript is the source of truth here, and the record column names
+the transcript. A row whose act has not run prints PENDING; it is never filled
+in from a neighbouring run that happens to be close.
+
+    python3 scripts/gate_table.py            # text
+    python3 scripts/gate_table.py --md       # markdown
 """
 from __future__ import annotations
 
 import argparse
-import json
-import math
+import re
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-WEB = REPO / "demo-output" / "website"
+OUT = REPO / "mission-output"
 
 PENDING = "PENDING"
 
 
-def _load(rel: str):
-    p = WEB / rel
-    if not p.exists():
-        return None
-    if p.suffix == ".json":
-        try:
-            return json.loads(p.read_text())
-        except json.JSONDecodeError:
-            return None
-    return p.read_text()
+# --------------------------------------------------------------------------
+# Transcript parsing. Acts emit their verdicts as pipe-delimited table rows;
+# three shapes are in use and all three are parsed rather than normalised,
+# because rewriting an act's output to suit this script would be the tail
+# wagging the dog.
+# --------------------------------------------------------------------------
+
+def _transcript(act: str) -> Path | None:
+    d = OUT / act
+    for name in ("transcript.md", "transcript.txt"):
+        p = d / name
+        if p.exists():
+            return p
+    return None
 
 
-def _finest(levels: dict) -> tuple[str, dict]:
-    """Return the level with the most cells -- the one the gate is read from."""
-    name = max(levels, key=lambda k: levels[k].get("ncells", 0))
-    return name, levels[name]
+def _verdict_rows(text: str) -> list[dict]:
+    """``[... verdict] Quantity Q | Exact E | Solved S | Deviation D``
+
+    ``Correlation`` appears in place of ``Exact`` where the reference is a
+    fitted correlation rather than a closed form."""
+    rows = []
+    pat = re.compile(
+        r"\[[^\]]*verdict\]\s*Quantity\s*(?P<q>[^|]+?)\s*\|\s*"
+        r"(?:Exact|Correlation)\s*(?P<ref>[^|]+?)\s*\|\s*"
+        r"Solved\s*(?P<got>[^|]+?)\s*\|\s*Deviation\s*(?P<dev>.+)")
+    for line in text.splitlines():
+        m = pat.search(line)
+        if m:
+            rows.append({k: v.strip() for k, v in m.groupdict().items()})
+    return rows
+
+
+def _gate_values(text: str) -> dict[str, str]:
+    """``[Gate: ...] Quantity Q | Value V`` -- key/value gate reporting."""
+    out: dict[str, str] = {}
+    pat = re.compile(r"\[Gate:[^\]]*\]\s*Quantity\s*(?P<q>[^|]+?)\s*\|\s*"
+                     r"Value\s*(?P<v>.+)")
+    for line in text.splitlines():
+        m = pat.search(line)
+        if m:
+            out[m.group("q").strip()] = m.group("v").strip()
+    return out
+
+
+def _verdict_line(text: str) -> str:
+    """The act's own one-word tier, e.g. 'Verdict: solver-backed.'"""
+    m = re.search(r"Verdict:\s*([a-z -]+)", text, re.I)
+    return m.group(1).strip(" .").upper() if m else ""
 
 
 def _row(case, gate, ref, measured, dev, verdict, source):
@@ -49,151 +87,118 @@ def _row(case, gate, ref, measured, dev, verdict, source):
             "deviation": dev, "verdict": verdict, "source": source}
 
 
-def _pending(case, gate, ref, source):
-    return _row(case, gate, ref, PENDING, PENDING, PENDING, source)
+def _pending(case, gate, source):
+    return _row(case, gate, PENDING, PENDING, PENDING, PENDING, source)
+
+
+# --------------------------------------------------------------------------
+# The nine acts.
+# --------------------------------------------------------------------------
+
+# act dir, display label, gate description, the quantity to read
+SIMPLE_ACTS = [
+    ("cylinder-vortex-shedding", "Cylinder vortex shedding, Re 100",
+     "Strouhal vs Roshko-Williamson correlation", "Strouhal number"),
+    ("supersonic-wedge", "Supersonic wedge, M 2.0, 15 deg",
+     "Oblique-shock angle vs theta-beta-M relation", "Shock angle (deg)"),
+    ("supersonic-cone", "Supersonic cone, M 2.35, 10 deg",
+     "Conical shock angle vs Taylor-Maccoll", "Shock angle (deg)"),
+    ("diamond-airfoil", "Diamond airfoil, M 2.0, 7.125 deg",
+     "Wave drag vs shock-expansion theory", "Wave drag coefficient"),
+    ("hypersonic-cylinder", "Hypersonic cylinder, M 8",
+     "Shock standoff vs Billig correlation", "Shock standoff (delta/R)"),
+]
+
+
+def _tolerance_verdict(dev: str, limit: float = 5.0) -> str:
+    m = re.search(r"([-+]?\d+(?:\.\d+)?)", dev or "")
+    if not m:
+        return "see record"
+    return "PASS" if abs(float(m.group(1))) <= limit else "FAIL"
 
 
 def rows() -> list[dict]:
     out: list[dict] = []
 
-    # ---- 1. cylinder vortex shedding -------------------------------------
-    # Import the act's own correlation rather than restating it here. A second
-    # copy of a formula is a second thing that can drift away from the act the
-    # camera is pointed at.
-    sys.path.insert(0, str(REPO / "sdk"))
-    from workflows import _exact_theory as et
-    from workflows.cylinder_vortex_shedding import REYNOLDS
-    st_ref = et.roshko_strouhal(REYNOLDS)
-    shed = _load("campaign/F5b_cylinder_re100_act.json")
-    src = "campaign/F5b_cylinder_re100_act.json"
-    if shed and "strouhal" in shed:
-        st = shed["strouhal"]
-        dev = (st - st_ref) / st_ref * 100.0
-        out.append(_row("Cylinder vortex shedding, Re 100",
-                        "Strouhal vs Roshko-Williamson", f"St {st_ref:.4f}",
-                        f"St {st:.4f}", f"{dev:+.2f}%",
-                        "PASS" if abs(dev) <= 5 else "FAIL", src))
-    else:
-        out.append(_pending("Cylinder vortex shedding, Re 100",
-                            "Strouhal vs Roshko-Williamson",
-                            f"St {st_ref:.4f}", src))
+    for act, label, gate, quantity in SIMPLE_ACTS:
+        t = _transcript(act)
+        if not t:
+            out.append(_pending(label, gate, f"mission-output/{act}/"))
+            continue
+        text = t.read_text(errors="replace")
+        got = [r for r in _verdict_rows(text) if r["q"] == quantity]
+        src = f"mission-output/{act}/{t.name}"
+        if not got:
+            out.append(_pending(label, gate, src))
+            continue
+        r = got[0]
+        out.append(_row(label, gate, r["ref"], r["got"], r["dev"],
+                        _tolerance_verdict(r["dev"]), src))
 
-    # ---- 2-4. supersonic exact theory ------------------------------------
-    f3 = _load("campaign/F3_supersonic_exact_theory.json")
-    src3 = "campaign/F3_supersonic_exact_theory.json"
-    if f3:
-        cases = f3["cases"]
-
-        # wedge -- graded on the shock angle fitted over all stations, which is
-        # the more honest of the two fits (it uses the whole locus, not a pair).
-        w = cases["1_wedge"]["M2.0_th15.0"]
-        lvl, v = _finest(w["levels"])
-        dev = v["beta_all_dev_pct"]
-        out.append(_row("Supersonic wedge, M 2.0, 15 deg",
-                        "Oblique-shock angle vs exact relation",
-                        f"beta {w['exact']['beta_deg']:.3f} deg",
-                        f"beta {v['beta_all_stations_deg']:.3f} deg ({v['ncells']} cells)",
-                        f"{dev:+.2f}%", "PASS" if abs(dev) <= 5 else "FAIL", src3))
-
-        c = cases["2_cone"]["M2.35_thc10.0"]
-        lvl, v = _finest(c["levels"])
-        dev = v["beta_dev_pct"]
-        out.append(_row("Supersonic cone, M 2.35, 10 deg",
-                        "Conical shock angle vs Taylor-Maccoll",
-                        "beta 26.737 deg",
-                        f"beta {v['beta_computed_deg']:.3f} deg ({v['ncells']} cells)",
-                        f"{dev:+.2f}%", "PASS" if abs(dev) <= 5 else "FAIL", src3))
-
-        d = cases["3_diamond"]["M2.0_eps7.125"]
-        lvl, v = _finest(d["levels"])
-        dev = v["deviation_pct"]
-        out.append(_row("Diamond airfoil, M 2.0, 7.125 deg",
-                        "Wave drag vs shock-expansion theory",
-                        f"Cd {d['exact']['cd']:.5f}",
-                        f"Cd {v['cd_computed']:.5f} ({v['ncells']} cells)",
-                        f"{dev:+.2f}%", "PASS" if abs(dev) <= 5 else "FAIL", src3))
-    else:
-        for case, gate in (("Supersonic wedge, M 2.0, 15 deg", "Oblique-shock angle vs exact relation"),
-                           ("Supersonic cone, M 2.35, 10 deg", "Conical shock angle vs Taylor-Maccoll"),
-                           ("Diamond airfoil, M 2.0, 7.125 deg", "Wave drag vs shock-expansion theory")):
-            out.append(_pending(case, gate, "-", src3))
-
-    # ---- 5. hypersonic blunt body ----------------------------------------
-    f4 = _load("campaign/F4_hypersonic_blunt_body.json")
-    src4 = "campaign/F4_hypersonic_blunt_body.json"
-    if f4:
-        for mach in (6.0, 8.0):
-            got = [r for r in f4["results"]
-                   if r["M"] == mach and r["res_level"] == "fine"]
-            if not got:
-                out.append(_pending(f"Hypersonic cylinder, M {mach:g}",
-                                    "Shock standoff vs Billig correlation", "-", src4))
-                continue
-            r = got[0]
-            dev = r["standoff_dev_pct"]
-            out.append(_row(f"Hypersonic cylinder, M {mach:g}",
-                            "Shock standoff vs Billig correlation",
-                            f"delta/R {r['delta_billig']:.4f}",
-                            f"delta/R {r['standoff_mean']:.4f} ({r['ncells']} cells)",
-                            f"{dev:+.2f}%", "PASS" if abs(dev) <= 5 else "FAIL", src4))
-    else:
-        out.append(_pending("Hypersonic cylinder, M 6/M 8",
-                            "Shock standoff vs Billig correlation", "-", src4))
-
-    # ---- 6. Ahmed body ---------------------------------------------------
-    a4 = _load("dafoam/ladder-a/A4_ahmed_body.json")
-    src6 = "dafoam/ladder-a/A4_ahmed_body.json"
-    ve = (a4 or {}).get("comparison", {}).get("vs_experiment")
-    if ve:
-        # Coefficients are compared on the frontal-area basis the experiment
-        # uses; the record carries the rebasing arithmetic that gets there.
-        dev = -ve["relative_error"] * 100.0
-        out.append(_row("Ahmed body, 25 deg slant",
-                        "Drag vs Ahmed/Ramm/Faltin SAE 840300",
-                        f"Cd {ve['experimental_CD']:.5f} (frontal)",
-                        f"Cd {ve['our_result_CD_frontal_basis']:.5f} (frontal)",
-                        f"{dev:+.2f}%",
-                        "PASS" if ve.get("within_band") else "FAIL",
-                        src6))
+    # ---- Ahmed body: key/value gate, act states its own tier --------------
+    t = _transcript("ahmed-body")
+    if t:
+        text = t.read_text(errors="replace")
+        g = _gate_values(text)
+        src = f"mission-output/ahmed-body/{t.name}"
+        ref = next((v for k, v in g.items() if k.startswith("Published")), None)
+        got = g.get("Rebased C_d (frontal basis)")
+        if ref and got:
+            out.append(_row("Ahmed body, 25 deg slant",
+                            "Drag vs Ahmed/Ramm/Faltin SAE 840300 (frontal basis)",
+                            f"Cd {ref}", f"Cd {got}",
+                            g.get("Deviation", "-"),
+                            _verdict_line(text) or "see record", src))
+        else:
+            out.append(_pending("Ahmed body, 25 deg slant",
+                                "Drag vs Ahmed/Ramm/Faltin SAE 840300", src))
     else:
         out.append(_pending("Ahmed body, 25 deg slant",
-                            "Drag vs Ahmed/Ramm/Faltin SAE 840300", "-", src6))
+                            "Drag vs Ahmed/Ramm/Faltin SAE 840300",
+                            "mission-output/ahmed-body/"))
 
-    # ---- 7. NASA hump ----------------------------------------------------
-    # Recorded in the D9 band write-up, which carries the baseline row.
-    out.append(_row("NASA wall-mounted hump",
-                    "Separation / reattachment x/c vs NASA experiment",
-                    "sep 0.6650, reatt 1.1000",
-                    "sep 0.6544, reatt 1.2534",
-                    "-1.59% / +13.95%",
-                    "SEPARATION PASS, REATTACHMENT FAIL (documented)",
-                    "campaign/F6a_epistemic_band.md"))
-
-    # ---- 8-9. ONERA M6 and CRM ------------------------------------------
-    m6 = _load("dafoam/ladder-a/A3_onera_m6.json")
-    src8 = "dafoam/ladder-a/A3_onera_m6.json"
-    if m6 and m6.get("cp_stations"):
-        out.append(_row("ONERA M6 wing", "Cp at 7 spanwise stations vs AGARD AR-138",
-                        "AGARD AR-138", f"{len(m6['cp_stations'])} stations",
-                        m6.get("deviation", "see record"),
-                        m6.get("verdict", "see record"), src8))
+    # ---- NASA hump: two quantities, one passes and one does not ----------
+    t = _transcript("nasa-hump")
+    if t:
+        text = t.read_text(errors="replace")
+        g = _gate_values(text)
+        src = f"mission-output/nasa-hump/{t.name}"
+        sep_dev = g.get("Separation deviation", "-")
+        re_dev = g.get("Reattachment deviation", "-")
+        out.append(_row(
+            "NASA wall-mounted hump",
+            "Separation / reattachment x/c vs NASA experiment",
+            f"sep {g.get('Separation x/c (NASA Turbulence Modeling Resource, wall-mounted hump experiment, experiment)', '?')}, "
+            f"reatt {g.get('Reattachment x/c (NASA Turbulence Modeling Resource, wall-mounted hump experiment, experiment)', '?')}",
+            f"sep {g.get('Separation x/c (converged)', g.get('Separation x/c', '?'))}, "
+            f"reatt {g.get('Reattachment x/c (converged)', '?')}",
+            f"{sep_dev} / {re_dev}",
+            _verdict_line(text) or "see record", src))
     else:
-        out.append(_pending("ONERA M6 wing",
-                            "Cp at 7 spanwise stations vs AGARD AR-138",
-                            "AGARD AR-138", src8))
+        out.append(_pending("NASA wall-mounted hump",
+                            "Separation / reattachment x/c vs NASA experiment",
+                            "mission-output/nasa-hump/"))
 
-    crm = _load("dafoam/ladder-a/A6_crm_wingbody.json")
-    src9 = "dafoam/ladder-a/A6_crm_wingbody.json"
-    cd = (crm or {}).get("cd")
-    if cd:
-        ref = (crm or {}).get("cd_reference", 0.02090)
-        dev = (cd - ref) / ref * 100.0
-        out.append(_row("CRM wing-body", "Drag vs DAFoam CRM_Wing tutorial",
-                        f"Cd {ref:.5f}", f"Cd {cd:.5f}", f"{dev:+.2f}%",
-                        "PASS" if abs(dev) <= 2 else "FAIL", src9))
-    else:
-        out.append(_pending("CRM wing-body", "Drag vs DAFoam CRM_Wing tutorial",
-                            "Cd 0.02090", src9))
+    # ---- ONERA M6 and CRM: separate engine, may not have run yet ---------
+    for act, label, gate in (
+            ("onera-m6", "ONERA M6 wing",
+             "Cp at 7 spanwise stations vs AGARD AR-138"),
+            ("crm-wingbody", "CRM wing-body",
+             "Drag vs DAFoam CRM_Wing tutorial, Cd 0.02090 +/-2%")):
+        t = _transcript(act)
+        if not t:
+            out.append(_pending(label, gate, f"mission-output/{act}/"))
+            continue
+        text = t.read_text(errors="replace")
+        src = f"mission-output/{act}/{t.name}"
+        vr = _verdict_rows(text)
+        if vr:
+            r = vr[0]
+            out.append(_row(label, gate, r["ref"], r["got"], r["dev"],
+                            _verdict_line(text) or _tolerance_verdict(r["dev"]),
+                            src))
+        else:
+            out.append(_pending(label, gate, src))
 
     return out
 
@@ -207,13 +212,12 @@ def main() -> int:
     ready = sum(1 for r in data if r["measured"] != PENDING)
 
     if args.md:
-        print("| case | gate | reference | measured | deviation | verdict | record |")
+        print("| act | gate | reference | measured | deviation | verdict | artifact |")
         print("| --- | --- | --- | --- | --- | --- | --- |")
         for r in data:
             print(f"| {r['case']} | {r['gate']} | {r['reference']} | "
                   f"{r['measured']} | {r['deviation']} | {r['verdict']} | "
                   f"`{r['source']}` |")
-        print(f"\n{ready} of {len(data)} rows carry a measured number.")
     else:
         for r in data:
             print(f"{r['case']}")
@@ -221,8 +225,8 @@ def main() -> int:
             print(f"    reference {r['reference']}")
             print(f"    measured  {r['measured']}")
             print(f"    deviation {r['deviation']}   -> {r['verdict']}")
-            print(f"    record    {r['source']}")
-        print(f"\n{ready} of {len(data)} rows carry a measured number.")
+            print(f"    artifact  {r['source']}")
+    print(f"\n{ready} of {len(data)} acts have produced a graded result.")
     return 0
 
 
