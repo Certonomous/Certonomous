@@ -185,23 +185,29 @@ Lower rows are the channels that make up the band.</p>
 <tr><td>NASA experiment</td><td class="n">1.100</td><td>reference</td><td></td></tr>
 <tr><td>Our baseline turbulence model</td><td class="n">1.2534</td><td>+13.95% vs experiment</td><td></td></tr>
 <tr><td>Four turbulence models compared to each other</td><td class="n">1.0722 to 1.2503</td><td>contains the experiment</td><td></td></tr>
-<tr class="us"><td>Full band, physics based anisotropy bounds included</td><td class="n">0.5278 to 1.2534</td><td>contains the experiment</td><td><span class="tag t-good">CONTAINS</span></td></tr>
+<tr class="us"><td>Full band, every run that met its convergence standard</td><td class="n">1.0722 to 1.2534</td><td>contains the experiment</td><td><span class="tag t-good">CONTAINS</span></td></tr>
+<tr><td>The same band as first published, before two runs were re-checked</td><td class="n">0.5278 to 1.2534</td><td>withdrawn, see below</td><td></td></tr>
 <tr><td>Closest single check to the experiment</td><td class="n">1.1069</td><td>+0.63% vs experiment</td><td></td></tr>
 </tbody></table></div>
 
 <div class="note"><b>Why this is the important one.</b> A model that is confidently wrong is worse
 than one that says how wrong it might be. The prediction that our band would contain this error was
 written down before the runs that tested it, so it could not be fitted after the fact, and the band
-does contain it. The band is wide, so containment here is necessary, not sufficient. This result
-stands on one case; it has not yet been tested on a second.
+does contain it. This result stands on one case; it has not yet been tested on a second.
 
-<br><br><b>We also broke one of our own predictions, and it is worth more than the one that held.</b>
-We had predicted that the narrower channel, built only from comparing several turbulence models to
-each other, would miss the experimental value. It did miss it — until we went back and finished a
-model that had never met its own convergence standard. Converged properly, that model moves from
-above the experimental value to below it, and the narrow channel now contains the experiment after
-all. The original claim rested on an unfinished number. We found that ourselves, by checking our own
-headline rather than defending it, and the correction is recorded in full.</div>
+<br><br><b>We audited our own headline and it did not survive intact.</b> We re-checked every run
+behind this result against the convergence standard the solver itself enforces, rather than against
+the residual numbers that sit next to it and read lower. Two of the runs that set the band's lower
+edge had never met that standard. One of them was not a flow solution at all: its wall-shear trace
+oscillates across the entire domain and the number we had published was simply the first crossing a
+script happened to find inside its search window. Both are withdrawn.
+
+<br><br><b>What is left is better than what we published.</b> Keeping only runs that met the
+standard, the band runs 1.0722 to 1.2534 and still contains the experiment — and it is half as wide
+as the band we first reported. The extra width had come from the two runs that never converged.
+Containment now rests on comparing turbulence models against each other, which is the plainer of the
+two mechanisms and the one that survives scrutiny. The corrections are recorded in full, including
+the two we found by checking claims we liked.</div>
 
 <footer>
   Sources: closure-challenge harness, four pre-registered scoring calls across three rounds ·

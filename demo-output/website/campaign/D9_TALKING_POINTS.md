@@ -41,7 +41,8 @@ before the run.
 | Baseline error vs experiment | +13.95% |
 | Narrower channel, four turbulence models only | 1.0722 to 1.2503, contains the experiment |
 | That same channel before the unconverged model was finished | 1.1299 to 1.2534, missed it |
-| Full band, physics based anisotropy bounds included | 0.5278 to 1.2534, contains the experiment |
+| Full band, every run that met its convergence standard | 1.0722 to 1.2534, contains the experiment |
+| The same band as first published | 0.5278 to 1.2534, withdrawn: two of its runs never converged |
 | Closest single check to the experiment | 1.1069, +0.63% |
 
 ## Ambition for what comes next
