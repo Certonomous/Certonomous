@@ -83,3 +83,63 @@ a working SST case to SA is more invasive than a model swap plus one field.
 Roughly 6 core-minutes across four attempts on a 21,000-cell case. Cheap. The
 value was in eliminating the bounds hypothesis, which looked plausible and is now
 closed.
+
+---
+
+## Rung 2 (D10) — the empty-to-symmetry patch conversion: REFUTED, and it produced a capability finding
+
+**Prediction, written before running (P2):** the conversion introduced in stage 2
+is the strongest remaining suspect. Reverting `frontAndBack` from `symmetry` back
+to `empty` should either clear the NaN, or fail in a way that implicates the
+conversion.
+
+**One change only (P5):** `frontAndBack` set to `empty` in
+`constant/polyMesh/boundary` and in all six fields under `0/`. Nothing else
+touched. Preflight passed before launch.
+
+**A useful fact established first, at zero compute (P3):** the pilot's design
+variable is `patchV` — inlet patch velocity — **not shape**. So this adjoint
+does no mesh warping at all, and the conversion could not have been needed for
+warping. That was worth knowing before spending anything.
+
+**Result — DAFoam refuses the mesh outright:**
+
+```
+FOAM FATAL ERROR: Mesh geometric directions is less than 3 and not supported!
+  From Foam::label Foam::checkGeometry(...)
+  in DACheckMesh/DACheckGeometry.C at line 278
+```
+
+**Verdict: REFUTED as a cause.** The conversion was not a workaround and not an
+agent's error — it is **mandatory**. DAFoam will not accept a mesh with fewer
+than three geometric directions, so `empty` is simply not an available option
+here. There is no version of this case that runs without the conversion.
+
+### The capability finding, which outlives this debug
+
+**DAFoam does not support 2D meshes in the OpenFOAM `empty`-patch sense.** Every
+nominally-2D case must be built as a one-cell-thick **3D** mesh with `symmetry`
+(or `wedge`) planes. Consequences worth carrying:
+
+- Any "2D" DAFoam case in this lab is really a 3D solve. That should be stated
+  in case records rather than implied.
+- It contributes to the adjoint memory wall: the state vector and both Jacobian
+  blocks are sized for a 3D mesh even when the physics is 2D.
+- It is a constraint to check *before* scoping any future 2D adjoint work, and
+  belongs in the DAFoam capability notes alongside the supported-solver list.
+
+Cost: about 1 core-minute. The cheapest-untested-suspect-first ordering was
+correct — this closed the strongest remaining hypothesis for the price of one
+failed launch.
+
+### Ladder status after two rungs
+
+| rung | change | verdict |
+| --- | --- | --- |
+| 1 | `primalVarBounds` k floor (kMin 1e-10 vs wall BC 1e-15) | **REFUTED** — identical `-9`, 0 iterations |
+| 2 | `empty` instead of `symmetry` patches | **REFUTED** — DAFoam rejects <3D meshes |
+| 3 | SA rebuilt from a DAFoam SA tutorial, CBFS mesh ported in | not yet run |
+| 4 | frozen-turbulence adjoint (smaller, better-conditioned) | not yet run |
+| 5 | preconditioner family swap | not yet run |
+| 6 | row scaling / Jacobian equilibration | not yet run |
+| 7 | objective regularisation | not yet run |
