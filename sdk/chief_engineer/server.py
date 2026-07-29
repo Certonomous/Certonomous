@@ -76,7 +76,15 @@ _LEGACY_TIERS = {"TREND ONLY": "SOLVER-BACKED",
 # Owner curation (curation, never number-editing): the wall serves only the
 # bodies the on-screen missions run. The wider graded library stays intact on
 # disk and keeps feeding the grading pipeline; it is simply not displayed.
-_WALL_BODIES = frozenset({"motorBike", "b52", "naca4412_wing"})
+#
+# motorBike and b52 have no record in the curriculum results yet, so naming
+# them here displayed nothing. The three bodies that hold a VALIDATED record
+# against a published reference are added so the wall shows the credentials
+# actually earned; naca4412_wing stays because a wall that shows only its
+# best cards is not a credentials wall. Every tier below is the one the
+# grading pipeline assigned -- no number and no verdict is edited here.
+_WALL_BODIES = frozenset({"motorBike", "b52", "naca4412_wing",
+                          "ahmed_25", "cube", "flat_plate"})
 
 
 def _credentials() -> list[dict]:
