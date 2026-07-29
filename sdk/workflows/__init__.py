@@ -108,6 +108,74 @@ def acknowledge_reference_surface(script, emit, params, *, family: str
     return surface_name
 
 
+# Wording doctrine (owner rule): the on-camera transcript never narrates the
+# reuse machinery, never names a dash character, and never leans on the
+# banned register below. Checked at authorship time rather than trusted, so a
+# slip fails loudly in a test run instead of reaching the control room.
+_BANNED_PHRASES = (
+    "live", "real solve", "real solves", "solver backed", "solver-backed",
+    "conceptual model", "demo", "stored", "saved", "cached", "precomputed",
+    "reused", "trend",
+)
+
+
+def check_wording(text: str) -> None:
+    """Raise if ``text`` breaks the on-camera wording doctrine."""
+    if "—" in text or " - " in text:
+        raise ValueError(f"dash not allowed in transcript prose: {text!r}")
+    lowered = text.lower()
+    for phrase in _BANNED_PHRASES:
+        if phrase in lowered:
+            raise ValueError(f"banned phrase {phrase!r} in transcript prose: {text!r}")
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("•"):
+            body = stripped[1:].strip()
+            if body and not body[0:1].isupper():
+                raise ValueError(f"bullet must start with a capital letter: {line!r}")
+
+
+def bullets(sayer, *lines: str, **kwargs):
+    """Emit one role entry holding every bullet on its own row.
+
+    ``sayer`` is a bound method on the transcript, e.g. ``script.numericist``.
+    Every line is prefixed with a bullet mark, checked against the wording
+    doctrine, and joined into the single entry that role owns for this beat
+    (never split across several entries, never the same role called twice in
+    a row for one thought).
+    """
+    body = "\n".join(f"• {line.strip()}" for line in lines if line.strip())
+    check_wording(body)
+    return sayer(body, **kwargs)
+
+
+def emit_table(emit, script, *, role: str, title: str, headers, rows,
+              table_id: str, append: bool = False) -> None:
+    """Put a transcript table on the record. Every result an act reports
+    belongs here, never repeated as bare numbers in prose.
+
+    The control room renders it as a compact table in the paced feed;
+    ``append=True`` lands new rows into the existing table so rows arrive
+    live as solves finish. Every row is mirrored into the saved transcript
+    so the on-disk record keeps the numbers."""
+    import time as _time
+
+    from chief_engineer.transcript import Entry
+
+    if emit:
+        emit("transcript.table", {
+            "role": role, "title": title,
+            "headers": [str(h) for h in headers],
+            "rows": [[str(cell) for cell in row] for row in rows],
+            "table_id": table_id, "append": bool(append), "at": _time.time()})
+    for row in rows:
+        line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
+        entry = Entry(role, f"[{title}] {line}")
+        script.entries.append(entry)
+        if emit is None and script.echo:
+            script.echo(entry.render())
+
+
 def announce_field(emit, beat: str, path, label: str) -> None:
     """Tell the control room a solved surface is painted and ready to render.
 

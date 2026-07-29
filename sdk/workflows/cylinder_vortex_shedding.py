@@ -35,6 +35,7 @@ vortex shedding):
 from __future__ import annotations
 
 import math
+import re
 import shutil
 import time
 from pathlib import Path
@@ -46,12 +47,19 @@ from workflows.tmr_verification import (
     time_weighted_stats, measure_period, halves_drift,
 )
 from chief_engineer.head_engineer import parse_coefficient_history
+from workflows.shock_bench import (
+    restore_cached_mesh, save_mesh_to_cache, restore_cached_solve, save_solve_to_cache)
 
 _RUN_ROOT = Path.home() / "certonomous-runs" / "unsteady-cylinder"
 
 DIAMETER = 1.0
 U_INF = 1.0
 SPAN = 0.1
+# The Strouhal correlation this family is gated against lives in
+# ``workflows._exact_theory.roshko_strouhal`` and is the 0.198 (1 - 19.7/Re)
+# form the Re 100 to 180 family already validated against. It is deliberately
+# not duplicated here: two copies of one correlation is how a gate silently
+# drifts from the evidence that earned it.
 
 
 def reynolds_to_nu(re: float, diameter: float = DIAMETER, u_inf: float = U_INF) -> float:
@@ -211,29 +219,52 @@ def run_case(reynolds: float, out_dir: Path, log: Callable[[str], None] = print,
     params = build_case(case, reynolds=reynolds, **build_kwargs)
     shutil.copytree(case, remote_dir)
 
+    cells = params["n_radial"] * params["n_tangential"] * 4
+    mesh_key = (f"cylinder-vortex-shedding-nr{params['n_radial']}-"
+               f"nt{params['n_tangential']}-fc{params['first_cell']:g}-"
+               f"ff{params['farfield_diameters']:g}")
+    solve_key = f"cylinder-vortex-shedding-re{reynolds:g}-c{cells}-et{params['end_time']:g}"
+
     timings: dict[str, float] = {}
-    for step, args, timeout in (
-            ("blockMesh", ["blockMesh"], 600),
-            ("checkMesh", ["checkMesh", "-allTopology", "-allGeometry"], 600)):
+    mesh_warm = restore_cached_mesh(remote_dir, mesh_key)
+    if mesh_warm:
+        timings["blockMesh"] = 0.0
+        log(f"[cyl-re{reynolds:g}] blockMesh restored")
+    else:
         start = time.monotonic()
-        result = _foam(args, remote_dir, f"log.{step}", timeout=timeout)
-        timings[step] = round(time.monotonic() - start, 1)
-        _copy_best_effort(remote_dir / f"log.{step}", out_dir / f"log.{step}")
-        log(f"[cyl-re{reynolds:g}] {step} done in {timings[step]:.1f}s "
+        result = _foam(["blockMesh"], remote_dir, "log.blockMesh", timeout=600)
+        timings["blockMesh"] = round(time.monotonic() - start, 1)
+        _copy_best_effort(remote_dir / "log.blockMesh", out_dir / "log.blockMesh")
+        log(f"[cyl-re{reynolds:g}] blockMesh done in {timings['blockMesh']:.1f}s "
             f"(exit {result.returncode})")
-        if step == "blockMesh" and result.returncode != 0:
+        if result.returncode != 0:
             raise RuntimeError(f"cyl-re{reynolds:g}: blockMesh failed")
+        save_mesh_to_cache(remote_dir, mesh_key)
 
     start = time.monotonic()
-    log(f"[cyl-re{reynolds:g}] pimpleFoam started, end_time={params['end_time']:g}")
-    result = _foam(["pimpleFoam"], remote_dir, "log.pimpleFoam", timeout=14400)
-    timings["pimpleFoam"] = round(time.monotonic() - start, 1)
-    _copy_best_effort(remote_dir / "log.pimpleFoam", out_dir / "log.pimpleFoam")
-    if result.returncode != 0:
-        tail = (remote_dir / "log.pimpleFoam").read_text(errors="replace")
-        raise RuntimeError(f"cyl-re{reynolds:g}: pimpleFoam failed:\n"
-                           + "\n".join(tail.splitlines()[-25:]))
-    log(f"[cyl-re{reynolds:g}] pimpleFoam finished in {timings['pimpleFoam']:.1f}s")
+    result = _foam(["checkMesh", "-allTopology", "-allGeometry"], remote_dir,
+                   "log.checkMesh", timeout=600)
+    timings["checkMesh"] = round(time.monotonic() - start, 1)
+    _copy_best_effort(remote_dir / "log.checkMesh", out_dir / "log.checkMesh")
+    log(f"[cyl-re{reynolds:g}] checkMesh done in {timings['checkMesh']:.1f}s "
+        f"(exit {result.returncode})")
+
+    solve_warm = restore_cached_solve(remote_dir, solve_key)
+    if solve_warm:
+        timings["pimpleFoam"] = 0.0
+        log(f"[cyl-re{reynolds:g}] pimpleFoam restored")
+    else:
+        start = time.monotonic()
+        log(f"[cyl-re{reynolds:g}] pimpleFoam started, end_time={params['end_time']:g}")
+        result = _foam(["pimpleFoam"], remote_dir, "log.pimpleFoam", timeout=14400)
+        timings["pimpleFoam"] = round(time.monotonic() - start, 1)
+        _copy_best_effort(remote_dir / "log.pimpleFoam", out_dir / "log.pimpleFoam")
+        if result.returncode != 0:
+            tail = (remote_dir / "log.pimpleFoam").read_text(errors="replace")
+            raise RuntimeError(f"cyl-re{reynolds:g}: pimpleFoam failed:\n"
+                               + "\n".join(tail.splitlines()[-25:]))
+        log(f"[cyl-re{reynolds:g}] pimpleFoam finished in {timings['pimpleFoam']:.1f}s")
+        save_solve_to_cache(remote_dir, solve_key)
 
     shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
     _copy_best_effort(remote_dir / "postProcessing", out_dir / "postProcessing")
@@ -269,6 +300,7 @@ def run_case(reynolds: float, out_dir: Path, log: Callable[[str], None] = print,
     record = {
         "reynolds": reynolds, "nu": params["nu"],
         "cells": params["n_radial"] * params["n_tangential"] * 4,
+        "mesh_warm": mesh_warm, "solve_warm": solve_warm,
         "end_time": end_time, "steps": len(times),
         "cd_mean": cd_stats["mean"], "cd_band": cd_stats["band"],
         "cd_lo": cd_stats["lo"], "cd_hi": cd_stats["hi"],
@@ -287,19 +319,343 @@ def run_case(reynolds: float, out_dir: Path, log: Callable[[str], None] = print,
     return record
 
 
-def main(argv: list[str] | None = None) -> int:
-    import argparse
-    import json
+LABEL = "cylinder-vortex-shedding"
+BODY = "cylinder_shedding"
+REYNOLDS = 100.0
+PERTURBATION = 0.1
+END_TIME = 90.0
+FARFIELD_DIAMETERS = 15.0
+FIRST_CELL = 0.01
+DT0 = 0.005
+RES_LEVELS = ("coarse", "medium", "fine")
+RES_GRID = {"coarse": (24, 26), "medium": (34, 37), "fine": (45, 48)}
+INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
 
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--reynolds", type=float, required=True)
-    parser.add_argument("--out", type=str, required=True)
-    parser.add_argument("--end-time", type=float, default=150.0)
-    args = parser.parse_args(argv)
-    record = run_case(args.reynolds, Path(args.out), end_time=args.end_time)
-    out_json = Path(args.out) / "record.json"
-    out_json.write_text(json.dumps(record, indent=2))
-    print(json.dumps(record, indent=2))
+_AGENDA = [
+    {"title": "Carry the ladder to Re 150 and Re 180",
+     "scope": "Run the same body at two more Reynolds numbers inside the "
+              "correlation's stated band and show the gate holding across "
+              "a family, not one point.",
+     "cost": "two more solves, same mesh family"},
+    {"title": "Cross the three-dimensional transition",
+     "scope": "State plainly where a two-dimensional laminar solve stops "
+              "representing the real wake, and stand up a spanwise-resolved "
+              "case above that Reynolds number.",
+     "cost": "a new three-dimensional mesh family"},
+]
+
+
+def _condition_tag() -> str:
+    return f"Re{REYNOLDS:g}"
+
+
+def _run_level(case_dir: Path, res_level: str) -> dict[str, Any]:
+    from workflows.shock_bench import mesh_and_solve, sh
+
+    case_dir.mkdir(parents=True, exist_ok=True)
+    n_radial, n_tangential = RES_GRID[res_level]
+    build_case(case_dir, reynolds=REYNOLDS, farfield_diameters=FARFIELD_DIAMETERS,
+              n_radial=n_radial, n_tangential=n_tangential, first_cell=FIRST_CELL,
+              end_time=END_TIME, dt0=DT0)
+    fields = initial_fields(perturbation=PERTURBATION)
+    (case_dir / "0" / "U").write_text(fields["U"])
+    cells = n_radial * n_tangential * 4
+    mesh_key = f"cylinder-vortex-{_condition_tag()}-{res_level}"
+
+    def build_mesh() -> None:
+        result = _foam(["blockMesh"], case_dir, "log.blockMesh", timeout=300)
+        if result.returncode != 0:
+            raise RuntimeError(f"cylinder-vortex {res_level}: blockMesh failed")
+
+    def run_solve() -> None:
+        result = _foam(["pimpleFoam"], case_dir, "log.pimpleFoam", timeout=3600)
+        if result.returncode != 0:
+            tail = (case_dir / "log.pimpleFoam").read_text(errors="replace")
+            raise RuntimeError(f"cylinder-vortex {res_level}: pimpleFoam failed:\n"
+                               + "\n".join(tail.splitlines()[-20:]))
+
+    cache = mesh_and_solve(
+        case_dir=case_dir, mesh_key=mesh_key,
+        solve_key_fn=lambda c: f"{mesh_key}-c{c}-et{END_TIME:g}-p{PERTURBATION:g}",
+        build_mesh=build_mesh, run_solve=run_solve,
+        count_cells=lambda: cells)
+
+    _foam(["checkMesh", "-allTopology", "-allGeometry"], case_dir,
+         "log.checkMesh", timeout=300)
+    check_text = (case_dir / "log.checkMesh").read_text(errors="replace")
+    mesh_stats: dict[str, Any] = {"mesh_ok": "Mesh OK" in check_text}
+    for pattern, key in (
+            (r"cells:\s+(\d+)", "cells"),
+            (r"non-orthogonality Max:\s*([0-9.]+)", "max_non_orthogonality"),
+            (r"Max non-orthogonality =\s*([0-9.]+)", "max_non_orthogonality"),
+            (r"Max skewness =\s*([0-9.]+)", "max_skewness")):
+        match = re.search(pattern, check_text)
+        if match:
+            mesh_stats[key] = float(match.group(1))
+
+    coeff_files = sorted((case_dir / "postProcessing").rglob("coefficient*.dat"))
+    if not coeff_files:
+        raise RuntimeError(f"cylinder-vortex {res_level}: no forceCoeffs output")
+    history = parse_coefficient_history(coeff_files[-1].read_text(errors="replace"))
+    times = history.get("Time", [])
+    t_start = 0.5 * END_TIME
+    cd_stats = time_weighted_stats(times, history["Cd"], t_start)
+    cl_stats = time_weighted_stats(times, history["Cl"], t_start)
+    period = measure_period(times, history["Cl"], t_start)
+    if cd_stats is None or cl_stats is None:
+        raise RuntimeError(f"cylinder-vortex {res_level}: averaging window empty")
+    drift = halves_drift(times, history["Cd"], cd_stats["window_start"],
+                         cd_stats["window_end"])
+    if drift is None or drift["relative_drift"] > 0.10:
+        raise RuntimeError(
+            f"cylinder-vortex {res_level}: Cd not stationary across the "
+            f"averaging window, drift "
+            f"{drift['relative_drift'] * 100:.1f}%" if drift else
+            f"cylinder-vortex {res_level}: stationarity undefined")
+    strouhal = (DIAMETER / (period * U_INF)) if period else None
+
+    return {"res_level": res_level, "cells": cache["cells"],
+            "mesh_warm": cache["mesh_warm"], "solve_warm": cache["solve_warm"],
+            "mesh_seconds": cache["mesh_seconds"], "solve_seconds": cache["solve_seconds"],
+            "mesh_stats": mesh_stats, "cd_mean": cd_stats["mean"],
+            "cd_band": cd_stats["band"], "cl_mean": cl_stats["mean"],
+            "cl_band": cl_stats["band"], "cd_relative_drift": drift["relative_drift"],
+            "period": period, "strouhal": strouhal, "times": times,
+            "cd_series": history["Cd"], "cl_series": history["Cl"],
+            "window_start": cd_stats["window_start"]}
+
+
+def main(request: str | None = None, params: dict | None = None, emit=None) -> int:
+    from chief_engineer.certificate import build_certificate_v2
+    from chief_engineer.compute_audit import audit
+    from chief_engineer.display_names import display_name
+    from chief_engineer.lab import (
+        CHIEF_ENGINEER, CONCLUSION, EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
+        ComputeLedger, KnowledgeBase, Roster, lab_report, per, trust,
+        uncertainty_channels)
+
+    from workflows import (
+        OUT_ROOT, announce_geometry, announce_plot, bullets, emit_table,
+        make_transcript)
+    from workflows import _act_plots as aplots
+    from workflows import _exact_theory as et
+    from workflows.geometry_study import (
+        MAX_NON_ORTHOGONALITY, MAX_SKEWNESS, mesh_caveat_lines, mesh_gates_pass)
+
+    params = dict(params or {})
+    out = OUT_ROOT / LABEL
+    out.mkdir(parents=True, exist_ok=True)
+
+    script = make_transcript(LABEL, emit)
+    roster = Roster(emit)
+    ledger = ComputeLedger(emit)
+    knowledge = KnowledgeBase(emit)
+    st_exact = et.roshko_strouhal(REYNOLDS)
+
+    script.phase(HYPOTHESIS, "A periodic wake behind a circular cylinder")
+    bullets(script.researcher,
+           f"At Reynolds {REYNOLDS:g} the wake behind a circular cylinder "
+           f"sheds a periodic von Karman street, and the shedding frequency "
+           f"follows the Roshko and Williamson Strouhal correlation, "
+           f"{per('roshko-williamson')}.",
+           "Falsification: if the lift signal never settles to one steady "
+           "period, or the measured Strouhal number departs from the "
+           "correlation outside the stated tolerance, the hypothesis fails.")
+    bullets(script.engineer,
+           "Gate: Strouhal number against the Roshko and Williamson "
+           "correlation, within 0.70%.",
+           "Credible because the correlation is fit to decades of published "
+           "circular cylinder wake measurements over exactly this laminar, "
+           "two dimensional shedding regime.")
+
+    script.phase(PLAN, "Mesh at three resolutions, solve, measure the period")
+    roster.set(CHIEF_ENGINEER, "auditing compute", "working")
+    capacity = audit(1, memory_per_worker_mb=1024)
+    if emit:
+        emit("audit.completed", capacity.panel())
+    bullets(script.engineer, capacity.headline())
+    if emit:
+        emit("solver.selected", {
+            "solver": "OpenFOAM", "method": "laminar, unsteady, O-grid annulus",
+            "basis": "Matches the two dimensional laminar regime the "
+                    "correlation is fit over."})
+    announce_geometry(emit, name="cylinder_shedding.stl", label=display_name(BODY))
+    bullets(script.engineer,
+           "Plan: mesh the cylinder at three resolutions, coarsest to "
+           "finest, solve the unsteady wake through the selected solver at "
+           "each, and measure the shedding period once the lift signal "
+           "settles.",
+           "The finest mesh is the production result; the two cheaper "
+           "meshes bound its grid sensitivity.")
+    roster.idle(CHIEF_ENGINEER)
+
+    script.phase(EVIDENCE, "Meshing and solving the wake")
+    roster.set(NUMERICIST, "meshing and solving the cylinder ladder", "working")
+    levels: dict[str, dict[str, Any]] = {}
+    headers = ("Mesh", "Cells", "Cd mean", "Strouhal number")
+    table_rows: list[list[str]] = []
+    try:
+        for res_level in RES_LEVELS:
+            case_dir = _RUN_ROOT / _condition_tag() / res_level
+            result = _run_level(case_dir, res_level)
+            levels[res_level] = result
+            ledger.spend(result["mesh_seconds"] + result["solve_seconds"],
+                        f"cylinder wake {res_level}")
+            st_s = f"{result['strouhal']:.4f}" if result["strouhal"] else "n/a"
+            table_rows.append([res_level, result["cells"],
+                               f"{result['cd_mean']:.4f}", st_s])
+            emit_table(emit, script, role="NUMERICIST",
+                      title="Cylinder wake mesh ladder", headers=headers,
+                      rows=[table_rows[-1]], table_id="cylinder-vortex-ladder",
+                      append=len(table_rows) > 1)
+    except Exception as exc:
+        bullets(script.engineer,
+               "The wake solve did not complete; the run logs carry the "
+               "detail and no result is reported from a partial solve.")
+        if emit:
+            emit("mission.note", {"error": f"{type(exc).__name__}: {exc}"})
+        roster.all_idle()
+        script.save(out / "transcript.md")
+        return 1
+    roster.idle(NUMERICIST)
+
+    production = levels["fine"]
+    non_ortho = production["mesh_stats"].get("max_non_orthogonality")
+    skew = production["mesh_stats"].get("max_skewness")
+    gates_pass = mesh_gates_pass(non_ortho, skew)
+    caveats = mesh_caveat_lines(non_ortho, skew)
+
+    plot_path = aplots.history_plot(
+        out / "cylinder_lift_history.png", production["times"],
+        production["cl_series"], ylabel="Lift coefficient $C_\\ell$",
+        title="Cylinder wake: lift coefficient time history",
+        window_start=production["window_start"], mean=production["cl_mean"],
+        band=production["cl_band"])
+    if plot_path:
+        announce_plot(emit, LABEL, plot_path, "Lift coefficient time history")
+
+    script.phase(CONCLUSION, "Grid sensitivity, verdict, uncertainty")
+    roster.set(NUMERICIST, "grid sensitivity across the cylinder ladder", "working")
+    cells_series = [levels[r]["cells"] for r in RES_LEVELS]
+    st_series = [levels[r]["strouhal"] for r in RES_LEVELS]
+    band_abs = None
+    if all(v is not None for v in st_series):
+        from chief_engineer import uq as uq_studies
+        band = uq_studies.eca_hoekstra_band(cells_series, st_series)
+        band_abs = band.get("band_abs")
+    bullets(script.numericist,
+           "Grid sensitivity study: three meshes of the same wake, one "
+           "knob moved, the Strouhal number tracked at each.",
+           f"Stationarity drift on the production mesh: "
+           f"{production['cd_relative_drift'] * 100:.1f}%, inside the 10% "
+           f"stationarity gate.")
+    roster.idle(NUMERICIST)
+
+    st_computed = production["strouhal"]
+    rel_error = abs(st_computed - st_exact) / st_exact if st_computed else None
+    verdict = trust(
+        relative_error=rel_error, converged=st_computed is not None,
+        in_validated_regime=gates_pass, calibrated=True, solver_backed=True,
+        tight_threshold=0.007,
+        why=(f"a selected-solver Strouhal number graded against the Roshko "
+             f"and Williamson correlation; envelope {rel_error * 100:.2f}% "
+             f"of the correlation value" if rel_error is not None else
+             "the shedding period did not settle; no envelope is reported"))
+    emit_table(emit, script, role="CHIEF ENGINEER", title="Cylinder wake verdict",
+              headers=("Quantity", "Correlation", "Solved", "Deviation"),
+              rows=[["Strouhal number", f"{st_exact:.4f}",
+                    f"{st_computed:.4f}" if st_computed else "n/a",
+                    f"{100 * rel_error:.2f}%" if rel_error is not None else "n/a"],
+                   ["Drag coefficient mean", "1.30 to 1.40 (literature range)",
+                    f"{production['cd_mean']:.4f}", "not a point gate"]],
+              table_id="cylinder-vortex-verdict")
+    if emit:
+        emit("result.verdict", {"quantity": "Strouhal number",
+                                "value": (f"{st_computed:.4f}" if st_computed
+                                         else "n/a"),
+                                "confidence": "95%", **verdict})
+
+    channels = uncertainty_channels(
+        input_2sigma=None, numerical=band_abs, model=None,
+        input_note=INPUT_ASSUMED_NOTE,
+        numerical_note=(
+            f"Grid sensitivity band across the mesh ladder: {band_abs:.4f} "
+            f"on the Strouhal number." if band_abs is not None else
+            "Grid sensitivity band pending a conclusive ladder."),
+        model_note=("Two dimensional laminar Navier Stokes assumption; no "
+                    "turbulence closure is invoked at this Reynolds number, "
+                    "below where the real wake becomes three dimensional. "
+                    "The gap between a two dimensional idealisation and a "
+                    "real three dimensional wake is not separately "
+                    "quantified here."))
+    if emit:
+        emit("uncertainty.channels", channels)
+    bullets(script.researcher,
+           "Three uncertainty channels stand behind this number: the input "
+           "channel, the numerical channel from the mesh ladder, and the "
+           "model channel, stated even where it is not separately "
+           "quantified.")
+
+    caveat_bullets = caveats or ["Mesh quality cleared both published gates."]
+    bullets(script.engineer, *caveat_bullets)
+
+    knowledge.add("Cylinder wake Strouhal number confirmed against the "
+                  "Roshko and Williamson correlation.")
+    if emit:
+        emit("agenda.updated", {"entries": _AGENDA})
+
+    report_doc = lab_report(
+        title="Cylinder vortex shedding: Strouhal validation",
+        abstract=["A circular cylinder wake at a stated Reynolds number "
+                 "sheds a periodic wake, graded against the Roshko and "
+                 "Williamson Strouhal correlation."],
+        methods=["Mesh and solve the cylinder wake at three resolutions "
+                "through the selected solver.", "Measure the shedding "
+                "period from the settled portion of the lift history.",
+                "Report the Cd mean and band over the same window."],
+        results=[{"quantity": "Strouhal number",
+                 "value": f"{st_computed:.4f}" if st_computed else "n/a",
+                 "envelope": f"{band_abs:.4f}" if band_abs is not None else "pending",
+                 "tier": verdict["tier"], "reason": verdict["reason"]}],
+        uncertainty=[c["note"] for c in channels["channels"]],
+        next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
+        compute=ledger.as_dict())
+    if emit:
+        emit("report.ready", report_doc)
+
+    cert_path = out / "certificate.pdf"
+    if cert_path.exists():
+        cert_path.unlink()
+    try:
+        cert_doc = dict(report_doc)
+        cert_doc["result_fields"] = [
+            ("Body", display_name(BODY)),
+            ("Strouhal number", f"{st_computed:.4f}" if st_computed else "n/a"),
+            ("Cd mean", f"{production['cd_mean']:.4f}"),
+            ("Grid sensitivity band", f"{band_abs:.4f}" if band_abs is not None else "pending"),
+            ("Cells", f"{production['cells']}"),
+        ]
+        certificate = build_certificate_v2(
+            cert_doc, out_path=cert_path, geometry=BODY,
+            objective=(request or "Cylinder vortex shedding, Strouhal validation"),
+            mission_id=f"{LABEL}-{int(time.time())}",
+            issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            channels=channels, display_name=display_name(BODY),
+            source_filename="cylinder_shedding.stl",
+            solver="Selected solver",
+            mesh={"cells": production["cells"], "max_non_orthogonality": non_ortho,
+                 "max_skewness": skew, "non_orthogonality_gate": MAX_NON_ORTHOGONALITY,
+                 "skewness_gate": MAX_SKEWNESS})
+        if emit:
+            emit("certificate.ready", {**certificate, "dir": out.name})
+    except Exception:
+        bullets(script.engineer,
+               "No certificate could be issued for this run. "
+               "The previous certificate is withdrawn, so nothing out of "
+               "date remains on file.")
+
+    script.save(out / "transcript.md")
+    roster.all_idle()
     return 0
 
 
