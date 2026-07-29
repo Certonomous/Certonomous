@@ -87,11 +87,39 @@ case "$MODEL" in
     SpalartAllmaras|SA)                 need_fields nuTilda nut ;;
     kOmegaSST|kOmega|SST|kOmegaSSTLM)   need_fields k omega nut ;;
     kEpsilon|realizableKE|LienCubicKE)  need_fields k epsilon nut ;;
-    LRR|SSG|EBRSM|*RSTM*)               need_fields R k epsilon ;;
+    LRR|SSG|*RSTM*)                     need_fields R epsilon ;;
+    EBRSM)                              need_fields R epsilon f ;;   # f = elliptic blending fn
     laminar)                            ok "laminar -- no turbulence fields required" ;;
     "")                                 note "  (model undetermined; skipping field check)" ;;
     *)                                  note "  (model $MODEL not in table; skipping field check)" ;;
 esac
+
+# ---------------------------------------------------------------------------
+# 2b. Every field the model TRANSPORTS needs a solver entry in fvSolution.
+#     Having the field in 0/ is not enough. Missing entries produce
+#     "Entry '<field>' not found in dictionary system/fvSolution/solvers" and
+#     the run dies seconds in, after the queue wait. Cost this project four
+#     failed EBRSM launches on 2026-07-29 before it was caught.
+# ---------------------------------------------------------------------------
+FVS=system/fvSolution
+if [ -f "$FVS" ] && [ -n "$MODEL" ]; then
+    case "$MODEL" in
+        SpalartAllmaras|SA)                transported="nuTilda" ;;
+        kOmegaSST|kOmega|SST|kOmegaSSTLM)  transported="k omega" ;;
+        kEpsilon|realizableKE|LienCubicKE) transported="k epsilon" ;;
+        LRR|SSG|*RSTM*)                    transported="R epsilon" ;;
+        EBRSM)                             transported="R epsilon f" ;;
+        *)                                 transported="" ;;
+    esac
+    for fld in $transported; do
+        # match a bare entry or one inside a "(a|b|c)" regex group
+        if grep -qaE "^[[:space:]]*(\"?\(?[A-Za-z|]*\<$fld\>[A-Za-z|]*\)?\"?)[[:space:]]*$" "$FVS"; then
+            ok "fvSolution has a solver entry covering '$fld'"
+        else
+            bad "model $MODEL transports '$fld' but fvSolution/solvers has NO entry covering it"
+        fi
+    done
+fi
 
 # ---------------------------------------------------------------------------
 # 3. Field headers parse. A hand-written or sed-mangled header produces

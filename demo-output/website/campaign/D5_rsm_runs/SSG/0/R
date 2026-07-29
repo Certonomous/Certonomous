@@ -1,0 +1,24 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volSymmTensorField;
+    object      R;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform (0.013333333333333332 0 0 0.013333333333333332 0 0.013333333333333332);
+
+boundaryField
+{
+    "(wallTop|wallSide)"
+    {
+        type            kqRWallFunction;
+        value           uniform (0.013333333333333332 0 0 0.013333333333333332 0 0.013333333333333332);
+    }
+    inflow  { type cyclic; }
+    outflow { type cyclic; }
+    "(symmetryBottom|symmetrySide)" { type symmetry; }
+}
