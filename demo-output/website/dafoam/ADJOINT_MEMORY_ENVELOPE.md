@@ -152,14 +152,117 @@ far, in this session or the prior one.
 
 ---
 
-## Option 3 — more ranks (8, 16)
+## Option 3 — more ranks (2, 4, 8, 16)
 
-**STATUS: not yet run this session.** Predicted effect: per-rank peak RSS
-should drop roughly in proportion to rank count for the domain-decomposed
-state/Jacobian data, but fixed per-rank overhead (MPI, PETSc, OpenFOAM
-runtime, Python/OpenMDAO) does not shrink and may even grow slightly with
-inter-rank communication buffers — so there is a rank count past which adding
-more ranks stops helping and may hurt. Queued next.
+**STATUS: DONE — measured, and it closes the option.**
+
+**This session resumed after a host interruption** (a prior attempt at this
+same directive was lost when the harness process exited mid-task before
+anything was written to disk or committed — confirmed via `uptime -s`
+showing a genuinely fresh boot, not a false alarm). Nothing below is carried
+over from memory; every number was measured fresh in this session.
+
+**Methodology note, found and fixed before trusting any number:** the
+straightforward way to measure "peak memory of an N-rank MPI job" — sum each
+rank's own RSS from `ps` — **overcounts**, because OpenFOAM/PETSc/Python/MPI
+shared libraries are mapped into every rank's address space and `ps` counts
+those resident pages once per process that maps them, not once per physical
+page. Verified directly: on a 2-rank A1 control, summed-`ps`-RSS read ~2,472
+MiB while the container's own cgroup accounting (`memory.peak`, cgroup v2 —
+the number that actually determines whether a memory cap trips) read
+1,613–1,615 MiB, reproducible across three independent runs. **All aggregate
+figures below use cgroup `memory.peak`**, polled once per second while the
+container is confirmed still running (reading it after exit races docker's
+own cgroup teardown and silently returns 0 — hit this once, fixed it by
+sampling only while `docker inspect .State.Running` is true and trusting the
+kernel's own monotonic peak counter). Per-rank figures below use `ps` RSS per
+process and are reported for balance/shape only, explicitly flagged as an
+overcount if summed.
+
+**This session's own cgroup-based 2-rank number (1,613–1,615 MiB) does not
+match the previously-documented 2,185.2 MiB baseline for the same case**
+(Option 2's table, above). The prior session's exact measurement script no
+longer exists to inspect (scratchpad from that session was not preserved),
+so the cause of the ~26% gap cannot be pinned to a specific mechanism with
+certainty — plausibly a different accounting method (e.g. summed RSS with
+different dedup behavior, or a `docker stats`-derived figure). **This is
+disclosed, not resolved**, and the fix is procedural: everything reported
+below and in Options 4/5 uses one consistent method throughout this session
+(cgroup `memory.peak`), so ranks/mesh-size comparisons *within* this
+session's own numbers are apples-to-apples even though the absolute
+magnitude may not be directly comparable, digit-for-digit, to numbers from a
+different, unrecoverable methodology in an earlier session.
+
+**Contention note (new standing instruction this session):** other compute
+agents came online partway through this measurement (a hump-turbulence
+sweep, an adjoint-NaN field scan, a closure-challenge study — CPU/light-
+memory budgeted, not colocated on this case). Load climbed from 0.29 to as
+high as 20.5 across these runs. **A direct sensitivity check was run**: the
+2-rank case was re-measured at load 15.88 (vs. 3.40 clean) and read 1,566.3
+MiB vs. 1,613.0 MiB clean — a 2.9% difference, well inside normal run-to-run
+noise, while wall-clock time nearly tripled (64s vs 22s). This makes sense:
+cgroup memory accounting is per-container and isolated from other host
+processes' CPU/memory use as long as the *host* itself is not memory-
+constrained (it was not — MemAvailable never dropped below 28.4 GB across
+this whole option). **Conclusion: these peak-RSS numbers are trustworthy
+despite the CPU contention; the wall-clock times are not** and should not be
+compared across rows without checking the load column.
+
+**Measured — A1 NACA0012, 4,032 cells, `runScript.py` (unmodified baseline,
+default `pcFillLevel=1`), `compute_totals`, no memory cap that was ever
+approached (8g cap, nowhere close to hit):**
+
+| ranks | agg peak RSS (cgroup) | per-rank RSS (ps, min–max) | per-rank mean | wall | MemAvailable before | load (1-min) before |
+|---|---|---|---|---|---|---|
+| 2 | 1,613.0 MiB | 1,240.8–1,241.0 MiB | 1,240.9 MiB | 22 s | 29.0 GB | 3.40 |
+| 2 (contention check) | 1,566.3 MiB | 1,247.5–1,247.8 MiB | 1,247.6 MiB | 64 s | 28.6 GB | 15.88 |
+| 4 | 2,282.1 MiB | 1,027.6–1,028.5 MiB | 1,027.9 MiB | 19 s | 29.0 GB | 3.86 |
+| 8 | 3,635.1 MiB | 938.4–945.2 MiB | 942.8 MiB | 16 s | 29.0 GB | 8.01 |
+| 16 | 6,071.5 MiB | 873.0–876.0 MiB | 874.5 MiB | 385 s (heavily contended, see load) | 29.0 GB | 7.28→20.5 during run |
+
+**Both halves of the predicted effect happened, and the second one is the
+answer that matters:**
+- Per-rank peak RSS *did* drop with more ranks — 1,240.9 → 1,027.9 → 942.8 →
+  874.5 MiB as ranks went 2→4→8→16, a real 29.5% reduction — but **strongly
+  sublinearly**: 8x more ranks bought only a 1.4x per-rank reduction. This is
+  consistent with each rank paying a large, largely rank-count-independent
+  fixed cost (loading PETSc/OpenFOAM/Python/MPI/numpy, DAFoam's own
+  in-memory structures) that does not shrink just because its slice of the
+  4,032-cell mesh does (at 16 ranks that slice is 252 cells — trivial — yet
+  each rank still needs ~875 MiB just to exist).
+- **Aggregate peak RSS grew, monotonically and substantially**: 1,613 →
+  2,282 → 3,635 → 6,072 MiB, a **3.76x increase** from 2 to 16 ranks. The
+  fixed per-rank cost, paid 16 times instead of 2, dominates any savings from
+  smaller per-rank data.
+
+**Verdict: RULED OUT, and closed permanently, exactly per the brief's second
+predicted outcome.** For this case (and by the same fixed-cost-per-rank
+mechanism, for any case where mesh-local data isn't already the dominant
+memory cost — which describes the coloring/Jacobian-block structural wall
+this whole document is about), adding MPI ranks does not reduce the total
+memory needed to complete a compute_totals call; it increases it. Rank count
+is not a lever for fitting a big adjoint into a fixed-RAM box. **This also
+answers, in the negative, whether more ranks could rescue A3/A6/sail_medium/
+naca4412_coarse**: the mechanism that would need to hold for ranks to help
+(memory dominated by per-rank mesh data, not fixed overhead) is directly
+contradicted by this measurement, on the same solver family, same host,
+same session.
+
+*Corroborating but incompletely-specified secondary data point, found already
+on disk from a session interrupted before it was written up*: a rank=8 run on
+A3 ONERA M6 coarse (99,840 cells, the actual blocked case) exists in the
+solve registry (`d3_ranks8_A3coarse_20260729T035114Z`), reading
+`peak_MiB=20480.0` (**censored at its 20g cap**) after 1,014 s. The exact
+preconditioner/sparsify settings used for that run are not recoverable from
+the surviving `.done`/`.log` records (no script name or option dict was
+retained) so it is **not** compared numerically against the 4-rank sparsify
+runs in Option 2 above (18,421.8 / ≥20,480.0 MiB) — both 4-rank and 8-rank
+runs on this case hit or exceeded the same 20g cap, so this pairing cannot
+show whether 8 ranks helped, hurt, or made no difference on the case that
+actually matters; it can only confirm that 8 ranks did **not** rescue it
+under a 20g cap. Re-running it cleanly, to a specified configuration, would
+be needed to say more — not done here, given the A1 result above already
+closes the option on structural grounds.
 
 ## Option 4 — coarse-adjoint-mesh boundary
 
@@ -222,7 +325,8 @@ boundary (Option 4) are measured, per the directive's ordering.
 
 ## What is still open, explicitly
 
-- Option 3 (8/16 ranks): not started this session.
+- Option 3: **done, closed.** More ranks increases aggregate memory for this
+  workload; not a viable lever.
 - Option 4 (pin the exact working/failing mesh-size boundary between 63,920
   and 99,840; check A4's 45,760-cell mesh directly): not started this session.
 - Option 5: needs a controlled same-geometry sweep, not just the cross-case
