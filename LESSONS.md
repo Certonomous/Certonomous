@@ -477,6 +477,68 @@ agents". It was not a race. It was me. That is worth recording, because a
 plausible systemic explanation was available and would have sent someone
 hunting for a locking bug that does not exist.
 
+## L-13. Extruding a wall-resolved 2D mesh into 3D can fail checkMesh's cell-determinant check — and coarsening the spanwise cell, not refining it, is the fix
+
+**What happened.** F5a's Re=1000 cylinder ladder needed a 3D rung: take the
+already-gated 2D O-grid mesh (radial first cell 0.00447D at the wall, for a
+fully resolved, un-modelled laminar boundary layer) and extrude it along a
+new cyclic spanwise direction to admit the Mode-B instability. The naive
+choice — reproduce the literature's own spanwise cell size (Jiang & Cheng
+2017, dz/D=0.05) exactly — built a topologically fine mesh (non-orthogonality
+~1e-6, skewness 0.027, "Mesh OK" on every other check) that **still failed
+checkMesh**: 33,600 cells, an entire near-wall ring at every spanwise
+station, flagged for small cell determinant (<0.001).
+
+**The counter-intuitive part.** The instinct is "the flagged cells are the
+most anisotropic ones, so making them MORE anisotropic (a larger dz, i.e. a
+coarser spanwise cell relative to the tiny radial first cell) should make it
+worse, and refining dz should help." A dz sweep from 0.03 to 0.10, with the
+in-plane mesh (radial/tangential counts, first cell, farfield) held exactly
+fixed, showed the opposite: the minimum cell determinant rises
+**monotonically with dz** — 0.03 gave 0.000166 (fail), 0.05 gave 0.000959
+(fail, this is the literature's own value), 0.05085 gave 0.001013 (pass),
+0.10 gave 0.007882 (pass, the widest/coarsest spanwise cell tested, and the
+cleanest mesh of the sweep). **Coarsening the spanwise cell fixed it;
+refining it made it worse.**
+
+**Why (a hypothesis, stated as such, not solver-verified).** The flagged
+cells sit in the near-wall ring, where the O-grid's inner and outer patches
+are `arc` (curved) edges, not straight ones — every cell in that ring
+carries a small built-in warp from that curvature. When the spanwise extent
+(dz) is large relative to the in-plane cell dimensions, that warp is a
+small fraction of the cell's dominant (spanwise) length scale and the
+normalized determinant stays healthy. As dz is pulled down toward the same
+order of magnitude as the radial/tangential extent, the warp is no longer
+swamped by a dominant orthogonal direction and the determinant drops. This
+is a property of extruding **any** curved-edge, wall-resolved 2D mesh into
+a third dimension — it is not specific to this cylinder, this Re, or this
+solver, and the next person who takes a 2D boundary-layer-resolved mesh
+(an airfoil O-grid, a bluff-body C-grid, anything with `arc` or spline
+patches at the wall) and extrudes it for a 3D/LES/DNS run should expect the
+same failure mode if they reach for the finest "natural" spanwise cell size
+without checking.
+
+**The fix that does NOT work: spanwise grading.** Grading dz along the span
+(finer at one end, coarser at the other, same total cell count) was tested
+directly and made the determinant **worse**, not better (min determinant
+dropped from 0.000959 uniform to 0.0000644 at a 4:1 grading ratio) —
+concentrating cells anywhere necessarily thins the coarse end further for a
+fixed total count. It is also physically wrong for a periodic/homogeneous
+instability (no location along a cyclic span is more deserving of
+resolution than any other), but it is worth knowing it does not even solve
+the mesh-quality problem it might be reached for.
+
+**How to apply.** Before extruding a wall-resolved 2D mesh for a 3D run:
+sweep the intended spanwise cell size against `checkMesh -allTopology
+-allGeometry` at fixed in-plane resolution BEFORE staging a solve, the same
+way a mesh-convergence study is run — do not assume the literature's own
+spanwise cell size will pass on your in-plane mesh just because it passed
+on theirs (their in-plane mesh, near-wall first cell, and O-grid corner
+geometry are not necessarily identical to yours). If it fails, try
+coarsening the spanwise cell before concluding the in-plane mesh needs to
+change — a spanwise-only fix preserves whatever control the in-plane mesh
+was providing (here, byte-identity with a previously gated 2D case).
+
 **Why the disguise works.** `git add -A` with no path is obviously dangerous
 and everyone avoids it. With a path it reads as scoped, and the scope is real —
 it just isn't small. The danger is not the `-A`; it is that the path is a
