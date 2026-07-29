@@ -461,3 +461,42 @@ the one that changed, not files that merely carry dead configuration. Revert
 silently-forked methodology to match the established convention unless there
 is a documented, deliberate reason to change it — and if there is, log the
 change as its own decision, on its own rung, so it can be attributed later.
+
+## L-12. `git add -A <path>` is a directory sweep wearing a pathspec
+
+**What happened, twice.** The rule in this lab is never to stage a directory,
+because several agents share one working tree. I broke it twice. The second
+time cost the most: `git add -A demo-output/website/dafoam/` looked targeted —
+it names a specific path — but it staged everything underneath, including
+`polyMesh/owner` and `polyMesh/faces` files of 766,000 lines each. One commit:
+**1,187 files, 25 million insertions.** `.git` reached 513 MB, in a repository
+that gets pushed to GitHub.
+
+Two agents independently reported this as a "shared index race between
+agents". It was not a race. It was me. That is worth recording, because a
+plausible systemic explanation was available and would have sent someone
+hunting for a locking bug that does not exist.
+
+**Why the disguise works.** `git add -A` with no path is obviously dangerous
+and everyone avoids it. With a path it reads as scoped, and the scope is real —
+it just isn't small. The danger is not the `-A`; it is that the path is a
+directory and directories accumulate solver output.
+
+**The rule.** Name files, never directories. Better, skip the index entirely:
+
+    git commit -m "message" -- path/to/file.py path/to/other.md
+
+A pathspec-limited commit takes only those paths and ignores whatever else is
+staged, which also makes it safe when other agents are committing concurrently.
+Note the argument order — `-m` before the `--`, or git reads the message as a
+pathspec.
+
+**What to check before committing.** `git show --stat HEAD | tail -1`. If the
+file count or the insertion count surprises you, it swept something. Neither of
+my two sweeps was noticed at commit time; both were found later, by someone
+else, looking at something unrelated.
+
+**A mesh is not source.** It is regenerated from case dictionaries, which are
+tracked. The same goes for `postProcessing/`, sampled `.xy` and `.raw` output,
+and decomposed `processor*/` state. `.gitignore` now covers these, but ignore
+rules only stop the next one — history keeps what it was given.
