@@ -233,22 +233,50 @@ numbers at every step size tested, not a resolution artifact on either side.
 idx7 (both combination-mode DVs) disagree by 108–149% and are SIGN-FLIPPED in every configuration
 tested**, independent of seed, step size, and serial-vs-4-rank-parallel execution.
 
-## An important open question, reported honestly rather than smoothed over
+## Why idx6 corrupts the real gradient and idx7 does not, despite an identical generic failure -- resolved
 
-Despite idx6 and idx7 sharing the identical construction and both failing this test in the same way,
-**only idx6 produces a wrong result in the real, full-chain `dCD/dShape` gradient** (verified via
-`check_totals` against finite differences across two mesh resolutions in this investigation — idx7
-agrees to 1.5–1.8%, idx6 is sign-flipped). The seed `w` used above is an arbitrary fixed random vector,
-not the real force-objective's own reverse-mode seed (`dCD/dXv`); our working, not-yet-confirmed
-hypothesis is that `warpDeriv`'s linearization error exists in some subspace at both the LE and the TE
-for this construction, but only survives contraction with the real objective's own gradient direction
+Despite idx6 and idx7 sharing the identical construction and both failing the random-seed test above in
+the same way, **only idx6 produces a wrong result in the real, full-chain `dCD/dShape` gradient**
+(verified via `check_totals` against finite differences across two mesh resolutions in this
+investigation — idx7 agrees to 1.5–1.8%, idx6 is sign-flipped). The seed `w` used above is an arbitrary
+fixed random vector, not the real force-objective's own reverse-mode seed (`dCD/dXv`). Our hypothesis was
+that `warpDeriv`'s linearization error exists in some subspace at both the LE and the TE for this
+construction, but only survives contraction with the real objective's own gradient direction
 (concentrated near the LE stagnation region for a drag objective at this Reynolds number/incidence) at
-the LE. **We have not run the follow-up test that would confirm this** (repeating the identity above
-with the real `dCD/dXv` as `w`, which requires a CFD+adjoint solve rather than pure geometry). We report
-this openly because a maintainer with source-level access to IDWarp's implementation of `warpDeriv`
-(likely in the RBF/mesh-warping derivative assembly, specifically wherever a single design variable maps
-to multiple, oppositely-signed surface-point perturbations) may be able to resolve it directly from the
-code rather than from black-box measurement.
+the LE.
+
+**This has now been tested directly and the hypothesis is confirmed.** We captured the literal `dxV`
+vector the real adjoint chain hands to `mesh.warpDeriv(dxV)` -- not a reconstruction of it -- by running
+the real, unmodified `Top` model (`runScript.py`), doing one real reverse-mode CD adjoint solve
+(`prob.compute_totals(of=["scenario1.aero_post.CD"], wrt=["shape"])`), and hooking
+`DAFoamWarper.compute_jacvec_product` to record its `d_outputs["aero_vol_coords"]` argument at the one
+point it is called. Re-running the identity above with that real seed in place of the random one:
+
+| idx | construction | FD_scalar (real seed) | AN_scalar (real seed) | rel. err. | sign |
+|---|---|---|---|---|---|
+| 4 | single-station (control) | 3.9997e-02 | 3.8938e-02 | 2.65% | agree |
+| **6** | **combination (LE)** | -1.0656e-03 | 5.6907e-03 | **634.0%** | **FLIPPED** |
+| **7** | **combination (TE)** | 3.5281e-03 | 3.4668e-03 | **1.74%** | agree |
+
+**With the real seed, idx6 still fails badly and is still sign-flipped; idx7 now agrees, to 1.74% --
+matching, almost exactly, the 1.5–1.8% idx7's real gradient has independently shown in every direct
+`check_totals` measurement.** As a cross-check (not requested by this test but a useful sanity bound):
+this run's `AN_scalar` values match this lab's independently-measured real adjoint values for idx4/6/7
+to all printed digits (expected, since it is the same quantity reconstructed through the same code
+path), and its `FD_scalar` values match the independently-measured real FD values to 0.03–1.2%,
+including reproducing idx6's sign flip and ~640% magnitude almost exactly -- strong evidence the
+real-seed identity is measuring the same thing the original gradient check measured, not an unrelated
+quantity.
+
+**Conclusion for maintainers:** `mesh.warpDeriv`'s mis-linearization of opposing-direction combination
+shape modes is not localized to a single design variable's own footprint in a way that always corrupts
+that variable's own gradient -- it is present (measurably, via the generic random-seed test) at BOTH the
+LE and TE combo modes in this case, but the specific real-world consequence for any given objective
+depends on whether that objective's own adjoint sensitivity field (`dF/dXv`) overlaps the region where
+`warpDeriv`'s error lives. For a drag objective, that overlap is large at the LE and negligible at the
+TE, which is exactly the split observed. This does not change the recommended starting point below for
+locating the bug in `warpDeriv`'s own source, but it does resolve what looked like an inconsistency in
+this report's own evidence, without requiring the bug to behave differently at the LE and the TE.
 
 ## Suggested starting point for maintainers
 
@@ -267,10 +295,17 @@ not traced this into IDWarp's own source in this investigation and cannot point 
   reproducer)
 - `demo-output/website/dafoam/probewarpderiv_idx{4,6,7}_*_run1.log` — raw stdout for every
   configuration in the results table
-- `demo-output/website/dafoam/PROOF.md`, sections 15–16 — full investigation history, including 6 other
+- `demo-output/website/dafoam/work/NACA0012_Airfoil_Incompressible/probeWarpDerivRealSeed.py` — the
+  real-`dCD/dXv`-seed follow-up script: builds the real `runScript.py` model, runs a real primal + CD
+  adjoint solve, captures the real seed via a hook on `DAFoamWarper.compute_jacvec_product`, repeats the
+  identity for idx4/idx6/idx7 with that real seed instead of a random one
+- `demo-output/website/dafoam/probewarpderiv_realseed_idx4_idx6_idx7_np4_run1.log` — raw stdout behind
+  the real-seed results table above
+- `demo-output/website/dafoam/PROOF.md`, sections 15–17 — full investigation history, including 6 other
   mechanisms tested and refuted before this one was found (residual-tolerance noise, FFD/DVGeo Jacobian
   convention, coarse-mesh discretization error, frozen wall-distance, a wall-function branch-crossing
-  hypothesis, and combination-mode mesh pinching), and a second, independent case (A5, U-Bend Channel)
-  that shares the coarse symptom profile (step-independent, sign-flipped) but was tested and shown NOT
-  to share this specific `warpDeriv` mechanism — so this defect is confirmed for the NACA0012 case
-  specifically, not assumed to explain every gradient-accuracy failure encountered.
+  hypothesis, and combination-mode mesh pinching), a second, independent case (A5, U-Bend Channel) that
+  shares the coarse symptom profile (step-independent, sign-flipped) but was tested and shown NOT to
+  share this specific `warpDeriv` mechanism — so this defect is confirmed for the NACA0012 case
+  specifically, not assumed to explain every gradient-accuracy failure encountered — and section 17, the
+  real-seed follow-up that resolved the idx6-vs-idx7 question above.

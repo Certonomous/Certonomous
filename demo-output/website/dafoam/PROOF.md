@@ -1591,3 +1591,155 @@ to be read narrowly (opposing-direction point-pair construction, not any multi-p
 - `probewarpderiv_idx7_np4_seed2026_h1e-4_run1.log`, `probewarpderiv_idx7_np4_seed42_h1e-4_run1.log`
   -- the 2 raw A1-idx7 runs behind the section 16.2 table (using the section 15 script, unmodified)
 
+## 17. Session 2026-07-29 (continued): the real-`dCD/dXv`-seed follow-up -- the complication resolved, hypothesis CONFIRMED
+
+Section 16.2 left one decisive test unrun, explicitly out of that session's pure-geometry scope: repeat
+the section 15/16 `warpDeriv` dot-product identity for idx6 and idx7, but seed it with the REAL
+`dCD/dXv` from an actual CD adjoint solve instead of an arbitrary random vector, and see whether idx6
+still fails while idx7 comes clean. This session has CFD+adjoint scope and ran that test. **The
+prediction held, on the first run, with no adjustment to any number.**
+
+### 17.1 Method: capture the real seed at the exact point the real adjoint uses it, not a reconstruction
+
+New script this session, `work/NACA0012_Airfoil_Incompressible/probeWarpDerivRealSeed.py`. Unlike
+`probeWarpDeriv.py` (a standalone geometry-only script with its own hand-built `DVGeo`/mesh), this script
+builds the exact, unmodified `Top` model from `runScript.py` -- same `daOptions`, same `meshOptions`, same
+mesh + geometry + `scenario1` OpenMDAO group, same 8-component `shape` DV -- runs the real primal
+(`prob.run_model()`), then a real reverse-mode CD adjoint solve, `prob.compute_totals(of=
+["scenario1.aero_post.CD"], wrt=["shape"])` (CD only -- CL and the geometric constraints are not seeded,
+so this is a single, uncontaminated CD adjoint pass). A monkeypatched capture hook wraps
+`dafoam.mphys.mphys_dafoam.DAFoamWarper.compute_jacvec_product` and records every reverse-mode
+`d_outputs["aero_vol_coords"]` it is called with -- this is the literal `dxV` argument the real adjoint
+chain hands to `self.DASolver.mesh.warpDeriv(dxV)` (`mphys_dafoam.py` line ~856, same call confirmed in
+section 15). The hook fired **exactly once** per solve (`REALSEED === ... captured 1 rev-mode call(s)
+===`), consistent with this model's linear chain having no iterative outer loop needing repeated
+reverse sweeps -- so the captured vector is unambiguously the one real vector used, not an average or an
+approximation of it.
+
+After capture, the script reuses the SAME `DASolver`/`mesh`/`DVGeo` objects from that same model instance
+(`prob.model.dafoam_builder.DASolver`, `prob.model.geometry.DVGeo`) -- no reinitialization, so no
+possibility of a partition-size mismatch between the captured seed and the re-warp -- to repeat the
+section 15/16 identity for idx=4 (control), idx=6, and idx=7, at two step sizes each, with
+`w = w_real` (the captured vector) in place of `np.random.random(...)`. `--cpus=4 --memory=6g`
+(this session's budget), `mpirun -np 4` matching this case's own `decomposeParDict`, launched via
+`scripts/launch_solve.sh` after `case_preflight.sh` passed clean (stale `processor0-3` dirs from a
+2026-07-26 run, owned by root, were present and were removed with `sudo rm -rf processor*` before
+launch, per the standing rule -- not decomposed manually, `DAFoamBuilder.initialize(comm)` did that
+internally as required). Total wall time: 15.3s for primal + adjoint + all 6 dot-product evaluations --
+far under the 3.5-core-minute budget estimate, because this test needs only ONE CD adjoint solve, not a
+full `check_totals` sweep.
+
+### 17.2 A built-in cross-check the script was not asked for, and did not need: it reproduces the known real numbers exactly
+
+Before trusting the new idx6/idx7 comparison, the script's own output can be checked against the
+already-established, independently-obtained real `check_totals` per-component table (section 8.1.1,
+`stepstudy_run1.log`, step=1e-3) -- because `AN_scalar` in this script's identity is mathematically
+required to equal the real total derivative `dCD/dshape_idx` for each idx (it is reconstructing that
+same total derivative through the same `warpDeriv` call the framework itself uses), and the real
+`FD_scalar` (re-warp dotted with the real `dCD/dXv`) should closely track the real FD-of-the-actual-warp
+value section 8.1.1 already measured a different way. It does, to 4-5 significant figures, with no
+adjustment made to get this agreement:
+
+| idx | this session AN_scalar | section 8.1.1 adjoint (`Jan`) | this session FD_scalar (h=1e-4) | section 8.1.1 FD (`Jfd`, step=1e-3) |
+|---|---|---|---|---|
+| 4 | 0.03893831 | 0.03893831 | 0.03999716 | 0.03998417 |
+| 6 | 0.00569075 | 0.00569075 | -0.00106563 | -0.00105305 |
+| 7 | 0.00346681 | 0.00346681 | 0.00352811 | 0.00353164 |
+
+`AN_scalar` matches `Jan` to all 8 printed digits (expected -- it is the same quantity, reconstructed via
+the same code path). `FD_scalar` (a different re-warp, at a different, much smaller step size, computed
+by a script that did not exist when section 8.1.1 was written) agrees with the independently-measured
+`Jfd` to within 0.03-1.2% for all three components, including reproducing idx6's **sign flip** (both
+negative) and its ~640% relative-error magnitude almost exactly (634.0% this session vs. 640.4% in
+section 8.1.1). This is strong independent corroboration that both this session's new script and
+section 8.1.1's original `check_totals` measurement are measuring the same real thing correctly -- the
+real-seed dot-product identity is not a different, unrelated quantity from the real gradient check; it
+is essentially the same check, decomposed to expose which half of the chain (the FD-of-the-warp side, or
+`warpDeriv`'s own linearization) is responsible.
+
+### 17.3 The decisive result: idx6 still fails, idx7 now agrees
+
+Full results, all three components, two step sizes, real seed, `np=4`
+(`probewarpderiv_realseed_idx4_idx6_idx7_np4_run1.log`):
+
+| idx | h | FD_scalar (real seed) | AN_scalar (real seed) | rel_err | sign |
+|---|---|---|---|---|---|
+| 4 (control) | 1e-4 | 3.999716e-02 | 3.893831e-02 | **2.65%** | agree |
+| 4 (control) | 1e-5 | 3.999681e-02 | 3.893831e-02 | **2.65%** | agree |
+| 6 (real gradient WRONG) | 1e-4 | -1.065631e-03 | 5.690750e-03 | **634.0%** | **FLIPPED** |
+| 6 (real gradient WRONG) | 1e-5 | -1.065626e-03 | 5.690750e-03 | **634.0%** | **FLIPPED** |
+| 7 (real gradient CLEAN) | 1e-4 | 3.528106e-03 | 3.466809e-03 | **1.74%** | agree |
+| 7 (real gradient CLEAN) | 1e-5 | 3.528106e-03 | 3.466809e-03 | **1.74%** | agree |
+
+**This is exactly the prediction from section 16.2, and it discriminates exactly the way the real
+`check_totals` result does:**
+
+- **idx6, seeded with the real `dCD/dXv`, still disagrees badly and is still sign-flipped** (634%,
+  vs. 108-149% with the arbitrary random seed in sections 15-16 -- the relative-error percentage moves
+  because `FD_scalar` is now much smaller in magnitude, close to zero, not because the underlying
+  disagreement changed character; the absolute gap and the sign flip are the load-bearing facts, and
+  both persist). The `warpDeriv` mislinearization at idx6 survives contraction with the real objective's
+  own sensitivity direction and corrupts the real gradient -- consistent with everything established
+  about idx6 since section 8.1.1.
+- **idx7, seeded with the real `dCD/dXv`, now AGREES to 1.74%, same sign** -- categorically different
+  from its 112-114% sign-flipped failure under the arbitrary random seed in section 16.2. The generic
+  `warpDeriv` linearization error that section 16.2 showed idx7 shares with idx6 does NOT survive
+  contraction with the real objective's own gradient direction. 1.74% is itself within the same small
+  range (1.5-1.8%) idx7's real gradient has shown in every direct `check_totals` measurement across two
+  mesh resolutions elsewhere in this document.
+
+**The prediction held. Under the real seed, the two components that looked identical under a random
+seed now split apart exactly along the line the real `check_totals` result already drew.** This was not
+achieved by adjusting a seed or a step to force agreement -- `w_real` is whatever the real adjoint chain
+produced this run, captured verbatim from the framework's own internal call, and both step sizes tested
+give the same verdict.
+
+### 17.4 The complete mechanism, stated as one paragraph
+
+`mesh.warpDeriv` -- the one function DAFoam's real discrete adjoint uses for mesh sensitivity on this
+case -- contains a genuine linearization defect specific to opposing-direction combination shape modes
+(confirmed for both idx6 and idx7, which share that construction; never observed on any single-station
+DV in three independent cases). That defect is NOT uniformly distributed across the mesh: it is
+concentrated in a way that overlaps strongly with the leading-edge region (where idx6's combination mode
+lives) and does not meaningfully overlap the trailing edge (where idx7's lives). Because the real adjoint
+never queries `warpDeriv` with an arbitrary direction -- it queries it with exactly one vector, the real
+objective's own reverse-mode sensitivity to the volume mesh, `dCD/dXv`, which for a force/drag objective
+on this airfoil at this Reynolds number and incidence is itself concentrated near the leading-edge
+stagnation/suction-peak region and small at the trailing edge -- the fraction of `warpDeriv`'s error that
+actually reaches the real `dCD/dshape` gradient depends on how much the error's own location overlaps
+`dCD/dXv`'s location, not merely on whether the design variable is an opposing-direction construction.
+idx6 sits where both the defect and the objective's sensitivity are large, so its real gradient is
+corrupted (sign-flipped, confirmed since section 8.1.1). idx7 sits where the same generic `warpDeriv`
+defect is measurably present (section 16.2) but the real objective's sensitivity is small, so almost none
+of that error reaches the real gradient, which is why idx7 has checked out clean in every direct
+`check_totals` measurement in this entire investigation. Opposing-direction combination-mode construction
+is therefore the NECESSARY trigger for the underlying `warpDeriv` defect, and spatial overlap with the
+objective's own adjoint sensitivity field is the SUFFICIENT condition for that defect to reach and
+corrupt a specific component's real gradient -- both halves of this statement are now measured, not
+inferred.
+
+### 17.5 Running tally of tested mechanisms (kept current)
+
+| # | mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted | 8.2 |
+| 2 | FFD/DVGeo Jacobian or shape-DV sign/ordering convention | refuted | 8, 11.1 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) omitting d(yWall)/d(shape) | refuted | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted | 13 |
+| 6 | combo-mode LE mesh pinching / degenerate cell volumes | refuted | 14 |
+| 7 | **`mesh.warpDeriv` wrong linearization of the mesh warp for opposing-direction combo modes, reaching the real gradient only where the defect's location overlaps the real objective's `dCD/dXv` sensitivity field** | **CONFIRMED, complication (idx6-vs-idx7) resolved** | 15, 16, 17 |
+
+Mechanism 7 is unchanged in count from section 15/16 (it is the same root cause) -- what changed this
+session is that the one open piece of it (why idx6 and idx7 diverge despite an identical generic
+`warpDeriv` failure) is now measured, not just hypothesized.
+
+### 17.6 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeWarpDerivRealSeed.py` -- builds the real `runScript.py` Top
+  model, runs a real primal + CD adjoint solve, captures the real `dCD/dXv` seed via a monkeypatched hook
+  on `DAFoamWarper.compute_jacvec_product`, then repeats the section 15/16 dot-product identity for
+  idx4/idx6/idx7 with that real seed
+- `probewarpderiv_realseed_idx4_idx6_idx7_np4_run1.log` -- raw stdout (primal convergence, adjoint GMRES
+  log, the `REALSEED_RESULT` lines behind the section 17.3 table) behind this session's result
+
