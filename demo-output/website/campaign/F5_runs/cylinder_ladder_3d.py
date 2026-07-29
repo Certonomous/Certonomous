@@ -109,24 +109,64 @@ MAX_CO = 1.5
 
 SPAN_3D_OVER_D = 6.0     # Jiang & Cheng (2017) Table 1/3 production choice
 
-# Two spanwise-resolution presets. "reference" reproduces Jiang & Cheng's
-# own validated dz/D=0.05; "pilot" is this task's affordable dz/D=0.10
-# option (their own least-resolved sensitivity case, Table 3 case 5).
-DZ_PRESETS = {
-    "reference": 0.05,   # 120 spanwise cells over Lz/D=6 -- 2,688,000 total
-    "pilot": 0.10,        # 60 spanwise cells over Lz/D=6  -- 1,344,000 total
+# Three spanwise-resolution presets, keyed directly by spanwise cell count
+# (not by a dz value backed out to the nearest integer n_span) because the
+# clean-mesh threshold measured below does NOT sit at a round dz -- see the
+# determinant sweep this module's docstring section describes.
+#
+#   "reference_exact" -- Jiang & Cheng's own literal dz/D=0.05 (n_span=120).
+#     FAILS checkMesh: 33,600/2,688,000 cells (one full near-wall ring, all
+#     spanwise stations) flagged for small cell determinant (<0.001,
+#     measured minimum 0.000959). Kept only for provenance/citation
+#     fidelity -- NOT launch-clean, do not stage this for a solve.
+#
+#   "reference_clean" -- n_span=115 (dz/D=6/115=0.05217, 4.3% coarser than
+#     Jiang & Cheng's 0.05). A free (blockMesh+checkMesh only, no solve)
+#     bisection sweep at fixed in-plane mesh (n_radial=80, n_tangential=70,
+#     first_cell=0.00447D -- all UNCHANGED, this is a spanwise-only fix)
+#     found the clean/failing boundary between n_span=118 (dz=0.05085,
+#     det_min=0.00101, PASSES, 1% above threshold -- too thin a margin to
+#     trust) and n_span=120 (dz=0.05, det_min=0.000959, FAILS). n_span=115
+#     (det_min=0.00110, PASSES with a safer margin) is recommended over
+#     n_span=118 for exactly that reason. This is, for practical purposes,
+#     Jiang & Cheng's own converged resolution: their Table 3 shows dz=0.05
+#     and dz=0.0706 bracketing Cl_rms 0.1191 to 0.1597, so a point 4%
+#     coarser than 0.05 should sit very close to 0.1191, not partway to
+#     0.1597.
+#
+#   "pilot" -- n_span=60 (dz/D=0.10). Jiang & Cheng's OWN least-resolved
+#     sensitivity case (their Table 3 case 5): Cd +3.2%, Cl_rms +36% high
+#     relative to their converged answer. Cheapest option; NOT literature-
+#     matching, but its bias is itself literature-quantified, not guessed.
+N_SPAN_PRESETS = {
+    "reference_exact": 120,   # dz/D=0.05000 -- FAILS checkMesh, not launch-clean
+    "reference_clean": 115,   # dz/D=0.05217 -- PASSES, ~4% off Jiang & Cheng's own value
+    "pilot": 60,              # dz/D=0.10000 -- PASSES, cheapest, their own worst case
 }
+# Cell-determinant sweep (blockMesh+checkMesh only, no solve; in-plane mesh
+# held fixed at n_radial=80/n_tangential=70/first_cell=0.00447D throughout):
+#   dz/D    n_span   det_min     checkMesh
+#   0.030   200      0.000166    FAIL (56,000 cells)
+#   0.040   150      0.000453    FAIL (42,000 cells)
+#   0.045   133      0.000681    FAIL (37,240 cells)
+#   0.050   120      0.000959    FAIL (33,600 cells)  <- Jiang & Cheng's own value
+#   0.05085 118      0.001013    PASS (thin margin)
+#   0.05217 115      0.001103    PASS  <- recommended "reference_clean"
+#   0.05357 112      0.001202    PASS
+#   0.05505 109      0.001312    PASS
+#   0.06000 100      0.001730    PASS
+#   0.10000  60      0.007882    PASS  <- "pilot"
+# Monotonic and clean: det_min rises with dz across the whole range tested
+# (thinner spanwise cells are WORSE conditioned here, not better -- the
+# opposite of the naive "finer must be more anisotropic-in-the-bad-way"
+# guess; see the design section of F5a_cylinder_reynolds_ladder.md for the
+# geometric reasoning). Grading dz instead of coarsening it was also tested
+# (see spanwise_grading_probe.md note below) and made det_min WORSE, not
+# better, at the same mean dz -- grading is a dead end on both physics and
+# mesh-quality grounds, not just the physics one.
 
 SLAB_WIDTH_OVER_D = 0.5   # seeding square-wave half-wavelength -> lambda=1D
 SEED_W_AMPLITUDE = 0.02   # spanwise velocity kick, fraction of U_inf
-
-
-def n_span_for(dz_over_d: float, span_over_d: float = SPAN_3D_OVER_D) -> int:
-    n = span_over_d / dz_over_d
-    n_round = round(n)
-    if abs(n - n_round) > 1e-6:
-        raise ValueError(f"span/dz = {n} is not an integer number of cells")
-    return int(n_round)
 
 
 def cell_count(n_span: int) -> int:
@@ -216,13 +256,19 @@ def centerline_probe_points_3d(span: float, lo_over_d: float = 0.05,
 
 def build_case_3d(case_dir: Path, *, dz_preset: str, end_time: float,
                   perturbation: float = 0.1) -> dict[str, Any]:
+    if dz_preset == "reference_exact":
+        raise ValueError(
+            "reference_exact (n_span=120, dz/D=0.05, Jiang & Cheng's literal "
+            "value) FAILS checkMesh's cell-determinant check and is not "
+            "launch-clean -- use 'reference_clean' (n_span=115) instead. "
+            "See N_SPAN_PRESETS docstring for the measured sweep.")
     case = Path(case_dir)
     for sub in ("0", "constant", "system"):
         (case / sub).mkdir(parents=True, exist_ok=True)
     nu = DIAMETER * U_INF / REYNOLDS
-    dz = DZ_PRESETS[dz_preset]
+    n_span = N_SPAN_PRESETS[dz_preset]
     span = SPAN_3D_OVER_D * DIAMETER
-    n_span = n_span_for(dz, SPAN_3D_OVER_D)
+    dz = span / n_span
 
     (case / "system" / "blockMeshDict").write_text(
         block_mesh_dict(DIAMETER, FARFIELD_DIAMETERS, N_RADIAL, N_TANGENTIAL,
@@ -293,7 +339,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--name", required=True)
     parser.add_argument("--out", required=True)
-    parser.add_argument("--dz-preset", choices=list(DZ_PRESETS), default="pilot")
+    parser.add_argument("--dz-preset", choices=list(N_SPAN_PRESETS), default="pilot")
     parser.add_argument("--end-time", type=float, default=150.0)
     parser.add_argument("--no-check-mesh", action="store_true")
     args = parser.parse_args(argv)

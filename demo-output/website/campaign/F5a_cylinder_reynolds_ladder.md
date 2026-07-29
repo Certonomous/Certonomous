@@ -218,9 +218,17 @@ alone must move.
   own sensitivity case (Lz=12D) confirms 6D is not confinement-limited at
   Re=1000, because Mode A (the mode that needs a long span) is not present
   at this Re.
-- **Spanwise resolution: two presets, both built and mesh-checked.**
-  - `reference`, dz/D = 0.05 → 120 spanwise cells → **2,688,000 total
+- **Spanwise resolution: three presets, all built and mesh-checked** (the
+  third, `reference_clean`, was added after the determinant follow-up
+  below — see that section for why).
+  - `reference_exact`, dz/D = 0.05 → 120 spanwise cells → **2,688,000 total
     cells**. Reproduces Jiang & Cheng's own validated resolution exactly.
+    **Fails checkMesh** (see below) — kept for citation fidelity, not
+    launch-clean.
+  - `reference_clean`, dz/D = 0.05217 (n_span=115) → **2,576,000 total
+    cells**. ~4.3% coarser than Jiang & Cheng's own value, found by a free
+    checkMesh sweep to be the closest clean point to their resolution —
+    **recommended over `reference_exact`.**
   - `pilot`, dz/D = 0.10 → 60 spanwise cells → **1,344,000 total cells**.
     Their own least-resolved sensitivity case (Table 3 case 5) — Cd and
     Cl_rms visibly biased high relative to their converged case (+3.2%,
@@ -257,23 +265,92 @@ for every existing 2D caller with those defaults — no other rung is
 affected). The new case builder lives in
 `demo-output/website/campaign/F5_runs/cylinder_ladder_3d.py`.
 
-### Mesh sizing: both presets actually built and checkMesh'd (free, serial, <30s each)
+### Mesh sizing: all three presets actually built and checkMesh'd (free, serial, <30s each)
 
-| preset | cells | blockMesh | checkMesh | non-orth (max) | skewness (max) | aspect ratio (max) | verdict |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `pilot` (dz/D=0.1) | 1,344,000 | 7.2 s | 13.9 s | 4.6e-6 | 0.0266 | — | **Mesh OK**, clean |
-| `reference` (dz/D=0.05) | 2,688,000 | 13.9 s | 28.4 s | 4.6e-6 | 0.0266 | 26.4 | **Failed 1 check** — 33,600 cells (one full near-wall ring: 4 blocks x 70 tangential x 120 spanwise) flagged for small cell determinant (<0.001) |
+| preset | cells | blockMesh | checkMesh | non-orth (max) | skewness (max) | verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| `pilot` (dz/D=0.1) | 1,344,000 | 7.2 s | 13.9 s | 4.6e-6 | 0.0266 | **Mesh OK**, clean |
+| `reference_clean` (dz/D=0.05217) | 2,576,000 | 13.3 s | 27.1 s | 4.4e-6 | 0.0266 | **Mesh OK**, clean |
+| `reference_exact` (dz/D=0.05) | 2,688,000 | 13.9 s | 28.4 s | 4.6e-6 | 0.0266 | **Failed 1 check** — 33,600 cells (one full near-wall ring: 4 blocks x 70 tangential x 120 spanwise) flagged for small cell determinant (<0.001) |
 
-The `reference` mesh's determinant flag is a genuine, measured finding, not
-a hypothetical one: pairing the near-wall first cell (0.00447D, unchanged
-from the 2D rung) with the finer dz=0.05D spanwise cell produces extremely
-anisotropic hexahedra whose normalized determinant metric trips checkMesh's
-threshold, even though non-orthogonality and skewness stay excellent
-(unaffected by dz). This is a known false-positive-prone check for
-boundary-layer-type meshes and the cells are not necessarily invalid, but
-solver tolerance was **not verified** — no solve was attempted on this
-mesh. Until that is checked (or the near-wall/spanwise aspect ratio is
-eased), the `reference` preset is not launch-clean; `pilot` is.
+### Follow-up on the determinant flag (free, checkMesh-only, no solve): the two questions the supervisor asked before scheduling
+
+**Q1: can `reference_exact` be fixed without touching the in-plane mesh?**
+Yes — but the fix runs in the opposite direction from the naive guess.
+Holding `n_radial=80`, `n_tangential=70`, `first_cell=0.00447D`,
+`farfield_diameters=20` exactly fixed (i.e. touching **only** the spanwise
+cell count), a bisection sweep of `dz/D` from 0.03 to 0.10, each point built
+with `blockMesh` and checked with `checkMesh -allTopology -allGeometry`:
+
+| dz/D | n_span | cells | min cell determinant | checkMesh |
+| --- | --- | --- | --- | --- |
+| 0.030 | 200 | 4,480,000 | 0.000166 | FAIL (56,000 cells) |
+| 0.040 | 150 | 3,360,000 | 0.000453 | FAIL (42,000 cells) |
+| 0.045 | 133 | 2,979,200 | 0.000681 | FAIL (37,240 cells) |
+| **0.050** | **120** | **2,688,000** | **0.000959** | **FAIL (33,600 cells) — Jiang & Cheng's own value** |
+| 0.05085 | 118 | 2,643,200 | 0.001013 | PASS (1% above threshold — thin margin) |
+| **0.05217** | **115** | **2,576,000** | **0.001103** | **PASS — recommended (`reference_clean`)** |
+| 0.05357 | 112 | 2,508,800 | 0.001202 | PASS |
+| 0.05505 | 109 | 2,441,600 | 0.001312 | PASS |
+| 0.060 | 100 | 2,240,000 | 0.001730 | PASS |
+| 0.10 | 60 | 1,344,000 | 0.007882 | PASS (`pilot`) |
+
+The minimum cell determinant rises **monotonically** with dz across the
+entire tested range — thinner spanwise cells are *worse*-conditioned here,
+the opposite of the "finer must mean more extreme aspect ratio in the bad
+direction" guess, because the flagged cells sit in the near-wall ring where
+the O-grid's curved (`arc`) inner/outer edges give the cell a small
+built-in warp; when dz is large that warp is a negligible fraction of the
+cell's dominant (spanwise) length scale, but when dz is pulled down toward
+the same order as the radial/tangential extent the warp is no longer
+swamped and the normalized determinant drops. The clean/failing boundary
+sits between dz=0.05085 (n_span=118, 1% above the 0.001 cutoff — too thin a
+margin to trust) and dz=0.05 (fails). **`reference_clean` (n_span=115,
+dz/D=0.05217, det_min=0.00110) is the closest point to Jiang & Cheng's own
+0.05 with a real safety margin, found and verified without moving a single
+in-plane parameter.** Per their own Table 3 (dz 0.05 -> Cl_rms 0.1191;
+dz 0.0706 -> Cl_rms 0.1597), a point 4.3% off 0.05 should sit very close to
+their converged 0.1191, not meaningfully toward 0.1597 — so `reference_clean`
+is expected to be a near-exact stand-in for their production mesh, not a
+compromise.
+
+**Q2: is spanwise grading legitimate here?** **No**, on both a physics
+argument and a measured mesh-quality one.
+
+- *Physics.* Grading means resolving different `dz` at different `z`
+  stations. The wall-normal (radial) grading in this same mesh IS
+  physically justified: the boundary layer has a real, spatially localized
+  steep gradient at the solid wall, so more resolution belongs there. The
+  spanwise direction has no analogous feature — the domain is a cyclic,
+  translationally periodic approximation of an infinite cylinder, and Mode
+  B is a **spatially homogeneous, spanwise-periodic** instability with no
+  privileged z-location. Grading dz along z would resolve one region of the
+  span more finely than another for no physical reason, risking exactly the
+  kind of resolution-dependent bias (favoring growth/phase-locking near the
+  fine end, under-resolving it near the coarse end) that would contaminate
+  Cl_rms — the quantity this whole test exists to measure honestly. Uniform
+  dz, as Jiang & Cheng used, is the physically correct choice.
+- *Mesh quality, tested directly.* Three graded variants were built at the
+  same total spanwise cell count as `reference_exact` (n_span=120, mean
+  dz/D=0.05, `simpleGrading` ratios 2, 4, and 0.5 in the spanwise
+  direction) and checkMesh'd:
+
+  | span grading ratio | min cell determinant | checkMesh | vs uniform dz=0.05 (0.000959) |
+  | --- | --- | --- | --- |
+  | 2.0 | 0.000276 | FAIL (18,480 cells) | worse |
+  | 4.0 | 0.0000644 | FAIL (28,280 cells) | much worse |
+  | 0.5 | 0.000276 | FAIL (18,480 cells) | worse (mirror of 2.0, as expected) |
+
+  Grading **does not fix the determinant problem — it worsens it**, because
+  for a fixed cell count, concentrating cells anywhere necessarily makes
+  the cells at the coarse end thinner-relative-to-neighbours than uniform
+  spacing would. Grading was a dead end on the mesh-quality question it was
+  meant to solve, independent of the physics objection above.
+
+Both answers together mean the choice is not "accept a defect or accept a
+weaker in-plane control" — a spanwise-only, in-plane-preserving fix exists
+and has been built and verified (`reference_clean`), and grading was
+checked and ruled out on its own (non-)merits, not assumed away.
 
 ### Cost calibration: measured, not guessed, and explicitly a worst case
 
@@ -301,67 +378,92 @@ told to hold off on.
 
 **Extrapolated wall-time for a full run to end_time=90 (matching every
 other rung's convention, not the literature's 800+ time-unit statistics
-window — a limitation stated openly below, not hidden):**
+window — a limitation stated openly below, not hidden). `reference_clean`
+is scaled from the same measured `pilot` rate by its cell-count ratio
+(2,576,000 / 1,344,000 = 1.92x) — an extrapolation on top of an
+extrapolation, flagged as such, not a second independent measurement:**
 
-| ranks | using the measured (pessimistic) rate | if the rate improves ~15-20% once past the transient (unverified extrapolation, not measured) |
-| --- | --- | --- |
-| 4 | ~1280 x 90 = 115,200 s (**~32 hours**) | ~26-27 hours |
-| 8 | ~870 x 90 = 78,300 s (**~21.75 hours**) | ~18 hours |
-| 16 (whole box, extrapolated efficiency, not measured) | ~55,900 s (**~15.5 hours**) | ~13 hours |
+| ranks | `pilot` (1.34M cells), measured (pessimistic) rate | `pilot`, optimistic (rate improves 15-20% past transient, unverified) | `reference_clean` (2.58M cells), scaled from the same pessimistic rate |
+| --- | --- | --- | --- |
+| 4 | ~1280 x 90 = 115,200 s (**~32 h**) | ~26-27 h | ~61 h |
+| 8 | ~870 x 90 = 78,300 s (**~21.75 h**) | ~18 h | ~42 h |
+| 16 (whole box, extrapolated efficiency, not measured) | ~55,900 s (**~15.5 h**) | ~13 h | ~30 h |
 
 Memory: the `pilot` mesh occupies 221 MB on disk (`constant/polyMesh`);
-running memory for a laminar `pimpleFoam` case of this size is expected in
-the low single-digit GB decomposed across ranks (not separately measured
-under load — the calibration ran with 21-28 GB free at the time).
+`reference_clean` (96% as many cells as `reference_exact`) is essentially
+the same, ~450-460 MB. Running memory for a laminar `pimpleFoam` case of
+this size is expected in the low single-digit GB decomposed across ranks
+(not separately measured under load — the calibration ran with 21-28 GB
+free at the time).
 
 ### The honest conclusion this design work reaches
 
-**Even the cheaper, mesh-clean `pilot` preset does not fit an idle-box
-budget of a few hours — it is a 13-to-32-hour job depending on core count,
-an order of magnitude past every other rung on this ladder** (Re 3900's
-44,000-cell 2D case predicts ~1.8 hours; this 3D case is ~30x more cells
-and produces ~10-20x more wall-time even in its cheapest, most optimistic
-configuration). The literature-exact `reference` preset (2,688,000 cells,
-plus its unresolved determinant flag) would cost roughly double that again.
-This machine (16 cores, 30 GB RAM) can build and mesh-check either design
-for free in under 30 seconds; it cannot solve either one in the time a
-single agent turn, or even a single day of shared use alongside the other
-live jobs (Re 3900, the hump SA resume, the r4 band-tightening sweep, and
-whatever needs the 26 GB uncapped-memory window), comfortably allows.
+**Neither mesh-clean preset fits an idle-box budget of a few hours.**
+`pilot` is a 13-to-32-hour job; `reference_clean` — now that it exists as a
+clean, literature-matching option rather than being blocked by the
+determinant defect — is roughly **1.9x that, 30-to-61 hours**, depending on
+core count. Both are an order of magnitude past every other rung on this
+ladder (Re 3900's 44,000-cell 2D case predicts ~1.8 hours). This machine
+(16 cores, 30 GB RAM) can build and mesh-check any of the three designs for
+free in under 30 seconds; it cannot solve any of them in the time a single
+agent turn, or even a single day of shared use alongside the other live
+jobs, comfortably allows.
 
-**What it would take:** either (a) exclusive access to 8-16 cores for
-roughly a day, scheduled once the other live jobs referenced above have
-cleared, using the `pilot` preset and accepting its documented ~6-7x (not
-literature's tighter ~8x) Cl_rms discrimination and the shortened (t=90 vs
-800+) statistics window as stated limitations; or (b) more cores/a bigger
-box, which would also let the `reference` preset's determinant flag be
-resolved by adding in-plane near-wall resolution rather than only accepting
-it; or (c) accepting a still-cheaper, still-honestly-labelled design (e.g.
-a coarser in-plane mesh dedicated to this test alone, trading fidelity on
-Cd/St to buy wall-time) if the supervisor decides the resource case above
-does not clear the bar. This is the number the hardware conversation
-elsewhere in this project needs.
+**The calculus the supervisor asked about has changed, but not toward
+"cheap."** Before this follow-up, the choice looked like "accept the
+mesh defect and run `reference_exact`, or fall back to the coarser, more
+biased `pilot`." Now it is a straight, honest trade with no defect forcing
+the hand: `pilot` (13-32 h, accepts the documented +36% Cl_rms /
++3.2% Cd bias from being literature's own worst-resolved case) versus
+`reference_clean` (30-61 h, ~4% off Jiang & Cheng's own converged
+resolution, expected to land very close to their point numbers). Neither
+option involves touching the in-plane mesh, so the 2D-rung control is
+preserved either way.
+
+**What it would take:** exclusive access to 8-16 cores for one to two-and-a-
+half days, scheduled once the other live jobs (Re 3900, the hump SA resume,
+the r4 band-tightening sweep, and whatever needs the 26 GB uncapped-memory
+window) have cleared. Given a demo-filming day, the pragmatic recommendation
+is `pilot` at 8 ranks (~18-22 h) as the affordable first cut, with
+`reference_clean` (~34-42 h at 8 ranks) as the follow-up once the box is
+free for a multi-day window — not a fallback forced by a mesh defect, but a
+genuine cost/fidelity choice now that both are clean. This is the number
+the hardware conversation elsewhere in this project needs.
 
 ### Pre-stated expectation (written before any production solve, per P2)
 
-If launched as designed (`pilot`, Lz/D=6, dz/D=0.1, cyclic span, seeded,
-end_time=90, stats window t=45-90 matching every other rung):
-- **St** should land close to the 3D family (~0.21), clearly below the 2D
-  rung's 0.2343 and below our own 2D 3D-deviation of +8.5 to +11.6%.
-- **Cd** should drop from the 2D rung's 1.4678 toward the 3D family
-  (~1.01-1.08), likely still slightly high versus Jiang & Cheng's own
-  converged 1.0138 given the coarser dz/D=0.1 (their own case 5 at this
-  same dz shows +3.2% high, i.e. ~1.03-1.08 is the expected band).
-- **Cl_rms is the test.** Expected to collapse from the 2D rung's 0.9666
-  by roughly an order of magnitude, landing in the 0.12-0.20 range if the
-  seeded Mode-B structure saturates within the t=45 pre-averaging window;
-  landing anywhere close to the 2D value (~1) would mean the run
-  reproduced an expensive 2D answer — either the transient/growth time was
-  too short for genuine 3D decorrelation, or the spanwise resolution was
-  too coarse to resolve it — and would be reported as that failure, not
-  reinterpreted after the fact.
+**`reference_clean` (Lz/D=6, dz/D=0.05217, cyclic span, seeded,
+end_time=90):** expected to land close to Jiang & Cheng's own point values
+— St~0.21, Cd~1.01-1.03, **Cl_rms~0.12-0.14** — since it sits only 4.3% off
+their converged dz=0.05 and their own sensitivity table shows forces moving
+little over that small a step (dz 0.05->0.0706 is a much bigger relative
+move and only takes Cl_rms from 0.1191 to 0.1597).
 
-**No launch has been made.** Awaiting scheduling given the live jobs above.
+**`pilot` (Lz/D=6, dz/D=0.1, cyclic span, seeded, end_time=90):** **this
+preset IS Jiang & Cheng's own least-resolved sensitivity case (their Table
+3 case 5), so its expected bias is literature-quantified, not a guess.**
+Stated explicitly now so a correct pilot result is not later misread as a
+missed gate:
+- **St** should land close to the 3D family (~0.2125 per their case 5),
+  clearly below the 2D rung's 0.2343.
+- **Cd** is expected around **1.03-1.08** — their own case 5 measured
+  1.0467, +3.2% above their converged 1.0138.
+- **Cl_rms is the test, and here the expected band is explicitly wider
+  than "close to 0.12-0.20": a result of ~0.16-0.27 is the EXPECTED
+  outcome for this preset, not a miss.** Their own case 5 (identical
+  dz/D=0.1) measured Cl_rms=0.1624, +36% above their converged 0.1191 —
+  so a `pilot` result landing in roughly that neighbourhood should be read
+  as the run reproducing their own documented dz=0.1 bias correctly, not
+  as evidence the 3D setup failed. **What WOULD indicate a real problem:**
+  Cl_rms landing anywhere close to the 2D rung's 0.9666 — that specific
+  failure mode (an expensive 2D answer) would mean the transient/growth
+  time was too short for genuine 3D decorrelation, or the seeding did not
+  take, and would be reported as that failure, not reinterpreted after the
+  fact. The pass/fail line for the *attribution* claim is "did Cl_rms drop
+  by close to an order of magnitude," not "did it exactly hit 0.12-0.20."
+
+**No launch has been made.** Awaiting scheduling given the live jobs above
+and the owner's call on a 13-to-61-hour job on a demo-filming day.
 
 ## Gate: Re 2000 (banded reference, lower confidence — and said so)
 
