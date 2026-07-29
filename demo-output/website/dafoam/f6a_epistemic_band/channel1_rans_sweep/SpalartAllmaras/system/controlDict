@@ -29,13 +29,30 @@ startFrom       latestTime;
 
 stopAt          endTime;
 
-endTime         2000;
+// D9: SA's own log (solve_registry/hump_SpalartAllmaras_20260729T023234Z.log,
+// the case-dir log.simpleFoam is a stale fragment from an earlier aborted
+// attempt) shows it had NOT met its own gate at t=2000: nuTilda final
+// residual 1.263e-6, Ux 8.86e-7, Uz 1.51e-6, all above the 5e-7 bar -- same
+// class of problem kOmega had, just never checked. nuTilda decay rate over
+// the last 500 iterations (~1.7e-3/iter, accelerating, not plateaued)
+// projects ~550-800 more iterations to the gate. Extended with margin.
+// D9 update: at t=3200, U (nuTilda already under gate) is NOT cleanly
+// converging -- Ux final residual decayed smoothly to ~5.4e-7 near t=2600,
+// then a growing oscillation appeared (spikes to ~2e-6 becoming more
+// frequent/sustained through t=3200, currently plateaued oscillating near
+// 1.8e-6). Extending further to determine whether this is a transient or a
+// genuine limit cycle before reporting either way -- not relaxing the gate.
+endTime         4200;
 
 deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval   $endTime;
+// D9: was $endTime (2000) -- see realizableKE's INIT_NOTE.txt for the
+// alignment trap that setting produced there. Not currently at risk here
+// since we resume from latestTime=2000 (a multiple of any reasonable
+// period), but periodic writes are the safer default going forward.
+writeInterval   200;
 
 purgeWrite      0;
 
