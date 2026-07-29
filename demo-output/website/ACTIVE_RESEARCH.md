@@ -482,7 +482,29 @@ tested. Not applied to any test case. Full account:
 `CLOSURE_CHALLENGE_STATUS.md` §0c,
 `demo-output/website/closure_challenge_generalization_criterion.json`,
 `sdk/scripts/closure_generalization_criterion.py`. Compute: 268s / 2-core
-cap / 289 MB peak RSS. Ladder B3 not touched.
+cap / 289 MB peak RSS. Ladder B3 not touched. **Coordinator correction
+applied**: state this in the asymmetric form measured -- "a model blind to
+a dimension fails on cases that need it" -- not as a symmetric criterion;
+only 1 instance tests the reverse direction.
+
+**Bounded follow-up: applied the frozen criterion to the 8 official test
+cases' features (no ground truth, no score() call) against the model
+currently applied to each.** Zero cases flagged by the proven mechanism --
+all 3 duct test cases sit inside the DUCT model's training regime, both
+PH-corrected cases and both gate-declined cases sit inside the PH model's.
+One due-diligence catch along the way: a naive mean-based check first
+flagged NASA_2DWMH at an absurd +2.1e8; investigated rather than trusted,
+and traced to a real but DIFFERENT mechanism (all 15 features, not just
+I3/I4, are out of range because the tau=1/(Cmu*omega) normalization
+explodes in NASA's low-turbulence outer-flow region) -- not the proven
+DUCT mechanism, and its already-known actual outcome (+0.0011, mild) does
+not match what the proven mechanism predicts, so it is reported separately
+rather than folded in as equivalent evidence. **Zero cases warrant a 5th
+official scoring call on this evidence** -- the criterion changes nothing
+about the current entry. Full account: `CLOSURE_CHALLENGE_STATUS.md` §0d,
+`demo-output/website/closure_challenge_criterion_test_case_table.json`,
+`sdk/scripts/closure_criterion_on_test_features.py`. Compute: 52.9s /
+2-core cap / 179 MB peak RSS.
 
 ### C2 — where the deficit lives
 

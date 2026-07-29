@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-07-29T23:08:22.562538+00:00",
+  "measured_date": "2026-07-29",
+  "purpose": "Apply the structural mismatch criterion to the 8 official test cases' RANS-derived features, against the model currently applied to each in the round-3 gated entry. A decision TABLE, not a decision -- nothing is applied, no scoring call is made.",
+  "leakage_statement": {
+    "criterion_parameters_source": "recomputed from the same 21 PH / 4 DUCT TRAINING cases as closure_generalization_criterion.py via case_level_features() (deterministic aggregation, no model fit); reproduces that run's PH/DUCT training-regime bounds",
+    "test_case_ground_truth_read": false,
+    "closure_challenge_score_call_made": false,
+    "correction_applied_or_changed": false,
+    "known_actual_deltas_used_only_for": "sanity-checking the criterion's predictive meaning post hoc, against numbers already public from a legitimate prior official call -- never used to fit, threshold, or select anything in this script's criterion"
+  },
+  "due_diligence_correction": "First pass used mean_I3_S3 and found NASA_2DWMH at +2.1e8, an implausible number given PH's training range of [-4.7e-4, +3.7e-5]. Investigated rather than reported at face value: traced to a real per-cell phenomenon (confirmed with the more robust p90 statistic, and with a full 15-feature domain-coverage check showing NASA_2DWMH is out of range on literally all 15 features, not selectively on I3/I4) but a DIFFERENT mechanism than the proven DUCT case -- see module docstring for the full account.",
+  "currently_applied_model_per_case": {
+    "alpha_15_13929_4048": "PH",
+    "alpha_15_13929_2024": "PH",
+    "alpha_05_4071_4048": null,
+    "alpha_05_4071_2024": null,
+    "AR_1_Ret_360": "DUCT",
+    "AR_3_Ret_360": "DUCT",
+    "AR_14_Ret_180": "DUCT",
+    "NASA_2DWMH": "PH"
+  },
+  "table": [
+    {
+      "case": "alpha_15_13929_4048",
+      "currently_applied_model": "PH",
+      "p90_I3_S3_abs": 0.007159,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": true,
+      "flag_on_currently_applied_model": false,
+      "coverage_out_of_range_on_current_model_of_15": 3,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": -0.0819
+    },
+    {
+      "case": "alpha_15_13929_2024",
+      "currently_applied_model": "PH",
+      "p90_I3_S3_abs": 0.007161,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": true,
+      "flag_on_currently_applied_model": false,
+      "coverage_out_of_range_on_current_model_of_15": 1,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": -0.1038
+    },
+    {
+      "case": "alpha_05_4071_4048",
+      "currently_applied_model": null,
+      "p90_I3_S3_abs": 0.011659,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": true,
+      "flag_on_currently_applied_model": null,
+      "coverage_out_of_range_on_current_model_of_15": null,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": null
+    },
+    {
+      "case": "alpha_05_4071_2024",
+      "currently_applied_model": null,
+      "p90_I3_S3_abs": 0.012227,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": true,
+      "flag_on_currently_applied_model": null,
+      "coverage_out_of_range_on_current_model_of_15": null,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": null
+    },
+    {
+      "case": "AR_1_Ret_360",
+      "currently_applied_model": "DUCT",
+      "p90_I3_S3_abs": 0.0,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": false,
+      "flag_on_currently_applied_model": false,
+      "coverage_out_of_range_on_current_model_of_15": 7,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": -0.0369
+    },
+    {
+      "case": "AR_3_Ret_360",
+      "currently_applied_model": "DUCT",
+      "p90_I3_S3_abs": 0.0,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": false,
+      "flag_on_currently_applied_model": false,
+      "coverage_out_of_range_on_current_model_of_15": 9,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": -0.0381
+    },
+    {
+      "case": "AR_14_Ret_180",
+      "currently_applied_model": "DUCT",
+      "p90_I3_S3_abs": 0.0,
+      "ph_model_would_flag_i3_mismatch": false,
+      "duct_model_would_flag_i3_mismatch": false,
+      "flag_on_currently_applied_model": false,
+      "coverage_out_of_range_on_current_model_of_15": 7,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": false,
+      "known_actual_delta_from_legitimate_round2_call": -0.0287
+    },
+    {
+      "case": "NASA_2DWMH",
+      "currently_applied_model": "PH",
+      "p90_I3_S3_abs": 17014.715563,
+      "ph_model_would_flag_i3_mismatch": true,
+      "duct_model_would_flag_i3_mismatch": true,
+      "flag_on_currently_applied_model": true,
+      "coverage_out_of_range_on_current_model_of_15": 15,
+      "proven_mechanism_applies": false,
+      "global_covariate_shift_not_proven_mechanism": true,
+      "known_actual_delta_from_legitimate_round2_call": 0.0011
+    }
+  ],
+  "verdict": {
+    "n_flagged_total": 1,
+    "n_flagged_by_proven_duct_mechanism": 0,
+    "n_flagged_as_global_covariate_shift_unproven": 1,
+    "changes_anything_actionable": false,
+    "statement": "Of the 8 official test cases, the PROVEN mechanism (DUCT model extrapolating from an algebraically-forced-zero dimension) flags 0 under the model currently applied to it -- all 3 duct test cases sit comfortably inside the DUCT model's own training regime (as expected: they are the same physical class), and both PH test cases the PH model corrects, plus both cases the round-3 gate already declined, sit comfortably inside the PH model's training regime. This changes NOTHING about the current entry through the proven mechanism. Separately, 1 case (NASA_2DWMH) is flagged, but not by the proven mechanism -- it is out of the PH model's training range on ALL 15 features simultaneously (a global covariate shift traced to a real but different cause: the tau=1/(Cmu*omega) turbulence-timescale normalization exploding in NASA_2DWMH's low-turbulence outer-flow region, not the DUCT model's proven zero-variance blind spot). This does NOT match the proven mechanism's predictive pattern: NASA_2DWMH's already-known actual outcome (legitimate round-2 official call) is a MILD +0.0011 regression, not the 3.9x-10.4x catastrophic breakdown the proven mechanism produced in every one of its 6 confirmed instances. Reading this flag as equivalent evidence would overclaim what was proven. No action is available for NASA_2DWMH regardless: no alternative training-family model exists for it, its correction choice was pre-registered in round 2 before its test score was ever seen, and revisiting that choice now -- having already seen its outcome -- would itself be the exact test-truth-informed model selection the leakage rule forbids. BOTTOM LINE: the criterion, applied strictly within the domain it was proven for, changes nothing about the current entry, and there is no case for which it identifies an available, leakage-clean action. Zero cases warrant a 5th official scoring call on this evidence."
+  },
+  "compute": {
+    "elapsed_seconds": 52.7,
+    "cores_cap": 2
+  }
+}

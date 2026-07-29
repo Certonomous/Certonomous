@@ -141,14 +141,21 @@ field structurally cannot provide on its own).
 
 ## 0c. A cross-family generalization-failure criterion
 
-**One-sentence answer**: a criterion exists and part of it is proven, not
-fitted — when a model has been trained exclusively on cases where two of its
-seven input dimensions are algebraically forced to zero, feeding it a case
-where those dimensions are genuinely nonzero causes catastrophic breakdown
-(3.9×–10.4× the baseline error, not merely "worse than doing nothing"),
-every single time it was tested (6 of 6); the analogous purely-statistical
-criterion (how many input features fall outside the training range) turned
-out to be a proxy for nothing but the base rate and is rejected.
+**One-sentence answer, stated in the asymmetric form it was actually
+measured in (coordinator correction — this is not a symmetric criterion)**:
+a model blind to a dimension (trained where two of its seven input
+dimensions are algebraically forced to zero) fails on cases that need that
+dimension — catastrophically, 3.9×–10.4× the baseline error, every one of
+the 6 times this specific direction was tested; the analogous
+purely-statistical criterion (how many input features fall outside the
+training range) turned out to be a proxy for nothing but the base rate and
+is rejected. **What was NOT established**: the reverse direction (a model
+with real information about a dimension receiving a case where that
+dimension collapses to near-zero) has only one measured instance, so no
+claim is made that the criterion is symmetric. A symmetric test would need
+several more probe cases whose RANS field is genuinely near-degenerate
+(near-zero I3_S3/I4_W2S, i.e. duct-like) fed to the PH model specifically,
+to build a comparable n≥5 sample in that direction — not yet done.
 
 **Why this was asked, and how it stays inside the leakage rule**: round 3
 showed a family-specific gate recovers real score. The general question —
@@ -220,6 +227,74 @@ name**:
   later as a separate, explicit decision.
 
 **Compute**: 268 s (4.5 min) wall time on a 2-core cap, peak RSS 289 MB.
+
+---
+
+## 0d. What the criterion says about the 8 official test cases — a table, not a decision
+
+Ordered by the coordinator, deliberately bounded: compute the §0c criterion
+on the 8 official test cases' RANS-derived features only (no ground truth,
+no `score()` call), against the model **currently applied** to each in the
+round-3 gated entry. This changes nothing by itself — it is a decision
+table for the coordinator to act on or not, exactly the same discipline as
+round 3's own build-then-decide sequence. Script:
+`sdk/scripts/closure_criterion_on_test_features.py`. Record:
+`demo-output/website/closure_challenge_criterion_test_case_table.json`.
+
+**Bottom line: the proven mechanism flags zero of the 8 cases.** All 3 duct
+test cases sit comfortably inside the DUCT model's own training regime
+(expected — same physical class). Both PH-corrected test cases, and both
+cases the round-3 gate already declined, sit comfortably inside the PH
+model's training regime. Nothing here suggests changing the current entry.
+
+| Case | Currently applied | Flagged (proven mechanism)? | Known actual delta (round 2, legitimate) |
+|---|---|---|---|
+| alpha_15_13929_4048 | PH | No | −0.0819 |
+| alpha_15_13929_2024 | PH | No | −0.1038 |
+| alpha_05_4071_4048 | none (gate declined) | n/a — no model applied | n/a |
+| alpha_05_4071_2024 | none (gate declined) | n/a — no model applied | n/a |
+| AR_1_Ret_360 | DUCT | No | −0.0369 |
+| AR_3_Ret_360 | DUCT | No | −0.0381 |
+| AR_14_Ret_180 | DUCT | No | −0.0287 |
+| NASA_2DWMH | PH | **Flagged, but see below** | +0.0011 |
+
+**A due-diligence catch made while building this table, kept in the record
+rather than quietly fixed.** The first pass used `mean_I3_S3` (the same
+statistic §0c used) and got NASA_2DWMH = +2.1e8 — absurd against PH's
+training range of [−4.7e-4, +3.7e-5]. Investigated rather than reported at
+face value. Confirmed real (not a bug) with the more robust `p90` statistic
+(matching C1's own established preference) and with a full 15-feature
+domain-coverage check: **NASA_2DWMH is out of the PH model's training range
+on all 15 features simultaneously**, not selectively on `I3_S3`/`I4_W2S`.
+Traced to a different, real mechanism: NASA_2DWMH has a large
+low-turbulence, near-freestream region where RANS `omega` stays at a
+non-negligible background value while `k` collapses toward zero, and the
+shared `tau = 1/(Cmu·omega)` normalization behind every one of the 5 Pope
+invariants (not just I3/I4) explodes there once `k` no longer represents a
+meaningful turbulence timescale relative to the mean strain rate.
+
+**This is NOT the proven DUCT mechanism, and treating it as equivalent
+evidence would overclaim.** The proven mechanism (algebraically-zero
+training dimension) exists only for the DUCT model on `I3_S3`/`I4_W2S`
+specifically, and in its 6 confirmed instances it predicted 3.9×–10.4×
+catastrophic breakdown every time. NASA_2DWMH's global covariate-shift flag
+does not fit that pattern: its already-known actual outcome (round 2's
+single legitimate official call) is a **mild** +0.0011 regression, not
+catastrophic. **No action is available for NASA_2DWMH regardless of this
+flag**: no alternative training-family model exists for it, its correction
+choice was pre-registered before its test score was ever seen (round 2),
+and revisiting that choice now — having already seen the outcome — would
+itself be exactly the test-truth-informed model selection the leakage rule
+forbids.
+
+**Answer to the bounded question asked**: the criterion changes nothing
+about the current entry. There is no case for which it identifies an
+available, leakage-clean action. **Zero cases warrant a 5th official
+scoring call on this evidence** — a negative result, reported as such,
+costing nothing to have checked.
+
+**Compute**: 52.9 s wall time on a 2-core cap, peak RSS 179 MB — no model
+fitting at all, feature extraction on 8 cases only.
 
 ---
 
