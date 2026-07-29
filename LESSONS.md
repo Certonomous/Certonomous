@@ -602,3 +602,41 @@ and the containment break lies between Delta 0 and 0.25" rested on that point.
 With only the genuinely gate-met points, the break cannot be located at all — and
 the two that did converge both sit on the *far* side of the experimental value.
 The finding reversed, not merely weakened.
+
+## L-15. Exit code zero is not convergence, and a solver can print success over garbage
+
+**What happened.** A killed agent left an adjoint measurement unharvested. I read
+its collector summary — `docker_exit=0, inner_exit=0`, peak memory uncensored
+under its cap, no OOM — and reported to the owner that the adjoint had SUCCEEDED
+at 79,560 cells. It had not. Both derivative solves returned PETSc
+`ConvergedReason: -5`, DIVERGED_BREAKDOWN, with the residual norm collapsing to
+about 1e-322 — denormal garbage — immediately before the solver printed:
+
+    Residual tolerance satisfied, solution finished!
+
+The process then exited zero. Every top-level signal said success. The answer was
+numerical noise.
+
+**Why this one is nastier than L-14.** There the misleading number sat beside the
+right one. Here the software states the wrong conclusion in words. A residual that
+collapses to 1e-322 satisfies any tolerance test written as `res < tol`, so a
+breakdown can trip the success branch precisely BECAUSE it failed catastrophically.
+Underflow reads as perfect convergence.
+
+**The rule.** For any linear-solver-backed result, read the solver's own
+convergence REASON, not its exit code and not its success message:
+
+    grep -E "ConvergedReason" <log>     # PETSc: negative is failure, -5 is breakdown
+    grep -c "SIMPLE solution converged" <log>   # OpenFOAM outer loop
+
+And sanity-check the residual magnitude. A residual near machine denormal range is
+not a converged solve, it is a collapsed one. Any residual many orders below the
+tolerance deserves suspicion rather than satisfaction.
+
+**What it cost.** A hardware recommendation, in the wrong direction. I told the
+owner the memory wall was the binding constraint and extrapolated a box size from
+it. The corrected picture is the opposite: the adjoint works at 63,920 cells and
+breaks at 79,560 with over 4 GB of memory headroom still unused, so the
+CONVERGENCE wall binds first in this range and **more RAM would not buy a larger
+mesh.** I had it backwards, and I had it backwards because I trusted a process
+exit code over a solver's own diagnostic.
