@@ -318,3 +318,34 @@ sign flip under mesh refinement is not automatically evidence of an unconverged
 PDE solution — check whether the DIAGNOSTIC EXTRACTION itself (not the solve) is
 mesh-resolution-dependent before concluding anything about physical/numerical
 convergence. Full record: `demo-output/website/campaign/F7_runs/F7a_diagnosis.json`.
+
+---
+
+## D12 — collectors are structural now, not disciplinary
+
+**The rule is no longer a rule.** `scripts/launch_solve.sh` is the only sanctioned
+way to start a long solve, and it does four things the caller cannot forget:
+
+1. Runs `case_preflight.sh` and **refuses to launch** if it fails.
+2. Launches detached, capturing the real PID (not a wrapper shell — see L-6).
+3. **Arms the collector at launch**, `setsid`'d so it outlives the caller's turn
+   and writes a completion record itself.
+4. Registers the job, so `launch_solve.sh --check` can test whether an agent's
+   "finished" claim is actually true.
+
+**Why this stopped being a discipline problem.** The
+agent-exits-while-solver-runs pattern recurred **three times before L-5 was
+written and three more times after** — the ladder agent twice, the DPW agent
+once, the F4 agent once. Writing the rule down did not reduce the rate. The
+responsibility therefore moves out of the agent's head and into the harness: an
+agent may still forget, the launcher cannot.
+
+Verified on three tests: the collector fires and records after the caller has
+gone; a job that exits **without producing its expected artifact** is explicitly
+flagged `MISSING ... process exited without producing it`, which is the case that
+previously looked identical to success; and a case with a malformed field header
+is **refused at the gate** rather than launched.
+
+One of those three tests initially passed for the wrong reason — it tripped on a
+bad argument rather than the preflight gate. A test that passes for the wrong
+reason is not a test, so it was corrected and re-run.
