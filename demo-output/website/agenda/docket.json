@@ -505,8 +505,10 @@
    "cost_basis": "estimate, model fitting on cached feature sets already reconstructed for round two; no new flow solves",
    "expected_knowledge_gain": "Recovery of the loss term without a second scoring call, and a stated domain of validity for the correction, which is itself a result about the model class",
    "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-28"
+   "status": "done",
+   "created_at": "2026-07-28",
+   "decided_at": "2026-07-29T20:28:00+00:00",
+   "decision_note": "Built and validated in a prior session (C1: AUC 1.0, 4/4 correct on held-out PH validation, fit on train only) but deliberately not applied to the test set pending a separate decision. That decision was made this session (round 3, sdk/scripts/apply_closure_ph_gate.py): the frozen gate was evaluated on the 4 official PH test cases using RANS-derived features only (no ground truth), recovering 0.0065 of the predicted 0.0066 term. Overall score moved 0.0741 -> 0.0676 in a single new official scoring call (the 4th on this benchmark). Record: demo-output/website/closure_challenge_trained_entry_round3_gated.json."
   },
   {
    "id": "agp-d64295666c56",

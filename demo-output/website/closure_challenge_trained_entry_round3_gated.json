@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-07-29T20:21:25.128113+00:00",
+  "measured_date": "2026-07-29",
+  "purpose": "Round 3: apply the C1 test-blind PH gate (fit and validated on train/validation only, AUC 1.0 / 4-of-4 correct on held-out validation) to the 4 official PH test cases for the first time, replacing the ungated round-2 PH predictions where the gate declines the correction.",
+  "gate_provenance": "sdk/scripts/closure_baseline_error_gate.py (demo-output/website/closure_challenge_C1_error_estimator.json)",
+  "gate_refit_check": {
+    "chosen_alpha": 0.7499,
+    "train_loo_median_threshold": 0.1263,
+    "matches_c1_recorded_values": true,
+    "top3_features": [
+      "p90_I4_W2S",
+      "frac_backflow",
+      "p90_I3_S3"
+    ]
+  },
+  "gate_decisions_on_official_ph_test_cases": {
+    "alpha_15_13929_4048": {
+      "predicted_baseline_error": 0.1503,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": true
+    },
+    "alpha_15_13929_2024": {
+      "predicted_baseline_error": 0.1525,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": true
+    },
+    "alpha_05_4071_4048": {
+      "predicted_baseline_error": 0.042,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": false
+    },
+    "alpha_05_4071_2024": {
+      "predicted_baseline_error": 0.0034,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": false
+    }
+  },
+  "ph_prediction_source_per_case": {
+    "alpha_15_13929_4048": "corrected (round-1 PH model, gate says APPLY)",
+    "alpha_15_13929_2024": "corrected (round-1 PH model, gate says APPLY)",
+    "alpha_05_4071_4048": "raw RANS floor (gate says DECLINE)",
+    "alpha_05_4071_2024": "raw RANS floor (gate says DECLINE)"
+  },
+  "harness_check": {
+    "benchmark_repo_commit": "deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "eval_package_repo_commit": "1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "eval_package_reported_version": "0.2.1",
+    "matches_round1_round2_provenance": true
+  },
+  "checks": {
+    "baseline_reproduces_0_1036_under_this_harness_invocation": true,
+    "measured_floor_this_run": 0.1036
+  },
+  "leakage_statement": {
+    "gate_fit_only_on": "21 PH training cases (feature screening, RidgeCV alpha, standardization mu/sd, final top-3 Ridge coefficients, LOO-median decision threshold -- all computed here IDENTICALLY to closure_baseline_error_gate.py, using only train data)",
+    "gate_evaluated_on_ph_test_cases_using": "RANS field + mesh only (ph.build_features + gate.case_level_features); no U_LES read for any of the 4 PH test cases to build these features",
+    "decision_rule_frozen_before_this_runs_scoring_call": true,
+    "duct_and_nasa_unchanged_from_round2": true,
+    "official_scoring_calls_this_lab_has_made_on_this_benchmark": 4,
+    "official_scoring_calls_list": [
+      "1: RANS-identity floor (r3-closure-challenge-rans-floor)",
+      "2: round-1 PH-only trained entry",
+      "3: round-2 extended (DUCT+NASA) trained entry",
+      "4: round-3, this run -- PH gate applied for the first time"
+    ],
+    "no_test_truth_used_to_fit_or_select_the_gate": true,
+    "note": "The gate's coefficients and threshold are unchanged from C1's own validated, frozen model. This run's only new action is EVALUATING that frozen model on test-blind features from the 4 official PH test cases, and using its binary output to choose between two already-existing, already-legitimate predictions (the round-1 corrected prediction and the raw-RANS floor) -- not a new fit, not a new validation, not model selection informed by test scores."
+  },
+  "official_test_harness_result": {
+    "round2_overall": 0.0741,
+    "round2_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0723,
+      "alpha_05_4071_2024": 0.0974,
+      "AR_1_Ret_360": 0.0919,
+      "AR_3_Ret_360": 0.0862,
+      "AR_14_Ret_180": 0.0303,
+      "NASA_2DWMH": 0.0632
+    },
+    "round3_gated_overall": 0.0676,
+    "round3_gated_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0919,
+      "AR_3_Ret_360": 0.0862,
+      "AR_14_Ret_180": 0.0303,
+      "NASA_2DWMH": 0.0632
+    },
+    "rans_identity_floor_overall_this_run": 0.1036,
+    "rans_identity_floor_per_case_this_run": {
+      "alpha_15_13929_4048": 0.132,
+      "alpha_15_13929_2024": 0.2049,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "delta_vs_round2": -0.0065,
+    "improves_on_round2": true,
+    "delta_vs_floor": -0.036,
+    "beats_floor": true,
+    "delta_vs_rank3_0_0737": -0.0061,
+    "delta_vs_docket_rank4_0_0779": -0.0103
+  },
+  "compute": {
+    "elapsed_seconds": 83.0,
+    "cores_cap": 2
+  }
+}

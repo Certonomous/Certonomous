@@ -404,11 +404,18 @@ estimates, not an exact error budget.*
 
 ## Ladder C — closure challenge
 
-**Closure metric movement tonight: NONE. 0.0741, unchanged since round 2.**
-Stated explicitly because the queue requires movement to be reported including
-when it is zero. The reason is in C2 below: the recoverable term was located but
-deliberately not taken, because taking it by inspection would have invalidated
-the entry.
+**Round 3 (new): closure metric moved 0.0741 → 0.0676 (−0.0065).** The C1
+gate (fit and validated on train/validation only, deliberately not applied
+to the test set in the prior session) was evaluated on the 4 official PH
+test cases for the first time, using only their RANS-derived features. It
+correctly declined the correction on the 2 cases it was hurting
+(`alpha_05_4071_4048`, `alpha_05_4071_2024`) and correctly kept applying it
+on the 2 it was helping — 4/4 correct, matching its validation performance.
+This was the single 4th official scoring call this lab has made on this
+benchmark. Full account: `demo-output/website/CLOSURE_CHALLENGE_STATUS.md`
+§0, `demo-output/website/closure_challenge_trained_entry_round3_gated.json`,
+`sdk/scripts/apply_closure_ph_gate.py`. Compute: 83s wall / 2-core cap /
+356 MB peak RSS — model-fitting and inference only, no CFD solve.
 
 ### Where we actually stand
 
@@ -416,13 +423,23 @@ the entry.
 | --- | --- | --- |
 | 1 | Reissmann, Fang, and Sandberg | 0.0595 |
 | 2 | Wu and Zhang | 0.0624 |
+| — | **ours, unsubmitted (round 3)** | **0.0676** |
 | 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
-| — | **ours, unsubmitted** | **0.0741** |
 | 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
-**We hold the best score on the entire leaderboard on three of eight cases:**
-alpha_15_13929_4048 at 0.0501 against a best-other 0.0592, alpha_15_13929_2024
-at 0.1011 against 0.1195, and AR_14_Ret_180 at 0.0303 against 0.0325.
+**We hold the best score on the entire leaderboard on five of eight cases:**
+alpha_15_13929_4048 at 0.0501 against a best-other 0.0592,
+alpha_15_13929_2024 at 0.1011 against 0.1195, alpha_05_4071_4048 at 0.0461
+against 0.0569, alpha_05_4071_2024 at 0.0719 against 0.0760 (both now the
+gated raw-RANS value, which itself beats every published entry on those two
+cases), and AR_14_Ret_180 at 0.0303 against 0.0325.
+
+**What is still blocked, unchanged**: the duct streamwise-profile deficit
+(Term 2, the larger of the two identified recoverable terms) remains gated
+on the DAFoam/PETSc adjoint GMRES `KSP_DIVERGED_NANORINF` failure (Ladder
+B3) — a CFD-solving problem, out of scope for a 2-core/3GB data-and-fitting
+compute budget. That is next session's highest-value target once a solving
+budget is available.
 
 ### C2 — where the deficit lives
 

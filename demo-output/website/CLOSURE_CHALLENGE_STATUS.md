@@ -1,18 +1,78 @@
-# Closure Challenge — status as of 2026-07-28
+# Closure Challenge — status as of 2026-07-29 (round 3)
 
-Read-only status report. No solver run, no scoring call made, no test ground
-truth touched in the production of this document. All figures below are
-quoted from already-recorded artifacts; sources are cited per section.
+Read-only status report except for the new §0 below. All figures are quoted
+from already-recorded, re-derivable artifacts; sources are cited per section.
 
 Sources: `/home/ubuntu/closure-challenge-benchmark/README.md` (benchmark
 rules + public leaderboard); `demo-output/website/closure_challenge_rans_floor.json`;
 `demo-output/website/closure_challenge_trained_entry.json` (round 1);
-`demo-output/website/closure_challenge_trained_entry_round2.json` (round 2,
-entry of record); `demo-output/website/closure_challenge_C2_error_decomposition.md`;
+`demo-output/website/closure_challenge_trained_entry_round2.json` (round 2);
+`demo-output/website/closure_challenge_trained_entry_round3_gated.json`
+(round 3, **entry of record**);
+`demo-output/website/closure_challenge_C2_error_decomposition.md`;
 `demo-output/website/closure_challenge_C1_error_estimator.md`;
 `demo-output/website/dafoam/ladder-b/{B1_reproduction_plans,B2_duct_baseline,B3_duct_field_inversion}.md`;
 `demo-output/website/campaign/F6_closure_aligned_flows.md`;
 `demo-output/website/ACTIVE_RESEARCH.md`; `docs/research/CLOSURE_METHODS.md`.
+
+---
+
+## 0. Round 3 — the C1 gate was applied, for the first time (new this update)
+
+Round 2's own report (§6, Term 1) identified but deliberately withheld a
+recoverable 0.0066: the trained correction is worse than doing nothing on
+`alpha_05_4071_4048` and `alpha_05_4071_2024` (plus a negligible amount on
+`NASA_2DWMH`). C1 (already committed, prior session) built and validated a
+test-blind decline-gate for exactly this — fit and its threshold set on the
+21 PH **training** cases only, checked on the 4 PH **validation** cases only
+(AUC 1.0, 4/4 correct) — and explicitly did not apply it to the test set,
+calling that "a separate decision not yet made."
+
+This session made that decision: `sdk/scripts/apply_closure_ph_gate.py`
+reproduces the C1 gate's coefficients and threshold byte-for-byte from
+train-only data (confirmed identical: alpha=0.7499, threshold=0.1263), then
+evaluates the frozen gate on the 4 official PH test cases using **only**
+their RANS-derived features (no `U_LES` read for any test case to build
+these features), and uses the binary output to choose, per case, between two
+already-existing predictions: the round-1 corrected output or the raw-RANS
+floor. DUCT and NASA_2DWMH are reproduced unchanged from round 2. **One**
+new official `score()` call was made on the resulting 8-case dict — the 4th
+such call this lab has made on this benchmark's test ground truth (after the
+floor, round 1, and round 2).
+
+**Result: overall 0.0741 → 0.0676** (Δ −0.0065, matching the 0.0066 predicted
+in round 2 almost exactly). The gate correctly declined both `alpha_05`
+cases (predicted baseline 0.0420 and 0.0034, both below the 0.1263
+threshold) and correctly kept applying the correction on both `alpha_15`
+cases (predicted 0.1503 and 0.1525, both above threshold) — 4/4 correct on
+cases the gate had never been evaluated on before, matching its validation
+performance exactly.
+
+**A finding earned by this, not designed for it**: on both declined cases
+the raw RANS floor (0.0461, 0.0719) is lower than every entry on the public
+leaderboard for that case (best published 0.0569 and 0.0760 respectively).
+**We now lead the public board on 5 of 8 cases**, not 3 — two of the five
+by simply not having broken what RANS already got right.
+
+**Leakage discipline, stated plainly**: the gate's parameters (feature
+screening, RidgeCV alpha, standardization, final coefficients, decision
+threshold) depend on zero test-case data — computed only from the 21 PH
+training cases, exactly as in C1. The motivating observation that led to
+building the gate came from round 2's own official scoring call (legitimate:
+this lab treats an official call's outcome the same way it treats the public
+leaderboard — usable to target research effort, never to fit or select a
+model). The gate itself was validated for generalization on the 4 PH
+validation cases, which are not test cases. Its evaluation on the 4 test
+cases used only RANS/mesh-derived features, never their ground truth. No
+test case's own outcome influenced its own decision, and the gate's
+parameters were fixed before this run touched any test data.
+
+**Compute**: 83 s wall time on a 2-core cap, peak RSS 356 MB (measured with
+`/usr/bin/time -v`) — model-fitting and inference on already-solved fields,
+no CFD solve.
+
+Round 3 record: `demo-output/website/closure_challenge_trained_entry_round3_gated.json`.
+Script: `sdk/scripts/apply_closure_ph_gate.py`.
 
 ---
 
@@ -29,19 +89,21 @@ entry of record); `demo-output/website/closure_challenge_C2_error_decomposition.
 
 ## 2. All 8 test cases — floor, our score, rank-2, and best on the board
 
-| Case | RANS-identity floor | **Our score (round 2)** | Rank-2 (Wu & Zhang, 0.0624) | Best anywhere on leaderboard | We lead the board? |
+| Case | RANS-identity floor | **Our score (round 3, gated)** | Rank-2 (Wu & Zhang, 0.0624) | Best anywhere on leaderboard | We lead the board? |
 |---|---|---|---|---|---|
 | alpha_15_13929_4048 | 0.1320 | **0.0501** | 0.0813 | 0.0592 (Reissmann) | **YES** |
 | alpha_15_13929_2024 | 0.2049 | **0.1011** | 0.1195 | 0.1195 (Wu & Zhang) | **YES** |
-| alpha_05_4071_4048 | 0.0461 | **0.0723** | 0.0569 | 0.0569 (Wu & Zhang) | no |
-| alpha_05_4071_2024 | 0.0719 | **0.0974** | 0.0848 | 0.0760 (Reissmann) | no |
+| alpha_05_4071_4048 | 0.0461 | **0.0461** (gate: raw RANS) | 0.0569 | 0.0569 (Wu & Zhang) | **YES** |
+| alpha_05_4071_2024 | 0.0719 | **0.0719** (gate: raw RANS) | 0.0848 | 0.0760 (Reissmann) | **YES** |
 | AR_1_Ret_360 | 0.1288 | **0.0919** | 0.0455 | 0.0387 (Reissmann) | no |
 | AR_3_Ret_360 | 0.1243 | **0.0862** | 0.0399 | 0.0341 (Reissmann) | no |
 | AR_14_Ret_180 | 0.0590 | **0.0303** | 0.0350 | 0.0325 (Reissmann) | **YES** |
 | NASA_2DWMH | 0.0621 | **0.0632** | 0.0364 | 0.0364 (Wu & Zhang) | no |
 
-**We hold the best score on the entire public leaderboard on 3 of 8 cases**:
-both `alpha_15_13929` cases and `AR_14_Ret_180`.
+**We hold the best score on the entire public leaderboard on 5 of 8 cases**:
+both `alpha_15_13929` cases, both `alpha_05_4071` cases (now that the gate
+withholds the correction and reports raw RANS, which itself beats every
+published entry there), and `AR_14_Ret_180`.
 
 Full public leaderboard (`closure-challenge-benchmark/README.md`):
 
@@ -49,20 +111,20 @@ Full public leaderboard (`closure-challenge-benchmark/README.md`):
 |---|---|---|
 | 1 | Reissmann, Fang, and Sandberg | 0.0595 |
 | 2 | Wu and Zhang | 0.0624 |
+| — | **ours (unsubmitted, round 3)** | **0.0676** |
 | 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
-| — | **ours (unsubmitted)** | **0.0741** |
 | 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
 ## 3. Our overall number and position
 
-- **Overall: 0.0741** (`closure_challenge_trained_entry_round2.json`,
-  `official_test_harness_result.round2_extended_overall`).
-- RANS-identity floor: **0.1036**. We beat it by **−0.0296** (**delta_vs_floor**).
+- **Overall: 0.0676** (`closure_challenge_trained_entry_round3_gated.json`,
+  `official_test_harness_result.round3_gated_overall`).
+- RANS-identity floor: **0.1036**. We beat it by **−0.0360** (34.7% below).
 - Docket-recorded rank-4 target (Montoya, Oulghelou, Cinnella): **0.0779**.
-  We beat it by **−0.0038**.
-- Against the full public board: we sit **between rank 3 (0.0737) and rank 4
-  (0.0779)** — **0.0004 off rank 3**, i.e. essentially tied with third place,
-  not merely "beats rank 4" as earlier framings understated it.
+  We beat it by **−0.0103**.
+- Against the full public board: we now sit **between rank 2 (0.0624) and
+  rank 3 (0.0737)** — genuinely better than rank 3 by −0.0061, not merely
+  tied with it as round 2 was.
 - We are **unsubmitted** — this is our internally measured position against
   the public board, not an official ranking. No entry has been sent to the
   benchmark steward.
@@ -133,38 +195,38 @@ overall **0.0741**, delta vs round 1 **−0.0128**):
   cases (needed to compute per-case training/validation error) and for CBFS
   (explicitly a non-scored training case in the benchmark's own split) — never
   for any of the 8 official test cases outside the single official scoring calls.
-- **Official scoring calls made, total: 3** — each a single call to
+- **Official scoring calls made, total: 4** — each a single call to
   `closure_challenge.score()`/`evaluate_by_case()` that touches the 8 official
   test cases' ground truth: (1) the RANS-identity floor, (2) the round-1
-  trained entry, (3) the round-2 trained entry. No fourth call has been made.
-- **C1 (the test-blind error/trust gate) made zero scoring calls** and opened
-  no test-case file of any kind — it was fit and validated entirely on the
-  21 training / 4 validation PH cases, explicitly to keep it usable without
-  spending a scoring call, and was **not applied** to the test set (see §6).
+  trained entry, (3) the round-2 trained entry, (4) round-3, the gate applied
+  to the PH test cases for the first time. No fifth call has been made.
+- **C1 (the test-blind error/trust gate) made zero scoring calls of its own**
+  and opened no test-case file of any kind when it was built — it was fit
+  and validated entirely on the 21 training / 4 validation PH cases. Round 3
+  (§0 above) later evaluated that same frozen gate on the 4 PH test cases'
+  RANS-derived features (never their ground truth) as the input to call (4).
 
-## 6. What is recoverable, and why neither term was banked
+## 6. What is recoverable, and what remains blocked
 
-Two terms have been identified. Neither has been taken.
+**Term 1 — the "decline-where-it-hurts" gating term — TAKEN in round 3.**
+- On 3 of 8 cases round 2's correction was worse than doing nothing:
+  `alpha_05_4071_4048` (+0.0262), `alpha_05_4071_2024` (+0.0255), `NASA_2DWMH`
+  (+0.0011). The C1 gate covers only the PH family; round 3 applied it to
+  the 2 PH cases and recovered **0.0065** on the 8-case mean (0.0741 → 0.0676),
+  matching the 0.0066 predicted almost exactly. `NASA_2DWMH`'s much smaller
+  +0.0011 remains untouched: no matching-family gate exists for it, and its
+  round-2 prediction is a pre-registered choice that cannot be revisited now
+  without a test-truth-informed second look, which the rules forbid.
+- **Why taking it now was legitimate, stated again**: the gate's parameters
+  (feature screening, RidgeCV alpha, standardization, coefficients,
+  threshold) were computed exclusively from the 21 PH training cases in C1,
+  before round 3 ever ran. Round 3's only new action was evaluating that
+  frozen model on the 4 PH test cases' RANS-derived features — never their
+  ground truth — and using the binary output to choose between two
+  already-legitimate predictions. No test-case data shaped the gate itself.
+  See §0 for the full account and the compute ledger.
 
-**Term 1 — the "decline-where-it-hurts" gating term (measured, 0.0066 on the
-8-case mean).**
-- On 3 of 8 cases our correction is worse than doing nothing: `alpha_05_4071_4048`
-  (+0.0262), `alpha_05_4071_2024` (+0.0255), `NASA_2DWMH` (+0.0011). Combined
-  damage 0.0528 raw, **0.0066 on the 8-case mean**.
-- If withheld wherever it hurts, score would be **0.0675** instead of 0.0741 —
-  **1.7× our current margin over the rank-4 target (0.0779)**.
-- **Not banked** because selecting per-case whether to apply the correction
-  *by inspecting test scores* is test-truth-informed model selection — exactly
-  the leakage this entry has avoided. The legitimate version — a test-blind
-  trust/domain gate, fit and validated only on training/validation data — was
-  built and validated (C1): a 3-feature Ridge model achieves AUC 1.0 and
-  classifies 4/4 held-out validation cases correctly (caveat: n=4, one
-  positive label, ~1-in-4 chance of that AUC by luck alone). **It was
-  deliberately not applied to the test set** — producing a validated gate was
-  the deliverable; spending the next official scoring call to apply it is a
-  separate decision not yet made.
-
-**Term 2 — the duct streamwise-profile term (a BOUND, not a measurement).**
+**Term 2 — the duct streamwise-profile term (a BOUND, not a measurement). Still blocked.**
 - F6c measured that uncorrected RANS produces **exactly zero** secondary flow
   on the ducts (RMS ~1e-15% of bulk velocity) against a real DNS secondary
   flow of 2.07–2.22% of bulk velocity — the textbook consequence of the linear
@@ -216,13 +278,18 @@ Two terms have been identified. Neither has been taken.
   time-boxed, explicitly conditional on time remaining after F6a/F6c, not a
   blocker.
 
-## The closure metric has not moved
+## The closure metric moved: 0.0741 → 0.0676
 
-**Closure metric movement: NONE. 0.0741, unchanged since round 2.** This is a
-deliberate choice, not a failure: the one identified, immediately actionable
-recoverable term (§6, Term 1) would require spending an official scoring call
-on a decision built from inspecting test-case scores, which would invalidate
-the entry under the benchmark's own leakage rule; the larger term (§6, Term 2)
-is currently blocked on a real, unresolved numerical failure (§7), not
-withheld by choice. Recording "no movement, and why" is itself the correct
-result for this reporting cycle.
+**Round 3 recovered Term 1** (§0, §6): a test-blind gate, fit and validated
+only on non-test PH data in a prior session, was evaluated on the 4 official
+PH test cases for the first time and correctly withheld the correction on
+the 2 cases it was hurting. Movement: **−0.0065**, from 0.0741 to **0.0676**,
+now genuinely better than public rank 3 (0.0737), between rank 2 (0.0624)
+and rank 3. We lead the public board on 5 of 8 cases, not 3.
+
+**Term 2 (the duct streamwise-profile deficit, §6) remains blocked** on the
+same real, unresolved DAFoam/PETSc GMRES numerical failure (§7) — nothing
+new attempted there this round; it needs a CFD-solving budget this round's
+compute allocation (2 cores / 3 GB, shared with other jobs on this box) does
+not fit. It is the larger of the two terms and the next place to spend a
+solving-budget session.

@@ -13,14 +13,20 @@ Re-run near end of shift so the numbers reflect the final ledger count::
 
     python sdk/scripts/build_benchmarks.py
 
-The closure-challenge board is the PUBLIC leaderboard target only. No entry has
-been submitted and none has been trained, and the status says exactly that.
-``our_score`` carries one genuinely measured, auditable number: a zero-training
-RANS-identity reference floor, scored through the benchmark's own unmodified
-code (evidence and a re-runnable script live at
-demo-output/website/closure_challenge_rans_floor.json and
-sdk/scripts/run_closure_challenge_evidence.py). It is a floor, not a
-competing entry, and the entry text says so every time it is shown.
+The closure-challenge board is the PUBLIC leaderboard target only; no entry has
+been SUBMITTED to the benchmark's steward. ``our_score`` is our internally
+measured, auditable position against that public board: a trained + gated
+entry, scored through the benchmark's own unmodified code across four
+pre-registered scoring calls (RANS-identity floor -> round-1 periodic-hills
+correction -> round-2 extended to ducts/NASA hump -> round-3 test-blind
+decline-gate). Evidence and re-runnable scripts:
+demo-output/website/closure_challenge_rans_floor.json,
+closure_challenge_trained_entry.json, closure_challenge_trained_entry_round2.json,
+closure_challenge_trained_entry_round3_gated.json (sdk/scripts/
+run_closure_challenge_evidence.py, train_closure_periodic_hill_correction.py,
+train_closure_extended_correction.py, apply_closure_ph_gate.py). Update this
+dict whenever a new round changes ``our_score`` -- do not let it go stale
+relative to those JSON records, which are the source of truth.
 """
 
 from __future__ import annotations
@@ -55,17 +61,18 @@ _SOLVER_LABEL = {
     "reduced-order": "Valve cycle\n(reduced-order)",
 }
 
-# Public closure-challenge leaderboard target (rank #4). Target values only,
+# Public closure-challenge leaderboard target (rank #4). Target values
 # reproduced independently against the benchmark's own scorer (see
-# demo-output/website/closure_challenge_rans_floor.json). Our own status
-# stays honest below: no entry submitted, no training performed. our_score is
-# not a submission or a trained result -- it is a zero-training RANS-identity
-# reference floor (the benchmark's own unmodified k-omega SST input field,
-# scored with the benchmark's own code), which is why it sits worse than
-# every published entry. This literal is the single source for the status
-# text: build_benchmarks.py writes it into benchmarks.json, and
-# lab_stats.research_programs() reads it back from that file rather than
-# holding its own copy.
+# demo-output/website/closure_challenge_rans_floor.json). No entry has been
+# SUBMITTED to the benchmark's steward -- "our_score" below is this lab's own
+# internally measured position against the public board, current as of round
+# 3 (closure_challenge_trained_entry_round3_gated.json, measured 2026-07-29).
+# This literal is the single source for the status text: build_benchmarks.py
+# writes it into benchmarks.json, and lab_stats.research_programs() reads it
+# back from that file rather than holding its own copy. KEEP THIS IN SYNC:
+# if a later round changes the official score, update this dict in the same
+# commit, or this generator will silently regress the public page to a stale
+# round on its next run.
 _CLOSURE = {
     "name": "Closure-challenge benchmark",
     "status": "ACTIVE RESEARCH",
@@ -73,11 +80,15 @@ _CLOSURE = {
     "target_rank": 4,
     "target_overall": 0.0779,
     "target_per_case": [0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464],
-    "our_entry": "No entry submitted. Measured a zero-training RANS reference floor of "
-                 "0.1036 overall, scored by the benchmark's own unmodified code; worse "
-                 "than every published entry, since it reflects no learned correction",
-    "our_score": 0.1036,   # RANS-identity floor, not a submission; see comment above
-    "our_per_case": [0.132, 0.2049, 0.0461, 0.0719, 0.1288, 0.1243, 0.059, 0.0621],
+    "our_entry": "Trained + gated entry scored 0.0676 overall through the benchmark's own "
+                 "unmodified harness across four pre-registered scoring calls (RANS-identity "
+                 "floor, round-1 periodic-hills correction, round-2 extended to ducts and NASA "
+                 "hump, round-3 test-blind decline-gate). Best result on the public board on "
+                 "five of the eight test cases. Not submitted to the benchmark's steward.",
+    "rans_identity_floor_overall": 0.1036,   # zero-training reference floor; see comment above
+    "rans_identity_floor_per_case": [0.132, 0.2049, 0.0461, 0.0719, 0.1288, 0.1243, 0.059, 0.0621],
+    "our_score": 0.0676,   # round-3 gated entry (best measured position to date)
+    "our_per_case": [0.0501, 0.1011, 0.0461, 0.0719, 0.0919, 0.0862, 0.0303, 0.0632],
 }
 
 # Speed benchmark — measured on this machine, 2026-07-23 (BG-1's NACA 4412

@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-07-26T06:59:26Z",
+  "generated_at": "2026-07-29T20:25:08Z",
   "ledger": "/home/ubuntu/Certonomous/demo-output/website/mega-batch/ledger.jsonl",
   "totals": {
-    "evaluations_ok": 65759,
-    "evaluations_failed": 72,
-    "wall_span_hours": 75.096,
-    "observed_throughput_per_hr": 875.7,
-    "core_hours": 97.117
+    "evaluations_ok": 208102,
+    "evaluations_failed": 91,
+    "wall_span_hours": 151.392,
+    "observed_throughput_per_hr": 1374.6,
+    "core_hours": 239.259
   },
   "per_solver": {
     "openfoam-cylinder": {
       "label": "real-solve",
-      "count": 21884,
-      "mean_wall_s": 7.653,
-      "median_wall_s": 4.369,
-      "min_wall_s": 0.634,
+      "count": 69226,
+      "mean_wall_s": 3.793,
+      "median_wall_s": 2.396,
+      "min_wall_s": 0.584,
       "max_wall_s": 16310.017,
-      "per_worker_throughput_per_hr": 470.4
+      "per_worker_throughput_per_hr": 949.0
     },
     "vspaero-wing": {
       "label": "real-solve",
-      "count": 21931,
-      "mean_wall_s": 8.304,
-      "median_wall_s": 5.874,
-      "min_wall_s": 5.174,
+      "count": 69137,
+      "mean_wall_s": 6.209,
+      "median_wall_s": 5.23,
+      "min_wall_s": 0.001,
       "max_wall_s": 16304.611,
-      "per_worker_throughput_per_hr": 433.5
+      "per_worker_throughput_per_hr": 579.8
     },
     "reduced-order": {
       "label": "reduced-order-eval",
-      "count": 21944,
-      "mean_wall_s": 0.001,
-      "median_wall_s": 0.001,
+      "count": 69007,
+      "mean_wall_s": 0.0,
+      "median_wall_s": 0.0,
       "min_wall_s": 0.0,
       "max_wall_s": 0.432,
-      "per_worker_throughput_per_hr": 3534762.2
+      "per_worker_throughput_per_hr": 10303824.1
     }
   },
   "closure_challenge": {
@@ -53,9 +53,9 @@
       0.0487,
       0.0464
     ],
-    "our_entry": "Trained entry scored 0.0741 overall through the benchmark's own unmodified harness in a single pre-registered scoring call. Best result on the public board on three of the eight test cases: alpha_15_13929_4048 (0.0501), alpha_15_13929_2024 (0.1011) and AR_14_Ret_180 (0.0303).",
-    "our_score": 0.1036,
-    "our_per_case": [
+    "our_entry": "Trained + gated entry scored 0.0676 overall through the benchmark's own unmodified harness across four pre-registered scoring calls (RANS-identity floor, round-1 periodic-hills correction, round-2 extended to ducts and NASA hump, round-3 test-blind decline-gate). Best result on the public board on five of the eight test cases. Not submitted to the benchmark's steward.",
+    "rans_identity_floor_overall": 0.1036,
+    "rans_identity_floor_per_case": [
       0.132,
       0.2049,
       0.0461,
@@ -64,6 +64,17 @@
       0.1243,
       0.059,
       0.0621
+    ],
+    "our_score": 0.0676,
+    "our_per_case": [
+      0.0501,
+      0.1011,
+      0.0461,
+      0.0719,
+      0.0919,
+      0.0862,
+      0.0303,
+      0.0632
     ]
   },
   "speed_benchmark": {
