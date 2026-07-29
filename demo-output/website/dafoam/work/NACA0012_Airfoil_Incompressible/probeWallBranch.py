@@ -161,6 +161,19 @@ cd = float(prob.get_val("scenario1.aero_post.CD")[0])
 cl = float(prob.get_val("scenario1.aero_post.CL")[0])
 
 # ---------------------------------------------------------------------------
+# Mesh quality on THIS run's deformed (post-warp, post-converge) mesh, via
+# DAFoam's own DACheckMesh (same tool/thresholds used elsewhere in this lab,
+# e.g. B3's "max aspect ratio ..., max non-orthogonality ..., max skewness
+# ..." check). Called explicitly AFTER run_model() so it inspects the shape
+# actually solved in THIS process (idx/step), not the pristine baseline mesh
+# checkMesh may also run once internally at solver construction time.
+# ---------------------------------------------------------------------------
+print("CHECKMESH_BEGIN tag=%s" % args.tag, flush=True)
+DASolver = prob.model.scenario1.aero_post.functionals.DASolver
+meshOK = DASolver.solver.checkMesh()
+print("CHECKMESH_END tag=%s meshOK=%d" % (args.tag, int(meshOK)), flush=True)
+
+# ---------------------------------------------------------------------------
 # find the time directory this run just wrote (runTime.writeNow() at
 # convergence writes the CURRENT time index, not a multiple of writeInterval)
 # ---------------------------------------------------------------------------
@@ -232,3 +245,75 @@ print(
 print("PROBE_VALUES tag=%s %s" % (args.tag, " ".join("%.10e" % v for v in vals)), flush=True)
 print("PROBE_ZEROMASK tag=%s %s" % (args.tag, " ".join("1" if v == 0.0 else "0" for v in vals)), flush=True)
 print("PROBE DONE tag=%s" % args.tag, flush=True)
+
+# ---------------------------------------------------------------------------
+# LE-LOCALIZED cell volumes (coordinator's follow-up: is degradation
+# restricted to/concentrated at the leading edge, not just a global stat?).
+# DAFoam's getOFField only exposes internal fields registered by NAME in the
+# object registry; raw per-cell volume (mesh.V()) is not one, so this uses
+# the stock OpenFOAM function object 'writeCellVolumes' as a subprocess on
+# the SAME deformed mesh this process just wrote to <finalTimeDir>/polyMesh,
+# then maps each of the wing patch's 126 boundary faces to its OWNER
+# (interior, wall-adjacent) cell via constant/polyMesh/owner, so the volume
+# printed at index i below is the same physical wall-adjacent cell as the
+# nutw value at index i above -- directly comparable, same indexing.
+# ---------------------------------------------------------------------------
+import subprocess
+import gzip as _gzip
+
+cellVolProc = subprocess.run(
+    ["postProcess", "-func", "writeCellVolumes", "-time", finalTimeDir],
+    capture_output=True,
+    text=True,
+)
+print("WRITECELLVOLUMES_RC tag=%s rc=%d" % (args.tag, cellVolProc.returncode), flush=True)
+if cellVolProc.returncode != 0:
+    print("PROBE_ERROR tag=%s writeCellVolumes failed: %s" % (args.tag, cellVolProc.stderr[-500:]), flush=True)
+    sys.exit(1)
+
+
+def readFoamFile(path):
+    if os.path.exists(path):
+        with open(path, "r") as fh:
+            return fh.read()
+    elif os.path.exists(path + ".gz"):
+        with _gzip.open(path + ".gz", "rt") as fh:
+            return fh.read()
+    else:
+        return None
+
+
+# parse boundary file for wing patch's startFace/nFaces (do not hardcode)
+bcontent = readFoamFile("constant/polyMesh/boundary")
+bm = re.search(r"wing\s*\{([^}]*)\}", bcontent, re.DOTALL)
+startFace = int(re.search(r"startFace\s+(\d+);", bm.group(1)).group(1))
+nFacesWing = int(re.search(r"nFaces\s+(\d+);", bm.group(1)).group(1))
+assert nFacesWing == len(vals), "wing face count mismatch: boundary=%d nut=%d" % (nFacesWing, len(vals))
+
+# parse owner list (labelList, plain "N (\n v0 \n v1 ... )" format, no "nonuniform" prefix)
+ownerContent = readFoamFile("constant/polyMesh/owner")
+om = re.search(r"\n(\d+)\s*\n\(\n(.*?)\n\)\n", ownerContent, re.DOTALL)
+nOwnerTotal = int(om.group(1))
+ownerList = [int(x) for x in om.group(2).split()]
+assert len(ownerList) == nOwnerTotal, "owner list parse mismatch: got %d, header says %d" % (len(ownerList), nOwnerTotal)
+wingOwnerCells = ownerList[startFace : startFace + nFacesWing]
+
+# parse the freshly-written per-cell volume field (internal field only, no boundary needed)
+vContent = readFoamFile(os.path.join(finalTimeDir, "V"))
+vm = re.search(r"internalField\s+nonuniform\s+List<scalar>\s*\n?\s*(\d+)\s*\(([^)]*)\)", vContent, re.DOTALL)
+nCellsV = int(vm.group(1))
+cellVols = np.array([float(x) for x in vm.group(2).split()])
+assert len(cellVols) == nCellsV, "V field parse mismatch: got %d, header says %d" % (len(cellVols), nCellsV)
+
+wingCellVols = cellVols[wingOwnerCells]
+print(
+    "PROBE_CELLVOL tag=%s %s"
+    % (args.tag, " ".join("%.10e" % v for v in wingCellVols)),
+    flush=True,
+)
+print(
+    "PROBE_CELLVOL_SUMMARY tag=%s minCellVol=%.10e minCellVolIdx=%d nNegOrZero=%d"
+    % (args.tag, float(np.min(wingCellVols)), int(np.argmin(wingCellVols)), int(np.sum(wingCellVols <= 0.0))),
+    flush=True,
+)
+print("PROBE_CELLVOL_DONE tag=%s" % args.tag, flush=True)

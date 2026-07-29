@@ -1101,3 +1101,144 @@ diagnostic for any future case using a hard-switching wall function.
   containing the full 126-value `nut` wing-patch array (`PROBE_VALUES`) and per-face zero mask
   (`PROBE_ZEROMASK`)
 
+## 14. Session 2026-07-29 (continued): the combo-mode LE mesh-pinch hypothesis, tested and killed
+
+With the branch-crossing hypothesis dead (section 13), the coordinator proposed a second, related
+mechanism: idx6 is the only one of the 8 shape modes whose FFD control points move the leading-edge
+point and its mirror point in *opposite* directions simultaneously (per `runScript.py`'s
+`configure()`), unlike idx0-idx5/idx7 which each move a single station. Opposite-direction motion at
+the highest-curvature part of the airfoil is exactly the motion that can pinch a cell -- so the
+hypothesis was: idx6's plus and minus FD evaluations solve on two *differently mesh-degraded*
+geometries, so the central difference is differencing across two different meshes, not one mesh at
+two shapes; the adjoint linearizes about the undegraded baseline and is unaffected. This would explain
+step-independence (the pinch scales with the perturbation, so shrinking the step shrinks the
+degradation proportionally -- the relative error stays put), the LE localization, and the one thing
+section 13's branch story never could: why only the *combo* mode misbehaves while single-station modes
+at the same location are fine. Coordinator's prediction: idx6's plus/minus configurations differ
+measurably in LE mesh quality; idx4's (control) do not.
+
+### 14.1 Method
+
+Reused the exact 5 already-run configurations from section 13 (baseline, idx6 h=+-1e-4, idx4
+h=+-1e-4; same fresh single-shot serial processes, same `--cpus=3 --memory=3g` cap -- the coordinator
+noted the memory-measurement agent had an 18-20 GB window open concurrently, so nothing new or large
+was started; `free -h` was checked before/after every run and stayed at 18-19 GB available throughout,
+confirmed non-interfering). `probeWallBranch.py` was extended with two independent mesh-quality
+measurements, both run on the SAME post-warp, post-converge deformed mesh already sitting in memory/on
+disk from each run (no new solves):
+
+1. **Global**: `DASolver.solver.checkMesh()` -- DAFoam's own `DACheckMesh` (the identical tool/report
+   format already used and trusted elsewhere in this lab, e.g. B3's "max aspect ratio ..., max
+   non-orthogonality ..., max skewness ..." check), called explicitly *after* `run_model()` so it
+   inspects the shape actually solved in that process, not the pristine construction-time mesh.
+2. **LE-localized**: `getOFField` cannot return per-cell volume (not a name-registered field), so the
+   stock OpenFOAM function object `postProcess -func writeCellVolumes -time <T>` was run as a
+   subprocess against each run's own already-written `<T>/polyMesh` (no re-solve, pure post-processing,
+   near-instant on 4032 cells), then each of the wing patch's 126 boundary faces was mapped to its
+   owner (wall-adjacent) cell via `constant/polyMesh/owner`, giving a 126-value near-wall cell-volume
+   array indexed identically to section 13's `nut` array -- so wing-face index 60/61 is confirmed (by
+   the mesh's own left-right symmetric volume profile, see 14.2) to be the true geometric leading edge.
+
+### 14.2 Global mesh-quality metrics (DACheckMesh, all 5 configs)
+
+Read directly from each run's `CHECKMESH_BEGIN`/`CHECKMESH_END` block (`probemeshquality_*_run1.log`):
+
+| metric | baseline | idx6 h=+1e-4 | idx6 h=-1e-4 | idx6 swing % | idx4 h=+1e-4 | idx4 h=-1e-4 | idx4 swing % |
+|---|---|---|---|---|---|---|---|
+| min cell volume | 2.254099e-07 | 2.254099e-07 | 2.254099e-07 | 0.000000 | 2.254049e-07 | 2.254149e-07 | -0.004418 |
+| max aspect ratio | 97.872187 | 97.872187 | 97.872187 | -0.000000 | 97.873825 | 97.872467 | 0.001388 |
+| max non-orthogonality (deg) | 22.748916 | 22.748916 | 22.748916 | 0.000004 | 22.750405 | 22.750486 | -0.000354 |
+| max skewness | 1.432465 | 1.432465 | 1.432465 | -0.000000 | 1.432520 | 1.432511 | 0.000716 |
+
+`meshOK=1` ("Mesh OK", zero failed checks against DAFoam's own thresholds: maxNonOrth, maxSkewness,
+maxAspectRatio) at all 5 configurations. **No negative or zero cell volume anywhere, ever, in any of
+the 5 runs.** Read plainly, this table alone is the *opposite* of the coordinator's prediction: on
+every global metric, idx4's plus/minus swing is larger than idx6's (often by orders of magnitude) --
+because the mesh's single globally-smallest cell (and the global aspect-ratio/skewness extremum)
+happens to sit near wing-face index 123-124, which is inside idx4's own affected region, not idx6's.
+This is explained, not just noted, in 14.3: it is an artifact of *where the current global extremum
+happens to live*, not evidence that idx4 degrades its own region more violently than idx6 degrades the
+LE. The global table by itself is not sufficient to test the hypothesis, which is why 14.3 (the
+localized measurement the coordinator specifically asked for) is the one that actually settles it.
+
+### 14.3 LE-localized cell volumes (the measurement that actually tests the hypothesis)
+
+The 126-value near-wall cell-volume array is perfectly left-right symmetric about wing-face index
+60/61 in every configuration (e.g. baseline: idx55=4.740291e-06, idx66=4.740291e-06; idx59=2.173777e-06,
+idx62=2.173777e-06) -- confirming 60/61 is the true geometric leading edge, independent of and
+consistent with section 13's `nut`-derived stagnation-face localization (idx63, offset by the flow's
+AoA rather than the mesh's own geometric symmetry).
+
+**idx6's own region (wing-face idx 55-70, the LE):**
+
+| idx | baseline | idx6 h=+1e-4 | idx6 h=-1e-4 | idx6 swing % | idx4 h=+1e-4 | idx4 h=-1e-4 | idx4 swing % |
+|---|---|---|---|---|---|---|---|
+| 58 | 2.613548e-06 | 2.611858e-06 | 2.615239e-06 | -0.129356 | 2.613548e-06 | 2.613548e-06 | 0.000001 |
+| 59 | 2.173777e-06 | 2.171787e-06 | 2.175767e-06 | -0.183090 | 2.173777e-06 | 2.173777e-06 | 0.000001 |
+| **60 (LE)** | **1.829244e-06** | **1.827297e-06** | **1.831192e-06** | **-0.212898** | 1.829244e-06 | 1.829244e-06 | 0.000001 |
+| 61 (LE) | 1.829244e-06 | 1.827297e-06 | 1.831192e-06 | -0.212897 | 1.829244e-06 | 1.829244e-06 | 0.000002 |
+| 62 | 2.173777e-06 | 2.171787e-06 | 2.175767e-06 | -0.183087 | 2.173777e-06 | 2.173777e-06 | 0.000002 |
+| 63 | 2.613548e-06 | 2.611858e-06 | 2.615239e-06 | -0.129351 | 2.613548e-06 | 2.613548e-06 | 0.000001 |
+
+Here the coordinator's prediction reads true in its most literal sense: idx6 visibly moves the LE
+cells (max swing -0.213% at the LE point itself, idx60/61) and idx4 does not touch them at all
+(swings ~1e-6 %, floating-point noise -- idx4's own station sits elsewhere on the airfoil). That much
+was expected by construction (idx6 IS the LE shape function; idx4 is not) and is not yet evidence of
+degradation, only of motion. The actual question is whether that motion is a clean, linear, symmetric
+geometric response (an ordinary, differentiable shape derivative) or an asymmetric, pinch-like one (the
+signature the hypothesis actually needs -- one side of the perturbation compressing toward a degenerate
+cell much faster than the other side expands).
+
+**Antisymmetry residual at each component's own peak-response face** -- `|dV(+h) + dV(-h)| /
+|dV(+h) - dV(-h)|`, the fraction of the plus/minus response that is NOT a clean linear/antisymmetric
+first-order derivative (0% = perfectly linear and symmetric; a real pinch would push this toward tens
+of percent as one side's volume collapses disproportionately):
+
+| component | peak face (own station) | baseline vol | dV(+h) | dV(-h) | antisymmetry residual |
+|---|---|---|---|---|---|
+| idx6 (LE combo mode) | idx 60 (the LE) | 1.829244e-06 | -1.9470e-09 | +1.9475e-09 | **0.0127%** |
+| idx4 (control) | idx 120 (its own station) | 7.580396e-07 | +2.7778e-11 | -2.7752e-11 | **0.0476%** |
+
+idx6's own LE response is *more* linear/symmetric than idx4's own response at its own station (0.013%
+residual vs. 0.048%), not less. **Minimum cell volume anywhere across all 5 configurations, at every
+one of the 126 wing-adjacent cells: 2.2540490877e-07 -- positive, never negative, never zero, and
+essentially unchanged (6th significant figure) between plus and minus at every station tested, LE
+included.**
+
+### 14.4 Verdict: the combo-mode LE-pinch hypothesis is dead
+
+**The coordinator's prediction does not hold as a degradation/pinch story.** It holds only in the
+trivial, expected sense that idx6 (the LE shape function, by construction) moves LE cells and idx4 (a
+different station) does not -- that is motion, not damage. The actual diagnostic the hypothesis needs
+-- an asymmetric, nonlinear, degenerate-tending response between the plus and minus evaluations,
+localized at the LE for idx6 specifically -- is absent: idx6's LE-region volume response is clean,
+linear, and antisymmetric to 0.013% (tighter than idx4's own 0.048% at its own station), no cell volume
+anywhere in any of the 5 configurations goes negative or comes remotely close to zero (the smallest is
+2.25e-07, ~8x the baseline's own smallest cell, stable to 6 significant figures across every
+perturbation), and DAFoam's own `DACheckMesh` reports "Mesh OK" against its own aspect-ratio/
+non-orthogonality/skewness thresholds at all 5 configurations with changes confined to the 4th-6th
+significant figure. **Per the standing hard rule, reported plainly: refuted, not merely unconfirmed.**
+
+This kills the second of the two candidates named at the end of section 13. The one remaining named
+candidate -- negative or near-degenerate cell volumes at the LE under perturbation -- is now also
+directly answered by this section's own measurement (14.3: no negative or near-degenerate volume
+appears anywhere, at any of the 5 configurations, including at the LE under idx6): **that candidate is
+refuted by the same data, not merely untested.** All four previously-open candidate mechanisms for the
+idx0/idx1/idx6 defect (frozen wall-distance, wall-function branch-crossing, FFD combo-mode mesh
+pinching, and perturbed-mesh cell-volume degeneracy) are now refuted with direct measurement. **Root
+cause of the idx0/idx1/idx6 defect remains unidentified**, and the next place to look, per the
+coordinator's own framing going into section 13, is the FFD-to-mesh warp itself (the IDWarp
+`warpDeriv`/Jacobian machinery, not the resulting mesh's static quality) -- a mechanism this session's
+two tests were structurally unable to reach, since both examined the *converged output* of the warp
+(field state, cell geometry) rather than the warp's own derivative/sensitivity computation.
+
+### 14.5 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeWallBranch.py` -- extended (this session) with the
+  `checkMesh()` call and the `writeCellVolumes`-subprocess + owner-mapping LE-localization logic
+- `probemeshquality_baseline_run1.log`, `probemeshquality_idx6_plus_run1.log`,
+  `probemeshquality_idx6_minus_run1.log`, `probemeshquality_idx4_plus_run1.log`,
+  `probemeshquality_idx4_minus_run1.log` -- the 5 raw runs behind this section's tables, each
+  containing the full `DACheckMesh` report (`CHECKMESH_BEGIN`/`CHECKMESH_END`) and the full 126-value
+  near-wall cell-volume array (`PROBE_CELLVOL`, `PROBE_CELLVOL_SUMMARY`)
+
