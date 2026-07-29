@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-25T23:35:22+00:00",
+ "generated_at": "2026-07-29T20:15:00Z",
  "proposals": [
   {
    "id": "r1-monitor-walltime-rule",
@@ -120,6 +120,22 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "agp-d392641d60f4",
+   "objective": "Close the validation gap on the NACA 4412 finite wing",
+   "rationale": "The graded record stands at Cd 0.0183 against the reference 0.0136, 35 percent off and outside the validation band; a refined near-wall setup can close the gap or explain it on the record.",
+   "citations": [
+    "Graded curriculum record, NACA 4412 finite wing",
+    "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed."
+   ],
+   "est_core_min": 4.64,
+   "cost_basis": "measured: the prior graded solve of this body ran 4.6 minutes of wall time",
+   "expected_knowledge_gain": "Either a validated credential for the NACA 4412 finite wing or a measured account of why the setup misses the reference",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T04:12:40+00:00",
+   "launch_prompt": "Mesh and solve the NACA 4412 wing and report the drag with its envelope."
+  },
+  {
    "id": "r1-sobol-sensitivity-mission",
    "objective": "Add a Sobol sensitivity mission type that apportions output variance across the input spreads before any uncertainty reduction campaign is priced",
    "rationale": "The lab propagates input spreads through Monte Carlo but never says which input owns the variance, so reduction work is untargeted. Variance-based decomposition gives main and total effect indices per input; on the reduced-order paths an evaluation costs about a millisecond, so a pick-and-freeze design of N times (M plus 2) evaluations at N of 200 is seconds of compute for the valve and comparable for the airliner surrogate. The mission ends with a ranking of inputs by variance share and a recommendation of where the next samples or the next measurement effort should go.",
@@ -136,6 +152,20 @@
    "launch_prompt": "Run a Sobol sensitivity mission on the valve screen: inputs are flow amplitude (sigma 5 percent) and discharge coefficient (sigma 6 percent); evaluate the cycle-weighted loss through the reduced-order orifice path with a pick-and-freeze design, N 200, cost N times (M plus 2) equals 800 evaluations; report main and total effect indices with bootstrap confidence intervals, then repeat on the airliner input spreads through the fitted surrogate with one confirming solver run at the highest-index corner. Present the result as a variance-share bar per input with the earned-badge convention.",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "agp-880b4f92bdc5",
+   "objective": "Add a 7th refinement rung to the B-52 Stratofortress-class airframe grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.0551, 0.0448, 0.0491, 0.0472, 0.0496, 0.0523 across the rungs, and the record states the verdict as: rungs not monotone; conservative band, largest spread times 1.25. NOTE (2026-07-27): the finest-3-by-cells rule now selects (production, fine-uq, finer2), which IS monotone and would auto-fit p=2.25 with band_abs=0.0157 (see uq-b52-ladder-monotonicity lesson) -- that fit is rejected by hand-audit (successive Cd increments GROW with refinement, 0.00186->0.00238->0.00270, the opposite of asymptotic shrinkage, and the Richardson-extrapolated value 0.0657 lies far outside the whole measured range). The certified band is therefore held at the value below pending a rung that shows genuinely shrinking increments; do not let automation silently adopt the 0.0157 fit.. A further rung can settle the observed order.",
+   "citations": [
+    "B-52 Stratofortress-class airframe grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 330,950 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T04:12:40+00:00"
   },
   {
    "id": "agp-beadb3545c04",
@@ -166,6 +196,20 @@
    "created_at": "2026-07-25T02:07:58+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "agp-804d7038bf9e",
+   "objective": "Add a fourth refinement rung to the Ahmed reference body, 25\u00b0 slant grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.1010, 0.0898, 0.0848 across the rungs, and the record states the verdict as: Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25. A further rung can settle the observed order.",
+   "citations": [
+    "Ahmed reference body, 25\u00b0 slant grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 79,439 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Ahmed reference body, 25\u00b0 slant drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T19:03:38+00:00"
   },
   {
    "id": "agp-d889fd00f6ae",
@@ -214,6 +258,20 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "agp-7273e7f80ddc",
+   "objective": "Add a fourth refinement rung to the NACA 0015 sail grid ladder",
+   "rationale": "The refinement study ended inconclusive: Cd 0.0159, 0.0116, 0.0102 across the rungs, and the record states the verdict as: Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25. A further rung can settle the observed order.",
+   "citations": [
+    "NACA 0015 sail grid-refinement study"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate; the finest rung holds 243,929 cells and the next roughly doubles it",
+   "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 0015 sail drag",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T04:12:40+00:00"
+  },
+  {
    "id": "agp-64393439352d",
    "objective": "Add a fourth refinement rung to the NACA 4412 finite wing grid ladder",
    "rationale": "The refinement study ended inconclusive: Cd 0.0289, 0.0217, 0.0189 across the rungs, and the record states the verdict as: 3-mesh study (r = 1.35), observed order p = 4.62; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5). A further rung can settle the observed order.",
@@ -226,6 +284,36 @@
    "source_kind": "gate",
    "status": "proposed",
    "created_at": "2026-07-25T18:10:48+00:00"
+  },
+  {
+   "id": "naca4412-independent-reference-anchor",
+   "objective": "Anchor the NACA 4412 credential reference on a lift coefficient independent of the solve being graded, replacing the current self-referential anchor",
+   "rationale": "The reference is built as section drag plus induced drag evaluated at the solve's own lift, so a solve that over-predicts lift is graded against a wider band. Measured tonight: a 25.0 percent lift over-prediction inflates the induced term by 56.2 percent and lifts the whole band with it. Grading each rung against its own anchor puts the two best-resolved rungs out of band at 94.2 and 94.5 percent layer coverage while the worst-resolved rung at 4.4 percent coverage passes. The grade can be bought by getting lift wrong in the generous direction, so no verdict from this method is currently trustworthy",
+   "citations": [
+    "Certonomous NACA 4412 credential verdict, measured 2026-07-28",
+    "Abbott and von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar",
+    "Anderson, Fundamentals of Aerodynamics, span efficiency bracket"
+   ],
+   "est_core_min": 15.0,
+   "cost_basis": "estimate, derivation is arithmetic once the anchor source is chosen; no new solves required",
+   "expected_knowledge_gain": "A credential grade that cannot be moved by the error it is meant to detect, and a reusable pattern for every bottom-up reference in the wall",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
+   "id": "credential-layer-coverage-gate",
+   "objective": "Add a boundary layer coverage gate to every credential that grades on drag alone",
+   "rationale": "Measured on the NACA 4412 wing: across a 17.7 fold change in boundary layer coverage from 4.36 to 77.0 percent at fixed refinement, drag moved 0.037 percent while lift moved 9.41 percent. Drag agreement is therefore not evidence of a resolved boundary layer on a low aspect ratio wing, because induced drag is roughly half the total and is set by lift distribution rather than near wall resolution. A drag only credential can read as converged over a badly under resolved boundary layer",
+   "citations": [
+    "Certonomous NACA 4412 coverage study, measured 2026-07-28"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate, a check added to existing grading code plus a re-grade of current wall credentials",
+   "expected_knowledge_gain": "Removal of a silent failure mode from the credentials wall, and a stated coverage figure on every drag credential",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
   },
   {
    "id": "r1-multifidelity-propagation",
@@ -245,6 +333,21 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "dafoam-simplec-comparison-audit",
+   "objective": "Audit every comparison between a DAFoam result and a plain OpenFOAM baseline for the silently dropped consistent pressure correction",
+   "rationale": "The Ahmed body rung measured its adjoint capable primal 22.05 percent away from our own validated baseline on the same mesh, boundary conditions and turbulence model. The cause is that the baseline sets consistent yes, selecting the consistent variant of the pressure correction, and the adjoint solver does not implement it and runs the plain variant instead without warning. On this geometry the two land on different branches of a documented bistable wake, so the discrepancy is a change of solution branch rather than a tolerance. Any credential or comparison that puts the two solvers side by side inherits this, and neither number is wrong on its own terms",
+   "citations": [
+    "Certonomous Ahmed body adjoint rung, measured 2026-07-28",
+    "Ahmed, Ramm and Faltin, SAE 840300 (1984)"
+   ],
+   "est_core_min": 25.0,
+   "cost_basis": "estimate, a scan of existing case settings plus a re-run of any comparison found to be affected",
+   "expected_knowledge_gain": "Removal of a silent apples to oranges comparison from the credentials wall, and a stated solver equivalence caveat wherever the two are compared",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
    "id": "agp-e5136061890b",
    "objective": "Run the bump-in-channel verification case on a three-grid ladder",
    "rationale": "The flat plate is measured on a three-grid ladder, fine-grid Cd 0.002834 vs CFL3D 0.002826 on the same grid size, and the resource card names bump-in-channel as the next verification case.",
@@ -260,6 +363,21 @@
    "created_at": "2026-07-25T02:07:58+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "dafoam-shape-derivative-step-size-study",
+   "objective": "Establish whether the shape derivative disagreement against finite difference is a step size artefact by sweeping the difference step across several decades",
+   "rationale": "On the official unmodified airfoil tutorial the geometric constraints verify to 4.4e-14 and the flow parameter derivatives to 0.232 percent, so the harness is sound, yet the drag shape derivative shows 11.43 percent on the difference vector norm while the two gradient magnitudes agree to 0.451 percent. Same length, different direction is the signature of per component difference noise rather than a scale error, and step size is the first thing that would move it. Every future adjoint claim on a shape variable rests on knowing whether that 11 percent is the check or the gradient",
+   "citations": [
+    "Certonomous Ladder A airfoil adjoint verification, measured 2026-07-28",
+    "DAFoam verification documentation for the incompressible solver, retrieved 2026-07-28"
+   ],
+   "est_core_min": 35.0,
+   "cost_basis": "measured, the tutorial rung cost 3.51 core minutes so a sweep of eight step sizes plus reruns is bounded",
+   "expected_knowledge_gain": "A defensible tolerance for every future shape derivative verification, separating check error from gradient error",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
   },
   {
    "id": "agp-12fdfe05e05f",
@@ -310,6 +428,20 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "dafoam-adjoint-memory-scaling-law",
+   "objective": "Measure the adjoint peak memory as a function of cell count so case feasibility can be predicted before a run rather than discovered by failure",
+   "rationale": "Adjoint runs succeeded at 4032 and 4800 cells and failed at 99840 and 399360, with eight mitigations ruled out including container caps at 12 and 18 gigabytes, two and four rank decomposition, restart count, and preconditioner fill. Restricting the requested derivative to two variables did not help, because the reverse mode sweep touches every upstream input regardless, so the mesh sized Jacobian blocks are built either way. The wall is therefore real but its location is only known to lie between ten thousand and one hundred thousand cells, and it was measured while other work shared the host. A profiled curve over four or five small cases turns that into a number that tells us in advance which rungs are feasible",
+   "citations": [
+    "Certonomous Ladder A adjoint rungs, measured 2026-07-28"
+   ],
+   "est_core_min": 40.0,
+   "cost_basis": "measured, the smallest rung cost 3.51 core minutes so a sweep of five sizes with peak memory sampling is bounded",
+   "expected_knowledge_gain": "A predictive feasibility rule for every future adjoint case, replacing case by case discovery of the same wall",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
    "id": "agp-a13672d0713c",
    "objective": "Next body in the class",
    "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Next body in the class: take the same gated chain to the nearest unsolved body in the library and grow the validated set.",
@@ -324,6 +456,21 @@
    "created_at": "2026-07-25T02:07:58+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "closure-baseline-error-estimator-gate",
+   "objective": "Build a baseline error estimator, trained on training and validation cases only, that withholds the closure correction where the uncorrected model is already accurate",
+   "rationale": "Our correction is worse than doing nothing on three of the eight benchmark test cases, costing 0.0066 on the eight case mean, which is 1.7 times the current margin over the fourth ranked entry. The pattern is clean: the periodic hill trained model hurts at every baseline error at or below 0.0719 and helps at every baseline error at or above 0.1320, with a gap of 0.0601 and nothing in it. Baseline error is not knowable at test time, so the gate must predict it from features the test cases expose, and must be fitted and validated without touching any test case",
+   "citations": [
+    "Certonomous closure challenge error decomposition, measured 2026-07-28",
+    "Closure challenge benchmark leaderboard and per case scores, retrieved 2026-07-28"
+   ],
+   "est_core_min": 45.0,
+   "cost_basis": "estimate, model fitting on cached feature sets already reconstructed for round two; no new flow solves",
+   "expected_knowledge_gain": "Recovery of the loss term without a second scoring call, and a stated domain of validity for the correction, which is itself a result about the model class",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
   },
   {
    "id": "agp-d64295666c56",
@@ -438,6 +585,20 @@
    "launch_prompt": "Run workflows.tmr_verification.run_naca_level for (medium, fine) x (10, 0, 15 degrees) sequentially with detach=True and collect_level, honoring the STOP file before every launch; then build the per-alpha summaries with build_naca_summary and persist_naca_ladder, and only then touch the card."
   },
   {
+   "id": "naca4412-converge-lift-coefficient",
+   "objective": "Identify and remove the remaining driver of lift non-monotonicity on the NACA 4412 refinement ladder so the ladder reaches the asymptotic range",
+   "rationale": "Repairing boundary layer coverage from 58.3 to 77.0 percent closed only 26.5 percent of the lift gap to the next rung, and extrapolating the coverage trend to equal coverage still leaves 9.4 percent. Drag is effectively invariant across a 17.7 fold change in coverage at 0.037 percent, so the remaining driver is not near wall resolution. The pressure and induced split and the tip and wake treatment at aspect ratio 3 are the untested suspects. Until lift converges the numerical half width of 0.0033839 dominates the acceptance band",
+   "citations": [
+    "Certonomous NACA 4412 refinement ladder, four rungs measured 2026-07-27 and 2026-07-28"
+   ],
+   "est_core_min": 220.0,
+   "cost_basis": "estimate from measured cost of the 2.09 million cell rung at 37.4 core minutes, allowing for a tip refinement study and one further rung",
+   "expected_knowledge_gain": "An asymptotic ladder, a defensible observed order, and a materially tighter acceptance band on a wall credential",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
    "id": "tmr-flatplate-finest-grids",
    "objective": "Extend the measured flat-plate ladder to the two finest TMR grids (273x193 and 545x385) so the extrapolation is anchored in the asymptotic range",
    "rationale": "Tonight's three rungs cost 139.1 core-minutes in total and reached about 1 percent of the finest-grid reference; the two finest rungs would close most of that gap and give the observed order room to approach 2",
@@ -456,6 +617,22 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "closure-duct-field-inversion",
+   "objective": "Reproduce the rank two entry's field inversion on the square duct cases, inverting a correction field on the turbulence destruction term through the discrete adjoint",
+   "rationale": "The two square duct test cases are 62.9 percent of our entire deficit to the rank two entry: we score 0.0919 and 0.0862 where they score 0.0455 and 0.0399. Their method trains only on a public separated flow case and generalizes to the ducts without seeing them, so it is reproducible without touching test truth, and it runs on the adjoint stack already verified this session against the official airfoil tutorial",
+   "citations": [
+    "Wu, Zhang and Zhang, AIAA Journal volume 63 number 2 (2025), pages 687 to 706",
+    "Closure challenge benchmark leaderboard and per case scores, retrieved 2026-07-28",
+    "Certonomous Ladder A airfoil adjoint verification, measured 2026-07-28"
+   ],
+   "est_core_min": 420.0,
+   "cost_basis": "estimate from the paper's stated iteration count combined with our own measured per solve adjoint cost; flagged as needing a timed pilot before it is trusted",
+   "expected_knowledge_gain": "The largest single recoverable term on the benchmark, plus a reproduction of a published adjoint field inversion end to end on our own stack",
+   "source_kind": "reading",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
    "id": "agp-4369c99cdd7f",
    "objective": "Run the TMR 2D NACA 0012 airfoil case on the three coarsest reference grid sizes at 0, 10, and 15 degrees and compare lift, drag, and surface pressure against the published CFL3D and FUN3D values",
    "rationale": "Flat plate and bump-in-channel are both measured on three-grid ladders against the reference codes; the resource's verification sequence names the NACA 0012 airfoil as the next case.",
@@ -471,6 +648,112 @@
    "created_at": "2026-07-25T17:39:39+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
+  },
+  {
+   "id": "r4-a1-idx6-wall-function-branch",
+   "objective": "Test whether A1's sign-flipped leading-edge shape derivative (idx6) is caused by discrete non-differentiability at the wall-function switching threshold, by measuring whether leading-edge cells cross that threshold under the finite-difference perturbation",
+   "rationale": "A1's CD/shape check fails on one component: idx6, the leading-edge combo mode, is sign-flipped and accounts for 82.7 percent of the squared-error norm. It is step-independent, survives a 3.65x mesh refinement, and the frozen-wall-distance mechanism was measured to contribute exactly zero. Root cause is unidentified and this is the deepest open question in the ladder. A mechanism nobody has tested: the Spalart-Allmaras wall-function branch is a discrete switch on the near-wall cell state. If leading-edge cells cross that switch between the plus and minus finite-difference perturbations, the function being differenced is not continuous there, so the finite difference is estimating the slope across a step rather than a derivative, and the adjoint, which linearizes one branch only, is right while the check is wrong. That would explain step-independence, which a truncation-error story cannot, and it would explain why only the leading edge misbehaves while mid-chord and aft components agree to 1.5-6.4 percent. The measurement is cheap: instrument the near-wall cell state at each perturbed configuration and count threshold crossings. If none cross, the hypothesis dies and we have eliminated it for good.",
+   "citations": [
+    "Certonomous PROOF.md sections 8.2 and 12, leading-edge localisation of the A1 defect",
+    "Certonomous DAFoam Case Status, cross-rung finding 2",
+    "Spalart & Allmaras (1992), one-equation turbulence model for aerodynamic flows"
+   ],
+   "est_core_min": 25.0,
+   "cost_basis": "estimate, from A1's measured 3.51 core-min per full check_totals cycle",
+   "expected_knowledge_gain": "Either the root cause of the lab's longest-standing gradient defect, or the elimination of the most plausible remaining mechanism. Both outcomes end a line of inquiry rather than extending it. If confirmed, it also tells every future user of this stack that a wall-function case cannot be gradient-verified by finite difference at the wall without checking for branch crossings first, which is a transferable result, not a local fix.",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "r4-b3-nonfinite-primal-state",
+   "objective": "Test whether B3's adjoint failure (PETSc DIVERGED_NANORINF at iteration 0) is caused by a non-finite value already present in the converged primal state, by scanning every primal field cell-by-cell for non-finite entries before the adjoint is launched",
+   "rationale": "B3's discrete adjoint dies with DIVERGED_NANORINF at GMRES iteration 0, reproduced identically across four configurations: two primal convergence levels, two objective types, and two ILU fill levels. Mesh quality was checked and cleared. Failing at iteration zero, before any GMRES progress, means the non-finite value is present in the operator or the right-hand side at the moment they are assembled, not generated by the solve. The adjoint linearizes about the converged primal state, so a single cell holding an inf or NaN in any primal field would produce exactly this signature. A converged residual norm does not exclude it: the norm is a sum over cells, and a non-finite entry in a field the residual does not weight can sit there unnoticed. That the failure is invariant to convergence level, objective and preconditioner is the strongest evidence for it - all three are downstream of the state, and none of them would change a poisoned input.",
+   "citations": [
+    "Certonomous DAFoam Case Status, Ladder B3 stage 3 blocker",
+    "PETSc users manual, KSPConvergedReason -9 DIVERGED_NANORINF"
+   ],
+   "est_core_min": 8.0,
+   "cost_basis": "estimate, field scan is IO-bound, no solve required to test the hypothesis",
+   "expected_knowledge_gain": "A cheap test of the only hypothesis that explains all four reproductions at once. If it holds, B3 unblocks and the lab gains a preflight check that belongs in front of every adjoint we ever run. If it fails, we have eliminated the state and the search moves to the operator assembly, which is where it should go next anyway.",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "r4-coarse-adjoint-prolongation",
+   "objective": "Determine whether a gradient computed on a coarse adjoint mesh is accurate enough to drive optimization on a fine primal mesh, by measuring gradient direction agreement (cosine similarity, not just magnitude) between coarse and fine adjoints on the one case where both are affordable",
+   "rationale": "The adjoint memory wall blocks four cases and the reflex response is to buy a bigger machine. That may be the wrong purchase. Optimization does not need an accurate gradient magnitude; it needs an accurate gradient DIRECTION, because the line search recovers the step length. If the coarse-mesh adjoint points the same way as the fine-mesh adjoint, the wall stops being a blocker and becomes a cost-management technique, and it does so on hardware we already own. A4 already exercises this pattern informally, using a 2,777-cell adjoint mesh against a 45,760-cell primal, but nobody has measured whether the resulting direction is right - only that its magnitude lands within 10.04 percent on a single scalar design variable, which says nothing about direction in a many-variable space. The measurement wanted is cosine similarity across the full design-variable vector at several coarsening ratios, on a case small enough that the fine-mesh adjoint is affordable as ground truth.",
+   "citations": [
+    "Certonomous DAFoam Adjoint Memory Envelope (D3), cross-rung finding 1",
+    "Certonomous DAFoam Case Status, A4 coarse-adjoint-mesh disclosure",
+    "Nocedal & Wright, Numerical Optimization, on line-search tolerance to inexact gradients"
+   ],
+   "est_core_min": 120.0,
+   "cost_basis": "estimate, several full adjoint cycles at A1/A5 scale plus one fine-mesh reference; wide error bar because the fine reference may itself hit the wall",
+   "expected_knowledge_gain": "A direct answer to whether the memory wall requires capital expenditure or an algorithmic change. This is the proposal on this docket with the clearest commercial consequence, and the answer is the same regardless of which way it comes out: either we can optimize large geometries on this box today, or we have a measured, defensible basis for a hardware case rather than an assumed one.",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "r4-m6-wall-treatment-plateau",
+   "objective": "Test whether the ONERA M6 primal residual plateau at 1.02e-06 is caused by wall resolution sitting in the buffer layer, by re-running the case on a wall-resolved mesh (yPlus below 1) and on a clean wall-function mesh (yPlus above 30) and observing whether the plateau moves",
+   "rationale": "The M6 act ships as a documented failure: the primal ran its full 3,000 iterations and missed its own 1e-08 gate at 1.02e-06. The turbulence equation alone is responsible - momentum, energy and pressure all satisfy the gate at 1e-07 to 1e-08. The residual reached 1e-06 inside the first quarter of the run and changed by a factor of 0.997 across the entire final third, so it is a fixed point rather than slow convergence and more iterations cannot help. The mesh has yPlus spanning 5.21 to 103.5 with mean 33.8, which straddles the buffer layer: too coarse to resolve the viscous sublayer, too fine for a clean wall function. A turbulence equation that cannot settle while every other equation does is consistent with the near-wall treatment being ambiguous across the surface. This is a hypothesis, not a conclusion, and the run that produced it does not test it. Two meshes settle it: if the plateau clears on either, wall treatment is the cause; if it survives both, the cause is elsewhere and we have narrowed it sharply.",
+   "citations": [
+    "Certonomous A3 ONERA M6 plateau record, 2026-07-29",
+    "AGARD AR-138 and NASA Turbulence Modeling Resource, ONERA M6 case 2308"
+   ],
+   "est_core_min": 90.0,
+   "cost_basis": "measured, from this case's own 498-second solve stage at 4 ranks, doubled for two meshes plus mesh generation",
+   "expected_knowledge_gain": "Converts a documented failure into either a validated ninth case with a real Cp comparison against AGARD, or a sharper failure with wall treatment eliminated. The Cp gate is currently not merely unmet but unreachable, because the solver raises before writing a field, so this is the only route to a pressure comparison on this case at all.",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "r4-band-tightening-hump",
+   "objective": "Determine how tight the model-form uncertainty band on hump reattachment can be made while still containing the experiment, by replacing the extremal anisotropy limiting states with physically weighted perturbations and measuring the containment/width trade-off curve",
+   "rationale": "The D9 result is the lab's flagship epistemic claim: the band contains the known +13.95 percent reattachment error, and the prediction that it would was written before the runs. But the band spans 0.5278 to 1.2534, a factor of 2.4, and the record says plainly that containment is necessary and not sufficient. The band's width comes from channel 3 taking the barycentric map's extremal limiting states, which are bounds by construction and are not predictions. The open question, stated in the record itself, is not whether the band contains but how tight it can be made while still containing. That is a research question with a curve as its answer, not a single number: sweep the perturbation magnitude from extremal down toward zero and find where containment breaks. The point at which it breaks is itself the interesting result, because it measures how much of the band is doing real work. Channel 2, documented model bias from the literature, was never incorporated and belongs in this study.",
+   "citations": [
+    "Certonomous F6a epistemic band record and its pre-registered prediction",
+    "Emory, Iaccarino et al., eigenvalue perturbation and the barycentric map",
+    "NASA Turbulence Modeling Resource, wall-mounted hump experiment"
+   ],
+   "est_core_min": 200.0,
+   "cost_basis": "estimate, roughly a dozen hump solves at the measured 51,626-cell case cost, plus the two channel-1 models that never completed",
+   "expected_knowledge_gain": "Moves the flagship claim from 'our band contains a real error' to 'our band contains a real error and here is how tight it can be', which is the difference between a demonstration and a product. Also closes a soft edge in the current result: kOmega defines the lower edge of channel 1 and is unconverged, so the published range rests partly on a number that did not meet its own gate.",
+   "source_kind": "challenge",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "r4-asymptotic-range-ladders",
+   "objective": "Determine whether the non-asymptotic verdicts on the Ahmed body and B-52 refinement ladders come from an insufficient refinement ratio or from genuinely non-monotone grid convergence, by re-running each with a constant ratio and reporting the observed order of accuracy",
+   "rationale": "Two headline geometries report ladders not in the asymptotic range, and both consequently carry conservative bands rather than extrapolated ones - the B-52 at plus or minus 0.0063 on a Cd of 0.0472, which is 13 percent, and the Ahmed body downgraded from VALIDATED to SOLVER-BACKED specifically because its ladder was inconclusive. The existing ladders use unequal and in places small cell-count ratios, and the B-52's rungs are non-monotone: 0.0551, 0.0448, 0.0491, 0.0472, 0.0496, 0.0523 as cells rise. Standard practice requires a constant refinement ratio to compute an observed order p at all, and without p there is no Richardson extrapolation and no grid-convergence index. The current verdicts may therefore be reporting a defect in the experiment design rather than in the solutions. This is worth settling because it is the difference between two flagship bodies being VALIDATED and not.",
+   "citations": [
+    "Roache, Verification and Validation in Computational Science and Engineering",
+    "ASME V&V 20 standard on grid-convergence index",
+    "Certonomous geometry-study B-52 and Ahmed body mesh-sensitivity records"
+   ],
+   "est_core_min": 400.0,
+   "cost_basis": "measured, from the B-52's own 1,267-second and motorBike's 1,022-second rebuild times; three constant-ratio rungs per body on two bodies",
+   "expected_knowledge_gain": "Either an observed order of accuracy and a defensible extrapolated value for the lab's two most-filmed geometries, or hard evidence that these flows do not converge monotonically on this mesh family, which is itself a real finding about snapped-hex meshes on complex geometry and worth publishing.",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
   }
  ]
 }
