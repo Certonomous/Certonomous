@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      epsilon;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// epsilonRef = Cmu * kRef * omegaRef (Cmu=0.09, standard k-omega/k-epsilon
+// conversion, same formula the duct RANS_MODEL_COMPARISON.md sweep used).
+// epsilon_inlet profile is the pointwise Cmu*k_inlet*omega_inlet product of
+// the baseline's own shipped k_inlet/omega_inlet nonuniform profiles --
+// not tuned or fitted, a physically standard conversion of already-existing
+// case data.
+
+dimensions      [0 2 -3 0 0 0 0];
+
+#include "../caseDef"
+#include "inletOutletFields/epsilon_inlet"
+
+epsilonRef      #calc "0.09*$kRef*$omegaRef";
+
+internalField   uniform $epsilonRef;
+
+boundaryField
+{
+
+    inlet
+    {
+        type            fixedValue;
+        value           $epsilon_inlet;
+    }
+
+    bottom
+    {
+        type            epsilonWallFunction;
+        value           uniform $epsilonRef;
+    }
+    
+    outlet
+    {
+        type            zeroGradient;
+    }
+    
+    sides
+    {
+        type            empty;
+    }
+    
+    top
+    {
+        type            symmetry;
+    }
+
+}
+
+// ************************************************************************* //

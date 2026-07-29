@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        tolerance       1e-8;
+        relTol          0.1;
+        smoother        GaussSeidel;
+    }
+
+    "(U|k|epsilon)"
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-8;
+        relTol          0.1;
+    }
+
+
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 1;
+
+    // k-epsilon-family transports (k, epsilon) instead of baseline's (k,
+    // omega). Same 5e-7 bracket the baseline used for "(U|p|k)" extended to
+    // epsilon -- single change (field name), same convergence criterion.
+    residualControl
+    {
+        "(U|p|k|epsilon)" 5e-7;
+    }
+    consistent          yes;
+}
+
+relaxationFactors
+{
+
+    equations
+    {
+        // DEVIATION (D9, documented): dropped from 0.7 (the value that works
+        // for the k-omega-family baseline/kOmega/SA cases) to 0.3. The
+        // original 0.7 diverged -- epsilon and k bounding blew up
+        // exponentially from Time=4 onward and the run died to a SIGFPE by
+        // Time=527 (see solve_registry/hump_kEpsilon_20260729T035037Z.log).
+        // This is the standard, well-documented stability fix for the
+        // k-epsilon family on separated/reattaching flows with wall
+        // functions: k-epsilon's near-wall epsilon production is far more
+        // sensitive to under-relaxation than k-omega's. Applied identically
+        // regardless of the answer it produces -- a numerics choice, not a
+        // fit to the experimental target.
+        U               0.9;
+        k               0.3;
+        epsilon         0.3;
+    }
+}
+
+
+// ************************************************************************* //
