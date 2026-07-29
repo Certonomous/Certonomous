@@ -301,3 +301,20 @@ the culprit.
 
 **The gate stays FAIL until the sign flip is EXPLAINED, not merely reduced.**
 A number that moves closer to the reference for unknown reasons is not a fix.
+
+**Resolution (D1, 2026-07-29).** Walked all four stages on F7a. Stages (a)/(b)
+(comparison definition, wall treatment) were checked and ruled out. The actual
+cause surfaced at stage (c)/(d): "front position" was defined as an alpha=0.5
+crossing at an ABSOLUTE probe height tied to mesh resolution ("half the first
+cell above the floor"), and the surge's leading toe is thin and height-sensitive
+enough that swapping to the adjacent row of the SAME mesh's SAME solve swings the
+answer by >40 percentage points and flips its sign — larger than the entire
+cross-mesh deviation being investigated. Confirmed independent of timestep by
+running mesh-only and timestep-only rungs at FIXED dt (separated per item 4): the
+sign flip persisted unchanged with dt held fixed, refuting "adaptive timestepping
+aliased into mesh refinement" as the cause; a 2.4x dt refinement at fixed mesh
+moved the result by <1 percentage point. **Lesson generalises beyond F7a:** a
+sign flip under mesh refinement is not automatically evidence of an unconverged
+PDE solution — check whether the DIAGNOSTIC EXTRACTION itself (not the solve) is
+mesh-resolution-dependent before concluding anything about physical/numerical
+convergence. Full record: `demo-output/website/campaign/F7_runs/F7a_diagnosis.json`.

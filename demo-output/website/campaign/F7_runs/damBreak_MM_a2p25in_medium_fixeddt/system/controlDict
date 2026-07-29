@@ -1,0 +1,65 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     interFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+// T = t*sqrt(g/a), a=0.05715 m -> sqrt(a/g)=0.076327 s.
+// endTime 0.8 s covers T up to ~10.48, past the last digitised
+// Martin-Moyce point (T=9.6).
+stopAt          endTime;
+
+endTime         0.8;
+
+// D1 rung (d), mesh-only isolation: dt FIXED (not adaptive), same dt as
+// coarse_fixeddt, so mesh is the only variable moving between the two.
+deltaT          5e-4;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.05;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  no;
+
+// required entries even with adjustTimeStep off (interFoam looks them up
+// unconditionally); harmless here since they are not used to control dt.
+maxCo           0.5;
+maxAlphaCo      0.5;
+maxDeltaT       5e-4;
+
+functions
+{
+    #sinclude   "sampling"
+}
+
+// ************************************************************************* //

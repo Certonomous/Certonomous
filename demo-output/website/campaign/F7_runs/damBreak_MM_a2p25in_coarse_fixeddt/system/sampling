@@ -1,0 +1,34 @@
+// -*- C++ -*-
+// Horizontal line just above the floor (y = half of first cell height),
+// used to locate the surge-front position (alpha.water = 0.5 crossing)
+// as a function of physical time. Sampled at a fixed physical-time
+// cadence independent of the field-write interval so the front can be
+// tracked finely without writing full 3-D fields every step.
+
+frontTrack
+{
+    type    sets;
+    libs    (sampling);
+
+    writeControl    adjustableRunTime;
+    writeInterval   0.01;
+
+    setFormat           raw;
+    interpolationScheme cellPointFace;
+
+    fields ( alpha.water );
+
+    sets
+    {
+        front
+        {
+            type    face;
+            axis    x;
+            start   (0        0.0035718750 0.0035718750);
+            end     (0.85725  0.0035718750 0.0035718750);
+            nPoints 601;
+        }
+    }
+}
+
+// ************************************************************************* //

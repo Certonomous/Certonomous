@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       dictionary;
+    location    "0.65/uniform/functionObjects";
+    object      functionObjectProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+cdf7e925f5746741c316f5fbcf39ad0dfca90775
+{
+    frontTrack
+    {
+        scalar
+        {
+            average(front,alpha.water) 0.4979240851373534;
+            min(front,alpha.water) 0.04580250029832415;
+            max(front,alpha.water) 0.6418449026512331;
+            average(alpha.water) 0.4979240851373534;
+            min(alpha.water) 0.04580250029832415;
+            max(alpha.water) 0.6418449026512331;
+        }
+        label
+        {
+            size(front,alpha.water) 121;
+            size(alpha.water) 121;
+        }
+    }
+}
+
+frontTrack
+{
+    alpha.water
+    {
+        file            "<case>/postProcessing/frontTrack/0.65/front_alpha.water.xy";
+    }
+}
+
+
+// ************************************************************************* //

@@ -1,0 +1,80 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// Martin & Moyce (1952) square-column dam break, a = 2 1/4 in = 0.05715 m.
+// Domain: 15a wide x 2a tall x (a/8) thin slab (2D case, empty front/back).
+// Coarse feasibility mesh: dx=dy=dz=a/8 -> 120 x 16 x 1 cells.
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+a       0.05715;
+
+convertToMeters 1;
+
+vertices
+(
+    (0          0          0)
+    (#calc "15*$a"  0          0)
+    (#calc "15*$a"  #calc "2*$a"  0)
+    (0          #calc "2*$a"  0)
+    (0          0          #calc "$a/8")
+    (#calc "15*$a"  0          #calc "$a/8")
+    (#calc "15*$a"  #calc "2*$a"  #calc "$a/8")
+    (0          #calc "2*$a"  #calc "$a/8")
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (120 16 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    leftWall
+    {
+        type wall;
+        faces ( (0 4 7 3) );
+    }
+    rightWall
+    {
+        type wall;
+        faces ( (1 2 6 5) );
+    }
+    lowerWall
+    {
+        type wall;
+        faces ( (0 1 5 4) );
+    }
+    atmosphere
+    {
+        // D1 rung (d) mesh-only isolation: closed box (wall), matching
+        // medium_fixeddt's BC, so the two differ only in mesh resolution.
+        type wall;
+        faces ( (3 7 6 2) );
+    }
+    defaultFaces
+    {
+        type empty;
+        faces ( (0 3 2 1) (4 5 6 7) );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

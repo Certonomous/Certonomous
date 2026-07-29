@@ -1,0 +1,116 @@
+{
+  "directive": "D1",
+  "target": "F7a dam-break vs Martin & Moyce: +13.6% mean / +21.3% max surge-front overshoot (medium closed-box mesh), coarse mesh undershoot -13.2%/-22.7% -- mesh refinement FLIPS THE SIGN of the error (L-8).",
+  "protocol": "LESSONS.md L-8, walked (a)->(b)->(c)/(d) cheapest-and-most-often-guilty first; P2 predictions written before each test; P5 one change per rung; case_preflight.sh run before every new solve launch.",
+  "turbulence": "ALREADY RULED OUT at zero cost per D1 briefing -- constant/turbulenceProperties says simulationType laminar in all cases, not revisited.",
+  "stages": [
+    {
+      "stage": "a",
+      "name": "The comparison itself (zero-compute)",
+      "prediction": "At least one genuine documented mismatch will exist between our setup and the cited source; digitisation uncertainty (+/-0.05T, +/-0.02Z) will convert to well under 2% of Z and cannot explain 10-24% deviations; if the cause is a constant gate-release time delay, the equivalent T-shift needed to map each sim point back onto the reference curve should be CONSTANT across all 8 reference points.",
+      "tested": [
+        "Fetched full text of arXiv:2108.08769 (PDF, 36pp) and located Section 3.3.2 / Figure 7 verbatim.",
+        "Compared stated non-dimensionalisation, domain, boundary conditions and gate-release assumption against our case dictionaries.",
+        "Arithmetic check: inverted the reference Z(T) table to find, for each simulated (T,Z) gate point, the implied constant time-shift dT that would map it onto the reference curve."
+      ],
+      "findings": [
+        "AUTHOR CORRECTION: the paper's actual authors are Shannon Leakey, Vassilis Glenis and Caspar J.M. Hewett (Computers & Methods in Applied Mechanics and Engineering, 2022, 393:114763), not 'C. Xie' as previously cited in F7_marine_free_surface.md. Same arXiv ID/title, so the technical content used is correct; only the byline in the prior report is wrong and should be fixed.",
+        "Non-dimensionalisation CONFIRMED CORRECT: paper states T = t*sqrt(g/a), Z = x_front/a, exactly matching controlDict comments and extract_front.py. NOT a source of error.",
+        "DOMAIN MISMATCH FOUND: the cited paper's own recreation used a domain 15a wide x 1.25a tall, 240x20 cells (dx=dy=a/16), all four boundaries walls. Our cases used 15a x 2a (a/8 or a/20 mesh). The prior report's claim 'Domain: 15a wide x 2a tall ... geometry ... stated in the cited paper' is factually wrong for the height -- this is a genuine, previously-undocumented mismatch against the cited configuration.",
+        "BC CONFIRMED: paper explicitly states 'All four boundaries were modelled as walls' -- matches our closed-box run and is consistent with the existing BC-sensitivity A/B test (open-top vs closed-box) already finding no material difference.",
+        "GATE RELEASE: the paper's own CFD instantaneously removes the dam ('The dam instantaneously disappears'), matching our setup. The real 1952 experiment's physical gate-withdrawal time is not stated in this secondary source and could not be verified further at zero cost.",
+        "DIGITISATION UNCERTAINTY: +/-0.02Z at Z~6-14 is <=0.3%; +/-0.05T propagated through the local dZ/dT slope (~1.5) is ~1-1.3%. Combined <~1.5%, two orders of magnitude below the observed 10-24% deviations.",
+        "TIME-SHIFT ARITHMETIC: implied dT (T-shift needed to explain each sim point via a pure gate-delay) GROWS monotonically from ~0.37 (T=3.90) to ~2.43 (T=8.58), i.e. NOT constant. A pure constant-delay/gate-release-time explanation is REFUTED by this test alone -- the deviation is not a simple time-origin shift."
+      ],
+      "verdict": "Comparison definition (non-dim, BC, gate-release assumption in the cited CFD) checks out; domain-height mismatch documented as a real but likely non-causal correction (the cited paper's own TIGHTER 1.25a domain matched its own reference well, so our MORE generous 2a domain should not artificially speed up the front); digitisation uncertainty and pure time-shift both quantitatively ruled out as explanations. Sign flip NOT explained at this stage -- proceed.",
+      "sign_flip_explained": false,
+      "new_compute_core_minutes": 0
+    },
+    {
+      "stage": "b",
+      "name": "Boundary and initial conditions -- wall treatment",
+      "prediction": "The medium mesh (dy=a/20) is far too coarse to resolve a genuine viscous sublayer at the dam-break's physical Re~10^4-10^5; switching the floor from no-slip to slip will make LITTLE difference (predicted <3%), so wall friction is NOT the cause of the overshoot.",
+      "tested": [
+        "New case damBreak_MM_a2p25in_medium_slipfloor: ONE change from the GATE case (medium_closedbox) -- lowerWall U boundary condition changed from noSlip to slip. Mesh, dt (adaptive), top/side walls, everything else unchanged.",
+        "case_preflight.sh run and PASSED before launch. Ran foreground, 4 MPI ranks, 14.83s wall (0.989 core-min)."
+      ],
+      "result": {
+        "control_medium_closedbox_noSlip": {"mean_dev_pct": 13.6, "max_dev_pct": 21.3},
+        "medium_slipfloor": {"mean_dev_pct": 15.9, "max_dev_pct": 24.2}
+      },
+      "verdict": "Slip floor makes the overshoot ~2 percentage points WORSE, same sign, small magnitude -- consistent with the predicted direction (removing floor friction lets the front go very slightly faster) but far too small to explain a 13-24% deviation, and it moves the WRONG way to be 'the' cause of overshoot (no-slip already mildly suppresses the front relative to the frictionless case). Wall treatment REFUTED as the (sole or major) driver of the sign flip.",
+      "sign_flip_explained": false,
+      "new_compute_core_minutes": 0.989
+    },
+    {
+      "stage": "c",
+      "name": "Interface/extraction-height sensitivity (reused existing field dumps -- zero new solve)",
+      "prediction": "If the coarse/medium sign flip is a genuine PDE-level convergence effect, front position at nearby probe heights WITHIN the same mesh's own solution should behave consistently (similar sign/magnitude of deviation from row to row). If it is instead an extraction artifact, adjacent rows within a single mesh should show comparably large -- possibly sign-flipping -- swings, since 'front position' is currently defined as an alpha=0.5 crossing at y = half the first cell height, an ABSOLUTE height that scales with mesh resolution (a/16 coarse vs a/40 medium), not a fixed physical probe.",
+      "tested": [
+        "Reused the medium_closedbox and coarse GATE runs' EXISTING full-field alpha.water dumps at t=0.2/0.4/0.6/0.8 (already computed, reconstructPar used on medium_closedbox's decomposed data -- zero new PIMPLE solve).",
+        "Parsed the structured blockMesh cell ordering directly and extracted the alpha=0.5 crossing at EVERY row (i.e. every absolute height available) for both meshes.",
+        "Separately checked sensitivity to the alpha-crossing THRESHOLD (0.9/0.5/0.1/0.01/0.001) at the mesh's own native row, to separate 'which height' from 'what threshold'."
+      ],
+      "result": {
+        "medium_mesh_row_height_sensitivity_at_T7p86": {
+          "row0_y_over_a_0p025_native_probe": 13.38,
+          "row1_y_over_a_0p075_one_cell_up": 7.72,
+          "reference_Z_at_T7p72": 11.00,
+          "note": "Same mesh, same solve, same timestep -- only the row/height sampled differs. Swing >40 percentage points, sign-flips relative to reference (row0 overshoots +22%-equivalent, row1 undershoots -30%-equivalent)."
+        },
+        "alpha_threshold_sensitivity_at_native_row": {
+          "thresholds_0p9_to_0p001_Z_range_pct_change": "<2% across thresh=0.5/0.1/0.01/0.001; larger jump only at thresh=0.9",
+          "conclusion": "Threshold choice is a minor effect; absolute probe HEIGHT dominates."
+        },
+        "coarse_mesh_constraint": "Coarse mesh's first cell spans the FULL 0-0.125a height as one FVM value -- there is no alternative row available; the coarse mesh is intrinsically forced into a coarse SPATIAL AVERAGE over that height, which plausibly biases its front position toward SMALLER x (undershoot) by including slower, thicker upstream fluid, mechanistically consistent with the observed sign flip."
+      },
+      "verdict": "SIGN-FLIP MECHANISM IDENTIFIED. The front-position metric samples an absolute height tied to mesh resolution. The surge's leading toe is a thin, rapidly-thinning wedge; different absolute probe heights sample fundamentally different parts of it. The row-to-row swing within a SINGLE mesh (>40 percentage points) is larger than the entire reported cross-mesh deviation, and is far larger than the threshold-choice sensitivity (<2%). This mechanism alone is large enough to account for both the sign and the magnitude of the reported deviation.",
+      "sign_flip_explained": true,
+      "new_compute_core_minutes": 0
+    },
+    {
+      "stage": "d",
+      "name": "Time-step and mesh convergence, SEPARATED",
+      "prediction": "(i) At FIXED dt, mesh refinement alone will STILL flip the sign, because stage (c) already showed the effect is driven by absolute probe height tied to mesh resolution, independent of the timestep. If fixing dt instead REMOVES the sign flip, that would implicate the adaptive-timestep/mesh confound flagged in L-8 as the true cause instead. (ii) At FIXED mesh, timestep refinement (Euler ddt, first-order) will produce a small, monotonic, NON-sign-flipping shift.",
+      "tested": [
+        "New case coarse_fixeddt: a/8 mesh (1920 cells), converted to closed-box BC to match the GATE baseline, adjustTimeStep no, deltaT FIXED at 5e-4s. case_preflight.sh PASS. Foreground, serial, 9.98s (0.166 core-min).",
+        "New case medium_fixeddt: a/20 mesh (12000 cells), closed-box, adjustTimeStep no, deltaT FIXED at 5e-4s -- SAME dt as coarse_fixeddt, isolating MESH as the only variable. case_preflight.sh PASS. Foreground, 4 ranks, 25.84s (1.723 core-min).",
+        "New case medium_fixeddt_coarsedt: SAME a/20 mesh as medium_fixeddt, deltaT FIXED at 1.2e-3s (2.4x larger, close to coarse mesh's adaptive mean dt), isolating TIMESTEP as the only variable vs medium_fixeddt. case_preflight.sh PASS. Foreground, 4 ranks, 12.13s (0.809 core-min)."
+      ],
+      "result": {
+        "coarse_fixeddt": {"mean_dev_pct": -13.2, "max_dev_pct": -21.1, "note": "matches original ADAPTIVE-dt coarse run (-13.2%/-22.7%) almost exactly"},
+        "medium_fixeddt": {"mean_dev_pct": 14.6, "max_dev_pct": 21.7, "note": "matches original ADAPTIVE-dt closed-box GATE run (+13.6%/+21.3%) almost exactly"},
+        "medium_fixeddt_coarsedt": {"mean_dev_pct": 13.9, "max_dev_pct": 21.6, "note": "within <1 percentage point of medium_fixeddt despite a 2.4x larger fixed dt"}
+      },
+      "verdict": "MESH-ONLY comparison (coarse_fixeddt vs medium_fixeddt, identical dt): sign flip PERSISTS (coarse undershoots -13.2%, medium overshoots +14.6%) -- this REFUTES the L-8-flagged hypothesis that adaptive-timestep/mesh confounding was itself the (or a major) cause; mesh alone, at fixed dt, still flips the sign, confirming stage (c)'s mesh-resolution-tied-probe-height mechanism. TIMESTEP-ONLY comparison (medium_fixeddt vs medium_fixeddt_coarsedt, identical mesh): <1 percentage point difference despite refining dt by 2.4x -- timestep is NOT a meaningful contributor, and shows no sign reversal, consistent with the P2 prediction.",
+      "sign_flip_explained": true,
+      "new_compute_core_minutes": 2.698
+    }
+  ],
+  "summary": {
+    "sign_flip_explained": true,
+    "cause": "The reported surge-front-position metric (alpha.water=0.5 crossing at y = half of the first cell height) samples an ABSOLUTE height that scales with mesh resolution (a/16 on the coarse mesh, a/40 on the medium mesh), not a fixed physical probe. The surge's leading toe is a thin, rapidly-thinning free-surface wedge whose local thickness varies strongly with height above the floor. Sampling at different absolute heights samples fundamentally different parts of that wedge -- confirmed directly by extracting the front at multiple rows of the SAME mesh's SAME solve (a >40-percentage-point, sign-flipping swing from one row to the next, larger than the entire cross-mesh deviation being explained) and confirmed independent of timestep (mesh-only vs timestep-only rungs, separated, at fixed dt the sign flip persists unchanged; at fixed mesh, 2.4x dt refinement changes the result by <1 percentage point).",
+    "ruled_out": [
+      "Turbulence model (already ruled out at zero cost per D1 briefing; laminar throughout)",
+      "Open-top vs closed-box BC (prior A/B test, essentially identical trajectories)",
+      "Digitisation uncertainty of the reference figure (<~1.5% vs 10-24% observed)",
+      "Pure gate-release time-shift / time-origin error (implied dT grows from 0.37 to 2.43, not constant)",
+      "Wall friction / floor slip vs no-slip (~2 percentage-point effect, same sign, wrong direction to explain overshoot)",
+      "Adaptive-timestep/mesh confounding as the cause of the sign flip (mesh-only rung at fixed dt still flips sign)",
+      "Timestep discretisation error alone (<1 percentage point change over a 2.4x dt refinement, no sign reversal)"
+    ],
+    "documentation_corrections_needed": [
+      "Cited paper's authors are Leakey, Glenis & Hewett (2022), not 'C. Xie' -- fix byline in F7_marine_free_surface.md (same arXiv ID/title/content, so the technical citation itself is otherwise valid).",
+      "Cited paper's domain is 15a x 1.25a (240x20 cells), not 15a x 2a as previously stated to have been 'followed' -- correct the geometry description; the domain used in our runs was NOT what the cited paper used, though this is assessed as unlikely to be the deviation's cause."
+    ],
+    "gate_status": "FAIL -- unchanged. Explaining the mechanism does not make the reported number correct; using the metric as currently defined the medium closed-box mesh still overshoots by +13.6% mean/+21.3% max against the digitised reference.",
+    "recommended_next_step_out_of_scope_for_this_diagnosis": "Re-define front position via a mesh-independent extraction (true free-surface isosurface/contour, or point-interpolated sampling at a FIXED absolute height well below both meshes' first-cell heights) and re-run a genuine Richardson-style 3+ mesh grid-convergence study before re-attempting the gate.",
+    "total_new_compute_core_minutes": 3.686,
+    "process_notes": [
+      "All new cases passed scripts/case_preflight.sh before launch.",
+      "All runs executed in the foreground; nothing left running at turn end (verified via ps aux post-run).",
+      "MemAvailable checked before launch (28+ GB free, well above the 6 GB caution threshold) despite other concurrent jobs (mega-batch, F5/F5b ladders) on the same host.",
+      "Exactly one variable changed per new rung (P5): coarse_fixeddt vs medium_fixeddt (mesh only), medium_fixeddt vs medium_fixeddt_coarsedt (dt only), medium_closedbox vs medium_slipfloor (wall treatment only)."
+    ]
+  }
+}
