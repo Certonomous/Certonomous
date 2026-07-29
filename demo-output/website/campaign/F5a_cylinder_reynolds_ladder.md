@@ -140,6 +140,229 @@ partially cancels, while a 2D solve has no span to decorrelate across and
 integrates a single in-phase signal. This is a **known, referenced physical
 mechanism**, not an unexplained residual.
 
+## Gate: Re 1000, 3D — turning the attribution into a demonstration (DESIGN PHASE, launch pending scheduling)
+
+The Re 1000 gate above is an **attribution**: our 2D numbers are high by
+almost exactly the amount 2D-vs-3D DNS is documented to differ, so the gap
+is credited to dimensionality rather than solver error. That is an
+argument, not a demonstration, and a skeptical reader is entitled to call it
+a convenient excuse for a high drag number. The only way to turn it into a
+demonstration is to run the SAME cylinder at the SAME Re in 3D on our own
+solver and see whether it lands in the 3D family on its own. This section is
+the design and cost work for that run, done before any core-hour is spent,
+per the standing instruction to design first and wait to be scheduled. **No
+production solve has been launched.** Two brief, bounded, serial-or-4/8-rank
+calibration probes were run (seconds to ~100s each) purely to measure mesh
+quality and cost — those are reported below and are not the gate.
+
+### Reference extraction: Jiang & Cheng (2017) fetched and read directly
+
+The 2D gate above already cites Jiang & Cheng (2017), *J. Fluid Mech.*
+832:170-188 for its 3D-family numbers. For this design, the accepted
+manuscript (UWA repository copy) was fetched and read in full — not
+web-search-summarised — specifically for their own mesh-design and
+mesh-dependence tables, since they are the ones building exactly this
+geometry at exactly this Re in 3D and reporting how sensitive their answer
+is to the two knobs this task has to choose: spanwise domain length and
+spanwise cell size.
+
+**Their mesh (Table 1, "Refined mesh," used for 300 < Re <= 1000):**
+domain 30D to inlet/crossflow/outlet, 240 nodes around the cylinder
+perimeter, first layer 2.315e-4 D, growth ratio <= 1.1, **spanwise domain
+length Lz/D = 6, spanwise cell length dz/D = 0.05**.
+
+**Their own 3D mesh-dependence study at Re=1000 (Table 3, the reference case
+is Lz/D=6, dz/D=0.05):**
+
+| case | Lz/D | dz/D | St | Cd | Cl_rms | -Cpb |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 (reference, adopted) | 6 | 0.05 | 0.2105 | 1.0138 | 0.1191 | 0.8373 |
+| 2 (Lz doubled) | 12 | 0.05 | 0.2098 | 1.0104 | 0.1063 | 0.8320 |
+| 3 (dz to 0.03) | 6 | 0.03 | 0.2106 | 1.0002 | 0.0998 | 0.8148 |
+| 4 (dz to 0.0706) | 6 | 0.0706 | 0.2111 | 1.0420 | 0.1597 | 0.8759 |
+| 5 (dz to 0.1) | 6 | 0.1 | 0.2125 | 1.0467 | 0.1624 | 0.8836 |
+| Papaioannou et al. (2006), DNS | 3pi | 0.147 | 0.216 | 1.030 | — | 0.815 |
+| Tong et al. (2015), DNS | 10 | 0.1 | 0.215 | 1.08 | 0.20 | 0.89 |
+| Williamson & Brown (1998), exp. | — | — | 0.212 | — | — | — |
+| Norberg (1994), exp. | — | — | 0.210 | — | — | 0.810 |
+
+Their own text states the mechanism plainly: *"an increase in Lz to 12D
+results in very close numerical results"* (case 1 vs 2, largest move
+~11% on Cl_rms only, and it moves TOWARD the experimental band, not away),
+so Lz/D=6 is adequate at Re=1000, because Mode A (spanwise wavelength ~4D,
+needs Lz>10D, Henderson 1997 restricted Lz=3.96D specifically to force a
+single Mode-A wavelength at Re=195) has already vanished by Re~270, leaving
+Mode B (wavelength <1D, "becomes finer with increasing Re") as the only wake
+mode at Re=1000. Forces are **much more sensitive to dz than to Lz**: dz
+0.05->0.1 moves Cd +3.2% and Cl_rms +36%, because a coarse spanwise grid
+cannot resolve Mode B's finer streamwise vortices and under-decorrelates the
+span — this is precisely why Cl_rms is the discriminating quantity the task
+brief called out, and precisely why it is the metric most at risk from an
+under-resourced spanwise mesh.
+
+### The design
+
+Only one variable is added relative to the established, already-gated 2D
+Re=1000 rung: a real, resolved spanwise dimension. Everything else — Re,
+laminar closure, in-plane O-grid topology, farfield extent, first-cell
+height, dt0, maxCo — is held **byte-identical** to the `re1000` rung
+(verified: `block_mesh_dict(1.0, 20.0, 80, 70, 0.00447, span=0.1)` with the
+new function reproduces the existing `re1000/system/blockMeshDict` exactly,
+diffed to zero). This is the direct application of the ladder's own P5
+discipline ("one change per rung") to a rung that is not even on the
+Reynolds axis — the axis being changed here is dimensionality itself, so it
+alone must move.
+
+- **Spanwise domain, Lz/D = 6.** Taken directly from Jiang & Cheng's own
+  converged choice for this exact Re, not an independent guess — and their
+  own sensitivity case (Lz=12D) confirms 6D is not confinement-limited at
+  Re=1000, because Mode A (the mode that needs a long span) is not present
+  at this Re.
+- **Spanwise resolution: two presets, both built and mesh-checked.**
+  - `reference`, dz/D = 0.05 → 120 spanwise cells → **2,688,000 total
+    cells**. Reproduces Jiang & Cheng's own validated resolution exactly.
+  - `pilot`, dz/D = 0.10 → 60 spanwise cells → **1,344,000 total cells**.
+    Their own least-resolved sensitivity case (Table 3 case 5) — Cd and
+    Cl_rms visibly biased high relative to their converged case (+3.2%,
+    +36%), but Cl_rms is still 0.1624, i.e. **6-7x below** the 2D value
+    (~0.97-1.03), still discriminating 2D from 3D by close to an order of
+    magnitude even though it is not grid-converged in the tight sense their
+    production mesh is.
+- **Spanwise boundary condition: cyclic (periodic), not a real end wall.**
+  Standard for this class of DNS/LES (approximates an infinite cylinder
+  without a physical end-wall's own confinement); implemented as a
+  translational front/back patch pair, auto-detected by blockMesh from the
+  matching geometry.
+- **Seeding.** A z-uniform initial condition sitting exactly on the cyclic
+  boundary's own symmetry plane can take a long time to grow 3D structure
+  from floating-point round-off alone. `setFieldsDict` carves the span into
+  12 alternating 0.5D slabs (fundamental wavelength 2x0.5D = **1D, matched
+  to the Mode-B wavelength target**) each given a +/-0.02 U_inf spanwise
+  velocity kick — the direct 3D analogue of the +/-0.1 crossflow
+  perturbation this same codebase already uses to seed 2D shedding from an
+  impulsive start, and for the same reason: small enough not to bias the
+  eventual limit cycle (checked independently by the existing
+  `halves_drift` stationarity gate), shaped at the target wavelength so it
+  does not have to wait on whichever wavelength round-off excites first.
+- **Force normalization.** `Aref = D x Lz` using the actual simulated span
+  (6D), matching Jiang & Cheng's own CD/CL definition (`FD /
+  (0.5 rho U^2 D Lz)`) — this makes the reported Cd/Cl directly, not just
+  loosely, comparable: both are span-averaged coefficients over the real
+  simulated span, not an arbitrary per-length convention.
+
+Implementation: `sdk/workflows/cylinder_vortex_shedding.py`'s
+`block_mesh_dict()` gained optional `n_span`/`spanwise_bc` parameters
+(default `n_span=1`, `spanwise_bc="empty"`, verified byte-identical output
+for every existing 2D caller with those defaults — no other rung is
+affected). The new case builder lives in
+`demo-output/website/campaign/F5_runs/cylinder_ladder_3d.py`.
+
+### Mesh sizing: both presets actually built and checkMesh'd (free, serial, <30s each)
+
+| preset | cells | blockMesh | checkMesh | non-orth (max) | skewness (max) | aspect ratio (max) | verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `pilot` (dz/D=0.1) | 1,344,000 | 7.2 s | 13.9 s | 4.6e-6 | 0.0266 | — | **Mesh OK**, clean |
+| `reference` (dz/D=0.05) | 2,688,000 | 13.9 s | 28.4 s | 4.6e-6 | 0.0266 | 26.4 | **Failed 1 check** — 33,600 cells (one full near-wall ring: 4 blocks x 70 tangential x 120 spanwise) flagged for small cell determinant (<0.001) |
+
+The `reference` mesh's determinant flag is a genuine, measured finding, not
+a hypothetical one: pairing the near-wall first cell (0.00447D, unchanged
+from the 2D rung) with the finer dz=0.05D spanwise cell produces extremely
+anisotropic hexahedra whose normalized determinant metric trips checkMesh's
+threshold, even though non-orthogonality and skewness stay excellent
+(unaffected by dz). This is a known false-positive-prone check for
+boundary-layer-type meshes and the cells are not necessarily invalid, but
+solver tolerance was **not verified** — no solve was attempted on this
+mesh. Until that is checked (or the near-wall/spanwise aspect ratio is
+eased), the `reference` preset is not launch-clean; `pilot` is.
+
+### Cost calibration: measured, not guessed, and explicitly a worst case
+
+Two short, bounded probes were run on the `pilot` mesh (1,344,000 cells) to
+replace guesswork with a real number: `setFields` (seeding), `decomposePar`,
+then `pimpleFoam -parallel` under a hard wall-clock `timeout`, read from the
+log's own per-step `Time =` / `ExecutionTime =` pairs (no self-reported
+number, independently parsed).
+
+| ranks | wall time | sim time reached | steps | rate (wall-s / sim-time unit) |
+| --- | --- | --- | --- | --- |
+| 4 | 92.7 s | 0.0724 | 9 | ~1280 |
+| 8 | 93.6 s | 0.1089 | 12 | ~870 |
+
+4->8 ranks: sim-time-per-wall-second improved ~1.5x, i.e. **~75% parallel
+efficiency** for that doubling — measured, not assumed. **This calibration
+window is entirely inside the impulsive-start transient** (deltaT still
+climbing from 0.0057 toward the Courant-limited ceiling, and the first
+pressure solve took 223 PCG iterations vs the handful a settled periodic
+solve typically needs), so these rates are a pessimistic **upper bound** on
+production cost, not a converged steady-state rate — getting an actual
+steady-state number would require running long enough to leave the
+transient, which is exactly the "large parallel run" this design phase was
+told to hold off on.
+
+**Extrapolated wall-time for a full run to end_time=90 (matching every
+other rung's convention, not the literature's 800+ time-unit statistics
+window — a limitation stated openly below, not hidden):**
+
+| ranks | using the measured (pessimistic) rate | if the rate improves ~15-20% once past the transient (unverified extrapolation, not measured) |
+| --- | --- | --- |
+| 4 | ~1280 x 90 = 115,200 s (**~32 hours**) | ~26-27 hours |
+| 8 | ~870 x 90 = 78,300 s (**~21.75 hours**) | ~18 hours |
+| 16 (whole box, extrapolated efficiency, not measured) | ~55,900 s (**~15.5 hours**) | ~13 hours |
+
+Memory: the `pilot` mesh occupies 221 MB on disk (`constant/polyMesh`);
+running memory for a laminar `pimpleFoam` case of this size is expected in
+the low single-digit GB decomposed across ranks (not separately measured
+under load — the calibration ran with 21-28 GB free at the time).
+
+### The honest conclusion this design work reaches
+
+**Even the cheaper, mesh-clean `pilot` preset does not fit an idle-box
+budget of a few hours — it is a 13-to-32-hour job depending on core count,
+an order of magnitude past every other rung on this ladder** (Re 3900's
+44,000-cell 2D case predicts ~1.8 hours; this 3D case is ~30x more cells
+and produces ~10-20x more wall-time even in its cheapest, most optimistic
+configuration). The literature-exact `reference` preset (2,688,000 cells,
+plus its unresolved determinant flag) would cost roughly double that again.
+This machine (16 cores, 30 GB RAM) can build and mesh-check either design
+for free in under 30 seconds; it cannot solve either one in the time a
+single agent turn, or even a single day of shared use alongside the other
+live jobs (Re 3900, the hump SA resume, the r4 band-tightening sweep, and
+whatever needs the 26 GB uncapped-memory window), comfortably allows.
+
+**What it would take:** either (a) exclusive access to 8-16 cores for
+roughly a day, scheduled once the other live jobs referenced above have
+cleared, using the `pilot` preset and accepting its documented ~6-7x (not
+literature's tighter ~8x) Cl_rms discrimination and the shortened (t=90 vs
+800+) statistics window as stated limitations; or (b) more cores/a bigger
+box, which would also let the `reference` preset's determinant flag be
+resolved by adding in-plane near-wall resolution rather than only accepting
+it; or (c) accepting a still-cheaper, still-honestly-labelled design (e.g.
+a coarser in-plane mesh dedicated to this test alone, trading fidelity on
+Cd/St to buy wall-time) if the supervisor decides the resource case above
+does not clear the bar. This is the number the hardware conversation
+elsewhere in this project needs.
+
+### Pre-stated expectation (written before any production solve, per P2)
+
+If launched as designed (`pilot`, Lz/D=6, dz/D=0.1, cyclic span, seeded,
+end_time=90, stats window t=45-90 matching every other rung):
+- **St** should land close to the 3D family (~0.21), clearly below the 2D
+  rung's 0.2343 and below our own 2D 3D-deviation of +8.5 to +11.6%.
+- **Cd** should drop from the 2D rung's 1.4678 toward the 3D family
+  (~1.01-1.08), likely still slightly high versus Jiang & Cheng's own
+  converged 1.0138 given the coarser dz/D=0.1 (their own case 5 at this
+  same dz shows +3.2% high, i.e. ~1.03-1.08 is the expected band).
+- **Cl_rms is the test.** Expected to collapse from the 2D rung's 0.9666
+  by roughly an order of magnitude, landing in the 0.12-0.20 range if the
+  seeded Mode-B structure saturates within the t=45 pre-averaging window;
+  landing anywhere close to the 2D value (~1) would mean the run
+  reproduced an expensive 2D answer — either the transient/growth time was
+  too short for genuine 3D decorrelation, or the spanwise resolution was
+  too coarse to resolve it — and would be reported as that failure, not
+  reinterpreted after the fact.
+
+**No launch has been made.** Awaiting scheduling given the live jobs above.
+
 ## Gate: Re 2000 (banded reference, lower confidence — and said so)
 
 No paper was found, despite a genuine search (WebSearch, Unpaywall DOI lookups,

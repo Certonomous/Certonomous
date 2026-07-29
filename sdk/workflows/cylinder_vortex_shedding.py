@@ -72,11 +72,28 @@ def reynolds_to_nu(re: float, diameter: float = DIAMETER, u_inf: float = U_INF) 
 
 def block_mesh_dict(diameter: float, farfield_diameters: float,
                     n_radial: int, n_tangential: int, first_cell: float,
-                    span: float = SPAN) -> str:
+                    span: float = SPAN, n_span: int = 1,
+                    spanwise_bc: str = "empty") -> str:
     """Four 90-degree hex blocks, geometric radial grading sized to a
     requested first-cell height near the wall (real boundary-layer
-    resolution, not a wall function — this flow is laminar throughout)."""
+    resolution, not a wall function — this flow is laminar throughout).
+
+    ``n_span`` and ``spanwise_bc`` default to the original 2D-pseudo-3D
+    behaviour (a single cell of thickness ``span`` bounded by ``empty``
+    patches) so every existing caller is byte-for-byte unaffected. Passing
+    ``n_span > 1`` with ``spanwise_bc="cyclic"`` subdivides the same
+    geometry into ``n_span`` uniform layers along z and turns the two
+    spanwise end faces into a translational cyclic patch pair (``front``/
+    ``back``) — the standard periodic-span device used to approximate an
+    infinite cylinder in DNS/LES of the mode-A/mode-B wake instability
+    (e.g. Jiang & Cheng 2017) without a real end wall's confinement."""
     from workflows.tmr_verification import ratio_for_first_cell
+
+    if spanwise_bc not in ("empty", "cyclic"):
+        raise ValueError(f"unknown spanwise_bc {spanwise_bc!r}")
+    if spanwise_bc == "empty" and n_span != 1:
+        raise ValueError("spanwise_bc='empty' requires n_span == 1 "
+                         "(an empty patch is not a real spanwise direction)")
 
     inner = diameter / 2.0
     outer = farfield_diameters * diameter
@@ -97,14 +114,15 @@ def block_mesh_dict(diameter: float, farfield_diameters: float,
     vertices = (ring(inner, 0.0) + ring(outer, 0.0)
                + ring(inner, span) + ring(outer, span))
 
-    blocks, edges, cyl_faces, far_faces, empty_faces = [], [], [], [], []
+    blocks, edges, cyl_faces, far_faces = [], [], [], []
+    front_faces, back_faces = [], []
     for k in range(4):
         k2 = (k + 1) % 4
         i, o, i2, o2 = k, 4 + k, k2, 4 + k2
         ti, to, ti2, to2 = 8 + k, 12 + k, 8 + k2, 12 + k2
         blocks.append(
             f"    hex ({i} {o} {o2} {i2} {ti} {to} {to2} {ti2}) "
-            f"({n_radial} {n_tangential} 1) simpleGrading ({total_ratio:.6g} 1 1)")
+            f"({n_radial} {n_tangential} {n_span}) simpleGrading ({total_ratio:.6g} 1 1)")
         mid = math.radians(arc_angles[k])
         for radius, a, b in ((inner, i, i2), (outer, o, o2)):
             for lift in (0, 8):
@@ -114,8 +132,24 @@ def block_mesh_dict(diameter: float, farfield_diameters: float,
                     f"{0.0 if lift == 0 else span:.8g})")
         cyl_faces.append(f"            ({i} {i2} {ti2} {ti})")
         far_faces.append(f"            ({o} {o2} {to2} {to})")
-        empty_faces.append(f"            ({i} {o} {o2} {i2})")
-        empty_faces.append(f"            ({ti} {to} {to2} {ti2})")
+        front_faces.append(f"            ({i} {o} {o2} {i2})")
+        back_faces.append(f"            ({ti} {to} {to2} {ti2})")
+
+    if spanwise_bc == "empty":
+        # Original ordering interleaved front/back per block (k=0..3), so
+        # this branch reproduces the exact prior byte output when n_span=1.
+        interleaved = [face for pair in zip(front_faces, back_faces) for face in pair]
+        span_block = (
+            "    frontAndBack\n    {\n        type empty;\n        faces\n        (\n"
+            + "\n".join(interleaved) + "\n        );\n    }\n"
+        )
+    else:
+        span_block = (
+            "    front\n    {\n        type cyclic;\n        neighbourPatch back;\n"
+            "        faces\n        (\n" + "\n".join(front_faces) + "\n        );\n    }\n"
+            "    back\n    {\n        type cyclic;\n        neighbourPatch front;\n"
+            "        faces\n        (\n" + "\n".join(back_faces) + "\n        );\n    }\n"
+        )
 
     return (
         _foam_header("dictionary", "blockMeshDict", "system")
@@ -128,8 +162,7 @@ def block_mesh_dict(diameter: float, farfield_diameters: float,
         + "\n".join(cyl_faces) + "\n        );\n    }\n"
         + "    farfield\n    {\n        type patch;\n        faces\n        (\n"
         + "\n".join(far_faces) + "\n        );\n    }\n"
-        + "    frontAndBack\n    {\n        type empty;\n        faces\n        (\n"
-        + "\n".join(empty_faces) + "\n        );\n    }\n"
+        + span_block
         + ");\n\nmergePatchPairs\n(\n);\n"
     )
 
