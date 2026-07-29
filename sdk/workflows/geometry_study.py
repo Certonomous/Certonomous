@@ -968,18 +968,23 @@ def main(request: str | None = None, params: dict | None = None,
                 "• Mesh in hand for this body; going straight to the "
                 "quality gates and the solve.")
         else:
-            for step, command, note in (
-                ("surfaceFeatureExtract", "surfaceFeatureExtract",
+            # ``shown`` is the on-screen stage label. ``step`` stays the tool
+            # name because the runner and the ledger key off it, but the tool
+            # name itself never reaches the screen.
+            for step, shown, command, note in (
+                ("surfaceFeatureExtract", "feature edges",
+                 "surfaceFeatureExtract",
                  "extracting the feature edges the mesher snaps to"),
-                ("blockMesh", "blockMesh", "building the background mesh"),
-                ("snappyHexMesh", "snappyHexMesh -overwrite",
+                ("blockMesh", "background mesh", "blockMesh",
+                 "building the background mesh"),
+                ("snappyHexMesh", "body-fitted mesh", "snappyHexMesh -overwrite",
                  "snapping the mesh to the body, the long stage"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
                 roster.set_workers(1, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                stage_row(step, result.seconds, note)
+                stage_row(shown, result.seconds, note)
             # Cache the freshly snapped mesh so the next run of this body is warm.
             engineer.save_mesh_to_cache(label)
 
@@ -993,11 +998,13 @@ def main(request: str | None = None, params: dict | None = None,
             # The keep-trying rule re-runs the whole mesh chain under the
             # tightened controls; a stale cached mesh must never mask the fix.
             engineer.clear_mesh_cache(label)
-            for step, command, note in (
-                ("surfaceFeatureExtract", "surfaceFeatureExtract",
+            for step, shown, command, note in (
+                ("surfaceFeatureExtract", "feature edges",
+                 "surfaceFeatureExtract",
                  "extracting the feature edges the mesher snaps to"),
-                ("blockMesh", "blockMesh", "rebuilding the background mesh"),
-                ("snappyHexMesh", "snappyHexMesh -overwrite",
+                ("blockMesh", "background mesh", "blockMesh",
+                 "rebuilding the background mesh"),
+                ("snappyHexMesh", "body-fitted mesh", "snappyHexMesh -overwrite",
                  "re-snapping under the tightened quality controls"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
@@ -1005,7 +1012,7 @@ def main(request: str | None = None, params: dict | None = None,
                 ledger.spend(result.seconds,
                              f"{step} remesh {retry_index} "
                              f"({result.seconds:.0f}s)")
-                stage_row(f"{step} (remesh {retry_index})", result.seconds,
+                stage_row(f"{shown} (remesh {retry_index})", result.seconds,
                           note)
             if familiar:
                 engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && "
