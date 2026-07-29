@@ -494,8 +494,13 @@ class HeadEngineer:
         if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
             return False
         cache = self._mesh_cache_dir(cache_key)
+        # Accept the gzipped spelling too. OpenFOAM writes polyMesh files
+        # either way and reads both; testing only for the plain name makes a
+        # gzipped mesh look absent, so the cache reports a miss and the case
+        # silently re-meshes and re-solves from cold.
         probe = self._wsl(
-            f"test -f {cache}/polyMesh/points && test -f {cache}/polyMesh/owner "
+            f"( test -f {cache}/polyMesh/points || test -f {cache}/polyMesh/points.gz ) && "
+            f"( test -f {cache}/polyMesh/owner  || test -f {cache}/polyMesh/owner.gz  ) "
             f"&& echo CACHED", timeout=120)
         return "CACHED" in probe.stdout
 
@@ -798,7 +803,17 @@ class HeadEngineer:
         results: dict[str, Any] = {}
         for remote in [p for p in listing.stdout.split() if p]:
             local = self.out_root / Path(remote).name
-            self._wsl(f"cp '{remote}' \"$(wslpath '{local}')\"")
+            # The destination the launch prefix's shell can reach: on native
+            # Linux the local path is already reachable as-is (no wsl hop at
+            # all, so no ``wslpath`` binary exists to shell out to -- that
+            # call silently failed and left no file, the same class of bug
+            # host_launch_prefix already fixed for the launch prefix itself).
+            # On the Windows/WSL host the local path is a Windows path and
+            # needs the same manual C:\ -> /mnt/c/ translation used elsewhere
+            # in this codebase for exactly this reason.
+            wsl_local = (str(local).replace("C:", "/mnt/c").replace("\\", "/")
+                        if WSL else str(local))
+            self._wsl(f"cp '{remote}' '{wsl_local}'")
             history = parse_coefficient_history(local.read_text(errors="replace"))
             iterations = history.get("Time", [])
             for name in coefficients:

@@ -67,11 +67,22 @@ def _cache_dir(root: str, key: str) -> Path:
     return Path(os.path.expanduser(root)) / safe
 
 
+def _mesh_file(poly: Path, name: str) -> bool:
+    """A polyMesh file may be written plain or gzipped; OpenFOAM reads both.
+
+    Checking only for the plain name makes a gzipped mesh look absent, so the
+    cache reports a miss and the act silently re-solves from cold -- which on
+    a demo machine shows up as a five-second act suddenly taking minutes.
+    Found in the DAFoam engine on a case shipping owner.gz; the same
+    assumption was here."""
+    return (poly / name).exists() or (poly / f"{name}.gz").exists()
+
+
 def cached_mesh_available(key: str) -> bool:
     if os.environ.get("CERTONOMOUS_MESH_CACHE") == "0":
         return False
-    cache = _cache_dir(MESH_CACHE_ROOT, key)
-    return (cache / "polyMesh" / "points").exists() and (cache / "polyMesh" / "owner").exists()
+    poly = _cache_dir(MESH_CACHE_ROOT, key) / "polyMesh"
+    return _mesh_file(poly, "points") and _mesh_file(poly, "owner")
 
 
 def restore_cached_mesh(case_dir: Path, key: str) -> bool:
