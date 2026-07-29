@@ -33,6 +33,85 @@ adjoint path in this installation.
 
 ---
 
+## Headline finding (this session's Option 4/5 sweep): a WINDOW, not a ceiling — and it is per-family, not per-cell-count
+
+Every finding below this line was produced, and independently re-verified
+against raw solver logs (not summary artifacts), in this session. The
+central claim of every earlier version of this document — "the adjoint works
+below some cell count and fails above it" — **is wrong as stated**. It was an
+artifact of never having tested a small mesh in the ONERA-M6/compressible
+family. The corrected picture:
+
+**Three distinct failure modes exist, and they are not the same kind of
+thing:**
+
+| edge | failure mode | example | binds because |
+| --- | --- | --- | --- |
+| too coarse | **primal never converges** — nothing to differentiate around | ONERA M6, 10,920 cells: 1000 SIMPLE iterations, residuals plateau at 1e-3–1e-5 vs 1e-6 tolerance | a **physics-resolution** limit — property of the case/Re, not of the adjoint machinery (see caveat below) |
+| usable | primal converges, adjoint `PetscConvergedReason` is positive | sail-family, 4,032–63,920 cells | — |
+| too fine (memory) | primal converges, adjoint runs, but exceeds available RAM | ONERA M6, 399,360 cells (established pre-session); extrapolated further above | a **solver/hardware** limit |
+| too fine (conditioning) | primal converges, adjoint GMRES `PetscConvergedReason: -5` (`DIVERGED_BREAKDOWN`), regardless of memory headroom | **every ONERA-M6-family point tested this session: 21,840 / 42,120 / 79,560 / 99,840 cells** | a **solver/physics-regime** limit, and it binds before memory does |
+
+**The ONERA-M6 (compressible, transonic, shock-containing, `DARhoSimpleCFoam`,
+6 transported fields incl. T) family has never, at any tested size from
+21,840 to 399,360 cells — a 18x range — produced a converged adjoint.** Every
+attempt either OOMs or returns `PetscConvergedReason: -5`. The earlier "works
+below ~80,000 cells" read was never tested at a small M6 mesh; the first time
+it was (this session, 21,840 cells), it broke down identically to the
+99,840-cell case that had been assumed to define the wall. **Coarsening this
+case's mesh as an escape route is closed, not merely unpromising**: a mesh
+4.6x smaller than the previously-assumed threshold still diverges.
+
+**The sail/NACA (incompressible, `DASimpleFoam`, 4-5 fields) family behaves
+differently and has a real, demonstrated window**: converges cleanly at
+4,032 (A1), 63,920 (naca0015_sail_coarse) cells (independently re-verified,
+see Option 4), and reportedly at 4,800 (A5) cells; fails by a **different**
+mechanism — the Jacobian-coloring pass stalls and never completes, not a
+GMRES breakdown — at 156,089 (naca0015_sail_medium) and 337,334
+(naca4412_wing_coarse) cells. So this family's window is real and
+demonstrated, roughly 4k–64k cells confirmed working, the far edge sitting
+somewhere between 64k and 156k.
+
+**Why this probably tracks the physics, not an accident of these two
+geometries**: A6 CRM wingbody (579,072 cells, primal-only, never adjoint-
+attempted) uses the **same solver**, `DARhoSimpleCFoam`, at the **same flow
+regime** — Mach 0.85, transonic, shock-containing — as A3 ONERA M6. It was
+never adjoint-tested, so this is an inference from shared solver family and
+physics, not a measurement, and is stated as such: **A6 CRM should be
+expected to hit the same conditioning wall as A3, not assumed to be
+memory-limited only, before anyone launches its adjoint.**
+
+**Connection to the docket.** Proposal `r4-coarse-adjoint-prolongation`
+(docket, proposed 2026-07-29) asks whether a gradient computed on a
+deliberately *coarsened* adjoint mesh, prolongated onto a fine primal mesh,
+can sidestep the memory/breakdown walls the way A4 Ahmed already does
+informally (2,777-cell adjoint driving a 45,760-cell primal comparison).
+This session's coarse-end finding puts a **floor** under that strategy: for
+the ONERA-M6 case specifically, a mesh coarsened to 10,920 cells cannot even
+produce a converged primal to linearize about. The escape route is bounded
+below as well as above — "coarsen the adjoint mesh" cannot be pushed
+arbitrarily far down before the primal itself stops converging, and for THIS
+case, the entire tested range above that floor (21,840 cells and up) already
+fails via GMRES breakdown. **For the M6 family specifically, there is
+currently no known cell count, coarsened or not, at which this case's
+adjoint both has a converged primal to linearize about and converges. The
+prolongation strategy's premise — that a coarse mesh has an affordable
+*working* adjoint to prolongate from — is unmet for this case as tested; the
+proposal's measurement should be read against that, not assumed to have a
+viable coarse anchor available for a transonic/shock case without further
+work on the conditioning problem itself.**
+
+**One caveat stated plainly, because it changes how the window should be
+read**: the coarse-end (primal-non-convergence) wall is a property of
+**the case and its physics** — geometry, Reynolds number, how aggressively
+the surface mesh was coarsened before extrusion — not of the adjoint
+machinery. A different case, or the same geometry at a different Re, would
+put that floor somewhere else; it is not a machine specification. The
+fine-end walls (memory, GMRES breakdown) ARE about the solver and are more
+likely to generalize across cases within the same solver family.
+
+---
+
 ## Option 1 — matrix-free / Jacobian-free adjoint (`adjUseColoring=False`)
 
 **Predicted effect** (source-confirmed before running anything): `DAJacCon.C`
@@ -266,83 +345,262 @@ closes the option on structural grounds.
 
 ## Option 4 — coarse-adjoint-mesh boundary
 
-**STATUS: not yet run this session.** Known so far from the existing
-cross-rung table: adjoint **succeeds** at 63,920 cells (naca0015_sail_coarse,
-FD-verified PASS) and **fails** at 99,840 (A3 coarse — OOM at 8g, and per
-Option 2 above, breaks down even with more memory) and at 156,089
-(naca0015_sail_medium — dies mid-coloring). **The working/failing boundary is
-therefore narrower than the previously-stated "10³–10⁴ cells": it sits
-somewhere between 63,920 and 99,840 cells**, not at 10⁴. Pinning it more
-precisely (e.g. an ~80,000-cell probe) is queued next, along with rechecking
-whether A4's fine mesh (45,760 cells, primal-only so far) can produce a
-working adjoint directly, without coarsening to A4's already-proven 2,777.
+**STATUS: DONE — measured, and it overturns the previous read rather than
+refining it.**
+
+**The orphaned 79,560-cell probe, verified rather than taken on trust.** An
+earlier agent instance was killed after launching a 79,560-cell ONERA M6
+probe (`d3_opt4_probe80k`, 4 ranks, 22g cap) and before writing it up. The
+collector recorded `docker_exit=0 inner_exit=0`, `agg_peak_MiB=17603.8`
+(comfortably under the 22g cap — genuinely uncensored) — on the surface,
+a clean success. **It was not one.** Grepping the actual solver log
+(`run_opt4_probe80k.log`, not the truncated summary) for `PetscConvergedReason`
+finds:
+
+```
+Main iteration 200 KSP Residual norm 1.482196937524e-322 887.48 s
+**Completed**! Total iterations: 200. PetscConvergedReason: -5. 887.48 s
+Residual tolerance satisfied, solution finished!
+```
+
+`-5` is `KSP_DIVERGED_BREAKDOWN` — the residual underflows to denormal range
+and PETSc reports it as "converged" with a negative reason code; the script's
+own success message and full derivative dictionary print regardless. **Both**
+the CD and CL adjoint solves hit this. This is the exact same false-success
+pattern Option 2 already caught once on the 99,840-cell case — caught a
+second time here because the instruction was to verify the exit, not adopt
+the reading. The 17,603.8 MiB figure stands as a real, uncensored **memory**
+point; the run itself did not succeed.
+
+**A same-family sweep (in-plane surface mesh identical — 1,560 faces,
+3x-coarsened from `m6_surfaceMesh_fine.cgns` — spanwise/extrusion layer
+count `N` the only variable, via `pyHyp`) was then run to find out whether
+79,560 cells was near a boundary or deep inside a failure region:**
+
+| cells | `N` (pyHyp layers) | agg peak RSS (cgroup) | `PetscConvergedReason` | wall | verdict |
+| --- | --- | --- | --- | --- | --- |
+| 10,920 | 8 | 1,482.0 MiB (primal-setup only, not comparable) | n/a — **primal never converged** (1000 SIMPLE iters, residual 1.5e-3 vs 1e-6 tol) | 22 s | too coarse: nothing to differentiate around |
+| 21,840 | 15 | 5,876.6 MiB | **-5, -5 (DIVERGED_BREAKDOWN)** | 420 s | diverged |
+| 42,120 | 28 | 9,991.9 MiB | **-5, -5 (DIVERGED_BREAKDOWN)** | 667 s | diverged |
+| 79,560 | 52 | 17,603.8 MiB | **-5, -5 (DIVERGED_BREAKDOWN)** | 960 s | diverged (the orphaned probe, above) |
+| 99,840 | 65 | 18,422–≥20,480 MiB (Option 2, sparsify variants) | **-5, -5 (DIVERGED_BREAKDOWN)** | 403–524 s | diverged |
+
+**Four for four, across a 4.6x cell-count range (21,840 to 99,840): every
+ONERA-M6-family adjoint attempted diverges with the identical PETSc reason
+code.** The mesh-size boundary this document previously reported ("works at
+63,920, fails at 99,840, boundary somewhere in between") does not exist for
+this family — 63,920 is a **different case** (naca0015_sail_coarse,
+incompressible), not a smaller M6 mesh. No M6-family mesh, at any size
+tested from just above the primal-convergence floor (10,920) to the
+established OOM ceiling (399,360), has ever produced a converged adjoint.
+**The working/failing boundary this section originally set out to pin does
+not exist on the cell-count axis for this case — see the Headline finding
+above for the corrected, per-family framing.**
+
+Mesh-quality note, checked and ruled out as the cause: all three new sweep
+meshes were `checkMesh`'d and flagged for the identical pattern already
+present (unnoticed) on the known-good-through-coloring 79,560-cell mesh
+itself — max non-orthogonality 61.5, ~20-28% of cells flagged for small
+determinant, concentrated in one specific near-wall/tip region. Re-running
+`checkMesh` on the original 79,560-cell mesh confirms this is a structural
+property of the whole `pyHyp`-extruded, 3x-coarsened ONERA-M6 mesh family,
+present identically regardless of `N` — not something introduced by this
+sweep, and not obviously the cause of the divergence (the sail-family meshes
+have their own, unrelated quality issues — see the 1,912 concave cells noted
+on `naca0015_sail_coarse` — and still converge).
 
 ## Option 5 — the scaling-law study (bytes per cell)
 
-**STATUS: partial.** These are **real, individually-measured points**, but
-they are **not yet a controlled single-geometry sweep** — each point below is
-a different pre-existing case (different solver, field count, rank count,
-number of design variables), so a single global bytes/cell constant fit across
-all of them would overstate precision. They are reported as an honest
-cross-case envelope; the controlled same-geometry sweep (4k/10k/25k/50k/64k on
-one mesh family) is still queued.
+**STATUS: DONE for the ONERA-M6 family — a real, controlled, well-fitted
+same-family law. Sail/incompressible family: one clean point, not yet a
+fit — see below.**
 
-| case | cells | solver | ranks | peak RSS (compute_totals) | note |
-|---|---|---|---|---|---|
-| A1 NACA0012 | 4,032 | DASimpleFoam (incompressible, SA) | 2 | 2,185.2 MiB | clean, uncensored |
-| A5 U-Bend | 4,800 | DASimpleFoam (incompressible, SA) | 4 | 2,664.4 MiB | clean, uncensored |
-| naca0015_sail_coarse | 63,920 | DASimpleFoam (incompressible, SA) | 3 | ≥10,240 MiB | **censored** at the 10g test cap; true peak is higher, not yet re-measured uncapped |
-| A3 ONERA M6 coarse (sparsify levers) | 99,840 | DARhoSimpleCFoam (compressible, transonic, SA) | 4 | 18,422–≥20,480 MiB | different solver family (6 fields incl. T vs 4-5), not directly comparable to the incompressible points; also the GMRES diverged (see Option 2), so this is a memory-only data point |
+**The controlled same-family sweep** (identical in-plane surface mesh,
+identical solver/options/ranks, only extrusion layer count varying — the
+same three points used to close Option 4) gives three clean, uncensored
+memory measurements on ONE mesh family:
 
-Rough same-family (incompressible SA, `DASimpleFoam`) read: 4,032 cells →
-2,185 MiB and 4,800 cells → 2,664 MiB are close in per-cell terms (~0.54–0.56
-MiB/cell) but a 2-point line between them gives a *negative* intercept, which
-is nonphysical — meaning these two alone are not a clean pair either (A5 has
-double the ranks and a different DV count, both of which shift the constant
-term). **A real bytes-per-cell constant needs the controlled sweep**, not
-cross-case comparison. What the heterogeneous points already prove
-unambiguously: peak RSS crosses from the 2-3 GiB range at ~4-5k cells to well
-into the double-digit-GiB range by 99,840 cells (compressible) — consistent
-with, not contradicting, the previously-established 12g/18g OOM wall for
-399,360 cells.
+| cells | agg peak RSS (cgroup, MiB) |
+| --- | --- |
+| 21,840 | 5,876.6 |
+| 42,120 | 9,991.9 |
+| 79,560 | 17,603.8 |
 
-**Queued next**: generate 3-4 more points on ONE mesh family (reuse the A1
-NACA0012 geometry/pyHyp recipe at different extrusion/refinement settings, or
-equivalent) spanning ~10k-64k cells, all at the same rank count and DV set, to
-fit an honest linear (or better) model and a defensible predicted ceiling.
+Least-squares log-log fit (computed independently with `numpy.polyfit`, not
+taken on report):
+
+**memory (MiB) = 1.2125 x cells^0.8485**, R² = 0.9992
+
+| cells | measured | fit | residual |
+| --- | --- | --- | --- |
+| 21,840 | 5,876.6 | 5,825.6 | -0.87% |
+| 42,120 | 9,991.9 | 10,170.6 | +1.79% |
+| 79,560 | 17,603.8 | 17,446.0 | -0.90% |
+
+**The exponent is 0.85 — SUBLINEAR.** Memory grows more slowly than cell
+count in this family: doubling the mesh costs roughly 1.8x the memory, not
+2x. (An earlier same-session estimate of a *super*linear ~1.35 exponent was
+computed from only two points — 63,920 cells/sail-family at 13,089.7 MiB and
+79,560 cells/M6-family at 17,603.8 MiB — **across two different solver
+families**, and is withdrawn: it was comparing a converged incompressible
+run to a diverged compressible one and had no business being fit as one
+line. The 0.85 exponent above is the first one computed within a single
+controlled family and is the one that should be used.)
+
+**Extrapolated (label clearly as extrapolation, not measurement):**
+
+| cells | extrapolated peak RSS |
+| --- | --- |
+| 99,840 (A3 coarse, already known to diverge) | 20.7 GB |
+| 200,000 | 37.2 GB |
+| 400,000 | 67.1 GB |
+| 579,072 (A6 CRM wingbody's actual mesh, primal-only, never adjoint-run) | 91.8 GB |
+
+**Sail/incompressible family, cross-check only, not a fit**: the M6-family
+law predicts ~14.2-14.5 GB at 63,920 cells; naca0015_sail_coarse's actual,
+independently re-measured, uncensored, converged peak at that exact cell
+count is 13,089.7 MiB (12.8 GB) — see Option 4's table above. Close (~10-13%),
+which is *interesting*, but it is one point checked against another family's
+fit and proves nothing about whether the sail family shares the same
+exponent. **Two more sail-family points, at different cell counts on the
+same geometry/solver/rank/DV configuration, would answer whether 0.85 is a
+property of the solver (DASimpleFoam vs DARhoSimpleCFoam would differ) or of
+the adjoint machinery generally (in which case it would hold across both).
+That is queued, not done** — building a second sail-family mesh resolution
+needs new snappyHexMesh refinement-level work this session did not reach,
+and the box was below the 24 GB same-weight-class threshold when this
+section was written. This is the one open quantitative question the
+envelope does not yet answer.
+
+**THE PAIRING THAT MATTERS — memory and convergence must be read together,
+not separately, or the hardware answer is wrong:**
+
+- **On memory alone**, the ONERA-M6-family fit says a 400,000-cell adjoint of
+  this kind needs roughly 67 GB, and A6 CRM's actual 579,072-cell mesh would
+  need roughly 92 GB. Both are ordinary cloud instance sizes (e.g. AWS
+  `r6i.8xlarge`/`x2iedn` class). **On memory alone, this workload is
+  affordable today.**
+- **On convergence**, it does not matter, because **this family's adjoint has
+  not converged at any tested size**, including the smallest one tested
+  (21,840 cells, 5.9 GB peak) — nowhere near any memory cap. A 128 GB machine
+  would buy a larger `DIVERGED_BREAKDOWN`, not a working gradient.
+
+**The honest statement, and the one this document should be read by:** *if
+the conditioning problem (why does this compressible/transonic/shock-
+containing solver family's adjoint break down at every tested size?) is
+solved, here is what the hardware costs, and it is affordable. Until it is
+solved, hardware is not the constraint — buying more RAM does not fix a
+`DIVERGED_BREAKDOWN`.* The conditioning problem itself (candidate cause:
+shock-sensitivity of the linearization, per the flow physics — untested this
+session) is a separate investigation from memory sizing and is not
+attempted here; it is the next thing worth doing, and it is a numerics
+question, not a procurement one.
 
 ---
 
-## Provisional hardware read (NOT a recommendation — options 1-5 are not yet
-exhausted, this is a placeholder pending the full sweep)
+## Provisional hardware read — no longer provisional for the memory half; the convergence half is the actual blocker
 
-The 99,840-cell transonic case alone needs ≥18.4-20.5 GB peak RSS even with
-every memory-reduction lever tried so far, and the underlying gradient is
-still not usable at that size (`DIVERGED_BREAKDOWN`). 399,360 cells has never
-completed under 18 GB. **Nothing here is provisioned or proposed to the docket
-yet** — that step only happens after ranks (Option 3) and the coarse-mesh
-boundary (Option 4) are measured, per the directive's ordering.
+**Superseded by the Headline finding and Option 4/5 above.** The short
+version, restated once more because it is the number the owner asked for:
+
+- **Memory is not the constraint.** The ONERA-M6-family fit
+  (memory = 1.2125 x cells^0.8485, R²=0.9992, three clean same-family points)
+  puts a 400,000-cell adjoint at ~67 GB and A6 CRM's 579,072-cell mesh at
+  ~92 GB — both ordinary cloud sizes, not exotic hardware.
+- **Convergence is the constraint, and it binds first, at every size
+  tested.** Every ONERA-M6-family adjoint attempted this session and the
+  prior one — 21,840 / 42,120 / 79,560 / 99,840 / 399,360 cells — has failed,
+  either `DIVERGED_BREAKDOWN` or OOM, with breakdown occurring at cell counts
+  small enough (21,840 cells, 5.9 GB) that memory was never close to
+  limiting. **A bigger box does not fix this case's adjoint.**
+- **This is a per-family finding, not a per-cell-count one.** The
+  sail/incompressible family (`DASimpleFoam`) has a real, demonstrated
+  working window (4k-64k cells confirmed, upper edge between 64k-156k, a
+  different — coloring-stall, not breakdown — failure mode). A6 CRM shares
+  ONERA M6's solver and flow regime (transonic, `DARhoSimpleCFoam`, Mach
+  0.85) and should be **expected**, not assumed safe, to hit the same wall —
+  stated as an inference from shared physics, since A6's adjoint has never
+  been attempted.
+- **What would actually move this forward**: not a hardware purchase, but an
+  investigation into why the compressible/transonic/shock adjoint is
+  ill-conditioned at every resolution — starting with whether the breakdown
+  correlates with a shock-containing region of the flow, whether a different
+  linearization state (e.g. a more-converged primal, a different PC) changes
+  the reason code, and whether this is specific to `DARhoSimpleCFoam` or a
+  property of transonic adjoints generally. That is a numerics question and
+  is explicitly **not attempted in this document** — it is the next
+  investigation this finding points to, not a task this D3 directive covers.
 
 ## What is still open, explicitly
 
 - Option 3: **done, closed.** More ranks increases aggregate memory for this
   workload; not a viable lever.
-- Option 4 (pin the exact working/failing mesh-size boundary between 63,920
-  and 99,840; check A4's 45,760-cell mesh directly): not started this session.
-- Option 5: needs a controlled same-geometry sweep, not just the cross-case
-  envelope above.
-- naca0015_sail_coarse's true (uncensored) peak RSS at 63,920 cells: the one
-  clean run hit exactly its 10g test cap (10,240.0 MiB), which is itself
-  suspicious as a coincidence and should be re-measured at a materially higher
-  cap.
-- Hardware recommendation: withheld until the above land, per the directive.
+- Option 4: **done, closed, and the conclusion inverted.** There is no
+  cell-count boundary for the ONERA-M6 family — every tested size from
+  21,840 to 399,360 cells fails (breakdown or OOM). The working/failing
+  distinction is per-family (M6/compressible fails everywhere tested;
+  sail/incompressible has a real window), not per-cell-count. A4's fine
+  mesh (45,760 cells, primal-only) was not additionally re-checked this
+  session — lower priority once the per-family framing landed; still open
+  if someone wants a second incompressible-family data point near that size.
+- Option 5: **done for the ONERA-M6 family** (three-point same-family fit,
+  memory = 1.2125 x cells^0.8485, R²=0.9992). **Still open for the
+  sail/incompressible family**: only one clean, uncensored point exists
+  (63,920 cells, 13,089.7 MiB); its cross-family check against the M6 fit
+  is close (~10-13%) but not a controlled measurement. Two more
+  same-geometry sail-family points, at different mesh resolutions, would
+  settle whether the 0.85 exponent is solver-specific or general — needs
+  new snappyHexMesh refinement-level setup work not done this session.
+- naca0015_sail_coarse's true (uncensored) peak RSS at 63,920 cells:
+  **closed this session.** Re-measured at a 26g cap (previously censored at
+  10g): 13,089.7 MiB, comfortably clear of the cap, `PetscConvergedReason: 2`
+  (converged) confirmed on both CD and CL from the raw solver log. The
+  10,240.0 MiB figure is retired.
+- **New this session**: the measurement harness did not originally capture
+  `PetscConvergedReason` at all — only exit codes and memory, which is
+  exactly how the 79,560-cell probe was first misread as a success. Fixed
+  in `d3_mem_run2.sh` (grep the full run log, not the truncated tail-60
+  display copy — the first draft of the fix had that bug too, caught before
+  it shipped on a run where it would have gone unnoticed). Every future
+  measurement's summary now carries a `SOLVER STATUS: CONVERGED /
+  DIVERGED / NO_CONVERGEDREASON_FOUND` line, and continuous (1 Hz)
+  host MemAvailable/swap sampling for the run's full duration, not just
+  before/after endpoints.
+- **New this session**: why the M6-family adjoint is ill-conditioned at
+  every tested resolution is not investigated here — flagged as the next,
+  higher-value question (a numerics investigation, not a memory one) but
+  explicitly out of scope for this directive.
+- Hardware recommendation: **the memory half is no longer provisional**
+  (see Option 5's fit and extrapolation). The overall recommendation
+  remains conditional on the conditioning problem, per the Headline
+  finding and the restated read at the end of Option 5 — not because more
+  measurement is pending, but because the honest answer genuinely has two
+  halves that cannot be collapsed into one number.
 
 ## Raw logs (this session)
 
-All under `/tmp/claude-1000/-home-ubuntu-Certonomous/982d6244-5800-47f3-a450-80ce0b0a24b7/scratchpad/logs/`
+Prior-session logs, under
+`/tmp/claude-1000/-home-ubuntu-Certonomous/982d6244-5800-47f3-a450-80ce0b0a24b7/scratchpad/logs/`
 (scratchpad, not committed — paths recorded here for traceability):
 `A1_baseline_4032.log`, `A5_4800.log`, `sail_coarse_63920.log`,
 `A1_nocoloring_4032{,_v2,_v3}.log`, `A1_sparsify_4032.log`,
-`A3coarse_sparsify_99840.log`, `A3coarse_sparsify_fill1_99840.log`. Solve
-registry completion records (survive session interruptions):
+`A3coarse_sparsify_99840.log`, `A3coarse_sparsify_fill1_99840.log`.
+
+This session's Option 4/5 work, under
+`/tmp/claude-1000/-home-ubuntu-Certonomous/982d6244-5800-47f3-a450-80ce0b0a24b7/scratchpad/`:
+harness scripts `d3_mem_run.sh` (original) and `d3_mem_run2.sh` (adds
+`SOLVER STATUS` extraction + continuous host-contention sampling); per-run
+logs/summaries/host-memory CSVs under `d3_logs/opt5_*` and
+`d3_logs/opt4_probe80k.*`. Case directories (mesh + full raw solver logs,
+independently grep'd for `PetscConvergedReason` rather than trusted from any
+summary): `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-probe80k`
+(79,560 cells, the corrected orphaned probe),
+`/home/ubuntu/certonomous-runs/A3-onera-m6-sweep-{n8_10920,n15_21840,n28_42120}`
+(new sweep meshes), `/home/ubuntu/certonomous-runs/A3-onera-m6-adjoint-coarse`
+(pre-existing 99,840-cell mesh, same family, confirmed by `checkMesh`
+signature match), and
+`/home/ubuntu/Certonomous/demo-output/website/dafoam/work_sail/naca0015_sail_coarse`
+(re-measured in place; `run_opt5_sail_coarse_uncap.log` is the raw log the
+`PetscConvergedReason: 2` confirmation was read from). Solve registry
+completion records (survive session interruptions):
 `demo-output/website/solve_registry/d3_*`.
