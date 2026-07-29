@@ -1,0 +1,543 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 300
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 300
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWaveFrozen
+bounding k, min: 1e-16 max: 0.0324909157810215 average: 0.00271250731479995
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+k modelState
+phi surfaceScalarState
+p volScalarState
+omega modelState
+)
+Global Cells: 21000
+Global Faces: 84290
+Global Xv: 127746
+Undecomposed points: 42582
+Global Adjoint States: 210290
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWaveFrozen
+bounding k, min: 1e-16 max: 0.0324909157810215 average: 0.00271250731479995
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+k modelState
+phi surfaceScalarState
+p volScalarState
+omega modelState
+)
+Global Cells: 21000
+Global Faces: 84290
+Global Xv: 127746
+Undecomposed points: 42582
+Global Adjoint States: 210290
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+Init solver done! ElapsedClockTime 2.000000 s
+Init solver done! ElapsedCpuTime 1.290000 s
+initState: 
+7
+(
+k 0.00271250731479995
+phi 0
+U1 -0.0162691150920088
+U2 -3.3712822000681e-06
+p 0.0421521168945123
+omega 2.90369964276595
+U0 0.830112126648427
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting nut wall BC for bottomWall. BCType=nutkWallFunction
+Setting nut wall BC for topWall. BCType=nutkWallFunction
+Setting k wall BC for bottomWall. BCType=kqRWallFunction
+Setting k wall BC for topWall. BCType=kqRWallFunction
+Setting omega wall BC for bottomWall. BCType=omegaWallFunction
+Setting omega wall BC for topWall. BCType=omegaWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Reading the OpenFOAM mesh..
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 0.001;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               0.72;
+        p               0.2592;
+        k               0.0042;
+        omega           1000;
+        phi             1;
+        nut             0.0001;
+    }
+    function
+    {
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  2 ( bottomWall topWall );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, -0.1], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Reading the OpenFOAM mesh..
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+#------------------------------#
+ Total Volume Nodes :     42582 
+#------------------------------#
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000  -0.100)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       564 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('bottomWall', [0]), ('frontAndBack', [1]), ('inlet', [2]), ('outlet', [3]), ('topWall', [4]), ('allSurfaces', [0, 1, 2, 3, 4]), ('allWalls', [0, 4]), ('designSurfaces', [0, 4])])
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'mesh' <class DAFoamMesh>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.aero_pre.warper' <class DAFoamWarper>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.coupling.solver' <class DAFoamSolver>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+DAInputVolCoord. 
+Setting volume coordinates. 
+Checking mesh quality for time = 300
+    Overall domain bounding box (-7.34 -5.55111512312578e-17 -0.1) (15.4 9.52 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-4.05919662853423e-20 3.32854123539807e-18 4.26925295046677e-15) OK.
+    Max cell openness = 2.82192850927573e-16 OK.
+    Max aspect ratio = 14.7587591900084 OK.
+    Minimum face area = 0.00218398968827575. Maximum face area = 0.0339345709052144.  Face area magnitudes OK.
+    Min volume = 0.000436797937655153. Max volume = 0.00551134704322637.  Total volume = 41.461002644638.  Cell volumes OK.
+    Mesh non-orthogonality Max: 33.3025424456473 average: 4.07143062484908
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.264464136705768 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+DILUPBiCG:  Solving for Ux, Initial residual = 0.000274022010881586, Final residual = 2.31967733086862e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00105543240535729, Final residual = 2.64375789152229e-05, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 1.64248243669145e-05, Final residual = 1.68219840370105e-08, No Iterations 2
+U0 initRes: 0.000274022010881586 finalRes: 2.31967733086862e-05 nIters: 1
+U1 initRes: 0.00105543240535729 finalRes: 2.64375789152229e-05 nIters: 1
+U2 initRes: 1.64248243669145e-05 finalRes: 1.68219840370105e-08 nIters: 2
+GAMG:  Solving for p, Initial residual = 0.000748332121914396, Final residual = 5.78459224646081e-07, No Iterations 16
+p initRes: 0.000748332121914396 finalRes: 5.78459224646081e-07 nIters: 16
+GAMG:  Solving for p, Initial residual = 0.000102311709642202, Final residual = 8.32221328520284e-08, No Iterations 12
+p initRes: 0.000102311709642202 finalRes: 8.32221328520284e-08 nIters: 12
+Time step continuity errors : sum local = 3.67687523998098e-10
+                                 global = 3.73191913277985e-13
+                             cumulative = 3.73191913277985e-13
+DILUPBiCG:  Solving for omega, Initial residual = 3.63096799489248e-05, Final residual = 3.55135087150112e-06, No Iterations 1
+omega initRes: 3.63096799489248e-05 finalRes: 3.55135087150112e-06 nIters: 1
+DILUPBiCG:  Solving for k, Initial residual = 0.000553292310546175, Final residual = 3.1770577070393e-05, No Iterations 1
+k initRes: 0.000553292310546175 finalRes: 3.1770577070393e-05 nIters: 1
+Bounding k>1e-16
+yPlus min: 0.775657682020029 max: 6.45044194544767 mean: 4.17671790450872
+ExecutionTime = 4.8 s  ClockTime = 7 s
+
+DILUPBiCG:  Solving for Ux, Initial residual = 0.000272425939129715, Final residual = 2.30388391921343e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00105048644843931, Final residual = 2.66339730056944e-05, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 1.64429728825562e-05, Final residual = 1.97051314858399e-08, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.000758587712379137, Final residual = 7.53974566063136e-07, No Iterations 15
+GAMG:  Solving for p, Initial residual = 0.000101687855679825, Final residual = 8.9006409647715e-08, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 3.66220955489793e-05, Final residual = 3.33833461165763e-06, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.000549706876991973, Final residual = 3.14059994191846e-05, No Iterations 1
+Time = 2
+Minimal residual 0.000758587712379137 satisfied the prescribed tolerance 0.001
+
+End
+
+Printing Primal Residual Statistics.
+U Residual Norm2: (0.62356540199963 0.157559983610559 1.15234117654571e-06)
+U Residual Mean: (0.00120469831396367 0.000383382323106901 2.71184040598023e-09)
+U Residual Max: (0.0487391015400433 0.0112909297321904 1.08655022187943e-07)
+p Residual Norm2: 0.0100287795641587
+p Residual Mean: 5.96201207974362e-06
+p Residual Max: 0.0057759932972273
+omega Residual Norm2: 0.804586242751618
+omega Residual Mean: 0.00166737661205608
+omega Residual Max: 0.0498235495575557
+k Residual Norm2: 0.0145446910871083
+k Residual Mean: 2.48978563877062e-05
+k Residual Max: 0.00107079303120363
+phi Residual Norm2: 0.0154876582062684
+phi Residual Mean: 1.39130251006739e-05
+phi Residual Max: 0.000806445099739577
+Total Residual Norm2: 1.03032517830435
+ 
+ 
+TIMING run_model wall_s: 3.839442253112793

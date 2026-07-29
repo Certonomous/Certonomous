@@ -1,0 +1,77 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// DEVIATION (B2, documented, same as AR_1_Ret_360/AR_3_Ret_360): original
+// controlDict loaded "libfrozenIncompressibleTurbulenceModels.so", a custom
+// library from the paper authors' thesis codebase, not distributed in the
+// public closure-challenge-benchmark clone. Removed; RASModel kOmegaSST
+// resolves to OpenFOAM v2606's stock implementation. CBFS is not one of our
+// 8 scored test cases (it is the paper's TRAINING case), so this run has no
+// leakage exposure either way.
+// libs ( "libfrozenIncompressibleTurbulenceModels.so" );
+
+
+// startFrom forced to startTime (not latestTime): DAFunctionVariance's
+// non-time-dependent ref-data mode hardcodes reading "<var>Data" from the
+// literal folder "0" (DAFunctionVariance.C: checkRefDataFolder =
+// Foam::name(0)). With startFrom=latestTime and many intermediate time dirs
+// on disk (2, 100, 300, ... 1223) from earlier stage-2 runs, DAFoam's
+// parallel decomposition only decomposed the run's actual start time
+// (1223) and never touched "0" -- so processorN/0/UData did not exist,
+// DAFunctionVariance silently fell back to isRefData_=0 (a WARNING is
+// printed, easy to miss) and the objective silently evaluated to exactly
+// 0.0, with a correspondingly all-zero adjoint RHS (GMRES "converged" in
+// 0 iterations -- a fake, non-representative timing). Forcing startTime=0
+// (0/ already holds the good warm-started, B2-matching IC from stage 2)
+// ensures "0" is always decomposed and UData is actually found.
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2500;
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   500;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  15;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   15;
+
+runTimeModifiable yes;
+
+
+// DEVIATION (B2, documented): same residuals.cfg path issue as the DUCT
+// cases (v2606 renamed it to solverInfo); singleGraph_x* function objects
+// reference postProcessing sample lines not needed for the converged field.
+// Dropped, diagnostics only, does not affect the solved field.
+functions
+{
+}
+// ************************************************************************* //

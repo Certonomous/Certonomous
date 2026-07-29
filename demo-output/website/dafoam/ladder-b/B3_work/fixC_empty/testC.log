@@ -1,0 +1,754 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2506                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar
+Date   : Jul 29 2026
+Time   : 00:42:10
+Host   : ip-172-31-43-247
+PID    : 267
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/fixC
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [2] (region region0)
+
+Finished decomposition in 0.01 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+
+Processor 0
+    Number of cells = 10500
+    Number of points = 21442
+    Number of faces shared with processor 1 = 150
+    Number of processor patches = 1
+    Number of processor faces = 150
+    Number of boundary faces = 21290
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+
+Processor 1
+    Number of cells = 10500
+    Number of points = 21442
+    Number of faces shared with processor 0 = 150
+    Number of processor patches = 1
+    Number of processor faces = 150
+    Number of boundary faces = 21290
+
+Number of processor faces = 150
+Max number of cells = 10500 (0% above average 10500)
+Max number of processor patches = 1 (0% above average 1)
+Max number of faces between processors = 150 (0% above average 150)
+
+Time = 0
+
+Processor 0: field transfer
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Processor 1: field transfer
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+
+End
+
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/fixC
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+[1] UPstream::init : could not attach buffer
+[0] UPstream::init : could not attach buffer
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/fixC
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Initializing mesh and runtime for DASolver
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWaveFrozen
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+k modelState
+phi surfaceScalarState
+p volScalarState
+omega modelState
+)
+Global Cells: 21000
+Global Faces: 84440
+Global Xv: 128652
+Undecomposed points: 42582
+Global Adjoint States: 210440
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+Find 63000 reference points for variance of U
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWaveFrozen
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+k modelState
+phi surfaceScalarState
+p volScalarState
+omega modelState
+)
+Global Cells: 21000
+Global Faces: 84440
+Global Xv: 128652
+Undecomposed points: 42582
+Global Adjoint States: 210440
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+Find 63000 reference points for variance of U
+Init solver done! ElapsedClockTime 2.000000 s
+Init solver done! ElapsedCpuTime 1.650000 s
+initState: 
+7
+(
+k 0.00305052249172398
+phi 0
+U1 -0.014435276356956
+U2 -4.92257425118544e-18
+p 0.0422963848248876
+omega 2.93477053649815
+U0 0.822908410771555
+)
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/fixC
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Finalising parallel run
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 1e-06;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               0.72;
+        p               0.2592;
+        k               0.0042;
+        omega           1000;
+        phi             1;
+        nut             0.0001;
+    }
+    function
+    {
+        varianceU
+        {
+            type            variance;
+            source          allCells;
+            mode            field;
+            varName         U;
+            varType         vector;
+            indices         3 ( 0 1 2 );
+            timeDependentRefData 0;
+            scale           1;
+        }
+    }
+    inputInfo
+    {
+        patchV
+        {
+            type            patchVelocity;
+            patches         1 ( inlet );
+            flowAxis        x;
+            normalAxis      y;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  2 ( bottomWall topWall );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount/fixC',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, -0.1], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount/fixC
+nProcs : 2
+Hosts  :
+(
+    (ip-172-31-43-247 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+Reading the OpenFOAM mesh..
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+#------------------------------#
+ Total Volume Nodes :     42884 
+#------------------------------#
+Finalising parallel run
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000  -0.100)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       564 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('bottomWall', [0]), ('frontAndBack', [1]), ('inlet', [2]), ('outlet', [3]), ('procBoundary0to1', [4]), ('topWall', [5]), ('allSurfaces', [0, 1, 2, 3, 4, 5]), ('allWalls', [0, 5]), ('designSurfaces', [0, 5])])
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.coupling.solver' <class DAFoamSolver>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:140: OMDeprecationWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: It appears this component mixes distributed/non-distributed inputs and outputs, so it may break starting with OpenMDAO 3.25, where the convention used when passing data between distributed and non-distributed inputs and outputs within a matrix free component will change. See https://github.com/OpenMDAO/POEMs/blob/master/POEM_075.md for details.
+DAInputPatchVelocity. 
+Setting UMag = 0.72 AoA = 0 degs at 1(inlet)
+Checking mesh quality for time = 0
+    Overall domain bounding box (-7.34 -5.55111512312578e-17 -0.1) (15.4 9.52 0.1)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+[1] 
+[1] 
+[1] --> FOAM FATAL ERROR: (openfoam-2506)
+[1] Mesh geometric directions is less than 3 and not supported!
+[1] 
+[1]     From Foam::label Foam::checkGeometry(const polyMesh&, const autoPtr<surfaceWriter>&, const autoPtr<coordSetWriter>&, label)
+[1]     in file DACheckMesh/DACheckGeometry.C at line 278.
+[0] 
+[0] 
+[0] --> FOAM FATAL ERROR: (openfoam-2506)
+[0] Mesh geometric directions is less than 3 and not supported!
+[0] 
+[0]     From Foam::label Foam::checkGeometry(const polyMesh&, const autoPtr<surfaceWriter>&, const autoPtr<coordSetWriter>&, label)
+[0]     in file DACheckMesh/DACheckGeometry.C at line 278[1] 
+FOAM parallel run aborting
+[1] 
+.
+[0] 
+FOAM parallel run aborting
+[0] 
+[0] [stack trace]
+[0] =============
+[1] [stack trace]
+[1] =============
+[0] #1  [1] #1  Foam::error::simpleExit(int, bool)Foam::error::simpleExit(int, bool) in  in /home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so/home/dafoamuser/dafoam/OpenFOAM/OpenFOAM-v2506/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+
+[0] #2  [1] #2  Foam::checkGeometry(Foam::polyMesh const&, Foam::autoPtr<Foam::surfaceWriter> const&, Foam::autoPtr<Foam::coordSetWriter> const&, int)Foam::checkGeometry(Foam::polyMesh const&, Foam::autoPtr<Foam::surfaceWriter> const&, Foam::autoPtr<Foam::coordSetWriter> const&, int) in /home/dafoamuser/dafoam/OpenFOAM/sharedLibs/libDASolver.so
+ in /home/dafoamuser/dafoam/OpenFOAM/sharedLibs/libDASolver.so
+[0] #3  Foam::DACheckMesh::run() const[1] #3  Foam::DACheckMesh::run() const in  in /home/dafoamuser/dafoam/OpenFOAM/sharedLibs/libDASolver.so
+/home/dafoamuser/dafoam/OpenFOAM/sharedLibs/libDASolver.so
+[1] #4  ?[0] #4  ? at  at pyDASolvers.cpp:?
+pyDASolvers.cpp:?
+[0] #5  [1] #5  ?? at /usr/local/src/conda/python-3.10.8/Include/internal/pycore_ceval.h:100
+[1] #6   at /usr/local/src/conda/python-3.10.8/Include/internal/pycore_ceval.h:100
+[0] #6  _PyEval_EvalFrameDefault_PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #7   at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #7  _PyFunction_Vectorcall_PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #8   at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #8  _PyEval_EvalFrameDefault_PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #9   at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #9  _PyFunction_Vectorcall_PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #10   at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #10  _PyEval_EvalFrameDefault_PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #11   at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #11  _PyFunction_Vectorcall_PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #12   at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #12  _PyEval_EvalFrameDefault_PyEval_EvalFrameDefault at  at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+/usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #[1] #13  13  _PyFunction_Vectorcall_PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #14   at _PyEval_EvalFrameDefault/usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #14  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #15  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #15  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #16  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #16  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #17  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #17  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #18  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #18  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #19  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #19  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #20  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #20  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #21  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #21  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #22  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #22  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #23  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #23  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #24  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #24  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #25  ? at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #25  ? at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #26  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #26  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #27  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #27  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #28  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #28  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #29  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #29  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #30  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #30  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #31  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #31  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #32  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #32  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #33  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #33  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #34  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #34  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #35  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #35  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #36  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #36  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #37  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #37  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #38  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #38  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #39  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #39  _PyFunction_Vectorcall at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #40  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #40  _PyEval_EvalFrameDefault at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[1] #41  ? at /usr/local/src/conda/python-3.10.8/Objects/call.c:38
+[0] #41  ? at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[1] #42  PyEval_EvalCode at /usr/local/src/conda/python-3.10.8/Include/object.h:131
+[0] #42  PyEval_EvalCode at /usr/local/src/conda/python-3.10.8/Python/ceval.c:1135
+[1] #43  ? at /usr/local/src/conda/python-3.10.8/Python/ceval.c:1135
+[0] #43  ? at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:1292
+[1] #44  ? at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:1292
+[0] #44  ? at /usr/local/src/conda/python-3.10.8/Include/object.h:492
+[1] #45  ? at /usr/local/src/conda/python-3.10.8/Include/object.h:492
+[0] #45  ? at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:1208
+[1] #46  _PyRun_SimpleFileObject at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:1208
+[0] #46  _PyRun_SimpleFileObject at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:456
+[1] #47  _PyRun_AnyFileObject at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:456
+[0] #47  _PyRun_AnyFileObject at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:90
+[1] #48  Py_RunMain at /usr/local/src/conda/python-3.10.8/Python/pythonrun.c:90
+[0] #48  Py_RunMain at /usr/local/src/conda/python-3.10.8/Modules/main.c:358
+[1] #49  Py_BytesMain at /usr/local/src/conda/python-3.10.8/Modules/main.c:358
+[0] #49  Py_BytesMain at /usr/local/src/conda/python-3.10.8/Modules/main.c:1091
+[1] #50  ? in /lib/x86_64-linux-gnu/libc.so.6
+[1] #51  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[1] #52  ? at /usr/local/src/conda/python-3.10.8/Modules/main.c:1091
+[0] #50  ? in /lib/x86_64-linux-gnu/libc.so.6
+[0] #51  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[0] #52  ? in /home/dafoamuser/dafoam/packages/miniconda3/bin/python
+[1] =============
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 1 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------

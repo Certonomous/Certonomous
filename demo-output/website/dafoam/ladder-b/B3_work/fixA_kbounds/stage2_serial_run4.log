@@ -1,0 +1,1298 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+ 
+-------------------------------------------------------------------------------
+|                               DAFoam v5.0.0                                 |
+-------------------------------------------------------------------------------
+ 
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Initializing mesh and runtime for DASolver
+Create time
+
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+Create mesh for time = 0
+Replacing wallDist.method meshWave -> meshWaveFrozen
+DAOption created. DASolver initialized.
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWaveFrozen
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+k modelState
+phi surfaceScalarState
+p volScalarState
+omega modelState
+)
+Global Cells: 21000
+Global Faces: 84290
+Global Xv: 127746
+Undecomposed points: 42582
+Global Adjoint States: 210290
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+Initializing fields for DASimpleFoam
+Create simpleControl.
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Creating source term. 
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWaveFrozen
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.555555555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+Turbulence model is incompressible
+Adjoint States: 
+5
+(
+U volVectorState
+k modelState
+phi surfaceScalarState
+p volScalarState
+omega modelState
+)
+Global Cells: 21000
+Global Faces: 84290
+Global Xv: 127746
+Undecomposed points: 42582
+Global Adjoint States: 210290
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-15
+
+DACheckMesh Thresholds: 
+maxNonOrth: 70
+maxSkewness: 4
+maxAspectRatio: 1000
+maxIncorrectlyOrientedFaces: 0
+Init solver done! ElapsedClockTime 1.000000 s
+Init solver done! ElapsedCpuTime 0.940000 s
+initState: 
+7
+(
+k 0.00668000000000089
+phi 0
+U1 0
+U2 0
+p 0
+omega 0.109999999999975
+U0 0.720000000000255
+)
+Setting up primal boundary conditions based on pyOptions: 
+Setting nut wall BC for bottomWall. BCType=nutkWallFunction
+Setting nut wall BC for topWall. BCType=nutkWallFunction
+Setting k wall BC for bottomWall. BCType=kqRWallFunction
+Setting k wall BC for topWall. BCType=kqRWallFunction
+Setting omega wall BC for bottomWall. BCType=omegaWallFunction
+Setting omega wall BC for topWall. BCType=omegaWallFunction
+Reading OpenFOAM mesh information...
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Reading the OpenFOAM mesh..
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+I/O    : uncollated
+DAFoam option dictionary: 
+{
+    solverName      DASimpleFoam;
+    primalMinResTol 1e-08;
+    primalFuncStdTol
+    {
+        stdTol          -1;
+        slopeTol        -1;
+        funcNames       1 ( CD );
+        nStepsFrac      0.2;
+    }
+    primalBC
+    {
+        useWallFunction 1;
+    }
+    primalInitCondition
+    {
+    }
+    normalizeStates
+    {
+        U               0.72;
+        p               0.2592;
+        k               0.0042;
+        omega           1000;
+        phi             1;
+        nut             0.0001;
+    }
+    function
+    {
+    }
+    inputInfo
+    {
+        aero_vol_coords
+        {
+            type            volCoord;
+            components      2 ( solver function );
+        }
+    }
+    outputInfo
+    {
+    }
+    designSurfaces  2 ( bottomWall topWall );
+    fvSource
+    {
+    }
+    prepareCaseOnly 0;
+    adjEqnSolMethod Krylov;
+    dynamicMesh
+    {
+        active          0;
+        mode            rotation;
+        center          3 ( 0.25 0 0 );
+        axis            z;
+        omega           0.1;
+        s               2;
+        t0              0.35;
+    }
+    primalVarBounds
+    {
+        UMax            1000;
+        UMin            -1000;
+        pMax            50000;
+        pMin            -50000;
+        p_rghMax        50000;
+        p_rghMin        -50000;
+        eMax            55000;
+        eMin            -220000;
+        TMax            1000;
+        TMin            100;
+        hMax            200000;
+        hMin            -200000;
+        DMax            1e+16;
+        DMin            -1e+16;
+        rhoMax          5;
+        rhoMin          0.2;
+        nuTildaMax      1e+16;
+        nuTildaMin      1e-16;
+        kMax            1e+16;
+        kMin            1e-16;
+        omegaMax        1e+16;
+        omegaMin        1e-16;
+        epsilonMax      1e+16;
+        epsilonMin      1e-16;
+        ReThetatMax     1e+16;
+        ReThetatMin     1e-16;
+        gammaIntMax     1e+16;
+        gammaIntMin     1e-16;
+    }
+    discipline      aero;
+    adjPartDerivFDStep
+    {
+        State           1e-06;
+    }
+    transonicPCOption -1;
+    unsteadyAdjoint
+    {
+        mode            None;
+        PCMatPrecomputeInterval 100;
+        PCMatUpdateInterval 1;
+        reduceIO        1;
+        additionalOutput 1 ( None );
+        additionalOldTime 1 ( None );
+        readZeroFields  1;
+    }
+    adjPCLag        10000;
+    useAD
+    {
+        mode            reverse;
+        dvName          None;
+        seedIndex       -9999;
+    }
+    useConstrainHbyA 1;
+    forceMeshWaveFrozen 1;
+    useDdtCorr      0;
+    regressionModel
+    {
+        active          0;
+    }
+    useMeanStates   0;
+    solveLinearFunctionName None;
+    printDAOptions  1;
+    debug           0;
+    writeJacobians  1 ( None );
+    printInterval   100;
+    printIntervalUnsteady 1;
+    primalMinResTolDiff 100;
+    adjUseColoring  1;
+    adjEqnOption
+    {
+        globalPCIters   0;
+        asmOverlap      1;
+        localPCIters    1;
+        jacMatReOrdering rcm;
+        pcFillLevel     1;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
+        gmresRelTol     1e-06;
+        gmresAbsTol     1e-14;
+        gmresTolDiff    100;
+        useNonZeroInitGuess 0;
+        useMGSO         0;
+        printInfo       1;
+        fpMaxIters      1000;
+        fpRelTol        1e-06;
+        fpMinResTolDiff 100;
+        fpPCUpwind      0;
+        dynAdjustTol    0;
+        KSPCalcEigen    0;
+        KSPCalcSingularVal 0;
+        readPCMat       0;
+    }
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
+    maxResConLv4JacPCMat
+    {
+        pRes            2;
+        phiRes          1;
+        URes            2;
+        TRes            2;
+        nuTildaRes      2;
+        kRes            2;
+        epsilonRes      2;
+        omegaRes        2;
+        p_rghRes        2;
+        DRes            2;
+        gammaIntRes     2;
+        ReThetatRes     2;
+        alpha.waterRes  2;
+    }
+    jacLowerBounds
+    {
+        dRdW            1e-30;
+        dRdWPC          1e-30;
+    }
+    maxTractionBCIters 100;
+    decomposeParDict
+    {
+        method          scotch;
+        simpleCoeffs
+        {
+            n               3 ( 2 2 1 );
+            delta           0.001;
+        }
+        kahipCoeffs
+        {
+            config          fast;
+            imbalance       0.01;
+        }
+        preservePatches 1 ( None );
+        singleProcessorFaceSets 1 ( None );
+        args            1 ( None );
+    }
+    adjStateOrdering state;
+    checkMeshThreshold
+    {
+        maxAspectRatio  1000;
+        maxNonOrth      70;
+        maxSkewness     4;
+        maxIncorrectlyOrientedFaces 0;
+    }
+    writeDeformedFFDs 0;
+    writeDeformedConstraints 0;
+    writeAdjointFields 0;
+    maxCorrectBCCalls 2;
+    writeMinorIterations 0;
+    primalMinIters  1;
+    tensorflow
+    {
+        active          0;
+    }
+    wallDistanceMethod default;
+    unsteadyCompOutput
+    {
+    }
+}
+
+pyDAFoam initialization done!
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'OpenFOAM',
+ 'gridFile': '/home/dafoamuser/mount',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': [[[0.0, 0.0, -0.1], [0.0, 0.0, 1.0]],
+                    [[0.0, 0.0, 0.1], [0.0, 0.0, 1.0]]],
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+I/O    : uncollated
+Case   : /home/dafoamuser/mount
+nProcs : 1
+Reading the OpenFOAM mesh..
+--> FOAM Warning : 
+    From static Foam::IOstreamOption::compressionType Foam::IOstreamOption::compressionEnum(const Foam::word&, compressionType)
+    in file db/options/IOstreamOption.C at line 189
+    Unknown compression specifier 'uncompressed' using compression off
+#------------------------------#
+ Total Volume Nodes :     42582 
+#------------------------------#
+I/O    : uncollated
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000  -0.100)    (  0.000   0.000   1.000) |
+| (  0.000   0.000   0.100)    (  0.000   0.000   1.000) |
++--------------------------------------------------------+
+#--------------------------------#
+ Unique Surface Nodes :       564 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
+OrderedDict([('bottomWall', [0]), ('frontAndBack', [1]), ('inlet', [2]), ('outlet', [3]), ('topWall', [4]), ('allSurfaces', [0, 1, 2, 3, 4]), ('allWalls', [0, 4]), ('designSurfaces', [0, 4])])
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'mesh' <class DAFoamMesh>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.aero_pre.warper' <class DAFoamWarper>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+dRdWT Jacobian Free created!
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.coupling.solver' <class DAFoamSolver>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/component.py:229: DistributedComponentWarning:'scenario1.aero_post.functionals' <class DAFoamFunctions>: Component contains distributed variables, but there is no distributed vector implementation (MPI/PETSc) available. The default non-distributed vectors will be used.
+DAInputVolCoord. 
+Setting volume coordinates. 
+Checking mesh quality for time = 0
+    Overall domain bounding box (-7.34 -5.55111512312578e-17 -0.1) (15.4 9.52 0.1)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (-4.05919662853423e-20 3.32854123539807e-18 4.26925295046677e-15) OK.
+    Max cell openness = 2.82192850927573e-16 OK.
+    Max aspect ratio = 14.7587591900084 OK.
+    Minimum face area = 0.00218398968827575. Maximum face area = 0.0339345709052144.  Face area magnitudes OK.
+    Min volume = 0.000436797937655153. Max volume = 0.00551134704322637.  Total volume = 41.461002644638.  Cell volumes OK.
+    Mesh non-orthogonality Max: 33.3025424456473 average: 4.07143062484908
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 0.264464136705768 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+Running Primal Solver 001
+Previous solution time -1e+10 not found and nothing deleted.
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+DILUPBiCG:  Solving for Ux, Initial residual = 0.999999999025454, Final residual = 0.0102277317965588, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 1, Final residual = 0.0111135884845151, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 1, Final residual = 0.0246878598131188, No Iterations 1
+U0 initRes: 0.999999999025454 finalRes: 0.0102277317965588 nIters: 1
+U1 initRes: 1 finalRes: 0.0111135884845151 nIters: 1
+U2 initRes: 1 finalRes: 0.0246878598131188 nIters: 1
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.000801659753548329, No Iterations 17
+p initRes: 1 finalRes: 0.000801659753548329 nIters: 17
+GAMG:  Solving for p, Initial residual = 0.00203608417652793, Final residual = 1.43661643557683e-06, No Iterations 11
+p initRes: 0.00203608417652793 finalRes: 1.43661643557683e-06 nIters: 11
+Time step continuity errors : sum local = 3.44544790169108e-06
+                                 global = 1.09001726539542e-08
+                             cumulative = 1.09001726539542e-08
+DILUPBiCG:  Solving for omega, Initial residual = 0.164687007428996, Final residual = 0.0026840152237639, No Iterations 1
+omega initRes: 0.164687007428996 finalRes: 0.0026840152237639 nIters: 1
+DILUPBiCG:  Solving for k, Initial residual = 0.999999999979972, Final residual = 0.0809939128534859, No Iterations 1
+k initRes: 0.999999999979972 finalRes: 0.0809939128534859 nIters: 1
+yPlus min: 6.54546776794717 max: 9.28304550631988 mean: 8.79053960474191
+ExecutionTime = 4.36 s  ClockTime = 5 s
+
+DILUPBiCG:  Solving for Ux, Initial residual = 0.685272465891772, Final residual = 0.00445160182548607, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.551934450152037, Final residual = 0.00681932166792639, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.171519007401917, Final residual = 0.00649057145493981, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.232638998924971, Final residual = 0.000215062300917044, No Iterations 19
+GAMG:  Solving for p, Initial residual = 0.120779554480635, Final residual = 0.000104406173697795, No Iterations 18
+DILUPBiCG:  Solving for omega, Initial residual = 0.0648886452136327, Final residual = 0.00241089020647955, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.664732970715703, Final residual = 0.0261337631762934, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.412321999431215, Final residual = 0.00328456495255663, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.166483058073954, Final residual = 0.00218489600737179, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.112919244426921, Final residual = 0.00617845494114692, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.225542798291554, Final residual = 0.000187787057640704, No Iterations 18
+GAMG:  Solving for p, Initial residual = 0.0209201942584034, Final residual = 1.97472912520037e-05, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.198760205371605, Final residual = 0.000926891524641478, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.190823481919148, Final residual = 0.00981815326017172, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.107330466313952, Final residual = 0.00377839036134927, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.060658508122873, Final residual = 0.00196326157595035, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0791046776372115, Final residual = 0.000143493733420951, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.373109914511511, Final residual = 0.000346365497715312, No Iterations 16
+GAMG:  Solving for p, Initial residual = 0.0175201064726657, Final residual = 1.23642547940092e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.0792563346924876, Final residual = 0.00122355730056427, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.108455340252242, Final residual = 0.0075807968110999, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.392391862552598, Final residual = 0.00419932786746048, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.222276000380416, Final residual = 0.00414663612104169, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.055829970235564, Final residual = 0.00420989425824234, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.135300506233928, Final residual = 0.000112962035822335, No Iterations 16
+GAMG:  Solving for p, Initial residual = 0.108012509406427, Final residual = 0.000100772327142171, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.0315912966005728, Final residual = 0.000965183241716541, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.105352888912084, Final residual = 0.00784045673499414, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.189917841636609, Final residual = 0.0024995575045363, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.227854785796319, Final residual = 0.00401417113686388, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0429721381285882, Final residual = 0.00211759790402589, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.263072111596863, Final residual = 0.000213514420445656, No Iterations 18
+GAMG:  Solving for p, Initial residual = 0.0385492426767208, Final residual = 3.65406187173022e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.0151104555191642, Final residual = 5.50624995050046e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.084204063918861, Final residual = 0.00643721687560598, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0843044776821834, Final residual = 0.00104054519979795, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.110633791418685, Final residual = 0.00318571280227063, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0348393454860581, Final residual = 0.00148033073128916, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.356570857942527, Final residual = 0.000313626568339185, No Iterations 15
+GAMG:  Solving for p, Initial residual = 0.0330186477007334, Final residual = 2.45622035439394e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.0125322090461183, Final residual = 5.77738202436961e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0760362781062768, Final residual = 0.00649492077820674, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.119445354982281, Final residual = 0.00130582611863923, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.128179683321603, Final residual = 0.00227455915892423, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0297899587288831, Final residual = 0.00122403457926266, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.17738971180203, Final residual = 0.00013848310100873, No Iterations 17
+GAMG:  Solving for p, Initial residual = 0.0574411923494204, Final residual = 5.30438498693843e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.01029387743711, Final residual = 0.000788408855684, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0698925407660594, Final residual = 0.000677280094072854, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0419233714748746, Final residual = 0.000562913676490292, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0603445955689294, Final residual = 0.00117065368617973, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0260866828435232, Final residual = 0.00105172888517073, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.309305618878662, Final residual = 0.000297066608598317, No Iterations 17
+GAMG:  Solving for p, Initial residual = 0.0458408901317779, Final residual = 3.83472849171732e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.00834183545848822, Final residual = 7.83095374162172e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0636528566662253, Final residual = 0.000703192231887304, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0399137113104956, Final residual = 0.0012740868565354, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0360420008115379, Final residual = 0.000857212396596503, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0227234523875945, Final residual = 0.000889166984087562, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.325755705266496, Final residual = 0.000232622494271161, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.0600905209398609, Final residual = 4.23349797814387e-05, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.00835985877205765, Final residual = 0.000588090408998841, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0558294182593445, Final residual = 0.00485078766609411, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0420417413587322, Final residual = 0.00134677129100603, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0493663600759159, Final residual = 0.000994824309924741, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0200006478935499, Final residual = 0.000764733108850721, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.236728065911741, Final residual = 0.000192413965017695, No Iterations 17
+GAMG:  Solving for p, Initial residual = 0.0424587156899299, Final residual = 3.4499412475524e-05, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.00793656285971779, Final residual = 0.000555170246496779, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.052613305930005, Final residual = 0.0042133132375263, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0125662843735359, Final residual = 0.000649371674065121, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0306371748922202, Final residual = 0.000832339341198397, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0178601085175731, Final residual = 0.000673687260062928, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.373007864625636, Final residual = 0.000371820022423474, No Iterations 17
+GAMG:  Solving for p, Initial residual = 0.0495828743134434, Final residual = 3.92469962109732e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.00690343841802661, Final residual = 0.000578916586955887, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.050006196604463, Final residual = 0.00404546836363679, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0203643405873516, Final residual = 0.000375527341015157, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0239890278355263, Final residual = 0.000821654699701017, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0162679157155017, Final residual = 0.00060553555788146, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.285231804371581, Final residual = 0.000255281892690298, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0795831484013936, Final residual = 7.43089722388331e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00603950128393077, Final residual = 3.83081466236857e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0495563834737838, Final residual = 0.00412237184217889, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0159143863336796, Final residual = 0.000266811792597533, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0247438560773093, Final residual = 0.000590276940615636, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0148401348095313, Final residual = 0.000545111816098911, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.258577055185302, Final residual = 0.00021952476637894, No Iterations 17
+GAMG:  Solving for p, Initial residual = 0.0491554178999927, Final residual = 4.02453336820921e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.0057166641958273, Final residual = 3.7641739041967e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0491270542034983, Final residual = 0.00414148315662225, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00661482120373157, Final residual = 4.37897614268798e-06, No Iterations 2
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0190721970285699, Final residual = 0.000469827517590017, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0136104392295565, Final residual = 0.000495298980881947, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.446322980501889, Final residual = 0.000428789831850433, No Iterations 16
+GAMG:  Solving for p, Initial residual = 0.0383261417648734, Final residual = 3.16607445722077e-05, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.00508410463760926, Final residual = 0.000375232524613983, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0491858432514159, Final residual = 0.00426368226340837, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00806702071636275, Final residual = 5.79847154539268e-06, No Iterations 2
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0172144053978818, Final residual = 0.000515171618685665, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0125288272254659, Final residual = 0.000453230041412529, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.286399366134137, Final residual = 0.000261675051630723, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.0685872354649785, Final residual = 5.59626408415663e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00453974769796577, Final residual = 0.000427246687114743, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.048815599328573, Final residual = 0.00448009628989325, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00598227880175472, Final residual = 4.54257221515914e-06, No Iterations 2
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0157016698338792, Final residual = 1.19188351318113e-05, No Iterations 2
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0115634045792707, Final residual = 0.000414824879597229, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.296053166472991, Final residual = 0.000291994882280188, No Iterations 16
+GAMG:  Solving for p, Initial residual = 0.0366485774960846, Final residual = 3.08156410198569e-05, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.00443258434867092, Final residual = 0.000402522926180504, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0486114727199608, Final residual = 0.0047372940696262, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00522670762885157, Final residual = 0.000397662801194489, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.013191693369818, Final residual = 0.000335633203447086, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0107390109780978, Final residual = 0.000382313364944419, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.355382286182216, Final residual = 0.000288383406849023, No Iterations 15
+GAMG:  Solving for p, Initial residual = 0.0410205183267319, Final residual = 3.59689958524066e-05, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.00427019953688008, Final residual = 0.000351461966635295, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0479439013772544, Final residual = 0.000601475377841794, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00610356237998418, Final residual = 0.000338390886359797, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0130666606780719, Final residual = 0.00034546392289244, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0100207840479478, Final residual = 0.000352296618406011, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.251590212143874, Final residual = 0.000238414508424326, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.062777611476916, Final residual = 5.92069719764642e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00409822742101294, Final residual = 6.52965170628266e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0476242192177725, Final residual = 0.000801035079075854, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00502272458324156, Final residual = 0.000273215748570503, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0134171565980287, Final residual = 0.000445719868861555, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00938864608401533, Final residual = 0.000328418015423622, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.259221258661362, Final residual = 0.000214792253970121, No Iterations 16
+GAMG:  Solving for p, Initial residual = 0.0390216620746731, Final residual = 3.83179456190527e-05, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.00395593446678495, Final residual = 5.00600497995313e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0463381320627256, Final residual = 0.0018452117808341, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00418646676345687, Final residual = 0.000261031183255388, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0132736943031805, Final residual = 0.000517939446490574, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00881027064717755, Final residual = 0.00030623495093401, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.266834008726242, Final residual = 0.000243511657737236, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.038370470907027, Final residual = 3.73269324220472e-05, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.00384766423135222, Final residual = 4.1373450258826e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0441457246818214, Final residual = 5.07205370260507e-05, No Iterations 3
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00403450063724332, Final residual = 0.000228426609163826, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0129685598943457, Final residual = 0.00049387271203078, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00828009190708948, Final residual = 0.000286297533102336, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.232776367457074, Final residual = 0.000177875544670136, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.0433014956774051, Final residual = 4.30259935525893e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00376678587074354, Final residual = 3.45739381936221e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0413943789662981, Final residual = 4.96770595480488e-05, No Iterations 3
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00405110604775065, Final residual = 0.000183916111970491, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0125967499557875, Final residual = 0.000436225056462841, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00780670172884454, Final residual = 0.000267760928268608, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.248447448451486, Final residual = 0.000248008495219832, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.0369527651996281, Final residual = 2.96826065587683e-05, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.00365483472512167, Final residual = 3.09509659421127e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0391004136087731, Final residual = 4.81321631669434e-05, No Iterations 3
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00422928577872351, Final residual = 0.000170407697841968, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0124055093867898, Final residual = 0.000408103899166991, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00738291176406152, Final residual = 0.000250712492514106, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.255383076726683, Final residual = 0.000218140444598653, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0380729463756967, Final residual = 2.79157217183831e-05, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00351231381084382, Final residual = 2.77975290700905e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0363513932080986, Final residual = 4.59262748273314e-05, No Iterations 3
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00420326977886284, Final residual = 0.000168711350199561, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0124242791614015, Final residual = 0.000409399098336877, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00701457426354689, Final residual = 0.000236332160085993, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.252452787393534, Final residual = 0.000224626690813676, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.037418918581377, Final residual = 2.65692481730777e-05, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00335800926324687, Final residual = 2.56647424093125e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0341059809719362, Final residual = 4.33697685557552e-05, No Iterations 3
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00403689778986946, Final residual = 0.000169918292830894, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0123892814921641, Final residual = 0.000401583287220271, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00665379191361362, Final residual = 0.00022260789062411, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.266010088895373, Final residual = 0.000244061586180345, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0346102641109457, Final residual = 2.48011611285003e-05, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.00319762427914621, Final residual = 2.41775945855655e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0321359955538515, Final residual = 0.00152440491224042, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00391022625250452, Final residual = 0.000166280714054235, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0122377579365358, Final residual = 0.00038092910478647, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00634028623347451, Final residual = 0.000210077060057895, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.249925537735948, Final residual = 0.000229042543521203, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0366783146237247, Final residual = 2.41088371528141e-05, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00303500475924173, Final residual = 2.24874643724645e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0300363780596231, Final residual = 0.000594487197106307, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00386383272649117, Final residual = 0.000155553298602246, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0120858714766094, Final residual = 0.000361749233922721, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00603385734620719, Final residual = 0.000198818409872826, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.241026450893733, Final residual = 0.000203438151616631, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0384633876502539, Final residual = 2.49363023842617e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00292416143246949, Final residual = 2.16016560166089e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0280448158053507, Final residual = 0.000378882728662455, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0038574076964088, Final residual = 0.000142553013713101, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0119444386304791, Final residual = 0.00034483734600264, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00576186272304913, Final residual = 0.000188221255759633, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.250042967022407, Final residual = 0.000211842750729909, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0383167694313524, Final residual = 2.42890614400063e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00280397384779239, Final residual = 2.11644730451264e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0261007096205366, Final residual = 0.00031736724358069, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00383188353946321, Final residual = 0.000135673952328083, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0117902479949141, Final residual = 0.000334445653839566, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00551400577979015, Final residual = 0.000178615772557232, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.250372133157497, Final residual = 0.000186388573472164, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.036069550975068, Final residual = 2.54694759157108e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.0026931270102807, Final residual = 1.99809774507342e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0244313692966793, Final residual = 0.000282035552939292, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00376475789354948, Final residual = 0.000131484201936926, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0116218304510715, Final residual = 0.000330877722451992, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00529337104399521, Final residual = 0.000169462857423504, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.239897523829597, Final residual = 0.000150311457533374, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0336873162116516, Final residual = 2.14412519495046e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00256303917043228, Final residual = 1.87245525679028e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0231728036899037, Final residual = 0.000260466741687734, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00367783117833173, Final residual = 0.000128391199712697, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0114501377235362, Final residual = 0.000326734920159792, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00508153436655873, Final residual = 0.000161725252560957, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.222270431501544, Final residual = 0.000136579904340702, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0312495378468641, Final residual = 1.9066798070759e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00241759215346023, Final residual = 1.79039621502304e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0222272651387621, Final residual = 0.000246988394292228, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00359850429836096, Final residual = 0.000127713989615524, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0113106908548164, Final residual = 0.000317554725035311, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0048888646138951, Final residual = 0.000154385004386903, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.207017831348356, Final residual = 0.000171666254712414, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0298624867643201, Final residual = 2.79697839748853e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00227691833309688, Final residual = 1.72592058006908e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0212843941274195, Final residual = 0.000234426795488632, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00354213392918918, Final residual = 0.000126764889302538, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0111562764370471, Final residual = 0.000304800212614777, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00470438932184135, Final residual = 0.000147201007579989, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.218867304373065, Final residual = 0.000164621556462952, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0309272053004844, Final residual = 2.26800355080667e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00215817814682843, Final residual = 1.68482478864915e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0203423301035421, Final residual = 0.000221660670883525, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00353003470361876, Final residual = 0.000122077587144013, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0110145247896753, Final residual = 0.000295842953966885, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.004533898098565, Final residual = 0.000141020637779858, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.23309655368565, Final residual = 0.000162851641591917, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0315695953151041, Final residual = 2.78346643349462e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00207934026480016, Final residual = 1.66708870451523e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0193914149092088, Final residual = 0.000211958287589727, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0035144220251547, Final residual = 0.000115192193596078, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0109296126474589, Final residual = 0.000288851143466779, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00438322235086932, Final residual = 0.00013517872373641, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.230706632746269, Final residual = 0.000169581540597298, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0307112797247641, Final residual = 2.29434050769799e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00200460465004577, Final residual = 1.55448074939254e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0185165111739048, Final residual = 0.000205903845116665, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00348349714425182, Final residual = 0.000107966057614189, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0108137901995578, Final residual = 0.000281614275196802, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00424053779419177, Final residual = 0.000129842826336204, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.203972454265233, Final residual = 0.000126961397016355, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0230672193733002, Final residual = 1.56930147092687e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.0019116491862, Final residual = 0.000185957028316459, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0177595017261772, Final residual = 0.00019944432174586, No Iterations 2
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00342880128132968, Final residual = 0.000104069185798602, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0106951526705792, Final residual = 0.00027060798477804, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00409637324008711, Final residual = 0.0001247553539669, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.186182155324487, Final residual = 0.000114400671419297, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0203387459751683, Final residual = 1.28732762813252e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00185610499175543, Final residual = 0.000179381922961416, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0170338108871887, Final residual = 0.00168696709698896, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00337332066263145, Final residual = 0.000103508004002105, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0106001143654937, Final residual = 0.000258030716974025, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00396499888365385, Final residual = 0.000119850297487703, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.16880289497124, Final residual = 0.000123605070228335, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0181843922714653, Final residual = 1.64944643300597e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00179158064514328, Final residual = 0.000172227209207154, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0164683199699862, Final residual = 0.00161416432547421, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00333486721371763, Final residual = 0.000103754433214402, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0104835651416527, Final residual = 0.000249763894196446, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00384523822029878, Final residual = 0.000115714141316947, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.175616728361662, Final residual = 0.0001669811484069, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0220083363930608, Final residual = 1.81143750090484e-05, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00172164761096834, Final residual = 0.000166854658780549, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0160489789382239, Final residual = 0.00155276989355951, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00331548458166828, Final residual = 0.000102030200426735, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0103379105102321, Final residual = 0.000246728363165387, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00373274722521319, Final residual = 0.00011164243358991, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.193443455753859, Final residual = 0.000115039211461652, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0278335991927985, Final residual = 2.09051461529691e-05, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00166105761635204, Final residual = 0.000165024078398456, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0156491616288722, Final residual = 0.00150732441006854, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00330480678545402, Final residual = 9.76043489121712e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0102247180616767, Final residual = 0.000248586555531162, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00362331550881366, Final residual = 0.000107699689368936, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.200058363016201, Final residual = 0.000124981740397522, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0259659440718998, Final residual = 2.17535162179924e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00161063812790097, Final residual = 8.73201858954764e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0152252918782291, Final residual = 0.00146924941061886, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00328736408613649, Final residual = 9.42669943433333e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0102265740481504, Final residual = 0.000242276224325548, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00352310470108661, Final residual = 0.000104575648114807, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.184274120607411, Final residual = 0.000127045488210592, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0226030662169175, Final residual = 2.03563775534263e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00153107274611363, Final residual = 1.63675305294441e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0148485557811204, Final residual = 0.00142525993721667, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00325368456290702, Final residual = 9.18946684048146e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0102252215750699, Final residual = 0.000231443690845426, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00343043697164705, Final residual = 0.000101483871486064, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.156105082286687, Final residual = 0.000101798652153912, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0198192555329434, Final residual = 1.49625219376088e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00146894363331789, Final residual = 0.000129587482676172, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0145166640085344, Final residual = 0.00137218679708168, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0032200032698241, Final residual = 9.07888418842371e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0102042951949632, Final residual = 0.000226242506376383, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00334290034449383, Final residual = 9.84116590818601e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.143805322763669, Final residual = 0.000120303041436639, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0166860898803041, Final residual = 1.2427599025245e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00139594550656049, Final residual = 6.61205447329571e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0142525562808335, Final residual = 0.00133257721756023, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00319619659896526, Final residual = 8.99147044926714e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101660508405689, Final residual = 0.000230643882735232, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00325890538163503, Final residual = 9.57166005254452e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.147979532792938, Final residual = 0.000128519294121191, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0176125541696063, Final residual = 1.52773697012816e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00134976562033379, Final residual = 6.259488873656e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0140403490940615, Final residual = 0.00131296281547104, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00318837960653299, Final residual = 8.90907515949674e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101213589814666, Final residual = 0.000237799644244208, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00318236667628095, Final residual = 9.31063246803058e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.160010966444298, Final residual = 0.000146532382393709, No Iterations 9
+GAMG:  Solving for p, Initial residual = 0.0197861307323758, Final residual = 1.36004667982126e-05, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00131243482767, Final residual = 8.62412537267023e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0138124778096514, Final residual = 0.00130979199171213, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00319209683946741, Final residual = 8.6915757022094e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101034287190212, Final residual = 0.000245647759603661, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00310761850605295, Final residual = 9.06487981122525e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.16847898236167, Final residual = 0.000101803933907718, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0186879577468228, Final residual = 1.50031451666842e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00127831242478459, Final residual = 1.23807490827257e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0136152100353064, Final residual = 0.00129840914537778, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00318828399883104, Final residual = 8.438235782619e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101293034864849, Final residual = 0.000244400484075172, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00303368635337267, Final residual = 8.82926494288366e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.148440627325745, Final residual = 0.000111115679384235, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0190017162209622, Final residual = 1.77596555129216e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00125898506884054, Final residual = 1.32877919068453e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0134083230802564, Final residual = 0.00127398339765084, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00316935613058626, Final residual = 8.21318129505466e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101645883382161, Final residual = 0.00024233110701267, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00296363718802898, Final residual = 8.59174547255871e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.130117891387387, Final residual = 0.000113021741298872, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0188971714769228, Final residual = 1.83181903742326e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00122518836023577, Final residual = 1.41699114879455e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.013182925384682, Final residual = 0.00124933274032036, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00314309339884735, Final residual = 8.10723136411835e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101831455648537, Final residual = 0.000247733693674688, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00289797323326324, Final residual = 8.36618483978986e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.135560022779789, Final residual = 0.000108582662846411, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0170249598661677, Final residual = 1.53130311399735e-05, No Iterations 9
+DILUPBiCG:  Solving for omega, Initial residual = 0.00119061499185918, Final residual = 0.000118775822644055, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0130141888896612, Final residual = 0.00123715886627616, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00313185022976825, Final residual = 8.07354380464263e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101815521866041, Final residual = 0.000258319570714496, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00283919275563286, Final residual = 8.15427308014839e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.14127988740997, Final residual = 9.89569673941245e-05, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0160789085315887, Final residual = 1.25189820502843e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00115679010138806, Final residual = 1.48239859603859e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0128736939960762, Final residual = 0.00123190190066994, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00312813259235691, Final residual = 8.0032592834563e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101427334517341, Final residual = 0.000267543163602151, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00277806795959282, Final residual = 7.93178623335623e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.140707950988717, Final residual = 0.000108807142646349, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.0148153624189612, Final residual = 1.46510031584221e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00114919325429179, Final residual = 1.57191748467934e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0127139800255267, Final residual = 0.00121743084539946, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00312808083335361, Final residual = 7.8180951827044e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101271264736005, Final residual = 0.000270543408390582, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00271702683955074, Final residual = 7.72040842038166e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.123571293164178, Final residual = 0.000118103782082491, No Iterations 10
+GAMG:  Solving for p, Initial residual = 0.012004999570043, Final residual = 1.08803525494622e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00113354843949962, Final residual = 1.6958913826502e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.012524763587509, Final residual = 0.0011998107116371, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00311465731527214, Final residual = 7.61733077689865e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101411679923027, Final residual = 0.000271470878950876, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00266535817618411, Final residual = 7.51551710155797e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.11578984013904, Final residual = 8.37328481626002e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0131352479816379, Final residual = 1.0109169579811e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00111378253366873, Final residual = 1.80071597735334e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0123539504943416, Final residual = 0.00118329832577283, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00308664079298037, Final residual = 7.47542334408307e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101470815870252, Final residual = 0.000273393553117471, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00261268675559819, Final residual = 7.31191843274224e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.111664730945884, Final residual = 7.93165552324636e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0134538131327225, Final residual = 9.61898137238395e-06, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00109015537051041, Final residual = 8.54432009991246e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0122085044148467, Final residual = 0.00118187720852537, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00306191957272911, Final residual = 7.40560537949537e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101333680121543, Final residual = 0.000275175730166716, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00255924161090992, Final residual = 7.13313917070504e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.118183450051807, Final residual = 8.51230472392683e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0129372662389729, Final residual = 1.13162124737032e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.0010643424371779, Final residual = 6.7858957180246e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0120985945637438, Final residual = 0.0011763413005349, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00305142306268207, Final residual = 7.36182572278724e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0101143858693336, Final residual = 0.000274662007608006, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00251301747605774, Final residual = 6.97127477685775e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.122007758858558, Final residual = 0.00010129780305619, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0130685992911358, Final residual = 1.26554567782117e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.0010471015219702, Final residual = 6.7651789094918e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0119608853771746, Final residual = 0.00116711920797933, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00304604830648408, Final residual = 7.3041700982818e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0100943150975866, Final residual = 0.000271347767932051, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00246564934130934, Final residual = 6.80836416545415e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.118602485477871, Final residual = 0.000106438152056082, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0125340775706356, Final residual = 1.22392138952847e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00103790339575646, Final residual = 8.42451341440495e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0118321511471154, Final residual = 0.0011555091556161, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00304155200322524, Final residual = 7.24203762064388e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0100883389417512, Final residual = 0.000262488091937789, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00241875977610638, Final residual = 6.66201919273454e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.112375132727574, Final residual = 0.0001066396192742, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0109120910935608, Final residual = 8.431047436254e-06, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00102403552904302, Final residual = 1.84698002864255e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0117023528380402, Final residual = 0.00115083805051905, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00302401418823307, Final residual = 7.12540476567432e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0100650196703366, Final residual = 0.00025110001246377, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00237554675898713, Final residual = 6.52837154765864e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.107789193600949, Final residual = 8.19320105000238e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.0108161036048852, Final residual = 1.07807756274331e-05, No Iterations 10
+DILUPBiCG:  Solving for omega, Initial residual = 0.00101316096404457, Final residual = 8.85813087576215e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0115803101619645, Final residual = 0.00114008970118651, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00300003795697708, Final residual = 7.01906431952491e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0100359517842478, Final residual = 0.000240110929103434, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00233235272286425, Final residual = 6.41219505354339e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.102692596686132, Final residual = 8.24854043881637e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.0103347731354479, Final residual = 7.9767220892167e-06, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.000990283692313418, Final residual = 6.79882195664965e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0114880603039496, Final residual = 0.00112707034271124, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00297892782491836, Final residual = 6.94790260045993e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00999862560226621, Final residual = 0.000233035147409297, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00229078967749643, Final residual = 6.30146591102177e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.103067265099235, Final residual = 8.49395796637074e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00990791054961762, Final residual = 7.98928690579984e-06, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.00097383607127481, Final residual = 5.13268382556318e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0114042677514339, Final residual = 0.00111962244313065, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00297183432405451, Final residual = 6.90581268696991e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00997331491940663, Final residual = 0.000230031637131671, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00225135928226222, Final residual = 6.19013196645491e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.100604509105434, Final residual = 8.55952159636432e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00943794343496703, Final residual = 8.00640858823593e-06, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.000958560869511742, Final residual = 5.38866836570561e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0113058003503548, Final residual = 0.0011153467850798, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00297115208496881, Final residual = 6.86753406229956e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00997279268427087, Final residual = 0.000227822634464754, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00221315583476328, Final residual = 6.09424331829398e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0962994391909758, Final residual = 7.83241486145421e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00879843578130206, Final residual = 7.85111695944885e-06, No Iterations 11
+DILUPBiCG:  Solving for omega, Initial residual = 0.000948671793341399, Final residual = 6.16071354886724e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0112094812044097, Final residual = 0.0011112022747419, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00297104826607986, Final residual = 6.80548238311852e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00996769580565979, Final residual = 0.000224406715190607, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00217584159271798, Final residual = 6.00735387726935e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.092303987438174, Final residual = 7.23884263871768e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00792077123824847, Final residual = 6.15534381574007e-06, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.000938612301449813, Final residual = 7.26589481801105e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0111364597877301, Final residual = 0.00110656129919974, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00296457244875972, Final residual = 6.70476841745148e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00995265084251532, Final residual = 0.000219676640298424, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00213872564917198, Final residual = 5.92820441720426e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.088919676053006, Final residual = 7.16544648115474e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00756320942371776, Final residual = 6.29567570254264e-06, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.00092589924301943, Final residual = 7.5282147758506e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0110681087908966, Final residual = 0.00110083310260224, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295421793088295, Final residual = 6.60981747467336e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00992666314088808, Final residual = 0.000215984153152685, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00210302119751605, Final residual = 5.84840828764281e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0853438664061676, Final residual = 6.97050044298759e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00739054622039344, Final residual = 6.30585226530813e-06, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.000910423627696343, Final residual = 6.32878915979441e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0109997348930205, Final residual = 0.00109308436327558, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295002355758852, Final residual = 6.53963866622792e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00991451388191613, Final residual = 0.000214494734672705, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00206925872538277, Final residual = 5.78087185025035e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0851808075824804, Final residual = 6.60050579771256e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.0071169833813118, Final residual = 6.09264578424747e-06, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.000894581986393912, Final residual = 4.28832896797215e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0109314805263095, Final residual = 0.0010852708282993, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0029517251987505, Final residual = 6.48663308543656e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00992558499997242, Final residual = 0.000214265421861725, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00203584167206945, Final residual = 5.71115647491738e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.082412386250104, Final residual = 6.24735782717932e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00677418921514005, Final residual = 5.91863117576188e-06, No Iterations 12
+DILUPBiCG:  Solving for omega, Initial residual = 0.000881924682907648, Final residual = 3.73326248120314e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0108689255431391, Final residual = 0.00107612786089417, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295593228352331, Final residual = 6.45281277807276e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00993313365912079, Final residual = 0.000214436501003957, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00200209226104808, Final residual = 5.6483597981482e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0802444983032394, Final residual = 7.95000791184911e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.00643191141189305, Final residual = 5.47567190519285e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.000874011234115808, Final residual = 3.74816001378106e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0108180973358059, Final residual = 0.00106633367383919, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00296122563161552, Final residual = 6.41598473967833e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00992721269669577, Final residual = 0.000214146839188673, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00197048325762205, Final residual = 5.59085587541377e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0793315716048315, Final residual = 7.34512084666969e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.0060139276449834, Final residual = 5.3682220382648e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.00086350501597616, Final residual = 3.19450237946861e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0107667638504803, Final residual = 0.00105587035481921, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00296121593857935, Final residual = 6.35483606660858e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00989792491609845, Final residual = 0.000213614311803052, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0019398450564247, Final residual = 5.5410750854901e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0781807236803959, Final residual = 6.96474592164224e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.00577281711617926, Final residual = 5.36611001759898e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.000854463832537573, Final residual = 2.52772617566423e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0107208406942267, Final residual = 0.00104717291228737, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295863827376748, Final residual = 6.29569496162995e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00984996744340644, Final residual = 0.000213069765738134, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00190883677133541, Final residual = 5.4892550641887e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0758504437600269, Final residual = 7.05075049493818e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.00549243351029387, Final residual = 5.24667582085963e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.000845255356254972, Final residual = 1.92046548604084e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.010678783399855, Final residual = 0.00103861648949917, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295852244361148, Final residual = 6.24897832782503e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00981745657399908, Final residual = 0.000213011477629246, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00188081364963489, Final residual = 5.43695411457359e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0738492491082865, Final residual = 7.11399046425815e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.00535547491726635, Final residual = 5.2472800374596e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.000833904526826766, Final residual = 1.40931027551034e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0106434636136629, Final residual = 0.00102906069854125, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295989849908576, Final residual = 6.20607218075352e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00979026421937016, Final residual = 0.000213338017386954, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00185219696119761, Final residual = 5.381270946943e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.071170768144287, Final residual = 7.11389039738639e-05, No Iterations 11
+GAMG:  Solving for p, Initial residual = 0.00520796376473265, Final residual = 4.31294186267939e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000822443451177584, Final residual = 1.2682404872291e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0106120472182034, Final residual = 0.00101916123311781, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00296179677097904, Final residual = 6.1761413675242e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0097610914695411, Final residual = 0.000213424939302836, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00182476689822407, Final residual = 5.33044383164787e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0683672415207787, Final residual = 5.08069309657399e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00501869432493414, Final residual = 4.51549519123022e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.000813560106372301, Final residual = 1.23784916060367e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105920794184341, Final residual = 0.00101138331946187, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00296375132820063, Final residual = 6.14562322348793e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00972497579941655, Final residual = 0.000213314500228669, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00179875530655458, Final residual = 5.27738082315478e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0663080492870631, Final residual = 5.009872495044e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00476020131735103, Final residual = 4.64615352458359e-06, No Iterations 13
+DILUPBiCG:  Solving for omega, Initial residual = 0.000804425519890631, Final residual = 1.10411749376982e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105713034638404, Final residual = 0.00100425101547077, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00296120465294258, Final residual = 6.09631198235265e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00966514265009471, Final residual = 0.000213233403907328, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00177173668574799, Final residual = 5.20771846786299e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0646682104673266, Final residual = 5.10627186623861e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.0045121172026273, Final residual = 3.99656626004141e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000795546414655713, Final residual = 9.83566438889083e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105566091345906, Final residual = 0.000997780061786071, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295828757445841, Final residual = 6.05696604313175e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00958892909544947, Final residual = 0.00021291075204636, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00174718560665158, Final residual = 5.13552878465298e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0631780286515183, Final residual = 5.11006940533942e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00433153968842338, Final residual = 4.10775797930693e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000785214868374948, Final residual = 8.57076483034766e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105487617905577, Final residual = 0.0009930434344617, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295718508974882, Final residual = 6.03063613401817e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00952420783452274, Final residual = 0.000212324691938506, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0017220823088837, Final residual = 5.05935973786633e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0622652801926436, Final residual = 5.12177483141415e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00425442844088924, Final residual = 4.21953997200596e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000775666060130924, Final residual = 7.05280821432276e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105438204629413, Final residual = 0.000989664298148889, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295784513729429, Final residual = 6.0171865484097e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0094669779338154, Final residual = 0.000211763232185739, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00169692330577564, Final residual = 4.9718274025817e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.06100304701945, Final residual = 5.23197858527037e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00426552010073395, Final residual = 3.5390199568269e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000766579971850843, Final residual = 6.68900369071198e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.010548274337717, Final residual = 0.00098852674872267, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.002958966296426, Final residual = 6.01933361054607e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00941734023232699, Final residual = 0.000211109666616505, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00167271651205028, Final residual = 4.86805639482194e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0590334794468382, Final residual = 5.39287492939023e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00424097168788559, Final residual = 3.60730211881244e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000758889596419817, Final residual = 6.20488560683865e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105504965480138, Final residual = 0.000987854992576008, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295732115074657, Final residual = 6.01749010161492e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0093554403595702, Final residual = 0.000210436659958007, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00164926077759138, Final residual = 4.75867264227871e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0566078847929211, Final residual = 5.48359794866452e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00418576411612125, Final residual = 3.64430239836655e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000751439283995438, Final residual = 5.94806164336967e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.010561485315723, Final residual = 0.000988751310344872, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295410780856191, Final residual = 6.01609077319852e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00928481243354832, Final residual = 0.000209910062110792, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00162518734241731, Final residual = 4.64236777413663e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0552786352045687, Final residual = 5.43309089965161e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00409200972605113, Final residual = 3.62095507763457e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000743276131303992, Final residual = 5.75148167191269e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105752562289, Final residual = 0.000990178556720287, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295121800819525, Final residual = 6.02246008018379e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0092061211272598, Final residual = 0.00020909015915213, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00160130190547895, Final residual = 4.52087882993351e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0542345747713084, Final residual = 5.28071602103983e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00403405642316038, Final residual = 3.57015952747028e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000735141019791692, Final residual = 5.78984866718589e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0105908623223758, Final residual = 0.000992627509969864, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295090298229693, Final residual = 6.03490853602308e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00913422763191032, Final residual = 0.000208008846583843, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00157894450836187, Final residual = 4.40447281721e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0537628802705384, Final residual = 5.18901621379534e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00401911340152769, Final residual = 3.51855777716083e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000727451499134715, Final residual = 6.08235881111028e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0106126001773754, Final residual = 0.000997249990200194, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295112205452346, Final residual = 6.05618908016344e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00907210101307102, Final residual = 0.000206553893214128, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00155551645149361, Final residual = 4.28302458727999e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0532873523357963, Final residual = 5.1191500782242e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00399104364686522, Final residual = 3.43296422369578e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000719441012636324, Final residual = 6.55516317323376e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.010640718494186, Final residual = 0.0010045601817986, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295133281610535, Final residual = 6.08760865304919e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00903136738197378, Final residual = 0.000204767764586042, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00153264195072127, Final residual = 4.16868211954647e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0522957057905694, Final residual = 5.07962033506819e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00395052090945356, Final residual = 3.33500402246193e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000711441490303434, Final residual = 7.29507968158117e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0106721131908684, Final residual = 0.00101230665792339, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00295011359675406, Final residual = 6.11852674199553e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00898238046750695, Final residual = 0.000203426318960334, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00150992315751359, Final residual = 4.06340130286499e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0510269453445312, Final residual = 5.07887916830695e-05, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.00390045259916004, Final residual = 3.26871079498483e-06, No Iterations 15
+DILUPBiCG:  Solving for omega, Initial residual = 0.000703577628972819, Final residual = 8.33684537555059e-06, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0107053405870968, Final residual = 0.00102111035168687, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294765920368866, Final residual = 6.1516372072797e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00892325865686844, Final residual = 0.000202555444637543, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00148666697013037, Final residual = 3.96016248884983e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0501880756664423, Final residual = 4.0290940935186e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00383438415588793, Final residual = 3.39352696300735e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000696656893677622, Final residual = 1.03687673088493e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.010745020491574, Final residual = 0.00103136513810897, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294646639615275, Final residual = 6.1807303976855e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00885626698856802, Final residual = 0.000201496890530872, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00146539238177376, Final residual = 3.87255188208028e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0498038162899751, Final residual = 4.03801258644205e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00380953252141462, Final residual = 3.36053764031825e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000690261017932053, Final residual = 1.32044555691907e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0107853310220585, Final residual = 0.00104190268496013, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294763516548335, Final residual = 6.21216640129642e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00879839603085487, Final residual = 0.000200063787157147, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0014434774174051, Final residual = 3.79255974917791e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0498992672413336, Final residual = 4.03322693450273e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00379760937672758, Final residual = 3.35426957342073e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000683415435212308, Final residual = 1.66964853794257e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0108262778529962, Final residual = 0.00105480054218749, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294821244379949, Final residual = 6.24473986751065e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00875084608461977, Final residual = 0.000198426401115232, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00142244047519396, Final residual = 3.71981635449124e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0495285061315625, Final residual = 4.0062918783485e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00376472609291445, Final residual = 3.35194548910436e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.00067580171022824, Final residual = 2.25894161803284e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.010870239837666, Final residual = 0.00106620742266344, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294862172354563, Final residual = 6.27647634042306e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00870717350006153, Final residual = 0.00019678974907111, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00140119831932885, Final residual = 3.6547036940064e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.048917299556976, Final residual = 3.97880067425005e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00371204101400828, Final residual = 3.34189245048769e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000669064947151162, Final residual = 3.7543393673127e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.0109141893113569, Final residual = 0.00107811608588136, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.002948664437465, Final residual = 6.30258216034953e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00866326668807825, Final residual = 0.000195249579158881, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00137970616083999, Final residual = 3.58880802876787e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0483439281006315, Final residual = 3.93525891621632e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00362870892865578, Final residual = 3.31886985700235e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000663591010550636, Final residual = 6.5622073387654e-05, No Iterations 2
+DILUPBiCG:  Solving for k, Initial residual = 0.01095619835322, Final residual = 0.00108770579089231, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294779232597715, Final residual = 6.31653367573507e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00861625153794309, Final residual = 0.00019370152012718, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00136020975212999, Final residual = 3.53324080139625e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0476482637691923, Final residual = 3.82898180454429e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00353511082578207, Final residual = 3.29687932418915e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000661114020610317, Final residual = 1.87301555745718e-06, No Iterations 3
+DILUPBiCG:  Solving for k, Initial residual = 0.0109921719990479, Final residual = 0.00109485163075257, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294736921820001, Final residual = 6.32769776340236e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00856378904264651, Final residual = 0.000192174301969327, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.0013400511405212, Final residual = 3.48644255842666e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0469867698668959, Final residual = 3.76287943777051e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00345597381530771, Final residual = 3.26501888480153e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.00065453656375788, Final residual = 6.40562867443699e-05, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0110238829513779, Final residual = 0.0011007938092216, No Iterations 1
+DILUPBiCG:  Solving for Ux, Initial residual = 0.0029476301213245, Final residual = 6.33556205440163e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.00850273942513914, Final residual = 0.000190246956409752, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00131987051914694, Final residual = 3.43961986676614e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.0459662240453202, Final residual = 3.73426913119696e-05, No Iterations 13
+GAMG:  Solving for p, Initial residual = 0.00339275966951365, Final residual = 3.22782616841377e-06, No Iterations 14
+DILUPBiCG:  Solving for omega, Initial residual = 0.000649116869197216, Final residual = 6.29987692519319e-05, No Iterations 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0110437249219186, Final residual = 0.000680178264503375, No Iterations 2
+Time = 100
+
+DILUPBiCG:  Solving for Ux, Initial residual = 0.00294886667896205, Final residual = 6.34175437904616e-05, No Iterations 1
+DILUPBiCG:  Solving for Uy, Initial residual = 0.0084521472943865, Final residual = 0.000187889772567721, No Iterations 1
+DILUPBiCG:  Solving for Uz, Initial residual = 0.00130138937387661, Final residual = 3.39375141548263e-05, No Iterations 1
+U0 initRes: 0.00294886667896205 finalRes: 6.34175437904616e-05 nIters: 1
+U1 initRes: 0.0084521472943865 finalRes: 0.000187889772567721 nIters: 1
+U2 initRes: 0.00130138937387661 finalRes: 3.39375141548263e-05 nIters: 1
+GAMG:  Solving for p, Initial residual = 0.0448489269015412, Final residual = 3.66685791505843e-05, No Iterations 13
+p initRes: 0.0448489269015412 finalRes: 3.66685791505843e-05 nIters: 13
+GAMG:  Solving for p, Initial residual = 0.0033252206560686, Final residual = 3.19573319697794e-06, No Iterations 14
+p initRes: 0.0033252206560686 finalRes: 3.19573319697794e-06 nIters: 14
+Time step continuity errors : sum local = 8.45215761653569e-09
+                                 global = -1.64060759919092e-11
+                             cumulative = 1.08837665779623e-08
+DILUPBiCG:  Solving for omega, Initial residual = 0.000644850013968861, Final residual = 6.23499431809969e-05, No Iterations 1
+omega initRes: 0.000644850013968861 finalRes: 6.23499431809969e-05 nIters: 1
+DILUPBiCG:  Solving for k, Initial residual = 0.0110404058449637, Final residual = 0.00110113763297153, No Iterations 1
+k initRes: 0.0110404058449637 finalRes: 0.00110113763297153 nIters: 1
+Bounding k>1e-16
+yPlus min: 0.754223240921238 max: 6.4504005901757 mean: 4.70492414448317
+ExecutionTime = 19.79 s  ClockTime = 20 s
+
+End
+
+********************************************
+Primal min residual 0.0448489269015412
+did not satisfy the prescribed tolerance 1e-08
+Primal solution failed!
+********************************************
+Traceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 150, in _solve_nonlinear
+    self.solve_nonlinear(self._inputs, self._outputs)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 345, in solve_nonlinear
+    raise AnalysisError("Primal solution failed!")
+openmdao.core.analysis_error.AnalysisError: Primal solution failed!
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/runScript_stage2.py", line 80, in <module>
+    prob.run_model()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 629, in run_model
+    self.model.run_solve_nonlinear()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 4684, in run_solve_nonlinear
+    self._solve_nonlinear()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2532, in _solve_nonlinear
+    self._nonlinear_solver._solve_with_cache_check()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/nonlinear/nonlinear_runonce.py", line 26, in _solve_with_cache_check
+    self.solve()  # don't use caching
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/nonlinear/nonlinear_runonce.py", line 45, in solve
+    self._gs_iter()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/solver.py", line 804, in _gs_iter
+    raise err
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/solver.py", line 800, in _gs_iter
+    subsys._solve_nonlinear()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 65, in _solve_nonlinear
+    return super()._solve_nonlinear()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2532, in _solve_nonlinear
+    self._nonlinear_solver._solve_with_cache_check()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/nonlinear/nonlinear_runonce.py", line 26, in _solve_with_cache_check
+    self.solve()  # don't use caching
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/nonlinear/nonlinear_runonce.py", line 45, in solve
+    self._gs_iter()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/solver.py", line 804, in _gs_iter
+    raise err
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/solver.py", line 800, in _gs_iter
+    subsys._solve_nonlinear()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2532, in _solve_nonlinear
+    self._nonlinear_solver._solve_with_cache_check()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/nonlinear/nonlinear_runonce.py", line 26, in _solve_with_cache_check
+    self.solve()  # don't use caching
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/nonlinear/nonlinear_runonce.py", line 45, in solve
+    self._gs_iter()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/solver.py", line 804, in _gs_iter
+    raise err
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/solver.py", line 800, in _gs_iter
+    subsys._solve_nonlinear()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 128, in _solve_nonlinear
+    with self._call_user_function('solve_nonlinear'):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    raise err_type(
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 150, in _solve_nonlinear
+    self.solve_nonlinear(self._inputs, self._outputs)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 345, in solve_nonlinear
+    raise AnalysisError("Primal solution failed!")
+openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Primal solution failed!
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[9557,1],0]
+  Exit code:    1
+--------------------------------------------------------------------------
