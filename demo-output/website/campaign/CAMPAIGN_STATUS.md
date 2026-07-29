@@ -111,7 +111,7 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
   reference:** Jiang & Cheng (2017) *JFM* 832:170-188 run matched 2D and 3D DNS
   at this exact Re. Our result agrees with independent 2D DNS to 1.3-6.2% (Cd,
   St, Cl_rms all move together — the solver-correctness check) and over-predicts
-  the 3D DNS/experiment consensus by +41-45% (Cd), +8.5-11.6% (St), and
+  the 3D DNS/experiment consensus by +35.9-44.8% (Cd, source range), +8.5-11.6% (St), and
   380-710% (Cl_rms) — large, directionally consistent, and mechanistically
   explained by the same paper (weaker/longer 3D recirculation region, spanwise
   phase decorrelation collapsing integrated Cl_rms). This is the deviation

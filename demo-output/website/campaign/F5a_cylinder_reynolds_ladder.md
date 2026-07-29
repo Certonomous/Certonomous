@@ -109,11 +109,20 @@ Tables 2 and 3) that itself cross-validates against four independent sources:
 **Our measured Re 1000 (2D laminar, this ladder): Cd_mean=1.4678, Cl_rms=0.9666,
 St=0.2343.**
 
-| metric | vs 2D reference (avg 2D DNS ~1.509 / 0.2374 / 1.031) | vs 3D reference (avg 3D DNS+exp ~1.04 / 0.212 / 0.16) | verdict |
+| metric | vs 2D reference (avg 2D DNS ~1.509 / 0.2374 / 1.031) | vs 3D reference (source-to-source range, not an average) | verdict |
 | --- | --- | --- | --- |
-| Cd_mean | **-2.7%** | **+41-45%** | matches 2D family tightly; over-predicts 3D by the documented amount |
-| St | **-1.3%** | **+8.5-11.6%** | matches 2D family tightly; over-predicts 3D by the documented amount |
-| Cl_rms | **-6.2%** | **+380-710%** | matches 2D family; 3D Cl_rms collapses by close to an order of magnitude |
+| Cd_mean | **-2.7%** | **+35.9% to +44.8%** (Tong 1.08 low, Jiang & Cheng 1.0138 high; Papaioannou 1.030 mid at +42.5%) | matches 2D family tightly; over-predicts 3D by the documented amount |
+| St | **-1.3%** | **+8.5% to +11.6%** (Papaioannou 0.216 low, Norberg 0.210 high) | matches 2D family tightly; over-predicts 3D by the documented amount |
+| Cl_rms | **-6.2%** | **+383% to +712%** (Tong 0.20 low, Jiang & Cheng 0.1191 high) | matches 2D family; 3D Cl_rms collapses by close to an order of magnitude |
+
+Every deviation above is stated as a **source-to-source range**, computed
+individually against each cited 3D value, not as a deviation against the
+average of the sources. (An earlier draft of this record mixed bases — an
+average-based lower bound paired with an extreme-based upper bound on the Cd
+row, which understates the true spread and is internally inconsistent with
+its own source table. Caught in review and corrected; St and Cl_rms were
+checked on the same pass and were already computed on the correct,
+extreme-to-extreme basis.)
 
 **Verdict: GATE REACHED, correctly attributed.** The solve agrees with
 independent 2D DNS to within a few percent on every metric (Cd, St, and Cl_rms
@@ -161,7 +170,7 @@ independently corroborated general-knowledge value for St in the same band is
 
 | metric | vs 3D subcritical band (Cd~1.0-1.2 mid 1.1, St~0.19-0.21 mid 0.20) | verdict |
 | --- | --- | --- |
-| Cd_mean | **+32% to +59%** (mid-band: +44%) | consistent direction and similar magnitude to Re 1000's +41-45% |
+| Cd_mean | **+32% to +59%** (mid-band: +44%) | consistent direction and similar magnitude to Re 1000's +35.9% to +44.8% (source range) |
 | St | **+15% to +27%** (mid-band: +21%) | consistent direction; larger than Re 1000's +8.5-11.6%, worth tracking |
 
 **Verdict: GATED, BANDED, LOWER CONFIDENCE — not a point gate.** The direction
@@ -179,7 +188,7 @@ those are almost certainly the papers that would turn this into a point gate.
 
 One internal-consistency note worth flagging, not over-interpreting on n=2:
 the St deviation *grew* from Re 1000 to Re 2000 (+8.5-11.6% -> +15-27%) while
-the Cd deviation stayed roughly flat (+41-45% -> +32-59%, bands overlap). If
+the Cd deviation stayed roughly flat (+35.9-44.8% -> +32-59%, bands overlap). If
 that trend holds at Re 3900 — where a real point reference exists — it would
 suggest St_2D keeps climbing past where St_3D has already plateaued, widening
 the shedding-frequency gap faster than the drag gap as Re increases. That is a
