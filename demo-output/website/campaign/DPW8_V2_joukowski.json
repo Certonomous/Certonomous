@@ -1,0 +1,109 @@
+{
+  "case": "DPW-8/AePW-4 V2 verification case (Joukowski airfoil, analytic inviscid reference)",
+  "date": "2026-07-29",
+  "status": "SALVAGED FROM INTERRUPTED RUN -- no new compute spent in this pass; all numbers read from existing run_L1_feasibility, run_L3_physics, run_L4_gate output on disk",
+  "flow_conditions": {
+    "M_spec": 0.15,
+    "Re_c_spec": 6.0e6,
+    "alpha_deg": 0.0,
+    "solver_note": "run incompressible (simpleFoam, kOmegaSST) at Re=6e6 via U=1, nu=1/6e6; M=0.15 spec not modeled compressibly -- documented deviation, see make_case.py docstring and Sec 6 of the .md report"
+  },
+  "geometry": {
+    "eps": 0.10,
+    "eps_source": "NOT independently confirmed from any DPW-8/HFCFDVW committee source found in this pass; fixed as a standard textbook-scale choice, held constant across the whole grid family so CFD and exact theory share the identical geometry",
+    "thickness_ratio_pct": 11.785,
+    "trailing_edge": "cusped (Joukowski map z=zeta+1/zeta, dz/dzeta=0 at zeta=+1)"
+  },
+  "theory_verification": {
+    "method": "cylinder_cp(theta) checked against the published closed-form Cp=1-4*sin^2(theta) (Anderson, Fundamentals of Aerodynamics; standard incompressible-potential-flow result)",
+    "max_abs_err_vs_published": 0.0,
+    "result": "PASS -- matches to 0.000e+00 (machine precision)",
+    "zero_lift_proof": "symmetric geometry (zc real) at alpha=0 gives Gamma/(4 pi U R)=0 exactly by a stagnation-point symmetry argument, no root-find needed; CL from independent Cp-panel-integration = 2.753e-17 (two independent computational paths agree to near machine precision)",
+    "stagnation_checks": {
+      "cp_at_LE_theta_pi": 1.0,
+      "cp_at_TE_cusp_theta_0": 0.173554,
+      "note": "TE cusp Cp is finite and != 1: it is a stagnation point in the zeta-plane but NOT in the z-plane, per the L'Hopital cusp-limit derivation in joukowski_theory.py"
+    }
+  },
+  "grid_family": {
+    "convention": "doubling: Ni and Nj both double each level (48x16, 96x32, 192x64, 384x128, 768x256, 1536x512), matching AIAA 2023-1244 Table 1 grid sizes as cited in build_mesh.py (citation carried over from prior session, not independently re-verified in this pass)",
+    "note_vs_dpw8_house_formula": "this is a constant 4x-cells-per-level doubling, NOT the DPW-8 gridding-guidelines growth formula [(L+2)/(L+1)]^3 (which gives a diminishing ratio: 3.375x L1->L2, 2.37x L2->L3, 1.95x L3->L4). Both are systematic/geometric, but they are different conventions -- flagged for MESH_STANDARD.md alignment."
+  },
+  "rungs": {
+    "L1_feasibility": {
+      "level": 1, "label": "Tiny", "ncells": 768, "Ni": 48, "Nj": 16, "n_ranks": 1,
+      "status": "COMPLETE",
+      "t_check_s": 0.214, "t_run_s": 92.253, "t_samp_s": 0.249,
+      "wall_time_total_s": 92.716, "core_minutes": 1.545,
+      "latest_time_iters": 3000,
+      "final_residuals_order": "1e-7 to 1e-10 (Ux, k, omega at iter 3000; endTime cap reached, not residualControl early-stop)",
+      "cl_computed_mean": -8.2617e-08, "cl_computed_std": 1.0290e-06,
+      "cl_exact": 0.0, "cl_abs_deviation": 8.2617e-08,
+      "cd_computed_mean": 3.1833e-04, "cd_computed_std": 3.0482e-07,
+      "cd_exact_inviscid": "0 (d'Alembert; not gated -- viscous Cd is expected nonzero and is not comparable to inviscid d'Alembert result)",
+      "surface_cp": {
+        "n_points": 48, "n_near_cusp_lt15deg": 5,
+        "abs_err_all_max": 0.6348, "abs_err_all_mean": 0.0552, "abs_err_all_rms": 0.1241,
+        "abs_err_far_from_cusp_max": 0.4697, "abs_err_far_from_cusp_mean": 0.0451, "abs_err_far_from_cusp_rms": 0.0883
+      },
+      "verdict_zero_lift_gate": "PASS",
+      "verdict_surface_cp": "INFORMATIONAL -- coarsest rung, largest error, matching-artifact-inflated near cusp (see .md Sec 5); not independently gated pass/fail, judged on grid-convergence trend across rungs"
+    },
+    "L3_physics": {
+      "level": 3, "label": "Medium", "ncells": 12288, "Ni": 192, "Nj": 64, "n_ranks": 1,
+      "status": "COMPLETE",
+      "t_check_s": 0.255, "t_run_s": 1696.133, "t_samp_s": 0.297,
+      "wall_time_total_s": 1696.685, "core_minutes": 28.278,
+      "latest_time_iters": 3000,
+      "final_residuals_order": "1e-7 to 1e-10 (Ux, k, omega at iter 3000; endTime cap reached, not residualControl early-stop)",
+      "cl_computed_mean": -2.0394e-06, "cl_computed_std": 7.1623e-07,
+      "cl_exact": 0.0, "cl_abs_deviation": 2.0394e-06,
+      "cd_computed_mean": 1.5882e-04, "cd_computed_std": 4.8162e-08,
+      "cd_exact_inviscid": "0 (d'Alembert; not gated, see L1 note)",
+      "surface_cp": {
+        "n_points": 192, "n_near_cusp_lt15deg": 15,
+        "abs_err_all_max": 0.3682, "abs_err_all_mean": 0.0175, "abs_err_all_rms": 0.0372,
+        "abs_err_far_from_cusp_max": 0.1043, "abs_err_far_from_cusp_mean": 0.0150, "abs_err_far_from_cusp_rms": 0.0261
+      },
+      "verdict_zero_lift_gate": "PASS",
+      "verdict_surface_cp": "INFORMATIONAL -- mean/rms error improved ~3.0-3.4x over L1 (far-from-cusp: mean 0.0451->0.0150, rms 0.0883->0.0261), consistent with grid-convergent behavior toward the inviscid limit; not independently gated pass/fail (see L1 note)",
+      "note_nonmonotonic_cl": "cl_abs_deviation is LARGER at L3 (2.04e-6) than L1 (8.26e-8) despite the finer mesh -- both are 5-7 orders of magnitude below any physically meaningful force scale (Cd~3e-4) and are read as solver/iterative-convergence noise on an exactly-symmetric mesh, not a true asymmetry trend; flagged, not hidden"
+    },
+    "L4_gate": {
+      "level": 4, "label": "Fine", "ncells": 49152, "Ni": 384, "Nj": 128, "n_ranks": 1,
+      "status": "INCOMPLETE -- interrupted mid-solve, NOT GATED",
+      "endTime_target_iters": 3000,
+      "last_written_time_iters": 1200,
+      "pct_complete_by_iters": 40.0,
+      "evidence_of_incompleteness": [
+        "no log.simpleFoam written (subprocess writes its log only on completion; absence means the process was killed before returning)",
+        "run_L4_gate.stdout.log is 0 bytes",
+        "no result.json, no postProcessing/surfaceSampleDict output",
+        "forceCoeffs1/0/coefficient.dat Cl/Cd still oscillating with alternating sign at iter 1200 (e.g. Cl +-0.40 to +-0.43 swinging every iteration), not settled",
+        "no live simpleFoam process found on this host at time of salvage"
+      ],
+      "elapsed_wall_clock_to_last_write_s_approx": 3360,
+      "note": "elapsed time from case_meta.json mtime (00:38:xx) to last time-dir write (1200/, 01:34:48) is ~56 minutes; this is NOT a core-minutes figure since the run never finished and per-iteration cost was still increasing (mesh 4x L3's cell count, consistent with the growth in per-iteration wall time visible in the 50-iter-interval directory timestamps)",
+      "cl": null, "cd": null, "cp": null,
+      "verdict": "NOT GATED -- incomplete run, per directive"
+    }
+  },
+  "gate_methodology": {
+    "zero_lift_gate": "primary, clean gate -- mirrors the DPW-8/HFCFDVW V2 case sheet's own mandatory check ('verify machine zero lift is computed on all grids'). Apples-to-apples: a symmetric body at alpha=0 has zero lift in BOTH inviscid theory (exact, by stagnation-point symmetry) and a mirror-symmetric viscous mesh (boundary-layer displacement is symmetric top/bottom), so CL~0 is a valid gate at any viscosity.",
+    "surface_cp_gate": "NOT graded as a strict PASS/FAIL against the inviscid exact curve, because a converged viscous RANS solution is not expected to reproduce the inviscid Cp exactly even at infinite grid resolution -- boundary-layer displacement and, especially, the finite-thickness wake behind a nominally-cusped trailing edge genuinely modify surface Cp versus potential flow. Graded instead on grid-convergence trend (does the CFD-vs-exact error shrink monotonically and sensibly with refinement, which is what would be expected of a correctly-behaving solver approaching the inviscid outer solution) -- observed: yes, ~3x reduction in mean/rms error from L1 to L3.",
+    "cd_not_gated": "exact inviscid Cd is 0 (d'Alembert); a nonzero viscous Cd (~3e-4, dropping with refinement as expected -- see L1 vs L3) is physically correct and is not comparable to the inviscid value, so it is reported but not gated.",
+    "matching_artifact_caveat": "Cp comparison uses nearest-neighbor matching of solver surface-sample points to a fixed 48/192-point theta grid; near the cusp (within ~15 deg) two adjacent sample points can be nearer to the same theta bin than to distinct ones (a real effect of the conformal map's compression toward zeta=+1), producing point-wise mismatches that are a matching artifact, not necessarily true solver error. 'far_from_cusp' stats exclude this window as a fairer comparison, following the F3 campaign's own precedent of reporting excl./incl. variants rather than picking the flattering one."
+  },
+  "overall_verdict": {
+    "zero_lift_gate": "PASS on both complete rungs (L1, L3)",
+    "surface_cp_trend": "grid-convergent, consistent with correct solver behavior (informational, not independently gated)",
+    "L4_gate": "INCOMPLETE, not gated",
+    "theory_implementation": "VERIFIED against a published closed-form result (cylinder Cp) to machine precision before being trusted as the CFD reference"
+  },
+  "total_core_minutes_L1_L3": 29.823,
+  "source_runs": {
+    "L1": "demo-output/website/campaign/DPW8_V2_runs/run_L1_feasibility",
+    "L3": "demo-output/website/campaign/DPW8_V2_runs/run_L3_physics",
+    "L4": "demo-output/website/campaign/DPW8_V2_runs/run_L4_gate (incomplete)"
+  }
+}

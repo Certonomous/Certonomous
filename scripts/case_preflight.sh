@@ -97,16 +97,35 @@ esac
 # 3. Field headers parse. A hand-written or sed-mangled header produces
 #    "unexpected class name" at solver start, after the queue wait.
 # ---------------------------------------------------------------------------
+# A malformed SOLVER field is fatal. An unparseable EXTRA file in 0/ is only a
+# warning: benchmark cases legitimately ship reference data alongside the solver
+# fields (DNS/LES targets such as U_LES, k_LES, tauij_LES) which the solver never
+# reads and which are not always in OpenFOAM field format. Failing on those was a
+# false positive that would have blocked a legitimate launch.
+is_solver_field() {
+    case "$1" in
+        U|p|p_rgh|T|k|omega|epsilon|nut|nuTilda|R|alpha*|phi|he|rho) return 0 ;;
+        *) return 1 ;;
+    esac
+}
 for f in 0/*; do
     [ -f "$f" ] || continue
-    case "$(basename "$f")" in uniform) continue ;; esac
-    grep -qa "FoamFile" "$f"        || { bad "$f has no FoamFile header"; continue; }
-    grep -qa "class[[:space:]]" "$f" || { bad "$f header has no class entry"; continue; }
-    grep -qa "object[[:space:]]" "$f" || { bad "$f header has no object entry"; continue; }
-    obj=$(grep -a "object" "$f" | head -1 | awk '{print $2}' | tr -d ';')
-    [ "$obj" = "$(basename "$f")" ] || bad "$f declares object '$obj' -- must match the filename"
+    b=$(basename "$f")
+    case "$b" in uniform) continue ;; esac
+    problem=""
+    grep -qa "FoamFile" "$f"          || problem="no FoamFile header"
+    [ -z "$problem" ] && { grep -qa "class[[:space:]]"  "$f" || problem="header has no class entry"; }
+    [ -z "$problem" ] && { grep -qa "object[[:space:]]" "$f" || problem="header has no object entry"; }
+    if [ -z "$problem" ]; then
+        obj=$(grep -a "object" "$f" | head -1 | awk '{print $2}' | tr -d ';')
+        [ "$obj" = "$b" ] || problem="declares object '$obj' -- must match the filename"
+    fi
+    if [ -n "$problem" ]; then
+        if is_solver_field "$b"; then bad "$f $problem"
+        else note "  warn: $f $problem (not a solver field -- reference data, ignored)"; fi
+    fi
 done
-ok "field headers parsed"
+ok "solver field headers parsed"
 
 # ---------------------------------------------------------------------------
 # 4. Boundary patches in 0/ match the mesh. A renamed or missing patch is a
