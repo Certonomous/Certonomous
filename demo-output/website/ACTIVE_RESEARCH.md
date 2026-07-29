@@ -33,7 +33,7 @@ error of the class itself.
 | --- | --- |
 | Experiment reattachment x/c | 1.100 |
 | Our baseline reattachment x/c | 1.2534, a +13.95% error |
-| Inter model spread alone, all models converged | 1.0722 to 1.2534, contains the experiment |
+| Inter model spread alone, all four models converged | 1.0722 to 1.2503, contains the experiment |
 | Inter model spread as first reported, one model unconverged | 1.1299 to 1.2534, did not contain it |
 | Full band across all channels | 0.5278 to 1.2534, contains the experiment |
 | Closest single perturbation to experiment | 1.1069, +0.63% |

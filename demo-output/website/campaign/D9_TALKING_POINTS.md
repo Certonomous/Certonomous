@@ -39,7 +39,7 @@ before the run.
 | Experiment reattachment x/c | 1.100 |
 | Our baseline reattachment x/c | 1.2534 |
 | Baseline error vs experiment | +13.95% |
-| Narrower channel, several turbulence models only | 1.0722 to 1.2534, contains the experiment |
+| Narrower channel, four turbulence models only | 1.0722 to 1.2503, contains the experiment |
 | That same channel before the unconverged model was finished | 1.1299 to 1.2534, missed it |
 | Full band, physics based anisotropy bounds included | 0.5278 to 1.2534, contains the experiment |
 | Closest single check to the experiment | 1.1069, +0.63% |
