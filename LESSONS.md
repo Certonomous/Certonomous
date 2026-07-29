@@ -640,3 +640,39 @@ breaks at 79,560 with over 4 GB of memory headroom still unused, so the
 CONVERGENCE wall binds first in this range and **more RAM would not buy a larger
 mesh.** I had it backwards, and I had it backwards because I trusted a process
 exit code over a solver's own diagnostic.
+
+## L-16. The pattern behind L-14 and L-15: I keep trusting the derived signal over the primary one
+
+Three times in one session I reported a wrong conclusion to the owner. Each time
+the mechanism was identical, and it is worth naming as a class rather than logging
+a third instance.
+
+| what I read | what I should have read | what it cost |
+| --- | --- | --- |
+| Final residual `k 1.67e-9` | the Initial residual the gate tests, and `SIMPLE solution converged` | a nonlinear-response finding and a containment window that do not exist |
+| `docker_exit=0, inner_exit=0` | PETSc `ConvergedReason` — it was −5, DIVERGED_BREAKDOWN | a hardware recommendation, in the wrong direction |
+| a diagnostic's printed line, `min(k) − deltaK = −4.2e-9  <-- negative means a coloring step can drive k negative` | the source that applies the perturbation — it is additive-only, so k never goes negative | a root-cause mechanism that was never real |
+
+**The class.** In every case a *derived, annotated or summarised* signal sat closer
+to hand than the primary evidence, and agreed with what I expected. The third is
+the sharpest: that line was the diagnostic script's OWN arithmetic, with its own
+interpretive comment attached, and I read the comment as a finding. A script that
+prints `<-- negative means X` is telling you its author's hypothesis, not a
+measurement of X.
+
+**The rule, for me specifically.** Before reporting a conclusion drawn from
+someone else's output, identify what the PRIMARY artifact for that claim is and
+read it:
+
+- convergence -> the solver's own convergence reason or statement, not an exit code
+- what code does -> the source line that does it, not a wrapper's commentary on it
+- a measured quantity -> the raw log or data file, not a collector summary
+
+And treat agreement with expectation as a reason for MORE scrutiny, not less. All
+three of these confirmed something I already believed, which is exactly why none
+of them got checked.
+
+**Credit where it belongs.** All three were caught by the agents doing the work,
+each by going to the primary evidence I had skipped. That is the system working,
+but it should not be load-bearing: a supervisor who ships three wrong conclusions
+in a session is spending the team's attention on corrections instead of research.
