@@ -349,3 +349,34 @@ is **refused at the gate** rather than launched.
 One of those three tests initially passed for the wrong reason — it tripped on a
 bad argument rather than the preflight gate. A test that passes for the wrong
 reason is not a test, so it was corrected and re-run.
+
+## L-9. A directory count is a sample, not a state — I accused an agent on the strength of one
+
+**What happened.** Twice I watched the shared caches shrink — 14 mesh / 8 solve
+down to 4 / 2 at 18:26, then 23 / 18 down to 20 / 14 at 18:57 — and read it as
+destruction. On the first occasion I sent warnings to two agents. One of them
+came back with an account proving it had removed only its own entry and had
+lost work itself. I was wrong, and had to say so.
+
+**What was actually happening.** `save_mesh_to_cache` and its solve-cache twin
+replace an entry with `shutil.rmtree(cache)` immediately followed by
+`copytree`. Between those two calls the entry does not exist. Several acts
+re-saving at once puts several entries in that window simultaneously, so a
+directory listing taken at the wrong instant shows a cliff. The code is in fact
+carefully guarded: `_cache_dir` refuses a degenerate key that would resolve to
+the cache root, with a comment naming exactly the whole-cache-wipe failure I
+had assumed was occurring.
+
+The decisive check took ninety seconds — sample the counts three times. Solve
+went 14 to 15 and 28 MB to 100 MB. Growing, not shrinking. One sample looked
+like a catastrophe; three samples showed a rewrite.
+
+**The rule.** A single `ls | wc -l` against a directory that concurrent writers
+are rewriting measures the sampling instant, not the contents. Before treating
+a count as evidence of loss: sample it again, compare bytes as well as entries,
+and check whether the number recovers. And when the reading implicates somebody
+else's work, get the second sample **before** sending the accusation, not after.
+
+This is the same family as L-6. There the trap was reading a PID that belonged
+to the wrapper rather than the solver; here it is reading a directory mid-write.
+Both are one observation of a moving system, mistaken for its state.
