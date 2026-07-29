@@ -2,13 +2,16 @@
 
 This is the all-night accumulator for the website. It streams an unbounded,
 *deterministic* sequence of designs through a bounded pool of workers, and
-appends every finished evaluation as one JSON line to a durable ledger. Five
+appends every finished evaluation as one JSON line to a durable ledger. Six
 solver families are interleaved: steady laminar OpenFOAM cylinders, VSPAERO
 vortex-lattice wing polars, a reduced-order valve-cycle screen, unsteady 2D
-vortex-shedding cylinders (pimpleFoam, genuinely shedding), and transonic
-NACA0012 airfoils (rhoSimpleFoam, a real shock forms) — see
+vortex-shedding cylinders (pimpleFoam, genuinely shedding), transonic
+NACA0012 airfoils (rhoSimpleFoam, a real shock forms), and -- Family F10 --
+the Ahmed body in 3D viscous RANS (simpleFoam, k-omega SST, wall functions,
+snappyHexMesh), the batch's only genuinely 3D viscous CFD family: see
 ``demo-output/website/mega-batch/PHYSICS_FAMILIES.md`` for each family's
-design space, validation gate, and measured per-evaluation cost.
+design space, validation gate, and measured per-evaluation cost, and
+``demo-output/website/mega-batch/F10_3D_VISCOUS_FAMILY.md`` for F10 specifically.
 
 Two properties make it demo-safe:
 
@@ -38,6 +41,7 @@ import argparse
 import json
 import os
 import random
+import re
 import shutil
 import sys
 import threading
@@ -55,14 +59,17 @@ if str(_SDK_ROOT) not in sys.path:
 from chief_engineer.openfoam import OpenFoamCylinderApi  # noqa: E402
 from chief_engineer.vspaero import VspAeroWingApi  # noqa: E402
 from chief_engineer.head_engineer import parse_coefficient_history  # noqa: E402
+from chief_engineer.external_aero import analyse_surface, build_case  # noqa: E402
 from workflows import cylinder_vortex_shedding as cvs  # noqa: E402
 from workflows import transonic_airfoil as ta  # noqa: E402
+from workflows.tmr_verification import _foam, parse_yplus_dat  # noqa: E402
 
 CYLINDER = "openfoam-cylinder"
 WING = "vspaero-wing"
 VALVE = "reduced-order"
 CYLINDER_UNSTEADY = "openfoam-cylinder-unsteady"
 TRANSONIC_AIRFOIL = "rhosimplefoam-naca0012-transonic"
+AHMED_VISCOUS_3D = "simplefoam-ahmed-3d-viscous"
 
 # Family 1 (unsteady 2D vortex shedding) batch parameters, measured and
 # locked in against the Roshko/Williamson Strouhal gate (PHYSICS_FAMILIES.md):
@@ -78,6 +85,54 @@ UNSTEADY_CYLINDER_PERTURBATION = 0.1
 # convergence study this iteration cap is measured against.
 TRANSONIC_ITERATIONS = 2000
 
+# Family F10 (3D viscous RANS, Ahmed body) batch parameters -- see
+# F10_3D_VISCOUS_FAMILY.md for the reproduction run these are measured
+# against. This is a REUSE, not a rebuild: refinement=2 and iterations=250
+# are exactly the settings mission-output/geometry-study/study-ahmed_25 used
+# to reach its own VALIDATED tier (45,753 cells, Cd 0.3219 vs experiment
+# 0.285, +-15% band) -- read directly off that case's own stored
+# system/snappyHexMeshDict (`body { level (2 3); }`) and system/controlDict
+# (`endTime 250;`), not re-derived. Air kinematic viscosity matches the same
+# study's (and geometry_study.py's own) AIR_KINEMATIC_VISCOSITY convention.
+AHMED_GEOMETRY_DIR = _SDK_ROOT / "geometry"
+AHMED_REFINEMENT = 2
+AHMED_ITERATIONS = 250
+AHMED_VISCOSITY = 1.5e-5
+# Quality gates, non-negotiable -- an evaluation failing any of these is
+# recorded ok=False, not silently kept. checkMesh thresholds reused verbatim
+# from workflows/geometry_study.py's own MAX_NON_ORTHOGONALITY / MAX_SKEWNESS
+# (the same gates the original Ahmed body study itself had to clear).
+AHMED_NON_ORTHO_GATE = 70.0
+AHMED_SKEWNESS_GATE = 4.0
+# Residual gate matches build_case's own SIMPLE residualControl target
+# (system/fvSolution: `residualControl { p 1e-4; U 1e-4; "(k|omega)" 1e-4; }`)
+# -- the case is asking itself to reach 1e-4; the gate holds it to that.
+AHMED_RESIDUAL_GATE = 1e-4
+# y+ band for a kOmegaSST wall-function mesh: standard OpenFOAM wall-function
+# guidance keeps the first cell in the log-law region (roughly 30-300);
+# widened to 500 here for a coarse industrial external-aero mesh (the A4
+# ladder measured mean y+ 205.72 on this exact 45,760-cell mesh with a
+# different SIMPLE-family solver -- see F10_3D_VISCOUS_FAMILY.md).
+AHMED_YPLUS_LOW = 30.0
+AHMED_YPLUS_HIGH = 500.0
+# Stationarity gate, same halves-drift discipline and 10% tolerance as
+# Family 1 (openfoam-cylinder-unsteady) -- reused, not reinvented.
+AHMED_DRIFT_GATE = 0.10
+# Frontal area, measured directly off the STL bounding box (0.389 x 0.288 m,
+# both slant STLs share the same overall envelope) -- matches
+# models/curriculum/ahmed_25/reference.yaml's stated 0.112 m^2 and the A4
+# ladder's own rebasing ratio.
+AHMED_FRONTAL_AREA_M2 = 0.389 * 0.288
+# Ahmed, Ramm & Faltin 1984, SAE 840300, as cited by
+# models/curriculum/ahmed_{25,35}/reference.yaml -- the same source and the
+# same +-15% tolerance band already used for this geometry's VALIDATED tier.
+AHMED_REFERENCE = {
+    25.0: {"cd": 0.285, "tolerance": 0.15,
+          "source": "Ahmed, Ramm & Faltin 1984, SAE 840300"},
+    35.0: {"cd": 0.26, "tolerance": 0.15,
+          "source": "Ahmed, Ramm & Faltin 1984, SAE 840300"},
+}
+
 # Seed offset keeps this sequence stable and distinct from any other sampler.
 _SEED_BASE = 90_210
 
@@ -89,28 +144,43 @@ _SEED_BASE = 90_210
 def design_for_index(index: int) -> dict[str, Any]:
     """Map an integer index to a solver + design, deterministically.
 
-    An 11-way interleave (index % 11) holds a mix over a long run:
+    A 12-way interleave (index % 12) holds a mix over a long run:
 
-    - kind 0-2 (3/11): steady simpleFoam cylinder, Re ~10-45 (unchanged --
+    - kind 0-2 (3/12): steady simpleFoam cylinder, Re ~10-45 (unchanged --
       this is the ORIGINAL, cheap, always-converges family).
-    - kind 3-4 (2/11): VSPAERO wing polars (unchanged).
-    - kind 5   (1/11): reduced-order valve-cycle evaluations (unchanged).
-    - kind 6-8 (3/11): Family 1 -- pimpleFoam unsteady 2D vortex shedding,
+    - kind 3-4 (2/12): VSPAERO wing polars (unchanged).
+    - kind 5   (1/12): reduced-order valve-cycle evaluations (unchanged).
+    - kind 6-8 (3/12): Family 1 -- pimpleFoam unsteady 2D vortex shedding,
       Re 100-1000 (genuinely shedding, well above the steady family's Re<=45
       cap). Validated against the Roshko/Williamson Strouhal correlation for
       Re 100-200; see PHYSICS_FAMILIES.md.
-    - kind 9-10 (2/11): Family 2 -- rhoSimpleFoam transonic NACA0012, Mach
+    - kind 9-10 (2/12): Family 2 -- rhoSimpleFoam transonic NACA0012, Mach
       0.7-0.85 (a real shock forms). See PHYSICS_FAMILIES.md for the shock-
       position validation.
+    - kind 11  (1/12): Family F10 -- simpleFoam Ahmed body, the batch's only
+      genuinely 3D viscous RANS family (k-omega SST, wall functions,
+      snappyHexMesh; every other "3D" family, vspaero-wing, is an inviscid
+      panel method). Geometry varies over the two validated slant angles
+      (25 deg, 35 deg -- a real geometric design axis, not just a flow-
+      condition sweep); Reynolds varies 1.5e6-4.0e6, inside the reference's
+      stated valid band [1.0e6, 5.0e6]. See F10_3D_VISCOUS_FAMILY.md.
 
     The valve rows are honest reduced-order evaluations (``solver='reduced-order'``),
     NOT solves — a cycle-decomposition orifice screen, three phase points each.
-    The two new families cost far more per evaluation (~minutes, not
-    seconds) than the original three, by design -- this is the mega-batch's
-    deliberate trade of raw throughput for real physics depth.
+    The new families cost far more per evaluation (~minutes, not seconds,
+    and for F10 low-single-digit minutes -- see F10_3D_VISCOUS_FAMILY.md) than
+    the original three, by design -- this is the mega-batch's deliberate
+    trade of raw throughput for real physics depth.
     """
     rng = random.Random(_SEED_BASE + index)
-    kind = index % 11
+    kind = index % 12
+    if kind == 11:
+        slant = 25.0 if rng.random() < 0.65 else 35.0
+        reynolds = round(rng.uniform(1.5e6, 4.0e6), 0)
+        return {
+            "solver": AHMED_VISCOUS_3D,
+            "design": {"slant_deg": slant, "reynolds": reynolds},
+        }
     if kind in (6, 7, 8):
         reynolds = round(rng.uniform(100.0, 1000.0), 3)
         return {
@@ -334,6 +404,238 @@ def _run_wing(index: int, design: dict[str, float], work_root: Path) -> dict[str
     return metrics
 
 
+_RESIDUAL_RE = re.compile(r"Solving for (\w+),.*Final residual = ([0-9.eE+-]+)")
+_CHECKMESH_CELLS_RE = re.compile(r"cells:\s+(\d+)")
+_CHECKMESH_NONORTHO_RE = re.compile(
+    r"non-orthogonality Max:\s*([0-9.]+)|Max non-orthogonality =\s*([0-9.]+)")
+_CHECKMESH_SKEW_RE = re.compile(r"Max skewness =\s*([0-9.]+)")
+
+
+def _ahmed_final_residuals(text: str) -> dict[str, float]:
+    """Final residual per solved field from the last occurrence in the log."""
+    residuals: dict[str, float] = {}
+    for line in text.splitlines():
+        match = _RESIDUAL_RE.search(line)
+        if match:
+            residuals[match.group(1)] = float(match.group(2))
+    return residuals
+
+
+def _ahmed_checkmesh_stats(text: str) -> dict[str, Any]:
+    """checkMesh verdict, cell count, non-orthogonality, skewness -- the
+    exact fields the F10 mesh gate checks, parsed with the same regexes
+    chief_engineer.head_engineer.HeadEngineer.collect_mesh_stats uses."""
+    stats: dict[str, Any] = {"mesh_ok": "Mesh OK" in text}
+    cells = _CHECKMESH_CELLS_RE.search(text)
+    if cells:
+        stats["cells"] = int(cells.group(1))
+    nonortho = _CHECKMESH_NONORTHO_RE.search(text)
+    if nonortho:
+        stats["max_non_orthogonality"] = float(nonortho.group(1) or nonortho.group(2))
+    skew = _CHECKMESH_SKEW_RE.search(text)
+    if skew:
+        stats["max_skewness"] = float(skew.group(1))
+    return stats
+
+
+def _ahmed_add_yplus_function(control_dict_path: Path) -> None:
+    """Append a yPlus function object to a controlDict ``build_case`` wrote.
+
+    ``external_aero.build_case`` writes only ``forceCoeffs1`` -- no family
+    upstream of F10 needed a y+ gate, because none of them is a wall-bounded
+    3D viscous solve. The block below matches the yPlus function object
+    ``workflows/tmr_verification.py`` already uses elsewhere in this repo
+    (onEnd only: the gate only needs the converged, final value).
+    """
+    text = control_dict_path.read_text()
+    marker = "    }\n}\n"
+    if not text.endswith(marker):
+        raise RuntimeError(
+            "ahmed-viscous: controlDict layout changed, cannot append yPlus "
+            "function object safely")
+    yplus_block = (
+        "    }\n\n    yPlus1\n    {\n"
+        "        type            yPlus;\n"
+        "        libs            (\"libfieldFunctionObjects.so\");\n"
+        "        executeControl  onEnd;\n"
+        "        writeControl    onEnd;\n"
+        "    }\n}\n"
+    )
+    control_dict_path.write_text(text[: -len(marker)] + yplus_block)
+
+
+def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) -> dict[str, Any]:
+    """Ahmed body, simpleFoam, k-omega SST wall functions -- Family F10.
+
+    Reuses ``chief_engineer.external_aero.analyse_surface`` / ``build_case``
+    verbatim (the same case-writer ``workflows/geometry_study.py`` used to
+    build the already-VALIDATED ``mission-output/geometry-study/study-
+    ahmed_25`` case: 45,753 cells, Cd 0.3219 vs Ahmed/Ramm/Faltin 1984 SAE
+    840300's 0.285, +-15% band) -- this is a promotion of that existing body
+    into the batch, not a rebuild. ``refinement=2`` and ``iterations=250``
+    are read directly off that case's own stored snappyHexMeshDict/
+    controlDict, not re-derived.
+
+    Unlike every family above it, this one solves a real snappyHexMesh
+    surface mesh and a full 3D k-omega SST field -- the batch's only
+    genuinely 3D VISCOUS RANS family (vspaero-wing is an inviscid vortex-
+    lattice panel method: no boundary layer, no Reynolds number). Every
+    evaluation is gated on four measured, non-negotiable checks -- mesh
+    quality (checkMesh), y+ band, residual convergence, and force-
+    coefficient stationarity -- any one of which failing raises, so the row
+    lands in the ledger as ok=False with a stated reason, never silently
+    kept. See F10_3D_VISCOUS_FAMILY.md for the measured per-evaluation cost
+    and the family-level validation gate result.
+    """
+    slant = float(design["slant_deg"])
+    reynolds = float(design["reynolds"])
+    stl_name = f"ahmed_{int(slant)}.stl"
+    source = AHMED_GEOMETRY_DIR / stl_name
+    if not source.exists():
+        raise RuntimeError(f"ahmed-viscous #{index}: missing geometry {source}")
+
+    geometry = analyse_surface(source, streamwise_axis=0)
+    velocity = reynolds * AHMED_VISCOSITY / geometry["length"]
+
+    case_dir = work_root / "ahmed-viscous" / f"case-{index:06d}"
+    shutil.rmtree(case_dir, ignore_errors=True)
+    (case_dir / "constant" / "triSurface").mkdir(parents=True, exist_ok=True)
+    shutil.copy(source, case_dir / "constant" / "triSurface" / stl_name)
+
+    build_case(case_dir, stl_name, geometry, velocity=velocity,
+              viscosity=AHMED_VISCOSITY, scale=1.0, refinement=AHMED_REFINEMENT,
+              iterations=AHMED_ITERATIONS)
+    _ahmed_add_yplus_function(case_dir / "system" / "controlDict")
+
+    timings: dict[str, float] = {}
+    for step, args in (("surfaceFeatureExtract", ["surfaceFeatureExtract"]),
+                       ("blockMesh", ["blockMesh"]),
+                       ("snappyHexMesh", ["snappyHexMesh", "-overwrite"])):
+        start = time.time()
+        result = _foam(args, case_dir, f"log.{step}", timeout=900)
+        timings[step] = round(time.time() - start, 1)
+        if result.returncode != 0:
+            raise RuntimeError(f"ahmed-viscous #{index}: {step} failed")
+
+    # ---- Gate 1: mesh quality (checkMesh) ----
+    start = time.time()
+    _foam(["checkMesh"], case_dir, "log.checkMesh", timeout=300)
+    timings["checkMesh"] = round(time.time() - start, 1)
+    mesh_stats = _ahmed_checkmesh_stats((case_dir / "log.checkMesh").read_text(errors="replace"))
+    non_ortho = mesh_stats.get("max_non_orthogonality")
+    skew = mesh_stats.get("max_skewness")
+    mesh_gate_pass = (
+        mesh_stats.get("mesh_ok", False)
+        and (non_ortho is None or non_ortho <= AHMED_NON_ORTHO_GATE)
+        and (skew is None or skew <= AHMED_SKEWNESS_GATE)
+    )
+    if not mesh_gate_pass:
+        raise RuntimeError(
+            f"ahmed-viscous #{index}: MESH GATE FAILED -- checkMesh_ok="
+            f"{mesh_stats.get('mesh_ok')}, non_ortho={non_ortho}, skew={skew} "
+            f"(gates: non_ortho<={AHMED_NON_ORTHO_GATE}, skew<={AHMED_SKEWNESS_GATE})")
+
+    # potentialFoam seeds a better initial field for simpleFoam (matches the
+    # validated recipe's own step); it is an initialization aid, not gated --
+    # a poor potential-flow start still lets simpleFoam converge, just slower.
+    start = time.time()
+    _foam(["potentialFoam", "-writephi"], case_dir, "log.potentialFoam", timeout=300)
+    timings["potentialFoam"] = round(time.time() - start, 1)
+
+    start = time.time()
+    result = _foam(["simpleFoam"], case_dir, "log.simpleFoam", timeout=1800)
+    timings["simpleFoam"] = round(time.time() - start, 1)
+    log_text = (case_dir / "log.simpleFoam").read_text(errors="replace")
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"ahmed-viscous #{index}: simpleFoam failed:\n"
+            + "\n".join(log_text.splitlines()[-20:]))
+
+    # ---- Gate 2: convergence residual reached ----
+    residuals = _ahmed_final_residuals(log_text)
+    tracked = [residuals[k] for k in ("Ux", "Uy", "Uz", "p") if k in residuals]
+    residual_max = max(tracked) if len(tracked) == 4 else None
+    if residual_max is None or residual_max > AHMED_RESIDUAL_GATE:
+        raise RuntimeError(
+            f"ahmed-viscous #{index}: RESIDUAL GATE FAILED -- "
+            f"max(Ux,Uy,Uz,p) final residual {residual_max} > {AHMED_RESIDUAL_GATE} "
+            f"(residuals seen: {residuals})")
+
+    # ---- Gate 3: force-coefficient stationarity ----
+    coeff_files = sorted((case_dir / "postProcessing").rglob("coefficient*.dat"))
+    if not coeff_files:
+        raise RuntimeError(f"ahmed-viscous #{index}: no forceCoeffs output")
+    history = parse_coefficient_history(coeff_files[-1].read_text(errors="replace"))
+    times = history.get("Time", [])
+    cd_series = history.get("Cd", [])
+    if not times or not cd_series:
+        raise RuntimeError(f"ahmed-viscous #{index}: empty force-coefficient history")
+    window_iters = min(len(times), 50)
+    window_start = times[-window_iters]
+    drift = cvs.halves_drift(times, cd_series, window_start, times[-1])
+    if drift is None:
+        raise RuntimeError(
+            f"ahmed-viscous #{index}: halves_drift undefined -- stationarity "
+            f"unknown, Cd refused")
+    if drift["relative_drift"] > AHMED_DRIFT_GATE:
+        raise RuntimeError(
+            f"ahmed-viscous #{index}: STATIONARITY GATE FAILED -- Cd drifting "
+            f"{100 * drift['relative_drift']:.1f}% across the final "
+            f"{window_iters}-iteration window (limit {100 * AHMED_DRIFT_GATE:.0f}%)")
+    cd_stats = cvs.time_weighted_stats(times, cd_series, window_start)
+    cl_series = history.get("Cl")
+    cl_stats = (cvs.time_weighted_stats(times, cl_series, window_start)
+               if cl_series else None)
+
+    # ---- Gate 4: y+ range achieved ----
+    yplus_files = sorted((case_dir / "postProcessing").rglob("yPlus.dat"))
+    yplus = (parse_yplus_dat(yplus_files[-1].read_text(errors="replace"), patch="body")
+             if yplus_files else None)
+    yplus_gate_pass = yplus is not None and AHMED_YPLUS_LOW <= yplus["average"] <= AHMED_YPLUS_HIGH
+    if not yplus_gate_pass:
+        raise RuntimeError(
+            f"ahmed-viscous #{index}: Y+ GATE FAILED -- {yplus} not inside "
+            f"[{AHMED_YPLUS_LOW}, {AHMED_YPLUS_HIGH}] (wall-function log-law band)")
+
+    # Every gate passed: extract metrics, including an *informational* (not
+    # gating) comparison against the citable experimental reference -- the
+    # family's validation gate is that AT LEAST ONE design point reproduces
+    # it (see F10_3D_VISCOUS_FAMILY.md), not that every row must.
+    cd_planform = cd_stats["mean"]
+    rebase_ratio = geometry["planform_area"] / AHMED_FRONTAL_AREA_M2
+    cd_frontal = cd_planform * rebase_ratio
+    ref = AHMED_REFERENCE.get(slant)
+    rel_error = abs(cd_frontal - ref["cd"]) / ref["cd"] if ref else None
+
+    metrics = {
+        "slant_deg": slant,
+        "reynolds": reynolds,
+        "velocity": round(velocity, 3),
+        "cells": mesh_stats.get("cells"),
+        "checkmesh_ok": mesh_stats.get("mesh_ok"),
+        "max_non_orthogonality": non_ortho,
+        "max_skewness": skew,
+        "yplus_min": yplus["min"],
+        "yplus_max": yplus["max"],
+        "yplus_avg": yplus["average"],
+        "residual_max_UUUp": residual_max,
+        "residuals": residuals,
+        "solver_iterations": times[-1],
+        "cd_relative_drift": drift["relative_drift"],
+        "cd_planform_area_basis": round(cd_planform, 5),
+        "cl_planform_area_basis": round(cl_stats["mean"], 5) if cl_stats else None,
+        "planform_area_m2": round(geometry["planform_area"], 6),
+        "cd_frontal_area_basis": round(cd_frontal, 5),
+        "reference_cd_frontal": ref["cd"] if ref else None,
+        "reference_source": ref["source"] if ref else None,
+        "relative_error_vs_reference": round(rel_error, 4) if rel_error is not None else None,
+        "validated_tier": bool(rel_error is not None and rel_error <= ref["tolerance"]),
+        "timings_s": timings,
+    }
+    shutil.rmtree(case_dir, ignore_errors=True)
+    return metrics
+
+
 def _run_valve(index: int, design: dict[str, float]) -> dict[str, Any]:
     """Reduced-order valve-cycle evaluation — NOT a solve; labelled as such.
 
@@ -386,6 +688,8 @@ def run_task(index: int, work_root: Path) -> dict[str, Any]:
             metrics = _run_cylinder_unsteady(index, design, work_root)
         elif solver == TRANSONIC_AIRFOIL:
             metrics = _run_transonic_airfoil(index, design, work_root)
+        elif solver == AHMED_VISCOUS_3D:
+            metrics = _run_ahmed_viscous(index, design, work_root)
         else:
             metrics = _run_valve(index, design)
         record["metrics"] = metrics
@@ -518,6 +822,7 @@ def run_batch(
     (work_root / "wing").mkdir(parents=True, exist_ok=True)
     (work_root / "cylinder-unsteady").mkdir(parents=True, exist_ok=True)
     (work_root / "transonic-naca0012").mkdir(parents=True, exist_ok=True)
+    (work_root / "ahmed-viscous").mkdir(parents=True, exist_ok=True)
 
     done = load_done_indices(ledger_path)
     log(f"[mega-batch] resuming: {len(done)} indices already in ledger")

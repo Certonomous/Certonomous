@@ -229,6 +229,42 @@ validated in this repo:
   function object are already wired into `control_dict`'s `functions{}`
   block and would work unchanged.
 
+---
+
+## Family F10 -- 3D viscous RANS, Ahmed body (SHIPPED)
+
+Added under directive D7. Closes this batch's only-3D-family-is-inviscid
+gap: `vspaero-wing` is a vortex-lattice panel method with no boundary layer
+and no Reynolds number; F10 (`solver = "simplefoam-ahmed-3d-viscous"`) is
+`simpleFoam`, k-omega SST, wall functions, a real `snappyHexMesh` surface
+mesh -- the batch's first genuinely 3D **viscous** family. It promotes the
+already-VALIDATED `mission-output/geometry-study/study-ahmed_25` body (not
+a rebuild) into the batch's design-space/gate/ledger pattern.
+
+**Design space**: Ahmed body slant angle (25 deg / 35 deg, discrete
+geometry axis) x Reynolds 1.5e6-4.0e6 (flow-condition axis). 1/12 weight.
+
+**Quality gates** (all four measured and checked per row, non-negotiable):
+checkMesh verdict + non-orthogonality/skewness, y+ band [30, 500], SIMPLE
+residual <= 1e-4 on Ux/Uy/Uz/p, and Cd stationarity (halves-drift <= 10%,
+same discipline as Family 1).
+
+**Validation gate: PASS** at 25 deg -- Cd (frontal-area basis) 0.32284 vs.
+Ahmed/Ramm/Faltin 1984 SAE 840300's 0.285, 13.28% off, inside the +-15%
+band. The 35 deg point (20.94% off) documents the same pre-existing
+TREND-ONLY miss this repo already had on record for that geometry.
+
+**Measured cost**: ~34-35 s per evaluation (single core, ~0.58 core-min) --
+cheaper than Family 1 (unsteady cylinder, ~394 s) and only slightly more
+than Family 2 (transonic airfoil, ~30 s).
+
+Full design-space rationale, gate derivations, the two real end-to-end test
+evaluations, cost-ratio table against every other family, and the answers
+to the standing mesh-resolution / 2D-vs-3D / cost-ratio learning questions
+are in `F10_3D_VISCOUS_FAMILY.md` (this directory).
+
+---
+
 ## Explicitly out of scope (queued separately, per instruction)
 
 - **Hypersonic** (`rhoCentralFoam`): would need a density-based
