@@ -932,3 +932,109 @@ summary is: **on the NASA hump specifically, the `oneC` and `twoC`
 eigenvalue-perturbation corners appear to have no accessible steady RANS
 solution between their converged control point and the full corner, on
 every mesh and scheme variant tried so far.**
+
+### Closing detail: residual trends and fragmentation timing, not just endpoints
+
+Read the full trend, not just the t=3800 snapshot, per the standing rule
+that an endpoint number is not evidence of what happened to get there.
+
+**`boundedU`** genuinely improves over the run: Uz Initial residual falls
+from 6.66e-5 at t=1000 to 1.62e-6 at t=3800 (≈40×), k and omega both decay
+by two to three orders of magnitude over the same span, and Ux ends inside
+its gate. Only p and Uz plateau just above gate in the final third of the
+run (p's inner GAMG sweep count climbs from 2 at t=1000 to 81 by t=3800 —
+the pressure solve is straining harder, not less, even as the outer
+residual sits still). This is a real, if incomplete, transient — closer to
+"still converging, ran out of iterations" than a locked floor.
+
+**`finemesh` does not show this.** Ux and Uz Initial residuals are
+essentially flat from t=1000 (2.24e-4, 9.38e-3) to t=3800 (1.75e-4,
+7.76e-3) — under a 30% change across 2800 iterations, not a decaying
+transient. p is the same story (0.0194 → 0.0164, and most of that drop
+happens in the first 800 iterations). Only k and omega show real decay,
+and even they remain 15–1000× over gate at the end. **This is a harder,
+more immediately-locked failure than the original 51,626-cell case
+showed, not a slower version of the same recovery.**
+
+**The fragmentation on the fine mesh is not growing chaos — it is an
+early, stable pattern.** Checked at t=1000, 1800, 2600, 3200, 3800: by
+t=1000 the wall-shear trace already shows 11 crossings in the main-bubble
+region; by t=1800 it has settled into essentially the same 13-crossing
+shape (a near-wall cluster of small crossings between x/c 0.64–0.72,
+disconnected from a long downstream tail reattaching and re-fragmenting
+between x/c 1.42–1.60) that persists with only cosmetic drift through
+t=3800. **The fine-mesh run fails the SAME way throughout its length, not
+a different or worsening way** — it locks onto a 13-crossing multi-valued
+structure early and stays there, which is the signature of resolving a
+genuinely multi-valued (or slowly, persistently unsteady) flow state, not
+of noise accumulating from an unstable numerical scheme. A scheme-driven
+blow-up typically gets worse monotonically over time; this doesn't — it
+converges, just not to a single value.
+
+**Read together, against the coarse-mesh original (3 crossings) and
+`boundedU` (3 crossings, essentially the same 3 as the original, sep/
+reattach/sep locations agreeing to under 0.001 in x/c):** refining the
+mesh 4× did not shrink or clarify the structure toward a single bubble —
+it revealed more than four times as many crossings, present from early in
+the run and stable thereafter, while every residual got two to three
+orders of magnitude worse. Under-resolution produces the opposite
+signature — spurious structure that a finer mesh smooths away. Getting
+*more* structure and *worse* convergence from a *better* mesh is what a
+genuinely multi-valued flow state looks like under a formulation (steady
+SIMPLE) that requires a single fixed point to converge to.
+
+### What is licensed, and what is not
+
+**Licensed by direct test:** the non-convergence at Delta=0.25 is not a
+consequence of the unbounded-gradient momentum reconstruction (bounding it
+left the topology unmoved to under 0.001 in x/c and only partially
+improved residuals), and it is not a consequence of insufficient mesh
+resolution (refining 4× made it worse on both residuals and fragmentation
+count, the opposite of what under-resolution artifacts do). Both were the
+two most plausible fixable explanations and both are eliminated by direct
+test, not by assumption.
+
+**Not licensed:** "intrinsic to the method," unqualified. Two artifacts
+eliminated is not all artifacts eliminated. Untested and remaining on the
+table: a different pressure-velocity coupling or relaxation strategy
+(only the standard SIMPLE/GAMG combination with this case's original
+relaxation factors was tried); a coupled or pseudo-transient solver
+(PIMPLE/local-time-stepping) rather than SIMPLE; a genuinely unsteady
+(URANS/DES) treatment, which the moderation-factor literature notes is
+*not* the field's documented remedy but which was never tried here either
+and would be the direct test of whether the multi-valued structure is a
+low-frequency physical oscillation, as hypothesized, rather than an
+artifact of demanding a steady solution at all; and a systematic mesh/
+scheme sweep rather than the two single points tested. The honest form:
+**the failure survives the two most likely setup explanations, so the
+evidence now favors an intrinsic limit over an artifact for this specific
+Delta on this case, with the above list still open.**
+
+### Fold-in: what the literature and the diagnostics say together
+
+Delta is the field's own documented moderation factor (Matha & Morsbach
+2023). The standard remedy for a hard-converging corner is to moderate it
+until a steady solution is achievable (not to switch solvers). This sweep
+applied that remedy systematically — eight values, 0.10 through 0.75 —
+and none converged. The representative failing point (Delta=0.25) was then
+tested against its two most obvious fixable explanations, and both were
+ruled out by direct test. **So: on this case, the field's documented
+remedy for hard-converging eigenvalue-perturbation corners does not work,
+and the two most likely reasons it might not be our own setup's fault are
+eliminated.** That is a specific, citable, negative result about a
+documented practice, not a complaint about this project's implementation
+— and it is the strongest claim this sweep is able to support.
+
+### Separation stayed well-posed under 4× refinement too
+
+The separation-vs-reattachment asymmetry already on record extends
+through the fine-mesh diagnostic. The finemesh case's first separation
+crossing is 0.6398 at every time checked (1000 through 3800, drifting by
+under 0.0003) — as single-valued and stable as the coarse mesh's, even
+while everything downstream of it fragments into 13 crossings and the
+residuals sit two to three orders of magnitude over gate. Separation
+location is not just easier to get right and easier to find a fixed point
+for on the original mesh — it stays that way under 4× refinement, on a
+run whose reattachment region is actively unable to settle. The asymmetry
+is mesh-independent; the failure to converge is not evenly distributed
+across the flow, it is concentrated entirely downstream of separation.
