@@ -32,7 +32,8 @@ reference gap that made the previous record ungated:**
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Re 1000 | complete, t=90 | **1.4678** | 0.1445 | 0.9666 | **0.2343** | 2417.17 s | 22,400 cells |
 | Re 2000 | **complete, t=90** (corrected) | **1.5879** | 0.2095 | 1.1837 | **0.2421** | 3965.11 s | 27,360 cells |
-| Re 3900 | **running**, launched 20260729T203008Z | — | — | — | — | predicted ~6,400 s (see cost model) | 44,000 cells |
+| Re 3900 | **complete, t=90** (finished 20260729T233155Z) — **provisional**, see spacing trap below | **1.7547** | — (envelope 1.1713) | 1.4133 | **0.2493** | 10,902 s | 44,000 cells |
+| Re 3900 (corrected spacing) | **running**, launched 20260729T233553Z | — | — | — | — | — | 44,000 cells |
 
 Statistics taken over the second half of each run (t=45-90). Strouhal from
 mean-crossing periods of the lift signal. Re 2000's full-window numbers were
@@ -519,6 +520,368 @@ suggest St_2D keeps climbing past where St_3D has already plateaued, widening
 the shedding-frequency gap faster than the drag gap as Re increases. That is a
 prediction, written down before Re 3900's gate is computed, per P2.
 
+## Gate: Re 3900 (four-quantity point gate — the rung that matters)
+
+Run finished 2026-07-29 23:31:55Z, clean `End`, expected artifact present,
+`t=90.0` reached exactly, 13,838 force-coefficient rows. Wall clock 10,902 s
+(`ExecutionTime` 10,899.37 s). Near-wall resolution measured, not assumed:
+`yPlus` on the cylinder patch min 0.0349 / **max 1.5325** / average 0.8395 — the
+target-y+~1 sizing held, so the wall layer is resolved and the numbers below are
+not a wall-treatment artifact.
+
+**Statistics were independently re-derived from the run's own raw
+`postProcessing/` output** (`analyze_re3900.py`, zero new core-minutes),
+applying the same machinery `cylinder_ladder.py` uses — `time_weighted_stats`,
+`measure_period`, `halves_drift`, and the module's own `base_cpb` /
+`recirculation_length` logic.
+
+The rung also wrote its own `F5_runs/re3900/record.json`. The independent
+re-derivation **reproduces it exactly** on every quantity (Cd 1.7011,
+St 0.24094, -Cpb 2.038308, `lr_over_d: null`, `u_min` 0.060774, drift 6.626%
+at the t>=45 window) — a genuine L-2 confirmation that the self-report is
+accurate, obtained by recomputing from raw solver output rather than by
+trusting it. Both are reported because agreement between them is itself
+evidence; neither was copied from the other.
+
+**Averaging-window sensitivity, shown rather than hidden** (a single arbitrary
+window is not evidence the mean is settled):
+
+| window | Cd_mean | Cd drift | Cl_rms | St |
+| --- | --- | --- | --- | --- |
+| t >= 45 (half) | 1.7011 | 6.63% | 1.3774 | 0.2409 |
+| **t >= 54 (primary)** | **1.7547** | **0.50%** | **1.4133** | **0.2493** |
+| t >= 63 | 1.7632 | 1.21% | 1.4135 | 0.2536 |
+
+The t>=45 half-window still carries 6.63% drift — the flow was *not* fully
+settled at t=45, so the ladder's default "second half" convention is slightly
+too generous at this rung. From t>=54 onward drift collapses to 0.5-1.2% and
+the numbers agree to ~0.5% on Cd and ~1.7% on St. **Primary window t>=54**
+(lowest drift); the t>=54 -> t>=63 spread is carried as the settled-value
+sensitivity, not suppressed.
+
+**Reference — the six-source Re=3900 table** (all six are **3D**: LES, DNS, DES
+and PIV experiment), from the ICCM2018 SST-IDDES study seen directly this
+session (He, Zhao & Wan, *Numerical Calculations for Smooth Circular Cylinder
+Flow at 3900 Reynolds Numbers with SST-IDDES Turbulence Model*, Proc. ICCM2018,
+open access), which tabulates its own sources side by side:
+
+| source | method | Cd | -Cpb | St | L_rec/D |
+| --- | --- | --- | --- | --- | --- |
+| Lourenco & Shih (1993) | PIV **experiment** | 0.99 | 0.88 | 0.215 | 1.33 |
+| Ma et al. (2000) | DNS | 0.84 | — | 0.220 | 1.59 |
+| Xu et al. (2010) | SST-DES | 1.08 | — | 0.220 | 0.98 |
+| Frederic & Tremblay (2002) | DNS | 1.03 | 0.93 | 0.220 | 1.30 |
+| Frederic & Tremblay (2002) | LES | 1.14 | 0.99 | 0.210 | 1.04 |
+| Kravchenko & Moin (2000) | LES | 1.04 | 0.94 | 0.210 | 1.35 |
+| **source-to-source range** | | **0.84-1.14** | **0.88-0.99** | **0.210-0.220** | **0.98-1.59** |
+
+**Our measured Re 3900 (2D laminar, this ladder, t>=54): Cd_mean=1.7547,
+St=0.2493, Cl_rms=1.4133, -Cpb=2.0383, L_rec/D = no mean recirculation found.**
+
+| metric | measured | vs 3D reference (source-to-source range) | verdict |
+| --- | --- | --- | --- |
+| Cd_mean | 1.7547 | **+53.9% to +108.9%** (vs 1.14 low, 0.84 high) | large over-prediction, direction as expected for 2D |
+| St | 0.2493 | **+13.3% to +18.7%** (vs 0.220 low, 0.210 high) | over-prediction, direction as expected |
+| -Cpb | 2.0383 | **+105.9% to +131.6%** (vs 0.99 low, 0.88 high) | base suction roughly doubled |
+| L_rec/D | **none detected** | vs 0.98-1.59 | **NOT MEASURABLE BY THIS METRIC — topological finding, see below** |
+
+Deviations are stated as source-to-source ranges computed individually against
+each cited value, matching the convention corrected at the Re 1000 rung.
+
+**Note on the reported envelopes.** `band` in this ladder's machinery is the
+peak-to-trough *oscillation envelope*, not an uncertainty interval. Cd's
+envelope is 1.1713 and -Cpb's is 3.0046 — these are large because the 2D
+shedding is violent, and they are a *finding*, not a reason to distrust the
+means (each mean is a time-weighted trapezoidal average over ~11-14 shedding
+cycles with <=1.2% drift).
+
+### The recirculation-bubble collapse — the most informative single result
+
+The centerline probe fan (0.05D to 2.4D behind the base, 0.05D spacing) finds
+**no mean reversed flow anywhere**. Mean streamwise velocity dips to a minimum
+of **+0.0608** at 0.20D behind the base, then recovers monotonically:
+
+| x/D behind base | 0.05 | 0.10 | 0.15 | **0.20** | 0.25 | 0.30 | 0.40 | 0.50 | 0.70 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| mean u/U | +0.131 | +0.098 | +0.067 | **+0.061** | +0.095 | +0.153 | +0.276 | +0.417 | +0.583 |
+
+The profile has the correct qualitative shape (deficit, minimum, recovery), so
+the probe fan is working and positioned in the wake — the bubble genuinely is
+not there. Every 3D reference has L_rec/D between 0.98 and 1.59. **The 2D
+laminar solve's mean vortex-formation region has collapsed to below 0.05D**,
+i.e. the vortices roll up essentially at the base.
+
+This is not an isolated oddity — it is the *same* mechanism as the other three
+deviations, and it makes them mutually consistent rather than three separate
+problems: vortices forming at the base means the separating shear layers are at
+their strongest when they roll up, which raises base suction (-Cpb doubled),
+raises drag (Cd +54-109%), and raises shedding frequency (St +13-19%). This is
+precisely the mechanism Jiang & Cheng invoke at the Re 1000 rung, running in
+the same direction and now much further: in 3D the recirculation region is
+*longer*, the shear layer weaker at shedding, and every derived quantity lower.
+
+**One probe-fan limitation, flagged not buried:** the three most-downstream
+probes (2.30/2.35/2.40 D) return byte-identical means (+0.89227), i.e. they are
+all landing inside a single cell — the O-grid's radial grading (expansion ratio
+280) makes far-wake cells very large. This does not affect L_rec/D (decided
+near the base, where cells are fine) but it means the far-wake end of this
+probe fan carries no independent information and should not be used for wake-
+recovery claims at any rung.
+
+### Re-verdicting L_rec/D: not a failed measurement, an inapplicable metric
+
+The recirculation-length method — sign change of the *time-mean* centerline
+velocity — presupposes a wake that holds a quasi-stationary bubble long enough
+for a time-mean to resolve one. Checked directly rather than assumed: the raw
+(non-averaged) `probesCenterline` series at Re 3900 shows the near-wake
+streamwise velocity reversing sign on **34-39% of all 7,275 samples** in
+`0.05D <= s/D <= 0.50` (excursions to -1.0 to -1.4, more than the freestream
+speed). The flow separates continuously. What breaks is the *mean*, not the
+*separation*. Correct record for this quantity at this rung:
+**NOT MEASURABLE BY THIS METRIC ON THIS FLOW** — not FAIL, not "none" as if a
+bubble should have been there and wasn't found. An inapplicable gate is a
+different outcome from a missed one, and conflating them (the same distinction
+this ladder already draws for A3/ONERA M6's adjoint: BLOCKED is not FAIL)
+misleads in the opposite direction from intended.
+
+Two boundary-condition and probe-placement checks were run before trusting
+this, both negative (i.e. both rule out an artifact):
+- `constant/polyMesh/boundary`: `cylinder { type wall; }`; `0/U` and the
+  *solved* `90/U`: `cylinder { type noSlip; }`; `90/p`: `zeroGradient`. A
+  genuine no-slip wall, not slip/symmetry — confirmed in the actual solved
+  field, not just the initial condition.
+- Probe coordinates (`x = D/2 + s*D`, matching the file's own header
+  `# Probe 0 (0.55 0 0.05)`) checked against the mesh's own cylinder radius
+  (`arc 0 1 (0.5 0 0)` in `blockMeshDict`) — probe 0 sits 0.05D **downstream of
+  the surface**, not inside the solid, not laterally displaced. Independently
+  re-sampled the same instant directly from the written `90/` field via a
+  throwaway `sample`-type `postProcess` run (a different code path from the
+  `probes` function object entirely): **0 of 250 points along the centerline
+  have Ux<0** at t=90, agreeing qualitatively with the time-averaged probe
+  result. Two independent extraction methods agree; the no-bubble finding is
+  real, not a probe artifact.
+
+### The onset is real, it is located, and it is not a smooth extinction
+
+`base_cpb`/`recirculation_length` were re-run against the **already-completed**
+Re 1000 and Re 2000 rungs (zero new core-minutes, `cylinder_ladder.py`'s own
+functions, same probe-fan geometry) — a check neither of those rungs had had
+applied before, because L_rec/D was a Re-3900-only addition to the module:
+
+| rung | L_rec/D | -Cpb | reversal frequency, s/D=0.05-0.25 | mean bubble? |
+| --- | --- | --- | --- | --- |
+| Re 1000 | **0.397** | 1.608 | 38-48% | yes, clean |
+| Re 2000 | **0.254** | 1.863 | 35-42% | yes, shorter |
+| Re 3900 | **none** | 2.038 | 34-39% | **no** |
+
+Both lower rungs have a genuine, monotonically shrinking mean bubble. The
+breakdown is not gradual across the ladder — it happens specifically between
+Re 2000 and Re 3900. **The departure from trend is the strongest part of this
+result.** Fit a power law to the two measured points (n = ln(0.254/0.397) /
+ln(2) = -0.644) and extrapolate: predicted L_rec/D at Re 3900 = **0.165**
+(naive same-ratio reapplication gives 0.163 — the two methods agree). A method
+that resolved 0.254D cleanly one rung earlier, extrapolated to predict
+~0.165D, and then found **exactly nothing**, is not a continuation of the
+shrinking trend. It is a departure from it.
+
+**The mechanism, measured rather than described as "more chaotic":**
+reversal *frequency* near the base is flat across all three rungs, 34-48%,
+with no trend. What grows is the *asymmetry* of the fluctuation: the largest
+positive (downstream-going) excursion in the same near-base window climbs
+**0.22 -> 0.52 -> 0.81** from Re 1000 to Re 2000 to Re 3900, while the
+negative excursions grow more modestly. The bubble does not disappear because
+the flow stops reversing. It disappears because the forward-going swings grow
+large enough to swamp the reversal in the time-mean. Specific and falsifiable:
+if a corrected-spacing or higher-resolution rerun at Re 3900 shows reversal
+frequency dropping sharply (rather than staying ~35%) alongside a recovered
+mean bubble, this mechanism is wrong and needs replacing.
+
+**Is 2D always just short of 3D by a fixed ratio, with Re 3900 merely being
+where the ratio reaches zero? Checked directly, and the answer is no.**
+Jiang & Cheng (2017) plot both 2D and 3D recirculation-type length against Re
+up to 1000 (their Fig. 6, "2D and 3D Lf-Re relationships" — read from the
+actual figure, not the extracted text, since this is graph data). At Re 1000:
+2D DNS ~0.85-0.9D, 3D DNS ~2.0D — a real ~2.2-2.4x gap already exists at the
+lowest rung on this ladder, not just at Re 3900. But a *constant* ratio cannot
+produce what is actually observed: extrapolating a fixed 2.2-2.4x deficit onto
+this ladder's own 2D trend (0.165D predicted at Re 3900) predicts a 3D
+recirculation length around 0.36-0.40D at Re 3900 — the real 3D reference is
+**1.40D**, nearly 4x more than a fixed-ratio story predicts. The ratio itself
+is exploding, not holding steady. That is evidence for a widening, accelerating
+divergence between 2D and 3D wake topology, not a proportional shortfall that
+happens to reach its endpoint at this particular Re.
+
+**The Lf-vs-Lr trap, stated explicitly so the next person does not fall into
+it.** Jiang & Cheng's Fig. 6 is titled "Lf-Re," formation length, not
+recirculation length — a different, conventionally *longer* quantity (referenced
+to the fluctuation peak rather than the mean-velocity sign change), and the
+~2x gap between their 2D Lf~0.85-0.9 and this ladder's own Re 1000 Lr=0.397
+is exactly what comparing the wrong pair of quantities produces, not a defect
+in either dataset. **Checked against the primary source rather than assumed:**
+Parnaudeau et al. (2008) — the paper this ladder's Re 3900 gate cites for its
+1.40D reference — defines its own `Lr` explicitly: "the recirculation length
+Lr corresponds to the distance between the base of the cylinder and the sign
+change of the centerline mean longitudinal velocity" (their Table II caption
+separately lists `Lr, recirculation length` and `L<u'u'>, formation length` as
+two deliberately distinct columns; the citation used here pulls the `Lr`
+column). That is this ladder's own definition, exactly. **The Re 3900 gate's
+external reference is definition-matched, not merely self-consistent** — the
+comparison is valid as posed.
+
+### Framing: a topological difference, not a percentage
+
+Every other quantity this ladder has gated reads as "2D is high by some
+percentage" (Cd +54-109%, St +13-19%, -Cpb +106-132% at this rung). Mean
+recirculation length reads differently: the 2D solve does not produce a short
+bubble, it produces **no bubble at all**, while reversing instantaneously a
+third of the time and the 3D reference holds a real, stable 1.40D structure.
+That is a **qualitative difference in wake topology between two
+dimensionalities of the same flow at the same Reynolds number**, not a
+quantitative gap of the kind the other three metrics give — and it arrives
+with a mechanism attached (amplitude asymmetry swamping a still-reversing
+flow) and a located onset (between Re 2000 and Re 3900, not smeared across the
+whole ladder). For a ladder whose entire purpose is attributing 2D/3D
+deviation to dimensionality, this is stronger evidence than any of the three
+percentage-based metrics, not a fourth row that happened to fail.
+
+**Still open, and this is what the corrected-spacing twin (launched
+2026-07-29 23:35:53Z, see below) exists to answer:** whether this onset is
+genuine 2D-wake character at Re 3900, or a consequence of the near-wall
+spacing deficit measured separately (§ below, L-17). The same reversal-
+frequency and L_rec/D checks will be run on the twin the moment it lands, so
+the comparison is apples-to-apples against all three of Re 1000/2000/3900.
+
+**Docket, costed, not launched — sharpens the onset window.** A Re 2800 rung
+(interpolated mesh ~35,700 cells, log-Re-interpolated between the 27,360-cell
+Re 2000 and 44,000-cell Re 3900 meshes; laminar first-cell 0.002673 from this
+ladder's own formula) would halve the current Re 2000-3900 onset window.
+Predicted cost ~6,600 s (~1.83 h) on the Re 2000->3900 exponent (1.515,
+see below — steeper than earlier rungs, so this estimate uses the locally
+relevant exponent, not the stale 0.714 one). **Falsifiable prediction stated
+before any run:** L_rec/D at Re 2800 is either (a) detectable and near
+0.16-0.20D, supporting smooth extinction reaching zero around Re 3900, or (b)
+already absent, placing the true onset below 2800. Parked behind the twin,
+which is more informative to have first.
+
+### The methodology trap bit a SECOND time — one layer deeper (found after the run finished)
+
+The trap recorded above (case staged as kOmegaSST, reverted to laminar before
+launch) was **only partly undone**. `constant/turbulenceProperties` and the
+`0/` fields were reverted to the laminar convention — but **the mesh was not
+rebuilt**, and the mesh had been generated with the *turbulent* first-cell
+sizing:
+
+| | first-cell height | formula |
+| --- | --- | --- |
+| Re 1000, Re 2000 (ladder convention) | — | `0.01*sqrt(200/Re)` (laminar branch) |
+| **Re 3900 as actually run** | **0.0035167** | `estimate_first_cell(Re, y+=1)` — the **kOmegaSST branch** |
+| Re 3900 laminar convention would be | 0.0022646 | `0.01*sqrt(200/3900)` |
+
+The completed run's first cell is **55% coarser** than the ladder's laminar
+convention. So this rung moved **two** variables against Re 1000/Re 2000 —
+Reynolds number *and* near-wall spacing — which is precisely the
+one-variable-at-a-time discipline the methodology-trap section claims to have
+protected. Reverting a closure means reverting *everything the closure
+influenced*, including mesh sizing; checking `turbulenceProperties` and `0/`
+was not sufficient, and `case_preflight.sh` cannot catch this because a mesh
+with the wrong spacing is still a valid mesh.
+
+**A corrected-spacing rerun (`f5a_re3900_correctedspacing`, laminar first-cell
+0.0022646, same 44,000 cells, grading 474.211 vs 280.383) was launched at
+2026-07-29 23:35:53Z and is live as this is written.** Its result supersedes
+the numbers above if they differ materially.
+
+**This does not invalidate the measurements** — y+ was measured at max 1.53 /
+avg 0.84, so the wall layer was genuinely resolved and the run is a valid
+solve of the case it actually meshed. It means the *ladder comparison* (Re 1000
+-> 2000 -> 3900 trend) has an uncontrolled second variable at the top rung, so
+the trend rows below carry that caveat.
+
+### Verdict: GATE REACHED (PROVISIONAL) as a model-deviation measurement — NOT as a solver validation
+
+Four quantities were measured against a real six-source point table, and the
+result is a large, directionally-consistent, single-mechanism deviation. That
+is a genuine, reportable gate outcome and the ladder's most informative rung so
+far.
+
+**But it is weaker than the Re 1000 gate in a specific way that must not be
+glossed:** at Re 1000 there were **2D DNS references** (Jiang & Cheng 2017,
+Henderson 1997) that this solve matched to within a few percent on every
+metric — that cross-check is what proved *the solver itself* was sound, letting
+the 3D gap be attributed cleanly to dimensionality. **At Re 3900 all six
+reference sources are 3D. No 2D-laminar cross-check exists at this rung**, so
+this gate cannot separate "the 2D model is inadequate at Re 3900" (expected,
+and almost certainly dominant) from "the solver has a Re-3900-specific problem"
+(not expected, but not excluded either). Re 2000 was weak for lack of *any*
+point reference; Re 3900 is weak for a different reason — an excellent point
+reference that only exists for a different model class. Stated plainly rather
+than presented as equal in strength to Re 1000.
+
+A 2D-laminar Re=3900 reference is unlikely to exist in the literature (few
+people publish a calculation they consider unphysical), so the honest closing
+of this gap is the **3D rung**, not another paper search.
+
+### Pre-registered prediction: FALSIFIED
+
+The Re 2000 section recorded, before this rung's gate was computed (per P2):
+that the St deviation would keep growing faster than the Cd deviation, "St_2D
+keeps climbing past where St_3D has already plateaued, widening the
+shedding-frequency gap faster than the drag gap as Re increases."
+
+| rung | St deviation vs 3D | Cd deviation vs 3D |
+| --- | --- | --- |
+| Re 1000 | +8.5% to +11.6% | +35.9% to +44.8% |
+| Re 2000 | +15% to +27% | +32% to +59% |
+| **Re 3900** | **+13.3% to +18.7%** | **+53.9% to +108.9%** |
+
+**The opposite happened.** The St gap did *not* keep widening — its band at Re
+3900 sits inside Re 2000's and its midpoint fell (≈21% -> ≈16%). The Cd gap
+widened sharply instead (≈45% -> ≈81% at the midpoint). The prediction was
+wrong in its central claim, and is recorded as wrong rather than quietly
+re-fit.
+
+**Two caveats, stated so the falsification is not over-read:**
+
+1. **Reference basis differs across rows.** Re 1000 was gated against a 2D+3D
+   DNS set, Re 2000 against a *banded* regime description with no point source,
+   and Re 3900 against a six-source 3D point table. The Re 2000 row carries the
+   widest and least trustworthy interval.
+2. **The Re 3900 row has the uncontrolled near-wall-spacing variable** described
+   above, so part of its Cd growth could be spacing rather than Reynolds number.
+
+The falsification is therefore solid on the *Cd* trend (which grew
+unambiguously, by far more than either caveat could plausibly account for — a
+36-point midpoint jump) and **provisional on the *St* trend** pending the
+corrected-spacing rerun.
+
+### Cost model outcome: prediction MISSED by +70.6%
+
+The ladder predicted **~6,390 s** for this rung (posted at ~20:33 UTC with the
+run ~1% complete, per P2), using the locally-fit Re 1000 -> Re 2000 exponent
+0.714. **Actual: 10,902 s.** Error **+70.6%** — the run took nearly twice the
+predicted time.
+
+The report's own stated failure condition was met exactly: "If Re 3900 lands
+far from 6,390 s, the locally-fit exponent is itself the thing that was wrong."
+It was. Backing the exponent out of the measurements:
+
+| interval | fitted exponent n (cost ~ Re^n) |
+| --- | --- |
+| Re 100 -> 1000 | 0.985 |
+| Re 1000 -> 2000 | 0.714 |
+| **Re 2000 -> 3900** | **1.515** |
+| Re 1000 -> 3900 (overall) | 1.107 |
+
+The exponent is **not monotonic and not stable** (0.985 -> 0.714 -> 1.515), so
+*no* single-exponent power law describes this ladder's cost, and the previous
+write-up's error was extrapolating from a two-point local fit at all — not
+merely picking the wrong exponent value. **Recommendation for the remaining
+rungs: quote cost predictions as a range spanning n=0.7 to n=1.6 rather than a
+point estimate**, until enough rungs exist to characterize the curvature. On
+that basis Re 5000 would be ~13,000-16,000 s (3.6-4.5 h) and Re 10,000
+~21,000-49,000 s (5.9-13.7 h) — a spread wide enough that it should itself inform whether
+the 2D ladder continues upward at all, given the model-adequacy finding above.
+
 ## The 2D question, restated with numbers instead of a placeholder
 
 Above Re ~190 the real cylinder wake is three-dimensional (mode A, then mode
@@ -589,10 +952,13 @@ back to the docket with a number attached rather than as a guess.
 - **Where 2D stops being defensible:** physically, above Re ~190. Re 1000's
   gate now demonstrates *why*, quantitatively and with a cited mechanism, not
   just asserts it.
-- **Cost scaling:** NOT a flat power law. Exponent measured at 0.985 (Re
-  100->1000) and 0.714 (Re 1000->2000) — it is dropping, and the Re 3900
-  prediction has been revised down accordingly (6,390 s vs the earlier 9,240 s
-  decade-average projection).
+- **Cost scaling:** NOT a flat power law, and **not monotonic either** —
+  updated after Re 3900. Exponent measured at 0.985 (Re 100->1000), 0.714 (Re
+  1000->2000), **1.515 (Re 2000->3900)**. The "it is dropping" read recorded
+  here before Re 3900 finished was wrong: the exponent dropped, then rose above
+  both earlier values. The 6,390 s prediction built on that read missed by
+  +70.6% (actual 10,902 s). Remaining rungs should be quoted as an n=0.7-1.6
+  range, not a point estimate.
 - **Steady vs unsteady:** the batch's steady cylinder family runs ~2.4 s per
   evaluation against ~394 s for the unsteady family at Re 100-1000 — a factor
   of roughly 164x, measured, and the dominant cost driver in the whole batch.
@@ -600,3 +966,58 @@ back to the docket with a number attached rather than as a guess.
   case directory that passes `case_preflight.sh` is not the same as inheriting
   a case that matches the ladder's established methodology. See the
   methodology-trap section above; the corresponding LESSONS.md entry is L-11.
+- **New after Re 3900 — reverting a closure means reverting everything the
+  closure sized.** L-11 was applied to `turbulenceProperties` and `0/` but not
+  to the mesh, which kept the kOmegaSST y+~1 first-cell height (55% coarser
+  than the laminar convention). `case_preflight.sh` structurally cannot catch
+  this: a wrongly-sized mesh is still a valid mesh. The check that would have
+  caught it is comparing the *staged* `stage_params.json` against the rung's
+  own convention before launch, which costs nothing.
+- **New after Re 3900 — the ladder's default averaging window is too
+  generous.** "Second half" (t>=45) still carried 6.63% Cd drift at this rung,
+  versus 0.50% from t>=54. Every rung's numbers should be reported with a
+  window sweep, not a single window, and the window choice justified by its
+  measured drift.
+
+## Where the ladder goes next — reference availability decides it, and it says stop
+
+**The next rungs' reference support was researched this session, before
+committing compute** (the P3 "cheap check first" discipline). Result:
+
+| rung | point reference available? | best source found | access |
+| --- | --- | --- | --- |
+| Re 5000 | **No** — nothing dedicated found | Williamson (1996) mentions Re=5,000 only in passing (Lin et al. 1995; Chyu & Rockwell 1995), qualitative, no numeric table | n/a |
+| Re 10,000 | **Exists but unreachable** | Dong & Karniadakis (2005) *J. Fluids & Structures* 20(4):519-531, DOI 10.1016/j.jfluidstructs.2005.02.004; and Dong, Karniadakis, Ekmekci & Rockwell (2006) *JFM* 569:185-207, DOI 10.1017/S0022112006002606 (DNS+PIV at Re=3900/4000 **and** 10,000 — exactly the right paper) | **Paywalled**, confirmed via Unpaywall API on both DOIs (`is_oa: false`, no repository copy). Conference form (Dong, Lucor & Karniadakis 2004, DOI 10.1109/dod_ugc.2004.18) also closed. |
+| Re 1000/3900 cross-check from one URANS solver | would have been ideal | Wang (2010) *J. Hydrodynamics* 22(2):221-228 — runs Re=1000, 3900 **and** 10,000 in one study | **Paywalled**, ScienceDirect fetch returned HTTP 403 |
+| Re 10,000 (qualitative only) | yes | Williamson (1996) *Ann. Rev. Fluid Mech.* 28:477-539 — Re=10,000 sits in the "shear-layer transition regime" (Re 1,000-200,000): St gradually decreases, base suction increases with Re | **Open access**, full text read; but the St-Re curve is a figure, not a text-extractable number |
+
+**Consequence:** Re 10,000 could only be gated as a **banded** rung (like Re
+2000), not a point rung — despite the right paper existing — and Re 5000 could
+not be gated at all on present access. That is a materially weaker gate than Re
+3900's for **5.9-13.7 hours** of compute apiece.
+
+**Recommendation: do not climb to Re 5000 or Re 10,000 next.** Two independent
+reasons now point the same way, and they were established separately:
+
+1. **Model adequacy (measured, this rung).** At Re 3900 the 2D laminar model
+   has already lost the mean recirculation bubble entirely — a qualitative,
+   not merely quantitative, failure. Going further up Re makes a model that is
+   already qualitatively wrong more expensive, not more informative. The
+   deviation would grow; nothing would be learned that this rung has not
+   already shown.
+2. **Reference availability (researched, this session).** The rung above buys a
+   weaker gate than the rung just completed.
+
+**The informative next step is the 3D rung, not a higher-Re 2D rung** — it is
+the only thing that can close the one gap this gate could not: separating "2D
+model inadequate" from "solver problem at Re 3900", since no 2D-laminar
+reference exists at Re=3900 to cross-check against (and is unlikely to be
+published by anyone, for the same reason this rung's result is a negative
+one). A Re=1000 3D pilot is already live on this box, which is the right
+sequencing — establish the 3D machinery at a rung where the 2D answer is
+already validated against 2D DNS, before spending 3D money at Re 3900.
+
+**A cheap, zero-compute alternative that would upgrade Re 10,000 to a point
+gate:** institutional/library access to either Dong & Karniadakis paper. This
+is the same P3 follow-up already logged against Re 2000 (Norberg 2003 /
+Williamson 1996) and should be batched with it rather than pursued separately.
