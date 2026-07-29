@@ -360,3 +360,172 @@ Separation x/c for kOmega also moved slightly with convergence (0.6592 →
 0.6620); still close to the other models', consistent with the standing
 observation that separation onset is the easy part and recovery is the hard
 part.
+
+---
+
+## 2026-07-29: r4 band-tightening sweep read, and the tightening does not survive the gate
+
+The question this sweep was set up to answer: not "does the band contain
+1.100" (already YES, via the full-corner channel-3 band
+`[0.5278, 1.2534]`), but **how tight can the band be made while still
+containing**, by dialing the channel-3 eigenvalue-perturbation magnitude
+`Delta` up from 0 (unperturbed kOmegaSST) toward 1 (the full oneC corner)
+and finding the smallest `Delta` at which the perturbed reattachment first
+drops below 1.100.
+
+Seven points exist in `r4_band_tightening_hump/`: Delta = 0.00, 0.05, 0.10,
+0.15, 0.25, 0.50, 0.75. Delta=0.00, 0.25, 0.75 had already been looked at.
+Delta=0.05, 0.10, 0.15, 0.50 had finished but nobody had read them. Reading
+all seven together, checked against `system/fvSolution`'s actual
+`residualControl` gate (`(U|p|k)` at 5e-7, `omega` at 1e-10, checked on each
+field's **Initial residual** — the value printed before the linear solve
+each SIMPLE iteration, which is what OpenFOAM's own convergence check uses
+and what triggers the `SIMPLE solution converged` message), gives a
+materially different picture than the one carried into this task.
+
+### The curve, gate-checked
+
+| Delta | iterations | gate met | separation x/c | reattachment x/c | vs 1.100 | flow topology |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0.00 | 1795 | **YES** — printed "SIMPLE solution converged in 1795 iterations"; all fields' Initial residuals under gate at that step | 0.6544 | **1.2534** | +13.95% | single clean bubble |
+| 0.05 | 2124 | **YES** — printed "SIMPLE solution converged in 2124 iterations"; all fields' Initial residuals under gate (Ux 9.8e-9, Uz 8.9e-9, p 7.9e-9, omega 9.85e-11, k 2.3e-8) | 0.6534 | **1.3077** | +18.88% | single clean bubble |
+| 0.10 | 3800 (hit endTime cap) | **NO** — p's Initial residual oscillates 9e-8 to 5.2e-7 over the last 1400 iterations with no decaying trend, ends at 5.24e-7 (just over the 5e-7 gate); everything else is under gate | 0.6523 | 1.3509 / 1.3724 (two crossings) | above, ambiguous | fragments: reattaches, re-separates almost immediately, reattaches again |
+| 0.15 | 3800 (cap) | **NO** — p and Uz both oscillate well above gate through the whole tail (p: 5.7e-7–1.5e-5, Uz: 6.4e-7–1.2e-6); GAMG needs 47–96 inner iterations per pressure solve by the end (vs. ~2 for the converged points) — the pressure solve itself is struggling | 0.6507 | 1.3567 / 1.3777 (two crossings) | above, ambiguous | fragments the same way as 0.10, worse |
+| 0.25 | 3800 (cap) | **NO — corrected, see below** | 0.6396 (first main-bubble crossing) | 0.7111 (main crossing; a further sep at 0.8468 has no matching reattach in-domain), plus a small extra bubble near x/c≈0 | below | multiply-fragmented, bubble does not close cleanly |
+| 0.50 | 3800 (cap) | **NO — diverged.** k/omega bounding exploding (k avg 960, omega avg 1.91e5), velocity limiter active on 3.1% of cells | — | dozens of spurious Cf sign crossings across nearly the whole domain | n/a | numerical noise, not physics |
+| 0.75 | 3800 (cap) | **NO — diverged, worse.** k avg 5.26e4, omega avg 4.88e5, limiter active on up to 48% of cells (already flagged before this task) | — | 80+ spurious sign crossings | n/a | numerical noise, not physics |
+
+**Only two points on this sweep are genuinely converged: Delta=0.00 and
+Delta=0.05.** Both are *above* the experimental 1.100. Everything from
+Delta=0.10 upward fails its own gate, and by Delta=0.10 the flow has already
+fragmented into multiple separation/reattachment events — "reattachment
+x/c" stops being a single number exactly where the curve starts to matter.
+
+### Correction: Delta=0.25 was reported "converged cleanly." It is not.
+
+This task's brief carried forward "Delta=0.25 converged cleanly (k 1.67e-9,
+omega 4.25e-11) at reattachment 0.7111" as an established result. Both
+residual figures are real and are in the log at t=3800 — but they are each
+field's **Final residual**, the value *after* that iteration's linear
+solve, not the Initial residual the gate actually checks. Tracking the
+Initial residuals for the same run from t=2000 to t=3800:
+
+| t | p (last GAMG solve), Initial | Uz, Initial | omega, Initial |
+| --- | --- | --- | --- |
+| 2000 | 5.27e-6 | 3.41e-6 | 1.42e-8 |
+| 2400 | 4.14e-6 | 3.08e-6 | 6.00e-9 |
+| 2800 | 2.48e-6 | 2.45e-6 | 4.57e-9 |
+| 3200 | 4.04e-6 | 2.02e-6 | 4.77e-9 |
+| 3600 | 3.88e-6 | 2.32e-6 | 5.31e-9 |
+| 3800 | 4.73e-6 | 2.59e-6 | 7.79e-9 |
+
+Gate is p/U at 5e-7, omega at 1e-10. p is 10–150× over gate throughout,
+Uz is 4–7× over, omega is 46–140× over — and none of the three is decaying;
+omega's Initial residual is *rising* over the last 1200 iterations, not
+falling. This is a residual floor, the same signature already documented
+for SpalartAllmaras elsewhere in this record ("a residual floor, not a slow
+monotonic transient") — except here it was not caught, and the point was
+carried into this task as a landed value on the curve. It is not one.
+Reported here per the study's own rule: a point that does not meet its gate
+is reported separately, not on the curve, regardless of who reported it or
+when.
+
+### The containment-breaking Delta cannot be established from converged data
+
+The two converged points (0.00 → 1.2534, 0.05 → 1.3077) are both above
+1.100, and 0.05 moved *away* from the experiment relative to 0.00, not
+toward it — the response is non-monotonic near the origin before whatever
+happens later. No converged run in this sweep reaches below 1.100. The
+unconverged, provisional numbers suggest the crossing happens somewhere
+between Delta=0.15 (provisional ~1.36–1.38, still above 1.100, still
+fragmenting) and Delta=0.25 (provisional ~0.71 on the main crossing, below
+1.100, worse fragmented) — an untested, badly-conditioned window where
+pressure-solve inner iterations were already climbing into the 70–96 range
+before the run ended. **That window was never actually run**, so this is
+not a bracket, it is a gap with two non-converged endpoints on either side
+of it.
+
+Per the standing rule, a point that does not meet its gate is not a point
+on the curve. Since every run at Delta ≥ 0.10 fails its gate (0.10, 0.15,
+0.25 by residual floor; 0.50, 0.75 by outright divergence), **this sweep
+does not honestly establish any containment-breaking Delta**, and does not
+honestly establish any band tighter than the one already on record.
+
+### The tightest defensible band is therefore unchanged: [0.5278, 1.2534]
+
+That band comes from the already-established, already-converged channel-3
+corner runs (oneC at Delta=1, reported earlier in this record), not from
+anything in this sweep. Nothing gate-met in `r4_band_tightening_hump/`
+narrows it. Reporting Delta=0.25's provisional 0.7111 (or any other
+unconverged point) as a "tighter band" would be exactly the failure mode
+this task warned against: picking the Delta that produces a pleasing
+result and calling it a finding. The two points that are actually solid
+(0.00, 0.05) don't tighten anything — they sit above the existing ceiling
+and, if anything, argue the ceiling could be a hair higher.
+
+**Is tightening via this method legitimate, or is it circular?** As
+attempted here, it would have been circular by construction: the only way
+to name a "tighter" Delta is to scan Delta until the perturbed value drops
+below 1.100 and report that Delta — which means the band is chosen because
+it contains the answer, not because Delta has independent physical
+grounding at that specific value. That is a fitted number wearing a
+UQ-bound costume, and it is exactly what the rules for this task forbid.
+On top of the circularity, there is a second, sharper problem specific to
+this case: **every run that actually reaches down toward or past 1.100
+(0.25, 0.50, 0.75) is also a run that failed to converge**, with severity
+increasing together — 0.25 sits on a mild residual floor, 0.50 and 0.75
+diverge outright. That correlation, from only three non-converged data
+points, is suggestive rather than proven, but it points at a real
+possibility: the perturbation strong enough to move reattachment down to
+the experimental value may also be strong enough to destabilize the SIMPLE
+iteration on this mesh/scheme combination, so a genuinely-converged,
+single-bubble solution at the tightening Delta might not exist to be found.
+If that holds up under more testing, tightening this band isn't just
+methodologically circular here — it may not be reachable with a physically
+well-posed steady solve at all, which would be a limitation of the
+approach, not a result to report as a number.
+
+### Fragmentation is real, starts earlier than previously noted, and undermines the scalar comparison independent of convergence
+
+The record already flagged fragmentation at Delta=0.25 (three sign
+crossings in the bubble region instead of one). This sweep shows it starts
+earlier: **Delta=0.10**, the mildest perturbation beyond the converged
+control points, already produces a double crossing right at reattachment
+(1.3509 then immediately 1.3513/1.3724) — a small secondary bubble
+appearing right where the single number would be read. Delta=0.15 shows the
+same shape, larger. By Delta=0.25 the leading edge has its own extra
+bubble and the main bubble does not close within the domain. By Delta=0.50
+and 0.75 the wall shear stress trace is not a bubble at all — it is
+numerical noise from a diverged bounded solution (dozens to 80+ sign
+crossings), which is a divergence symptom, not a flow feature, and should
+not be read as "extreme fragmentation."
+
+This matters beyond convergence status: at exactly the Delta range where a
+containment-breaking crossing would need to be identified, "reattachment
+x/c" is not a well-defined scalar even before checking whether the run
+converged. Comparing a multi-valued or ill-defined quantity to the single
+NASA number is not meaningful there. Separation x/c, by contrast, stayed
+single-valued and moved smoothly across every point in this sweep (0.6544 →
+0.6534 → 0.6523 → 0.6507 → 0.6396) even as reattachment fragmented — the
+same "separation is the easy part, reattachment is the hard part" pattern
+already on record, now shown to hold for numerical well-posedness as well
+as for model accuracy.
+
+### What this sweep actually establishes
+
+- The control point (Delta=0.00) still reproduces the independent baseline
+  exactly — 0.6544 / 1.2534 — and Delta=0.05 is a second, independently
+  gate-met point, so the machinery is not in question.
+- No tighter containing band than `[0.5278, 1.2534]` is honestly supported
+  by this sweep. The tightening exercise did not succeed, and reporting
+  that it did not succeed is the correct output, not a gap to paper over.
+- The attempted method for tightening was circular by construction (scan
+  Delta for containment, report the Delta that contains). That the sweep
+  additionally failed on convergence grounds means the circularity was
+  never actually exercised to produce a false-positive "tight band" — but
+  it would have been, had the Delta=0.25 misread gone unchecked.
+- Fragmentation of the separation bubble at moderate Delta is a genuine
+  property of the perturbed flow, appears earlier than previously
+  documented (Delta=0.10, not 0.25), and is a standing objection to reading
+  "reattachment x/c" as a single comparable scalar in that regime — not an
+  artifact of any one non-converged run.
