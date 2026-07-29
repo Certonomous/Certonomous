@@ -1,5 +1,14 @@
 # F10 — 3D viscous RANS (Ahmed body): closing the mega-batch's 3D-viscous gap
 
+> **Update:** the "mesh topology is identical across the Reynolds sweep"
+> statement below is no longer true. 17/52 F10 evaluations failed the y+
+> gate at the top of the Re range on the fixed `refinement=2` mesh this
+> document describes; the mesh now follows Reynolds number instead (still
+> `refinement=2` below 2.8e6, `refinement=3` at/above it). See
+> `F10_YPLUS_FIX.md` for the measured cause, the fix, and the verification.
+> Everything else below (case-writer reuse, gates, the 25°/35° validation
+> result) is unchanged.
+
 Directive D7, family F10. Added to `sdk/workflows/mega_batch.py` (constants,
 `design_for_index` kind 11, `_run_ahmed_viscous`, dispatch in `run_task`).
 Every number below was measured on this host through the real
