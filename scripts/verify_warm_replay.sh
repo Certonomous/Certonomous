@@ -23,6 +23,13 @@
 #
 # Act names are the mission-output directory names, which is also where each
 # act writes its transcript.
+#
+# ONE CAVEAT. That transcript is a single file per act, overwritten by whoever
+# runs the act last. If anything else is driving the control room while this
+# runs -- another operator, another agent -- its run becomes this script's
+# baseline and the next act reports DIFFERS on a prompt it never sent. Seen
+# repeatedly. Run this with the box to yourself, and re-run any act that
+# differs only in its SYSTEM line before believing it.
 set -u
 
 HOST=http://127.0.0.1:8765
