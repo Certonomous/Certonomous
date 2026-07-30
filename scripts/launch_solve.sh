@@ -87,11 +87,8 @@ setsid nohup bash -c '
         echo "started:  '"$STAMP"'"
         echo "finished: $(date -u +%Y%m%dT%H%M%SZ)"
         echo "case:     '"$CASE"'"
-        if [ -n "'"$EXPECT"'" ]; then
-            if [ -e "'"$EXPECT"'" ]; then echo "expected_artifact: PRESENT ('"$EXPECT"')"
-            else echo "expected_artifact: MISSING ('"$EXPECT"') -- process exited without producing it"; fi
-        fi
         CONV_CHECKER=/home/ubuntu/Certonomous/scripts/check_convergence.py
+        CONV_ITERS=""
         if [ -x "$CONV_CHECKER" ] || [ -f "$CONV_CHECKER" ]; then
             # check_convergence.py exits 0/1/2 for CONVERGED/NOT_CONVERGED/
             # CANNOT_TELL -- all three are legitimate VERDICTS, not errors, so
@@ -103,6 +100,31 @@ setsid nohup bash -c '
             if [ -z "$CONV_LINE" ]; then
                 CONV_LINE="CANNOT_TELL: checker produced no output (see stderr, checker may have crashed)"
             fi
+            # Pull the converged iteration count (if any) so a run that
+            # converged BEFORE its --expect endTime does not get reported as
+            # having failed to produce an artifact it was never going to
+            # write -- a residualControl-gated run that stops early is a
+            # SUCCESS, not a missing result (the same false alarm this
+            # project already caught once on F8). Best-effort: silent no-op
+            # if the checker errors or the field is absent.
+            CONV_ITERS=$(python3 "$CONV_CHECKER" "'"$LOG"'" --case "'"$CASE"'" --json 2>/dev/null \
+                | python3 -c "import json,sys
+try:
+    d=json.load(sys.stdin)
+    print(d.get(\"detail\",{}).get(\"iterations_at_convergence\",\"\"))
+except Exception:
+    print(\"\")" 2>/dev/null)
+        fi
+        if [ -n "'"$EXPECT"'" ]; then
+            if [ -e "'"$EXPECT"'" ]; then
+                echo "expected_artifact: PRESENT ('"$EXPECT"')"
+            elif [ -n "$CONV_ITERS" ] && [ -e "$(dirname "$(dirname "'"$EXPECT"'")")/$CONV_ITERS/$(basename "'"$EXPECT"'")" ]; then
+                echo "expected_artifact: PRESENT AT CONVERGED ITERATION ($(dirname "$(dirname "'"$EXPECT"'")")/$CONV_ITERS/$(basename "'"$EXPECT"'")) -- residualControl stopped the run at $CONV_ITERS, before the --expect path'"'"'s endTime; not missing, converged early"
+            else
+                echo "expected_artifact: MISSING ('"$EXPECT"') -- process exited without producing it"
+            fi
+        fi
+        if [ -n "${CONV_LINE:-}" ]; then
             echo "convergence: $CONV_LINE"
         else
             echo "convergence: CANNOT_TELL: checker not found at $CONV_CHECKER"
