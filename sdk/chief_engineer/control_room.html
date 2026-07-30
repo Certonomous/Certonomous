@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Certonomous — control room</title>
+<title>Certonomous control room</title>
 <style>
   :root {
     --bg: #060708; --panel: #0a0c0e; --panel-2: #0f1315; --line: #191d21; --line-2: #262c31;
@@ -400,7 +400,7 @@
 <div class="shell" id="shell">
   <header class="masthead">
     <div class="brand"><div class="mark">C</div><div><strong>CERTONOMOUS</strong><span>Autonomous CFD laboratory</span></div></div>
-    <div class="clock" id="clock">—</div>
+    <div class="clock" id="clock"></div>
     <div class="status">
       <span class="runtime" id="runtime">CONNECTING</span>
       <span class="beacon" id="beacon"></span>
@@ -425,25 +425,25 @@
         <div class="ctl"><label for="cycles"><span>Chief review cycles</span><output id="cyclesOut">3</output></label><input id="cycles" type="range" min="1" max="6" value="3"></div>
         <div class="upload"><input type="file" id="surfaceFile" accept=".stl,.obj"><label for="surfaceFile" id="surfaceLabel">Load a surface (STL / OBJ)</label><p id="surfaceNote" hidden></p></div>
         <button class="launch" id="launch">Launch engineering mission</button>
-        <div class="route" id="route" hidden><div class="route-head"><b id="routeIntent">—</b><span id="routeConf"></span></div><p id="routeRationale"></p></div>
+        <div class="route" id="route" hidden><div class="route-head"><b id="routeIntent"></b><span id="routeConf"></span></div><p id="routeRationale"></p></div>
       </div>
     </section>
 
     <aside class="panel telemetry" id="telemetry">
       <div class="tsection" id="auditSection" hidden>
-        <span class="eyebrow">Compute audit — measured</span>
-        <div class="audit-verdict" id="auditVerdict"><b id="auditWord">—</b><span id="auditFit"></span></div>
+        <span class="eyebrow">Compute audit, measured</span>
+        <div class="audit-verdict" id="auditVerdict"><b id="auditWord"></b><span id="auditFit"></span></div>
         <div class="audit-grid">
-          <span>cores <i id="auditCores">—</i></span>
-          <span>memory <i id="auditMemory">—</i></span>
-          <span>other jobs <i id="auditJobs">—</i></span>
-          <span>load <i id="auditLoad">—</i></span>
+          <span>cores <i id="auditCores"></i></span>
+          <span>memory <i id="auditMemory"></i></span>
+          <span>other jobs <i id="auditJobs"></i></span>
+          <span>load <i id="auditLoad"></i></span>
         </div>
         <p class="audit-reason" id="auditReason"></p>
       </div>
       <div class="tsection" id="rosterSection" hidden><span class="eyebrow">The team</span><div id="roster"></div></div>
       <div class="tsection" id="dispatchSection" hidden>
-        <div class="dispatch-head"><span class="eyebrow">Dispatch — the fleet</span><span class="grant" id="dispatchGrant"></span></div>
+        <div class="dispatch-head"><span class="eyebrow">Dispatch, the fleet</span><span class="grant" id="dispatchGrant"></span></div>
         <div class="dispatch-grid" id="dispatchGrid"></div>
       </div>
       <div class="tsection" id="computeSection" hidden><span class="eyebrow">Compute ledger</span><div class="tiles" id="computeTiles"></div><p class="channel-note" id="computeNote"></p></div>
@@ -493,7 +493,7 @@
       <div class="ws-top">
         <div class="mid"><span id="missionId">NO ACTIVE MISSION</span><strong id="missionGoal">Awaiting chief directive</strong></div>
         <div class="kpis" id="kpis" hidden>
-          <div class="kpi"><b id="kCycle">—</b><span>Cycle</span></div>
+          <div class="kpi"><b id="kCycle">0/4</b><span>Cycle</span></div>
           <div class="kpi"><b id="kAgents">0</b><span>Agents</span></div>
           <div class="kpi"><b id="kWorkers">0</b><span>Workers</span></div>
         </div>
@@ -512,7 +512,7 @@
         <div class="view memo" id="memo" hidden></div>
         <div class="view" id="credentials" hidden></div>
         <div class="view ask" id="ask" hidden>
-          <div class="ask-log" id="askLog"><div class="ask-intro">Ask about anything the lab has actually done — a solved case, a validated body, a numerics fact. Answers come from the record and cite it.</div></div>
+          <div class="ask-log" id="askLog"><div class="ask-intro">Ask about anything the lab has actually done. A solved case, a validated body, a numerics fact. Answers come from the record and cite it.</div></div>
           <form class="ask-row" id="askForm"><input id="askInput" autocomplete="off" placeholder="e.g. What have we validated? What do we know about the sphere?"><button type="submit">Ask</button></form>
         </div>
       </div>
@@ -710,7 +710,8 @@ function resetMission() {
   $('dispatchGrid').innerHTML=''; $('dispatchGrant').innerHTML='';
   ['auditSection','rosterSection','dispatchSection','computeSection','channelsSection','knowSection','agendaSection','route','landscapeBox','traceBox'].forEach(id => setHidden(id, true));
   $('legend').classList.remove('on');
-  $('kAgents').textContent='0'; $('kWorkers').textContent='0'; $('kCycle').textContent='—';
+  $('kAgents').textContent='0'; $('kWorkers').textContent='0';
+  $('kCycle').textContent=`0/${PHASE_ORDER.length}`;
   const cv = $('viewportCanvas'), c = cv.getContext('2d'); c && c.clearRect(0,0,cv.width,cv.height);
   setHidden('viewportEmpty', false); $('viewportLabel').textContent='No surface loaded'; $('viewportStats').textContent='';
   document.querySelector('.tab[data-view="memo"]').hidden = true;
@@ -718,8 +719,11 @@ function resetMission() {
 }
 
 function finish(status) {
-  // Let the paced transcript catch up before declaring the mission over.
-  if (revealQ.length) { setTimeout(() => finish(status), 500); return; }
+  // Let the paced transcript catch up before declaring the mission over. The
+  // KPI counters ride that same queue, so a mission whose backend finished
+  // early must not close out on a stale count: wait for the queue to be both
+  // empty AND done revealing before reading the resting values below.
+  if (revealQ.length || revealing) { setTimeout(() => finish(status), 500); return; }
   state.finished = true; $('beacon').classList.remove('live'); $('launch').disabled = false;
   $('globalStatus').textContent = status === 'failed' ? 'MISSION ENDED' : 'MISSION COMPLETE';
   // The roster idles at completion; the KPIs keep the mission's peak effort
@@ -786,9 +790,13 @@ function dispatch(env) {
       if (state.race && (p.series === 'mc' || p.series === 'rom')) raceTracePoint(p);
       else enqueue('trace', p, ts);
       break;
-    case 'agent.started': state.agents++; state.agentsSeen = Math.max(state.agentsSeen || 0, state.agents); renderAgentCount(); break;
-    case 'worker.provisioned': state.workers++; $('kWorkers').textContent = state.workers; break;
-    case 'worker.released': state.workers = Math.max(0, state.workers-1); $('kWorkers').textContent = state.workers; break;
+    // Agent and worker counts ride the SAME paced queue as the narration,
+    // geometry, tables and dispatch strip. Applied on arrival they ran ahead
+    // of the operations on screen; on the queue the numeral ticks up exactly
+    // as the beat that provisioned the worker is revealed.
+    case 'agent.started': enqueue('agentUp', p, ts); break;
+    case 'worker.provisioned': enqueue('workerUp', p, ts); break;
+    case 'worker.released': enqueue('workerDown', p, ts); break;
     // The resilience beat is a staged, on-camera event (R4): the lane flashes
     // LOST and a banner holds over the stage until the fresh worker takes over.
     // Both ride the paced queue so the LOST state dwells long enough to read.
@@ -819,17 +827,17 @@ function renderAudit(p) {
   $('auditVerdict').className = `audit-verdict ${fits ? 'fits' : 'constrained'}`;
   $('auditWord').textContent = fits ? 'CAPACITY AVAILABLE' : 'CAPACITY CONSTRAINED';
   $('auditFit').textContent = (p.requested != null) ? `${p.requested} requested / capacity ${p.capacity}` : '';
-  $('auditCores').textContent = p.cores ?? '—';
-  $('auditMemory').textContent = p.memory ?? '—';
-  $('auditJobs').textContent = p.other_jobs ?? '—';
-  $('auditLoad').textContent = p.load ?? '—';
+  $('auditCores').textContent = p.cores ?? 'not reported';
+  $('auditMemory').textContent = p.memory ?? 'not reported';
+  $('auditJobs').textContent = p.other_jobs ?? 'not reported';
+  $('auditLoad').textContent = p.load ?? 'not reported';
   $('auditReason').textContent = p.reason || '';
   // Feed the dispatch panel's requested-vs-granted line from the same audit.
   if (p.requested != null && p.capacity != null) {
     const full = fits && p.requested <= p.capacity;
     state.dispatchGrant = full
-      ? `<b>${p.requested}</b> requested / capacity ${p.capacity} — full fan-out in one wave`
-      : `<b>${Math.min(p.requested, p.capacity)}</b> granted of ${p.requested} requested — staged`;
+      ? `<b>${p.requested}</b> requested / capacity ${p.capacity}, full fan-out in one wave`
+      : `<b>${Math.min(p.requested, p.capacity)}</b> granted of ${p.requested} requested, staged`;
     renderDispatchHead();
   }
 }
@@ -851,7 +859,7 @@ function renderDispatch() {
   $('dispatchGrid').innerHTML = slots.map(n => {
     const s = state.dispatch[n];
     return `<div class="slot ${esc(s.state)}"><span class="sn">Worker ${n+1}</span>`
-      + `<span class="sl">${esc(s.label || '—')}</span>`
+      + `<span class="sl">${esc(s.label || 'waiting')}</span>`
       + `<span class="st">${esc(stateWord(s.state))}${s.detail ? ' · ' + esc(s.detail) : ''}</span></div>`;
   }).join('');
 }
@@ -1168,6 +1176,17 @@ const APPLY = {
   roster:     p => renderRoster(p),
   workerKill: p => workerKilled(p),
   workerBack: p => workerReprovisioned(p),
+  // The Agents and Workers KPI numerals move on this queue too, so the count
+  // changes land on the SAME beat as the operation the viewer is watching
+  // rather than racing ahead of the narration that explains them (Katie,
+  // 2026-07-30: "the number of agents and numbers of workers must appear at
+  // the same time as the operations that are shown").
+  agentUp:    () => { state.agents++;
+                      state.agentsSeen = Math.max(state.agentsSeen || 0, state.agents);
+                      renderAgentCount(); },
+  workerUp:   () => { state.workers++; renderWorkerCount(); },
+  workerDown: () => { state.workers = Math.max(0, state.workers - 1);
+                      renderWorkerCount(); },
 };
 // The worker-kill beat holds on screen: the LOST banner and lane must dwell long
 // enough to read (and to catch in a still) before the fresh worker takes over.
@@ -1315,6 +1334,18 @@ function renderAgentCount() {
   $('kAgents').textContent = n;
   state.peakAgents = n;
 }
+// Workers is the live provisioned count: it climbs through fan-out and falls
+// back as slots release, so the numeral shows the fleet as it stands right
+// now. Two channels write it, exactly as before: the fleet's own
+// provisioned/released tally, and the lab roster's absolute count. Whichever
+// spoke last owns the display. The peak is remembered separately so the
+// end-of-mission summary can show the effort the mission actually took
+// instead of the idle zero it finishes on.
+function renderWorkerCount(live) {
+  const n = live == null ? state.workers : live;
+  $('kWorkers').textContent = n;
+  state.peakWorkers = Math.max(state.peakWorkers || 0, n);
+}
 function renderRoster(p) {
   setHidden('rosterSection', false);
   const members = p.members || [];
@@ -1325,9 +1356,8 @@ function renderRoster(p) {
   // feeds, so the numeral matches whoever is on screen the moment they appear.
   members.filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle')
          .forEach(m => noteAgentRole(m.name || m.role));
-  $('kWorkers').textContent = p.workers ?? 0;
+  renderWorkerCount(p.workers ?? 0);
   renderAgentCount();
-  state.peakWorkers = Math.max(state.peakWorkers || 0, p.workers || 0);
 }
 function renderCompute(p) {
   setHidden('computeSection', false);
@@ -1745,7 +1775,7 @@ function renderResult(p) {
   // real spread machinery; the chip says what stands behind it.
   const head = p.ci != null
     ? `${p.value} ± ${p.ci} (${p.confidence || '95%'})`
-    : (p.value ?? '—');
+    : (p.value ?? 'not reported');
   // The "envelope N% of value" share measures settle-window flatness, a
   // DIFFERENT number from the headline's ± band one line above; on the card
   // that juxtaposition misread as a contradiction, so the clause is dropped
@@ -1775,7 +1805,7 @@ async function uploadSurface(e) {
     const b = await r.json(); if (!r.ok) throw new Error(b.error||'could not read surface');
     $('surfaceLabel').textContent = `Loaded ${b.name}`; state.uploaded = b.name;
     setHidden('surfaceNote', false);
-    $('surfaceNote').innerHTML = `<b>${(+b.triangles).toLocaleString()}</b> triangles ready. Write your objective and launch — it runs on this surface.`;
+    $('surfaceNote').innerHTML = `<b>${(+b.triangles).toLocaleString()}</b> triangles ready. Write your objective and launch. It runs on this surface.`;
     if (!$('goal').value.trim()) $('goal').value = b.suggested || '';
     loadGeometry({ url: b.url, label: b.name });
     toast(`${b.name} loaded`);
