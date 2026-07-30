@@ -19,6 +19,14 @@ and read in full, with detailed tables already reproduced in `F5a_cylinder_reyno
 that reading is reused here with attribution rather than re-done. Nothing below is inferred from a
 title or a citation count.
 
+**Addendum, same standards, new session.** Section 5 below was added in a follow-up no-compute
+session (read/search/write only; no solver launched, matching the four live production jobs running
+at the time — including a 15-hour 3D cylinder rung — untouched) to answer four literature questions
+raised by the Re 3900 rung's own finding that its mean recirculation bubble had vanished. The same
+provenance discipline applies: PAYWALLED sources are marked as such, Unpaywall/DOI checks are
+reported explicitly rather than assumed, and two figures (not just extracted text) were fetched and
+read directly where the paper's own prose did not carry the needed data.
+
 ---
 
 ## 1. The NASA wall-mounted hump
@@ -522,6 +530,248 @@ genuine physics change to attribute deviation to, separate from the 2D/3D questi
 
 ---
 
+## 5. Loss of the 2D mean recirculation bubble at Re 3900 — four questions from tonight's result
+
+### What we found tonight, restated
+
+`F5a_cylinder_reynolds_ladder.md`'s Re 3900 rung finds no sign change of the time-mean centreline
+streamwise velocity anywhere in the probed range — the same definition Parnaudeau et al. (2008)
+state explicitly for `Lr` — while the raw (non-averaged) centreline signal reverses sign 34-39% of
+the time near the base, with excursions past -1.0. Re 1000 and Re 2000, probed with the identical
+method, both show a genuine, shrinking mean bubble (0.397D, 0.254D). Extrapolating those two points
+predicts ~0.165D at Re 3900; the measurement is zero, not a smaller positive number. This session's
+task: no compute, read/search/write only, to find out whether this is a reproduction of a known
+result or a new one, and to check it is not an artifact of a documented, unrelated 2D deficit.
+
+### Q1 — has anyone published the 2D mean bubble being lost above some Re?
+
+**No paper found this session states, as its own finding, "the 2D time-mean recirculation bubble
+disappears above Reynolds number X" for the plain circular cylinder.** The search was not
+exhaustive — several likely-relevant titles were paywalled and could not be read (below) — so this
+is reported as "not found," not as "does not exist."
+
+The closest bracketing evidence:
+
+**Singh, S.P. & Mittal, S., "Flow past a Cylinder: Shear Layer Instability and Drag Crisis,"
+*International Journal for Numerical Methods in Fluids* 47(1):75-98 (2005).** Full text read (41
+pages, the authors' own accepted manuscript, freely self-archived at
+`home.iitk.ac.in/~smittal/publi_&_present/sm_journals/drag_crisis.pdf` — not paywalled). This is a
+pure 2D DNS (stabilized finite-element, unsteady incompressible Navier-Stokes, no turbulence model)
+run from Re=100 to Re=10^7, sampling Re=100, 2000, **3900**, 7000, 10^4, 3.2x10^4, 10^5, 10^6, 10^7
+— the closest methodological cousin to our own ladder found in this entire review, and the only
+source found that runs pure 2D at exactly Re=3900.
+
+- Their own text, quoted: *"as the three dimensional features in the flow become increasingly
+  important, the two-dimensional computations over predict the mean drag and base suction
+  coefficient for 2x10^3 < Re < 3.2x10^4"* — a range that brackets our Re 3900 rung directly — and
+  *"Mittal and Balachander have suggested that the higher value of the drag coefficient for the 2D
+  simulations is caused due to higher level of Reynolds stresses resulting in a shorter formation
+  length behind the bluff body."*
+- Their Figure 13 (time-averaged streamlines) is discussed explicitly in text only for Re=2000,
+  10^5 and 10^6 — quoted: *"the Re = 2000 flow is associated with two recirculation zones on each
+  half of the cylinder. However, they are located away from the surface of the cylinder and the
+  speed of flow in these regions is relatively small."* **Re=3900 is not among the Reynolds numbers
+  discussed for Figure 13** — the one rung that would have directly confirmed or refuted our own
+  finding is the one their own streamline discussion skips.
+- **The figure was fetched and read directly, per this task's own standard, since it carries data
+  the extracted text does not.** Figure 5 (time-averaged vorticity field and Reynolds stresses,
+  `u'u'`, `v'v'`, `u'v'`, for each sampled Re) shows, at Re=3900, a compact structure immediately
+  behind the cylinder visually similar in extent to the Re=2000 panel next to it. **This cannot be
+  read as confirming or refuting our own finding**: vorticity contours describe circulation and
+  shear, not the sign of the mean streamwise velocity on the centreline — the specific quantity our
+  own `Lr` gate depends on — and no streamwise-velocity centreline profile for Re=3900 is plotted
+  anywhere in this paper. Stated as an open, unresolved tension, not a contradiction: the nearest
+  precedent found stops exactly one rung short of the comparison needed and uses a different field.
+
+**A related but distinct, independently-confirmed fact**, read in full: **Scott, L.R. & Durst, R.,
+"Chaotic dynamics of two-dimensional flows around a cylinder," arXiv:2311.07698 (2023).** Full text
+read (open access, 27 pages, `arxiv.org/pdf/2311.07698`). Pure 2D DNS (pressure-robust finite
+elements, IMEX time-stepping), Re up to ~10^4, using drag/lift time series (Lyapunov exponent,
+correlation with a fitted periodic signal, fractal dimension of the drag/lift attractor) rather than
+any wake-length metric. Quoted directly: *"the vortex shedding in the Karman vortex street is
+periodic, beginning around Reynolds number 50... and continuing this periodicity up to Reynolds
+number 200. Moreover, our results indicate that this periodicity noticeably begins to break down as
+early as Reynolds number 250"*; and, from the abstract, *"a vibrational resonance in the cylinder
+would be unlikely for Reynolds numbers greater than 1000, where the drag/lift behavior is fully
+chaotic."* This is a **different quantity** than our `Lr` (global force-signal periodicity, not a
+local mean-velocity wake length) — it neither confirms nor measures bubble loss — but it
+independently establishes, from a different code, method and research group than either our own
+ladder or Singh & Mittal, that a pure 2D-constrained cylinder wake's overall dynamics are already
+**fully chaotic by Re>1000**, i.e. well below our Re 3900 rung. A wake whose forcing signal is
+already established in the literature to be chaotic by Re~1000 is a plausible host for a mean
+quantity that later, at some higher Re, tips over from "small but present" to "erased by asymmetric
+excursions" — consistent with, but not a citation for, our own finding.
+
+**Verdict on Q1: apparently novel, not previously reported as far as this session could determine,
+bracketed on one side by a directly comparable but incomplete precedent (Singh & Mittal skip the
+one rung that mattered) and on the other by independent confirmation that the host dynamics are
+already chaotic well before this Re.** This should be reported as a new result, not a reproduction.
+
+### Q2 — is 2D mean Lr reported anywhere in this Re range, matched against 3D at the same Re?
+
+**No source found this session reports 2D `Lr` and 3D `Lr` side by side at a matched Re anywhere in
+1000-3900**, beyond what our own ladder already has on record (the Jiang & Cheng 2017 Re=1000
+cross-check, and the Fig. 6 `Lf`-based ratio check already logged in `F5a_cylinder_reynolds_ladder.md`,
+which found the 2D/3D gap widening rather than holding at a fixed ratio). The brief's own warning —
+that Jiang & Cheng's Fig. 6 plots `Lf`, formation length, not `Lr` — is repeated here deliberately,
+because two more sources found this session make exactly the same substitution and had to be read
+carefully to avoid re-making the error the brief flagged:
+
+**Mittal, R. & Balachandar, S., "Effect of three-dimensionality on the lift and drag of nominally
+two-dimensional cylinders," *Physics of Fluids* 7(8):1841-1865 (1995).** **PAYWALLED** — confirmed
+via Unpaywall on DOI `10.1063/1.868500` (`is_oa: false`, no repository copy); a direct fetch of
+AIP's own PDF link was blocked by a Cloudflare challenge page, not a genuine document. Everything
+below is relayed via independent secondary summaries (search-result synthesis of the paper's own
+abstract and citing literature), not the full text, and is bounded to what those summaries state.
+Decomposes a 3D DNS velocity field into a spanwise-mean component and a 3D remnant, solves the
+pressure-Poisson equation for each separately, and attributes the 2D-vs-3D force discrepancy to
+differences in the near-wake pressure/Reynolds-stress field; reported numbers are for **Re=525**
+(16% higher `Cd`, 88% higher lift peak-to-valley in 2D vs 3D) — a useful confirmation that the same
+over-prediction mechanism operates at low Re, but not a same-Re comparison at 3900 and not a
+reported `Lr` value at all (the mechanism is stated in terms of Reynolds-stress concentration and
+formation length, `Lf`-type language, not `Lr`).
+
+**Balachandar, S., Mittal, R. & Najjar, F.M., "Properties of the mean recirculation region in the
+wakes of two-dimensional bluff bodies," *Journal of Fluid Mechanics* 351:167-199 (1997).**
+**PAYWALLED** — confirmed via Unpaywall on DOI `10.1017/s0022112097007179` (`is_oa: false`);
+ResearchGate returned HTTP 403. The abstract (obtained via Crossref's public metadata record, not
+the paper itself — marked explicitly as abstract-only) states the paper studies the "time- and
+span-averaged mean wake recirculation region... wake bubble" across **ten cases spanning
+Re=250-140,000** (circular/elliptic/square cylinders and a normal plate), drawing on the authors'
+own DNS at lower Re and LES/experiment (including Cantwell & Coles 1983) at higher Re, and states
+plainly that **the mean recirculation region is present in all ten cases**. **This is the one
+finding in this whole review that would, if it includes an unmodelled 2D case at a matched Re, cut
+directly against our own result** — but the abstract's own phrase "span-averaged" strongly implies
+the low-Re entries are 3D (or otherwise turbulence-resolving) datasets rather than our own
+un-modelled 2D-laminar configuration, and this cannot be resolved without the paywalled full text.
+**Recorded as an open, unresolved gap, not papered over**: see Proposal 6.
+
+**Verdict on Q2: no matched-Re 2D-vs-3D `Lr` comparison exists in the literature found this
+session for 1000<Re<3900.** The literature that does exist in this Re-adjacent space (Mittal &
+Balachandar 1995 at Re=525; Balachandar/Mittal/Najjar 1997's broader Re=250-140,000 survey) reports
+the mechanism (near-body Reynolds-stress concentration, shorter `Lf`) rather than the specific
+`Lr` quantity, and the one source whose own claim ("bubble present in all ten cases") is in tension
+with ours cannot be checked past its abstract. This is exactly the situation the brief warned could
+undercut the finding — a possible fixed or worsening 2D-vs-3D deficit rather than a genuine
+transition — and it is **not resolved** by what this session could read; it is a real, live
+uncertainty, not a settled point in either direction.
+
+### Q3 — is there a standard way to measure recirculation length when the mean has no closed bubble?
+
+**Yes, in a form directly applicable here, and it does not require calling the quantity
+unmeasurable.**
+
+**Gerrard, J.H., "The mechanics of the formation region of vortices behind bluff bodies," *Journal
+of Fluid Mechanics* 25:401-413 (1966).** **PAYWALLED** — relayed via independent secondary summaries
+only, not the full text. Introduces the **formation length `Lf`**, defined as the streamwise
+distance from the body to the midpoint between the two off-axis peaks of streamwise-velocity r.m.s.
+fluctuation — a quantity built entirely from second-moment statistics of the fluctuating field, not
+from the sign of the mean velocity. Because it only requires that the shear layers exist and
+fluctuate (which our own data plainly shows they do — the 34-39% reversal-frequency numbers already
+on record in `F5a_cylinder_reynolds_ladder.md` **are** fluctuation statistics), `Lf` stays
+well-defined exactly where `Lr` breaks down. This is not a proposal to invent a new metric; it is a
+60-year-old, field-standard practice, independently corroborated by two sources read in full this
+session: Singh & Mittal (2005, above, citing Mittal & Balachandar's own "shorter formation length"
+mechanism) and Jiang & Cheng (2017, read by a prior session per `F5a_cylinder_reynolds_ladder.md`,
+whose own Fig. 6 already plots 2D and 3D `Lf`-Re curves to Re=1000).
+
+**Simpson, R.L., "Turbulent Boundary-Layer Separation," *Annual Review of Fluid Mechanics*
+21:205-234 (1989).** Full text read directly (freely hosted PDF, Virginia Tech's own institutional
+archive, `archive.aoe.vt.edu/simpson/aoe6154/Simp_Sep_AnnuRev_1989.pdf` — confirmed open, pages read
+as rendered images since the file is a scanned reprint). Establishes a field-standard alternative
+**principle** — not the same metric, but the same underlying idea our own data already supports —
+for exactly this kind of situation: classify the separation state by the **fraction of time
+backflow occurs**, not by the sign of the time-mean alone. Quoted directly: *"It is too narrow a
+view to use vanishing surface shearing stress or flow reversal as the criterion for separation...
+For steady free-stream two-dimensional flows on streamlined surfaces, separation begins
+intermittently at a given location... At progressively farther downstream locations, the fraction
+of time that the flow moves downstream is progressively less."* The paper's own quantitative scale,
+based on the fraction of time `gamma_pu` the flow moves downstream at a **wall** location:
+**incipient detachment** (`gamma_pu=0.99`, 1% backflow time), **intermittent transitory
+detachment** (`gamma_pu=0.80`, 20%), **transitory detachment** (`gamma_pu=0.50`, 50% — quoted,
+*"found... to coincide with a zero value for the time-averaged wall shear stress"*), and
+**detachment** (where the mean wall shear stress itself reaches zero, coinciding with TD in
+available data). **This framework's established domain is a single separation location along a
+wall-bounded shear flow — not a near-wake centreline recirculation length, which is a streamwise
+extent, a different geometric question.** No paper found this session applies Simpson's specific
+percentage-of-reversal-time scale to a wake bubble length. Its relevance here is as **precedent for
+the principle**, not as a ready-made formula: the field already accepts, and has for decades, that
+reversal probability is more physically fundamental than the sign of a single averaged number, in
+exactly the situation (large-amplitude, high-frequency near-wall/near-wake unsteadiness) our Re
+3900 rung is in.
+
+**Two low-cost, falsifiable next steps follow directly and are written up as Proposals 5 and 6
+below** — one is a direct application of an established metric (`Lf`) to data already on disk; the
+other is our own candidate extension of Simpson's principle (explicitly flagged as our own idea, not
+a literature citation) to a wake-length setting.
+
+### Q4 — is 2D bubble loss connected in the literature to the absence of the spanwise instability?
+
+**No single source found this session states this causal chain as its own conclusion.** What
+exists is two independently-verified, adjacent facts, and a synthesis connecting them that is
+offered here explicitly as this lab's own inference, not as anyone's published claim.
+
+**Fact 1 (already established in this review, Section 4, reused with attribution)**: the real,
+3D-permitted cylinder wake becomes absolutely linearly unstable to a spanwise (mode A) perturbation
+at `Re~188.5` (Barkley & Henderson 1996, PAYWALLED, relayed via Rao et al. 2017, read in full by a
+prior session), with the shorter-wavelength mode B following by `Re~259-260`. Both are far below
+Re=3900.
+
+**Fact 2**: **Karniadakis, G.E. & Triantafyllou, G.S., "Three-dimensional dynamics and transition to
+turbulence in the wake of bluff objects," *Journal of Fluid Mechanics* 238:1-30 (1992).**
+**PAYWALLED** — confirmed via Unpaywall-style DOI check was not separately run, but a direct fetch
+attempt of the paper itself failed and no repository copy was located; the abstract below was
+obtained via Crossref's public metadata record (not the paper), and is quoted in full rather than
+paraphrased so nothing beyond what it literally states is asserted: *"The wakes of bluff objects...
+undergo a 'fast' transition, from a laminar two-dimensional state at Reynolds number 200 to a
+turbulent state at Reynolds number 400... the wake first becomes three-dimensional, as a result of a
+secondary instability of the two-dimensional vortex street [at] a Reynolds number close to 200...
+At higher Reynolds numbers the three-dimensional flow oscillation undergoes a period-doubling
+bifurcation... Further increases of the Reynolds number result in a cascade of period-doubling
+bifurcations, which create a chaotic state in the flow at a Reynolds number of about 500."*
+**This is a 3D DNS of the real transition process** — the chaos it documents is the natural,
+physical route the real (3D-permitted) wake takes into turbulence, not a study of what happens when
+a solver is artificially confined to 2D. It should not be read as being about 2D simulation
+artifacts; it is about the real flow.
+
+**The synthesis (this lab's own inference, stated as such):** Fact 2 shows the real wake's own
+transition to chaos is driven by, and inseparable from, the spanwise (3D) instabilities of Fact 1 —
+the period-doubling cascade K&T describe IS the mode-A/mode-B competition playing out in time. A
+solve with no spanwise direction at all cannot have that specific route to chaos, yet Scott & Durst
+(Q1, above, full text read) independently show a purely 2D-confined wake becomes chaotic anyway, by
+a different mechanism, at a broadly similar Re (250-1000). One plausible reading — not established
+by any single source, offered here as a hypothesis to test, not a finding to cite — is that the
+real wake's spanwise instability gives its chaotic energy somewhere to go (a third dimension to
+shed vorticity into, keeping the span-averaged mean orderly enough to sustain a stable bubble out to
+Re=140,000, per the Balachandar/Mittal/Najjar 1997 abstract above), while a 2D-confined wake's
+chaos has nowhere to go but back into the two components of velocity the solve actually has,
+eventually growing large enough (per our own measured forward-excursion growth, 0.22->0.52->0.81
+from Re 1000->2000->3900, already on record in `F5a_cylinder_reynolds_ladder.md`) to erase the mean
+bubble outright. **This is exactly the falsifiable mechanism Proposal 6 below is designed to
+pressure-test**, not a claim being advanced as settled.
+
+The field's own standard account of *why* 2D over-predicts forces generally — spanwise phase
+decorrelation suppressing the coherent shedding signal in 3D but not in 2D (already used at this
+ladder's own Re=1000 gate, citing Jiang & Cheng 2017) — explains a **quantitative** over-prediction.
+No source found this session extends that same account to a **qualitative**, topology-changing claim
+(bubble present vs. absent) the way our own Re 3900 finding requires.
+
+### What this section settles, and what it leaves open
+
+**Settled**: this appears to be a genuinely new observation, not a reproduction of a published
+result (Q1). A field-standard alternative metric exists and should be computed rather than reporting
+"unmeasurable" (Q3, `Lf`). No source found connects bubble loss to the absent spanwise instability as
+its own stated conclusion — the connection offered here is this lab's own inference, disprovable, and
+should be labelled as such wherever this finding is written up elsewhere (Q4).
+
+**Open, honestly**: whether 2D `Lr` is always a fixed or worsening fraction of 3D `Lr` in this Re
+range such that Re=3900 is merely where a long-standing deficit reaches zero, rather than a genuine
+qualitative transition (Q2) — the one source found in tension with our own result
+(Balachandar/Mittal/Najjar 1997) could not be read past its abstract, and this is recorded as a real
+gap in this review's coverage, not resolved by inference or by the direction of the other evidence.
+
+---
+
 ## Proposals
 
 Each is falsifiable, costed against work already on disk or trivially cheap, and states what
@@ -598,6 +848,66 @@ Re=10,000 case, several of which this session's searches surfaced but did not in
 verify), and that substitution should be made explicit in the ladder's own record rather than
 silently working around the gap.
 
+### Proposal 5 — compute formation length `Lf` from the already-collected Re 3900 probe data
+
+**Hypothesis.** Even though `Lr` (mean-velocity sign change) is inapplicable at Re 3900, the
+field-standard alternative `Lf` (Gerrard 1966: streamwise distance to the midpoint between the two
+off-axis peaks of streamwise-velocity r.m.s. fluctuation) is well-defined from the same raw
+`probesCenterline` series already on disk from the completed run, since it depends only on the
+fluctuating field, which our own reversal-frequency numbers (34-39%) already prove is well-resolved.
+This would replace "NOT MEASURABLE BY THIS METRIC" with an actual number, directly comparable to
+Jiang & Cheng's own 2D/3D `Lf`-Re curve (already read, their Fig. 6) extended past Re=1000, and to
+Singh & Mittal's (2005) "shorter formation length" mechanism.
+
+**Cost.** Near-zero. A post-processing script over data already written to disk (the same probe
+fan `F5a_cylinder_reynolds_ladder.md` already used for the `Lr` measurement, off-axis rather than
+centreline stations). No new solve, no new core-minutes.
+
+**What would disprove it.** If the off-axis r.m.s. profile has no clear double peak (e.g. it is
+flat, or single-peaked on the centreline) at Re 3900, `Lf` is not well-defined either at this rung,
+and that would itself be a stronger, more specific finding than "unmeasurable" — it would mean the
+near-wake has lost coherent shear-layer roll-up entirely, not just a stable mean bubble.
+
+### Proposal 6 — test the median-based (`P(u<0)=0.5`) recirculation length against the mean-based one
+
+**Hypothesis.** Adapting Simpson's (1989) reversal-time-fraction principle (established for
+wall-bounded boundary-layer separation, not previously found applied to a wake bubble length — this
+adaptation is this lab's own idea, not a literature citation) to the centreline probe fan already
+collected at all three completed rungs: define a median-based `Lr_50`, the downstream distance at
+which the *probability* of reversed flow crosses 50%, rather than the *mean* crossing zero. At Re
+1000 and Re 2000, where the velocity distribution is presumably close to symmetric/unimodal, `Lr_50`
+should coincide closely with the already-measured `Lr` (0.397D, 0.254D) — a check on whether the new
+metric is consistent with the old one where both apply. At Re 3900, `Lr_50` may or may not be
+defined depending on whether reversal probability crosses 50% anywhere in the probed range; the
+existing 34-39% reversal-frequency numbers near the base suggest it may not (they are below 50%),
+which would itself be informative — a quantified answer ("reversal probability peaks at X%, never
+reaching the 50% a median-based bubble would need") rather than a binary "not found."
+
+**Cost.** Near-zero. Same raw probe series as Proposal 5, all three completed rungs, no new solve.
+
+**What would disprove it.** If `Lr_50` and the existing mean-based `Lr` disagree substantially at Re
+1000/2000 (where both are defined), the median-based metric is not simply confirming the existing
+gate and would need its own justification before being trusted at Re 3900 — a genuine risk this
+proposal states up front rather than discovering after the fact.
+
+### Proposal 7 — resolve the Balachandar/Mittal/Najjar (1997) tension via full-text access
+
+**Hypothesis.** Balachandar, Mittal & Najjar (1997) state, per their abstract only (Section 5, Q2
+above), that a mean recirculation region is present in all ten of their cases spanning Re=250 to
+140,000 — in apparent tension with our own no-bubble finding at Re=3900. Institutional or
+interlibrary access to the full text (Cambridge Core, DOI `10.1017/s0022112097007179`) would reveal
+whether any of their ten cases is an un-modelled, pure-2D case (as opposed to 3D or span-averaged
+turbulence-resolving data) at a Reynolds number in or near our own ladder's range, which is the one
+piece of information the abstract does not resolve and this session could not access.
+
+**Cost.** Access time only, not compute. Zero core-minutes. Batches naturally with Proposal 4's
+existing Dong & Karniadakis / Wang (2010) access requests, since all three sit behind the same class
+of paywall.
+
+**What would disprove it.** If access is obtained and none of the ten cases is a pure 2D-laminar
+case in our Re range, the apparent tension dissolves on its own (the paper was never describing our
+configuration) and this should be recorded plainly rather than left as an open flag indefinitely.
+
 ---
 
 ## Bibliography
@@ -650,3 +960,36 @@ silently working around the gap.
   only, flagged as lower confidence than the other paywalled entries above.
 - Williamson, C.H.K. "Vortex Dynamics in the Cylinder Wake." *Annual Review of Fluid Mechanics*
   28:477–539 (1996). PAYWALLED — title/venue only, no abstract or content retrieved.
+- Singh, S.P. & Mittal, S. "Flow past a Cylinder: Shear Layer Instability and Drag Crisis."
+  *International Journal for Numerical Methods in Fluids* 47(1):75–98 (2005). Full text read (41
+  pages, authors' own self-archived accepted manuscript, not paywalled). Figures 4, 5, 6 and 13
+  fetched and read directly as page images, not just extracted text, per this task's own standard.
+- Scott, L.R. & Durst, R. "Chaotic dynamics of two-dimensional flows around a cylinder."
+  arXiv:2311.07698 (2023). Full text read (27 pages, open access).
+- Simpson, R.L. "Turbulent Boundary-Layer Separation." *Annual Review of Fluid Mechanics*
+  21:205–234 (1989). Full text read (freely hosted PDF, Virginia Tech institutional archive,
+  pages read as rendered images).
+- Gerrard, J.H. "The mechanics of the formation region of vortices behind bluff bodies." *Journal
+  of Fluid Mechanics* 25:401–413 (1966). PAYWALLED — relayed via independent secondary summaries
+  only, not independently read.
+- Mittal, R. & Balachandar, S. "Effect of three-dimensionality on the lift and drag of nominally
+  two-dimensional cylinders." *Physics of Fluids* 7(8):1841–1865 (1995). PAYWALLED — confirmed via
+  Unpaywall (DOI `10.1063/1.868500`, `is_oa: false`); a direct AIP PDF fetch returned a Cloudflare
+  challenge page, not the document. Relayed via independent secondary summaries only.
+- Balachandar, S., Mittal, R. & Najjar, F.M. "Properties of the mean recirculation region in the
+  wakes of two-dimensional bluff bodies." *Journal of Fluid Mechanics* 351:167–199 (1997).
+  PAYWALLED — confirmed via Unpaywall (DOI `10.1017/s0022112097007179`, `is_oa: false`); abstract
+  obtained via Crossref's public metadata record and quoted, not the paper itself.
+- Karniadakis, G.E. & Triantafyllou, G.S. "Three-dimensional dynamics and transition to
+  turbulence in the wake of bluff objects." *Journal of Fluid Mechanics* 238:1–30 (1992).
+  PAYWALLED — no repository copy located; abstract obtained via Crossref's public metadata record
+  and quoted in full, not the paper itself.
+- Karniadakis, G.E. & Triantafyllou, G.S. "Frequency selection and asymptotic states in laminar
+  wakes." *Journal of Fluid Mechanics* 199:441–469 (1989). PAYWALLED — confirmed via Unpaywall
+  (DOI `10.1017/s0022112089000431`, `is_oa: false`); referenced by title/venue only via secondary
+  search results, no abstract independently verified. Not cited as a source of any specific claim
+  in Section 5 above.
+- Braza, M., Chassaing, P. & Ha Minh, H. "Numerical study and physical analysis of the pressure
+  and velocity fields in the near wake of a circular cylinder." *Journal of Fluid Mechanics*
+  165:79–130 (1986). PAYWALLED — confirmed via Unpaywall (DOI `10.1017/s0022112086003014`,
+  `is_oa: false`); title/venue only, no content read or cited above.
