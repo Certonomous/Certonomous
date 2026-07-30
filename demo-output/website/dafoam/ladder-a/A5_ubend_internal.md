@@ -469,3 +469,74 @@ Evidence: `probeWarpDerivA5.py` (new, this addendum) and 7 raw run logs
 `probewarpderiv_a5_idx26_seed2026_np4_run1.log`, `probewarpderiv_a5_idx8_seed2026_np4_run1.log`,
 `probewarpderiv_a5_idx8_seed42_np4_run1.log`, `probewarpderiv_a5_idx17_seed2026_np4_run1.log`,
 `probewarpderiv_a5_idx17_seed42_np4_run1.log`) in `demo-output/website/dafoam/`.
+
+## Addendum, 2026-07-30: chain-link isolation (coordinator-directed) -- dF/dW and dR/dXv probes invalid (own bugs, found and fixed in prose), dR/dW closed as a units artifact, real defect still unidentified
+
+With `mesh.warpDeriv` cleared (previous addendum), the coordinator asked for the same link-by-link
+isolation that found A1's root cause, applied to A5's three remaining chain links: the objective's
+dependence on state (`dF/dW`), the residual's dependence on mesh coordinates (`dR/dXv`), and the
+residual's dependence on state (`dR/dW`) -- with the objective type (a two-patch pressure-difference on
+a half-model with a symmetry plane) flagged as the first place to look.
+
+**Method (`probeChainLinksA5.py`, new this session):** one real primal solve to get a converged baseline
+`W0`, `Xv0`, then direct dot-product-identity tests of each link using `DASolver.evalFunctions()` /
+`DASolver.getResiduals()` (pure post-processing/assembly calls, no re-solve) against
+`DASolver.solverAD.calcJacTVecProduct()` (the exact function `DAFoamSolver`/`DAFoamFunctions` call in the
+real adjoint chain). Two of the three links came back with self-inflicted bugs, caught before being
+reported as findings:
+
+- **`dF/dW`: invalid.** FD came back exactly `0.0` in all 12 measurements (2 functions x 2 seeds x 2
+  steps). Traced into DAFoam's C++ source (`DASolver.C`): `evalFunctions()` calls `getTimeOpFuncVal()`,
+  which reads a value from `functionTimeSteps_`, an array recorded DURING the primal solve's own time
+  loop -- it never re-evaluates from the live state `setStates()` was used to perturb. The correct, live,
+  single-evaluation call is `DASolver.solver.calcFunction(name)` (`DASolver::calcFunction`, confirmed
+  in source to call `daFunction.calcFunction()` directly, no stored history) -- not yet re-run with the
+  fix.
+- **`dR/dXv`: invalid.** The Xv perturbation direction was generated independently per MPI rank. Mesh
+  points on processor boundaries are physically duplicated across ranks and must receive an IDENTICAL
+  perturbation; this test's did not, producing an inconsistent parallel mesh (1.23 million OpenFOAM
+  `procBoundary2to3` face-area-mismatch warnings) and an FD side that DIVERGED under step refinement
+  (h=1e-4 to 1e-5 changed the answer 20x -- the signature of an invalid mesh, not a real derivative). Log
+  truncated from 4.2GB to a 10KB summary (`chainlinks_out_TRUNCATED.log`). Correct redesign: perturb Xv
+  through an actual small FFD/warp-based direction (globally consistent by construction, the same
+  technique used throughout this investigation's mesh-warp tests), not raw independent per-rank noise --
+  not yet re-run.
+- **`dR/dW`: real signal, but CLOSED as a units-convention artifact, not a defect.** The aggregate
+  dot-product test showed AN 285-337x larger than FD, same sign, both seeds -- large enough (two orders
+  of magnitude beyond anything else measured anywhere in this investigation: A1's worst ~150%, A5's own
+  real check tops out at 208%) that the coordinator's rule applied: a discrepancy that size means the
+  PROBE is the first suspect, not the code. Per the coordinator's discriminating test -- compute the
+  ratio component-by-component rather than as an aggregate -- new script `probeA5DiagRatio.py` (serial,
+  no MPI, sidesteps all parallel-consistency questions) tested 60 random DIAGONAL entries of `dR/dW`
+  directly: `FD_i` via perturbing state component `i` alone and reading residual component `i` back
+  (`getResiduals()`, no re-solve); `AN_i` via `calcJacTVecProduct` seeded with a one-hot vector at `i`
+  (`product[i] = J[i,i]` exactly, since `product = J^T e_i`). **Result: 43 of 60 ratios landed on EXACTLY
+  one of four values, each matching a state variable's own `normalizeStates` constant from this case's
+  `daOptionsAero`** -- 23 rows at `8.400000` (=`U0`), 9 at `35.280000` (=`(U0^2)/2`), 7 at `0.001000`
+  (=`nuTilda0`), 4 at `300.000000` (=`T0`) -- reproducing to 6 significant figures across dozens of
+  physically unrelated cells and wildly different state magnitudes (`W0_i` ranging from -12 to +300).
+  That precision and cross-cell consistency is the signature of an exact scaling convention, not noise:
+  **`calcJacTVecProduct`'s `"residual"` output type returns values in NORMALIZED units (scaled by each
+  state variable's own `normalizeStates` constant), while `DASolver.getResiduals()` returns RAW physical
+  units.** Once that unit mismatch is accounted for, `dR/dW`'s diagonal agrees with the finite difference
+  essentially exactly (the ratio's own consistency to 6 significant figures IS the agreement -- there is
+  no leftover discrepancy once the units are reconciled). **This was always a probe artifact, not a
+  gradient defect; `dR/dW` is CLOSED, not confirmed as A5's cause.** The remaining 17 of 60 sampled rows
+  (small, non-clustered ratios, `AN_i` consistently near +-1.0 regardless of `FD_i`'s magnitude) are most
+  consistent with the `surfaceScalarStates` (`phi`, face flux) block, whose residual is closer to an
+  algebraic continuity identity than a PDE residual (a self-derivative near 1 by construction) -- flagged
+  as understood-in-kind but not chased to a confirmed explanation this session.
+
+**Net effect: none of the three remaining chain links has produced a confirmed A5 defect.** Two were
+this session's own probe bugs (found, explained, fix identified for both, not yet re-run). The third
+(`dR/dW`) looked like the strongest lead by a wide margin -- and is now closed as a units-convention
+non-issue by the same component-wise-ratio technique that would have confirmed it as real had the
+pattern been patternless instead of an exact 4-way constant split. **A5's real defect remains
+unidentified.** Next steps, not yet done: re-run `dF/dW` with `calcFunction()` instead of
+`evalFunctions()`; redesign `dR/dXv` with a globally-consistent perturbation direction; if both come back
+clean too, the remaining candidates are the `phi`/`surfaceScalarStates` block specifically, or a defect
+that only appears through the coupled multi-equation system (not visible in any single isolated link),
+which would need a different kind of test than link-by-link isolation.
+
+Evidence: `probeChainLinksA5.py`, `probeA5DiagRatio.py` (both new this session, in
+`ladder-a/A5_work/UBend_Channel_pressureloss/`), `chainlinks_out_TRUNCATED.log`, `diagratio_out.log`.
