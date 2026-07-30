@@ -17,9 +17,33 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/
 curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/
 ```
 
-From your laptop, substitute your EC2 public IP:
-- http://<IP>:8765
-- http://<IP>:8080
+From your laptop, this instance's public IP is **16.58.201.228**:
+- http://16.58.201.228:8765 — control room, where you type the prompts
+- http://16.58.201.228:8080 — static website
+
+(The IP changes if the instance is stopped and started. Re-read it with
+`curl -s http://169.254.169.254/latest/meta-data/public-ipv4` after any restart.)
+
+## The surfaces
+
+**You do not upload or pick a file on camera for any act.** Eleven of the
+thirteen prompts build their own geometry from the numbers in the prompt. The
+two that use a surface resolve it from the words in the prompt automatically:
+say "B-52" and it finds the B-52.
+
+Staged surfaces live in `/home/ubuntu/Certonomous/sdk/geometry/`. That is the
+only directory the control room reads. All 21 surfaces are present and were
+verified staged on 2026-07-30:
+
+| Act | Surface file |
+|-----|--------------|
+| B-52 | `sdk/geometry/b52.stl` (674K) |
+| ONERA M6 | `sdk/geometry/onera_m6_wing.stl` (610K) |
+
+Confirm they are all there before you start:
+```bash
+ls -lh /home/ubuntu/Certonomous/sdk/geometry/*.stl
+```
 
 ## The nine acts
 
@@ -35,7 +59,7 @@ Type each prompt into the control room.
 | 6 | "Solve the Ahmed body with the 25 degree slant and check the drag against the wind tunnel." | 25 s |
 | 7 | "Solve the NASA wall-mounted hump and check separation and reattachment." | 25 s |
 | 8 | "Solve the CRM wing-body and check the drag." | 1 s |
-| 9 | "Solve the ONERA M6 wing and grade the surface pressure against AGARD." | about 10 min |
+| — | ONERA M6: **removed from the filmed sequence, see below** | — |
 
 **Expected results:**
 
@@ -47,9 +71,19 @@ Type each prompt into the control room.
 6. Cd 0.3041 vs 0.285 published, 6.7%, tier SOLVER-BACKED
 7. Separation 0.6544 vs 0.665 (-1.6%), reattachment 1.2534 vs 1.100 (+13.9%), tier VALIDATED
 8. Cd 0.020901 vs 0.02090, +0.007%, tier VALIDATED
-9. **DOCUMENTED FAILURE** — tier UNCONVERGED. This one takes about ten minutes and then
-   reports that it did not converge. That is the expected outcome, not a fault on the day.
-   Only film it if you want the failure on camera; it is a strong segment but a slow one.
+## Why ONERA M6 is no longer act 9
+
+The control room is promotional and carries no failures. The M6 act was a
+documented failure (unconverged), so its scoring was removed from the control
+room's routing on 2026-07-29. **Do not type the old M6 prompt on camera.** It
+no longer runs the AGARD grading act; it now falls through to a generic
+geometry study on the M6 surface, and that path has never been timed or
+rehearsed. An untimed run is the one thing you do not want live.
+
+The M6 result still exists in the permanent record and in the gate table below
+as an honest UNCONVERGED row. That is the right place for it.
+
+**There are now eight filmed acts, not nine.** Every one of them passes.
 
 ## The other demos
 
