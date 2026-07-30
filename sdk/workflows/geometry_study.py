@@ -887,8 +887,8 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
-        f"• Plan: feature edges, background mesh, snap, quality gates, "
-        f"potential init, then {iterations} steady iterations. "
+        f"• Plan: mesh the supplied surface, clear the quality gates, then "
+        f"{iterations} steady iterations. "
         f"• Meshing is the long pole: minutes, not seconds.")
 
     engineer = HeadEngineer(f"study-{label}", out, novel=not familiar,
@@ -898,6 +898,21 @@ def main(request: str | None = None, params: dict | None = None,
     # Per-stage timings land as rows of ONE compact table rather than a run of
     # repeated "step: N s" bullets; rows arrive live as stages complete.
     from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
+
+    # The plan itself goes on the wall as a table: the published thresholds
+    # this mesh has to clear and the budget the solve commits to, each one
+    # judged later in the act at the place named here.
+    _emit_table(emit, script, role=_CE_ROLE,
+                title="What this run commits to",
+                headers=("Commitment", "Value", "Judged at"),
+                rows=[["Max non-orthogonality gate",
+                       f"{MAX_NON_ORTHOGONALITY:.0f}°", "Mesh check"],
+                      ["Max skewness guidance", f"{MAX_SKEWNESS:.1f}",
+                       "Mesh check"],
+                      ["Steady iterations", f"{iterations}", "Solve"],
+                      ["Closure", "k-omega SST", "Solve"]],
+                table_id=f"plan-{label}")
+
     stage_table = {"created": False}
 
     def stage_row(step: str, seconds: float, note: str) -> None:
@@ -955,6 +970,34 @@ def main(request: str | None = None, params: dict | None = None,
                                             params, iterations, emit)
         acceptance_line, shells = surface_acceptance(report, shown)
         script.engineer(acceptance_line)
+
+        # The body as the intake actually measured it. Every row comes from
+        # the surface file and the case the study just built around it, so a
+        # field the intake did not produce simply leaves its row out.
+        case_reference = report.get("reference") or {}
+        body_rows: list[list[str]] = []
+        if case_reference.get("length"):
+            body_rows.append(["Length", f"{case_reference['length']:.1f} m"])
+        if case_reference.get("span"):
+            body_rows.append(["Span", f"{case_reference['span']:.1f} m"])
+        if report.get("planform_area"):
+            body_rows.append(["Planform area",
+                              f"{report['planform_area']:.3g} m²"])
+        if report.get("frontal_area"):
+            body_rows.append(["Frontal area",
+                              f"{report['frontal_area']:.3g} m²"])
+        if case_reference.get("velocity"):
+            body_rows.append(["Freestream",
+                              f"{case_reference['velocity']:g} m/s"])
+        if case_reference.get("reynolds"):
+            body_rows.append(["Reynolds number",
+                              f"{case_reference['reynolds']:.1e}"])
+        if body_rows:
+            _emit_table(emit, script, role=_CE_ROLE,
+                        title=f"{shown}, as measured from the surface",
+                        headers=("Quantity", "Measured"), rows=body_rows,
+                        table_id=f"body-{label}")
+
         script.engineer(
             "• Selected: k-omega SST, steady RANS, standard closure for "
             "attached external flow, solved on a quality-gated mesh.")
@@ -968,10 +1011,14 @@ def main(request: str | None = None, params: dict | None = None,
                 "• Mesh in hand for this body; going straight to the "
                 "quality gates and the solve.")
         else:
-            # ``shown`` is the on-screen stage label. ``step`` stays the tool
-            # name because the runner and the ledger key off it, but the tool
-            # name itself never reaches the screen.
-            for step, shown, command, note in (
+            # ``stage_name`` is the on-screen stage label. ``step`` stays the
+            # tool name because the runner and the ledger key off it, but the
+            # tool name itself never reaches the screen. The loop variable is
+            # NOT called ``shown``: that name holds the body's display name for
+            # the rest of the act, and rebinding it here put "body-fitted mesh"
+            # on the painted viewport, the report title and the certificate of
+            # every cold run.
+            for step, stage_name, command, note in (
                 ("surfaceFeatureExtract", "feature edges",
                  "surfaceFeatureExtract",
                  "extracting the feature edges the mesher snaps to"),
@@ -984,7 +1031,7 @@ def main(request: str | None = None, params: dict | None = None,
                 roster.set_workers(1, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                stage_row(shown, result.seconds, note)
+                stage_row(stage_name, result.seconds, note)
             # Cache the freshly snapped mesh so the next run of this body is warm.
             engineer.save_mesh_to_cache(label)
 
@@ -998,7 +1045,7 @@ def main(request: str | None = None, params: dict | None = None,
             # The keep-trying rule re-runs the whole mesh chain under the
             # tightened controls; a stale cached mesh must never mask the fix.
             engineer.clear_mesh_cache(label)
-            for step, shown, command, note in (
+            for step, stage_name, command, note in (
                 ("surfaceFeatureExtract", "feature edges",
                  "surfaceFeatureExtract",
                  "extracting the feature edges the mesher snaps to"),
@@ -1012,8 +1059,8 @@ def main(request: str | None = None, params: dict | None = None,
                 ledger.spend(result.seconds,
                              f"{step} remesh {retry_index} "
                              f"({result.seconds:.0f}s)")
-                stage_row(f"{shown} (remesh {retry_index})", result.seconds,
-                          note)
+                stage_row(f"{stage_name} (remesh {retry_index})",
+                          result.seconds, note)
             if familiar:
                 engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && "
                               f"cp -r 0.orig 0")
@@ -1044,6 +1091,31 @@ def main(request: str | None = None, params: dict | None = None,
         non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "n/a"
         skew_s = f"{skew:.2f}" if skew is not None else "n/a"
         gate_ok = (non_ortho or 0) <= MAX_NON_ORTHOGONALITY
+
+        # The mesh check as a table, ahead of the ruling: what the check read,
+        # the published standard it is read against, and the verdict on each.
+        # These are the same figures the certificate's mesh block carries.
+        gate_rows = [
+            ["Cells in the mesh", f"{cells:,}", "No published gate",
+             "Measured"],
+            ["Max non-orthogonality", non_ortho_s,
+             f"{MAX_NON_ORTHOGONALITY:.0f}°",
+             "Inside the gate" if gate_ok else "Above the gate"],
+            ["Max skewness", skew_s, f"{MAX_SKEWNESS:.1f}",
+             "Inside the guidance" if (skew or 0) <= MAX_SKEWNESS
+             else "Above the guidance"],
+        ]
+        if mesh_retries:
+            gate_rows.append(
+                ["Remeshes taken", f"{mesh_retries}",
+                 f"Limit {MESH_RETRY_LIMIT}",
+                 "Brought inside the gates" if retried_gates_ok
+                 else "Gates still missed"])
+        _emit_table(emit, script, role=_CE_ROLE,
+                    title="Mesh quality gates, as measured",
+                    headers=("Check", "Measured", "Standard", "Verdict"),
+                    rows=gate_rows, table_id=f"mesh-gates-{label}")
+
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
             f"• Mesh: {cells:,} cells; non-ortho {non_ortho_s}; skew {skew_s}. "
@@ -1443,6 +1515,43 @@ def main(request: str | None = None, params: dict | None = None,
             "logs, and no band is reported from a partial ladder.")
         refine = None
 
+    # The ladder's own statistics go on the wall next to its rungs: the rung
+    # table shows the three meshes, this one shows what the three meshes
+    # MEASURED. The fitted order and the convergence verdict are shown only
+    # when the ladder earned them (monotone, order inside the credible window,
+    # asymptotic guards clear); a ladder that did not settle still shows the
+    # band it measured, and simply carries no fitted-order row.
+    if refine:
+        from chief_engineer.transcript import NUMERICIST as _NUM_TABLE_ROLE
+
+        ladder_stats: list[list[str]] = []
+        rung_cells = [int(lv.get("cells", 0))
+                      for lv in (refine.get("levels") or [])
+                      if lv.get("cells")]
+        if len(rung_cells) >= 2:
+            ladder_stats.append(["Meshes compared", f"{len(rung_cells)}"])
+            ladder_stats.append(["Cell counts",
+                                 f"{min(rung_cells):,} to {max(rung_cells):,}"])
+        if refine.get("band_abs") is not None:
+            ladder_stats.append(["Discretization band on C_d",
+                                 f"±{refine['band_abs']:.2g}"])
+        band_share = refine.get("band_rel")
+        if band_share is not None and 0 < band_share <= 1.0:
+            ladder_stats.append(["Band as a share of C_d",
+                                 f"{band_share * 100:.1f}%"])
+        order = refine.get("observed_order")
+        if (refine.get("conclusive") and not refine.get("clamped")
+                and order is not None and 0.5 <= order <= 4.0):
+            ladder_stats.append(["Observed order of convergence",
+                                 f"{order:.2f}"])
+            ladder_stats.append(["Grid convergence",
+                                 "Monotone, inside the asymptotic window"])
+        if ladder_stats:
+            _emit_table(emit, script, role=_NUM_TABLE_ROLE,
+                        title="What the mesh ladder measured",
+                        headers=("Quantity", "Measured"), rows=ladder_stats,
+                        table_id=f"refinement-stats-{label}")
+
     # The ladder that just ran IS this mission's grid-convergence evidence, and
     # it lands after the first pass at the verdict. Letting the earlier pass
     # stand would hand out a chip the mission's own study contradicts, which is
@@ -1543,6 +1652,49 @@ def main(request: str | None = None, params: dict | None = None,
     skew_line = (f" • Max skewness {skew_s} exceeds the guidance value "
                  f"{MAX_SKEWNESS:.1f}; the mesh channel carries that as "
                  f"measured." if (skew or 0) > MAX_SKEWNESS else "")
+
+    # The independent check leads the phase as a table, ahead of the prose:
+    # what this run solved, what the published work reports, and the distance
+    # between them. Whichever comparison the lab could make is the one shown,
+    # and a body with no published counterpart shows neither.
+    if comparison:
+        apart = comparison.get("relative_error")
+        validation_rows = [
+            ["C_d from the solve", f"{comparison['measured_cd']:.4g}"],
+            ["On the published area basis", f"{comparison['compared_cd']:.4g}"],
+            ["Published C_d", f"{comparison['reference_cd']:g}"],
+            ["Difference", f"{apart * 100:.1f}%" if apart is not None
+             else "Not comparable"],
+            ["Acceptance band", f"±{comparison['tolerance'] * 100:.0f}%"],
+        ]
+        if comparison.get("source"):
+            validation_rows.append(["Source", str(comparison["source"])])
+        _emit_table(emit, script, role=_CE_ROLE,
+                    title="Measured against the published experiment",
+                    headers=("Quantity", "Value"), rows=validation_rows,
+                    table_id=f"validation-{label}")
+    elif drag_area_cmp:
+        published = drag_area_cmp
+        band_rows = [
+            ["C_d from the solve", f"{published['measured_cd']:.4g}"],
+            ["Case reference area",
+             f"{published['reference_area_m2']:g} m²"],
+            ["Drag area from the solve",
+             f"{published['drag_area_m2']:.2f} m²"],
+            ["Published band",
+             f"{published['band_lo']:g} to {published['band_hi']:g} m²"],
+            ["Where it sits",
+             f"{str(published['position']).capitalize()} the band"],
+        ]
+        if published.get("band_label"):
+            band_rows.append(["Band population", str(published["band_label"])])
+        if published.get("source_short"):
+            band_rows.append(["Source", str(published["source_short"])])
+        _emit_table(emit, script, role=_CE_ROLE,
+                    title="Measured against the published band",
+                    headers=("Quantity", "Value"), rows=band_rows,
+                    table_id=f"validation-{label}")
+
     if comparison and verdict["tier"] == "VALIDATED":
         script.engineer(
             f"• Confirmed against experiment: inside the published band of "
@@ -1589,6 +1741,35 @@ def main(request: str | None = None, params: dict | None = None,
             f"channel states that plainly. "
             f"• Spend {ledger.as_dict()['spent_core_minutes']:.0f} core-minutes.")
 
+    # How the run closed, as one table: the cost, the mesh it was solved on,
+    # the result with the band the three channels combine to, and what the
+    # monitoring agent saw in the solver output. Each figure is one this run
+    # measured, and a spend under a core-minute is left off rather than shown
+    # as zero.
+    closing_spend = ledger.as_dict()["spent_core_minutes"]
+    closing_rows = [["Wall clock", f"{elapsed:.1f} min"]]
+    if closing_spend >= 1:
+        closing_rows.append(["Compute spend",
+                             f"{closing_spend:.0f} core-minutes"])
+    closing_rows.append(["Cells solved", f"{cells:,}"])
+    closing_rows.append(["C_d", f"{drag['value']:.4g}"])
+    closing_rows.append(
+        ["Band (95%)",
+         f"±{(combined if combined else 2 * drag['sigma']):.2g}"])
+    if lift:
+        closing_rows.append(["C_L", f"{lift['value']:.4g}"])
+    if refine and refine.get("band_abs") is not None:
+        closing_rows.append(["Mesh sensitivity on C_d",
+                             f"±{refine['band_abs']:.2g}"])
+    closing_rows.append(["Solver events flagged",
+                         f"{monitor_summary['anomalies']}"])
+    closing_rows.append(["Fatal events",
+                         "One" if monitor_summary["fatal"] else "None"])
+    _emit_table(emit, script, role=_CE_ROLE,
+                title="The run, as it closed",
+                headers=("Quantity", "Measured"), rows=closing_rows,
+                table_id=f"closing-{label}")
+
     if not familiar:
         knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
@@ -1608,9 +1789,9 @@ def main(request: str | None = None, params: dict | None = None,
         ],
         methods=[
             f"Surface intake and check on {shown}.",
-            f"Background mesh plus snappyHexMesh to {cells:,} cells; quality gated at "
+            f"Meshed to {cells:,} cells; quality gated at "
             f"{MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and {MAX_SKEWNESS:.0f} skewness.",
-            f"Potential-flow initialisation followed by {iterations} steady iterations.",
+            f"{iterations} steady iterations on the gated mesh.",
             "Forces averaged over the final fifth of the iteration history; the band "
             "is the spread of that window.",
         ],
