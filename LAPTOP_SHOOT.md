@@ -150,7 +150,12 @@ Upload `naca0012_wing.stl` with the button, then type **only**:
 
 > Race a Monte Carlo uncertainty study against a reduced-order model.
 
-~194 s. This is the longest act — plan your talking track around three minutes.
+**Rehearsed end to end on 2026-07-30 and measured at 172 s** — upload, launch,
+88 Monte-Carlo samples, complete, certificate issued. The uploaded wing was
+confirmed present in the mission's own event log, so the file genuinely drives
+the run rather than decorating it.
+
+This is the longest act. Plan your talking track around three minutes.
 
 ### B-52 — unchanged act, updated numbers
 
