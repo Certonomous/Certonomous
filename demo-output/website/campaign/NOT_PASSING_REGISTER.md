@@ -143,6 +143,42 @@ residual) and the new Group 6 (an unverifiable claim with no artifact
 found). Full audit trail: this session's conversation record; no separate
 write-up file was created beyond this register and the corrected surfaces.
 
+### Added 2026-07-30 — R5 transonic adjoint conditioning: catastrophic failure fixed, convergence still not achieved
+
+**Updates Group 1's A3 entry below, which predates this work and is now
+incomplete on the conditioning question it left open.** Measured this session,
+on the cheap 21,840-cell reproducer identified in `ADJOINT_MEMORY_ENVELOPE.md`:
+a direct PETSc binary dump of the assembled preconditioner matrix
+(`dRdWTPC`) shows a 12.5-order-of-magnitude row/column scale spread and a
+14.5-order-of-magnitude diagonal spread — essentially the full dynamic range of
+a double. Setting `normalizeResiduals: ["None"]` (default divides every
+residual row by that cell's volume; this mesh family has 20-28% of cells
+flagged "small determinant" in one concentrated region) changes
+`PetscConvergedReason` from `-5` (`DIVERGED_BREAKDOWN`, residual collapsing to
+denormal range, `~1e-308`–`~1e-310`) to `-3` (`DIVERGED_ITS`, residual
+stagnates at a sane, non-denormal value) — reproduced independently on both
+objectives (CD and CL run separately), with and without modified Gram-Schmidt
+orthogonalization. A three-way false-positive/false-negative confusion during
+this work was resolved by reading `DALinearEqn.C`'s own success-gate logic
+directly: the `-5` runs' apparent "both objectives reported" completeness was
+itself an artifact of the same denormal-collapse fooling the gate into printing
+"solution finished" on a broken solve — not evidence the `-3` runs were
+truncated (confirmed genuine: exact configured iteration counts reached, clean
+deterministic shutdown, contrasted directly against a real truncated run
+observed earlier in the same session). Two attempts to strengthen the
+preconditioner enough to make the now-sane-but-stagnant baseline actually
+converge (`pcFillLevel` 0→1; nested-Richardson-wrapped ASM+ILU per Kenway et
+al. 2019, a previously-untried, already-exposed `daOptions` lever) both
+reintroduced the identical `-5` collapse, landing exactly at the GMRES restart
+recomputation boundary. Jacobian colouring count, checked retroactively across
+the whole case family as a candidate discriminator (DAFoam's own authors report
+945 colours vs. ADflow's 162 on a comparable case), does **not** separate
+converging from diverging cases here — the converging incompressible sail case
+needs more colours (1,999) than any diverging compressible case (1,233–1,391).
+No gradient has been obtained or verified at this mesh size under any
+configuration tried. Full record, all raw-log evidence, and the queued next
+measurement: `demo-output/website/dafoam/R5_ADJOINT_CONDITIONING.md`.
+
 ---
 
 ## GROUP 1: ADJOINT MEMORY WALL
