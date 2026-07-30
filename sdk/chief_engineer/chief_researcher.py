@@ -253,7 +253,7 @@ def approve_closure(*, geometry: str, flow: str, reynolds: float,
             approved=True, model=model,
             rationale=(
                 f"Case sits inside the validated envelope of {model.name!r} "
-                f"(Re {re_lo:.0f}–{re_hi:.0f}, {cell_lo}–{cell_hi} cells, {flow}). "
+                f"(Re {re_lo:.0f} to {re_hi:.0f}, {cell_lo} to {cell_hi} cells, {flow}). "
                 f"The correction is not a fitted guess: it was measured on this "
                 f"machine ({model.calibration}). Applying it removes a known bias "
                 f"instead of leaving it in the answer."

@@ -151,7 +151,7 @@ AGENDA = [
      "scope": "resolve phase-interaction the multi-point screen drops, solving the "
               "coupled harmonics of one cycle instead of independent phase points",
      "cost": "~1 order of magnitude over the multi-point screen"},
-    {"title": "Unsteady fluid–structure interaction",
+    {"title": "Unsteady fluid-structure interaction",
      "scope": "move the leaflets, coupling the flow to leaflet dynamics so opening "
               "is solved, not prescribed",
      "cost": "~2 orders of magnitude; transient FSI, remeshing"},

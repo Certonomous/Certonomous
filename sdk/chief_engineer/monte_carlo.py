@@ -155,7 +155,7 @@ def run_ensemble(nominal: dict[str, float],
                     "series": f"{metric}_running_mean", "x": k, "y": round(m, 5),
                     "lo": round(m - 2 * sem, 5), "hi": round(m + 2 * sem, 5),
                     "x_label": "samples", "y_label": metric,
-                    "title": f"{metric} running mean — envelope tightening with N",
+                    "title": f"{metric} running mean, envelope tightening with N",
                     "feasible": True})
         return sample
 
@@ -198,7 +198,7 @@ def plot_convergence(result: EnsembleResult, out_png: str | Path,
     stats = running_statistics(result.values)
     fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
     ax.fill_between(stats["n"], stats["lo"], stats["hi"], color=_theme.LIVE, alpha=0.18,
-                    linewidth=0, label=r"$\pm 2\,$SEM — reducible floor, not a bound")
+                    linewidth=0, label=r"$\pm 2\,$SEM, reducible floor, not a bound")
     ax.plot(stats["n"], stats["mean"], color=_theme.LIVE, linewidth=2.4,
             label=f"running mean {label}")
     ax.scatter(stats["n"], result.values, s=16, color=_theme.LIVE, alpha=0.45,
@@ -208,7 +208,7 @@ def plot_convergence(result: EnsembleResult, out_png: str | Path,
                 xytext=(-6, 16), textcoords="offset points", ha="right",
                 fontsize=10.5, color=_theme.INK, weight="bold")
     _theme.style_axes(ax, "samples (chosen solver: OpenFOAM)", label,
-                      title or f"{label} — Monte-Carlo estimate with uncertainty envelope")
+                      title or f"{label}, Monte-Carlo estimate with uncertainty envelope")
     leg = ax.legend(frameon=False, fontsize=9.5, labelcolor=_theme.INK, loc="lower right")
     for text in leg.get_texts():
         text.set_color(_theme.INK)
@@ -240,15 +240,15 @@ def plot_ab_comparison(run_a: EnsembleResult, run_b: EnsembleResult,
                    edgecolor=_theme.INK, linewidth=0.4, zorder=3)
         ax.set_ylim(lo - pad, hi + pad)
         _theme.style_axes(ax, "samples (chosen solver: OpenFOAM)", label,
-                          f"{name} — n = {result.n}")
+                          f"{name}, n = {result.n}")
         ax.annotate(rf"$\pm${2 * result.standard_error:.2g}  "
                     f"({result.relative_error * 100:.1f}%)",
                     xy=(0.97, 0.06), xycoords="axes fraction", ha="right",
                     fontsize=11.5, color=_theme.INK, weight="bold")
     shrink = (1 - run_b.relative_error / run_a.relative_error) * 100 if run_a.relative_error else 0
     fig.suptitle(
-        f"More samples, tighter estimate — the reducible envelope narrowed "
-        f"{shrink:.0f}%  ({run_a.n} → {run_b.n} solver runs)",
+        f"More samples, tighter estimate. The reducible envelope narrowed "
+        f"{shrink:.0f}%  ({run_a.n} to {run_b.n} solver runs)",
         color=_theme.INK, fontsize=13, x=0.012, ha="left", weight="bold")
     fig.tight_layout(rect=(0, 0, 1, 0.94)); fig.savefig(out_png); plt.close(fig)
     return str(out_png)

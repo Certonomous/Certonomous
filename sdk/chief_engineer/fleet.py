@@ -179,7 +179,7 @@ class ApiFleet:
                             "worker_id": handles[slot].id,
                             "worker_index": slot,
                             "pending": len(buckets[slot]),
-                            "detail": f"worker-{slot:02d} stopped responding — its "
+                            "detail": f"worker-{slot:02d} stopped responding, its "
                                       f"{len(buckets[slot])} task(s) will be reprovisioned"})
                         killed.append(slot)
         finally:

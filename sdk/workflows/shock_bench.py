@@ -62,7 +62,7 @@ def _cache_dir(root: str, key: str) -> Path:
     safe = _safe(str(key or "").strip())
     if not safe or safe.strip("_.") == "":
         raise ValueError(
-            f"refusing a degenerate cache key {key!r} -- it would resolve "
+            f"refusing a degenerate cache key {key!r}, it would resolve "
             f"to the cache root itself")
     return Path(os.path.expanduser(root)) / safe
 

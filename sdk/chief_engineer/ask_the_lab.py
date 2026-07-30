@@ -113,7 +113,7 @@ def _synthesize(question: str, facts: list[str]) -> str | None:
     catalogue = "\n".join(f"- {fact}" for fact in facts)
     instructions = (
         "You are the voice of an autonomous CFD lab answering a question about "
-        "its own work. Use ONLY the facts below — they are the complete record "
+        "its own work. Use ONLY the facts below. They are the complete record "
         "you may draw on. Do not introduce any number, body, or claim that is "
         "not present in them. If the question asks you to compare, rank, or "
         "convert (for example a drag coefficient into a force), do the reasoning "
@@ -169,7 +169,8 @@ def _mission_sources() -> list[Source]:
         sources.append(Source(
             kind="mission",
             text=f"{request} {state}",
-            detail=f"{mission_id} — “{request}” finished as {state or 'unknown'}.",
+            detail=f"Mission {mission_id} ran “{request}” and finished as "
+                   f"{state or 'unknown'}.",
             citation=mission_id))
     return sources
 
@@ -204,9 +205,9 @@ def _credential_sources() -> list[Source]:
             text=f"{pretty} drag coefficient cd lift validated tier reference "
                  f"experiment credential wall {tier} {source}",
             detail=(f"{pretty}: measured Cd {data.get('cd_measured')} against "
-                    f"{source or 'the reference'} Cd {data.get('reference_cd')} — {tier}."
+                    f"{source or 'the reference'} Cd {data.get('reference_cd')}. {tier}."
                     + (f" {reason}" if reason else "")),
-            citation=f"Validation wall — {pretty}"))
+            citation=f"Validation wall, {pretty}"))
     return sources
 
 

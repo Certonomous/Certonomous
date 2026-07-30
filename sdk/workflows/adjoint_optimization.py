@@ -105,7 +105,9 @@ SIGN_CHECKED = 110
 SIGN_BOUND_PCT = 0.58
 
 # The optimizer's own log records four line-search step cutbacks on evaluation
-# errors. Counted from its output file, not estimated.
+# errors. Counted from its output file, not estimated. Kept on the permanent
+# record; withheld from the narration under docs/DEMO_DISCRETION_CHARTER.md,
+# because the sequence of things the optimizer tried is method, not result.
 CUTBACKS = 4
 # How many trailing major iterations the "settled into a band" claim covers.
 TAIL_ITERS = 15
@@ -117,11 +119,11 @@ _AGENDA = [
               "derivative is least intuitive and most valuable",
      "cost": "a materially larger mesh and a host with more memory headroom"},
     {"title": "Run the optimizer to its own tolerance",
-     "scope": "lift the wall clock and let the interior-point method close "
-              "the last order of magnitude on its first-order conditions, so "
-              "the result is an optimum rather than a good point on the way "
+     "scope": "lift the wall clock and let the optimizer close the last "
+              "order of magnitude on its first-order conditions, so the "
+              "result is an optimum rather than a good point on the way "
               "to one",
-     "cost": "a few more hours on the same four ranks"},
+     "cost": "a few more hours on the same hardware"},
     {"title": "Put the drag reduction in a wind tunnel",
      "scope": "the 28.3% is measured against this solver's own baseline; "
               "flying the optimized and baseline sections as models would "
@@ -231,7 +233,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(PLAN)
     if emit:
         emit("objective.spec", {"metric": "CD", "direction": "min"})
-    show("baseline", f"MACH tutorial wing, baseline — C_d {baseline['CD']:.6f} "
+    show("baseline", f"MACH tutorial wing, baseline. C_d {baseline['CD']:.6f} "
                      f"at C_L {CL_TARGET:g}", painted=False)
     if shapes:
         bullets(script.engineer,
@@ -253,12 +255,11 @@ def main(request: str | None = None, params: dict | None = None,
     bullets(script.engineer,
             f"Plan: solve the primal to its own tolerance, take the adjoint "
             f"gradient for drag and for lift, then grade that gradient "
-            f"against {FD_SOLVES} finite-difference primal solves at a "
-            f"central step of {FD_STEP:g}.",
-            f"Only then hand the verified gradient to an interior-point "
-            f"optimizer with lift held at {CL_TARGET:g} and the thickness, "
-            f"volume and edge constraints active.",
-            f"Mesh {MESH_CELLS:,} cells, {RANKS} ranks throughout.")
+            f"against {FD_SOLVES} finite-difference primal solves.",
+            f"Only then hand the verified gradient to the optimizer with "
+            f"lift held at {CL_TARGET:g} and the thickness, volume and edge "
+            f"constraints active.",
+            f"Mesh {MESH_CELLS:,} cells.")
 
     # ---------------- Evidence: the gradient check ----------------
     script.phase(EVIDENCE)
@@ -349,7 +350,7 @@ def main(request: str | None = None, params: dict | None = None,
     if shapes:
         grad = shapes["gradient"]
         glo, ghi = grad["window_mm_per_step"]
-        show("gradient", "Where the adjoint says to push — descent direction "
+        show("gradient", "Where the adjoint says to push. Descent direction "
                          "on the skin, C_d at fixed C_L")
         bullets(script.researcher,
                 "That is the gradient, on the wing. Red is where drag falls "
@@ -390,16 +391,16 @@ def main(request: str | None = None, params: dict | None = None,
                 continue
             drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
             show(f"iter{frame['iter']}",
-                 f"Major iteration {frame['iter']} of {majors} — C_d "
+                 f"Major iteration {frame['iter']} of {majors}. C_d "
                  f"{frame['CD']:.6f}, {abs(drop):.1f}% "
-                 f"{'below' if drop >= 0 else 'ABOVE'} baseline · true scale, "
+                 f"{'below' if drop >= 0 else 'ABOVE'} baseline. True scale, "
                  f"painted with displacement from baseline (mm)")
     roster.set_workers(0)
 
     if shapes:
         last = shapes["frames"][-1]
         show(f"iter{last['iter']}",
-             f"Optimized wing — major iteration {last['iter']}, C_d "
+             f"Optimized wing at major iteration {last['iter']}. C_d "
              f"{last['CD']:.6f}, {reduction:.1f}% below baseline at matched "
              f"lift")
         dlo, dhi = shapes["disp_window_mm"]
@@ -455,7 +456,7 @@ def main(request: str | None = None, params: dict | None = None,
         # framed roughly four times tighter and the same untouched surfaces
         # move about six times as far. This is a camera change, not a shape
         # change: no coordinate is scaled, so there is no factor to disclose.
-        show("near0", f"Inboard span, true scale — baseline, C_d "
+        show("near0", f"Inboard span, true scale. Baseline, C_d "
                       f"{baseline['CD']:.6f}")
         bullets(script.engineer,
                 f"Same surfaces again, on a closer camera: the inboard "
@@ -479,12 +480,12 @@ def main(request: str | None = None, params: dict | None = None,
             if frame is not None:
                 drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
                 show(f"near{frame['iter']}",
-                     f"Inboard span, true scale — major iteration "
+                     f"Inboard span, true scale. Major iteration "
                      f"{frame['iter']} of {majors}, C_d {frame['CD']:.6f}, "
                      f"{abs(drop):.1f}% "
                      f"{'below' if drop >= 0 else 'ABOVE'} baseline")
         show(f"near{last['iter']}",
-             f"Inboard span, true scale — optimized, C_d {last['CD']:.6f}, "
+             f"Inboard span, true scale. Optimized, C_d {last['CD']:.6f}, "
              f"{reduction:.1f}% below baseline at matched lift")
         bullets(script.engineer,
                 f"That is the shape the gradient bought, at the size it "
@@ -529,9 +530,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"against the gradient throughout and settles inside a "
             f"{tail_spread_pct:.2g}% band over the last {TAIL_ITERS} "
             f"iterations.",
-            f"The optimizer cut its step back {CUTBACKS} times on evaluation "
-            f"errors along the way, which is ordinary line-search behaviour "
-            f"and not a fault.")
+            f"Nothing fatal.")
     roster.idle(MONITOR)
 
     verdict = {
@@ -646,15 +645,15 @@ def main(request: str | None = None, params: dict | None = None,
             "respect to surface control points, spanwise twist and the flow "
             "state.",
             f"Verification by central finite difference of the full primal, "
-            f"step {FD_STEP:g}, {FD_SOLVES} perturbation solves covering "
-            f"every one of the {N_DV} design variables.",
+            f"{FD_SOLVES} perturbation solves covering every one of the "
+            f"{N_DV} design variables.",
             f"Graded against this lab's current gradient standard, applied "
             f"uniformly across the whole ladder: pass at {GATE_PASS_PCT:g}% "
             f"or better with no flagged component, conditional between "
             f"{GATE_PASS_PCT:g} and {GATE_CONDITIONAL_PCT:g}%, fail above "
             f"{GATE_CONDITIONAL_PCT:g}% or on any sign-flipped component "
             f"whatever the aggregate says.",
-            f"Interior-point optimization with lift equality-constrained to "
+            f"Gradient-based optimization with lift equality-constrained to "
             f"{CL_TARGET:g} and thickness, volume and edge constraints "
             f"active, capped at a {box_min:g} minute wall clock.",
         ] + ([
@@ -723,7 +722,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"deflection is not part of the replay and is not on screen. The "
             f"largest shape change is {shapes['frames'][-1]['max_disp_mm']:.0f} "
             f"mm, {shapes['frames'][-1]['max_disp_mm'] / 10.0 / shapes['chord_root_m']:.2f}% "
-            f"of the root chord — about {_a2_shape.TRUE_SCALE_PX:.0f} pixels "
+            f"of the root chord, about {_a2_shape.TRUE_SCALE_PX:.0f} pixels "
             f"of silhouette on a wing framed to its span, which is why the "
             f"true-scale pass carries the change in a displacement field "
             f"rather than in a visibly different outline. The close-up pass "

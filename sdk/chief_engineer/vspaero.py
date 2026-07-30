@@ -172,7 +172,7 @@ class VspAeroWingApi:
         result_path = case / "result.json"
         if not result_path.exists():
             raise RuntimeError(
-                f"VSPAERO produced no result for {tag} — see {log_path}")
+                f"VSPAERO produced no result for {tag}, see {log_path}")
         result = json.loads(result_path.read_text(encoding="utf-8"))
         if "error" in result:
             raise RuntimeError(f"VSPAERO failed for {tag}: {result['error']}")

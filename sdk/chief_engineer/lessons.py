@@ -67,14 +67,14 @@ def express(lesson_id: str, **context: Any) -> str:
 
     forms = [
         (f"At {_percent(relative)} the error bar on {metric} is still mine rather than "
-         f"the flow's — it is sampling noise, and standing practice is to keep buying "
+         f"the flow's. It is sampling noise, and standing practice is to keep buying "
          f"samples while that is true. {proposed_n} runs should take roughly "
          f"{shrink:.0f}% off it."),
         (f"That spread is dominated by how little I have sampled, not by the physics: "
          f"{_percent(relative)} against a {_percent(threshold)} threshold. We hold to "
          f"spending samples until what is left is genuinely irreducible, so I am "
          f"taking this to {proposed_n}."),
-        (f"{_percent(relative)} on {metric} is reducible — {current_n} samples is simply "
+        (f"{_percent(relative)} on {metric} is reducible. {current_n} samples is simply "
          f"too few to pin the mean down. The practice I work to is that an envelope "
          f"stays open while sampling can still close it, so {proposed_n} runs next "
          f"(about {shrink:.0f}% tighter)."),

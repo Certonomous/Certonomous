@@ -218,7 +218,7 @@ def main(request: str | None = None, params: dict | None = None,
     announce_geometry(emit, diameter=NOMINAL_CYLINDER[SWEEP_PARAMETER],
                       label="baseline geometry")
     script.engineer(
-        f"• Hypothesis: across {LOW}–{HIGH} m, drag falls as the body grows. "
+        f"• Hypothesis: across {LOW} to {HIGH} m, drag falls as the body grows. "
         f"• Bigger diameter means higher Reynolds and lower laminar Cd. "
         f"• Expect the optimum at the upper bound, curve flattening toward it.")
     script.engineer(
@@ -475,7 +475,7 @@ def main(request: str | None = None, params: dict | None = None,
         "• Still unknown: everything above Re 47. "
         "• Whether drag keeps falling needs an unsteady solver this study did not have.")
     if surrogate_note:
-        knowledge.add(f"Reduced-order surface for cylinder drag, D {LOW}–{HIGH} m")
+        knowledge.add(f"Reduced-order surface for cylinder drag, D {LOW} to {HIGH} m")
         script.numericist(
             f"• Worth keeping: {surrogate_note}. "
             "• Reusable: the next study starts from it instead of re-paying "
@@ -484,7 +484,7 @@ def main(request: str | None = None, params: dict | None = None,
     report = lab_report(
         title="Cylinder shape optimization under a converged-solve constraint",
         abstract=[
-            f"We tested whether drag falls with body diameter over {LOW}–{HIGH} m "
+            f"We tested whether drag falls with body diameter over {LOW} to {HIGH} m "
             f"at fixed freestream conditions.",
             f"Across {len(evidence)} solver runs the curve held and the optimum sat at "
             f"the upper bound, D={best_x:.4g} m, improving on the baseline by "

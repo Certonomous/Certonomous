@@ -51,7 +51,7 @@ def _solve_linear(matrix: list[list[float]], rhs: list[float]) -> list[float]:
     for col in range(n):
         pivot = max(range(col, n), key=lambda r: abs(matrix[r][col]))
         if abs(matrix[pivot][col]) < 1e-14:
-            raise ValueError("normal-equations matrix is singular — the "
+            raise ValueError("normal-equations matrix is singular, the "
                              "training design does not span alpha and Re "
                              "independently enough to fit the surface")
         matrix[col], matrix[pivot] = matrix[pivot], matrix[col]

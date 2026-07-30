@@ -52,7 +52,7 @@ CASE_MEMORY: tuple[CaseRecord, ...] = (
         flow="unsteady", reynolds=(100.0, 200.0),
         meshing="blockMesh-ogrid", cells=(2400, 2400),
         results="Re 100 converges onto the unstable symmetric branch "
-                "(Cd 1.181, physical ≈ 1.3–1.4); Re 200 fails to converge "
+                "(Cd 1.181, physical ≈ 1.3 to 1.4); Re 200 fails to converge "
                 "(residual 1e-3, Cd oscillation 1e-2)",
         validated_against="known steady-wake instability above Re ≈ 47",
         source="docs/NUMERICS_KNOWLEDGE.md #3, #4",
@@ -100,12 +100,12 @@ def retrieve(*, geometry_kind: str | None = None, dimensionality: str | None = N
         if reynolds is not None:
             low, high = case.reynolds
             if low <= reynolds <= high:
-                shared.append(f"Re {reynolds:.0f} inside {low:.0f}–{high:.0f}")
+                shared.append(f"Re {reynolds:.0f} inside {low:.0f} to {high:.0f}")
                 score += 0.5
             else:
                 decades = abs(_log10(reynolds) - _log10((low + high) / 2))
                 differing.append(f"Re {reynolds:.0f} is {decades:.1f} decades from "
-                                 f"this case's {low:.0f}–{high:.0f}")
+                                 f"this case's {low:.0f} to {high:.0f}")
                 score += max(0.0, 0.25 - 0.1 * decades)
         matches.append(Match(case, score, tuple(shared), tuple(differing)))
     matches.sort(key=lambda item: item.score, reverse=True)

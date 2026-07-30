@@ -576,7 +576,7 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
     patches = _body_patches(list(staging.glob("*.vtp")))
     if not patches:
         _log.warning("field-paint patch selection suspect: no body patch left "
-                     "after excluding domain boundaries — falling back to wireframe")
+                     "after excluding domain boundaries, falling back to wireframe")
         return None
     payload = load_field_surface(patches, field=field, name=name,
                                  q_kinematic=q_kinematic, p_inf=p_inf)
@@ -602,7 +602,7 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
             _log.warning(
                 "field-paint patch selection suspect: painted body has %d faces, "
                 "only %.0f%% of the %d input triangles (floor %.0f%%) from patches "
-                "%s — falling back to wireframe",
+                "%s, falling back to wireframe",
                 body_faces, 100 * fraction, input_triangles, 100 * min_fraction,
                 sorted(p.stem for p in patches))
             return None

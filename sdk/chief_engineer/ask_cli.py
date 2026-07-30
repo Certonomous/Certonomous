@@ -66,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
         print()
         print("=== WITH THE MODEL (reasoned over the same facts) ===")
         if not os.environ.get("ANTHROPIC_API_KEY"):
-            print("(no ANTHROPIC_API_KEY in this shell — this half needs the key)")
+            print("(no ANTHROPIC_API_KEY in this shell, this half needs the key)")
         print(_render(question, ask_the_lab.answer(question)))
         return 0
 

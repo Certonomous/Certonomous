@@ -53,7 +53,7 @@ def display(raw: str) -> str:
     if lesson:
         key = lesson.group(1).upper()
         title = LESSON_TITLES.get(key)
-        return f"Lesson {key} — {title}" if title else f"Lesson {key}"
+        return f"Lesson {key}, {title}" if title else f"Lesson {key}"
 
     knowledge = _KNOWLEDGE.search(text)
     if knowledge:
@@ -64,12 +64,12 @@ def display(raw: str) -> str:
             named = [t for t in titles if t]
             label = "№" + ", №".join(numbers)
             if named:
-                return f"Numerics knowledge {label} — {named[0]}"
+                return f"Numerics knowledge {label}, {named[0]}"
             if parenthetical:
-                return f"Numerics knowledge {label} — {parenthetical}"
+                return f"Numerics knowledge {label}, {parenthetical}"
             return f"Numerics knowledge {label}"
         if parenthetical:
-            return f"Numerics knowledge base — {parenthetical}"
+            return f"Numerics knowledge base, {parenthetical}"
         return DOCUMENT_TITLES["NUMERICS_KNOWLEDGE"]
 
     # Unknown source: strip anything path-shaped so no file reference escapes.

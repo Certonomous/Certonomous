@@ -246,7 +246,7 @@ _UNCERTAINTY = re.compile(
 # incidental words ("temperature" alone is a fluid property and stays in-domain;
 # "heat transfer" is not). Ported from the objective-compiler triage so the
 # demo's front door gives a specific "out of scope" answer, not a generic one.
-LAB_DOMAIN = ("incompressible external aerodynamics — forces and coefficients "
+LAB_DOMAIN = ("incompressible external aerodynamics, forces and coefficients "
               "via steady or unsteady RANS")
 _OUT_OF_SCOPE_DOMAINS: dict[str, "re.Pattern[str]"] = {
     "melting or phase change": re.compile(
@@ -481,7 +481,7 @@ def classify(request: str) -> Route:
     if not scores:
         return Route(
             GENERAL_MISSION, 0.3,
-            "No dominant pattern — handing this to the capability-driven "
+            "No dominant pattern. I am handing this to the capability-driven "
             "planner, which will decompose it against the connected adapters.",
             (), {"request": text})
 
@@ -517,16 +517,16 @@ def classify(request: str) -> Route:
 
     rationale = {
         RACE_COMPARISON: (
-            "Reading this as a head-to-head speed race: the same objective and "
-            "the same tolerance answered two ways — a full Monte-Carlo sweep "
-            "against a reduced-order path — with every evaluation on both sides "
+            "Reading this as a head-to-head speed race. The same objective and "
+            "the same tolerance answered two ways, a full Monte-Carlo sweep "
+            "against a reduced-order path, with every evaluation on both sides "
             "run through the selected solver and both wall clocks measured live. I will run the two "
             "lanes concurrently, show the polar forming on each, and report the "
             "agreement and the measured speedup."),
         VALVE_STUDY: (
             "Reading this as a pulsatile internal-flow screen. The cycle is "
             "periodic, so I will decompose it into a few steady phase points, "
-            "solve each, and cycle-weight the result — after the Chief Researcher "
+            "solve each, and cycle-weight the result, once the Chief Researcher "
             "rules the decomposition admissible for this Womersley number."),
         AHMED_BODY: (
             "Reading this as the Ahmed reference body, 25 degree slant. I will "

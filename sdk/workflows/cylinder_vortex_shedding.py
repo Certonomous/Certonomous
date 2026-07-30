@@ -319,14 +319,14 @@ def run_case(reynolds: float, out_dir: Path, log: Callable[[str], None] = print,
     if drift is None:
         raise RuntimeError(f"cyl-re{reynolds:g}: halves_drift could not be "
                            f"computed (one half of the averaging window has "
-                           f"too few samples) -- stationarity is UNKNOWN, "
+                           f"too few samples). Stationarity is UNKNOWN, "
                            f"not passing, so no Cd/Cl may be quoted")
     if drift["relative_drift"] > 0.10:
         raise RuntimeError(
             f"cyl-re{reynolds:g}: Cd mean still drifting across the "
             f"averaging window (first half {drift['first_half_mean']:.5f}, "
             f"second half {drift['second_half_mean']:.5f}, "
-            f"{100 * drift['relative_drift']:.1f}% relative drift) -- this "
+            f"{100 * drift['relative_drift']:.1f}% relative drift). This "
             f"is a mid-transient snapshot, not a stationary time-average, "
             f"and must not be quoted as Cd/St")
     strouhal = (DIAMETER / (period * U_INF)) if period else None

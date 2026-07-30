@@ -382,7 +382,7 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("race.init", {
             "subject": subject,
-            "objective": "peak L/D over angle of attack 0–10°",
+            "objective": "peak L/D over angle of attack 0 to 10°",
             "tolerance": f"±{TOLERANCE_DEG:g}°",
             "x_label": "angle of attack [deg]", "y_label": "L/D",
             "lanes": [

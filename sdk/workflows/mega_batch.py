@@ -347,13 +347,13 @@ def _run_cylinder_unsteady(index: int, design: dict[str, float], work_root: Path
                            f"(ran to t={times[-1] if times else 0:g})")
     drift = cvs.halves_drift(times, history["Cd"], cd_stats["window_start"], cd_stats["window_end"])
     if drift is None:
-        raise RuntimeError(f"cylinder-unsteady #{index}: halves_drift undefined "
-                           f"-- stationarity unknown, Cd/St refused")
+        raise RuntimeError(f"cylinder-unsteady #{index}: halves_drift undefined, "
+                           f"stationarity unknown, Cd/St refused")
     if drift["relative_drift"] > 0.10:
         raise RuntimeError(
             f"cylinder-unsteady #{index}: Cd still drifting across the averaging "
-            f"window ({100 * drift['relative_drift']:.1f}% relative drift) -- "
-            f"not a stationary time-average, Cd/St refused")
+            f"window ({100 * drift['relative_drift']:.1f}% relative drift). "
+            f"Not a stationary time-average, Cd/St refused")
     strouhal = (cvs.DIAMETER / (period * cvs.U_INF)) if period else None
     st_ref = 0.198 * (1.0 - 19.7 / reynolds) if 50.0 <= reynolds <= 200.0 else None
     st_dev_pct = (100.0 * abs(strouhal - st_ref) / st_ref
@@ -567,7 +567,7 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
     )
     if not mesh_gate_pass:
         raise RuntimeError(
-            f"ahmed-viscous #{index}: MESH GATE FAILED -- checkMesh_ok="
+            f"ahmed-viscous #{index}: MESH GATE FAILED, checkMesh_ok="
             f"{mesh_stats.get('mesh_ok')}, non_ortho={non_ortho}, skew={skew} "
             f"(gates: non_ortho<={AHMED_NON_ORTHO_GATE}, skew<={AHMED_SKEWNESS_GATE})")
 
@@ -593,7 +593,7 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
     residual_max = max(tracked) if len(tracked) == 4 else None
     if residual_max is None or residual_max > AHMED_RESIDUAL_GATE:
         raise RuntimeError(
-            f"ahmed-viscous #{index}: RESIDUAL GATE FAILED -- "
+            f"ahmed-viscous #{index}: RESIDUAL GATE FAILED, "
             f"max(Ux,Uy,Uz,p) final residual {residual_max} > {AHMED_RESIDUAL_GATE} "
             f"(residuals seen: {residuals})")
 
@@ -611,11 +611,11 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
     drift = cvs.halves_drift(times, cd_series, window_start, times[-1])
     if drift is None:
         raise RuntimeError(
-            f"ahmed-viscous #{index}: halves_drift undefined -- stationarity "
+            f"ahmed-viscous #{index}: halves_drift undefined, stationarity "
             f"unknown, Cd refused")
     if drift["relative_drift"] > AHMED_DRIFT_GATE:
         raise RuntimeError(
-            f"ahmed-viscous #{index}: STATIONARITY GATE FAILED -- Cd drifting "
+            f"ahmed-viscous #{index}: STATIONARITY GATE FAILED, Cd drifting "
             f"{100 * drift['relative_drift']:.1f}% across the final "
             f"{window_iters}-iteration window (limit {100 * AHMED_DRIFT_GATE:.0f}%)")
     cd_stats = cvs.time_weighted_stats(times, cd_series, window_start)
@@ -630,7 +630,7 @@ def _run_ahmed_viscous(index: int, design: dict[str, float], work_root: Path) ->
     yplus_gate_pass = yplus is not None and AHMED_YPLUS_LOW <= yplus["average"] <= AHMED_YPLUS_HIGH
     if not yplus_gate_pass:
         raise RuntimeError(
-            f"ahmed-viscous #{index}: Y+ GATE FAILED -- {yplus} not inside "
+            f"ahmed-viscous #{index}: Y+ GATE FAILED, {yplus} not inside "
             f"[{AHMED_YPLUS_LOW}, {AHMED_YPLUS_HIGH}] (wall-function log-law band)")
 
     # Every gate passed: extract metrics, including an *informational* (not
@@ -894,14 +894,14 @@ def run_batch(
             guard_state["trip"] = (
                 f"free disk {disk:.1f} GB below the {min_free_disk_gb:.1f} GB floor"
             )
-            log(f"[mega-batch] RESOURCE GUARD: {guard_state['trip']} -- draining and stopping")
+            log(f"[mega-batch] RESOURCE GUARD: {guard_state['trip']}, draining and stopping")
             return guard_state["trip"]
         mem = available_mem_gb()
         if mem < min_avail_mem_gb:
             guard_state["trip"] = (
                 f"available memory {mem:.1f} GB below the {min_avail_mem_gb:.1f} GB floor"
             )
-            log(f"[mega-batch] RESOURCE GUARD: {guard_state['trip']} -- draining and stopping")
+            log(f"[mega-batch] RESOURCE GUARD: {guard_state['trip']}, draining and stopping")
             return guard_state["trip"]
         return None
 
@@ -1017,7 +1017,7 @@ def acquire_runner_lock(pid_file: Path, *, force: bool = False, log=print) -> bo
                 log(
                     f"[mega-batch] REFUSING TO START: another runner is live at PID "
                     f"{existing} (per {pid_file}). Two concurrent runners duplicate "
-                    f"ledger indices -- this exact mistake corrupted 55 rows on "
+                    f"ledger indices. This exact mistake corrupted 55 rows on "
                     f"2026-07-27. Stop it first, or pass --force if you are certain."
                 )
                 return False

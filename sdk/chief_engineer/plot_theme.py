@@ -119,9 +119,9 @@ def waveform_figure(out_png: str | Path, phases, *, q_peak: float,
 
     # Region labels sit just inside the plot near the axis — clear of the
     # legend above and the tick labels below.
-    ax.text(t_systole * 0.5, q_top * 0.05, "systole — ejection", ha="center",
+    ax.text(t_systole * 0.5, q_top * 0.05, "systole, ejection", ha="center",
             va="bottom", fontsize=10, color=MUTED)
-    ax.text((t_systole + t_cycle) / 2, q_top * 0.05, "diastole — valve shut",
+    ax.text((t_systole + t_cycle) / 2, q_top * 0.05, "diastole, valve shut",
             ha="center", va="bottom", fontsize=10, color=DIM)
     ax.annotate(rf"$\alpha \approx {alpha:.1f}$  (Womersley)",
                 xy=(0.985, 0.62), xycoords="axes fraction", ha="right",
@@ -131,7 +131,7 @@ def waveform_figure(out_png: str | Path, phases, *, q_peak: float,
     ax.set_ylim(min(0, min(qs)) - 0.02, q_top)
     style_axes(ax, r"cardiac-cycle time  $t$  [s]",
                r"aortic flow rate  $Q$  [L/s]",
-               title or "Idealized systolic waveform — three weighted phase points")
+               title or "Idealized systolic waveform, three weighted phase points")
     leg = ax.legend(frameon=False, fontsize=10.5, labelcolor=INK, loc="upper left")
     for text in leg.get_texts():
         text.set_color(INK)
