@@ -586,3 +586,75 @@ Evidence: reused `ladder-a/A5_work/UBend_Channel_pressureloss/probeFFDGeometry.p
 per-DV coordinate table (this document's earlier working notes) plus a new one-off parse of
 `constant/polyMesh/{points,faces}.gz` for the `sym`/`ubendup` patch z-extents (not saved as a standalone
 script -- a 30-line inline check, reported here in full).
+
+## Addendum, 2026-07-30: adjoint-solve accuracy -- eliminated, tightening seven orders of magnitude moves the flagged components by under 1%
+
+Second coordinator-directed test: is the discrete adjoint's own linear (GMRES) solve for psi converged
+tightly enough that the total derivative it produces is trustworthy, independent of every individually-
+correct Jacobian tested so far? Stock convergence was already on record (`adjEqnOption.gmresRelTol =
+1e-5`): 86 iterations, `PetscConvergedReason: 2`, final KSP residual `1.08e-4` from an initial `1.24e1`
+-- converged to its own specified relative tolerance normally, no red flag on its face, but the tolerance
+itself had never been tightened and re-checked against the verification result.
+
+New file `runScript_tightAdjoint.py` -- a single-line diff from `runScript.py`
+(`gmresRelTol: 1e-5` -> `1e-12`), everything else byte-identical. Ran `-task compute_totals` (`np=4`,
+`--cpus=4 --memory=6g`, launched via `scripts/launch_solve.sh` after `case_preflight.sh` passed clean).
+**Adjoint converged to `PetscConvergedReason: 2` at 126 iterations (vs. 86 stock), final KSP residual
+`8.05e-12` (vs. `1.08e-4` stock) -- roughly 10,000x tighter.**
+
+| component | stock (`gmresRelTol=1e-5`) analytic | tightened (`1e-12`) analytic | change | established FD | still sign-flipped? |
+|---|---|---|---|---|---|
+| idx8 | -0.84337 | -0.84328122 | **0.0105%** | 0.78391 | **yes** |
+| idx17 | -0.62881 | -0.63435973 | **0.8826%** | 2.90530 | **yes** |
+
+**Tightening the adjoint's own linear solve by seven orders of magnitude (and its actual achieved
+residual by four orders) moved idx8 by 0.01% and idx17 by 0.88% -- utterly negligible against the 207.6%
+and 121.6% real disagreements, and BOTH components remain sign-flipped at the tightened tolerance.**
+This eliminates adjoint-solve accuracy as A5's cause, cleanly: the total derivative is not a symptom of
+an under-converged linear solve; it is a converged, reproducible, stable wrong answer.
+
+Evidence: `runScript_tightAdjoint.py`, `tightadjoint_out.log` (both in
+`ladder-a/A5_work/UBend_Channel_pressureloss/`).
+
+## Addendum, 2026-07-30: on whether the three isolated links were tested truly in isolation
+
+A parallel finding on A1 (a different session) showed that an EARLIER warpDeriv-vs-FD test there had an
+unnoticed circularity: its FD side reached the mesh via `DVGeo.update(shape)` (composing the FFD
+parameterization WITH the physical warp) and its analytic side dotted `warpDeriv(w)` against DVGeo's OWN
+forward Jacobian `v = dXs/dShape_idx` (also a composition) -- so a "clean" result for a given component
+proved only that the DOT PRODUCT of warpDeriv's error against that SPECIFIC v was small, not that
+warpDeriv itself was correct; if the true defect lived in warpDeriv and its error happened to be
+(nearly) orthogonal to a particular idx's v, the combined test would report "clean" for a genuinely
+defective link. The fix that broke this open there was to perturb along `v` directly, bypassing
+`DVGeo.update()` entirely, so the warp is exercised alone.
+
+Checked this against each of A5's three link tests directly, because the same trap would equally
+invalidate any of them:
+
+- **`dR/dW` (`probeA5DiagRatio.py`):** `FD_i` perturbs the STATE `W` directly
+  (`DASolver.setStates(W0 +/- h*e_i)`) and reads the residual straight back (`getResiduals()`) -- no
+  DVGeo, no mesh warp, no adjacent operator anywhere in the FD path. `AN_i` calls
+  `calcJacTVecProduct(stateVar -> residual)` on the SAME `W0`. Both sides operate on `W` as the direct,
+  un-composed input. **Not the same trap.** The units-convention explanation is additionally protected
+  from this specific failure mode by its own evidence: 43 of 60 diagonal samples, spanning dozens of
+  physically unrelated cells and state magnitudes from -12 to +300, landed on exactly one of four values
+  each matching a `normalizeStates` constant to 6 significant figures -- a coincidence that consistent
+  and that precise is not explainable by an orthogonal-projection artifact, which would produce scatter,
+  not four exact clusters.
+- **`dF/dW` (invalid, bug already found and explained):** `FD` perturbs `W` directly and calls
+  `evalFunctions()`/`getTimeOpFuncVal()` (the stale-history bug) -- not composed with any adjacent
+  operator either; the bug that invalidated this test was unrelated (wrong API, not circularity). Will
+  be re-run with `calcFunction()` -- still a direct, single-link test once fixed.
+- **`dR/dXv` (invalid, bug already found and explained):** `FD` perturbed `Xv` DIRECTLY via
+  `setVolCoords(Xv0 +/- h*dXv)`, bypassing `DVGeo`/`mesh.warpMesh()` entirely -- also not composed with
+  an adjacent operator; its bug (per-rank-inconsistent perturbation breaking parallel mesh validity) is
+  a different, already-diagnosed failure mode. The redesign already planned (perturb through an actual
+  small FFD-warp-based direction, for global consistency) borrows a TRUSTED vector as a raw input the
+  same way A1's fix did, and does not reintroduce the composition trap.
+
+**Conclusion: none of A5's three link tests shares A1's specific circularity.** All three were
+constructed as direct injections into the link's own input space from the start, not as compositions of
+two operators' outputs against each other. The dR/dW result stands. The real, honestly-remaining gap is
+coverage, not circularity: dR/dW's diagonal-only sampling has not ruled out an off-diagonal defect in
+that same Jacobian, and dF/dW and dR/dXv are still unvalidated pending their bug fixes -- both real open
+items, tracked as such, not resolved by this check.
