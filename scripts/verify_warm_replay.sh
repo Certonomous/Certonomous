@@ -68,8 +68,11 @@ ACTS=("$@")
                                adjoint-optimization aircraft-optimization
                                valve-study geometry-study race-study)
 
-# Lines carrying live host state rather than measurement.
-NOISE='Compute audit|cores free|GB available|other job'
+# Lines carrying live host state rather than measurement. "granted slots" is
+# the same class as the compute audit's free-core count: how many slots the
+# box handed out this instant, not a property of the answer. The airliner act
+# reported DIFFERS on it while every solved coefficient matched.
+NOISE='Compute audit|cores free|GB available|other job|granted slots'
 
 # An act that fails the same way twice diffs clean. That is how a broken
 # cylinder vortex-shedding act -- the control room had been restarted without

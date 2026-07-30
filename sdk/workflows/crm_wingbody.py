@@ -126,9 +126,9 @@ def main(request: str | None = None, params: dict | None = None,
     script.numericist(
         f"• The mesh gates are the standard acceptance band, "
         f"{per('mesh-quality')}. "
-        f"• This body is meshed by the case's own recipe, not snapped from "
-        f"an STL, so there is no matching coarser or finer variant to build "
-        f"a refinement ladder from here either.")
+        f"• This body is meshed by the case's own recipe, not from a "
+        f"supplied surface, so there is no matching coarser or finer variant "
+        f"to build a refinement ladder from here either.")
 
     if not docker_available():
         script.engineer(
@@ -152,10 +152,9 @@ def main(request: str | None = None, params: dict | None = None,
                     "selected solver for this regime"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
-        f"• Plan: receive the case's own surface-mesh recipe, extrude the "
-        f"volume mesh, check it, then a steady compressible solve capped at "
-        f"{RANKS} MPI ranks, {BUDGET_ITERATIONS} iterations, the budget this "
-        f"case's own residuals are known to settle inside. "
+        f"• Plan: receive the case's own mesh, check it, then a steady "
+        f"compressible solve over {BUDGET_ITERATIONS} iterations, the budget "
+        f"this case's own residuals are known to settle inside. "
         f"• Memory checked before the heavy stages; the run waits rather "
         f"than crowding the host.")
 
@@ -184,8 +183,8 @@ def main(request: str | None = None, params: dict | None = None,
         if CACHED_SURFACE_MESH.exists():
             shutil.copy(CACHED_SURFACE_MESH, engineer.remote_case / CACHED_SURFACE_MESH.name)
         script.engineer(
-            "• Case received: the design reference wing's own surface-mesh "
-            "recipe and solver setup, staged as it starts.")
+            "• Case received: the design reference wing's own mesh and "
+            "solver setup, staged as it starts.")
 
         warm_mesh = engineer.restore_cached_mesh(LABEL)
         if warm_mesh:
@@ -201,8 +200,8 @@ def main(request: str | None = None, params: dict | None = None,
             engineer.run("bash preProcessing.sh", name="mesh", timeout=900)
             seconds = time.monotonic() - started
             stage_row("mesh", seconds,
-                      "surface mesh extruded to a volume mesh by the case's "
-                      "own recipe, no snappyHexMesh stage applies")
+                      "volume mesh built from the case's own recipe, "
+                      "unmodified")
             ledger.spend(seconds, f"mesh generation ({seconds:.0f}s)")
             engineer.save_mesh_to_cache(LABEL)
 
@@ -218,8 +217,8 @@ def main(request: str | None = None, params: dict | None = None,
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
             f"• Mesh: {cells:,} cells, this case's own recipe. "
-            f"• Quality reported by the solver's own inline checkMesh call "
-            f"at t=0, {per('mesh-quality')}.")
+            f"• Quality reported by the solver's own inline mesh check at "
+            f"the start of the run, {per('mesh-quality')}.")
         roster.idle(CHIEF_RESEARCHER)
 
         # -- decompose for the capped rank count, solve --
@@ -345,8 +344,8 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From a received surface-mesh recipe to a converged transonic "
-        f"solve in {elapsed:.1f} minutes. "
+        f"• From a received case to a converged transonic solve in "
+        f"{elapsed:.1f} minutes. "
         f"• Residuals settled by iteration {converged_iteration:,}.")
     if verdict["tier"] == VALIDATED:
         script.engineer(f"• Verdict: validated. {verdict['reason']}.")
@@ -379,7 +378,7 @@ def main(request: str | None = None, params: dict | None = None,
     report_doc = lab_report(
         title=f"Act 9: {shown}",
         abstract=[
-            f"We received the CRM wing's own surface-mesh recipe, extruded "
+            f"We received the CRM wing's own mesh recipe, built "
             f"and checked the volume mesh, and solved it fresh on the "
             f"selected compressible solver.",
             f"The mesh reached {cells:,} cells; drag converged to "
@@ -387,11 +386,11 @@ def main(request: str | None = None, params: dict | None = None,
             f"The result is reported as {verdict['tier'].lower()}: {verdict['reason']}.",
         ],
         methods=[
-            "Received the case's own surface-mesh recipe and extruded the "
-            "volume mesh with the case's own tool chain.",
-            f"Steady compressible RANS solve, capped at {RANKS} MPI ranks, "
-            f"{BUDGET_ITERATIONS} iterations, the budget this case's own "
-            f"residuals are known to settle inside.",
+            "Received the case's own mesh recipe and built the volume mesh "
+            "from it unmodified.",
+            f"Steady compressible RANS solve over {BUDGET_ITERATIONS} "
+            f"iterations, the budget this case's own residuals are known to "
+            f"settle inside.",
             f"Converged drag compared against {GATE_SOURCE}.",
         ],
         results=[{
@@ -410,7 +409,7 @@ def main(request: str | None = None, params: dict | None = None,
         }],
         uncertainty=[
             "No refinement ladder on this run: this body is meshed by the "
-            "case's own recipe rather than snapped from an STL, with no "
+            "case's own recipe rather than from a supplied surface, with no "
             "coarser or finer variant on record.",
             f"Compared against {GATE_SOURCE}: {verdict['reason']}.",
         ],

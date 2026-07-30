@@ -114,9 +114,8 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
-        f"• Plan: feature edges, background mesh, snap, quality gates, "
-        f"potential init, then {iterations} steady iterations, capped at 4 "
-        f"MPI ranks. "
+        f"• Plan: mesh the body, clear the quality gates, then {iterations} "
+        f"steady iterations. "
         f"• Meshing is the long pole on this body's separated wake mesh.")
 
     engineer = HeadEngineer(f"act7-{LABEL}", out, novel=True,
@@ -622,11 +621,10 @@ def main(request: str | None = None, params: dict | None = None,
         ],
         methods=[
             "Surface intake and check on the 25 degree Ahmed body.",
-            f"Background mesh plus snappyHexMesh to {cells:,} cells; quality "
-            f"gated at {MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and "
+            f"Meshed to {cells:,} cells; quality gated at "
+            f"{MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and "
             f"{MAX_SKEWNESS:.0f} skewness.",
-            f"Potential-flow initialisation followed by {iterations} steady "
-            f"iterations, capped at 4 MPI ranks.",
+            f"{iterations} steady iterations on the gated mesh.",
             "Forces averaged over the final fifth of the iteration history; "
             "the band is the spread of that window.",
             f"Measured drag rebased from planform to frontal area and graded "

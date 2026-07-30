@@ -236,6 +236,15 @@ Wording check across every act:
 bash scripts/audit_transcripts.sh
 ```
 
+Recipe check across every camera surface, transcripts, closing reports and the
+static pages (`docs/DEMO_DISCRETION_CHARTER.md`: the demo may withhold method,
+it may never misstate result). A review aid, so read the hits rather than
+counting them; false positives are expected and a reference's identity always
+stays:
+```bash
+bash scripts/audit_camera_discretion.sh
+```
+
 Confirm the acts still reproduce their numbers:
 ```bash
 bash scripts/verify_warm_replay.sh
