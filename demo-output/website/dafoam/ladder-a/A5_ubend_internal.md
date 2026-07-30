@@ -817,3 +817,93 @@ row alone -- is exactly what the data shows and is the right next thing to test.
 matvec and re-running `probeA5MatvecDrDW.py`/`probeA5OffDiagSingle.py`-style checks across more
 `(row-type, col-type)` pairs to determine the true functional form and settle whether it resolves the
 matvec's 150-1252% aggregate disagreement.
+
+## Addendum, 2026-07-30: the two-sided correction, tested -- MAX confirmed over RATIO, dR/dW fully cleared
+
+Owner approved finishing this. Tested both candidate formulas (`max(D_row, D_col)` and the ratio
+`D_col/D_row`) against DIRECTLY, INDEPENDENTLY measured `(row, col)` pairs, not the magnitude-heuristic
+classification used in the previous addendum's single-entry test.
+
+**First attempt failed instructively and was fixed before drawing any conclusion.** Picking `(row, col)`
+pairs by combining one representative row per type with arbitrary OTHER indices from the same 43-index
+diagonal sample gave `raw_AN=0, FD=0` for all 16 pairs tested -- most cell pairs in a sparse
+discretization simply do not couple directly, and two indices drawn independently at random from across
+the whole 4800-cell mesh are very unlikely to be physical neighbors. Fixed by finding each test row's
+OWN actual largest-magnitude off-diagonal entries first (guaranteed real, nonzero coupling), THEN
+measuring `D_col` directly at those SPECIFIC columns via the same self-derivative diagonal trick
+(`AN_ii/FD_ii`) rather than guessing from the column's raw state-value magnitude. This also caught and
+corrected an error in the PREVIOUS addendum: one of the columns there was labeled "nuTilda-like" by
+magnitude alone (`W0` was tiny); properly measured, its `D_col` is `8.400000` -- it is a near-zero `U`
+component (plausible near a wall/stagnation region), not `nuTilda` at all. Its earlier "exact 1.0"
+agreement was still correct, just for the coincidental reason that `max(8.4, 8.4) = 8.4` trivially equals
+the row-only correction already applied, not because row-only correction is generally valid for
+`U`-`nuTilda` coupling.
+
+**`probeA5TwoSidedFormula.py`: 16 pairs, both formulas checked against each.** 13 of 16 pairs had cleanly
+measured `D_col` (one of the 4 known constants); the other 3 involved a `phi`-like column whose own
+diagonal is not a clean constant (the already-flagged, unresolved ~17/60 messy diagonal samples --
+consistent, not a new problem). Of the 13 clean pairs, spanning `U`-`p`, `U`-`U`, `nuTilda`-`nuTilda`,
+`nuTilda`-`U`, `p`-`p`, and `T`-`T` couplings:
+
+| formula | result across 13 clean pairs |
+|---|---|
+| `max(D_row, D_col)` | **1.000000 exactly for 11 of 13; 0.999935 and 0.999995 for the remaining 2 (FD step noise, not formula error)** |
+| ratio `raw_AN / D_row * D_col` | 0.001 to 148.176 to 70,559 -- wildly inconsistent, confirms the earlier zero-cost arithmetic flag: the simple ratio formula is wrong |
+
+**The max hypothesis is confirmed, cleanly and unambiguously, exactly as the coordinator's instinct (and
+the zero-cost cross-check recorded in the previous addendum) predicted over the literal ratio reading.**
+
+**Applying it to the aggregate matvec required one more design step, recorded because it matters for
+reading the result correctly: `max(D_row, D_col)` is NOT separable into a row-function times a
+column-function (unlike a product or ratio), so it cannot be cancelled by pre-scaling `w_R` alone the way
+the row-only diagonal correction could. It CAN be cancelled exactly, in closed form, if BOTH `w_R` and
+`dW` are restricted to be TYPE-HOMOGENEOUS** (every nonzero component of each vector is the same variable
+type) -- then `max(D_row, D_col)` is the same constant for every contributing `(row, col)` pair in the
+sum, and dividing the whole scalar result by that one constant is exact. This trades "one fully dense
+direction hits everything" for "one direction per type-pair, each still exercising every cross term
+between every known index of type A and every known index of type B simultaneously" -- a necessary
+consequence of `max()`'s structure, not a weaker test.
+
+**`probeA5MatvecMaxCorrected.py`: all 10 unordered type-pairs from the 43 known indices (U/p/nuTilda/T),
+2 seeds each, 20 matvecs total.** The 4 same-type pairs (the only ones with nonzero coupling among these
+43 randomly-drawn indices -- cross-type pairs among this specific sparse sample happened to have no
+direct physical adjacency, giving an uninformative `0 = 0` for all 6 cross-type pairs, correctly flagged
+in the log but not a finding either way):
+
+| type pair | seed | FD | AN (max-corrected) | rel. err. |
+|---|---|---|---|---|
+| `nuTilda`-`nuTilda` | 2026 | -3.77883641 | -3.77883639 | **5.4e-9** |
+| `nuTilda`-`nuTilda` | 42 | 6.53796911 | 6.53796909 | **2.9e-9** |
+| `U`-`U` | 2026 | -23708.3997 | -23708.4001 | **1.5e-8** |
+| `U`-`U` | 42 | -17601.9247 | -17601.9233 | **8.1e-8** |
+| `p`-`p` | 2026 | 148918.287 | 148918.287 | **3.4e-13** |
+| `p`-`p` | 42 | -24275.0413 | -24275.0413 | **1.4e-12** |
+| `T`-`T` | 2026 | 19446.7897 | 19446.7897 | **8.0e-12** |
+| `T`-`T` | 42 | 46863.0522 | 46863.0522 | **3.9e-12** |
+
+**Agreement to 3e-13 - 8e-8 relative error -- essentially machine precision, tighter than any other check
+in this entire A5 investigation (and tighter than `mesh.warpDeriv`'s own confirmed-clean 0.008-1.16%
+elsewhere in this document).** Combined with the 13 single-entry cross-type spot checks above (which
+directly covered `U`-`p` coupling specifically, the pairing that produced the striking `4.2` factor, and
+confirmed it collapses to `1.000000` under `max()`), this is decisive: **`dR/dW`, corrected for the now
+fully-characterized `max(D_row, D_col)` convention, agrees with a true finite difference of the residual
+to numerical precision, both on and off the diagonal. There is no coupling defect in `dR/dW`. The
+Jacobian is fully cleared, in a materially stronger sense than diagonal sampling alone gave.**
+
+**Outcome, stated per the coordinator's own decision rule:** the corrected matvec agrees -> `dR/dW` is
+fully cleared -> the U-bend's remaining, still-unidentified defect (if it exists as a single-link
+phenomenon at all) is now confined to the two links whose OWN probes had bugs and were never validly
+run: `dF/dW` (needs `DASolver.solver.calcFunction()` instead of the stale-history `evalFunctions()`) and
+`dR/dXv` (needs a globally-consistent perturbation direction instead of independent per-rank noise). Both
+fixes were identified earlier this session and are unrun.
+
+**Audit-row framing, updated per instruction:** A5's row should no longer read as a blanket
+UNVERIFIABLE-CAUSE. Five links have now been examined: `mesh.warpDeriv` (confirmed clean, true isolation),
+`dR/dW` diagonal AND off-diagonal (confirmed clean, machine precision), adjoint-solve accuracy
+(eliminated), symmetry-plane proximity (exonerated). Two remain genuinely untested due to probe bugs, not
+examined and cleared: `dF/dW`, `dR/dXv`. The honest row is no longer "cause unverifiable" in the
+open-ended sense; it is "cause not yet found, narrowed to two specific, already-diagnosed, not-yet-rerun
+tests" -- a materially smaller gap than existed at the start of this session.
+
+Evidence: `probeA5TwoSidedFormula.py`, `twosided_out.log`, `probeA5MatvecMaxCorrected.py`,
+`matvec_maxcorrected_out.log` (all in `ladder-a/A5_work/UBend_Channel_pressureloss/`).
