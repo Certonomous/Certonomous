@@ -469,3 +469,171 @@ precisely because it does not require sampling the extremal corners the
 way the Emory/Iaccarino method does), and should be scoped, budgeted, and
 reported as that, not folded into this document's method as though it
 were the same thing with a smaller number attached.
+
+---
+
+## 9. 2026-07-30: scoping the random-matrix/Bayesian alternative (§1.5) — not started, per explicit instruction
+
+**Source, read in full this time (not abstract-depth):** Xiao, H., Wang,
+J.-X. & Ghanem, R.G., "A Random Matrix Approach for Quantifying
+Model-Form Uncertainties in Turbulence Modeling," arXiv:1603.09656
+(2016), also *Computer Methods in Applied Mechanics and Engineering*.
+Open access (arXiv). Read via local `pdftotext` extraction of the full
+PDF (same method used for §1's sources), not the abstract or a secondary
+summary. All four questions below are answered from the paper's own
+methodology and results sections, quoted or cited by line.
+
+**No solve was launched to answer this. This section is research and
+arithmetic against already-measured numbers from tonight's own runs, per
+the explicit instruction to scope, not start.**
+
+### 9.1 What it requires as input
+
+A single converged baseline RANS field (the paper's own §4.1/Table 1
+lists "Baseline RANS" as one of its two meshes/inputs, alongside a
+separate, coarser "KL mesh" used only for the random-field expansion) —
+**we already have this** (the hump's converged kOmegaSST baseline,
+1.2534, `check_convergence.py`-confirmed CONVERGED). Beyond that, the
+method requires machinery this project does not currently have in any
+form:
+
+1. **A Cholesky factorization of the normalized (barycentric) Reynolds
+   stress tensor**, used specifically because it "guarantee[s] realizability
+   ...by construction" (paper's own abstract) — a different realizability
+   mechanism from the eigenvalue-perturbation method's barycentric
+   projection, not interchangeable with it.
+2. **A Karhunen–Loève (KL) expansion of a spatially correlated Gaussian
+   random field** over the mesh, truncated to `N_KL` modes (the paper's
+   own demonstration: `N_KL = 30` modes on a `50×30` auxiliary mesh, with
+   user-chosen correlation length scales `l_x/H = 2, l_y/H = 1`) — this
+   requires either building a KL-mode solver (a mesh-based eigenvalue
+   problem for a chosen covariance kernel) or finding and adapting an
+   existing one; neither exists in this project's stack.
+3. **A polynomial chaos expansion** (the paper's demonstration: order
+   `N_p = 3`) mapping independent Gaussian variables to the random
+   Reynolds-stress field.
+4. **A chosen dispersion parameter** `δ` (or spatially-varying `δ(x)`) —
+   a genuinely subjective input the paper itself calls "guided by the
+   subjective belief of the user on the uncertainty in the Reynolds
+   stresses" (§4.1) — this project has no principled way to set it yet,
+   and the paper's own two demonstrated values (`δ=0.2`, `δ=0.6`) produce
+   visibly different distributions on the same case, so the choice is not
+   a detail.
+
+**None of items 1–4 exist in this project today.** This is new
+mathematical/software infrastructure, not a configuration change to the
+existing `uqEigPerturb` `fvOptions` — a materially larger lift than
+either lever tried in §8, both of which reused code that already existed.
+
+### 9.2 Does it need converged corner states — and does it inherit the same wall?
+
+**By construction, no — explicitly.** The paper's own discussion section
+states the maximum-entropy distribution has *"zero measure on the
+two-component (and one-component) limiting states"* (§5) — the 1C/2C
+corners are a probability-zero edge case of the sampling distribution,
+not a target. Individual Monte Carlo draws essentially never land exactly
+on a corner, so the method does not require converging AT the corner
+states the way the Emory/Iaccarino method structurally does. **This is a
+real, citable difference, not a technicality dodged.**
+
+**But this is not the same as escaping the wall — it relocates it, and
+arguably makes it more damaging.** The method still requires converging a
+large number of RANS solves at a *spread* of anisotropy-perturbation
+magnitudes governed by `δ`. The paper's own "large" demonstration case
+(`δ=0.6`) is explicitly described as producing "appreciable deviations"
+that can approach the realizability boundary in high-shear regions —
+qualitatively the same territory (moderate-to-large anisotropy departure
+from baseline) as this project's own `r4` moderation sweep, which showed
+**fragmentation starting at Δ=0.10** and total non-convergence from
+Δ=0.10 through Δ=0.75 (`F6a_epistemic_band.md`). A Monte Carlo sampler
+drawing ~100 realizations from a distribution with real probability mass
+in that same magnitude range would, on the evidence this project already
+has, plausibly see a meaningful fraction of its required samples fail to
+converge on this specific short, violent bubble — **not all of them, the
+way the deterministic 5-simulation method does, but enough to matter, and
+in a way that is worse for a Monte Carlo estimate specifically**: silently
+dropping the hardest-to-converge samples (the ones furthest from baseline)
+biases the resulting distribution toward the calm center and away from
+exactly the tail behavior a model-form uncertainty estimate exists to
+capture. Restricting `δ` small enough to avoid this reliably (closer to
+our own converged Δ=0.05, which moved *away* from the experiment) would
+likely buy convergence at the cost of a distribution too narrow to be
+informative — the same trade this project already met once tonight.
+
+**Verdict on this question, stated plainly per the instruction: this
+route does not inherit the *identical* wall (it does not require the
+exact, unreachable corner states), but it plausibly inherits a
+*statistical* version of the same wall through its intermediate samples,
+on this specific case, based on evidence already in hand — not proven,
+since no sample has actually been run, but a real, evidence-grounded risk
+that must be disclosed before committing resources, not discovered after.**
+
+### 9.3 The smallest honest first result
+
+Not a single gated number in the same sense as the corner method's — this
+method's minimal unit of *output* is a distribution (or at least a mean
+and credible interval), built from an ensemble, not a single converged
+run. There is no literature-prescribed minimum ensemble size read in this
+source; the paper's own working choice is 100 velocity-propagation
+samples (drawn from 1000 cheaper Reynolds-stress-only samples). A smaller
+first test — perhaps 20–30 propagated samples — could produce a rough,
+explicitly-labeled-as-under-sampled kernel density estimate, but shrinking
+the ensemble undermines the specific thing this method is for (a
+Monte-Carlo-converged distribution), so "smallest honest" here means
+*"smallest ensemble whose distribution is disclosed as provisional,"* not
+*"one run,"* the way §4's reduced envelope could honestly be built from
+three. The honest floor is: **build the software (§9.1) once, on the
+project's own baseline field, and run enough samples that the *convergence
+failure rate itself* becomes a reportable number** — even a failed
+majority would be informative, provided it is reported as such rather
+than quietly filtered out.
+
+### 9.4 What it would cost — measured against tonight's own numbers, not guessed
+
+**No new solve was run to produce this estimate.** It is arithmetic
+against this project's own already-measured per-run wall times on the
+identical 51,626-cell hump mesh, same solver, same host, from tonight's
+`r4` sweep (`solve_registry`):
+
+| Δ (r4 sweep) | outcome | wall time (1 core) |
+| --- | --- | --- |
+| 0.00 | converged, 1795 iter | 334 s |
+| 0.05 | converged, 2124 iter | 429 s |
+| 0.10 | capped at 3800, not converged | 536 s |
+| 0.15 | capped at 3800, not converged | 1096 s (heavy GAMG struggle) |
+| 0.25 | capped at 3800, not converged | 636 s |
+| 0.50 | capped at 3800, diverged | 482 s |
+| 0.75 | capped at 3800, diverged | 467 s |
+
+Median across the non-trivial points: **~500–650 s/run**, with one
+outlier at 1096 s reflecting real pressure-solve difficulty under
+moderate perturbation — itself evidence that "harder" samples cost more
+wall time as well as more risk, not just more risk. Applying the paper's
+own 100-velocity-propagation-sample requirement (§9.1) at this measured
+per-run cost: **100 × ~500–1100 s ≈ 14–31 core-hours of serial compute**,
+or roughly **5–10 hours wall-clock at this task's own 3-core budget** —
+before accounting for any sample that runs to a larger cap than 3800 or
+needs re-launching after a crash, and **before any of the software in
+§9.1 has been written at all.** That software item has no honest
+core-minute estimate — it is a mathematics-and-implementation task, not a
+compute one, and should be costed and reviewed separately rather than
+folded into a core-hour number that would understate it.
+
+### 9.5 Recommendation
+
+**Do not start this on the hump.** The evidence-grounded risk in §9.2 —
+that a meaningful fraction of the required intermediate-magnitude samples
+would likely fail to converge on this specific short, violent bubble, for
+reasons this project has already established independently — combined
+with the substantial unbuilt-software cost in §9.1, means the hump is not
+the case to spend that investment proving out this method on. **The
+paper's own demonstration geometry is flow over periodic hills at
+Re=2800** (Breuer et al.) — mild, well-behaved, converges even at its
+"large" dispersion setting per the paper's own account — and **this
+project already has an incomplete, queued campaign on exactly that
+geometry** (`F6b — periodic hills`, `demo-output/website/dafoam/f6b_periodic_hills/`,
+currently DRAFT, gate rung not yet run). If this framework is pursued at
+all, F6b is the properly-scoped first target: a geometry class the
+method's own authors validated it on, not a second attempt on the one
+case this project has now shown breaks two different UQ machineries in
+two different ways. Brought here for a decision, not started.
