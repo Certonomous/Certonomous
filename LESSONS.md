@@ -971,3 +971,65 @@ is spent, if `residualControl` names only fields the model doesn't carry
 It does not require every transported field to be gated (a case may
 deliberately gate a subset), only that the block isn't watching a field
 set with zero overlap with reality.
+
+## L-22. A failure attributed to a case must be checked against that case's own logs — attribution that "sounds plausible" is not provenance
+
+**What happened.** F5c (the Driver & Seegmiller backward-facing step,
+plain `simpleFoam`, no adjoint) was on record elsewhere as "OOM with huge
+gradient blow-ups." Neither half of that phrase belongs to F5c. Its
+meshes top out at 46,500 cells — far too small to plausibly exhaust a
+30 GB host — it has no adjoint or DAFoam variant in the repo to produce a
+gradient at all, and a repo-wide search of git log, every campaign
+document, the docket, dmesg/journalctl, and the chief_engineer source
+turned up no kernel OOM message, no solver abort, and no commit
+connecting F5c to memory exhaustion. F5c's real, already-documented
+failure is a converged-but-wrong steady RANS solve (reattachment length
+off 4-12x, wanders under iteration count and algorithm). An extended
+20,000-iteration run of the exact configuration the claim was attached to
+finished NOT_CONVERGED, RSS flat at roughly 79 MB the entire time — no
+memory event, confirming the claim's absence rather than its cause. The
+likely source: B3 CBFS, a *different* case (a curved backward-facing
+step, a genuine DAFoam adjoint run) that really does OOM and really does
+produce `DIVERGED_NANORINF` NaN/Inf gradients, and shares enough of the
+name — "backward-facing step" — that a handoff note written late in a
+session had an obvious way to cross the two. Full trace in
+`demo-output/website/campaign/F5bc_unsteady_statistics.md`, "2026-07-30
+addendum," and the register entry in `NOT_PASSING_REGISTER.md`.
+
+**Why this belongs next to L-1, L-2, and L-16, not as a one-off.** L-1
+says verify a docket entry against `git log` before investigating it.
+L-2 says never trust a verifier's own success report. L-16 names the
+standing pattern across L-14/L-15: trusting a derived signal over the
+primary one. This is the same family, one layer up — it is not a
+number misread off a log, it is a *claim about which case a log belongs
+to*, and it survived not because anyone checked it, but because it
+sounded plausible and named a real phenomenon (this project genuinely
+has an adjoint memory wall, Group 1 of `NOT_PASSING_REGISTER.md`) that
+was simply attached to the wrong case. That is a more expensive failure
+mode than a misread number, because it is invisible to anyone who trusts
+the register instead of re-deriving the entries in it — and the owner's
+own count stands at six convergence-masking instances and four bad
+readings caught in one night before this one, several of which were a
+claim propagating because nobody re-read the primary evidence. A failure
+register whose own entries are not individually checkable against
+primary evidence is not a register, it is a rumor with formatting.
+
+**The standing rule.** A `NOT_PASSING_REGISTER.md` entry that attributes
+a crash, an abort, or a resource failure (OOM, SIGFPE, SIGSEGV, a kernel
+kill, an infrastructure event) to a named case must cite the primary
+evidence that proves it happened on *that* case: the exact kernel
+message, the solver's own FATAL/abort line, or the log path and
+timestamp of the run in question. "Consistent with the pattern documented
+for [other case]" is not sufficient on its own to name a case in a
+crash/resource entry — it is fine as an explicitly-labeled inference (as
+several Group 1 entries in this same register already do correctly for
+`naca0015_sail_medium` and `naca4412_wing_coarse`, which say outright that
+their logs do not themselves confirm OOM as the cause), but it must not
+be silently upgraded to a flat statement of fact about the named case
+the next time someone writes a summary of it. Convergence-failure and
+wrong-answer entries (the far more common kind in this register) do not
+need a kernel trace — the residual history or the physical result *is*
+the primary evidence and is usually attached already. This rule is
+specifically for the sharper, rarer claim that a resource or crash event
+occurred, because that is the claim this incident showed can travel
+without ever being checked.
