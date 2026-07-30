@@ -63,6 +63,27 @@ error (a `pgrep`-based completion check gave a false positive; caught by `ps`
 before being reported, matching this project's own L-2/L-6/L-10). θ=32.5°/35°
 remain correctly held; not gated.
 
+### Added 2026-07-30 — F5c backward-facing step: register entry added, and a claimed OOM traced to a probable conflation with a different case
+
+**New entry, Group 3** (this case was already investigated and written up in
+`F5bc_unsteady_statistics.md` but had never been given a register entry — added
+now). F5c (Driver & Seegmiller 1985 backward-facing step, `simpleFoam`, steady RANS)
+converges numerically at every rung (residuals 1e-5 to 1e-9) but lands on a
+reattachment length 4-12x off the reference and does not settle under mesh
+refinement, wall treatment, or algorithm change -- the steady-RANS fixed-point
+assumption itself is in question, not the mesh. Separately: this case had been
+described elsewhere as "OOM with huge gradient blow-ups." A repo-wide provenance
+search (git log, every campaign doc, the docket, dmesg/journalctl, the
+chief_engineer source) found no kernel OOM message, solver abort log, or commit
+that connects F5c to memory exhaustion -- only the same, already-documented
+reattachment-length finding. The likely source of the confusion: **B3 CBFS**
+(below), a *curved* backward-facing step and a genuine DAFoam adjoint case, which
+really does combine both halves of the claim (confirmed-family OOM plus
+`DIVERGED_NANORINF` NaN/Inf gradients) and shares enough of the name that a
+handoff note referring to "the backward-facing-step case" has an obvious way to
+cross the two. Full trace and elimination list in `F5bc_unsteady_statistics.md`,
+"2026-07-30 addendum."
+
 ### Narrowed
 
 **The U-bend gradient failure (Group 2)** was tested against the airfoil's
@@ -264,6 +285,15 @@ Cases where the solver either did not converge to its own gate, diverged during 
 - **Root cause:** Infrastructure (host restart), not case-specific.
 - **To resolve:** Resume or re-run. Re=2000 is incomplete; no result.
 - **Evidence:** `/home/ubuntu/Certonomous/demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
+
+### F5c Backward-Facing Step — reattachment length 4-12x off, does not converge under refinement; claimed "OOM/gradient blow-up" not substantiated
+
+- **What:** 2D backward-facing step (Driver & Seegmiller 1985), turbulent, steady `simpleFoam`. Six rungs: coarse/medium mesh, SIMPLE/SIMPLEC, 2,000-8,000 iterations, plus turbulence-level and top-wall-BC diagnostics.
+- **How it failed:** Reattachment length x_r/H measured 0.49-1.49 against reference 6.26±0.10 (deviation -76% to -92%) across every rung. Every run's residuals converge cleanly (down to 1e-5 to 1e-9) — this is not a numerical-convergence failure, it is a converged answer that is wrong. Non-monotonic under iteration count alone (2,000 iters → 1.49H, 8,000 iters → 1.07H, same mesh/algorithm), which rules out "just needs more iterations."
+- **Root cause:** Not identified. Leading (untested) hypothesis: the case is genuinely unsteady (bubble-flapping) and a steady SIMPLE/SIMPLEC fixed point is the wrong tool, not the mesh or turbulence closure — try `pimpleFoam` with time-averaging instead. Secondary, also untested: the uniform (non-boundary-layer-shaped) inlet k/omega profile.
+- **Separately, a provenance finding:** this case has also been described as "recorded as OOM with huge gradient blow-ups." No evidence for that framing was found anywhere in this repository (see `F5bc_unsteady_statistics.md`, "2026-07-30 addendum," for the full search). F5c has no adjoint/DAFoam variant, its meshes (9,050-46,500 cells) cannot plausibly exhaust the host's memory, and an extended 20,000-iteration test showed flat ~80 MB RSS through iteration 7,371 with no divergence signature. The probable source of the claim is conflation with **B3 CBFS** below — a different, curved backward-facing-step case that is a genuine DAFoam adjoint run and genuinely does OOM and produce NaN/Inf (DIVERGED_NANORINF) gradients.
+- **To resolve:** (a) `pimpleFoam` + time-averaging on the same geometry to test the genuine-unsteadiness hypothesis, or (b) vary the inlet turbulence profile shape (not just bulk level) against a real boundary-layer TKE profile.
+- **Evidence:** `/home/ubuntu/Certonomous/demo-output/website/campaign/F5bc_unsteady_statistics.md` (§F5c, including the 2026-07-30 provenance addendum).
 
 ### D9 NASA Hump — three turbulence models, two incomplete / one unconverged
 
