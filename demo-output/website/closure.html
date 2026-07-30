@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Certonomous — The Closure Challenge</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#8b949e;
+    --good:#3fb950; --accent:#58a6ff; --gold:#e3b341; --warn:#f85149;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#fff;--panel:#f6f8fa;--line:#d0d7de;--ink:#1f2328;--dim:#656d76;
+          --good:#1a7f37;--accent:#0969da;--gold:#9a6700;--warn:#cf222e;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:19px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:34px 28px 90px}
+  header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:26px}
+  .eyebrow{color:var(--dim);font:600 13px/1 var(--mono);text-transform:uppercase;
+           letter-spacing:.16em;margin-bottom:12px}
+  h1{margin:0 0 10px;font-size:46px;line-height:1.06;letter-spacing:-.025em}
+  .sub{color:var(--dim);font-size:19px;max-width:74ch}
+  .sub b{color:var(--ink);font-weight:600}
+  h2{font-size:29px;margin:56px 0 8px;letter-spacing:-.018em}
+  .lede{color:var(--dim);font-size:18px;margin:0 0 20px;max-width:80ch}
+  .lede b{color:var(--ink)}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+  .kpi.hero{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
+  .kpi.flat{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .kpi .n{font:600 52px/1.05 var(--mono);letter-spacing:-.035em}
+  .kpi .n.g{color:var(--good)} .kpi .n.d{color:var(--dim)} .kpi .n.a{color:var(--accent)}
+  .kpi .n.sm{font-size:38px}
+  .kpi .l{color:var(--dim);font-size:13.5px;text-transform:uppercase;letter-spacing:.08em;margin-top:10px}
+  .kpi .f{color:var(--dim);font-size:15px;margin-top:10px;line-height:1.4}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:18px;min-width:600px}
+  th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.07em}
+  td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  tr.us{background:color-mix(in srgb,var(--accent) 13%,transparent)}
+  tr.us td{font-weight:600}
+  .tag{display:inline-block;font:600 12px/1 var(--mono);padding:6px 9px;border-radius:6px;letter-spacing:.05em}
+  .t-good{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+  .t-gold{background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold)}
+  .t-open{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .t-flat{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+  .win{color:var(--good);font-weight:600}
+  .lose{color:var(--warn);font-weight:600}
+  .banner{display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+          background:color-mix(in srgb,var(--gold) 11%,transparent);
+          border:1px solid color-mix(in srgb,var(--gold) 45%,var(--line));
+          border-radius:12px;padding:16px 20px;margin:0 0 26px;font-size:18px}
+  .banner .tag{flex:none}
+  .note{border-left:4px solid var(--accent);padding:14px 0 14px 20px;margin:24px 0;
+        color:var(--dim);font-size:18px;max-width:86ch}
+  .note.warn{border-left-color:var(--warn)}
+  .note.gold{border-left-color:var(--gold)}
+  .note b{color:var(--ink)}
+  .steps{list-style:none;margin:22px 0 0;padding:0;counter-reset:s}
+  .steps li{counter-increment:s;position:relative;padding:0 0 22px 58px;
+            border-left:2px solid var(--line);margin-left:17px}
+  .steps li:last-child{border-left-color:transparent;padding-bottom:4px}
+  .steps li::before{content:counter(s);position:absolute;left:-18px;top:-3px;width:34px;height:34px;
+       border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--dim);
+       font:600 15px/32px var(--mono);text-align:center}
+  .steps li.hit::before{border-color:var(--good);color:var(--good)}
+  .steps b{display:block;font-size:20px;margin-bottom:5px;color:var(--ink)}
+  .steps span{color:var(--dim);font-size:17.5px;display:block;max-width:80ch}
+  .steps .num{font-family:var(--mono);color:var(--ink);font-weight:600}
+  footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-size:15px}
+  code{font-family:var(--mono);font-size:15px;background:var(--panel);padding:2px 6px;border-radius:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Public benchmark · ML for RANS turbulence modelling</div>
+  <h1>The closure challenge</h1>
+  <div class="sub">Turbulence is the last big unsolved problem in engineering fluid dynamics. The cheap
+  simulation every engineer runs gets the flow <b>systematically wrong</b> in the places that matter most.
+  This is the public benchmark that measures who can fix it — and it is deliberately designed to be hard.</div>
+</header>
+
+<div class="banner">
+  <span class="tag t-gold">UNSUBMITTED</span>
+  <div>This is our <b>entry of record</b>, scored on our own hardware by the benchmark's own unmodified
+  code. Nothing has been sent to the benchmark steward. We are not on the leaderboard and hold no rank.</div>
+</div>
+
+<!-- ===================== THE MAIN POINT ===================== -->
+<div class="grid">
+  <div class="kpi flat"><div class="n a sm">0.1036</div><div class="l">where standard CFD lands</div>
+    <div class="f">the industry-standard turbulence model, uncorrected — the number to beat</div></div>
+  <div class="kpi hero"><div class="n g">0.0676</div><div class="l">our entry of record</div>
+    <div class="f">34.7% closer to reality than the standard solve</div></div>
+  <div class="kpi"><div class="n">5 of 8</div><div class="l">test cases where we lead</div>
+    <div class="f">better than every published entry on those five — and behind on the other three</div></div>
+  <div class="kpi"><div class="n">4</div><div class="l">scoring attempts, ever</div>
+    <div class="f">each a single pre-registered call; the benchmark's answers were never used to tune</div></div>
+</div>
+
+<div class="note"><b>What the score is, in one line.</b> Every test case is a real flow measured by
+high-fidelity simulation. The benchmark picks 1,000 fixed points in each flow and asks: how far off is your
+predicted velocity, on average, as a fraction of the true speed? <b>0.1036 means the standard solve is about
+10% wrong. 0.0676 means we are about 7% wrong.</b> Lower is better. The final score is the plain average
+across all eight cases.</div>
+
+<!-- ===================== 1 ===================== -->
+<h2>1 · What the benchmark actually asks for</h2>
+<p class="lede">Eight flows the standard model is known to struggle with — flow separating over hills,
+flow in square ducts, flow over an aerodynamic bump. You are given a cheap, wrong simulation of each and
+asked to predict the true flow field. You may use any method you like. There is exactly <b>one strict
+rule</b>.</p>
+
+<div class="note gold"><b>The one rule: you may not train or validate on any test case.</b> The
+benchmark states that a submission found to have done so is <b>automatically withdrawn</b>, with a note
+placed on the leaderboard. The whole point of the benchmark is that the field is full of methods that
+look good on the data they were built from and fall apart on anything else — so the test cases are
+deliberately chosen to be a different Reynolds number and a different geometry from anything you trained on.</div>
+
+<!-- ===================== 2 ===================== -->
+<h2>2 · The part we are most proud of, and it cost us</h2>
+<p class="lede">Round 2 of our entry scored <b>0.0741</b>. Then our own audit found something
+uncomfortable: on three of the eight cases, our trained correction was making the answer
+<b>worse than not correcting at all</b>.</p>
+
+<ol class="steps">
+  <li>
+    <b>The free 0.0066 sitting on the table</b>
+    <span>Simply switching the correction off on those three cases would have moved the score to
+    <span class="num">0.0675</span> — ahead of third place on the public board. One line of code. The catch:
+    we only knew <em>which</em> three cases to switch off because the benchmark had just told us our score
+    on them. Choosing what to submit by reading the answer key is exactly the leakage the one rule exists
+    to prevent. Our own audit wrote it down at the time: <em>"taking that 0.0066 by inspection would
+    invalidate the entry."</em></span>
+  </li>
+  <li>
+    <b>We left it on the table and did it the long way</b>
+    <span>Instead of switching cases off by hand, we built a <b>decline gate</b>: a small model that looks
+    only at the cheap simulation itself — never at the answer — and predicts whether correcting this flow
+    will help or hurt. It was fitted on <span class="num">21</span> training cases only, then checked
+    against <span class="num">4</span> held-out cases it had never seen. It got all
+    <span class="num">4 of 4</span> right, including the one case where correcting genuinely hurt.</span>
+  </li>
+  <li class="hit">
+    <b>Then we froze it and let it decide, blind</b>
+    <span>The gate's threshold — <span class="num">0.1263</span> — was locked before it was ever pointed at
+    a test case, and reproduced from training data alone to confirm nothing had drifted. Turned loose on the
+    four test flows using only the cheap simulation as input, it declined to correct exactly the two it
+    should have declined, and kept correcting the two it should have kept. <b>4 of 4, blind.</b></span>
+  </li>
+  <li class="hit">
+    <b>Final score 0.0676 — one ten-thousandth worse than cheating</b>
+    <span>The honest route landed at <span class="num">0.0676</span>. The shortcut we refused would have
+    given <span class="num">0.0675</span>. The gap is the third case, the NASA bump, where no legitimate
+    gate exists — so that small loss stays on our score permanently rather than being quietly reverted.
+    <b>An entire extra round of work to arrive 0.0001 behind the number we could have simply taken.</b>
+    That difference is the whole reason the result is worth anything.</span>
+  </li>
+</ol>
+
+<div class="note"><b>Why this is the number that matters to an investor, not the score.</b> Any team can
+produce a good number on a benchmark by tuning against it until it looks right. That number tells you
+nothing about whether the method will work on your aircraft, your valve, your car. What tells you
+something is a team that finds a free improvement, can prove to itself that taking it would be cheating,
+and declines — then builds the version that survives scrutiny and reports the slightly worse result.
+The full account, including the fact that the idea for the gate came from a scoring call, is written
+into the submission record itself so a reviewer finds it there rather than discovering it.</div>
+
+<!-- ===================== 3 ===================== -->
+<h2>3 · Where the score actually stands</h2>
+<p class="lede">Stated plainly: <b>this score does not beat the field.</b> If it were submitted today it
+would sit third of five, between Wu and Zhang and the current third place. It is unsubmitted, so it sits
+nowhere at all.</p>
+
+<div class="scroll"><table>
+<thead><tr><th>Public leaderboard</th><th class="n">Overall</th><th></th></tr></thead>
+<tbody>
+<tr><td>1 · Reissmann, Fang, and Sandberg</td><td class="n">0.0595</td><td></td></tr>
+<tr><td>2 · Wu and Zhang</td><td class="n">0.0624</td><td></td></tr>
+<tr class="us"><td>— · Certonomous</td><td class="n">0.0676</td><td><span class="tag t-gold">UNSUBMITTED · NO RANK</span></td></tr>
+<tr><td>3 · Liu, Wang, Zhao, and Xiao</td><td class="n">0.0737</td><td></td></tr>
+<tr><td>4 · Montoya, Oulghelou, and Cinnella</td><td class="n">0.0779</td><td></td></tr>
+<tr><td>Standard uncorrected simulation</td><td class="n">0.1036</td><td><span class="tag t-flat">the floor everyone is beating</span></td></tr>
+</tbody></table></div>
+
+<p class="lede" style="margin-top:34px">Case by case, against the best score any published entry has
+achieved on that case. <b>We lead on five and trail on three.</b></p>
+<div class="scroll"><table>
+<thead><tr><th>Test flow</th><th class="n">Best published</th><th class="n">Certonomous</th><th></th></tr></thead>
+<tbody>
+<tr class="us"><td>Periodic hill, steep, coarse</td><td class="n">0.0592</td><td class="n win">0.0501</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
+<tr class="us"><td>Periodic hill, steep, fine</td><td class="n">0.1195</td><td class="n win">0.1011</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
+<tr class="us"><td>Periodic hill, shallow, coarse</td><td class="n">0.0569</td><td class="n win">0.0461</td><td><span class="tag t-gold">BEST — no correction applied</span></td></tr>
+<tr class="us"><td>Periodic hill, shallow, fine</td><td class="n">0.0760</td><td class="n win">0.0719</td><td><span class="tag t-gold">BEST — no correction applied</span></td></tr>
+<tr class="us"><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n win">0.0303</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
+<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n lose">0.0919</td><td><span class="tag t-open">LAST ON BOARD</span></td></tr>
+<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n lose">0.0862</td><td><span class="tag t-open">SECOND-LAST</span></td></tr>
+<tr><td>NASA wall-mounted hump</td><td class="n">0.0364</td><td class="n lose">0.0632</td><td><span class="tag t-open">LAST ON BOARD</span></td></tr>
+</tbody></table></div>
+
+<div class="note gold"><b>Read the two "no correction applied" rows honestly.</b> On those two flows our
+best result is the <em>uncorrected</em> standard simulation — the gate withheld our model and reported the
+plain physics solve, which happens to beat every published machine-learning entry there. That is a real
+result and it is the gate working exactly as intended. It is not our model outperforming anyone. Two of
+our five leads are cases we won by declining to break what already worked.</div>
+
+<!-- ===================== 4 ===================== -->
+<h2>4 · What is not solved</h2>
+<p class="lede">Three of the eight cases are unfixed, and one of them is unfixed for a reason we can now
+prove rather than guess at.</p>
+
+<div class="grid">
+  <div class="kpi"><div class="n sm">2 of 7</div><div class="l">inputs are provably blind</div>
+    <div class="f">On every square-duct flow, two of our model's seven inputs are mathematically forced to
+    zero — not small, exactly zero. More data and a bigger model cannot fix this.</div></div>
+  <div class="kpi"><div class="n sm">≥ 76%</div><div class="l">of the duct error is elsewhere</div>
+    <div class="f">The famous missing swirl in a duct corner accounts for at most a quarter of our duct
+    error. Stated as a bound, not a measurement.</div></div>
+  <div class="kpi"><div class="n sm">BLOCKED</div><div class="l">the route to fixing the ducts</div>
+    <div class="f">Reproducing the rank-2 method hit a real numerical failure that has not been solved.
+    Nothing was estimated around it.</div></div>
+  <div class="kpi"><div class="n sm">+0.0011</div><div class="l">a regression we did not revert</div>
+    <div class="f">Our correction makes the NASA hump slightly worse. Undoing it now would mean choosing
+    by the answer key, so it stands.</div></div>
+</div>
+
+<div class="note warn"><b>The blind-spot result, because it is the most useful thing we learned.</b> Two of
+the seven quantities our model reads describe how a flow twists and shears in three dimensions. In a square
+duct, the standard simulation predicts no corner swirl whatsoever — so those two quantities are identically
+zero across every duct in the training set. We confirmed this two ways: across 41,971 real cells of duct training data they never exceed
+3&times;10<sup>&minus;14</sup> &mdash; floating-point noise, not signal &mdash; and across 50,000 randomly
+generated shear states they come out exactly zero, by algebra. <b>The model was trained on a dimension of the problem that never varied, so it learned nothing
+about it, and no amount of extra capacity will change that.</b> Fixing the ducts needs different inputs,
+not a bigger model — which is a far more valuable thing to know than another tuning round.</div>
+
+<div class="note"><b>And the honest bottom line.</b> The correction is applied to an already-finished
+simulation as a post-processing step; it does not change the underlying physics equations. It has been
+measured on eight flows from one public benchmark. It has not been submitted, has not been reviewed by
+anyone outside this lab, and does not hold a rank. Everything above is reproducible from the records in
+this repository, scored by code we did not write.</div>
+
+<footer>
+  Sources: <code>closure-challenge-benchmark</code> public leaderboard and rules (repo
+  <code>deb91557</code>) · benchmark scoring package <code>closure_challenge</code> v0.2.1
+  (<code>1c4e22c8</code>), used unmodified · entry of record
+  <code>closure_challenge_trained_entry_round3_gated.json</code> · reference floor
+  <code>closure_challenge_rans_floor.json</code> · decline gate
+  <code>closure_challenge_C1_error_estimator.md</code> · error audit
+  <code>closure_challenge_C2_error_decomposition.md</code> · duct blind-spot audit
+  <code>closure_challenge_duct_anisotropy_expressivity.json</code>. Records under
+  <code>demo-output/website/</code>.
+</footer>
+
+</div>
+</body>
+</html>

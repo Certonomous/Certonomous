@@ -286,6 +286,11 @@ def research_programs() -> dict[str, Any]:
         # states that plainly wherever this card is rendered.
         "our_score": closure_raw.get("our_score"),
         "our_per_case": closure_raw.get("our_per_case", []),
+        # The zero-training RANS-identity reference floor, so the card can show
+        # the movement (floor -> gated entry) rather than only the end point.
+        # Both values come from benchmarks.json; neither is computed here.
+        "floor_overall": closure_raw.get("rans_identity_floor_overall"),
+        "submitted": False,
         "target": "top 4",
         "repo": "github.com/rmcconke/closure-challenge-benchmark",
     }

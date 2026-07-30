@@ -1814,10 +1814,25 @@ function renderResearch(r) {
   const cl = r.closure;
   if (cl) {
     const per = (cl.target_per_case || []).map(v => (+v).toFixed(4)).join(' / ');
-    cards.push(`<div class="rp-card"><div class="rp-top"><b>${esc(cl.title)}</b>${tag(cl.status)}</div>`
-      + `<div class="rp-body">Public leaderboard target (rank #${esc(cl.target_rank)}): overall <b>${esc((+cl.target_overall).toFixed(4))}</b>.</div>`
+    // The UNSUBMITTED tag is not cosmetic: nothing has been sent to the
+    // benchmark steward, so the card must never read as a standing on the
+    // public board. It is driven by cl.submitted, which the backend pins to
+    // false until an entry is actually sent.
+    const unsub = cl.submitted ? '' : `<span class="rp-tag queued">unsubmitted</span>`;
+    // Movement, not just the end point: both numbers come straight from the
+    // benchmarks file (RANS-identity floor and the round-3 gated entry), each
+    // scored by the benchmark's own unmodified harness.
+    const move = (cl.floor_overall != null && cl.our_score != null)
+      ? `<div class="rp-body">Uncorrected RANS reference floor <b>${esc((+cl.floor_overall).toFixed(4))}</b>`
+        + ` &rarr; gated entry of record <b>${esc((+cl.our_score).toFixed(4))}</b>`
+        + ` &mdash; scaled velocity error, lower is better.</div>`
+      : '';
+    cards.push(`<div class="rp-card"><div class="rp-top"><b>${esc(cl.title)}</b>`
+      + `<span style="display:flex;gap:6px">${unsub}${tag(cl.status)}</span></div>`
+      + move
+      + `<div class="rp-body">Public leaderboard, rank #${esc(cl.target_rank)} entry: overall <b>${esc((+cl.target_overall).toFixed(4))}</b>.</div>`
       + `<div class="rp-nums">per-case ${esc(per)}</div>`
-      + `<div class="rp-body">Our entry: <b>${esc(cl.our_entry)}</b>. Target: ${esc(cl.target)}.</div>`
+      + `<div class="rp-body">Our entry: <b>${esc(cl.our_entry)}</b></div>`
       + `<div class="rp-src">public external data · ${esc(cl.repo)}</div></div>`);
   }
 
