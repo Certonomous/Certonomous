@@ -175,9 +175,17 @@ the whole case family as a candidate discriminator (DAFoam's own authors report
 945 colours vs. ADflow's 162 on a comparable case), does **not** separate
 converging from diverging cases here — the converging incompressible sail case
 needs more colours (1,999) than any diverging compressible case (1,233–1,391).
-No gradient has been obtained or verified at this mesh size under any
-configuration tried. Full record, all raw-log evidence, and the queued next
-measurement: `demo-output/website/dafoam/R5_ADJOINT_CONDITIONING.md`.
+The queued follow-up measurement was then completed: the preconditioner
+matrix's scale spread does **not** collapse under `normalizeResiduals=None`
+(diagonal ratio 16.14 orders of magnitude, versus 14.17 on the default-
+normalized baseline — worse, not better), so residual-volume scaling fixed
+the specific collapse arithmetic without touching the underlying matrix
+conditioning; a second, still-live layer of ill-conditioning remains, with
+`normalizeStates`' single global per-field scalar (versus the mesh's
+concentrated near-degenerate region) the leading unexamined candidate. **No
+gradient has been obtained or verified at this mesh size, under any
+configuration tried — nothing converged, so nothing was checked.** Full
+record, all raw-log evidence: `demo-output/website/dafoam/R5_ADJOINT_CONDITIONING.md`.
 
 ---
 

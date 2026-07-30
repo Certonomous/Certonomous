@@ -16,6 +16,14 @@ measured record of the conditioning investigation itself.
 printed settings echo (`DALinearEqn.C`'s `printInfo` block) — never from an exit
 code or a collector summary alone, per this project's own L-14/L-15/L-16.**
 
+**No finite-difference gradient verification was performed, on any
+configuration, at any point in this investigation.** This project's own rule
+(stated in the directive this work follows) is that a converged solve must be
+checked against a finite difference before its gradient is trusted. Nothing
+converged — every configuration tried returned either `DIVERGED_BREAKDOWN` or
+`DIVERGED_ITS` — so there was never a converged gradient to check. Read no
+claim below as a statement about gradient correctness; none was tested.
+
 ---
 
 ## 1. The measurement, first: row/column/diagonal scale spread of the assembled operator
@@ -137,7 +145,45 @@ reference (Kenway et al. 2019: 945 for DAFoam vs. 162 for ADflow, on a much
 larger mesh) is a real, separate architectural finding — it is not, on this
 evidence, the mechanism behind this specific breakdown.
 
-## 5. Conclusion, stated at the precision the evidence supports
+## 5. The queued measurement, closed: the scale spread does NOT collapse under `normalizeResiduals=None`
+
+The first `normalizeResiduals=None` attempt this session (`r5_noresnorm_n15`,
+the run whose collector record was initially misread as truncated — see the
+tooling note below) had `-ksp_view_pmat binary:...` enabled and produced a
+complete, valid 265 MB dump before anything else happened to it (PC-matrix
+assembly and the binary write both complete before GMRES iteration begins, so
+this data is unaffected by anything that happened later in that run). Analyzed
+with the same `analyze_scaling.py`, same matrix dimensions (200,360×200,360)
+and identical nonzero count (22,017,324 — same sparsity pattern as the
+baseline, values only differ):
+
+| quantity | baseline (`normalizeResiduals` default) | `normalizeResiduals=None` |
+|---|---|---|
+| row max-abs ratio | 2.82e+12 (log10 12.45) | 1.06e+12 (log10 **12.02**) |
+| col max-abs ratio | 3.34e+12 (log10 12.52) | 1.37e+16 (log10 **16.14**) |
+| **diagonal** abs ratio | 1.48e+14 (log10 14.17) | 1.37e+16 (log10 **16.14**) |
+
+**The spread did not collapse — the diagonal spread got worse (14.17 → 16.14
+orders of magnitude), not better.** `normalizeResiduals=None` fixes the
+specific arithmetic pathway that produced denormal collapse (§2) without
+improving, and by this measure slightly worsening, the underlying matrix's own
+conditioning. This directly answers the question this document left open:
+**there is a second, still-live layer of ill-conditioning**, separate from the
+1/cell-volume residual scaling. The most likely remaining candidate,
+un-investigated here: `normalizeStates` applies one global scalar per field
+(`U:291.6, p:101325, nuTilda:4.5e-4, phi:1.0, T:300`) uniformly across all
+21,840 cells; it cannot compensate for the same near-degenerate,
+concentrated-region cells (checkMesh's "small determinant" flag) the way the
+now-removed volume normalization was — over-compensating, per this
+measurement — doing locally. This is consistent with, and gives a concrete
+mechanism for, why strengthening the preconditioner (§3) reintroduces
+collapse: a more accurate local solve is more able to resolve — and therefore
+more exposed to — a genuinely still-enormous matrix-scale disparity that a
+weaker preconditioner simply never gets close enough to to trigger.
+
+Per instruction, no further lever was tried after this measurement.
+
+## 6. Conclusion, stated at the precision the evidence supports
 
 - **The catastrophic failure mode (residual collapsing to denormal range,
   `PetscConvergedReason -5`) is conditionable.** `normalizeResiduals=None` fixes
@@ -156,17 +202,25 @@ evidence, the mechanism behind this specific breakdown.
   configuration. The finite-difference verification rule this investigation was
   bound by (never claim a gradient without checking it) was never reached
   because nothing converged to check.
-- **What is now a sharper, more specific open question than "is this
-  conditionable at all":** why does strengthening the local preconditioner
-  reintroduce collapse specifically at the restart boundary? That is a
-  narrower, more mechanistically pointed question than the one this docket
-  entry opened with, and it is the natural next thread — candidates include:
-  the restart's residual recomputation (`r = b - Ax`) suffering catastrophic
-  cancellation against a now-much-closer-to-exact iterate under a stronger PC,
-  or a genuine remaining ill-conditioning (the diagonal spread measured in §1
-  was on the *default* preconditioner matrix, before `normalizeResiduals` was
-  removed — that matrix has not been re-measured under the fixed configuration
-  and is the next cheap, high-value measurement queued here).
+- **The follow-up measurement (§5) closes the question §1-4 left open, and
+  the answer is that residual scaling was never the whole story.** Under
+  `normalizeResiduals=None`, the assembled preconditioner matrix's diagonal
+  spread is 16.14 orders of magnitude — *worse* than the 14.17 measured on
+  the default-normalized baseline, not better. Fixing the denormal-collapse
+  arithmetic did not touch the underlying matrix conditioning. There is a
+  second, still-live, un-fixed layer of ill-conditioning, and the leading
+  candidate is `normalizeStates`' single global per-field scalar failing to
+  compensate for the same concentrated near-degenerate region that
+  `checkMesh` already flags. This also supplies a concrete mechanism for §3:
+  a weaker preconditioner (fill=0) never resolves the operator accurately
+  enough to expose that remaining disparity and merely stagnates; a stronger
+  one (fill=1, Richardson) gets close enough to trigger the same catastrophic
+  cancellation the residual-scaling fix already eliminated once, at a
+  different arithmetic site.
+- **Per instruction, no fifth lever was attempted.** The natural next thread
+  — a per-cell or per-region state normalization that targets the specific
+  mesh region `checkMesh` flags, rather than one global scalar per field —
+  is a real candidate but is not started here.
 
 ## Raw logs
 
