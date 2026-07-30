@@ -26,40 +26,65 @@ From your laptop, this instance's public IP is **16.58.201.228**:
 
 ## The surfaces
 
-**You do not upload or pick a file on camera for any act.** Eleven of the
-thirteen prompts build their own geometry from the numbers in the prompt. The
-two that use a surface resolve it from the words in the prompt automatically:
-say "B-52" and it finds the B-52.
+**No act requires an upload.** Eleven of the thirteen prompts build their own
+geometry from the numbers in the prompt. The two that use a surface resolve it
+from the words in the prompt automatically: say "B-52" and it finds the B-52.
+Uploading is a demo beat you can choose to film, not a dependency — see
+`LAPTOP_SHOOT.md` for the upload flow and what each act does with an attached
+surface.
 
-Staged surfaces live in `/home/ubuntu/Certonomous/sdk/geometry/`. That is the
-only directory the control room reads. All 21 surfaces are present and were
-verified staged on 2026-07-30:
+Two directories, two different jobs. Do not mix them up:
+
+| directory | what it is |
+|---|---|
+| `/home/ubuntu/Certonomous/sdk/geometry/` | **the server's** staging area — the only directory the control room reads, and where `/api/geometry/upload` writes what you upload. It changes at run time. |
+| `/home/ubuntu/Certonomous/demo-surfaces/` | **your** copy set — the five bodies to scp to the laptop, git-tracked and byte-identical to the staged originals. Copy from here. |
+
+Copy from `demo-surfaces/`, not from `sdk/geometry/`: an upload named
+`b52.stl` overwrites `sdk/geometry/b52.stl`, so that directory is not a stable
+source. Verified 2026-07-30 — all five files md5-identical in both places.
 
 | Act | Surface file |
 |-----|--------------|
-| B-52 | `sdk/geometry/b52.stl` (674K) |
-| ONERA M6 | `sdk/geometry/onera_m6_wing.stl` (610K) |
+| B-52 | `demo-surfaces/b52.stl` (674K, staged as `sdk/geometry/b52.stl`) |
+| ONERA M6 | `sdk/geometry/onera_m6_wing.stl` (610K, server-side only) |
 
-Confirm they are all there before you start:
+Confirm the staged set before you start:
 ```bash
 ls -lh /home/ubuntu/Certonomous/sdk/geometry/*.stl
 ```
+
+**One surface, one launch.** An attached surface is consumed by the launch it
+was attached to; the panel resets to "Load a surface (STL / OBJ)" afterwards.
+If you want a second act on the same body, attach it again. This matters
+because the router reads an attached surface as "run it on this body": leaving
+one attached would turn the next act into a generic geometry study.
 
 ## The nine acts
 
 Type each prompt into the control room.
 
-| Act | Prompt | Duration |
-|-----|--------|----------|
-| 1 | "Solve vortex shedding behind a circular cylinder at Reynolds 100 and check the Strouhal number." | 5 s |
-| 2 | "Solve the supersonic wedge at Mach 2 with a 15 degree half-angle and check the oblique shock angle." | 5 s |
-| 3 | "Solve the supersonic cone at Mach 2.35 with a 10 degree half-angle and check the conical shock angle." | 10 s |
-| 4 | "Solve the diamond airfoil at Mach 2 and check the wave drag against shock-expansion theory." | 5 s |
-| 5 | "Solve hypersonic flow over a blunt cylinder at Mach 8 and check the shock standoff distance." | 5 s |
-| 6 | "Solve the Ahmed body with the 25 degree slant and check the drag against the wind tunnel." | 25 s |
-| 7 | "Solve the NASA wall-mounted hump and check separation and reattachment." | 25 s |
-| 8 | "Solve the CRM wing-body and check the drag." | 1 s |
-| — | ONERA M6: **removed from the filmed sequence, see below** | — |
+Durations below are measured, warm, on this box — three runs each, 2026-07-30,
+box at load ~12 of 16. The spread column is max minus min across those runs;
+it is what your narration has to absorb. Time from pressing Launch to the
+mission reporting complete.
+
+| Act | Prompt | Duration | Spread |
+|-----|--------|----------|--------|
+| 1 | "Solve vortex shedding behind a circular cylinder at Reynolds 100 and check the Strouhal number." | 2.0 s | — |
+| 2 | "Solve the supersonic wedge at Mach 2 with a 15 degree half-angle and check the oblique shock angle." | 1.0 s | 0.0 s |
+| 3 | "Solve the supersonic cone at Mach 2.35 with a 10 degree half-angle and check the conical shock angle." | 3.9 s | 0.0 s |
+| 4 | "Solve the diamond airfoil at Mach 2 and check the wave drag against shock-expansion theory." | 1.2 s | 0.0 s |
+| 5 | "Solve hypersonic flow over a blunt cylinder at Mach 8 and check the shock standoff distance." | 1.0 s | 0.0 s |
+| 6 | "Solve the Ahmed body with the 25 degree slant and check the drag against the wind tunnel." | 21.5 s | 0.1 s |
+| 7 | "Solve the NASA wall-mounted hump and check separation and reattachment." | 17.3 s | 0.2 s |
+| 8 | "Solve the CRM wing-body and check the drag." | 0.2 s | 0.0 s |
+| — | ONERA M6: **removed from the filmed sequence, see below** | — | — |
+
+Act 1's figure is from a direct run of the act, not through the control room:
+the running server predates the launcher fix in `scripts/demo_servers.sh` and
+still fails this act. **Restart the control room before filming** and re-check
+it with `scripts/verify_warm_replay.sh cylinder-vortex-shedding`.
 
 **Expected results:**
 
@@ -87,13 +112,23 @@ as an honest UNCONVERGED row. That is the right place for it.
 
 ## The other demos
 
-| Demo | Prompt | Duration |
-|------|--------|----------|
-| Adjoint wing | "Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences." | 1 s |
-| B-52 | "Solve the external aerodynamics of the supplied B-52 geometry." | 51 s |
-| Heart valve | "Find the valve opening angle that minimizes pressure loss over the cardiac cycle." | 8 s |
-| Airliner | "Optimize the L/D of an airliner for 300 passengers, 6000 km range." | 17 s |
-| Monte Carlo vs reduced-order | "Race a Monte Carlo uncertainty study against a reduced-order model." | 194 s |
+Measured the same way, 2026-07-30.
+
+| Demo | Prompt | Duration | Spread |
+|------|--------|----------|--------|
+| Adjoint wing | "Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences." | 0.7 s | 0.2 s |
+| B-52 (with `b52.stl` uploaded) | "Solve the external aerodynamics of the supplied B-52 geometry." | 26.9 s | 0.7 s |
+| Heart valve | "Find the valve opening angle that minimizes pressure loss over the cardiac cycle." | 7.5 s | 0.0 s |
+| Airliner | "Optimize the L/D of an airliner for 300 passengers, 6000 km range." | 11.7 s | 0.0 s |
+| Monte Carlo vs reduced-order | "Race a Monte Carlo uncertainty study against a reduced-order model." | 172.1 s | 1.3 s |
+
+The race is the one act that is not a replay: it solves 93 wings live every
+time, and its wall clocks are the measurement the act exists to show. Its
+duration therefore tracks how busy the box is — the figure above is for a box
+running the demo and nothing else. Its **physics** is fixed: the ensemble draws
+from a stated seed, so the peak, the band and the two-path agreement are the
+same on every take. Only the measured cost and the speedup move, by roughly
+half a turn in the last digit (17.0x, 17.5x across runs).
 
 ## The adjoint act — what you can and cannot say
 
