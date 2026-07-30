@@ -63,10 +63,28 @@ _LOCK = threading.Lock()
 STATUSES = ("proposed", "approved", "approved-queued", "dismissed", "done")
 OPEN_STATUSES = ("proposed", "approved-queued")
 
-# Gain points per source kind; unknown kinds (inbox agents may invent their
-# own) default to 2. Documented in the module docstring — this dict IS the
-# heuristic.
-_GAIN_POINTS = {"gate": 3.0, "capability": 2.0, "ledger": 2.0, "report": 1.0}
+# Gain points per source kind. This dict IS the heuristic, so a kind missing
+# from it is not a small omission: it silently scores the default and the
+# ranking stops meaning what it says.
+#
+# That happened. Three kinds actually in use -- measurement, reading and
+# challenge -- were absent, so 24 of 55 proposals ranked on the default. The
+# damage was not uniform: the standing priority order puts the UQ layer and the
+# challenge FIRST, W1 ladder work below them. But "gate" scored 3.0 and
+# "challenge" fell through to 2.0, so ladder work outranked challenge work by
+# 50% on every tie. The heuristic was inverting the order it was meant to serve.
+#
+# Points below follow the standing priority: challenge and UQ measurement lead,
+# ladder gates fill compute, reading fills compute-idle time.
+_GAIN_POINTS = {
+    "challenge": 4.0,      # W5, joint-first: externally verified credential
+    "measurement": 3.0,    # W3, joint-first: the uncertainty layer
+    "gate": 3.0,           # W1, fills compute
+    "capability": 2.0,
+    "ledger": 2.0,
+    "reading": 2.0,        # W2, fills compute-idle; cheap and it unblocks W1
+    "report": 1.0,
+}
 _GAIN_DEFAULT = 2.0
 # Ranking floor in core-minutes: a near-free screen must not rank at infinity.
 RANK_FLOOR_CORE_MIN = 1.0
@@ -236,8 +254,28 @@ def _proposal(*, objective: str, rationale: str, citations: list[str],
     return item
 
 
+# Kinds that fell through to the default, recorded so the gap is visible.
+# Refusing an unknown kind outright would be the stricter fix, but agents file
+# proposals continuously and a hard refusal drops work on the floor. Ranking on
+# the default is survivable; ranking on the default and nobody KNOWING is what
+# let three kinds sit unscored across 24 proposals.
+_UNSCORED_KINDS: set[str] = set()
+
+
+def unscored_kinds() -> set[str]:
+    """Source kinds seen that carry no explicit gain score.
+
+    Non-empty means the ranking is partly running on the default and
+    `_GAIN_POINTS` needs a decision, not that anything has crashed.
+    """
+    return set(_UNSCORED_KINDS)
+
+
 def gain_points(proposal: dict) -> float:
-    return _GAIN_POINTS.get(str(proposal.get("source_kind")), _GAIN_DEFAULT)
+    kind = str(proposal.get("source_kind"))
+    if kind not in _GAIN_POINTS:
+        _UNSCORED_KINDS.add(kind)
+    return _GAIN_POINTS.get(kind, _GAIN_DEFAULT)
 
 
 def rank_value(proposal: dict) -> float:
