@@ -25,7 +25,7 @@ import shutil
 import time
 from pathlib import Path
 
-from . import OUT_ROOT, announce_geometry, make_transcript
+from . import OUT_ROOT, announce_geometry, announce_plot, make_transcript
 from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
@@ -270,6 +270,265 @@ def screen_solve_gap(finalists) -> float | None:
             for f in finalists
             if f.get("L_D") is not None and f.get("L_D_solved") is not None]
     return (sum(gaps) / len(gaps)) if gaps else None
+
+
+def violation_breakdown(results) -> list[tuple[str, int]]:
+    """Count the wings ruled out by each kind of requirement miss.
+
+    ``evaluate_design`` writes one human-readable violation string per limit a
+    wing misses; a wing can miss several. This groups them by limit so the
+    bare infeasible count becomes a breakdown, with every count taken straight
+    from the screened results. Kinds with no wings are left out.
+    """
+    kinds = (
+        ("approach speed", "Approach speed above the landing limit"),
+        ("take-off speed", "Take-off speed above the limit"),
+        ("range", "Range short of the requirement"),
+        ("span", "Span beyond the structural limit"),
+    )
+    counts = {label: 0 for _key, label in kinds}
+    for r in results:
+        for key, label in kinds:
+            if any(v.startswith(key) for v in r.get("violations") or ()):
+                counts[label] += 1
+    return [(label, counts[label]) for _key, label in kinds if counts[label]]
+
+
+# ---------------------------------------------------------------------------
+# Figures. Every one is drawn from numbers this run produced: the sizing
+# model's own constraint curves at the stated requirements, the screened grid,
+# and the polars VSPAERO solved for the finalist wings.
+# ---------------------------------------------------------------------------
+
+# Figures are served from their own directory beside the mission folder, which
+# keeps the mission folder to the certificate, the transcript, and the solved
+# surfaces.
+_PLOT_BEAT = "aircraft-optimization-plots"
+
+
+def _plots_dir() -> Path:
+    path = OUT_ROOT / _PLOT_BEAT
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _theme():
+    """The control-room plot theme, or (None, None) where it cannot load."""
+    try:
+        from chief_engineer import plot_theme as t
+
+        plt = t._pyplot()
+    except Exception:
+        return None, None
+    return (t, plt) if plt is not None else (None, None)
+
+
+def _finish(fig, ax, plt, t, out_png, *, loc: str = "best"):
+    leg = ax.legend(frameon=False, fontsize=10, labelcolor=t.INK, loc=loc)
+    for text in leg.get_texts():
+        text.set_color(t.INK)
+    fig.tight_layout()
+    fig.savefig(out_png)
+    plt.close(fig)
+    return str(out_png)
+
+
+def low_speed_area_floor(reqs: dict) -> tuple[float, float] | None:
+    """The wing area the stated low-speed limits require, and the MTOW it is
+    required at. Both come straight out of the stall-speed relations
+    ``evaluate_design`` uses, at the MTOW the stated passenger count sets, so
+    no wing has to be sized before the requirement can be stated.
+
+    Returns ``(area_m2, mtow_kg)``, or None when the requirements cannot
+    support the calculation.
+    """
+    try:
+        mtow = reqs["passengers"] * _KG_PER_PAX / _PAYLOAD_FRACTION
+        landing_weight = 0.85 * mtow
+        area_land = (2 * landing_weight * _G
+                     / (_RHO_SL * _CLMAX_LANDING
+                        * (reqs["landing_speed"] / 1.3) ** 2))
+        area_to = (2 * mtow * _G
+                   / (_RHO_SL * _CLMAX_TAKEOFF
+                      * (reqs["takeoff_speed"] / 1.2) ** 2))
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return None
+    floor = max(area_land, area_to)
+    if not math.isfinite(floor) or floor <= 0:
+        return None
+    return floor, mtow
+
+
+def low_speed_floor_figure(out_png: str | Path, reqs: dict) -> str | None:
+    """Approach and take-off speed against wing area, at the MTOW the stated
+    passenger count sets, with the stated speed limits and the wing area they
+    require. Every curve is the same stall-speed relation the screen uses.
+    """
+    t, plt = _theme()
+    if plt is None:
+        return None
+    floor_mtow = low_speed_area_floor(reqs)
+    if floor_mtow is None:
+        return None
+    floor, mtow = floor_mtow
+    try:
+        landing_weight = 0.85 * mtow
+        lo, hi = max(40.0, 0.40 * floor), 2.1 * floor
+        areas = [lo + (hi - lo) * i / 239.0 for i in range(240)]
+        approach = [1.3 * math.sqrt(2 * landing_weight * _G
+                                    / (_RHO_SL * a * _CLMAX_LANDING))
+                    for a in areas]
+        takeoff = [1.2 * math.sqrt(2 * mtow * _G
+                                   / (_RHO_SL * a * _CLMAX_TAKEOFF))
+                   for a in areas]
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return None
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    ax.axvspan(lo, floor, color=t.NEEDS, alpha=0.09, linewidth=0,
+               label="wing area that misses a limit")
+    ax.plot(areas, approach, color=t.LIVE, linewidth=2.4,
+            label="approach speed, 1.3 times landing stall")
+    ax.plot(areas, takeoff, color=t.TREND, linewidth=2.4,
+            label="take-off speed, 1.2 times take-off stall")
+    ax.axhline(reqs["landing_speed"], color=t.LIVE, linewidth=1.2,
+               linestyle=(0, (5, 4)),
+               label=f"landing limit {reqs['landing_speed']:.0f} m/s")
+    ax.axhline(reqs["takeoff_speed"], color=t.TREND, linewidth=1.2,
+               linestyle=(0, (5, 4)),
+               label=f"take-off limit {reqs['takeoff_speed']:.0f} m/s")
+    ax.axvline(floor, color=t.VALID, linewidth=1.6)
+    top = max(reqs["landing_speed"], reqs["takeoff_speed"]) * 1.7
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(min(min(approach), min(takeoff)) * 0.86, top)
+    ax.annotate(f"wing area at least {floor:.0f} m$^2$\n"
+                f"at {mtow / 1000:.0f} t MTOW",
+                xy=(floor, top * 0.72), xytext=(10, 0),
+                textcoords="offset points", ha="left", fontsize=11.5,
+                color=t.VALID, weight="bold", fontfamily="monospace")
+    t.style_axes(ax, r"wing area  $S$  [m$^2$]", r"speed  $V$  [m/s]",
+                 "Low speed limits set a floor under wing area")
+    return _finish(fig, ax, plt, t, out_png, loc="upper right")
+
+
+def sweep_trade_figure(out_png: str | Path, results, *,
+                       value_key: str = "L_D") -> str | None:
+    """Screened cruise L/D against quarter-chord sweep, the third design axis.
+
+    Every point is one screened wing. The landscape canvas carries span and
+    area; this is the axis that canvas cannot show, and it is why the
+    candidate planform rocks through sweep angles on the way.
+    """
+    t, plt = _theme()
+    if plt is None:
+        return None
+    feasible = [r for r in results if r.get("feasible")]
+    if not feasible:
+        return None
+    infeasible = [r for r in results if not r.get("feasible")]
+    best_at: dict[float, float] = {}
+    for r in feasible:
+        sweep = float(r["sweep_deg"])
+        best_at[sweep] = max(best_at.get(sweep, float("-inf")),
+                             float(r[value_key]))
+    sweeps = sorted(best_at)
+    top = max(feasible, key=lambda r: r[value_key])
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    if infeasible:
+        ax.scatter([r["sweep_deg"] for r in infeasible],
+                   [r[value_key] for r in infeasible],
+                   s=26, color=t.DIM, alpha=0.75, linewidth=0,
+                   label="misses a requirement")
+    ax.scatter([r["sweep_deg"] for r in feasible],
+               [r[value_key] for r in feasible],
+               s=34, color=t.LIVE, alpha=0.9, linewidth=0,
+               label="clears every requirement")
+    ax.plot(sweeps, [best_at[s] for s in sweeps], color=t.TREND,
+            linewidth=2.2, marker="o", markersize=6,
+            markeredgecolor=t.INK, markeredgewidth=0.8,
+            label="best feasible wing at each sweep")
+    ax.scatter([top["sweep_deg"]], [top[value_key]], s=150, facecolor="none",
+               edgecolor=t.VALID, linewidth=2.0, zorder=6)
+    ax.annotate(f"best screened $L/D$ {top[value_key]:.1f}\n"
+                f"at {top['sweep_deg']:.0f}° sweep",
+                xy=(top["sweep_deg"], top[value_key]), xytext=(14, 12),
+                textcoords="offset points", ha="left", va="bottom",
+                fontsize=11.5, color=t.VALID, weight="bold",
+                fontfamily="monospace")
+    pad = (max(sweeps) - min(sweeps)) * 0.22 or 2.0
+    ax.set_xlim(min(sweeps) - pad, max(sweeps) + pad * 1.9)
+    ax.set_xticks(sweeps)
+    t.style_axes(ax, r"quarter-chord sweep  $\Lambda$  [deg]",
+                 r"cruise $L/D$  [nondimensional]",
+                 "Cruise L/D against quarter-chord sweep, screened wings")
+    return _finish(fig, ax, plt, t, out_png, loc="lower left")
+
+
+def drag_polar_figure(out_png: str | Path, solved, best, *,
+                      cd0_nonwing: float = _CD0_NONWING) -> str | None:
+    """The solved finalist polars, as whole-aircraft drag against lift.
+
+    Each curve is one VSPAERO polar: the solved induced and wing viscous drag
+    at every solved lift coefficient, plus the non-wing component buildup that
+    the same constant adds everywhere in this act. The winner's cruise point
+    is the point the verdict stands on.
+    """
+    t, plt = _theme()
+    if plt is None:
+        return None
+    curves = []
+    for f in solved:
+        polar = f.get("_polar")
+        if not isinstance(polar, dict):
+            continue
+        points = []
+        for cl, cdi, cdo in zip(polar.get("CLtot") or (),
+                                polar.get("CDi") or (),
+                                polar.get("CDo") or ()):
+            try:
+                cl, cd = float(cl), cd0_nonwing + float(cdo) + float(cdi)
+            except (TypeError, ValueError):
+                continue
+            if math.isfinite(cl) and math.isfinite(cd):
+                points.append((cd, cl))
+        if len(points) >= 2:
+            points.sort(key=lambda p: p[1])
+            curves.append((f, points))
+    if not curves:
+        return None
+
+    fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+    others = [(f, pts) for f, pts in curves if f is not best]
+    for i, (f, pts) in enumerate(others):
+        ax.plot([p[0] for p in pts], [p[1] for p in pts], color=t.DIM,
+                linewidth=1.3, alpha=0.9,
+                label=(f"other finalist wings, {len(others)} solved"
+                       if i == 0 else None))
+    winner = next((pts for f, pts in curves if f is best), None)
+    if winner:
+        ax.plot([p[0] for p in winner], [p[1] for p in winner], color=t.LIVE,
+                linewidth=2.6,
+                label=f"winning wing, span {best['span']:.0f} m")
+    try:
+        cl_w = float(best["cl_cruise"])
+        cd_w = (cd0_nonwing + float(best["cdo_wing_solved"])
+                + float(best["cdi_solved"]))
+        ld_w = float(best["L_D_solved"])
+    except (KeyError, TypeError, ValueError):
+        cl_w = cd_w = ld_w = None
+    if cl_w is not None:
+        ax.scatter([cd_w], [cl_w], s=150, color=t.TREND, edgecolor=t.INK,
+                   linewidth=1.4, zorder=6, label="cruise point on the winner")
+        ax.annotate(f"$L/D$ {ld_w:.1f} at $C_L$ {cl_w:.2f}",
+                    xy=(cd_w, cl_w), xytext=(14, -4),
+                    textcoords="offset points", ha="left", fontsize=11.5,
+                    color=t.TREND, weight="bold", fontfamily="monospace")
+    t.style_axes(
+        ax, r"whole-aircraft drag  $C_D$  [nondimensional]",
+        r"lift  $C_L$  [nondimensional]",
+        "Solved drag polars for the finalist wings, VSPAERO")
+    return _finish(fig, ax, plt, t, out_png, loc="upper left")
 
 
 def parse_requirements(text: str) -> dict:
@@ -535,6 +794,27 @@ def main(request: str | None = None, params: dict | None = None,
         "• Unstated values are assumed and marked. "
         "• Weight rides on the passenger count; the whole answer rides on weight.")
 
+    # The hypothesis phase shows the trade before it claims it: the stall-speed
+    # relations the screen will use, evaluated at the MTOW this passenger count
+    # sets, give the wing area the stated speeds require. No wing has been
+    # sized yet, so this is the requirement itself, drawn.
+    report_plots: list[dict] = []
+    floor_png = low_speed_floor_figure(
+        _plots_dir() / "wing-area-floor.png", reqs)
+    if floor_png:
+        title = "Low speed limits set a floor under wing area"
+        announce_plot(emit, _PLOT_BEAT, floor_png, title)
+        report_plots.append(
+            {"url": f"/api/plot/{_PLOT_BEAT}/{Path(floor_png).name}",
+             "title": title})
+        area_floor = low_speed_area_floor(reqs)
+        if area_floor:
+            script.engineer(
+                f"• The take-off and landing limits already ask for "
+                f"{area_floor[0]:.0f} m² of wing. "
+                f"• Below that area a wing misses a low-speed limit whatever "
+                f"its span.")
+
     # ---- uploaded starting geometry -----------------------------------------
     # A surface uploaded with the prompt is the search's starting geometry: it
     # is acknowledged on the record under its display name, its span measured
@@ -683,7 +963,22 @@ def main(request: str | None = None, params: dict | None = None,
     feasible = [r for r in results if r["feasible"]]
     infeasible = results[:]  # for narration counts
     n_infeasible = len(results) - len(feasible)
+    # The bare infeasible count becomes a breakdown: which limit ruled each
+    # wing out, counted off the violation strings the screen wrote. A wing
+    # that misses two limits is counted under both, so the rows do not sum to
+    # the count above.
+    ruled_out = violation_breakdown(results)
+
+    def _say_ruled_out() -> None:
+        if ruled_out:
+            _emit_table(
+                emit, script, title="Why designs were ruled out",
+                headers=["Requirement Missed", "Wings"],
+                rows=[[label, str(count)] for label, count in ruled_out],
+                table_id="ruled-out")
+
     if not feasible:
+        _say_ruled_out()
         script.engineer(
             "• No wing meets every requirement at once, so nothing closes. "
             "• The mission needs a relaxation: more area, slower landing, or less range. "
@@ -712,6 +1007,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         f"• {len(feasible)} of {len(results)} wings clear every requirement; "
         f"{n_infeasible} shown infeasible.")
+    _say_ruled_out()
     _emit_table(
         emit, script, title="Screened optimum",
         headers=["Best Screened", "Span", "AR", "MTOW", "Range",
@@ -892,6 +1188,47 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     won_solved = bool(solved_ok)
     best_ld = best["L_D_solved"] if won_solved else best["L_D"]
+
+    # The conclusion opens on figures, both drawn from this run's own numbers:
+    # the sweep axis the landscape canvas has no room for, and, when the
+    # finalists were solved, the polars themselves.
+    for builder, name, title in (
+            (lambda path: sweep_trade_figure(path, results),
+             "sweep-trade.png",
+             "Cruise L/D against quarter-chord sweep, screened wings"),
+            ((lambda path: drag_polar_figure(path, solved_ok, best))
+             if won_solved else (lambda path: None),
+             "finalist-drag-polars.png",
+             "Solved drag polars for the finalist wings, VSPAERO")):
+        try:
+            path = builder(_plots_dir() / name)
+        except Exception:   # a figure must never take down a good mission
+            path = None
+        if path:
+            announce_plot(emit, _PLOT_BEAT, path, title)
+            report_plots.append({"url": f"/api/plot/{_PLOT_BEAT}/{name}",
+                                 "title": title})
+
+    if won_solved:
+        # The screen and the solver are held side by side per wing. The mean
+        # of this column is the model-channel evidence quoted below; the
+        # column itself is what it was measured from.
+        _emit_table(
+            emit, script, title="Screened L/D against solved L/D, per wing",
+            headers=["Span", "Area", "Sweep", "Screened L/D", "Solved L/D",
+                     "Change", "Cruise Point"],
+            rows=[[f"{f['span']:.0f} m",
+                   f"{f['area']:.0f} m²",
+                   f"{f['sweep_deg']:.0f}°",
+                   f"{f['L_D']:.1f}",
+                   f"{f['L_D_solved']:.1f}",
+                   f"{f['L_D_solved'] - f['L_D']:+.1f}",
+                   ("read past the end of the polar" if f.get("extrapolated")
+                    else "interpolated on the polar")]
+                  for f in sorted(solved_ok, key=lambda r: r["L_D_solved"],
+                                  reverse=True)],
+            table_id="screen-against-solved")
+
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).
     ci95 = winner_ci95(best, reqs, polar=best.get("_polar"))
@@ -1100,6 +1437,10 @@ def main(request: str | None = None, params: dict | None = None,
                              for entry in agenda],
         compute=ledger.as_dict(),
     )
+    # The memo leads with its figures, and carries them itself so a fast run
+    # cannot finish before the paced figure events drain.
+    if report_plots:
+        report["plots"] = report_plots
     if emit:
         emit("report.ready", report)
 
