@@ -67,9 +67,14 @@ COST_ADJOINT = 32.7
 COST_FD = 210.2
 COST_OPT = 240.4
 
-# The band this lab treats as normal agreement for a shape derivative on this
-# problem class, calibrated on the unmodified reference airfoil tutorial.
-BAND_LO, BAND_HI = 1.0, 12.0
+# This lab's current gradient-verification standard, applied uniformly across
+# the whole ladder: PASS at 5% or better on the aggregate AND no flagged
+# component; CONDITIONAL between 5 and 15%; FAIL above 15%, or on any
+# sign-flipped or unstable component whatever the aggregate says. An earlier,
+# looser "1 to 12% is normal" band was inferred from a single case and has
+# been retired; it is not cited here.
+GATE_PASS_PCT = 5.0
+GATE_CONDITIONAL_PCT = 15.0
 
 # The two rows of the verification table whose "100%" is a ratio of two
 # numbers that are both indistinguishable from zero, not a disagreement.
@@ -179,13 +184,13 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, "stating the gate", "working")
     bullets(script.engineer,
             f"Hypothesis: the adjoint gradient agrees with a central finite "
-            f"difference of the full primal, on every derivative group, "
-            f"inside the {BAND_LO:g} to {BAND_HI:g}% band this problem class "
-            f"calibrates to.",
-            "Falsifier: any group outside that band, or any component whose "
-            "sign the finite difference reverses. A sign-reversed component "
-            "is fatal on its own, because an optimizer following it walks "
-            "uphill.",
+            f"difference of the full primal on every derivative group, to "
+            f"within this lab's gradient standard, which is a pass at "
+            f"{GATE_PASS_PCT:g}% or better with no flagged component.",
+            f"Falsifier: any group worse than {GATE_PASS_PCT:g}%, or any "
+            f"component whose sign the finite difference reverses. A "
+            f"sign-reversed component fails the gate on its own whatever the "
+            f"aggregate says, because an optimizer following it walks uphill.",
             f"Gate: the optimization does not run at all unless the gradient "
             f"passes first.")
 
@@ -233,7 +238,7 @@ def main(request: str | None = None, params: dict | None = None,
 
     worst = max(r["rel_error_pct"] for r in physical)
     best = min(r["rel_error_pct"] for r in physical)
-    # The shape groups are the ones the calibration band was measured for:
+    # The shape groups are the hardest derivatives in the problem:
     # 96 design variables each, and the hardest derivative in the problem.
     shape_rows = [r for r in physical if "shape" in r["derivative"]]
     worst_shape = max(r["rel_error_pct"] for r in shape_rows)
@@ -265,12 +270,12 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_RESEARCHER, "ruling on the gradient", "working")
     bullets(script.researcher,
             f"The two shape groups carry {N_SHAPE} design variables each and "
-            f"are the hardest derivatives in the problem. They agree to "
-            f"{worst_shape:.3g}% and better, at the tight end of the "
-            f"{BAND_LO:g} to {BAND_HI:g}% band this problem class calibrates "
-            f"to. Every other group is tighter still, down to {best:.3g}%, "
-            f"with the twist and flow-state groups all inside "
-            f"{worst_other:.3g}%.",
+            f"are the hardest derivatives in the problem. The worst of them "
+            f"agrees to {worst_shape:.3g}%, which clears the "
+            f"{GATE_PASS_PCT:g}% pass threshold by a factor of "
+            f"{GATE_PASS_PCT / worst_shape:.1f}. Every other group is "
+            f"tighter still, down to {best:.3g}%, with the twist and "
+            f"flow-state groups all inside {worst_other:.3g}%.",
             f"Sign agreement was checked component by component wherever the "
             f"full derivative vectors are recoverable: {SIGN_CHECKED} "
             f"components, zero reversals. On the remaining groups the two "
@@ -447,6 +452,12 @@ def main(request: str | None = None, params: dict | None = None,
             f"Verification by central finite difference of the full primal, "
             f"step {FD_STEP:g}, {FD_SOLVES} perturbation solves covering "
             f"every one of the {N_DV} design variables.",
+            f"Graded against this lab's current gradient standard, applied "
+            f"uniformly across the whole ladder: pass at {GATE_PASS_PCT:g}% "
+            f"or better with no flagged component, conditional between "
+            f"{GATE_PASS_PCT:g} and {GATE_CONDITIONAL_PCT:g}%, fail above "
+            f"{GATE_CONDITIONAL_PCT:g}% or on any sign-flipped component "
+            f"whatever the aggregate says.",
             f"Interior-point optimization with lift equality-constrained to "
             f"{CL_TARGET:g} and thickness, volume and edge constraints "
             f"active, capped at a {box_min:g} minute wall clock.",
@@ -458,7 +469,8 @@ def main(request: str | None = None, params: dict | None = None,
                           f"C_L {CL_TARGET:g}"), **verdict},
             {"quantity": "Worst gradient group vs finite difference",
              "value": f"{worst:.3g}%",
-             "envelope": f"calibrated band {BAND_LO:g} to {BAND_HI:g}%",
+             "envelope": (f"pass threshold {GATE_PASS_PCT:g}%, cleared by a "
+                          f"factor of {GATE_PASS_PCT / worst:.1f}"),
              **verdict},
             {"quantity": "Major iterations completed",
              "value": f"{majors}",
