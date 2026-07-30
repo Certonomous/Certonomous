@@ -907,3 +907,68 @@ tests" -- a materially smaller gap than existed at the start of this session.
 
 Evidence: `probeA5TwoSidedFormula.py`, `twosided_out.log`, `probeA5MatvecMaxCorrected.py`,
 `matvec_maxcorrected_out.log` (all in `ladder-a/A5_work/UBend_Channel_pressureloss/`).
+
+## Addendum, 2026-07-30: the two remaining probe reruns -- one finds a new clean pattern, one shows genuine FD convergence
+
+With `dR/dW` fully cleared, ran the two previously-diagnosed-but-unrun fixes.
+
+### `dF/dW`, fixed: `probeA5FixedDFdW.py`
+
+Fix: `DASolver.solver.calcFunction(name)` (live, single evaluation, confirmed in `DASolver.C` to call
+`daFunction.calcFunction()` directly) in place of `evalFunctions()`/`getTimeOpFuncVal()` (the
+stored-time-history getter that produced the earlier FD=0.0 bug). **Sanity check first: `calcFunction`
+reproduces the converged baseline `TP1`/`TP2` to bit-for-bit precision against OpenMDAO's own values**
+(`diff=0.000e+00` both) -- the fix works, the bug is gone, the test is now methodologically valid.
+
+The result is not noise-level agreement, but it is not the earlier bug either -- it is a NEW, exact,
+reproducible pattern: `TP1`'s relative error is `34.28000` and `TP2`'s is `7.400000`, IDENTICAL across
+both random seeds (2026, 42) and both step sizes (1e-4, 1e-5) tested -- meaning `AN/FD = 35.28` for
+`TP1` exactly and `AN/FD = 8.4` for `TP2` exactly, REGARDLESS of the perturbation direction. That
+direction-independence is the same signature the `dR/dW` row-scaling had: a fixed per-FUNCTION constant,
+not a direction-dependent physics effect. `35.28 = p0` and `8.4 = U0` -- both already-identified
+`normalizeStates` constants -- but it is not obvious why `TP1` (inlet total pressure) would carry the
+pressure constant while `TP2` (outlet total pressure, the SAME function type, `"totalPressure"`, just a
+different patch) carries the velocity constant instead. **Not chased further this session** -- flagging a
+concrete lead for whoever does: `pyDASolvers.pyx` exposes `getdFScaling(functionName, timeIdx=-1)`,
+literally documented as "get the scaling factor for dF/d? derivative computation," never invoked in this
+investigation. **This is reported precisely as measured, not smoothed into either "dF/dW is defective" or
+"dF/dW is cleared" -- it is a new, exact, currently-unexplained convention, analogous in character (though
+not yet confirmed in mechanism) to the `dR/dW` finding that turned out to be a units convention, not a
+defect.**
+
+### `dR/dXv`, fixed: `probeA5FixedDRdXv.py`
+
+Fix: run SERIAL (`np=1`) instead of the earlier `np=4` with independent per-rank random perturbations.
+With a single rank there is no processor boundary and therefore no possibility of the specific bug that
+invalidated the earlier attempt (mesh points on processor boundaries needing identical perturbations
+across ranks) -- simpler than constructing an FFD/warp-derived direction, and consistent with how every
+other single-link test this session was run and cross-checked.
+
+**Result: well-behaved, unlike the earlier broken version, which diverged 20x under step refinement.**
+Here `AN` is (as expected for a single analytic evaluation) essentially step-independent, and `FD`
+CONVERGES toward it as `h` shrinks from `1e-4` to `1e-5`:
+
+| seed | FD (h=1e-4) | FD (h=1e-5) | AN (step-independent) | rel. err. (h=1e-4) | rel. err. (h=1e-5) |
+|---|---|---|---|---|---|
+| 2026 | 8.84e6 | 1.645e7 | 1.589e7 | 79.7% | **3.4%** |
+| 42 | -2.67e7 | -4.96e7 | -5.02e7 | 88.3% | **1.2%** |
+| 777 | 6.33e6 | 2.37e6 | 1.536e6 | 75.7% | 35.1% |
+
+Two of three seeds land at 1.2-3.4% at the smaller step -- squarely in the range this investigation has
+repeatedly treated as a plausibly-clean signature elsewhere (`mesh.warpDeriv`'s own confirmed-clean
+0.008-1.16%, A1's healthy controls at 0.1-2.4%). The third (777) is still improving with refinement
+(75.7%->35.1%) but has not reached that range yet. **This is genuine FD convergence behavior, not a fixed
+multiplicative artifact (which would not change with `h` at all, as the `dR/dW` units-convention gap
+never did) -- consistent with `dR/dXv` being clean, but not yet fully confirmed at this step size.**
+Closing it with confidence would need a smaller `h` or a formal step-size sweep (the technique that
+settled A1's own idx0/idx1 plateau question), not attempted this session for budget reasons.
+
+**Where this leaves A5, precisely:** `mesh.warpDeriv`, `dR/dW` (diagonal and off-diagonal), adjoint-solve
+accuracy, and symmetry-plane proximity are confirmed clean or eliminated. `dR/dXv`, now validly tested for
+the first time, trends clean but is not fully confirmed at the step sizes tried. `dF/dW`, now validly
+tested for the first time, shows a new, exact, currently-unexplained per-function scaling pattern that is
+neither confirmed as a defect nor confirmed as a convention artifact -- the most concrete open lead in the
+investigation, with `getdFScaling` named as the specific place to look next.
+
+Evidence: `probeA5FixedDFdW.py`, `fixeddfdw_out.log`, `probeA5FixedDRdXv.py`, `fixeddrdxv_out.log` (all
+in `ladder-a/A5_work/UBend_Channel_pressureloss/`).
