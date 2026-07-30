@@ -109,6 +109,40 @@ as a point comparison (20–414% error across phases and two alpha values) —
 see the new Group 4 entry below for the cause. Full record:
 `demo-output/website/campaign/F9_pulsatile_valve.md`.
 
+### Added 2026-07-30 — public-surface audit: four new findings, three already fixed, one recorded here in full
+
+A gate-checked audit of every quantitative claim on the public surfaces
+(`benchmarks.html`, `ACTIVE_RESEARCH.md`, `D9_TALKING_POINTS.md`, `wall.json`,
+`NINE_ACT_GATE_TABLE.md`) found, among other things, three claims that were
+outright false on a filmed surface. Those three were corrected on the
+surfaces themselves the same night, not routed through this register: the
+ONERA M6 board row claiming PASS (its quoted 0.013–0.027 RMS was the
+pressure-surface half of a two-sided comparison; the shock-carrying suction
+surface ran 0.049–0.114 — cherry-picking the easier half and labelling it
+PASS was a false claim, now removed and reconciled against this register's
+own pre-existing "ONERA M6 Act — primal residual plateau" Group 3 entry,
+which had it right all along); A4 Ahmed body's drag number (withdrawn from
+the research board — the normalised omega residual collapsed to a fixed
+value that read as converged while the raw residual statistics showed a
+catastrophic blow-up, and the drag was computed from that state; the same
+Initial-vs-Final residual misreading this register's own hump correction
+above already found once tonight; the gradient claim for the same case
+survives because it used a different, healthy coarse mesh — two claims had
+been bundled under one COMPLETE label and only one failed; not filed as a
+new entry here, since the correction lives on the surface itself and the
+existing Group 1 A4 entry already covers the case for a different reason,
+its fine-mesh adjoint never having been attempted); and A3's board row
+(corrected to match this register's own existing Group 1/Group 3 A3
+entries, which had it right all along).
+
+The remainder — cases that were not outright false but were not disclosed,
+or where the finding is not yet a verdict — are filed below, in full, per
+this register's purpose. See new entries in Group 3 (NASA TMR bump-in-channel;
+the seven wall.json calibration credentials; A6 CRM's unresolved raw
+residual) and the new Group 6 (an unverifiable claim with no artifact
+found). Full audit trail: this session's conversation record; no separate
+write-up file was created beyond this register and the corrected surfaces.
+
 ---
 
 ## GROUP 1: ADJOINT MEMORY WALL
@@ -161,7 +195,7 @@ Structural architectural block: OpenMDAO's reverse-mode sweep builds a mesh-size
 
 Cases where the solver either did not converge to its own gate, diverged during an adjoint solve, failed to complete within a session, or exhibited non-monotonic grid convergence. Includes discrete solver divergence, unsteady runs interrupted mid-window, and mesh-refinement ladders that do not asymptote.
 
-**Count: 11 cases**
+**Count: 15 cases**
 
 ### ONERA M6 Act — primal residual plateau
 
@@ -275,6 +309,34 @@ Cases where the solver either did not converge to its own gate, diverged during 
 - **To resolve:** Per the session's own stopping rule (avoid a sixth same-night hypothesis on diminishing returns), the next test needs a genuinely different lever than what has been tried: most plausibly what `rhoCentralFoam`'s directional flux reconstruction (`interpolate(..., pos/neg, ...)`, the `vanLeer`/`vanLeerV` limiters) does at a structured-mesh corner cell with two real boundary faces, since the two most-persistent sites (the inlet/farfield corner, and a second site at `Y≈2.46cm` from the wall) are not explained by any of the five eliminated mechanisms.
 - **Evidence:** `demo-output/website/campaign/F4_hypersonic_blunt_body.md` (full record, all commits); `demo-output/website/campaign/F4_runs/swbli_cylflare/warmup20` (original crashed case, preserved unmodified); `.../warmup20_bounded`, `.../warmup20_bounded_realtime`, `.../warmup20_bounded_farfield` (diagnostic copies); `demo-output/website/campaign/F4_runs/make_swbli_case.py` (grading fix), `build_inlet_profile.py` (Table II data); `LESSONS.md` L-20.
 
+### NASA TMR bump-in-channel — three grid rungs never converged, disclosed nowhere
+
+- **What:** NASA Turbulence Modeling Resource verification case, bump-in-channel, three-grid ladder (`bump-coarse`, `bump-medium`, `bump-fine`), graded against published CFL3D reference (Cd 0.003607). Reported publicly (`wall.json` → the site's TMR challenge entry) as measured Cd 0.003567, a clean-looking 1.1% deviation.
+- **How it failed:** None of the three rungs ever printed the solver's own convergence statement; all three ran to a fixed iteration cap instead. At exit of `bump-fine` — the rung the public number is quoted from — Initial residuals sit roughly 200 to 500 times over the case's own `residualControl` (Ux ≈2.0e-6 vs a 1e-8 target, k ≈4.2e-6 vs a 1e-8 target). This is undisclosed on every surface that quotes the number.
+- **The useful contrast:** the flat-plate half of the exact same TMR claim (Cd 0.002834 vs CFL3D 0.002826) is genuinely converged — all three of ITS rungs print the solver's own convergence statement and sit with Initial residuals around 1e-8 to 1e-10, comfortably under tolerance. Same challenge, same site, same table, same three-rung ladder methodology; one half is real and one half is not. A reader (or a future agent) has no way to tell the two apart from the published number alone — the flat-plate number is trustworthy exactly as presented, the bump number is not.
+- **Root cause:** Not investigated by this audit; the audit's scope was to check whether the gate was met, not why it was not. The 200–500x gap is large enough that "ran out of iterations, would have converged shortly" is not a safe assumption — an extended run and a genuine residual-trend check (Initial, not Final, per this register's own hump correction above) would be needed before this number can be trusted.
+- **To resolve:** Extend the bump-fine rung's iteration budget and re-check the solver's own convergence statement and Initial residuals before quoting the number again; if it still does not converge, either report it honestly as unconverged (the way this register does) or pull it from the public TMR entry until it does.
+- **Evidence:** `demo-output/website/tmr/runs/{bump-coarse,bump-medium,bump-fine}/log.simpleFoam` (no convergence statement in any of the three); contrast `demo-output/website/tmr/runs/{coarse,medium,fine}/log.simpleFoam` (flat-plate half, all three converge cleanly). Public claim: `demo-output/website/wall/wall.json` → `research.challenges` (NASA Turbulence Modeling Resource entry).
+
+### Seven wall.json calibration credentials — none satisfied their own residual control at exit
+
+- **What:** The seven curriculum calibration credentials shown on the credential wall (`ahmed_25`, `ahmed_35`, `cube`, `cylinder`, `flat_plate`, `naca0012_wing`, `sphere`), each a drag-coefficient measurement graded against a published reference band.
+- **How it failed:** Every one of the seven ran to a fixed iteration cap (250–300 iterations) with no "solution converged" message from the solver, checked against each case's own `residualControl`. Three are clearly not converged — `cube` worst at roughly 136x its own tolerance on Ux, `cylinder` around 11x on k, `sphere` around 5x on k — and the other four (`ahmed_25`, `ahmed_35`, `flat_plate`, `naca0012_wing`) are marginal, sitting 1.1 to 2.8x over their own target on k/omega rather than cleanly under it.
+- **The distinction that matters here, stated precisely because it will come up again:** the drag coefficient itself is numerically very stationary in all seven cases — the force stopped changing meaningfully well before the residual gate was met. **Force-coefficient stationarity is real evidence and is arguably the criterion that actually matters for a reported drag number, since a force can settle to a fixed value while the underlying field residual takes much longer to fall the rest of the way. But it is a materially weaker claim than residual convergence, and the two must not be used interchangeably.** A stationary force says the answer has stopped moving; a converged residual says the discrete equations are actually satisfied. This register's own hump correction above is exactly the failure mode of treating a reassuring-looking number as proof of the stronger claim — this entry is the same caution applied to seven more cases, caught before publication rather than after.
+- **A second, related finding on the same seven credentials:** the tiny "envelope" values shown next to six of the seven (±1e-6 to ±1e-4) are iteration-window Cd scatter over the final ~50 SIMPLE iterations — a measure of the force's own stationarity, not of grid-refinement or repeat-run uncertainty, and should not be read as a precision or uncertainty band on the physical answer. The one exception is `cube`, whose ±0.0078 envelope is a genuine three-mesh grid-refinement band — and that one is already honestly marked inconclusive (non-monotone ladder) and correctly carries the more conservative SOLVER-BACKED tier rather than VALIDATED. `cube` is the credential that got this right; the other six's envelope values should not be read the same way `cube`'s is.
+- **Root cause:** All seven were run to a fixed, apparently pre-set iteration budget rather than to their own convergence criterion; nothing in these runs suggests the residual would not have continued closing given more iterations, but that has not been checked.
+- **To resolve:** Either extend each case's run until the solver's own convergence statement prints and re-verify the Cd values are unchanged (cheap, since the force already looks stationary), or explicitly re-tier the credential wall's language to state "force-stationary" rather than "converged" for these seven until that is done.
+- **On the credential wall's wording specifically:** the owner has been informed of this finding in full and has directed that the credential wall's wording is not changing tonight. The displayed tier is already the more conservative of the two available (SOLVER-BACKED, not VALIDATED, on six of seven), and `cube`'s displayed reason text already discloses that its grid-refinement study came back inconclusive. Adding explicit residual-gate language to the other six would be more complete, but the owner has directed that promotional surfaces carry no failures, and the decision to leave the wall's wording as-is is the owner's curation call, made with this finding in hand — not an oversight, and not this register's decision to override. This register carries the finding in full; the owner decides whether and when the wall's wording changes.
+- **Evidence:** `mission-output/geometry-study/study-{ahmed_25,ahmed_35,cube,cylinder,flat_plate,naca0012_wing,sphere}/log.simpleFoam` and each case's own `system/fvSolution`; `models/curriculum/uq-studies/cube.json` (grid-refinement ladder, `conclusive: false`); public claim: `demo-output/website/wall/wall.json` → `credentials`.
+
+### A6 CRM Wing-Body primal — unresolved raw temperature-residual anomaly (open item, not a verdict)
+
+- **What:** 3D CRM wing-body, transonic M=0.85, 579,072 cells, compressible RANS (`DARhoSimpleFoam` family). Headline Cd 0.0209014 is stable to six significant figures over the run's final checkpoints and matches DAFoam's own published tutorial baseline to 0.0067% — on the numbers checked, nothing here looks wrong.
+- **What is unresolved:** the run's own end-of-run raw residual statistics ("Printing Primal Residual Statistics") report a temperature-field residual norm of roughly 8.5e8 at the same checkpoint the stable Cd is read from. This is the same category of signal — a stable, reassuring headline number sitting beside one suspicious raw residual — that turned out to be a genuine, catastrophic field divergence on A4 (see this register's own Group 1 A4 entry and the public-surface correction recorded in the changelog above). This audit could not confirm or rule out the same mechanism here in the time available: this solver's log does not print per-field Initial-vs-Final residuals in the same format used to trace A4's collapse, so the trend behind the raw statistic could not be checked line by line.
+- **Why this is filed as an open item and not a verdict:** unlike A4, no specific collapse-to-a-fixed-value pattern has been found in T's per-iteration trace, and no contradiction between a normalized and a raw residual has been demonstrated the way it was for A4. The only fact in hand is: stable output, plus one large raw residual on a field that should be small at convergence. That is precisely A4's signature at the point it was first noticed, before the collapse was traced — flagging it now, before it is understood, costs nothing; finding it later would cost a lot.
+- **To resolve:** Trace T's per-iteration Initial residual across the run the way A4's omega was traced, to determine whether it decays, plateaus honestly, or collapses to a falsely-reassuring fixed value while the raw statistic is blowing up. Until that trace exists, treat the CD number as provisional.
+- **Evidence:** `demo-output/website/dafoam/ladder-a/logs_A6/run_model_accepted_t0_to_t1000.log` (CD trajectory and the raw residual-statistics block); contrast the tracing method used on `demo-output/website/dafoam/ladder-a/logs_A4/A4_fine_primal_par4.log`.
+
 ---
 
 ## GROUP 2: GRADIENT-ACCURACY DEFECTS
@@ -313,7 +375,7 @@ Cases where the CFD result lies in a different physical regime than the referenc
 - **How it failed:** Cd measured 0.0948. Reference Cd 0.47 (Achenbach 1972 / Schlichting, subcritical branch: laminar separation, wide wake). Measured value Cd ~0.09 matches **supercritical regime** (post-drag-crisis, Achenbach supercritical branch Cd 0.07–0.10), not subcritical. Relative error 79.8%.
 - **Root cause:** Physics regime mismatch. Steady fully-turbulent RANS delays boundary-layer separation and reproduces the post-drag-crisis wake, so the coefficient reads supercritical even when the solve Reynolds number is nominally subcritical. Not a solver defect; the model has chosen the wrong branch of the drag-coefficient curve.
 - **To resolve:** (a) Run at a Reynolds number firmly in supercritical regime (Re > 5e5), or (b) switch to time-resolved unsteady or LES to capture laminar-separation physics, or (c) accept as a documented regime mismatch and do not claim validation against subcritical reference.
-- **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/results/sphere.json` (tier: REFERENCE REGIME MISMATCH).
+- **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/results/sphere.json` (tier: REFERENCE REGIME MISMATCH). **See also** Group 3's "Seven wall.json calibration credentials" entry — this same case's residual gate was separately checked and not met (~5x over target on k); that is a different failure axis from the regime mismatch recorded here, and both apply to this one case at once.
 
 ### Cylinder — supercritical vs subcritical regime mismatch
 
@@ -321,7 +383,7 @@ Cases where the CFD result lies in a different physical regime than the referenc
 - **How it failed:** Cd measured 0.546. Reference Cd 0.74 (Hoerner 1965, Ch. 3, subcritical branch: crossflow, free-end relief). Measured value Cd ~0.55 matches **supercritical / fully-turbulent regime** (Hoerner supercritical branch Cd ~0.5), not subcritical. Relative error 26.2%.
 - **Root cause:** Physics regime mismatch, identical mechanism to sphere. Steady fully-turbulent RANS under-predicts subcritical base drag, landing near supercritical branch rather than subcritical reference.
 - **To resolve:** Same as sphere: (a) confirm Reynolds number regime, (b) unsteady/LES for laminar regime, or (c) document mismatch.
-- **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/results/cylinder.json` (tier: REFERENCE REGIME MISMATCH).
+- **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/results/cylinder.json` (tier: REFERENCE REGIME MISMATCH). **See also** Group 3's "Seven wall.json calibration credentials" entry — this same case's residual gate was separately checked and not met (~11x over target on k); that is a different failure axis from the regime mismatch recorded here, and both apply to this one case at once.
 
 ### NACA0012 Wing — section data vs. finite-wing comparison
 
@@ -357,16 +419,33 @@ Cases where the case was set up but never executed, or intermediate stages were 
 
 ---
 
+## GROUP 6: UNVERIFIABLE CLAIMS
+
+Cases where a public claim could not be traced to a specific artifact, run, or log — distinct from a claim that was checked and found to have failed. Not knowing whether something is true is a different, and cheaper to fix, problem than a claim being false.
+
+**Count: 1 case**
+
+### "7 days from first line of code" — no artifact found
+
+- **What:** `benchmarks.html` §1 (closure-challenge KPI tile) states the entire closure-challenge submission was produced "7 days from first line of code, part-time, one laptop, then cloud."
+- **How it failed:** No timestamped artifact, commit history excerpt, or log was found during this audit that establishes the start date the "7 days" is measured from. The claim may well be true — it is exactly the kind of fact that is easy to know and hard to leave evidence for — but as of this audit it cannot be verified from anything in the repository, which is a different, weaker status than "checked and true."
+- **Root cause:** Not applicable — this is a documentation/provenance gap, not a solver or measurement failure.
+- **To resolve:** Locate and cite the actual start date (first commit touching the closure-challenge work, a dated note, or similar) and either confirm 7 days or correct the figure.
+- **Evidence:** Searched `benchmarks.html`, `ACTIVE_RESEARCH.md`, `CLOSURE_CHALLENGE_STATUS.md`, and git history for closure-challenge-related paths; no dated artifact establishing the start point was found.
+
+---
+
 ## Summary by Group
 
 | Group | Count | Description |
 | --- | --- | --- |
 | 1. Adjoint memory wall | 5 | Structural OpenMDAO reverse-mode Jacobian-size blocker; working envelope ~10k cells |
 | 2. Gradient-accuracy defects | 2 | Sign-flipped or unstable adjoint-vs-FD disagreement, root cause unidentified |
-| 3. Solver convergence failures | 12 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders, growing energy-bound defect |
+| 3. Solver convergence failures | 15 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders, growing energy-bound defect, undisclosed non-convergence on public credentials |
 | 4. Reference/regime mismatches | 4 | RANS chose wrong physics branch, or comparison basis not equivalent |
 | 5. Never run or incomplete | 1 | Scaffolding only, never executed |
-| **TOTAL** | **24** | |
+| 6. Unverifiable claims | 1 | Public claim not traceable to an artifact |
+| **TOTAL** | **28** | |
 
 ---
 
