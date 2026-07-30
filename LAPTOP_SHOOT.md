@@ -175,11 +175,61 @@ It is a surrogate-gradient study — a differentiable model fitted to four solve
 runs. Real design optimization, genuinely good, but a technical audience will
 know the difference and the distinction is not worth losing.
 
-### Closure challenge — BEING BUILT TONIGHT
+### Closure challenge — READY
 
-A page you can put on screen while you talk. Will be at
-`http://localhost:8080/closure.html`. This section gets the URL and a suggested
-narrative when it lands.
+Put this on screen and talk over it:
+
+    http://localhost:8080/closure.html
+
+Built to be read on camera — 46px headline, 52px numerals, and the whole point
+lands above the fold with no scrolling. It carries an **UNSUBMITTED** banner and
+states in plain text that we hold no rank, because we do not.
+
+**Every number on it was recomputed from the raw benchmark JSON, not copied
+from a summary.** I re-derived them a second time myself: the round-3 mean
+reproduces 0.0676 exactly, the baseline floor 0.1036, the round-2 entry 0.0741,
+and the refused shortcut 0.067462. They are right.
+
+**The 60-second track:**
+
+> Turbulence is the last big unsolved problem in engineering fluid dynamics.
+> The cheap simulation every engineer runs is systematically wrong exactly
+> where it matters. This is the public benchmark that measures who can fix it:
+> eight flows, one strict rule — train or validate on a test case and your
+> submission is automatically withdrawn.
+>
+> The standard uncorrected solve scores 0.1036. Ours scores 0.0676, about 35%
+> closer to reality. That is our entry of record. It is not submitted and we
+> hold no rank.
+>
+> Here is the part worth showing. Our round-two entry scored 0.0741, and our
+> own audit found that on three of the eight cases our correction was making
+> things worse than doing nothing. Switching it off on those three would have
+> scored 0.0675 — one line of code, ahead of third place. But we only knew
+> which three because the benchmark had just told us. That is reading the
+> answer key. Our own audit wrote at the time that taking it would invalidate
+> the entry.
+>
+> So we left it on the table. We built a gate that looks only at the cheap
+> simulation and never at the answer, fitted on 21 training cases, checked
+> against 4 it had never seen. Four out of four. Then we froze it and turned it
+> loose blind on the test flows. Four out of four again.
+>
+> Final score 0.0676 — one ten-thousandth *worse* than the shortcut we refused.
+> That difference is the whole reason the number is worth anything.
+
+**If you have longer**, the closer: we lead the board on five of eight cases,
+but two of those five we "won" by our model declining to run at all, and we are
+last on the ducts. We can now prove why — two of the seven inputs the model
+reads are mathematically zero on every duct, so it learned nothing about them.
+
+**If someone technical presses on the gate:** its validation AUC is 1.0, but on
+n=4 with one positive label that is roughly one-in-four by luck. Say "four out
+of four, twice" — true, and it does not lean on a statistic whose caveat will
+not fit on screen.
+
+**Do not claim a rank.** The page says it would sit third of five *if*
+submitted, and that it currently sits nowhere.
 
 ---
 
