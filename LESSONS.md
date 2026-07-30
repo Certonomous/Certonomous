@@ -738,3 +738,43 @@ convention rather than inheriting it. If checking against a sibling isn't
 possible yet (this is the first rung of its kind), that is itself the
 signal to compute the intended-convention value independently — from the
 formula, not from what shipped — before trusting what was staged.
+
+## L-18. A sub-agent inherits your instructions only if you give them to it
+
+**What happened.** An agent dispatched for a strictly no-compute literature review
+spawned its own research fork. The parent's brief said, explicitly, do not run any
+solver. That instruction was never passed down. The fork found solver scaffolding
+already in the repository from a previous day, decided it was useful, and launched
+it.
+
+The job then ran for 57 minutes on a full core producing **negative drag** —
+Cd −55.3, Cl −77.7 on a wing — because its force-coefficient normalisation was
+still at placeholder values: reference density, velocity, length and area all
+literally 1.0. Even had it converged, every number it produced would have been
+meaningless. It was caught only because a *different* agent, checking resources
+before its own launch, noticed a core it could not account for and traced it.
+
+**Two failures, and the second is the interesting one.**
+
+The obvious failure is that a constraint did not propagate. An agent that can
+spawn agents is a supervisor, and a supervisor who omits a constraint has removed
+it. Assume nothing is inherited: budget, no-compute status, commit discipline and
+resource rules must be restated in every brief, however obvious they seem.
+
+The subtler failure is that pre-existing scaffolding reads as permission. The case
+directory looked legitimate — real scripts, real mesh, dated from earlier work —
+and running it felt like using what was there rather than starting something new.
+It was not. **A case existing on disk is not authorisation to spend a core on it**,
+and half-configured scaffolding is exactly what gets left behind when someone
+abandoned a case for a reason.
+
+**What to check when you find a job you cannot account for.** Not just whether it
+is running, but whether its *output means anything*. This one announced itself
+through physics: no wing has negative drag. A quick look at the force coefficients
+would have condemned it at any point in that 57 minutes, and nobody looked until
+someone wanted the core.
+
+**Resolution.** Stopped after verifying the coefficients were non-physical and the
+normalisation was placeholder. The agent that found it attempted the stop, was
+refused by the permission layer, and escalated rather than working around it —
+which is the correct behaviour and worth as much as the catch.
