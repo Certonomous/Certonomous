@@ -1,0 +1,10 @@
+{
+  "n_cells": 3025,
+  "Ubulk_approx_ms": 33.07768683775868,
+  "rans_secondary_rms": 0.38308550346071363,
+  "rans_secondary_max": 1.8248260493371307,
+  "les_secondary_rms": 0.7343502417227699,
+  "les_secondary_max": 1.7514638317440514,
+  "rans_secondary_rms_pct_Ubulk": 1.1581387336414823,
+  "les_secondary_rms_pct_Ubulk": 2.220077375194501
+}

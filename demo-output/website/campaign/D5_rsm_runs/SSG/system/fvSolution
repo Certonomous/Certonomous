@@ -54,10 +54,25 @@ SIMPLE
 {
     nNonOrthogonalCorrectors 0;
 
+    // 2026-07-30 CORRECTED (was: k 5e-6; omega 1e-10;). SSG is a Reynolds-
+    // stress model -- it does not transport k or omega, so the previous
+    // block named fields this run never solves for and could never itself
+    // satisfy: the run had no way to ever print "SIMPLE solution converged"
+    // and ground on toward endTime=500000 while already converged. Fixed
+    // for FUTURE runs of this case only. THE COMPLETED RUN
+    // (d5b_SSG_20260729T022123Z.log, 118,424 iterations, stopped by hand
+    // via `stopAt writeNow` once already converged) IS NOT INVALIDATED BY
+    // THIS CHANGE -- it was independently verified by hand against the
+    // fields it actually transports (U, p, epsilon, the six Reynolds-
+    // stress components), all with Initial residuals in the 8.1e-9 to
+    // 9.9e-9 range (p at 6.1e-8), far under the 5e-7 bar below. See
+    // LESSONS.md (the wrong-FIELD trap, distinct from the wrong-NUMBER
+    // Final-vs-Initial trap) and D5_RSM_RESULT.md.
     residualControl
     {
-        k               5e-6;
-        omega           1e-10;
+        "(U|p)"                         5e-7;
+        epsilon                         5e-7;
+        "(Rxx|Rxy|Rxz|Ryy|Ryz|Rzz)"     5e-7;
     }
     pRefCell            0;
     pRefValue           0;

@@ -903,3 +903,71 @@ standard mesh-quality metric and only shows up as a resolution the flow
 itself is unhappy with — trace failures to actual cell geometry, don't trust
 that "the mesh passed checkMesh" means the resolution went where it was
 designed to go.**
+
+
+## L-21. `residualControl` can name a field the model doesn't transport, and the gate silently never fires
+
+**The rule.** A convergence gate isn't just a number to read correctly — it
+has to be pointed at a field the model actually solves for. Before trusting
+(or blaming) a `residualControl` block, check that every field it names
+appears in the model's own transported-fields list. If it names a field the
+selected turbulence/closure model does not carry, the gate can never be
+satisfied by definition, no matter how converged the run genuinely is.
+
+**Why this is a different trap from L-14, not a repeat of it.** L-14 is
+about reading the wrong *number* off the right field (Final residual
+quoted where the gate checks Initial). This is about the gate watching the
+wrong *field* entirely — the number being read doesn't matter because the
+field being watched was never being solved for in the first place. Both
+produce the identical outward symptom (a run that looks fine and never
+gets a "SIMPLE solution converged" declaration), and both are catchable by
+the same discipline of checking the solver's own statement rather than a
+residual in isolation — but they have different causes and different
+fixes, so conflating them would misdiagnose the next occurrence.
+
+**What happened.** D5's three Reynolds-stress-model duct cases (LRR, SSG,
+EBRSM) all had `residualControl { k 5e-6; omega 1e-10; }` — inherited
+unchanged from the eddy-viscosity template the cases were built from. None
+of the three RSM models transports `k` or `omega`; they solve `U`, `p`,
+`epsilon`, and the Reynolds-stress tensor (printed per-component as `Rxx`,
+`Rxy`, `Rxz`, `Ryy`, `Ryz`, `Rzz`), and EBRSM additionally solves `f`.
+**The stop criterion could therefore never be satisfied by construction**,
+regardless of how converged the run was. Two runs ground on toward
+`endTime 500000` for over two hours of compute each, already converged
+(LRR's own account: "Ux initial residual was 1.6e-12 by iteration
+120,000"), before being stopped by hand with `stopAt writeNow`. This cost
+real compute and nearly cost a correct result too: the honest path here
+required someone to notice the mismatch and verify convergence manually
+against the right fields, which is exactly what happened — the case
+record already did this correctly, citing an Initial residual on the
+right field before this lesson was written down. Re-verified from the raw
+logs before being trusted (per L-14/L-16's own standing rule): all three
+completed runs show Initial residuals of 2.9e-9 to 9.9e-9 on every field
+they actually transport, tens to hundreds of times tighter than this
+project's usual 5e-7 bar. The runs were genuinely fine. The gate was not
+a gate.
+
+**The fix, and the limit of the fix.** `residualControl` in all three
+case directories now names the fields these models actually transport
+(`system/fvSolution`, `D5_rsm_runs/{LRR,SSG,EBRSM}/`), for FUTURE runs of
+these cases. The three completed runs were left untouched and are not
+invalidated by the config change — they stand on the by-hand verification
+against the raw logs, not on the (old or new) `residualControl` block,
+and both the case files and `D5_RSM_RESULT.md` say so explicitly, so a
+future reader does not mistake "the gate was fixed" for "the old runs
+were therefore bad."
+
+**This is checkable before any compute is spent, unlike L-14/L-15/L-19,
+which are only visible after a run finishes.** A mismatch between
+`residualControl`'s field names and the selected turbulence model's own
+transported-field list is a static property of the case directory, not
+something that requires reading a log. `scripts/case_preflight.sh` now
+checks it: for each model in the same table `case_preflight.sh` already
+uses to check that `0/` and `fvSolution/solvers` cover the model's
+transported fields, it additionally checks that `residualControl` names
+at least one of them — and fails preflight, before a single core-second
+is spent, if `residualControl` names only fields the model doesn't carry
+(the exact `{k; omega;}`-on-an-RSM-case shape that cost two hours here).
+It does not require every transported field to be gated (a case may
+deliberately gate a subset), only that the block isn't watching a field
+set with zero overlap with reality.

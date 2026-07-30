@@ -22,7 +22,7 @@ Case: AR_1_Ret_360, 3,025 cells, reusing the converged baseline mesh from
 | LienCubicKE | nonlinear | 0.1740% | 7.84% | prior sweep |
 | **SSG** | **RSM** | **1.2213%** | **55.01%** | iter 118,424 |
 | **LRR** | **RSM** | **4.5948%** | **206.96%** | iter 141,982 |
-| EBRSM | RSM | — | — | see convergence note |
+| **EBRSM** | **RSM** | **1.1581%** | **52.17%** | iter 251,703 |
 
 ---
 
@@ -48,8 +48,12 @@ ordering I predicted was framed on an assumption that collapsed. Ranked by
 
 **4. "At least one RSM will need relaxation tuning or fail outright." —
 CORRECT.** EBRSM required four separate setup corrections and then hit a
-floating-point exception at iteration 300 in the matrix solve. It is rerunning at
-relaxation 0.3.
+floating-point exception at iteration 300 in the matrix solve. Rerun at
+relaxation 0.3 (`d5g_EBRSM_20260729T023927Z.log`), it completed 251,703
+iterations and landed at 1.1581% (52.17% of DNS) — close to SSG's 55.01%,
+not LRR's 206.96%. See the residualControl note below for why this run,
+like SSG's and LRR's, never printed its own convergence statement despite
+being genuinely converged.
 
 ---
 
@@ -97,3 +101,27 @@ while already converged (LRR's Ux initial residual was 1.6e-12 by iteration
 120,000). They were stopped gracefully with `stopAt writeNow`, which preserved
 the converged fields instead of discarding roughly two hours of compute. Any
 RSM run on a case configured for an eddy-viscosity model inherits this.
+
+**2026-07-30, fixed at source, and re-verified from the raw logs before
+being fixed.** This is a distinct trap from the Final-vs-Initial-residual
+confusion found elsewhere tonight (that one reads the wrong *number* off
+the right field; this one watches the wrong *field* entirely) — same
+symptom, a run that looks fine and is never gated, different cause and
+different fix. Re-checked directly against `d5b_LRR_20260729T022123Z.log`,
+`d5b_SSG_20260729T022123Z.log`, and `d5g_EBRSM_20260729T023927Z.log`
+(not just this writeup) before touching anything: all three show Initial
+residuals of 2.9e-9 to 9.9e-9 on every field they actually transport (`U`,
+`p`, `epsilon`, the six Reynolds-stress components, plus `f` for EBRSM),
+tens to hundreds of times tighter than this project's usual 5e-7 bar.
+**The three completed runs are genuinely converged and this record's own
+numbers above stand.** `system/fvSolution`'s `residualControl` in all
+three case directories (`D5_rsm_runs/{LRR,SSG,EBRSM}/`) has now been
+corrected to name the fields these models actually transport, so *future*
+runs of these cases get a real automatic stop rather than grinding to
+`endTime` a third time. The completed runs are untouched and remain valid
+on the strength of the by-hand verification above, not the old (or new)
+`residualControl` block. See `LESSONS.md` for the general form of this
+trap, and `scripts/case_preflight.sh`, which now catches
+`residualControl` naming a field the selected turbulence model does not
+transport *before* a run starts, rather than after it grinds to a
+half-million-iteration cap.

@@ -119,6 +119,41 @@ if [ -f "$FVS" ] && [ -n "$MODEL" ]; then
             bad "model $MODEL transports '$fld' but fvSolution/solvers has NO entry covering it"
         fi
     done
+
+    # -----------------------------------------------------------------------
+    # 2c. residualControl must name a field the model actually transports.
+    #     A gate that watches a field the model doesn't carry can never be
+    #     satisfied, by construction -- the run isn't slow to converge, it
+    #     has no stop criterion at all. Static, catchable before any compute
+    #     is spent (see LESSONS.md L-21): D5's three Reynolds-stress-model
+    #     duct cases inherited "residualControl { k; omega; }" from an
+    #     eddy-viscosity template; none of LRR/SSG/EBRSM transports k or
+    #     omega, so two runs ground on toward endTime=500000 for two-plus
+    #     hours each, already converged, with no way to ever print their own
+    #     convergence statement. This does not require every transported
+    #     field to be gated (a case may deliberately gate a subset) -- only
+    #     that the block isn't watching a field set with zero overlap with
+    #     reality.
+    # -----------------------------------------------------------------------
+    if grep -qa "residualControl" "$FVS" && [ -n "$transported" ]; then
+        rc_block=$(awk '/residualControl/{f=1} f{print} f && /}/{exit}' "$FVS")
+        overlap=0
+        for fld in $transported; do
+            if echo "$rc_block" | grep -qE "\<$fld\>"; then
+                overlap=1
+            elif [ "$fld" = "R" ] && echo "$rc_block" | grep -qE "\<R(xx|xy|xz|yy|yz|zz)\>"; then
+                # R (Reynolds-stress tensor) is often gated per-component in
+                # residualControl, since that's the name each component is
+                # solved and printed under (Rxx, Rxy, ...), not "R" itself.
+                overlap=1
+            fi
+        done
+        if [ "$overlap" = "1" ]; then
+            ok "residualControl names at least one field '$MODEL' actually transports ($transported)"
+        else
+            bad "residualControl names NO field '$MODEL' actually transports (transported: $transported) -- this gate can never fire; the run will grind to endTime with no stop criterion regardless of how converged it is (L-21)"
+        fi
+    fi
 fi
 
 # ---------------------------------------------------------------------------
