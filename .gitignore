@@ -67,3 +67,6 @@ demo-output/website/campaign/*_runs/*/[0-9]*/
 # Sampled surface/line data written by functionObjects
 **/surfaces/
 **/sets/
+
+# Laptop bundle build output (the .zip is committed; the extracted tree is not)
+dist/certonomous-demo/
