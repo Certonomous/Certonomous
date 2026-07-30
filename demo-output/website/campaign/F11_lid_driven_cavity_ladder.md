@@ -394,6 +394,34 @@ not even a reliable local trend here to extrapolate from confidently.
 calibration F5a used for its 3D rung) before committing a full run**, rather
 than trusting this paragraph's estimate.
 
+**That probe was run** (free, foreground, bounded, matching the
+recommendation immediately above rather than leaving it as a hypothetical):
+n=256 (65,536 cells, matching Ghia's own 257x257 choice), Re=5000,
+`blockMesh` 0.74 s, `checkMesh` 1.40 s (**Mesh OK**, clean, same grading
+topology), then 300 `simpleFoam` iterations under a plain foreground
+timeout: **77.3 s ExecutionTime, 0.2577 s/iteration.** Consistent with this
+family's own measured trend (per-iteration cost grows faster than cell
+count: n=64->n=128 was a 4.7x per-iteration increase for a 4x cell-count
+step; n=128->n=256 here is a 6.63x per-iteration increase, 0.03885 ->
+0.2577 s/iter, for the same 4x cell-count step — the superlinear growth is
+itself worsening, not staying fixed, as the mesh gets finer).
+
+At 300 iterations the residuals are still in the impulsive-start transient
+(p Initial residual 0.0466 -> 0.000354 over the 300 steps, U still at
+1.3e-3/2.2e-3) — far too early to read off a converged rate, so **no
+iteration-to-convergence number is claimed from this alone**. Applying the
+0.2577 s/iter rate to this ladder's own observed convergence-iteration range
+(1,727-5,285 iterations across the four completed rungs) gives **7-23
+minutes** if Re=5000 needs a similar iteration count to what has been
+measured so far, or into the low hours if it needs several times more (the
+finer-mesh-needs-more-iterations trend measured above, extrapolated). **Net:
+the "tens of minutes to low hours" estimate above is now backed by one real
+timing number, not zero** — still not a committed iteration-count
+prediction, and the honest next step if this rung is scheduled is to launch
+it through `launch_solve.sh` with a generous iteration cap and let
+`residualControl` decide when it is actually done, the same as every other
+rung in this family.
+
 ### Considered and explicitly deprioritized (reasoning on record, not silently dropped)
 
 - **Low-speed 2D NACA0012 vs Ladson (1988).** Reference fully fetched, read,
