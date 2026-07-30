@@ -112,6 +112,26 @@ Four acts keep their own identity when you attach a surface: the **airliner
 optimization**, the **Monte Carlo race**, the **valve study**, and the **shape
 optimization**. Everything else with a file attached becomes a geometry study.
 
+### An upload used to leak into the acts that followed it — fixed
+
+Worth knowing, because it would have been invisible on camera. An uploaded
+surface never cleared: after you uploaded `b52.stl`, **every later mission in
+that tab silently carried the B-52**. Your NASA hump act would have run as a
+generic geometry study on a bomber, and nothing on screen would have said why.
+
+The surface is now released when a mission launches and the panel visibly
+resets. Fixed and verified on 2026-07-30. You do not have to do anything, but if
+you ever see an act announce a body you did not just attach, that is the symptom
+to recognise.
+
+### On durations
+
+Every duration in this guide was measured on this box, and they move with how
+busy the machine is — the same act measured 17 s on a quiet box and 26 s under
+heavy load. Nothing else about the act changes; only the wall clock. If you are
+timing narration tightly, run the act once on the day and trust that number over
+this page.
+
 ### Where the files are
 
 On the box, in `/home/ubuntu/Certonomous/demo-surfaces/`. **Copy these to your
@@ -140,9 +160,10 @@ Upload `airliner_wing_span52.stl` (optional; the act runs without it).
 
 > Optimize the L/D of an airliner for 300 passengers, 6000 km range.
 
-~17 s. The compute numbers it shows are **read live** — no rebuild needed, it
-will pick up the current figures on the day. As of now the lab ledger stands at
-**208,102 solver evaluations** and **239.3 core-hours**.
+**~12 s measured** (the old 17 s figure was stale). The compute numbers it shows
+are **read live** — no rebuild needed, it will pick up the current figures on
+the day. As of now the lab ledger stands at **208,102 solver evaluations** and
+**239.3 core-hours**.
 
 ### Monte Carlo race vs reduced-order — unchanged
 
@@ -150,12 +171,23 @@ Upload `naca0012_wing.stl` with the button, then type **only**:
 
 > Race a Monte Carlo uncertainty study against a reduced-order model.
 
-**Rehearsed end to end on 2026-07-30 and measured at 172 s** — upload, launch,
-88 Monte-Carlo samples, complete, certificate issued. The uploaded wing was
-confirmed present in the mission's own event log, so the file genuinely drives
-the run rather than decorating it.
+**Rehearsed end to end on 2026-07-30 and measured at 172 s** (+/- 1.3 s over
+four runs) — upload, launch, 88 Monte-Carlo samples, complete, certificate
+issued. The uploaded wing was confirmed present in the mission's own event log,
+so the file genuinely drives the run rather than decorating it.
 
 This is the longest act. Plan your talking track around three minutes.
+
+**The numbers no longer move between takes.** They used to: the Monte Carlo lane
+seeded its draw from the clock, so the peak, the band and the agreement shifted
+on every run. The seed is now fixed and stated on the record. It still solves 93
+wings live and every clock on screen is genuinely measured — only the *randomness*
+was pinned, which is ordinary practice for a Monte Carlo study.
+
+What you can now rely on saying: **peak L/D 18.08 +/- 0.07, reduced-order 18.14,
+agreement 0.3%.** Identical every take. The one number that still moves is the
+measured speedup (17.0x to 17.5x), which is exactly the number that *should*
+move, because it is a live timing.
 
 ### B-52 — unchanged act, updated numbers
 
@@ -163,36 +195,61 @@ Upload `b52.stl` with the button, then:
 
 > Solve the external aerodynamics of the supplied B-52 geometry.
 
-~51 s.
+**~27 s measured**, upload included (the old 51 s figure was stale).
 
 ### NASA wall-mounted hump
 
 > Solve the NASA wall-mounted hump and check separation and reattachment.
 
-~25 s. Separation x/c 0.6544 vs 0.665 experiment (−1.6%); reattachment 1.2534
-vs 1.100 (+13.9%). The reattachment error is the *point* of this segment — it
+**~17 s measured** (the old 25 s figure was stale). Separation x/c 0.6544 vs
+0.665 experiment (−1.6%); reattachment 1.2534 vs 1.100 (+13.9%). The reattachment error is the *point* of this segment — it
 is a known, published RANS weakness, and our uncertainty band predicted it in
 writing before the run. Talking points: `demo-output/website/campaign/D9_TALKING_POINTS.md`.
 
-### Adjoint design optimization — READY
+### Adjoint design optimization — READY, and it is now a design optimization you WATCH
 
 No upload. Type:
 
 > Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences.
 
-About 1 second. Verified live after the final restart.
+The act runs in about 1 second, but it **plays for about 47 seconds on screen**.
+Plan your talking track around three quarters of a minute, not one second.
 
-**What appears on screen:**
+**What appears on screen, in order:**
 
-- A discrete adjoint gradient of drag and lift over **105 design variables**
-  (96 shape control points, 7 twist stations, 2 flow-state).
+- The baseline wing.
 - The finite-difference verification, all six groups. Worst is **1.71%**, which
   clears this lab's **5% pass threshold by a factor of 2.9**. Best is 0.00145%.
   Geometric constraints at machine precision. **Gate passes.**
+- **The adjoint gradient painted on the wing skin** (lands ~18 s in). This is
+  the shot. It is the real recorded gradient, mapped onto the surface through
+  the FFD's own map.
+- **The wing morphing across 48 frames** of the optimization (~20-24 s), with
+  the drag trace descending step-for-step alongside it. Then a **root close-up**
+  of the same morph (~27-32 s), where the section change is legible: the
+  baseline is a slim near-symmetric section, the final is visibly fatter and
+  cambered.
 - **28.3% drag reduction at matched lift**, after **47 major iterations**.
 - A separate table, *How the optimization stopped*: a 60-minute wall clock, no
   convergence statement printed, both first-order measures about an order of
   magnitude above tolerance, status **Partial**.
+
+**Every shape on screen is at TRUE SCALE.** Nothing is exaggerated, and the act
+cannot exaggerate — the scaling code was removed outright. The wing was
+reconstructed by replaying the optimizer's own recorded design variables through
+the same FFD map it used, verified linear to 7.4e-15. It is a replay of what the
+optimizer did, not a model of it.
+
+Real magnitudes, if anyone asks: max displacement **185.9 mm**, which is 3.72%
+of the 5 m root chord; biggest twist change **-3.03 deg** at the outboard
+station.
+
+**A good beat to have ready.** The act states that it *could* have amplified the
+shape by at most x1.995 before the wing passes through itself — because this
+optimizer drove the wing onto its own thickness constraint, thinnest station
+0.4988 against a limit of 0.5. It declined to amplify at all. If someone asks
+why the change looks subtle, that is the answer, and it is a better answer than
+a bigger picture would have been.
 
 **Say:** "a real discrete adjoint, finite-difference verified, and we stopped it
 on a clock before it converged — so that 28% is a partial result."
