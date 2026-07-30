@@ -33,6 +33,28 @@
 > `scripts/check_convergence.py`, `scripts/check_convergence_validate.py`,
 > `scripts/check_convergence_sweep.py`.
 
+> **2026-07-30, resolved. kOmega genuinely converged, and the number barely
+> moved.** Extended 8000→25000, resumed from `latestTime`, nothing else
+> changed. `SIMPLE solution converged in 22211 iterations` — printed once,
+> for real this time. Final Initial residuals: Ux 1.54e-8, Uz 1.23e-7, p
+> 1.62e-8, omega 7.40e-11, k 4.998e-07 (just inside the 5e-7 bar) — every
+> gated field under target. `scripts/check_convergence.py`, wired into
+> `launch_solve.sh`'s collector, classified this run CONVERGED automatically
+> at completion. **Separation 0.6620, reattachment 1.0717** (extracted from
+> `t=22211` with the same `hump_gate_analysis.py` used on every other rung
+> in this study, single clean bubble, no fragmentation). Against the
+> ungated t=8000 snapshot (sep 0.6620, reattach 1.0722): separation is
+> exactly unchanged, reattachment moved by **−0.0005 (−0.047%)** — noise,
+> not a real shift. **Still 2.57% below the experimental 1.100.** The
+> corrected band `[1.0722→1.0717, 1.2534]`, the "narrower channel now
+> catches the experiment" finding, and the "we broke our own second
+> prediction" framing all survive — and for the first time tonight, on a
+> run that is actually gated rather than one whose Final residual was
+> mistaken for its Initial one. The provisional flag above is lifted. Table
+> below updated in place; the "channel 1 completed" section's own numbers
+> are left as originally written (now confirmed correct within noise) with
+> its own correction note pointing here.
+
 **Harvested by the supervisor** from the D9 agent's completed runs after it was
 interrupted four times (three host restarts, one API failure) without landing a
 record. The prediction file `f6a_epistemic_band/PREDICTION.md` was written by the
@@ -76,7 +98,7 @@ matters more than the pass.**
 | --- | --- | --- | --- | --- | --- |
 | — | **NASA experiment** | 0.6650 | **1.1000** | — | — |
 | — | kOmegaSST (our baseline) | — | 1.2534 | **+13.95%** | YES, converged in 1772 iter (checked 2026-07-29, see below) |
-| C1 | kOmega | 0.6620 | 1.0722 | **−2.53%** | YES (k final 1.37e-7) |
+| C1 | kOmega | 0.6620 | 1.0717 | **−2.57%** | YES, genuinely — converged in 22211 iter (2026-07-30, see below); supersedes the earlier 1.0722/"k final 1.37e-7" reading, which was Final-not-Initial and not actually gate-met |
 | C1 | kEpsilon | 0.6679 | 1.1437 | +3.97% | YES (k final 4.35e-7) |
 | C1 | SpalartAllmaras | 0.6541 | 1.2061 | +9.65% | NO, oscillating floor not a gap — see below |
 | C1 | realizableKE | 0.6639 | 1.2503 | +13.66% | YES (k final 4.38e-8) |
@@ -204,17 +226,21 @@ the pre-registered under-coverage finding in section 1 above.
 
 ### kOmega: fixed the gate, and the number crossed the experimental value
 
-> **2026-07-30 correction.** This section's own numbers below (`k final
-> residual 1.373e-7`, `omega final residual 8.8e-11`) are **Final**
-> residuals, and the table below marks "gate met? YES" on that basis. The
-> gate is checked on the **Initial** residual, and by that standard this
-> run did not meet it (k Initial 3.21e-5, omega Initial 3.72e-9, both far
-> over gate at t=8000; `SIMPLE solution converged` never prints). Full
-> detail in the update note at the top of this file. Left in place below
-> exactly as originally written, per this record's own practice of
-> correcting in a visible note rather than silently rewriting history — the
-> table's "YES" is wrong and should be read as "NO, but decaying smoothly,
-> extension in progress."
+> **2026-07-30 correction, then resolution.** This section's own numbers
+> below (`k final residual 1.373e-7`, `omega final residual 8.8e-11`) are
+> **Final** residuals, and the table below marked "gate met? YES" on that
+> basis. The gate is checked on the **Initial** residual, and by that
+> standard the t=8000 state did not meet it (k Initial 3.21e-5, omega
+> Initial 3.72e-9, both far over gate; `SIMPLE solution converged` never
+> printed). **Resolved same day**: extended 8000→25000, resumed from
+> `latestTime`, nothing else changed. `SIMPLE solution converged in 22211
+> iterations` — printed for real. Reattachment at t=22211: **1.0717**,
+> against the ungated t=8000 snapshot's 1.0722 — moved by −0.0005 (−0.047%,
+> noise), still 2.57% below the experimental 1.100. The numbers below stand,
+> now on solid ground; see the top-of-file note for the full account. Left
+> in place below exactly as originally written, per this record's own
+> practice of correcting in a visible note rather than silently rewriting
+> history.
 
 kOmega's k-residual was not plateaued, just slow — a local decay-rate fit at
 t=2000 (last-1000-iteration window, rate ≈9e-4/iter, itself still slowing)
@@ -417,7 +443,7 @@ straddle it once*.
 | --- | --- | --- | --- | --- | --- |
 | — | **NASA experiment** | 0.6650 | **1.1000** | — | — |
 | — | kOmegaSST (our baseline) | — | 1.2534 | +13.95% | **YES** (1772 iter, checked 2026-07-29) |
-| C1 | kOmega | 0.6620 | **1.0722** | **−2.53%** | **YES** (k final 1.37e-7) |
+| C1 | kOmega | 0.6620 | **1.0717** | **−2.57%** | **YES**, genuinely — 22211 iter, all Initial residuals under gate (2026-07-30; the 1.0722/"k final 1.37e-7" entry this superseded was never actually gate-met, see correction note above) |
 | C1 | kEpsilon | 0.6679 | 1.1437 | +3.97% | **YES** (k final 4.35e-7) |
 | C1 | SpalartAllmaras | 0.6541 | 1.2061 | +9.65% | **NO** (Ux oscillates ~1.4e-6; physically stable, see above) |
 | C1 | realizableKE | 0.6639 | 1.2503 | +13.66% | **YES** (k final 4.38e-8) |
