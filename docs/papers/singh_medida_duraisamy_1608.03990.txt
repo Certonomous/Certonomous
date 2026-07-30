@@ -1,0 +1,1454 @@
+                                        Machine Learning-augmented Predictive Modeling of Turbulent Separated
+                                                                                 Flows over Airfoils
+
+                                                                                   Anand Pratap Singh
+                                                              PhD Candidate, Department of Aerospace Engineering,
+                                                                   University of Michigan, Ann Arbor, MI 48104.
+
+                                                                                      Shivaji Medida
+arXiv:1608.03990v3 [cs.CE] 6 Nov 2016
+
+
+
+
+                                                                       Solver Development Manager, AcuSolve,
+                                                                   Altair Engineering, Inc., Sunnyvale, CA 94086
+
+                                                                                   Karthik Duraisamy
+                                                            Assistant Professor, Department of Aerospace Engineering,
+                                                                   University of Michigan, Ann Arbor, MI 48104.
+
+                                                                                         Abstract
+                                          A modeling paradigm is developed to augment predictive models of turbulence by effectively utilizing
+                                        limited data generated from physical experiments. The key components of our approach involve inverse
+                                        modeling to infer the spatial distribution of model discrepancies, and, machine learning to reconstruct dis-
+                                        crepancy information from a large number of inverse problems into corrective model forms. We apply the
+                                        methodology to turbulent flows over airfoils involving flow separation. Model augmentations are developed
+                                        for the Spalart Allmaras (SA) model using adjoint-based full field inference on experimentally measured
+                                        lift coefficient data. When these model forms are reconstructed using neural networks (NN) and embedded
+                                        within a standard solver, we show that much improved predictions in lift can be obtained for geometries
+                                        and flow conditions that were not used to train the model. The NN-augmented SA model also predicts
+                                        surface pressures extremely well. Portability of this approach is demonstrated by confirming that predictive
+                                        improvements are preserved when the augmentation is embedded in a different commercial finite-element
+                                        solver. The broader vision is that by incorporating data that can reveal the form of the innate model discrep-
+                                        ancy, the applicability of data-driven turbulence models can be extended to more general flows.
+
+
+
+
+                                                                                            1
+I.   INTRODUCTION
+
+
+     Accurate modeling and simulation of turbulent flows is critical to several applications in engi-
+neering and physics. From the viewpoint of affordability, turbulence closure models – either in
+Reynolds Averaged Navier–Stokes (RANS) form or in a near-wall context in an eddy-resolving
+model – will continue to be indispensable for the foreseeable future [1]. Existing turbulence clo-
+sures have proven to be quite useful in many contexts, but it is well-recognized that complex
+effects such as flow separation, secondary flows, etc are poorly modeled.
+     While new and increasingly complex models are being developed [2–4] and demonstrated to be
+accurate in some problems, it can be argued that there has not been a significant improvement in
+predictive accuracy over the past 15 years. As a result, the majority of the RANS models that are
+used in both industrial and academic CFD solvers were initially developed and published in the
+1990’s. A critical issue in turbulence model development is that even the most sophisticated model
+invokes radically simplifying assumptions about the structure of the underlying turbulence. Thus,
+the process of developing a practical turbulence model combines physical intuition, empiricism
+and engineering judgment, while constrained by robustness and cost considerations. As a result,
+even if a model is based on a physically and mathematically appealing idea – for example, elliptic
+relaxation [5, 6] – the model formulation typically devolves into the calibration of a large number
+of free parameters or functions using a small set of canonical problems.
+     Against this scenario, our ability to perform detailed high-fidelity computations and resolved
+measurements has improved dramatically over the past decade. At the same time, data science
+is on the rise because of improvements in computational power and the increased availability of
+large data sets. This has been accompanied by significant improvements in the effectiveness and
+scalability of data analytics and machine learning (ML) techniques. Given these advances, we
+believe that data-driven modeling and machine learning will play a critical role in improving the
+understanding and modeling of turbulence.
+     In the study of turbulent flows, machine learning techniques appear to have first been used
+to recreate the behavior of near-wall structures in a turbulent channel flow [7] and to extract co-
+herent spatio-temporal structures[8]. With a view towards quantifying model errors, several re-
+searchers [9–12] have used experimental data to infer model parameters. Cheung et al. [13, 14]
+employ Bayesian model averaging[15] to calibrate model coefficients. Edeling et al. [11] use sta-
+tistical inference on skin-friction and velocity data from a number of boundary layer experiments
+
+                                                 2
+to quantify parametric model error. These methods provide insight into parametric uncertainties
+and address some of the deficiencies of a priori processing of data.
+   Dow and Wang [16, 17] made progress towards addressing non-parametric uncertainties by
+inferring the spatial structure of the discrepancy in the eddy viscosity coefficient based on a library
+of direct numerical simulation (DNS) datasets. The discrepancy between the inferred and modeled
+eddy viscosity was represented as a Gaussian random field and propagated to obtain uncertainty
+bounds on the mean flow velocities.
+   The research group of Iaccarino [18–20] introduced adhoc, but realizable perturbations to the
+non-dimensional Reynolds stress anisotropy tensor ai j to quantify structural errors in eddy vis-
+cosity models. Tracey et al. [21] applied neural networks to large eddy simulation data to learn
+the functional form of the discrepancy in ai j and injected these functional forms in a predictive
+simulation in an attempt to obtain improved predictions. Xiao and co-workers [22] inferred the
+spatial distribution of the perturbations in ai j and turbulent kinetic energy by assimilating DNS
+data. Weatheritt [23] uses evolutionary algorithms on DNS data to construct non-linear stress-
+strain relationships for RANS models.
+   Ling and Templeton [24] used machine learning-based classifiers to ascertain regions of the
+flow in which commonly-used assumptions break down. King et al. [25] formulated a damped
+least squares problem at the test-filter scale to obtain coefficients of a subgrid-scale model. In both
+of these works, results were demonstrated in an apriori setting.
+   Duraisamy and co-workers [26–29] took the first steps towards improving predictive model
+forms by defining a data-driven modeling paradigm based on field inversion and machine learning
+(FIML). The FIML approach consists of three key steps : a) Inferring the spatial (non-parametric)
+distribution of the model discrepancy in a number of problems using Bayesian inversion, b) Trans-
+forming the spatial distribution into a functional form (of model variables) using machine learning,
+and c) Embedding the functional form in a predictive setting. Predictions were demonstrated in
+turbulent channel flows and transitional flows with imposed pressure gradients. Note that steps
+a) and b) involve off-line (training) computations, whereas step c) is on-line (prediction). Xiao
+and co-workers [30] also use inference and machine learning on DNS data to reconstruct the func-
+tional form of the discrepancy in ai j . This function is injected as a one time post-processing step
+to a computed baseline solution. The flow solution is then updated based on the Reynolds stress
+perturbation.
+   In this work, we extend the paradigm of data-driven modeling to assist in the development
+
+                                                 3
+FIG. 1: Effect of adverse pressure gradient on the defect layer (NACA 0012 airfoil, Re = 6×106 ).
+          Boundary layer corresponds to the 16% chord location on the upper surface.
+
+
+of turbulence models and predictive simulation of turbulent flow over airfoils. In particular, we
+demonstrate the ability of inverse modeling to provide quantitative modeling information based
+on very limited experimental data, and the use of machine learning to reconstruct this information
+into corrective model forms. When these model forms are embedded within a standard solver
+setting, it is shown that significantly improved predictions can be achieved.
+
+
+
+II.    PROBLEM AND APPROACH
+
+
+      Turbulent flow separation over lifting surfaces is critical to many applications, including high-
+lift systems, off-design operating envelope of new vehicles, airframe noise, wind turbines, turbo-
+machinery flows, and combustors. A RANS turbulence modeling capability that can confidently
+predict separated flows in these various contexts would be a key enabling factor in the develop-
+ment of aerospace and energy systems of the future. The ability to accurately model the effects
+of strong adverse pressure gradients (APG) is crucial to the prediction of boundary layer separa-
+tion in wall-bounded flows; however, most one- and two-equation RANS turbulence models fail
+to accurately predict stall onset for airfoils at high angles of attack (AoA), where strong APG is
+encountered. Consequently, they tend to over-predict the maximum lift and stall onset angle for a
+given set of flow conditions.
+      Celic et al. [31] compared the performance of 11 eddy-viscosity based turbulence models for
+aerodynamic flows with APG and concluded that none of the models perform satisfactorily for
+flow past airfoils near maximum lift conditions. This deficiency can be attributed to the underly-
+
+                                                  4
+ing assumptions and simplifications that are part of all eddy-viscosity based turbulence models.
+One such assumption implies a balance between the production and dissipation of turbulent ki-
+netic energy. This assumption allows for the scaling of velocity profiles in the defect layer, and is
+instrumental in the formulation of many turbulence models. However, it is well known that prac-
+tical boundary layers under strong APG are not in equilibrium. In addition, the outer layer scaling
+is affected by APG, whereas the viscous sublayer and log-layer are relatively unchanged. This is
+illustrated in Fig. 1 through the velocity profiles (in wall units) on a NACA 0012 airfoil at four
+different angles of attack. As the angle of attack increases, the adverse pressure gradient on the
+upper surface grows steeply, and therefore, the defect layer penetrates deeper into the boundary
+layer. Thus, many turbulence models that assume equilibrium conditions fail to produce satisfac-
+tory behavior for strong APG flows. Certain models with stress limiters, such as the SST version
+of the k-ω turbulence model [32], Wilcox’s modified k-ω [33] model, and the strain-adaptive for-
+mulation of the Spalart-Allmaras turbulence model [34, 35], are known to perform slightly better
+than the other models. Although using more sophisticated turbulence models (non-linear eddy vis-
+cosity models, second moment closure models, etc) might produce better results, poor robustness
+and higher computational cost associated with the usage of these methods are major deterrents to
+their wider applicability for practical flows. These models are still calibrated using information
+from canonical configurations and applied in situations dissimilar to those in which calibrations
+were made. In the present work, more realistic flows are used to guide model development.
+   As proof-of-concept for the feasibility of data-assisted modeling, Tracey et al. [27] applied
+machine learning to a database of solutions of a known turbulence model. The known turbulence
+model was considered to be the surrogate truth. These solutions primarily involved flat plates
+and airfoils. A deficient turbulent model (with deliberately removed source terms) was then aug-
+mented with these machine-learned functional forms. This augmented turbulence model was able
+to accurately reproduce radically different flows such as transonic flow over a wing. While it was
+relatively easy to make apriori (and one-time) evaluations of the trained model, key lessons were
+learnt about the formulation of the learning problem as the NN (Artificial Neural Network) had to
+be evaluated and injected during every iteration of a converging PDE solver.
+   The above work demonstrated that if the underlying model form is discoverable and the data
+is comprehensive enough, a machine learning technique such as an artificial neural network can
+adequately describe it. The challenge in predictive modeling, however, is to extract an optimal
+model form that is sufficiently accurate. Constructing such a model and demonstrating its predic-
+
+                                                5
+    FIG. 2: Schematic of field inversion and machine learning framework for data-augmented
+                                       turbulence modeling
+
+
+tive capabilities for a class of problems is the objective of this work. This data-driven framework
+is specifically demonstrated in predictions of turbulent, separated flows over airfoils.
+   A schematic of the approach is provided in Fig. 2. Various aspects of the schematic are orga-
+nized in the paper as follows: Section III introduces the inversion framework which uses limited
+experimental data Gexp to generate fields of modeling information β(x) that account for the model
+discrepancy. Section IV introduces the role of machine learning in transforming information from
+a number of inverse problems β j (x) into model forms β(ηη), where η represents local field vari-
+ables available in the model. Section V demonstrates that embedding model corrections βˆ during
+the simulation process can improve predictive capabilities. Section VI presents a summary of this
+work and perspectives on the extension of these techniques to general turbulence modeling.
+
+
+   Discretization
+
+
+   The flow solver [36–38] (ADTURNS) is based on a cell-centered finite volume formulation
+of the compressible RANS equations on structured grids. The inviscid fluxes are discretized us-
+ing the third-order MUSCL scheme [39] in combination with the approximate Riemann solver
+
+                                                6
+of Roe [40]. The diffusive contributions are evaluated using a second-order accurate central dif-
+ferencing scheme. Implicit operators are constructed using the diagonalized alternating direction
+implicit (D-ADI) scheme[41].
+   For the computations, the flow domain over airfoils is discretized using a C-grid with 291
+points in the wraparound direction and 111 points in the wall-normal direction. At this resolution,
+which corresponds to 200 grid points on the airfoil surface, numerical errors are low enough to
+not obscure the treatment of turbulence modeling errors. This was verified by performing a grid
+convergence study. The farfield boundaries are located 35 chord lengths from the airfoil surface.
+Characteristic freestream boundary conditions are used for the flow variables at the farfield and
+the eddy viscosity is set to the fully turbulent value, νt,∞ /ν∞ = 3.
+   The field inversion procedure requires gradients with respect to every grid point. These gradi-
+ents are most effectively determined using a discrete adjoint approach [42]. The required deriva-
+tives are computed as detailed in the Appendix A.
+
+
+III.   FIELD INVERSION
+
+
+   Our philosophy of inferring and reconstructing one or more corrective functional forms is gen-
+eral in scope with regard to data-driven modeling [28, 29]. While the methodology is applicable to
+both eddy viscosity and Reynolds stress models, the focus of the present work is restricted to the
+Spalart-Allmaras (SA) model [35] (refer to Appendix C for detailed formulation). The baseline
+SA model can be written as
+
+                                 Dν̃
+                                     = P(ν̃, U) − D(ν̃, U) + T (ν̃, U),                            (1)
+                                 Dt
+
+where U represents the Reynolds averaged conserved flow variables, P(ν̃, U), D(ν̃, U), and T (ν̃, U)
+represent the production, destruction and transport terms respectively. The above equation is used
+with a non-linear functional relationship to derive an eddy viscosity νt from ν̃, which is then used in
+a Boussinesq formulation to close the RANS equations. The major source of modeling deficiency
+is the structural form of the model rather than parameters within the imposed model form. Thus,
+benefits from classical parameter estimation will be limited. In other words, the functional forms
+of the terms in Eq. 1 are themselves inaccurate, and require a reformulation.
+   The goal then, is to construct generalizable functional corrections to the model form in Eq. 1.
+Accordingly, a spatially-varying term β(x) is introduced as a multiplier of the production term
+
+                                                 7
+P(ν̃, U).
+
+                             Dν̃
+                                 = β(x)P(ν̃, U) − D(ν̃, U) + T (ν̃, U),                          (2)
+                             Dt
+
+
+   It must be recognized that the introduction of β(x) changes the entire balance of the model,
+(and need not be interpreted as merely a modification of the production term). It is equivalent to
+adding a source term δ(x) = (β(x) − 1)P(x). Inferring β, however, leads to a better conditioned
+inverse problem, as β is non-dimensional and has a simple initial value of unity.
+
+
+   Assume a flow configuration (with a particular geometry, angle of attack, Reynolds number,
+etc) consisting of Nm control volumes. Given Nd data points (such as wall pressure, skin-friction,
+etc) G j,exp , we define the following inverse problem to extract the optimal field β ≡ β(xn ) : 1 ≤
+n ≤ Nm :
+                                Nd                        Nm
+                           min ∑ [G j,exp − G j (β)]2 + λ ∑ [β(xn ) − 1]2 ,                      (3)
+                            β   j=1                       n=1
+
+here G j (β) is the output of the RANS model. This inverse problem is most straightforwardly
+interpreted in a classical frequentist sense with Tikhonov regularization [43], or loosely as the
+maximum a posteriori (MAP) estimate in a Bayesian setting assuming Gaussian distributions and
+a prior of unity. In the former setting, λ is a regularization constant; in the latter, it represents
+the ratio of the observational covariance to the prior covariance [44]. It is to be noted that in
+the context of this work, the solution of a large number of inverse problems is used as a means
+to define corrective functions. Thus, finer-grained interpretations or formulations of the inverse
+problem and treatment of uncertainties - while important - are not of a primary concern in this
+work. A more formal treatment of observational errors and prior confidence has been pursued in
+previous work [28], but application was restricted to simpler problems.
+
+
+   Nevertheless, an optimal value of β is sought at every discrete location in the computational
+domain and used in Eq. 2, conjoined with the conservation equations for the ensemble-averaged
+mass, momentum and energy. The resulting inverse problem is extremely high-dimensional and
+an efficient adjoint-based optimization framework is employed. For further details, please refer
+the Appendix A.
+
+
+   If experimental surface pressure coefficients C p were used as data points[29], the following
+
+                                                8
+minimization problem is formulated
+                               "                                            #
+                                   Nd                        Nm
+                         min
+                           β
+                                   ∑ [Cp j,exp −Cp j (β)]2 + λ ∑ [β(xn) − 1]2 .                    (4)
+                                   j=1                      n=1
+
+
+   However, in the majority of experimental tests of flow over airfoils, the surface pressure is not
+measured. Therefore, we use the lift coefficient (Cl ) as the observational data. Thus, the following
+optimization problem is formulated:
+                              "                                  #
+                                             2   Nm
+                           min Cl,exp −Cl (β) + λ ∑ [β(xn ) − 1]2 .
+                               
+                                                                                                   (5)
+                               β                          n=1
+
+   The two objective functions (Eq. 4 and 5) were confirmed to lead to a similar solution to the
+inverse problem (Fig. 3). While there are discrepancies in the post-stall region, the near-wall
+features in β(x) are almost identical, resulting in indistinguishable surface pressures. The entire
+set of inverse problems in this work is solved for the lift-based objective function (Eq. 5) with
+λ = 4 × 10−4 . This implies a much higher level of confidence in the experimentally measured lift
+compared to the variability of β. The optimal solution was indeed confirmed to be insensitive to
+order of magnitude variations in λ.
+   To further probe the validity of using pressure-based information for field inversion, Appendix
+B presents an example in which the Reynolds stress field is available. Additional information on
+the characteristics of the inversion procedure can be found in Ref. 29.
+   In section V, the ability of the lift-based model correction to accurately predict surface pressures
+will be further demonstrated. The ability to utilize only the lift coefficient to generate modeling
+information greatly enhances the applicability of the current framework to assimilate a vast amount
+of available data.
+   The inverse solution serves as an input to the machine learning algorithm, while providing qual-
+itative and quantitative insight to the modeler. It is known that eddy viscosity-based turbulence
+models generate very high levels of turbulence at high angles of attack resulting in delayed sepa-
+ration and stall [45]. The inverse solution adjusts for this deficiency by reducing the generation of
+turbulence in the near wall pre–separation region, i.e. the β(x) < 1 region in Fig. 4. This reduced
+production results in early flow separation, which can be observed in the wall shear stress (Fig.
+5a). Furthermore, Fig. 5b reinforces the fact that a complex relationship exists between the model
+                                                                  ∗
+corrections and the pressure gradient parameter [46] Π = τδw dP
+                                                             ds .
+
+
+                                                   9
+                                                    1.44                                                    1.44
+              0.2                                   1.26             0.2                                    1.26
+                                                    1.08                                                    1.08
+              0.1                                   0.90             0.1                                    0.90
+                                                    0.72                                                    0.72
+        Y/C
+
+
+
+
+                                                               Y/C
+              0.0                                   0.54             0.0                                    0.54
+              0.1                                   0.36             0.1                                    0.36
+                                                    0.18                                                    0.18
+              0.2                                   0.00             0.2                                    0.00
+                                                     0.18                                                    0.18
+                 0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2                        0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2
+                              X/C                                                    X/C
+        (a) β(x) field using objective function based on Cl    (b) β(x) field using objective function based on C p
+
+                                         2
+                                         0
+                                         2
+                                                    Experiment
+                                   Cp
+
+
+
+
+                                         4
+                                                    Base SA
+                                         6          Inverse SA based on Cl
+                                                    Inverse SA based on Cp
+                                         80.0    0.2     0.4       0.6     0.8     1.0
+                                                              X/C
+                                                         (c) C p
+
+  FIG. 3: Inverse solutions using objective function based on lift (Cl ) and surface pressure (C p )
+    coefficients. β(x) in the near wall region is unaffected by the choice of objective function
+                                  resulting in identical inverse C p .
+
+
+IV.    MACHINE LEARNING
+
+
+      The inverse approach presented in the previous section results in an optimal correction field for
+a given flow condition and geometry. To be useful in predictive modeling, the problem-specific
+information encoded in β(x) must be transformed into modeling knowledge [28]. This is done by
+extracting the functional relationship β(x) ≈ β(η), where η = [η1 , η2 , · · · , ηM ]T are input features
+derived from mean-field variables that will be available during the predictive solution process.
+The functional relationship must be developed by considering the output of a number of inverse
+problems representative of the modeling deficiencies relevant to the predictive problem. Further,
+as explained below, elements of the feature vector η are chosen to be locally non-dimensional
+quantities such that the functional relationship β(η) is useful for different problems in which the
+
+                                                         10
+  FIG. 4: The inferred correction function, βinverse , for a representative airfoil. An approximate
+estimate of the edge of the boundary layer is shown as black lines. n/c is the normalized distance
+                                     from the airfoil surface.
+
+        0.020                                                       8
+                                             Base SA                7
+                                             Inverse SA
+        0.015                                                       6
+                                                                    5
+        0.010                                                       4
+  Cf
+
+
+
+
+                                                                Π
+
+
+                                                                    3
+        0.005                                                       2
+                                                                    1
+        0.000                                                       0
+            0.0      0.2       0.4     0.6        0.8     1.0       10.0      0.2      0.4     0.6      0.8   1.0
+                                 X/C                                                     X/C
+                  (a) Skin friction coefficient                            (b) Pressure gradient parameter
+
+                           FIG. 5: Prior and posterior quantities for the case in Fig 4.
+
+
+η variables are realizable.
+
+
+
+   A.    Features
+
+
+   To build a set of features η upon which the functional relationship β(η) will be based, a logical
+place to start would be to identify the independent variables in the baseline SA model. The source
+terms in the SA model are a function of four local flow quantities, ν, ν̂, Ω, d, which represent the
+kinematic viscosity, the SA working variable, the vorticity magnitude, and the distance from the
+wall, respectively. As discussed in Ref. 27, these quantities do not constitute an appropriate choice
+for the input feature vector to the machine learning algorithm. They are dimensional quantities
+
+                                                           11
+which may have different numeric values even when two flows are dynamically similar. Thus,
+the inputs are re-scaled [27] by relevant local quantities that are representative of the state of
+turbulence. An obvious locally non-dimensional quantity in the baseline SA model is χ = ν̂/ν.
+We define local scales, ν + ν̂ and d, and introduce an additional variable,
+
+                                                     d2
+                                            Ω̄ =          Ω .                                        (6)
+                                                   ν̂ + ν
+
+   With these definitions, the non-dimensional versions (P, D) of the existing production and de-
+struction terms (P, D) are given by:
+
+                          d2
+                                                                       
+                                                        χ         1 χ
+                   P=           s p = cb1 (1 − ft2 )         Ω̄ + 2    ft2 ,
+                      (ν̂ + ν)2                       χ+1        κ χ+1
+                                              2
+                          d2
+                                      
+                                           χ
+                   D=           sd =              cw1 fw ,
+                      (ν̂ + ν)2         χ+1
+
+where cb1 , cw1 are constants, ft2 is a function of χ and fw is a function of Ω̄ and χ. Thus, the locally
+non-dimensionalized source terms in the baseline SA model are dependent only on Ω̄ and χ.
+
+   The set of features that were evaluated includes {Ω̄, χ, S/Ω, τ/τwall , P/D}, where S, τ, τwall
+represent the strain-rate magnitude, magnitude of the Reynolds stress, and the wall shear stress,
+respectively.
+
+
+
+
+   B.   Neural Networks
+
+
+   In previous work, we have experimented with supervised learning techniques [47] including
+single/multi-scale Gaussian process regression [48] and Artificial Neural Networks (NN) [49]. In
+this work, we pursue NNs because of their efficiency as they can be evaluated at a computational
+cost that is independent of the size of the training data [50] The performance metric used in the
+current work for input selection is the sum squared error (SSE) on the validation set.
+
+   The standard NN algorithm operates by constructing linear combinations of inputs and trans-
+forming them through nonlinear activation functions. The process is repeated once for each hidden
+layer (marked blue in Fig. 6) in the network, until the output layer is reached. Fig. 6 presents a
+sample ANN. For this sample network, the values of the hidden nodes z1,1 through z1,H1 would be
+
+                                                   12
+constructed as                                                             !
+                                                      3
+                                                                (1)
+                                     z1, j = a(1)    ∑ wi j ηi                                  (7)
+                                                     i=1
+
+                  (1)
+where a(1) and wi j are the activation function and weights associated with the first hidden layer,
+respectively. Similarly, the second layer of hidden nodes is constructed as
+                                                                           !
+                                                     H1
+                                                            (2)
+                                     z2, j = a(2)    ∑     wi j z1,i                            (8)
+                                                     i=1
+
+
+Finally, the output is                                                         !
+                                                           H2
+                                                                 (3)
+                                  y ≈ f (η) = a(3)         ∑    wi j z2,i                       (9)
+                                                          i=1
+
+                                                                                   (n)
+Given training data, error back-propagation algorithms[49] are used to find wi j .
+
+                                       z1,1                       z2,1
+
+                 η1
+                 η2                                                                      y
+                 η3                     ..                            ..
+                                         .                             .
+                                      z1,H1                      z2,H2
+
+ FIG. 6: Network diagram for a feed-forward NN with three inputs, two hidden layers, and one
+                                          output.
+
+
+
+     Once the weights are found, computing the output depends only on the number of hidden
+nodes, and not on the volume of the training data. Hyper-parameters of the NN method include the
+number of hidden layers, the number of nodes in each hidden layer, and the forms of the activation
+functions. Typically, 3 layers and about 100 nodes were employed with a sigmoid activation
+function. The Fast Artificial Neural Network Library (FANN)[51] is used for this work.
+
+
+V.    RESULTS
+
+
+     The utility of the data-driven framework is demonstrated in three wind turbine airfoils with
+varying thickness: (i) S805, (ii) S809, and, (iii) S814 (Fig. 7). This specific set was chosen for
+
+                                                13
+                                                                         S805
+                           0.2                                           S809
+                                                                         S814
+                           0.1
+
+
+
+                     Y/C
+                           0.0
+
+
+                           0.1
+
+
+                           0.2
+
+                              0.0    0.2       0.4         0.6     0.8          1.0
+                                                     X/C
+FIG. 7: Three different airfoils used for training and testing the neural network model. Note: axes
+                                        are scaled differently.
+
+
+
+
+this work because of the availability (in the open literature[52–54]) of the lift and drag polar from
+low angles of attack through incipient and massive separation and for multiple Reynolds numbers
+Re ∈ {1 × 106 , 2 × 106 , 3 × 106 }. Additionally, detailed pressure measurements are available at
+some test points.
+
+   Full-field inversion was performed for each airfoil at different combinations of angles of attack
+and Reynolds number. In all the cases, inversion was based on just the lift coefficient. For the S809
+airfoil at Re = 2 × 106 , the lift-based inversion was compared to the pressure-based inversion as
+shown in Fig. 3. Inversion is followed by employing the neural network to reconstruct model
+corrections. Neural network-augmentations are generated using the model trained on the S814
+airfoil data shown in Table I. This data-set was chosen because adverse pressure gradients are the
+largest. Later in this section, ensemble comparisons based on different training data-sets will also
+be shown.
+
+   As schematized in Fig. 2, the mapping β(η) built during the training process is queried for
+input features η̂ at every iteration of the flow solver to obtain outputs βˆ which are embedded into
+the predictive model. This process is repeated until convergence. Thus, consistency is enforced
+between the underlying flowfield and the model augmentations. Fig. 8 shows the testing and
+training on the data-set P.
+
+                                               14
+                                        Model label Training data
+                                        P           S814 at Re = 1 × 106 , 2 × 106
+
+                                 TABLE I: Training set to generate predictive model.
+
+                                             1.0
+
+
+                                             0.8
+
+
+                                             0.6
+                                     βtest
+
+                                             0.4
+
+
+                                             0.2
+
+
+                                             0.00.0         0.2         0.4         0.6          0.8         1.0
+                                                                          βprediction
+
+ FIG. 8: Neural network testing and training on data–set P. Solid blue line represents the perfect
+                    predictions and red dots represents the NN predictions.
+
+
+   A.         Predictions
+
+
+   The effectiveness of the inversion and learning is apparent in Figs. 9 and 10, where the pre-
+dictions based on model P are compared to the ideal scenario of direct inference on the S809
+airfoil based on experimental data. It has to be mentioned that the training data-set was based on
+assimilating lift information only.
+
+                                           1.08                                                1.08         2
+        0.2                                                 0.2                                             1
+                                           0.96                                                0.96
+        0.1                                0.84             0.1                                0.84         0
+                                           0.72                                                0.72         1
+  Y/C
+
+
+
+
+                                                      Y/C
+
+
+
+
+        0.0                                0.60             0.0                                0.60         2
+                                                                                                       Cp
+
+
+
+
+                                                                                                            3
+                                                                                                                               Experiment
+        0.1                                0.48             0.1                                0.48                            Base SA
+                                           0.36                                                0.36         4                  Inverse SA
+        0.2                                0.24             0.2                                0.24         5                  Neural Net SA
+           0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2 0.12                0.2 0.0 0.2 0.4 0.6 0.8 1.0 1.2 0.12         60.0   0.2   0.4    0.6   0.8      1.0
+                      X/C                                                 X/C                                              X/C
+         (a) β (x) from inverse SA                    (b) β (U) from NN-augmented SA                           (c) Pressure coefficient
+                                                                  (prediction)
+
+FIG. 9: Comparison of inverse and NN-augmented predictions (using data-set P) for S809 airfoil
+                                at α = 14◦ and Re = 2 × 106 .
+
+
+   Fig. 12 shows the lift and drag coefficients for all Reynolds numbers, including Re = 3 × 106 ,
+
+                                                                         15
+which was not used in the training set. Clearly, significant improvement in stall prediction is
+evident in the lift prediction. As a consequence, the drag rise is predicted to occur at lower angles
+of attack than in the baseline model, a trend that is qualitatively correct. Further, there is no
+evidence of deterioration of accuracy in the low angle of attack regions, where the original model
+is already accurate. The model performs equally well for airfoil shapes not used in the training
+set, i.e. S805 and S809 (Figs. 13, 14). The improvement in the quality of the predictions is
+further emphasized in Figs. 15, 16, 17. These results confirm that the NN-augmented model offers
+considerable predictive improvements in surface pressure distributions. Fig. 11 shows the base
+SA and the NN augmented SA solutions for two different grid sizes. The solutions, using both the
+models, are sufficiently grid converged for the grid resolution used in this work.
+
+
+
+
+             (a) Base SA                              (b) Inverse SA                (c) NN-augmented SA (prediction)
+
+   FIG. 10: Streamlines and X-velocity contour for S809 airfoil at Re = 2 × 106 and α = 14◦ .
+
+
+
+              2                                                     0.10
+
+              0                                                     0.08
+
+              2                                                     0.06
+
+              4                                                     0.04
+                                                               Cf
+        Cp
+
+
+
+
+              6      Base SA, Grid = 291 x 131                      0.02
+                     Base SA, Grid = 391 x 131
+              8      Neural Net SA, Grid = 291 x 131                0.00
+                     Neural Net SA, Grid = 391 x 131
+             100.0   0.2      0.4         0.6   0.8      1.0        0.020.0   0.2     0.4         0.6   0.8   1.0
+                                    X/C                                                     X/C
+                             (a) C p                                                 (b) C f
+
+   FIG. 11: Pressure and skin friction (using data-set P) for S809 airfoil at Re = 2 × 106 and
+α = 14◦ using grids of different spatial resolutions. Solutions of both the base SA model and the
+                       neural network augmented SA are grid converged.
+
+
+
+                                                          16
+                      Case: case_12                                      Case: case_12                                      Case: case_12
+   2.0                                                2.0                                                2.0
+
+   1.5                                                1.5                                                1.5
+
+   1.0                                                1.0                                                1.0
+ Cl
+
+
+
+
+                                                     Cl
+
+
+
+
+                                                                                                        Cl
+   0.5                                                0.5                                                0.5
+
+      0          5           10         15     20         0          5          10         15     20         0          5          10         15     20
+                             α                                                  α                                                  α
+               (a) Re = 1 × 106                                   (b) Re = 2 × 106                                   (c) Re = 3 × 106
+                      Case: case_12                                      Case: case_12                                      Case: case_12
+   0.10                                               0.10                                               0.10
+   0.08                                               0.08                                               0.08
+   0.06                                               0.06                                               0.06
+ Cd
+
+
+
+
+                                                     Cd
+
+
+
+
+                                                                                                        Cd
+   0.04                                               0.04                                               0.04
+   0.02                                               0.02                                               0.02
+
+         0.5    0.0    0.5        1.0    1.5   2.0          0.5    0.0    0.5        1.0    1.5   2.0          0.5    0.0    0.5        1.0    1.5   2.0
+                             Cl                                                 Cl                                                 Cl
+               (d) Re = 1 × 106                                   (e) Re = 2 × 106                                   (f) Re = 3 × 106
+
+FIG. 12: NN-augmented SA prediction for S814 airfoil using data-set P. — Experiment, — base
+                              SA and — neural network.
+
+
+
+                      Case: case_12                                      Case: case_12                                      Case: case_12
+   1.6                                                1.8                                                1.8
+   1.4                                                1.6                                                1.6
+   1.2                                                1.4                                                1.4
+   1.0                                                1.2                                                1.2
+   0.8                                                1.0                                                1.0
+ Cl
+
+
+
+
+                                                     Cl
+
+
+
+
+                                                                                                        Cl
+
+
+
+                                                      0.8                                                0.8
+   0.6                                                0.6                                                0.6
+   0.4                                                0.4                                                0.4
+   0.2                                                0.2                                                0.2
+      0          5           10         15     20        0           5          10         15     20        0           5          10         15     20
+                             α                                                  α                                                  α
+               (a) Re = 1 × 106                                   (b) Re = 2 × 106                                   (c) Re = 3 × 106
+                      Case: case_12                                      Case: case_12                                      Case: case_12
+   0.10                                               0.10                                               0.10
+   0.08                                               0.08                                               0.08
+   0.06                                               0.06                                               0.06
+ Cd
+
+
+
+
+                                                     Cd
+
+
+
+
+                                                                                                        Cd
+
+
+
+
+   0.04                                               0.04                                               0.04
+   0.02                                               0.02                                               0.02
+
+         0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6                0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8            0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8
+                             Cl                                                 Cl                                                 Cl
+               (d) Re = 1 × 106                                   (e) Re = 2 × 106                                   (f) Re = 3 × 106
+
+FIG. 13: NN-augmented SA prediction for S805 airfoil using data-set P. — Experiment, — base
+                              SA and — neural network.
+
+
+
+
+                                                                         17
+                     Case: case_12                              Case: case_12                               Case: case_12
+    1.4                                         1.6                                         1.6
+    1.2                                         1.4                                         1.4
+    1.0                                         1.2                                         1.2
+    0.8                                         1.0                                         1.0
+                                                0.8                                         0.8
+  Cl
+
+
+
+
+                                               Cl
+
+
+
+
+                                                                                           Cl
+    0.6                                         0.6                                         0.6
+    0.4                                         0.4                                         0.4
+    0.2                                         0.2                                         0.2
+        0        5        10         15   20       0        5        10         15    20       0        5        10         15   20
+                          α                                          α                                           α
+              (a) Re = 1 × 106                          (b) Re = 2 × 106                            (c) Re = 3 × 106
+                     Case: case_12                              Case: case_12                               Case: case_12
+    0.10                                        0.10                                        0.10
+    0.08                                        0.08                                        0.08
+    0.06                                        0.06                                        0.06
+  Cd
+
+
+
+
+                                               Cd
+
+
+
+
+                                                                                           Cd
+    0.04                                        0.04                                        0.04
+    0.02                                        0.02                                        0.02
+
+          0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4           0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6         0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6
+                          Cl                                         Cl                                          Cl
+              (d) Re = 1 × 106                          (e) Re = 2 × 106                             (f) Re = 3 × 106
+
+FIG. 14: NN-augmented SA prediction for S809 airfoil using data-set P. — Experiment, — base
+                              SA and — neural network.
+
+
+
+
+                                                                α = 16 ◦
+                                                                                     α = 18 ◦
+                                                                                                     α = 20 ◦
+
+
+
+
+ FIG. 15: Surface pressure coefficient for S809 airfoil at Re = 2 × 106 and α = {16◦ , 18◦ , 20◦ }.
+                            Refer Fig. 9(c) for legend. Not to scale.
+
+
+   B.       Predictive variability
+
+
+   It is desirable that any new modifications introduced into a turbulence model do not affect
+the solution to problems for which the base model is accurate. The results suggest that the NN-
+augmented SA model satisfies this requirement. Fig. 18 showcases this feature for the S809 airfoil
+at a Reynolds number of 2 × 106 . The predicted surface pressure using neural networks trained
+
+                                                                18
+                                                        α = 12 ◦
+
+                                                                          α = 14 ◦
+
+
+
+
+FIG. 16: Surface pressure coefficient for S805 airfoil at Re = 1 × 106 and α = {12◦ , 14◦ }. Refer
+ Fig. 9(c) for legend. Experimental pressure is shown only for the upper surface. Not to scale.
+
+
+
+
+                                                α = 16 ◦
+                                                              α = 18 ◦
+                                                                             α = 20 ◦
+
+
+
+
+FIG. 17: Surface pressure coefficient for S814 airfoil at Re = 1.5 × 106 and α = {16◦ , 18◦ , 20◦ }.
+Refer Fig. 9(c) for legend. Experimental pressure is shown only for the upper surface. Inversion
+                           is not performed for this case. Not to scale.
+
+
+on different data sets listed in Table II is shown in red lines. Clearly model augmentations show
+variability as is apparent in Figs. 18 (b) and (c). Overall, the neural network-augmented models
+are more accurate than the base SA model for all the cases, and more importantly, none of the NN-
+augmented predictions diverge from the base SA model at α = 0◦ . While this ensemble approach
+does not qualify as a formal uncertainty quantification technique, it is nevertheless a useful test
+to ascertain the sensitivity of the model output to the training set. If significant variabilities are
+revealed in the model predictions, it serves as a warning to the user that models may be operating
+far from conditions in which they were trained.
+
+                                                19
+                               Model label Training data
+                               P           S814 at Re = 1 × 106 , 2 × 106
+                               1           S805 at Re = 1 × 106
+                               2           S805 at Re = 2 × 106
+                               3           S809 at Re = 1 × 106
+                               4           S809 at Re = 2 × 106
+                               5           S805 at Re = 1 × 106 , 2 × 106
+                               6           S809 at Re = 1 × 106 , 2 × 106
+                               7           S805, S809, S814 at Re = 1 × 106 , 2 × 106
+
+   TABLE II: List of data-sets used to study the impact of variability of the training. The main
+predictive model is constructed based on data-set P. Note that Re = 3 × 106 is not included in any
+                                         of the data-sets.
+
+
+   Further, Fig. 18 shows that the quality of the NN-augmented model is sensitive to the selection
+of the training-data. In this work, the best model “P” is selected by exploring several combinations
+of the data–sets. This observation is subjected to the uncertainty involved with the intermediate
+steps (feature selection, machine learning algorithm, etc.)
+
+        1.5                                             2                                         2
+                             Experiment                 1                                         1
+        1.0                  Base SA
+                             Neural Net SA              0                                         0
+        0.5                                             1                                         1
+  Cp
+
+
+
+
+                                                   Cp
+
+
+
+
+                                                                                             Cp
+
+
+
+        0.0                                             2                                         2
+                                                        3                                         3
+        0.5
+                                                        4                                         4
+        1.00.0   0.2   0.4    0.6   0.8      1.0        50.0   0.2   0.4   0.6   0.8   1.0        50.0   0.2   0.4   0.6   0.8   1.0
+                         X/C                                           X/C                                       X/C
+                  (a) α = 0◦                                     (b) α = 14◦                               (c) α = 20◦
+
+  FIG. 18: Predicted pressure coefficients for S809 at Re = 2 × 106 using 8 different NN-based
+                                    models listed in table II.
+
+
+
+
+   C.         Portability and Convergence
+
+
+   The entire modeling framework was developed and tested on ADTURNS, a structured finite-
+volume flow solver augmented with adjoint optimization and neural networks. To demonstrate the
+portability of this approach, the NN-augmented SA model based on the data-set P is implemented
+into AcuSolve , a commercially available unstructured flow solver based on the Galerkin/Least-
+Squares (GLS) stabilized finite-element method [55, 56]. While ADTURNS implements non-
+
+                                                                     20
+dimensionalized RANS equations, AcuSolve implements the dimensional form of RANS equa-
+tions. Therefore, developing the neural network model based on a feature set consisting of locally
+non-dimensional flow variables, as presented in this work, is essential for portability across flow
+solvers.
+   AcuSolve is a general purpose solver that is used in a wide variety of applications such as wind
+power, automotive, off-shore engineering, electronics cooling, chemical mixing, bio-medical, con-
+sumer products, national laboratories, and academic research [57–62]. The GLS formulation with
+linear shape functions provides second order accuracy for spatial discretization of all variables and
+utilizes tightly controlled numerical diffusion operators to obtain stability and maintain accuracy.
+The semi-discrete generalized-alpha method is used to integrate the equations implicitly in time
+for steady-state and transient simulations [63]. The resulting system of equations is solved as a
+fully coupled pressure/velocity matrix system using a preconditioned iterative linear solver.
+                     Case: case_12                              Case: case_12                              Case: case_12
+    1.4                                         1.6                                        1.6
+    1.2                                         1.4                                        1.4
+    1.0                                         1.2                                        1.2
+    0.8                                         1.0                                        1.0
+                                                0.8                                        0.8
+  Cl
+
+
+
+
+                                               Cl
+
+
+
+
+                                                                                          Cl
+    0.6                                         0.6                                        0.6
+    0.4                                         0.4                                        0.4
+    0.2                                         0.2                                        0.2
+       0         5        10         15   20       0        5        10         15   20       0        5        10         15   20
+                          α                                          α                                          α
+              (a) Re = 1 × 106                          (b) Re = 2 × 106                           (c) Re = 3 × 106
+                     Case: case_12                              Case: case_12                              Case: case_12
+    0.10                                        0.10                                       0.10
+    0.08                                        0.08                                       0.08
+    0.06                                        0.06                                       0.06
+  Cd
+
+
+
+
+                                               Cd
+
+
+
+
+                                                                                          Cd
+
+
+
+
+    0.04                                        0.04                                       0.04
+    0.02                                        0.02                                       0.02
+
+          0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4           0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6        0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6
+                          Cl                                         Cl                                         Cl
+              (d) Re = 1 × 106                          (e) Re = 2 × 106                            (f) Re = 3 × 106
+
+   FIG. 19: NN-augmented SA prediction using AcuSolve for S809 airfoil using data-set P. —
+                     Experiment, — base SA and — neural network.
+
+
+   Fig. 19 shows lift and drag coefficient predictions from AcuSolve for the S-809 airfoil at three
+Reynolds numbers. The NN-augmentation shows significant improvement in predictions and its
+effectiveness is comparable to that observed in the ADTURNS solver framework. It should be
+noted that the AcuSolve uses a variation of the SA model which corrects for the rotation and
+the curvature effects. These corrections are not used in the ADTURNS code and therefore the
+
+                                                                21
+solutions from these two codes are not expected to be identical, even for the baseline model.
+      Fig. 20 shows the rate of convergence for the base SA and the NN-augmented SA for a sample
+problem. The initial condition was taken to be uniform free-stream for all the runs. The NN-
+augmented model displays comparable convergence characteristics to the baseline model, thus
+demonstrating the portability of the approach. Additional overhead exists in passing the features
+η to the ANN and obtaining β at grid locations. This was confirmed to add < 10% of additional
+compute time compared to the baseline calculation.
+
+                 1.5                                                   10 -4
+                                          Base SA
+                 1.4
+                                          Neural Net SA                10 -5
+                                                                       10 -6
+                 1.3                                                   10 -7
+
+
+                                                               ||Ru || 2
+            Cl
+
+
+
+
+                 1.2                                                   10 -8
+                                                                       10 -9
+                 1.1
+                                                                     10 -10
+                 1.00             500                 1000           10 -110                   500              1000
+                              Iteration No.                                                Iteration No.
+                        (a) Lift coefficient                                   (b) L2 norm of solver residual
+
+FIG. 20: AcuSolve’s convergence history for S809 airfoil at Re = 2 × 106 , α = 12◦ (dashed) and
+                                      α = 14◦ (solid).
+
+
+
+
+VI.     SUMMARY AND PERSPECTIVES
+
+
+      A data-driven framework comprising of full-field inversion and machine learning was used to
+develop predictive capabilities for the modeling of turbulent separated flows over airfoils. This
+framework is embedded in a traditional RANS solver to improve the applicability of the Spalart-
+Allmaras (SA) turbulence model to strong adverse pressure gradients present in flow past airfoils
+pre- and post-stall. With a view towards assimilating sparse data from a wide range of flows, the
+inversion process was formulated as an optimization problem to minimize the difference between
+the experimentally measured lift coefficient and the model output. In contrast to parametric in-
+version, the turbulence model discrepancy was inferred as a field (i.e. at every grid point in the
+solution domain). The resulting model-correction function was then reconstructed using an artifi-
+cial neural network (NN) as a function of locally non-dimensional flow quantities such as the ratio
+of eddy to kinematic viscosity, vorticity to strain-rate magnitude.
+
+                                                          22
+   During the predictive process, the NN is queried at every iteration of the flow solver to obtain
+model corrections which are embedded into the predictive model. The resulting data-augmented
+turbulence model was then used for predictive simulations of airfoils and flow conditions that were
+not part of the neural network training. Extensive tests were made and the following conclusions
+were observed:
+   • The data-assisted SA model showed significant improvement over the baseline model in
+predicting lift and drag coefficients and stall onset angles.
+   • The model predictions were confirmed to be significantly improved for airfoil shapes and
+flow conditions that were not part of the training set.
+   • No deterioration of accuracy was noticed in situations (low angles of attack) in which the
+original model was accurate.
+   • Though the inference process used only the lift-coefficient data, the NN-augmented model
+was demonstrated to provide considerable predictive improvements of surface pressure distribu-
+tions. This reinforces confidence that the procedure does not overfit the model to the lift data and
+that predictive improvements are realized for the right reasons.
+   • An ensemble of predictions based on different training sets was used to assess the sensitivity
+of the model outputs to the training data. While there was expected variability in the results, the
+model augmentations brought predictions closer to the experimental results for all training sets.
+   • Solver convergence was assessed and the cost overhead for the NN augmentations was ob-
+served to be minimal.
+   • Portability of the approach was demonstrated by generating the data-assisted SA model using
+a structured finite-volume solver and then using it in AcuSolve, a commercial, unstructured finite-
+element solver. The predictive improvements were confirmed to be preserved across both solvers.
+   While the present work was focused on demonstrating the potential of data-driven approaches
+based on field inference and learning, much work remains to be done in developing turbulence
+models for application in more general settings. In such situations, the ensemble of data-sets (as
+in Fig. 18) may be utilized as a rule-of-thumb to indicate the variability of the machine learning-
+augmented model. However, a more formal uncertainty quantification approach that takes into
+account the uncertainty in the data, variability of the training process and confidence in the base-
+line model may be desirable. A simplified form of such an approach has been proposed (and
+demonstrated for much simpler problems) in Ref. 28.
+   One immediate avenue to extend this effort is to target specific engineering applications where
+
+                                                23
+current CFD predictions are unsatisfactory. In this situation, customized modeling augmentations
+can be generated to improve predictions. Furthermore, industrial applications tend to be focused
+on a class of problems (for example, wind turbine rotors or turbomachinery blades) in which
+experimental data may be available in some regimes. These types of problems are most amenable
+to data-augmented modeling.
+   The philosophy and formalisms employed in this work are of a general nature and are not
+restricted to the type of model or the type of model discrepancy that is addressed. The inver-
+sion/learning/embedding procedure can be applied, for instance, to address discrepancies in the
+Reynolds stress anisotropy [21, 30]. In such endeavors, it would be critical to ensure that the
+model augmentations a) include available experimental data (as one will always be hard-pressed
+to obtain LES and DNS data in regimes of interest), b) do not influence regions of the flow that are
+adequately represented by the baseline model (near-wall region in thin boundary layers), and c) do
+not degrade the convergence properties of the solver. There is much to be gained by carefully ex-
+ploring a broader set of input features [24, 30] and alternative machine learning methods [23, 48].
+Finally, respecting realizability limits [18, 30] and invariance properties [64] will be necessary to
+constrain the model, especially when the model is operating in an extrapolatory mode.
+
+
+
+                                       ACKNOWLEDGMENTS
+
+
+This work was funded by the NASA Aeronautics Research Institute (NARI) under the Leading
+Edge Aeronautics Research for NASA program (Monitors: Koushik Datta & Gary Coleman). A
+portion of this work was performed as part of a summer internship program at Altair Engineering,
+Inc. ZeJia Zhang and Brendan Tracey assisted with early use of machine learning. The authors
+acknowledge insightful discussions with Paul Durbin and Juan Alonso.
+
+
+
+
+ [1] Slotnick, J., Khodadoust, J., Alonso, J., Darmofal, D., Gropp, W., Lurie, E., and Mavriplis, D., “CFD
+     vision 2030 study: A path to revolutionary computational aerosciences,” Technical report, NASA Lan-
+     gley Research Center, NASA/CR-2014-218178, 2013.
+ [2] Gerolymos, G. A., Sauret, E., and Vallet, I., “Contribution to single-point closure Reynolds-stress
+     modelling of inhomogeneous flow,” Theoretical and Computational Fluid Dynamics, Vol. 17, No.
+
+                                                  24
+     5-6, 2004, pp. 407–431.
+ [3] Younis, B., Gatski, T., and Speziale, C. G., “Towards a rational model for the triple velocity corre-
+     lations of turbulence,” Proceedings of the Royal Society of London A: Mathematical, Physical and
+     Engineering Sciences, Vol. 456, No. 1996, 2000, pp. 909–920.
+ [4] Poroseva, S. and Murman, S. M., “Velocity/Pressure-Gradient Correlations in a FORANS Approach
+     to Turbulence Modeling,” 44th AIAA Fluid Dynamics Conference, AIAA Aviation, (AIAA 2014-2207),
+     Jun 2014.
+ [5] Durbin, P. A., “Near-wall turbulence closure modeling without damping functions,” Theoretical and
+     Computational Fluid Dynamics, Vol. 3, No. 1, 1991, pp. 1–13.
+ [6] Durbin, P., “A Reynolds stress model for near-wall turbulence,” Journal of Fluid Mechanics, Vol. 249,
+     1993, pp. 465–498.
+ [7] Milano, M. and Koumoutsakos, P., “Neural network modeling for near wall turbulent flow,” Journal
+     of Computational Physics, Vol. 182, No. 1, 2002, pp. 1–26.
+ [8] Marusic, I., Candler, G., Interrante, V., Subbareddy, P., and Moss, A., “Real time feature extraction
+     for the analysis of turbulent flows,” Data Mining for Scientific and Engineering Applications, 2001,
+     pp. 223–238.
+ [9] Yarlanki, S., Rajendran, B., and Hamann, H., “Estimation of turbulence closure coefficients for data
+     centers using machine learning algorithms,” Thermal and Thermomechanical Phenomena in Elec-
+     tronic Systems (ITherm), 2012 13th IEEE Intersociety Conference on, 2012, pp. 38–42.
+[10] Kato, H. and Obayashi, S., “Data Assimilation for Turbulent Flows,” 16th AIAA Non-Deterministic
+     Approaches Conference, AIAA SciTech, (AIAA 2014-1177), Jan 2014.
+[11] Edeling, W., Cinnella, P., Dwight, R. P., and Bijl, H., “Bayesian estimates of parameter variability in
+     the k–ε turbulence model,” Journal of Computational Physics, Vol. 258, 2014, pp. 73–94.
+[12] Ray, J., Lefantzi, S., Arunajatesan, S., and DeChant, L. J., “Bayesian Calibration of a RANS Model
+     with a Complex Response Surface - A Case Study with Jet-in-Crossflow Configuration,” 45th AIAA
+     Fluid Dynamics Conference Dallas, TX, Jun 2015.
+[13] Cheung, S. H., Oliver, T. A., Prudencio, E. E., Prudhomme, S., and Moser, R. D., “Bayesian uncer-
+     tainty analysis with applications to turbulence modeling,” Reliability Engineering & System Safety,
+     Vol. 96, No. 9, 2011, pp. 1137–1149.
+[14] Oliver, T. A. and Moser, R. D., “Bayesian uncertainty quantification applied to RANS turbulence
+     models,” Journal of Physics: Conference Series, Vol. 318, No. 4, 2011, pp. 042032.
+
+
+                                                   25
+[15] Cheung, S. H. and Beck, J., “New Bayesian updating methodology for model validation and robust
+     predictions based on data from hierarchical subsystem tests,” Earthquake Engineering Research Lab-
+     oratory, Caltech, , No. CaltechEERL:EERL-2008-04, Jan 2009.
+[16] Dow, E. and Wang, Q., “Uncertainty Quantification of Structural Uncertainties in RANS Simulations
+     of Complex Flows,” 20th AIAA Computational Fluid Dynamics Conference Honolulu, Hawaii, Jun
+     2011.
+[17] Dow, E. and Wang, Q., “Quantification of Structural Uncertainties in the k- ω Turbulence Model,”
+     52nd AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics and Materials Conference, Den-
+     ver, Colorado, Apr 2011.
+[18] Emory, M., Pecnik, R., and Iaccarino, G., “Modeling Structural Uncertainties in Reynolds-Averaged
+     Computations of Shock/Boundary Layer Interactions,” 49th AIAA Aerospace Sciences Meeting in-
+     cluding the New Horizons Forum and Aerospace Exposition Orlando, Florida, Jan 2011.
+[19] Gorle, C., Emory, M., and Iaccarino, G., “RANS modeling of turbulent mixing for a jet in supersonic
+     cross flow: model evaluation and uncertainty quantification,” Proceedings of the Seventh International
+     Symposium on Turbulence, Heat and Mass Transfer (ICHMT Digital Library Online, Palermo, Italy,
+     2012), 2012.
+[20] Emory, M., Larsson, J., and Iaccarino, G., “Modeling of structural uncertainties in Reynolds-averaged
+     Navier-Stokes closures,” Physics of Fluids, Vol. 25, No. 11, 2013, pp. 110822.
+[21] Tracey, B., Duraisamy, K., and Alonso, J., “Application of Supervised Learning to Quantify Uncer-
+     tainties in Turbulence and Combustion Modeling,” 51st AIAA Aerospace Sciences Meeting including
+     the New Horizons Forum and Aerospace Exposition Grapevine (Dallas/Ft. Worth Region), Texas, Jan
+     2013.
+[22] Xiao, H., Wu, J.-L., Wang, J.-X., Sun, R., and Roy, C., “Quantifying and Reducing Model-Form Un-
+     certainties in Reynolds-Averaged Navier-Stokes Equations: An Open-Box, Physics-Based, Bayesian
+     Approach,” arXiv preprint arXiv:1508.06315, 2015.
+[23] Weatheritt, J., The development of data driven approaches to further turbulence closures, Ph.D. thesis,
+     University of Southampton, 2015.
+[24] Ling, J. and Templeton, J., “Evaluation of machine learning algorithms for prediction of regions
+     of high Reynolds averaged Navier Stokes uncertainty,” Physics of Fluids, Vol. 27, No. 8, 2015,
+     pp. 085103.
+[25] King, R., Hamlington, P. E., and Dahm, W., “Autonomic Subgrid-Scale Closure for Large Eddy Sim-
+
+
+                                                   26
+     ulations,” 53rd AIAA Aerospace Sciences Meeting, AIAA SciTech, Kissimmee, Florida, Jan 2015.
+[26] Duraisamy, K., Zhang, Z. J., and Singh, A. P., “New Approaches in Turbulence and Transition Mod-
+     eling Using Data-driven Techniques,” 53rd AIAA Aerospace Sciences Meeting, AIAA SciTech, Kissim-
+     mee, Florida, Jan 2015.
+[27] Tracey, B. D., Duraisamy, K., and Alonso, J. J., “A Machine Learning Strategy to Assist Turbulence
+     Model Development,” 53rd AIAA Aerospace Sciences Meeting, AIAA SciTech, Kissimmee, Florida,
+     Jan 2015.
+[28] Parish, E. J. and Duraisamy, K., “A paradigm for data-driven predictive modeling using field inversion
+     and machine learning,” J. Comput. Physics, Vol. 305, 2016, pp. 758–774.
+[29] Singh, A. P. and Duraisamy, K., “Using field inversion to quantify functional errors in turbulence
+     closures,” Physics of Fluids, Vol. 28, No. 4, 2016, pp. 045110.
+[30] Wang, J.-X., Wu, J.-L., and Xiao, H., “Physics-Informed Machine Learning for Predictive Tur-
+     bulence Modeling: Using Data to Improve RANS Modeled Reynolds Stresses,” arXiv preprint
+     arXiv:1606.07987, 2016.
+[31] Celic, A. and Hirschel, E. H., “Comparison of eddy-viscosity turbulence models in flows with adverse
+     pressure gradient,” AIAA Journal, Vol. 44, No. 10, 2006, pp. 2156–2169.
+[32] Menter, F. R., “Two-equation eddy-viscosity turbulence models for engineering applications,” AIAA
+     Journal, Vol. 32, No. 8, 1994, pp. 1598–1605.
+[33] Wilcox, D. C., “Formulation of the k-ω turbulence model revisited,” AIAA Journal, Vol. 46, No. 11,
+     2008, pp. 2823–2838.
+[34] Rung, T., Bunge, U., Schatz, M., and Thiele, F., “Restatement of the Spalart-Allmaras eddy-viscosity
+     model in strain-adaptive formulation,” AIAA Journal, Vol. 47, No. 7, 2003, pp. 1396–1399.
+[35] Spalart, P. and Allmaras, S., “A one-equation turbulence model for aerodynamic flows,” 30th
+     Aerospace Sciences Meeting and Exhibit Reno, NV, Jan 1992.
+[36] Duraisamy, K., McCroskey, W. J., and Baeder, J. D., “Analysis of wind tunnel wall interference effects
+     on subsonic unsteady airfoil flows,” Journal of Aircraft, Vol. 44, No. 5, 2007, pp. 1683–1690.
+[37] Bremseth, J. and Duraisamy, K., “Computational analysis of vertical axis wind turbine arrays,” Theo-
+     retical and Computational Fluid Dynamics, Vol. 30, No. 5, 2016, pp. 387–401.
+[38] Lakshminarayan, V. K. and Duraisamy, K., “Adjoint-based estimation and control of spatial, temporal
+     and stochastic approximation errors in unsteady flow simulations,” Computers & Fluids, Vol. 121,
+     2015, pp. 180–191.
+
+
+                                                  27
+[39] Van Leer, B., “Towards the ultimate conservative difference scheme. V. A second-order sequel to
+     Godunov’s method,” Journal of computational Physics, Vol. 32, No. 1, 1979, pp. 101–136.
+[40] Roe, P. L., “Approximate Riemann solvers, parameter vectors, and difference schemes,” Journal of
+     computational physics, Vol. 43, No. 2, 1981, pp. 357–372.
+[41] Pulliam, T. H. and Chaussee, D., “A diagonal form of an implicit approximate-factorization algo-
+     rithm,” Journal of Computational Physics, Vol. 39, No. 2, 1981, pp. 347–363.
+[42] Giles, M. B. and Pierce, N. A., “An introduction to the adjoint approach to design,” Flow, turbulence
+     and combustion, Vol. 65, No. 3-4, 2000, pp. 393–415.
+[43] Bishop, C. M., “Training with noise is equivalent to Tikhonov regularization,” Neural computation,
+     Vol. 7, No. 1, 1995, pp. 108–116.
+[44] Assuming that the covariance matrices are Gaussian and diagonal.
+[45] Rumsey, C. L. and Ying, S. X., “Prediction of high lift: review of present CFD capability,” Progress
+     in Aerospace Sciences, Vol. 38, No. 2, 2002, pp. 145–180.
+[46] δ∗ is the displacement thickness of the boundary layer and dP
+                                                                ds is the pressure gradient.
+
+[47] Zhang, Z. J. and Duraisamy, K., “Machine Learning Methods for Data-Driven Turbulence Modeling,”
+     22nd AIAA Computational Fluid Dynamics Conference, AIAA Aviation, (AIAA 2015-2460), Dallas,
+     TX, Jun 2015.
+[48] Zhang, Z., Duraisamy, K., and Gumerov, N., “Efficient Multiscale Gaussian Process Regression using
+     Hierarchical Clustering,” arXiv preprint arXiv:1511.02258v2, 2016.
+[49] Bishop, C. M., Pattern recognition and machine learning, Springer-Verlag New York, 1st ed., 2006.
+[50] We also appreciate that other techniques such as support vector and polynomial regressors can be as
+     scalable as NNs and thus, the choice of NNs is based on prior experience rather than on objective
+     considerations.
+[51] Nissen,    S.,    “Implementation    of   a   fast   artificial   neural   network   library   (fann),”
+     http://leenissen.dk/fann/, Department of Computer Science, University of Copenhagen,
+     2003.
+[52] Somers, D. M., “Design and experimental results for the S805 Airfoil,” NREL Report, NREL/SR-440-
+     6917, 1997.
+[53] Somers, D. M., “Design and experimental results for the S809 Airfoil,” NREL Report, NREL/SR-440-
+     6918, 1997.
+[54] Somers, D. M., “Design and experimental results for the S814 Airfoil,” NREL Report, NREL/SR-440-
+
+
+                                                   28
+     6919, 1997.
+[55] Hughes, T. J. R., France, L. P., and Hulbert, G. M., “A new finite element formulation for compu-
+     tational fluid dynamics.VIII. The Galerkin/least-squares method for advective-diffusive equations,”
+     Computer Methods in Applied Mechanics and Engineering, Vol. 73, No. 2, 1989, pp. 173–189.
+[56] Shakib, F., Hughes, T. J. R., and Johan, Z., “A new finite element formulation for computational fluid
+     dynamics. X. The compressible Euler and Navier-Stokes equations,” Computer Methods in Applied
+     Mechanics and Engineering, Vol. 89, No. 1–3, 1991, pp. 141–219.
+[57] Corson, D. A., Griffith, D. T., Ashwill, T., and Shakib, F., “Investigating aeroelastic performance of
+     multi-megawatt wind turbine rotors using CFD,” 53rd AIAA/ASME/ASCE/AHS/ASC Structures, Struc-
+     tural Dynamics and Materials Conference, Honolulu, Hawaii, , No. 2012–1827, 2012.
+[58] Corson, D. A., Zamora, A., and Medida, S., “A Comparative Assessment of Correlation-based Transi-
+     tion Models for Wind Power Applications,” 34th AIAA Applied Aerodynamics Conference, Washing-
+     ton. D. C., , No. 2016-3129, 2016.
+[59] Godo, M. N., Corson, D., and Lgensky, S. M., “A Comparative Aerodynamic Study of Commercial
+     Bicycle Wheels using CFD,” 48th AIAA Aerospace Sciences Meeting, FL, , No. 2010-1431, 2010.
+[60] Lyons, D. C., Peltier, L. J., Zajaczkowski, F. J., and Paterson, E. G., “Assessment of DES Models
+     for Separated Flow From a Hump in a Turbulent Boundary Layer,” Journal of Fluids Engineering,
+     Vol. 131, No. 11, 2009, pp. 111203–1–111203–9.
+[61] Bagwell, T. G., “CFD Simulation of Flow Tones From Grazing Flow Past a Deep Cavity,” Proceedings
+     of 2006 ASME International Mechanical Engineering Congress and Exposition, Chicago, IL, , No.
+     2006-15633, 2006, pp. 105–114.
+[62] Johnson, K. and Bittorf, K., “Validating the Galerkin Least Square Finite Element Methods in Predict-
+     ing Mixing Flows in Stirred Tank Reactors,” Proceedings of CFD 2002, The 10th Annual Conference
+     of the CFD Society of Canada, , No. 40048419, 2002, pp. 490–496.
+[63] Jansen, K. E., Whiting, C. H., and Hulbert, G. M., “A generalized-alpha method for integrating the fil-
+     tered Navier-Stokes equations with a stabilized finite element method,” Computer Methods in Applied
+     Mechanics and Engineering, Vol. 190, No. 3–4, 2000, pp. 305–319.
+[64] Ling, J., Jones, R., and Templeton, J., “Machine learning strategies for systems with invariance prop-
+     erties,” Journal of Computational Physics, Vol. 318, 2016, pp. 22–35.
+[65] Dennis, Jr, J. E. and Moré, J. J., “Quasi-Newton methods, motivation and theory,” SIAM review,
+     Vol. 19, No. 1, 1977, pp. 46–89.
+
+
+                                                   29
+[66] R and ψ are of dimension 5Nm .
+[67] Hascoet, L. and Pascual, V., “The Tapenade Automatic Differentiation tool: principles, model, and
+     specification,” ACM Transactions on Mathematical Software (TOMS), Vol. 39, No. 3, 2013, pp. 20.
+[68] Naughton, J. W., Viken, S. A., and Greenblatt, D., “Skin-Friction Measurements on the NASA Hump
+     Model,” AIAA Journal, Vol. 44, No. 6, 2016, pp. 1255–1265.
+
+
+
+
+   APPENDIX A : DISCRETE ADJOINT METHOD FOR FIELD INVERSION
+
+
+   The formulation and application of field inversion techniques to turbulence modeling problems
+is provided in Refs. 28, 29. A brief description is presented herein for completeness. The optimiza-
+tion procedure to minimize Eq. 4 or Eq. 5 uses a gradient-based Quasi-Newton method employing
+the limited memory Broyden- Fletcher-Goldfarb-Shanno algorithm [65]. Since the optimization
+problem is extremely high dimensional (as the number of parameters equals the number of control
+volumes Nm ), an adjoint approach is required to efficiently compute gradients. In the adjoint tech-
+nique, given an objective function J that we wish to minimize, the total derivative with respect to
+the parameter vector β = {β(x1 ), β(x2 ), ..., β(xNm )}T is given by
+
+                                           dJ   ∂J      ∂R
+                                              =    + ψT    .                                     (10)
+                                           dβ ∂β        ∂β
+
+In the above equation [66], R represents the governing equations and ψ is the vector of adjoint
+variables, which is determined by
+
+                                           ∂R T
+                                                     T
+                                                     ∂J
+                                             
+                                                ψ=−      .                                       (11)
+                                           ∂U        ∂U
+
+The partial derivatives in Eq. 11 are calculated using the tapenade [67] tool for automatic differ-
+entiation and the system is solved using pseudo time stepping. Since β is explicitly present only
+as a multiplier to the production term P, the expression for the gradient is given by
+
+                                            dJ   ∂J
+                                               =    − ψTν̃ P,                                    (12)
+                                            dβ ∂β
+
+where ψν̃ represents the adjoint variable corresponding to the working variable of the SA model.
+
+                                                 30
+        (a) Wall pressure coefficient                (b) Reynolds shear stress contours u01 u02 /U∞2
+       FIG. 21: Application of inverse modeling to separated flow over a smooth surface.
+
+
+
+
+   APPENDIX B: INVERSE MODELING FOR SEPARATED FLOWS
+
+
+
+
+   As mentioned in section III, inverse modeling is used to provide quantitative information about
+the model discrepancy. Machine learning-based augmentations were based on inverse fields which
+were generated using lift data. This was confirmed to also result in good surface pressure predic-
+tions. To assess the generality of the procedure and its impact on other field quantities, the inverse
+problem was applied to a NASA benchmark test [68] (Fig. 21), which involves separated flow
+over a smooth hump. In this problem, β(x, y) was inferred with the objective of matching the wall
+pressure distribution in the region 0.5 ≤ x/c ≤ 1.5. Even though the objective function was only
+taken to be the surface pressure, improvement is seen in the Reynolds stress predictions (Fig. 21c).
+As a consequence of the overall improvement in the field solution, the the predicted length of the
+separation bubble was found be 15% more accurate compared to the baseline solution. Results can
+be improved by considering more information from the experiment [29], but this exercise offers
+further evidence that for separated flows, pressure data is valuable in inferring model discrepancy.
+
+                                                31
+   APPENDIX C: SPALART–ALLMARAS MODEL
+
+
+   The one-equation Spalart–Allmaras (S–A) turbulence model [35] is used for the work presented
+in this paper. The S-A model solves for the modified Eddy viscosity, ν̃, which relates to the
+kinematic Eddy viscosity νt as follows:
+
+                                                                   χ3               ν̃
+                                   νt = ν̃ fv1 ;        fv1 =             ;   χ=                     (13)
+                                                                χ3 + c3v1           ν
+The governing equation of the S-A model without the trip terms is given by:
+
+                           Dν̃          1
+                               = P − D + ∇.((ν + ν̃)∇ν̃) + cb2 (∇ν̃)2
+                                                                      
+                                                                                                     (14)
+                           Dt           σ
+
+where, P and D are the production and destruction terms of ν̃, given by:
+
+                                                                         ν̃
+                                     P = cb1 Ω̃ν̃        and D = cw1 fw [ ]2                         (15)
+                                                                         d
+
+Ω̃ is a function of the vorticity magnitude, Ω, and is defined as:
+
+                                                   ν̃                            χ
+                                  Ω̃ = Ω +            fv2 ,      fv2 = 1 −                           (16)
+                                               κ2 d 2                         1 + χ fv1
+
+The function fw is defined as:
+
+                              "               #1
+                                               6
+                                  1 + c6w3                                                   ν̃
+                     fw = g                        ,    g = r + cw2 (r6 − r),       r=               (17)
+                                  g6 + c6w3                                               Ω̃κ2 d 2
+
+The model constants are: cb1 = 0.1355, σ = 2/3, cb2 = 0.622, κ = 0.41, cw1 = cb1 /κ2 + (1 +
+cb2 )/σ, cw2 = 0.622, cw3 = 2.0, cv1 = 7.1.
+
+
+
+
+                                                          32
+
