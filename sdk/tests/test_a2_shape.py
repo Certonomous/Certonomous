@@ -1,12 +1,22 @@
-"""The A2 shape replay must stay a replay, and stay at true scale.
+"""The A2 shape replay must stay a replay, at true scale, on a fixed camera.
 
-These guard the three ways the viewport payload could quietly stop telling the
+These guard the ways the viewport payload could quietly stop telling the
 truth: a field value landing on the wrong triangle, iteration 0 drifting off
-the baseline it is supposed to reproduce exactly, and a colour window that
-rescales per frame (which would make a wing that has barely moved look
-finished).
+the baseline it is supposed to reproduce exactly, a colour window that
+rescales per frame, a display that amplifies a shape, or a camera hint that
+mirrors a body or changes what every other act already renders.
+
+SCOPE NOTE, so nobody reads more into a green run than is there. These
+exercise the workflow and the payloads it writes, in process. They do NOT
+exercise the control room's JavaScript, and they are not a substitute for
+``scripts/verify_warm_replay.sh``. That script drives the running server,
+which caches workflow modules in ``sys.modules`` for the life of the process:
+an IDENTICAL result from it only covers the code the server had loaded when
+it started. After any change to this act it must be re-run following a server
+restart before its result means anything about the new code.
 """
 import json
+import math
 
 import pytest
 
@@ -15,6 +25,7 @@ from workflows import _a2_shape
 doc = _a2_shape.load()
 pytestmark = pytest.mark.skipif(doc is None,
                                 reason="A2_shape_frames.json not on this host")
+_SDK = _a2_shape._LADDER.parents[3] / "sdk"
 
 
 def test_artifact_declares_its_own_checks():
@@ -35,35 +46,38 @@ def test_first_frame_reproduces_the_baseline():
 
 def test_every_payload_is_well_formed(tmp_path):
     names = _a2_shape.write_surfaces(doc, tmp_path)
-    # baseline + gradient + a true-scale and an amplified copy of each frame
+    # baseline + gradient + a whole-wing and a close-up copy of each frame
     assert len(names) == 2 * len(doc["frames"]) + 2
 
     windows = set()
     for key, name in names.items():
         payload = json.loads((tmp_path / name).read_text())
         n_verts, n_faces = len(payload["vertices"]), len(payload["faces"])
-        assert n_faces == 2 * doc["n_quad_faces"]
         assert max(max(f) for f in payload["faces"]) < n_verts
+        if not key.startswith("near"):
+            assert n_faces == 2 * doc["n_quad_faces"]
         field = payload.get("field")
         if key == "baseline":
             assert field is None
             continue
-        # One value per DRAWN triangle: the artifact stores one per solver
-        # quad, and each quad's pair of triangles must carry its own value.
+        # One value per DRAWN triangle, in both passes: the artifact stores one
+        # per solver quad, and each quad's pair of triangles must carry its own
+        # face's value.
         assert len(field["values"]) == n_faces
         assert all(0.0 <= v <= 1.0 for v in field["values"])
         if key != "gradient":
             windows.add((field["color_min"], field["color_max"]))
 
-    # One fixed, zero-centred window across every frame of BOTH passes: the
-    # amplified pass must not inherit the factor into its colour bar.
+    # One fixed, zero-centred window across every frame of BOTH passes. A
+    # per-frame rescale would make a wing that has barely moved look finished;
+    # a differing window would make the close-up incomparable to the wide shot.
     assert len(windows) == 1
     lo, hi = windows.pop()
     assert lo == -hi
 
 
-def test_true_scale_is_the_default_and_is_exact():
-    """frame_vertices with no factor is the recorded surface, untouched."""
+def test_true_scale_is_the_only_scale(tmp_path):
+    """No surface this module writes is amplified, anywhere, by anything."""
     final = doc["frames"][-1]
     verts = _a2_shape.frame_vertices(doc, final)
     worst = max(max(abs(a - b) for a, b in zip(v, w))
@@ -71,35 +85,113 @@ def test_true_scale_is_the_default_and_is_exact():
     assert worst * 1000.0 <= final["max_disp_mm"] + 1e-3
     assert doc["_no_exaggeration"].startswith("Every coordinate")
 
-
-def test_amplification_stays_below_the_self_intersection_ceiling():
-    """The factor is bounded by the run's own active thickness constraint.
-
-    Displacement here is overwhelmingly thickness-direction motion through a
-    map linear in the shape variables, so amplifying by k takes the thinnest
-    recorded thickness ratio r to 1 + k*(r-1). The wing touches itself when
-    that reaches zero. The shipped factor must sit below that with margin.
-    """
-    history = json.loads(
-        (_a2_shape._LADDER / "A2_optimization_history.json").read_text()
-    )["history"]
-    r = min(row["thick_min"] for row in history)
-    ceiling = 1.0 / (1.0 - r)
-    assert abs(ceiling - _a2_shape.EXAGGERATION_CEILING) < 5e-3
-    assert _a2_shape.EXAGGERATION < ceiling
-    left = 100.0 * (1.0 + _a2_shape.EXAGGERATION * (r - 1.0))
-    assert left > 5.0                              # nowhere near folded
-    assert abs(left - _a2_shape.EXAGGERATION_MIN_THICKNESS_PCT) < 0.3
+    # Every vertex written for the close-up is a vertex of the true-scale
+    # surface, unchanged: that beat is a zoom, not a stretch.
+    names = _a2_shape.write_surfaces(doc, tmp_path)
+    near = json.loads((tmp_path / names["near47"]).read_text())
+    exact = {tuple(v) for v in verts}
+    assert all(tuple(v) in exact for v in near["vertices"])
 
 
-def test_amplified_frames_scale_only_the_geometry():
-    final = doc["frames"][-1]
-    true = _a2_shape.frame_vertices(doc, final)
-    amp = _a2_shape.frame_vertices(doc, final, _a2_shape.EXAGGERATION)
-    base = doc["base_vertices"]
-    for b, t, a in zip(base[::37], true[::37], amp[::37]):
-        for i in range(3):
-            assert abs((a[i] - b[i]) - _a2_shape.EXAGGERATION * (t[i] - b[i])) < 2e-6
+def test_closeup_camera_is_a_proper_rotation_and_is_pinned(tmp_path):
+    """The hint may turn the body to face the camera. It may never mirror it."""
+    axes = _a2_shape.CLOSEUP_VIEW["axes"]
+    assert sorted(axes) == [0, 1, 2]
+    basis = [[1 if axes[r] == c else 0 for c in range(3)] for r in range(3)]
+    det = sum(basis[0][i] * (basis[1][(i + 1) % 3] * basis[2][(i + 2) % 3]
+                             - basis[1][(i + 2) % 3] * basis[2][(i + 1) % 3])
+              for i in range(3))
+    assert det == 1, "an odd permutation would mirror the wing"
+    # Pinned, not inferred: this wing's ~12% thickness ratio sits on the
+    # viewport's own 0.12 planform threshold, so an inferred camera flips
+    # partway through the morph as the section thickens.
+    assert isinstance(_a2_shape.CLOSEUP_VIEW["flat"], bool)
+
+    names = _a2_shape.write_surfaces(doc, tmp_path)
+    for key, name in names.items():
+        payload = json.loads((tmp_path / name).read_text())
+        if key.startswith("near"):
+            assert payload["view"] == _a2_shape.CLOSEUP_VIEW
+        else:
+            # The whole-wing pass opts out, so it renders on exactly the path
+            # it rendered on before the hint existed.
+            assert "view" not in payload
+
+
+# --------------------------------------------------------------------------
+# The camera hint must be ADDITIVE. What follows is a port of the two decision
+# points the hint touches in control_room.html's drawGeometry, so a payload
+# WITHOUT a hint can be shown to project to identical numbers either way.
+_EVEN = {"0,1,2", "1,2,0", "2,0,1"}
+
+
+def _project(verts, view, use_hint):
+    if use_hint and view and isinstance(view.get("axes"), list) \
+            and len(view["axes"]) == 3 \
+            and ",".join(map(str, view["axes"])) in _EVEN:
+        p = view["axes"]
+        verts = [[v[p[0]], v[p[1]], v[p[2]]] for v in verts]
+    lo = [min(v[i] for v in verts) for i in range(3)]
+    hi = [max(v[i] for v in verts) for i in range(3)]
+    c = [(lo[i] + hi[i]) / 2 for i in range(3)]
+    span = max(hi[i] - lo[i] for i in range(3)) or 1
+    if use_hint and view and isinstance(view.get("flat"), bool):
+        flat = view["flat"]
+    else:
+        flat = (hi[2] - lo[2]) < 0.12 * span
+    cos_a, sin_a = math.cos(0.42), math.sin(0.42)
+    out = []
+    for v in verts:
+        x, y, z = v[1] - c[1], v[2] - c[2], v[0] - c[0]
+        if flat:
+            t = y
+            y = -z * 0.85 + t * 0.4
+            z = t * 0.85 + z * 0.4
+        zr = z * cos_a - x * sin_a
+        out.append((z * sin_a + x * cos_a, y * 0.92 - zr * 0.28, zr))
+    return out, flat
+
+
+def test_hint_free_payloads_are_untouched_by_the_hint():
+    """Every body the other acts draw must project to identical numbers."""
+    from chief_engineer.geometry import (cylinder_surface, load_surface,
+                                         valve_surface, wing_surface)
+
+    bodies = []
+    for path in sorted((_SDK / "geometry").glob("*")):
+        if path.suffix.lower() in (".stl", ".obj"):
+            bodies.append(load_surface(path)["vertices"])
+    for span in (28, 40, 52):
+        for area in (220, 380):
+            bodies.append(wing_surface(span, area, sweep_deg=27.5)["vertices"])
+    for angle in (0, 45, 87.5):
+        bodies.append(valve_surface(angle)["vertices"])
+    bodies.append(cylinder_surface(1.0)["vertices"])
+    assert len(bodies) > 20
+
+    for verts in bodies:
+        assert _project(verts, None, False) == _project(verts, None, True)
+
+
+def test_control_room_keeps_the_old_defaults_verbatim():
+    """The fallbacks must stay literally what they were before the hint."""
+    source = (_SDK / "chief_engineer" / "control_room.html").read_text(
+        encoding="utf-8")
+    assert ": (hi[2]-lo[2]) < 0.12 * span;" in source
+    assert ("const verts = perm ? m.verts.map(v => "
+            "[v[perm[0]], v[perm[1]], v[perm[2]]]) : m.verts;") in source
+    assert "const EVEN_AXES = { '0,1,2': 1, '1,2,0': 1, '2,0,1': 1 };" in source
+
+
+def test_closeup_camera_never_snaps_mid_morph(tmp_path):
+    """One camera from the first frame to the last, whatever the shape does."""
+    names = _a2_shape.write_surfaces(doc, tmp_path)
+    seen = set()
+    for frame in doc["frames"]:
+        payload = json.loads(
+            (tmp_path / names[f"near{frame['iter']}"]).read_text())
+        seen.add(_project(payload["vertices"], payload["view"], True)[1])
+    assert seen == {_a2_shape.CLOSEUP_VIEW["flat"]}
 
 
 def test_sections_cut_the_real_surface():

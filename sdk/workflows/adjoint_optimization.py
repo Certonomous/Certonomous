@@ -426,9 +426,12 @@ def main(request: str | None = None, params: dict | None = None,
                         f"{dlo:.0f} to {dhi:.0f} mm of normal displacement"],
                        ["Display scaling on the pass just shown", "None. "
                         "Every frame at true scale"],
-                       ["Largest honest amplification",
-                        f"x{_a2_shape.EXAGGERATION_CEILING:.3f}, where the "
-                        f"wing would pass through itself"],
+                       ["Display scaling anywhere in this act", "None. "
+                        "Both passes at true scale"],
+                       ["Where amplification would fail",
+                        f"x{_a2_shape.AMPLIFY_CEILING:.3f}, the thickness "
+                        f"constraint's own limit, where the wing would pass "
+                        f"through itself"],
                    ],
                    table_id="shape-adjoint-optimization")
         bullets(script.engineer,
@@ -446,51 +449,46 @@ def main(request: str | None = None, params: dict | None = None,
                 "surfaces and draws them to scale, and at section scale the "
                 "change is not subtle at all.")
 
-        # ---- second pass: the same 48 frames, amplified and labelled ----
-        # The factor is not chosen for looks. It is bounded by the run's own
-        # active thickness constraint, and the bound is tight, so this pass
-        # buys very little. It is here because an amplified view must be
-        # offered honestly rather than quietly skipped -- and every frame of
-        # it carries the factor, so the label cannot scroll away.
-        k = _a2_shape.EXAGGERATION
-        tag = (f"displacement x{k:g} for visibility — true max "
-               f"{last['max_disp_mm']:.0f} mm "
-               f"({last['max_disp_mm'] / 10.0 / chord:.1f}% root chord)")
+        # ---- second pass: the same 48 frames, zoomed, still true scale ----
+        # The whole wing is framed to 14 m of span, so a 186 mm change moves
+        # its outline about four pixels. The inboard span on its own camera is
+        # framed roughly four times tighter and the same untouched surfaces
+        # move about six times as far. This is a camera change, not a shape
+        # change: no coordinate is scaled, so there is no factor to disclose.
+        show("near0", f"Inboard span, true scale — baseline, C_d "
+                      f"{baseline['CD']:.6f}")
         bullets(script.engineer,
-                f"Now the same {majors + 1} shapes again with the "
-                f"displacement multiplied by {k:g}, so the outline moves "
-                f"rather than only the colour. The factor is on the screen on "
-                f"every single frame, because a shape shown at anything other "
-                f"than true scale that does not say so is a lie.",
-                f"That factor is not a choice about what looks good. This "
-                f"optimizer drove its thickness constraint onto its floor: the "
-                f"thinnest station it ever recorded is 0.4988 of the baseline "
-                f"thickness against a limit of 0.5. Amplifying by "
-                f"{_a2_shape.EXAGGERATION_CEILING:.3f} would take that "
-                f"thickness to zero, which is the upper and lower surfaces "
-                f"touching: the wing passing through itself.",
-                f"So {k:g} is the ceiling with margin, and it leaves the "
-                f"thinnest station at "
-                f"{_a2_shape.EXAGGERATION_MIN_THICKNESS_PCT:.1f}% of its "
-                f"baseline thickness with nothing folded. It moves the "
-                f"silhouette from {_a2_shape.TRUE_SCALE_PX:.1f} to "
-                f"{_a2_shape.EXAGGERATION_PX:.1f} pixels. That is all the "
-                f"headroom this result has, and inventing more of it is not "
-                f"on the table.")
+                f"Same surfaces again, on a closer camera: the inboard "
+                f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span, framed about "
+                f"four times tighter. The outline now moves about "
+                f"{_a2_shape.CLOSEUP_PX:.0f} pixels instead of "
+                f"{_a2_shape.TRUE_SCALE_PX:.0f}.",
+                f"Still true scale. This is the camera moving, not the wing "
+                f"being stretched, so there is no factor to put on the screen "
+                f"and nothing to discount.",
+                f"An amplified view was measured as the alternative and left "
+                f"out. This optimizer drove its thickness constraint onto its "
+                f"floor, thinnest station 0.4988 of baseline against a limit "
+                f"of 0.5, so multiplying the displacement by "
+                f"{_a2_shape.AMPLIFY_CEILING:.3f} would take that thickness "
+                f"to zero and put the wing through itself. Even at that "
+                f"ceiling it would have bought about eight pixels. A shot "
+                f"that is honest without a caption beats one that needs it.")
         for point in history:
             frame = frames.get(point["iter"])
             if frame is not None:
-                show(f"x{frame['iter']}",
-                     f"Major iteration {frame['iter']} of {majors} · {tag}")
-        show(f"x{last['iter']}",
-             f"Optimized wing, major iteration {last['iter']} · {tag}")
+                drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
+                show(f"near{frame['iter']}",
+                     f"Inboard span, true scale — major iteration "
+                     f"{frame['iter']} of {majors}, C_d {frame['CD']:.6f}, "
+                     f"{abs(drop):.1f}% "
+                     f"{'below' if drop >= 0 else 'ABOVE'} baseline")
+        show(f"near{last['iter']}",
+             f"Inboard span, true scale — optimized, C_d {last['CD']:.6f}, "
+             f"{reduction:.1f}% below baseline at matched lift")
         bullets(script.engineer,
-                f"Every frame of that second pass carried the factor in its "
-                f"own label, and the colour bar stayed in true millimetres "
-                f"throughout: only the geometry was amplified, never a "
-                f"measurement.",
-                f"Both passes are on the record. The one you grade the result "
-                f"on is the first one.")
+                f"That is the shape the gradient bought, at the size it "
+                f"really is.")
 
     cl_off = abs(final["CL"] - CL_TARGET) / CL_TARGET * 100
     # The settling claim, measured from the recorded history rather than eyeballed.
@@ -668,23 +666,24 @@ def main(request: str | None = None, params: dict | None = None,
             f"({shapes['n_quad_faces']:,} faces, undecimated). The first "
             f"iteration reproduces the baseline surface to 1e-9 m, which is "
             f"the check that it is a replay.",
-            f"The shape history is shown twice. The first pass, the one the "
-            f"result is graded on, is at true scale, and so are both section "
-            f"figures. The second pass amplifies the displacement by "
-            f"x{_a2_shape.EXAGGERATION:g} so the outline moves, and names "
-            f"that factor on screen on every frame it shows. No measurement "
-            f"is amplified in either pass: the displacement colour bar is in "
-            f"true millimetres throughout.",
-            f"The amplification is capped by the run itself, not chosen for "
-            f"looks. Its thickness constraint is active at the floor "
-            f"(thinnest recorded station 0.4988 of baseline against a 0.5 "
-            f"limit), and since displacement here is 96% thickness-direction "
-            f"motion through a map linear in the shape variables, "
-            f"amplifying by x{_a2_shape.EXAGGERATION_CEILING:.3f} would take "
-            f"that thickness to zero and put the wing through itself. "
-            f"x{_a2_shape.EXAGGERATION:g} leaves the thinnest station at "
-            f"{_a2_shape.EXAGGERATION_MIN_THICKNESS_PCT:.1f}% of baseline "
-            f"with nothing folded.",
+            f"The shape history is shown twice, both times at true scale: "
+            f"once on the whole wing, once on the inboard "
+            f"{_a2_shape.CLOSEUP_SPAN_M:g} m of span framed about four times "
+            f"tighter, which moves the outline "
+            f"{_a2_shape.CLOSEUP_PX:.0f} pixels instead of "
+            f"{_a2_shape.TRUE_SCALE_PX:.0f}. The second pass is a camera "
+            f"change and not a shape change: no coordinate is scaled "
+            f"anywhere in this act, and both section figures are true scale "
+            f"with equal aspect.",
+            f"An amplified view was measured and deliberately not used. The "
+            f"run's thickness constraint is active at its floor (thinnest "
+            f"recorded station 0.4988 of baseline against a 0.5 limit), and "
+            f"since displacement here is 96% thickness-direction motion "
+            f"through a map linear in the shape variables, multiplying it by "
+            f"x{_a2_shape.AMPLIFY_CEILING:.3f} would take that thickness to "
+            f"zero and put the wing through itself. Even at that ceiling it "
+            f"would reach only about 8 pixels, which is less than the "
+            f"close-up gives with nothing exaggerated at all.",
         ] if shapes else []),
         results=[
             {"quantity": "Drag reduction at matched lift",
@@ -727,12 +726,10 @@ def main(request: str | None = None, params: dict | None = None,
             f"of the root chord — about {_a2_shape.TRUE_SCALE_PX:.0f} pixels "
             f"of silhouette on a wing framed to its span, which is why the "
             f"true-scale pass carries the change in a displacement field "
-            f"rather than in a visibly different outline. The amplified pass "
-            f"reaches only {_a2_shape.EXAGGERATION_PX:.1f} pixels, because "
-            f"the active thickness constraint caps the amplification at "
-            f"x{_a2_shape.EXAGGERATION_CEILING:.3f}. A view that reads as "
-            f"clearly as the section figures would need a camera this "
-            f"viewport does not currently offer, not a larger factor.",
+            f"rather than in a visibly different outline. The close-up pass "
+            f"reaches {_a2_shape.CLOSEUP_PX:.0f} pixels on the same untouched "
+            f"surfaces by framing the inboard span tighter, which is why no "
+            f"amplification is used anywhere in this act.",
         ] if shapes else []),
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
