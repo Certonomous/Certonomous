@@ -1,0 +1,60 @@
+#!/bin/bash
+# Stop the instance after IDLE_MINUTES with no lab activity, to keep the bill down.
+#
+# 2026-07-30: this script powered the box off at 10:40 UTC mid-campaign and killed
+# a running 3D solve. The cause was not a bug in the idle timer -- it was that the
+# process list below is the ONLY definition of "activity", and two real kinds of
+# activity were missing from it:
+#
+#   1. A live demo. The control room runs as `python3 -m chief_engineer.server`
+#      and the acts are in-process replays, so a person actively filming spawns
+#      NO matching process. Filming looked exactly like idle. A 172 s Monte Carlo
+#      race could also be cut off mid-run if the countdown was already near 30.
+#   2. A deliberate hold. There was no way to say "keep this box up, I am about
+#      to present from it" short of editing this file.
+#
+# Both are handled below. The process check is unchanged; the demo servers are
+# deliberately NOT added to it, because they start at boot and would make the
+# box immortal -- which is the opposite of why this script exists.
+
+IDLE_MINUTES=30
+MARKER=/tmp/last_job_activity
+HOLD=/var/lib/certonomous-filming-hold
+MISSIONS=/home/ubuntu/Certonomous/sdk/chief-engineer-runs/mission-state
+
+[ -f "$MARKER" ] || touch "$MARKER"
+last=$(stat -c %Y "$MARKER"); now=$(date +%s); idle=$(( (now - last) / 60 ))
+
+# --- Explicit hold, always with an expiry -------------------------------------
+# An unbounded "never stop" switch is how a forgotten box runs for a month. The
+# hold file carries an expiry epoch and is ignored the moment it passes, so the
+# worst case of forgetting to clear it is bounded, not open-ended.
+if [ -f "$HOLD" ]; then
+    until_ts=$(head -n1 "$HOLD" 2>/dev/null | tr -dc '0-9')
+    if [ -n "$until_ts" ] && [ "$now" -lt "$until_ts" ]; then
+        touch "$MARKER"; exit 0
+    fi
+    # Expired. Remove it so the state on disk matches the behaviour.
+    rm -f "$HOLD"
+    logger "auto-stop: filming hold expired, idle timer re-armed"
+fi
+
+# --- Solvers, meshers, VSPAERO, the batch + keeper, and any python under the sdk
+if pgrep -f 'simpleFoam|pimpleFoam|rhoSimpleFoam|rhoCentralFoam|interFoam|potentialFoam|blockMesh|snappyHexMesh|vspaero|mega_batch|mega_batch_keeper|dafoam|Certonomous/sdk' > /dev/null; then
+    touch "$MARKER"; exit 0
+fi
+
+# --- A mission running or recently finished counts as activity ----------------
+# The acts leave no process behind, so the mission-state directory is the only
+# trace a demo session writes. Anything written there inside the idle window
+# means someone is using the control room right now.
+if [ -d "$MISSIONS" ]; then
+    m=$(stat -c %Y "$MISSIONS" 2>/dev/null || echo 0)
+    if [ $(( (now - m) / 60 )) -lt "$IDLE_MINUTES" ]; then
+        touch "$MARKER"; exit 0
+    fi
+fi
+
+if [ "$idle" -ge "$IDLE_MINUTES" ]; then
+    logger "auto-stop: idle ${idle}min, shutting down"; sudo shutdown -h now
+fi
