@@ -354,10 +354,20 @@ yet — see below). Corrected 2026-07-29 night session per L-1.
   genuine rotor-wake unsteadiness a frozen-rotor steady MRF model cannot
   represent (a known MRF limitation for bluff, separating rotor wakes — not
   tested here), (b) an under-relaxation/numerics issue fixable within the
-  same steady framework (also not tested), or (c) something else — this is
-  an untested set of hypotheses, not a diagnosis, per L-3 ("an untested
-  hypothesis is not a refuted one"). Logged as a genuine Group 3 solver
-  convergence failure in `NOT_PASSING_REGISTER.md`, not glossed over.
+  same steady framework, or (c) something else. **Hypothesis (b)'s cheapest
+  test has since been run (2026-07-30): `endTime` extended 1500->3000
+  (restart-trap fixed first — `startFrom` was `startTime`/`0`, which would
+  have silently re-solved from zero; switched to `latestTime` and verified
+  the resume was genuine by reading `Time=1524` seconds into the new log).
+  Still 0 matches for "SIMPLE solution converged" at t=3000, and the force
+  oscillation widened rather than decayed (Fx span 508 N over t=1500-2250,
+  729 N over t=2250-3000; Fy now swinging -775 to +1276 N, wider than the
+  original window's -336 to +280 N).** More steady iterations demonstrably
+  do not fix this — evidence for (a) over (b), though not proof a genuine
+  physical mechanism is responsible rather than an unsaturated numerical
+  instability. Next test is qualitatively different (transient rotating
+  frame), not merely longer. Logged as a genuine Group 3 solver convergence
+  failure in `NOT_PASSING_REGISTER.md`, not glossed over.
 - **F9 (Pulsatile valve):** **GATE REACHED, mixed**, see above — this line
   was wrong ("out of scope, needs moving-mesh" describes a *different*,
   harder case than the fixed-leaflet idealization that was actually built

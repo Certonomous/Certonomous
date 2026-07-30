@@ -854,6 +854,57 @@ smoothed over:**
    as an open, live tension — not resolved by the direction of the other
    evidence, and not hidden because the rest of the case reads cleanly.**
 
+### Three length definitions are now in play on this one case — named explicitly so the next reader does not repeat this session's own mistake
+
+| symbol | definition | who uses it here | needs |
+| --- | --- | --- | --- |
+| `Lr` | distance from the base to the **sign change of the time-mean** centreline streamwise velocity | this ladder's primary gate (Re 1000, 2000, 3900); Parnaudeau et al. (2008) `Lr` column | centreline probes only — what this ladder actually has |
+| `Lf` (Gerrard, off-axis) | distance to the **midpoint between the two off-axis peaks** of streamwise-velocity r.m.s. fluctuation (the two separating shear layers) | Jiang & Cheng (2017) Fig. 6, "Lf-Re" | off-centreline probe stations — **this ladder never recorded these**; comparing this ladder's `Lr` against it is the mistake already made and corrected once, at Re 1000 |
+| `Lf` (Parnaudeau, centreline) | distance to the **single peak** of streamwise-velocity r.m.s. fluctuation, measured on the centreline itself | this session's new computation, above; Parnaudeau et al. (2008) `L<u'u'>` column, same table as their `Lr` | centreline probes only — matches what this ladder has, used above |
+
+All three are legitimately called some variant of "formation length" or
+"recirculation length" in the literature without a single universal
+normalisation, and the two `Lf` definitions are **not proven numerically
+identical to each other**, only conceptually related (both describe how far
+downstream the shear layers take to organise into discrete vortices). This
+session's `Lf` computation used the third row, matching Parnaudeau's own
+convention exactly. Do not compare it against Jiang & Cheng's Fig. 6 numbers
+directly — that comparison needs off-axis data this ladder does not have.
+
+### The 43-46% `Lf` shortfall is not a bare gap — it is the same mechanism as every other deviation, and the literature says so directly
+
+Four quantities at Re 3900 already move together in one direction: Cd
++53.9-108.9%, St +13.3-18.7%, -Cpb +105.9-131.6%, and the vanished `Lr`. The
+`Lf` shortfall against Parnaudeau's 0.87-0.92 (this ladder: 0.400, i.e.
+43-46% of their value) is not a fifth, independent deviation sitting next to
+those four — **it is very likely their shared cause, stated as such in the
+literature this session already read in full.** Singh & Mittal (2005,
+non-paywalled, full text) write, quoting Mittal & Balachandar's own
+hypothesis directly: *"the higher value of the drag coefficient for the 2D
+simulations is caused due to higher level of Reynolds stresses resulting in a
+shorter formation length behind the bluff body"* — over exactly the Reynolds
+range (2x10^3 < Re < 3.2x10^4) that brackets this rung. That is the causal
+chain this ladder's own data reproduces end to end: 2D confinement
+concentrates Reynolds stresses in the near wake (measured here as the growing
+peak r.m.s., 0.301 -> 0.402 -> 0.528) -> the shear layers roll up closer to
+the body (shorter `Lf`, 0.350 -> 0.400 -> 0.400, itself short of the 3D
+reference by 43-46% at Re 3900) -> stronger, closer vortex formation raises
+base suction and drag (-Cpb, Cd) and shedding frequency (St) -> the violent,
+large-amplitude reversal this close to the body erases the time-mean bubble
+(`Lr`) outright. **Five numbers, one mechanism, and the literature supports
+the causal direction specifically for formation length, not merely the
+general "2D over-predicts" trend already used at Re 1000.** This converts the
+finding from five separate deviations into one coherent statement about what
+removing the spanwise dimension does to this wake at this Reynolds number.
+
+Stated with the same care as everything else in this document: Singh &
+Mittal's line is itself relaying Mittal & Balachandar's hypothesis, not an
+independently re-derived mechanism, and it is a directional/qualitative
+statement, not a magnitude prediction that could be checked quantitatively
+against the 43-46% figure. It is real, it is on point, and it is the
+strongest available literature support for reading the `Lf` shortfall as
+mechanism rather than coincidence — not proof beyond that.
+
 ### The methodology trap bit a SECOND time — one layer deeper (found after the run finished)
 
 The trap recorded above (case staged as kOmegaSST, reverted to laminar before
