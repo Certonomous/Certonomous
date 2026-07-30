@@ -1,0 +1,30 @@
+// -*- C++ -*-
+// Vertical probe at x = a/2 through the initial column footprint, used to
+// extract the instantaneous remaining column height (alpha.water = 0.5
+// crossing) vs time, for cross-checking against the independent
+// "column height" panel of Martin & Moyce (1952) / Fig. 7 (Xie, 2021).
+
+type    sets;
+libs    (sampling);
+
+writeControl    adjustableRunTime;
+writeInterval   0.005;
+
+setFormat           raw;
+interpolationScheme cellPointFace;
+
+fields ( alpha.water );
+
+sets
+{
+    col
+    {
+        type    face;
+        axis    y;
+        start   (0.028575 0        0.00142875);
+        end     (0.028575 0.1143   0.00142875);
+        nPoints 201;
+    }
+}
+
+// ************************************************************************* //
