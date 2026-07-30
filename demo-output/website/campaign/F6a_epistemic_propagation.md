@@ -318,3 +318,154 @@ without being asked for.
 - Two specific, cited, untested numerical levers are named for anyone
   who wants to push on the corners again; a genuinely distributional
   alternative exists in the wider literature but is out of scope today.
+
+---
+
+## 8. 2026-07-30, later: both levers tried, and both failed — a negative result, precisely stated
+
+**This section is about whether the corners are reachable. It is not a
+finding that the band is wrong.** The published band (`F6a_epistemic_band.md`)
+rests entirely on runs that met their own convergence gate; nothing below
+touches those runs or that number. What follows establishes a limit on how
+far the eigenspace-perturbation *machinery* can be pushed on this specific
+case, not a defect in what has already been reported.
+
+### What was tried
+
+Three single-variable diagnostics, each isolating one candidate fix, none
+replacing or resubmitting an existing sweep point:
+
+| case | lever tested | IC | ramp | target |
+| --- | --- | --- | --- | --- |
+| `oneC_delta1.00_initFromBaseline` | §6 lever 2 alone | converged baseline field (t=1795) | none — full Δ=1 from iteration 1 | 1C corner |
+| `twoC_delta1.00_initFromBaseline` | §6 lever 2 alone | converged baseline field (t=1795) | none — full Δ=1 from iteration 1 | 2C corner |
+| `oneC_delta1.00_ramp` | §6 lever 1 alone | fresh uniform freestream (unchanged from every other sweep point) | linear 0→1 over first 1500 iterations, held at 1 for the remaining ~2300 | 1C corner |
+
+All three ran to their 3800-iteration cap. **All three came back
+`NOT_CONVERGED` from `scripts/check_convergence.py`** — zero occurrences
+of `SIMPLE solution converged` in any of the three logs, checked the same
+way as every other run tonight.
+
+### The residual behaviour, because stagnation and wandering are different animals
+
+**1C (`initFromBaseline` and `ramp`) both settle into an identical, stable,
+non-zero floor — not a wander, not a blow-up.** `initFromBaseline`'s Ux
+Initial residual: 0.125 (t=1000) → 0.143 → 0.159 → 0.169 → 0.172 → 0.172
+→ 0.172 (t=3800) — monotonically approaches a fixed plateau and holds
+it, with the velocity limiter settling at 64% of cells from roughly
+t=2500 onward and staying there. `ramp`, despite reaching Δ=1 gradually
+over 1500 iterations rather than instantly, lands at essentially the
+*same* plateau by t=3800 (Ux Initial 0.170, 64% of cells limited) — the
+two different paths to the same target converge to the same non-converged
+state. **This is the strongest evidence yet that 1C's non-convergence at
+full strength is a property of the target perturbed state itself on this
+mesh, not an artifact of how the run gets there** — two genuinely
+different numerical approaches, one starting from a converged field with
+no transient at all, both land in the same place.
+
+**2C (`initFromBaseline`) is a materially different animal: a slow drift
+away from a clean start, not a floor and not an instant blow-up.** Ux
+Initial residual: 4.69e-5 (t=1000) → 2.54e-4 → 7.62e-4 → 2.89e-3 → 4.81e-3
+(t=3000) — **grows monotonically by a factor of ~103× over 2000
+iterations**, with the velocity limiter staying at exactly 0% until
+t≈2000 and then activating on a tiny fraction of cells (0.1–0.22%,
+essentially noise-level compared to 1C's 64%). From t=3000 to t=3800 the
+growth flattens and very slightly recedes (4.81e-3 → 4.34e-3). This is
+orders of magnitude closer to the gate than 1C ever gets (still ~8,700×
+over the 5e-7 target on Ux, versus 1C's ~344,000×), and it is *growing
+away from* a genuinely clean initial state rather than diverging
+outright — a residual floor being approached from below with a slow
+climb, not chaos. Whether it would eventually turn over and decay given
+much more budget is not established either way by this run; what is
+established is that it did not in the 3800 iterations tried, and that its
+character is qualitatively different from 1C's.
+
+### What this settles, and what it does not
+
+**Settled**: both documented literature remedies for hard-converging
+eigenspace-perturbation corners — initializing from a converged field,
+and ramping the perturbation gradually rather than applying it instantly
+— were tried on this case and neither rescues either corner within a
+3800-iteration budget. Combined with the eight moderation-magnitude points
+already tested (`F6a_epistemic_band.md`), that is now five independent
+treatments of the 1C direction alone (eight magnitudes at Δ<1 from a
+fresh IC with no ramp, plus full-strength from a converged IC, plus
+full-strength with a ramp), all non-convergent.
+
+**Not settled, and this is the honest correction the evidence demands**:
+`F6a_epistemic_band.md`'s "moderation does not rescue them here" and
+"appears to have no accessible steady RANS solution... on every mesh and
+scheme variant tried so far" language was written **before** either of
+these two levers had been tried. At the time it was written, that
+conclusion rested on eight points that all shared the same untested
+assumption — instant full-strength application from a cold, fresh
+initial condition — and calling the resulting limit "intrinsic" was
+reaching past what the evidence at that time actually supported, in
+exactly the same shape as this project's other overreach corrections
+tonight (a claim stated more strongly than the runs behind it justified).
+**The corrected statement**: the intrinsic-limit reading is now
+independently supported by five treatments instead of eight variations on
+one treatment, and for 1C specifically the two different paths (clean IC,
+gradual ramp) landing on the identical plateau is stronger evidence than
+the original moderation sweep alone provided. For 2C, the picture is
+still open — its behavior under this treatment is different enough
+(orders of magnitude closer, growing rather than floored, no violent
+limiting) that "intrinsic limit" is not yet the right word for 2C the way
+it is for 1C. This is a genuinely corner-dependent result, which is
+exactly what Heyse et al. (2021) report on their own, milder geometry
+(`LITERATURE_REPRODUCTION_REVIEW.md` §2: *"the convergence difficulties
+were dependent on the particular limiting state"*) — now corroborated,
+not merely cited, on a harder case.
+
+**What remains untried**: nothing the eigenspace-perturbation literature
+read this session documents as a remedy. Both named levers (§6) are now
+exhausted on both corners. What is left is either a fundamentally
+different numerical approach not described in any source read here (a
+different pressure-velocity coupling, a coupled or pseudo-transient
+solver instead of SIMPLE, or a genuinely unsteady/URANS treatment — the
+last of which the literature explicitly does *not* recommend for this
+purpose, per §2's earlier finding), or the different framework named in
+§1.5 (random matrix / Bayesian sampling), which does not depend on
+reaching these specific corner states at all. Per this task's explicit
+instruction, no fourth corner-convergence variant was attempted after
+these three — three independent, literature-grounded treatments failing
+the same way is a result, not a reason to keep guessing.
+
+### The question that decides where this goes next: do the corners have to be reachable for propagation to matter?
+
+**Yes, for the eigenspace-perturbation method specifically — not as an
+incidental difficulty but because the corners ARE the method's
+computational content.** Re-read §1.2: the theory does not describe
+"propagation" as a step performed *on* the corner results after they are
+obtained — the corners *are* the prescribed output. Source A's own words,
+quoted in §1.1: *"the uncertainty bounds on the profiles are engendered
+by the union of all the states lying in the set of perturbed RANS
+simulations."* There is no propagation step in the cited theory that
+operates on anything short of that union. A construction built from
+"whatever states happen to converge" is not a weaker version of the
+same method — it is a *different, uncited* construction, which is exactly
+why §4 of this document labeled the reduced envelope explicitly as
+non-canonical rather than presenting it as the theory's output. That
+labeling is not caution for its own sake; it is the accurate description
+of what was actually computed.
+
+So: **the three failures cost the theoretical propagation objective
+everything it had left to lose, and nothing that has not already been
+priced in.** §4's reduced envelope was already the honest ceiling on what
+this specific method could support without the corners, computed and
+reported before these three tests ran. The three tests were the last
+opportunity, prescribed by the literature itself, to raise that ceiling
+by making the real corners reachable — for 1C, that opportunity is now
+closed by direct, repeated, path-independent evidence; for 2C, it is not
+fully closed but nothing tried tonight opened it either. **The practical
+consequence for this thread: eigenspace-perturbation propagation, in the
+sense the cited papers define it, is not currently achievable on this
+case beyond the reduced, non-containing envelope already reported in §4.**
+Any further "propagation" work that wants a defensible band from
+convergent states alone is not an extension of this method — it would be
+a new, differently-justified construction (most plausibly the random-
+matrix/Bayesian route named in §1.5, which was built by a different group
+precisely because it does not require sampling the extremal corners the
+way the Emory/Iaccarino method does), and should be scoped, budgeted, and
+reported as that, not folded into this document's method as though it
+were the same thing with a smaller number attached.

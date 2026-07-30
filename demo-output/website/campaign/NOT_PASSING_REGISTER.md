@@ -239,7 +239,7 @@ Structural architectural block: OpenMDAO's reverse-mode sweep builds a mesh-size
 
 Cases where the solver either did not converge to its own gate, diverged during an adjoint solve, failed to complete within a session, or exhibited non-monotonic grid convergence. Includes discrete solver divergence, unsteady runs interrupted mid-window, and mesh-refinement ladders that do not asymptote.
 
-**Count: 15 cases**
+**Count: 16 cases**
 
 ### ONERA M6 Act — primal residual plateau
 
@@ -381,6 +381,15 @@ Cases where the solver either did not converge to its own gate, diverged during 
 - **To resolve:** Trace T's per-iteration Initial residual across the run the way A4's omega was traced, to determine whether it decays, plateaus honestly, or collapses to a falsely-reassuring fixed value while the raw statistic is blowing up. Until that trace exists, treat the CD number as provisional.
 - **Evidence:** `demo-output/website/dafoam/ladder-a/logs_A6/run_model_accepted_t0_to_t1000.log` (CD trajectory and the raw residual-statistics block); contrast the tracing method used on `demo-output/website/dafoam/ladder-a/logs_A4/A4_fine_primal_par4.log`.
 
+### 1C/2C eigenvalue-perturbation corners — both literature-prescribed convergence remedies tried, both failed
+
+- **What:** the hump's `oneC` and `twoC` full-corner (Δ=1) eigenspace-perturbation states. Eight moderation magnitudes (Δ=0.10–0.75, fresh IC, instant full-strength application, no ramp) had already failed to converge (`F6a_epistemic_band.md`). This entry covers the two documented literature remedies for hard-converging corners — tried specifically because they had NOT yet been tested, per `F6a_epistemic_propagation.md` §6 — attempted on the full corners directly: (a) initializing from the converged baseline field instead of a fresh uniform IC (`oneC_delta1.00_initFromBaseline`, `twoC_delta1.00_initFromBaseline`), and (b) ramping the perturbation linearly from 0 to full strength over 1500 iterations from a fresh IC, rather than applying it instantly (`oneC_delta1.00_ramp`). Source for both levers: Mishra, Mukhopadhaya, Iaccarino & Alonso, arXiv:1803.00725 (the EQUiPS reference implementation).
+- **How it failed:** all three ran to their 3800-iteration cap; all three `NOT_CONVERGED` per `scripts/check_convergence.py` (zero occurrences of `SIMPLE solution converged`). The failure MODE differs sharply by corner and is worth stating precisely rather than lumped: **1C** (`initFromBaseline` and `ramp`) both settle into an **identical stable non-zero residual floor** regardless of path — Ux Initial residual plateaus at ~0.17 with ~64% of cells velocity-limited in both cases by t=3800, whether reached instantly from a converged field or via a 1500-iteration ramp from a fresh one. **2C** (`initFromBaseline`) is a different animal: Ux Initial residual starts clean (4.69e-5 at t=1000, 0% cells limited) and grows monotonically ~103x by t=3000 (to 4.81e-3, limiter still under 0.25% of cells) before flattening — a slow drift away from a good start, not a floor and not a blow-up, and roughly 40,000x closer to converging than 1C ever gets.
+- **Root cause:** for 1C, two genuinely different numerical paths (clean IC with no transient at all; gradual ramp) landing on the identical non-convergent plateau is strong evidence the failure is a property of the target perturbed state itself on this mesh, not an artifact of the approach to it. For 2C, not established either way — the run simply was not given enough budget to show whether the drift turns over, and its much smaller, still-growing-not-floored residual is qualitatively different from 1C's immediate, path-independent, high-amplitude limiting.
+- **Correction this entry makes to the standing record:** `F6a_epistemic_band.md`'s "intrinsic limit" language was written before either lever above had been tried, resting only on eight variations that all shared the same untested assumption (fresh IC, instant full-strength application). Calling that an intrinsic limit at the time was reaching past what the evidence then supported. It is now independently corroborated for 1C by two additional, different treatments — but 2C's genuinely different failure character means "intrinsic limit" is not yet the right description for 2C specifically, and should not be applied to it on this evidence.
+- **To resolve:** nothing the eigenspace-perturbation literature read this session documents as a further remedy — both named levers are now exhausted on both corners. Per explicit instruction, no fourth corner-convergence variant was attempted after these three. What remains is either a numerical approach not described in any source read here (different pressure-velocity coupling, a coupled/pseudo-transient solver, genuinely unsteady treatment — the last of which the literature explicitly does not recommend for this purpose), or a different framework entirely (random-matrix/Bayesian sampling, `F6a_epistemic_propagation.md` §1.5) that does not depend on reaching these specific corner states.
+- **Evidence:** `demo-output/website/solve_registry/r4_oneC_d1.00_initFromBaseline_20260730T041127Z.log`, `r4_twoC_d1.00_initFromBaseline_20260730T041127Z.log`, `r4_oneC_d1.00_ramp_20260730T041242Z.log`; case directories `demo-output/website/dafoam/f6a_epistemic_band/r4_band_tightening_hump/{oneC,twoC}_delta1.00_initFromBaseline/`, `.../oneC_delta1.00_ramp/`; full account `F6a_epistemic_propagation.md` §8.
+
 ---
 
 ## GROUP 2: GRADIENT-ACCURACY DEFECTS
@@ -485,11 +494,11 @@ Cases where a public claim could not be traced to a specific artifact, run, or l
 | --- | --- | --- |
 | 1. Adjoint memory wall | 5 | Structural OpenMDAO reverse-mode Jacobian-size blocker; working envelope ~10k cells |
 | 2. Gradient-accuracy defects | 2 | Sign-flipped or unstable adjoint-vs-FD disagreement, root cause unidentified |
-| 3. Solver convergence failures | 15 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders, growing energy-bound defect, undisclosed non-convergence on public credentials |
+| 3. Solver convergence failures | 16 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders, growing energy-bound defect, undisclosed non-convergence on public credentials, two literature-prescribed convergence remedies both exhausted |
 | 4. Reference/regime mismatches | 4 | RANS chose wrong physics branch, or comparison basis not equivalent |
 | 5. Never run or incomplete | 1 | Scaffolding only, never executed |
 | 6. Unverifiable claims | 1 | Public claim not traceable to an artifact |
-| **TOTAL** | **28** | |
+| **TOTAL** | **29** | |
 
 ---
 
