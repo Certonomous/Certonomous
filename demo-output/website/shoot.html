@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Certonomous · Shoot day</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#8b949e;
+    --good:#3fb950; --accent:#58a6ff; --gold:#e3b341; --warn:#f85149;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#fff;--panel:#f6f8fa;--line:#d0d7de;--ink:#1f2328;--dim:#656d76;
+          --good:#1a7f37;--accent:#0969da;--gold:#9a6700;--warn:#cf222e;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:19px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:1240px;margin:0 auto;padding:34px 28px 90px}
+  header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:26px}
+  .eyebrow{color:var(--dim);font:600 13px/1 var(--mono);text-transform:uppercase;
+           letter-spacing:.16em;margin-bottom:12px}
+  h1{margin:0 0 10px;font-size:46px;line-height:1.06;letter-spacing:-.025em}
+  .sub{color:var(--dim);font-size:19px;max-width:76ch}
+  .sub b{color:var(--ink);font-weight:600}
+  h2{font-size:31px;margin:62px 0 8px;letter-spacing:-.018em;scroll-margin-top:16px}
+  h3{font-size:22px;margin:34px 0 10px;letter-spacing:-.01em}
+  .lede{color:var(--dim);font-size:18px;margin:0 0 20px;max-width:82ch}
+  .lede b{color:var(--ink)}
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+  .kpi.hero{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
+  .kpi.flat{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .kpi .n{font:600 46px/1.05 var(--mono);letter-spacing:-.035em}
+  .kpi .n.g{color:var(--good)} .kpi .n.d{color:var(--dim)} .kpi .n.a{color:var(--accent)}
+  .kpi .n.w{color:var(--warn)} .kpi .n.gd{color:var(--gold)}
+  .kpi .n.sm{font-size:32px}
+  .kpi .l{color:var(--dim);font-size:13.5px;text-transform:uppercase;letter-spacing:.08em;margin-top:10px}
+  .kpi .f{color:var(--dim);font-size:15px;margin-top:10px;line-height:1.4}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{border-collapse:collapse;width:100%;font-size:17px;min-width:640px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.07em}
+  td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.c,th.c{text-align:center}
+  tr.us{background:color-mix(in srgb,var(--accent) 13%,transparent)}
+  tr.us td{font-weight:600}
+  .tag{display:inline-block;font:600 12px/1 var(--mono);padding:6px 9px;border-radius:6px;letter-spacing:.05em;white-space:nowrap}
+  .t-good{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+  .t-gold{background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold)}
+  .t-open{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .t-flat{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+  .t-dim{background:color-mix(in srgb,var(--dim) 18%,transparent);color:var(--dim)}
+  .banner{display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+          background:color-mix(in srgb,var(--good) 11%,transparent);
+          border:1px solid color-mix(in srgb,var(--good) 45%,var(--line));
+          border-radius:12px;padding:16px 20px;margin:0 0 26px;font-size:18px}
+  .banner.gold{background:color-mix(in srgb,var(--gold) 11%,transparent);
+               border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
+  .banner.red{background:color-mix(in srgb,var(--warn) 10%,transparent);
+              border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+  .banner .tag{flex:none}
+  .banner div{flex:1 1 320px}
+  .note{border-left:4px solid var(--accent);padding:14px 0 14px 20px;margin:24px 0;
+        color:var(--dim);font-size:18px;max-width:88ch}
+  .note.warn{border-left-color:var(--warn)}
+  .note.gold{border-left-color:var(--gold)}
+  .note.good{border-left-color:var(--good)}
+  .note b{color:var(--ink)}
+
+  /* command blocks */
+  .cmd{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+       margin:16px 0 22px;overflow:hidden}
+  .cmd .shell{display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+       padding:11px 18px;border-bottom:1px solid var(--line);
+       background:color-mix(in srgb,var(--accent) 9%,transparent)}
+  .cmd .shell.ps{background:color-mix(in srgb,var(--gold) 11%,transparent)}
+  .cmd .shell.box{background:color-mix(in srgb,var(--good) 10%,transparent)}
+  .cmd .shell .who{font:700 14px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase}
+  .cmd .shell .who.gb{color:var(--accent)}
+  .cmd .shell .who.pw{color:var(--gold)}
+  .cmd .shell .who.bx{color:var(--good)}
+  .cmd .shell .where{color:var(--dim);font-size:15px}
+  .cmd pre{margin:0;padding:18px 20px;overflow-x:auto;
+       font-family:var(--mono);font-size:17px;line-height:1.6;color:var(--ink);white-space:pre}
+  .cmd pre .c{color:var(--dim)}
+  code{font-family:var(--mono);font-size:16px;background:var(--panel);
+       padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .big{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-.01em}
+
+  /* numbered steps */
+  .steps{list-style:none;margin:26px 0 0;padding:0;counter-reset:s}
+  .steps > li{counter-increment:s;position:relative;padding:0 0 30px 60px;
+            border-left:2px solid var(--line);margin-left:18px}
+  .steps > li:last-child{border-left-color:transparent;padding-bottom:4px}
+  .steps > li::before{content:counter(s);position:absolute;left:-19px;top:-4px;width:36px;height:36px;
+       border-radius:50%;background:var(--panel);border:1px solid var(--line);color:var(--dim);
+       font:600 16px/34px var(--mono);text-align:center}
+  .steps > li.hit::before{border-color:var(--good);color:var(--good)}
+  .steps > li.stop::before{border-color:var(--warn);color:var(--warn)}
+  .steps b.h{display:block;font-size:23px;margin-bottom:7px;color:var(--ink);letter-spacing:-.01em}
+  .steps p{color:var(--dim);font-size:18px;margin:0 0 10px;max-width:84ch}
+  .steps p b{color:var(--ink)}
+
+  /* charts */
+  figure{margin:26px 0 34px;background:var(--panel);border:1px solid var(--line);
+         border-radius:12px;padding:22px 24px 18px}
+  figcaption{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+  figure .cap{color:var(--dim);font-size:16px;margin:0 0 14px;max-width:92ch}
+  figure .src{color:var(--dim);font-size:14px;margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
+  svg{display:block;max-width:100%;height:auto;overflow:visible}
+  svg .gl{stroke:var(--line);stroke-width:1}
+  svg .rule{stroke:var(--warn);stroke-width:2;stroke-dasharray:6 5}
+  svg .rulelab{fill:var(--warn);font:600 14px/1 var(--mono);letter-spacing:.04em}
+  svg .bar{fill:var(--accent)}
+  svg .bar.gold{fill:var(--gold)}
+  svg .bar.hi{fill:var(--accent)}
+  svg .bar.soft{fill:color-mix(in srgb,var(--accent) 34%,transparent);
+                stroke:var(--accent);stroke-width:1.5}
+  svg .beat{fill:var(--gold)}
+  svg .mark{stroke:var(--gold);stroke-width:2.5}
+  svg .dot{fill:var(--gold);stroke:var(--panel);stroke-width:2}
+  svg .cat{fill:var(--ink);font-size:15.5px}
+  svg .cat.mono{font-family:var(--mono);font-size:14.5px}
+  svg .val{fill:var(--ink);font-family:var(--mono);font-size:15px;font-weight:600}
+  svg .val.inbar{fill:var(--bg)}
+  svg .tier{fill:var(--dim);font-family:var(--mono);font-size:12.5px;letter-spacing:.04em}
+  svg .ax{fill:var(--dim);font-family:var(--mono);font-size:14px}
+  svg .axt{fill:var(--dim);font-size:14.5px;font-style:italic}
+  svg .lg{fill:var(--dim);font-size:14px}
+  svg .note{fill:var(--dim);font-size:14.5px}
+  svg .lead{stroke:var(--dim);stroke-width:1.5;stroke-dasharray:4 3}
+  svg .mid{text-anchor:middle}
+  svg .end{text-anchor:end}
+  svg g[class]:hover .bar,svg g:hover > rect.bar{filter:brightness(1.18)}
+
+  .two{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 24px}
+  .card.good{border-color:color-mix(in srgb,var(--good) 50%,var(--line))}
+  .card.bad{border-color:color-mix(in srgb,var(--warn) 50%,var(--line))}
+  .card h4{margin:0 0 6px;font-size:20px}
+  .card p{margin:0;color:var(--dim);font-size:17px}
+  .card .k{font:700 13px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+  .card.good .k{color:var(--good)} .card.bad .k{color:var(--warn)}
+  ul.plain{margin:14px 0 0;padding-left:24px;color:var(--dim);font-size:18px}
+  ul.plain li{margin-bottom:9px} ul.plain b{color:var(--ink)}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
+  .toc a{text-decoration:none;color:var(--dim);border:1px solid var(--line);
+         background:var(--panel);border-radius:999px;padding:9px 17px;font-size:16px}
+  .toc a:hover{color:var(--ink);border-color:var(--accent)}
+  footer{margin-top:70px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-size:15px}
+  @media (max-width:720px){
+    h1{font-size:34px} h2{font-size:25px} body{font-size:17px}
+    .wrap{padding:24px 16px 60px} .cmd pre{font-size:15px}
+    .steps > li{padding-left:46px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Certonomous · filming guide</div>
+  <h1>Shoot day</h1>
+  <div class="sub">Everything you need on camera, on one page. <b>Getting the picture up</b>,
+  <b>the geometry files and where to copy them from</b>, <b>the acts and what each one shows</b>.
+  Every number here was checked against its own source on 2026-07-30.</div>
+  <div class="toc">
+    <a href="#start">1 · Get the picture up</a>
+    <a href="#surfaces">2 · The surfaces</a>
+    <a href="#acts">3 · The acts</a>
+    <a href="#adjoint">4 · The adjoint act</a>
+    <a href="#notsay">5 · What not to say</a>
+  </div>
+</header>
+
+<div class="banner">
+  <span class="tag t-good">READ FIRST</span>
+  <div><b>Try the address before you type a single command.</b> If the control room loads in your
+  browser, there is nothing to install and nothing to run on the laptop. Everything in step 2 is a
+  fallback you only need if it does not load.</div>
+</div>
+
+<!-- ============================== 1 ============================== -->
+<h2 id="start">1 · Get the picture up</h2>
+<p class="lede">Both servers already run on the lab box and both listen on every interface, so nothing
+on the box needs changing. Each command block below is labelled with <b>the shell you type it into</b>
+and <b>which machine you are on</b>.</p>
+
+<div class="grid">
+  <div class="kpi flat"><div class="n a sm">16.58.201.228</div><div class="l">lab box public address</div>
+    <div class="f">It changes if the instance is stopped and started.</div></div>
+  <div class="kpi"><div class="n">8765</div><div class="l">control room</div>
+    <div class="f">Where you type the prompts and attach a surface.</div></div>
+  <div class="kpi"><div class="n">8080</div><div class="l">static site</div>
+    <div class="f">The closure page, the benchmarks page, and this page.</div></div>
+</div>
+
+<ol class="steps">
+
+<li class="hit"><b class="h">Test the address, tonight, not in the morning</b>
+<p>Open a browser on your laptop and go to the control room. If it loads, <b>you need no commands at
+all on the laptop</b>. Skip to step 4.</p>
+<p class="big" style="color:var(--accent)">http://16.58.201.228:8765</p>
+<p style="margin-top:12px">The static site is the same address on the other port, and this page lives there too:</p>
+<p class="big" style="color:var(--accent)">http://16.58.201.228:8080/shoot.html</p>
+<p style="margin-top:12px">If the page hangs rather than erroring, the two ports were most likely never
+opened on the instance. That is the single most likely thing to go wrong, which is why it is worth
+thirty seconds the night before. The fix is step 2, and step 2 works either way.</p>
+</li>
+
+<li><b class="h">If it does not load: the SSH tunnel</b>
+<p>This works whether or not the firewall is open, and it is the safer option anyway: the demo then
+runs on <code>localhost</code>, nothing is exposed publicly, and a changed address does not matter.
+<b>Leave the window open for the whole shoot.</b></p>
+
+<div class="cmd">
+  <div class="shell"><span class="who gb">Git Bash</span><span class="where">on your laptop · preferred</span></div>
+<pre>ssh -i ~/.ssh/your-key.pem -L 8765:localhost:8765 -L 8080:localhost:8080 ubuntu@16.58.201.228</pre>
+</div>
+
+<div class="cmd">
+  <div class="shell ps"><span class="who pw">PowerShell</span><span class="where">on your laptop · same command, Windows-style key path</span></div>
+<pre>ssh -i C:\Users\&lt;you&gt;\.ssh\your-key.pem -L 8765:localhost:8765 -L 8080:localhost:8080 ubuntu@16.58.201.228</pre>
+</div>
+
+<p>With the tunnel open, the browser addresses become:</p>
+<p class="big" style="color:var(--accent)">http://localhost:8765 &nbsp;&nbsp;&nbsp; http://localhost:8080/shoot.html</p>
+
+<div class="note warn" style="margin-top:20px"><b>The one Windows gotcha.</b> If SSH refuses the key
+with "UNPROTECTED PRIVATE KEY FILE" or "bad permissions", the key file is readable by too many users.
+Fix it in whichever shell you are already in, then run the tunnel command again.</div>
+
+<div class="cmd">
+  <div class="shell"><span class="who gb">Git Bash</span><span class="where">on your laptop · key permissions</span></div>
+<pre>chmod 600 ~/.ssh/your-key.pem</pre>
+</div>
+
+<div class="cmd">
+  <div class="shell ps"><span class="who pw">PowerShell</span><span class="where">on your laptop · key permissions</span></div>
+<pre>icacls C:\path\to\your-key.pem /inheritance:r /grant:r "$($env:USERNAME):(R)"</pre>
+</div>
+</li>
+
+<li><b class="h">Copy the surfaces to the laptop</b>
+<p>You upload from the laptop, not from the box, so the five files have to be on the laptop first.
+Run this in a <b>second</b> window, not the one holding the tunnel. It takes seconds.</p>
+
+<div class="cmd">
+  <div class="shell"><span class="who gb">Git Bash</span><span class="where">on your laptop · run it from the folder you want the files in</span></div>
+<pre>cd ~/Desktop
+mkdir -p surfaces &amp;&amp; cd surfaces
+scp -i ~/.ssh/your-key.pem ubuntu@16.58.201.228:/home/ubuntu/Certonomous/demo-surfaces/* ./</pre>
+</div>
+
+<p>PowerShell runs the same <code>scp</code> line with a Windows key path, but Git Bash is the one to
+use: it is the same shell you use for the tunnel and the backup bundle, so there is one less thing to
+get wrong on the day.</p>
+</li>
+
+<li class="hit"><b class="h">Switch the keepalive on before you roll</b>
+<p>This one is easy to forget and it ends the shoot if you do. A timer on the box powers it off after
+thirty idle minutes, and <b>the control room does not count as activity</b>. Talking to camera between
+acts looks exactly like an idle box. Verified today.</p>
+<p>Run this once in the SSH window before filming. It expires on its own, so forgetting to switch it
+off costs nothing.</p>
+
+<div class="cmd">
+  <div class="shell box"><span class="who bx">In the SSH window</span><span class="where">on the lab box</span></div>
+<pre>cd /home/ubuntu/Certonomous
+bash scripts/filming_keepalive.sh on 6      <span class="c"># six hours, then it lapses by itself</span>
+bash scripts/filming_keepalive.sh status    <span class="c"># check it took</span></pre>
+</div>
+<p>You should see <code>Keep-alive ON for 6h</code> and the time it lapses.</p>
+</li>
+
+<li class="hit"><b class="h">Restart the control room before you start</b>
+<p>A restart is what loads the current act code, and one act does not run correctly through a server
+that has been up since before today's fix. Do this <b>before</b> you roll, never between takes of the
+same act.</p>
+
+<div class="cmd">
+  <div class="shell box"><span class="who bx">In the SSH window</span><span class="where">on the lab box · safe to run twice</span></div>
+<pre>cd /home/ubuntu/Certonomous
+bash scripts/demo_servers.sh</pre>
+</div>
+
+<p>Then confirm both are answering. Both lines should print <code>200</code>. This one is safe to
+show on camera.</p>
+
+<div class="cmd">
+  <div class="shell box"><span class="who bx">In the SSH window</span><span class="where">on the lab box · safe on camera</span></div>
+<pre>curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/</pre>
+</div>
+</li>
+
+<li class="stop"><b class="h">Never restart while an act is running</b>
+<p>Found the hard way in rehearsal. Restarting the server mid-mission kills that mission on the spot
+and puts <b>"Mission interrupted by a service restart"</b> on screen. The race runs about three
+minutes, so it is the one most exposed. Restart between acts or not at all.</p>
+</li>
+
+<li class="hit"><b class="h">Keep the box otherwise quiet</b>
+<p>Every act opens by reading the live state of the machine. On a quiet box that line reads
+<b>YES</b> and says the full fan-out can run in one wave. With other jobs running it reads
+<b>NO</b> and drops to capacity 1, which looks like a resource failure on camera even though nothing
+is wrong. Verified today: with nothing else running it reads YES at capacity 14.</p>
+<div class="two" style="margin-top:16px">
+  <div class="card good"><div class="k">quiet box, what you want</div>
+    <h4>Compute audit, YES</h4>
+    <p>capacity 14, 14 of 16 cores free, 0 other jobs. Full fan-out can run in one wave.</p></div>
+  <div class="card bad"><div class="k">busy box, avoid</div>
+    <h4>Compute audit, NO</h4>
+    <p>capacity 1, cores held by other jobs. Reads as a resource failure on camera.</p></div>
+</div>
+</li>
+
+<li><b class="h">The offline backup, if the box or the wifi is gone</b>
+<p>There is a bundle that runs on the laptop with no internet and no lab box. Copy the zip across,
+extract it, and run it from Git Bash. It needs Python installed with the "Add python.exe to PATH" box
+ticked, and nothing else. A short start-here note ships inside the zip.</p>
+
+<div class="cmd">
+  <div class="shell"><span class="who gb">Git Bash</span><span class="where">on your laptop · fetch the bundle</span></div>
+<pre>scp -i ~/.ssh/your-key.pem ubuntu@16.58.201.228:/home/ubuntu/Certonomous/dist/certonomous-demo.zip ~/Desktop/</pre>
+</div>
+
+<div class="cmd">
+  <div class="shell"><span class="who gb">Git Bash</span><span class="where">on your laptop · right-click inside the extracted folder, Open Git Bash here</span></div>
+<pre>bash run-demo.sh</pre>
+</div>
+
+<div class="note gold"><b>Be straight about what the backup is.</b> It replays four recorded acts and
+serves the closure and benchmarks pages. It <b>cannot run a live act</b>, and that is not a limitation
+worth hiding: the live acts genuinely invoke VSPAERO and OpenFOAM, and neither exists on a Windows
+laptop. The numbers it shows are the numbers those runs measured. Nothing in it is a mock-up.</div>
+</li>
+
+</ol>
+
+<!-- ============================== 2 ============================== -->
+<h2 id="surfaces">2 · The geometry surfaces</h2>
+<p class="lede">Two directories, two different jobs. Mixing them up is a real hazard, so this is the
+one thing to get straight before the shoot.</p>
+
+<div class="banner gold">
+  <span class="tag t-gold">COPY FROM HERE</span>
+  <div>Your copy set is git-tracked and byte-identical to the staged originals. <b>Re-verified today:
+  all five files match by checksum.</b> The other directory is the server's staging area and it changes
+  at run time, so it is not a stable source.</div>
+</div>
+
+<div class="scroll"><table>
+<thead><tr><th>Directory</th><th>What it is</th><th>Use it?</th></tr></thead>
+<tbody>
+<tr class="us"><td><code>demo-surfaces/</code></td>
+  <td><b>Your copy set.</b> The five bodies to copy to the laptop. Git-tracked, byte-identical to the
+  staged originals, and it does not move underneath you.</td>
+  <td><span class="tag t-good">COPY FROM HERE</span></td></tr>
+<tr><td><code>sdk/geometry/</code></td>
+  <td><b>The server's staging area.</b> The only directory the control room reads, and where an upload
+  lands. It changes at run time: an upload named <code>b52.stl</code> overwrites the staged
+  <code>b52.stl</code>.</td>
+  <td><span class="tag t-open">NOT A STABLE SOURCE</span></td></tr>
+</tbody></table></div>
+
+<h3>The five files</h3>
+<div class="scroll"><table>
+<thead><tr><th>File</th><th class="n">Size</th><th>What it is for</th></tr></thead>
+<tbody>
+<tr class="us"><td><code>naca0012_wing.stl</code></td><td class="n">35K</td>
+  <td>The wing for the Monte Carlo race. This is the upload that matters most on camera.</td></tr>
+<tr class="us"><td><code>b52.stl</code></td><td class="n">674K</td>
+  <td>The B-52. Its act is a geometry study, and that <b>is</b> the act, so an upload here is correct.</td></tr>
+<tr><td><code>naca4412_wing.stl</code></td><td class="n">35K</td><td>A cambered wing. Spare body.</td></tr>
+<tr><td><code>naca0015_sail.stl</code></td><td class="n">1022K</td><td>A sail section. Spare body.</td></tr>
+<tr><td><code>motorBike.obj</code></td><td class="n">11M</td><td>The motorbike. The biggest of the set and the one that shows the parser handling a real mesh.</td></tr>
+</tbody></table></div>
+
+<p class="lede" style="margin-top:18px">The airliner wing is optional and lives only in the server's
+staging area, so copy it separately if you want it. The act runs perfectly well without it.</p>
+
+<div class="cmd">
+  <div class="shell"><span class="who gb">Git Bash</span><span class="where">on your laptop · optional extra body</span></div>
+<pre>scp -i ~/.ssh/your-key.pem ubuntu@16.58.201.228:/home/ubuntu/Certonomous/sdk/geometry/airliner_wing_span52.stl ./</pre>
+</div>
+
+<figure>
+<figcaption>The five surfaces you copy, by size</figcaption>
+<p class="cap">What lands on the laptop when you run the copy command above. The motorbike is most of the total; the two wings are small enough to be instant.</p>
+<svg viewBox="0 0 900 284" width="100%" role="img" aria-label="Horizontal bar chart of the five surface files by size on disk. The motorbike is 11 megabytes, the sail 1022 kilobytes, the B-52 674 kilobytes, and the two wings 35 kilobytes each.">
+<title>The five surfaces to copy, by size on disk</title>
+<line x1="250.0" y1="24" x2="250.0" y2="208" class="gl"/>
+<text x="250.0" y="228" class="ax mid">0</text>
+<line x1="350.0" y1="24" x2="350.0" y2="208" class="gl"/>
+<text x="350.0" y="228" class="ax mid">2</text>
+<line x1="450.0" y1="24" x2="450.0" y2="208" class="gl"/>
+<text x="450.0" y="228" class="ax mid">4</text>
+<line x1="550.0" y1="24" x2="550.0" y2="208" class="gl"/>
+<text x="550.0" y="228" class="ax mid">6</text>
+<line x1="650.0" y1="24" x2="650.0" y2="208" class="gl"/>
+<text x="650.0" y="228" class="ax mid">8</text>
+<line x1="750.0" y1="24" x2="750.0" y2="208" class="gl"/>
+<text x="750.0" y="228" class="ax mid">10</text>
+<text x="525.0" y="252" class="axt mid">size on disk, megabytes</text>
+<text x="240" y="18" class="axt end">file</text>
+<g><title>motorBike.obj, 11M on disk</title><text x="240" y="54.0" class="cat mono end">motorBike.obj</text><rect x="250" y="39.0" width="509.5" height="20" rx="4" class="bar"/><text x="768.5" y="54.0" class="val">11M</text></g>
+<g><title>naca0015_sail.stl, 1022K on disk</title><text x="240" y="88.0" class="cat mono end">naca0015_sail.stl</text><rect x="250" y="73.0" width="49.9" height="20" rx="4" class="bar"/><text x="308.9" y="88.0" class="val">1022K</text></g>
+<g><title>b52.stl, 674K on disk</title><text x="240" y="122.0" class="cat mono end">b52.stl</text><rect x="250" y="107.0" width="32.9" height="20" rx="4" class="bar"/><text x="291.9" y="122.0" class="val">674K</text></g>
+<g><title>naca0012_wing.stl, 35K on disk</title><text x="240" y="156.0" class="cat mono end">naca0012_wing.stl</text><rect x="250" y="141.0" width="2.5" height="20" rx="4" class="bar"/><text x="260.7" y="156.0" class="val">35K</text></g>
+<g><title>naca4412_wing.stl, 35K on disk</title><text x="240" y="190.0" class="cat mono end">naca4412_wing.stl</text><rect x="250" y="175.0" width="2.5" height="20" rx="4" class="bar"/><text x="260.7" y="190.0" class="val">35K</text></g>
+<g class="anno"><text x="20" y="272" class="note">Key value: the whole set is about 12 MB, so the copy takes seconds.</text></g>
+</svg>
+<p class="src">Source: sizes read on disk 2026-07-30, and all five confirmed identical by checksum to the staged originals the control room reads.</p>
+</figure>
+
+<h3>Two rules that decide which act runs</h3>
+<div class="two">
+  <div class="card good"><div class="k">do this</div>
+    <h4>Attach with the button</h4>
+    <p>The control room has a <b>Load a surface</b> button under the prompt box. It takes STL and OBJ
+    up to 200 MB and parses the file the moment it lands, so a bad file is refused straight away
+    instead of failing halfway through a mesh. The button says <b>which body</b>. The prompt says
+    <b>what question</b>.</p></div>
+  <div class="card bad"><div class="k">never do this</div>
+    <h4>Never type the filename into the prompt</h4>
+    <p>Naming a file in the prompt text <b>changes which act runs</b>. Type the race prompt with a
+    filename in it and you get a generic geometry study instead of the race. Nothing on screen tells
+    you why.</p></div>
+</div>
+
+<div class="note warn"><b>One surface, one launch.</b> An attached surface is consumed by the launch it
+was attached to, and the panel visibly resets afterwards. If you want a second act on the same body,
+attach it again. This matters because an attached surface reads as "run it on this body": leaving one
+attached would turn the next act into a generic geometry study on the wrong shape.</div>
+
+<div class="note good"><b>Four acts keep their own identity with a surface attached.</b> The airliner
+optimization, the Monte Carlo race, the valve study and the shape optimization all stay themselves and
+simply run on your body. Everything else with a file attached becomes a geometry study.</div>
+
+<!-- ============================== 3 ============================== -->
+<h2 id="acts">3 · The acts</h2>
+<p class="lede">Type each prompt into the control room prompt box, exactly as written.
+<b>Durations move with how busy the machine is</b>: the figures below were measured over three runs
+each on a quiet box today, and the same act has measured 17 s quiet and 26 s under load. Nothing else
+about the act changes, only the wall clock. If you are timing narration tightly, run the act once on
+the day and trust that number over this page.</p>
+
+<figure>
+<figcaption>How long each act takes, measured</figcaption>
+<p class="cap">Wall clock from pressing Launch to the mission reporting complete. Thirteen acts, longest first. Hover any bar for its run-to-run spread. One act dominates the schedule and the rest are quick.</p>
+<svg viewBox="0 0 900 532" width="100%" role="img" aria-label="Horizontal bar chart of measured act duration in seconds for thirteen acts, from the Monte Carlo race at 172.1 seconds down to the CRM wing-body at 0.2 seconds.">
+<title>Measured act duration, seconds</title>
+<line x1="300.0" y1="68" x2="300.0" y2="472" class="gl"/>
+<text x="300.0" y="492" class="ax mid">0</text>
+<line x1="395.3" y1="68" x2="395.3" y2="472" class="gl"/>
+<text x="395.3" y="492" class="ax mid">30</text>
+<line x1="490.7" y1="68" x2="490.7" y2="472" class="gl"/>
+<text x="490.7" y="492" class="ax mid">60</text>
+<line x1="586.0" y1="68" x2="586.0" y2="472" class="gl"/>
+<text x="586.0" y="492" class="ax mid">90</text>
+<line x1="681.3" y1="68" x2="681.3" y2="472" class="gl"/>
+<text x="681.3" y="492" class="ax mid">120</text>
+<line x1="776.7" y1="68" x2="776.7" y2="472" class="gl"/>
+<text x="776.7" y="492" class="ax mid">150</text>
+<line x1="872.0" y1="68" x2="872.0" y2="472" class="gl"/>
+<text x="872.0" y="492" class="ax mid">180</text>
+<text x="586.0" y="516" class="axt mid">seconds from pressing Launch to the mission reporting complete</text>
+<text x="290" y="34" class="axt end">act</text>
+<g><title>Monte Carlo race vs reduced-order: 172.1 s measured, spread 1.3 s over three runs</title><text x="290" y="95.5" class="cat end">Monte Carlo race vs reduced-order</text><rect x="300" y="82.5" width="546.9" height="17" rx="4" class="bar hi"/><text x="837.9" y="95.5" class="val inbar end">172.1 s</text></g>
+<g><title>B-52 external aerodynamics: 26.9 s measured, spread 0.7 s over three runs</title><text x="290" y="125.5" class="cat end">B-52 external aerodynamics</text><rect x="300" y="112.5" width="85.5" height="17" rx="4" class="bar"/><text x="394.5" y="125.5" class="val">26.9 s</text></g>
+<g><title>Ahmed body, 25 deg slant: 21.5 s measured, spread 0.1 s over three runs</title><text x="290" y="155.5" class="cat end">Ahmed body, 25 deg slant</text><rect x="300" y="142.5" width="68.3" height="17" rx="4" class="bar"/><text x="377.3" y="155.5" class="val">21.5 s</text></g>
+<g><title>NASA wall-mounted hump: 17.3 s measured, spread 0.2 s over three runs</title><text x="290" y="185.5" class="cat end">NASA wall-mounted hump</text><rect x="300" y="172.5" width="55.0" height="17" rx="4" class="bar"/><text x="364.0" y="185.5" class="val">17.3 s</text></g>
+<g><title>Airliner L/D optimization: 11.7 s measured, spread 0.0 s over three runs</title><text x="290" y="215.5" class="cat end">Airliner L/D optimization</text><rect x="300" y="202.5" width="37.2" height="17" rx="4" class="bar"/><text x="346.2" y="215.5" class="val">11.7 s</text></g>
+<g><title>Heart valve opening angle: 7.5 s measured, spread 0.0 s over three runs</title><text x="290" y="245.5" class="cat end">Heart valve opening angle</text><rect x="300" y="232.5" width="23.8" height="17" rx="4" class="bar"/><text x="332.8" y="245.5" class="val">7.5 s</text></g>
+<g><title>Supersonic cone, M 2.35: 3.9 s measured, spread 0.0 s over three runs</title><text x="290" y="275.5" class="cat end">Supersonic cone, M 2.35</text><rect x="300" y="262.5" width="12.4" height="17" rx="4" class="bar"/><text x="321.4" y="275.5" class="val">3.9 s</text></g>
+<g><title>Cylinder vortex shedding, Re 100: 2.0 s measured</title><text x="290" y="305.5" class="cat end">Cylinder vortex shedding, Re 100</text><rect x="300" y="292.5" width="6.4" height="17" rx="4" class="bar"/><text x="315.4" y="305.5" class="val">2.0 s</text></g>
+<g><title>Diamond airfoil, M 2.0: 1.2 s measured, spread 0.0 s over three runs</title><text x="290" y="335.5" class="cat end">Diamond airfoil, M 2.0</text><rect x="300" y="322.5" width="3.8" height="17" rx="4" class="bar"/><text x="312.8" y="335.5" class="val">1.2 s</text></g>
+<g><title>Supersonic wedge, M 2.0: 1.0 s measured, spread 0.0 s over three runs</title><text x="290" y="365.5" class="cat end">Supersonic wedge, M 2.0</text><rect x="300" y="352.5" width="3.2" height="17" rx="4" class="bar"/><text x="312.2" y="365.5" class="val">1.0 s</text></g>
+<g><title>Hypersonic cylinder, M 8: 1.0 s measured, spread 0.0 s over three runs</title><text x="290" y="395.5" class="cat end">Hypersonic cylinder, M 8</text><rect x="300" y="382.5" width="3.2" height="17" rx="4" class="bar"/><text x="312.2" y="395.5" class="val">1.0 s</text></g>
+<g><title>Adjoint wing (plays for 47 s): 0.7 s measured, spread 0.2 s over three runs</title><text x="290" y="425.5" class="cat end">Adjoint wing (plays for 47 s)</text><rect x="300" y="412.5" width="2.2" height="17" rx="4" class="bar"/><text x="311.2" y="425.5" class="val">0.7 s</text></g>
+<g><title>CRM wing-body: 0.2 s measured, spread 0.0 s over three runs</title><text x="290" y="455.5" class="cat end">CRM wing-body</text><rect x="300" y="442.5" width="2.0" height="17" rx="4" class="bar"/><text x="309.6" y="455.5" class="val">0.2 s</text></g>
+<g class="anno"><line x1="846.9" y1="80.5" x2="846.9" y2="52" class="lead"/><text x="868" y="46" class="note end">longest act by far. plan three minutes of talking track</text></g>
+</svg>
+<p class="src">Source: three timed runs of each act on this box, 2026-07-30, box otherwise idle. Spread across those runs is 0.0 s to 1.3 s depending on the act.</p>
+</figure>
+
+<h3>The eight filmed benchmark acts</h3>
+<div class="scroll"><table>
+<thead><tr><th>Act</th><th>Prompt to type</th><th class="c">Upload</th><th class="n">Duration</th><th>Headline numbers</th></tr></thead>
+<tbody>
+<tr><td>Cylinder vortex shedding</td>
+  <td>Solve vortex shedding behind a circular cylinder at Reynolds 100 and check the Strouhal number.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">2.0 s</td>
+  <td>Strouhal 0.1578 against 0.1590 from the Roshko and Williamson correlation, 0.77%. <span class="tag t-good">PASS</span></td></tr>
+<tr><td>Supersonic wedge</td>
+  <td>Solve the supersonic wedge at Mach 2 with a 15 degree half-angle and check the oblique shock angle.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">1.0 s</td>
+  <td>44.693 deg against 45.344 exact, 1.44%. <span class="tag t-good">PASS</span></td></tr>
+<tr><td>Supersonic cone</td>
+  <td>Solve the supersonic cone at Mach 2.35 with a 10 degree half-angle and check the conical shock angle.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">3.9 s</td>
+  <td>27.309 deg against 26.737 from Taylor and Maccoll, 2.14%. <span class="tag t-good">PASS</span></td></tr>
+<tr><td>Diamond airfoil</td>
+  <td>Solve the diamond airfoil at Mach 2 and check the wave drag against shock-expansion theory.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">1.2 s</td>
+  <td>Cd 0.03624 against 0.03633 from shock-expansion theory, 0.26%. <span class="tag t-good">PASS</span></td></tr>
+<tr><td>Hypersonic cylinder</td>
+  <td>Solve hypersonic flow over a blunt cylinder at Mach 8 and check the shock standoff distance.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">1.0 s</td>
+  <td>Standoff 0.4181 against 0.4152 from the Billig correlation, 0.70%. <span class="tag t-good">PASS</span></td></tr>
+<tr><td>Ahmed body</td>
+  <td>Solve the Ahmed body with the 25 degree slant and check the drag against the wind tunnel.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">21.5 s</td>
+  <td>Cd 0.3041 against 0.285 published, 6.7%. <span class="tag t-flat">SOLVER-BACKED</span></td></tr>
+<tr class="us"><td>NASA wall-mounted hump</td>
+  <td>Solve the NASA wall-mounted hump and check separation and reattachment.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">17.3 s</td>
+  <td>Separation x/c 0.6544 against 0.665 experiment, -1.6%. Reattachment 1.2534 against 1.100,
+  +13.9%. <span class="tag t-good">VALIDATED</span></td></tr>
+<tr><td>CRM wing-body</td>
+  <td>Solve the CRM wing-body and check the drag.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">0.2 s</td>
+  <td>Cd 0.020901 against 0.02090, +0.007%. <span class="tag t-good">VALIDATED</span></td></tr>
+</tbody></table></div>
+
+<div class="note"><b>The hump is the one to talk over.</b> The reattachment error is the point of that
+segment, not a miss. It is a known, published weakness of the cheap turbulence model, and our
+uncertainty band predicted it in writing before the run.</div>
+
+<h3>The five headline acts</h3>
+<div class="scroll"><table>
+<thead><tr><th>Act</th><th>Prompt to type</th><th class="c">Upload</th><th class="n">Duration</th><th>Headline numbers</th></tr></thead>
+<tbody>
+<tr class="us"><td>Monte Carlo race against a reduced-order model</td>
+  <td>Race a Monte Carlo uncertainty study against a reduced-order model.<br>
+  <b>Type only this. Do not name the file.</b></td>
+  <td class="c"><span class="tag t-gold">naca0012_wing.stl</span></td><td class="n">172 s</td>
+  <td>Peak L/D 18.08 +/- 0.07, reduced-order 18.14, agreement 0.3%. Identical every take. Measured
+  speedup 17.0x to 17.5x, and that one is meant to move because it is a live timing.</td></tr>
+<tr><td>Adjoint design optimization</td>
+  <td>Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">0.7 s to run<br><b>47 s on screen</b></td>
+  <td>28.3% drag reduction at matched lift after 47 major iterations. Worst gradient check 1.71%
+  against a 5% standard. <a href="#adjoint" style="color:var(--accent)">Full panel below.</a></td></tr>
+<tr><td>B-52 external aerodynamics</td>
+  <td>Solve the external aerodynamics of the supplied B-52 geometry.</td>
+  <td class="c"><span class="tag t-gold">b52.stl</span></td><td class="n">26.9 s</td>
+  <td>A geometry study on the B-52, which is exactly what this act is. Duration includes the upload.</td></tr>
+<tr><td>Airliner L/D optimization</td>
+  <td>Optimize the L/D of an airliner for 300 passengers, 6000 km range.</td>
+  <td class="c"><span class="tag t-dim">optional</span></td><td class="n">11.7 s</td>
+  <td>The lab totals it shows are read live on the day, so they will be current whatever they say.</td></tr>
+<tr><td>Heart valve</td>
+  <td>Find the valve opening angle that minimizes pressure loss over the cardiac cycle.</td>
+  <td class="c"><span class="tag t-dim">none</span></td><td class="n">7.5 s</td>
+  <td>Winner 87.5 degrees at 1253 +/- 398 Pa, from 39 evaluations across the cycle. 11 of 13
+  candidates clear the orifice floor. The act says on its own face that this is a screen that ranks
+  the angles, not a validated pressure, so let it say it.</td></tr>
+</tbody></table></div>
+
+<div class="note good"><b>The race is the only act that is not a replay.</b> It solves 93 wings live
+every time, and its wall clocks are the measurement the segment exists to show. Its physics is fixed:
+the ensemble draws from a stated seed, so the peak, the band and the two-path agreement come out the
+same on every take. Only the measured cost and the speedup move. The uploaded wing was confirmed
+present in the mission's own event log, so the file genuinely drives the run rather than decorating
+it.</div>
+
+<figure>
+<figcaption>How close each check came, against the 5 percent standard</figcaption>
+<p class="cap">Absolute deviation from each check's own named reference. The dashed red line is this lab's 5 percent standard. Eight of the ten sit inside it. The two that do not are graded by fidelity tier rather than by the 5 percent rule, and both are stated on their own act's face.</p>
+<svg viewBox="0 0 900 498" width="100%" role="img" aria-label="Horizontal bar chart of each check's deviation from its reference, in percent, against a 5 percent line. Eight of ten sit inside the line. The Ahmed body at 6.7 percent and the NASA hump reattachment at 13.9 percent sit beyond it and are graded by tier.">
+<title>Deviation from the reference, percent, against the 5 percent standard</title>
+<line x1="286.0" y1="68" x2="286.0" y2="402" class="gl"/>
+<text x="286.0" y="422" class="ax mid">0%</text>
+<line x1="370.0" y1="68" x2="370.0" y2="402" class="gl"/>
+<text x="370.0" y="422" class="ax mid">3%</text>
+<line x1="454.0" y1="68" x2="454.0" y2="402" class="gl"/>
+<text x="454.0" y="422" class="ax mid">6%</text>
+<line x1="538.0" y1="68" x2="538.0" y2="402" class="gl"/>
+<text x="538.0" y="422" class="ax mid">9%</text>
+<line x1="622.0" y1="68" x2="622.0" y2="402" class="gl"/>
+<text x="622.0" y="422" class="ax mid">12%</text>
+<line x1="706.0" y1="68" x2="706.0" y2="402" class="gl"/>
+<text x="706.0" y="422" class="ax mid">15%</text>
+<text x="496.0" y="446" class="axt mid">deviation from the named reference, percent, absolute</text>
+<text x="276" y="62" class="axt end">check</text>
+<text x="888" y="62" class="axt end">tier</text>
+<line x1="426.0" y1="62" x2="426.0" y2="402" class="rule"/>
+<text x="434.0" y="58" class="rulelab">5% standard</text>
+<g><title>CRM wing-body drag: +0.007%, tier VALIDATED</title><text x="276" y="97.0" class="cat end">CRM wing-body drag</text><rect x="286" y="83.0" width="2.5" height="18" rx="4" class="bar"/><text x="295.2" y="97.0" class="val">+0.007%</text><text x="888" y="97.0" class="tier end">VALIDATED</text></g>
+<g><title>Diamond airfoil wave drag: 0.26%, tier PASS</title><text x="276" y="129.0" class="cat end">Diamond airfoil wave drag</text><rect x="286" y="115.0" width="7.3" height="18" rx="4" class="bar"/><text x="302.3" y="129.0" class="val">0.26%</text><text x="888" y="129.0" class="tier end">PASS</text></g>
+<g><title>Hypersonic cylinder standoff: 0.70%, tier PASS</title><text x="276" y="161.0" class="cat end">Hypersonic cylinder standoff</text><rect x="286" y="147.0" width="19.6" height="18" rx="4" class="bar"/><text x="314.6" y="161.0" class="val">0.70%</text><text x="888" y="161.0" class="tier end">PASS</text></g>
+<g><title>Cylinder Strouhal number: 0.77%, tier PASS</title><text x="276" y="193.0" class="cat end">Cylinder Strouhal number</text><rect x="286" y="179.0" width="21.6" height="18" rx="4" class="bar"/><text x="316.6" y="193.0" class="val">0.77%</text><text x="888" y="193.0" class="tier end">PASS</text></g>
+<g><title>Supersonic wedge shock angle: 1.44%, tier PASS</title><text x="276" y="225.0" class="cat end">Supersonic wedge shock angle</text><rect x="286" y="211.0" width="40.3" height="18" rx="4" class="bar"/><text x="335.3" y="225.0" class="val">1.44%</text><text x="888" y="225.0" class="tier end">PASS</text></g>
+<g><title>NASA hump separation point: -1.6%, tier VALIDATED</title><text x="276" y="257.0" class="cat end">NASA hump separation point</text><rect x="286" y="243.0" width="44.8" height="18" rx="4" class="bar"/><text x="339.8" y="257.0" class="val">-1.6%</text><text x="888" y="257.0" class="tier end">VALIDATED</text></g>
+<g><title>Adjoint gradient, worst check: 1.71%, tier GATE PASSES</title><text x="276" y="289.0" class="cat end">Adjoint gradient, worst check</text><rect x="286" y="275.0" width="47.9" height="18" rx="4" class="bar"/><text x="342.9" y="289.0" class="val">1.71%</text><text x="888" y="289.0" class="tier end">GATE PASSES</text></g>
+<g><title>Supersonic cone shock angle: 2.14%, tier PASS</title><text x="276" y="321.0" class="cat end">Supersonic cone shock angle</text><rect x="286" y="307.0" width="59.9" height="18" rx="4" class="bar"/><text x="354.9" y="321.0" class="val">2.14%</text><text x="888" y="321.0" class="tier end">PASS</text></g>
+<g><title>Ahmed body drag: 6.7%, tier SOLVER-BACKED</title><text x="276" y="353.0" class="cat end">Ahmed body drag</text><rect x="286" y="339.0" width="187.6" height="18" rx="4" class="bar gold"/><text x="482.6" y="353.0" class="val">6.7%</text><text x="888" y="353.0" class="tier end">SOLVER-BACKED</text></g>
+<g><title>NASA hump reattachment: +13.9%, tier VALIDATED</title><text x="276" y="385.0" class="cat end">NASA hump reattachment</text><rect x="286" y="371.0" width="389.2" height="18" rx="4" class="bar gold"/><text x="684.2" y="385.0" class="val">+13.9%</text><text x="888" y="385.0" class="tier end">VALIDATED</text></g>
+<g class="legend" transform="translate(20,20)"><rect x="0" y="0" width="13" height="13" rx="3" class="bar"/><text x="20" y="11" class="lg">inside the 5% standard</text><rect x="205" y="0" width="13" height="13" rx="3" class="bar gold"/><text x="225" y="11" class="lg">beyond it, graded by tier instead</text></g>
+<text x="20" y="466" class="note">Key value: the hump reattachment sits 13.9% above the NASA experiment. That is the point of the segment, not a miss.</text>
+<text x="20" y="486" class="note">It is a known published weakness, and the uncertainty band predicted it in writing beforehand.</text>
+</svg>
+<p class="src">Source: the gate table and each act's own transcript, 2026-07-30. The adjoint row is the worst of six finite-difference gradient groups against the same 5 percent standard.</p>
+</figure>
+
+<div class="note"><b>Safe to run on camera.</b> The gate table prints every act with the artifact its
+number came from. Use the filmed version: it shows the eight acts that met their gate and names the one
+it withheld in a footer, so the table never hides that it is filtered.</div>
+
+<div class="cmd">
+  <div class="shell box"><span class="who bx">In the SSH window</span><span class="where">on the lab box · safe on camera</span></div>
+<pre>cd /home/ubuntu/Certonomous
+python3 scripts/gate_table.py --filmed --md</pre>
+</div>
+
+<!-- ============================== 4 ============================== -->
+<h2 id="adjoint">4 · The adjoint act, beat by beat</h2>
+<p class="lede">This is the one act where the clock on the wall and the clock on screen are different
+numbers. It computes in under a second and then <b>plays for about 47 seconds</b>. Time your narration
+against the playback, not the run. Plan three quarters of a minute, not one second.</p>
+
+<figure>
+<figcaption>The adjoint act: what it costs against what you see</figcaption>
+<p class="cap">The act finishes computing in about 0.7 seconds and then plays a 47 second animation. The gold marker at 18 seconds is the gradient landing on the wing skin, which is the shot. The gold blocks are the two animated sequences.</p>
+<svg viewBox="0 0 900 300" width="100%" role="img" aria-label="Timeline of the adjoint act. The act computes in 0.7 seconds but plays for about 47 seconds. The gradient lands on the skin around 18 seconds, the whole-wing morph runs 20 to 24 seconds, the root close-up runs 27 to 32 seconds.">
+<title>The adjoint act: run time against screen time, seconds</title>
+<line x1="150.0" y1="48" x2="150.0" y2="196" class="gl"/>
+<text x="150.0" y="218" class="ax mid">0</text>
+<line x1="292.0" y1="48" x2="292.0" y2="196" class="gl"/>
+<text x="292.0" y="218" class="ax mid">10</text>
+<line x1="434.0" y1="48" x2="434.0" y2="196" class="gl"/>
+<text x="434.0" y="218" class="ax mid">20</text>
+<line x1="576.0" y1="48" x2="576.0" y2="196" class="gl"/>
+<text x="576.0" y="218" class="ax mid">30</text>
+<line x1="718.0" y1="48" x2="718.0" y2="196" class="gl"/>
+<text x="718.0" y="218" class="ax mid">40</text>
+<line x1="860.0" y1="48" x2="860.0" y2="196" class="gl"/>
+<text x="860.0" y="218" class="ax mid">50</text>
+<text x="505.0" y="242" class="axt mid">seconds after you press Launch</text>
+<text x="138" y="76" class="cat end">act computes</text><g><title>The act itself finishes computing in about 0.7 seconds</title><rect x="150" y="60" width="9.9" height="22" rx="4" class="bar"/></g><text x="169.9" y="77" class="val">0.7 s</text>
+<text x="138" y="134" class="cat end">plays on screen</text><g><title>The act plays for about 47 seconds on screen</title><rect x="150" y="104" width="667.4" height="44" rx="5" class="bar soft"/></g>
+<g><title>whole-wing morph, 48 frames, about 20 to 24 seconds</title><rect x="434.0" y="107" width="56.8" height="38" rx="3" class="beat"/></g>
+<g><title>root close-up, about 27 to 32 seconds</title><rect x="533.4" y="107" width="71.0" height="38" rx="3" class="beat"/></g>
+<line x1="405.6" y1="98" x2="405.6" y2="154" class="mark"/><circle cx="405.6" cy="98" r="5" class="dot"/>
+<text x="827.4" y="133" class="val">47 s</text>
+<text x="405.6" y="170" class="note mid">gradient on the skin</text><text x="462.4" y="186" class="note mid">morph</text><text x="568.9" y="170" class="note mid">root close-up</text>
+<g class="anno"><text x="20" y="274" class="note">Key value: the act computes in 0.7 s and plays for 47 s. Time the narration against the playback.</text></g>
+<g class="legend" transform="translate(150,20)"><rect x="0" y="0" width="13" height="13" rx="3" class="bar"/><text x="20" y="11" class="lg">measured run time</text><rect x="168" y="0" width="13" height="13" rx="3" class="bar soft"/><text x="188" y="11" class="lg">screen playback</text><rect x="336" y="0" width="13" height="13" rx="3" class="beat"/><text x="356" y="11" class="lg">animated beat</text><circle cx="497" cy="6" r="5" class="dot"/><text x="510" y="11" class="lg">the shot</text></g>
+</svg>
+<p class="src">Source: measured run time over three runs, 2026-07-30, and the act's own on-screen beat timings.</p>
+</figure>
+
+<div class="grid">
+  <div class="kpi hero"><div class="n g">28.3%</div><div class="l">drag reduction at matched lift</div>
+    <div class="f">After 47 major iterations. Measured against our own baseline at the same lift.</div></div>
+  <div class="kpi"><div class="n a">1.71%</div><div class="l">worst gradient check</div>
+    <div class="f">Against a 5% standard, so it clears by a factor of 2.9. Best check 0.00145%.</div></div>
+  <div class="kpi"><div class="n">105</div><div class="l">design variables</div>
+    <div class="f">96 shape control points, 7 twist stations, 2 flow-state.</div></div>
+  <div class="kpi"><div class="n gd">Partial</div><div class="l">how it stopped</div>
+    <div class="f">A 60-minute wall clock ran out. No convergence statement printed.</div></div>
+</div>
+
+<h3>What appears on screen, in order</h3>
+<ul class="plain">
+  <li><b>The baseline wing.</b></li>
+  <li><b>The finite-difference verification, all six groups.</b> Worst 1.71%, best 0.00145%, every
+  geometric constraint at machine precision. <b>Gate passes.</b></li>
+  <li><b>The adjoint gradient painted on the wing skin, about 18 seconds in. This is the shot.</b>
+  It is the real recorded gradient, mapped onto the surface through the geometry's own map.</li>
+  <li><b>The wing morphing across 48 frames, about 20 to 24 seconds</b>, with the drag trace descending
+  step for step alongside it.</li>
+  <li><b>A root close-up of the same morph, about 27 to 32 seconds</b>, where the section change is
+  legible: the baseline is a slim near-symmetric section, the final is visibly fatter and cambered.</li>
+  <li><b>28.3% drag reduction at matched lift, after 47 major iterations.</b></li>
+  <li><b>A separate table, how the optimization stopped.</b> A 60-minute wall clock, no convergence
+  statement printed, both first-order measures about an order of magnitude above tolerance, status
+  <b>Partial</b>.</li>
+</ul>
+
+<div class="note good"><b>Everything on screen is at true scale.</b> The act cannot exaggerate, because
+the scaling code was removed outright. The shapes were rebuilt by replaying the optimizer's own
+recorded design variables through the same map it used, verified linear to 7.4e-15. It is a replay of
+what the optimizer did, not a model of it. Real magnitudes if anyone asks: maximum displacement
+<b>185.9 mm</b>, which is 3.72% of the 5 m root chord, and the biggest twist change is
+<b>-3.03 degrees</b> at the outboard station.</div>
+
+<div class="note gold"><b>If someone says the change looks subtle, this is the better answer.</b> The
+act states that it could have amplified the shape by at most <b>x1.995</b> before the wing passes
+through itself, because this optimizer drove the wing onto its own thickness constraint: thinnest
+station 0.4988 against a limit of 0.5. It declined to amplify at all. That is a stronger answer than a
+bigger picture would have been.</div>
+
+<div class="banner">
+  <span class="tag t-good">SAY THIS</span>
+  <div>"A real discrete adjoint, finite-difference verified, and we stopped it on a clock before it
+  converged, so that 28% is a partial result."</div>
+</div>
+
+<!-- ============================== 5 ============================== -->
+<h2 id="notsay">5 · What not to say</h2>
+<p class="lede">Short and blunt. The acts already put the honest framing on their own faces, so the
+safest move in every case is to let the act run and say less.</p>
+
+<div class="two">
+  <div class="card bad"><div class="k">do not say</div>
+    <h4>Do not call the cylinder shape-optimization act an adjoint</h4>
+    <p>That one is a surrogate-gradient study, a differentiable model fitted to four solver runs. Real
+    design optimization, genuinely good, but a technical audience knows the difference and the
+    distinction is not worth losing. <b>Only the wing act is a genuine adjoint.</b></p></div>
+
+  <div class="card bad"><div class="k">do not say</div>
+    <h4>Do not say the adjoint converged, or that 28.3% is validated</h4>
+    <p>It did not converge. It was stopped by a 60-minute clock with no convergence statement printed.
+    The 28.3% is measured against our own baseline at the same lift, not against a wind tunnel.</p></div>
+
+  <div class="card bad"><div class="k">do not say</div>
+    <h4>Do not claim a rank in the closure challenge</h4>
+    <p>The entry is unsubmitted and we hold no rank. The page carries an UNSUBMITTED banner and says so
+    in plain text. It states it would sit third of five if submitted, and that it currently sits
+    nowhere. Say that, not a rank.</p></div>
+
+  <div class="card bad"><div class="k">do not type</div>
+    <h4>Do not type the retired ONERA M6 prompt</h4>
+    <p>That act was withdrawn from the filmed sequence. The old prompt no longer runs it: it falls
+    through to a generic geometry study that has never been timed or rehearsed. An untimed run live on
+    camera is the one thing you do not want. Its honest unconverged result stays on the permanent
+    record, which is where it belongs.</p></div>
+</div>
+
+<div class="note"><b>The standing line, if you are ever unsure.</b> The demo may withhold method. It may
+never misstate a result. When those two pull against each other, say less and stay true, never the
+reverse.</div>
+
+<footer>
+  Certonomous shoot guide. Every figure checked against its own source on 2026-07-30: act durations
+  from three timed runs each on a quiet box, accuracy figures from the gate table and each act's own
+  transcript, surface sizes and checksums re-verified today. This page is served offline from the lab
+  box and holds no external references of any kind.
+</footer>
+
+</div>
+</body>
+</html>
