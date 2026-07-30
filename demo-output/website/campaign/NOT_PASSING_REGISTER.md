@@ -43,6 +43,26 @@ none of which needs a purchase. The memory scaling law is still worth completing
 but it answers a conditional question: what box would be needed IF the numerical
 problem were solved.
 
+### Added 2026-07-30 — F4 SWBLI cylinder-flare warm-up: a hard case, five mechanisms eliminated, two real bugs fixed, unresolved
+
+**New entry, Group 3.** `f4_swbli_warmup20` (Kussoy & Horstman M=7.05 cylinder-flare
+SWBLI, θ=20° attached warm-up rung, ahead of the pre-registered θ=32.5°/35° gate)
+crashed with SIGFPE, was diagnosed across a full session, and defeated the
+investigation. Two genuine, independently-valuable bugs were found and fixed along
+the way — a thermodynamic-model swap that silently dropped the only temperature
+bound in the stack (`LESSONS.md` L-20), and an inverted mesh-grading direction in
+`make_swbli_case.py` that left the wall ~86x too coarse (y+≈86 where the design
+called for y+~1), invisible to `checkMesh` and affecting every future case built
+from that generator. Five candidate mechanisms for the underlying, still-unbounded
+energy defect were tested and eliminated on direct evidence: mesh cell quality,
+inlet boundary-condition VALUES, local time-stepping, and (this update) farfield
+boundary TREATMENT. See the full entry below and
+`demo-output/website/campaign/F4_hypersonic_blunt_body.md` for the complete,
+commit-by-commit record, including a self-caught and corrected process-monitoring
+error (a `pgrep`-based completion check gave a false positive; caught by `ps`
+before being reported, matching this project's own L-2/L-6/L-10). θ=32.5°/35°
+remain correctly held; not gated.
+
 ### Narrowed
 
 **The U-bend gradient failure (Group 2)** was tested against the airfoil's
@@ -141,7 +161,7 @@ Structural architectural block: OpenMDAO's reverse-mode sweep builds a mesh-size
 
 Cases where the solver either did not converge to its own gate, diverged during an adjoint solve, failed to complete within a session, or exhibited non-monotonic grid convergence. Includes discrete solver divergence, unsteady runs interrupted mid-window, and mesh-refinement ladders that do not asymptote.
 
-**Count: 10 cases**
+**Count: 11 cases**
 
 ### ONERA M6 Act — primal residual plateau
 
@@ -238,6 +258,23 @@ Cases where the solver either did not converge to its own gate, diverged during 
 - **To resolve:** (a) Revert finer rung to same mesh recipe as fine rung (no castellated-level jump), or (b) revert fine and finer to medium's recipe and re-run, or (c) accept fine rung as the final grid and report "grid convergence attempted but non-monotonic; results flagged SOLVER-BACKED".
 - **Evidence:** `/home/ubuntu/Certonomous/models/curriculum/results/naca4412_wing.json` (full grid_study section with all three rungs and mesh-quality details).
 
+### F4 SWBLI cylinder-flare θ=20° warm-up — SIGFPE, then persistent unbounded energy defect, five mechanisms eliminated
+
+- **What:** Family F4 stretch rung, Kussoy & Horstman (NASA TM 101075) M=7.05 axisymmetric cylinder-flare SWBLI, θ=20° attached warm-up ahead of the pre-registered θ=32.5°/35° gate. `rhoCentralFoam` + `kOmegaSST`, 29,700-cell axisymmetric wedge, isothermal wall.
+- **How it failed:** Original run (`f4_swbli_warmup20`) died with **SIGFPE inside `libfluidThermophysicalModels.so`** at `t=6.42e-07s`, Courant numbers normal (0.24-0.3), no warning beforehand. No field write existed between `t=0` and the crash, so the crash site could not be localised from the crashed run's own artifacts alone — localisation required building an instrumented, bounded diagnostic solver (`rhoCentralFoamBounded`, a two-line diff from stock `rhoCentralFoam.C` clamping internal energy before each `thermo.correct()` call and logging where/how much it fires) and re-running under controlled conditions.
+- **Two genuine bugs found and fixed along the way, independent of whether the case ever gates:**
+  1. **Thermodynamic-model swap silently dropped the only T-bound in the stack.** The case was adapted from OpenFOAM's `biconic25-55Run35` tutorial (`thermo janaf`, real `Tlow`/`Thigh` clamping) but switched to `thermo hConst` for a reasonable, disclosed reason (adequate Cp for this non-reacting flow) — `hConstThermo::limit(T)` is a documented no-op, unlike `janafThermo::limit()`, and `rhoCentralFoam` never calls `fvOptions` on the energy field either, so nothing else backstopped it. See `LESSONS.md` L-20.
+  2. **Mesh radial grading was inverted.** `make_swbli_case.py`'s `simpleGrading` ratio was correctly sized for a 47.3μm, y+~1 wall cell, but applied to a hex block whose local grading direction (per `blockDescriptor.H`'s vertex convention) runs farfield→wall, not wall→farfield — putting the fine cells at the farfield boundary (which does not need them) and leaving the actual wall cell **~86x too coarse (y+≈86)**. `checkMesh` cannot see this: a monotonically graded mesh is geometrically valid regardless of which end is fine. **This case was never wall-resolved, independent of the crash** — a converged run on the old mesh would have produced a number for a skin-friction-gated case, and it would have been gated on. Fixed at the source (one-line ratio inversion); verified the wall cell is now 23.6μm from the wall, matching design intent. Repo-checked: only this case's two working directories were ever built from the buggy generator; no gated result inherits the defect.
+- **Five candidate mechanisms tested for the underlying, still-unresolved defect (a persistent, growing region — not settling within any window tested — where clamping is required to avoid a repeat SIGFPE), each eliminated on direct evidence, not by assumption:**
+  1. **Corner-block-transition mesh quality (the leading hypothesis at the start of the investigation).** `checkMesh -writeFields '(cellDeterminant)'` cross-referenced against cell centres: the mesh's actual worst-quality cells are nowhere near the crash site or the persistently-clamped cells (determinants 0.03-0.16 vs the domain's true worst of 0.0011-0.0014), on both the original and the corrected mesh. **Eliminated.**
+  2. **Wall/inlet BC edge conflict (uniform freestream slammed against a no-slip isothermal wall with no boundary-layer shape).** Real, and partially mitigated: replaced the uniform inlet profile with Kussoy & Horstman Table II's actual measured 21-point boundary-layer survey (133cm from the nose — the reference station this inlet represents), mapped onto the true inlet-patch face centres. Reduced but did not resolve the defect; a different, unexplained site dominates once this one is addressed. **Downgraded from sole cause to a contributing, now-mitigated factor.**
+  3. **Local time-stepping (LTS) pseudo-time artifact.** The case's `ddtSchemes` used `localEuler` (pseudo-steady marching, each cell at its own local rate). Single-variable test: swapped to real time-accurate `Euler`, everything else identical. Result, on the complete run (`ps`-verified finish, after a first, false `pgrep`-based "done" signal was caught and corrected mid-investigation — see `F4_hypersonic_blunt_body.md` for that self-correction in full): the bounded-cell fraction still grows continuously to ~30% of the mesh with no plateau, covering 34x more physical time than the LTS comparison. **The specific "identical value regardless of everything" reading for one persistent cell WAS an LTS artifact (confirmed — it fluctuates under real time). The broader "not a single-cell excursion, grows, does not settle" finding is NOT an LTS artifact — it survives.**
+  4. **Inlet/farfield boundary-condition VALUE conflict**, where the `inlet` and `farfield` patches meet on a single corner cell. Checked directly: `inlet` is `fixedValue`, `farfield` is `zeroGradient` (Neumann, cannot itself impose a fixed value); the new Table-II-derived inlet profile's outermost point is bit-identical to `internalField`/what farfield mirrors (`U=1274.000000 m/s, T=81.200000K`, exactly). **No value mismatch found, before or after the inlet-profile fix. Eliminated as a value clash** (a topology sensitivity to the corner cell having two real boundary faces remains an open, unconfirmed possibility, not tested further).
+  5. **Farfield boundary TREATMENT (shock reflecting off an under-specified outer boundary).** Computed the steady oblique shock angle for M=7.05/θ=20° (27.24°) and found it does not geometrically reach the farfield boundary within this domain's axial extent — but a steeper transient/starting shock (>39.8°, plausible during the startup transient actually being simulated) would. The validated template (`biconic25-55Run35`) uses `fixedValue` at its outer/freestream boundary; this case used `zeroGradient`, undocumented as a deliberate choice. Single-variable test: switched `farfield` to `fixedValue` at freestream state for U/p/T/k/omega, mesh-fix and inlet-profile retained, real time-accurate stepping. Result at matched physical time (`t≈1.9e-05s`): bounded fraction **~17%, comparable to or slightly worse than** the `zeroGradient` case (~12% at the same time) — no improvement. **Eliminated.**
+- **Root cause: not identified.** Five mechanisms tested and eliminated on direct evidence (mesh quality, BC values, LTS, farfield treatment, and the wall/inlet edge singularity downgraded but not eliminated as a contributor). The defect is real, reproducible, grows rather than settles under every configuration tested so far, and is not yet explained.
+- **To resolve:** Per the session's own stopping rule (avoid a sixth same-night hypothesis on diminishing returns), the next test needs a genuinely different lever than what has been tried: most plausibly what `rhoCentralFoam`'s directional flux reconstruction (`interpolate(..., pos/neg, ...)`, the `vanLeer`/`vanLeerV` limiters) does at a structured-mesh corner cell with two real boundary faces, since the two most-persistent sites (the inlet/farfield corner, and a second site at `Y≈2.46cm` from the wall) are not explained by any of the five eliminated mechanisms.
+- **Evidence:** `demo-output/website/campaign/F4_hypersonic_blunt_body.md` (full record, all commits); `demo-output/website/campaign/F4_runs/swbli_cylflare/warmup20` (original crashed case, preserved unmodified); `.../warmup20_bounded`, `.../warmup20_bounded_realtime`, `.../warmup20_bounded_farfield` (diagnostic copies); `demo-output/website/campaign/F4_runs/make_swbli_case.py` (grading fix), `build_inlet_profile.py` (Table II data); `LESSONS.md` L-20.
+
 ---
 
 ## GROUP 2: GRADIENT-ACCURACY DEFECTS
@@ -326,10 +363,10 @@ Cases where the case was set up but never executed, or intermediate stages were 
 | --- | --- | --- |
 | 1. Adjoint memory wall | 5 | Structural OpenMDAO reverse-mode Jacobian-size blocker; working envelope ~10k cells |
 | 2. Gradient-accuracy defects | 2 | Sign-flipped or unstable adjoint-vs-FD disagreement, root cause unidentified |
-| 3. Solver convergence failures | 11 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders |
+| 3. Solver convergence failures | 12 | Unconverged primal, diverged adjoint, interrupted unsteady, non-asymptotic mesh ladders, growing energy-bound defect |
 | 4. Reference/regime mismatches | 4 | RANS chose wrong physics branch, or comparison basis not equivalent |
 | 5. Never run or incomplete | 1 | Scaffolding only, never executed |
-| **TOTAL** | **23** | |
+| **TOTAL** | **24** | |
 
 ---
 

@@ -1,0 +1,63 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  fvSchemes;
+}
+// Reused from OpenFOAM's own biconic25-55Run35 tutorial (nearest validated
+// axisymmetric hypersonic rhoCentralFoam case on this host), extended with
+// turbulence transport schemes (that tutorial is laminar).
+
+fluxScheme          Kurganov;
+
+ddtSchemes
+{
+    // SINGLE-VARIABLE DIAGNOSTIC (2026-07-30): swapped from `localEuler`
+    // (LTS pseudo-time-stepping, each cell advancing at its own local rate
+    // toward steady state) to real time-accurate `Euler`, to test whether
+    // the invariant inlet/farfield-corner energy-bound artifact (same cell,
+    // same value to 6 sig figs, across the unfixed mesh, the mesh-grading
+    // fix, and the mesh-fix+inlet-profile fix) is an LTS local-pseudo-time
+    // effect rather than a genuine flux/BC defect. Diagnostic case only,
+    // not the gate case -- see warmup20_bounded for the LTS original.
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default             none;
+    div(tauMC)          Gauss linear;
+    div(phi,k)          bounded Gauss upwind;
+    div(phi,omega)      bounded Gauss upwind;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+
+    reconstruct(rho) vanLeer;
+    reconstruct(U)  vanLeerV;
+    reconstruct(T)  vanLeer;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method meshWave;
+}
