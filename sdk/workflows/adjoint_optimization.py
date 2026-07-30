@@ -1,5 +1,17 @@
 """Adjoint wing optimization — a discrete adjoint, verified, then flown.
 
+This is a design optimization you watch. The wing is on screen from the plan
+phase, the adjoint gradient is painted on its skin before a single design step
+is taken, and then the surface itself walks through all 47 major iterations
+while the drag trace descends beside it. Every one of those surfaces is the
+surface the optimizer actually produced: they were replayed offline through
+the run's own pyGeo parameterization from the design-variable vectors in its
+history database, and baked into a static artifact
+(``A2_shape_frames.json``). The act loads that artifact with the standard
+library and streams it. It never touches pyGeo, DAFoam or a solver, so it runs
+on a laptop with no OpenFOAM and no network, and it plays identically every
+time.
+
 This act is the gradient beat of the control room, and it is a different
 animal from the cylinder design sweep. The sweep fits a differentiable
 response surface to a handful of solves and descends on that; useful, but the
@@ -36,7 +48,7 @@ import json
 import time
 from pathlib import Path
 
-from . import OUT_ROOT, bullets, emit_table, make_transcript
+from . import OUT_ROOT, announce_plot, bullets, emit_table, make_transcript
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, PLAN,
                                 SOLVER_BACKED, ComputeLedger, KnowledgeBase,
@@ -44,6 +56,7 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
 
+from . import _a2_shape
 from .geometry_study import mesh_validity
 
 LABEL = "adjoint-optimization"
@@ -154,6 +167,26 @@ def main(request: str | None = None, params: dict | None = None,
     history = hist_doc["history"]
     fd_rows = record["fd_verification_table"]["rows"]
 
+    # The optimizer's own shape history, baked offline through the run's pyGeo
+    # parameterization. Absent on a host that does not carry it, in which case
+    # the act plays without the viewport rather than drawing an invented wing.
+    shapes = _a2_shape.load()
+    surfaces = _a2_shape.write_surfaces(shapes, out) if shapes else {}
+
+    def show(key: str, label: str, painted: bool = True) -> None:
+        """Put one replayed surface in the viewport."""
+        if not (emit and key in surfaces):
+            return
+        emit("field.ready" if painted else "geometry.ready",
+             {"url": f"/api/field/{out.name}/{surfaces[key]}", "label": label})
+
+    if not shapes:
+        bullets(script.engineer,
+                "The replayed shape history is not on this host, so this act "
+                "runs without the viewport.",
+                "The numbers below are unaffected. Nothing is drawn in place "
+                "of the wing.")
+
     baseline = hist_doc["baseline"]
     final = hist_doc["final"]
     reduction = hist_doc["drag_reduction_pct"]
@@ -196,6 +229,20 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
+    if emit:
+        emit("objective.spec", {"metric": "CD", "direction": "min"})
+    show("baseline", f"MACH tutorial wing, baseline — C_d {baseline['CD']:.6f} "
+                     f"at C_L {CL_TARGET:g}", painted=False)
+    if shapes:
+        bullets(script.engineer,
+                f"That is the wing itself in the viewport, and it is the "
+                f"solver's own wing patch: {shapes['n_quad_faces']:,} faces, "
+                f"undecimated, split into triangles for drawing and not "
+                f"otherwise touched.",
+                f"Root chord {shapes['chord_root_m']:.2f} m, tip chord "
+                f"{shapes['chord_tip_m']:.2f} m, semispan "
+                f"{shapes['span_m']:.2f} m. Everything that follows moves "
+                f"this surface and nothing else.")
     if emit:
         emit("solver.selected", {
             "solver": "Discrete adjoint, reverse mode",
@@ -295,10 +342,40 @@ def main(request: str | None = None, params: dict | None = None,
     bullets(script.engineer, "Gradient gate passes. Proceeding to the "
                              "optimization.")
 
+    # ---------------- Evidence: the gradient, on the wing ----------------
+    # The single most useful thing an adjoint produces is a direction, and a
+    # direction on a wing is a picture. This is the recorded gradient itself,
+    # pushed through the FFD's own map onto the skin — not a redrawing of it.
+    if shapes:
+        grad = shapes["gradient"]
+        glo, ghi = grad["window_mm_per_step"]
+        show("gradient", "Where the adjoint says to push — descent direction "
+                         "on the skin, C_d at fixed C_L")
+        bullets(script.researcher,
+                "That is the gradient, on the wing. Red is where drag falls "
+                "if the skin moves outward, blue where it falls if the skin "
+                "moves in. One adjoint solve produced the whole picture.",
+                f"It is the derivative recorded in the run's own history at "
+                f"the baseline design, carried onto the surface through the "
+                f"free-form map that defines the shape. That map is linear in "
+                f"the shape variables, verified to "
+                f"{shapes['_checks']['ffd_shape_map_linearity_residual']:.0e} "
+                f"relative, so this is the exact surface motion the gradient "
+                f"asks for and not a linearisation of something curved.",
+                f"Scale: a unit step of steepest descent in the 96-variable "
+                f"shape space moves the skin by at most "
+                f"{max(abs(glo), abs(ghi)):.1f} mm. The colour bar is in "
+                f"millimetres per unit step, and it is symmetric about zero "
+                f"so white means the gradient asks for nothing there.")
+
     # ---------------- Evidence: the optimization ----------------
     roster.set(CHIEF_ENGINEER, "reading the optimization history", "working")
     roster.set_workers(RANKS, "gradient-driven shape optimization")
 
+    # The wing walks the optimization while the trace descends beside it. The
+    # two streams are interleaved on purpose: iteration by iteration, the
+    # viewer sees the drag fall and the surface that bought it, together.
+    frames = {f["iter"]: f for f in shapes["frames"]} if shapes else {}
     if emit:
         for point in history:
             emit("trace.point", {
@@ -308,7 +385,64 @@ def main(request: str | None = None, params: dict | None = None,
                 "x_label": "optimizer major iteration", "y_label": "C_d",
                 "title": f"Drag at fixed lift, C_L = {CL_TARGET:g}",
                 "feasible": True})
+            frame = frames.get(point["iter"])
+            if frame is None:
+                continue
+            drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
+            show(f"iter{frame['iter']}",
+                 f"Major iteration {frame['iter']} of {majors} — C_d "
+                 f"{frame['CD']:.6f}, {abs(drop):.1f}% "
+                 f"{'below' if drop >= 0 else 'ABOVE'} baseline · true scale, "
+                 f"painted with displacement from baseline (mm)")
     roster.set_workers(0)
+
+    if shapes:
+        last = shapes["frames"][-1]
+        show(f"iter{last['iter']}",
+             f"Optimized wing — major iteration {last['iter']}, C_d "
+             f"{last['CD']:.6f}, {reduction:.1f}% below baseline at matched "
+             f"lift")
+        dlo, dhi = shapes["disp_window_mm"]
+        chord = shapes["chord_root_m"]
+        twist_worst = min(last["twist_deg"])
+        emit_table(emit, script, role=_CE_ROLE,
+                   title="What the gradient actually moved, at true scale",
+                   headers=("Quantity", "Value"),
+                   rows=[
+                       ["Largest surface displacement",
+                        f"{last['max_disp_mm']:.0f} mm"],
+                       ["As a fraction of the root chord",
+                        f"{last['max_disp_mm'] / 10.0 / chord:.2f}% of "
+                        f"{chord:.2f} m"],
+                       ["As a fraction of the root section's thickness",
+                        f"{last['max_disp_mm'] / 10.0 / shapes['thickness_root_m']:.0f}% "
+                        f"of {shapes['thickness_root_m']:.2f} m"],
+                       ["Largest twist change",
+                        f"{twist_worst:.2f} deg nose down, at the "
+                        f"{shapes['refaxis_z_m'][last['twist_deg'].index(twist_worst) + 1]:.1f} m station"],
+                       ["Twist at the tip station",
+                        f"{last['twist_deg'][-1]:.2f} deg"],
+                       ["Colour range across the whole replay",
+                        f"{dlo:.0f} to {dhi:.0f} mm of normal displacement"],
+                       ["Display scaling applied", "None. Every frame is at "
+                                                   "true scale"],
+                   ],
+                   table_id="shape-adjoint-optimization")
+        bullets(script.engineer,
+                f"Those are the true numbers, and they explain what the "
+                f"viewport can and cannot show: "
+                f"{last['max_disp_mm']:.0f} mm is a third of the section's "
+                f"own thickness, but only "
+                f"{last['max_disp_mm'] / 10.0 / chord:.1f}% of chord and a "
+                f"seventy-fifth of the span, so on a whole wing framed to the "
+                f"span it moves the outline by about four pixels.",
+                "So the surface stays at true scale and the change is carried "
+                "by the colour on it. Nothing here is exaggerated for the "
+                "camera; had anything been, the factor would be on the "
+                "screen next to it.",
+                "The sections figure in the report cuts those same two "
+                "surfaces and draws them to scale, and at section scale the "
+                "change is not subtle at all.")
 
     cl_off = abs(final["CL"] - CL_TARGET) / CL_TARGET * 100
     # The settling claim, measured from the recorded history rather than eyeballed.
@@ -415,6 +549,22 @@ def main(request: str | None = None, params: dict | None = None,
             f"That ratio is the whole case for the adjoint, and it widens "
             f"with every design variable added.")
 
+    # The two figures that show the shape change at true scale. Both are drawn
+    # from the same replayed surfaces the viewport streamed.
+    report_plots = []
+    if shapes:
+        for builder, name, title in (
+                (_a2_shape.section_figure, "a2_sections.png",
+                 "Wing sections at true scale: baseline against the "
+                 "optimized shape"),
+                (_a2_shape.twist_figure, "a2_twist.png",
+                 "Twist the optimizer added, by spanwise station")):
+            path = builder(shapes, out / name)
+            if path:
+                announce_plot(emit, LABEL, path, title)
+                report_plots.append({"url": f"/api/plot/{LABEL}/{name}",
+                                     "title": title})
+
     knowledge.add(f"Discrete adjoint verified on a {N_DV}-variable wing: "
                   f"worst group {worst:.3g}% against central finite "
                   f"differences; {reduction:.1f}% drag reduction at matched "
@@ -461,7 +611,18 @@ def main(request: str | None = None, params: dict | None = None,
             f"Interior-point optimization with lift equality-constrained to "
             f"{CL_TARGET:g} and thickness, volume and edge constraints "
             f"active, capped at a {box_min:g} minute wall clock.",
-        ],
+        ] + ([
+            f"Every wing shown is a replay, not a rendering: the run's own "
+            f"free-form-deformation parameterization was rebuilt with the "
+            f"same {N_SHAPE} shape and {N_TWIST} twist variables and driven "
+            f"with the design-variable vectors recorded at each of the "
+            f"{majors} major iterations, on the solver's own wing patch "
+            f"({shapes['n_quad_faces']:,} faces, undecimated). The first "
+            f"iteration reproduces the baseline surface to 1e-9 m, which is "
+            f"the check that it is a replay.",
+            "Every surface, section and displacement figure is at true "
+            "scale. No deformation is amplified anywhere in this act.",
+        ] if shapes else []),
         results=[
             {"quantity": "Drag reduction at matched lift",
              "value": f"{reduction:.1f}%",
@@ -493,10 +654,22 @@ def main(request: str | None = None, params: dict | None = None,
             f"primal. Sign agreement was confirmed directly on "
             f"{SIGN_CHECKED} components and bounded below "
             f"{SIGN_BOUND_PCT:.2g}% of gradient magnitude on the rest.",
-        ],
+        ] + ([
+            f"The wing shown is the design shape the parameterization hands "
+            f"the solver. This case is aerostructural, so the shape that "
+            f"actually flies also carries the structural deflection, and that "
+            f"deflection is not part of the replay and is not on screen. The "
+            f"largest shape change is {shapes['frames'][-1]['max_disp_mm']:.0f} "
+            f"mm, {shapes['frames'][-1]['max_disp_mm'] / 10.0 / shapes['chord_root_m']:.2f}% "
+            f"of the root chord — small enough that it is carried on screen "
+            f"by a displacement field rather than by a visibly different "
+            f"outline.",
+        ] if shapes else []),
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
     )
+    if report_plots:
+        report_doc["plots"] = report_plots
     if emit:
         emit("report.ready", report_doc)
 
