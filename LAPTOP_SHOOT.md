@@ -58,6 +58,17 @@ ssh -i C:\Users\<you>\.ssh\your-key.pem -L 8765:localhost:8765 -L 8080:localhost
 - In Git Bash: `chmod 600 ~/.ssh/your-key.pem`
 - In PowerShell: `icacls C:\path\to\your-key.pem /inheritance:r /grant:r "$($env:USERNAME):(R)"`
 
+### DO NOT restart the servers mid-act
+
+Found the hard way during rehearsal: restarting the control-room server while a
+mission is running kills that mission on the spot. It reports
+
+    Mission interrupted by a service restart.
+
+The Monte Carlo race runs about 194 seconds, so it is the one most exposed.
+Start the servers before you roll and leave them alone. If you must restart,
+do it between acts, never during one.
+
 ### If the servers themselves are down
 
 Only if a page 404s or refuses. In the SSH session, on the box:
