@@ -226,9 +226,19 @@ def rows() -> list[dict]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--md", action="store_true", help="emit markdown")
+    ap.add_argument("--filmed", action="store_true",
+                    help="only the acts in the filmed sequence (those that "
+                         "met their gate). The withheld acts are still named "
+                         "in the footer with a pointer to the full record, so "
+                         "this narrows the view, never hides that it did.")
     args = ap.parse_args()
 
     data = rows()
+    withheld: list[str] = []
+    if args.filmed:
+        keep = [r for r in data if r["verdict"] not in ("UNCONVERGED", PENDING)]
+        withheld = [r["case"] for r in data if r not in keep]
+        data = keep
     ready = sum(1 for r in data if r["measured"] != PENDING)
     graded = sum(1 for r in data if r["deviation"] not in (PENDING, "-"))
 
@@ -248,6 +258,13 @@ def main() -> int:
             print(f"    deviation {r['deviation']}   -> {r['verdict']}")
             print(f"    artifact  {r['source']}")
     print(f"\n{ready} of {len(data)} acts have run; {graded} carry a graded number.")
+    if withheld:
+        # Naming them is the point. A filtered table that concealed its own
+        # filtering would be the kind of quiet edit this project exists to
+        # not make -- and a reviewer who spots it later trusts nothing else.
+        print(f"Not shown here ({len(withheld)}): {', '.join(withheld)}. "
+              f"Graded in full via the same command without --filmed, and "
+              f"recorded in demo-output/website/campaign/NOT_PASSING_REGISTER.md")
     return 0
 
 
