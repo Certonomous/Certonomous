@@ -169,22 +169,42 @@ vs 1.100 (+13.9%). The reattachment error is the *point* of this segment — it
 is a known, published RANS weakness, and our uncertainty band predicted it in
 writing before the run. Talking points: `demo-output/website/campaign/D9_TALKING_POINTS.md`.
 
-### Adjoint design optimization — BEING BUILT TONIGHT
+### Adjoint design optimization — READY
 
-Not in the control room yet. This section will be filled in with the exact
-prompt and duration when it lands.
+No upload. Type:
 
-The real material exists and passes: a discrete-adjoint wing case whose
-gradient was finite-difference verified across 105 design variables with no
-flagged component, then driven by IPOPT to a **28.3% drag reduction at matched
-lift** over 47 major iterations. It was time-boxed at 60 minutes and stopped
-short of the optimizer's own tolerance — say that on camera, it is an honest
-partial result and stating it costs nothing.
+> Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences.
 
-**Do not describe the existing cylinder `shape-optimization` act as adjoint.**
-It is a surrogate-gradient study — a differentiable model fitted to four solver
-runs. Real design optimization, genuinely good, but a technical audience will
-know the difference and the distinction is not worth losing.
+About 1 second. Verified live after the final restart.
+
+**What appears on screen:**
+
+- A discrete adjoint gradient of drag and lift over **105 design variables**
+  (96 shape control points, 7 twist stations, 2 flow-state).
+- The finite-difference verification, all six groups. Worst is **1.71%**, which
+  clears this lab's **5% pass threshold by a factor of 2.9**. Best is 0.00145%.
+  Geometric constraints at machine precision. **Gate passes.**
+- **28.3% drag reduction at matched lift**, after **47 major iterations**.
+- A separate table, *How the optimization stopped*: a 60-minute wall clock, no
+  convergence statement printed, both first-order measures about an order of
+  magnitude above tolerance, status **Partial**.
+
+**Say:** "a real discrete adjoint, finite-difference verified, and we stopped it
+on a clock before it converged — so that 28% is a partial result."
+
+**Do not say** it converged, that it is an optimum, or that 28.3% is validated.
+It is measured against our own baseline at the same lift, not a wind tunnel.
+The act states all of this itself, so just let it run.
+
+**Do not call the cylinder `shape-optimization` act adjoint.** That one is a
+surrogate-gradient study — a differentiable model fitted to four solver runs.
+Real design optimization, genuinely good, but a technical audience knows the
+difference and the distinction is not worth losing.
+
+Every number came from the optimizer's own iteration table and history
+database, not from a summary: 28.3% reproduces as 28.275%, matched lift holds
+to 0.003%, and the 60-minute box was exactly 3600 seconds. Non-convergence was
+confirmed by the absence of the optimizer's own EXIT string.
 
 ### Closure challenge — READY
 
