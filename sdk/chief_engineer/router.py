@@ -81,6 +81,19 @@ NASA_HUMP = "nasa-hump"
 ONERA_M6 = "onera-m6"
 CRM_WINGBODY = "crm-wingbody"
 
+# The gradient act. Distinct from the cylinder shape sweep in the one way that
+# matters technically: the sweep descends on a differentiable response surface
+# fitted to a handful of solves, while this one descends on a discrete adjoint
+# of the flow solver itself, finite-difference verified before use. The word
+# "adjoint" is the trigger because it names the method and appears in no other
+# prompt this control room routes; the verification clause reinforces it.
+ADJOINT_OPTIMIZATION = "adjoint-optimization"
+_ADJOINT_FRAME = re.compile(r"\badjoint\b", re.I)
+_ADJOINT_VERIFY = re.compile(
+    r"\b(finite[\s-]?difference[s]?|fd\s+check|gradient\s+"
+    r"(?:check|verification|accuracy)|verify\s+the\s+gradient|"
+    r"check\s+the\s+gradient)\b", re.I)
+
 # Optimising lift-to-drag for an aircraft against mission requirements is a
 # distinct beat from the OpenFOAM shape sweep: it searches a wing design space.
 _LIFT_DRAG = re.compile(
@@ -447,6 +460,15 @@ def classify(request: str) -> Route:
         if hold_workers:
             add(AIRCRAFT_OPTIMIZATION, 0.3,
                 "asks the lab to hold workers back on this box")
+    # --- the adjoint gradient act: names the method, so it outranks the
+    # generic shape sweep the same way a named body outranks a geometry study ---
+    if _ADJOINT_FRAME.search(text):
+        add(ADJOINT_OPTIMIZATION, 2.0,
+            "names the adjoint, a gradient taken from the solver itself "
+            "rather than from a fitted surface")
+        if _ADJOINT_VERIFY.search(text):
+            add(ADJOINT_OPTIMIZATION, 0.6,
+                "asks for the gradient to be graded against finite differences")
     # --- optimization ---
     if _OPTIMIZE.search(text):
         add(SHAPE_OPTIMIZATION, 0.7, "asks for an objective to be improved")
@@ -546,6 +568,13 @@ def classify(request: str) -> Route:
             "requirements. I will fix the requirements, search a wing design space "
             "for the highest cruise L/D that meets them all, and show the "
             "infeasible designs alongside the winner."),
+        ADJOINT_OPTIMIZATION: (
+            "Reading this as an adjoint design optimisation. The gradient "
+            "comes from a discrete adjoint of the flow solver, so it costs "
+            "one linear solve no matter how many design variables there are. "
+            "I will put the finite-difference verification of that gradient "
+            "on screen first, and only then report the optimization it "
+            "gated, with its stopping condition attached."),
         SHAPE_OPTIMIZATION: (
             "Reading this as a design-space search: an objective to improve "
             "under constraints. I will audit compute, explore real designs, and "
@@ -611,6 +640,8 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                      "output": "geometry-study"},
     SHAPE_OPTIMIZATION: {"module": "workflows.shape_optimization",
                          "output": "shape-optimization"},
+    ADJOINT_OPTIMIZATION: {"module": "workflows.adjoint_optimization",
+                           "output": "adjoint-optimization"},
     VALVE_STUDY: {"module": "workflows.valve_study", "output": "valve-study"},
     RACE_COMPARISON: {"module": "workflows.race_study",
                       "output": "race-comparison"},

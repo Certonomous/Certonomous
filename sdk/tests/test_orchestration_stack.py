@@ -153,6 +153,20 @@ class RouterTests(unittest.TestCase):
         self.assertTrue(route.rationale)
         self.assertTrue(route.evidence)
 
+    def test_adjoint_request_routes_to_adjoint_optimization(self):
+        route = self._intent(
+            "Cut the drag on the wing with the discrete adjoint and verify "
+            "the gradient against finite differences.")
+        self.assertEqual(route.intent, "adjoint-optimization")
+        self.assertGreaterEqual(route.confidence, 0.6)
+        self.assertTrue(route.rationale)
+        self.assertTrue(route.evidence)
+
+    def test_adjoint_act_does_not_steal_the_cylinder_shape_sweep(self):
+        """The generic design sweep has no adjoint in it and must keep its route."""
+        route = self._intent("Minimize drag on the cylinder body under constraints")
+        self.assertEqual(route.intent, "shape-optimization")
+
     def test_deadline_routes_to_time_constrained_with_minutes(self):
         route = self._intent("I need drag for this case in 5 minutes")
         self.assertEqual(route.intent, "time-constrained")

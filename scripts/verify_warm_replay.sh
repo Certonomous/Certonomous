@@ -19,11 +19,13 @@ declare -A PROMPT=(
   [diamond-airfoil]="Solve the diamond airfoil at Mach 2 and check the wave drag against shock-expansion theory."
   [hypersonic-cylinder]="Solve hypersonic flow over a blunt cylinder at Mach 8 and check the shock standoff distance."
   [cylinder-vortex-shedding]="Solve vortex shedding behind a circular cylinder at Reynolds 100 and check the Strouhal number."
+  [adjoint-optimization]="Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences."
 )
 
 ACTS=("$@")
 [ ${#ACTS[@]} -eq 0 ] && ACTS=(supersonic-wedge supersonic-cone diamond-airfoil
-                               hypersonic-cylinder cylinder-vortex-shedding)
+                               hypersonic-cylinder cylinder-vortex-shedding
+                               adjoint-optimization)
 
 # Lines carrying live host state rather than measurement.
 NOISE='Compute audit|cores free|GB available|other job'

@@ -89,10 +89,43 @@ as an honest UNCONVERGED row. That is the right place for it.
 
 | Demo | Prompt | Duration |
 |------|--------|----------|
+| Adjoint wing | "Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences." | 1 s |
 | B-52 | "Solve the external aerodynamics of the supplied B-52 geometry." | 51 s |
 | Heart valve | "Find the valve opening angle that minimizes pressure loss over the cardiac cycle." | 8 s |
 | Airliner | "Optimize the L/D of an airliner for 300 passengers, 6000 km range." | 17 s |
 | Monte Carlo vs reduced-order | "Race a Monte Carlo uncertainty study against a reduced-order model." | 194 s |
+
+## The adjoint act — what you can and cannot say
+
+This is the **only** act in the control room that is a genuine adjoint. The
+cylinder `shape-optimization` act is a surrogate-gradient study; **do not call
+that one adjoint on camera.** This one you can.
+
+Routes to `adjoint-optimization` at confidence 0.79. Replays in about 1 second.
+
+**What it puts on screen:**
+
+- Discrete adjoint gradient of drag and lift over **105 design variables**
+  (96 shape control points, 7 twist stations, 2 flow-state).
+- The finite-difference verification, all six physical groups: worst is
+  **CD/shape at 1.71%**, best is **CL/patchV at 0.00145%**. Every geometric
+  constraint derivative at machine precision. **Gate passes.**
+- **28.3% drag reduction at matched lift** (C_d 0.029620 → 0.021245, both at
+  C_L 0.5), after **47 major iterations**.
+- The stopping condition, as its own table: stopped by a **60-minute wall
+  clock**, no convergence statement printed, both first-order measures still
+  about an order of magnitude above the 1e-5 tolerance.
+
+**Say this:** "a real discrete adjoint, finite-difference verified, and we
+stopped it on a clock before it converged — so that 28% is a partial result."
+
+**Do not say:** that it converged, that it is an optimum, or that 28.3% is a
+validated number. It is measured against our own baseline at the same lift,
+not against a wind tunnel. The act says all of this on its own face, so the
+honest framing is already on screen if you let it run.
+
+Verified numbers came from the run's own primary logs (the optimizer's
+iteration table and its history database), not from a summary document.
 
 ## The D9 segment
 
