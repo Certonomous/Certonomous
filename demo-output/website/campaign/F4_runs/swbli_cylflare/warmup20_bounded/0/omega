@@ -1,0 +1,19 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   volScalarField;
+    object  omega;
+}
+dimensions      [0 0 -1 0 0 0 0];
+internalField   uniform 2199.16;
+boundaryField
+{
+    inlet      { type fixedValue; value uniform 2199.16; }
+    outlet     { type zeroGradient; }
+    axis       { type empty; }
+    wall       { type omegaWallFunction; value uniform 2199.16; }
+    farfield   { type zeroGradient; }
+    frontWedge { type wedge; }
+    backWedge  { type wedge; }
+}
