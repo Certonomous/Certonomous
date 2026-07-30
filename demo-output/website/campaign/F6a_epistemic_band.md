@@ -1094,6 +1094,29 @@ scheme sweep rather than the two single points tested. The honest form:
 evidence now favors an intrinsic limit over an artifact for this specific
 Delta on this case, with the above list still open.**
 
+> **2026-07-30 update.** Two items on the "untested" list just above have
+> since been tried — not a different mesh/scheme sweep, but the two
+> literature-prescribed convergence remedies for hard eigenspace-
+> perturbation corners (initializing from a converged field instead of a
+> fresh IC; ramping the perturbation gradually instead of applying it
+> instantly), sourced from the EQUiPS reference paper and tested directly
+> on the full 1C and 2C corners. Full account, residual trends, and the
+> reasoning: `F6a_epistemic_propagation.md` §8. **Short version, and the
+> scope matters:** for **1C**, both levers failed and landed on the
+> *identical* stable non-convergent floor regardless of path — this
+> *strengthens* the "intrinsic limit" reading above rather than
+> undermining it, now on two independent treatments instead of only the
+> eight moderation-magnitude points this section describes. For **2C**,
+> tried once (init-from-baseline only) and it behaved *differently* —
+> a slow drift away from a clean, unlimited start rather than a floor,
+> ~40,000x closer to its gate than 1C ever gets, no floor established
+> either way within the iteration budget tried. **The "intrinsic limit"
+> language in this section should be read as applying to 1C, corroborated;
+> it should NOT be read as applying to 2C, which remains open** — this is
+> exactly the corner-dependence the literature itself already reports
+> (Heyse et al. 2021, `LITERATURE_REPRODUCTION_REVIEW.md` §2), now
+> corroborated rather than merely cited.
+
 ### Fold-in: what the literature and the diagnostics say together
 
 Delta is the field's own documented moderation factor (Matha & Morsbach
