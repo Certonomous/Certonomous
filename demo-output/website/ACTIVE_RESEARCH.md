@@ -41,7 +41,7 @@ gate.
 | Inter model spread as first reported, one model unconverged | 1.1299 to 1.2534, did not contain it |
 | Full band, converged runs only | 1.0722 to 1.2534, contains the experiment |
 | Full band as first published | 0.5278 to 1.2534, withdrawn: two corner runs never converged |
-| Closest single perturbation to experiment | 1.1069, +0.63% |
+| Closest single check to experiment | 1.1437, +3.97% (k-epsilon) |
 
 - The prediction was committed to the record before any of the runs that
   scored it.

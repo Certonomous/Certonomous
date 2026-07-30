@@ -81,10 +81,17 @@ mission reporting complete.
 | 8 | "Solve the CRM wing-body and check the drag." | 0.2 s | 0.0 s |
 | — | ONERA M6: **removed from the filmed sequence, see below** | — | — |
 
-Act 1's figure is from a direct run of the act, not through the control room:
-the running server predates the launcher fix in `scripts/demo_servers.sh` and
-still fails this act. **Restart the control room before filming** and re-check
-it with `scripts/verify_warm_replay.sh cylinder-vortex-shedding`.
+Act 1 was broken and is now fixed. The server that cron starts at boot did not
+export the solver launcher, so the wake solve could not run and the act failed
+on camera with "the wake solve did not complete". The launcher is now exported
+where the servers are started, so a boot-started server picks it up too.
+
+**Verified through the control room on 2026-07-30 at 17:24 UTC**, after a
+restart: St 0.1578 against the correlation's 0.1590, 0.77%, and the act
+reproduces IDENTICAL on a repeat run. The 4 s figure below is that run.
+
+Still restart the control room before filming. It is what loads the current act
+code, and several acts changed today.
 
 **Expected results:**
 

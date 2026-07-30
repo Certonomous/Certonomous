@@ -65,7 +65,7 @@ mission is running kills that mission on the spot. It reports
 
     Mission interrupted by a service restart.
 
-The Monte Carlo race runs about 194 seconds, so it is the one most exposed.
+The Monte Carlo race runs about 172 seconds, so it is the one most exposed.
 Start the servers before you roll and leave them alone. If you must restart,
 do it between acts, never during one.
 
