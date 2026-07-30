@@ -33,7 +33,7 @@ reference gap that made the previous record ungated:**
 | Re 1000 | complete, t=90 | **1.4678** | 0.1445 | 0.9666 | **0.2343** | 2417.17 s | 22,400 cells |
 | Re 2000 | **complete, t=90** (corrected) | **1.5879** | 0.2095 | 1.1837 | **0.2421** | 3965.11 s | 27,360 cells |
 | Re 3900 | **complete, t=90** (finished 20260729T233155Z) — **provisional**, see spacing trap below | **1.7547** | — (envelope 1.1713) | 1.4133 | **0.2493** | 10,902 s | 44,000 cells |
-| Re 3900 (corrected spacing) | **running**, launched 20260729T233553Z | — | — | — | — | — | 44,000 cells |
+| Re 3900 (corrected spacing) | **complete, t=90** (finished 20260730T025040Z) | **1.5806** | 1.4646 (envelope) | 1.3292 | **0.1564** | 11,625 s | 44,000 cells |
 
 Statistics taken over the second half of each run (t=45-90). Strouhal from
 mean-crossing periods of the lift signal. Re 2000's full-window numbers were
@@ -944,14 +944,110 @@ with the wrong spacing is still a valid mesh.
 
 **A corrected-spacing rerun (`f5a_re3900_correctedspacing`, laminar first-cell
 0.0022646, same 44,000 cells, grading 474.211 vs 280.383) was launched at
-2026-07-29 23:35:53Z and is live as this is written.** Its result supersedes
-the numbers above if they differ materially.
+2026-07-29 23:35:53Z.** It has since finished — see the matched-pair
+comparison immediately below, which is now the answer, not a placeholder.
 
-**This does not invalidate the measurements** — y+ was measured at max 1.53 /
-avg 0.84, so the wall layer was genuinely resolved and the run is a valid
-solve of the case it actually meshed. It means the *ladder comparison* (Re 1000
--> 2000 -> 3900 trend) has an uncontrolled second variable at the top rung, so
-the trend rows below carry that caveat.
+**This does not invalidate the original measurements** — y+ was measured at
+max 1.53 / avg 0.84, so the wall layer was genuinely resolved and the run was
+a valid solve of the case it actually meshed. It meant the *ladder
+comparison* (Re 1000 -> 2000 -> 3900 trend) had an uncontrolled second
+variable at the top rung; the twin below resolves exactly how much that
+mattered, quantity by quantity.
+
+### The matched pair, finished 2026-07-30 02:50:40Z — the spacing question, answered with a measured number on every quantity
+
+**Verified from the raw files directly, not from any summary** —
+`analyze_re3900.py`/`cylinder_ladder.py`'s own `time_weighted_stats`,
+`measure_period`, `base_cpb`, `recirculation_length`, plus the identical
+formation-length and reversal-frequency extraction already applied to Re
+1000/2000/3900, re-run on the twin, same code, same probe fan, same windows.
+
+**Stationarity checked before trusting any number, per the caution given —
+not assumed because the second half worked before.** The twin's own drift
+profile is *different in shape* from the original: t>=45 gives 1.9% drift
+(the lowest of the three windows tested), while t>=54 gives 12.5% and t>=63
+gives 8.9% — the opposite ordering from the original run, where t>=45 was the
+weakest window (6.6%) and t>=54 the strongest (0.5%). This says the twin's
+mesh produces a different, longer-timescale modulation than the original —
+itself a real, measured difference between the two meshes, not noise. **t>=45
+passes the ladder's own 10% stationarity gate with room to spare (1.9%) and
+is used as the primary window here, matching every other rung's
+convention** — chosen because it is the ladder's standing convention and it
+independently happens to be the lowest-drift window for this run, not
+selected after the fact to flatter the result.
+
+**The headline result: the mean recirculation bubble is still absent.**
+`Lr/D`: no sign change anywhere in the probed range, identical to the
+original — mean streamwise velocity dips to +0.026 at 0.25D behind the base
+(original: +0.061 at 0.20D) and recovers monotonically, never crossing zero.
+**Per the pre-registered test, this settles the question the whole matched
+pair was built to ask: the topological transition — a 2D wake at Re 3900
+that separates continuously but holds no mean bubble — is PHYSICS, not the
+near-wall spacing artifact.** It survives a 55% change in first-cell height,
+the single variable the twin changed.
+
+**But the other gated quantities are NOT all insensitive to spacing, and
+that has to be reported plainly rather than folded into "the finding
+survives":**
+
+| quantity | original (staged spacing) | twin (formula spacing) | change | 3D reference | which is closer |
+| --- | --- | --- | --- | --- | --- |
+| Cd_mean | 1.7011 | **1.5806** | **-7.1%** | 0.84-1.14 | twin, slightly |
+| St | 0.2409 (FFT-confirmed 0.22-0.29 band) | **0.1564** (FFT-confirmed 0.11-0.18 band, independently cross-checked) | **-35.1%** | 0.210-0.220 | **original** — the twin now *under*-predicts where the original *over*-predicted; spacing flipped the sign of the St error |
+| -Cpb | 2.038 | **1.897** | **-6.9%** | 0.88-0.99 | twin, slightly |
+| Cl_rms | 1.3740 | **1.3292** | -3.3% | — | — |
+| `Lr`/D | none | none | **unchanged (both null)** | 0.98-1.66 | neither — confirmed physics, not spacing |
+| `Lf`/D (centreline, Parnaudeau convention) | 0.400 | **0.450** | +12.5% | 0.87-0.92 | twin, but both far short |
+| reversal freq., near-base (0.05-0.25D) | 34.0-38.7% | **38.0-43.3%** | higher throughout | — | — |
+| reversal freq., full range (0.05-0.50D) | 19.2-38.7% | **34.3-43.3%** | notably higher, esp. far field (19.2%->34.3% at s/D=0.50) | — | — |
+
+**Cd, -Cpb and Cl_rms are genuinely close to insensitive** — 3-7% moves on a
+55% spacing change, small relative to the 50-100%+ deviations these
+quantities already carry against the 3D reference. Stated as the positive
+finding it is: **this ladder's drag, base-suction and fluctuation-amplitude
+gates are not sensitive to a 55% change in near-wall spacing at Re 3900**,
+which is exactly the kind of robustness statement a matched pair exists to
+produce, not a disclaimer quietly dropped.
+
+**St is the exception, and it is a large one — independently confirmed by
+FFT, not just the zero-crossing period detector.** Both the record's
+`measure_period`-based St and a separate Hann-windowed FFT of the same t>=45
+`Cl` series agree: the original run's spectrum peaks tightly in the
+St=0.22-0.29 band; the twin's peaks in a lower, broader St=0.11-0.18 band.
+This is a real, large (-35%), sign-flipping sensitivity to near-wall
+spacing, not a measurement artifact — two independent frequency-extraction
+methods on the twin's own data agree with each other, they just disagree
+sharply with the original run. **The most defensible reading, consistent
+with the literature already gathered this session:** Singh & Mittal's own
+account (Section on `Lf`, above) and Scott & Durst's independent finding
+that 2D-confined cylinder wake dynamics are "fully chaotic" by Re~1000
+together suggest that at Re 3900 this flow may no longer have a single
+robust dominant shedding frequency for a finite-window FFT/period detector
+to lock onto — a small perturbation to the near-wall mesh (this is,
+after all, a chaotic-dynamics-adjacent regime) can shift which broadband
+peak the analysis reports as dominant, the way a chaotic system's trajectory
+is sensitively dependent on small changes upstream. **Stated as the
+best-supported hypothesis, not proven** — the alternative, that one of the
+two meshes has a genuine numerical St error the other does not, has not been
+excluded, and distinguishing them would need a longer averaging window or an
+ensemble of runs, not assumed from this one pair.
+
+**`Lf` moves toward the 3D reference with the corrected spacing (0.400 ->
+0.450, still well short of 0.87-0.92) and reversal frequency rises
+throughout, most sharply in the far field** — both consistent with the
+finer near-wall mesh resolving somewhat more of the near-wake shear-layer
+structure, a small, real effect in the expected direction, not a reversal of
+the headline finding.
+
+**Net verdict on the matched pair:** the ladder's best result — the
+qualitative 2D/3D wake-topology difference — is now externally validated
+against its own mesh-spacing confound, not merely asserted past it: it
+survives a 55% first-cell change intact. Three of the four percentage-based
+gates (Cd, -Cpb, Cl_rms) are robust to the same change, a genuine robustness
+finding in its own right. St is not robust, moves by more than either
+spacing-driven deviation the ladder has measured elsewhere, and is reported
+as an open, load-bearing uncertainty with a stated (not proven) hypothesis
+rather than smoothed into the rest of the result.
 
 ### Verdict: GATE REACHED (PROVISIONAL) as a model-deviation measurement — NOT as a solver validation
 
