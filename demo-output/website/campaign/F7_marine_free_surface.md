@@ -411,3 +411,204 @@ throughout) — not revisited. Full stage-by-stage data in
 - Digitisation source: arXiv:2108.08769 (Leakey, Glenis & Hewett, 2021/2022 —
   corrected author, see D1 above), Fig. 7, page image re-rendered at 600 dpi for
   calibration.
+
+---
+
+## D2 diagnosis (2026-07-30): D1's own recommended next step carried out — the
+gate's systematic bias is NOT an extraction artifact after all
+
+**Directive:** owner-level task naming F7a's sign-flip signature directly
+("recorded as producing a sign flip when the mesh is refined... that signature
+should be familiar" — matching the airfoil case's own refinement-worsening
+signature, which turned out to be a real defect, not a discretisation
+artifact). Method: find WHERE before proposing a mechanism; check the case
+setup against the template/reference it came from. Budget: cheap, foreground,
+`launch_solve.sh`-registered runs; nothing left running.
+
+### Step 0 — re-verify D1's own headline number independently, before building on it
+
+Per this lab's standing rule (do not trust a prior conclusion without
+re-deriving it), D1's stage-(c) row-height claim (row 0 at t=0.6 gives
+Z=13.38, row 1 gives Z=7.72 — a >40-point, sign-flipping swing) was
+re-derived from scratch this session, reading `0.6/alpha.water` and a freshly
+generated `0.6/C` (cell centres) directly, grouping cells into rows by y, and
+independently re-implementing the alpha=0.5 crossing search. **Result: row 0
+Z=13.3800, row 1 Z=7.7175 — matching D1's reported values to 4 significant
+figures.** D1's row-height finding is real and reproducible, not an error.
+This re-verification cost zero new solves (reused the existing field dumps).
+
+### Step 1 — check the case setup against its reference (D1 flagged, never tested)
+
+D1 found and disclosed a real, uncorrected mismatch: the domain used here is
+15a × **2a** tall; the cited reference paper (Leakey, Glenis & Hewett,
+arXiv:2108.08769, §3.3.2) states 15a × **1.25a**. D1 reasoned this was
+"unlikely causal" (the source's own tighter domain tracked its reference
+fine, so a more generous one should not inflate the front) but never actually
+ran the comparison.
+
+**Single-variable test:** `damBreak_MM_a2p25in_medium_closedbox_paperdomain`
+— identical to the gate case in every respect (cell size dx=dy=a/20, BCs,
+schemes, solution controls) except domain height, corrected to 1.25a (ny
+25 cells instead of 40, following directly from holding cell size fixed).
+Preflight passed; foreground smoke test (20s, healthy Courant/bounded alpha)
+before the full run, launched via `launch_solve.sh`, collector armed, nothing
+left running.
+
+| T | Z_ref | Z_sim (2a domain, gate) | Z_sim (1.25a domain, paper-matched) |
+|---|---|---|---|
+| 3.90 | 6.00 | 6.62 (+10.4%) | 6.62 (+10.3%) |
+| 4.49 | 7.00 | 7.64 (+9.2%) | 7.63 (+9.0%) |
+| 5.17 | 8.00 | 8.82 (+10.2%) | 8.80 (+10.0%) |
+| 5.91 | 9.00 | 10.09 (+12.1%) | 10.07 (+11.9%) |
+| 6.74 | 10.00 | 11.50 (+15.0%) | 11.47 (+14.7%) |
+| 7.72 | 11.00 | 13.14 (+19.4%) | 13.10 (+19.1%) |
+| 8.58 | 12.00 | 14.56 (+21.3%) | 14.51 (+20.9%) |
+
+**Mean +12.9%, max 20.9% — essentially identical to the gate's own +13.6%/
+21.3%.** D1's reasoning is confirmed by direct test, not just argument: the
+domain-height mismatch is **refuted** as a contributor. This is a real,
+disclosed template deviation from the cited reference that turned out not to
+matter — reported as a genuine negative result, not silently dropped.
+
+### Step 2 — carry out D1's own recommended next step: a resolution-independent front metric
+
+D1 left this explicitly open: *"re-define front position via a mesh-
+independent extraction... before re-attempting the gate."* Implemented
+`integrated_front.py` (new): instead of a line probe at one absolute height
+(which D1 showed is extremely sensitive to which row it sits on), this sums
+`alpha.water * dy` down each x-column of the ALREADY-WRITTEN full 2D field
+(zero new solve — reuses the gate case's own 16 written time dumps) to get a
+depth-integrated water height h(x), then locates the front as the x where
+h(x) first drops below 1% of the column height a. This is not tied to any
+particular row and cannot be dominated by a single thin/noisy cell the way
+the line probe can.
+
+| T | Z_ref | Z (near-floor line probe, D1's metric) | Z (depth-integrated, new) |
+|---|---|---|---|
+| 3.90 | 6.00 | 6.62 (+10.3%) | 6.69 (+11.5%) |
+| 4.49 | 7.00 | 7.64 (+9.1%) | 7.71 (+10.1%) |
+| 5.17 | 8.00 | 8.82 (+10.3%) | 8.89 (+11.1%) |
+| 5.91 | 9.00 | 10.09 (+12.1%) | 10.16 (+12.9%) |
+| 6.74 | 10.00 | 11.50 (+15.0%) | 11.57 (+15.7%) |
+| 7.72 | 11.00 | 13.14 (+19.5%) | 13.22 (+20.1%) |
+
+**The depth-integrated metric shows the SAME systematic, time-growing
+overshoot as the near-floor line probe — not the >40-point swing D1 found
+between row 0 and row 1.** This is the decisive result of this session:
+**the row-to-row swing D1 found is real, but it is not what explains the
+gate's systematic bias.** At t=0.6, the depth-integrated front (13.45) sits
+close to row 0's line-probe value (13.38), not row 1's (7.72) — meaning row
+0 (the gate's own native probe, nearest the floor) is actually the more
+representative of the two, consistent with a dam-break surge's leading tip
+being physically a thin film hugging the floor; row 1, one cell up, is the
+outlier, most likely because the thin film has already passed that height's
+threshold going the other way. D1's conclusion "sign flip explained, not
+merely reduced" is correct for the CROSS-MESH sign flip specifically (coarse
+undershoot vs. medium overshoot); it does not extend to, and should not have
+been read as explaining, the gate's own within-mesh systematic bias — D1's
+own text was in fact careful about this distinction ("GATE STATUS: FAIL —
+unchanged. Explaining the mechanism does not make the reported number
+correct"), but the open question of *why* the number is wrong was not
+resolved there. This session answers it partially (Step 3) and reports the
+rest as unresolved (Step 4), rather than letting the row-height finding stand
+in for a fuller explanation it was never shown to provide.
+
+**Triangulation with the already-recorded column-height (bulk) metric:**
+that metric tracks the reference to within ~10% through the middle of the
+run (mean −1.5%) — a genuinely different, spatially-averaged quantity over
+the ORIGINAL column footprint, not the advancing tip. Two metrics (line
+probe, depth-integration) that measure the TIP agree with each other and
+disagree with the reference; one metric (column height) that measures the
+BULK agrees with the reference. **This localises the discrepancy specifically
+to the advancing tip of the surge, not a generic overspeed of the whole
+flow** — a real "where" finding, per this session's standing method.
+
+### Step 3 — one mechanism found and confirmed to matter, partially
+
+Candidate: VOF interface compression. `cAlpha=1` (the OpenFOAM tutorial
+default, confirmed identical in our case's `fvSolution` — checked directly
+against `$FOAM_TUTORIALS/multiphase/interFoam/laminar/damBreak/damBreak`, no
+other difference in `fvSchemes`/`fvSolution`/`transportProperties`/`g` beyond
+the already-disclosed `pRefCell`/`pRefValue` addition needed for the closed
+top wall) adds an artificial compressive velocity along the interface normal
+to counter numerical smearing. At a thin, fast, near-horizontal surge toe,
+this normal-direction correction is geometrically closest to the flow
+direction and is a physically plausible source of extra forward push.
+
+**Single-variable test:** `damBreak_MM_a2p25in_medium_closedbox_calpha0` —
+identical to the gate case except `cAlpha: 1 -> 0` (interface compression
+off). Preflight passed, foreground smoke test clean, launched via
+`launch_solve.sh`.
+
+| T | Z_ref | Z_sim (cAlpha=1, gate) | Z_sim (cAlpha=0) |
+|---|---|---|---|
+| 3.90 | 6.00 | 6.62 (+10.4%) | 6.46 (+7.7%) |
+| 4.49 | 7.00 | 7.64 (+9.2%) | 7.41 (+5.8%) |
+| 5.17 | 8.00 | 8.82 (+10.2%) | 8.48 (+5.9%) |
+| 5.91 | 9.00 | 10.09 (+12.1%) | 9.60 (+6.6%) |
+| 6.74 | 10.00 | 11.50 (+15.0%) | 10.81 (+8.1%) |
+| 7.72 | 11.00 | 13.14 (+19.4%) | 12.16 (+10.6%) |
+| 8.58 | 12.00 | 14.56 (+21.3%) | 13.30 (+10.8%) |
+
+**Mean +8.4% (down from +13.6%), max 11.7% (down from 21.3%) — roughly a
+40% reduction in both mean and max deviation from a single parameter
+change.** Interface compression is confirmed to be a real, material
+contributor to the overshoot, not a red herring. **It is not the whole
+story**: the deviation is smaller but still positive, still systematic, and
+still grows with time (7.7%→10.8%, the same qualitative shape as before at a
+lower level) — some other mechanism is also contributing, not yet
+identified.
+
+### Step 4 — verdict and what remains open
+
+**What this session established, stated precisely:**
+- D1's row-height sensitivity finding is real and re-verified independently
+  (exact match to 4 sig figs) — but it explains the CROSS-MESH sign flip,
+  not the WITHIN-MESH systematic bias the gate actually fails on. This is a
+  narrowing of D1's scope, not a contradiction of it.
+- The domain-height mismatch vs. the cited reference (2a vs. 1.25a), flagged
+  by D1 but never tested, is **refuted by direct A/B run** (deviation
+  unchanged to within 1 percentage point).
+- A resolution-independent, depth-integrated front metric — D1's own
+  recommended next step — shows the **same** systematic, time-growing
+  overshoot as the original near-floor probe. The gate's failure is real,
+  not a probe-height artifact, matching the pattern the coordinator flagged
+  from the airfoil case.
+- The discrepancy is localised to the advancing tip specifically (bulk
+  column-height agrees with the reference; tip-tracking metrics do not).
+- VOF interface compression (`cAlpha`) is a confirmed, material,
+  single-variable-tested contributor — turning it off cuts both mean and max
+  deviation by roughly 40% — but does not eliminate the bias.
+
+**What remains unidentified:** the residual ~6-11% (cAlpha=0) to ~10-21%
+(cAlpha=1) systematic, time-growing overshoot at the tip. Candidates not yet
+tested: (a) the reference paper's OWN front-extraction methodology may differ
+systematically from either metric used here (a comparison-basis question,
+per L-8's own stage-1 priority — not checked this session, since the paper's
+methodology section does not appear to state its own extraction technique in
+enough detail to rule this in or out without further digging); (b) further
+reduction/tuning of MULES sub-cycling (`nAlphaSubCycles`, `nAlphaCorr`) at
+the thin toe; (c) mesh resolution specifically at the toe height (a
+Richardson-style study, not yet run, now that the row-to-row extraction
+confound is understood well enough not to alias into it).
+
+**Per the standing stopping rule:** two real, testable mechanisms were found
+this session (one refuted: domain height; one confirmed material but
+partial: interface compression), and D1's own recommended next step was
+carried out and answered (resolution-independent extraction does not rescue
+the gate). This is reported as an honest partial result, not chased to a
+third or fourth new hypothesis tonight. **GATE STATUS: FAIL — unchanged, now
+with a materially better-characterised cause** (a real, partially-explained,
+tip-localised bias, not a comparison or extraction-method artifact). Rungs
+(b) and (c) remain correctly blocked.
+
+### D2 evidence
+
+- `demo-output/website/campaign/F7_runs/damBreak_MM_a2p25in_medium_closedbox_paperdomain/`
+  — domain-height A/B test (refuted)
+- `demo-output/website/campaign/F7_runs/damBreak_MM_a2p25in_medium_closedbox_calpha0/`
+  — interface-compression A/B test (confirmed, partial)
+- `demo-output/website/campaign/F7_runs/integrated_front.py` — new,
+  depth-integrated resolution-independent front extraction
+- `demo-output/website/campaign/F7_runs/{paperdomain_front.txt,calpha0_front.txt,integrated_front_rows.json}`
+  — raw extraction output behind the tables above

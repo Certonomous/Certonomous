@@ -1,0 +1,87 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2606                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// Martin & Moyce (1952) square-column dam break, a = 2 1/4 in = 0.05715 m.
+// SINGLE-VARIABLE TEST (2026-07-30): domain height changed from the gate
+// case's 2a to the cited reference paper's OWN stated 15a x 1.25a domain
+// (Leakey, Glenis & Hewett, arXiv:2108.08769, Sec 3.3.2 -- already flagged
+// as a real, disclosed mismatch by the D1 diagnosis in
+// F7_marine_free_surface.md, reasoned there as "unlikely causal" but never
+// actually tested by an A/B run). Cell size dx=dy=a/20 held fixed, so ny
+// drops from 40 to 25 (1.25a/(a/20)=25 exactly) -- everything else
+// (mesh density, BCs, schemes, solution controls) identical to
+// damBreak_MM_a2p25in_medium_closedbox.
+// Domain: 15a wide x 1.25a tall x (a/20) thin slab (2D case, empty front/back).
+// Medium (gate) mesh: dx=dy=dz=a/20 -> 300 x 25 x 1 cells.
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+a       0.05715;
+
+convertToMeters 1;
+
+vertices
+(
+    (0          0          0)
+    (#calc "15*$a"  0          0)
+    (#calc "15*$a"  #calc "1.25*$a"  0)
+    (0          #calc "1.25*$a"  0)
+    (0          0          #calc "$a/20")
+    (#calc "15*$a"  0          #calc "$a/20")
+    (#calc "15*$a"  #calc "1.25*$a"  #calc "$a/20")
+    (0          #calc "1.25*$a"  #calc "$a/20")
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) (300 25 1) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    leftWall
+    {
+        type wall;
+        faces ( (0 4 7 3) );
+    }
+    rightWall
+    {
+        type wall;
+        faces ( (1 2 6 5) );
+    }
+    lowerWall
+    {
+        type wall;
+        faces ( (0 1 5 4) );
+    }
+    atmosphere
+    {
+        type wall;
+        faces ( (3 7 6 2) );
+    }
+    defaultFaces
+    {
+        type empty;
+        faces ( (0 3 2 1) (4 5 6 7) );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
