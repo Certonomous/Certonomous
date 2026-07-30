@@ -777,3 +777,43 @@ confirmed defective -- rather than reading the uncorrected matvec gap as a findi
 
 Evidence: `probeA5MatvecDrDW.py`, `matvec_drdw_out.log`, `probeA5OffDiagSingle.py`, `offdiag_out.log`
 (all in `ladder-a/A5_work/UBend_Channel_pressureloss/`).
+
+## Addendum, 2026-07-30: the two-sided correction hypothesis -- stated for the record, NOT tested this session
+
+The coordinator's reading of the `4.200000` result above: `4.2 = 35.28 / 8.4`, the ratio of the pressure
+normalization to the velocity normalization -- both already identified by the diagonal test. On a
+momentum row (own scale `D_row = 8.4`), an entry coupling to a pressure column needs the PRESSURE scale
+rather than the row's. **Falsifiable hypothesis, to be tested empirically in a future session, not this
+one:** a two-sided correction -- divide the raw analytic entry by the row's own `D_row`, then multiply by
+the coupled column's `D_col` -- should collapse BOTH the `4.2` (row=`U`, col=`p`) and the `1.0` (row=`U`,
+col=`nuTilda`) cases to unity simultaneously, and should bring the aggregate matvec into full agreement.
+**If it does, the off-diagonal question closes and `dR/dW` is fully cleared. If it does not, there is
+something left.**
+
+**One thing worth recording alongside the hypothesis, from a zero-cost arithmetic check of the ALREADY-
+MEASURED numbers above (no new compute run -- this is just re-reading the existing table, not a test of
+the hypothesis, which per instruction is left for later):** the raw (uncorrected) multiplicative factor
+observed for each case is `8.4` for the `nuTilda` coupling and `35.28` for the `p` coupling. Checked
+against two candidate formulas using only numbers already in hand:
+
+| candidate | predicted factor, `nuTilda` col (`D_col=0.001`) | predicted factor, `p` col (`D_col=35.28`) | matches measured (`8.4`, `35.28`)? |
+|---|---|---|---|
+| `D_row / D_col` | `8400` | `0.238` | no, neither |
+| `D_col / D_row` | `0.000119` | `4.2` | only the `p` case, and only if compared to the ALREADY-row-corrected value (`4.2`), not the raw factor (`35.28`) |
+| `max(D_row, D_col)` | `8.4` | `35.28` | **yes, both, exactly** |
+
+This is not a refutation of the coordinator's hypothesis -- a genuine two-sided `row`/`column` correction
+and a `max(D_row, D_col)` pattern are two different, both-plausible readings of the SAME two data points,
+and two data points cannot distinguish a ratio-based rule from a max-based one in general (they can agree
+by coincidence on exactly two samples and diverge on a third). It IS a flag for whoever runs the actual
+test: verify the precise functional form empirically across more than two `(row-type, col-type)`
+combinations before assuming the simple two-sided ratio holds everywhere -- the `nuTilda` case in
+particular does not fit a `D_row/D_col` or `D_col/D_row` ratio formula against the raw measured factor,
+only the `max()` reading does, across BOTH cases measured so far. Whichever functional form turns out to
+be right, the coordinator's core structural insight -- correction depends on BOTH row and column type, not
+row alone -- is exactly what the data shows and is the right next thing to test.
+
+**Explicitly not tested this session, per instruction:** applying either candidate correction to the full
+matvec and re-running `probeA5MatvecDrDW.py`/`probeA5OffDiagSingle.py`-style checks across more
+`(row-type, col-type)` pairs to determine the true functional form and settle whether it resolves the
+matvec's 150-1252% aggregate disagreement.
