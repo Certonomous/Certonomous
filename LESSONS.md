@@ -825,3 +825,81 @@ y+ must be *smaller*. That is not a mesh-sizing problem to go fix; it is the
 diverged velocity field feeding back into a derived quantity. In a diverged
 solve, every derived diagnostic is downstream of the divergence and none of
 them can be read as evidence about the setup.
+
+---
+
+## L-20. A validated template's robustness can live in a component you swap out, invisibly
+
+**The rule.** When adapting a validated template (a tutorial, a prior case, a
+reference setup) by substituting one named component for another, don't just
+check that the substitute computes the right physics. Ask what ELSE the
+original component was quietly doing for the case — safety margins, bounds,
+fallback behaviour — that had nothing to do with the property you thought you
+were choosing, and confirm the substitute still provides it, or that nothing
+in the surrounding code was relying on it.
+
+**Why.** `f4_swbli_warmup20` was adapted from OpenFOAM's own
+`biconic25-55Run35` tutorial, which uses `thermo janaf` with `Tlow 100;
+Thigh 10000;`. The adaptation switched to `thermo hConst` — a reasonable,
+disclosed choice for a non-reacting flow at moderate temperature, made purely
+on thermodynamic-fidelity grounds (constant Cp is adequate here; exact JANAF
+polynomials for air were not readily at hand). Nobody was choosing a
+bounding strategy at that moment; bounding wasn't the question being asked.
+But `janafThermo::limit(T)` genuinely clamps `T` to `[Tlow,Thigh]` inside the
+solver's own temperature inversion, while `hConstThermo::limit(T)` is a
+documented no-op (both checked directly against the OpenFOAM 2606 source,
+`janafThermoI.H` vs `hConstThermoI.H`) — and `rhoCentralFoam` never calls
+`fvOptions` on the energy field either, so there was no second line of
+defence anywhere else in the stack. The thermo-model swap silently deleted
+the only thing standing between a single bad cell's energy and a SIGFPE in
+Sutherland's `sqrt(T)`, and nothing in the case — not `case_preflight.sh`,
+not a code comment, not the dictionary itself — said so. It looked exactly
+like a legitimate, narrower thermodynamic simplification, because it was
+one; the bounding loss was a side effect nobody was looking for.
+
+**Why this is a different trap from L-11.** L-11 is about a fork in
+methodology BETWEEN sibling cases in a series (Re=3900 quietly inheriting a
+turbulence model Re=1000..2000 never used) — catchable by diffing the new
+case against the previous rung. This is about a fork WITHIN a single case's
+own lineage, between it and the validated template it was built from, in a
+component whose job description (as far as anyone editing the case was
+concerned) had nothing to do with the property that broke. Diffing against a
+sibling rung would not have caught this — there was no sibling yet, and the
+diff that would have caught it is against the TEMPLATE, on a property
+(`limit()`'s behaviour) that isn't visible in the dictionary at all; you have
+to know to go read the base class.
+
+**How to apply.** When swapping a named component out of a validated
+template (a thermo model, a turbulence model, a numerical scheme, a solver),
+before trusting the swap:
+1. Read what the ORIGINAL component's class actually does, not just what
+   dictionary entries it consumes — a no-op override or an unused entry is
+   invisible from the case files alone.
+2. Ask explicitly: does anything downstream (the solver, another model, a
+   function object) *depend on* a behaviour the original component happened
+   to provide, even if that behaviour was never the reason it was chosen?
+3. If the substitute drops that behaviour, either restore it through some
+   other channel (here: a solver-level bound) and disclose the requirement,
+   or confirm nothing downstream needed it and say so — don't just confirm
+   the substitute is thermodynamically adequate and stop there.
+
+**A second, independent finding from the same investigation, worth its own
+note.** Fixing the thermo bound alone did not fully explain what was found:
+tracing the bounded diagnostic solve to its persistently worst cell led to
+discovering the mesh's radial grading was inverted — `blockMeshDict`'s
+`simpleGrading` ratio, computed correctly for a 47-micron, y+~1 wall cell,
+was applied to a hex block whose local grading direction (per
+`blockDescriptor.H`'s vertex convention, v0→v3) ran from the farfield corner
+to the wall corner, not the other way — so the fine cells landed at the
+farfield boundary (which does not need them) and the actual wall cell came
+out roughly 86x too coarse. `checkMesh` cannot catch this: a monotonically
+graded mesh is geometrically valid regardless of which end is fine, and the
+determinant/aspect-ratio/skewness checks are all direction-agnostic. The
+only way it surfaced was by tracing where a bounded, instrumented solve's
+own guard kept firing and checking THAT cell's actual size against the
+design target computed independently from the intended y+. **The general
+form: a grading-direction mistake in a mesh generator is silent to every
+standard mesh-quality metric and only shows up as a resolution the flow
+itself is unhappy with — trace failures to actual cell geometry, don't trust
+that "the mesh passed checkMesh" means the resolution went where it was
+designed to go.**

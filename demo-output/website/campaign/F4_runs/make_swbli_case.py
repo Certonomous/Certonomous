@@ -163,11 +163,34 @@ def make_case(case_dir, flare_deg, res_level="warmup"):
     vtxt = "\n".join(f"    ({v[0]:.10f} {v[1]:.10f} {v[2]:.10f})" for v in verts)
 
     # Block A: wall(0,1) outer(2,3) front / back(4,5,6,7)
+    #
+    # GRADING-DIRECTION BUG, found and fixed 2026-07-30 (diagnosing the
+    # f4_swbli_warmup20 crash). `hex (3 2 1 0 7 6 5 4)`'s local vertex 0 (the
+    # small-cell end when the 2nd simpleGrading entry is >1, per
+    # blockDescriptor.H's convention: local y goes v0->v3, ratio =
+    # size(v3)/size(v0)) is mesh-vertex "3" = vA_o0 = the farfield/OUTER
+    # corner, and local vertex 3 (the large-cell end) is mesh-vertex "0" =
+    # vA_w0 = the WALL corner. Using `total_ratio` (>1, computed FOR the
+    # wall-resolving 47-micron first cell) directly here therefore put the
+    # FINE cells at the farfield boundary (which only needs `zeroGradient`,
+    # doesn't care) and the COARSE cells (~4mm, ~86x the intended y+~1 size)
+    # at the wall -- the opposite of the design intent stated above and in
+    # this case's own comments. checkMesh cannot catch this: a monotonically
+    # graded mesh is geometrically valid regardless of which end is fine.
+    # It was only found by tracing WHERE a bounded diagnostic solve's energy
+    # clamp was firing (persistently at the wall-adjacent cell) and then
+    # checking that cell's actual size against the design target. Fix:
+    # invert the ratio so the small end lands at v3 (the wall), matching
+    # intent, without touching vertex order (lower risk of a face-orientation
+    # mistake than reordering the hex).
+    wall_ratio = 1.0 / total_ratio
     blockA = (f"hex (3 2 1 0 7 6 5 4) ({nx1} {nr} 1) "
-              f"simpleGrading (1 {total_ratio:.6g} 1)")
-    # Block B: wall(1,8) outer(9,2) front / back(5,10,11,6)
+              f"simpleGrading (1 {wall_ratio:.6g} 1)")
+    # Block B: wall(1,8) outer(9,2) front / back(5,10,11,6) -- same bug,
+    # same fix (`hex (2 9 8 1 ...)`: local v0="2"=vA_o1=outer, local
+    # v3="1"=vA_w1=wall).
     blockB = (f"hex (2 9 8 1 6 11 10 5) ({nx2} {nr} 1) "
-              f"simpleGrading (1 {total_ratio:.6g} 1)")
+              f"simpleGrading (1 {wall_ratio:.6g} 1)")
 
     blockMeshDict = f"""{foam_header("dictionary", "blockMeshDict")}
 convertToMeters 1;
