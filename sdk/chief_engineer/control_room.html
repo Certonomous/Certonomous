@@ -591,7 +591,15 @@ function bumpTouch() { if (!state.mission || state.finished) return; state.touch
 async function launchMission() {
   const goal = $('goal').value.trim();
   if (!goal) return toast('Write a mission objective first.');
+  // The attachment is consumed by this launch, not held for the session.
+  // It used to stick: upload b52.stl for the B-52 act and every later mission
+  // in the same tab silently carried it too. The router treats a surface as
+  // "run it on this body", so the NEXT act -- the NASA hump, say -- routed to
+  // a generic geometry study on the B-52 instead of its own workflow, with
+  // nothing on screen to say why. Re-attaching for a second act on the same
+  // body costs one click and is explicit; carrying it invisibly is not.
   const surface = state.uploaded;
+  releaseSurface();
   resetMission();
   state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('shell').classList.remove('browsing');
@@ -1448,7 +1456,8 @@ async function loadField(p) {
   } catch (e) {}
 }
 function normalizeMesh(m) {
-  return dropOrphanIslands({ verts: m.vertices || m.points || [], faces: m.faces || m.triangles || [], field: m.field || null });
+  return dropOrphanIslands({ verts: m.vertices || m.points || [], faces: m.faces || m.triangles || [], field: m.field || null,
+                             view: m.view || null });
 }
 // DISPLAY-only cleanup (Katie's B-52 screenshot): a meshed body can carry a
 // tiny detached island of triangles floating in empty space. Connected
@@ -1498,8 +1507,28 @@ function dropOrphanIslands(mesh, frac = 0.01, capFrac = 0.03) {
     if (nix === undefined) { nix = outVerts.length; outVerts.push(verts[ix]); remap.set(ix, nix); }
     return nix;
   }));
-  return { verts: outVerts, faces: outFaces,
+  return { verts: outVerts, faces: outFaces, view: mesh.view || null,
            field: mesh.field ? Object.assign({}, mesh.field, { values: vals ? keptVals : mesh.field.values }) : null };
+}
+// Optional camera hint carried on a mesh payload, as `view`. STRICTLY
+// ADDITIVE: a payload without `view` — which is every payload every act sends
+// today — takes exactly the code path below that it took before this existed,
+// so nothing already on camera changes.
+//
+// `axes`: a permutation applied to each vertex before projection, so a body
+//   whose own axis convention does not suit the fixed camera can be turned to
+//   face it. ONLY EVEN permutations are honoured: those are proper rotations.
+//   An odd one is a mirror, and a mirrored solved shape is a false picture of
+//   it, so it is refused rather than drawn.
+// `flat`: pins the planform decision instead of inferring it from the body's
+//   proportions. The heuristic below is a good default, but a body that
+//   changes proportion during an animation can cross its boundary mid-shot
+//   and snap the camera. Pinning is how an animated beat stays on one camera
+//   from first frame to last.
+const EVEN_AXES = { '0,1,2': 1, '1,2,0': 1, '2,0,1': 1 };
+function viewAxes(view) {
+  const a = view && view.axes;
+  return (Array.isArray(a) && a.length === 3 && EVEN_AXES[a.join(',')]) ? a : null;
 }
 const coolwarm = t => {
   t = Math.max(0, Math.min(1, t));
@@ -1518,19 +1547,27 @@ function drawGeometry() {
   if (!W || !H) return;
   cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
   if (!haveMesh) return;
+  // Camera hint, if the payload carries one (see viewAxes above). Without it
+  // `verts` is m.verts and `flat` is the same heuristic as before.
+  const perm = viewAxes(m.view);
+  const verts = perm ? m.verts.map(v => [v[perm[0]], v[perm[1]], v[perm[2]]]) : m.verts;
   let lo=[1e9,1e9,1e9], hi=[-1e9,-1e9,-1e9];
-  for (const v of m.verts) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
+  for (const v of verts) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
   const c = [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
   const span = Math.max(hi[0]-lo[0],hi[1]-lo[1],hi[2]-lo[2]) || 1;
   const ax = 0.42, cosA=Math.cos(ax), sinA=Math.sin(ax);
   // A flat body (a wing) viewed edge-on is a sliver; show its planform
-  // instead — the tilt trades a little chord for a readable shape.
-  const flat = (hi[2]-lo[2]) < 0.12 * span;
+  // instead — the tilt trades a little chord for a readable shape. A payload
+  // may pin this rather than have it inferred, so an animating body cannot
+  // cross the threshold mid-shot and take the camera with it.
+  const flat = (m.view && typeof m.view.flat === 'boolean')
+             ? m.view.flat
+             : (hi[2]-lo[2]) < 0.12 * span;
   // Project every vertex onto the model plane FIRST (rotation only, no screen
   // scale/offset), then auto-frame: fit the body's projected bounding box so it
   // FILLS the stage (~86%), centred. The shape is the hero — no fixed fudge
   // factor that leaves it a speck. Works for wings, valve, cylinder, motorBike.
-  const planar = m.verts.map(v => {
+  const planar = verts.map(v => {
     let x=v[1]-c[1], y=v[2]-c[2], z=v[0]-c[0];
     if (flat) { const t=y; y = -z*0.85 + t*0.4; z = t*0.85 + z*0.4; }
     const zr = z*cosA - x*sinA, xr = z*sinA + x*cosA, yr = y*0.92 - zr*0.28;
@@ -1719,6 +1756,15 @@ function renderResult(p) {
     + verdictBadge(p.tier) + `</div>`
     + `<span class="re">${esc([p.envelope, reason].filter(Boolean).join(' · '))}</span>`;
   rc.hidden = false;
+}
+
+// Drop the attached surface and put the upload control back to its resting
+// state, so the panel never reads "Loaded x.stl" for a mission that will not
+// receive it.
+function releaseSurface() {
+  state.uploaded = null;
+  $('surfaceLabel').textContent = 'Load a surface (STL / OBJ)';
+  setHidden('surfaceNote', true);
 }
 
 async function uploadSurface(e) {
