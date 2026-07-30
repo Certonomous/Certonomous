@@ -763,6 +763,97 @@ before any run:** L_rec/D at Re 2800 is either (a) detectable and near
 already absent, placing the true onset below 2800. Parked behind the twin,
 which is more informative to have first.
 
+### `L_f`: the metric that survives where `Lr` doesn't (per `LITERATURE_REPRODUCTION_REVIEW.md` §5, Proposals 5-6)
+
+`LITERATURE_REPRODUCTION_REVIEW.md` (a same-night, no-compute literature pass
+run specifically against this finding) identifies the field-standard answer to
+"what do you measure when the mean has no bubble": Gerrard (1966)'s formation
+length `Lf`, built from the fluctuating field's own second moment rather than
+the sign of the mean. Parnaudeau et al. (2008) — the same paper already cited
+for this ladder's `Lr` reference — report their own centreline-based version,
+`L<u'u'>` (distance to the peak of streamwise-velocity r.m.s. fluctuation on
+the centreline), alongside `Lr` in the same Table II. That is directly
+computable from the `probesCenterline` data already on disk (t>=45, all three
+completed rungs), no new solve, and it depends only on the fluctuating field
+— which the 34-39% reversal-frequency numbers above already prove is
+well-resolved at Re 3900.
+
+**Computed directly from raw probe series (population r.m.s. of Ux about its
+own mean, per station, x of the peak):**
+
+| rung | `Lf`/D (x of peak r.m.s.) | peak r.m.s. | max P(reversed) anywhere in range |
+| --- | --- | --- | --- |
+| Re 1000 | **0.350** | 0.301 | 48.1% |
+| Re 2000 | **0.400** | 0.402 | 42.6% |
+| Re 3900 | **0.400** | 0.528 | 38.7% |
+
+**`Lf` is well-defined at all three rungs — clean, single-peaked profiles,
+rising smoothly from the wall and decaying smoothly beyond the peak — exactly
+where `Lr` stopped being definable at all.** And it does not collapse: 0.350
+-> 0.400 -> 0.400, roughly flat to slightly growing, while `Lr` over the same
+three rungs goes 0.397 -> 0.254 -> none. **This is the sharper statement of
+the whole finding: the near wake does not stop having coherent structure at
+Re 3900 — it stops having a structure the time-mean can see.** The shear
+layers keep rolling up (peak r.m.s. itself grows monotonically, 0.301 -> 0.402
+-> 0.528, consistent with the growing-amplitude mechanism already measured
+above); what disappears is only the *sign-based* summary of that structure.
+
+**Checked against the matching external reference, not left as a bare
+number.** Parnaudeau et al.'s own `L<u'u'>/D` at Re 3900: **0.87 (PIV), 0.92
+(HR LES)** (their Table II, read directly, same session as the `Lr` figures
+already cited). Our measured 0.400 is **43-46% of their value** — a real,
+disclosed, unresolved gap of the same directional character as every other
+quantity this ladder has gated (2D running short/high relative to 3D), not
+papered over just because the metric itself survived. **This is not the same
+comparison as the Jiang & Cheng `Lf` mismatch corrected earlier in this
+document** — Jiang & Cheng's `Lf` is Gerrard's original off-axis
+double-shear-layer-peak definition, which needs off-centreline probe stations
+this ladder never recorded; Parnaudeau's `L<u'u'>` is the centreline
+single-peak version, definitionally closer to what is computed here, though
+not proven numerically identical (both are legitimately called "formation
+length" in the literature without a single universal normalisation).
+
+**Proposal 6 (median-based `Lr_50`, `P(reversed)=0.5` crossing) — tested and
+NOT validated; do not use it.** The proposal's own stated disproof condition
+fired: at Re 1000 and Re 2000, where a clean mean bubble exists and `Lr_50`
+was predicted to closely match the already-measured `Lr`, **reversal
+probability never reaches 50% anywhere in the probed range at any of the
+three rungs** (max 48.1%, 42.6%, 38.7% respectively) — `Lr_50` is undefined
+at *every* rung, including the two where the ordinary mean-based `Lr` works
+cleanly. The median-based metric does not reproduce the existing gate where
+both should apply, so per the proposal's own falsification criterion it is
+**not simply confirming `Lr`** and is not trusted at Re 3900 either. Recorded
+as a genuine negative result, not silently dropped: reversal probability near
+the base tops out somewhere in the high 30s to high 40s percent at every
+rung tested, well short of a majority, even where a real mean bubble exists —
+worth remembering as a general property of this wake rather than a
+Re-3900-specific curiosity.
+
+**Two honesty flags from the literature review, carried forward rather than
+smoothed over:**
+
+1. **This appears to be a genuinely novel observation.** No source the
+   review could read states, as its own finding, that the 2D time-mean
+   recirculation bubble disappears above some Reynolds number for the plain
+   circular cylinder. The closest precedent (Singh & Mittal 2005, full 2D DNS
+   from Re=100 to 10^7, sampling Re=3900 directly) is the right kind of study
+   but its own streamline discussion skips exactly the Re=3900 panel that
+   would confirm or refute this. Novel means unchecked by anyone else — the
+   internal evidence (three rungs, two independent metrics, a growing-amplitude
+   mechanism, a boundary-condition check, a probe-placement check) has to
+   carry the weight a citation would otherwise share.
+2. **One source is in direct tension with this finding and is not resolved.**
+   Balachandar, Mittal & Najjar (1997, *JFM* 351:167-199) state, per their
+   abstract (full text paywalled, confirmed via Unpaywall — `is_oa: false`),
+   that a mean recirculation region is present in **all ten** of their cases
+   spanning Re=250-140,000. If any of those ten is an unmodelled 2D case at a
+   matched Re, it contradicts this finding directly. The abstract's own
+   "span-averaged" language suggests the low-Re entries are 3D or
+   turbulence-resolving data rather than a pure 2D-laminar configuration like
+   this ladder's, but that cannot be confirmed without the full text. **Stated
+   as an open, live tension — not resolved by the direction of the other
+   evidence, and not hidden because the rest of the case reads cleanly.**
+
 ### The methodology trap bit a SECOND time — one layer deeper (found after the run finished)
 
 The trap recorded above (case staged as kOmegaSST, reverted to laminar before
