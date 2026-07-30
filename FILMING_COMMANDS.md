@@ -127,10 +127,16 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8765/
 curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/
 ```
 
-The nine-act gate table, every row citing the artifact it came from:
+The gate table, every row citing the artifact it came from. Use `--filmed` on
+camera: it shows the eight acts that met their gate, and names the one it
+withheld in a footer rather than pretending it does not exist.
 ```bash
-cd /home/ubuntu/Certonomous && python3 scripts/gate_table.py --md
+cd /home/ubuntu/Certonomous && python3 scripts/gate_table.py --filmed --md
 ```
+
+Drop `--filmed` for the full nine-row table including the honest UNCONVERGED
+row. That version is a strong segment if you want a "we grade ourselves"
+beat; it is the wrong one mid-highlight-reel. Your call on the day.
 
 ## Run these with the camera OFF
 
