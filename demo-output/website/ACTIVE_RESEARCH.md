@@ -90,9 +90,23 @@ variant instead.
 
 On the 25 degree slant this is not a small numerical difference. That geometry
 has a **documented bistable wake**, so the two algorithms settle on *different
-branches of the solution*. Neither number is wrong on its own terms, and both
-sit within the experimental band once rebased to frontal area — ours 0.2510 and
-the baseline 0.3219 against the measured 0.285, at 11.93% and 12.95%.
+branches of the solution*. Both sat within the experimental band once rebased to
+frontal area — ours 0.2510 and the baseline 0.3219 against the measured 0.285,
+at 11.93% and 12.95%.
+
+> **Correction, 2026-07-30.** The sentence above previously opened "Neither
+> number is wrong on its own terms," and is written in the present tense. That
+> no longer holds for **0.2510**: the A4 row of the status table above withdraws
+> it (the 45,760-cell DAFoam primal's turbulence field diverged while its
+> normalised residual read as converged, and the drag was computed from that
+> state). This paragraph and that row contradicted each other 29 lines apart.
+> The withdrawal stands; **0.2510 must not be cited as a result**, here or
+> anywhere. The *bistable-wake / SIMPLE-vs-SIMPLEC* reasoning in this section is
+> unaffected and still worth keeping — it is why the two codes were expected to
+> differ at all — but it can no longer be supported by that particular number.
+> **0.3219 is unaffected** and remains the validated 45,753-cell OpenFOAM
+> baseline. For how 0.3219 relates to the act's 0.3041, see
+> `campaign/AHMED_BODY_RECONCILIATION.md`.
 
 **Any credential or comparison that places the two solvers side by side inherits
 this**, and an audit is now queued.

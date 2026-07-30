@@ -11,3 +11,16 @@
 | CRM wing-body | Drag vs DAFoam CRM_Wing tutorial, Cd 0.02090 +/-2% | 0.0209 | 0.020901 | +0.007% | VALIDATED | `mission-output/crm-wingbody/transcript.txt` |
 
 9 of 9 acts have run; 9 carry a graded number.
+
+**Ahmed body row — read `campaign/AHMED_BODY_RECONCILIATION.md` before
+narrating it.** The act's Cd 0.3041 is the **79,439-cell (refinement 3)**
+production mesh. The A4 ladder record's 0.3219 is the **45,753-cell
+(refinement 2)** baseline — the same case, one rung down the act's own
+grid-refinement ladder, and reproduced by the act itself at 0.0898 planform.
+They do not disagree; the ladder's own band (±0.072 on frontal Cd) is five
+times the gap. Two things must **not** be said over this footage: A4's
+**10.04%** figure (an adjoint-vs-FD gradient check on a separate 2,777-cell
+mesh, graded CONDITIONAL — not a drag number), and **0.2510** (A4's DAFoam
+primal, withdrawn). The act's own SOLVER-BACKED verdict — "inconclusive
+refinement study, not enough to call it validated" — is correct and should be
+kept.

@@ -132,7 +132,36 @@ Rebased CD to frontal area (0.112 m^2) using the same ratio method the baseline 
 |---|---|---|
 | experimental reference | 0.285 | — |
 | our own OpenFOAM baseline | 0.3219 | 12.95% off, within band |
-| this rung's DAFoam primal | 0.2510 | **11.93% off, within band** |
+| this rung's DAFoam primal | 0.2510 | ~~11.93% off, within band~~ **WITHDRAWN** |
+
+> **Scope and status note added 2026-07-30 — read before quoting any number in
+> this table.**
+>
+> - **0.2510 is WITHDRAWN.** The 45,760-cell DAFoam primal's omega field
+>   diverged while its normalised residual read as converged, and this drag was
+>   computed from that state. Withdrawal of record:
+>   `demo-output/website/ACTIVE_RESEARCH.md` (A4 row) and
+>   `demo-output/website/campaign/NOT_PASSING_REGISTER.md`. The **gradient**
+>   result later in this document is unaffected — it used a different, healthy
+>   2,777-cell mesh. Two claims were bundled under one label and only one
+>   failed.
+> - **0.3219 is not an A4 measurement.** It is the pre-existing validated
+>   `simpleFoam` baseline this rung *reused* (`mission-output/geometry-study/study-ahmed_25/`,
+>   45,753 cells, run 2026-07-23), stated as such in §"what this rung reused"
+>   above. It is the **refinement-2** rung.
+> - **This table is scoped to one mesh recipe.** It compares two *codes*
+>   (`simpleFoam` SIMPLEC vs `DASimpleFoam` plain SIMPLE) at refinement 2. It is
+>   not, and never claimed to be, the lab's best Ahmed drag number. The finest
+>   mesh the lab has run is **79,439 cells (refinement 3)**, which gives
+>   **Cd 0.3041** — the filmed act's result. Full reconciliation of 0.3041 vs
+>   0.3219 vs 0.2510: `demo-output/website/campaign/AHMED_BODY_RECONCILIATION.md`.
+> - **The 10.04% gradient figure below is graded CONDITIONAL**, not PASS, under
+>   the current standard (`demo-output/website/dafoam/DAFOAM_CASE_STATUS.md`,
+>   `campaign/NOT_PASSING_REGISTER.md`). The "PASS" wording later in this file
+>   and in `A4_ahmed_body.json` predates that regrade (both 2026-07-28) and has
+>   not been reconciled by its owner. It is an adjoint-vs-finite-difference
+>   agreement check on the 2,777-cell mesh — **not a drag accuracy figure**, and
+>   it must not be narrated over the Ahmed act's footage.
 
 **Cause:** steady RANS with `kOmegaSST` wall functions cannot represent the time-averaged switching between
 the two wake topologies of the experimentally bistable 25-degree slant wake at Re≈2.8e6 — a known,
