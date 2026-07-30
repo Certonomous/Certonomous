@@ -22,12 +22,15 @@ The product thesis is that the lab bounds its own trust. This is that thesis
 tested against a real, independently published model form bias, not against
 our own numbers.
 
-The scientifically serious part is what the inter model spread alone would
-have missed. The linear turbulence models cluster above the experimental
-value. None of them reach it on their own. Containment only comes once the
-band includes physics based anisotropy bounds, not more members of the same
-model family. Sampling several members of one model class does not sample the
-error of the class itself.
+The scientifically serious part is what we found by auditing our own claim
+rather than defending it. We first reported that the linear turbulence models
+all cluster above the experimental value and that none reach it alone. That
+held only while one of them sat short of its own convergence standard.
+Converged, it crosses below the experiment and the narrow spread contains the
+truth after all. Separately, two of the anisotropy corner runs turned out never
+to have converged either, so the wide band they defined is withdrawn. What
+remains is tighter than what we published and rests only on runs that met their
+gate.
 
 | Quantity | Value |
 | --- | --- |
@@ -35,7 +38,8 @@ error of the class itself.
 | Our baseline reattachment x/c | 1.2534, a +13.95% error |
 | Inter model spread alone, all four models converged | 1.0722 to 1.2503, contains the experiment |
 | Inter model spread as first reported, one model unconverged | 1.1299 to 1.2534, did not contain it |
-| Full band across all channels | 0.5278 to 1.2534, contains the experiment |
+| Full band, converged runs only | 1.0722 to 1.2534, contains the experiment |
+| Full band as first published | 0.5278 to 1.2534, withdrawn: two corner runs never converged |
 | Closest single perturbation to experiment | 1.1069, +0.63% |
 
 - The prediction was committed to the record before any of the runs that
@@ -56,10 +60,10 @@ error of the class itself.
 | --- | --- | --- | --- |
 | A1 | NACA0012 incompressible, official tutorial | **COMPLETE, FD-verified** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min |
 | A2 | MACH tutorial wing (3D) | **COMPLETE, FD-verified, optimization run** | CD 0.02772949, CL 0.47759, 38,304 cells; **28.28% drag reduction** at matched CL, time-boxed; 692.5 core-min |
-| A3 | ONERA M6 transonic | **primal + Cp validated; adjoint blocked** | CD 0.02299556, CL 0.31311589, 399,360 cells, 127.5 core-min |
-| A4 | Ahmed body 25 deg | **COMPLETE, FD-verified** | CD 0.06998 on 45,760 cells; gradient FD-verified at 10.04% on a 2,777-cell mesh; 10.9 core-min |
+| A3 | ONERA M6 transonic | **primal UNCONVERGED; adjoint blocked at every mesh size** | The primal plateaus at 1.02e-06 against its own 1e-08 tolerance and raises an explicit error, so CD 0.02299556 and CL 0.31311589 are uncertified. The Cp comparison was never evaluable -- the solver raises before writing a field. Adjoint returns a linear-solver breakdown at 21,840, 42,120, 79,560 and 99,840 cells, so mesh size is not the constraint; 127.5 core-min |
+| A4 | Ahmed body 25 deg | **gradient verified; primal drag WITHDRAWN** | Gradient checked at 10.04% on a 2,777-cell mesh, and that mesh's own solve is healthy, so the gradient claim stands. The 45,760-cell primal that produced CD 0.06998 is withdrawn: its turbulence field diverged while its normalised residual read as converged, and the drag was computed from that state. Needs a re-run before any drag number is quoted; 10.9 core-min |
 | A5 | U-bend internal flow | running | — |
-| A6 | CRM wing (wing-alone; DPW4 wing-body rejected on time-box grounds), transonic | **COMPLETE, converged primal, matches published tutorial baseline** | CD 0.0209014, CL 0.5000146, 579,072 cells, matches DAFoam's own published tutorial CD=0.02090 to 0.0067%; adjoint not attempted (known-infeasible per A3, mesh 1.45x A3's OOM point); 38.4 core-min |
+| A6 | CRM wing (wing-alone; DPW4 wing-body rejected on time-box grounds), transonic | **COMPLETE, converged primal, matches published tutorial baseline** | CD 0.0209014, CL 0.5000146, 579,072 cells, matches DAFoam's own published tutorial CD=0.02090 to 0.0067%; a raw temperature-residual figure at the same checkpoint is anomalously large and has not been cleared, so this row is provisional pending that check; adjoint not attempted (known-infeasible per A3, mesh 1.45x A3's OOM point); 38.4 core-min |
 
 ### Consolidated FD verification table (every adjoint rung)
 
