@@ -164,24 +164,64 @@ limited` divergence schemes), adapted to this O-grid's `airfoil`/`inflow`/
    parsed from the solver log's table instead (`parse_force_split`, reused
    unchanged from `tmr_verification.py`), which is unambiguous.
 
-### VALIDATION GATE RESULT: PASS (banded, shock position)
+### VALIDATION GATE RESULT: PASS (banded, shock position) — CORRECTED 2026-07-30
+
+> **Correction notice.** Two things about this block changed on 2026-07-30.
+> (1) The primary case's artifacts had been discarded with the scratch ledger it
+> was run against (see commit `6cc7f629`), leaving these numbers unverifiable.
+> The case was re-run and **reproduces every digit below**; artifacts are now
+> retained at `demo-output/website/campaign/F2_runs/`.
+> (2) The claim that the shock sits 0.044 chord *upstream* of the inviscid
+> reference is **WITHDRAWN** — that displacement is smaller than one increment
+> of the shock detector, which snaps to mesh nodes. Details in
+> `demo-output/website/campaign/F2_transonic_naca0012.md`. Read the "shock
+> migrates upstream" paragraph in the geometry-choice discussion above as
+> literature context only; this campaign did not measure it.
 
 Primary case: **M=0.8, alpha=1.25 deg, Re=6e6**, 2000 iterations, 33.8 s
-wall time, converged (Cd spread 0.00093):
+wall time, converged (Cd spread 0.00093). Note this is a *pre-batch
+validation-gate solve*, not a batch sample — it does not and should not appear
+in `ledger.jsonl`. Re-run 2026-07-30 16:54:57Z; reproduced values in **bold**:
 
 - Cd = 0.0432 (pressure 0.0369 + viscous 0.0063), Cl = 0.109 -- both
   physically sane orders of magnitude for a thin symmetric airfoil at this
-  condition.
+  condition. **Reproduced: Cd 0.0431920118 (pressure 0.036911634 + viscous
+  0.0062803778), Cd spread 0.0009328060, Cl 0.109011072** -- read from
+  `campaign/F2_runs/primary_M0.8_a1.25_Re6e6/postProcessing/forceCoeffs1/0/coefficient.dat`
+  at iteration 2000.
 - **Upper-surface (suction-side) shock at x/c = 0.556**, found as the
   steepest positive dCp/dx recompression in the sampled surface-pressure
-  raw output.
+  raw output. **Reproduced: 0.55607646.**
 - Reference: the inviscid AGARD/GAMM two-shock benchmark for this exact
   (M, alpha) places the suction-side shock near x/c ~ 0.60. Our **viscous**
   RANS result at 0.556 falls inside a 0.35-0.60 chord band anchored on that
-  number, and sits slightly *upstream* of the inviscid 0.60 -- the direction
-  a real shock/turbulent-boundary-layer interaction is expected to shift it.
-  **This is a banded, qualitative pass, not a point Cp match, and is
+  number. **This is a banded, qualitative pass, not a point Cp match, and is
   reported as such.**
+- **WITHDRAWN 2026-07-30 -- the upstream-shift reading.** This block previously
+  continued: "and sits slightly *upstream* of the inviscid 0.60 -- the direction
+  a real shock/turbulent-boundary-layer interaction is expected to shift it."
+  That inference does not survive. `shock_location` returns the midpoint of the
+  adjacent surface-sample pair with the steepest positive dCp/dx, so its output
+  is quantised onto a fixed mesh lattice: only **8 distinct values across all
+  280 ledger runs**, and only 21 sample points inside the [0.05, 0.95] search
+  window on this mesh. The pitch between 0.55607646 and the next representable
+  value, 0.608440365, is **0.052364 chord** -- larger than the 0.043924-chord
+  displacement being claimed. The neighbouring representable value sits 0.0084
+  from the reference, i.e. *on* it, and 11 of the 18 ledger runs in
+  M in [0.78, 0.82], alpha in [0.8, 1.8] report exactly that value. The
+  reference itself is a two-significant-figure literature recollection with no
+  retained dataset (see the geometry-substitution note above). A 0.044-chord
+  deviation is not measurable here in either direction.
+- **Corrected statement.** The solve produces a genuine suction-side
+  recompression, located at x/c = 0.556 +/- one detector increment (~0.05
+  chord), which is **consistent with the inviscid ~0.60 benchmark to within the
+  detector's own resolution**. That is the whole of what this gate supports.
+  Caveat for anyone tightening it: 0.55607646 is inside the 0.35-0.60 band but
+  the adjacent representable value, 0.608440365, is outside it, so the banded
+  pass turns on a single quantisation level. Resolving a sub-increment shift
+  needs a sub-cell fit to the dCp/dx peak and/or a finer surface
+  discretisation than this 3584-cell rung. Neither was done and neither is
+  claimed.
 - The lower-surface "shock" the same algorithm reports (x/c = 0.608) is
   **not gated / not trusted**: at positive incidence the pressure side may
   not carry a genuine shock at all (the inviscid weak shock there is a
@@ -193,7 +233,9 @@ Secondary run (physics coverage, not RAE2822 validation): **M=0.734,
 alpha=2.79 deg, Re=6.5e6** (RAE2822 Case 9's flow numbers, applied to our
 NACA0012 geometry -- Cd/Cl are NOT compared to Case 9's published values
 since the airfoil is different): Cd=0.0405, Cl=0.386, upper shock
-x/c=0.556, 26.3 s.
+x/c=0.556, 26.3 s. **Reproduced 2026-07-30 16:55:33Z: Cd=0.0404601736,
+Cl=0.386286408, upper shock 0.55607646, 25.8 s solver time**
+(`campaign/F2_runs/secondary_M0.734_a2.79_Re6.5e6/`).
 
 **Measured cost**: 26-34 s per evaluation, single core (2000 SIMPLE
 iterations, 3584 cells) -- well inside the seconds-to-low-minutes bound,

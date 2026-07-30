@@ -1,0 +1,57 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+
+
+application     rhoSimpleFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         2000;
+deltaT          1;
+writeControl    timeStep;
+writeInterval   2000;
+purgeWrite      1;
+writeFormat     ascii;
+writePrecision  8;
+timeFormat      general;
+timePrecision   6;
+
+functions
+{
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            (forces);
+        writeControl    timeStep;
+        writeInterval   1;
+        patches         (airfoil);
+        rho             rho;
+        rhoInf          1.1766243;
+        magUInf         254.85871;
+        lRef            1.0;
+        Aref            1.0;
+        CofR            (0.25 0 0);
+        dragDir         (0.99881465 0.04867544 0);
+        liftDir         (-0.04867544 0.99881465 0);
+        pitchAxis       (0 0 1);
+    }
+    surfaceP
+    {
+        type            surfaces;
+        libs            (sampling);
+        executeControl  onEnd;
+        writeControl    onEnd;
+        surfaceFormat   raw;
+        fields          (p);
+        interpolate     false;
+        surfaces
+        (
+            airfoil { type patch; patches (airfoil); }
+        );
+    }
+}

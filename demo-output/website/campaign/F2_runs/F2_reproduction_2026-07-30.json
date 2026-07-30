@@ -1,0 +1,50 @@
+{
+  "primary_M0.8_a1.25_Re6e6": {
+    "mach": 0.8,
+    "alpha_deg": 1.25,
+    "reynolds": 6000000.0,
+    "cells": 3584,
+    "iterations": 2000,
+    "iterations_actual": 2000,
+    "cd": 0.0431920118,
+    "cd_spread": 0.0009328060000000013,
+    "cl": 0.109011072,
+    "cl_spread": 0.0038716010000000023,
+    "cd_pressure": 0.036911634,
+    "cd_viscous": 0.0062803778,
+    "upper_shock_x_over_c": 0.55607646,
+    "lower_shock_x_over_c": 0.608440365,
+    "wall_seconds": 35.800000000000004,
+    "timings": {
+      "blockMesh": 0.9,
+      "checkMesh": 1.2,
+      "rhoSimpleFoam": 33.7
+    },
+    "_started_utc": "2026-07-30T16:54:57.520580+00:00",
+    "_finished_utc": "2026-07-30T16:55:33.391951+00:00"
+  },
+  "secondary_M0.734_a2.79_Re6.5e6": {
+    "mach": 0.734,
+    "alpha_deg": 2.79,
+    "reynolds": 6500000.0,
+    "cells": 3584,
+    "iterations": 2000,
+    "iterations_actual": 2000,
+    "cd": 0.0404601736,
+    "cd_spread": 0.00017599119999999607,
+    "cl": 0.386286408,
+    "cl_spread": 0.003855945999999999,
+    "cd_pressure": 0.034088037,
+    "cd_viscous": 0.006372137,
+    "upper_shock_x_over_c": 0.55607646,
+    "lower_shock_x_over_c": 0.9337561999999999,
+    "wall_seconds": 26.400000000000002,
+    "timings": {
+      "blockMesh": 0.3,
+      "checkMesh": 0.3,
+      "rhoSimpleFoam": 25.8
+    },
+    "_started_utc": "2026-07-30T16:55:33.392037+00:00",
+    "_finished_utc": "2026-07-30T16:55:59.770937+00:00"
+  }
+}
