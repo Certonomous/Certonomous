@@ -1808,3 +1808,150 @@ single-station modes), not general to all single-station DVs (A1's own idx2-5 ar
   to `[0,1,4,6,7]` this session (same script, same method as section 17)
 - `work/NACA0012_Airfoil_Incompressible/realseed_idx01_out.log` -- raw stdout for this run
 
+
+## 19. Docket r6-airfoil-second-gradient-mechanism: two more mechanisms tested for idx0/idx1 specifically, both close without confirming a cause
+
+New session, new task (`r6-airfoil-second-gradient-mechanism`, 40 core-min budget, 3 cores/4GB). Mechanism
+7 (`mesh.warpDeriv` mis-linearizing opposing-direction combo modes) is confirmed NOT to explain idx0/idx1
+(section 18) -- they are single-station DVs, structurally unlike idx6/idx7's combo construction, and their
+own real-seed test reproduces (does not amplify) the already-known check_totals gap. This section applies
+the same link-by-link method to two more candidates, following the coordinator's brief: (a) reuses
+`probeWallBranch.py` unmodified, extended from idx6/idx4 to idx0/idx1, since that mechanism (SA
+wall-function branch-crossing) was previously tested only on the combo mode and its control, never on the
+actual flagged single-station components; (b) a new candidate, not previously named in this investigation:
+whether a mesh QUALITY METRIC (as opposed to cell size) worsens under refinement, localized near the
+leading edge, which would explain the refinement-WORSENING signature directly.
+
+### 19.1 Wall-function branch-crossing, extended to idx0/idx1: refuted, same clean signature as idx6/idx4
+
+Method identical to section 13 (which this reuses verbatim, only the `--idx` argument changed):
+`probeWallBranch.py`, serial (`np=1`), `--cpus=3 --memory=4g`, fresh single-shot processes, `h=1e-4`
+(the established well-converged step). 5 runs: baseline (shape=0), idx0 `+1e-4`/`-1e-4`, idx1
+`+1e-4`/`-1e-4`.
+
+**Sanity cross-check first, per the standing rule (verify a probe against an independently measured
+quantity before trusting it):** this session's fresh baseline CD, `2.091051000679216e-02`, matches the
+trusted production baseline (`2.091050986768742e-02`) to 8 significant figures -- same check section 13.2
+used. Central-difference CD from this run's own 4 perturbed values: idx0 = **-1.0134e-2**, idx1 =
+**-1.9876e-2** -- matching the established `check_totals` FD values at the same step (section 8.1.1:
+idx0 -1.013201e-2, idx1 -1.986298e-2) to within 0.4-0.7%, confirming this fresh serial probe reproduces
+the case's own trusted numbers before drawing any conclusion from the new measurement.
+
+| config | nZero (`nutw==0`) | global min `nutw` | at true LE stagnation face (idx 63) |
+|---|---|---|---|
+| baseline | 0 / 126 | 5.9350e-06 | 5.9350e-06 |
+| idx0, h=+1e-4 | 0 / 126 | 5.9401e-06 | 5.9401e-06 |
+| idx0, h=-1e-4 | 0 / 126 | 5.9299e-06 | 5.9299e-06 |
+| idx1, h=+1e-4 | 0 / 126 | 5.9363e-06 | 5.9363e-06 |
+| idx1, h=-1e-4 | 0 / 126 | 5.9337e-06 | 5.9337e-06 |
+
+**Zero crossings in every configuration, identical to idx6/idx4 (section 13.2).** The LE stagnation face
+value sits ~400x above the `max(0, ...)` clip floor in all 5 configurations and moves by well under 0.2%
+between plus/minus, exactly the idx6/idx4 pattern. **Verdict: mechanism 5 is refuted for idx0/idx1 too, by
+the same direct measurement, not merely by analogy.** This closes the one previously-untested combination
+(single-station, LE-adjacent DV against the wall-function branch) and removes candidate C (wall-treatment
+resolution-dependence, as specifically and testably framed) from the list.
+
+### 19.2 A mesh-quality-metric candidate, not previously named: cell aspect ratio near the LE under refinement
+
+**The candidate.** Section 11.2's refined-mesh table (14720 cells, 3.65x refinement) already showed
+idx0/idx1's disagreement WORSENING, not shrinking -- the opposite of ordinary discretization error. A
+mesh-quality metric that worsens under refinement (as opposed to cell size, which always shrinks) would
+directly explain this signature. `genAirFoilMesh.py` (the `pyHyp` hyperbolic-extrusion mesh generator both
+the coarse and refined cases share) shows the refinement halved BOTH the first wall-normal cell height
+(`yWall`: 4e-3 -> 2e-3) AND the LE chordwise point spacing (`dX1`: 0.005 -> 0.0025) together, with
+`NpExtrude` roughly doubled (33 -> 65) -- a nominally uniform 2x refinement, not an obviously
+direction-biased one, but `pyHyp`'s smoothing parameters (`epsE`, `epsI`, `volSmoothIter`, etc.) were left
+UNCHANGED between the two meshes, so a fixed-iteration hyperbolic march wrapping a fixed leading-edge
+curvature with twice the point density is a plausible, concrete route to a LOCALIZED quality metric
+getting worse even as cell size shrinks everywhere.
+
+**Zero-solver-cost check (P3): does this actually show up, and is it localized to idx0/idx1's station?**
+`checkMesh -allGeometry -writeAllFields` (stock host OpenFOAM 2606 -- pure mesh geometry, solver-
+independent, confirmed to read the same `constant/polyMesh` files both cases already have on disk; no
+container, no solve) on both the coarse and the refined mesh, then
+`work/NACA0012_Airfoil_Incompressible/probeMeshMetricRefinement.py` (new this session) compares
+LE-band cell aspect ratio, non-orthogonality, and skewness, coarse vs refined. Raw output:
+`probemeshmetricrefinement_run1.log`.
+
+Global maxima, coarse -> refined: aspect ratio **97.9 -> 167.5** (worse), non-orthogonality **22.7° ->
+27.0°** (worse), skewness **1.43 -> 0.86** (better) -- both located at the blunt TRAILING edge in both
+meshes, not the leading edge (checked directly: the global-max cell in both meshes sits at x≈0.999-1.01,
+not near x=0). So the global picture already shows a real metric (aspect ratio, max non-orthogonality)
+getting worse under refinement, but not obviously at the LE.
+
+Banded by chordwise station (aspect ratio, max value in each band, coarse -> refined -> growth factor):
+
+| band | coarse max | refined max | growth |
+|---|---|---|---|
+| true LE nose, x in [-0.02, 0.05] | 16.49 | 31.62 | **x1.917** |
+| idx0/idx1 station, x in [0.20, 0.30] (flagged) | 12.88 | 20.30 | x1.577 |
+| idx2/idx3 station, x in [0.45, 0.55] (clean) | 10.27 | 20.28 | **x1.975** |
+| idx4/idx5 station, x in [0.70, 0.80] (clean) | 15.44 | 20.28 | x1.313 |
+
+**Read plainly, this does not discriminate.** The true geometric LE nose does show the largest aspect-
+ratio growth factor of the four bands (x1.92), consistent with the candidate. But idx0/idx1's OWN FFD
+station shows LESS growth (x1.58) than one of the CLEAN controls, idx2/idx3 (x1.98) -- if aspect-ratio
+growth were the mechanism, the flagged component's own station should show more growth than the clean
+ones, and it does not, cleanly, in this data. Non-orthogonality in the same bands IMPROVES under
+refinement everywhere, including at idx0/idx1's own station (growth factor 0.45, i.e. it gets better, not
+worse). **Verdict: the aspect-ratio-near-the-LE candidate is measured, real (the global maximum and the
+true-LE-nose band both do show a metric worsening under refinement), but does NOT cleanly discriminate
+the flagged component from the clean controls, at either the whole-mesh or the per-station level. Reported
+as an inconclusive lead, not a confirmed mechanism** -- a null result on the discriminating question, even
+though the underlying observation (some mesh metric does worsen under refinement, somewhere) is real.
+
+**A second, already-existing piece of evidence against the closely related "curvature singularity"
+candidate (not re-tested, cited because it already answers the question):** section 11.1 established that
+`rcon`, DAFoam's own leading-edge RADIUS OF CURVATURE constraint gradient, matches FD to 1e-10 to 1e-13
+for every one of A1's 8 shape components, including idx0/idx1. A geometric quantity that directly measures
+LE curvature already has a perfectly correct gradient for the flagged components, at machine precision --
+weighing against, though not by itself disproving, a pure curvature-singularity mechanism as the cause of
+a 9-16% error elsewhere in the chain.
+
+### 19.3 Updated running tally
+
+| # | mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted | 8.2 |
+| 2 | FFD/DVGeo Jacobian or shape-DV sign/ordering convention | refuted | 8, 11.1 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted (idx0/idx1's own refinement data: WORSENS, doesn't shrink) | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) omitting d(yWall)/d(shape) | refuted (universal: yWall never moves for ANY shape) | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted for idx6/idx4 (13) **and now idx0/idx1 (19.1)** | 13, 19.1 |
+| 6 | combo-mode LE mesh pinching / degenerate cell volumes | refuted; N/A to idx0/idx1 by construction (single-station, not combo) | 14 |
+| 7 | `mesh.warpDeriv` wrong linearization of combo modes | CONFIRMED for idx6 only; idx0/idx1 clean (single-station, real-seed test reproduces not amplifies the known gap) | 15-18 |
+| 8a | LE-curvature geometric singularity | weighed against by `rcon`'s machine-precision gradient (11.1); not independently re-tested | 19.2 |
+| 8b | mesh-quality metric (aspect ratio) worsening near LE under refinement | measured (real effect exists) but does NOT discriminate idx0/idx1 from clean controls; inconclusive | 19.2 |
+
+### 19.4 Where this leaves the docket item
+
+**Root cause of idx0/idx1's 9-16%, step-independent, refinement-worsening disagreement is still not
+identified.** Every mechanism previously hypothesized for this case (1-7), plus two more named and tested
+this session (the wall-function branch extended to the actual flagged components, and a new mesh-metric
+candidate), come back refuted, not-applicable, or measured-but-non-discriminating. This is not a failure
+to find an answer through lack of trying: eight distinct, concretely-framed candidates have now been
+tested against direct measurement for this exact defect, more than the seven it took to crack the FIRST
+one on this case. Per the docket's own budget and the standing rule against manufacturing another
+hypothesis on diminishing returns, this session stops here rather than naming a ninth.
+
+**What would be needed next, stated concretely rather than left vague:** the one link in the derivative
+chain this investigation has never independently isolated is `dCD/dXv` itself -- the CFD/turbulence
+residual's own differentiated sensitivity to volume-mesh coordinates, as opposed to specific named
+sub-mechanisms within it (frozen wall-distance, wall-function branch, both now excluded). Isolating that
+link directly would need either a source-level audit of DAFoam's discrete adjoint residual differentiation
+(analogous to how the `nutw` clip was located by reading `calcNut()` line by line in section 13.1, but for
+the broader momentum/pressure/turbulence-transport residual code, not just the wall BC) or a from-scratch
+finite-difference check of `dCD/dXv` itself (not `dCD/dShape`) at a handful of LE-region volume points,
+comparable in spirit to section 12.2's direct `d(yWall)/d(shape)` measurement but for the full adjoint
+state sensitivity -- neither attempted this session, both nontrivial, and reported here as the identified
+next step rather than rushed.
+
+### 19.5 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeMeshMetricRefinement.py` -- new, LE-band mesh-metric
+  comparison (coarse vs refined), reads pre-computed `checkMesh -writeAllFields` output, no solve
+- `probemeshmetricrefinement_run1.log` -- raw output backing section 19.2's table
+- `probewallbranch_baseline_idx01_run1.log`, `probewallbranch_idx0_plus_run1.log`,
+  `probewallbranch_idx0_minus_run1.log`, `probewallbranch_idx1_plus_run1.log`,
+  `probewallbranch_idx1_minus_run1.log` -- the 5 raw runs behind section 19.1's table (same script as
+  section 13, `probeWallBranch.py`, unmodified, new `--idx` arguments only)

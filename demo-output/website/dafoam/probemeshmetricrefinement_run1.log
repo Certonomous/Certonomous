@@ -1,0 +1,13 @@
+=== A1 coarse (4032 cells) vs refined (14720 cells), LE-band mesh metrics ===
+global max:  coarse   refined
+  nonOrtho     22.749   26.960
+  aspect       49.992   71.478
+  skewness      1.432    0.862
+  ASPECT true LE nose        x in [-0.02, 0.05]                  coarse: n= 166 max= 16.491 mean= 6.535 | refined: n= 548 max= 31.617 mean=10.383 | max growth x1.917
+  ASPECT idx0/idx1 station   x in [0.20, 0.30] (FLAGGED, 9-16%, worsens) coarse: n= 172 max= 12.876 mean= 4.570 | refined: n= 772 max= 20.304 mean= 7.430 | max growth x1.577
+  ASPECT idx2/idx3 station   x in [0.45, 0.55] (clean control)   coarse: n= 202 max= 10.270 mean= 4.390 | refined: n= 818 max= 20.280 mean= 7.306 | max growth x1.975
+  ASPECT idx4/idx5 station   x in [0.70, 0.80] (clean control)   coarse: n= 204 max= 15.439 mean= 4.671 | refined: n= 840 max= 20.276 mean= 7.369 | max growth x1.313
+  NONORTHO true LE nose        x in [-0.02, 0.05]                coarse: n= 166 max=  6.673 mean= 3.924 | refined: n= 548 max=  4.075 mean= 2.174 | max growth x0.611
+  NONORTHO idx0/idx1 station   x in [0.20, 0.30] (FLAGGED, 9-16%, worsens) coarse: n= 172 max=  3.218 mean= 1.528 | refined: n= 772 max=  1.455 mean= 0.585 | max growth x0.452
+  NONORTHO idx2/idx3 station   x in [0.45, 0.55] (clean control) coarse: n= 202 max=  1.152 mean= 0.400 | refined: n= 818 max=  0.618 mean= 0.167 | max growth x0.537
+  NONORTHO idx4/idx5 station   x in [0.70, 0.80] (clean control) coarse: n= 204 max=  1.953 mean= 0.634 | refined: n= 840 max=  0.818 mean= 0.237 | max growth x0.419
