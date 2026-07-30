@@ -31,7 +31,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from . import OUT_ROOT, announce_geometry, make_transcript
+from . import OUT_ROOT, announce_geometry, emit_table, make_transcript
 from chief_engineer import vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
@@ -40,6 +40,8 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 uncertainty_channels)
 from chief_engineer.researcher import (ENGINEER_ACK, MissionProperties,
                                        method_memo)
+from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
+from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
 from workflows.race_benchmark import (ALPHAS, ANCHOR_ALPHAS, RE_NOMINAL,
                                       RE_SIGMA, TOLERANCE_DEG, VSPAERO_THREADS,
                                       WING, _TimedSolver)
@@ -93,6 +95,60 @@ _SEED_ENV = os.environ.get("RACE_MC_SEED", "").strip().lower()
 MC_SEED: int | None = (None if _SEED_ENV in {"clock", "none", "random"}
                        else int(_SEED_ENV or "20260730"))
 
+# The act's four tables. Each one opens with its headers before any row lands,
+# then grows a row at a time from the lane that measured it: the ensemble table
+# gains a row when a sample's whole alpha sweep has resolved, the reduced-order
+# table gains one per anchor and then the surface peak and the confirmation.
+# Every cell below is a number the run measured or a setting it was handed.
+_SETUP_TABLE = "race-setup"
+_SETUP_TITLE = "What is raced and what settles it"
+_SETUP_HEADERS = ("Item", "Setting")
+_MC_TABLE = "race-mc-samples"
+_MC_TITLE = "Monte Carlo ensemble: peak per sample"
+_MC_HEADERS = ("Sample", "Chord Reynolds", "Peak L/D", "Peak angle",
+               "Solve seconds")
+_ROM_TABLE = "race-rom-steps"
+_ROM_TITLE = "Reduced-order lane: anchors, fitted surface, confirmation"
+_ROM_HEADERS = ("Step", "Angle", "L/D", "Solve seconds")
+_AGREE_TABLE = "race-agreement"
+_AGREE_TITLE = "The two lanes side by side"
+_AGREE_HEADERS = ("Quantity", "Monte Carlo", "Reduced order", "Agreement")
+
+
+def _seconds_cell(seconds) -> str:
+    """A measured wall clock, or an empty cell when there was no solve."""
+    return f"{seconds:.2f}" if isinstance(seconds, (int, float)) else ""
+
+
+def _mc_sample_row(emit, script, sample: int, re_cref: float,
+                   points: list[dict]) -> None:
+    """Land one finished sample's measured peak in the ensemble table.
+
+    Called the moment that sample's whole alpha sweep has resolved, so the
+    row is final when it appears. Nothing here paces or delays the solves.
+    """
+    best = max(points, key=lambda p: p["l_d"])
+    seconds = [p.get("seconds") for p in points]
+    spent = (sum(seconds)
+             if all(isinstance(s, (int, float)) for s in seconds) else None)
+    emit_table(emit, script, role=_CE_ROLE, title=_MC_TITLE,
+               headers=list(_MC_HEADERS),
+               rows=[[f"{sample} (nominal)" if sample == 0 else f"{sample}",
+                      f"{re_cref / 1e6:.3f}e6",
+                      f"{best['l_d']:.2f}",
+                      f"{best['alpha']:g}°",
+                      _seconds_cell(spent)]],
+               table_id=_MC_TABLE, append=True)
+
+
+def _rom_row(emit, script, step: str, alpha: float, value: str,
+             seconds=None) -> None:
+    """Land one reduced-order step in that lane's table as it happens."""
+    emit_table(emit, script, role=_CE_ROLE, title=_ROM_TITLE,
+               headers=list(_ROM_HEADERS),
+               rows=[[step, f"{alpha:g}°", value, _seconds_cell(seconds)]],
+               table_id=_ROM_TABLE, append=True)
+
 
 def peak_grid_bracket(anchors: list[dict], alpha_star: float,
                       half_step: float = TOLERANCE_DEG) -> float | None:
@@ -126,7 +182,7 @@ def _mc_reynolds(samples: int, seed: int | None) -> list[float]:
                            for _ in range(samples - 1)]
 
 
-def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
+def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
              samples: int, seed: int | None,
              wing: dict | None = None) -> dict:
     """The full Monte-Carlo lane: samples x alpha, every point a real solve.
@@ -134,7 +190,10 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
     Submits every (sample, alpha) job to the shared pool and streams a trace
     point and a lane-progress event as each solve lands. The nominal-Reynolds
     sample is flagged so the polar can draw it as the running answer line while
-    the ensemble keeps grinding out the envelope behind it.
+    the ensemble keeps grinding out the envelope behind it. A sample's row
+    joins the ensemble table the moment its last alpha resolves, so the drawn
+    Reynolds number and the peak it produced are on screen while the rest of
+    the ensemble is still solving.
     """
     solver = _TimedSolver(work_root / "mc", wing=wing)
     res = _mc_reynolds(samples, seed)
@@ -147,34 +206,37 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
     futures = {pool.submit(solver.solve, alpha, re_c, f"mc-s{s}a{alpha:g}"):
                (s, alpha, re_c) for (s, alpha, re_c) in jobs}
     points: list[dict] = []
+    # Built as the solves land rather than after the lane, so a sample's row
+    # can be written the moment that sample's sweep is complete.
+    by_sample: dict[int, list[dict]] = {}
+    resolved: dict[int, int] = {}
+    per_sample = len(ALPHAS)
     done = 0
     for fut in as_completed(futures):
         s, alpha, re_c = futures[fut]
+        resolved[s] = resolved.get(s, 0) + 1
         try:
             point = fut.result()
         except Exception:
-            done += 1
-            emit("race.lane", {"lane": "mc", "done": done, "total": total,
-                               "elapsed_s": round(time.time() - started, 1),
-                               "state": "running"})
-            continue
-        point["sample"] = s
-        points.append(point)
+            point = None
         done += 1
-        emit("trace.point", {"series": "mc", "x": alpha,
-                             "y": round(point["l_d"], 3),
-                             "nominal": s == 0, "sample": s,
-                             "x_label": "angle of attack [deg]",
-                             "y_label": "L/D",
-                             "title": "Full Monte-Carlo: polar"})
+        if point is not None:
+            point["sample"] = s
+            points.append(point)
+            by_sample.setdefault(s, []).append(point)
+            emit("trace.point", {"series": "mc", "x": alpha,
+                                 "y": round(point["l_d"], 3),
+                                 "nominal": s == 0, "sample": s,
+                                 "x_label": "angle of attack [deg]",
+                                 "y_label": "L/D",
+                                 "title": "Full Monte-Carlo: polar"})
         emit("race.lane", {"lane": "mc", "done": done, "total": total,
                            "elapsed_s": round(time.time() - started, 1),
                            "state": "running"})
+        if resolved[s] == per_sample and by_sample.get(s):
+            _mc_sample_row(emit, script, s, res[s], by_sample[s])
     wall = time.time() - started
 
-    by_sample: dict[int, list[dict]] = {}
-    for point in points:
-        by_sample.setdefault(point["sample"], []).append(point)
     peaks = [max(pts, key=lambda p: p["l_d"])["l_d"]
              for pts in by_sample.values() if pts]
     mean = statistics.fmean(peaks) if peaks else 0.0
@@ -195,7 +257,7 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
     return summary
 
 
-def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
+def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
               wing: dict | None = None) -> dict:
     """The reduced-order lane: four anchor solves, a fitted surface, one
     confirmation solve. Shares the same four-slot pool as the Monte-Carlo lane,
@@ -221,6 +283,8 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
         emit("race.lane", {"lane": "rom", "done": len(anchors), "total": total,
                            "elapsed_s": round(time.time() - started, 1),
                            "state": "running"})
+        _rom_row(emit, script, "Anchor solve", alpha,
+                 f"{point['l_d']:.2f}", point.get("seconds"))
 
     anchors.sort(key=lambda p: p["alpha"])
     xs = [a["alpha"] for a in anchors]
@@ -238,6 +302,10 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
                         "x0": ALPHAS[0], "x1": ALPHAS[-1],
                         "alpha_star": alpha_star,
                         "predicted": round(predicted, 3)})
+    # The prediction goes on the record before the solve that tests it, so the
+    # confirmation row lands beside a number nobody could have adjusted.
+    _rom_row(emit, script, "Fitted surface peak", alpha_star,
+             f"{predicted:.2f}")
 
     confirm = solver.solve(alpha_star, RE_NOMINAL, "rom-confirm")
     wall = time.time() - started
@@ -246,6 +314,10 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
                          "x_label": "angle of attack [deg]", "y_label": "L/D",
                          "title": "Reduced-order: confirmation solve"})
     surrogate_error = abs(confirm["l_d"] - predicted)
+    _rom_row(emit, script, "Confirmation solve", alpha_star,
+             f"{confirm['l_d']:.2f}", confirm.get("seconds"))
+    _rom_row(emit, script, "Confirmation against the surface", alpha_star,
+             f"{surrogate_error:.3g}")
     core_minutes = round(sum(solver.solve_seconds) * VSPAERO_THREADS / 60, 2)
     emit("race.lane", {"lane": "rom", "done": total, "total": total,
                        "elapsed_s": round(wall, 1), "state": "done",
@@ -348,6 +420,22 @@ def main(request: str | None = None, params: dict | None = None,
         "Monte Carlo, or solve in a reduced order space. "
         "• The only honest question is what each path costs. "
         "• So we run them side by side and measure.")
+    # The terms of the race, on the record before either lane starts. Every
+    # cell is a setting this run was handed, never a result.
+    emit_table(emit, script, role=_CR_ROLE, title=_SETUP_TITLE,
+               headers=list(_SETUP_HEADERS),
+               rows=[["Raced body", raced_name],
+                     ["Objective", "Peak L/D over angle of attack"],
+                     ["Angle range",
+                      f"{ALPHAS[0]:g}° to {ALPHAS[-1]:g}°, "
+                      f"{len(ALPHAS)} angles"],
+                     ["Tolerance on the peak angle", f"±{TOLERANCE_DEG:g}°"],
+                     ["Ensemble samples", f"{samples}"],
+                     ["Ensemble draw",
+                      f"seed {seed}" if seed is not None
+                      else "drawn from the clock"],
+                     ["Reduced-order anchors", f"{len(ANCHOR_ALPHAS)}"]],
+               table_id=_SETUP_TABLE)
     roster.idle(CHIEF_RESEARCHER)
     script.engineer(ENGINEER_ACK)
 
@@ -401,6 +489,16 @@ def main(request: str | None = None, params: dict | None = None,
         f"• The Monte-Carlo lane needs all {total_mc} solves to reach a "
         f"confidence band this tight; the reduced-order lane gets there "
         f"with {total_rom}.")
+    script.engineer(
+        "• Each sample lands its row in the ensemble table as its sweep "
+        "finishes. "
+        "• The reduced-order lane fills its own table anchor by anchor.")
+    # Both tables open empty, so the columns are on screen while the lanes
+    # work and every row that follows is a measurement.
+    emit_table(emit, script, role=_CE_ROLE, title=_MC_TITLE,
+               headers=list(_MC_HEADERS), rows=[], table_id=_MC_TABLE)
+    emit_table(emit, script, role=_CE_ROLE, title=_ROM_TITLE,
+               headers=list(_ROM_HEADERS), rows=[], table_id=_ROM_TABLE)
 
     lane_results: dict[str, dict] = {}
 
@@ -419,11 +517,11 @@ def main(request: str | None = None, params: dict | None = None,
          ThreadPoolExecutor(max_workers=2) as drivers:
         futs = [
             drivers.submit(_run, lambda: _rom_lane(rom_pool, work_root, emit,
-                                                   wing=wing),
+                                                   script, wing=wing),
                            "rom"),
             drivers.submit(_run, lambda: _mc_lane(mc_pool, work_root, emit,
-                                                  samples=samples, seed=seed,
-                                                  wing=wing),
+                                                  script, samples=samples,
+                                                  seed=seed, wing=wing),
                            "mc"),
         ]
         for fut in futs:
@@ -457,6 +555,24 @@ def main(request: str | None = None, params: dict | None = None,
         f"{rom['alpha_star']:g}°, and they agree to {agreement_pct}%. "
         f"• Cost: {cm_mc:.1f} core-min versus {cm_rom:.1f} core-min. "
         f"• Measured speedup {speedup_cm}× in core-minutes.")
+
+    # The two lanes' independently located answers, and what they cost, in one
+    # table. Every cell is carried straight from the lane summaries above; the
+    # agreement column is left empty where no agreement is defined.
+    alpha_gap = abs(float(mc["peak_alpha"]) - float(rom["alpha_star"]))
+    emit_table(emit, script, role=_CE_ROLE, title=_AGREE_TITLE,
+               headers=list(_AGREE_HEADERS),
+               rows=[["Peak L/D",
+                      f"{mc['peak_mean']:.2f} ± {2 * mc['peak_sem']:.2f}",
+                      f"{rom['confirmed']:.2f}",
+                      "" if agreement_pct is None else f"{agreement_pct}%"],
+                     ["Peak angle", f"{mc['peak_alpha']:g}°",
+                      f"{rom['alpha_star']:g}°", f"{alpha_gap:g}° apart"],
+                     ["Solver runs", f"{mc['n_solves']}",
+                      f"{rom['n_solves']}", ""],
+                     ["Cost in core minutes", f"{cm_mc:.1f}",
+                      f"{cm_rom:.1f}", ""]],
+               table_id=_AGREE_TABLE)
 
     if emit:
         emit("race.result", {
