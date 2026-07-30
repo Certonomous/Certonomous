@@ -1033,3 +1033,89 @@ the primary evidence and is usually attached already. This rule is
 specifically for the sharper, rarer claim that a resource or crash event
 occurred, because that is the claim this incident showed can travel
 without ever being checked.
+
+## L-23. An optimiser always walks a correlation to the edge where it is least defensible — check the limit before trusting the optimum
+
+**The rule.** Before a screening correlation is used as an objective in a
+sweep, evaluate it at the physical limits of the design variable and ask
+what the answer *must* be there. If the correlation does not reduce to the
+right thing in the limit, the sweep's winner is the least trustworthy
+point in it, because a minimiser walks straight to that limit. This is a
+zero-compute check on the algebra, not a validation exercise, and it is
+worth doing before any solve is scheduled to "check the magnitude".
+
+**What happened.** The valve act
+(`sdk/workflows/valve_study.py`) screens 13 leaflet opening angles on
+`dp = 0.5·rho·(Q/(Cd·A_orifice))²` with `Cd = 0.62`, and reports the
+widest admissible opening as the winner. That formula contains no pipe
+area, so it has no beta → 1 limit: as the leaflets open the geometry
+becomes an unobstructed pipe, where an *orifice* loss must vanish because
+there is no orifice, and the formula instead tends to a finite floor. At
+the winning 87.5° the effective orifice is 99.8% of the bore and the
+screen still reports 1252.8 Pa; at a fully open 90° bore it reports
+1248.0 Pa, against 57.5 Pa of Hagen-Poiseuille wall friction over the same
+0.3013 m of pipe — a factor of 21.7 through a tube with nothing in it. The
+ratio never falls below ~22 anywhere in the sweep, and the curve flattens
+onto that floor exactly where the optimiser is heading.
+
+Family F9 found this the expensive way: it built an axisymmetric orifice
+mesh, solved the pulsatile flow, and reported a −94% deviation at 65°,
+which was then attributed to the discharge coefficient sitting outside ISO
+5167's calibrated beta range. Decomposing that gap afterwards (F9 §9.5)
+showed the coefficient explains 13.5 of the 94 points; the rest is a
+waveform/averaging definition mismatch and an omitted velocity-of-approach
+factor. **The limit check above needs no mesh, no solver and no ISO
+citation, and it is a stronger statement than the one 1.35 core-hours of
+CFD produced.**
+
+**How to apply it.** For any correlation-driven sweep, write the objective
+at both ends of the design range by hand before the sweep runs. Wide
+open, closed, zero flow, infinite Reynolds number — whichever limits the
+variable actually reaches. Then state on the record what the correlation
+does there. The ranking may still be sound (it is, for the valve: wider is
+genuinely better, and F9's three solved angles reproduce the ordering) —
+but a band built from the spread *between* published correlations can
+never cover the whole family being outside its own domain, so the
+uncertainty channel must say so rather than imply the magnitude is pinned.
+
+## L-24. A convergence criterion applied to one quantity says nothing about the others the study publishes
+
+**The rule.** Apply the convergence or stationarity gate to **every**
+signal the study reports as a number, not just the headline one. A run is
+not "converged"; a *quantity* is converged, and quantities in the same run
+converge at wildly different rates when they are sampled in different
+parts of the flow.
+
+**What happened.** F9's six fixed-BC reference runs were judged stationary
+by hand on `dp_upstream_to_throat`, over a stated window with a stated
+band, and that call was correct: an automated four-test criterion added
+later (band ratio, halves drift, tail trend, window shift) passes all six
+on that signal, including the two tests the hand check had not performed.
+But the same runs also publish `dp_upstream_to_downstream` in
+`F9_pulsatile_valve.json`, and at the three highest-loading cases that
+signal fails outright, with peak-to-trough bands of 39%, 113% and 128% of
+its own mean — a self-sustained jet shedding at a shear-layer Strouhal
+number, not a settling transient, and at `steady_q100` still climbing
+across the whole run. Nobody had ever looked at it, because the
+stationarity discussion had been framed as "is the run converged" rather
+than "is this number converged".
+
+The same asymmetry appeared in the pulsatile runs: the throat differential
+reaches cycle-to-cycle repeatability of 8.5e-6 while the downstream
+differential in the same file sits at 1.39e-3, failing the stated 1e-3
+threshold.
+
+**Two corollaries worth carrying.**
+
+1. **Pick metrics the solution can actually fail.** Cycle-integrated
+   stroke volume is the intuitive gate for a pulsatile solve and it is
+   worthless for an incompressible rigid-wall case with a prescribed inlet
+   flux: mass conservation makes it identical to the boundary condition at
+   every instant, in cycle 1 of a diverging run as much as in a converged
+   one. A metric that cannot fail is not a gate.
+2. **A cycle mean hides a non-periodic cycle.** Between cycles 1 and 2 of
+   F9's physiological run the cycle *mean* of the throat differential
+   moved 2.1% while the cycle *peak* moved by a factor of 18.5, the
+   impulsive-start spike sitting inside cycle 1. A criterion built on the
+   mean alone would have called that cycle nearly converged. Grade the
+   phase-aligned waveform, the peak and the band, not just the mean.

@@ -65,6 +65,23 @@ CANDIDATE_ANGLES = (tuple(float(a) for a in range(30, 81, 5))
 # each is screened (paces the PATH, never the numbers). Off in CI via env.
 _PACE_S = float(os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "550")) / 1000.0
 DISCHARGE_COEFF = 0.62                          # sharp-orifice discharge coefficient
+# ISO 5167 calibrates the concentric-orifice discharge coefficient that
+# DISCHARGE_COEFF comes from for a bore-to-pipe diameter ratio beta in
+# [0.20, 0.75]. Here beta = sin(opening angle), so every candidate at or
+# above 50 deg sits above that ceiling and the widest candidates approach
+# beta = 1, where an orifice correlation has no restriction left to
+# describe: the law below keeps a finite floor (1248 Pa at 90 deg, a fully
+# open bore) where the physical orifice loss must vanish.
+#
+# Family F9 solved the pulsatile flow at 65 deg (beta 0.906) and measured
+# 110.7 Pa cycle-mean against this screen's 1849.8 Pa, and its three solved
+# angles (50, 55, 65 deg) reproduce this screen's RANKING while contradicting
+# its MAGNITUDE. So above the ceiling the ordering of the candidates stands
+# and the magnitude is not bounded by the correlation-spread band this
+# screen reports. That is stated on the record in the conclusion beat, the
+# model channel and the report, and it is not fixed by widening the band:
+# see demo-output/website/campaign/F9_pulsatile_valve.md.
+BETA_CALIBRATED_MAX = 0.75
 MIN_ORIFICE_AREA = 1.6e-4                        # constraint floor, m^2 (~160 mm^2)
 MC_SAMPLES = 200                                 # Monte-Carlo envelope draws
 # Input 1-sigma spreads propagated through the screen (fractional).
@@ -75,6 +92,17 @@ CD_SIGMA = 0.06
 def _load_womersley_thresholds() -> dict:
     data = yaml.safe_load(_PHYSICS_RULES.read_text(encoding="utf-8")) or {}
     return (data.get("womersley") or {})
+
+
+def _beta(angle: float) -> float:
+    """Bore-to-pipe diameter ratio of the effective orifice at this opening.
+
+    ``effective_orifice_area`` puts the free edge at ``root_radius *
+    sin(theta)``, so the ratio is sin(theta) directly. Kept as its own
+    function because the calibration ceiling is checked against it in three
+    places.
+    """
+    return math.sin(math.radians(max(1.0, min(90.0, angle))))
 
 
 def _phase_pressure_loss(flow_rate: float, orifice_area: float,
@@ -403,6 +431,14 @@ def main(request: str | None = None, params: dict | None = None,
         model_note = ("Spread across published discharge-coefficient "
                       "correlations (screening estimate); unmodeled: "
                       + ", ".join(lookup["model"].get("unmodeled", [])))
+    # The band above is a spread BETWEEN correlations. It cannot cover the
+    # correlation family itself being outside its calibrated range, which is
+    # where every wide candidate sits, so the ceiling is stated with the
+    # number rather than left for the reader to infer.
+    model_note += (f"; orifice ratio {_beta(best['angle']):.2f} at this "
+                   f"opening is above the {BETA_CALIBRATED_MAX:.2f} ceiling "
+                   f"the correlation is calibrated to, so this band does not "
+                   f"bound the magnitude")
     channels = uncertainty_channels(
         input_2sigma=best["band"], numerical=numerical_val, model=model_val,
         input_note="Ensemble run over the stated spread in phase flow-rate "
@@ -418,8 +454,13 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("uncertainty.channels", channels)
     script.researcher(
-        "• A screen, not a validated pressure: the ranking is trustworthy. "
-        "• A solved internal flow would set the pressure magnitude. "
+        f"• Orifice ratio {_beta(best['angle']):.2f} at the winning opening, "
+        f"above the {BETA_CALIBRATED_MAX:.2f} ceiling this correlation is "
+        f"calibrated to. "
+        "• Above that ceiling the magnitude is not bounded by the reported "
+        "band. "
+        "• A screen, not a validated pressure: the ranking is trustworthy, "
+        "and a solved internal flow would set the magnitude. "
         "• The three missing capabilities are on the research agenda.")
     verdict = trust(converged=True, solver_backed=False,
                     why="reduced-order orifice screen on a screening geometry; "
@@ -463,6 +504,10 @@ def main(request: str | None = None, params: dict | None = None,
             "The ranking (wider orifice, lower loss) is physical and trustworthy.",
             "The magnitude is a reduced-order estimate; the model channel names "
             "what is not in it.",
+            f"The orifice ratio at the winning opening is "
+            f"{_beta(best['angle']):.2f}, above the {BETA_CALIBRATED_MAX:.2f} "
+            f"ceiling the discharge-coefficient correlation is calibrated to; "
+            f"the reported band does not bound the magnitude there.",
             f"The flow is inertially unsteady (Womersley ~ {alpha:.0f}); "
             "phase-interaction is dropped by the multi-point screen."],
         next_investigations=[e["title"] + ": " + e["scope"] for e in AGENDA],

@@ -234,9 +234,9 @@ Captures: `demo-output/acts/round2/naca4412/` (five beats).
 | Periodicity + Womersley | CHIEF RESEARCHER: "pulsatile but periodic…" → **Womersley α ≈ 16.7 displayed** with the ruling (above strict limit 1, under screening ceiling 25 → admissible as a SCREEN, phase-interaction rides in the model channel) | α not shown | `act3_valve.png` |
 | Plan | k=3 phase points (weights 0.25 / 0.50 / 0.25), cycle-weighted pressure-loss objective, "backpropagation stays cheap at every phase point" | weights absent | still frame |
 | Rejected / deferred | single snapshot rejected (cycle-blind); harmonic-balance + unsteady-FSI deferred to the agenda | not on record | check digest |
-| Multi-point run | 4 angles × 3 phases; cycle-weighted loss per candidate with MC envelope; 35° infeasible (min-orifice) | run errors | inspect evidence |
-| Result | best **1327 ± 421 Pa (95%) at 80°**, chip **RESEARCH MODEL** | number differs | expected ~1327 Pa |
-| Model-form honesty | reduced-order orifice model; phase-interaction neglected; leaflets fixed; Newtonian blood, all listed | list incomplete | inspect uncertainty channel |
+| Multi-point run | 13 angles × 3 phases; cycle-weighted loss per candidate with MC envelope; 30° and 35° infeasible (min-orifice) | run errors | inspect evidence |
+| Result | best **1253 ± 417 Pa (95%) at 87.5°**, chip **RESEARCH MODEL** | number differs | expected ~1253 Pa |
+| Model-form honesty | reduced-order orifice model; phase-interaction neglected; leaflets fixed; Newtonian blood, all listed; CHIEF RESEARCHER also states the orifice ratio 1.00 at the winner is above the 0.75 calibration ceiling and that the band does not bound the magnitude there (family F9) | list incomplete | inspect uncertainty channel |
 | Research agenda | agenda panel shows 3 lines: harmonic-balance cycle solve, unsteady FSI, non-Newtonian blood (each scope + rough cost) | agenda empty | `agenda.updated` didn't fire |
 
 Measured compute: **0.4 s** (reduced-order; on-camera time is narration). The real
