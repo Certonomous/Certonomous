@@ -778,3 +778,50 @@ someone wanted the core.
 normalisation was placeholder. The agent that found it attempted the stop, was
 refused by the permission layer, and escalated rather than working around it —
 which is the correct behaviour and worth as much as the catch.
+
+## L-19. "Interrupted" and "diverged" look identical from outside — relaunch is the test that separates them
+
+**The rule.** When a run stopped early and left no result, "it got interrupted"
+is a *hypothesis*, not a finding. A diverged solve and a killed solve leave the
+same forensic trace: a truncated log, a missing final artifact, no `End`. Do
+not record the interruption reading — and above all do not recommend "just
+re-run it" — until the alternative has been excluded. **The decisive test is
+cheap: relaunch and compare the coefficient history against the original at
+matching iterations.** Bit-identical values prove the failure is deterministic
+and in the case setup; divergent values point at the environment.
+
+**Why.** DPW8_V2's L4 (fine, 49,152-cell) rung was salvaged and recorded as
+"INCOMPLETE, 1200/3000 iters (40%)... the solver process was killed mid-run",
+with re-running named as the natural next step. It was relaunched. It
+reproduced the original **bit-for-bit** — iteration 201: Cd −563.6550 in both
+runs; iteration 401: Cd −332.8891 in both — and diverged again, having in
+truth been diverged since roughly iteration 14 (peak excursion in the original:
+max |Cd| = 53,437). The rung had never worked. The recommendation to re-run was
+therefore guaranteed to fail, and it cost a second 3,388 s to discover that the
+first 56 minutes had also been spent on a diverged solve.
+
+**The second failure is the one that made the first invisible.** The salvage
+report's evidence for "not settled" was "Cl swinging between roughly +0.40 and
+−0.43 iteration-to-iteration." Those numbers are real — they are **columns 8-9**
+of `coefficient.dat`. `Cl` is **column 5**, and its actual value there was
+**−40.30**. Reading the wrong column converted a two-orders-of-magnitude
+catastrophic divergence into a mild-sounding convergence wobble, which is
+exactly why the interruption story looked plausible. This is L-16's pattern
+(trusting a derived signal over the primary one) in a new disguise: the column
+*header* is the primary source, and `coefficient.dat`'s column order must be
+read from the file's own `#` header line every time, never assumed.
+
+**Corollary — eliminate the obvious cause before believing it.** The natural
+suspect for a finest-mesh-only divergence is mesh quality. Both candidates were
+tested and both were eliminated: `checkMesh` returns `Mesh OK` for L4, and its
+max cell aspect ratio (642.7) is *lower* than L3's (925.3), which converges
+cleanly. Reporting "probably the mesh" without those two checks would have sent
+the next investigator down a dead end. State what has been ruled out, not only
+what is suspected.
+
+**Corollary — a diverged run poisons its own diagnostics.** L4's y+ reads 113
+*average* (max 164.8) against L3's 0.351 (max 0.496), on a mesh 4x finer where
+y+ must be *smaller*. That is not a mesh-sizing problem to go fix; it is the
+diverged velocity field feeding back into a derived quantity. In a diverged
+solve, every derived diagnostic is downstream of the divergence and none of
+them can be read as evidence about the setup.

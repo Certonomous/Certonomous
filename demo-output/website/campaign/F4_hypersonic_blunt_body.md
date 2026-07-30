@@ -163,6 +163,50 @@ Near the stagnation point (θ≲30°) CFD tracks modified Newtonian to within ~0
 
 **Not attempted.** Both primary gates passed cleanly with large compute headroom remaining (14.66 of a much larger available budget), but a viscous shock-wave/boundary-layer-interaction case is a materially different undertaking — needs a turbulence model (k-ω SST or similar), a wall-resolved mesh (y+~1, several orders of magnitude more cells near the wall than any case run here), and a published experimental separation-length reference (e.g. Settles et al. compression-ramp data) to gate against. Given the campaign's staging discipline ("do NOT start this late"), and that properly citing and reproducing a specific experimental SWBLI separation-extent dataset would need its own literature-verification pass (same discipline as §0 here), this is left as a **documented next step**, not a rushed attempt: it would need (1) a citable experimental case (Mach, Reynolds number, ramp angle, measured separation length), (2) a wall-normal-resolved 2-D mesh with y+ verification, (3) a turbulence-model choice justified for shock/adverse-pressure-gradient flows, and (4) its own FEASIBILITY→PHYSICS→GATE staging exactly as done here.
 
+### 7a. That literature-verification pass was run (2026-07-30) — and it overturns the case named above
+
+The §0 discipline was applied to the *next* rung before any compute was committed. Result: **the Settles compression-ramp case this report named is not gateable on openly-accessible primary data**, and a materially better-supported case exists. Both conclusions were verified by fetching primary sources, not by search-result summary.
+
+**Settles is out, on evidence:**
+
+- All five candidate Settles DOIs return `is_oa: false` from the Unpaywall API (10.2514/3.61513, 10.2514/3.61331, 10.2514/6.1975-7, 10.2514/3.12205, 10.2514/6.1991-1763). None was readable.
+- The NASA-sanctioned re-tabulation of Settles' own data, **NASA CR-177638** (Settles & Dodson 1994, open via archive.org), does **not** contain a separation length: p.42 states *"NOTE: THE EXCERPT SHOWN HERE IS FOR SAMPLE PURPOSES ONLY. SPACE LIMITATIONS PRECLUDE A COMPLETE LISTING. SEE DISKETTE FILE SETTLES2.DAT."*
+- The master database, **NASA CR-177577**, has no NTRS download at all ("There are no available downloads for this record"); its data live on floppy disks that NASA/TM-2013-216604 (p.3) itself describes as *"outdated floppy disks that take specialized reading procedures."*
+- So we **cannot confirm or deny** that Settles' primaries publish a numeric separation length — only that nothing reachable does. Gating on it would have meant building on a reference we cannot read.
+
+**Recommended replacement — Kussoy & Horstman M=7.05 axisymmetric cylinder–flare.** Source: Kussoy, M.I. & Horstman, C.C., *Documentation of Two- and Three-Dimensional Hypersonic Shock Wave/Turbulent Boundary Layer Interaction Flows*, **NASA TM 101075**, Jan 1989 — open, downloaded, and read directly (`ntrs.nasa.gov/citations/19890010729`).
+
+**Independently re-verified in this session** (the agent's findings were not taken on trust — the PDF was re-fetched and `pdftotext`-grepped against the page text):
+
+- **Gate quantity, quoted verbatim from p.5:** *"The separation locations as measured by the oil-flow visualization technique were s = 0 for θ = 20° and 30°, s = −3.1 cm for θ = 32.5°, and s = −6.3 cm for θ = 35°. Reattachment locations could not be determined."*
+- **Table I (local free-stream conditions), every value confirmed on the page:** M∞ 7.05 · T∞ 81.2 K · p∞ 576 N/m² · ρ∞ 0.0252 kg/m³ · U∞ 1274 m/s · T_w 311 K (isothermal) · δ₀ 2.5 cm · δ*₀ 0.74 cm · θ₀ 0.065 cm · τ_w∞ 25 N/m² · **q_w∞ 9300 W/m²** · Re_δ0 1.45×10⁵ · Re_θ0 3.8×10³ · Re/m 5.8×10⁶ · C_f∞ 1.22×10⁻³.
+- **A unit error in a secondary source, caught the same way §0 caught 4.76-vs-4.67:** NASA/TM-2013-216604 p.50 writes this heat flux as "9300 W/cm²". The primary (Table I) says **W/m²**, which is also the physically sensible value. Use the primary.
+
+Why this case is stronger than what was planned:
+
+| | Settles (planned) | Kussoy & Horstman (recommended) |
+|---|---|---|
+| Primary source access | paywalled, unreadable | **open, downloaded, read** |
+| Published numeric separation datum | none reachable | **measured, −3.1 cm (32.5°), −6.3 cm (35°)** |
+| Mach | 2.85 — abandons F4's hypersonic continuity | **7.05 — stays in F4's regime** |
+| Independent restatement | — | NASA/TM-2013-216604 Table A5-3, p.51 (same numbers) |
+| Free validated grids | — | NASA TMR hosts the sibling 20° flare with a 5-level nested PLOT3D family + `pw_exp.dat`/`qw_exp.dat` |
+| Secondary gates | — | wall pressure & heat transfer, all four flares (TM 101075 Tables IV(a)–(d)) |
+
+**Two redefinitions this forces, stated plainly rather than glossed:**
+
+1. **Geometry is axisymmetric cylinder–flare, not a planar 2-D compression ramp.** For OpenFOAM this is a `wedge` case — *cheaper* than 2-D planar, and it avoids the sidewall three-dimensionality that contaminates real 2-D ramp experiments (CR-177638 p.39 notes Settles' own 24° case shows "significant 3-D perturbations").
+2. **The gated quantity is separation-onset distance upstream of the corner, NOT a separation-bubble length.** The primary explicitly could not determine reattachment. If a true L_sep = x_reattach − x_sep is required, **no open primary hypersonic source supplies it** — the only clean measured bubble length found anywhere (Bookey et al., sep −3.2δ, reattach +1.6δ ⇒ L_sep ≈ 4.8δ) is available only through a secondary paper and sits at Re_θ=2400, a DNS-scale Reynolds number where RANS closures are outside their calibration range — a failed gate there would be uninformative about the solver.
+
+**Two setup traps identified before they could silently corrupt a run** (same class as §0's coefficient catch):
+
+- **Do not set M=7.05 at a truncated inflow.** The NASA TMR page states that if the leading edge is excluded, *"Mach number is changed from 7.05 to 7.11"*. Model the full cone-ogive, or adjust.
+- **Do not use the tunnel stagnation conditions as inlet BCs.** TM 101075 p.3 gives nominal *settling-chamber* values (T₀ 900 K, p₀ 34 atm, M 7.2, Re/m 7×10⁶) which are **not** the local conditions ahead of the interaction (Table I: M 7.05, Re/m 5.8×10⁶). The consistent total state is ≈24.6 atm (Brown, NASA/TM-2014-218353 Table 2: P_T 2.495 MPa, T₀ 888.38 K). Mixing the two sets puts the run at the wrong Reynolds number with no obvious symptom.
+
+**One caveat that should set the pass band in advance:** a SWBLI separation gate is predominantly a **turbulence-model** gate, not a numerics gate. Brown (NASA/TM-2014-218353, p.19) documents DPLR/SST separating ≈3° early in wedge angle and over-predicting separation extent by ≈100% in one case, while CFL3D running nominally the same SST model agrees well — two mature codes, same model, substantially different answers. **Decide before running whether a miss indicts `rhoCentralFoam` or the closure**, or the gate will not be interpretable.
+
+**Status: reference verified and reachable; case NOT yet run.** The remaining prerequisites from the list above are unchanged — wall-resolved mesh with y+ verification, justified turbulence closure, and FEASIBILITY→PHYSICS→GATE staging. The pre-gate warm-up is free: run the TMR-hosted 20° (attached, non-separated) flare against its published pressure and heat-transfer data first, then change only the flare angle to 32.5°/35° for the separation gate.
+
 ---
 
 ## Summary
@@ -171,7 +215,7 @@ Near the stagnation point (θ≲30°) CFD tracks modified Newtonian to within ~0
 |---|---|---|---:|---|
 | 1. Shock standoff (stagnation) | Billig (1967) δ/R = 0.386·exp(4.67/M²) | M=6: 0.4485; M=7: 0.4345; M=8: 0.4181 | +2.06%±0.4%, +2.33%±0.4%, +0.70%±0.8% | **PASS** — M=6, M=7 resolved above noise (~2–2.3% real bias); M=8 within its own noise floor (consistent with Billig, not resolved to 0.7%) |
 | 2. Windward Cp distribution | Modified Newtonian (Lees), Cp_max via Rayleigh-Pitot | RMS 3.91%, 3.91%, 3.87% of Cp_max | — | **PASS**, converges cleanly (near-monotonically) with mesh refinement; documented, physically-explained degradation toward the shoulder (θ≳33°), consistent in sign/shape/magnitude across all 3 Mach numbers |
-| 3. SWBLI stretch | — | — | — | **Not attempted** — documented requirements above |
+| 3. SWBLI stretch | Kussoy & Horstman M=7.05 cylinder–flare (NASA TM 101075) — **reference verified open + primary-checked**, replacing the paywalled Settles case originally named | — | — | **Not run** — reference now secured (§7a); mesh/closure/staging still required |
 
 **Standoff (Gate 1) does NOT converge monotonically with mesh refinement** (M=6: −0.33→−0.60→+2.06%; M=8: +6.62→−1.69→+0.70%, coarse→medium→fine) — stated plainly, not glossed over. Snapshot-to-snapshot temporal scatter explains part but not all of this: the coarse↔medium swings are mostly within each level's own noise band, but the medium↔fine swings exceed it, pointing to a genuine resolution-dependent bias in the peak-density-gradient detector itself, layered on top of temporal noise. See §2 (scatter table) and §4 (per-case scatter-vs-deviation reading) for the full breakdown — this is the honest state of Gate 1, not a single clean deviation number.
 
