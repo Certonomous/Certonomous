@@ -1,5 +1,18 @@
 # D9 / F6a — model-form uncertainty band on the NASA wall-mounted hump
 
+> **2026-07-30. Propagation, not just bounding, addressed separately.**
+> `F6a_epistemic_propagation.md` asks whether the published eigenspace-
+> perturbation theory lets this study go from the band below to a
+> defensible *propagated* uncertainty, given that the extremal corners on
+> this case mostly do not converge (§§ below). Short answer, cited from
+> the theory's own reference implementation paper: the method's own
+> prescribed output is a deterministic envelope, not a distribution; the
+> canonical 5-simulation bound needs states this case cannot reach; and a
+> reduced, honestly-labeled substitute built only from converged points
+> does **not** itself contain the experiment — channel 3 alone, restricted
+> to real convergence, does not bound the truth on this case. Read that
+> document for the full account; this one is unchanged below.
+
 > **2026-07-30. A third instance of the same defect, this time in the
 > "fix" itself.** A deliberate estate-wide convergence sweep (new tool:
 > `scripts/check_convergence.py`) flags `hump_kOmega_resume_20260729T202024Z.log`
