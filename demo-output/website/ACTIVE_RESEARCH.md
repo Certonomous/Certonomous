@@ -8,7 +8,8 @@ Created 2026-07-28 because no board of this name existed in the repository. If
 an external board was intended instead, this file should be pointed at it — the
 question is logged in the blockers list, and work did not wait on the answer.
 
-Last updated: 2026-07-28 00:5x UTC.
+Last updated: 2026-07-30 UTC (Ladder C — closure challenge submission policy
+established, eligibility verdict recorded, compliance audit run).
 
 ---
 
@@ -509,6 +510,75 @@ about the current entry. Full account: `CLOSURE_CHALLENGE_STATUS.md` §0d,
 `demo-output/website/closure_challenge_criterion_test_case_table.json`,
 `sdk/scripts/closure_criterion_on_test_features.py`. Compute: 52.9s /
 2-core cap / 179 MB peak RSS.
+
+**New (this session): the submission-policy question on the roadmap is answered —
+Certonomous CAN submit, and two defects were found that must be fixed first.**
+Roadmap 4B ("find out the challenge's policies and determine whether Certonomous
+can submit") has been open and repeatedly flagged. Rules established from the live
+sources, not from our local clone alone: the GitHub API confirms the benchmark repo
+HEAD is still `deb9155` (pushed 2026-05-04), identical to our clone, so the rules
+and the four-entry leaderboard quoted in our records are current as of today.
+
+| Question | Answer | Source |
+| --- | --- | --- |
+| May a company enter? | **Yes — no eligibility clause exists anywhere.** Framed as "This is a community effort!" | benchmark README, eval README, arXiv 2603.28884 |
+| Deadline? | **None.** "Submissions are accepted anytime!" | README |
+| Submission or scoring-call limit? | **None stated, and none possible** — the package ships the test ground truth and the README instructs submitters to preview their score | README + `closure_challenge` package |
+| Format | CSV, 1000 rows x 3 cols, no header, emailed to the steward with authors + references | README, confirmed against the 4 accepted submissions |
+| The one strict rule | Train or validate on a test case -> **automatic withdrawal plus a note on the leaderboard** | README, verbatim |
+
+**Our "four official scoring calls, ever" is a self-imposed discipline, NOT
+compliance with a benchmark limit.** No such limit exists. Nothing we publish may
+imply otherwise.
+
+**Adversarial compliance audit — the one strict rule is NOT violated, verified by
+reading the code rather than our own prose.** Ground-truth reads in
+`apply_closure_ph_gate.py` occur only inside loops over the 21 training cases
+(lines 115, 215); the test-case loop (165-167) loads RANS fields only.
+`closure_baseline_error_gate.py` enforces train/val/test disjointness with
+executable assertions and imports the test list solely to assert non-intersection.
+The 21-fit / 4-check gate uses exactly the benchmark's own suggested split. The
+refused 0.0675 shortcut was correctly refused.
+
+**Two defects found, neither a rule violation, both blocking submission:**
+1. `apply_closure_ph_gate.py`'s docstring claims "Exactly ONE
+   `score()`/`evaluate_by_case()` call is made." The same run makes **four
+   invocations over two prediction sets** (lines 205-206 re-score the RANS floor,
+   288-289 score the entry). Substantively harmless — re-scoring an unmodified
+   baseline tunes nothing — but an entry whose credibility rests on precise
+   self-accounting cannot ship a sentence a reviewer can falsify forty lines later.
+2. **No submittable artifact exists.** No prediction CSV has ever been written
+   anywhere in the repo or on this box; the entry of record is an in-memory dict and
+   a JSON of scores. Generating the eight CSVs must be done with scoring disabled —
+   it must not become a fifth scoring call.
+
+Also caught: our records label the eval package **v0.2.1**, but at the pinned commit
+`1c4e22c8` its `pyproject.toml` declares **0.3.1** ("vector magnitude metric, mean
+over cases") — upstream never bumped `__version__`. The score is unaffected; cite
+the commit hash, which is unambiguous.
+
+**Highest reputational exposure, and it is not a rules problem**: on
+`alpha_05_4071_4048` and `alpha_05_4071_2024` our submitted field IS the unmodified
+baseline RANS solve, and those two of our five "best on board" rows credit the
+organisers' own baseline, not our model. Legitimate, already stated on `closure.html`
+— but it must go in the submission email itself, because being discovered is far
+worse than disclosing.
+
+**Genuinely unresolved, flagged rather than resolved optimistically**: neither the
+benchmark repo nor `xiaoh/para-database-for-PIML` (the source of our 21 PH training
+cases) carries any licence — GitHub API `license: null` for both — so a commercial
+entity has no explicit grant to train on it. Mitigating: a submission is our
+predicted velocities on the organisers' evaluation points, not redistribution of
+source data. Separately, ERCOFTAC content is CC BY 4.0 with **"AI/ML-training & TDM
+reserved"** — that bears only on the challenge's 3D cases (wing-body junction, Ahmed
+body), which are not test cases and which our pipeline does not touch.
+
+**Status: draft package prepared for Katie's proofreading, nothing sent.** No
+submission, no account, no contact with the steward or a GitHub issue. Full account:
+`demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`. Ambition ahead: clear
+the two defects, get Katie's sign-off, and put the entry on the board where its
+0.0676 can be independently rescored by someone outside this lab — the first
+external check this result would ever have had.
 
 ### C2 — where the deficit lives
 
