@@ -20,6 +20,7 @@ rather than inventing one.
 """
 from __future__ import annotations
 
+import math
 import re
 import time
 from pathlib import Path
@@ -49,6 +50,13 @@ EXP_REATTACH_XC = 1.100
 SEPARATION_GATE = 0.05          # +/-5% of chord location: a clean solve should land here
 REATTACHMENT_MODEL_BAND = 0.20  # wide, stated model-form band for the known SST bias
 BUDGET_ITERATIONS = 2000        # this case's own endTime; SIMPLE stops on residualControl
+
+# Solver-log taps for the streaming trace: the iteration header and the
+# streamwise momentum residual the steady solver prints on every iteration.
+_TIME_RE = re.compile(r"^Time = (\d+)")
+_MOMENTUM_RESIDUAL_RE = re.compile(
+    r"Solving for Ux,\s*Initial residual = ([-+0-9.eE]+)")
+_TRACE_MIN_INTERVAL_S = 0.75    # at most a few points a second on the wire
 
 
 def _read_raw(text: str, ncols: int) -> tuple[list[float], list[list[float]]]:
@@ -107,9 +115,168 @@ def compute_gate(engineer: HeadEngineer, remote_case: str, time_dir: str,
     bubble = [c for c in crossings if 0.3 < c[0] < 1.6]
     separation = next((xc for xc, typ in bubble if typ == "separation"), None)
     reattachment = next((xc for xc, typ in bubble if typ == "reattachment"), None)
+    # The measured distributions travel with the summary: the two zero
+    # crossings below are read off exactly these arrays, so the figures the
+    # act draws are the same numbers the gate is decided on.
     return {"n_wall_points": len(xc_tau), "separation_xc": separation,
             "reattachment_xc": reattachment, "cf_min": min(cf), "cf_max": max(cf),
-            "cp_min": min(cp), "cp_max": max(cp), "p_ref": p_ref, "q_inf": q}
+            "cp_min": min(cp), "cp_max": max(cp), "p_ref": p_ref, "q_inf": q,
+            "xc_tau": xc_tau, "cf": cf, "xc_p": xc_p, "cp": cp,
+            "crossings": crossings}
+
+
+_XC_LABEL = r"chordwise station  $x/c$  [dimensionless]"
+
+
+def skin_friction_figure(out_png, xc, cf, separation=None, reattachment=None):
+    """Cf along the wall, with the measured zero crossings marked.
+
+    Every point drawn here is a wall sample from the converged state; the two
+    marked stations are the sign changes this act grades on, not annotations
+    placed by hand. Returns None if a figure cannot be drawn, so a missing
+    plotting backend never takes down the act.
+    """
+    try:
+        from chief_engineer import plot_theme as t
+
+        plt = t._pyplot()
+        fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+        ax.axhline(0.0, color=t.MUTED, linewidth=1.2, linestyle=(0, (4, 4)),
+                   label="zero wall shear")
+        ax.fill_between(xc, 0.0, cf, where=[v < 0 for v in cf],
+                        interpolate=True, color=t.NEEDS, alpha=0.16,
+                        linewidth=0, label="reversed flow at the wall")
+        ax.plot(xc, cf, color=t.LIVE, linewidth=1.8,
+                label=f"wall samples ({len(xc):,} points)")
+        marks = (("separation", separation, t.TREND, (-8, 22), "right"),
+                 ("reattachment", reattachment, t.VALID, (8, -34), "left"))
+        for name, station, color, offset, align in marks:
+            if station is None:
+                continue
+            ax.axvline(station, color=color, linewidth=1.4,
+                       linestyle=(0, (3, 3)))
+            ax.annotate(f"{name}\n$x/c = {station:.3f}$", xy=(station, 0.0),
+                        xytext=offset, textcoords="offset points", ha=align,
+                        fontsize=10.5, color=color, fontfamily="monospace",
+                        weight="bold")
+        # Headroom above the curve so the legend never sits on the data.
+        low, high = min(cf), max(cf)
+        span = (high - low) or 1e-6
+        ax.set_ylim(low - 0.12 * span, high + 0.45 * span)
+        t.style_axes(ax, _XC_LABEL, r"skin friction $C_f$ [dimensionless]",
+                     "Skin friction along the wall, the two sign changes "
+                     "that fix the bubble")
+        leg = ax.legend(frameon=False, fontsize=10, labelcolor=t.INK,
+                        loc="upper right")
+        for text in leg.get_texts():
+            text.set_color(t.INK)
+        fig.tight_layout()
+        fig.savefig(out_png)
+        plt.close(fig)
+        return str(out_png)
+    except Exception:
+        return None
+
+
+def surface_pressure_figure(out_png, xc, cp, separation=None,
+                            reattachment=None):
+    """Cp along the wall, referenced to the measured upstream pressure."""
+    try:
+        from chief_engineer import plot_theme as t
+
+        plt = t._pyplot()
+        fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
+        ax.axhline(0.0, color=t.MUTED, linewidth=1.0, linestyle=(0, (4, 4)))
+        ax.plot(xc, cp, color=t.TREND, linewidth=1.8,
+                label=f"wall samples ({len(xc):,} points)")
+        peak = min(range(len(cp)), key=lambda i: cp[i])
+        ax.scatter([xc[peak]], [cp[peak]], s=110, color=t.TREND,
+                   edgecolor=t.INK, linewidth=1.2, zorder=5,
+                   label="strongest suction")
+        # Flip the label inboard if the suction peak sits near the right edge.
+        span_x = (max(xc) - min(xc)) or 1.0
+        rightish = (xc[peak] - min(xc)) / span_x > 0.6
+        ax.annotate(f"$C_p = {cp[peak]:.3f}$ at $x/c = {xc[peak]:.3f}$",
+                    xy=(xc[peak], cp[peak]),
+                    xytext=(-12 if rightish else 12, -6),
+                    textcoords="offset points",
+                    ha="right" if rightish else "left", fontsize=11,
+                    color=t.INK, fontfamily="monospace", weight="bold")
+        for name, station, color in (("separation", separation, t.TREND),
+                                     ("reattachment", reattachment, t.VALID)):
+            if station is None:
+                continue
+            ax.axvline(station, color=color, linewidth=1.2,
+                       linestyle=(0, (3, 3)), alpha=0.8,
+                       label=f"{name}, read from skin friction")
+        low, high = min(cp), max(cp)
+        span = (high - low) or 1e-6
+        ax.set_ylim(low - 0.16 * span, high + 0.45 * span)
+        t.style_axes(ax, _XC_LABEL, r"pressure $C_p$ [dimensionless]",
+                     "Surface pressure along the wall, referenced to the "
+                     "measured upstream value")
+        leg = ax.legend(frameon=False, fontsize=10, labelcolor=t.INK,
+                        loc="upper right")
+        for text in leg.get_texts():
+            text.set_color(t.INK)
+        fig.tight_layout()
+        fig.savefig(out_png)
+        plt.close(fig)
+        return str(out_png)
+    except Exception:
+        return None
+
+
+def comparison_figure(out_png, rows):
+    """Each measured wall event against its published station and band.
+
+    ``rows`` are ``(name, measured_xc, published_xc, band_fraction)`` tuples,
+    all four values already measured or already on the case's record.
+    """
+    try:
+        from chief_engineer import plot_theme as t
+
+        plt = t._pyplot()
+        rows = [r for r in rows if r[1] is not None]
+        if not rows:
+            return None
+        fig, ax = plt.subplots(figsize=(9.0, 4.6), dpi=150)
+        ticks, labels = [], []
+        for index, (name, measured, published, band) in enumerate(rows):
+            y = len(rows) - 1 - index
+            lo, hi = published * (1 - band), published * (1 + band)
+            ax.plot([lo, hi], [y, y], color=t.VALID, linewidth=16,
+                    alpha=0.18, solid_capstyle="butt",
+                    label="accepted band" if index == 0 else None)
+            ax.plot([published, published], [y - 0.17, y + 0.17],
+                    color=t.VALID, linewidth=2.6, zorder=4,
+                    label="published experiment" if index == 0 else None)
+            ax.scatter([measured], [y], s=150, color=t.LIVE,
+                       edgecolor=t.INK, linewidth=1.2, zorder=5,
+                       label="this solve" if index == 0 else None)
+            deviation = (measured - published) / published * 100
+            ax.annotate(f"$x/c = {measured:.3f}$  ({deviation:+.1f}%)",
+                        xy=(measured, y), xytext=(0, 16),
+                        textcoords="offset points", ha="center", fontsize=11,
+                        color=t.INK, fontfamily="monospace", weight="bold")
+            ticks.append(y)
+            labels.append(name)
+        ax.set_yticks(ticks)
+        ax.set_yticklabels(labels)
+        # A clear strip under the lowest row keeps the legend off the data.
+        ax.set_ylim(-1.0, len(rows) - 0.4)
+        t.style_axes(ax, _XC_LABEL, "wall event",
+                     "Measured wall events against the published experiment")
+        leg = ax.legend(frameon=False, fontsize=10.5, labelcolor=t.INK,
+                        loc="lower center", ncol=3)
+        for text in leg.get_texts():
+            text.set_color(t.INK)
+        fig.tight_layout()
+        fig.savefig(out_png)
+        plt.close(fig)
+        return str(out_png)
+    except Exception:
+        return None
 
 
 def main(request: str | None = None, params: dict | None = None,
@@ -181,11 +348,51 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
         f"• Plan: receive the case's own mesh, check it against the "
-        f"standard gates, then a steady solve capped at 4 MPI ranks, run to "
-        f"its own residual convergence. "
+        f"standard gates, then a steady solve run to its own residual "
+        f"convergence. "
         f"• Skin friction and pressure are sampled along the wall at the "
         f"converged state and read for the sign changes that mark "
         f"separation and reattachment.")
+
+    # Every number here is committed before the solver starts: the case's own
+    # chord, the published stations this act is graded against, the bands
+    # around them, and the mesh gates. Nothing measured has arrived yet.
+    sep_lo = EXP_SEPARATION_XC * (1 - SEPARATION_GATE)
+    sep_hi = EXP_SEPARATION_XC * (1 + SEPARATION_GATE)
+    reattach_lo = EXP_REATTACH_XC * (1 - REATTACHMENT_MODEL_BAND)
+    reattach_hi = EXP_REATTACH_XC * (1 + REATTACHMENT_MODEL_BAND)
+    _emit_table(
+        emit, script, role=_CE_ROLE,
+        title="What would falsify this, fixed before the solve",
+        headers=("Quantity", "Committed Value", "Falsified If"),
+        rows=[
+            ["Hump chord", f"{CHORD:.3f} m",
+             "Not a gate, the benchmark's own fixed geometry"],
+            ["Separation station, published experiment",
+             f"x/c {EXP_SEPARATION_XC:.3f}",
+             f"Converged separation sits outside x/c {sep_lo:.3f} "
+             f"to {sep_hi:.3f}"],
+            ["Separation gate",
+             f"±{SEPARATION_GATE * 100:.0f}% of the published station",
+             "Separation misses that band with no stated cause"],
+            ["Reattachment station, published experiment",
+             f"x/c {EXP_REATTACH_XC:.3f}",
+             f"Converged reattachment sits outside x/c {reattach_lo:.3f} "
+             f"to {reattach_hi:.3f}"],
+            ["Reattachment model-form band",
+             f"±{REATTACHMENT_MODEL_BAND * 100:.0f}% of the published station",
+             "Reported against this wider band, the documented closure bias"],
+            ["Mesh non-orthogonality gate", f"{MAX_NON_ORTHOGONALITY:.0f}°",
+             "The received mesh exceeds it, no validated result stands"],
+            ["Mesh skewness guidance", f"{MAX_SKEWNESS:.1f}",
+             "The received mesh exceeds it, trust is capped"],
+            ["Iteration ceiling", f"{BUDGET_ITERATIONS:,}",
+             "Residuals never settle inside it"],
+        ],
+        table_id="plan-act6-nasa_hump")
+    script.engineer(
+        "• Every falsifier is on the table before the solver starts. "
+        "• Nothing on it moves once wall samples arrive.")
 
     engineer = HeadEngineer("act6-nasa_hump", out, novel=True,
                             on_event=lambda event, payload: None)
@@ -283,9 +490,39 @@ def main(request: str | None = None, params: dict | None = None,
         warm_solve = engineer.restore_cached_solve(solve_key)
         if parallel:
             script.engineer(
-                f"• Case decomposed into {ranks} subdomains, capped at 4 "
-                f"ranks: the steady solve runs in parallel, same mesh and "
-                f"same numbers.")
+                f"• The steady solve runs in parallel: same mesh, same "
+                f"numbers.")
+
+        # Telemetry while the steady solver marches: it prints the streamwise
+        # momentum residual on every iteration, and this hook forwards each
+        # one the moment it prints, so the viewer watches convergence happen
+        # instead of a frozen screen. Read on a log scale because the residual
+        # falls across several decades. Any failure inside a line hook is
+        # swallowed by the runner, so telemetry can never stop a solve.
+        residual_trace = {"iteration": None, "last": 0.0}
+
+        def _residual_line_hook(line: str) -> None:
+            if not emit:
+                return
+            match = _TIME_RE.match(line)
+            if match:
+                residual_trace["iteration"] = int(match.group(1))
+                return
+            match = _MOMENTUM_RESIDUAL_RE.search(line)
+            if not match or residual_trace["iteration"] is None:
+                return
+            now = time.time()
+            if now - residual_trace["last"] < _TRACE_MIN_INTERVAL_S:
+                return
+            residual_trace["last"] = now
+            emit("trace.point", {
+                "series": "momentum_residual",
+                "x": residual_trace["iteration"],
+                "y": round(math.log10(max(float(match.group(1)), 1e-12)), 4),
+                "x_label": "solver iteration",
+                "y_label": "log10 momentum residual",
+                "title": "Momentum residual falling through the steady solve",
+                "feasible": True})
 
         if warm_solve:
             note = "steady solve, run to its own residual convergence"
@@ -301,7 +538,8 @@ def main(request: str | None = None, params: dict | None = None,
             roster.set(CHIEF_ENGINEER, note, "working")
             roster.set_workers(ranks, note)
             command = f"mpirun -np {ranks} simpleFoam -parallel" if parallel else "simpleFoam"
-            result = engineer._run_step("simpleFoam", command, 3600)
+            result = engineer._run_step("simpleFoam", command, 3600,
+                                        line_hook=_residual_line_hook)
             ledger.spend(result.seconds, f"simpleFoam ({result.seconds:.0f}s)")
             stage_row("selected solver", result.seconds, note)
             roster.set_workers(0)
@@ -346,6 +584,44 @@ def main(request: str | None = None, params: dict | None = None,
     reattach_dev = ((reattachment_xc - EXP_REATTACH_XC) / EXP_REATTACH_XC
                     if reattachment_xc is not None else None)
 
+    # The two wall distributions, drawn from the same arrays the gate is read
+    # from. Both are optional: if a figure cannot be drawn the act carries on
+    # with the numbers it already has.
+    xc_tau = gate.get("xc_tau") or []
+    cf_series = gate.get("cf") or []
+    xc_p = gate.get("xc_p") or []
+    cp_series = gate.get("cp") or []
+    n_crossings = len(gate.get("crossings") or [])
+    if xc_tau and len(xc_tau) == len(cf_series):
+        cf_png = skin_friction_figure(
+            out / "nasa_hump_skin_friction.png", xc_tau, cf_series,
+            separation=separation_xc, reattachment=reattachment_xc)
+        if cf_png:
+            announce_plot(emit, out.name, cf_png,
+                          "Skin friction along the wall, separation and "
+                          "reattachment marked")
+            script.engineer(
+                f"• Skin friction plotted from {len(xc_tau):,} wall samples "
+                f"at the converged state. "
+                f"• It changes sign {n_crossings} time"
+                f"{'' if n_crossings == 1 else 's'} along the wall. "
+                f"• Separation and reattachment are the pair inside the "
+                f"bubble.")
+    if xc_p and len(xc_p) == len(cp_series):
+        cp_png = surface_pressure_figure(
+            out / "nasa_hump_surface_pressure.png", xc_p, cp_series,
+            separation=separation_xc, reattachment=reattachment_xc)
+        if cp_png:
+            announce_plot(emit, out.name, cp_png,
+                          "Surface pressure along the wall")
+            script.engineer(
+                f"• Surface pressure over the same wall, "
+                f"{len(xc_p):,} samples. "
+                f"• Referenced to the measured upstream pressure, not an "
+                f"assumed one. "
+                f"• The strongest suction is marked with its measured "
+                f"station.")
+
     gate_rows = [
         ["Converged at iteration", f"{converged_iterations:,}"],
         ["Separation x/c (converged)", f"{separation_xc:.4f}"],
@@ -360,11 +636,16 @@ def main(request: str | None = None, params: dict | None = None,
             ["Reattachment deviation", f"{reattach_dev * 100:+.1f}%"],
             ["Reattachment model-form band", f"±{REATTACHMENT_MODEL_BAND * 100:.0f}%"],
         ]
-    _emit_table(emit, script, role=_CE_ROLE,
-               title="Gate: converged separation and reattachment vs the "
-                     "published experiment",
-               headers=("Quantity", "Value"), rows=gate_rows,
-               table_id="gate-act6-nasa_hump")
+    # The gate table grows a row at a time, each one landing as it is
+    # decided, rather than nine rows arriving at once with nothing to watch.
+    for index, gate_row in enumerate(gate_rows):
+        _emit_table(emit, script, role=_CE_ROLE,
+                   title="Gate: converged separation and reattachment vs the "
+                         "published experiment",
+                   headers=("Quantity", "Value"), rows=[gate_row],
+                   table_id="gate-act6-nasa_hump", append=index > 0)
+        if emit:
+            time.sleep(0.6)
 
     sep_ok = abs(sep_dev) <= SEPARATION_GATE
     reattach_ok = reattach_dev is not None and abs(reattach_dev) <= REATTACHMENT_MODEL_BAND
@@ -429,6 +710,27 @@ def main(request: str | None = None, params: dict | None = None,
         f"minutes, no hand tuning at any step. "
         f"• Residuals below the case's own convergence control at iteration "
         f"{converged_iterations:,}.")
+    # The measurement against the published experiment, as a table rather
+    # than a sentence, with the bubble length carried alongside the two
+    # stations it is the difference of.
+    comparison_rows = [["Separation station (x/c)", f"{separation_xc:.4f}",
+                        f"{EXP_SEPARATION_XC:.3f}", f"{sep_dev * 100:+.1f}%"]]
+    if reattachment_xc is not None:
+        bubble_solved = reattachment_xc - separation_xc
+        bubble_published = EXP_REATTACH_XC - EXP_SEPARATION_XC
+        comparison_rows += [
+            ["Reattachment station (x/c)", f"{reattachment_xc:.4f}",
+             f"{EXP_REATTACH_XC:.3f}", f"{reattach_dev * 100:+.1f}%"],
+            ["Bubble length (x/c)", f"{bubble_solved:.4f}",
+             f"{bubble_published:.3f}",
+             f"{(bubble_solved - bubble_published) / bubble_published * 100:+.1f}%"],
+        ]
+    _emit_table(emit, script, role=_CE_ROLE,
+               title="Measured wall events against the published experiment",
+               headers=("Quantity", "This Solve", "Published Experiment",
+                        "Deviation"),
+               rows=comparison_rows, table_id="comparison-act6-nasa_hump")
+
     if verdict["tier"] == VALIDATED:
         script.engineer(f"• Verdict: validated. {verdict['reason']}.")
     else:
@@ -442,8 +744,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     _AGENDA = [
         {"title": "The pressure comparison",
-         "scope": "extend the same wall sampling to the surface pressure "
-                  "distribution and grade it against the published Cp curve",
+         "scope": "grade the wall pressure now on record against the "
+                  "published Cp curve point by point, and put a gate on the "
+                  "suction peak as well as on the two wall events",
          "cost": "no new solve, the converged state already carries it"},
         {"title": "Sweep the Reynolds number",
          "scope": "hold the geometry fixed and solve a small span of Re "
@@ -457,6 +760,17 @@ def main(request: str | None = None, params: dict | None = None,
     ]
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
+
+    # The report opens on the picture, not the prose: each measured station
+    # against its published value and the band it is graded on.
+    comparison_png = comparison_figure(
+        out / "nasa_hump_experiment_comparison.png",
+        [("separation", separation_xc, EXP_SEPARATION_XC, SEPARATION_GATE),
+         ("reattachment", reattachment_xc, EXP_REATTACH_XC,
+          REATTACHMENT_MODEL_BAND)])
+    if comparison_png:
+        announce_plot(emit, out.name, comparison_png,
+                      "Measured wall events against the published experiment")
 
     report_doc = lab_report(
         title=f"Act 6: {shown}",
@@ -476,8 +790,8 @@ def main(request: str | None = None, params: dict | None = None,
             f"standard gates ({MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality, "
             f"{MAX_SKEWNESS:.0f} skewness).",
             "Steady k-omega SST solve from the case's own initial fields, "
-            "capped at 4 MPI ranks, run to its own residual convergence "
-            "criteria rather than a fixed iteration count.",
+            "run to its own residual convergence criteria rather than a "
+            "fixed iteration count.",
             "Skin friction and pressure sampled along the wall at the "
             "converged state; separation and reattachment read from the "
             "sign change of skin friction.",
