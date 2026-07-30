@@ -636,8 +636,22 @@ for a time-mean to resolve one. Checked directly rather than assumed: the raw
 (non-averaged) `probesCenterline` series at Re 3900 shows the near-wake
 streamwise velocity reversing sign on **34-39% of all 7,275 samples** in
 `0.05D <= s/D <= 0.50` (excursions to -1.0 to -1.4, more than the freestream
-speed). The flow separates continuously. What breaks is the *mean*, not the
-*separation*. Correct record for this quantity at this rung:
+speed). The flow separates continuously.
+
+> **Basis note (independently reproduced 2026-07-30, `analyze_re3900.py`).** The
+> 34-39% figure was re-derived from scratch and confirmed — but the basis needs
+> stating precisely or a rerun will appear to have changed when it has not.
+> "7,275 samples" is **7,275 time rows in the averaging window (t >= 45)**, not a
+> probe-sample count, and 34.0-38.7% is the **per-probe range over
+> `0.05 <= s/D <= 0.25`** (near-base), not over the `0.05-0.50` window cited in
+> the sentence above — that wider window gives 19.2-38.7% on the same data.
+> Aggregating over every probe and all of `t=0..90` instead yields **49.2%**.
+> All three numbers are correct for their own basis; only the first is
+> comparable to the record. The confirmed near-base max forward excursion is
+> **+0.817** (record: 0.81).
+
+What breaks is the *mean*, not the *separation*. Correct record for this
+quantity at this rung:
 **NOT MEASURABLE BY THIS METRIC ON THIS FLOW** — not FAIL, not "none" as if a
 bubble should have been there and wasn't found. An inapplicable gate is a
 different outcome from a missed one, and conflating them (the same distinction
@@ -1141,11 +1155,14 @@ not be gated at all on present access. That is a materially weaker gate than Re
 **Recommendation: do not climb to Re 5000 or Re 10,000 next.** Two independent
 reasons now point the same way, and they were established separately:
 
-1. **Model adequacy (measured, this rung).** At Re 3900 the 2D laminar model
-   has already lost the mean recirculation bubble entirely — a qualitative,
-   not merely quantitative, failure. Going further up Re makes a model that is
-   already qualitatively wrong more expensive, not more informative. The
-   deviation would grow; nothing would be learned that this rung has not
+1. **Model adequacy (measured, this rung).** At Re 3900 the 2D laminar wake has
+   crossed a *topological* threshold: it still separates continuously (the raw
+   series reverses on 34-39% of samples) but no longer holds a **mean**
+   recirculation bubble, so the standard `L_rec/D` gate stops being applicable
+   rather than merely disagreeing — see the re-verdict above. Climbing further
+   spends more compute on the far side of that threshold, where the ladder's
+   own primary length gate cannot be evaluated at all. The remaining
+   deviations would grow; nothing would be learned that this rung has not
    already shown.
 2. **Reference availability (researched, this session).** The rung above buys a
    weaker gate than the rung just completed.
