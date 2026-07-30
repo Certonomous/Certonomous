@@ -540,3 +540,49 @@ which would need a different kind of test than link-by-link isolation.
 
 Evidence: `probeChainLinksA5.py`, `probeA5DiagRatio.py` (both new this session, in
 `ladder-a/A5_work/UBend_Channel_pressureloss/`), `chainlinks_out_TRUNCATED.log`, `diagratio_out.log`.
+
+## Addendum, 2026-07-30: symmetry-plane proximity test -- exonerated, no solve required
+
+Every link in the chain (`mesh.warpDeriv`, `dF/dW`, `dR/dXv`, `dR/dW`) has now been isolated and either
+refuted or invalidated-and-not-yet-confirmed (previous addendum) -- the coordinator's conclusion: if
+every link is individually correct, the error is in how they combine, or in the solve between them, not
+in a single Jacobian. Two untested candidates were raised: adjoint-solve accuracy (this session's next
+test, below) and the symmetry plane specifically -- repeated three times as a standing hypothesis because
+A5 is a half-model and this case's own `meshOptions["symmetryPlanes"]` is `[]` (confirmed both in the
+ladder's adapted `runScript.py` AND in the untouched official tutorial -- an inherited omission, not a
+ladder-introduced one). The specific, falsifiable test: **are idx8 and idx17 (the two sign-flipped
+components) the design variables geometrically NEAREST the symmetry plane?**
+
+This required no solve -- only the FFD control-point coordinates (already generated this session,
+`probeFFDGeometry.py`) and the symmetry plane's actual location, confirmed directly from the mesh itself
+(not assumed): parsed `constant/polyMesh/points.gz` + `faces.gz` for the `sym` patch (`boundary` file:
+`type symmetry`, `startFace 14728`, `nFaces 600`) and found **every point on the `sym` patch sits at
+`z = 0.0` exactly** (`x` spans the full `[0, 0.8445]`, `y` spans `[-0.0945, 0.0945]`, `z` is a single
+value, confirmed a true flat symmetry plane at `z=0`). The domain's opposite z-extent (the outer wall,
+`ubend`/`ubendup` patches) reaches `z=0.0375`.
+
+Cross-referencing against the FFD grid (`pts.shape = (23, 3, 3)`, k-index 0/1/2 along z):
+
+| k | FFD z | distance from symmetry plane | shapexUpper indices at this k (i=7..15) | any sign flip? |
+|---|---|---|---|---|
+| 0 | z=0.0 (**exactly the symmetry plane**) | 0 (ON the plane) | 0, 3, 6, 9, 12, 15, 18, 21, 24 | **no** (errors 8.5-179.2%, all same-sign) |
+| 1 | z=0.010 | mid-span | 1, 4, 7, 10, 13, 16, 19, 22, 25 | **no** (errors 2.3-167.1%, all same-sign) |
+| 2 | z=0.038 (**farthest FFD station from the plane**) | maximum | 2, 5, **8**, 11, 14, **17**, 20, 23, 26 | **yes -- both idx8 and idx17 are here** |
+
+**Direct answer: no. idx8 and idx17 are not nearest the symmetry plane -- they are at k=2, the FFD
+station FARTHEST from it (z=0.038 vs. the plane at z=0), tied for that same z-station with idx2 and
+idx26, which are the TWO CLEANEST-AGREEING components in the entire 27-vector** (1.1% and 2.7%,
+independently confirmed clean of the `mesh.warpDeriv` mechanism too in the previous addendum). The two
+components literally sitting ON the symmetry plane (k=0, idx0/idx3/.../idx24) show no sign flips at all,
+despite being exactly the points a `symmetryPlanes: []` omission in IDWarp's mesh-warp setup would be
+expected to endanger first (nothing constrains them to stay on the plane during a shape perturbation).
+**The symmetry-plane-proximity hypothesis is exonerated by this test, cleanly, per the coordinator's own
+decision rule** ("if they are scattered elsewhere, the symmetry plane is exonerated") -- and more than
+merely scattered, the flipped components sit at the opposite geometric extreme from the plane, sharing a
+station with the two best-behaved DVs in the set. This is the third time this specific hypothesis has
+been raised in this investigation and the first time it has been directly tested; it can be set aside.
+
+Evidence: reused `ladder-a/A5_work/UBend_Channel_pressureloss/probeFFDGeometry.py`'s already-recorded
+per-DV coordinate table (this document's earlier working notes) plus a new one-off parse of
+`constant/polyMesh/{points,faces}.gz` for the `sym`/`ubendup` patch z-extents (not saved as a standalone
+script -- a 30-line inline check, reported here in full).
