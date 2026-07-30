@@ -1955,3 +1955,153 @@ next step rather than rushed.
   `probewallbranch_idx0_minus_run1.log`, `probewallbranch_idx1_plus_run1.log`,
   `probewallbranch_idx1_minus_run1.log` -- the 5 raw runs behind section 19.1's table (same script as
   section 13, `probeWallBranch.py`, unmodified, new `--idx` arguments only)
+
+## 20. The last unprobed link, isolated: `dCD/dXv` itself, tested against a finite difference of itself -- clean, for idx0/idx1 AND the control
+
+Every mechanism tested through section 19 was a NAMED SUB-MECHANISM living inside `dCD/dXv` (frozen
+wall-distance, the SA wall-function branch), or one of the two links upstream of it (`dXs/dShape` via
+DVGeo, `dXv/dXs` via `mesh.warpDeriv`), both independently verified clean for idx0/idx1 already. `dCD/dXv`
+itself -- the CFD/turbulence residual's own differentiated sensitivity to volume-mesh coordinates -- had
+never been tested against a finite difference of itself. Per the coordinator's direction, this is
+completion of the systematic link-by-link sweep, not another guess, and it is the method that cracked the
+first defect on this case (six refutations, one confirmation) and that relocated a different case's (the
+U-bend's) search from the Jacobians to the assembly. Budget was not a constraint (roughly 1 of 40
+core-minutes used through section 19).
+
+### 20.1 Finding the API
+
+Read directly out of the container, the same way `mesh.warpDeriv` and the `nutw` clip were found earlier
+in this investigation (`grep`, then read the source): `dafoam/pyDAFoam.py` exposes exactly the low-level
+calls needed to isolate this link --
+
+```python
+DASolver.setVolCoords(vol_coords)   # -> solver.updateOFMesh(vol_coords) (and solverAD ditto) --
+                                     #    pushes an ARBITRARY Xv array into OpenFOAM's mesh, completely
+                                     #    bypassing DVGeo and IDWarp
+DASolver()                          # -> solver.solvePrimal() -- the real nonlinear primal solve at
+                                     #    whatever Xv is currently set
+DASolver.evalFunctions(funcs)       # -> funcs["CD"], from the just-converged state
+```
+
+This lets CD be evaluated as a genuine function of `Xv` alone, with no shape/DVGeo/warp anywhere in the
+loop and no linearized approximation on the FD side -- each evaluation is a full, real, re-converged
+primal solve, not a geometric re-warp.
+
+### 20.2 Method
+
+`work/NACA0012_Airfoil_Incompressible/probeDCDDXv.py` (new this session). Captures the real `dCD/dXv`
+seed (`w_real`) via the identical hook sections 17-19 already use. Computes `delta_Xv = dXv/dShape_idx`
+for the component under test via the same real-nonlinear-warp central difference section 18 uses (so
+`delta_Xv` is itself an independently-verified-clean quantity, not a new unknown). Then:
+
+```
+AN_scalar = <w_real, delta_Xv>                              (chain-rule prediction, no new solve)
+FD_scalar = (CD(Xv0+h*delta_Xv) - CD(Xv0-h*delta_Xv)) / 2h   (TRUE finite difference: two full primal
+                                                               resolves at a DIRECTLY-SET, perturbed
+                                                               mesh, via setVolCoords -- bypassing
+                                                               DVGeo/warp on this side too)
+```
+
+To first order in `h`, `Xv0 + h*delta_Xv` is the same mesh `DVGeo`+`warpMesh()` would produce at
+`shape=+h`, since `delta_Xv` was built from exactly that FD -- so this construction reaches the same
+physical mesh state two different, independent ways (through the warp chain, and directly), which is
+itself a check on the construction.
+
+Run serial (`np=1`), `--cpus=3 --memory=4g`, matching this investigation's standing convention --
+`setVolCoords` pushes a full undecomposed array, so `decomposePar` is never invoked and no mismatch of
+the kind that invalidated one early run in this investigation (15.2) is possible.
+
+**A real mistake, caught and fixed before it did lasting damage:** cleaning up leftover numbered solution
+directories between runs (`DASolver`'s `renameSolution` collides on a fresh process if a prior run's
+output directory is still there) with `sudo rm -rf "$CASE"/[0-9]*` also matched `0` and `0.orig` --
+this case's tracked initial-condition and template directories -- and deleted both. Caught immediately via
+`git status` (both showed as tracked deletions, not untracked churn) and restored losslessly with
+`git checkout --`, before any further run depended on the missing files. Recorded here rather than
+quietly fixed, per this lab's own standing practice.
+
+### 20.3 Sanity checks, per the two cautions carried over from the U-bend agent's own probe failures
+
+Both of the U-bend agent's false alarms were its own instrumentation (caught by a step-size-unstable FD,
+and by an implausible ratio that turned out to be a units mismatch), not the code under test -- so both
+checks were run here before trusting any result:
+
+- **Baseline CD** from this script matches the trusted production value to 8 significant figures in every
+  run (`2.09105100...e-02`), and the freshly recomputed `dCD/dshape` vector matches the established
+  values component-by-component.
+- **Step-size stability**, idx0: `h=1e-4` gives `FD_scalar=-1.0055e-02`; `h=5e-5` gives
+  `FD_scalar=-0.9996e-02` -- a 0.6% change between step sizes halved, not the ~20x swing that flagged the
+  U-bend's own probe bugs. idx1: `h=1e-4` gives `-1.9791e-02`; `h=5e-5` gives `-1.9705e-02` -- 0.4% change.
+  **Stable. No probe instability.**
+- **Implausible-ratio check**: not triggered -- every `AN_scalar`/`FD_scalar` ratio here sits within 1.4%
+  of 1.0, nowhere near a suspicious exact constant (this case's own scalers/normalizers -- `U0=10`,
+  `CD scale=0.2`, `shape scaler=10.0` -- were checked as the first candidates and none of them explain a
+  ratio near 1.0 anyway, since no such coincidence is present to explain).
+
+### 20.4 Result
+
+| idx | h | AN_scalar (adjoint, chain-rule) | FD_scalar (true re-solve at directly-set Xv) | rel. err | established full-chain `check_totals` rel. err |
+|---|---|---|---|---|---|
+| 0 | 1e-4 | -1.013379e-02 | -1.005529e-02 | **0.78%** | 11.9% |
+| 0 | 5e-5 | -1.013380e-02 | -0.999573e-02 | **1.38%** | -- |
+| 1 | 1e-4 | -1.987770e-02 | -1.979107e-02 | **0.44%** | 11.7% |
+| 1 | 5e-5 | -1.987772e-02 | -1.970482e-02 | **0.88%** | -- |
+| 4 (control) | 1e-4 | 3.999716e-02 | 4.009108e-02 | **0.23%** | ~2.6% (established, full chain) |
+
+**`dCD/dXv` agrees with a true finite difference of itself to within 0.2-1.4% for idx0, idx1, AND the
+clean control idx4 -- no material difference between the flagged components and the control at this
+link, and no sign flip anywhere.** This is far tighter than idx0/idx1's own established 11.7-11.9%
+full-chain gap, and is comparable to or tighter than idx4's own established ~2.6% full-chain agreement.
+
+### 20.5 Verdict: the link itself is clean. The defect is not in any single link.
+
+Three links now independently verified for idx0/idx1, each against a finite difference of that link
+alone:
+
+| link | test | verdict |
+|---|---|---|
+| `dXs/dShape` (FFD/DVGeo Jacobian) | geometric constraints (`thickcon`/`volcon`/`rcon`) vs FD | machine precision, 1e-10 to 1e-13 (11.1) |
+| `dXv/dXs` (`mesh.warpDeriv`) | dot-product identity, real `dCD/dXv` seed | clean, 11.58-11.92% matching (not amplifying) the known gap, no sign flip (18) |
+| `dCD/dXv` (state adjoint, this section) | true re-solve at directly-set `Xv` vs chain-rule prediction | clean, 0.4-1.4%, no sign flip (20) |
+
+**Every link is clean, individually, to a standard at or above what this case's own established-good
+components show. Yet the composed, full-chain quantity (`dCD/dShape` via `compute_totals`, going through
+OpenMDAO's own multi-component linear solve across all three links together) still shows an 11.7-11.9%
+gap against a real finite difference of `CD(shape)`.** This is not a contradiction if each link is locally
+accurate but something in how the links are COMPOSED -- OpenMDAO's own linear-solver traversal across the
+`DAFoamFunctions` / `DAFoamSolver` / `DAFoamWarper` / `geometry` component chain, as opposed to any single
+component's own partial derivatives -- introduces the gap. This is exactly the shape of the finding
+reported for the U-bend case tonight (no defect in three tested links; the search relocated to the
+assembly), now independently reproduced on a second, unrelated case. **Two cases pointing at the same
+place is reported as the finding it is, not chased further to a specific assembly sub-mechanism this
+session** -- per the standing rule, a null result across all tested links is itself the result, and naming
+an untested tenth mechanism inside "the assembly" without evidence would repeat the exact mistake this
+session was directed to avoid.
+
+### 20.6 Updated running tally
+
+| # | link / mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted | 8.2 |
+| 2 | `dXs/dShape`: FFD/DVGeo Jacobian or shape-DV convention | refuted (machine precision) | 8, 11.1 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted (worsens under refinement) | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) | refuted (universal) | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted for idx6/idx4 and idx0/idx1 | 13, 19.1 |
+| 6 | combo-mode LE mesh pinching | refuted; N/A to idx0/idx1 | 14 |
+| 7 | `dXv/dXs`: `mesh.warpDeriv` mis-linearization | CONFIRMED for idx6 only; idx0/idx1 clean | 15-18 |
+| 8a | LE-curvature geometric singularity | weighed against (11.1's `rcon` gradient) | 19.2 |
+| 8b | mesh-quality metric (aspect ratio) near LE | measured, real, non-discriminating | 19.2 (see also new standalone generator finding, filed separately) |
+| 9 | `dCD/dXv`: state-adjoint sensitivity to volume coords | **CLEAN, 0.4-1.4%, matches control** | 20 |
+
+**All individually-testable links and named sub-mechanisms are now exhausted for idx0/idx1. The defect,
+whatever it is, lives in the assembly/composition of the (individually correct) links, not in any one of
+them** -- reported as the conclusion this session's evidence supports, matching the U-bend case
+independently.
+
+### 20.7 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeDCDDXv.py` -- new, isolates `dCD/dXv` via `DASolver.
+  setVolCoords`/`DASolver()`/`DASolver.evalFunctions`, tests it against a true re-solve-based finite
+  difference
+- `probedcddxv_idx0_h1e-4_run1.log`, `probedcddxv_idx0_h5e-5_run1.log`, `probedcddxv_idx1_h1e-4_run1.log`,
+  `probedcddxv_idx1_h5e-5_run1.log`, `probedcddxv_idx4_h1e-4_run1.log` -- the 5 raw runs behind section
+  20.4's table
