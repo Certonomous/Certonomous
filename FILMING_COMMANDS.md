@@ -136,7 +136,26 @@ This is the **only** act in the control room that is a genuine adjoint. The
 cylinder `shape-optimization` act is a surrogate-gradient study; **do not call
 that one adjoint on camera.** This one you can.
 
-Routes to `adjoint-optimization` at confidence 0.79. Replays in about 1 second.
+Routes to `adjoint-optimization` at confidence 0.79. The act itself runs in
+about 1 second, but it **plays for about 47 seconds on screen** — it is now a
+design optimization you watch, not a page of tables. Time your narration
+against the playback, not the run.
+
+**The visual beats, in order:** baseline wing → the adjoint gradient painted on
+the skin (~18 s) → the wing morphing across 48 frames with the drag trace
+descending beside it (~20-24 s) → a root close-up of the same morph where the
+section change is legible (~27-32 s) → the optimized wing held.
+
+Everything is at **true scale**. The act cannot exaggerate: the scaling code was
+removed outright. The shapes were reconstructed by replaying the optimizer's own
+recorded design variables through the same FFD map it used, verified linear to
+7.4e-15 — a replay of what the optimizer did, not a model of it.
+
+If the change looks subtle, that is the honest answer and there is a good beat
+in it: the act states it could have amplified by at most **x1.995** before the
+wing passes through itself, because this optimizer drove the wing onto its own
+thickness constraint (thinnest station 0.4988 against a limit of 0.5). It
+declined to amplify at all.
 
 **What it puts on screen:**
 
