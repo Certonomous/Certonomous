@@ -498,7 +498,10 @@ overall **0.0741**, delta vs round 1 **−0.0128**):
   honest "does not fit" result is a valid outcome.
 - Separately, **F6b (periodic hills gate)** was not attempted this session —
   time-boxed, explicitly conditional on time remaining after F6a/F6c, not a
-  blocker.
+  blocker. **Superseded 2026-07-29:** F6b was subsequently opened and gated
+  (`demo-output/website/solve_registry/f6b_gate_20260729T035745Z.log`, 511 s,
+  4 ranks, GATE REACHED, reattachment over-predicted by +63% to +66%). Record:
+  `demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md`.
 
 ## The closure metric moved: 0.0741 → 0.0676
 

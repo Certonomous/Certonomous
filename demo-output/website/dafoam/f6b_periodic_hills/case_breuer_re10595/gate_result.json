@@ -9,6 +9,14 @@
       7.64389533736766
     ]
   },
+  "our_solve": {
+    "source": "/home/ubuntu/Certonomous/demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/10000/wallShearStress",
+    "iteration": 10000,
+    "cf_zero_crossings_x_over_h": [
+      0.2589992747868627,
+      7.64391456971899
+    ]
+  },
   "frohlich_2005_les_reference": {
     "citation": "Frohlich, J., Mellen, C.P., Rodi, W., Temmerman, L., Leschziner, M.A. (2005). Highly resolved large-eddy simulation of separated flow in a channel with streamwise periodic constrictions. J. Fluid Mech. 526, 19-66.",
     "separation_x_over_h": 0.2,
@@ -69,6 +77,10 @@
         }
       },
       "overall_percent": 12.511333333333333
+    },
+    "our_solve": {
+      "per_station": {},
+      "overall_percent": null
     }
   }
 }

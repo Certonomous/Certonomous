@@ -28,13 +28,43 @@
 - **Angle of attack:** 0–3° (design space); primary case α=1.25°
 - **Flow regime:** Transonic, shock-bearing
 - **Geometry:** 2D symmetric airfoil; steady RANS (`rhoSimpleFoam`, kOmegaSST)
-- **Rung reached:** Feasibility → Physics → **Gate (shock position, banded)**
+- **Rung reached:** Feasibility → Physics → **Gate (shock position, banded, resolution-limited)**
 - **Gate metric:** Upper-surface shock location, M=0.8/α=1.25°/Re=6e6
-  - CFD shock: x/c=0.556
-  - Reference (inviscid AGARD/GAMM benchmark): x/c~0.60
-  - Deviation: +0.044 x/c upstream of inviscid; falls within 0.35–0.60 chord band (expected for viscous RANS)
-  - Cd=0.0432, Cl=0.109 (physically sane)
-- **Verdict:** **PASS (banded, qualitative).** Shock position lies within expected envelope; viscous RANS expected to shift shock upstream vs inviscid.
+  - CFD shock: x/c=0.55607646
+  - Reference (inviscid AGARD/GAMM benchmark): x/c~0.60 — a literature-recalled
+    value stated to two significant figures, with **no retained citation**
+    (`PHYSICS_FAMILIES.md:104-107`)
+  - **Detector resolution: ±1 increment ≈ 0.052 x/c at this location.** The
+    detector returns the midpoint of the adjacent surface-sample pair with the
+    steepest positive dCp/dx, so it can only emit values on a fixed mesh
+    lattice — 8 distinct values across all 280 ledger runs. The next
+    representable value above 0.55607646 is 0.608440365.
+  - **WITHDRAWN 2026-07-30:** the previously recorded "Deviation: +0.044 x/c
+    upstream of inviscid" and the reading of it as the expected viscous
+    shock/boundary-layer shift. 0.60 − 0.556 = 0.0439 chord is **smaller than
+    one detector increment (0.0524)**, and the adjacent representable value
+    0.6084 sits *on* the reference. F2 does not resolve that displacement and
+    must not be narrated as demonstrating it. Full trace:
+    `campaign/F2_transonic_naca0012.md` §3.
+  - Corrected statement: the shock lies at x/c = 0.556 ± one increment,
+    **consistent with the inviscid ~0.60 benchmark to within the detector's own
+    resolution**, and inside the stated 0.35–0.60 band — though the adjacent
+    representable value would fall outside it, so the banded pass turns on a
+    single quantisation level.
+  - Cd=0.0431920118, Cl=0.109011072 (Cd spread 0.00093; pressure 0.036912 +
+    viscous 0.006280) — **re-run and confirmed 2026-07-30**, see below
+- **Verdict:** **PASS (banded, qualitative, resolution-limited).** A genuine
+  suction-side recompression is present and its position is not contradicted by
+  the inviscid benchmark. The gate supports nothing stronger than that.
+- **Primary evidence:** these are pre-batch validation-gate numbers from a
+  dedicated solve, **not** batch-ledger samples — no `rhosimplefoam-naca0012-transonic`
+  ledger entry exists at M=0.8/α=1.25°/Re=6e6, and none was expected to. The
+  original run's artifacts were discarded with its scratch ledger (commit
+  `6cc7f629`, 2026-07-28 05:25:35 +0000). The case was **re-run 2026-07-30
+  16:54:57Z and reproduces every published digit**; artifacts are now retained
+  at `campaign/F2_runs/` (`F2_reproduction_2026-07-30.json`,
+  `primary_M0.8_a1.25_Re6e6/postProcessing/forceCoeffs1/0/coefficient.dat`
+  iteration 2000).
 - **Cost:** 26–34 s per evaluation
 - **Shipped:** Yes (mega-batch family)
 
@@ -173,9 +203,71 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 
 ## F6b — Periodic Hills
 
-- **Status:** **NOT ATTEMPTED**
-- **Reason:** Explicitly conditional on time remaining after F6a and F6c were fully climbed and gated. Both completed to gate rung with independently cross-checked results; remaining session budget spent on write-up/validation rather than opening a third family.
-- **Blocked:** Yes (no feasibility rung started)
+- **Status:** **GATE REACHED** (2026-07-29 solve; record completed 2026-07-30).
+  Supersedes the "NOT ATTEMPTED" line this section carried, which was written
+  before the 2026-07-29 03:57 UTC gate run.
+- **Case:** `PH_Breuer`, Re_H = 10595, 15,600 cells, stock kOmegaSST, 10,000
+  iterations, 4 ranks, 511 s wall = **34.1 core-minutes**
+  (`solve_registry/f6b_gate_20260729T035745Z.log`).
+- **Gate:** separation x/h **0.2590** (LES ~0.2); reattachment x/h **7.6439**
+  against the Fröhlich et al. (2005) LES reference **4.6-4.7** — kOmegaSST
+  **over-predicts the recirculation length by +63% to +66%** (7.64391457 against
+  the 4.6–4.7 band; the "~64%" quoted elsewhere is the band midpoint, a derived
+  and rounded figure — no `64` appears in `gate_result.json`, which stores only
+  the raw crossings and the reference range).
+  Station-profile scaled MAE of |U| vs the shipped LES field: **12.51%** on the
+  shipped/serial sampling pipeline, **12.95%** on this campaign's own 4-rank
+  parallel run of the identical field (`f6d_random_matrix_uq/aggregate_result.json`).
+  Note `gate_result.json`'s `our_solve.profile_scaled_mae_vs_LES.overall_percent`
+  is `null` — the gate script's station loop looked for `line_U.xy` while this
+  run wrote `line_k_nut_omega_p_U.xy`, so the 12.51% in that file is the
+  *shipped baseline's* number, not ours. The difference is line sampling across
+  processor boundaries, not different physics.
+- **Convergence:** `check_convergence.py` returns NOT_CONVERGED, and that is a
+  **diagnosed false negative** — the case's own `fvSolution` sets
+  `residualControl { p 1e-15; }`, so the solver can never print its convergence
+  sentence. **This is a sibling of L-21, not L-21 itself**: L-21 is a
+  `residualControl` entry naming a field the model does not transport; here the
+  field (`p`) *is* transported and the tolerance is simply unreachable. Same
+  outward symptom, different cause and different fix. Evidence is the residual history (Ux initial
+  3.60e-9, p 1.35e-8 at iteration 10,000, monotone over four decades) plus
+  reproduction of the benchmark's own shipped kOmegaSST solution to **five
+  significant figures** on the gate quantity.
+- **Pre-registered prediction:** **FALSIFIED** on both magnitude and sign; the
+  prediction file is left unedited.
+- **Blocked:** No.
+- **Shipped:** No.
+- **Full record:** `demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md`,
+  `case_breuer_re10595/gate_result.json`.
+
+---
+
+## F6d — Random-matrix / maximum-entropy model-form UQ (on the F6b case)
+
+- **Status:** **COMPLETE, with a negative headline result and a correction to F6a.**
+- **What:** the framework `F6a_epistemic_propagation.md` §9 scoped and did not
+  start (Xiao, Wang & Ghanem, arXiv:1603.09656), implemented in full on the case
+  §9.5 recommended. Sampler verified against 15 of the paper's own stated
+  properties, 0 failures, before any CFD. Two internal inconsistencies in the
+  paper's Appendix A found and recorded.
+- **Result 1 (negative):** the probabilistic band on reattachment contains the
+  LES truth but is **~5x wider** than the eigenspace corner union on the same
+  case (90% interval [3.845, 7.885] vs corner union [4.022, 4.819]). The
+  ensemble's mean profile error is worse than the unperturbed baseline's.
+- **Result 2 (negative, pre-registered):** convergence gating biases the band
+  away from the truth — the 11 members failing a residual gate have mean
+  reattachment 5.342 against the 27 passing members' 6.727, with the truth at
+  4.6-4.7.
+- **Result 3 (correction):** all 18 eigenvalue-perturbation `fvOptions` under
+  `dafoam/f6a_epistemic_band/` apply the perturbation **with the wrong sign**;
+  on F6a's own mesh this makes the 1C corner non-realizable in 95.93% of cells.
+  F6a's corner *non-convergence* conclusion survives re-testing with the
+  corrected sign; F6a's corner *numbers* and its explanation do not.
+- **Cost:** measured, ~3.5 core-hours total across ~60 solver runs, all serial.
+- **Shipped:** No.
+- **Full record:** `demo-output/website/campaign/F6d_random_matrix_uq.md`,
+  `F6d_random_matrix_uq.json`; corrections appended in place to
+  `F6a_epistemic_band.md` and `F6a_epistemic_propagation.md` §10.
 
 ---
 
@@ -354,14 +446,14 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 | Family | Case | Reynolds/Mach | Regime | 2D/3D | Steady/Unsteady | Rung | Gate vs Reference | Deviation | Verdict | Core-min |
 |---|---|---|---|---|---|---|---|---|---|---|
 | **F1** | ONERA M6 | M=0.84, Re~1.5e7 | Transonic shock | 3D | Steady | Feasibility→Physics→**Gate** | Cp distribution (AGARD AR-138) | RMS 0.049–0.114, shock ±0.02–0.10 x/c | **GATE REACHED** | 127.5 |
-| **F2** | NACA0012 | M=0.8, Re=6e6 | Transonic shock | 2D | Steady | Feasibility→Physics→**Gate** | Shock position (inviscid AGARD) | x/c=0.556 vs ~0.60 (banded) | **PASS** | – |
+| **F2** | NACA0012 | M=0.8, Re=6e6 | Transonic shock | 2D | Steady | Feasibility→Physics→**Gate** | Shock position (inviscid AGARD) | x/c=0.556 vs ~0.60; **detector resolution ±0.052 x/c — deviation not resolved** | **PASS (banded, resolution-limited)** | – |
 | **F3a** | Wedge | M=2.0–3.0 | Inviscid supersonic | 2D | Steady | Feasibility→Physics→**Gate** | p2/p1 (θ-β-M exact) | 0.01–0.07% | **PASS** | 8.43 |
 | **F3b** | Cone | M=2.35, 3.0 | Inviscid supersonic | Axisym | Steady | Feasibility→Physics→**Gate** | pc/p1 (Taylor-Maccoll) | p: 0.19–0.29%; β: 2.1–3.9% | **PASS, not fully converged** | 22.09 |
 | **F3c** | Diamond | M=2.0, 2.5 | Inviscid supersonic | 2D | Steady | Feasibility→Physics→**Gate** | cd (shock-expansion) | 0.18–0.26% | **PASS** | 7.93 |
 | **F5a** | Cylinder | Re=100–180 | Laminar unsteady shed | 2D | Unsteady | Feasibility→Physics→**Gate** | Strouhal (Roshko/Williamson) | 0.7–4.6% | **PASS** | – |
 | **F6a** | NASA hump | Re_c=936k | Turbulent separated | 2D | Steady RANS | Feasibility→Physics→**Gate** | separation/reattachment x/c | −1.59% / +13.95% (SST bias) | **GATE REACHED** | 5.25 |
 | **F6c** | Duct DNS | Re_360, Re_360 | Turbulent secondary flow | – | Steady RANS | Physics/Feasibility→**Gate** | Secondary-flow RMS vs DNS | RANS 0.0%, DNS 2.07–2.22% | **GATE FAIL** (structural) | 0 |
-| **F6b** | Periodic hills | – | – | – | – | **NOT STARTED** | – | – | blocked, time-boxed | 0 |
+| **F6b** | Periodic hills (`PH_Breuer`) | Re_H=10595 | Turbulent separated | 2D | Steady RANS | Feasibility→Physics→**Gate** | separation / reattachment x/h vs Fröhlich et al. 2005 LES | sep 0.2590 vs ~0.2; reatt 7.6439 vs 4.6–4.7 = **+63% to +66%** | **GATE REACHED** (prediction falsified) | 34.1 |
 | **F7a** | Dam break | Re~4e4 | Free-surface wave | 2D | Unsteady | Feasibility→Physics→**Gate FAIL** | Front position Z(T) | +8.2% mean (11.0% max) best, R1 2026-07-30; was +13.6%/21.3% | **GATE FAILED** (5% tol.) | 389.8 |
 | **F7b** | Wigley hull | – | – | – | – | **BLOCKED** (F7a gate fail) | – | – | – | 0 |
 | **F7c** | Workshop hull | – | – | – | – | **BLOCKED** (F7b blocked) | – | – | – | 0 |
@@ -452,7 +544,14 @@ yet — see below). Corrected 2026-07-29 night session per L-1.
 - **F9:** Pulsatile valve, mixed gate (2 PASS / 1 FAIL-with-cause) — **status corrected this session, was mislabeled NOT STARTED**; per the owner's rule, the FAIL component keeps this out of the control room even though it is evidence-record complete.
 
 **Not shipped:**
-- **F6b:** Periodic hills (not attempted, time-boxed)
+- **F6b:** Periodic hills — **gate reached 2026-07-29, not shipped.** Not shipped
+  because the gate exposes a large one-sided closure error (kOmegaSST
+  over-predicts reattachment by +63% to +66%) and the pre-registered prediction
+  was falsified; it is a documented failure kept in the record, not a
+  capability. **The "not attempted, time-boxed" line this entry carried was
+  wrong** — it predates the 2026-07-29 03:57 UTC solve
+  (`solve_registry/f6b_gate_20260729T035745Z.log`, 511 s wall, 4 ranks). See F6b
+  section above.
 - **F7a–c:** Marine free-surface (F7a gate fail blocks F7b/c)
 - **F8:** Rotating machinery — physics run exists, no reference gate yet
 - **F10:** Not started

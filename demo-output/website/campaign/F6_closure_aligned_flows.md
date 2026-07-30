@@ -9,6 +9,21 @@ combined 18.9%). F6a and F6c were completed and gated this session; F6b was
 **not attempted** — time-boxed per the docket's own "only if time remains"
 instruction, after F6a and F6c were fully climbed and gated.
 
+> **SUPERSEDED for F6b, 2026-07-29.** Everything this document says about F6b
+> was true when it was written on 2026-07-28 and is **no longer true**. F6b was
+> opened, climbed and gated on 2026-07-29: gate solve 03:57:45Z → 04:06:16Z,
+> 511 s wall on 4 ranks = 34.1 core-minutes
+> (`demo-output/website/solve_registry/f6b_gate_20260729T035745Z.log`), verdict
+> **GATE REACHED**, kOmegaSST over-predicting reattachment by +63% to +66% and
+> the pre-registered prediction falsified. The F6a/F6c content below is
+> unaffected. Current record:
+> `demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md` and
+> `F6b_periodic_hills.json`. The "not attempted" lines below are left in place
+> rather than deleted, so the supersession is visible.
+>
+> Note the session core-minute total below (5.25) counts only F6a and therefore
+> also predates F6b's 34.1.
+
 Every number below is either a fresh forward CFD solve run in this session
 or a re-derivation from already-existing, already-converged fields (B2,
 commit `e2c45ab`). No fitting, tuning, or selection against any test-case
@@ -28,7 +43,7 @@ each sub-report.
 | F6a | (same run) | Benchmark scorer self-check | 0.0622 | published floor 0.0621 | +0.16% | reproduction verified | — |
 | **F6c** DUCT vs DNS | Feasibility/Physics already passed (B2) → **Gate** | Secondary-flow RMS, `AR_1_Ret_360` | 6.1e-16% `U_bulk` | DNS 2.22% `U_bulk` | RANS captures ~0% | **fail, expected & documented** | **0** (post-processing only) |
 | F6c | (same rung) | Secondary-flow RMS, `AR_3_Ret_360` | 2.4e-15% `U_bulk` | DNS 2.07% `U_bulk` | RANS captures ~0% | **fail, expected & documented** | — |
-| **F6b** Periodic hills | **Not attempted** | — | — | ERCOFTAC reference | — | time-boxed, not run | 0 |
+| **F6b** Periodic hills | ~~Not attempted~~ → **Gate (2026-07-29)** | separation / reattachment x/h | sep 0.2590, reatt 7.6439 | Fröhlich et al. 2005 LES: sep ~0.2, reatt 4.6–4.7 | **+63% to +66%** on reattachment | **GATE REACHED** (superseded this row, 2026-07-29) | **34.1** |
 
 **Total new compute this session: ~5.25 core-minutes** (all in F6a; F6c was
 free re-analysis of already-converged fields).
@@ -106,6 +121,10 @@ Full report: `demo-output/website/dafoam/f6c_duct_dns/F6c_duct_vs_dns.md`
 
 ## F6b — Periodic hills
 
+**SUPERSEDED 2026-07-29 — F6b was subsequently run and gated. See
+`demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md`. The
+paragraph below is the 2026-07-28 state, kept for the record.**
+
 **Not attempted this session.** Per docket priority order, F6b was
 explicitly conditional on time remaining after F6a and F6c were fully
 climbed and gated. Both were completed to the gate rung with solid,
@@ -124,9 +143,11 @@ family. No feasibility rung was started for F6b.
   flagged for a future rung; not prioritized this session since it is not
   named in the docket's measured-deficit breakdown. Spatial vortex-pattern
   comparison (vs bulk RMS magnitude used here) not attempted.
-- **F6b**: entirely unstarted. Next session should open with a feasibility
+- **F6b**: ~~entirely unstarted. Next session should open with a feasibility
   rung on a single periodic-hill case before deciding whether it is worth
-  climbing further, per staging doctrine.
+  climbing further, per staging doctrine.~~ **DONE 2026-07-29** — that is
+  exactly what happened: feasibility (failed on `lineCell`, fixed), feasibility
+  (2), physics, then gate. No longer blocked.
 
 ## Evidence files
 

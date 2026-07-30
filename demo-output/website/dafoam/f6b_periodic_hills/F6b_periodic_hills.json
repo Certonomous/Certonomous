@@ -1,0 +1,175 @@
+{
+  "record": "F6b",
+  "title": "Periodic hills (PH_Breuer), staged RANS baseline vs the ERCOFTAC/Frohlich LES reference",
+  "family": "F6 (closure-aligned flows), sub-family b",
+  "companion_markdown": "demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md",
+  "created_utc": "2026-07-30",
+  "provenance_note": "Created 2026-07-30 to close a broken citation: F6b_periodic_hills.md promised this machine-readable companion at its line 6 and cited it at line 170, and no such file existed anywhere in the repo. Every value below is copied from, or computed from, primary evidence whose path is given alongside it. Nothing here is new measurement and nothing is estimated.",
+
+  "status": {
+    "verdict": "GATE REACHED",
+    "gate_run_date_utc": "2026-07-29",
+    "record_completed_utc": "2026-07-30",
+    "shipped": false,
+    "shipped_reason": "The gate exposes a large one-sided closure error and the pre-registered prediction was falsified. Kept in the record as a documented failure, not a shipped capability.",
+    "blocked": false,
+    "supersedes": "The 'NOT ATTEMPTED / time-boxed' status carried by CAMPAIGN_STATUS.md, F6_closure_aligned_flows.md and F6_closure_aligned_flows.json, all of which were written 2026-07-28, before the 2026-07-29 03:57:45Z solve."
+  },
+
+  "case": {
+    "name": "PH_Breuer",
+    "source_case": "/home/ubuntu/closure-challenge-benchmark/data/PH_Breuer/",
+    "working_directory": "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/",
+    "geometry": "ERCOFTAC/Breuer periodic hills, Lx = 9h, Ly = 3.035h, h = 1, cyclic streamwise",
+    "reynolds_number": 10595,
+    "reynolds_definition": "Re_H = Ubar * h / nu",
+    "ubar": 0.72,
+    "nu": 9.438414346389807e-05,
+    "nu_evidence": "case_breuer_re10595/constant/transportProperties, line 25, with the in-file comment //Re_H=10595",
+    "cells": 15600,
+    "cells_evidence": "case_breuer_re10595/log.decomposePar: 4 subdomains x 3900 cells",
+    "dimensionality": "2D (frontAndBack empty)",
+    "solver": "simpleFoam -parallel, OpenFOAM v2606",
+    "turbulence_model": "kOmegaSST (RAS), the case's own stock setting, no custom library substitution",
+    "iterations": 10000,
+    "ranks": 4,
+    "sampling_stations": "x0..x8 at x/h = 0,1,...,8 (the case's own system/singleGraph_x*)"
+  },
+
+  "rungs": [
+    {
+      "rung": "feasibility",
+      "log": "demo-output/website/solve_registry/f6b_feasibility_20260729T035528Z.log",
+      "outcome": "FAIL",
+      "cause": "FOAM FATAL IO ERROR, 'Unknown sample type lineCell' in system/singleGraph_x0/sets; not a valid sample type in v2606"
+    },
+    {
+      "rung": "feasibility (2)",
+      "log": "demo-output/website/solve_registry/f6b_feasibility2_20260729T035612Z.log",
+      "outcome": "PASS",
+      "cause": "after substituting midPoint for lineCell"
+    },
+    {
+      "rung": "physics",
+      "log": "demo-output/website/solve_registry/f6b_physics_20260729T035647Z.log",
+      "outcome": "PASS"
+    },
+    {
+      "rung": "gate",
+      "log": "demo-output/website/solve_registry/f6b_gate_20260729T035745Z.log",
+      "done_marker": "demo-output/website/solve_registry/f6b_gate_20260729T035745Z.done",
+      "outcome": "COMPLETE",
+      "started_utc": "2026-07-29T03:57:45Z",
+      "finished_utc": "2026-07-29T04:06:16Z",
+      "wall_seconds": 511,
+      "ranks": 4,
+      "core_minutes": 34.1
+    }
+  ],
+
+  "gate": {
+    "reference": {
+      "citation": "Frohlich, J., Mellen, C.P., Rodi, W., Temmerman, L. & Leschziner, M.A. (2005). Highly resolved large-eddy simulation of separated flow in a channel with streamwise periodic constrictions. J. Fluid Mech. 526, 19-66.",
+      "hosted_by": "ERCOFTAC UFR 3-30 (kbwiki.ercoftac.org) and NASA TMR (tmbwg.github.io/turbmodels/Other_LES_Data/2dhill_periodic.html)",
+      "separation_x_over_h": 0.2,
+      "reattachment_x_over_h_range": [4.6, 4.7]
+    },
+    "our_solve": {
+      "source_field": "case_breuer_re10595/10000/wallShearStress",
+      "cf_convention": "Cf = -wallShearStress_x / (0.5 * Ubar^2); wallShearStress reports the traction on the wall, i.e. the negative of conventional skin friction",
+      "separation_x_over_h": 0.2589992747868627,
+      "reattachment_x_over_h": 7.64391456971899,
+      "evidence": "case_breuer_re10595/gate_result.json -> our_solve.cf_zero_crossings_x_over_h; recomputed independently from case_breuer_re10595/cf_x_ours_10000.csv and matched"
+    },
+    "benchmark_shipped_rans_cross_check": {
+      "source_field": "/home/ubuntu/closure-challenge-benchmark/data/PH_Breuer/10000/wallShearStress",
+      "separation_x_over_h": 0.25901505747495196,
+      "reattachment_x_over_h": 7.64389533736766,
+      "agreement_with_our_solve": "five significant figures on both crossings",
+      "evidence": "case_breuer_re10595/gate_result.json -> shipped_rans_baseline.cf_zero_crossings_x_over_h"
+    },
+    "deviation": {
+      "separation_absolute_x_over_h": 0.0589993,
+      "reattachment_percent_vs_reference_range": {
+        "vs_4.7": 62.6365,
+        "vs_4.6": 66.1721,
+        "reported_band": "+63% to +66%"
+      },
+      "rounded_midpoint_percent": 64.4,
+      "rounding_note": "The '~64%' figure quoted in CAMPAIGN_STATUS.md, F6b_periodic_hills.md and F6d_random_matrix_uq.md is the midpoint of the band above (7.64391456971899 / 4.65 - 1 = 64.39%). It is DERIVED, not measured: no value 64 appears in gate_result.json, in aggregate_result.json, or anywhere in gate_analysis.py. Cite the band, or cite the raw crossings and the reference range.",
+      "direction": "kOmegaSST over-predicts the recirculation length"
+    },
+    "profile_metric": {
+      "quantity": "station-profile scaled MAE of |U| vs the shipped LES field, 9 stations x0..x8",
+      "shipped_serial_pipeline_percent": 12.511333333333333,
+      "shipped_serial_pipeline_evidence": "case_breuer_re10595/gate_result.json -> profile_scaled_mae_vs_LES.shipped_rans_baseline.overall_percent",
+      "our_4rank_parallel_percent": 12.952333333333335,
+      "our_4rank_parallel_evidence": "demo-output/website/dafoam/f6d_random_matrix_uq/aggregate_result.json -> baseline.profile_mae_vs_LES_overall_percent",
+      "caveat": "gate_result.json's our_solve.profile_scaled_mae_vs_LES.overall_percent is null. gate_analysis.py line 94 looks for singleGraph_x{i}/{time}/line_U.xy, but this run wrote line_k_nut_omega_p_U.xy, so the station loop found no files and returned an empty dict without erroring. Any record quoting 12.51% as 'our solve' is quoting the benchmark's shipped pipeline. The 12.95% figure is this campaign's own field, sampled by the F6d pipeline the following day. The difference is line sampling across processor boundaries, not different physics."
+    }
+  },
+
+  "convergence": {
+    "checker_verdict": "NOT_CONVERGED",
+    "checker": "scripts/check_convergence.py on solve_registry/f6b_gate_20260729T035745Z.log",
+    "checker_signature": "solver never printed 'SIMPLE solution converged' (verified: 0 occurrences in the gate log)",
+    "assessment": "diagnosed false negative",
+    "cause": "case_breuer_re10595/system/fvSolution line 82 sets residualControl { p 1e-15; }. 1e-15 is below anything a GAMG pressure solve reaches on this mesh, so simpleFoam can never emit its convergence sentence.",
+    "lessons_attribution_note": "This is a SIBLING of LESSONS L-21, not L-21 itself. L-21 is a residualControl entry naming a field the model does not transport. Here p IS transported; the tolerance is merely unreachable. Identical outward symptom, different cause and different fix; conflating them would misdiagnose the next occurrence.",
+    "residual_history_initial": {
+      "evidence": "read directly from solve_registry/f6b_gate_20260729T035745Z.log; iterations 1000, 5000 and 10000 re-verified against the log 2026-07-30",
+      "1000":  {"Ux": 5.54165903164491e-04, "Uy": 1.39204555135984e-03, "p": 4.45432501418527e-03, "k": 1.05578541022864e-03, "omega": 2.14607304760302e-05},
+      "3000":  {"Ux": 1.90e-05, "Uy": 7.28e-05, "p": 1.23e-04, "k": 4.27e-05, "omega": 5.94e-07},
+      "5000":  {"Ux": 1.45171377927871e-06, "Uy": 1.21325919315271e-06, "p": 3.50036334551168e-06, "k": 4.11268141972507e-06, "omega": 4.34534847308578e-08},
+      "7000":  {"Ux": 1.24e-07, "Uy": 8.47e-08, "p": 2.40e-07, "k": 2.73e-07, "omega": 4.28e-09},
+      "9000":  {"Ux": 1.18e-08, "Uy": 8.51e-09, "p": 2.92e-08, "k": 2.87e-08, "omega": 8.86e-10},
+      "10000": {"Ux": 3.60326263995496e-09, "Uy": 2.52346029956165e-09, "p": 1.34549040534224e-08, "k": 8.93491318422882e-09, "omega": 8.93513505986756e-10}
+    },
+    "settling_evidence": "monotone across four decades, flat over the last 1000 iterations, plus reproduction of the benchmark's own shipped kOmegaSST solution to five significant figures on the gate quantity"
+  },
+
+  "prediction": {
+    "file": "demo-output/website/dafoam/f6b_periodic_hills/PREDICTION_before_run.md",
+    "written_utc": "2026-07-29T03:52:25Z",
+    "gate_started_utc": "2026-07-29T03:57:45Z",
+    "genuinely_pre_registered": true,
+    "pre_registration_margin_seconds": 320,
+    "predicted_reattachment_x_over_h": "4-6",
+    "predicted_direction": "linear eddy-viscosity models UNDER-predict the recirculation length (reattach too early); the file itself labels this 'a recollection, not a citation'",
+    "measured_reattachment_x_over_h": 7.64391456971899,
+    "outcome": "FALSIFIED on both magnitude and sign",
+    "file_edited_after_run": false
+  },
+
+  "deviations_from_shipped_case": [
+    "controlDict requested libs (\"libfrozenIncompressibleTurbulenceModels.so\"), not distributed in the public benchmark clone. Dropped; the forward kOmegaSST solve does not need it.",
+    "#includeFunc residuals dropped: caseDicts/postProcessing/numerical/residuals.cfg does not exist at that path in this box's OpenFOAM v2606. Residuals read from the solver log instead.",
+    "singleGraph_x0..x8 setConfig { type lineCell; } is not a valid sample type in v2606. Changed to midPoint, the closest equivalent.",
+    "wallShearStress and a bottomWall patch surface sampler reinstated as inline function-object definitions in controlDict so both execute in sequence at each write time.",
+    "decomposeParDict shipped numberOfSubdomains 8; reduced to 4 to match this campaign's rank cap.",
+    "Cf sign convention: Cf = -wallShearStress_x / (0.5 * Ubar^2)."
+  ],
+
+  "evidence_files": {
+    "report_markdown": "demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md",
+    "this_file": "demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.json",
+    "prediction_before_run": "demo-output/website/dafoam/f6b_periodic_hills/PREDICTION_before_run.md",
+    "case_working_directory": "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/",
+    "gate_numbers": "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/gate_result.json",
+    "analysis_scripts": [
+      "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/gate_analysis.py",
+      "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/foam_io.py"
+    ],
+    "cf_profiles": [
+      "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/cf_x_ours_10000.csv",
+      "demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/cf_x_shipped_10000.csv"
+    ],
+    "solver_logs": [
+      "demo-output/website/solve_registry/f6b_feasibility_20260729T035528Z.log",
+      "demo-output/website/solve_registry/f6b_feasibility2_20260729T035612Z.log",
+      "demo-output/website/solve_registry/f6b_physics_20260729T035647Z.log",
+      "demo-output/website/solve_registry/f6b_gate_20260729T035745Z.log"
+    ],
+    "downstream": "demo-output/website/campaign/F6d_random_matrix_uq.md (random-matrix model-form UQ built on this baseline)"
+  }
+}

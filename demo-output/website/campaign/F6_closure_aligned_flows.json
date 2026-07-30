@@ -6,6 +6,7 @@
   "prioritization_basis": "demo-output/website/closure_challenge_C2_error_decomposition.md deficit breakdown: AR_1_Ret_360 31.5%, AR_3_Ret_360 31.4%, NASA_2DWMH 18.2%, alpha_05 combined 18.9%",
   "leakage_compliance": "No fitting, tuning, or selection against test-case ground truth anywhere in this work. All comparisons are single forward RANS solves or re-analysis of already-converged forward solves.",
   "total_new_compute_core_minutes": 5.25,
+  "total_new_compute_core_minutes_note": "5.25 covers only this document's own 2026-07-28 session (all F6a; F6c was free re-analysis). F6b's gate added a further 34.1 core-minutes on 2026-07-29, after this document was written. Family total to date: 39.35.",
   "sub_families": {
     "F6a_nasa_hump": {
       "status": "complete, all rungs climbed, gate reached",
@@ -40,9 +41,19 @@
       "report_json": "demo-output/website/dafoam/f6c_duct_dns/F6c_duct_vs_dns.json"
     },
     "F6b_periodic_hills": {
-      "status": "not attempted",
-      "reason": "docket-conditional on time remaining after F6a and F6c; both completed to gate rung, remaining budget spent on write-up and cross-validation instead of opening a third family",
-      "core_minutes": 0
+      "status": "complete, all rungs climbed, gate reached",
+      "status_superseded_on": "2026-07-29",
+      "status_was": "not attempted",
+      "status_was_reason": "docket-conditional on time remaining after F6a and F6c; both completed to gate rung, remaining budget spent on write-up and cross-validation instead of opening a third family",
+      "supersession_note": "This document is dated 2026-07-28 and its 'not attempted' entry was correct then. F6b was opened and gated the following day. This block is corrected in place; the superseded text is preserved above rather than deleted.",
+      "rungs": ["feasibility (FAIL: lineCell)", "feasibility (2)", "physics", "gate"],
+      "gate_log": "demo-output/website/solve_registry/f6b_gate_20260729T035745Z.log",
+      "gate_started_utc": "2026-07-29T03:57:45Z",
+      "gate_finished_utc": "2026-07-29T04:06:16Z",
+      "verdict": "GATE REACHED; kOmegaSST over-predicts reattachment by +63% to +66%; pre-registered prediction FALSIFIED",
+      "report": "demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md",
+      "report_json": "demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.json",
+      "core_minutes": 34.1
     }
   },
   "blocked_items": [
@@ -50,6 +61,6 @@
     "F6a: Cp reference-pressure convention not independently verified against NASA's own method",
     "F6c: AR_14_Ret_180 baseline not yet reproduced (case files available, not prioritized -- not in docket deficit breakdown)",
     "F6c: spatial secondary-flow vortex-pattern comparison not attempted (bulk RMS magnitude only)",
-    "F6b: entirely unstarted, needs a feasibility rung to open"
+    "F6b: RESOLVED 2026-07-29 -- was 'entirely unstarted, needs a feasibility rung to open'; the feasibility, physics and gate rungs were all run that day. No longer blocked."
   ]
 }
