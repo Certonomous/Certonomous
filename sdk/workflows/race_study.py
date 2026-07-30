@@ -76,6 +76,23 @@ import os
 # orders-of-magnitude gap IS the act.
 N_SAMPLES = int(os.environ.get("RACE_MC_SAMPLES", "8"))
 
+# The ensemble's random draw is seeded from a fixed constant.
+#
+# This changes NOTHING about what runs: all 88 Monte-Carlo evaluations and all 5
+# reduced-order evaluations are still solved fresh on this machine in this run
+# (``_TimedSolver`` holds ``reuse_prior=False``), and every wall clock, core
+# minute and speedup on screen is still measured here. What the seed fixes is
+# the lane's *inputs* — the Reynolds numbers drawn for samples 1..N-1. With a
+# clock seed those wandered every run, so the peak, the confidence band and the
+# two-path agreement moved between takes and no narration could be timed
+# against them. A Monte-Carlo study quoting its seed is ordinary practice; this
+# one states the seed on the record so the run can be reproduced exactly.
+#
+# Set RACE_MC_SEED=clock (or none/random) for a fresh draw, or pass seed=None.
+_SEED_ENV = os.environ.get("RACE_MC_SEED", "").strip().lower()
+MC_SEED: int | None = (None if _SEED_ENV in {"clock", "none", "random"}
+                       else int(_SEED_ENV or "20260730"))
+
 
 def peak_grid_bracket(anchors: list[dict], alpha_star: float,
                       half_step: float = TOLERANCE_DEG) -> float | None:
@@ -243,7 +260,7 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, *,
 
 
 def main(request: str | None = None, params: dict | None = None,
-         emit=None, *, seed: int | None = None) -> int:
+         emit=None, *, seed: int | None = MC_SEED) -> int:
     params = params or {}
     samples = int(params.get("mc_samples") or N_SAMPLES)
     out = OUT_ROOT / "race-study"
@@ -354,7 +371,13 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Right lane: reduced-order, {len(ANCHOR_ALPHAS)} anchors, a "
         f"fitted surface, one confirmation = {total_rom} solver runs. "
         f"• Same peak, same ±{TOLERANCE_DEG:g}° tolerance, the same box: "
-        f"{MAX_WORKERS} slots split evenly, {ROM_WORKERS} per lane.")
+        f"{MAX_WORKERS} slots split evenly, {ROM_WORKERS} per lane. "
+        + (f"• Ensemble drawn from seed {seed}, so the same {samples} Reynolds "
+           f"numbers are solved on every run and the result is reproducible; "
+           f"the clocks below are still measured here, this run."
+           if seed is not None else
+           "• Ensemble drawn from the clock, so this run's Reynolds numbers "
+           "are its own."))
 
     if emit:
         emit("race.init", {
@@ -418,6 +441,7 @@ def main(request: str | None = None, params: dict | None = None,
                         "what completed, not a manufactured number.")
         if emit:
             emit("mission.note", {"mc": mc, "rom": rom})
+        script.save(out / "transcript.txt")
         return 1
 
     cm_mc, cm_rom = mc["core_minutes"], rom["core_minutes"]
@@ -579,6 +603,10 @@ def main(request: str | None = None, params: dict | None = None,
             "date is served. "
             "• The result above stands on the transcript and the report.")
 
+    # The act's own record on disk. Every other act saves one; the race did
+    # not, which left it the one filmed act whose reproducibility could not be
+    # checked by scripts/verify_warm_replay.sh.
+    script.save(out / "transcript.txt")
     return 0
 
 
