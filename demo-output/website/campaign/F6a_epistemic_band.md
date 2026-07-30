@@ -1,5 +1,38 @@
 # D9 / F6a — model-form uncertainty band on the NASA wall-mounted hump
 
+> **2026-07-30. A third instance of the same defect, this time in the
+> "fix" itself.** A deliberate estate-wide convergence sweep (new tool:
+> `scripts/check_convergence.py`) flags `hump_kOmega_resume_20260729T202024Z.log`
+> — the run this file's own "channel 1 completed" section (below) reports as
+> `k final residual 1.373e-7` and `YES` on the gate — as **not converged**.
+> `1.373e-7` is the **Final** residual; the gate is checked on the
+> **Initial** residual, which at t=8000 is `k` 3.21e-5 (64× over gate),
+> `omega` 3.72e-9 (37× over its 1e-10 gate), `Uz` 6.14e-6 (12× over), `p`
+> 1.41e-6 (2.8× over) — none under gate, and `SIMPLE solution converged`
+> never prints anywhere in the log. This is the exact Final-vs-Initial
+> misread already found twice tonight (the r4 sweep's Delta=0.25, and this
+> same section's own original kOmega number before it was "fixed"), now
+> found a third time in the fix itself. **The good news, checked
+> immediately below the bad:** every field's Initial residual is decaying
+> smoothly and monotonically across the whole run (k: 2.2e-4 at t=3000 →
+> 3.2e-5 at t=8000, roughly ×0.7 per 1000 iterations, no plateau) — this is
+> not the corner/r4-sweep floor pattern, it looks like a genuinely
+> converging run that simply was not given enough iterations, the same
+> character as this session's `boundedU` diagnostic. Extrapolating the
+> current decay rate, k and omega (the long poles) would need roughly
+> 10,000–12,000 more iterations to cross gate — a real but not
+> extraordinary extension, not a re-run from scratch. **Until that
+> extension is run and actually crosses the gate, kOmega's reattachment
+> value (1.0722) and everything downstream of it — the "narrower channel
+> catches the true answer after all" claim, the corrected public band
+> `[1.0722, 1.2534]`, and the "we broke our own second prediction" framing
+> on `D9_TALKING_POINTS.md` and `benchmarks.html` — rests on an unconverged
+> number and should be treated as provisional, not settled.** Reported
+> immediately per this project's own standing rule, before finishing the
+> wider sweep it was found in. Full sweep report and the checker itself:
+> `scripts/check_convergence.py`, `scripts/check_convergence_validate.py`,
+> `scripts/check_convergence_sweep.py`.
+
 **Harvested by the supervisor** from the D9 agent's completed runs after it was
 interrupted four times (three host restarts, one API failure) without landing a
 record. The prediction file `f6a_epistemic_band/PREDICTION.md` was written by the
@@ -170,6 +203,18 @@ directory, (3) restate channel 1's range honestly, including if that breaks
 the pre-registered under-coverage finding in section 1 above.
 
 ### kOmega: fixed the gate, and the number crossed the experimental value
+
+> **2026-07-30 correction.** This section's own numbers below (`k final
+> residual 1.373e-7`, `omega final residual 8.8e-11`) are **Final**
+> residuals, and the table below marks "gate met? YES" on that basis. The
+> gate is checked on the **Initial** residual, and by that standard this
+> run did not meet it (k Initial 3.21e-5, omega Initial 3.72e-9, both far
+> over gate at t=8000; `SIMPLE solution converged` never prints). Full
+> detail in the update note at the top of this file. Left in place below
+> exactly as originally written, per this record's own practice of
+> correcting in a visible note rather than silently rewriting history — the
+> table's "YES" is wrong and should be read as "NO, but decaying smoothly,
+> extension in progress."
 
 kOmega's k-residual was not plateaued, just slow — a local decay-rate fit at
 t=2000 (last-1000-iteration window, rate ≈9e-4/iter, itself still slowing)

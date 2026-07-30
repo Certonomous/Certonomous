@@ -91,6 +91,22 @@ setsid nohup bash -c '
             if [ -e "'"$EXPECT"'" ]; then echo "expected_artifact: PRESENT ('"$EXPECT"')"
             else echo "expected_artifact: MISSING ('"$EXPECT"') -- process exited without producing it"; fi
         fi
+        CONV_CHECKER=/home/ubuntu/Certonomous/scripts/check_convergence.py
+        if [ -x "$CONV_CHECKER" ] || [ -f "$CONV_CHECKER" ]; then
+            # check_convergence.py exits 0/1/2 for CONVERGED/NOT_CONVERGED/
+            # CANNOT_TELL -- all three are legitimate VERDICTS, not errors, so
+            # a nonzero exit here must NOT be treated as the checker failing.
+            # Only a truly empty result (checker crashed before printing
+            # anything, e.g. exit 3 usage/IO error with no stdout) counts as
+            # an actual failure of the checker itself.
+            CONV_LINE=$(python3 "$CONV_CHECKER" "'"$LOG"'" --case "'"$CASE"'" --oneline 2>&1)
+            if [ -z "$CONV_LINE" ]; then
+                CONV_LINE="CANNOT_TELL: checker produced no output (see stderr, checker may have crashed)"
+            fi
+            echo "convergence: $CONV_LINE"
+        else
+            echo "convergence: CANNOT_TELL: checker not found at $CONV_CHECKER"
+        fi
         echo "--- last 25 log lines ---"
         tail -25 "'"$LOG"'" 2>/dev/null
     } > "'"$REC"'"
