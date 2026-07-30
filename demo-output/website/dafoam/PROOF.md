@@ -2105,3 +2105,135 @@ independently.
 - `probedcddxv_idx0_h1e-4_run1.log`, `probedcddxv_idx0_h5e-5_run1.log`, `probedcddxv_idx1_h1e-4_run1.log`,
   `probedcddxv_idx1_h5e-5_run1.log`, `probedcddxv_idx4_h1e-4_run1.log` -- the 5 raw runs behind section
   20.4's table
+
+## 21. The decisive test: hand-compose the three verified links, then decompose the composition -- root cause found, and it revises section 18's own conclusion
+
+The coordinator's instruction: chain the three independently-verified links BY HAND (own contraction, own
+arithmetic), compare against the framework's composed answer, the finite-difference answer, and the
+individual links, and read off which of three outcomes results. Two stages: the first needs no new solve
+(existing numbers, correctly reframed); the second is one small, solve-free geometric test that decisively
+separates two explanations the first stage could not.
+
+### 21.1 Stage 1: hand composition vs. the framework (no new solve)
+
+`hand_composed = <warpDeriv(w_real), dXs/dShape_idx>` -- exactly section 18's "`AN_scalar`" -- IS the
+hand composition of all three links: `dCD/dXv` (`w_real`, the captured real seed, now independently
+verified to 0.4-1.4% against a true re-solve, section 20), `dXv/dXs` (`mesh.warpDeriv`), and `dXs/dShape`
+(`DVGeo.totalSensitivityProd`, verified to machine precision on constraints, 11.1).
+
+Re-derived explicitly this session (`probeHandComposition.py`, Stage 1, re-running the identical
+computation and printing the framework's own `dCD/dshape` alongside it for a direct numerical diff):
+
+| idx | hand_composed (`AN_scalar`) | framework (`compute_totals`) | diff |
+|---|---|---|---|
+| 0 | -1.134163913442e-02 | -1.134163913442e-02 | **-8.674e-18** (machine zero) |
+| 1 | -2.217956524568e-02 | -2.217956524568e-02 | **+1.041e-17** (machine zero) |
+| 4 (control) | 3.893833373873e-02 | 3.893833373873e-02 | **+2.082e-17** (machine zero) |
+
+**The hand composition equals the framework exactly, to floating-point noise, for every component
+tested.** This is the coordinator's outcome #2, and it rules out outcome #1 cleanly: OpenMDAO's own
+multi-component linear solve (`DAFoamFunctions` → `DAFoamSolver` → `DAFoamWarper` → `geometry`) performs
+the same chain-rule contraction a manual replay does. **There is no bug in the assembly/composition
+machinery itself** — the earlier framing ("the defect lives in the assembly") is narrowed by this result,
+not confirmed as stated.
+
+Both hand-composed and framework disagree with every available finite-difference measurement by the same
+11.6-11.9% for idx0/idx1: the established real `check_totals` FD (full shape→DVGeo→warp→primal re-solve,
+8.1.1: -1.006134e-02 / -1.979303e-02), this session's own direct-`Xv`-resolve FD (20.4:
+-1.005529e-02 / -1.979107e-02, agreeing with the established FD to <0.1%), and section 18's own
+geometry-only FD (-1.013378e-02 / -1.987770e-02). All four independent flavors of "finite difference"
+cluster tightly together; the framework/hand-composition is the outlier, by the same margin, for both
+components.
+
+### 21.2 Stage 2: decomposing the combination -- is it `warpDeriv`, or `DVGeo`'s own nonlinearity?
+
+Outcome #2 says "one of the three links is not as clean as it tests." Two of the three (`dXs/dShape`,
+`dCD/dXv`) were independently verified WITHOUT ever being combined with `warpDeriv`. `warpDeriv` was
+NEVER tested alone -- every test through section 20 combined it with `dXs/dShape` (multiplying them and
+comparing the PRODUCT against a finite difference of the combined nonlinear shape→surface→volume
+response). That combined FD perturbs *shape* by `h` and lets `DVGeo.update()` compute the resulting
+surface coordinates `xs` -- a real, possibly nonlinear, FFD re-evaluation, not just `DVGeo`'s own linear
+Jacobian. So the 11.9% gap could have been `warpDeriv`'s own error, or `DVGeo`'s nonlinearity (its true
+response differing from its own linearization), and no test to this point could tell them apart.
+
+`probeHandComposition.py` Stage 2 separates them: perturbs the SURFACE coordinates `Xs` DIRECTLY, along
+`eta = dXs/dShape_idx` (`DVGeo`'s own linear Jacobian column, used only to pick a direction, not to
+compute the perturbed state) -- `DVGeo.update()` is never called on this side at all. `mesh.warpMesh()`
+at `xs0 ± h·eta` gives a finite difference of `dXv/dXs` alone, with no `DVGeo` nonlinearity possible in
+the measurement by construction.
+
+| idx | `AN_scalar` (unchanged) | `FD_scalar` via direct `Xs` perturbation (new) | rel. err | established `check_totals` gap |
+|---|---|---|---|---|
+| 0 | -1.134164e-02 | **-1.013378e-02** | **11.92%** | 11.9% |
+| 1 | -2.217957e-02 | **-1.987769e-02** | **11.58%** | 11.7% |
+| 4 (control) | 3.893833e-02 | **3.999718e-02** | **2.65%** | ~2.6% |
+
+**The direct-`Xs`-perturbation FD is essentially identical to section 18's shape-perturbation-through-`DVGeo` FD**, matching to 7 significant figures for both idx0 (-1.013378210572e-02 here vs.
+-1.013378428028e-02 in 18) and idx1 (-1.987769437944e-02 vs. -1.987770104814e-02). **This rules out
+`DVGeo`'s own nonlinearity as the explanation** — bypassing `DVGeo.update()` entirely changes nothing.
+And idx4 (control), run through the identical Stage-2 procedure, shows only 2.65% disagreement, matching
+its own established ~2.6% full-chain gap and sharply distinct from idx0/idx1's 11.6-11.9%.
+
+### 21.3 Verdict: `warpDeriv` itself, tested in genuine isolation for the first time, is the cause -- for idx0/idx1 too
+
+**By elimination and now by direct measurement: `dXs/dShape` is clean (11.1, and unchanged by this test),
+`dCD/dXv` is clean (20, and this test does not touch it), `DVGeo`'s nonlinearity is excluded (21.2). What
+remains, and what this test isolates for the first time, is `mesh.warpDeriv` itself — IDWarp's
+reverse-mode surface-to-volume warp derivative genuinely fails to linearize the true warp correctly along
+idx0's and idx1's own directions, at 11.6-11.9%, while it reproduces the clean control (idx4) to within
+that component's own established 2.6% floor.**
+
+**This revises section 18's own conclusion, and the revision is stated plainly rather than left standing
+next to a contradiction.** Section 18 concluded idx0/idx1 were "clean of the `warpDeriv` defect" because
+their real-seed test reproduced (rather than amplified) the already-known gap, with no sign flip --
+reasonable evidence at the time, but evidence that could not distinguish "`warpDeriv` has a smaller,
+non-sign-flipping error here too" from "some separate mechanism happens to produce a same-magnitude,
+same-sign number," because that test always used `warpDeriv` combined with `DVGeo`, never separated from
+it. It also could not rule out `DVGeo`'s own nonlinearity, a genuinely distinct explanation this session's
+Stage 2 was needed to exclude. **Corrected: idx0 and idx1 share the SAME mechanism as idx6 (`mesh.warpDeriv`
+mis-linearizing the surface-to-volume map), not a separate, unidentified "mechanism 8."** The
+opposing-direction combination construction (idx6/idx7) is confirmed to push this same underlying error
+past a sign flip; idx0/idx1's single-station construction keeps it same-signed but does not make it small
+-- 11.6-11.9% is not a small error, and per this case's own established standard it is a FAIL-magnitude
+component, only distinguishable from idx6 by not flipping sign. idx2/idx3/idx4/idx5/idx7 remain genuinely
+clean at 1.5-6.4%, an entirely different, much smaller regime, and this session's own idx4 Stage-2 result
+(2.65%, matching idx4's own established gap) confirms the discriminating power of this test: it is not
+that every component shows a large `warpDeriv` gap and only idx6 happens to flip sign -- the clean
+components genuinely have a small gap at this same link, and idx0/idx1/idx6/idx7(would-be) do not.
+
+**Every candidate mechanism from sections 1-20 (mesh quality, BC values, LTS-equivalent step-size checks,
+frozen wall-distance, the wall-function branch, DVGeo nonlinearity, the OpenMDAO assembly) is now
+either refuted or excluded by direct measurement. `mesh.warpDeriv`'s mis-linearization -- confirmed for
+idx6 in section 15, now shown to be the same mechanism behind idx0/idx1 -- is the complete explanation for
+A1's dCD/dShape gradient defect.** `UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` should be read as covering
+idx0/idx1 as well as idx6, not idx6 alone; this session's numbers are added there as a follow-up note
+rather than rewriting that document's already-filed-ready text.
+
+### 21.4 Final running tally
+
+| # | link / mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted | 8.2 |
+| 2 | `dXs/dShape`: FFD/DVGeo Jacobian or shape-DV convention | refuted (machine precision) | 8, 11.1 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) | refuted (universal) | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted for idx6/idx4 and idx0/idx1 | 13, 19.1 |
+| 6 | combo-mode LE mesh pinching | refuted; N/A to idx0/idx1 | 14 |
+| 7 | `DVGeo`'s own nonlinearity (shape→surface, beyond its linear Jacobian) | **refuted (21.2)** | 21.2 |
+| 8 | OpenMDAO assembly/composition machinery | **refuted (21.1) -- composition is exact** | 21.1 |
+| 9 | mesh-quality metric (aspect ratio) near LE | measured, real, non-discriminating for this defect (filed separately as a generator finding) | 19.2 |
+| 10 | LE-curvature geometric singularity | weighed against | 19.2 |
+| 11 | `mesh.warpDeriv` mis-linearization of the surface-to-volume warp | **CONFIRMED -- for idx6 (15-17) AND, corrected this session, for idx0/idx1 too (21)** | 15-18, 21 |
+
+**A1's gradient-accuracy investigation is closed.** One mechanism, `mesh.warpDeriv`'s incorrect
+linearization, explains idx6 (sign-flipped) and idx0/idx1 (same-signed, same order of magnitude, not
+previously attributed to it). idx2, idx3, idx4, idx5, idx7 remain independently verified clean at
+1.5-6.4%. The upstream bug report already covers the mechanism; this session extends its known scope.
+
+### 21.5 Evidence files added this session
+
+- `work/NACA0012_Airfoil_Incompressible/probeHandComposition.py` -- new, Stage 1 (hand-composition vs.
+  framework, exact-match check) and Stage 2 (direct-`Xs`-perturbation isolation of `warpDeriv` from
+  `DVGeo`)
+- `handcomp_idx0_run1.log`, `handcomp_idx1_run1.log`, `handcomp_idx4_run1.log` -- the 3 raw runs behind
+  sections 21.1-21.2's tables

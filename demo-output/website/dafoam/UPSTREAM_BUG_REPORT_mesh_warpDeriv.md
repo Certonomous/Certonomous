@@ -3,6 +3,36 @@
 **Status: not filed anywhere.** This document is written so it could be filed as-is against
 `mdolab/idwarp` and/or `mdolab/dafoam` on GitHub, but no issue has been opened.
 
+## Update, 2026-07-30: the "single-point DVs are unaffected" claim below is corrected, not merely
+qualified
+
+This report's own summary (next section) states single-point shape DVs "do not show this defect in any
+of 3 independently tested cases." That is now known to be too strong, on this same NACA0012 case. Two of
+A1's single-point design variables, idx0 and idx1 (the interior FFD stations nearest the leading edge,
+each moving one point along one axis, no opposing-direction pairing — structurally identical in
+construction to every other single-point DV in this case, A5, and A2), carry a real, previously
+unattributed 11.6-11.9% `dCD/dShape` disagreement, same sign (not the dramatic sign flip idx6/idx7 show,
+which is why it was originally missed and attributed to a separate, unidentified mechanism).
+
+Traced this session (`PROOF.md` §21) to the same function, `mesh.warpDeriv`, by a test that had not been
+run before: perturbing the surface coordinates `Xs` DIRECTLY along `DVGeo`'s own linear Jacobian
+direction (bypassing `DVGeo.update()` entirely, so any nonlinearity in the FFD parameterization itself
+cannot be the explanation) and finite-differencing the resulting warp. That direct-`Xs` finite difference
+is essentially identical (matching to 7 significant figures) to the original shape-perturbation-based
+finite difference, and both disagree with `warpDeriv`'s own analytic output by 11.6-11.9% for idx0/idx1
+— while an identical test on a known-clean single-point control (idx4) shows only 2.65%, matching that
+component's own established, much smaller gap. **`mesh.warpDeriv`'s mis-linearization is not confined to
+opposing-direction/combination design variables. It is present, at a smaller (non-sign-flipping)
+magnitude, on at least some single-point design variables too** — specifically the two interior stations
+nearest the region (the leading edge) where the combination-mode defect is also concentrated, consistent
+with a shared, curvature/location-dependent root cause rather than one specific to the opposing-direction
+DV construction. The opposing-direction construction is still confirmed to be what pushes the error far
+enough to flip sign (idx2-5/idx7, at other chordwise stations or the TE, remain clean at 1.5-6.4%) — but
+"opposing-direction is necessary for the defect to exist" is retracted; only "necessary for it to be
+large enough to flip sign, in the cases tested" survives. See `PROOF.md` §21 for the full method, tables,
+and the two prior explanations (an OpenMDAO assembly/composition bug; `DVGeo`'s own nonlinearity) this
+same session excluded before reaching this conclusion.
+
 ## Summary
 
 For a shape design variable built from a pair of FFD control points moving in *opposing* directions
