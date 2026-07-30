@@ -284,7 +284,12 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
   value is over 3× the ROM's assumption.
 - **Verdict:** **GATE REACHED, mixed (2 PASS / 1 FAIL-with-cause).** Not a
   clean sweep, reported as such. Total compute for the whole gated family:
-  well under 35 core-minutes.
+  ~51.6 core-minutes (~0.86 core-hours), single core — corrected 2026-07-30
+  from a prior "well under 35 core-minutes" claim that undercounted the 4
+  steady runs (measured 2.2–8.0 min each, not sub-minute); see
+  `F9_pulsatile_valve.md` §7 for the raw `ExecutionTime` breakdown. Gate
+  verdicts and the ROM-deviation finding are unaffected — independently
+  re-derived from raw probe data during the same verification pass.
 - **Shipped:** No — a gate with a documented FAIL component does not go in
   the control room per the owner's promotional-surface rule; it lives in
   the evidence record (`F9_pulsatile_valve.md`, `NOT_PASSING_REGISTER.md`).

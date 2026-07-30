@@ -231,18 +231,34 @@ is exactly the finding the pre-registered prediction anticipated.
 ## 7. Cost and mega-batch recommendation
 
 **Measured wall-clock cost** (from `solve_registry` logs,
-`ExecutionTime`, single core, no MPI):
+`ExecutionTime`, single core, no MPI; corrected 2026-07-30 — the table
+below previously understated this by ~32%, see note):
 
 | stage | wall-clock |
 | --- | --- |
-| 4× steady reference points (q25/50/75/100) | tens of seconds each (sub-minute, 4,944-cell mesh) |
+| `steady_q25` | 132.94 s (~2.2 min) |
+| `steady_q50` | 244.98 s (~4.1 min) |
+| `steady_q75` | 363.15 s (~6.1 min) |
+| `steady_q100` | 480.81 s (~8.0 min) |
+| 4× steady reference points, subtotal | 1221.88 s (~20.4 min) |
 | `pulsatile_physio` (3 cycles, t=0→2.7) | 646.45 s (~10.8 min) |
 | `pulsatile_lowalpha` (1.5 cycles, t=0→5.4, T=4×physio) | 1227.54 s (~20.5 min) |
 
-Total pulsatile-family compute for this full gate: **well under 35
-core-minutes**, an order of magnitude cheaper than the mega-batch's other
-3D-viscous family (F10 Ahmed body, low-single-digit minutes *per
-evaluation*, this is the whole multi-run gate).
+Total pulsatile-family compute for this full gate: **3095.87 s, ~51.6
+core-minutes (~0.86 core-hours)**, single core throughout. **Correction:**
+the previous version of this table quoted the steady points as "tens of
+seconds each (sub-minute)" and a total "well under 35 core-minutes" — both
+wrong, caught during an independent re-verification pass against the raw
+`ExecutionTime` lines in `solve_registry` (the steady runs individually
+take 2.2–8.0 minutes, scaling with flow rate/Courant-limited timestep, not
+sub-minute; the true total is ~1.5x the originally reported figure). This
+does not change any gate verdict or the ROM-deviation finding — all of
+those were independently re-derived from the raw probe data and ROM source
+during the same pass and matched to within numerical noise (see the
+mega-batch recommendation below, which does not depend on the exact
+core-minute figure). Still an order of magnitude cheaper than the
+mega-batch's other 3D-viscous family (F10 Ahmed body, low-single-digit
+minutes *per evaluation*, this is the whole multi-run gate).
 
 **Recommendation:** F9 is ready to promote from "not started" to a real,
 gated family. Two of three gates PASS (quasi-steady limit, and the
