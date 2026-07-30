@@ -29,13 +29,23 @@ startFrom       latestTime;
 
 stopAt          endTime;
 
-// D9: extended from 2000. At t=2000 the run had NOT met its residualControl
-// gate -- k final residual ~2.8e-6 vs the 5e-7 bar (omega and U/p were well
-// inside). Local decay-rate fit over the last 1000 iterations before t=2000
-// (rate ~1.1e-3/iter, slowing) projected roughly 1500-2000 more iterations
-// to cross 5e-7 if the trend held. solver stops itself early via
-// residualControl once met, so this is a ceiling, not a forced iteration count.
-endTime         8000;
+// D9: extended from 2000 to 8000. At t=2000 the run had NOT met its
+// residualControl gate -- k final residual ~2.8e-6 vs the 5e-7 bar (omega
+// and U/p were well inside).
+//
+// 2026-07-30 CORRECTION: t=8000 was reported as gate-met on its FINAL
+// residual (k 1.373e-7). The gate is checked on the INITIAL residual,
+// which at t=8000 is k 3.21e-5 (64x over), omega 3.72e-9 (37x over its
+// 1e-10 bar), Uz 6.14e-6 (12x over), p 1.41e-6 (2.8x over) -- none met,
+// and "SIMPLE solution converged" never printed. Checked with
+// scripts/check_convergence.py after a deliberate estate-wide sweep found
+// it. The Initial residuals ARE decaying smoothly and monotonically
+// across 3000-8000 (k roughly x0.7 per 1000 iterations, no plateau) --
+// this is not the corner/r4-sweep floor pattern -- so extended again,
+// 8000 -> 25000, extrapolated need ~18000-20000 with margin. Nothing else
+// changed. Solver stops itself early via residualControl once genuinely
+// met, so this is a ceiling, not a forced iteration count.
+endTime         25000;
 
 deltaT          1;
 
