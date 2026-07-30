@@ -1,0 +1,127 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Jul 30 2026
+Time   : 15:09:31
+Host   : ip-172-31-43-247
+PID    : 33002
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Using #calc - line 23 in file "system/blockMeshDict"
+Using #codeStream with "/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c0f0082002a9060c9cefc386c46c4930cc947c72.so"
+Could not load "/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c0f0082002a9060c9cefc386c46c4930cc947c72.so"
+/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c0f0082002a9060c9cefc386c46c4930cc947c72.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/_c0f0082002a9060c9cefc386c46c4930cc947c72/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c0f0082002a9060c9cefc386c46c4930cc947c72.so"
+Invoking wmake libso /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_c0f0082002a9060c9cefc386c46c4930cc947c72
+wmake libso /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_c0f0082002a9060c9cefc386c46c4930cc947c72
+    ln: ./lnInclude
+    dep: codeStreamTemplate.C
+    Ctoo: codeStreamTemplate.C
+    link: /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_c0f0082002a9060c9cefc386c46c4930cc947c72/../platforms/linux64GccDPInt32Opt/lib/libcodeStream_c0f0082002a9060c9cefc386c46c4930cc947c72.so
+Using #calc - line 24 in file "system/blockMeshDict"
+Using #calc - line 24 in file "system/blockMeshDict"
+Using #codeStream with "/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_30af9f034ef382cf01d8d0c64c072691db22ae21.so"
+Could not load "/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_30af9f034ef382cf01d8d0c64c072691db22ae21.so"
+/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_30af9f034ef382cf01d8d0c64c072691db22ae21.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/_30af9f034ef382cf01d8d0c64c072691db22ae21/platforms/linux64GccDPInt32Opt/lib/libcodeStream_30af9f034ef382cf01d8d0c64c072691db22ae21.so"
+Invoking wmake libso /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_30af9f034ef382cf01d8d0c64c072691db22ae21
+wmake libso /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_30af9f034ef382cf01d8d0c64c072691db22ae21
+    ln: ./lnInclude
+    dep: codeStreamTemplate.C
+    Ctoo: codeStreamTemplate.C
+    link: /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_30af9f034ef382cf01d8d0c64c072691db22ae21/../platforms/linux64GccDPInt32Opt/lib/libcodeStream_30af9f034ef382cf01d8d0c64c072691db22ae21.so
+Using #calc - line 25 in file "system/blockMeshDict"
+Using #calc - line 26 in file "system/blockMeshDict"
+Using #codeStream with "/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac.so"
+Could not load "/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac.so"
+/home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac.so: cannot open shared object file: No such file or directory
+Creating new library in "dynamicCode/_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac/platforms/linux64GccDPInt32Opt/lib/libcodeStream_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac.so"
+Invoking wmake libso /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac
+wmake libso /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac
+    ln: ./lnInclude
+    dep: codeStreamTemplate.C
+    Ctoo: codeStreamTemplate.C
+    link: /home/ubuntu/Certonomous/demo-output/website/campaign/F7_runs/F7a_R1/res16_alphaco/dynamicCode/_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac/../platforms/linux64GccDPInt32Opt/lib/libcodeStream_e6ed8316c9cea606268a2f44555b1d3a96e6e8ac.so
+Using #calc - line 27 in file "system/blockMeshDict"
+Using #calc - line 27 in file "system/blockMeshDict"
+Using #calc - line 28 in file "system/blockMeshDict"
+Using #calc - line 28 in file "system/blockMeshDict"
+Using #calc - line 28 in file "system/blockMeshDict"
+Using #calc - line 29 in file "system/blockMeshDict"
+Using #calc - line 29 in file "system/blockMeshDict"
+--> FOAM IOWarning :
+    Found [v1012] 'convertToMeters' entry instead of 'scale' in dictionary "system/blockMeshDict"
+
+    This keyword is 186 months old.
+
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 0
+		Number of boundary faces : 6
+		Number of defined boundary faces : 6
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+Creating block offsets
+Creating merge list (topological search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 0.003571875 .. 0.003571875
+        j : 0.003571875 .. 0.003571875
+        k : 0.000238125 .. 0.000238125
+
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 0 0) (0.85725 0.0714375 0.000238125)
+  nPoints: 10122
+  nCells: 4800
+  nFaces: 19460
+  nInternalFaces: 9340
+----------------
+Patches
+----------------
+  patch 0 (start: 9340 size: 20) name: leftWall
+  patch 1 (start: 9360 size: 20) name: rightWall
+  patch 2 (start: 9380 size: 240) name: lowerWall
+  patch 3 (start: 9620 size: 240) name: atmosphere
+  patch 4 (start: 9860 size: 9600) name: defaultFaces
+
+End
+

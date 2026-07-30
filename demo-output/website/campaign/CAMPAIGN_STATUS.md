@@ -195,13 +195,42 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
     - Mean deviation: **+13.6%** (systematically growing with time)
     - Max |deviation|: **21.3%** (time T=8.58)
     - Well outside credible tolerance; monotonically diverging, not oscillating around zero
-  - Coarse mesh (dx=a/8, 1,920 cells): mean deviation **−13.2%** (sign-flipped vs medium, ruling out "needs finer grid" as sole fix)
+  - Coarse mesh (dx=a/8, 1,920 cells): mean deviation **−13.2%** (sign-flipped vs medium, ruling out "needs finer grid" as sole fix) — **RETRACTED 2026-07-30, see below**
 - **Secondary check (column-height decay):** mean deviation −1.5% (bulk quantity tracks reference much more closely than leading-edge front position)
-- **Cause:** Front-position failure concentrated at thin, fast-moving leading edge; VOF numerical smearing effect. Leading edge is not vertical at these resolutions, so alpha=0.5 probe height materially affects apparent front position. Bulk column physics closer to correct.
-- **Lesson:** Single alpha=0.5 crossing at first cell above floor is not mesh-independent definition; needs 3+-mesh Richardson study or isosurface-based front extraction.
+- **Cause:** ~~Front-position failure concentrated at thin, fast-moving leading edge; VOF numerical smearing effect.~~ **SUPERSEDED 2026-07-30 (R1)** — see below.
 - **Blocked by this:** Rung (b) Wigley hull and Rung (c) workshop hull (hard rule: do not start next rung until previous passes gate)
-- **Cost:** ~2.4 core-min total
+- **Cost:** ~2.4 core-min original pass; +387.4 core-min for the R1 audit/resolution
 - **Verdict:** **GATE FAILED as measured.** Per hard campaign rules, shipped as documented failure, not as a capability. F7 ladder is blocked at (b) and (c).
+
+#### R1 update (2026-07-30) — audited, two recorded causes retracted, mechanism found, still failing
+
+- **Retracted:** the "coarse mesh undershoots −13.2%, sign-flipped" result and the
+  "VOF numerical smearing" root cause. Both were artifacts of the near-floor
+  `alpha=0.5` line probe, whose absolute sampling height moves with the mesh.
+  Under one consistent depth-integrated metric a five-rung ladder (a/8 → a/64,
+  paper-matched 15a×1.25a domain) gives **+11.8%, +13.5%, +13.0%, +11.6%,
+  +11.1%** — same sign at every rung, improving monotonically from a/16 down.
+  Metric threshold sensitivity at a/64 is 0.24%. Also retracted: D2's finding
+  that `cAlpha=0` cut the error ~40% (it reverses sign with the metric; under
+  the depth-integrated metric it makes things worse, +13.5% → +16.8%).
+- **Confirmed:** the gate failure is real and grid-verified, and persists on the
+  reference paper's own 240×20 mesh (+13.5%). The original +13.6%/21.3% numbers
+  reproduce from the case's own `log.interFoam` and `alpha.water` dumps.
+- **Mechanism (new, single-variable proven):** under-resolved **bed friction**
+  beneath the sub-millimetre leading film. Refining only wall-normal resolution
+  at fixed dx=a/32: +11.6% (dy=a/32) → +9.8% (a/64) → **+8.2% (a/128)**. The
+  same fine mesh with a **slip** floor returns to +13.7%, undoing the whole gain.
+- **Declared tolerance: 5%. Result: still FAIL**, at +8.2% mean / +11.0% max —
+  roughly half the recorded deviation. Column height at the back wall over
+  T=0.80–3.08 is **+0.9% mean** (max 9.9%) at dx=dy=a/64.
+- **Comparator established:** the reference figure's own inviscid simulation
+  achieves −4.3% to +1.8% against the same experimental points.
+- **Open:** transitional bed friction (film Re ≈ 3×10³, runs are laminar),
+  unmodelled contact-line resistance, the 1952 gate-withdrawal time, and the
+  reference simulation's unstated front definition. The y-ladder is not in an
+  asymptotic range, so no extrapolated limit is quoted.
+- **Record:** `F7_marine_free_surface.md` § "R1 audit and resolution
+  (2026-07-30)"; cases under `F7_runs/F7a_R1/`.
 
 ### F7b. Wigley Hull Wave Resistance
 
@@ -333,7 +362,7 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
 | **F6a** | NASA hump | Re_c=936k | Turbulent separated | 2D | Steady RANS | Feasibility→Physics→**Gate** | separation/reattachment x/c | −1.59% / +13.95% (SST bias) | **GATE REACHED** | 5.25 |
 | **F6c** | Duct DNS | Re_360, Re_360 | Turbulent secondary flow | – | Steady RANS | Physics/Feasibility→**Gate** | Secondary-flow RMS vs DNS | RANS 0.0%, DNS 2.07–2.22% | **GATE FAIL** (structural) | 0 |
 | **F6b** | Periodic hills | – | – | – | – | **NOT STARTED** | – | – | blocked, time-boxed | 0 |
-| **F7a** | Dam break | Re~4e4 | Free-surface wave | 2D | Unsteady | Feasibility→Physics→**Gate FAIL** | Front position Z(T) | +13.6% mean (21.3% max) | **GATE FAILED** | 2.4 |
+| **F7a** | Dam break | Re~4e4 | Free-surface wave | 2D | Unsteady | Feasibility→Physics→**Gate FAIL** | Front position Z(T) | +8.2% mean (11.0% max) best, R1 2026-07-30; was +13.6%/21.3% | **GATE FAILED** (5% tol.) | 389.8 |
 | **F7b** | Wigley hull | – | – | – | – | **BLOCKED** (F7a gate fail) | – | – | – | 0 |
 | **F7c** | Workshop hull | – | – | – | – | **BLOCKED** (F7b blocked) | – | – | – | 0 |
 | **F4** | Hypersonic blunt (M6-8, cylinder) | M=6-8 | Inviscid hypersonic | 2D | Steady | Feasibility→Physics→**Gate** | Billig standoff / mod. Newtonian Cp | standoff +0.7-2.3%; Cp RMS 3.87-3.91% | **GATE REACHED** | 14.66 |
@@ -406,7 +435,7 @@ yet — see below). Corrected 2026-07-29 night session per L-1.
 ## Gate Failures and Blocks (Reported Honestly)
 
 1. **F6c (duct secondary flow):** GATE MEASURED, FAIL. Linear eddy-viscosity RANS cannot produce Prandtl secondary flow; captures 0% of DNS magnitude. Expected, structural, documented.
-2. **F7a (dam break front):** GATE FAILED. Mean deviation +13.6%, max 21.3%, systematically growing. Cause: VOF numerical smearing of thin leading edge. Blocks F7b and F7c per hard ladder rule.
+2. **F7a (dam break front):** GATE FAILED. Best measured +8.2% mean / +11.0% max against a declared 5% tolerance (originally recorded +13.6%/21.3%). Cause, after the 2026-07-30 R1 audit: **under-resolved bed friction beneath the sub-millimetre leading film**, single-variable proven by a slip/no-slip control at matched fine mesh. The previously recorded "VOF numerical smearing" cause and the coarse-mesh sign flip are **retracted** as metric artifacts. Blocks F7b and F7c per hard ladder rule.
 3. **F9 Gate 2 (Womersley profile):** GATE FAILED as a point comparison, 20-414% error. Cause identified: probe station close enough to a weak (81%-open) orifice that convective acceleration flattens the profile relative to the closed form's undisturbed-pipe assumption — comparison-basis mismatch, not a solver defect. Gates 1 and 3 on the same family PASS / confirm-as-predicted.
 
 ---

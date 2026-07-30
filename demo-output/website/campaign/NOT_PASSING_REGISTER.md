@@ -329,6 +329,65 @@ Cases where the solver either did not converge to its own gate, diverged during 
 - **To resolve:** (a) 3+-mesh Richardson study with isosurface-based front extraction (not single-cell-height probe), or (b) level-set or sharp-interface method.
 - **Evidence:** `/home/ubuntu/Certonomous/demo-output/website/campaign/CAMPAIGN_STATUS.md` (§F7a). Ladder blocked at (b) Wigley hull and (c) Workshop hull per hard rule: do not start next rung until previous passes gate.
 
+> **AUDITED AND PARTLY RETRACTED 2026-07-30 (R1).** The two sentences above in
+> **bold-italic effect — "refinement flipped sign rather than converging" and
+> "Root cause: VOF method limitation on captured interface definition" — are
+> WITHDRAWN.** Both were artifacts of the front metric, not properties of the
+> solution. Under one consistent depth-integrated metric, a five-rung mesh
+> ladder (a/8, a/16, a/20, a/32, a/64, paper-matched domain) shows **the a/8
+> rung overshooting by +11.8%, the same sign as every other rung** — the
+> recorded −13.2% undershoot was produced by a near-floor line probe whose
+> absolute sampling height moves with the mesh — and refinement improving the
+> deviation monotonically from a/16 down. The metric itself is threshold-
+> convergent (0.24% spread over thresholds 0.01a–0.04a at a/64), so numerical
+> smearing is not the cause. D2's separately-recorded finding that turning off
+> interface compression cut the error ~40% is **also withdrawn**: the effect
+> reverses sign with the metric, and under the depth-integrated metric
+> `cAlpha=0` makes the deviation worse (+13.5% → +16.8%).
+>
+> **What survives:** the gate failure itself, and the recorded +13.6% mean /
+> +21.3% max for the original case and metric — reproduced from the case's own
+> `log.interFoam` and `alpha.water` dumps. The failure is real, grid-verified,
+> and persists on the reference paper's own 240x20 mesh (+13.5%).
+>
+> **New root cause, single-variable proven:** under-resolved **bed friction**
+> beneath the sub-millimetre leading film. Refining only the wall-normal
+> direction at fixed dx=a/32 takes the deviation from +11.6% (dy=a/32) to
+> **+8.2% (dy=a/128)**, and the resolved-mesh velocity profile shows a genuine
+> boundary layer filling ~60% of a 2.9 mm film (U_x 0.359 -> 1.049 m/s over five
+> cells) where the coarse mesh has two cells and under-predicts the wall
+> gradient by ~40%. Switching the same fine mesh to a **slip** floor returns the
+> deviation to +13.7%, undoing the entire gain — so it is the friction, not the
+> refinement.
+>
+> **Status: STILL FAILING**, at a now-declared 5% tolerance, with the deviation
+> roughly halved (+8.2% mean / +11.0% max). Residual causes not closed:
+> transitional bed friction (film Re ~ 3e3, runs are laminar), unmodelled
+> contact-line resistance, the 1952 gate-withdrawal time, and the reference
+> simulation's own unstated front definition. The y-ladder is **not** in an
+> asymptotic range (steps of -3.9, -2.3, -2.1 percentage points), so no
+> extrapolated limit is quoted.
+>
+> **L-22 note:** this is a convergence/accuracy entry, which L-22 explicitly
+> exempts from its primary-evidence citation rule — so L-22 was not violated.
+> The Evidence line nevertheless pointed only at a secondary document; the
+> case's own primary artifacts are now cited below.
+>
+> - **Primary evidence:** `F7_runs/damBreak_MM_a2p25in_medium_closedbox/log.interFoam`
+>   (1,133 timesteps, clean `End`, `ExecutionTime = 17.89 s`, phase-1 volume
+>   fraction constant 0.0333333). Note: the F7 report's "Max Courant ~0.52" is
+>   the final timestep's value; the maximum over the run in that same log is
+>   **0.7416** (interface Courant 0.6401).
+> - **R1 evidence:** `demo-output/website/campaign/F7_marine_free_surface.md`
+>   § "R1 audit and resolution (2026-07-30)"; 15 cases under
+>   `F7_runs/F7a_R1/` (387.4 core-min); `F7_runs/{make_dambreak.py,
+>   run_dambreak.sh,front_metrics.py,grade_f7a.py,plot_f7a_R1.py}`;
+>   `F7_runs/fig7_digitised_R1.json` (independent re-digitisation of the
+>   reference figure, which **confirmed** the original digitisation to <=0.01 in
+>   T and <=0.005 in Z, and additionally extracted the reference paper's own
+>   simulation curve — the code-to-code comparator, which achieves -4.3% to
+>   +1.8% against the same data).
+
 ### Ahmed Body & B-52 Refinement Ladders — non-asymptotic
 
 #### Ahmed_25 mesh ladder

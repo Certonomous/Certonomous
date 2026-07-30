@@ -1119,3 +1119,39 @@ threshold.
    impulsive-start spike sitting inside cycle 1. A criterion built on the
    mean alone would have called that cycle nearly converged. Grade the
    phase-aligned waveform, the peak and the band, not just the mean.
+
+---
+
+## L-25. A control test run on a mesh that cannot represent the mechanism is not a refutation — it is a null measurement
+
+**What happened.** F7a (Martin & Moyce dam break, `interFoam`) failed its
+front-position gate by +13.6%. The D1 diagnosis tested wall friction as a
+candidate: it swapped the floor from `noSlip` to `slip` on the a/20 mesh,
+measured a ~2-point change, and recorded the verdict "wall treatment
+**refuted** as the driver." D1's own written prediction, one line above that
+verdict, said the mesh was "far too coarse to resolve a genuine viscous
+sublayer" — which is exactly the reason the test could not have detected the
+effect. The mechanism was then hunted for two more sessions.
+
+It was friction. The leading film is about 2.9 mm deep; on the a/20 mesh that
+is one cell, so the no-slip and slip cases are both effectively frictionless
+and must agree. Re-run at a wall-normal spacing of a/128 the same single-variable
+control separates by **5.5 percentage points of deviation** (+8.2% no-slip vs
++13.7% slip), the resolved profile shows a real boundary layer filling ~60% of
+the film (U_x 0.359 → 1.049 m/s over five cells), and refining that direction
+alone takes the gate deviation from +11.6% to +8.2%.
+
+**The rule.** Before recording a control test as a refutation, state the
+resolution the mechanism needs and check the mesh against it. If the test
+cannot resolve the thing it is testing, the correct entry is "not measurable at
+this resolution," not "refuted." A null result is only evidence of absence when
+the instrument could have seen it.
+
+**Corollary, from the same case.** A derived diagnostic must be shown to be
+metric-independent *before* any mechanism is attributed to its behaviour. F7a
+produced **two** separate published root causes — a coarse-mesh "sign flip" and
+a 40% improvement from disabling interface compression — and both evaporated
+when the same solves were re-measured with a depth-integrated front metric
+instead of a fixed-α line probe. The first reversed sign; the second reversed
+sign. Sweep the metric's own free parameter and report the spread alongside the
+number, as `F7_runs/front_metrics.py` now does.

@@ -1,6 +1,9 @@
 # F7 — Marine / Free-Surface Capability
 
-**Date:** 2026-07-28 (D1 diagnosis appended 2026-07-29)
+**Date:** 2026-07-28 (D1 diagnosis appended 2026-07-29; D2 2026-07-30;
+**R1 audit + resolution appended 2026-07-30 — read that section first: it
+retracts D1's and D2's stated causes and supersedes the "Cause" sections
+below**)
 **Repo:** /home/ubuntu/Certonomous @ 4824eb7
 **Solver:** vanilla OpenFOAM v2606, `interFoam` (VOF, laminar), native (no Docker).
 NavyFOAM ruled out per `NAVYFOAM_FINDING.md` (gated behind HPCMP CREATE-SH, 1–2 week
@@ -13,7 +16,7 @@ DoD-aligned approval; not pursued).
 
 | Rung | Case | Status |
 |---|---|---|
-| (a) Dam break vs Martin & Moyce | square-column collapse, a=2.25in | **REACHED — FEASIBILITY pass, GATE fail** |
+| (a) Dam break vs Martin & Moyce | square-column collapse, a=2.25in | **REACHED — FEASIBILITY pass, GATE fail** (best measured +8.2% mean / +11.0% max vs a declared 5% tolerance; see R1, 2026-07-30) |
 | (b) Wigley hull wave resistance | — | **BLOCKED** — not started; hard rule is "do not start (b) until (a) passes its gate," and (a) did not. |
 | (c) Workshop hull (DTMB 5415 / KCS) | — | **BLOCKED** — depends on (b). |
 
@@ -612,3 +615,291 @@ tip-localised bias, not a comparison or extraction-method artifact). Rungs
   depth-integrated resolution-independent front extraction
 - `demo-output/website/campaign/F7_runs/{paperdomain_front.txt,calpha0_front.txt,integrated_front_rows.json}`
   — raw extraction output behind the tables above
+
+---
+
+## R1 audit and resolution (2026-07-30): the gate failure is real and grid-verified,
+## the recorded root cause is not, and the dominant mechanism is under-resolved
+## bed friction under the leading film
+
+**Directive:** standing owner directive "figure out F5c and F7a" (F5c closed and
+retracted separately). **Protocol:** `LESSONS.md` L-22 audit of the register
+entry first, then diagnosis, then a fix demonstrated by a run, then honest
+grading against a stated reference and tolerance. **Budget:** 15 new cases,
+**387.4 core-minutes** total (sum of each case's own `ClockTime` x its rank
+count, from its `log.interFoam`), 1–8 MPI ranks depending on size — larger than
+the original pass's <=4-rank cap, checked against `uptime` before each launch.
+`launch_solve.sh --check` reports no live registered solves; nothing left
+running.
+
+### Step 0 — the L-22 audit of the register entry
+
+`NOT_PASSING_REGISTER.md` § "F7a Dam Break — front-position gate fail" attributes
+a **convergence/accuracy** failure, not a crash, abort or resource failure.
+**L-22's citation rule is therefore explicitly inapplicable** — its own text
+exempts convergence-failure entries. The entry is nonetheless audited here on
+its substance, and its Evidence line pointed only at `CAMPAIGN_STATUS.md` §F7a,
+a secondary document, rather than at the case's own artifacts. Primary evidence
+was located and read: `F7_runs/damBreak_MM_a2p25in_medium_closedbox/log.interFoam`
+(1,133 timesteps, clean `End`, `ExecutionTime = 17.89 s`, phase-1 volume fraction
+constant at 0.0333333, `Min(alpha.water) = -2.7e-06`).
+
+| Register claim | Audit verdict |
+|---|---|
+| Front deviation "+13.6% mean, 21.3% max" | **CONFIRMED** — reproduced from `closedbox_front.txt` and the case's own `alpha.water` dumps |
+| "monotonically diverging from reference (not oscillating around zero)" | **CONFIRMED** for that metric on that mesh |
+| "Coarse mesh (dx=a/8) undershoots −13.2%, sign-flipped vs medium mesh overshoot — refinement flipped sign rather than converging" | **RETRACTED** (see Step 3) — an artifact of the near-floor line probe. Under a single consistent depth-integrated metric the a/8 rung gives **+11.8% mean, same sign as every other rung**, and refinement is monotone in the right direction |
+| "Cause identified: VOF numerical smearing of thin, fast-moving leading edge" / "Root cause: VOF method limitation on captured interface definition. Not a meshing issue alone; refined mesh worsened it" | **RETRACTED** — the front is threshold-convergent (0.2% spread across thresholds 0.01a–0.04a at dx=dy=a/64) and refinement **improves** the deviation monotonically. Smearing is not the cause |
+| D2's "interface compression (`cAlpha`) is a confirmed material contributor, ~40% reduction" | **NARROWED TO NIL** — the effect reverses sign with the metric (Step 3). Under the depth-integrated metric `cAlpha=0` makes the deviation **worse** (+13.5% → +16.8%) |
+
+One further primary-evidence slip, corrected here: the original report states
+"Max Courant ≈0.52 (capped target 0.5)". That is the **last timestep's** value.
+The maximum over the run, from `log.interFoam`, is **0.7416** (interface Courant
+0.6401). The run is still healthy; the number as written was not the maximum.
+
+### Step 1 — the reference re-established from the source, and extended
+
+`arXiv:2108.08769` was re-downloaded and read directly (not from the prior
+pass's paraphrase). §3.3.2 confirms verbatim, and independently of D1: domain
+**15a × 1.25a, 240 × 20 cells, all four boundaries walls**, and *"the column
+height and surge front position have been normalised by dividing by a, and the
+time multiplied by √(g/a)"* — the non-dimensionalisation used here is correct.
+
+**New, and material:** the paper states *"Viscosity and turbulence are ignored
+throughout"* (§3.2). It has **no viscosity, no turbulence model, no surface
+tension, and no interface-compression term** (it names interface compression
+explicitly as something it does *not* do). The comparator simulation is
+therefore **inviscid**.
+
+Fig. 7's left column was **re-digitised independently** at 600 dpi (axis-tick
+pixel calibration + connected-component centroid detection,
+`fig7_digitised_R1.json`). All eight Martin & Moyce front points reproduce the
+2026-07-28 digitisation to **≤0.01 in T and ≤0.005 in Z**. The prior
+digitisation is **confirmed**, by a second independent pass.
+
+**Also new: the paper's own simulation curve was digitised** (green-pixel column
+mean). Nobody had extracted it before, and it is the code-to-code comparator
+this rung was missing — it establishes what a published solver actually achieves
+on this benchmark at dx=dy=a/16:
+
+| T | M&M | reference sim | dev |
+|---|---|---|---|
+| 3.90 | 6.00 | 5.79 | −3.4% |
+| 5.17 | 8.00 | 7.67 | −4.2% |
+| 6.70 | 10.00 | 9.76 | −2.4% |
+| 7.72 | 11.00 | 11.19 | +1.7% |
+| 8.58 | 12.00 | 12.20 | +1.7% |
+| 9.53 | 13.00 | 13.24 | +1.8% |
+
+**Achievable standard on this benchmark: −4.3% to +1.8%.**
+
+### Step 2 — a front metric with a quantified uncertainty, not a single probe
+
+Both earlier metrics sample the water at one place: the `alpha=0.5` crossing at
+half the first cell height (D1), or a depth-integrated height at a single
+threshold 0.01a (D2). Neither reports its own sensitivity. `front_metrics.py`
+(new) computes the depth-integrated water height h(x) = Σ α·dy down each column
+and locates the front at a **physical** threshold h = k·a, with k swept. On the
+finest isotropic mesh the metric is essentially threshold-free:
+
+| mesh | Z(0.01a) | Z(0.02a) | Z(0.03a) | Z(0.04a) | spread |
+|---|---|---|---|---|---|
+| dx=dy=a/64, T=8.516 | 13.780 | 13.770 | 13.761 | 13.747 | **0.24%** |
+
+All numbers below use **k = 0.02**. h = 0.02a is 1.1 mm of water: physically the
+leading sheet, and resolved by ≥2 cells on every mesh from a/32 up.
+
+### Step 3 — the recorded root cause does not survive
+
+**Isotropic mesh ladder**, paper-matched domain, one consistent metric.
+Deviation is quoted over the **six** M&M points T = 3.90–7.72, the largest set
+valid for *every* case: on the coarser meshes the surge reaches the far wall at
+Z = 15 before T = 8.58, after which the metric no longer tracks the toe. The
+T = 8.58 point is reported separately wherever it is still valid.
+
+| dx = dy | cells | mean dev (6 pts) | max dev | dev at T=8.58 |
+|---|---|---|---|---|
+| a/8 | 1,200 | **+11.8%** | +18.1% | front past far wall |
+| a/16 (the reference's own mesh) | 4,800 | +13.5% | +20.6% | front past far wall |
+| a/20 | 7,500 | +13.0% | +19.6% | front past far wall |
+| a/32 | 19,200 | +11.6% | +16.5% | front past far wall |
+| a/64 | 76,800 | +11.1% | +14.9% | +15.5% |
+
+Three consequences, all against the register's stated cause:
+
+1. **The a/8 rung does not flip sign.** It overshoots by +11.8%, like every
+   other rung. The recorded −13.2% undershoot was a property of the near-floor
+   line probe (whose absolute sampling height changes with the mesh), not of the
+   solution. The register's central argument — "refinement flipped the sign,
+   which disqualifies under-resolution" — **rests on an artifact and is
+   retracted.**
+2. **Refinement improves the answer monotonically** from a/16 down. "Refined
+   mesh worsened it" is false.
+3. **The overshoot survives on the reference paper's own 240 × 20 mesh**
+   (+13.5%), so it is not a resolution deficit relative to the comparator.
+
+**The `cAlpha` effect reverses with the metric.** At a/16, T = 7.861:
+
+| | Z at h=0.03125a (≡ bottom-cell α=0.5, D2's probe) | Z at h=0.02a (depth-integrated) |
+|---|---|---|
+| cAlpha = 1 (baseline) | 13.479 | 13.510 |
+| cAlpha = 0 | 12.230 | 13.641 |
+
+With interface compression on, the two metrics agree to 0.2%. With it off, they
+disagree by 1.41 in Z — because switching compression off smears α, which pulls
+a fixed-α-level probe backwards while the actual water tongue reaches further.
+D2's reported ~40% improvement measured the **sharpness of the α field**, not the
+position of the water. **Retracted.**
+
+**Every other numerical knob was tested and none helps** (single variable, a/16,
+baseline +13.5% mean):
+
+| change | mean dev | verdict |
+|---|---|---|
+| `cAlpha` 1 → 0 | +16.8% | worse |
+| `sigma` 0.07 → 0 (matches reference) | +16.6% | worse |
+| floor `noSlip` → `slip` | +15.6% | worse |
+| `maxCo` 0.5→0.2, `maxAlphaCo` 0.5→0.1, `nAlphaSubCycles` 1→3 | +15.1% | worse |
+
+**The gate failure is real, grid-verified, metric-verified, and not a numerics
+setting.**
+
+### Step 4 — mechanism found: the bed boundary layer under the leading film
+
+The two rungs of the isotropic ladder that helped most were the ones that also
+refined **y**. Refining y alone, at fixed dx = a/32, isolates it:
+
+| dx | dy | cells | mean dev (6 pts) | max dev | dev at T=8.58 |
+|---|---|---|---|---|---|
+| a/32 | a/32 | 19,200 | +11.6% | +16.5% | front past far wall |
+| a/32 | a/64 | 38,400 | +9.8% | +13.1% | +13.7% |
+| a/32 | a/128 | 76,800 | **+8.2%** | **+11.0%** | +11.4% |
+| a/32 | a/256 | 153,600 | +10.8% * | +18.1% * | **+9.3%** |
+| a/64 | a/128 | 153,600 | +9.3% | +12.2% | +12.6% |
+| a/32 | a/128, **slip floor** | 76,800 | +13.7% | +19.1% | front past far wall |
+
+\* the a/256 run carries an early-time outlier at T = 3.90 (+18.1%) that inflates
+its mean; from T = 5.17 onward it is the closest of every case run (+8.7% mean,
+and the only case under +10% at T = 8.58). The outlier is most likely a
+cell-aspect-ratio effect (dx/dy = 16) during the initial collapse and is
+reported, not smoothed away.
+
+**The controlling variable is vertical resolution, and the reason is bed
+friction.** Velocity profiles in the leading film at Z = 11, T = 8.52
+(`0.65/U`, read directly):
+
+| dy | y/a | α | U_x (m/s) |
+|---|---|---|---|
+| a/32, no-slip | 0.0156 | 0.996 | 0.892 |
+| | 0.0469 | 0.678 | 1.045 |
+| a/128, no-slip | 0.0039 | 1.000 | **0.359** |
+| | 0.0117 | 1.000 | 0.797 |
+| | 0.0195 | 1.000 | 0.980 |
+| | 0.0273 | 1.000 | 1.037 |
+| | 0.0352 | 1.000 | 1.049 |
+| a/128, **slip** | 0.0039 | 1.000 | **1.047** |
+| | 0.0352 | 1.000 | 1.045 |
+
+At dy = a/128 the no-slip case shows a fully resolved boundary layer filling
+roughly 60% of the 2.9 mm film; the slip case at the identical mesh is plug flow.
+At dy = a/32 the entire film is two cells and the wall gradient is
+under-predicted by ~40% (999 s⁻¹ vs 1607 s⁻¹ ⇒ τ_w ≈ 1.0 Pa vs 1.61 Pa).
+
+**Single-variable proof that this is friction and not numerics:** at the
+identical fine mesh (dx=a/32, dy=a/128, 76,800 cells), switching the floor from
+`noSlip` to `slip` moves the front from +8.2% back to +13.7% mean — it undoes
+the entire gain and lands back at the unrefined a/32 value. Resolving the bed shear is what moves the front, and removing
+the bed shear at the same resolution puts it straight back.
+
+### Step 5 — grading, against a stated reference and a stated tolerance
+
+**Reference:** Martin & Moyce (1952), digitised twice independently from Fig. 7
+of arXiv:2108.08769. **Comparator:** the same figure's own inviscid simulation,
+which achieves −4.3% to +1.8%. **Tolerance declared for this gate: 5%.**
+
+| metric | best case | result | vs 5% gate |
+|---|---|---|---|
+| surge front position Z(T), T=3.90–7.72 | dx=a/32, dy=a/128 | **+8.2% mean, +11.0% max** | **FAIL** |
+| surge front position Z(T), T=5.17–8.58 | dx=a/32, dy=a/256 | **+8.7% mean, +9.7% max** | **FAIL** |
+| column height at back wall, T=0.80–3.08 | dx=dy=a/64 | **+0.9% mean, 9.9% max** | mean PASS, pointwise FAIL |
+| column height, all points to T=6.30 | dx=dy=a/64 | +3.5% mean, 19.7% max | FAIL |
+
+**GATE STATUS: FAIL — but the deviation is roughly halved** (recorded +13.6%
+mean / +21.3% max → measured +8.2% mean / +11.0% max) and the residual now has a
+named, measured, single-variable-proven mechanism rather than an attribution that
+does not survive contact with the data.
+
+**An honest counter-signal, recorded because it complicates the story:**
+resolving the bed friction makes the *front* better and the *column height*
+worse (column-height mean over all 8 points: +3.5% at dx=dy=a/64 → +4.2% at
+dx=a/32,dy=a/128 → +6.4% at dx=a/32,dy=a/256, as
+the retarded surge drains the back-wall column more slowly). The experiment sits
+between the two. The residual is therefore **not** a single missing friction
+term; something else is also unmodelled.
+
+### Step 6 — what is still open
+
+- **Transitional bed friction.** The film Reynolds number at the toe is
+  U·h/ν ≈ 1.05 × 0.0029 / 1e-6 ≈ **3 × 10³** — above the flat-plate transition
+  range. The runs are laminar, so even a perfectly resolved laminar bed layer
+  under-predicts the real shear. Untested; would need a transition-capable model
+  on a film two cells thick, which is not obviously well-posed.
+- **Contact-line / wetting resistance** at the advancing toe: not modelled by
+  `interFoam` at all, and physically present in the 1952 experiment.
+- **The 1952 gate-withdrawal time** remains unknown; the secondary source does
+  not state it, and the original paper is not open access.
+- **The reference simulation's own front definition** is not stated in its text,
+  so the code-to-code comparison carries an unquantified definition offset. Its
+  agreement with the experiment while being fully inviscid is itself notable and
+  not explained here.
+- **A resolved-friction Richardson limit does not exist yet:** successive y-rung
+  differences, measured at T = 8.516 (the last write common to all four rungs,
+  reference interpolated to Z = 11.926) for dy = a/32 → a/64 → a/128 → a/256 at
+  fixed dx = a/32, are +17.6% → +13.6% → +11.4% → +9.3%, i.e. steps of −3.9,
+  −2.3, −2.1 percentage points — shrinking, but
+  not geometrically, so the ladder is **not in an asymptotic range** and no
+  defensible extrapolated value can be quoted. Stated as such rather than
+  extrapolated anyway.
+
+### Step 7 — effect on the ladder
+
+Rungs (b) Wigley and (c) DTMB 5415/KCS **remain blocked** under the standing
+rule: (a)'s gate still fails at the declared 5% tolerance. Recorded for the
+owner's decision, not acted on unilaterally: the mechanism that fails this rung
+is **friction on a sub-millimetre film at a dry-bed contact line**, which is not
+the physics a Wigley or KCS wave-resistance case is gated on (wave-making and
+hull-form pressure resistance, on a wetted hull with a resolved boundary layer).
+Whether that makes the block substantively wrong is a scoping call above this
+agent's level, so the block stands.
+
+### R1 evidence
+
+- Cases (15): `F7_runs/F7a_R1/{res8,res16,res20,res32,res64}_base`,
+  `F7a_R1/res16_{calpha0,sigma0,slip,alphaco,papermodel}`,
+  `F7a_R1/res32y{64,128,256}_base`, `F7a_R1/res64y128_base`,
+  `F7a_R1/res32y128_slip`. Each carries `CASE_PROVENANCE.txt` with its exact
+  generator arguments, plus `log.blockMesh`, `log.checkMesh` and
+  `log.interFoam.gz`.
+- **What was pruned, and why it is still traceable.** The 15 cases produced
+  4.9 GB of field data. Committed here are: all dictionaries, all logs, all
+  `CASE_PROVENANCE.txt`, all per-case metric extractions (`m_<case>.json` —
+  every number in the tables above comes from these), and the `t=0` cell-centre
+  and `t=0.65` `alpha.water`/`U` fields for the eight cases whose raw fields are
+  cited in the text (the threshold-convergence table and the velocity-profile
+  table). Decomposed `processor*` data, `constant/polyMesh`, and the other
+  written time directories were deleted: they are regenerated bit-for-bit by
+  `make_dambreak.py` + `run_dambreak.sh`, which take no free parameters beyond
+  those recorded in `CASE_PROVENANCE.txt`. `front_metrics.py` reads the
+  gzipped form directly; the threshold-convergence table above re-derives
+  exactly from what is committed.
+- Generator: `F7_runs/make_dambreak.py` (one knob per flag, paper-matched
+  domain). Runner: `F7_runs/run_dambreak.sh`.
+- Metric: `F7_runs/front_metrics.py` (depth-integrated, threshold-swept).
+  Grading: `F7_runs/grade_f7a.py`. Per-case extractions:
+  `F7a_R1/m_<case>.json`.
+- Independent re-digitisation of Fig. 7, including the reference paper's own
+  simulation curve: `F7_runs/fig7_digitised_R1.json`.
+- Figure: `F7_runs/F7a_R1_convergence.png` (`plot_f7a_R1.py`).
+- Compute: 387.4 core-minutes across 15 cases; the single largest is
+  `res32y256_base` at 1,902 s on 6 ranks (190.2 core-min), followed by
+  `res64y128_base` at 645 s on 8 ranks (86.0 core-min).

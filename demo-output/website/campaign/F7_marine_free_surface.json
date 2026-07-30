@@ -21,28 +21,110 @@
       "status": "reached",
       "feasibility": "pass",
       "physics": "pass",
-      "gate": "fail",
+      "gate": "fail (R1 2026-07-30: +8.2% mean / +11.0% max vs declared 5% tolerance; was +13.6%/+21.3%)",
       "config": {
         "case_type": "square-column collapse (Martin & Moyce 1952 Part IV)",
         "a_m": 0.05715,
         "a_in": 2.25,
         "domain": "15a wide x 2a tall x thin single-cell slab (2D, empty front/back)",
-        "gravity": [0, -9.81, 0],
-        "fluids": {"water": {"rho": 1000, "nu": 1e-06}, "air": {"rho": 1, "nu": 1.48e-05}, "sigma": 0.07},
+        "gravity": [
+          0,
+          -9.81,
+          0
+        ],
+        "fluids": {
+          "water": {
+            "rho": 1000,
+            "nu": 1e-06
+          },
+          "air": {
+            "rho": 1,
+            "nu": 1.48e-05
+          },
+          "sigma": 0.07
+        },
         "turbulence_model": "laminar",
-        "nondimensionalisation": {"T": "t*sqrt(g/a)", "Z": "x_front/a", "source": "arXiv:2108.08769 (Xie 2021), Sec 3.3.2 / Fig 7, verified against page image not just text extraction"}
+        "nondimensionalisation": {
+          "T": "t*sqrt(g/a)",
+          "Z": "x_front/a",
+          "source": "arXiv:2108.08769 (Xie 2021), Sec 3.3.2 / Fig 7, verified against page image not just text extraction"
+        }
       },
       "reference_data": {
         "source": "Martin & Moyce (1952), original tabulated data not located; digitised from Fig. 7 of arXiv:2108.08769 (Xie 2021) which plots the 1952 experimental points",
         "digitisation_method": "programmatic pixel-position detection (axis-tick pixel clusters for calibration, cross-marker centroid detection), not manual eyeballing",
         "digitisation_uncertainty": "approx +/-0.05 in T, +/-0.02 in Z",
         "front_position_points_T_Z": [
-          [3.90, 6.00], [4.49, 7.00], [5.17, 8.00], [5.91, 9.00],
-          [6.74, 10.00], [7.72, 11.00], [8.58, 12.00], [9.53, 13.00]
+          [
+            3.9,
+            6.0
+          ],
+          [
+            4.49,
+            7.0
+          ],
+          [
+            5.17,
+            8.0
+          ],
+          [
+            5.91,
+            9.0
+          ],
+          [
+            6.74,
+            10.0
+          ],
+          [
+            7.72,
+            11.0
+          ],
+          [
+            8.58,
+            12.0
+          ],
+          [
+            9.53,
+            13.0
+          ]
         ],
         "column_height_points_T_h": [
-          [0.00, 1.00], [0.80, 0.89], [1.29, 0.78], [1.74, 0.67],
-          [2.15, 0.56], [2.57, 0.44], [3.08, 0.33], [4.27, 0.22], [6.30, 0.11]
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.8,
+            0.89
+          ],
+          [
+            1.29,
+            0.78
+          ],
+          [
+            1.74,
+            0.67
+          ],
+          [
+            2.15,
+            0.56
+          ],
+          [
+            2.57,
+            0.44
+          ],
+          [
+            3.08,
+            0.33
+          ],
+          [
+            4.27,
+            0.22
+          ],
+          [
+            6.3,
+            0.11
+          ]
         ]
       },
       "runs": [
@@ -63,7 +145,7 @@
           "dx_over_a": 0.05,
           "top_bc": "atmosphere (open)",
           "mpi_ranks": 4,
-          "wall_time_s": 12.50,
+          "wall_time_s": 12.5,
           "core_minutes": 0.833,
           "config_hash_sha256_12": "e8b76eafc854",
           "role": "BC-sensitivity control"
@@ -96,14 +178,55 @@
         "primary_metric": "surge front position Z vs nondimensional time T",
         "case_used": "damBreak_MM_a2p25in_medium_closedbox",
         "comparison": [
-          {"T": 3.90, "Z_ref": 6.00, "Z_sim": 6.62, "deviation_pct": 10.4},
-          {"T": 4.49, "Z_ref": 7.00, "Z_sim": 7.64, "deviation_pct": 9.2},
-          {"T": 5.17, "Z_ref": 8.00, "Z_sim": 8.82, "deviation_pct": 10.2},
-          {"T": 5.91, "Z_ref": 9.00, "Z_sim": 10.09, "deviation_pct": 12.1},
-          {"T": 6.74, "Z_ref": 10.00, "Z_sim": 11.50, "deviation_pct": 15.0},
-          {"T": 7.72, "Z_ref": 11.00, "Z_sim": 13.14, "deviation_pct": 19.4},
-          {"T": 8.58, "Z_ref": 12.00, "Z_sim": 14.56, "deviation_pct": 21.3},
-          {"T": 9.53, "Z_ref": 13.00, "Z_sim": 14.42, "deviation_pct": 10.9, "note": "confounded by proximity to domain far wall (15a)"}
+          {
+            "T": 3.9,
+            "Z_ref": 6.0,
+            "Z_sim": 6.62,
+            "deviation_pct": 10.4
+          },
+          {
+            "T": 4.49,
+            "Z_ref": 7.0,
+            "Z_sim": 7.64,
+            "deviation_pct": 9.2
+          },
+          {
+            "T": 5.17,
+            "Z_ref": 8.0,
+            "Z_sim": 8.82,
+            "deviation_pct": 10.2
+          },
+          {
+            "T": 5.91,
+            "Z_ref": 9.0,
+            "Z_sim": 10.09,
+            "deviation_pct": 12.1
+          },
+          {
+            "T": 6.74,
+            "Z_ref": 10.0,
+            "Z_sim": 11.5,
+            "deviation_pct": 15.0
+          },
+          {
+            "T": 7.72,
+            "Z_ref": 11.0,
+            "Z_sim": 13.14,
+            "deviation_pct": 19.4
+          },
+          {
+            "T": 8.58,
+            "Z_ref": 12.0,
+            "Z_sim": 14.56,
+            "deviation_pct": 21.3
+          },
+          {
+            "T": 9.53,
+            "Z_ref": 13.0,
+            "Z_sim": 14.42,
+            "deviation_pct": 10.9,
+            "note": "confounded by proximity to domain far wall (15a)"
+          }
         ],
         "mean_deviation_pct": 13.6,
         "max_abs_deviation_pct": 21.3,
@@ -121,14 +244,55 @@
           "metric": "column height decay",
           "case_used": "damBreak_MM_a2p25in_medium_closedbox",
           "comparison": [
-            {"T": 0.80, "h_ref": 0.89, "h_sim": 0.848, "deviation_pct": -4.7},
-            {"T": 1.29, "h_ref": 0.78, "h_sim": 0.713, "deviation_pct": -8.6},
-            {"T": 1.74, "h_ref": 0.67, "h_sim": 0.601, "deviation_pct": -10.4},
-            {"T": 2.15, "h_ref": 0.56, "h_sim": 0.507, "deviation_pct": -9.4},
-            {"T": 2.57, "h_ref": 0.44, "h_sim": 0.423, "deviation_pct": -3.9},
-            {"T": 3.08, "h_ref": 0.33, "h_sim": 0.344, "deviation_pct": 4.3},
-            {"T": 4.27, "h_ref": 0.22, "h_sim": 0.223, "deviation_pct": 1.2},
-            {"T": 6.30, "h_ref": 0.11, "h_sim": 0.131, "deviation_pct": 19.2, "note": "near edge of digitised reference range"}
+            {
+              "T": 0.8,
+              "h_ref": 0.89,
+              "h_sim": 0.848,
+              "deviation_pct": -4.7
+            },
+            {
+              "T": 1.29,
+              "h_ref": 0.78,
+              "h_sim": 0.713,
+              "deviation_pct": -8.6
+            },
+            {
+              "T": 1.74,
+              "h_ref": 0.67,
+              "h_sim": 0.601,
+              "deviation_pct": -10.4
+            },
+            {
+              "T": 2.15,
+              "h_ref": 0.56,
+              "h_sim": 0.507,
+              "deviation_pct": -9.4
+            },
+            {
+              "T": 2.57,
+              "h_ref": 0.44,
+              "h_sim": 0.423,
+              "deviation_pct": -3.9
+            },
+            {
+              "T": 3.08,
+              "h_ref": 0.33,
+              "h_sim": 0.344,
+              "deviation_pct": 4.3
+            },
+            {
+              "T": 4.27,
+              "h_ref": 0.22,
+              "h_sim": 0.223,
+              "deviation_pct": 1.2
+            },
+            {
+              "T": 6.3,
+              "h_ref": 0.11,
+              "h_sim": 0.131,
+              "deviation_pct": 19.2,
+              "note": "near edge of digitised reference range"
+            }
           ],
           "mean_deviation_pct": -1.5,
           "max_abs_deviation_pct": 19.2,
@@ -146,7 +310,136 @@
         "Programmatic pixel-position digitisation (axis-tick calibration + marker centroid detection) of a published figure is more reliable than eyeballing and should be the default method going forward",
         "Gate failed as measured; shipped as a documented failure per campaign hard rules"
       ],
-      "blocked_by_this_result": ["rung b (Wigley hull)", "rung c (workshop hull)"]
+      "blocked_by_this_result": [
+        "rung b (Wigley hull)",
+        "rung c (workshop hull)"
+      ],
+      "r1_audit_2026_07_30": {
+        "scope": "L-22-style audit of the NOT_PASSING_REGISTER F7a entry, then diagnosis, fix attempt, and grading",
+        "l22_applicability": "convergence/accuracy entry - explicitly exempt from L-22's primary-evidence citation rule; audited on substance anyway. Register Evidence line pointed only at CAMPAIGN_STATUS.md (secondary); case's own log.interFoam now cited.",
+        "confirmed": [
+          "recorded +13.6% mean / +21.3% max reproduce from the case's own log.interFoam and alpha.water dumps",
+          "log.interFoam: 1133 timesteps, clean End, ExecutionTime 17.89 s, phase-1 volume fraction constant 0.0333333",
+          "reference digitisation independently reproduced at 600 dpi to <=0.01 in T and <=0.005 in Z",
+          "non-dimensionalisation T=t*sqrt(g/a), Z=x/a re-read verbatim from arXiv:2108.08769 Sec 3.3.2"
+        ],
+        "retracted": [
+          {
+            "claim": "coarse mesh dx=a/8 undershoots -13.2%, sign-flipped vs medium; refinement flipped sign rather than converging",
+            "why": "artifact of the near-floor alpha=0.5 line probe, whose absolute sampling height moves with the mesh. Under one consistent depth-integrated metric the a/8 rung overshoots by +11.8%, same sign as every other rung."
+          },
+          {
+            "claim": "root cause: VOF numerical smearing of the thin leading edge / VOF interface-definition limitation",
+            "why": "the metric is threshold-convergent (0.24% spread over thresholds 0.01a-0.04a at dx=dy=a/64) and refinement improves the deviation monotonically from a/16 down"
+          },
+          {
+            "claim": "D2: interface compression cAlpha is a confirmed material contributor, ~40% error reduction",
+            "why": "the effect reverses sign with the metric; under the depth-integrated metric cAlpha=0 makes the deviation worse (+13.5% -> +16.8%)"
+          }
+        ],
+        "corrected": {
+          "max_courant": {
+            "was": 0.52,
+            "is": 0.7416,
+            "interface_courant_max": 0.6401,
+            "note": "0.52 was the final timestep's value, not the maximum over the run"
+          }
+        },
+        "reference_simulation_comparator": {
+          "source": "same Fig. 7, paper's own inviscid simulation curve, digitised in R1 (nobody had extracted it before)",
+          "model": "inviscid, no turbulence, no surface tension, no interface compression; 240x20 cells (dx=dy=a/16)",
+          "achieved_vs_experiment_percent": [
+            -3.4,
+            -4.3,
+            -4.2,
+            -2.9,
+            -2.4,
+            1.7,
+            1.7,
+            1.8
+          ],
+          "note": "establishes the achievable standard on this benchmark: -4.3% to +1.8%"
+        },
+        "front_metric": {
+          "definition": "depth-integrated water height h(x)=sum(alpha*dy); front where h drops through k*a",
+          "k_used": 0.02,
+          "threshold_sensitivity_at_a_over_64_percent": 0.24,
+          "script": "F7_runs/front_metrics.py"
+        },
+        "isotropic_ladder_mean_dev_percent_T3p90_to_7p72": {
+          "a/8": 11.8,
+          "a/16": 13.5,
+          "a/20": 13.0,
+          "a/32": 11.6,
+          "a/64": 11.1
+        },
+        "wall_normal_ladder_dx_a_over_32": {
+          "mean_dev_percent_T3p90_to_7p72": {
+            "dy=a/32": 11.6,
+            "dy=a/64": 9.8,
+            "dy=a/128": 8.2,
+            "dy=a/256": 10.8
+          },
+          "dev_percent_at_T8p516": {
+            "dy=a/32": 17.6,
+            "dy=a/64": 13.6,
+            "dy=a/128": 11.4,
+            "dy=a/256": 9.3
+          },
+          "note_a256": "early-time outlier at T=3.90 (+18.1%) inflates its mean; from T=5.17 it is the closest case run (+8.7% mean)",
+          "slip_control_dy_a_over_128_mean_dev_percent": 13.7,
+          "asymptotic": false,
+          "asymptotic_note": "successive steps -3.9, -2.3, -2.1 percentage points: shrinking but not geometrically; no extrapolated limit quoted"
+        },
+        "single_variable_tests_at_a_over_16": {
+          "baseline": 13.5,
+          "cAlpha_0": 16.8,
+          "sigma_0": 16.6,
+          "slip_floor": 15.6,
+          "tight_courant_3_subcycles": 15.1,
+          "verdict": "no numerical knob helps; all four make it worse"
+        },
+        "mechanism": {
+          "name": "under-resolved bed friction beneath the sub-millimetre leading film",
+          "evidence": "velocity profile at Z=11, T=8.52: at dy=a/128 no-slip, U_x rises 0.359 -> 1.049 m/s over five cells (boundary layer fills ~60% of the 2.9 mm film); the identical mesh with a slip floor is plug flow at 1.047 m/s; at dy=a/32 the film is two cells and the wall gradient is under-predicted ~40% (999 vs 1607 1/s, tau_w ~1.0 vs 1.61 Pa)",
+          "proof": "slip/no-slip control at matched fine mesh undoes the entire refinement gain"
+        },
+        "grading": {
+          "tolerance_declared_percent": 5,
+          "front_best_mean_percent": 8.2,
+          "front_best_max_percent": 11.0,
+          "front_best_case": "dx=a/32, dy=a/128",
+          "column_height_T0p80_to_3p08_mean_percent": 0.9,
+          "column_height_max_percent": 9.9,
+          "column_height_case": "dx=dy=a/64",
+          "verdict": "GATE FAIL - deviation roughly halved but still above tolerance"
+        },
+        "counter_signal": "resolving bed friction improves the front and degrades the column height (+3.5% -> +4.2% -> +6.4% over all 8 points as dy goes a/64 -> a/128 -> a/256); the experiment sits between, so the residual is not a single missing friction term",
+        "open": [
+          "transitional bed friction (film Re ~ 3e3, runs laminar)",
+          "unmodelled contact-line / wetting resistance",
+          "1952 gate-withdrawal time unknown (original paper not open access)",
+          "reference simulation's own front definition unstated"
+        ],
+        "compute": {
+          "cases": 15,
+          "core_minutes": 387.4,
+          "largest": "res32y256_base, 1902 s on 6 ranks"
+        },
+        "artifacts": [
+          "demo-output/website/campaign/F7_runs/F7a_R1/",
+          "demo-output/website/campaign/F7_runs/make_dambreak.py",
+          "demo-output/website/campaign/F7_runs/run_dambreak.sh",
+          "demo-output/website/campaign/F7_runs/front_metrics.py",
+          "demo-output/website/campaign/F7_runs/grade_f7a.py",
+          "demo-output/website/campaign/F7_runs/plot_f7a_R1.py",
+          "demo-output/website/campaign/F7_runs/fig7_digitised_R1.json",
+          "demo-output/website/campaign/F7_runs/F7a_R1_convergence.png"
+        ],
+        "mpi_ranks_used": "1-8 (exceeds the top-level process_caps.max_mpi_ranks=4 recorded for the original pass; load checked before each launch)"
+      },
+      "cause_superseded_note": "SUPERSEDED by r1_audit_2026_07_30: the VOF-smearing / interface-definition attribution and the coarse-mesh sign flip are retracted as metric artifacts. Kept for the record.",
+      "lesson_superseded_note": "PARTLY SUPERSEDED by r1_audit_2026_07_30: the mesh-independent-extraction lesson stands and was acted on; the inference that the gate failure was itself an extraction artifact does not."
     },
     {
       "rung": "b",
