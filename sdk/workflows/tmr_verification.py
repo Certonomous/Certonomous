@@ -730,12 +730,28 @@ _RUN_ROOT = os.environ.get("CERTONOMOUS_TMR_RUN_ROOT",
 
 
 def _run_prefix() -> list[str]:
-    """The launcher prefix, split into argv the same way openfoam.py resolves
-    OPENFOAM_RUN_PREFIX. Empty when the OpenFOAM toolchain is already on
-    PATH; a single wrapper token ("openfoam2606" on this host) or a longer
-    launcher list (a WSL invocation, say) when the caller sets it that way."""
+    """The launcher prefix that reaches the OpenFOAM toolchain on this host.
+
+    Delegated to :func:`chief_engineer.openfoam.host_run_prefix`, which is the
+    one code path for this question: OPENFOAM_RUN_PREFIX when the caller set
+    it, otherwise the ``openfoam2606`` launcher when it is on PATH, otherwise
+    a WSL hop on the Windows laptop.
+
+    It used to read the environment variable and nothing else, returning an
+    empty prefix when it was unset. On this box the solver binaries are NOT on
+    PATH -- they live behind ``openfoam2606`` -- so an unset variable meant
+    every ``_foam`` call raised FileNotFoundError. The control room is started
+    by cron at reboot through scripts/demo_servers.sh, which did not export it,
+    and the cylinder vortex-shedding act consequently reported "the wake solve
+    did not complete" on a server that had restarted. Resolving the launcher
+    here makes the act independent of how the server happened to be launched.
+    """
     raw = os.environ.get("OPENFOAM_RUN_PREFIX", "")
-    return raw.split() if raw else []
+    if raw:
+        return raw.split()
+    from chief_engineer.openfoam import host_run_prefix
+
+    return host_run_prefix()
 
 
 def _foam(args: list[str], cwd: Path, log_name: str,

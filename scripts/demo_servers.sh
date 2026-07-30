@@ -17,6 +17,15 @@ set -u
 REPO=/home/ubuntu/Certonomous
 LOG=/home/ubuntu/demo_servers.log
 
+# OpenFOAM lives behind the openfoam2606 launcher on this box, not on PATH.
+# cron @reboot hands this script a bare environment, so a server started that
+# way inherited no launcher, and an act shelling out to an OpenFOAM utility
+# died with FileNotFoundError -- surfacing on camera only as "the wake solve
+# did not complete". Exported here so a cron-started server and a hand-started
+# one are the same server. Matches docs/aws/provision.sh line 49. (VSPAERO
+# needs no prefix here; it is reachable natively.)
+export OPENFOAM_RUN_PREFIX="${OPENFOAM_RUN_PREFIX:-openfoam2606}"
+
 listening() { ss -lnt 2>/dev/null | grep -q ":$1 "; }
 stamp()     { date -u +%FT%TZ; }
 

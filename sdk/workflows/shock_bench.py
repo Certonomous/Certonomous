@@ -125,11 +125,27 @@ def restore_cached_solve(case_dir: Path, key: str) -> bool:
     """Restore every cached post-t=0 time directory plus postProcessing.
     True on a warm hit; the parsing code that runs afterward is identical
     either way, so a warm result is never merely close, it is the same
-    files read the same way."""
+    files read the same way.
+
+    That promise only holds if the case is left holding EXACTLY the cached
+    state. Overwriting the cached entries is not enough: a case that has been
+    solved cold at some point keeps every time directory that run wrote, and a
+    solver writing at adaptive time steps names them differently between runs
+    (``3.749895`` one run, ``3.74989501`` the next). Those orphans survive a
+    restore, and the acts read the LAST N time directories as their averaging
+    window -- so an orphan sorting into the window silently displaced a real
+    snapshot and moved the answer. That is exactly how the hypersonic cylinder
+    came to report a standoff of 0.4193 on a dirty case and 0.4181 on a clean
+    one, from byte-identical cached files. Post-t=0 time directories are
+    therefore cleared before the restore; ``0/`` (initial fields), ``constant``
+    and ``system`` are the case definition and are never touched.
+    """
     if not cached_solve_available(key):
         return False
     cache = _cache_dir(SOLVE_CACHE_ROOT, key)
     case_dir = Path(case_dir)
+    for stale in _time_dirs(case_dir):
+        shutil.rmtree(case_dir / stale, ignore_errors=True)
     for entry in cache.iterdir():
         if entry.name in ("DONE",):
             continue
