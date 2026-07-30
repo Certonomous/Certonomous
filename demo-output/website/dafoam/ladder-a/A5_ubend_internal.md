@@ -708,3 +708,72 @@ genuinely unidentified -- not because a link was mis-tested, but because it has 
 
 Evidence: `probeA5HandComposition.py`, `handcomp_a5_out.log` (both in
 `ladder-a/A5_work/UBend_Channel_pressureloss/`).
+
+## Addendum, 2026-07-30: off-diagonal dR/dW -- matvec test does not resolve cleanly; the units convention is richer than the diagonal test characterized, and that ambiguity, not a confirmed coupling defect, is the honest result
+
+`probeA5DiagRatio.py` tested only DIAGONAL entries of `dR/dW`. Off-diagonals encode cell-to-cell and
+field-to-field coupling; a defect confined there would produce exactly A5's symptom (locally correct
+magnitudes, a globally wrong assembled total, sign flips only where coupling dominates). Coordinator's
+directed test: a matvec dot-product identity (one random direction exercises every matrix entry at once)
+rather than more diagonal sampling, with the diagonal test's own units correction applied first so the
+285-337x factor cannot reappear disguised as a coupling defect.
+
+**Method (`probeA5MatvecDrDW.py`):** `dW` dense/random across the full state vector (exercises coupling
+into and out of every cell). `w_R` sparse, supported ONLY on the 43 indices whose row-scale `D_i` was
+already confirmed exactly in the diagonal test (23 `U` rows at 8.4, 9 `p` rows at 35.28, 7 `nuTilda` rows
+at 0.001, 4 `T` rows at 300), pre-divided by that `D_i` before being passed as `calcJacTVecProduct`'s
+seed -- the correction that, if row-scaling is the WHOLE story, exactly cancels it. Three independent
+seeds, serial, ~13s total.
+
+**Result: the corrected matvec does NOT cleanly agree.** Relative error 150%, 227%, and 1252% across the
+three seeds (vs. the uncorrected variant's 824x-2417x, confirming the correction is doing real work, just
+not enough), with 2 of 3 seeds sign-flipped. Naively, this looks like the coordinator's second named
+outcome ("matvec disagrees while diagonals agree -> the defect is in the coupling"). **Before accepting
+that reading, a follow-up single-entry test was run to check whether the row-only correction model itself
+is simply incomplete off-diagonal** (verified only ON the diagonal, where row and column indices coincide
+and row-scaling and column-scaling are indistinguishable) -- because an incomplete correction model would
+also produce exactly this kind of large, structured disagreement without any real coupling defect at all.
+
+**`probeA5OffDiagSingle.py`:** took ONE full analytic row (`idx=2490`, a `U` row, `D_row=8.4`, confirmed
+clean on the diagonal) via a single `calcJacTVecProduct(seed=e_2490)` call, and FD-checked its 6
+largest-magnitude off-diagonal entries individually and directly (perturb one other state index at a
+time, read residual 2490 back -- no aggregation, no ambiguity about which column contributed what):
+
+| coupled column | column's state value | FD (raw physical) | AN (row-only corrected, `/D_row`) | `AN/FD` |
+|---|---|---|---|---|
+| col 1996 (nuTilda-like, `W0`=0.0287) | tiny | -129.702964 | -129.702964 | **1.000000** |
+| col 3139 (nuTilda-like, `W0`=0.0243) | tiny | -91.5456374 | -91.5456374 | **1.000000** |
+| col 1913 (nuTilda-like, `W0`=0.0279) | tiny | -78.6328462 | -78.6328462 | **1.000000** |
+| col 1924 (p-like, `W0`=48.88) | O(10-100) | -104.266496 | -437.919283 | **4.200000** |
+| col 3132 (p-like, `W0`=48.88) | O(10-100) | 65.7877115 | 276.308388 | **4.200000** |
+| col 2492 (p-like, `W0`=48.88) | O(10-100) | 38.4787846 | 161.610895 | **4.200000** |
+
+**The row-only correction is EXACT for the row's coupling to nuTilda-type columns (agreement to 12
+significant figures, no further correction needed) but off by a further factor of exactly `4.200000`
+-- reproduced to 6 decimal places across three independent p-type columns -- for the row's coupling to
+pressure.** `4.2 = 35.28 / 8.4` (this row's `D_row` divided into the `p` variable's own `D_col`), or
+equivalently `D_row / 2`. **This ratio is exact and reproduces across unrelated columns of the same
+type -- the signature of a clean, deterministic convention, not noise or a genuine physics defect.** A
+real coupling error would not produce a precise `4.200000` multiplier three separate times on unrelated
+mesh locations; it would produce inconsistency. The most likely mundane explanation, not confirmed in the
+time available: momentum-equation coupling to the pressure-gradient term in a SIMPLE-algorithm
+discretization often carries its own structural scaling (e.g. related to the momentum equation's diagonal
+coefficient, part of Rhie-Chow-style pressure-velocity coupling) that is a per-TERM feature of the
+discretization's assembly, not captured by the overall per-VARIABLE `normalizeStates` convention the
+diagonal test characterized.
+
+**Honest conclusion: the matvec test's large disagreement is not evidence of a genuine off-diagonal
+defect. It is evidence that the row-only correction model -- which explained the diagonal exactly,
+because row and column coincide there -- does not fully describe the off-diagonal convention, which
+appears to depend on BOTH the row's and the column's variable type in a way not fully characterized
+within this session's scope.** This is a materially different, more honest result than either "off-
+diagonal defect confirmed" or "dR/dW fully cleared" -- it is a specific, precisely-located open question
+(what is the exact row/column joint scaling convention for `calcJacTVecProduct`'s residual output,
+particularly for the momentum-pressure coupling term) that would need tracing into
+`daResidual_.calcResiduals()`'s C++ assembly (specifically the `UEqn`/pressure-gradient term) to close,
+not more probe-side measurement. **Per the coordinator's own standing instruction not to force a
+verdict: dR/dW's off-diagonal structure is left as genuinely unresolved -- neither confirmed clean nor
+confirmed defective -- rather than reading the uncorrected matvec gap as a finding it has not earned.**
+
+Evidence: `probeA5MatvecDrDW.py`, `matvec_drdw_out.log`, `probeA5OffDiagSingle.py`, `offdiag_out.log`
+(all in `ladder-a/A5_work/UBend_Channel_pressureloss/`).
