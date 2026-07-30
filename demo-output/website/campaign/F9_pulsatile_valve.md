@@ -165,29 +165,84 @@ phase and both alpha values, and at `lowalpha` t/T=0.75 the analytic solution
 predicts near-wall flow reversal (values run negative) that the CFD does not
 show at all (uniform, positive, plug-like).
 
-**Cause, stated as the best-supported hypothesis, not yet independently
-confirmed:** the profile probe station sits only **2 pipe diameters
-upstream** of a beta=0.906 orifice — a very weak restriction (81% open by
-area), meaning the flow is already accelerating and converging toward the
-plate at that station. Convective acceleration ahead of a restriction is a
-well-known mechanism for flattening a velocity profile relative to
-undisturbed fully-developed flow (favorable pressure gradient suppresses
-boundary-layer growth) — consistent with CFD flatness sitting close to 1.0
-(plug-like) at every phase except the wall-affected 0.75 point, while the
-Womersley solution, which assumes an undisturbed straight pipe with no
-downstream restriction, predicts a more parabolic/oscillatory shape.
-**This is a comparison-basis mismatch (Group 4 in `NOT_PASSING_REGISTER.md`'s
-own taxonomy), not evidence of a solver defect** — the CFD is very likely
-correctly resolving flow that is genuinely different from the idealized
-problem the closed form solves, because the two are sampling different
-physical situations (near-plate accelerating flow vs. undisturbed pipe flow).
-**Falsifiable follow-up, cheap:** re-run the profile probe at 4–5 diameters
-upstream (still within the existing 5D upstream straight section) on the
-already-built mesh — no new solve needed if a probe can be added
-post-hoc via `postProcess -func`, otherwise one more short case build.
-Predicted result if the hypothesis is right: flatness and rel-error close
-the gap substantially moving upstream. If they do not, the entrance-length
-explanation is wrong and the mismatch has a different cause.
+**Original cause, as first proposed (2026-07-29), stated then as a
+hypothesis, not yet confirmed:** the profile probe station sits only **2
+pipe diameters upstream** of a beta=0.906 orifice — a very weak restriction
+(81% open by area), meaning the flow is already accelerating and converging
+toward the plate at that station. Convective acceleration ahead of a
+restriction is a well-known mechanism for flattening a velocity profile
+relative to undisturbed fully-developed flow — consistent with CFD flatness
+sitting close to 1.0 (plug-like) at every phase except the wall-affected
+0.75 point. **Falsifiable follow-up specified at the time:** re-run the
+profile probe at 4–5 diameters upstream, on the already-built mesh, and
+check whether flatness/rel-error close the gap moving upstream.
+
+### Follow-up, run 2026-07-30: the hypothesis is REFUTED
+
+The restart case `F9_work/womersley_probe_check` reproduces
+`pulsatile_physio`'s last cycle bit-for-bit (restarted from its `t=1.8`
+checkpoint, same mesh/BCs/schemes — final cumulative continuity error
+−2.0139e-07 vs. the original run's −2.0114e-07, i.e. the same solve),
+with three additional 9-probe radial stations added at 3D, 4D and 4.5D
+upstream of the plate (the original station, 2D upstream, is retained
+unchanged for direct comparison). Cost: 246.32 s single-core (a restart
+from the last cycle's checkpoint, not a full 3-cycle re-solve).
+
+**Result — the error gets WORSE moving upstream, monotonically, at every
+single phase tested, not better:**
+
+| station (upstream of plate) | t/T=0.00 | t/T=0.25 | t/T=0.50 | t/T=0.75 | avg |
+| --- | --- | --- | --- | --- | --- |
+| 2D (original) | 31.6% | 20.0% | 36.9% | 84.6% | 43.3% |
+| 3D (new) | 34.1% | 21.4% | 39.5% | 88.9% | 46.0% |
+| 4D (new) | 35.7% | 22.9% | 42.4% | 94.0% | 48.8% |
+| 4.5D (new) | 36.7% | 23.9% | 43.9% | 97.1% | 50.4% |
+
+Every column increases monotonically left to right. The predicted result
+if the "convective acceleration near the orifice" hypothesis were correct
+was the opposite — error closing substantially moving away from the
+plate. It does not close; it grows. **That hypothesis is refuted, cleanly,
+not just unconfirmed.**
+
+**What the data supports instead: the pipe is too short, relative to the
+Reynolds numbers in play, for the flow to develop away from the flat inlet
+condition anywhere inside it — an entrance-length problem, not an
+exit/restriction problem.** The inlet BC (`uniformFixedValue`, per the
+Method section) imposes a spatially uniform (flat) velocity at `x=0` by
+construction. The standard laminar developing-pipe-flow entrance-length
+estimate, `L_entry/D ≈ 0.05–0.06·Re`, evaluated at this case's own peak
+pipe Reynolds number (Re_peak = U_peak·D/nu = 1.2034 × 0.023 / 3.3e-6 ≈
+**8388**), gives `L_entry ≈ 420–500 diameters` — 9.6 to 11.6 m — against
+the **5 diameters (115 mm)** actually available in this mesh before the
+first monitoring station. Even at the cycle-mean Reynolds number (Re ≈
+4194, half the peak), the estimate is still ≈ 210–250 diameters, still two
+orders of magnitude short. Under this explanation, the profile should stay
+close to the imposed flat inlet shape everywhere in the pipe, with the
+mismatch to the analytic (implicitly fully-developed/undisturbed) Womersley
+profile getting slightly *worse*, not better, closer to the inlet where the
+flow has had the least distance to relax from the imposed condition —
+exactly the monotonic trend measured. This is a **domain-length /
+inlet-boundary-condition mismatch with the closed-form comparison's own
+assumptions, not a solver defect and not (as first guessed) an
+orifice-proximity artifact.** It generalizes: any short-pipe CFD case
+driven by a flat-profile inlet BC and compared against a
+fully-developed/undisturbed analytic solution should expect the same
+failure mode unless the entrance length is checked against the pipe length
+before the comparison is designed, the same class of domain-vs-idealization
+mismatch as L-8's dam-break front-position lesson.
+
+**Verdict, updated: Gate 2 stays FAIL, now with a refuted first hypothesis
+and a quantitatively supported second one**, not a comparison-basis
+artifact as originally guessed. A genuine fix (prescribing an
+entrance-appropriate inlet profile, or lengthening the upstream section
+enough to matter — impractical here given the entrance-length numbers
+above, since even 20-30D would still fall short at peak Re) is out of
+scope for this gate; this is exactly the "turns into a genuine finding"
+outcome, not a bug in the CFD or the comparison method chosen, but a real
+domain-sizing constraint on what a short-pipe internal flow case can be
+validated against with a closed-form entrance-flow solution. Raw follow-up
+data: `F9_work/womersley_followup_results.json`,
+`F9_work/womersley_probe_check/`.
 
 ## 6. Gate 3 — deviation from the ROM, with cause
 
@@ -228,6 +283,108 @@ the real coefficient at this opening is over 3× the ROM's assumed value.
 correlation); it is being applied outside its own calibrated domain**, which
 is exactly the finding the pre-registered prediction anticipated.
 
+## 6b. Disclaimer-boundary sweep (2026-07-30 follow-up)
+
+Two more geometry points were run at 50° (β=0.766) and 55° (β=0.819) —
+bracketing the ISO 5167 calibration edge (β≤0.75) the ROM's Cd=0.62 is
+drawn from, per the recommendation in §7 — to test where between the
+calibrated region and this case's own default (65°, β=0.906) the ROM's
+error becomes large.
+
+**Solver/label check, done from the primary artifacts, not inferred from
+the case names.** Both runs are named `steady_beta_50deg`/`steady_beta_55deg`
+and both exited with `check_convergence.py` returning `CANNOT_TELL`
+("looks like a transient/unsteady run... a steady-state convergence gate
+does not apply here"). That is not a mismatch: the `Exec:` line in both
+logs reads `pimpleFoam`, and `system/controlDict` for both cases is
+**byte-identical** to `steady_q100`'s (`diff` clean) — `application
+pimpleFoam; startTime 0; endTime 1.2`, fixed-value steady inlet at
+`u0=1.20344` (`0/U` also diffs clean against `steady_q100`'s except for
+the mesh-dependent probe/geometry lines, same `fixedValue` BC, same value).
+This is the **same convention already used and already gated** for all
+four original reference-map points (`steady_q25/50/75/100`): `pimpleFoam`
+marched to a fixed `endTime` under steady boundary conditions, judged
+stationary by a tail-window check, not `simpleFoam` with
+`residualControl` — documented in §2's Method section and independently
+confirmed earlier this session by running `check_convergence.py` against
+all four original points, which returned the identical `CANNOT_TELL` for
+the identical reason. The label is correct; `CANNOT_TELL` is the correct
+machine answer for this whole 6-run family, and always has been.
+
+**Stationarity, judged by hand, window and variation stated explicitly.**
+The raw upstream probe (`p0`) alone is **not** stationary in either
+case — it oscillates with relative amplitude 129–171% of its own mean
+even in the last 5% of the 1.2 s run, the same global, spatially-correlated
+absolute-pressure-level wobble already found and explained for
+`steady_q100` (§3): upstream and throat probes move together, so it
+cancels in the pressure *difference*. The quantity actually used for every
+Cd/ROM figure, `dp = (p_upstream − p_throat)·ρ`, is what was checked for
+stationarity, over the **last 10% of run time** (t ∈ [1.08, 1.2] s,
+matching `analyze_f9.py`'s own `tail_frac=0.1` convention, chosen to match
+what the original four points were judged against):
+
+| case | window mean dp (Pa) | band (max−min) over window | relative band | first-half vs second-half drift |
+| --- | --- | --- | --- | --- |
+| `steady_beta_50deg` | 1499.61 | 5.76 Pa | 0.384% | 8.62e-5 |
+| `steady_beta_55deg` | 908.99 | 3.74 Pa | 0.411% | 3.99e-4 |
+
+Both bands shrink monotonically going from the full run (>3000% relative
+band, dominated by the initial transient) through the middle-half and into
+the tail window (converging to <0.5%), the same settling pattern the
+original four points showed. **Both judged stationary; PASS on the
+stationarity check**, by the same standard and the same window as the
+existing four points.
+
+**Result.** Using each angle's own orifice area and the same `Q=Q_peak`
+convention as the original `steady_q100` point (chosen because Gate 1
+established Cd is essentially flow-rate-invariant at 65° — a single point
+per new angle is treated as a reasonable, cheap estimate of Cd(angle) on
+that basis, not re-verified across a flow sweep at each new angle; that
+extrapolation is disclosed, not hidden):
+
+| angle | β (radius ratio) | area ratio | CFD dp at Q_peak (Pa) | Cd_cfd | ROM cycle-weighted loss at cd=0.62 (Pa) | (0.62/Cd_cfd)² × ROM loss, Pa | implied deviation |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 50° | 0.766 | 0.587 | 1499.61 | **1.219** | 3624.14 | ~937 | **≈ −74%** |
+| 55° | 0.819 | 0.671 | 908.99 | **1.370** | 2771.81 | ~568 | **≈ −80%** |
+| 65° (existing) | 0.906 | 0.821 | (cycle-weighted, measured directly) | 1.91–1.95 | 1849.77 | (measured: 110.71) | **−94.0%** (measured, not scaled) |
+
+**This does not support a clean "boundary" — say so plainly, as asked.**
+The original framing in §7 ("a couple more CFD points near β=0.75–0.85
+would supply the boundary") implied a transition somewhere in that range,
+with the ROM presumably still reasonable near its own calibration edge.
+That is not what was measured. **At β=0.766 — already past the ISO
+5167 calibration edge (β≤0.75), but only just — the CFD-implied Cd (1.22)
+is already ~2× the ROM's fixed 0.62, and the estimated cycle-weighted
+deviation is already of order −74%,** not a small correction near the
+boundary that grows gradually to −94% by β=0.906. The three points (0.766,
+0.819, 0.906) show a smooth, monotonic trend in Cd_cfd and in deviation,
+with no sign of a "safe" plateau anywhere in the tested range. **No point
+in this sweep sits inside the ISO-calibrated domain (β≤0.75) — that
+region was not tested, so this does not show the ROM is fine there
+either; it only shows the ROM is already substantially wrong immediately
+outside it, closer to the edge than the original recommendation assumed.**
+
+**Revised recommendation on the disclaimer boundary:** do not word the
+`valve_study.py` disclaimer as "unreliable above β≈0.8–0.9" or similar —
+the data here says the error is already large (order −75%, roughly a
+factor of ~2 in Cd) right at the edge of the ROM's own stated calibration
+range. The defensible, conservative wording is to flag the ROM at
+**β>0.75 outright** (i.e., exactly the ISO 5167 boundary already printed
+in the ROM's own citation, taken at face value, with no attempt to widen
+it), and to note explicitly — as an open question, not a resolved one —
+that whether the ROM is trustworthy *inside* β≤0.75 for this valve's
+leaflet-derived (not flat-plate) orifice shape has not been tested by any
+CFD point in this study; the four original 65° points and these two new
+ones are the entirety of the CFD evidence gathered, and all six sit at
+β≥0.766.
+
+Raw data: `F9_work/steady_beta_50deg/`, `F9_work/steady_beta_55deg/`,
+`F9_work/beta_boundary_results.json`. Cost: 831.98 s + 678.93 s = 1510.91 s
+(~25.2 min), single core each — steady solves at these narrower orifices
+ran longer than `steady_q100` despite the identical pipe-level flow rate,
+because a smaller orifice at the same Q means a faster throat jet and a
+smaller Courant-limited timestep.
+
 ## 7. Cost and mega-batch recommendation
 
 **Measured wall-clock cost** (from `solve_registry` logs,
@@ -243,8 +400,13 @@ below previously understated this by ~32%, see note):
 | 4× steady reference points, subtotal | 1221.88 s (~20.4 min) |
 | `pulsatile_physio` (3 cycles, t=0→2.7) | 646.45 s (~10.8 min) |
 | `pulsatile_lowalpha` (1.5 cycles, t=0→5.4, T=4×physio) | 1227.54 s (~20.5 min) |
+| original 6-run gate, subtotal | 3095.87 s (~51.6 min) |
+| `womersley_probe_check` (2026-07-30, Gate 2 follow-up, restart from t=1.8) | 246.32 s (~4.1 min) |
+| `steady_beta_50deg` (2026-07-30, disclaimer-boundary sweep) | 831.98 s (~13.9 min) |
+| `steady_beta_55deg` (2026-07-30, disclaimer-boundary sweep) | 678.93 s (~11.3 min) |
+| **grand total, all F9 compute to date** | **4853.10 s, ~80.9 min (~1.35 core-hours)** |
 
-Total pulsatile-family compute for this full gate: **3095.87 s, ~51.6
+Total for the original 3-gate pass: **3095.87 s, ~51.6
 core-minutes (~0.86 core-hours)**, single core throughout. **Correction:**
 the previous version of this table quoted the steady points as "tens of
 seconds each (sub-minute)" and a total "well under 35 core-minutes" — both
@@ -263,14 +425,26 @@ minutes *per evaluation*, this is the whole multi-run gate).
 **Recommendation:** F9 is ready to promote from "not started" to a real,
 gated family. Two of three gates PASS (quasi-steady limit, and the
 qualitative ROM-deviation direction/magnitude); the Womersley profile gate
-FAILs as a point comparison with an identified, physically coherent,
-falsifiable cause (comparison-basis mismatch from probe placement, not
-solver defect) rather than an unexplained residual. Recommended next step,
-cheap and decisive: the probe-relocation follow-up in §5 before claiming the
-Womersley gate either way. The reduced-order `valve_study.py` family should
-carry an explicit disclaimer at high-beta openings (≳0.75) — its own cited
-calibration range already says so, and this CFD is the first real
-measurement confirming the magnitude of the error that causes.
+FAILs, and stays FAIL after the falsifiable follow-up run 2026-07-30 (§5) —
+the original "probe too close to the orifice" hypothesis was tested
+directly and **refuted** (error grows, not shrinks, moving upstream, at
+every phase), and the data instead supports a genuine, quantitatively
+argued entrance-length limitation (the 5D pipe is ~2 orders of magnitude
+shorter than this Reynolds-number range needs to relax away from the flat
+inlet BC). This is a real, understood finding about what a short-pipe
+internal-flow case can be checked against with a closed-form
+fully-developed-flow solution, not a defect in the CFD. The reduced-order
+`valve_study.py` family should carry an explicit disclaimer, worded
+plainly as **β>0.75** (the ISO 5167 boundary already in the ROM's own
+citation, taken at face value) — the §6b disclaimer-boundary sweep (50°/55°,
+run 2026-07-30) does **not** support a gentler transition zone: the
+CFD-implied Cd is already ~2× the ROM's fixed value and the estimated
+cycle-weighted deviation is already of order −74% right at β=0.766, just
+past that edge, with no plateau of small error found anywhere in the
+0.766–0.906 range tested. Whether the ROM is trustworthy *inside* β≤0.75
+for this valve's specific (leaflet-derived, not flat-plate) orifice shape
+remains untested by any CFD point in this study and should not be assumed
+from the ISO citation alone.
 
 ## 8. References
 

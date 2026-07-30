@@ -266,14 +266,20 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
   (alpha=16.73, physiological) and +0.22% (alpha=8.36) of the value predicted
   by the CFD's own steady dp(Q) power-law map; direction of the gap is
   physically coherent across the two alpha values tested.
-- **Gate 2 (Womersley profile) — FAIL, cause identified:** 20–414% mean
-  absolute relative error vs. the closed-form Womersley (1955) solution at 8
-  phase/alpha combinations. Attributed to comparison-basis mismatch (probe
-  station 2 diameters upstream of a weak, 81%-open restriction, so
-  convective acceleration flattens the CFD profile relative to the theory's
-  undisturbed-pipe assumption), not a solver defect — see
-  `NOT_PASSING_REGISTER.md` Group 4 and `F9_pulsatile_valve.md` §5 for the
-  full record and a cheap falsifiable follow-up.
+- **Gate 2 (Womersley profile) — FAIL; original cause tested 2026-07-30 and
+  REFUTED, replaced by a supported one:** 20–414% mean absolute relative
+  error vs. the closed-form Womersley (1955) solution at 8 phase/alpha
+  combinations. The original "probe too close to the orifice" hypothesis
+  was tested directly (3 new radial-profile stations added at 3D/4D/4.5D
+  upstream via a restart from `pulsatile_physio`'s t=1.8 checkpoint) and
+  refuted cleanly: error grows, not shrinks, moving upstream, monotonically
+  at every one of the 4 phases tested. Now attributed instead to an
+  entrance-length limitation — the 5-diameter upstream pipe is ~2 orders of
+  magnitude shorter than this case's peak-Re (~8388) laminar entrance
+  length (~420–500D) needs to relax away from the flat `uniformFixedValue`
+  inlet condition — not a solver defect, not the originally-guessed
+  orifice-proximity artifact. See `F9_pulsatile_valve.md` §5 for the full
+  record.
 - **Gate 3 (ROM deviation) — pre-registered prediction confirmed in direction
   and order of magnitude:** measured cycle-weighted CFD loss 110.71 Pa vs.
   the ROM's 1849.77 Pa, **−94.0%**. Predicted ("far below... order 150–250 Pa")
@@ -281,20 +287,30 @@ Full record: `demo-output/website/campaign/F5a_cylinder_reynolds_ladder.md`.
   ISO-5167 sharp-orifice constant calibrated for beta ≤ 0.75; this geometry's
   beta=0.906 is outside that range, and the CFD's own independently measured
   discharge coefficient (1.91–1.95 across a 4× flow sweep) confirms the real
-  value is over 3× the ROM's assumption.
-- **Verdict:** **GATE REACHED, mixed (2 PASS / 1 FAIL-with-cause).** Not a
-  clean sweep, reported as such. Total compute for the whole gated family:
-  ~51.6 core-minutes (~0.86 core-hours), single core — corrected 2026-07-30
-  from a prior "well under 35 core-minutes" claim that undercounted the 4
-  steady runs (measured 2.2–8.0 min each, not sub-minute); see
-  `F9_pulsatile_valve.md` §7 for the raw `ExecutionTime` breakdown. Gate
-  verdicts and the ROM-deviation finding are unaffected — independently
-  re-derived from raw probe data during the same verification pass.
+  value is over 3× the ROM's assumption. **Disclaimer-boundary sweep
+  (2026-07-30):** 2 more points at 50°/55° (beta=0.766/0.819) show the ROM's
+  error is already large (Cd_cfd ~2× the ROM's 0.62, estimated deviation
+  ~−74%) right at the edge of its own calibrated range, not a gentle
+  transition — no CFD point in this study has tested beta≤0.75, so this
+  does not confirm the ROM is accurate inside its calibration range,
+  only that it is already substantially wrong just outside it. See
+  `F9_pulsatile_valve.md` §6b.
+- **Verdict:** **GATE REACHED, mixed (2 PASS / 1 FAIL-with-cause-understood).**
+  Not a clean sweep, reported as such. Total compute, all F9 work to date:
+  ~80.9 core-minutes (~1.35 core-hours), single core throughout — corrected
+  2026-07-30 from a prior "well under 35 core-minutes" claim that
+  undercounted the original 4 steady runs (measured 2.2–8.0 min each, not
+  sub-minute); see `F9_pulsatile_valve.md` §7 for the raw `ExecutionTime`
+  breakdown. Original gate verdicts and the ROM-deviation finding were
+  independently re-derived from raw probe data and matched to within
+  numerical noise before any of the above follow-up work was done.
 - **Shipped:** No — a gate with a documented FAIL component does not go in
   the control room per the owner's promotional-surface rule; it lives in
   the evidence record (`F9_pulsatile_valve.md`, `NOT_PASSING_REGISTER.md`).
 - **Full record:** `demo-output/website/campaign/F9_pulsatile_valve.md`,
-  `F9_pulsatile_valve.json`, `F9_work/f9_analysis.json`.
+  `F9_pulsatile_valve.json`, `F9_work/f9_analysis.json`,
+  `F9_work/womersley_followup_results.json`,
+  `F9_work/beta_boundary_results.json`.
 
 ---
 

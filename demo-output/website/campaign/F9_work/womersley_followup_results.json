@@ -1,0 +1,106 @@
+{
+  "2D_upstream (original)": [
+    {
+      "t_over_T": 0.0,
+      "cfd_flatness": 1.0207903196605088,
+      "analytic_flatness": 1.386595903898253,
+      "mean_abs_rel_error": 0.3161598262104464
+    },
+    {
+      "t_over_T": 0.25,
+      "cfd_flatness": 0.9993286246088228,
+      "analytic_flatness": 1.2156016246187231,
+      "mean_abs_rel_error": 0.19995096615076496
+    },
+    {
+      "t_over_T": 0.5,
+      "cfd_flatness": 1.0130980653439554,
+      "analytic_flatness": 1.3879616779775732,
+      "mean_abs_rel_error": 0.36909109967931175
+    },
+    {
+      "t_over_T": 0.75,
+      "cfd_flatness": 1.8177054288730536,
+      "analytic_flatness": 2.66092164363292,
+      "mean_abs_rel_error": 0.845517145868333
+    }
+  ],
+  "3D_upstream (new)": [
+    {
+      "t_over_T": 0.0,
+      "cfd_flatness": 1.0028822020152743,
+      "analytic_flatness": 1.386595903898253,
+      "mean_abs_rel_error": 0.34056776758857144
+    },
+    {
+      "t_over_T": 0.25,
+      "cfd_flatness": 0.9934902835408238,
+      "analytic_flatness": 1.2156016246187231,
+      "mean_abs_rel_error": 0.21407649997654307
+    },
+    {
+      "t_over_T": 0.5,
+      "cfd_flatness": 0.9990070790809695,
+      "analytic_flatness": 1.3879616779775732,
+      "mean_abs_rel_error": 0.39506124943489157
+    },
+    {
+      "t_over_T": 0.75,
+      "cfd_flatness": 1.7311794794816733,
+      "analytic_flatness": 2.66092164363292,
+      "mean_abs_rel_error": 0.8887290017070327
+    }
+  ],
+  "4D_upstream (new)": [
+    {
+      "t_over_T": 0.0,
+      "cfd_flatness": 0.9898256532643078,
+      "analytic_flatness": 1.386595903898253,
+      "mean_abs_rel_error": 0.35683537038771046
+    },
+    {
+      "t_over_T": 0.25,
+      "cfd_flatness": 0.99018272225769,
+      "analytic_flatness": 1.2156016246187231,
+      "mean_abs_rel_error": 0.2294805050105952
+    },
+    {
+      "t_over_T": 0.5,
+      "cfd_flatness": 0.9858786527872806,
+      "analytic_flatness": 1.3879616779775732,
+      "mean_abs_rel_error": 0.42387927601994646
+    },
+    {
+      "t_over_T": 0.75,
+      "cfd_flatness": 1.5218219714611334,
+      "analytic_flatness": 2.66092164363292,
+      "mean_abs_rel_error": 0.9402888094005738
+    }
+  ],
+  "4.5D_upstream (new)": [
+    {
+      "t_over_T": 0.0,
+      "cfd_flatness": 0.9849326558772742,
+      "analytic_flatness": 1.386595903898253,
+      "mean_abs_rel_error": 0.3666156116579932
+    },
+    {
+      "t_over_T": 0.25,
+      "cfd_flatness": 0.9890699582466904,
+      "analytic_flatness": 1.2156016246187231,
+      "mean_abs_rel_error": 0.2393782018194971
+    },
+    {
+      "t_over_T": 0.5,
+      "cfd_flatness": 0.9821694731611438,
+      "analytic_flatness": 1.3879616779775732,
+      "mean_abs_rel_error": 0.4389734161276184
+    },
+    {
+      "t_over_T": 0.75,
+      "cfd_flatness": 1.1656485921976212,
+      "analytic_flatness": 2.66092164363292,
+      "mean_abs_rel_error": 0.9714429297029445
+    }
+  ]
+}

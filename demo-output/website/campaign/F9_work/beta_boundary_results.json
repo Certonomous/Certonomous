@@ -1,0 +1,30 @@
+{
+  "50deg": {
+    "t_end": 1.2,
+    "dp_upstream_to_throat_Pa": 1499.6077920710138,
+    "dp_band_Pa": 5.762507679999771,
+    "dp_upstream_to_downstream_Pa": 2431.519253813988,
+    "flatness_relative_drift": 8.642258480660197e-05,
+    "angle_deg": 50.0,
+    "A_orifice": 0.00024381110709020056,
+    "area_ratio": 0.586824088833465,
+    "beta": 0.7660444431189779,
+    "Q_used": 0.0005,
+    "Cd_cfd": 1.2191737643874505,
+    "rom_cycle_weighted_loss_Pa_at_ROM_Cd0.62": 3624.1448195300727
+  },
+  "55deg": {
+    "t_end": 1.2,
+    "dp_upstream_to_throat_Pa": 908.9909250534629,
+    "dp_band_Pa": 3.735339299999964,
+    "dp_upstream_to_downstream_Pa": 1193.7167166664242,
+    "flatness_relative_drift": 0.0003992793846679273,
+    "angle_deg": 55.0,
+    "A_orifice": 0.00027878833121184037,
+    "area_ratio": 0.6710100716628344,
+    "beta": 0.8191520442889918,
+    "Q_used": 0.0005,
+    "Cd_cfd": 1.369473311766991,
+    "rom_cycle_weighted_loss_Pa_at_ROM_Cd0.62": 2771.809201302743
+  }
+}
