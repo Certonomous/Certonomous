@@ -11,6 +11,107 @@
 
 ---
 
+## Added 2026-07-30 — F6d: two negative results and a corrected attribution
+
+### The random-matrix probabilistic band is not tighter than the corner union it was meant to improve on
+
+- **What:** F6d (`campaign/F6d_random_matrix_uq.md`). The random-matrix /
+  maximum-entropy framework of Xiao, Wang & Ghanem (arXiv:1603.09656) was
+  implemented in full, verified against 15 of the paper's own stated properties
+  with 0 failures, and propagated on the F6b periodic hill (Re_H = 10595,
+  15,600 cells) at the paper's own small-dispersion setting δ = 0.2, 40 samples.
+  The thread's stated question was whether a genuine probability distribution
+  over realizable Reynolds stresses gives a *tighter* band than the deterministic
+  eigenspace corner union while still covering the truth.
+- **How it failed:** it does not. The 90% interval on reattachment spans
+  x/h **[3.845, 7.885]**, width **4.041**; the eigenspace corner union run on the
+  same case, from the same baseline, in the corner method's own live form spans
+  **[4.022, 4.819]**, width **0.797** — a factor of **5.1** narrower. Both contain
+  the LES reference 4.6-4.7. The ensemble's *mean* station-profile scaled MAE
+  (15.33%) is also **worse** than the unperturbed baseline's (12.52%); exactly one
+  of 38 members beats the baseline, by 1.2 percentage points against a measured
+  noise floor of 0.44.
+- **Root cause:** known and measured, not guessed. The two frameworks move the
+  Reynolds stress in different ways and by different amounts
+  (`barycentric_reach.json`): the corners make a large, spatially coherent,
+  k-preserving move (k-weighted barycentric displacement 0.70-0.79); the random
+  matrix at δ = 0.2 makes a small, spatially *incoherent*, k-perturbing one
+  (0.090). Incoherent perturbation of the shear layer has high leverage on
+  separation length without pointing the answer anywhere in particular.
+- **Caveat that keeps this honest:** none of the corner runs met a convergence
+  gate either (best 2.97e-4 on Ux, still ~600x the case's nominal target; the 3C
+  corner fragments outright). The corner union's apparent tightness is partly the
+  tightness of a two-point sample. And the two are propagated differently — the
+  corners with the turbulence model live, the random-matrix members with a
+  prescribed frozen stress per the paper. In the *same* prescribed mode the
+  corners are far worse behaved (5-9 reversed-flow regions, 77% profile error for
+  1C). The comparison is therefore indicative, not decisive.
+- **To resolve:** (a) run the corner union to a converged state on this case so
+  the comparison is between two validated envelopes; (b) run the random-matrix
+  ensemble in the corners' live-coupled mode to remove the propagation-mode
+  confound; (c) test whether a *spatially coherent* correlation length
+  (the paper's own l_x/H = 2, l_y/H = 1 were used unchanged) is what costs the
+  band its sharpness.
+- **Evidence:** `demo-output/website/campaign/F6d_random_matrix_uq.md` §6;
+  `demo-output/website/dafoam/f6d_random_matrix_uq/aggregate_result.json`,
+  `barycentric_reach.json`, `ens/`, `signdemo/`.
+
+### Convergence gating biases the band toward the wrong answer — a pre-registered risk, now measured
+
+- **What:** `F6a_epistemic_propagation.md` §9.2, written before any of this ran,
+  warned that dropping the hardest-to-converge Monte Carlo samples "biases the
+  resulting distribution toward the calm center and away from exactly the tail
+  behavior a model-form uncertainty estimate exists to capture."
+- **How it failed:** confirmed, with numbers. Of 38 admitted δ = 0.2 members, the
+  11 that miss a 1e-3 final-Ux-residual gate have **mean reattachment 5.342**; the
+  27 that pass have **6.727**. The LES truth is 4.6-4.7. The members a gate would
+  discard are systematically the ones closest to the truth. Gating moves the 5th
+  percentile from 3.845 to 4.686 and halves the probability mass at or below the
+  LES upper bound (15.8% -> 7.4%).
+- **Root cause:** known. Larger departures from the Boussinesq baseline are both
+  harder to converge and closer to the truth on this case, so convergence
+  difficulty is correlated with accuracy, not independent of it.
+- **To resolve:** nothing to fix — this is a property of the method that has to be
+  disclosed. F6d reports both the gated and ungated bands side by side and filters
+  nothing.
+- **Evidence:** `campaign/F6d_random_matrix_uq.md` §6.4;
+  `dafoam/f6d_random_matrix_uq/aggregate_result.json`.
+
+### Corrected — the 1C/2C/3C corner entry below was attributed to the method; it was an implementation sign error
+
+- **Correction this entry makes to the standing record:** the register entry
+  "1C/2C eigenvalue-perturbation corners — both literature-prescribed convergence
+  remedies tried, both failed" describes runs that were applying the eigenvalue
+  perturbation **with the opposite sign to the one intended**. All 18
+  `system/fvOptions` under `dafoam/f6a_epistemic_band/` end with
+  `eqn += fvc::div(deltaR)`, which in OpenFOAM makes the effective anisotropy
+  `b_eff = 2 b_Bouss - b_pert`. On F6a's own hump mesh this hands **95.93% of
+  51,626 cells** a Reynolds stress with a negative eigenvalue.
+- **Primary evidence for the crash-adjacent claim, per L-22:** the affected run's
+  own log. `demo-output/website/solve_registry/uq_oneC_20260729T023701Z.log`
+  contains `limitVelocity limitVelocity1 Limited 24864 (48.16%) of cells, 76
+  (10.78%) of faces, with max limit 70`. The identical case with one character
+  changed (`eqn -=`) logs `Limited 0 (0%) of cells`
+  (`dafoam/f6d_random_matrix_uq/f6a_recheck/corrected_oneC/log.simpleFoam`).
+- **What survives:** the failure itself. All three corners re-run with the
+  corrected sign on the same case, mesh, schemes and restart field still return
+  `NOT_CONVERGED` from `scripts/check_convergence.py` at the 3,800-iteration cap
+  (Ux initial residual plateaus 7.08e-3 / 1.05e-3 / 2.85e-3). The corners remain
+  unreachable on the hump within that budget.
+- **What does not:** the reported corner values (1C 0.5278, 2C 0.6701, 3C 1.1069),
+  the reduced envelope [1.1069, 1.3077], and the diagnosis that the failure is a
+  property of the target perturbed state.
+- **New and explicitly not gate-passing:** with the corrected sign the hump's 1C
+  and 2C corners give reattachment x/c 1.0409 and 1.1085, bracketing the NASA
+  experimental 1.100, with the velocity limiter completely inactive. Neither run
+  converged. Recorded as motivation to reopen the corner attempt, not as a band.
+- **Evidence:** `campaign/F6d_random_matrix_uq.md` §4;
+  `campaign/F6a_epistemic_propagation.md` §10;
+  `dafoam/f6d_random_matrix_uq/{signcheck,signdemo,f6a_recheck}/`,
+  `realizability_of_flipped_corner.json`.
+
+---
+
 ## What moved on 2026-07-29 evening, after this register was compiled
 
 The register below is kept as compiled. This section records what changed in the

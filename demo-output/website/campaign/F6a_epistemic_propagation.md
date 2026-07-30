@@ -637,3 +637,143 @@ all, F6b is the properly-scoped first target: a geometry class the
 method's own authors validated it on, not a second attempt on the one
 case this project has now shown breaks two different UQ machineries in
 two different ways. Brought here for a decision, not started.
+
+---
+
+## 10. 2026-07-30, later still: the corner runs behind §§2-8 were applying the perturbation with the wrong sign — correction, with the numbers that survive and the numbers that do not
+
+Found while building the random-matrix framework §9 scoped, not while looking
+for it. Full record, evidence and reproduction: **`F6d_random_matrix_uq.md` §4**.
+This section states only what it changes here.
+
+### 10.1 The finding
+
+Every `system/fvOptions` under `demo-output/website/dafoam/f6a_epistemic_band/`
+(18 dictionaries; `grep -rl "eqn += fvc::div(deltaR)" --include=fvOptions` →
+18, and zero use `-=`) ends its `codeAddSup` with
+
+```
+eqn += fvc::div(deltaR);        deltaR = blendDelta * 2k (bPert - bB)
+```
+
+In OpenFOAM an fvOption's `eqn += X` places **+X on the right-hand side** of the
+momentum equation, and simpleFoam's `divDevReff(U) = -div(2 nuEff symm(grad U))`
+already carries the modelled stress on the left. The effective deviatoric
+Reynolds stress is therefore `R_eff = R_model - deltaR`, so
+
+```
+b_eff = 2 b_B - b_pert       i.e.    b_eff - b_B = -(b_pert - b_B)
+```
+
+**the perturbation is applied backwards.** Established four independent ways —
+the OpenFOAM v2606 sources (`fvMatrix.C:1682`, `meanVelocityForce.C:209`,
+`simpleFoam/UEqn.H:9,11`, `linearViscousStress.C:107-117`); a controlled
+four-run solver experiment that discriminates the two hypotheses by the driving
+pressure gradient (`f6d_random_matrix_uq/signcheck/`, agreement 0.055% and
+0.016%); a one-character A/B replication; and a realizability audit.
+
+### 10.2 What it did to these runs, measured on this case's own mesh
+
+Fraction of the hump's 51,626 cells handed a Reynolds stress with a negative
+eigenvalue — i.e. one no velocity field can have — computed on this case's own
+converged baseline field (`r4_band_tightening_hump/oneC_delta0.00/1795/`):
+
+| corner | intended `b_pert` | actual, with `eqn +=` |
+| --- | --- | --- |
+| 1C | 0.90% (inherited from the baseline itself) | **95.93%** |
+| 2C | 0.13% | 0.23% |
+| 3C | 0.00% | 4.33% |
+
+And the corresponding solver behaviour, from the runs' own logs:
+`uq_oneC_20260729T023701Z.log` reports
+`limitVelocity limitVelocity1 Limited 24864 (48.16%) of cells`, while the same
+case with the sign corrected reports `Limited 0 (0%) of cells`.
+
+That is the mechanism behind everything §8 characterised as an intrinsic
+property of the target state: half the mesh was being velocity-clipped because
+it was being fed a non-realizable stress. Note also that this explains the
+otherwise odd corner-dependence §8 puzzled over — with the flipped sign, 3C
+becomes merely "double the baseline anisotropy" (mild, 4.33% non-realizable,
+and it converged), while 1C becomes a reflection far outside the barycentric
+triangle (96% non-realizable, and it never converged).
+
+### 10.3 What survives
+
+**§8's headline negative result stands.** Re-running all three corners on this
+case, this mesh, these schemes, from this converged baseline, changing nothing
+but the sign (`f6d_random_matrix_uq/f6a_recheck/`), still returns
+`NOT_CONVERGED` from `scripts/check_convergence.py` at the 3,800-iteration cap,
+with Ux initial residuals plateauing at 7.08e-3 (1C), 1.05e-3 (2C), 2.85e-3
+(3C). **The corners are still not reachable on this case within this budget.**
+
+**§1's reading of the literature stands** — it is about what the papers say, and
+nothing here touches that.
+
+**Channel 1 stands.** The four-model spread that actually carries
+`F6a_epistemic_band.md`'s published band contains no eigenvalue perturbation at
+all.
+
+### 10.4 What does not survive
+
+1. **The channel-3 numbers.** 1C 0.5278, 2C 0.6701, 3C 1.1069 are not the
+   1C/2C/3C corner states. They are the states `2 b_B - b_pert`.
+2. **§4's reduced envelope [1.1069, 1.3077]**, labelled in this document as
+   "the single most important number in this document." Its lower edge is the
+   3C run above; its upper edge is the Δ=0.05 point of a sweep that swept the
+   flipped direction. The interval is withdrawn. The observation it supported —
+   that channel 3 alone does not bound the experiment — is **not** re-established
+   by anything here and must be treated as open.
+3. **§5's local-sensitivity claim** that "pushing in the 1C direction initially
+   makes the over-prediction worse." The Δ=0.05 point was pushing in the
+   *opposite* direction, so the measured slope has the wrong sign attached to it.
+4. **§8's diagnosis** that 1C's plateau is "a property of the target perturbed
+   state itself on this mesh." The target state actually imposed was
+   non-realizable in 96% of cells. §8's two levers (restart-from-converged,
+   gradual ramp) were also tested against that same wrong target, so their
+   failure says nothing about the intended corners.
+5. **§9.2's verdict** that the random-matrix route "plausibly inherits a
+   statistical version of the same wall" on the hump. It was reasoned from the
+   flipped-sign Δ sweep. It has since been tested directly on F6b instead:
+   38 of 40 samples produced a usable solution (`F6d_random_matrix_uq.md` §6.1),
+   so the feared wholesale sample loss did not occur there. **§9.2's other
+   prediction — that gating out the hard samples biases the distribution toward
+   the calm centre — was confirmed and is now a measured number**
+   (`F6d_random_matrix_uq.md` §6.4).
+
+### 10.4b What this does NOT touch: the published band and the ACT
+
+Traced case by case rather than reasoned from prose, because the shoot script
+depends on it. `F6a_epistemic_band.md`'s published band `[1.0717, 1.2534]` has
+its lower edge in `channel1_rans_sweep/kOmega` and its upper edge in the
+kOmegaSST baseline. Neither is perturbed: the four `channel1_rans_sweep/*/system/fvOptions`
+are the only four `fvOptions` under `f6a_epistemic_band/` that do **not** contain
+`deltaR`, and each holds a single `limitVelocity1` entry and nothing else. The
+one gate-met channel-3 point, `threeC` at 1.1069, lies strictly inside the band
+and sets neither endpoint. **The band is a pure turbulence-model-comparison
+result and is unaffected by the sign error.**
+
+The `nasa-hump` ACT is likewise unaffected. Its "Reattachment model-form band
+±20%" is a constant in the workflow — `sdk/workflows/nasa_hump.py:50`,
+`REATTACHMENT_MODEL_BAND = 0.20` — justified in the transcript itself by the
+documented fact that a linear eddy-viscosity closure over-predicts this bubble,
+and independently corroborated by NASA's own SST CFD landing at 1.25–1.27
+(`F6_closure_aligned_flows.md`). It does not trace to this family's
+eigenvalue-perturbation work in any way.
+
+The one channel-3 number with public exposure is `threeC`'s **1.1069**, quoted
+on `D9_TALKING_POINTS.md` and `benchmarks.html` as "closest single check to the
+experiment". The value and its +0.63% offset are real and gate-met; what is
+withdrawn is the description of that run as the isotropic-limit corner. It
+imposed `b_eff = 2 b_Bouss`. See `F6a_epistemic_band.md` for the full
+public-surface audit table.
+
+### 10.5 The new, non-gate-passing observation this correction produces
+
+With the sign corrected, the hump's 1C and 2C corners give reattachment
+x/c **1.0409** and **1.1085**, bracketing the NASA experimental **1.100** from
+below and above (−5.4%, +0.8%), with the velocity limiter completely inactive
+and a clean single-bubble wall trace where the recorded runs had 230+ noise
+crossings. **These are not gate-passing numbers and must not be quoted as a
+band.** They are recorded as the reason a fourth corner-convergence attempt —
+which §8 explicitly closed the door on — is now worth reopening, because the
+three attempts §8 counted were never running the method.

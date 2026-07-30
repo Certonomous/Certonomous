@@ -43,7 +43,38 @@ before the run.
 | That same channel before the unconverged model was finished | 1.1299 to 1.2534, missed it |
 | Full band, every run that met its convergence standard | 1.0722 to 1.2534, contains the experiment |
 | The same band as first published | 0.5278 to 1.2534, withdrawn: two of its runs never converged |
-| Closest single check to the experiment | 1.1069, +0.63% |
+| ~~Closest single check to the experiment~~ | ~~1.1069, +0.63%~~ — **see the correction below before saying this on camera** |
+
+## Correction, 2026-07-30 — one row above needs care, the rest is clear
+
+Checked against the case directories that produced each number, not against the
+prose. Full audit: `F6a_epistemic_band.md`, "Public-surface audit"; the
+underlying finding: `F6d_random_matrix_uq.md` §4.
+
+**Every band in the table above is safe.** The bands are built from turbulence-model
+comparison runs (`dafoam/f6a_epistemic_band/channel1_rans_sweep/`) and the
+kOmegaSST baseline. Those cases carry no uncertainty perturbation at all — their
+`fvOptions` contain a velocity limiter and nothing else. All the spoken beats
+above are supported.
+
+**One row is not safe to gloss.** "Closest single check to the experiment,
+1.1069" comes from a *different* kind of run: an eigenvalue-perturbation corner
+(`channel3_eigenvalue_perturbation/threeC`). That run was later found to have
+applied its perturbation with the wrong sign, so it imposed twice the baseline
+turbulence anisotropy rather than the isotropic limit it was labelled as. The
+run is genuinely converged and 1.1069 is genuinely +0.63% from the experiment —
+but it is no longer an example of the uncertainty machinery landing near the
+truth, because it was not running the perturbation it was supposed to.
+
+**On camera: drop the row.** If a "closest single check" number is wanted, use
+the k-epsilon model at **1.1437, +3.97%** — a plain turbulence-model run from
+the same converged set, with nothing withdrawn about it. Do **not** say "our
+uncertainty perturbation landed within 0.63% of the experiment."
+
+**One more, minor.** The kOmega lower edge is quoted above as 1.0722, which was
+an ungated snapshot. The value from the run that actually met the convergence
+gate is **1.0717** (−2.57%). Both bands still contain 1.100; if the number is
+read out, read 1.0717.
 
 ## Ambition for what comes next
 

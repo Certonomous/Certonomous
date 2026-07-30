@@ -1155,3 +1155,202 @@ when the same solves were re-measured with a depth-integrated front metric
 instead of a fixed-α line probe. The first reversed sign; the second reversed
 sign. Sweep the metric's own free parameter and report the spread alongside the
 number, as `F7_runs/front_metrics.py` now does.
+
+---
+
+## L-26. A source term's sign must be established by a controlled experiment with a known answer, not by reading the code — and a comment is not evidence
+
+**What happened.** F6a's channel 3 injected an eigenvalue-perturbed Reynolds
+stress into `simpleFoam` through a coded `fvOptions` source. Each of the 18
+`system/fvOptions` dictionaries under
+`demo-output/website/dafoam/f6a_epistemic_band/` built
+`deltaR = blendDelta*2k(bPert - bB)`, stated in its own comment that "the
+momentum forcing is deltaR = 2k(bBlend - bBoussinesq)", and then ended with
+
+```
+eqn += fvc::div(deltaR);
+```
+
+In OpenFOAM, `fvMatrix::operator+=` on an explicit field does `source() -= V*su`
+(`fvMatrix.C:1682`), which puts `+deltaR` on the **right-hand side** of an
+equation whose left-hand side already carries the modelled stress via
+`divDevReff`. The effective deviatoric stress is therefore `R_model - deltaR`,
+so the imposed anisotropy was `b_eff = 2 b_Bouss - b_pert` — **the intended
+perturbation applied backwards**, a reflection of the target state through the
+baseline. Zero of the 18 dictionaries used `-=`.
+
+It survived a full study. The 1C corner as actually applied handed **95.93% of
+the hump's 51,626 cells** a Reynolds stress with a negative eigenvalue — a
+stress no velocity field can have — and the solver said so, in the run's own
+log: `limitVelocity limitVelocity1 Limited 24864 (48.16%) of cells`
+(`solve_registry/uq_oneC_20260729T023701Z.log`). That line was read as evidence
+about the *physics* of the 1C corner ("a property of the target perturbed state
+itself on this mesh") and became a published diagnosis. With one character
+changed the same case logs `Limited 0 (0%) of cells`. The `threeC` corner
+(`eLambda = (0,0,0)`) converged cleanly and produced 1.1069, +0.63% from the
+NASA experiment — the study's most-quoted single number — while actually
+imposing *twice* the baseline anisotropy rather than the isotropic limit. A
+wrong sign that happens to converge is far more dangerous than one that crashes.
+
+**Why nobody caught it.** Every check that was run was a *reading* check: the
+comment agreed with the intent, the algebra in the record agreed with the
+comment, and the code matched the algebra. Nothing tested the operator against
+an outcome known in advance. The one signal that did fire — half the mesh being
+velocity-clipped — was attributed to the physics being probed rather than to
+the instrument probing it (this is L-22's failure mode, reached from a new
+direction).
+
+**The rule.** Before any coded source term, immersed forcing, or hand-assembled
+`fvOption` is used to produce a result, verify its sign with a **controlled run
+whose answer is known independently of the term being tested**. The pattern that
+worked here (`f6d_random_matrix_uq/signcheck/`): construct a case where the
+source is exactly equivalent to a parameter the solver already has, run the
+reference *without any coded source at all*, and check the two collapse onto
+each other.
+
+- Laminar periodic-hill flow at Re = 100, `meanVelocityForce` holding
+  Ubar = 0.72, discriminated by the driving pressure gradient the solver must
+  find. `ref_nu1` (ν₀, no source) → 0.01541756. `src_minus`
+  (2ν₀ with `deltaR = -2ν₀S`) → 0.01542612, agreeing to **0.055%**.
+  `ref_nu3` (3ν₀, no source) → 0.03802645. `src_plus` (2ν₀ with
+  `deltaR = +2ν₀S`) → 0.03802046, agreeing to **0.016%**. Only
+  `R_eff = R_model - deltaR` produces that pairing, and the two reference runs
+  carry no coded source, so the comparison needs no interpretation of physics.
+- **Make the test discriminating first.** The first attempt at this, at Re = 10,
+  was non-discriminating and had to be discarded: in the Stokes limit the
+  velocity field is independent of viscosity, so all four runs agree by
+  construction and both hypotheses "pass". A control that cannot distinguish the
+  two answers is not a control — this is L-25 in a new setting.
+
+**Two corollaries.**
+
+1. **A code comment is a claim, not evidence.** The comment here was right about
+   the intent and useless about the effect, and it survived 18 copies because
+   copying a dictionary copies its reassurance along with its bug. Grep the
+   count (`grep -rl "eqn += " --include=fvOptions`) and treat "18 files agree"
+   as one fact, not eighteen.
+2. **Add a realizability audit to any Reynolds-stress perturbation.** Whatever
+   stress a closure-perturbation method imposes must be positive semi-definite
+   cell by cell; it is a three-line eigenvalue check on the field the solver is
+   actually handed, it costs nothing, and it would have caught this instantly
+   (`f6d_random_matrix_uq/realizability_of_flipped_corner.py`). "Fraction of
+   cells with a negative eigenvalue" belongs next to the residual in the gate
+   record for every such run.
+
+**What it cost, and what it did not.** The corrected-sign re-runs still return
+`NOT_CONVERGED` for all three hump corners at the same budget, so F6a's headline
+negative result — the corners are not reachable on that case within budget —
+**stands**. What was lost is the numbers and the mechanism: three published
+corner values, a "single most important number" envelope, a local-sensitivity
+slope with the wrong sign attached, and a diagnosis of *why* the corners fail.
+Full record: `demo-output/website/campaign/F6d_random_matrix_uq.md` §4,
+`F6a_epistemic_propagation.md` §10, `F6a_epistemic_band.md` (end).
+
+---
+
+## L-27. A gate run outside the batch ledger must retain its own artifact — and its absence from the ledger is not evidence it never happened
+
+**What happened.** F2's headline validation number (transonic NACA0012,
+M=0.8/alpha=1.25 deg/Re=6e6: Cd=0.0432, Cl=0.109, suction-side shock at
+x/c=0.556) was published in `PHYSICS_FAMILIES.md` and `CAMPAIGN_STATUS.md`
+and could not be located afterwards by anyone who went looking. A survey
+scanned all 280 `rhosimplefoam-naca0012-transonic` entries in
+`demo-output/website/mega-batch/ledger.jsonl` and found no run at those
+conditions and no run pairing that Cd with that Cl — both true — and
+concluded the numbers traced to nothing and had to be withdrawn.
+
+They traced to a real run. The primary case was a *pre-batch validation-gate
+solve*, never a batch sample, so it was never going to appear in the batch
+ledger. Its own commit says so: `6cc7f629` (2026-07-28 05:25:35 +0000)
+records the gate result in its message and, two paragraphs later, records
+why nothing survived — "Both families were tested end-to-end through
+`mega_batch.run_task` **against a scratch ledger** before this commit." The
+scratch ledger was thrown away and `mega-batch/work/transonic-naca0012/` was
+left empty. Re-running the case from the unmodified module reproduced every
+published digit: Cd 0.0431920118, Cd spread 0.00093281, Cl 0.109011072,
+shock 0.55607646, solver 33.7 s against the recorded 33.8 s — and the
+documented secondary case reproduced too.
+
+**Two failures, pointing opposite ways, and both are the lesson.**
+
+*The record's failure.* A published gate number whose artifact has been
+discarded is not a result, it is a memory. It survived only because a commit
+message happened to repeat it. Nobody could check it, and for two days the
+lab could not tell a real measurement from a fabricated one by inspection —
+which is precisely the state L-22 warns about. **If a run decides a gate, its
+log, its coefficient file and its case dictionaries get retained under the
+campaign, not left in scratch.** Cost here: 34 seconds of compute, against
+two days of unverifiable headline.
+
+*The audit's failure.* "I searched the ledger and it is not there" is
+evidence about the ledger, not about the world. Before concluding a number is
+untraceable, establish *what kind of artifact it should have been* — batch
+sample, dedicated validation solve, re-analysis of an existing field — and
+search for that. The survey did correct arithmetic on the wrong corpus and
+drew a conclusion (fabrication) far stronger than its evidence (absence from
+one index) could carry. The same audit also reported that the record
+"describes F2 as transonic RAE2822"; every record in the repo titles it
+NACA0012 and openly documents why RAE2822 was *not* used. It read a
+disclosure as a claim.
+
+**Why this sits next to L-22 rather than under it.** L-22 is a real
+phenomenon attached to the wrong case. This is the mirror: a real absence
+attached to the wrong conclusion. Both are failures of *provenance
+reasoning* rather than of measurement, and both are fixed by the same move —
+go to the artifact the claim should have, and if there isn't one, say
+"unverifiable," which is a different and much weaker word than "false."
+
+**The rule.** Retain the primary artifact for anything that decides a gate,
+including work done outside the batch machinery. When a number cannot be
+found, report it as *unreconstructible* and try to reproduce it before
+reporting it as *unsupported* — deterministic cases are usually cheap, and a
+reproduction converts an accusation into evidence either way.
+
+---
+
+## L-28. A detector that snaps to mesh nodes cannot report a deviation smaller than its own increment
+
+**What happened.** F2's transonic gate claimed the CFD shock at x/c=0.556 sat
+"+0.044 chord upstream of the inviscid reference at x/c ~ 0.60," and read that
+displacement as the expected viscous shock/boundary-layer shift — the
+physically right story, told by a number that could not carry it.
+`transonic_airfoil.shock_location` walks consecutive sampled surface points,
+picks the pair with the steepest positive dCp/dx, and returns **the midpoint
+of that pair**. The sample points are airfoil-patch face centres, fixed by the
+mesh. Only 21 of them fall inside the detector's [0.05, 0.95] window on this
+3584-cell rung, so the reported shock position can take at most 20 values on
+the whole upper surface — and across 280 solves at 280 different flow
+conditions it emitted exactly **8 distinct numbers**.
+
+The arithmetic that kills the claim is one line. The pitch between 0.55607646
+and the next representable value, 0.608440365, is **0.052364 chord**. The
+claimed deviation is **0.043924 chord**. The detector cannot express it: the
+only readings available are "0 increments" and "1 increment." Worse, the
+adjacent value sits 0.0084 from the reference — *on* it — so the two competing
+physical stories are neighbouring lattice levels, and 11 of the 18 ledger runs
+in the same M/alpha neighbourhood report the neighbour rather than the value
+the gate was written around. The reference itself was a two-significant-figure
+literature recollection with no retained dataset, which alone forbids
+asserting a third decimal place against it.
+
+**The tell, and it is visible without reading any code.** A continuous
+physical quantity that returns a small number of distinct values across a
+large number of varied runs is quantised, not converged. Eight values from 280
+solves should stop the reader before any deviation is computed. Count the
+distinct values in the column before you subtract two of them.
+
+**Why this is not just L-14/L-16 again.** Those are about trusting a derived
+signal over the primary one. This is about a signal whose *resolution* was
+never stated — the number was read correctly off the right field and still
+could not support the sentence built on it. It is the same species as the F7a
+metric artifact retracted the same day: a measurement artifact wearing the
+costume of a physical effect, and it flatters the lab, which is exactly when
+it is least likely to be questioned.
+
+**The rule.** State a detector's resolution in the record next to every number
+it produces, and never claim a difference below one increment. When a banded
+pass turns on a single quantisation level — as F2's did; the adjacent
+representable value falls *outside* the stated 0.35–0.60 band — say so, and
+grade the result "not contradicted" rather than "demonstrated." If the
+deviation genuinely matters, the fix is a sub-cell fit to the peak or a finer
+discretisation, not a more confident sentence.

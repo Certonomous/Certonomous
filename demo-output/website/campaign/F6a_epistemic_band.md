@@ -1,5 +1,27 @@
 # D9 / F6a — model-form uncertainty band on the NASA wall-mounted hump
 
+> **2026-07-30, latest and most severe. READ THIS BEFORE ANY CHANNEL-3 NUMBER
+> IN THIS FILE.** Every channel-3 run in this study applied the eigenvalue
+> perturbation **with the opposite sign to the one intended**, so the state
+> actually imposed was `b_eff = 2 b_Bouss − b_pert`, not `b_pert`. The
+> channel-3 entries `oneC 0.5278`, `twoC 0.6701` and `threeC 1.1069` are
+> **withdrawn as corner states**. They are still real solver output — `threeC`
+> in particular is still a genuinely converged solve — but `threeC` imposed
+> *twice the baseline Boussinesq anisotropy*, not the isotropic limit, so it is
+> not the 3C corner and the physical reading built on it does not hold. The
+> full correction, with what survives and what does not, is at the end of this
+> file: **"2026-07-30, later: CORRECTION — channel 3's runs applied the
+> eigenvalue perturbation with the wrong sign."** Evidence and reproduction:
+> `F6d_random_matrix_uq.md` §4; consequence analysis:
+> `F6a_epistemic_propagation.md` §10.
+>
+> **What this file publishes is NOT affected.** The band `[1.0717, 1.2534]` is
+> a channel-1 result — four independent closure models plus the kOmegaSST
+> baseline — and contains no eigenvalue perturbation anywhere. Its lower edge
+> is kOmega and its upper edge is the baseline. `threeC`'s 1.1069 sits in the
+> interior and sets neither endpoint. Every convergence verdict in this file
+> also stands.
+
 > **2026-07-30. Propagation, not just bounding, addressed separately.**
 > `F6a_epistemic_propagation.md` asks whether the published eigenspace-
 > perturbation theory lets this study go from the band below to a
@@ -123,6 +145,13 @@ matters more than the pass.**
 are not measurements of a converged flow feature — see "2026-07-29, later:
 the channel-3 corners were never gate-checked" at the end of this file
 before using them for anything.
+
+**All three C3 rows are additionally WITHDRAWN AS CORNER STATES (2026-07-30,
+sign error).** They are the states `2 b_Bouss − b_pert`, not `b_pert`. See the
+blockquote at the top of this file and the correction at the end. The C1 rows
+and the baseline row are unaffected — those cases carry no perturbation at all,
+their `system/fvOptions` containing only a `limitVelocity` entry
+(`dafoam/f6a_epistemic_band/channel1_rans_sweep/*/system/fvOptions`).
 
 **Band across all completed runs: [0.5278, 1.2534] — AS PREVIOUSLY STATED,
 BUT THE LOWER EDGE IS NOT A CONVERGED NUMBER.** Experiment 1.100 lies
@@ -860,6 +889,25 @@ artifact present in every case in this family), sep 0.6589 / reattach
 1.1069. This number — publicly quoted as the closest single check to the
 experiment — is solid.
 
+> **SUPERSEDED IN PART, 2026-07-30 (sign error).** The convergence verdict
+> above stands: `uq_threeC_20260729T023709Z.log` really does print `SIMPLE
+> solution converged in 2948 iterations` and every Initial residual really is
+> under gate. **What does not stand is what this run was.** Its
+> `system/fvOptions` sets `eLambda = (0,0,0)` for `threeC`, so
+> `deltaR = 2k(0 − b_B) = −2k b_B`, and because the dictionary ends with
+> `eqn += fvc::div(deltaR)` the effective stress is `R_model − deltaR`, i.e.
+> `b_eff = 2 b_B`. **This run imposed twice the baseline Boussinesq anisotropy,
+> not the isotropic limit.** So 1.1069 is a converged reattachment value from a
+> perturbed hump solve, and it is still arithmetically the closest gate-met
+> number in this study to the experimental 1.100 (+0.63%, against kEpsilon's
+> +3.97% and kOmega's −2.57%) — but it is **not** "the isotropic-limit
+> perturbation landing 0.63% from the experiment", and it must not be described
+> that way on any surface. **`D9_TALKING_POINTS.md` and `benchmarks.html` both
+> carry a row reading "Closest single check to the experiment | 1.1069,
+> +0.63%".** The figure is not wrong; any spoken gloss attributing it to the
+> uncertainty machinery's corner projection now is. See the correction at the
+> end of this file and `F6d_random_matrix_uq.md` §4.
+
 ### What this means for the flagship claim
 
 The band `[0.5278, 1.2534]` reported as "CONTAINS" the +13.95% experimental
@@ -1145,3 +1193,67 @@ for on the original mesh — it stays that way under 4× refinement, on a
 run whose reattachment region is actively unable to settle. The asymmetry
 is mesh-independent; the failure to converge is not evenly distributed
 across the flow, it is concentrated entirely downstream of separation.
+
+---
+
+## 2026-07-30, later: CORRECTION — channel 3's runs applied the eigenvalue perturbation with the wrong sign
+
+Full record and reproduction: **`F6d_random_matrix_uq.md` §4**. Detailed
+consequence analysis for this family: **`F6a_epistemic_propagation.md` §10**.
+Stated here so no reader of this file reaches channel 3's numbers without it.
+
+**What was found.** All 18 `system/fvOptions` dictionaries under
+`demo-output/website/dafoam/f6a_epistemic_band/` end their `codeAddSup` with
+`eqn += fvc::div(deltaR)` where `deltaR = blendDelta*2k(bPert - bB)`. In
+OpenFOAM that operator puts `+deltaR` on the right-hand side of the momentum
+equation, so the effective deviatoric Reynolds stress is `R_model - deltaR`,
+i.e. the imposed anisotropy is `b_eff = 2 b_B - b_pert` — the intended
+perturbation **applied backwards**. Established by the OpenFOAM v2606 sources,
+by a controlled four-run experiment (`f6d_random_matrix_uq/signcheck/`), by a
+one-character A/B replication, and by a realizability audit on this case's own
+converged baseline field, which finds that the 1C corner as actually applied
+hands **95.93% of this mesh's 51,626 cells** a Reynolds stress with a negative
+eigenvalue. The runs' own logs corroborate:
+`uq_oneC_20260729T023701Z.log` →
+`limitVelocity limitVelocity1 Limited 24864 (48.16%) of cells`; the same case
+with the sign corrected → `Limited 0 (0%) of cells`.
+
+**Withdrawn.** The channel-3 entries in this file's main table — `oneC (Δ=1)
+0.5278`, `twoC (Δ=1) 0.6701`, `threeC (Δ=1) 1.1069` — are not the 1C/2C/3C
+corner states and are withdrawn as such. So is the whole `r4` Δ-moderation
+sweep's interpretation as a sweep "toward the 1C corner": it swept away from
+it. The finding that the sweep fragments and stops converging is unaffected as
+an observation; its attribution to the 1C direction is not.
+
+**Not withdrawn.** The band this file actually publishes, **[1.0717, 1.2534]**,
+is a channel-1 result — four independent closure models plus the kOmegaSST
+baseline — and contains no eigenvalue perturbation anywhere. It is unaffected.
+So is every convergence verdict, every gate check, and the finding that the
+corners are not reachable on this case within a 3,800-iteration budget: that
+was re-tested with the corrected sign and still returns `NOT_CONVERGED` for all
+three corners (`f6d_random_matrix_uq/f6a_recheck/`).
+
+**New, and explicitly not gate-passing.** With the sign corrected the hump's
+1C and 2C corners give reattachment x/c **1.0409** and **1.1085**, bracketing
+the NASA experimental 1.100. Neither run met its convergence gate. They are
+recorded as motivation for a further attempt, not as a band.
+
+**Public-surface audit, done rather than deferred.** Every number this project
+publishes on the hump was traced back to the case directory that produced it:
+
+| published number | producing case | perturbed? | status |
+| --- | --- | --- | --- |
+| baseline 1.2534 | kOmegaSST baseline solve (also `mission-output/nasa-hump`) | no | unaffected |
+| "four turbulence models only" **1.0722 to 1.2503** | `channel1_rans_sweep/{kOmega,realizableKE}` | no — `fvOptions` holds only `limitVelocity1` | unaffected |
+| "full band, every run that met its convergence standard" **1.0722 to 1.2534** | lower edge `channel1_rans_sweep/kOmega`, upper edge the kOmegaSST baseline | no | **endpoints unaffected**; the gate-met channel-3 point (`threeC`, 1.1069) lies in the interior and sets neither edge |
+| "the same band as first published" **0.5278 to 1.2534**, withdrawn | `channel3_eigenvalue_perturbation/oneC` | **yes** | already withdrawn for non-convergence; now withdrawn for a second, independent reason |
+| "closest single check to the experiment" **1.1069, +0.63%** | `channel3_eigenvalue_perturbation/threeC` | **yes** | **the figure survives, its identity does not** — see the SUPERSEDED note above |
+| ACT `nasa-hump` reattachment model-form band **±20%** | `sdk/workflows/nasa_hump.py:50`, `REATTACHMENT_MODEL_BAND = 0.20` | n/a | **unaffected** — a hard-coded literature band justified in the transcript by the documented linear-EVM over-prediction of this bubble, and cross-checked against NASA's own SST CFD (1.25–1.27, `F6_closure_aligned_flows.md`). It has no dependency on channel 3 |
+
+One further discrepancy, found in the same audit and unrelated to the sign
+error: `D9_TALKING_POINTS.md` and `benchmarks.html` both quote kOmega's lower
+edge as **1.0722**, which is the *ungated* t=8000 snapshot. The gate-met value,
+from the run that actually printed `SIMPLE solution converged in 22211
+iterations`, is **1.0717** (−2.57%, not −2.53%). This file's own table already
+carries 1.0717. Both bands contain 1.100 either way, so nothing turns on it,
+but the public number should be the gated one.

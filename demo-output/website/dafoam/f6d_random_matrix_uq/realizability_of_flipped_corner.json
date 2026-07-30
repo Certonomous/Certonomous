@@ -1,0 +1,86 @@
+{
+  "F6b_periodic_hill": {
+    "source_field": "/home/ubuntu/Certonomous/demo-output/website/dafoam/f6b_periodic_hills/case_breuer_re10595/10000/turbulenceProperties:R",
+    "n_cells": 15600,
+    "n_cells_k_ge_1e-8": 15600,
+    "baseline_bary_min_coord": 7.125253958361745e-05,
+    "oneC": {
+      "intended": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.0,
+        "worst_barycentric_coordinate": -8.881784197001252e-16
+      },
+      "actual_with_plus_sign": {
+        "frac_cells_nonrealizable_barycentric": 0.9883333333333333,
+        "frac_cells_R_has_negative_eigenvalue": 0.9883333333333333,
+        "worst_barycentric_coordinate": -0.9995729229200101
+      }
+    },
+    "twoC": {
+      "intended": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.0,
+        "worst_barycentric_coordinate": -8.881784197001252e-16
+      },
+      "actual_with_plus_sign": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.0,
+        "worst_barycentric_coordinate": 9.304888923880594e-06
+      }
+    },
+    "threeC": {
+      "intended": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.0,
+        "worst_barycentric_coordinate": 0.0
+      },
+      "actual_with_plus_sign": {
+        "frac_cells_nonrealizable_barycentric": 0.011666666666666667,
+        "frac_cells_R_has_negative_eigenvalue": 0.011666666666666667,
+        "worst_barycentric_coordinate": -0.15887227007717986
+      }
+    }
+  },
+  "F6a_nasa_hump": {
+    "source_field": "/home/ubuntu/Certonomous/demo-output/website/dafoam/f6a_epistemic_band/r4_band_tightening_hump/oneC_delta0.00/1795/turbulenceProperties:R",
+    "n_cells": 51626,
+    "n_cells_k_ge_1e-8": 51626,
+    "baseline_bary_min_coord": -1.162496443844061,
+    "oneC": {
+      "intended": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.008968349281369853,
+        "worst_barycentric_coordinate": -1.3322676295501878e-15
+      },
+      "actual_with_plus_sign": {
+        "frac_cells_nonrealizable_barycentric": 0.9593421919188007,
+        "frac_cells_R_has_negative_eigenvalue": 0.9593421919188007,
+        "worst_barycentric_coordinate": -2.324992887688122
+      }
+    },
+    "twoC": {
+      "intended": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.0012977956843450973,
+        "worst_barycentric_coordinate": -8.881784197001252e-16
+      },
+      "actual_with_plus_sign": {
+        "frac_cells_nonrealizable_barycentric": 0.002343780265757564,
+        "frac_cells_R_has_negative_eigenvalue": 0.002343780265757564,
+        "worst_barycentric_coordinate": -2.324992887688121
+      }
+    },
+    "threeC": {
+      "intended": {
+        "frac_cells_nonrealizable_barycentric": 0.0,
+        "frac_cells_R_has_negative_eigenvalue": 0.0,
+        "worst_barycentric_coordinate": 0.0
+      },
+      "actual_with_plus_sign": {
+        "frac_cells_nonrealizable_barycentric": 0.04327276953473056,
+        "frac_cells_R_has_negative_eigenvalue": 0.04327276953473056,
+        "worst_barycentric_coordinate": -3.324992887688122
+      }
+    }
+  }
+}

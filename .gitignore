@@ -70,3 +70,13 @@ demo-output/website/campaign/*_runs/*/[0-9]*/
 
 # Laptop bundle build output (the .zip is committed; the extracted tree is not)
 dist/certonomous-demo/
+
+# --- F6d random-matrix UQ ensemble (added 2026-07-30) ---
+# 84 solver run directories, 2.3 GB of fields and 3 MB logs apiece. Same policy
+# as solve_registry above: the runs are on-disk primary evidence at the paths
+# cited in campaign/F6d_random_matrix_uq.md, and the scripts that rebuild them
+# from the F6b baseline ARE tracked, along with every derived result JSON.
+demo-output/website/dafoam/f6d_random_matrix_uq/ens/
+demo-output/website/dafoam/f6d_random_matrix_uq/signdemo/
+demo-output/website/dafoam/f6d_random_matrix_uq/signcheck/
+demo-output/website/dafoam/f6d_random_matrix_uq/f6a_recheck/

@@ -1,0 +1,95 @@
+{
+  "V1 E[G]=I (delta=0.2)": {
+    "pass": true,
+    "detail": "max|E[G]-I| = 0.00064 (MC tol 0.01789); diag E[G] = [0.99936, 0.99985, 0.99981]"
+  },
+  "context": {
+    "appendixA_variant_diagEG_delta0.2": [
+      0.4998308870509484,
+      0.5050440599360542,
+      0.5102541537199148
+    ],
+    "appendixA_variant_diagEG_delta0.6": [
+      0.4995141248144858,
+      0.5452637948277377,
+      0.5903984702860828
+    ],
+    "kl_variance_captured": 0.9895395723105217,
+    "kl_lambda_first10": [
+      4.680623113992511,
+      3.6427563868965125,
+      2.9443314857450926,
+      2.408284899484325,
+      2.291464632727018,
+      1.5149241636222666,
+      1.3850504276768683,
+      1.3606192091561617,
+      1.0779336786400635,
+      0.8558933031057293
+    ],
+    "baseline_realizability_audit": {
+      "n_cells": 15600,
+      "n_cells_indefinite": 0,
+      "frac_cells_indefinite": 0.0,
+      "n_cells_jittered": 0,
+      "frac_cells_jittered": 0.0,
+      "worst_eigenvalue_over_trace": 0.14018795498713674
+    }
+  },
+  "V2 delta recovered from Eq.(12) (delta=0.2)": {
+    "pass": true,
+    "detail": "delta_hat = 0.19971 vs specified 0.2"
+  },
+  "V3 every [G] positive definite (delta=0.2)": {
+    "pass": true,
+    "detail": "min eigenvalue over 200000 draws = 4.462e-01"
+  },
+  "V1 E[G]=I (delta=0.6)": {
+    "pass": true,
+    "detail": "max|E[G]-I| = 0.00220 (MC tol 0.01789); diag E[G] = [0.9978, 0.99946, 0.9994]"
+  },
+  "V2 delta recovered from Eq.(12) (delta=0.6)": {
+    "pass": true,
+    "detail": "delta_hat = 0.59873 vs specified 0.6"
+  },
+  "V3 every [G] positive definite (delta=0.6)": {
+    "pass": true,
+    "detail": "min eigenvalue over 200000 draws = 1.501e-02"
+  },
+  "V4a KL pointwise variance <= 1": {
+    "pass": true,
+    "detail": "max Var[w(x)] = 0.9964, mean = 0.9895 (untruncated value is exactly 1)"
+  },
+  "V4b KL variance captured by N_KL modes": {
+    "pass": true,
+    "detail": "98.95% of total variance in 30 modes (paper Sec. 4.1 reports ~90% for N_KL=30)"
+  },
+  "V5 PCE marginal matches Gamma(k_i,1) (delta=0.2)": {
+    "pass": true,
+    "detail": "worst KS statistic over i=1,2,3 = 9.647e-04 (N_p=3; paper Sec. 4.1: 'third order ... found to be sufficient')"
+  },
+  "V5b PCE coefficients quadrature-converged (delta=0.2)": {
+    "pass": true,
+    "detail": "max relative change from n_quad 80 -> 40 = 1.44e-16; U_beta(i=1) = [50.0, 7.055389, 0.332712, 0.003953]"
+  },
+  "V5 PCE marginal matches Gamma(k_i,1) (delta=0.6)": {
+    "pass": true,
+    "detail": "worst KS statistic over i=1,2,3 = 1.265e-03 (N_p=3; paper Sec. 4.1: 'third order ... found to be sufficient')"
+  },
+  "V5b PCE coefficients quadrature-converged (delta=0.6)": {
+    "pass": true,
+    "detail": "max relative change from n_quad 80 -> 40 = 1.95e-16; U_beta(i=1) = [5.555556, 2.310865, 0.327506, 0.012441]"
+  },
+  "V6 synthesised field reproduces kernel Eq.(18)": {
+    "pass": true,
+    "detail": "max |rho_empirical - rho_Eq18| = 0.0505 over 60 probe points, 4000 realisations, N_KL=30 (truncation makes this an approximation by construction)"
+  },
+  "V7a sampled [R] realizable on the RANS mesh (delta=0.2)": {
+    "pass": true,
+    "detail": "min eigenvalue over 60 field realisations x 15600 cells = 1.850e-07"
+  },
+  "V7b E[R] returns the baseline R_bar (delta=0.2)": {
+    "pass": true,
+    "detail": "max|mean(R)-R_bar|/max|R_bar| = 0.0268 over 60 field samples (MC error, decreases as 1/sqrt(N))"
+  }
+}
