@@ -35,7 +35,8 @@ def test_first_frame_reproduces_the_baseline():
 
 def test_every_payload_is_well_formed(tmp_path):
     names = _a2_shape.write_surfaces(doc, tmp_path)
-    assert len(names) == len(doc["frames"]) + 2      # baseline + gradient
+    # baseline + gradient + a true-scale and an amplified copy of each frame
+    assert len(names) == 2 * len(doc["frames"]) + 2
 
     windows = set()
     for key, name in names.items():
@@ -54,21 +55,51 @@ def test_every_payload_is_well_formed(tmp_path):
         if key != "gradient":
             windows.add((field["color_min"], field["color_max"]))
 
-    # One fixed, zero-centred window across every frame of the morph.
+    # One fixed, zero-centred window across every frame of BOTH passes: the
+    # amplified pass must not inherit the factor into its colour bar.
     assert len(windows) == 1
     lo, hi = windows.pop()
     assert lo == -hi
 
 
-def test_nothing_is_exaggerated():
-    """The frames are the recorded surfaces, not amplified copies of them."""
+def test_true_scale_is_the_default_and_is_exact():
+    """frame_vertices with no factor is the recorded surface, untouched."""
     final = doc["frames"][-1]
     verts = _a2_shape.frame_vertices(doc, final)
     worst = max(max(abs(a - b) for a, b in zip(v, w))
                 for v, w in zip(verts, doc["base_vertices"]))
-    # Consistent with the displacement the artifact reports, to rounding.
     assert worst * 1000.0 <= final["max_disp_mm"] + 1e-3
     assert doc["_no_exaggeration"].startswith("Every coordinate")
+
+
+def test_amplification_stays_below_the_self_intersection_ceiling():
+    """The factor is bounded by the run's own active thickness constraint.
+
+    Displacement here is overwhelmingly thickness-direction motion through a
+    map linear in the shape variables, so amplifying by k takes the thinnest
+    recorded thickness ratio r to 1 + k*(r-1). The wing touches itself when
+    that reaches zero. The shipped factor must sit below that with margin.
+    """
+    history = json.loads(
+        (_a2_shape._LADDER / "A2_optimization_history.json").read_text()
+    )["history"]
+    r = min(row["thick_min"] for row in history)
+    ceiling = 1.0 / (1.0 - r)
+    assert abs(ceiling - _a2_shape.EXAGGERATION_CEILING) < 5e-3
+    assert _a2_shape.EXAGGERATION < ceiling
+    left = 100.0 * (1.0 + _a2_shape.EXAGGERATION * (r - 1.0))
+    assert left > 5.0                              # nowhere near folded
+    assert abs(left - _a2_shape.EXAGGERATION_MIN_THICKNESS_PCT) < 0.3
+
+
+def test_amplified_frames_scale_only_the_geometry():
+    final = doc["frames"][-1]
+    true = _a2_shape.frame_vertices(doc, final)
+    amp = _a2_shape.frame_vertices(doc, final, _a2_shape.EXAGGERATION)
+    base = doc["base_vertices"]
+    for b, t, a in zip(base[::37], true[::37], amp[::37]):
+        for i in range(3):
+            assert abs((a[i] - b[i]) - _a2_shape.EXAGGERATION * (t[i] - b[i])) < 2e-6
 
 
 def test_sections_cut_the_real_surface():

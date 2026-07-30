@@ -8,10 +8,14 @@ the act must run on a laptop with no OpenFOAM, no DAFoam, no pyGeo and no
 network, so no part of the deformation is recomputed here. Every surface it
 writes came out of the optimizer's own parameterization, offline, once.
 
-Nothing in this module scales, amplifies or smooths a displacement. The
-geometry that reaches the screen is at true scale. What makes a change of a
-few millimetres per hundred readable is the field painted on it, not a
-stretched shape.
+Nothing here smooths or reshapes anything. The default everywhere is true
+scale, and the pass the result is graded on is at true scale; what makes a
+change of a few millimetres per hundred readable there is the field painted
+on the surface, not a stretched shape. One clearly separated second pass
+applies :data:`EXAGGERATION` to the displacement so the outline moves, and
+the act names that factor on screen on every frame of it. No measurement is
+ever amplified: the displacement colour bar stays in true millimetres in both
+passes.
 """
 from __future__ import annotations
 
@@ -27,6 +31,30 @@ FRAMES_FILE = _LADDER / "A2_shape_frames.json"
 # Root, mid-semispan and outboard: enough to show that the change is not one
 # local dent, few enough that each section stays legible.
 SECTION_Z = (0.0, 4.5, 9.0)
+
+# The amplification used by the SECOND morph pass, after the true-scale one.
+#
+# It is not a free choice. The optimizer drove its own thickness constraint
+# onto its lower bound: the smallest thickness it ever recorded is 0.4988 of
+# the baseline thickness, against a constraint floor of 0.5. Surface
+# displacement here is 96% thickness-direction motion and the FFD map
+# is linear in the shape variables, so amplifying the displacement by k scales
+# that thickness ratio to 1 + k*(0.4988 - 1). It reaches ZERO -- the upper and
+# lower surfaces touching, i.e. the wing passing through itself -- at
+# k = 1.995. That is a hard ceiling read off the run's own recorded
+# constraint values, not a judgement call.
+#
+# 1.75 leaves the thinnest station at 12.3% of its baseline thickness: still a
+# wing, nowhere self-intersecting, with real margin to the ceiling. It buys
+# very little on screen (see EXAGGERATION_PX) because the ceiling is so low,
+# and the act says so out loud rather than pretending otherwise.
+EXAGGERATION = 1.75
+EXAGGERATION_CEILING = 1.995
+EXAGGERATION_MIN_THICKNESS_PCT = 12.3
+# Silhouette motion this buys in the control-room viewport, measured with that
+# viewport's own projection at 760x460: 4.1 px at true scale, 7.6 px here.
+EXAGGERATION_PX = 7.6
+TRUE_SCALE_PX = 4.1
 
 
 def load() -> dict[str, Any] | None:
@@ -66,9 +94,20 @@ def _normalise(values, lo: float, hi: float) -> list[float]:
     return out
 
 
-def frame_vertices(doc: dict, frame: dict) -> list[list[float]]:
-    """Baseline plus this iteration's displacement. True scale, no factor."""
-    return [[round(b0 + d0, 6), round(b1 + d1, 6), round(b2 + d2, 6)]
+def frame_vertices(doc: dict, frame: dict, factor: float = 1.0) -> list[list[float]]:
+    """Baseline plus this iteration's displacement, times ``factor``.
+
+    ``factor`` defaults to 1.0 -- true scale, the default everywhere. It is
+    only ever passed as :data:`EXAGGERATION`, by the one clearly labelled
+    second pass, and that pass names the number on screen for every frame it
+    shows.
+    """
+    if factor == 1.0:
+        return [[round(b0 + d0, 6), round(b1 + d1, 6), round(b2 + d2, 6)]
+                for (b0, b1, b2), (d0, d1, d2)
+                in zip(doc["base_vertices"], frame["disp"])]
+    return [[round(b0 + factor * d0, 6), round(b1 + factor * d1, 6),
+             round(b2 + factor * d2, 6)]
             for (b0, b1, b2), (d0, d1, d2)
             in zip(doc["base_vertices"], frame["disp"])]
 
@@ -108,16 +147,26 @@ def write_surfaces(doc: dict, out: Path) -> dict[str, str]:
     dlo, dhi = doc["disp_window_mm"]
     dmax = max(abs(dlo), abs(dhi))
     for frame in doc["frames"]:
-        name = f"a2_wing_iter_{frame['iter']:02d}.json"
-        (out / name).write_text(
-            json.dumps(_surface(doc, frame_vertices(doc, frame), {
-                "name": "displacement from baseline, outward normal (mm)",
-                "min": min(frame["disp_n_mm"]), "max": max(frame["disp_n_mm"]),
-                "color_min": round(-dmax, 1), "color_max": round(dmax, 1),
-                "display_min": round(-dmax, 1), "display_max": round(dmax, 1),
-                "values": _normalise(frame["disp_n_mm"], -dmax, dmax),
-            }), separators=(",", ":")), encoding="utf-8")
-        names[f"iter{frame['iter']}"] = name
+        # Two passes over the same iteration: true scale, then the labelled
+        # amplification. The FIELD is the true displacement in millimetres in
+        # both, so the legend never inherits the factor -- only the geometry
+        # does, and only in the pass whose every label names it.
+        field = {
+            "name": "displacement from baseline, outward normal (mm)",
+            "min": min(frame["disp_n_mm"]), "max": max(frame["disp_n_mm"]),
+            "color_min": round(-dmax, 1), "color_max": round(dmax, 1),
+            "display_min": round(-dmax, 1), "display_max": round(dmax, 1),
+            "values": _normalise(frame["disp_n_mm"], -dmax, dmax),
+        }
+        for key, suffix, factor in (
+                (f"iter{frame['iter']}", "", 1.0),
+                (f"x{frame['iter']}", "_x", EXAGGERATION)):
+            name = f"a2_wing_iter_{frame['iter']:02d}{suffix}.json"
+            (out / name).write_text(
+                json.dumps(_surface(doc, frame_vertices(doc, frame, factor),
+                                    dict(field)), separators=(",", ":")),
+                encoding="utf-8")
+            names[key] = name
     return names
 
 
