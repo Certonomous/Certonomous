@@ -652,9 +652,59 @@ invalidate any of them:
   small FFD-warp-based direction, for global consistency) borrows a TRUSTED vector as a raw input the
   same way A1's fix did, and does not reintroduce the composition trap.
 
-**Conclusion: none of A5's three link tests shares A1's specific circularity.** All three were
-constructed as direct injections into the link's own input space from the start, not as compositions of
-two operators' outputs against each other. The dR/dW result stands. The real, honestly-remaining gap is
-coverage, not circularity: dR/dW's diagonal-only sampling has not ruled out an off-diagonal defect in
-that same Jacobian, and dF/dW and dR/dXv are still unvalidated pending their bug fixes -- both real open
-items, tracked as such, not resolved by this check.
+**Conclusion: none of A5's three NEW link tests (this session) shares A1's specific circularity.** All
+three were constructed as direct injections into the link's own input space from the start, not as
+compositions of two operators' outputs against each other. The dR/dW result stands. The real,
+honestly-remaining gap is coverage, not circularity: dR/dW's diagonal-only sampling has not ruled out an
+off-diagonal defect in that same Jacobian, and dF/dW and dR/dXv are still unvalidated pending their bug
+fixes -- both real open items, tracked as such, not resolved by this check.
+
+**But there is a FOURTH link, not from this session, that DOES share A1's exact structure: A5's own
+`mesh.warpDeriv` clearance from the previous-session addendum.** That test (`probeWarpDerivA5.py`) used
+precisely the composed pattern A1's original test used -- FD via `DVGeo.update(shape)` -> `warpMesh()`
+(composing DVGeo's shape-to-surface map with the physical warp), analytic via `warpDeriv(w)` dotted
+against DVGeo's own `totalSensitivityProd` (also a composition). By the same logic that reopened A1's
+idx0/idx1, this clearance was untested for the DVGeo-nonlinearity ambiguity and needed the same
+decomposition check before being trusted as ruling out `warpDeriv`.
+
+**Ran it. New script `probeA5HandComposition.py`** -- A5's analog of the airfoil's
+`probeHandComposition.py` Stage 2: perturbs surface coordinates directly along
+`eta = dXs/dShape_idx` (DVGeo's own trusted Jacobian column), bypassing `DVGeo.update()` entirely on the
+FD side, and separately confirms the ORIGINAL (`DVGeo.update()`-based) FD still matches this new
+DVGeo-bypassing FD. Tested idx2/idx26 (controls) and idx8/idx17 (the sign-flipped components), 2 seeds
+each, pure geometry (`np=1`, no CFD, 5.0s total):
+
+| idx | seed | FD (via `DVGeo.update()`) | FD (direct `Xs`+`eta`, bypasses `DVGeo`) | DVGeo-nonlinearity rel. err | `warpDeriv` vs. direct-FD rel. err | established (composed test) |
+|---|---|---|---|---|---|---|
+| 2 (control) | 2026 | 36.4156188 | 36.4156188 | **1.18e-10** | **0.0082%** | 0.0078% |
+| 2 (control) | 42 | 36.4992420 | 36.4992420 | **1.63e-10** | **0.0079%** | -- |
+| 8 (FLIP in real check) | 2026 | 28.5864008 | 28.5864008 | **1.08e-10** | **0.44%** | 0.32% |
+| 8 (FLIP in real check) | 42 | 30.1226563 | 30.1226563 | **9.78e-11** | **0.38%** | 0.36% |
+| 17 (FLIP in real check) | 2026 | 26.5695254 | 26.5695255 | **4.76e-10** | **1.16%** | 1.30% |
+| 17 (FLIP in real check) | 42 | 26.3408382 | 26.3408382 | **7.27e-10** | **1.08%** | 1.27% |
+| 26 (control) | 2026 | 37.2758252 | 37.2758251 | **3.07e-9** | **0.0050%** | 0.0075% |
+| 26 (control) | 42 | 36.6850588 | 36.6850586 | **3.85e-9** | **0.0077%** | -- |
+
+**Two results, both clean:**
+
+1. **DVGeo nonlinearity is ruled out decisively** -- the two FD methods agree to 9-10 significant
+   figures (relative error `1e-9` to `1e-10`, essentially machine precision) for every component tested.
+   `nom_addLocalDV`'s single-point, single-axis construction is, as expected, an extremely linear FFD
+   operation for this case; unlike A1's `addShapeFunctionDV` combo modes, there was never much reason to
+   suspect otherwise, and now it is confirmed rather than assumed.
+2. **`mesh.warpDeriv`, tested in TRUE isolation (bypassing `DVGeo.update()` on the FD side, exactly the
+   fix that reopened A1's idx0/idx1), reproduces the SAME small percentages as the original composed
+   test** -- idx8: 0.38-0.44% (vs. 0.32-0.36% composed), idx17: 1.08-1.16% (vs. 1.27-1.30% composed),
+   controls unchanged at ~0.005-0.008%. **Unlike A1's idx0/idx1, where true isolation revealed a LARGER,
+   previously-masked warpDeriv error, A5's idx8/idx17 show no such reveal: the small disagreement was
+   already the true, isolated warpDeriv linearization error, not an artifact of testing it combined with
+   DVGeo's Jacobian.** A5's `mesh.warpDeriv` clearance is CONFIRMED, not merely unretracted -- it holds up
+   under the exact scrutiny that overturned the equivalent A1 conclusion.
+
+This closes the loop the coordinator's methodological point opened: every one of A5's now four
+link-isolation tests (`mesh.warpDeriv`, `dF/dW`, `dR/dXv`, `dR/dW`) has been checked specifically for the
+composition/circularity failure mode that caught out A1, and none carries it. A5's real defect remains
+genuinely unidentified -- not because a link was mis-tested, but because it has not yet been found.
+
+Evidence: `probeA5HandComposition.py`, `handcomp_a5_out.log` (both in
+`ladder-a/A5_work/UBend_Channel_pressureloss/`).
