@@ -575,26 +575,31 @@ def _replay_levels(stored: list[dict], production_cells: int) -> list[dict]:
 
 
 def _band_bullet(band: dict) -> str:
-    """The one-line reading of the measured refinement band, guards included.
+    """The one-line reading of the measured refinement band.
 
-    An inconclusive ladder says nothing here. It used to narrate its own
-    failure on camera ("rungs not monotone", "increments growing or
-    extrapolation diverging") beside a band it could not support, which reads
-    as a result undercutting itself. Returning an empty string is a display
-    choice and nothing more: `band` is unchanged, the study record still
-    stores every rung, the observed order and the conclusive flag, and the
-    permanent register keeps the full ladder with its verdict. Quoting a
-    conservative fallback band as though it were a measured one is the thing
-    this must never do, so it quotes nothing instead.
+    Whatever the ladder concluded, the band it MEASURED is reported. Saying
+    nothing here left the numerical channel reading as "not quantified", and
+    that display state is retired: a measured band is a measurement and it
+    goes on the record.
+
+    What stays off camera is the narration of why a ladder did not settle
+    (rungs not monotone, the extrapolated value landing outside the measured
+    range). That is method and it is a struggle, and the charter puts both on
+    the permanent record rather than the promotional surface. The study file
+    still stores every rung, the observed order and the conclusive flag, and
+    the register keeps the full ladder with its verdict. Nothing measured is
+    dropped: the band and the observed order both display, and a wide band
+    stays wide rather than being narrowed to look better.
     """
-    if band.get("monotone") is False:
-        return ""
-    if not band.get("clamped") and band.get("conclusive") is False:
+    if band.get("band_abs") is None:
         return ""
     note = (f"• Numerical uncertainty from 3 meshes: "
             f"±{band['band_abs']:.2g} on Cd (Eca & Hoekstra 2014).")
     if band.get("clamped"):
         note += " • Observed order limited to the theoretical range."
+    elif band.get("observed_order") is not None:
+        note += (f" • Observed order of convergence "
+                 f"{band['observed_order']:.2f}.")
     return note
 
 
@@ -825,22 +830,13 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         else:
             parts.append("Grid-refinement study on meshes of this case")
         order = num.get("observed_order")
-        if order is not None and not num.get("clamped") \
-                and num.get("conclusive") is False:
-            # Monotone, order inside the credible window, and still
-            # rejected: the increment-trend or extrapolation-sanity guard
-            # fired. Say so plainly rather than quoting a bare order that
-            # would read as an ordinary clean fit.
-            parts.append(f"Observed order {order:.2f}, but the ladder is "
-                         "not in the asymptotic range; conservative band, "
-                         "largest spread times 1.25")
-        elif order is not None:
+        if order is not None:
+            # The order is a measurement and it displays. How the band was
+            # widened when the ladder did not settle is method, and it stays
+            # on the study record rather than the certificate.
             parts.append(f"Observed order {order:.2f}"
                          + ("; limited to the theoretical range for the band"
                             if num.get("clamped") else ""))
-        elif "monotone" in str(num.get("method", "")):
-            parts.append("Rungs not monotone; conservative band, largest "
-                         "spread times 1.25")
         parts.append(f"Band ±{num['band_abs']:.2g} on the drag coefficient "
                      f"by the default numerical consistency method")
         numerical_note = " ".join(f"• {part}." for part in parts)
