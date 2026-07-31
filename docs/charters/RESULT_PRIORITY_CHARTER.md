@@ -1,6 +1,6 @@
 # Certonomous Result Priority Charter
 
-Version 0.2, dated 2026-07-31. **This is a draft for the owner to react to, not
+Version 0.3, dated 2026-07-31. **This is a draft for the owner to react to, not
 a settled charter.** Her own note on it is "still need to think abt how to go
 abt this", and this document takes that literally. The orderings below are
 proposals. The open questions in section 6 are named rather than papered over,
@@ -17,6 +17,10 @@ refinement band as though it were a measured interval. And section 8 is new: a
 one-line decision sheet, each open question reduced to named options with the
 lab's recommendation where it has one, so the answer can be "Q2: B" rather than
 an essay.
+
+**What changed in 0.3.** One clause, at the head of 4.5: a budget names its
+largest term. It is measured rather than drafted, so it is not marked PROPOSAL,
+and it is the only thing in this document that is not waiting on her.
 
 ## 1. The problem, in her words
 
@@ -178,6 +182,38 @@ free parameter has been swept. Rank 1 here is not "the front position", it is
 unswept number does not enter the ordering.
 
 ### 4.5 Uncertainty quantification
+
+**Before the ranks, a rule about where the next hour goes.** A ranking says
+which quantity settles first. A budget says which term is worth working on, and
+a budget that does not rank its own terms invites work on the term that has
+already stopped mattering.
+
+> **Every reported uncertainty budget names its largest term, and a proposal to
+> tighten a smaller one states why.**
+
+Measured, and this is the case that produced the rule. Multifidelity fusion cut
+the race estimator's standard error from 0.02832 to 0.000863, a factor of 33,
+which is a real result. The budget it produced then records
+`high_fidelity_model_form: null`: the solver model-form term, never measured,
+had become the largest contributor and was the one term in the budget with no
+number in it. Further tightening of the estimator would have been effort spent
+on the term that had already stopped dominating, and it would have looked like
+progress at every point.
+`demo-output/website/mfmc_error_budget.json`, docket `w8-largest-term-rule`.
+
+Two clauses ride with it, and they are the ones that make it bite.
+
+- **An unmeasured term is not a small term.** A budget entry of `null` is the
+  loudest thing in the table, not the quietest. The verification charter's rule
+  on channels is the same rule: a channel that was not quantified is stated as
+  not quantified and is explicitly not counted as zero.
+- **The largest term is named even when the lab cannot do anything about it.**
+  Naming it is what turns "we improved the estimator" into "we improved the
+  estimator and the answer is now limited by the solver", which is the sentence
+  the next proposal needs.
+
+**Violated when** a proposal tightens a term while a larger or unmeasured term
+sits in the same budget and the proposal does not say so.
 
 0. **Admissibility, before any rank.** A band whose producing procedure marks
    itself non-conclusive is not a band and does not enter the ordering at any
