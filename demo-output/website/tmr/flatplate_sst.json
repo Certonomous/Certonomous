@@ -31,6 +31,9 @@
         "blockMesh": 1.5,
         "checkMesh": 1.3,
         "simpleFoam": 4.4
+      },
+      "mesh": {
+        "max_aspect_ratio": 74041.01706
       }
     },
     {
@@ -53,6 +56,9 @@
         "blockMesh": 1.7,
         "checkMesh": 1.6,
         "simpleFoam": 20.6
+      },
+      "mesh": {
+        "max_aspect_ratio": 69042.82289
       }
     },
     {
@@ -75,6 +81,9 @@
         "blockMesh": 3.2,
         "checkMesh": 3.3,
         "simpleFoam": 271.9
+      },
+      "mesh": {
+        "max_aspect_ratio": 66642.53839
       }
     },
     {
@@ -93,9 +102,44 @@
       },
       "mesh": {
         "max_skewness": 4.376137948e-14,
-        "max_non_orthogonality": 0.0
+        "max_non_orthogonality": 0.0,
+        "max_aspect_ratio": 65467.84834
       },
-      "convergence_note": "Ran to the 9000-iteration cap rather than tripping residualControl. 4 of 5 controls met at exit: p 1.27e-07 (target 1e-06), Ux 6.28e-09 (1e-08), k 7.89e-09 (1e-08), omega 7.13e-11 (1e-08). Uy 6.38e-08 misses its 1e-08 target by about 6x. Cd is flat to 2.16e-09 over the last 50 iterations, the same tail-spread gate the other rungs pass, so the force is converged even though one residual control is not tripped. Recorded rather than hidden: this rung did not exit the same way the coarse, medium and fine rungs did, which exited at 482, 966 and 2846 iterations."
+      "convergence_note": "Ran to the 9000-iteration cap rather than tripping residualControl. 4 of 5 controls met at exit: p 1.27e-07 (target 1e-06), Ux 6.28e-09 (1e-08), k 7.89e-09 (1e-08), omega 7.13e-11 (1e-08). Uy 6.38e-08 misses its 1e-08 target by about 6x. Cd is flat to 2.16e-09 over the last 50 iterations, the same tail-spread gate the other rungs pass, so the force is converged even though one residual control is not tripped. Recorded rather than hidden: this rung did not exit the same way the coarse, medium and fine rungs did, which exited at 482, 966 and 2846 iterations.",
+      "cf_097": 0.0026968874014089953
+    },
+    {
+      "level": "finest",
+      "tmr_nodes": "545x385",
+      "cells": 208896,
+      "nx": 544,
+      "ny": 384,
+      "cd": 0.0028635838023,
+      "cd_tail_spread": 6.621000002600408e-10,
+      "iterations": 21000,
+      "yplus": {
+        "min": 0.029984858415,
+        "max": 0.12549877333,
+        "average": 0.036793471021
+      },
+      "wall_seconds": 3422.3999999999996,
+      "timings": {
+        "blockMesh": 1.7,
+        "checkMesh": 2.4,
+        "decomposePar": 2.6,
+        "simpleFoam": 3415.7
+      },
+      "cl": -0.00086913534976,
+      "cl_tail_spread": 6.531589999978285e-09,
+      "cd_pressure": 0.0,
+      "cd_viscous": 0.002863583802,
+      "cf_097": 0.0027045510419338643,
+      "mesh": {
+        "max_skewness": 9.581559192e-14,
+        "max_non_orthogonality": 0.0,
+        "max_aspect_ratio": 64886.93622
+      },
+      "convergence_note": "Ran 36000 SIMPLE iterations, not the 15000 that ITERATIONS['finest'] asks for, and the difference decides the ladder. At the 15000 cap Cd was 0.0028936144511 and still falling by 1.04e-5 per thousand iterations, with a peak-to-peak spread of 4.44e-7 over the last fifty against the module's own 1e-7 flatness gate: _extract_record refused it, correctly. Continued to 36000 the rung settles at Cd = 0.0028635838023 with a tail-50 spread of 6.62e-10, the tightest of all five rungs, and the per-thousand decrement has decayed into sign-flipping noise at 9e-9. Accepting the 15000 value would have put Cd 3.00e-5 (1.05%) high and turned the finest triple's increments from shrinking into growing, reporting the ladder as a divergence. Logs: log.simpleFoam.0-15000.gz and log.simpleFoam.15000-36000.gz in this directory."
     }
   ],
   "convergence": {
@@ -163,30 +207,323 @@
       816,
       3264,
       13056,
-      52224
+      52224,
+      208896
+    ],
+    "ladder_rungs": [
+      "35x25",
+      "69x49",
+      "137x97",
+      "273x193",
+      "545x385"
     ],
     "cd_ladder": [
       0.0026686916613,
       0.0027811695632,
       0.0028342538677,
-      0.0028564381699
+      0.0028564381699,
+      0.0028635838023
+    ],
+    "cf_097_ladder": [
+      0.002529462373594013,
+      0.0026270458521110126,
+      0.0026747849116543518,
+      0.0026968874014089953,
+      0.0027045510419338643
     ],
     "refinement_ratio_each_step": 2.0,
-    "original_triple_coarse_medium_fine": {
-      "observed_order": 1.0832843227287958,
-      "richardson": 0.0028816991060355503,
-      "gci_fine_pct": 2.092492440261359
+    "dim": 2,
+    "dim_note": "Fitted two-dimensionally: h = sqrt(1/N), refinement ratio 2.0 per step. This is what tmr_verification.observed_order has always used for this case (refinement=2.0), so the previously published 1.0833 and 1.2587 were already 2D and are unchanged; the value is recorded here rather than left implicit. It is also NASA's own convention for this family: models/tmr/reference/drag_convergence_sstv.dat declares variables \"N\",\"h^2=1/N\",\"h=sqrt(1/N)\",\"C_D\". Fitted with the 3D default instead, every order on this ladder is multiplied by exactly 1.5 (1.0833 becomes 1.6249).",
+    "cd_increments": [
+      0.00011247790190000015,
+      5.3084304499999985e-05,
+      2.2184302200000013e-05,
+      7.145632400000056e-06
+    ],
+    "cd_triples": [
+      {
+        "rungs": [
+          "35x25",
+          "69x49",
+          "137x97"
+        ],
+        "cells": [
+          816,
+          3264,
+          13056
+        ],
+        "values": [
+          0.0026686916613,
+          0.0027811695632,
+          0.0028342538677
+        ],
+        "observed_order": 1.0832843227287958,
+        "richardson": 0.0028816991060355503,
+        "gci_fine_pct": 2.092492440261359,
+        "certifier": {
+          "dim": 2,
+          "observed_order": 1.083,
+          "conclusive": false,
+          "reportable_band_abs": null,
+          "not_conclusive_reason": "the value the ladder extrapolates to falls outside the range it measured",
+          "richardson_extrapolated": 0.0028816991060355503,
+          "rungs_passed_to_certifier": 3
+        }
+      },
+      {
+        "rungs": [
+          "69x49",
+          "137x97",
+          "273x193"
+        ],
+        "cells": [
+          3264,
+          13056,
+          52224
+        ],
+        "values": [
+          0.0027811695632,
+          0.0028342538677,
+          0.0028564381699
+        ],
+        "observed_order": 1.2587461863354106,
+        "richardson": 0.002872365135190256,
+        "gci_fine_pct": 0.6969766341386194,
+        "certifier": {
+          "dim": 2,
+          "observed_order": 1.259,
+          "conclusive": false,
+          "reportable_band_abs": null,
+          "not_conclusive_reason": "the value the ladder extrapolates to falls outside the range it measured",
+          "richardson_extrapolated": 0.002872365135190256,
+          "rungs_passed_to_certifier": 3
+        }
+      },
+      {
+        "rungs": [
+          "137x97",
+          "273x193",
+          "545x385"
+        ],
+        "cells": [
+          13056,
+          52224,
+          208896
+        ],
+        "values": [
+          0.0028342538677,
+          0.0028564381699,
+          0.0028635838023
+        ],
+        "observed_order": 1.6344055714456223,
+        "richardson": 0.0028669790535472833,
+        "gci_fine_pct": 0.14820813191132226,
+        "certifier": {
+          "dim": 2,
+          "observed_order": 1.634,
+          "conclusive": true,
+          "reportable_band_abs": 4.244064059104043e-06,
+          "not_conclusive_reason": null,
+          "richardson_extrapolated": 0.0028669790535472833,
+          "rungs_passed_to_certifier": 3
+        }
+      }
+    ],
+    "cf_097_triples": [
+      {
+        "rungs": [
+          "35x25",
+          "69x49",
+          "137x97"
+        ],
+        "cells": [
+          816,
+          3264,
+          13056
+        ],
+        "values": [
+          0.002529462373594013,
+          0.0026270458521110126,
+          0.0026747849116543518
+        ],
+        "observed_order": 1.0314667656283878,
+        "richardson": 0.002720507539242544,
+        "gci_fine_pct": 2.1367431914325734,
+        "certifier": {
+          "dim": 2,
+          "observed_order": 1.031,
+          "conclusive": false,
+          "reportable_band_abs": null,
+          "not_conclusive_reason": "the value the ladder extrapolates to falls outside the range it measured",
+          "richardson_extrapolated": 0.002720507539242544,
+          "rungs_passed_to_certifier": 3
+        }
+      },
+      {
+        "rungs": [
+          "69x49",
+          "137x97",
+          "273x193"
+        ],
+        "cells": [
+          3264,
+          13056,
+          52224
+        ],
+        "values": [
+          0.0026270458521110126,
+          0.0026747849116543518,
+          0.0026968874014089953
+        ],
+        "observed_order": 1.1109612532538853,
+        "richardson": 0.002715942994937328,
+        "gci_fine_pct": 0.8832215945675514,
+        "certifier": {
+          "dim": 2,
+          "observed_order": 1.111,
+          "conclusive": false,
+          "reportable_band_abs": null,
+          "not_conclusive_reason": "the value the ladder extrapolates to falls outside the range it measured",
+          "richardson_extrapolated": 0.002715942994937328,
+          "rungs_passed_to_certifier": 3
+        }
+      },
+      {
+        "rungs": [
+          "137x97",
+          "273x193",
+          "545x385"
+        ],
+        "cells": [
+          13056,
+          52224,
+          208896
+        ],
+        "values": [
+          0.0026747849116543518,
+          0.0026968874014089953,
+          0.0027045510419338643
+        ],
+        "observed_order": 1.528107096548118,
+        "richardson": 0.0027086186365987705,
+        "gci_fine_pct": 0.18799768435862288,
+        "certifier": {
+          "dim": 2,
+          "observed_order": 1.528,
+          "conclusive": true,
+          "reportable_band_abs": 5.084493331132672e-06,
+          "not_conclusive_reason": null,
+          "richardson_extrapolated": 0.0027086186365987705,
+          "rungs_passed_to_certifier": 3
+        }
+      }
+    ],
+    "iterative_convergence": {
+      "final_iteration": 36000,
+      "cd_at_final_iteration": 0.0028635838023,
+      "cd_tail50_spread": 6.621000002600408e-10,
+      "module_flatness_gate": 1e-07,
+      "passes_flatness_gate": true,
+      "decrement_per_1000_at_exit": 8.963300000223301e-09,
+      "decay_ratio_per_1000": -1.02910514593525,
+      "estimated_remaining_drift": -8.963300000223301e-09,
+      "remaining_drift_basis": "decrement no longer decays monotonically (ratio -1.029); remaining drift bounded by the magnitude of the last per-1000 decrement",
+      "verdict_at_drift_bound_low": {
+        "cd_finest": 0.002863574839,
+        "observed_order": 1.6362163874626374,
+        "conclusive": true,
+        "reportable_band_abs": 4.230901755812665e-06,
+        "not_conclusive_reason": null
+      },
+      "verdict_at_drift_bound_high": {
+        "cd_finest": 0.0028635927656000004,
+        "observed_order": 1.6325970254471471,
+        "conclusive": true,
+        "reportable_band_abs": 4.2572554253191335e-06,
+        "not_conclusive_reason": null
+      },
+      "estimated_iterative_asymptote": 0.002863574839,
+      "verdict_at_recorded_value": {
+        "cd_finest": 0.0028635838023,
+        "observed_order": 1.6344055714456223,
+        "conclusive": true,
+        "reportable_band_abs": 4.244064059104043e-06,
+        "not_conclusive_reason": null
+      },
+      "verdict_at_iterative_asymptote": {
+        "cd_finest": 0.002863574839,
+        "observed_order": 1.6362163874626374,
+        "conclusive": true,
+        "reportable_band_abs": 4.230901755812665e-06,
+        "not_conclusive_reason": null
+      },
+      "cap_15000_counterfactual": {
+        "cd_finest": 0.0028936144511,
+        "observed_order": -0.7448432881246334,
+        "conclusive": false,
+        "reportable_band_abs": null,
+        "not_conclusive_reason": "successive increments grow with refinement",
+        "note": "what the ladder would have said had this rung been accepted at the module's own ITERATIONS['finest'] = 15000 cap, the way the 273x193 rung was accepted at its 9000 cap"
+      },
+      "history": {
+        "1000": 0.0068686443076,
+        "5000": 0.0034731545204,
+        "9000": 0.0030362909574,
+        "15000": 0.0028936144511,
+        "20000": 0.0028703103615,
+        "25000": 0.0028654256562,
+        "30000": 0.0028638681557,
+        "36000": 0.0028635838023
+      },
+      "iterations_total": 36000,
+      "iterations_note": "The record's 'iterations' field reads 21000 because the rung was solved in two stages and the extractor reads the second stage's coefficient history, which begins at 15001. The rung ran 36000 SIMPLE iterations in total: 0 to 15000 launched 2026-07-31 19:13:39 UTC, then continued from latestTime to 36000, finishing 20:11:30 UTC, both mpirun -np 8 simpleFoam -parallel in /home/ubuntu/certonomous-runs/tmr-flatplate-finest.",
+      "finest_note": "Ran 36000 SIMPLE iterations, not the 15000 that ITERATIONS['finest'] asks for, and the difference decides the ladder. At the 15000 cap Cd was 0.0028936144511 and still falling by 1.04e-5 per thousand iterations, with a peak-to-peak spread of 4.44e-7 over the last fifty against the module's own 1e-7 flatness gate: _extract_record refused it, correctly. Continued to 36000 the rung settles at Cd = 0.0028635838023 with a tail-50 spread of 6.62e-10, the tightest of all five rungs, and the per-thousand decrement has decayed into sign-flipping noise at 9e-9. Accepting the 15000 value would have put Cd 3.00e-5 (1.05%) high and turned the finest triple's increments from shrinking into growing, reporting the ladder as a divergence. Logs: log.simpleFoam.0-15000.gz and log.simpleFoam.15000-36000.gz in this directory.",
+      "verdict": "The finest triple 137x97 + 273x193 + 545x385 is the first ladder in this corpus that the Eca-Hoekstra certifier declares CONCLUSIVE, on both functionals: Cd observed order 1.6344 with a reportable band of 4.244e-6 (0.148% of the value), Cf(x=0.970084) observed order 1.5281 with a band of 5.085e-6 (0.188%). Increments shrink at every one of the four steps (1.1248e-4, 5.3084e-5, 2.2184e-5, 7.1456e-6), the Richardson value lands inside the measured range plus tolerance, and both orders sit inside (1,2), which is what second-order momentum advection with first-order upwinding on k and omega should give. The verdict is robust to the rung's own remaining iterative error: across the residual-drift bound the order moves only from 1.6362 to 1.6326 and stays conclusive. That is NOT the same as being in the asymptotic range, and this record does not claim it. The observed order is still rising monotonically at every rung added: 1.0833, 1.2587, 1.6344 for Cd and 1.0315, 1.1110, 1.5281 for Cf. A settled ladder shows a settled order and this one has not settled. Two independent reasons to expect that drift are recorded above: the grid family is not exactly self-similar because R_Y is held fixed while ny doubles, and CFL3D and FUN3D drift the same way on NASA's own grids (0.9468, 1.0611, 1.3383 and 0.8172, 0.9784, 1.0703), where neither is conclusive on any triple under this same certifier. The honest claim is that the flat plate is the first family here to EARN a reportable discretization band, not the first to demonstrate asymptotic convergence."
     },
-    "extended_triple_medium_fine_finer": {
-      "observed_order": 1.2587461863354106,
-      "richardson": 0.002872365135190256,
-      "gci_finer_pct": 0.6969766341386194
-    },
-    "verdict": "Observed order MOVED from 1.0833 to 1.2587 when the finer rung was added, so the ladder is not yet in a strict asymptotic range and the GCI should be read as an estimate rather than a bound. The movement is upward, consistent with the first-order upwind on k and omega mattering relatively less as the grid refines. GCI on the finest triple falls to 0.6970 percent from 2.0925 percent.",
+    "grid_family_note": "The wall-normal total expansion ratio R_Y is held at 8.5e4 while ny doubles, so the first cell height runs 4.5825e-6, 2.5241e-6, 1.3249e-6, 6.7877e-7, 3.4354e-7 m: successive ratios 1.815, 1.905, 1.952, 1.976, approaching 2 from below rather than equalling it. The family is therefore not exactly self-similar, and an order fitted at a constant r = 2 is biased low on the coarse rungs and less so on the fine ones. That is a mechanism which by itself drifts the observed order upward with refinement, independently of the physics.",
+    "verdict": "The finest triple 137x97 + 273x193 + 545x385 is the first ladder in this corpus that the Eca-Hoekstra certifier declares CONCLUSIVE, on both functionals: Cd observed order 1.6344 with a reportable band of 4.244e-6 (0.148% of the value), Cf(x=0.970084) observed order 1.5281 with a band of 5.085e-6 (0.188%). Increments shrink at every one of the four steps (1.1248e-4, 5.3084e-5, 2.2184e-5, 7.1456e-6), the Richardson value lands inside the measured range plus tolerance, and both orders sit inside (1,2), which is what second-order momentum advection with first-order upwinding on k and omega should give. The verdict is robust to the rung's own remaining iterative error: across the residual-drift bound the order moves only from 1.6362 to 1.6326 and stays conclusive. That is NOT the same as being in the asymptotic range, and this record does not claim it. The observed order is still rising monotonically at every rung added: 1.0833, 1.2587, 1.6344 for Cd and 1.0315, 1.1110, 1.5281 for Cf. A settled ladder shows a settled order and this one has not settled. Two independent reasons to expect that drift are recorded above: the grid family is not exactly self-similar because R_Y is held fixed while ny doubles, and CFL3D and FUN3D drift the same way on NASA's own grids (0.9468, 1.0611, 1.3383 and 0.8172, 0.9784, 1.0703), where neither is conclusive on any triple under this same certifier. The honest claim is that the flat plate is the first family here to EARN a reportable discretization band, not the first to demonstrate asymptotic convergence.",
     "comparison": {
-      "finer_vs_cfl3d_finest_pct": 0.10914287801675764,
-      "finer_vs_fun3d_finest_pct": 0.43120322104062536,
-      "matched_grid_note": "No CFL3D value at the 273x193 level is held in this record, so the new rung cannot be compared matched-grid the way the fine rung was (0.293 percent). The comparisons above are against CFL3D and FUN3D FINEST grids, which is a different and weaker comparison."
+      "matched_grid_pct_vs_cfl3d": [
+        -1.3871453849494286,
+        -0.14004591927769816,
+        0.2931477996083176,
+        0.3818786400991314,
+        0.3595747418755346
+      ],
+      "matched_grid_pct_vs_fun3d": [
+        6.238063708005437,
+        3.8259669001644125,
+        2.1982507310811528,
+        1.245209043184592,
+        0.6824407472960425
+      ],
+      "cfl3d_cd_ladder_all": [
+        0.00270623102,
+        0.00278506994,
+        0.0028259696,
+        0.00284557154,
+        0.00285332397
+      ],
+      "fun3d_cd_ladder_all": [
+        0.002511992,
+        0.002678684,
+        0.00277329,
+        0.002821307,
+        0.002844174
+      ],
+      "reference_codes_own_observed_order": {
+        "cfl3d": [
+          0.9468191632470058,
+          1.0610924054130455,
+          1.3382759453402489
+        ],
+        "fun3d": [
+          0.8171812785157402,
+          0.9783864136524466,
+          1.0702781638036596
+        ],
+        "note": "CFL3D and FUN3D, on NASA's own grids and with NASA's own published values, are handed to the same certifier at dim=2 and three rungs. Neither is conclusive on any triple, and both drift upward exactly as ours does. Our ladder's order drift is therefore the behaviour of this case, not a defect peculiar to this lab's meshes."
+      }
     }
   }
 }
