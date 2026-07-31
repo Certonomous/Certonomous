@@ -1389,12 +1389,6 @@ def main(request: str | None = None, params: dict | None = None,
         constraints=("take-off speed", "landing speed", "range"))
     for line in method_memo(props):
         script.researcher(line)
-    # The one thing the selected method cannot reach, said by the chief who
-    # chose it rather than by the numericist who inherits it.
-    script.researcher(
-        "• Take-off and landing feasibility rests on a maximum lift "
-        "coefficient no vortex-lattice solve can produce. "
-        "• But good for preliminary design.")
     roster.idle(CHIEF_RESEARCHER)
     script.engineer(ENGINEER_ACK)
 
@@ -1438,6 +1432,16 @@ def main(request: str | None = None, params: dict | None = None,
               if basis != "assumed, not stated"],
         table_id="assumed-values", role=_NUMERICIST_SPEAKER)
     roster.idle(NUMERICIST)
+
+    # The one thing the selected method cannot reach, ruled on by the chief who
+    # chose it rather than by the numericist who inherits it. It sits HERE, one
+    # entry after the ledger names the two coefficients, and not up in the memo:
+    # three Chief Researcher entries ran back to back there, which reads as the
+    # same person speaking three times instead of one chief making one ruling.
+    script.researcher(
+        "• Take-off and landing feasibility rests on a maximum lift "
+        "coefficient no vortex-lattice solve can produce. "
+        "• But good for preliminary design.")
 
     # The hypothesis phase shows the trade before it claims it: the stall-speed
     # relations the screen will use, evaluated at the MTOW this passenger count
