@@ -707,7 +707,7 @@ def main(request: str | None = None, params: dict | None = None,
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
         f"• From a received mesh to a converged wall state in {elapsed:.1f} "
-        f"minutes, no hand tuning at any step. "
+        f"minutes. "
         f"• Residuals below the case's own convergence control at iteration "
         f"{converged_iterations:,}.")
     # The measurement against the published experiment, as a table rather

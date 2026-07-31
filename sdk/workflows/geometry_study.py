@@ -294,8 +294,7 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         f"{reference_values['planform_area']:.3g} m². "
         f"• Freestream {velocity:g} m/s; Re {reference_values['reynolds']:.1e}.")
     script.researcher(
-        "• Reference area must be measured from the body itself. "
-        "• Same discipline as our NACA 4412 validation: measure first, then compare.")
+        "• Reference area must be measured from the body itself. ")
 
     # Stage the case inside the compute node and scale the surface with it.
     local_case = Path(engineer.out_root) / "case"
@@ -1329,10 +1328,7 @@ def main(request: str | None = None, params: dict | None = None,
             pass
         announce_field(emit, "geometry-study", painted,
                        f"{shown}, surface pressure from the solve")
-        script.engineer(
-            "• Body painted with its own solved surface pressure. "
-            "• Red is high pressure where the flow stagnates; blue is low "
-            "where it accelerates.")
+        script.engineer("• Body carrying its own solved surface field.")
     plots: list[str] = []
     report_plots: list[dict] = []
     for name in ("Cd", "Cl"):
@@ -1616,8 +1612,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From raw surface to a converged force in {elapsed:.1f} minutes, "
-        f"no hand tuning at any step. "
+        f"• From raw surface to a converged force in {elapsed:.1f} minutes. "
         "• The coefficient history is flat across the averaging window, so "
         "the quoted band is meaningful.")
     # The skewness caveat, stated as a measurement when and only when
@@ -1747,7 +1742,7 @@ def main(request: str | None = None, params: dict | None = None,
         knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
         script.numericist(
-            f"• Entered into case memory. "
+            f"• Lessons entered to memory. "
             f"• Next question about a body like {shown} answers from a real run.")
 
     report_doc = lab_report(

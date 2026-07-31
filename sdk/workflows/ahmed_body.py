@@ -400,10 +400,7 @@ def main(request: str | None = None, params: dict | None = None,
             pass
         announce_field(emit, "ahmed-body", painted,
                        f"{shown}, surface pressure from the solve")
-        script.engineer(
-            "• Body painted with its own solved surface pressure. "
-            "• Red is high pressure where the flow stagnates; blue is low "
-            "where it accelerates over the slant.")
+        script.engineer("• Body carrying its own solved surface field.")
 
     plots: list[str] = []
     report_plots: list[dict] = []
@@ -418,38 +415,10 @@ def main(request: str | None = None, params: dict | None = None,
             report_plots.append({"title": title, "file": target.name,
                                  "url": f"/api/plot/ahmed-body/{target.name}"})
 
-    roster.set(CHIEF_ENGINEER, "slicing the pressure field", "working")
-    from chief_engineer.field_render import extract_pressure_slice
-
-    body_bounds = None
-    if painted:
-        try:
-            import json as _json
-            body_bounds = _json.loads(
-                Path(painted).read_text(encoding="utf-8")).get("bounds")
-        except (OSError, ValueError):
-            body_bounds = None
-    try:
-        slice_png = extract_pressure_slice(
-            engineer.remote_case, out / f"{LABEL}_pressure_slice.png",
-            RUN_PREFIX[:-1] if RUN_PREFIX and RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
-            span_axis=int(report.get("span_axis", 1)),
-            plane_axes=(int(report.get("streamwise_axis", 0)),
-                        int(report.get("vertical_axis", 2))),
-            body_bounds=body_bounds, body_label=shown,
-            surface_path=local_surface if local_surface.exists() else None,
-            surface_scale=float(report.get("geometry_scale", 1.0)))
-    except Exception:
-        slice_png = None
-    if slice_png:
-        entry = pressure_slice_entry(slice_png)
-        entry["url"] = f"/api/plot/ahmed-body/{Path(slice_png).name}"
-        announce_plot(emit, "ahmed-body", slice_png, entry["title"])
-        report_plots.append(entry)
-        script.engineer(
-            "• Mid-span pressure slice rendered from the solved volume "
-            "field. • Red is the stagnation region at the nose; blue is the "
-            "low-pressure region over the slant.")
+    # The mid-span slice is not drawn. A flat cut through the volume
+    # competed with the painted body for the same attention and read as
+    # the weaker picture, and it carried a caption describing colours the
+    # viewer can already see. The body itself carries the field.
 
     drag = results.get("Cd")
     lift = results.get("Cl")
@@ -574,8 +543,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From raw surface to a converged force in {elapsed:.1f} minutes, "
-        f"no hand tuning at any step. "
+        f"• From raw surface to a converged force in {elapsed:.1f} minutes. "
         "• The coefficient history is flat across the averaging window, so "
         "the quoted band is meaningful.")
     if verdict["tier"] == "VALIDATED":
@@ -588,7 +556,7 @@ def main(request: str | None = None, params: dict | None = None,
     knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                   f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
     script.numericist(
-        f"• Entered into case memory. "
+        f"• Lessons entered to memory. "
         f"• Next question about a body like {shown} answers from a real run.")
 
     _AGENDA = [
