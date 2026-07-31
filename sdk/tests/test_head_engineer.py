@@ -191,6 +191,30 @@ class MonitorStandardRuleTests(unittest.TestCase):
         self.assertIsNone(finding)
         self.assertEqual(monitor.summary()["anomalies"], 0)
 
+    def test_the_monitor_default_is_the_approved_threshold(self):
+        # The approved rule says 10 times the running 99th percentile. This
+        # entry point kept a literal 20.0 after the shared constant was
+        # corrected, so a caller taking the default judged on a threshold
+        # nobody approved. The default is now the constant itself.
+        import inspect
+
+        from chief_engineer.log_signatures import FLAG_MULTIPLE
+
+        default = inspect.signature(
+            LogMonitor.check_wall_time).parameters["flag_multiple"].default
+        self.assertEqual(default, FLAG_MULTIPLE)
+        self.assertEqual(FLAG_MULTIPLE, 10.0)
+
+    def test_a_run_between_the_two_thresholds_is_seen_by_default(self):
+        # 15x the p99 is an excursion under the approved rule and was invisible
+        # under the 20x default this test guards against.
+        monitor = LogMonitor()
+        envelope = {"k": {"p50": 1.0, "p99": 2.0, "count": 500.0}}
+        finding = monitor.check_wall_time("solve", "k", 30.0,
+                                          envelope=envelope)
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding["severity"], "flag")
+
 
 class StatisticsTests(unittest.TestCase):
     HISTORY = (

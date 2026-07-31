@@ -1,7 +1,7 @@
 {
  "artifact": "wall-time assessment",
  "disclaimer": "Retrospective assessment, not monitor history. Every row below was recorded ok with no flag at the time it was written, because the rule did not exist yet. This artifact states what the rule would have said, and changes no record.",
- "assessed_at": "2026-07-30T19:00:33+00:00",
+ "assessed_at": "2026-07-31T08:24:47+00:00",
  "ledger_rows_read": 208193,
  "rows_with_a_solver_and_a_wall_time": 208193,
  "rule": {

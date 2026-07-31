@@ -289,7 +289,8 @@ class LogMonitor:
 
     def check_wall_time(self, step: str, solver_kind: str, wall_seconds: float,
                         *, envelope=None, ledger_path=None,
-                        flag_multiple: float = 20.0) -> dict[str, Any] | None:
+                        flag_multiple: float = FLAG_MULTIPLE,
+                        ) -> dict[str, Any] | None:
         """Wall-time excursion rule S9 against the learned ledger envelope.
 
         Call once per completed solver run with its measured wall time. A run
@@ -298,6 +299,12 @@ class LogMonitor:
         escalating to fatal at 100x); the classification is returned so the
         caller can keep the excursion as a named field on the record. The
         record itself is never altered.
+
+        The default is the threshold the owner approved, taken from
+        ``FLAG_MULTIPLE`` rather than restated here. This entry point carried
+        its own literal 20.0 for five days after the shared constant was
+        corrected to the approved 10.0, so every caller that took the default
+        was judging on a threshold nobody approved.
         """
         finding = classify_wall_time(
             solver_kind, wall_seconds, envelope,

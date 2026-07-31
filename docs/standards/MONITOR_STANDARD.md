@@ -176,6 +176,13 @@ from 20x back to the 10x the owner actually approved.
   choice costs almost nothing in noise: measured over the full 208193-row
   ledger, 10x names 30 rows and 20x names 27, and the three extra are
   reduced-order rows of 0.05 to 0.43 s.
+  SECOND CORRECTION, 2026-07-31: the correction above landed on the shared
+  constant but not on `LogMonitor.check_wall_time`, which kept its own literal
+  default of 20.0. For five days every caller that took the monitor default
+  judged on a threshold nobody approved, and the gap between the two rows the
+  ledger holds in that band was invisible to it. The entry point now takes its
+  default from the constant, and a test pins the two together so they cannot
+  drift apart again.
 - **The named field.** `run_task` in `sdk/workflows/mega_batch.py` stamps
   `wall_time_excursion` onto a row as it is written, carrying the severity,
   the multiple, and the p99 and sample count it was judged against. An
@@ -195,6 +202,10 @@ from 20x back to the 10x the owner actually approved.
   confirms the proposal's evidence: the six ~16300 s runs (three cylinder,
   three wing), every one recorded ok, land at 1070x and 2214x their p99 and
   are FATAL under the rule.
+  The artifact was generated for the first time on 2026-07-31, over 208193
+  ledger rows: 19 rows would have been FLAG and 11 FATAL, none of them flagged
+  by anything at the time. Until then the script existed and its output did
+  not, so the finding lived only in this paragraph.
 - **Known weakness, recorded not hidden.** The rule is purely relative, so a
   solver whose p99 is 3 milliseconds gets a threshold of 30 milliseconds. Five
   reduced-order rows of 0.30 to 0.43 s are assessed FATAL on that basis. The
