@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T20:18:31Z",
+  "generated_at": "2026-07-31T22:18:09Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -17,8 +17,10 @@
         "ASME V&V 20-2009",
         "campaign/F6a_epistemic_band.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w3-variance-budget-is-a-gate",
@@ -36,8 +38,52 @@
         "Dakota method definitions",
         "sdk/workflows/sobol_sensitivity.py"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:18:26Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w3-dimension-decides-one-thing",
+      "well": "W3",
+      "objective": "State in the verification charter that dimensionality decides admission to the window and nothing else",
+      "rationale": "Changing the assumed dimensionality divides every observed order by exactly 1.5 and leaves the extrapolated value and a conclusive ladder band untouched, because the refinement ratio raised to the order is invariant under the change. So the assumption cannot corrupt a band; it can only wrongly admit or wrongly reject one. That is a narrow and checkable consequence, and stating it stops the next reader treating the parameter as a general modelling choice.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The charter states the invariance and the preflight refuses a ladder whose dimensionality is unstated",
+      "expected_knowledge_gain": "Turns a subtle parameter into a single checkable question",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/uq.py",
+        "docs/charters/VERIFICATION_CHARTER.md"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:31Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w3-order-still-rising-is-not-asymptotic",
+      "well": "W3",
+      "objective": "State the difference between a reportable band and demonstrated asymptotic convergence, in the charter and on the card",
+      "rationale": "The flat plate is the first family to earn a reportable discretization band, and its observed order is still rising at every rung: 1.0833 then 1.2587 then 1.6344. A settled ladder shows a settled order. Two independent causes are recorded, a mesh family that is not exactly self similar and the same drift in the reference codes on the reference grids. The distinction matters because the band is quotable and the asymptotic claim is not, and the two are easily read as one.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The card and the charter distinguish an earned band from a demonstrated asymptotic order, and the flat plate is labelled correctly",
+      "expected_knowledge_gain": "The lab is one sentence away from overclaiming its best verification result",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output/website/tmr/flatplate_sst.json",
+        "docs/charters/VERIFICATION_CHARTER.md"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r1-monitor-walltime-rule",
@@ -130,8 +176,10 @@
         "mega-batch ledger",
         "docs/charters/COMPUTE_BUDGET_CHARTER.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r1-validation-tier-labels",
@@ -167,8 +215,31 @@
         "Ling, Kurzawski & Templeton 2016",
         "Schmelzer, Dwight & Cinnella 2020"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
+      "status": "approved",
+      "created_at": "2026-07-31T10:18:18Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w6-estimate-the-iterations-not-only-the-grid",
+      "well": "W6",
+      "objective": "Price a refinement rung by the iterations it needs, not only by its cell count",
+      "rationale": "The finest flat-plate rung came in at 1.48 times its estimate, and the whole overrun was iterations: 202.7 of 483.6 core-minutes went on a first pass the module then refused for a drag coefficient still moving. The grid was priced correctly. Nothing in the estimate asked how long that grid would take to settle, and on this ladder the answer was more than double the configured cap.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A rung estimate states the iteration count it assumes and the evidence for it",
+      "expected_knowledge_gain": "The two largest cost misses this week were both iterations, not cells",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/tmr/flatplate_sst.json",
+        "docs/charters/COMPUTE_BUDGET_CHARTER.md"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w2-tbnn-sparta-readings",
@@ -186,8 +257,10 @@
         "Ling, Kurzawski & Templeton, JFM 2016",
         "Schmelzer, Dwight & Cinnella, FTaC 2020"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:18:26Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w2-pope-1975-integrity-basis",
@@ -204,8 +277,10 @@
       "citations": [
         "Pope, Journal of Fluid Mechanics 72, 1975"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T16:57:31Z"
+      "status": "approved",
+      "created_at": "2026-07-31T16:57:31Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w6-rebuild-the-laptop-bundle",
@@ -223,8 +298,10 @@
         "dist/certonomous-demo",
         "scripts/self_audit.py"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T12:18:22Z"
+      "status": "approved",
+      "created_at": "2026-07-31T12:18:22Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w6-papers-price-the-cheap-step",
@@ -242,8 +319,10 @@
         "campaign/W2_TBNN_SPARTA_READING.md",
         "docs/charters/COMPUTE_BUDGET_CHARTER.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T16:57:31Z"
+      "status": "approved",
+      "created_at": "2026-07-31T16:57:31Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w6-cost-basis-cannot-cite-a-defective-run",
@@ -261,8 +340,10 @@
         "agenda cost_basis contract",
         "the NACA 0012 finite wing repair estimate"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:18:26Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w4-a1-warpderiv-upstream",
@@ -280,8 +361,10 @@
         "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
         "dafoam/PROOF.md sections 15 to 21"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w7-one-way-in-for-operator-artifacts",
@@ -299,8 +382,10 @@
         "sdk/chief_engineer/server.py",
         "demo-output/website/surfaces"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:00Z"
+      "status": "approved",
+      "created_at": "2026-07-31T18:18:00Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w4-idwarp-source-trace",
@@ -318,8 +403,10 @@
         "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
         "dafoam/PROOF.md section 22"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
+      "status": "approved",
+      "created_at": "2026-07-31T10:18:18Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w7-weekly-claim-audit",
@@ -338,8 +425,10 @@
         "LESSONS.md L-27",
         "LESSONS.md L-28"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w7-verify-reachability-from-outside",
@@ -357,8 +446,10 @@
         "scripts/self_audit.py",
         "LAPTOP_SHOOT.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:00Z"
+      "status": "approved",
+      "created_at": "2026-07-31T18:18:00Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w6-generator-claims-are-per-case",
@@ -376,8 +467,10 @@
         "dafoam/GENERATOR_FINDING_pyhyp_aspect_ratio.md",
         "models/curriculum/results/naca4412_wing.json"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T16:18:25Z"
+      "status": "approved",
+      "created_at": "2026-07-31T16:18:25Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w7-s7-withdraw-or-keep",
@@ -394,8 +487,10 @@
       "citations": [
         "docs/standards/MONITOR_STANDARD.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
+      "status": "approved",
+      "created_at": "2026-07-31T10:18:18Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w7-solver-stub-detector",
@@ -413,8 +508,10 @@
         "demo-output/website/mfmc_error_budget.json",
         "docs/standards/MONITOR_STANDARD.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:43:29Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:43:29Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w5-disclose-the-bump-claim",
@@ -432,8 +529,10 @@
         "demo-output/website/tmr/bump_sst.json",
         "campaign/4G_tmr_mesh_aspect_ratio.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:27Z"
+      "status": "approved",
+      "created_at": "2026-07-31T18:18:27Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w8-certificate-interval-lesson",
@@ -450,8 +549,93 @@
       "citations": [
         "docs/charters/VERIFICATION_CHARTER.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w8-whitelist-writers-drop-new-fields",
+      "well": "W8",
+      "objective": "Find every record writer that whitelists keys and is silently dropping fields added upstream",
+      "rationale": "The ladder fit began recording which dimensionality produced its mesh size, and none of the eight stored studies carried it. The reason was not that the studies predate the field: both study writers copy a fixed list of keys, so anything added upstream is dropped without a word. A record that silently omits what it was not told to keep is worse than one that never had the field, because it looks complete.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every record writer either copies what it is given or names the keys it drops, and the audit checks it",
+      "expected_knowledge_gain": "The failure is invisible by construction, so it will recur in every writer nobody has looked at",
+      "source_kind": "report",
+      "citations": [
+        "sdk/scripts/run_uq_studies.py",
+        "sdk/workflows/geometry_study.py"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:31Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-figures-must-show-every-rung",
+      "well": "W5",
+      "objective": "Publish the flat-plate figures with all five rungs instead of the three the palette allows",
+      "rationale": "The ladder now carries five rungs and the figure code zips profiles against a three colour palette, so two are dropped silently. The data file holds all five. A published figure that shows fewer rungs than the study measured understates the work and, worse, hides the two rungs on which the reportable band actually rests.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The published figure shows every rung the record holds, or names the ones it omits",
+      "expected_knowledge_gain": "The band this family just earned rests on the two rungs the figure does not draw",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/tmr/flatplate_sst.json"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w8-right-verdict-wrong-reason",
+      "well": "W8",
+      "objective": "Record the near miss where a gate held for a reason that turned out to be arithmetic",
+      "rationale": "The vortex shedding ladder was declined for an observed order of 3.646, outside the credible window. Fitted with the correct dimensionality that order is 2.430, inside it. The act is still declined, now by an independent guard whose extrapolated value overshoots the measured range, and that guard does not depend on dimensionality at all. The verdict never moved; the reason behind it did, and for a day the act told the viewer something arithmetically wrong about why.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A gate records which guard held it, so a verdict surviving on a different guard than the one stated is visible",
+      "expected_knowledge_gain": "A right answer reached for a wrong reason survives every check that only looks at the answer",
+      "source_kind": "report",
+      "citations": [
+        "campaign/NOT_PASSING_REGISTER.md",
+        "sdk/chief_engineer/uq.py"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:31Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w8-an-audit-attribution-is-a-claim",
+      "well": "W8",
+      "objective": "Require an audit finding to name the file it inspected, and check it before the finding travels",
+      "rationale": "A dimensionality defect found in the shared uncertainty module was attributed to the flat-plate verification card. The card never had it: it has always fitted at the correct dimensionality, reproduces its published order bit for bit, and follows the reference convention. The two were conflated because both compute an order and only one was opened. The wrong attribution reached a proposal and a briefing before anyone checked, which is the same failure mode as a generator defect carried to a family that does not use that generator.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every audit finding names the file and line it was read from, and a second reader opens that file before it is filed",
+      "expected_knowledge_gain": "An audit that misattributes is worse than no audit, because its findings are acted on",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/tmr/flatplate_sst.json",
+        "sdk/chief_engineer/uq.py"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T20:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w8-largest-term-rule",
@@ -469,8 +653,10 @@
         "demo-output/website/mfmc_error_budget.json",
         "docs/charters/RESULT_PRIORITY_CHARTER.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T16:18:25Z"
+      "status": "approved",
+      "created_at": "2026-07-31T16:18:25Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w1-approved-backlog-below-the-floor",
@@ -488,8 +674,10 @@
         "docs/charters/CASE_SELECTION_CHARTER.md",
         "demo-output/website/mfmc_error_budget.json"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T19:11:01Z"
+      "status": "approved",
+      "created_at": "2026-07-31T19:11:01Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w5-wall-only-validated-row",
@@ -507,8 +695,10 @@
         "scripts/self_audit.py",
         "models/curriculum/uq-studies/ahmed_25.json"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T12:18:22Z"
+      "status": "approved",
+      "created_at": "2026-07-31T12:18:22Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w7-bundle-drift-check",
@@ -526,8 +716,10 @@
         "scripts/self_audit.py",
         "dist/certonomous-demo"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:18:26Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w8-in-sample-inversion-clause",
@@ -545,8 +737,10 @@
         "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
         "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T12:18:22Z"
+      "status": "approved",
+      "created_at": "2026-07-31T12:18:22Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w8-a-plausible-order-can-be-a-divergence",
@@ -564,8 +758,10 @@
         "campaign/NOT_PASSING_REGISTER.md",
         "docs/charters/VERIFICATION_CHARTER.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T16:18:25Z"
+      "status": "approved",
+      "created_at": "2026-07-31T16:18:25Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-536d110e078a",
@@ -618,10 +814,12 @@
       "cost_basis": "measured: the prior graded solve of this body ran 4.6 minutes of wall time",
       "expected_knowledge_gain": "Either a validated credential for the NACA 4412 finite wing or a measured account of why the setup misses the reference",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T04:12:40+00:00",
       "launch_prompt": "Mesh and solve the NACA 4412 wing and report the drag with its envelope.",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w5-ladder-band-guard-counts-rungs-it-did-not-fit",
@@ -636,10 +834,10 @@
       "cost_basis": "measured; the whole question is decided by re-running the existing band unit tests with both call shapes, no solver time at all",
       "expected_knowledge_gain": "Whether any of the ladders this lab has declined were declined by the rung count of the call rather than by their own numbers, and a certifier that cannot give two answers to one fit",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-31T20:30:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W3"
     },
     {
@@ -694,9 +892,11 @@
       "cost_basis": "estimate, derivation is arithmetic once the anchor source is chosen; no new solves required",
       "expected_knowledge_gain": "A credential grade that cannot be moved by the error it is meant to detect, and a reusable pattern for every bottom-up reference in the wall",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-880b4f92bdc5",
@@ -709,9 +909,11 @@
       "cost_basis": "estimate; the finest rung holds 330,950 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T04:12:40+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "credential-layer-coverage-gate",
@@ -724,9 +926,11 @@
       "cost_basis": "estimate, a check added to existing grading code plus a re-grade of current wall credentials",
       "expected_knowledge_gain": "Removal of a silent failure mode from the credentials wall, and a stated coverage figure on every drag credential",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W1"
+      "well": "W1",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-beadb3545c04",
@@ -739,9 +943,11 @@
       "cost_basis": "estimate; the finest rung holds 193,880 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-25T23:35:19+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-f493fff26990",
@@ -773,9 +979,11 @@
       "cost_basis": "estimate; the finest rung holds 79,439 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Ahmed reference body, 25\u00b0 slant drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T19:03:38+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-11fa38e9a055",
@@ -788,9 +996,11 @@
       "cost_basis": "estimate; the finest rung holds 79,778 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Ahmed reference body, 35\u00b0 slant drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-31T17:08:49+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-d889fd00f6ae",
@@ -821,9 +1031,11 @@
       "cost_basis": "estimate; the finest rung holds 299,493 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Canonical calibration body: cube drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-25T18:24:27+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-130bfe3b2961",
@@ -855,9 +1067,11 @@
       "cost_basis": "estimate; the finest rung holds 140,580 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 0012 finite wing drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-31T07:32:14+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-7273e7f80ddc",
@@ -870,9 +1084,11 @@
       "cost_basis": "estimate; the finest rung holds 243,929 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 0015 sail drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T04:12:40+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-64393439352d",
@@ -885,9 +1101,11 @@
       "cost_basis": "estimate; the finest rung holds 337,334 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 4412 finite wing drag",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-25T18:10:48+00:00",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w3-refit-the-2d-ladders",
@@ -905,8 +1123,10 @@
         "sdk/chief_engineer/uq.py",
         "campaign/4G_tmr_mesh_aspect_ratio.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:27Z"
+      "status": "approved",
+      "created_at": "2026-07-31T18:18:27Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w5-tmr-iteration-caps-are-guesses-not-measurements",
@@ -920,10 +1140,10 @@
       "cost_basis": "measured; the iteration to tolerance curves already exist in the four solved rungs and the fifth, so the scaling can be fitted without a new solve",
       "expected_knowledge_gain": "A refinement ladder whose rungs are all stopped by the same test rather than by five different hand chosen numbers, and an answer to whether the bump and airfoil ladders carry the same defect",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-31T20:30:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W3"
     },
     {
@@ -938,9 +1158,11 @@
       "cost_basis": "estimate, a scan of existing case settings plus a re-run of any comparison found to be affected",
       "expected_knowledge_gain": "Removal of a silent apples to oranges comparison from the credentials wall, and a stated solver equivalence caveat wherever the two are compared",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W4"
+      "well": "W4",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r4-a1-idx6-wall-function-branch",
@@ -994,10 +1216,10 @@
       "cost_basis": "measured, the existing checker classifies 92 logs in minutes; the remaining cost is reading papers, not compute",
       "expected_knowledge_gain": "A measured answer to a question the field appears not to ask: how much published computational fluid dynamics rests on runs whose convergence was never established. Our own rate is the uncomfortable part of the evidence and makes the study credible rather than accusatory, since we found it in ourselves first. It also converts a piece of internal tooling into a contribution, because the checker is the instrument the study needs and it already exists.",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-30T04:05:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W7"
     },
     {
@@ -1012,9 +1234,11 @@
       "cost_basis": "measured, the tutorial rung cost 3.51 core minutes so a sweep of eight step sizes plus reruns is bounded",
       "expected_knowledge_gain": "A defensible tolerance for every future shape derivative verification, separating check error from gradient error",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W4"
+      "well": "W4",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r6-airfoil-second-gradient-mechanism",
@@ -1028,10 +1252,10 @@
       "cost_basis": "measured, from this case's own 3.5 core-minute verification cycle across several isolation probes",
       "expected_knowledge_gain": "The last unexplained gradient error on the lab's most heavily verified case. An error that grows under refinement is also the more dangerous kind, because the usual response to a suspect gradient is to refine the mesh, and here that would make it worse while appearing to be the responsible thing to do.",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-30T00:05:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W1"
     },
     {
@@ -1045,9 +1269,11 @@
       "cost_basis": "measured, the smallest rung cost 3.51 core minutes so a sweep of five sizes with peak memory sampling is bounded",
       "expected_knowledge_gain": "A predictive feasibility rule for every future adjoint case, replacing case by case discovery of the same wall",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W4"
+      "well": "W4",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "closure-baseline-error-estimator-gate",
@@ -1083,8 +1309,10 @@
         "Schmelzer, Dwight & Cinnella, Flow Turbulence and Combustion 2020",
         "campaign/W2_TBNN_SPARTA_READING.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:00Z"
+      "status": "approved",
+      "created_at": "2026-07-31T18:18:00Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r7-strouhal-mesh-sensitivity-across-the-ladder",
@@ -1098,10 +1326,10 @@
       "cost_basis": "measured, from the low rung's own 2,417-second single-core solve, which a twin reproduces at the same cost",
       "expected_knowledge_gain": "Tells us whether one of this ladder's four gated quantities can be trusted at all. A gate that moves 35 percent under a mesh parameter nobody varied is not a gate, and we currently cannot say whether that applies to one rung or to every rung. It also tests the chaotic-regime explanation on a prediction it makes rather than on the observation that motivated it.",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-30T03:40:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W3"
     },
     {
@@ -1139,8 +1367,10 @@
         "Schmelzer, Dwight & Cinnella, Flow Turbulence and Combustion 2020",
         "campaign/W2_TBNN_SPARTA_READING.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T16:57:31Z"
+      "status": "approved",
+      "created_at": "2026-07-31T16:57:31Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-12fdfe05e05f",
@@ -1205,10 +1435,10 @@
       "cost_basis": "estimate, from the U-bend's own measured 26 core-minutes per full verification cycle",
       "expected_knowledge_gain": "The lab's last unexplained gradient failure. Resolving it would mean every shape derivative here is either verified or has a named, understood defect, which is the precondition for trusting any optimisation result built on them.",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T22:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W3"
     },
     {
@@ -1244,8 +1474,10 @@
         "NASA Turbulence Modeling Resource, wall-mounted hump",
         "closure-challenge-benchmark"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r5-warp-linearisation-workaround",
@@ -1259,10 +1491,10 @@
       "cost_basis": "measured, from the airfoil's 3.5 core-minute verification cycle across several variable constructions",
       "expected_knowledge_gain": "Turns a documented upstream defect from a blocker into a known workaround, on our own schedule rather than someone else's release cycle.",
       "source_kind": "capability",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T22:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W4"
     },
     {
@@ -1301,8 +1533,10 @@
         "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md",
         "roadmap 4A Stage 1 and C2"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T12:18:22Z"
+      "status": "approved",
+      "created_at": "2026-07-31T12:18:22Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-d64295666c56",
@@ -1333,10 +1567,12 @@
       "cost_basis": "estimate",
       "expected_knowledge_gain": "A measured coefficient-interval band on the motorcycle Cd for the model channel, a ranking of the five SST coefficients by drag swing in an incompressible separated flow (testing whether the papers' transonic ranking of beta-star first and a1-in-separation transfers), and a standing perturbed-coefficient recipe reusable on any held mesh",
       "source_kind": "reading",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-25",
       "launch_prompt": "Run a closure-coefficient uncertainty mission on the motorcycle held mesh: hold mesh and numerics fixed, restart every case from the converged baseline, and solve one-at-a-time corner cases for the five significant SST coefficients - beta-star in [0.0784, 0.1024], a1 in [0.31, 0.40] upward only, sigma-w1 in [0.3, 0.7], beta-star/beta1 in [1.19, 1.31], beta-star/beta2 in [1.05, 1.45] - ten solves at about six minutes each. Report the Cd envelope across the set as the measured coefficient-interval band for the model channel, shown alongside (not replacing) the transferred estimate and stated as an interval, and rank the coefficients by swing. If the band is material against the numerical channel, promote the top three coefficients to a 20-sample Latin Hypercube set and run the Sobol analysis layer for variance shares with the earned-badge convention.",
-      "well": "W2"
+      "well": "W2",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-527efc1cbb44",
@@ -1388,8 +1624,10 @@
         "demo-output/website/mfmc_error_budget.json",
         "docs/UNCERTAINTY.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:43:29Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:43:29Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w2-tbnn-duct-reynolds-generalisation",
@@ -1411,8 +1649,10 @@
         "Certonomous ladder-B rung B2 duct baseline timings, measured 2026-07-28, demo-output/website/dafoam/ladder-b/B2_duct_baseline.md",
         "demo-output/website/campaign/W2_TBNN_SPARTA_READING.md section 1"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:41:00Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:41:00Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w2-sparta-frozen-rans-cbfs",
@@ -1433,8 +1673,10 @@
         "Certonomous ladder-B rung B2 CBFS baseline run and Ofpp macro blocker, measured 2026-07-28, demo-output/website/dafoam/ladder-b/B2_duct_baseline.md",
         "demo-output/website/campaign/W2_TBNN_SPARTA_READING.md section 2"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:52:00Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:52:00Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-a3cc843ce473",
@@ -1469,8 +1711,10 @@
         "sdk/workflows/nasa_hump.py",
         "demo-presentation-conventions"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
+      "status": "approved",
+      "created_at": "2026-07-31T10:18:18Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r4-m6-wall-treatment-plateau",
@@ -1484,10 +1728,10 @@
       "cost_basis": "measured, from this case's own 498-second solve stage at 4 ranks, doubled for two meshes plus mesh generation",
       "expected_knowledge_gain": "Converts a documented failure into either a validated ninth case with a real Cp comparison against AGARD, or a sharper failure with wall treatment eliminated. The Cp gate is currently not merely unmet but unreachable, because the solver raises before writing a field, so this is the only route to a pressure comparison on this case at all.",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T20:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W1"
     },
     {
@@ -1520,10 +1764,10 @@
       "cost_basis": "measured, using the cost exponent of 1.514 derived from this ladder's own two most recent rungs rather than the shallower 0.714 assumed earlier",
       "expected_knowledge_gain": "A located transition rather than an interval, on the ladder's sharpest result. Every other quantity here says two dimensions is high by some percentage; this one says the mean wake differs in kind, which is far better evidence for a dimensionality attribution than any deviation figure.",
       "source_kind": "gate",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-30T00:05:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W1"
     },
     {
@@ -1538,10 +1782,12 @@
       "cost_basis": "estimate",
       "expected_knowledge_gain": "First lifting-body ladder; whether the verification discipline holds when pressure drag and lift dominate",
       "source_kind": "challenge",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-25T15:14:47",
       "launch_prompt": "Run workflows.tmr_verification.run_naca_level for (medium, fine) x (10, 0, 15 degrees) sequentially with detach=True and collect_level, honoring the STOP file before every launch; then build the per-alpha summaries with build_naca_summary and persist_naca_ladder, and only then touch the card.",
-      "well": "W5"
+      "well": "W5",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w1-f5b-pitching-naca0012",
@@ -1559,8 +1805,10 @@
         "McAlister, Carr & McCroskey, NASA TP-1100",
         "campaign/F5bc_unsteady_statistics.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
+      "status": "approved",
+      "created_at": "2026-07-31T10:18:18Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r4-coarse-adjoint-prolongation",
@@ -1575,10 +1823,10 @@
       "cost_basis": "estimate, several full adjoint cycles at A1/A5 scale plus one fine-mesh reference; wide error bar because the fine reference may itself hit the wall",
       "expected_knowledge_gain": "A direct answer to whether the memory wall requires capital expenditure or an algorithmic change. This is the proposal on this docket with the clearest commercial consequence, and the answer is the same regardless of which way it comes out: either we can optimize large geometries on this box today, or we have a measured, defensible basis for a hardware case rather than an assumed one.",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T20:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W4"
     },
     {
@@ -1597,8 +1845,10 @@
         "dafoam/ladder-a/A5_ubend_internal.md",
         "dafoam/PROOF.md section 21"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T08:18:16Z"
+      "status": "approved",
+      "created_at": "2026-07-31T08:18:16Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r4-band-tightening-hump",
@@ -1613,10 +1863,10 @@
       "cost_basis": "estimate, roughly a dozen hump solves at the measured 51,626-cell case cost, plus the two channel-1 models that never completed",
       "expected_knowledge_gain": "Moves the flagship claim from 'our band contains a real error' to 'our band contains a real error and here is how tight it can be', which is the difference between a demonstration and a product. Also closes a soft edge in the current result: kOmega defines the lower edge of channel 1 and is unconverged, so the published range rests partly on a number that did not meet its own gate.",
       "source_kind": "challenge",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T20:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W5"
     },
     {
@@ -1635,8 +1885,10 @@
         "NASA Turbulence Modeling Resource bump-in-channel grids",
         "campaign/4G_tmr_mesh_aspect_ratio.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:27Z"
+      "status": "approved",
+      "created_at": "2026-07-31T18:18:27Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "dpw8-v1-oat15a-committee-grid-primal",
@@ -1654,10 +1906,12 @@
       "cost_basis": "Estimate, bracketed by two measured anchors of our own rather than assumed. Levels 1 through 4 total 214528 cells. Scaling from rung A6 (579072 cells, 38.4 core-min for 1000 iterations) gives about 43 core-min for those four levels at 3000 iterations. Scaling instead from the Joukowski L3 rung (12288 cells, 28.3 core-min for 3000 iterations) gives about 493 core-min, but that rung is known to have been inflated by a linear-solver stall that capped every outer iteration at 1000 sweeps. The estimate of 240 core-min sits between the healthy and the pathological anchor, with headroom for a compressible solver being dearer per cell than the incompressible one A6 used. Memory is not expected to bind: A6 held 30 GB free at 579072 cells, and every level here except the ninth is smaller than that. Dollars: zero, the grids are anonymous public downloads and the 64 MB bundle is already fetched",
       "expected_knowledge_gain": "First result this lab would have on a workshop-supplied grid rather than one it generated for itself, which is the difference between checking our solver and checking our meshing at the same time. Also the first honest measurement of how close our pipeline can get to the workshop's mandated convergence bar of about 1e-10, roughly four orders tighter than our production standard, which is the single number that decides whether any future Drag Prediction Workshop entry is credible",
       "source_kind": "challenge",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-30T19:09:15+00:00",
       "launch_prompt": "Run DPW-8 verification case V1 on the ONERA Rizzi committee grid family, levels 1 through 4 only, at one angle of attack, converged primal only. The grid bundle is already downloaded to the session scratchpad; re-fetch it from the workshop grid server if absent. Scope, and do not exceed it: a converged primal is the whole deliverable. Do NOT attempt an adjoint or any gradient on this case. Levels 1 to 3 sit below the measured adjoint memory wall of between 63920 and 156089 cells and so a gradient looks tempting; the gradient question is reserved and must be routed through the chief engineer before any adjoint work is started. Convert the CGNS grids rather than regenerating them, since using the committee grid is the entire point. Report the cell count you actually load against the published table and stop if they disagree. Expect the workshop numerics spec (a specifically qualified Spalart-Allmaras variant, adiabatic wall, residuals near 1e-10) to be out of reach on our pipeline; disclose every deviation from it plainly rather than quietly substituting, exactly as the Joukowski report did. Watch for the linear-solver stall that killed the Joukowski fine rung: if the momentum solve caps its sweep count every outer iteration, change the solver for the whole family or for none of it, never mid-family. The geometry is ONERA intellectual property and must be referred to as the ONERA OAT15A with ONERA acknowledged; do not redistribute it. Nothing is submitted anywhere: the workshop concluded in June 2026 and this is an internal verification run.",
-      "well": "W5"
+      "well": "W5",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w4-rcm-reordering-across-blocked",
@@ -1675,8 +1929,10 @@
         "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md",
         "dafoam/R5_ADJOINT_CONDITIONING.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T12:18:22Z"
+      "status": "approved",
+      "created_at": "2026-07-31T12:18:22Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "r5-perturbation-destroys-its-own-measurand",
@@ -1691,10 +1947,10 @@
       "cost_basis": "estimate, several hump solves at the measured case cost plus one refined-mesh variant",
       "expected_knowledge_gain": "A stated limit of the uncertainty machinery, established by us before anyone else finds it. A method that cannot be tightened past the point where its own measurand dissolves is a bounded tool, and saying so is worth more than an unfalsifiable claim of generality.",
       "source_kind": "challenge",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T22:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W5"
     },
     {
@@ -1712,9 +1968,11 @@
       "cost_basis": "measured on the NACA 4412 precedent: its three-rung layer-resolved ladder ran roughly 45 to 60 minutes on 4 cores, meshing dominating the solve 5 to 10 times over, with the finest rung alone at 1574 s of meshing and 279 s of solve. The derivation step adds no compute. The superseded proposal for this body priced the whole job at 3.04 core-minutes, taken from the wall time of the defective solve itself.",
       "expected_knowledge_gain": "A NACA 0012 reference that was built rather than asserted, with its band as an RSS of pre-committed terms, and a ladder solved with the boundary layer resolved so the remaining deviation is a physics finding rather than a mesh artifact",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-31",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "naca4412-converge-lift-coefficient",
@@ -1727,9 +1985,11 @@
       "cost_basis": "estimate from measured cost of the 2.09 million cell rung at 37.4 core minutes, allowing for a tip refinement study and one further rung",
       "expected_knowledge_gain": "An asymptotic ladder, a defensible observed order, and a materially tighter acceptance band on a wall credential",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W3"
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "w1-ahmed-family-asymptotic-ladder",
@@ -1747,8 +2007,10 @@
         "Ahmed, Ramm & Faltin 1984, SAE 840300",
         "campaign/AHMED_BODY_RECONCILIATION.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T14:18:26Z"
+      "status": "approved",
+      "created_at": "2026-07-31T14:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "fiml-adjoint-conditioning-unblock",
@@ -1764,10 +2026,12 @@
       "cost_basis": "measured: one hump gradient attempt costs about 8 core minutes end to end including colouring, and the four mechanism tests already run cost about 32 core minutes total; budget covers roughly a dozen further single change attempts plus one preconditioner rebuild",
       "expected_knowledge_gain": "Either the first closure relevant field inversion this lab can actually run, which unblocks Stage 1 and the error decomposition that depends on it, or a measured statement that this adjoint stack cannot invert on wall resolved separated cases at all, which would redirect the whole closure line",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-31",
       "launch_prompt": "The field inversion capability is proven and FD verified, and the target case is blocked by one thing: the adjoint linear solve. Read the Stage 1 field inversion record and the R5 conditioning study first. On the NASA hump case, four mechanisms are already tested: wall treatment REFUTED, velocity limiter REFUTED, residual normalization off and natural Jacobian reordering each REMOVE the NaN but leave the GMRES residual flat to eleven digits. Do not retest those. The two named untried threads are a per region or per cell state normalization targeting the high aspect ratio near wall band, and a preconditioner family swap which needs a library rebuild because the type is set after the options are read. Every claim cites a log path and a timestamp. A measured negative is a complete answer.",
-      "well": "W4"
+      "well": "W4",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "tmr-flatplate-finest-grids",
@@ -1802,10 +2066,10 @@
       "cost_basis": "measured, from the B-52's own 1,267-second and motorBike's 1,022-second rebuild times; three constant-ratio rungs per body on two bodies",
       "expected_knowledge_gain": "Either an observed order of accuracy and a defensible extrapolated value for the lab's two headline geometries, or hard evidence that these flows do not converge monotonically on this mesh family, which is itself a real finding about snapped-hex meshes on complex geometry and worth publishing.",
       "source_kind": "measurement",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-29T20:15:00Z",
-      "decided_at": null,
-      "decision_note": null,
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W3"
     },
     {
@@ -1821,9 +2085,11 @@
       "cost_basis": "estimate from the paper's stated iteration count combined with our own measured per solve adjoint cost; flagged as needing a timed pilot before it is trusted",
       "expected_knowledge_gain": "The largest single recoverable term on the benchmark, plus a reproduction of a published adjoint field inversion end to end on our own stack",
       "source_kind": "reading",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-28",
-      "well": "W2"
+      "well": "W2",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
       "id": "agp-4369c99cdd7f",
@@ -1857,142 +2123,75 @@
       "cost_basis": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
       "expected_knowledge_gain": "The first externally rescored aerodynamic result this lab would ever hold, on a blind case, judged beside national laboratories and airframers. Even a mediocre placement establishes that our pipeline runs a modern high lift configuration end to end at several million cells, which no current record demonstrates. A failure is nearly as informative, since it would locate our ceiling against a published grid rather than against our own guess",
       "source_kind": "challenge",
-      "status": "proposed",
+      "status": "approved",
       "created_at": "2026-07-30T19:09:15+00:00",
       "launch_prompt": "Prepare, do not send. Download the sixth High-Lift Prediction Workshop test case 1 specification and the coarsest published grid of the HeldenMesh family, 2661338 cells, from the public grid store. FIRST run a memory probe at a single angle of attack and report peak resident set size before queueing anything else; this grid is 4.6 times our largest ever converged primal and the memory envelope at that size is not established. If the probe fits, run the six specified angles of attack from 10 to 35 degrees at the published conditions of Mach 0.20 and chord Reynolds number 3.55 million, free air with no tunnel or support hardware. Produce the required outputs, which are surface streamlines, skin friction magnitude contours (magnitude, not the x component), and pressure and skin friction along the defined rows. Report every deviation from the specification plainly. ABSOLUTE: do not contact the workshop organisers, do not join a technology focus group distribution list, do not request a participant identifier, do not open a merge request against the submission repository, and do not create any account. Katie decides whether this lab approaches this workshop at all, and she proofreads anything that would be sent. The deliverable here is a result plus an honest assessment of whether it is worth her approving that approach.",
-      "well": "W5"
-    },
-    {
-      "id": "w8-an-audit-attribution-is-a-claim",
-      "well": "W8",
-      "objective": "Require an audit finding to name the file it inspected, and check it before the finding travels",
-      "rationale": "A dimensionality defect found in the shared uncertainty module was attributed to the flat-plate verification card. The card never had it: it has always fitted at the correct dimensionality, reproduces its published order bit for bit, and follows the reference convention. The two were conflated because both compute an order and only one was opened. The wrong attribution reached a proposal and a briefing before anyone checked, which is the same failure mode as a generator defect carried to a family that does not use that generator.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Every audit finding names the file and line it was read from, and a second reader opens that file before it is filed",
-      "expected_knowledge_gain": "An audit that misattributes is worse than no audit, because its findings are acted on",
-      "source_kind": "report",
-      "citations": [
-        "demo-output/website/tmr/flatplate_sst.json",
-        "sdk/chief_engineer/uq.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:26Z"
-    },
-    {
-      "id": "w6-estimate-the-iterations-not-only-the-grid",
-      "well": "W6",
-      "objective": "Price a refinement rung by the iterations it needs, not only by its cell count",
-      "rationale": "The finest flat-plate rung came in at 1.48 times its estimate, and the whole overrun was iterations: 202.7 of 483.6 core-minutes went on a first pass the module then refused for a drag coefficient still moving. The grid was priced correctly. Nothing in the estimate asked how long that grid would take to settle, and on this ladder the answer was more than double the configured cap.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A rung estimate states the iteration count it assumes and the evidence for it",
-      "expected_knowledge_gain": "The two largest cost misses this week were both iterations, not cells",
-      "source_kind": "ledger",
-      "citations": [
-        "demo-output/website/tmr/flatplate_sst.json",
-        "docs/charters/COMPUTE_BUDGET_CHARTER.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:26Z"
-    },
-    {
-      "id": "w5-figures-must-show-every-rung",
       "well": "W5",
-      "objective": "Publish the flat-plate figures with all five rungs instead of the three the palette allows",
-      "rationale": "The ladder now carries five rungs and the figure code zips profiles against a three colour palette, so two are dropped silently. The data file holds all five. A published figure that shows fewer rungs than the study measured understates the work and, worse, hides the two rungs on which the reportable band actually rests.",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w4-dafoam-community-forums",
+      "well": "W4",
+      "objective": "Read the DAFoam and IDWarp issue trackers and forums for the warp mis-linearization",
+      "rationale": "The defect is confirmed on two geometries and reproduces on stock tutorials from a fresh clone, but no source line is named and nobody has checked whether the maintainers or another user already know. A defect this reproducible in a widely used package has a reasonable chance of an existing issue, a fix on a branch, or a documented workaround. Reading the trackers costs nothing and either shortens the search or confirms the finding is new, which is itself worth knowing before filing.",
       "est_core_min": 0,
       "predicted_memory_gb": 0.5,
       "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "The published figure shows every rung the record holds, or names the ones it omits",
-      "expected_knowledge_gain": "The band this family just earned rests on the two rungs the figure does not draw",
+      "gate": "Every open and closed issue touching warpDeriv, IDWarp linearization or FFD combination modes is read and summarised against our reproducer",
+      "expected_knowledge_gain": "Either the search shortens dramatically or the finding is confirmed novel",
+      "source_kind": "reading",
+      "citations": [
+        "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
+        "dafoam/PROOF.md section 22"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T22:18:09Z"
+    },
+    {
+      "id": "w5-closure-strategy-prior-art",
+      "well": "W5",
+      "objective": "Search the literature for anyone who has already run our closure strategy",
+      "rationale": "The lab refused a shortcut, built a decline gate that reads only the cheap solve, and scored 0.0676 against a 0.1036 floor. Nobody has checked whether that combination is novel or whether someone published it first. The answer changes what the entry claims: a method already in the literature is a reproduction, and one that is not is a contribution. Either way the entry should say which.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A search of the closure-modelling literature for a train-only decline gate, with what was found and what it means for our claim",
+      "expected_knowledge_gain": "The entry currently makes no novelty claim because nobody established whether it could",
+      "source_kind": "reading",
+      "citations": [
+        "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
+        "demo-output/website/closure.html"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T22:18:09Z"
+    },
+    {
+      "id": "w7-instruction-echo-is-a-check",
+      "well": "W7",
+      "objective": "Check that every stated instruction is echoed and answered on camera",
+      "rationale": "Three acts honoured an instruction without saying so: a coarse mesh was held to, a model was picked with a rationale, and a stopping target was met. Each was found by a human reading a transcript. The instruction-echo pattern is the product signature, so an unechoed instruction is a missed beat every time, and a check can find them where a reader might not.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every user-stated constraint in a prompt is matched to a line that acknowledges it, or is listed as unechoed",
+      "expected_knowledge_gain": "The signature of the product should not depend on someone noticing it is missing",
       "source_kind": "report",
       "citations": [
-        "demo-output/website/tmr/flatplate_sst.json"
+        "docs/DEMO_DISCRETION_CHARTER.md",
+        "scripts/audit_transcripts.sh"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:26Z"
-    },
-    {
-      "id": "w3-order-still-rising-is-not-asymptotic",
-      "well": "W3",
-      "objective": "State the difference between a reportable band and demonstrated asymptotic convergence, in the charter and on the card",
-      "rationale": "The flat plate is the first family to earn a reportable discretization band, and its observed order is still rising at every rung: 1.0833 then 1.2587 then 1.6344. A settled ladder shows a settled order. Two independent causes are recorded, a mesh family that is not exactly self similar and the same drift in the reference codes on the reference grids. The distinction matters because the band is quotable and the asymptotic claim is not, and the two are easily read as one.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "The card and the charter distinguish an earned band from a demonstrated asymptotic order, and the flat plate is labelled correctly",
-      "expected_knowledge_gain": "The lab is one sentence away from overclaiming its best verification result",
-      "source_kind": "measurement",
-      "citations": [
-        "demo-output/website/tmr/flatplate_sst.json",
-        "docs/charters/VERIFICATION_CHARTER.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:26Z"
-    },
-    {
-      "id": "w8-whitelist-writers-drop-new-fields",
-      "well": "W8",
-      "objective": "Find every record writer that whitelists keys and is silently dropping fields added upstream",
-      "rationale": "The ladder fit began recording which dimensionality produced its mesh size, and none of the eight stored studies carried it. The reason was not that the studies predate the field: both study writers copy a fixed list of keys, so anything added upstream is dropped without a word. A record that silently omits what it was not told to keep is worse than one that never had the field, because it looks complete.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Every record writer either copies what it is given or names the keys it drops, and the audit checks it",
-      "expected_knowledge_gain": "The failure is invisible by construction, so it will recur in every writer nobody has looked at",
-      "source_kind": "report",
-      "citations": [
-        "sdk/scripts/run_uq_studies.py",
-        "sdk/workflows/geometry_study.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:31Z"
-    },
-    {
-      "id": "w8-right-verdict-wrong-reason",
-      "well": "W8",
-      "objective": "Record the near miss where a gate held for a reason that turned out to be arithmetic",
-      "rationale": "The vortex shedding ladder was declined for an observed order of 3.646, outside the credible window. Fitted with the correct dimensionality that order is 2.430, inside it. The act is still declined, now by an independent guard whose extrapolated value overshoots the measured range, and that guard does not depend on dimensionality at all. The verdict never moved; the reason behind it did, and for a day the act told the viewer something arithmetically wrong about why.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A gate records which guard held it, so a verdict surviving on a different guard than the one stated is visible",
-      "expected_knowledge_gain": "A right answer reached for a wrong reason survives every check that only looks at the answer",
-      "source_kind": "report",
-      "citations": [
-        "campaign/NOT_PASSING_REGISTER.md",
-        "sdk/chief_engineer/uq.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:31Z"
-    },
-    {
-      "id": "w3-dimension-decides-one-thing",
-      "well": "W3",
-      "objective": "State in the verification charter that dimensionality decides admission to the window and nothing else",
-      "rationale": "Changing the assumed dimensionality divides every observed order by exactly 1.5 and leaves the extrapolated value and a conclusive ladder band untouched, because the refinement ratio raised to the order is invariant under the change. So the assumption cannot corrupt a band; it can only wrongly admit or wrongly reject one. That is a narrow and checkable consequence, and stating it stops the next reader treating the parameter as a general modelling choice.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "The charter states the invariance and the preflight refuses a ladder whose dimensionality is unstated",
-      "expected_knowledge_gain": "Turns a subtle parameter into a single checkable question",
-      "source_kind": "measurement",
-      "citations": [
-        "sdk/chief_engineer/uq.py",
-        "docs/charters/VERIFICATION_CHARTER.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T20:18:31Z"
+      "status": "approved",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T22:18:09Z"
     }
   ]
 }
