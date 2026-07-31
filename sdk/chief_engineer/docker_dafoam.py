@@ -116,6 +116,46 @@ class DockerDAFoamEngineer:
         if self.remote_case.exists():
             shutil.rmtree(self.remote_case)
         shutil.copytree(self.tutorial_source, self.remote_case)
+        self._assert_case_code_vetted()
+
+    def _assert_case_code_vetted(self) -> None:
+        """The same trust boundary HeadEngineer.stage_case enforces (V9).
+
+        The container is not a sandbox for this purpose. It runs as root on a
+        bind mount of the case directory with ``--network=host``, and its
+        OpenFOAM also reports ``allowSystemOperations : Allowing`` (visible at
+        the head of every archived DAFoam log, e.g.
+        ``demo-output/website/dafoam/probe_baseline_run1.log`` line 33). So a
+        case carrying its own C++ compiles and runs it there too, with the host
+        network and write access to the mounted directory.
+        """
+        from .head_engineer import CASE_CODE_PATTERN, vetted_case_reason
+        pattern = CASE_CODE_PATTERN
+        carriers: list[str] = []
+        for path in sorted(self.remote_case.rglob("*")):
+            if not path.is_file():
+                continue
+            try:
+                text = path.read_text(errors="ignore")
+            except OSError:
+                continue
+            if pattern.search(text):
+                carriers.append(path.name)
+        if not carriers:
+            return
+        if vetted_case_reason(str(self.tutorial_source)):
+            return
+        raise RuntimeError(
+            f"refusing to run {str(self.tutorial_source)!r} in the DAFoam "
+            f"container: it carries case-supplied executable code "
+            f"({', '.join(carriers[:8])}"
+            f"{', ...' if len(carriers) > 8 else ''}) and the container runs "
+            "OpenFOAM with allowSystemOperations enabled, as root, on a bind "
+            "mount of this directory with --network=host. A case from an "
+            "external source must not run with system operations enabled "
+            "(VERIFICATION CHARTER V9). Review it and add it to "
+            "chief_engineer.head_engineer.VETTED_SYSTEM_OPERATION_CASES with "
+            "the reason.")
 
     def run(self, command: str, *, name: str, timeout: float = 3600.0,
            mem_gb: int | None = None) -> DockerStepResult:

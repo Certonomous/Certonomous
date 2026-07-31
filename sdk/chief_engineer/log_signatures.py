@@ -19,6 +19,9 @@ agenda (``docs/standards/MONITOR_STANDARD.md``):
   physical range while the number the run reports as its residual reads
   converged. Three independent branches, each measured against the lab's
   archived logs before adoption.
+- S11 system operations allowed: the solver's own report that the host is
+  configured to let a case compile and execute its own code. The only rule
+  here whose severity is about the machine rather than the numbers.
 
 Every detector is a pure function over plain numbers and sequences, so each
 is unit-testable without a solver. Detectors only name findings, each with a
@@ -38,6 +41,11 @@ from typing import Any, Mapping, Sequence
 # Severity vocabulary, matching docs/standards/MONITOR_STANDARD.md.
 SEVERITY_FLAG = "flag"
 SEVERITY_FATAL = "fatal"
+# S11. Not a numerical severity at all: the run is arithmetically fine and the
+# result stands, but the box was configured to let the case execute code. It
+# must not be collapsed into "nothing fatal", because "nothing fatal" is a
+# statement about the numbers and this is a statement about the host.
+SEVERITY_CONFIGURATION_RISK = "configuration risk"
 
 STALL_ACTION = (
     "treat the result as unconverged; run the regime check "
@@ -633,4 +641,52 @@ def detect_residual_norm_contradiction(
         "reference_field": reference_field,
         "orders_of_magnitude": decades,
         "threshold_orders": orders,
+    }
+
+
+# --------------------------------------------------------------------------
+# S11. System operations allowed (configuration risk)
+# --------------------------------------------------------------------------
+
+# OpenFOAM announces this state itself, in two shapes. v2606 on the host wraps
+# it in a warning:
+#     --> FOAM Warning : allowSystemOperations : Allowing user-supplied system
+#                        call operations.
+# the older build inside the DAFoam container prints it bare, with no warning
+# prefix at all:
+#     allowSystemOperations : Allowing user-supplied system call operations
+# The bare form is why this cannot ride on the S5 first-seen-warning rule: in
+# the container that line is not a warning, so S5 never sees it.
+SYSTEM_OPERATIONS = re.compile(
+    r"allowSystemOperations\s*:\s*Allowing", re.IGNORECASE)
+
+SYSTEM_OPERATIONS_ACTION = (
+    "no number is in doubt; the host is. The case just ran with "
+    "#codeStream / #calc / coded boundary conditions and the systemCall "
+    "function object enabled, which means a case file can compile and run "
+    "arbitrary code on this machine. Required for a named, vetted case, "
+    "never for one that arrived from outside"
+)
+
+
+def detect_system_operations(line: str) -> dict[str, Any] | None:
+    """The solver's own report that case-supplied code execution is enabled (S11).
+
+    This is not banner text in the sense the Monitor Standard forbids matching
+    (rule 3). ``argList`` prints it only inside ``if
+    (dynamicCode::allowSystemOperations)`` — the line exists because the switch
+    is on, so it is a measured state, exactly like a handler firing. With the
+    switch off the solver prints "Disallowing" instead and this returns None.
+
+    Severity is ``configuration risk``, not ``flag`` and not ``fatal``: the
+    solve is unaffected, so calling it fatal would be false, and calling it
+    "nothing fatal" hides that the box is executing case-supplied code.
+    """
+    if not SYSTEM_OPERATIONS.search(line):
+        return None
+    return {
+        "kind": "system-operations-allowed",
+        "severity": SEVERITY_CONFIGURATION_RISK,
+        "action": SYSTEM_OPERATIONS_ACTION,
+        "line": line.strip(),
     }

@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import os
 import re
+import shlex
 import smtplib
 import subprocess
 import threading
@@ -42,6 +43,7 @@ from .log_signatures import (
     DEAD_FIELD_WINDOW,
     DIVERGENCE_ACTION,
     FLAG_MULTIPLE,
+    SEVERITY_CONFIGURATION_RISK,
     classify_bound_line,
     classify_wall_time,
     detect_ceiling_clip,
@@ -50,6 +52,7 @@ from .log_signatures import (
     detect_oscillatory_divergence,
     detect_residual_norm_contradiction,
     detect_residual_stall,
+    detect_system_operations,
 )
 
 # Resolved per host, never hard-coded. On the Linux compute box there is no
@@ -72,6 +75,69 @@ SOLVE_CACHE_ROOT = f"{RUN_ROOT}/.solve-cache"
 FOAM_TUTORIALS = os.environ.get(
     "CERTONOMOUS_FOAM_TUTORIALS", "/usr/lib/openfoam/openfoam2606/tutorials")
 
+# --------------------------------------------------------------------------
+# Case-supplied code: the trust boundary at staging
+# --------------------------------------------------------------------------
+#
+# ``allowSystemOperations 1`` lives in the openfoam2606 Debian package's own
+# /usr/lib/openfoam/openfoam2606/etc/controlDict line 75 -- OpenFOAM's compiled
+# default is 0 (dynamicCode.C line 44), and dpkg --verify reports that file
+# unmodified, so the lab did not set it: the distribution did. While it is on,
+# exactly four entry points let a case dictionary compile and run C++ on this
+# box, all of them gated by dynamicCode::checkSecurity:
+#
+#   #codeStream        codeStream.C:268
+#   #calc              calcEntry.C:75      (#eval is NOT gated -- it is parsed)
+#   coded* BCs / FOs   codedBase.C:302
+#   systemCall FO      systemCall.C:131
+#
+# Anything else in a case dictionary is data. So a case carrying none of these
+# four cannot exploit the switch, and a case carrying any of them can.
+# Two spellings of one rule: POSIX ERE for the grep that runs on the case as
+# staged, and the Python equivalent for callers that scan in-process. They are
+# kept in step by test_head_engineer.test_case_code_patterns_agree, which runs
+# both over the same corpus.
+CASE_CODE_DIRECTIVES = (
+    r"#[[:space:]]*(codeStream|calc)\b"
+    r"|coded[A-Za-z]*Value\b"
+    r"|codedFunctionObject\b"
+    r"|type[[:space:]]+coded[[:space:]]*;"
+    r"|systemCall\b"
+)
+CASE_CODE_PATTERN = re.compile(
+    r"#\s*(codeStream|calc)\b"
+    r"|coded[A-Za-z]*Value\b"
+    r"|codedFunctionObject\b"
+    r"|type\s+coded\s*;"
+    r"|systemCall\b"
+)
+
+# The cases the lab has read line by line and accepted with the capability on.
+# Keys are matched against the tail of the staged template path. Every entry
+# carries who needs it and why; an entry without a reason is not an entry.
+VETTED_SYSTEM_OPERATION_CASES: dict[str, str] = {
+    # Act 7, "Solve the NASA wall-mounted hump and check separation". The case
+    # is the closure-challenge benchmark's own shipped OpenFOAM case for
+    # NASA_2DWMH; its caseDef derives Uinf/nu/kRef/omegaRef with #calc and its
+    # system/convergenceProbes + system/singleGraph_* place probes with #calc.
+    # Measured 2026-07-31: with the switch off, `foamDictionary caseDef -entry
+    # Uinf` exits 1 on dynamicCode.C:83, so the act cannot run without it.
+    # Reviewed: every #calc body is arithmetic over the dictionary's own
+    # scalars (pow, *, /, -) -- no shell, no include, no I/O.
+    "f6a_nasa_hump/case_template": (
+        "act 7 (NASA wall-mounted hump): benchmark-shipped case whose caseDef "
+        "and probe dictionaries derive their constants with #calc"),
+}
+
+
+def vetted_case_reason(template_path: str) -> str:
+    """The recorded reason this template may carry executable code, or ""."""
+    normalised = str(template_path).replace("\\", "/").rstrip("/")
+    for suffix, reason in VETTED_SYSTEM_OPERATION_CASES.items():
+        if normalised.endswith(suffix):
+            return reason
+    return ""
+
 
 # --------------------------------------------------------------------------
 # Monitoring sub-agent
@@ -87,7 +153,11 @@ class Anomaly:
     step: str
     line: str
     detail: str = ""
-    severity: str = ""  # "" (kind implies it) | "flag" | "fatal"
+    # "" (kind implies it) | "flag" | "fatal" | "configuration risk".
+    # "configuration risk" is deliberately outside the numerical ladder: it
+    # never makes a run fatal and never withdraws a number, because it is not
+    # a statement about the solve at all (S11).
+    severity: str = ""
 
 
 class LogMonitor:
@@ -147,6 +217,13 @@ class LogMonitor:
         self.iteration_cap = iteration_cap
         self.anomalies: list[Anomaly] = []
         self.novel_observations: list[str] = []
+        # S11 findings, kept separately from ``anomalies`` on purpose. They are
+        # host configuration, not solve behaviour, so they must not move the
+        # anomaly count, the by-kind table or the fatal verdict — and they are
+        # recorded on EVERY run, novel mode or not, because a machine that
+        # executes case-supplied code does so whether or not the body is new.
+        self.configuration_risks: list[dict[str, Any]] = []
+        self._seen_configuration_risks: set[str] = set()
         self.suppressed: dict[str, int] = {}
         self._history: dict[str, list[float]] = {}
         self._reported: dict[tuple[str, str], int] = {}
@@ -198,13 +275,36 @@ class LogMonitor:
         if bound:
             self._bound(step, bound, line)
             return
+        # S11 is checked before the novel-warning branch and unconditionally:
+        # the older OpenFOAM inside the DAFoam container prints this line with
+        # no "FOAM Warning" prefix, so S5 cannot see it there, and a run on a
+        # familiar body is not novel mode at all. Recorded, never raised as an
+        # anomaly — see ``configuration_risks``.
+        risk = detect_system_operations(line)
+        if risk is not None:
+            self._configuration_risk(step, risk)
         if self.novel and self.WARNING.search(line):
             key = re.sub(r"[0-9.eE+-]+", "#", line.strip())[:120]
             if key not in self._seen_warnings:
                 self._seen_warnings.add(key)
                 self.novel_observations.append(line.strip())
-                self._raise(Anomaly("novel-warning", step, line.strip(),
-                                    "first occurrence on an unfamiliar case"))
+                self._raise(Anomaly(
+                    "novel-warning", step, line.strip(),
+                    "first occurrence on an unfamiliar case",
+                    # A first-seen warning that happens to BE the system-
+                    # operations report carries S11's severity rather than the
+                    # blank one, so the transcript bullet is unchanged but the
+                    # finding is no longer classified as merely "nothing fatal".
+                    severity=(SEVERITY_CONFIGURATION_RISK
+                              if risk is not None else "")))
+
+    def _configuration_risk(self, step: str, finding: dict[str, Any]) -> None:
+        """Record an S11 finding once per distinct line per run."""
+        key = finding["line"][:160]
+        if key in self._seen_configuration_risks:
+            return
+        self._seen_configuration_risks.add(key)
+        self.configuration_risks.append({**finding, "step": step})
 
     def _bound(self, step: str, bound: dict[str, Any], line: str) -> None:
         """Clipping messages, split by which end of the range was hit (S4, S10a).
@@ -502,6 +602,11 @@ class LogMonitor:
             "fatal": any(item.kind in {"nan", "fpe"} or item.severity == "fatal"
                          for item in self.anomalies),
             "novel_observations": list(self.novel_observations),
+            # S11. Reported next to "fatal", not inside it: a run can be
+            # numerically spotless and still have been executed on a box that
+            # let the case supply its own code. Both facts are true at once and
+            # neither is allowed to hide the other.
+            "configuration_risk": [dict(item) for item in self.configuration_risks],
         }
 
 
@@ -692,7 +797,15 @@ class HeadEngineer:
     # -- pipeline ----------------------------------------------------------
 
     def stage_case(self, template_wsl_path: str) -> None:
-        """Copy a case template to the run area (WSL-native for meshing speed)."""
+        """Copy a case template to the run area (WSL-native for meshing speed).
+
+        Staging is also the trust boundary. The box runs OpenFOAM with
+        ``allowSystemOperations 1`` (the openfoam2606 Debian package ships it
+        that way; see ``CASE_CODE_DIRECTIVES``), so any case that reaches a
+        solver can compile and execute its own C++. This is the one place every
+        case passes through, so this is where a case that carries such code is
+        stopped unless it is on the vetted list.
+        """
         staged = self._wsl(
             f"rm -rf {self.remote_case} && mkdir -p {RUN_ROOT} && "
             f"cp -r {template_wsl_path} {self.remote_case} && "
@@ -702,6 +815,39 @@ class HeadEngineer:
             raise RuntimeError(
                 f"case staging from {template_wsl_path!r} failed: "
                 f"{(staged.stderr or staged.stdout).strip()[:300]}")
+        found = self._wsl(
+            f"grep -rlIE {shlex.quote(CASE_CODE_DIRECTIVES)} {self.remote_case} "
+            f"2>/dev/null | head -20")
+        self.assert_case_code_vetted(template_wsl_path,
+                                     found.stdout.split() if found.stdout else [])
+
+    def assert_case_code_vetted(self, template_path: str,
+                                carriers: Sequence[str]) -> None:
+        """Refuse a case that carries executable code unless it is vetted.
+
+        ``carriers`` are the staged files that matched ``CASE_CODE_DIRECTIVES``.
+        A case with none of them cannot use the switch whatever the host is
+        configured to allow, so it passes. A case with them is only allowed
+        through if its template is named in ``VETTED_SYSTEM_OPERATION_CASES``,
+        which records who reviewed it and why it needs the capability.
+        """
+        if not carriers:
+            return
+        reason = vetted_case_reason(template_path)
+        if reason:
+            return
+        relative = sorted(Path(item).name for item in carriers)
+        raise RuntimeError(
+            f"refusing to run {template_path!r}: it carries case-supplied "
+            f"executable code ({', '.join(relative[:8])}"
+            f"{', ...' if len(relative) > 8 else ''}) and this host runs "
+            "OpenFOAM with allowSystemOperations enabled, so those directives "
+            "would compile and run arbitrary code here. A case from an "
+            "external source must not run with system operations enabled "
+            "(VERIFICATION CHARTER V9). Review the case and add it to "
+            "chief_engineer.head_engineer.VETTED_SYSTEM_OPERATION_CASES with "
+            "the reason, or rewrite the directives (#calc -> #eval is not "
+            "gated by the switch).")
 
     def enforce_boundary_skewness(self, value: float = 4.0) -> bool:
         """Tighten the staged case's snappyHexMesh boundary-skewness gate.
@@ -1129,6 +1275,11 @@ class HeadEngineer:
                     f"window {stats['window']}) |")
         lines += ["", "## Diagnostics and next steps", ""]
         lines += [f"- {note}" for note in self.diagnostics()]
+        if monitor.get("configuration_risk"):
+            lines += ["", "## Configuration risk (S11)", ""]
+            for risk in monitor["configuration_risk"]:
+                lines += [f"- `{risk['line']}` — severity **{risk['severity']}**. "
+                          f"{risk['action']}."]
         if monitor["novel_observations"]:
             lines += ["", "## Novel observations (candidate knowledge)", ""]
             lines += [f"- `{obs}`" for obs in monitor["novel_observations"][:10]]
