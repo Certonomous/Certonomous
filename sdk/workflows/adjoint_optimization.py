@@ -67,6 +67,7 @@ history database it wrote), joined and committed as
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from pathlib import Path
@@ -231,6 +232,42 @@ def _fmt(x: float) -> str:
     return f"{x:.6e}"
 
 
+# ITEM 9 (owner, 2026-07-31): every entry in this act's conversation used to
+# carry the same clock, because the whole act finished in under a fifth of a
+# second and the feed rendered as one instant dump with a single timestamp
+# repeated down the page. The fix is NOT to write times that were never taken.
+# Entries keep their own true emission time, exactly as the transcript stamps
+# them; what changes is that the act actually takes the time. A narration beat
+# is a shade over a second so consecutive entries always land in different
+# seconds on the clock the control room prints, and the shape passes take a
+# real interval per iteration. Both are overridable for a still capture, where
+# nothing is being watched and pacing is only a delay.
+_NARRATION_PACE_S = float(
+    os.environ.get("CERTONOMOUS_NARRATION_PACE_MS", "1050")) / 1000.0
+_FRAME_PACE_S = float(
+    os.environ.get("CERTONOMOUS_SWEEP_PACE_MS", "60")) / 1000.0
+
+
+def _beat(seconds: float) -> None:
+    """Let the clock move, so the next entry's time is genuinely its own."""
+    if seconds > 0:
+        time.sleep(seconds)
+
+
+def _narrate(sayer, *lines: str, **kwargs):
+    """One narration entry, followed by the beat that separates it."""
+    entry = bullets(sayer, *lines, **kwargs)
+    _beat(_NARRATION_PACE_S)
+    return entry
+
+
+def _phase(script, name: str):
+    """A phase marker, which carries a clock of its own like any other entry."""
+    entry = script.phase(name)
+    _beat(_NARRATION_PACE_S)
+    return entry
+
+
 # ITEM 7 (owner, 2026-07-31): optimizer status is reported as descent. These
 # are the phrasings this act may not use for it, banned by name. The first is
 # the one that started the rule: it reads as the optimizer going the wrong
@@ -285,7 +322,7 @@ class _Falsifier:
 
     def state(self, script, roster) -> None:
         roster.set(CHIEF_ENGINEER, "stating the gate", "working")
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 f"Hypothesis: the adjoint gradient matches central finite "
                 f"differences on every derivative group.",
                 f"Falsifier: any group worse than {GATE_PASS_PCT:g}%, or any "
@@ -314,6 +351,8 @@ class _Falsifier:
                             f"banned optimizer phrasing {phrase!r} in table "
                             f"cell {cell!r}")
         emit_table(emit, script, **kwargs)
+        # A table is narration too, and it carries its own clock (ITEM 9).
+        _beat(_NARRATION_PACE_S)
 
 
 # The mesh check's own verdict line, as the record carries it. Read rather than
@@ -376,9 +415,10 @@ def main(request: str | None = None, params: dict | None = None,
     script.system(request or ("Request: reduce the drag on the wing with the "
                               "discrete adjoint and check the gradient "
                               "against finite differences."))
+    _beat(_NARRATION_PACE_S)
 
     if not HISTORY_FILE.exists() or not RECORD_FILE.exists():
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 "This case is not available in this session.",
                 "Nothing invented: the act stops rather than put an "
                 "unsourced number on screen.")
@@ -405,7 +445,7 @@ def main(request: str | None = None, params: dict | None = None,
              {"url": f"/api/field/{out.name}/{surfaces[key]}", "label": label})
 
     if not shapes:
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 "The wing is not available in this session, so this act runs "
                 "without the viewport.",
                 "The numbers below are unaffected.")
@@ -417,9 +457,9 @@ def main(request: str | None = None, params: dict | None = None,
     target_pct = _requested_target(request)
 
     # ---------------- Hypothesis ----------------
-    script.phase(HYPOTHESIS)
+    _phase(script, HYPOTHESIS)
     roster.set(CHIEF_RESEARCHER, "framing the gradient method", "working")
-    bullets(script.researcher,
+    _narrate(script.researcher,
             f"Drag on a three-dimensional wing at fixed lift, over {N_DV} "
             f"design variables.",
             f"A finite difference costs two flow solves per variable. One "
@@ -430,7 +470,7 @@ def main(request: str | None = None, params: dict | None = None,
     gate.state(script, roster)
 
     # ---------------- Plan ----------------
-    script.phase(PLAN)
+    _phase(script, PLAN)
     if emit:
         emit("objective.spec", {"metric": "CD", "direction": "min"})
 
@@ -461,7 +501,7 @@ def main(request: str | None = None, params: dict | None = None,
                    f"come from" if is_this_wing else
                    f"{uploaded_name}, received. The numbers come from the "
                    f"MACH tutorial wing, on screen next"))
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 (f"Received: {uploaded_name}. That is the wing every number "
                  f"below belongs to."
                  if is_this_wing else
@@ -488,6 +528,7 @@ def main(request: str | None = None, params: dict | None = None,
                        ["Design variables", f"{N_DV}"],
                    ],
                    table_id="wing-adjoint-optimization")
+        _beat(_NARRATION_PACE_S)
     if emit:
         emit("solver.selected", {
             "solver": "Discrete adjoint, reverse mode",
@@ -495,7 +536,7 @@ def main(request: str | None = None, params: dict | None = None,
                       "closure, wall functions",
             "basis": "the gradient is taken from the transpose of the "
                      "discretized flow Jacobian, not from a fitted surface"})
-    bullets(script.engineer,
+    _narrate(script.engineer,
             (f"Objective: cut drag by at least {target_pct:g}% at fixed lift."
              if target_pct else "Objective: cut drag at fixed lift."),
             f"The gradient is taken by {AD_MODE}-mode automatic "
@@ -530,9 +571,10 @@ def main(request: str | None = None, params: dict | None = None,
                     "Jacobian"],
                ],
                table_id="ad-adjoint-optimization")
+    _beat(_NARRATION_PACE_S)
 
     # ---------------- Evidence: the gradient check ----------------
-    script.phase(EVIDENCE)
+    _phase(script, EVIDENCE)
     roster.set(MONITOR, "watching the verification table", "watching")
     roster.set(CHIEF_ENGINEER, "grading the gradient", "working")
 
@@ -651,7 +693,7 @@ def main(request: str | None = None, params: dict | None = None,
                ],
                table_id="verdict-adjoint-optimization")
     roster.idle(CHIEF_RESEARCHER)
-    bullets(script.engineer, "Gradient gate passes.")
+    _narrate(script.engineer, "Gradient gate passes.")
 
     # ---------------- Evidence: the gradient, on the wing ----------------
     # The single most useful thing an adjoint produces is a direction, and a
@@ -664,7 +706,7 @@ def main(request: str | None = None, params: dict | None = None,
         glo, ghi = grad["window_mm_per_step"]
         show("gradient", "Where the adjoint says to push. Descent direction "
                          "on the skin, C_d at fixed C_L")
-        bullets(script.researcher,
+        _narrate(script.researcher,
                 "That is the gradient, on the wing. One adjoint solve "
                 "produced the whole picture.")
         gate.table(emit, script, role=_NUM_ROLE,
@@ -718,6 +760,7 @@ def main(request: str | None = None, params: dict | None = None,
                  f"Major iteration {frame['iter']} of {majors}. C_d "
                  f"{frame['CD']:.6f}, {_against_baseline(drop)}. At scale, "
                  f"painted with displacement from baseline (mm)")
+            _beat(_FRAME_PACE_S)
     roster.set_workers(0)
 
     if shapes:
@@ -823,7 +866,7 @@ def main(request: str | None = None, params: dict | None = None,
         # 2026-07-31) and stay in _a2_shape where they are computed.
         show("near0", f"Inboard span, at scale. Baseline, C_d "
                       f"{baseline['CD']:.6f}")
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 f"Same surfaces on a closer viewing convention: the inboard "
                 f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span.",
                 f"Unscaled. The viewing convention moved, the wing did not.")
@@ -835,10 +878,11 @@ def main(request: str | None = None, params: dict | None = None,
                      f"Inboard span, at scale. Major iteration "
                      f"{frame['iter']} of {majors}, C_d {frame['CD']:.6f}, "
                      f"{_against_baseline(drop)}")
+                _beat(_FRAME_PACE_S)
         show(f"near{last['iter']}",
              f"Inboard span, at scale. Optimized, C_d {last['CD']:.6f}, "
              f"{_headline(reduction)}")
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 f"That is the shape the gradient bought, at the size it is.")
 
     cl_off = abs(final["CL"] - CL_TARGET) / CL_TARGET * 100
@@ -905,7 +949,7 @@ def main(request: str | None = None, params: dict | None = None,
                ],
                table_id="channels-adjoint-optimization")
 
-    bullets(script.monitor,
+    _narrate(script.monitor,
             f"Watched the objective on every major iteration. Nothing fatal.")
     roster.idle(MONITOR)
 
@@ -915,7 +959,7 @@ def main(request: str | None = None, params: dict | None = None,
                    f"primal solves, worst group {worst:.3g}%, no sign "
                    f"reversals that could steer it"),
     }
-    bullets(script.engineer,
+    _narrate(script.engineer,
             f"Verdict: drag {_headline(reduction)}, on a verified "
             f"gradient.",
             *(["That clears the target."] if target_pct else []),
@@ -950,7 +994,7 @@ def main(request: str | None = None, params: dict | None = None,
         emit("uncertainty.channels", channels)
 
     # ---------------- Conclusion ----------------
-    script.phase(CONCLUSION)
+    _phase(script, CONCLUSION)
     elapsed = time.monotonic() - began
     # The cost table IS the argument for the method (owner, 2026-07-31): the
     # same gradient, bought two ways, on this run's own accounting. The
@@ -967,7 +1011,7 @@ def main(request: str | None = None, params: dict | None = None,
                     f"{COST_FD / COST_ADJOINT:.1f} to 1"],
                ],
                table_id="cost-adjoint-optimization")
-    bullets(script.engineer,
+    _narrate(script.engineer,
             f"One adjoint solve buys the whole gradient.",
             f"The gap widens with every design variable added.")
 
@@ -1144,11 +1188,11 @@ def main(request: str | None = None, params: dict | None = None,
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception:
-        bullets(script.engineer,
+        _narrate(script.engineer,
                 "No certificate could be issued for this run.",
                 "The result above stands on the transcript and the report.")
 
-    bullets(script.engineer,
+    _narrate(script.engineer,
             f"From a verified gradient to drag {_headline(reduction)}.")
     script.save(out / "transcript.txt")
     roster.all_idle()
