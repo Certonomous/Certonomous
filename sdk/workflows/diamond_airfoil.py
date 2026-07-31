@@ -52,17 +52,18 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     ``eca_hoekstra_band`` hands back a fallback ``band_abs`` even when it sets
     ``conclusive`` False, so the flag is what decides whether a number may be
     reported, and this sentence is what the act says instead of the number.
+
+    The wording comes from ``uq.not_conclusive_reason`` rather than being
+    rebuilt here, so every act that declines a band says the same sentence
+    about the same failure and a mode added to the uncertainty layer reaches
+    this act without anyone remembering to edit it. Only the no-usable-rungs
+    case is answered locally: the layer has no phrase that names the missing
+    rungs.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
-    if band.get("monotone") is False:
-        return "the three rungs do not move one way under refinement"
-    if band.get("asymptotic") is False:
-        return "it is not in the asymptotic range"
-    if band.get("clamped"):
-        return (f"the observed order p = {band['observed_order']:.2f} falls "
-                f"outside the credible range 0.5 to 2.5")
-    return "it did not meet the conclusive test"
+    return (uq_studies.not_conclusive_reason(band)
+            or "it did not meet the conclusive test")
 
 
 _AGENDA = [
@@ -209,15 +210,23 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     roster.set(NUMERICIST, "grid sensitivity across the diamond ladder", "working")
     cells_series = [levels[r]["cells"] for r in RES_LEVELS]
     cd_series = [levels[r]["cd_computed"] for r in RES_LEVELS]
-    band = uq_studies.eca_hoekstra_band(cells_series, cd_series)
+    # dim=2 is read off this ladder's own mesh, not off the case name. The
+    # diamond blockMeshDict lays four blocks of (nx ny 1) with the front and
+    # back planes typed empty, so refinement moves in exactly two directions
+    # and the cell count grows as the square of the linear refinement (2000,
+    # 8000, 32000: a factor of 4 per rung, 2 in each direction). Left at the
+    # dim=3 default the representative size is the cube root of the same
+    # counts, which stretches every observed order by exactly 1.5.
+    band = uq_studies.eca_hoekstra_band(cells_series, cd_series, dim=2)
     # The ladder's own verdict on itself decides whether a number may leave
     # this act. A band the uncertainty layer marks not conclusive is the
     # conservative fallback, not a 95% figure, and the certificate captions
     # the first result's envelope "95% confidence interval", so an
     # unquantified numerical channel is the only honest reading here.
-    ladder_conclusive = (bool(band.get("conclusive"))
-                         and band.get("band_abs") is not None)
-    numerical_abs = band["band_abs"] if ladder_conclusive else None
+    # reportable_band is the only safe read: it hands back the figure when the
+    # ladder earned the right to state one and None otherwise, so the
+    # conservative fallback band cannot reach the certificate's interval.
+    numerical_abs = uq_studies.reportable_band(band)
     ladder_reason = _ladder_reason(band)
     ladder_spread = max(cd_series) - min(cd_series)
     # The total is the root sum of squares over the channels that carry a
