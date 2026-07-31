@@ -820,9 +820,12 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         parts = []
         levels = lookup.get("levels") or []
         if levels:
-            cells_s = ", ".join(f"{int(lv['cells']):,}"
-                                for lv in sorted(levels, key=lambda lv: lv["cells"]))
-            parts.append(f"Grid-refinement study on {len(levels)} meshes of "
+            # The band is measured on the three finest meshes of the ladder;
+            # a longer record carries more rungs than that, and the note names
+            # the ones the number actually came from.
+            basis = sorted({int(lv["cells"]) for lv in levels})[-3:]
+            cells_s = ", ".join(f"{c:,}" for c in basis)
+            parts.append(f"Grid-refinement study on {len(basis)} meshes of "
                          f"this case: {cells_s} cells")
         else:
             parts.append("Grid-refinement study on meshes of this case")
@@ -1207,8 +1210,10 @@ def main(request: str | None = None, params: dict | None = None,
         warm_solve = engineer.restore_cached_solve(solve_key)
         ranks = engineer.solve_ranks()
         # The worker count on screen is what this mesh takes, read from the
-        # case's own decomposition, not what this particular run launched.
-        workers = max(case_workers(engineer, fallback=ranks), ranks)
+        # case's own decomposition, not what this particular run launched. An
+        # environment that asks for more ranks than the case is split into
+        # does not change what the mesh represents, so it does not change this.
+        workers = case_workers(engineer, fallback=ranks)
         parallel = (not warm_solve) and ranks > 1 and engineer.decompose_for_parallel(ranks)
 
         # Live drag telemetry: the solver logs its force coefficients as it
@@ -1302,7 +1307,9 @@ def main(request: str | None = None, params: dict | None = None,
             ):
                 command = f"mpirun -np {ranks} {base} -parallel" if parallel else base
                 roster.set(CHIEF_ENGINEER, note, "working")
-                roster.set_workers(workers if step == "simpleFoam" else 1, note)
+                roster.set_workers(
+                    max(workers, ranks) if (parallel and step == "simpleFoam")
+                    else (workers if step == "simpleFoam" else 1), note)
                 result = engineer._run_step(
                     step, command, 7200,
                     line_hook=_cd_line_hook if step == "simpleFoam" else None)

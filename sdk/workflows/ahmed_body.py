@@ -424,7 +424,7 @@ def main(request: str | None = None, params: dict | None = None,
         ranks = min(4, max(1, engineer.solve_ranks()))
         # The worker count on screen is what this mesh takes, read from the
         # case's own decomposition, not what this run happened to launch.
-        workers = max(case_workers(engineer, fallback=ranks), ranks)
+        workers = case_workers(engineer, fallback=ranks)
         parallel = (not warm_solve) and ranks > 1 and engineer.decompose_for_parallel(ranks)
 
         live_cd = {"iter": None, "vals": [], "iters": [], "last": 0.0, "emitted": 0}
@@ -513,7 +513,9 @@ def main(request: str | None = None, params: dict | None = None,
             ):
                 command = f"mpirun -np {ranks} {base} -parallel" if parallel else base
                 roster.set(CHIEF_ENGINEER, note, "working")
-                roster.set_workers(workers if step == "simpleFoam" else 1, note)
+                roster.set_workers(
+                    max(workers, ranks) if (parallel and step == "simpleFoam")
+                    else (workers if step == "simpleFoam" else 1), note)
                 result = engineer._run_step(
                     step, command, 7200,
                     line_hook=_cd_line_hook if step == "simpleFoam" else None)
