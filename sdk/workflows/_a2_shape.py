@@ -34,13 +34,23 @@ BASELINE_STL = "mach_tutorial_wing.stl"
 BASELINE_STL_PATH = (Path(__file__).resolve().parents[2]
                      / "demo-output" / "website" / "surfaces" / BASELINE_STL)
 
+# ITEM 5 (owner, 2026-07-31): ONE canonical reference for surface motion, so
+# the act never puts three near-miss millimetre figures on screen and leaves a
+# viewer to guess which one is the shape change. The reference is the FINAL
+# surface measured against the baseline, unscaled, at the point that moved
+# most. Every other millimetre figure the act shows (the fixed colour window,
+# a frame's own legend extremes) is a figure about the pass rather than the
+# shape change, and is labelled against this reference where it is shown.
+DISP_REFERENCE = "final surface against baseline, unscaled"
+
 # Chordwise stations for the true-scale section figure, in metres of span.
 # Root, mid-semispan and outboard: enough to show that the change is not one
 # local dent, few enough that each section stays legible.
 SECTION_Z = (0.0, 4.5, 9.0)
 
 # ------------------------------------------------------------- the close-up
-# The whole wing is 14 m of span against a 186 mm shape change, so framed to
+# The whole wing is 14 m of span against the 186 mm reference shape change
+# (DISP_REFERENCE above: final against baseline, unscaled), so framed to
 # its span the change moves the outline about 4 px and has to be carried by
 # the field painted on it. The inboard 2.2 m, given its own camera, is framed
 # roughly four times tighter and the same TRUE-SCALE change moves the outline
@@ -206,6 +216,9 @@ def write_surfaces(doc: dict, out: Path) -> dict[str, str]:
         values = _normalise(frame["disp_n_mm"], -dmax, dmax)
         field = {
             "name": "displacement from baseline, outward normal (mm)",
+            # The convention rides with the payload so the legend and the act
+            # cannot drift apart about what a millimetre on this bar means.
+            "reference": DISP_REFERENCE,
             "min": min(frame["disp_n_mm"]), "max": max(frame["disp_n_mm"]),
             "color_min": round(-dmax, 1), "color_max": round(dmax, 1),
             "display_min": round(-dmax, 1), "display_max": round(dmax, 1),

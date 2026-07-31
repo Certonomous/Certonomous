@@ -649,25 +649,46 @@ def main(request: str | None = None, params: dict | None = None,
         dlo, dhi = shapes["disp_window_mm"]
         chord = shapes["chord_root_m"]
         twist_worst = min(last["twist_deg"])
+        # ITEM 5 (owner, 2026-07-31): "no three near-miss numbers". This act
+        # used to put 186, 309 and 303 mm on screen in one table with nothing
+        # saying they measure different things, so a viewer had to guess which
+        # one was the shape change. One reference is named first, in its own
+        # row, and every other millimetre figure in the act is stated against
+        # it: the colour window is the widest normal displacement reached at
+        # ANY iteration, which is why it is the larger number, and it is
+        # printed as a multiple of the reference so the gap is arithmetic
+        # rather than a discrepancy.
+        widest = max(abs(dlo), abs(dhi))
+        reference_mm = last["max_disp_mm"]
+        # The window is a normal displacement, so the multiple is taken
+        # against the reference surface's own normal displacement rather than
+        # against its total point motion. Both round to the same millimetre
+        # here; comparing like with like is the point.
+        reference_n_mm = last.get("max_dn_mm") or reference_mm
         gate.table(emit, script, role=_CE_ROLE,
                    title="What the gradient moved",
                    headers=("Quantity", "Value"),
                    rows=[
-                       ["Largest surface displacement",
-                        f"{last['max_disp_mm']:.0f} mm"],
+                       ["Reference for every millimetre in this act",
+                        f"{_a2_shape.DISP_REFERENCE.capitalize()}, "
+                        f"{reference_mm:.0f} mm at the point that moved most"],
                        ["As a fraction of the root chord",
-                        f"{last['max_disp_mm'] / 10.0 / chord:.2f}% of "
+                        f"{reference_mm / 10.0 / chord:.2f}% of "
                         f"{chord:.2f} m"],
                        ["As a fraction of the root section's thickness",
-                        f"{last['max_disp_mm'] / 10.0 / shapes['thickness_root_m']:.0f}% "
+                        f"{reference_mm / 10.0 / shapes['thickness_root_m']:.0f}% "
                         f"of {shapes['thickness_root_m']:.2f} m"],
                        ["Largest twist change",
                         f"{twist_worst:.2f} deg nose down, at the "
                         f"{shapes['refaxis_z_m'][last['twist_deg'].index(twist_worst) + 1]:.1f} m station"],
                        ["Twist at the tip station",
                         f"{last['twist_deg'][-1]:.2f} deg"],
-                       ["Colour range across the whole pass",
-                        f"{dlo:.0f} to {dhi:.0f} mm of normal displacement"],
+                       ["Colour window, fixed across every frame",
+                        f"{dlo:.0f} to {dhi:.0f} mm on the outward normal. "
+                        f"Set by the widest normal displacement reached at "
+                        f"any iteration, {widest / reference_n_mm:.2f} times "
+                        f"the {reference_mm:.0f} mm reference, so it holds "
+                        f"still while the wing moves"],
                        ["Display scaling", "None anywhere in this act"],
                    ],
                    table_id="shape-adjoint-optimization")
