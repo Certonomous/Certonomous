@@ -1,9 +1,14 @@
 # Certonomous Literature Review Charter
 
-Version 1.0, dated 2026-07-30. Governs every reading the lab does: overnight
+Version 1.1, dated 2026-07-31. Governs every reading the lab does: overnight
 reading programs, no-compute review tasks, a single paper fetched to settle an
 argument, and any citation that reaches a record, a certificate, a proposal or
 a camera surface.
+
+Version 1.1 adds the in-sample reproduction clause to section 7 and the gate
+that enforces it to section 8. A reading is where a scored benchmark case gets
+proposed as a training case, so the rule has to sit here as well as in the
+verification charter. Nothing in 1.0 was weakened.
 
 ## 1. The line
 
@@ -175,16 +180,33 @@ not actionable" is not an acceptable closing line. Name the trigger.
   however obvious they seem.
 - Cite this lab's own document as evidence for a claim that document itself
   attributed to someone else. Go to the original.
+- Reproduce a paper's method on a case this lab is scored on, and report the
+  result as generalization. A reading is where this one enters: a paper names
+  the case it inverted on or trained on, the case is available in our benchmark
+  clone, and reproducing it there is the obvious next step. If that case is
+  scored, the reproduction is in-sample by construction however faithfully the
+  method was copied. `NASA_2DWMH` is the live instance: it is one of the
+  closure challenge's eight scored test cases and it carries published
+  experimental skin friction, so it reads as an invitation. A proposal arising
+  from a reading names the cases its method would fit on, and names them
+  against the scored list, before it is filed. Verification charter section 11
+  carries the rule; this is the intake side of it.
 
 ## 8. Enforcement
 
-There is no script for this one yet, and saying so is more useful than
-implying there is.
+There is no script for the citation discipline itself, and saying so is more
+useful than implying there is.
 
 What exists:
 
 - The provenance tiers are self-enforcing in review, because a citation without
   a tier is visible at a glance.
+- `sdk/scripts/closure_in_sample_gate.py` covers the last NEVER above. It reads
+  every training, fitting, inversion and calibration set declared in the repo
+  and fails on any that contains a benchmark case this lab is scored on, with
+  the scored list derived from the benchmark's own README rather than retyped.
+  It does not read intent, only declarations, so a proposal that has not been
+  written down yet is still on the reader.
 - `docs/DEMO_DISCRETION_CHARTER.md` section 4 already forbids a comparison
   against an unnamed reference on camera, and `scripts/audit_transcripts.sh`
   runs over the camera surfaces.
@@ -202,6 +224,8 @@ as a review aid with expected false positives, exactly as
   this charter is written from.
 - `docs/standards/INNOVATION_STANDARD.md`. Stage 1 requires a literature basis
   on the record before a method is admitted at all.
+- `docs/charters/VERIFICATION_CHARTER.md`. Section 11 carries the in-sample
+  rule in full; section 12 carries the gate.
 - `docs/charters/GOALS_AND_PROPOSALS_CHARTER.md`. What a proposal has to
   contain once a reading triggers one.
 - `LESSONS.md` L-18, L-20, L-22, L-23, L-26, L-28.

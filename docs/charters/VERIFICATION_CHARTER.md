@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.1, dated 2026-07-31. Defines what counts as done. It binds every
+Version 1.2, dated 2026-07-31. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -8,6 +8,11 @@ Version 1.1 adds section 6, the display layer, after four defects were found in
 one day in the space between a correct number and the words printed next to it.
 It also adds the archive-replay requirement for detection rules to section 5
 and the restated-constant clause to section 8. Nothing in 1.0 was weakened.
+
+Version 1.2 adds section 11, in-sample is not generalization, after a
+legitimate field-inversion capability turned out to have a leakage route into a
+scored benchmark case that no rule covered. Enforcement moves to section 12 and
+gains the gate that checks it. Nothing in 1.1 was weakened.
 
 ## 1. The line
 
@@ -234,8 +239,8 @@ layer.** A false positive on the caption check costs a real interval its
 caption. A false negative seals a fabricated one. So the interval recogniser is
 deliberately conservative: one signed number with an optional unit, anchored
 end to end, and anything with prose in it prints as itself. Every check that
-guards a published label is tuned that way, including the audit script in
-section 11.
+guards a published label is tuned that way, including the audit script and the
+in-sample gate in section 12.
 
 **A grid refinement band is not a confidence interval.** An Eca and Hoekstra
 least-squares band with a safety factor is an uncertainty estimate produced by
@@ -479,8 +484,66 @@ a mild wobble.
 All three of L-16's instances confirmed something already believed, which is
 exactly why none of them got checked.
 
-## 11. Enforcement
+## 11. In-sample is not generalization
 
+A benchmark score is a claim about cases the method had never seen. Fit the
+method on one of those cases, by any route, and the score stops measuring that
+and starts measuring memory, while looking exactly the same on the leaderboard.
+
+> **Nothing this lab fits, inverts, calibrates or tunes on may be a scored case
+> of a benchmark it reports a score against. A score obtained on data the
+> method saw is reported as in-sample, never as generalization, and the
+> intersection is stated in the record before the score is.**
+
+**The route that arrived while nobody was watching.** `NASA_2DWMH` is one of
+the closure challenge's eight scored test cases. It also has published
+experimental skin friction, which makes it an obvious field-inversion target:
+invert a correction field against the measured Cf, and the inversion is
+textbook and legitimate. The benchmark score that follows is not. The case is
+in-sample by construction, and the challenge's own README says training or
+validating on a test case withdraws the submission and puts a note on the
+leaderboard. The clean FIML workflow is the one the field already uses: invert
+on a training case, learn the correction as a function of local features, apply
+it forward.
+
+**This is the same shape as the shortcut the lab already refused, and that is
+the point.** The refusal held the first time because the shortcut arrived
+labelled as a shortcut. This one arrives labelled as a capability, from a
+direction nobody was watching, and every individual step in it is sound. A rule
+that only recognises the first shape is a rule about that shape, not about
+leakage.
+
+**Reading ground truth is not the offence; fitting to it is.** Round 1's own
+scripts read `U_LES` for the 21 training and 4 validation cases, which is how a
+regression target gets built, and say so. The line is whether a scored case's
+data reached anything that was fitted, selected, thresholded or stopped early.
+Selection counts. So does a threshold chosen after looking.
+
+**What a record has to say.** Any result carrying a benchmark score states the
+case list it fitted on, the case list it scored on, and that the two are
+disjoint, in the artifact itself rather than in a covering note. Round 1's
+entry already does this (`train_val_test_disjoint`,
+`train_validation_test_leakage`), which is why the check below can be written
+at all: a claim that is machine-readable can be machine-checked.
+
+**Caught by an aside, not by a rule.** This clause exists because
+`demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md` section 7
+recorded the leakage risk voluntarily, as a note to whoever ran the inversion
+next. That worked once. L-22's point applies: a register whose entries depend
+on somebody choosing to write them is not a register.
+
+## 12. Enforcement
+
+- `sdk/scripts/closure_in_sample_gate.py` derives the benchmark's scored-case
+  list twice, from the clone's own README split table and from the repo's
+  round-1 case lists, refuses to proceed if the two disagree, and then reads
+  every training, fitting, inversion and calibration set declared in the repo's
+  JSON records and Python case lists for a scored case. A case name as a whole
+  value or as a key under such a declaration FAILs; a case name inside longer
+  text, or in a prose line that says trained or inverted on, is reported for
+  review with expected false positives, exactly as
+  `scripts/audit_camera_discretion.sh` is. Section 6's asymmetry sets that
+  tuning.
 - `scripts/case_preflight.sh` runs before any launch and refuses cases whose
   fields do not match the named model, whose decomposition is stale, or whose
   `residualControl` names only fields the model does not transport.
@@ -508,6 +571,8 @@ figure came from, then correct the stale one.
   methods verify different ones.
 - `docs/charters/REPORTING_CHARTER.md`. Where gate tables and FD tables land.
 - `docs/standards/MESH_STANDARD.md`. The pre-solve mesh gate.
+- `docs/charters/LITERATURE_CHARTER.md`. Section 7 carries the intake side of
+  section 11: a reading is where a scored case gets proposed as a training case.
 - `docs/UNCERTAINTY-DOCTRINE.md`. The three channels every result carries.
 - `LESSONS.md` L-3, L-7, L-14, L-15, L-16, L-19, L-21, L-22, L-24, L-25, L-26,
   L-27, L-28, P1, P3, D12.
