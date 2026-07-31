@@ -637,7 +637,7 @@
       "reportable_band": null,
       "not_conclusive_reason": "the extrapolation diverges",
       "detail": "Richardson lands 0.887 of the ladder's whole measured range beyond its finest rung against a 0.15 tolerance; fires on the published and the matched ladder alike.",
-      "incidental_finding": "the helper builds h = (1/N)^(1/3), the 3D convention. On this 2D case r21 becomes 4^(1/3) = 1.587 instead of 2, so it reports the observed order as 0.817 where the 2D calculation gives 0.545. Verdict unchanged here; the order it prints on any 2D ladder is overstated. Flagged, not edited."
+      "incidental_finding": "read from source, not inferred: ladder_band (uq.py:93) and eca_hoekstra_band (uq.py:287) both hard-code h = (1/N)**(1/3), the 3D convention. On a 2D case, where doubling both directions quadruples N, r21 becomes 4**(1/3) = 1.587 instead of the true 2, so the reported observed order is 0.817 where the 2D calculation gives 0.545. Verdict unchanged here (both routes return conclusive False), but the order printed on any 2D ladder is overstated by that factor -- a 2D ladder whose true order was 1.6 would print 2.4 and fall outside the credible range for the wrong reason. Flagged, not edited; sdk/chief_engineer/ is out of scope for this session."
     },
     "ladder_advanced": false,
     "proposal": {
@@ -740,6 +740,11 @@
       },
       "verdict": "the pressure sign flip holds at EVERY matched count tested, and the second increment grows steadily MORE positive as the rungs converge rather than shrinking toward zero. The pressure drag is not a nearly-converged quantity a longer run would tidy up; it is going the wrong way and going there harder. The viscous order is stable at 1.03-1.07 matched against 1.090 published.",
       "script": "4G_runs/bump_iteration_matched/drag_split.py"
+    },
+    "nasa_family_is_point_dropped": {
+      "check": "NASA's 89x41 node array equals their 177x81 array sliced [::2,::2]",
+      "max_coordinate_difference": 0.0,
+      "note": "verified rather than taken from the 'Nlevelsdown' filenames"
     }
   }
 }

@@ -641,6 +641,10 @@ And the grid family is not geometrically similar, which a Richardson study assum
 | our first wall cell (fixed total expansion ratio 274,657, ny doubling) | ×0.5337 | ×0.5167 |
 | NASA's (every-other-point coarsenings of one 1409x641 grid) | ×0.4936 | — |
 
+That NASA's family is literally point-dropped was checked, not taken from the
+"*N*levelsdown" filenames: their 89x41 node array equals their 177x81 array sliced
+`[::2, ::2]` to **0.0** in both coordinates, exactly.
+
 Every spacing in NASA's family halves. Ours holds the expansion ratio fixed and doubles
 the count, so the wall-normal spacing scales by 0.52-0.53 while the streamwise spacing
 scales by exactly 0.5. There is no single *h* refining this family — the same defect the
@@ -654,12 +658,21 @@ diverges"** — on the published ladder and on the matched one alike. The Richar
 lands 0.887 of the ladder's entire measured range beyond its finest rung, against a
 tolerance of 0.15. That is the B-52 extrapolation guard doing its job.
 
-One incidental finding worth having: that helper builds its representative size as
-h = (1/N)^(1/3), the 3D convention. On this 2D case, where doubling both directions
-quadruples N, that makes r21 = 4^(1/3) = 1.587 instead of the true 2, and it reports the
-observed order as **0.817** where the 2D calculation gives 0.545. The verdict is the same
-either way here, but the order it prints on any 2D ladder is overstated. Flagged, not
-edited — `sdk/chief_engineer/` is out of scope for this session.
+One incidental finding worth having, read from the source rather than inferred from the
+number: both `ladder_band` (`uq.py:93`) and `eca_hoekstra_band` (`uq.py:287`) hard-code
+the representative size as
+
+```python
+h1, h2, h3 = ((1.0 / n) ** (1.0 / 3.0) for n in (n1, n2, n3))
+```
+
+— the 3D convention. On a 2D case, where doubling both directions quadruples N, that makes
+r21 = 4^(1/3) = 1.587 instead of the true 2, and the helper reports the observed order as
+**0.817** where the 2D calculation gives 0.545. **The verdict is unchanged here** (both
+routes return `conclusive: False`), but the order printed on *any* 2D ladder is overstated
+by that factor, and a 2D ladder whose true order was 1.6 would print 2.4 and fall outside
+the credible range for the wrong reason. Flagged, not edited — `sdk/chief_engineer/` is
+out of scope for this session.
 
 ### 10.6 Did the ladder advance?
 
