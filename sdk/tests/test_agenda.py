@@ -509,7 +509,15 @@ class AgendaGui(unittest.TestCase):
         self.assertIsNotNone(match, "agenda render block markers missing")
         esc_line = next(line for line in self.script.splitlines()
                         if line.strip().startswith("const esc ="))
-        return esc_line + "\n" + match.group(1)
+        # The docket cards are typeset like every other camera surface, so the
+        # renderer calls subHTML. Carry the typesetter in with `esc`: without
+        # it the block runs against a name that is not there and the fixture
+        # fails on the page's own house style rather than on the agenda.
+        typeset = re.search(
+            r"const SUB_GROUPS = .*?^function subHTML\(text\) \{.*?\}$",
+            self.script, re.S | re.M)
+        self.assertIsNotNone(typeset, "the subscript typesetter moved")
+        return esc_line + "\n" + typeset.group(0) + "\n" + match.group(1)
 
     @unittest.skipUnless(_NODE, "node not installed")
     def test_renderer_builds_cards_from_a_fixture_docket(self):
