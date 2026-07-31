@@ -983,11 +983,18 @@ function pushTrace(p) {
     state.trace = { series: p.series, pts: [], xLabel: p.x_label || 'x', yLabel: p.y_label || 'y',
                     title: p.title || 'Objective trace' };
     subText('traceTitle', p.title || 'Objective trace');
-    // The underscore is the subscript marker, so stripping it here defeated
-    // the typesetter downstream: "Cd_history" reached the screen as the flat
-    // string "Cd history" on five acts, and no act-side wording could fix it
-    // because the character was eaten before subText ever saw it.
-    subText('traceSeriesLbl', p.series ? String(p.series) : 'objective');
+    // The series key is an identifier, not a label: "Cd_history", "best_L_D",
+    // "momentum_residual". Its underscores are separators, so typesetting them
+    // as subscripts would set "history" under the C, and stripping them (the
+    // behaviour before this) flattened the one variable that IS in there.
+    //
+    // The axis label is the label. Acts already send it, already written the
+    // way it should read ("C_d", "L/D", "log10 momentum residual"), and it
+    // typesets correctly because its indices are indices. Fall back to the key
+    // with separators opened out only when an act sends no axis label at all.
+    const seriesLbl = p.y_label
+      || (p.series ? String(p.series).replace(/_/g, ' ') : 'objective');
+    subText('traceSeriesLbl', seriesLbl);
   }
   state.trace.pts.push({ x: +p.x, y: +p.y, lo: p.lo != null ? +p.lo : null, hi: p.hi != null ? +p.hi : null,
                          feasible: p.feasible !== false });
