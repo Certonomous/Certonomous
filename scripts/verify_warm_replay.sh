@@ -79,7 +79,12 @@ ACTS=("$@")
 # the same class as the compute audit's free-core count: how many slots the
 # box handed out this instant, not a property of the answer. The airliner act
 # reported DIFFERS on it while every solved coefficient matched.
-NOISE='Compute audit|cores free|GB available|other job|granted slots'
+#
+# The worker-headroom rows join them for exactly that reason. Available, Taken
+# and Held back are read off the free-core count at the moment the act runs, so
+# a busy box moves them while the physics does not. Left out, a filming-day
+# check reports DIFFERS on an act that did not change.
+NOISE='Compute audit|cores free|GB available|other job|granted slots|Worker headroom|Available|Taken|Held back'
 
 # An act that fails the same way twice diffs clean. That is how a broken
 # cylinder vortex-shedding act -- the control room had been restarted without
