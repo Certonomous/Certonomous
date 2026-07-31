@@ -1648,7 +1648,7 @@ function renderMemo(rep) {
     + `<h4>Results</h4>${results}`
     + `<h4>Abstract</h4>${(rep.abstract||[]).map(x=>`<p>${subHTML(x)}</p>`).join('')}`
     + `<h4>Methods</h4>${list(rep.methods)}`
-    + `<h4>Uncertainty</h4>${list(rep.uncertainty)}`
+    + `<h4>${esc(rep.uncertainty_title || 'Uncertainty')}</h4>${list(rep.uncertainty)}`
     + `<h4>Next investigations</h4>${list(rep.next_investigations)}`;
   document.querySelector('.tab[data-view="memo"]').hidden = false;
   injectCertificate();

@@ -2358,7 +2358,14 @@ def main(request: str | None = None, params: dict | None = None,
          "envelope propagated."),
     ]
 
-    uncertainty = [
+    # LIMITATIONS, NOT UNCERTAINTY. What follows is what the answer does not
+    # cover: an optimum set by the edges of the box, a discrete grid, and a
+    # non-wing drag share that came from a buildup rather than a solve. None
+    # of it is a band on a number. The bands are the three uncertainty
+    # channels, and they are computed above and shown on their own surface;
+    # heading this list "Uncertainty" too made a reader hunt for which was
+    # which. The section carries its own title so the two never collide.
+    limitations = [
         sweep_note,
         "Whole-aircraft L/D rises with aspect ratio and does not turn over, so "
         "the reported design is set by the structural span limit and the "
@@ -2384,11 +2391,15 @@ def main(request: str | None = None, params: dict | None = None,
                         f"range {best['range_km']:.0f} km",
             **verdict,
         }],
-        uncertainty=uncertainty,
+        uncertainty=limitations,
         next_investigations=[f"{entry['title']}: {entry['scope']}"
                              for entry in agenda],
         compute=ledger.as_dict(),
     )
+    # The heading the list above is filed under. The payload key stays
+    # ``uncertainty`` so nothing downstream has to change; the title is what
+    # the reader sees, and for this act it is Limitations.
+    report["uncertainty_title"] = "Limitations"
     # The memo leads with its figures, and carries them itself so a fast run
     # cannot finish before the paced figure events drain.
     if report_plots:

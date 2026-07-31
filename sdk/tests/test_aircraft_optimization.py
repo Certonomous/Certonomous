@@ -990,6 +990,14 @@ class SolvedRunDoctrineTests(unittest.TestCase):
                 if bullet:
                     self.assertFalse(bullet[0].islower(), message)
 
+    def test_the_limitations_section_is_titled_for_what_it_holds(self):
+        # The list holds a boundary-set optimum, a discrete-grid caveat and
+        # the non-wing provenance. None of those is a band, so the section is
+        # Limitations and the three computed bands keep the word uncertainty.
+        report = [p for e, p in self._run_solved() if e == "report.ready"][0]
+        self.assertEqual(report["uncertainty_title"], "Limitations")
+        self.assertTrue(report["uncertainty"])
+
     def test_lesson_records_the_computed_uncertainty_patterns(self):
         from chief_engineer.lessons import learned_lessons
 
