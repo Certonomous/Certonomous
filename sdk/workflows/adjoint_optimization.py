@@ -298,7 +298,10 @@ def _target_first_met(history, baseline_cd: float,
 
     Returns the first major iteration at or past the target, the reduction it
     read there, and the first iteration from which every later one is also at
-    or past it. None when the recorded run never reaches the target.
+    or past it. ``stayed_from`` is None when the run's own last iteration is
+    back under the target, because on that history there is no iteration the
+    target holds from and saying there is one would be a claim about the run
+    that the run does not support. None overall when the target is never met.
     """
     def drop(point) -> float:
         return (baseline_cd - point["CD"]) / baseline_cd * 100.0
@@ -306,7 +309,7 @@ def _target_first_met(history, baseline_cd: float,
     met = [p for p in history if drop(p) >= target_pct]
     if not met:
         return None
-    stayed = met[-1]["iter"]
+    stayed = None
     for point in reversed(history):
         if drop(point) < target_pct:
             break
@@ -1134,14 +1137,20 @@ def main(request: str | None = None, params: dict | None = None,
     # ended. Both read off the history. The row states no reason for the
     # difference, because the run records none.
     if first_met:
+        stayed = first_met["stayed_from"]
+        if stayed is None:
+            since = (f"The last recorded iteration reads under "
+                     f"{target_pct:g}%. The run ran to {majors}")
+        elif stayed == first_met["iter"]:
+            since = (f"At or past {target_pct:g}% every iteration after. The "
+                     f"run ran to {majors}")
+        else:
+            since = (f"At or past {target_pct:g}% from major iteration "
+                     f"{stayed} on. The run ran to {majors}")
         result_rows.append([
             f"Where the {target_pct:g}% was first reached",
             f"Major iteration {first_met['iter']}, at {first_met['pct']:.1f}%",
-            (f"At or past {target_pct:g}% from major iteration "
-             f"{first_met['stayed_from']} on. The run ran to {majors}")
-            if first_met["stayed_from"] != first_met["iter"] else
-            (f"At or past {target_pct:g}% every iteration after. The run ran "
-             f"to {majors}")])
+            since])
     result_rows += [
         [f"Objective band over the last {TAIL_ITERS} iterations",
          f"{tail_spread_pct:.2g}%", "Measured across the recorded objective"],
