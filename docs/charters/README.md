@@ -23,7 +23,7 @@ gets deleted at the next revision.
 | 5 | [Result priority](RESULT_PRIORITY_CHARTER.md) | When two methods validate different quantities, the declared ordering picks, and the trade goes on the record. |
 | 6 | [Compute budget](COMPUTE_BUDGET_CHARTER.md) | Every budget is measured, and every hold on the box expires by itself. |
 | 7 | [Escalation](ESCALATION_CHARTER.md) | The lab decides what is reversible and cheap. Everything else goes to the docket. |
-| 8 | [Reporting](REPORTING_CHARTER.md) | Six sections, fixed order, every morning, including the mornings with nothing good in them. |
+| 8 | [Reporting](REPORTING_CHARTER.md) | Six sections, fixed order, every morning, including the mornings with nothing good in them. From version 2.0 the headings are fixed strings, so a missing section fails a match rather than a taste test. |
 
 ## How to read one
 
