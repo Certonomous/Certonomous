@@ -121,6 +121,14 @@ _VALVE = re.compile(
 _AHMED_BODY_NAME = re.compile(
     r"\bahmed\b.{0,20}\bbody\b|\bahmed\s*body\b|\b25\s*(?:deg(?:ree)?s?)?\s*"
     r"slant\b", re.I)
+# A rear slant angle, either way round ("slant: 15 degrees", "25 degree rear
+# slant"), is Ahmed vocabulary and nothing else this control room routes uses
+# it: the wedge and the cone state a HALF-ANGLE, never a slant. It fires on the
+# word, not the value, so a request naming an angle the lab holds no body for
+# still reaches the act that can say so honestly.
+_AHMED_SLANT = re.compile(
+    r"\bslant\b\s*[:=]?\s*\d{1,3}(?:\.\d+)?\s*(?:deg|degree|°)|"
+    r"\b\d{1,3}(?:\.\d+)?\s*(?:deg(?:ree)?s?|°)\s*(?:rear\s+)?slant\b", re.I)
 _NASA_HUMP_NAME = re.compile(
     r"\bnasa\b.{0,20}\bhump\b|\bwall[\s-]?mounted\s+hump\b|"
     r"\b(?:glauert[\s-]?goldschmied)\b.{0,10}\bhump\b|\b2d\s*wmh\b", re.I)
@@ -421,6 +429,11 @@ def classify(request: str) -> Route:
     if _AHMED_BODY_NAME.search(text):
         add(AHMED_BODY, 2.0,
             "names the Ahmed reference body, 25 degree slant")
+    elif _AHMED_SLANT.search(text):
+        # elif, not a second if: the rehearsed prompt matches BOTH patterns,
+        # and scoring it twice would move its confidence number on camera.
+        add(AHMED_BODY, 2.0,
+            "states a rear slant angle, which is this body's defining feature")
     if _NASA_HUMP_NAME.search(text):
         add(NASA_HUMP, 2.0,
             "names the NASA wall-mounted hump validation case")
@@ -630,7 +643,8 @@ def classify(request: str) -> Route:
 # each of these acts accepts the surface honestly on its own terms (starting
 # geometry, raced wing, reference body) rather than being rerouted.
 _SURFACE_KEEPS_ROUTE = (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON, VALVE_STUDY,
-                        SHAPE_OPTIMIZATION, ADJOINT_OPTIMIZATION)
+                        SHAPE_OPTIMIZATION, ADJOINT_OPTIMIZATION, NASA_HUMP,
+                        AHMED_BODY)
 
 
 def apply_surface(route: Route, surface: str | None) -> Route:
