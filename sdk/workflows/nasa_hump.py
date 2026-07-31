@@ -37,6 +37,8 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 UNCONVERGED, VALIDATED, ComputeLedger, KnowledgeBase,
                                 Roster, lab_report, per, uncertainty_channels)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
+from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
+from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
 
 from .geometry_study import (INPUT_ASSUMED_NOTE, MAX_NON_ORTHOGONALITY,
                              MAX_SKEWNESS, _emit_table, mesh_gates_pass,
@@ -827,8 +829,9 @@ def main(request: str | None = None, params: dict | None = None,
         ]
     # The gate table grows a row at a time, each one landing as it is
     # decided, rather than nine rows arriving at once with nothing to watch.
+    # The numericist speaks this one: measurement is hers, not the engineer's.
     for index, gate_row in enumerate(gate_rows):
-        _emit_table(emit, script, role=_CE_ROLE,
+        _emit_table(emit, script, role=_NUM_ROLE,
                    title="Gate: converged separation and reattachment vs the "
                          "published experiment",
                    headers=("Quantity", "Value"), rows=[gate_row],
