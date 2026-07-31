@@ -128,8 +128,8 @@ _ICAO_CODE_F_MAX_SPAN = 80.0
 ICAO_ADVISORY = (
     f"Advisory: span exceeds ICAO Aerodrome Reference Code E, wingspan "
     f"{_ICAO_CODE_E_MIN_SPAN:.0f} to {_ICAO_CODE_E_MAX_SPAN:.0f} m.",
-    f"Code F is {_ICAO_CODE_E_MAX_SPAN:.0f} to {_ICAO_CODE_F_MAX_SPAN:.0f} m, "
-    f"A380 class gate infrastructure, ICAO Annex 14 reference code table.",
+    f"Code F, {_ICAO_CODE_E_MAX_SPAN:.0f} to {_ICAO_CODE_F_MAX_SPAN:.0f} m, is "
+    f"A380 class gate infrastructure (ICAO Annex 14).",
     f"Offer: re-run with span at most {_ICAO_CODE_E_MAX_SPAN:.0f} m.")
 # The same advisory as one line, for the certificate constraint list.
 ICAO_CONSTRAINT_ROW = (
@@ -411,6 +411,36 @@ def binding_constraint(results) -> str | None:
         "Range short of the requirement": "range",
         "Span beyond the structural limit": "span",
     }.get(label)
+
+
+def active_limits(best: dict, results) -> list[str]:
+    """The limits the winning wing is sitting ON, named.
+
+    WHY THIS EXISTS. The objective is cruise L/D, and for a parabolic drag
+    polar the best attainable L/D is 0.5*sqrt(pi*AR*e/C_D0) — it rises with
+    aspect ratio without turning over. So this search has no interior optimum
+    in span or in area: the winner is wherever the feasible region ends. It is
+    a corner of the box, and the box edges are the structural span limit and
+    the area floor the landing speed sets. Sweep is the one axis with a
+    genuine stationary point, because parasite drag carries a compressibility
+    penalty that is minimised near 25 degrees.
+
+    That distinction is the difference between a design insight and an
+    arithmetic consequence of where the limits were drawn, and the act says
+    which it has rather than leaving a reader to assume the former. It is also
+    what makes the analogue rows legible: a span on the limit is why the span,
+    the aspect ratio and the wing area all read outside the analogue envelope.
+    """
+    on: list[str] = []
+    if abs(float(best["span"]) - _SPAN_STRUCTURAL_LIMIT) < 1e-6:
+        on.append(f"the {_SPAN_STRUCTURAL_LIMIT:.0f} m structural span limit")
+    # The area floor is the smallest area on the grid that clears every
+    # low-speed limit at the winner's span, taken from the screened results
+    # rather than recomputed, so it is the floor this run actually found.
+    feasible_areas = [float(r["area"]) for r in results if r.get("feasible")]
+    if feasible_areas and abs(float(best["area"]) - min(feasible_areas)) < 1e-6:
+        on.append("the wing-area floor the landing speed sets")
+    return on
 
 
 # ---------------------------------------------------------------------------
@@ -1879,6 +1909,19 @@ def main(request: str | None = None, params: dict | None = None,
             "• No production airliner carries this many passengers this far. "
             "• The mission has no analogue to hold the winner against.")
 
+    # ---- what the winner is sitting on --------------------------------------
+    # Said whether or not the analogue check ran, and said plainly. Cruise L/D
+    # rises with aspect ratio and does not turn over, so the search ends on the
+    # limits rather than at a peak. A reader who takes the winner for an
+    # interior optimum has been misled by silence, so the silence is filled.
+    limits = active_limits(best, results)
+    if limits:
+        script.engineer(
+            "• The winner sits on " + " and on ".join(limits) + ". "
+            "• Cruise L/D rises with aspect ratio and does not turn over, so "
+            "these limits set it. "
+            "• Move a limit and the winner moves with it.")
+
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).
     ci95 = winner_ci95(best, reqs, polar=best.get("_polar"))
@@ -1984,9 +2027,8 @@ def main(request: str | None = None, params: dict | None = None,
             "• Wing solved with VSPAERO: induced and viscous drag from the "
             "solved polar at cruise. "
             "• Non-wing drag comes from the component buildup method (Raymer). "
-            "• To solve that too. Required: a full-configuration surface and "
-            "an external-aerodynamics case for it; the pipeline itself is "
-            "ready.")
+            "• To solve that too: a full-configuration surface and an "
+            "external-aerodynamics case for it.")
         verdict = trust(
             converged=True, in_validated_regime=False, calibrated=True,
             solver_backed=True,
@@ -2067,9 +2109,9 @@ def main(request: str | None = None, params: dict | None = None,
     ]
 
     uncertainty = [
-        "The trade is physical: whole-aircraft L/D rises with aspect ratio until "
-        "the landing "
-        "speed caps it.",
+        "Whole-aircraft L/D rises with aspect ratio and does not turn over, so "
+        "the reported design is set by the structural span limit and the "
+        "landing-speed area floor, not by an interior optimum.",
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
          "comes from Raymer's component buildup method." if won_solved else
          "The absolute whole-aircraft L/D comes from a drag polar sizing model, "
