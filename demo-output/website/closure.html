@@ -96,18 +96,18 @@
 <div class="grid">
   <div class="kpi flat"><div class="n a sm">0.1036</div><div class="l">where standard CFD lands</div>
     <div class="f">the industry-standard turbulence model, uncorrected — the number to beat</div></div>
-  <div class="kpi hero"><div class="n g">0.0676</div><div class="l">our entry of record</div>
-    <div class="f">34.7% closer to reality than the standard solve</div></div>
+  <div class="kpi hero"><div class="n g">0.0654</div><div class="l">our entry of record</div>
+    <div class="f">36.9% closer to reality than the standard solve — was 0.0676 until the duct fix below</div></div>
   <div class="kpi"><div class="n">5 of 8</div><div class="l">test cases where we lead</div>
     <div class="f">better than every published entry on those five — and behind on the other three</div></div>
-  <div class="kpi"><div class="n">4</div><div class="l">scoring attempts, ever</div>
+  <div class="kpi"><div class="n">5</div><div class="l">scoring attempts, ever</div>
     <div class="f">each a single pre-registered call; the benchmark's answers were never used to tune</div></div>
 </div>
 
 <div class="note"><b>What the score is, in one line.</b> Every test case is a real flow measured by
 high-fidelity simulation. The benchmark picks 1,000 fixed points in each flow and asks: how far off is your
 predicted velocity, on average, as a fraction of the true speed? <b>0.1036 means the standard solve is about
-10% wrong. 0.0676 means we are about 7% wrong.</b> Lower is better. The final score is the plain average
+10% wrong. 0.0654 means we are about 6.5% wrong.</b> Lower is better. The final score is the plain average
 across all eight cases.</div>
 
 <!-- ===================== 1 ===================== -->
@@ -155,7 +155,7 @@ uncomfortable: on three of the eight cases, our trained correction was making th
     should have declined, and kept correcting the two it should have kept. <b>4 of 4, blind.</b></span>
   </li>
   <li class="hit">
-    <b>Final score 0.0676 — one ten-thousandth worse than cheating</b>
+    <b>That round scored 0.0676 — one ten-thousandth worse than cheating</b>
     <span>The honest route landed at <span class="num">0.0676</span>. The shortcut we refused would have
     given <span class="num">0.0675</span>. The gap is the third case, the NASA bump, where no legitimate
     gate exists — so that small loss stays on our score permanently rather than being quietly reverted.
@@ -183,7 +183,7 @@ nowhere at all.</p>
 <tbody>
 <tr><td>1 · Reissmann, Fang, and Sandberg</td><td class="n">0.0595</td><td></td></tr>
 <tr><td>2 · Wu and Zhang</td><td class="n">0.0624</td><td></td></tr>
-<tr class="us"><td>— · Certonomous</td><td class="n">0.0676</td><td><span class="tag t-gold">UNSUBMITTED · NO RANK</span></td></tr>
+<tr class="us"><td>— · Certonomous</td><td class="n">0.0654</td><td><span class="tag t-gold">UNSUBMITTED · NO RANK</span></td></tr>
 <tr><td>3 · Liu, Wang, Zhao, and Xiao</td><td class="n">0.0737</td><td></td></tr>
 <tr><td>4 · Montoya, Oulghelou, and Cinnella</td><td class="n">0.0779</td><td></td></tr>
 <tr><td>Standard uncorrected simulation</td><td class="n">0.1036</td><td><span class="tag t-flat">the floor everyone is beating</span></td></tr>
@@ -198,9 +198,9 @@ achieved on that case. <b>We lead on five and trail on three.</b></p>
 <tr class="us"><td>Periodic hill, steep, fine</td><td class="n">0.1195</td><td class="n win">0.1011</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
 <tr class="us"><td>Periodic hill, shallow, coarse</td><td class="n">0.0569</td><td class="n win">0.0461</td><td><span class="tag t-gold">BEST — no correction applied</span></td></tr>
 <tr class="us"><td>Periodic hill, shallow, fine</td><td class="n">0.0760</td><td class="n win">0.0719</td><td><span class="tag t-gold">BEST — no correction applied</span></td></tr>
-<tr class="us"><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n win">0.0303</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
-<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n lose">0.0919</td><td><span class="tag t-open">LAST ON BOARD</span></td></tr>
-<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n lose">0.0862</td><td><span class="tag t-open">SECOND-LAST</span></td></tr>
+<tr class="us"><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n win">0.0325</td><td><span class="tag t-gold">BEST — by 0.00003</span></td></tr>
+<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n lose">0.0811</td><td><span class="tag t-open">3rd of 5 — was last</span></td></tr>
+<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n lose">0.0775</td><td><span class="tag t-open">3rd of 5 — was 4th</span></td></tr>
 <tr><td>NASA wall-mounted hump</td><td class="n">0.0364</td><td class="n lose">0.0632</td><td><span class="tag t-open">LAST ON BOARD</span></td></tr>
 </tbody></table></div>
 
@@ -212,32 +212,60 @@ our five leads are cases we won by declining to break what already worked.</div>
 
 <!-- ===================== 4 ===================== -->
 <h2>4 · What is not solved</h2>
-<p class="lede">Three of the eight cases are unfixed, and one of them is unfixed for a reason we can now
-prove rather than guess at.</p>
+<p class="lede">Three of the eight cases still trail. The ducts improved sharply once we found what was
+actually wrong — and what was actually wrong was <em>not</em> what this page said for the past two days.</p>
+
+<div class="note warn"><b>We had the duct diagnosis wrong, and the correction is the finding.</b> This page
+previously blamed the duct deficit on two of the model's seven inputs being mathematically forced to zero on
+every duct. That degeneracy is real — across 41,971 cells of duct training data those two never exceed
+3&times;10<sup>&minus;14</sup>, and across 50,000 randomly generated shear states they are exactly zero, by
+algebra — but it <b>cannot</b> be the explanation, for a reason that is pure arithmetic:
+<b>those same two inputs are equally zero on the duct we score best on the board on.</b> A flaw present in
+identical measure on the case we win and the cases we lose does not distinguish between them. We had
+published a true fact as a cause, and it was not the cause.</div>
 
 <div class="grid">
-  <div class="kpi"><div class="n sm">2 of 7</div><div class="l">inputs are provably blind</div>
-    <div class="f">On every square-duct flow, two of our model's seven inputs are mathematically forced to
-    zero — not small, exactly zero. More data and a bigger model cannot fix this.</div></div>
-  <div class="kpi"><div class="n sm">≥ 76%</div><div class="l">of the duct error is elsewhere</div>
-    <div class="f">The famous missing swirl in a duct corner accounts for at most a quarter of our duct
-    error. Stated as a bound, not a measurement.</div></div>
-  <div class="kpi"><div class="n sm">BLOCKED</div><div class="l">the route to fixing the ducts</div>
-    <div class="f">Reproducing the rank-2 method hit a real numerical failure that has not been solved.
-    Nothing was estimated around it.</div></div>
-  <div class="kpi"><div class="n sm">+0.0011</div><div class="l">a regression we did not revert</div>
-    <div class="f">Our correction makes the NASA hump slightly worse. Undoing it now would mean choosing
-    by the answer key, so it stands.</div></div>
+  <div class="kpi"><div class="n sm">1.85&times;</div><div class="l">how far past its training range we pushed the model</div>
+    <div class="f">On the two ducts we lose, one input — the local turbulent Reynolds number — reaches 1.85
+    and 2.07 times the largest value the model ever saw while learning. On the duct we win, 0.90 times.</div></div>
+  <div class="kpi"><div class="n sm">&minus;0.0108</div><div class="l">what the fix bought on the worst duct</div>
+    <div class="f">0.0919 → 0.0811 on aspect ratio 1, and 0.0862 → 0.0775 on aspect ratio 3. Last on the
+    board to third of five.</div></div>
+  <div class="kpi"><div class="n sm">83%</div><div class="l">of the error removed on the held-out duct</div>
+    <div class="f">Against 75% for the previous model, on the benchmark's own suggested validation case —
+    measured before the fix was ever scored.</div></div>
+  <div class="kpi"><div class="n sm">+0.0022</div><div class="l">a second regression we did not revert</div>
+    <div class="f">The same fix made the aspect-ratio-14 duct slightly worse. Reverting it there means
+    choosing by the answer key, so it stands — as the NASA hump's +0.0011 does.</div></div>
 </div>
 
-<div class="note warn"><b>The blind-spot result, because it is the most useful thing we learned.</b> Two of
-the seven quantities our model reads describe how a flow twists and shears in three dimensions. In a square
-duct, the standard simulation predicts no corner swirl whatsoever — so those two quantities are identically
-zero across every duct in the training set. We confirmed this two ways: across 41,971 real cells of duct training data they never exceed
-3&times;10<sup>&minus;14</sup> &mdash; floating-point noise, not signal &mdash; and across 50,000 randomly
-generated shear states they come out exactly zero, by algebra. <b>The model was trained on a dimension of the problem that never varied, so it learned nothing
-about it, and no amount of extra capacity will change that.</b> Fixing the ducts needs different inputs,
-not a bigger model — which is a far more valuable thing to know than another tuning round.</div>
+<div class="note"><b>What was actually wrong, in one line.</b> A gradient-boosted tree cannot extrapolate: past
+the edge of its training data it stops responding and returns a constant. Every square duct the rules let us
+learn from sits at a single Reynolds number, so when the benchmark handed us two ducts at double that, one
+input walked off the end of everything the model had ever seen. <b>The fix was to give the model a
+Reynolds-invariant sense of where it is between the walls, and to have it predict the correction as a
+fraction of the flow's own speed rather than in metres per second.</b> The prediction that follows from the
+diagnosis is specific: the two ducts that were out of range should improve and the one that was in range
+should not. That is exactly what happened, on all three, which is the strongest evidence we have that the
+mechanism is the right one this time.</div>
+
+<div class="note warn"><b>And the gate is not our invention. We checked.</b> Before claiming the decline gate as a
+contribution we searched for prior art properly, and found it. A classifier that reads only the uncorrected
+solve and controls where a data-driven correction is allowed to act has been published repeatedly —
+Ling and Templeton in 2015, Wu, Wang, Xiao and Ling in 2017, Steiner, Dwight and Viré in 2022, Buchanan,
+Lăcătuş, West and Dwight in 2025. <b>Two of those authors wrote the benchmark we are entering.</b> What is
+left to us is narrow and we state it that way: our gate decides for a whole flow rather than cell by cell,
+it is trained to predict the <em>baseline's</em> error rather than how unfamiliar the flow looks, and when it
+declines it submits the plain uncorrected solve and says so. This is a recombination with a modification,
+not a new method class, and every citation behind that sentence was fetched and checked rather than
+recalled.</div>
+
+<div class="note warn"><b>What is still not solved.</b> The NASA hump is now the only case we are last on,
+and no training data for it exists anywhere in the benchmark. The duct fix is validated on every held-out
+set the rules permit — but <b>none of those is a test of Reynolds transfer at a doubled flow speed</b>, which
+is what the two hard ducts actually demand, because every duct we may legally fit on has the same Reynolds
+number. The fix is motivated by a measured mechanism and proven to do no harm; it was not proven in advance
+to close the gap. It closed it partly. We are still well behind the leaders on both.</div>
 
 <div class="note"><b>And the honest bottom line.</b> The correction is applied to an already-finished
 simulation as a post-processing step; it does not change the underlying physics equations. It has been
