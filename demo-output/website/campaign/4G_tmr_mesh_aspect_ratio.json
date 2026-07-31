@@ -643,6 +643,29 @@
       "closed": "done",
       "see": "demo-output/website/agenda/docket.json"
     },
-    "next_step_now_concrete": "rebuild the bump family from NASA's own distributed grids (two of three now held at models/tmr/bump/grids/), as the NACA0012 case was already pivoted on 2026-07-26. One h, clustering where the physics is, and a pressure drag that converges at p = 2.91 in CFL3D's hands on those very grids."
+    "next_step_now_concrete": "rebuild the bump family from NASA's own distributed grids (two of three now held at models/tmr/bump/grids/), as the NACA0012 case was already pivoted on 2026-07-26. One h, clustering where the physics is, and a pressure drag that converges at p = 2.91 in CFL3D's hands on those very grids.",
+    "iterative_drift_per_rung": {
+      "coarse": {
+        "published_cap": 4000,
+        "cd_at_cap": 0.0034430489,
+        "cd_at_30000": 0.003436255,
+        "drift_pct": -0.1973,
+        "move_over_last_5000_pct": -0.0081,
+        "converged": false
+      },
+      "medium": {
+        "published_cap": 6000,
+        "cd_at_cap": 0.0035162628,
+        "cd_at_30000": 0.0035085605,
+        "drift_pct": -0.219,
+        "move_over_last_5000_pct": -0.0219,
+        "converged": false
+      },
+      "fine": {
+        "published_cap": 9000,
+        "note": "re-run capped at 15000 rather than 30000; the ladder is being retired for a rebuild on NASA's grids and 17 more core-hours of it would refine a number on a ladder that cannot support one"
+      },
+      "reading": "the drift is near common-mode across rungs, which is why it largely cancels out of the increments and the matched observed order is stable past n~3000. The ladder's ORDER survives the iterative error; its VALUES do not -- every Cd on it is low-biased by roughly 0.2% and still falling, in the direction that widens the gap to CFL3D rather than closing it."
+    }
   }
 }

@@ -554,6 +554,20 @@ worthless — p is negative, and at n = 2,000 the increments cross and GCI reads
 Above n = 3,000 it is stable: p sits between 0.511 and 0.519 across a factor of three in
 iteration count. Whatever is holding the order at 0.52 is not the iteration budget.
 
+**Why it is stable, and why that is not reassurance.** The drift is comparable on both
+rungs measured, which is why it largely cancels out of the increments:
+
+| rung | Cd at its published cap | Cd at 30,000 | drift | move over the last 5,000 |
+|---|---|---|---|---|
+| coarse (cap 4,000) | 0.0034430489 | 0.0034362550 | **−0.1973%** | −0.0081% |
+| medium (cap 6,000) | 0.0035162628 | 0.0035085605 | **−0.2190%** | −0.0219% |
+
+Neither prints `SIMPLE solution converged` at 30,000 and both are still descending, the
+medium one faster than the coarse. So the ladder's *order* survives the iterative error
+because the error is nearly common-mode; the ladder's *values* do not. Every Cd on it is
+low-biased by roughly a fifth of a percent and falling, in the direction that widens the
+gap to CFL3D rather than closing it.
+
 A note for anyone tempted by the cheap route: fitting Cd(n) = Cd_∞ + A·n^−q to the
 coarse trajectory over [1,000, 4,000] predicts Cd at n = 30,000 to **+0.027%** — and
 predicts Cd_∞ **1.9% low**. The trajectory is extrapolable an order of magnitude in n;
