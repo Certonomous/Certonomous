@@ -717,9 +717,8 @@ def main(request: str | None = None, params: dict | None = None,
             f"The gradient is taken by {AD_MODE}-mode automatic "
             f"differentiation of the residuals, the turbulence model "
             f"included.",
-            f"Plan: take the adjoint gradient, then grade it against "
-            f"{FD_SOLVES} primal solves.",
-            f"Then optimize on the verified gradient.")
+            f"Plan: take the adjoint gradient, grade it against {FD_SOLVES} "
+            f"primal solves, then optimize on it.")
     # ITEM 3 (owner, 2026-07-31): the one line above says it, and these rows
     # say which residuals carry it, because "frozen turbulence" is the first
     # objection an adjoint-literate reviewer raises and a general claim does
@@ -1081,9 +1080,9 @@ def main(request: str | None = None, params: dict | None = None,
         # they cannot be merged into one.
         roster.set(NUMERICIST, "holding the viewing convention", "working")
         _narrate(script.numericist,
-                f"Same surfaces on a closer viewing convention: the inboard "
-                f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span.",
-                f"Unscaled. The viewing convention moved, the wing did not.")
+                f"The same surfaces on the inboard "
+                f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span, unscaled. The "
+                f"viewing convention moved, the wing did not.")
         roster.idle(NUMERICIST)
         for point in history:
             frame = frames.get(point["iter"])
