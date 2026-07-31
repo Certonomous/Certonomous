@@ -158,11 +158,17 @@ def _report_primal_plateau(*, log_text: str, cells: int, elapsed_min: float,
     roster.idle(MONITOR)
 
     if emit:
-        emit("result.verdict", {"quantity": "Primal residual",
-                                "value": f"{min_res:.3g}" if min_res else "n/a",
-                                "ci": "n/a", "confidence": "n/a",
-                                "envelope": f"tolerance {tol:.0e}" if tol else "n/a",
-                                **verdict})
+        # No interval is computed for this quantity, so the ci and confidence
+        # keys are absent rather than carrying a placeholder: a missing
+        # envelope renders as a clean point estimate, while a "n/a" string
+        # renders as an interval that was never computed. The envelope key
+        # goes the same way when there is no tolerance to name.
+        payload = {"quantity": "Primal residual",
+                   "value": f"{min_res:.3g}" if min_res else "n/a",
+                   **verdict}
+        if tol:
+            payload["envelope"] = f"tolerance {tol:.0e}"
+        emit("result.verdict", payload)
 
     script.phase(CONCLUSION)
     script.engineer(
@@ -641,10 +647,11 @@ def main(request: str | None = None, params: dict | None = None,
     roster.idle(MONITOR)
 
     if emit:
+        # No interval is computed for this quantity, so the ci and confidence
+        # keys are absent rather than carrying a placeholder string.
         emit("result.verdict", {"quantity": "Surface pressure vs AGARD",
                                 "value": (f"worst-station RMS {worst_rms:.3f}"
                                          if worst_rms is not None else "n/a"),
-                                "ci": "n/a", "confidence": "n/a",
                                 "envelope": f"converged at iteration {converged_iteration:,}",
                                 **verdict})
 

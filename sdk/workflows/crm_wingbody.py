@@ -334,9 +334,13 @@ def main(request: str | None = None, params: dict | None = None,
     roster.idle(MONITOR)
 
     if emit:
+        # No interval is computed for this quantity, so the ci and confidence
+        # keys are absent rather than carrying a placeholder. A missing
+        # envelope renders as a clean point estimate; a "n/a" string renders
+        # as "0.6544 +- n/a (n/a)", which reads as an interval that was never
+        # computed.
         emit("result.verdict", {"quantity": "Drag coefficient",
-                                "value": f"{final_cd:.6f}", "ci": "n/a",
-                                "confidence": "n/a",
+                                "value": f"{final_cd:.6f}",
                                 "envelope": f"converged at iteration {converged_iteration:,}",
                                 **verdict})
 
