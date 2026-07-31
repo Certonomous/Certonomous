@@ -1,7 +1,7 @@
 {
   "artifact": "validation tiers and credibility scorecards",
   "purpose": "Where every case the lab holds sits in the building-block validation hierarchy, and how well its inputs and its sensitivities are known. A tier states the ceiling on the trust a result may carry. A scorecard states the two things a fidelity chip does not encode. Neither changes what any chip means, and neither is a grade. This is the permanent record and it is complete: it holds every case the lab has placed, including the calibration bodies that never appear on a promotional surface.",
-  "generated_at": "2026-07-31T08:49:42+00:00",
+  "generated_at": "2026-07-31T12:54:38+00:00",
   "hierarchy": [
     {
       "validation_tier": "UNIT PROBLEM",
@@ -146,15 +146,15 @@
         "factors": [
           {
             "factor": "Input pedigree",
-            "level": 2,
+            "level": 3,
             "of": 4,
-            "note": "Inputs come from a handbook, a correlation or a standard condition."
+            "note": "Inputs are traced to the published configuration this result is graded against, with the solved operating point recorded."
           },
           {
             "factor": "Results robustness",
-            "level": 0,
+            "level": 1,
             "of": 4,
-            "note": "No sensitivity of the answer is known."
+            "note": "Sensitivity was probed but the study did not settle."
           }
         ]
       }
