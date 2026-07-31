@@ -1,11 +1,24 @@
 # Certonomous Reporting Charter
 
-Version 1.1, dated 2026-07-31. Freezes the morning report. It is the one
+Version 2.0, dated 2026-07-31. Freezes the morning report. It is the one
 document the owner reads every day, so its shape is fixed and its sections do
 not get reordered, merged or skipped.
 
-Version 1.1 adds two never-clauses to section 9, on labels and on declared
-configuration, and names `scripts/self_audit.py` in section 10.
+Version 1.1 added two never-clauses on labels and on declared configuration,
+and named `scripts/self_audit.py` in enforcement.
+
+**What changed in 2.0, and it is the whole point of the revision.** Version 1.1
+named the six sections and said they were required. It gave nobody a way to
+tell a report that skipped one from a report that had nothing to say. Section 2
+is new and it is the frame: exact heading strings, exact order, a computed
+section count, a required source line per section, and two reserved words.
+After it, "the report omitted the gates" is a string that is either present or
+absent rather than a matter of opinion. Section 10 is new and carries the
+reporting obligations that eight defects found this week put on the ladder,
+gate and FD rows. The never list gains four label clauses, the reserved-word
+clause, and one on configuration risk.
+Nothing in 1.1 was weakened, and the six sections and their order are still
+hers.
 
 ## 1. The line
 
@@ -26,7 +39,72 @@ promotional surface only.
 artifact it was assembled from. Where the artifact and the report disagree, the
 artifact wins and both are shown, per L-1.
 
-## 2. What exists today, stated honestly
+## 2. The frame, and it is what makes an omission detectable
+
+Section 1 states a requirement. This section states the form the requirement
+takes, so that breaking it is a check rather than a judgement. Every rule below
+is testable by a reader holding the file and nothing else.
+
+The report opens with exactly this block and then exactly these six headings,
+in this order, each appearing once:
+
+    CERTONOMOUS MORNING REPORT
+    Date:       YYYY-MM-DD
+    Assembled:  <UTC timestamp>
+    Sections:   N of 6
+    Missing:    none / <section numbers>
+
+    ## 1. SPEND
+    ## 2. LADDER POSITIONS
+    ## 3. GATES
+    ## 4. FD TABLES
+    ## 5. REFILLED QUEUE
+    ## 6. WAITING LIST
+
+**Eight rules, and each one names the failure it catches.**
+
+1. **The six headings are fixed strings and they are matched literally.** Not
+   retitled, not translated into that morning's subject, not merged, not split.
+   "Gate status" is not `## 3. GATES`. A report whose third heading is anything
+   else is malformed, and it is reported as malformed rather than silently read
+   past. This is the rule that turns a skipped section from a stylistic slip
+   into a failed match.
+2. **Nothing is added at the top level.** A seventh thing goes inside the
+   section it belongs to, or it goes in section 6, or it is not in the report.
+   The order is hers, and a report that grows a section has stopped being the
+   thing she agreed to read every morning.
+3. **`Sections: N of 6` is computed by counting the headings, never typed.** A
+   report claiming 6 of 6 while carrying five headings is a worse defect than
+   one claiming 5 of 6, because the first lies about its own shape. Where N is
+   below 6, `Missing` names the section numbers.
+4. **An empty section prints the single word `nothing` on its own line.** That
+   word is reserved. It means the section was assembled, its source was read,
+   and there was nothing in it.
+5. **An unavailable source prints `PENDING: <path>` and nothing else.** That
+   token is reserved too and it means the opposite of `nothing`: the section
+   could not be assembled because the artifact behind it could not be read. A
+   section printing `nothing` when it means `PENDING` is a false statement about
+   the lab's state, which is why the two words are different.
+   `scripts/gate_table.py` already uses PENDING this way for an act that has not
+   run.
+6. **Every section ends with a `Source:` line naming the artifact or artifacts
+   it was assembled from**, as repository-relative paths. A section carrying
+   content and no `Source:` line is malformed. This is section 1's "nothing is
+   written from memory" made checkable.
+7. **A cited artifact that is not on disk is a finding inside the report**,
+   printed in the section that cited it, not left for the weekly audit. The
+   audit is the backstop; the report is the first reader.
+8. **One file per morning, retained under the campaign, never overwritten.**
+   Section 8's "Since" column is unverifiable once yesterday's report is gone,
+   and L-27 is the standing reason artifacts are retained rather than
+   regenerated on demand.
+
+**A malformed report is reported as malformed.** The honest output when a source
+cannot be read is a report with a PENDING section, not a report with five
+sections and no comment. Quietly emitting five sections is the single failure
+this charter exists to prevent, and after this section it is a detectable one.
+
+## 3. What exists today, stated honestly
 
 No single artifact combines these six sections. The pieces exist, in named
 files, and the report is assembled from them:
@@ -47,7 +125,7 @@ reassembled by hand each time from whichever of these somebody remembered.
 currently a footer, at the end of a campaign record. In the morning report it
 is the header. Same content, first position.
 
-## 3. Section 1. Spend header
+## 4. Section 1. Spend header
 
 The first thing on the page, above everything.
 
@@ -74,8 +152,15 @@ Rules:
    than a blank because it points at the unblock.
 5. **A zero-compute night says so.** "No solvers run, no compute launched",
    which is already the standing header convention for read-only surveys.
+6. **A spend figure states whether it is gross or cleaned**, and names the
+   cleaning rule when cleaned. The compute budget charter's section 2 carries
+   the measurement: 26.98 core-hours of host stall inside a 239.259 core-hour
+   headline, 11.3 percent of it, and the cleaning rule in
+   `scripts/self_audit.py` is a ledger row over 3600 seconds. Which figure the
+   wall publishes is P-6.2 and is hers. That the report says which one it is
+   printing is not.
 
-## 4. Section 2. Ladder positions
+## 5. Section 2. Ladder positions
 
 Where every live ladder stands. One row per ladder, and a ladder that did not
 move says it did not move.
@@ -94,8 +179,14 @@ Rules:
    failed gate blocks every downstream rung, and F7b and F7c stay recorded
    BLOCKED on F7a's gate failure until it is explained.
 3. **A ladder whose methodology forked reports the fork.** L-11 and L-17.
+4. **A rung that stopped at its iteration cap is reported cap-stopped, never
+   settled.** Section 10 carries the measurement.
+5. **A refinement ladder's row carries its observed order only in the company
+   section 10 requires.** An order on a line by itself, with nothing beside it,
+   is the shape that let two ladders read as clean results this week while one
+   was a divergence and the other was not a discretization order at all.
 
-## 5. Section 3. Gates
+## 6. Section 3. Gates
 
 The gate table, in its canonical column order, with no columns dropped:
 
@@ -107,7 +198,8 @@ Rules:
    section 2 governs. A gate is a criterion the lab set. A reference is an
    external number.
 2. **The artifact column is a path and it is checked.** A row citing an
-   artifact that is not on disk is a defect and gets reported as one.
+   artifact that is not on disk is a defect and gets reported as one, in the
+   row, under section 2 rule 7.
 3. **Provenance is by artifact, not proximity.** `gate_table.py`'s own rule: an
    act's transcript is the source of truth for a row the viewer watched that
    act produce, because the campaign records are a different set of runs and
@@ -117,8 +209,12 @@ Rules:
    is not a camera surface.
 5. **The verdict vocabulary is the fixed one.** PASS, GATE REACHED, GATE FAIL,
    NOT A RESULT, BLOCKED, and the fidelity chips separately.
+6. **A verdict names the guard that held it, not only the verdict.** Two guards
+   can reach the same verdict for different reasons, and a row recording only
+   the verdict cannot show the morning the reason changed underneath it.
+   Verification charter section 3.3.
 
-## 6. Section 4. FD tables
+## 7. Section 4. FD tables
 
 Every adjoint rung that moved, plus a consolidated view.
 
@@ -141,13 +237,13 @@ Rules:
 2. **A step-size sweep reports its failed steps as rows.** A sweep that shows
    only the steps that worked is claiming a plateau it did not measure.
 3. **Grades are recomputed against the current standard every time the table is
-   regenerated.** A row carrying a retired grade is a defect. One exists right
-   now: the consolidated table in `ACTIVE_RESEARCH.md` still shows A4's 10.04
-   percent as PASS within the calibrated band, while two other records grade the
-   same number CONDITIONAL under the current standard. Report both and correct
-   the stale one.
+   regenerated.** A row carrying a retired grade is a defect. `self_audit.py`
+   now recomputes rather than copying forward, which is what found the
+   consolidated table in `ACTIVE_RESEARCH.md` still grading A4's 10.04 percent
+   PASS against the retired band while two other records graded the same number
+   CONDITIONAL. That row now reads CONDITIONAL and the number never moved.
 
-## 7. Section 5. Refilled queue
+## 8. Section 5. Refilled queue
 
 What the lab queued for itself, in rank order.
 
@@ -168,8 +264,13 @@ Rules:
    fact.
 5. **Report the count by status.** Proposed, approved, approved-queued,
    dismissed, done.
+6. **An item approved under a standing authorization says so in the row.** A
+   blanket approval is not a per-item reading of the item. A queue that renders
+   both the same way hides which ones she actually looked at, and the standing
+   authorization's own decision note already records the distinction: blanket,
+   not per item, so the hardness floor and the cost basis still gate what runs.
 
-## 8. Section 6. Waiting list
+## 9. Section 6. Waiting list
 
 Everything blocked on her, assembled from `BLOCKERS.md`.
 
@@ -188,9 +289,107 @@ Rules:
 5. **Decisions waiting on her are listed here too**, in the escalation
    charter's shape: named options, cost of each, the lab's recommendation.
 
-## 9. What the report never does
+## 10. What a report has to say about a measurement
 
-- **Never omits a section.** An empty section prints "nothing".
+Eight defects this week sat in the space between a correct number and the
+sentence printed beside it. The verification charter owns the measurement
+rules. This section is the reporting side: what a row has to carry so that the
+defect would have been visible in a morning report rather than a week later.
+
+**An observed order never appears alone.** A row carrying a discretization
+order carries, on the same row: whether the rungs are monotone, whether the
+increments are shrinking or growing, where the Richardson value lands relative
+to the highest rung measured, the assumed dimensionality, and whether the rungs
+share one mesh recipe. The B-52 fourth rung fitted at p = 2.253, monotone and
+inside the credible window 0.5 to 4, and it is a divergence: its increments
+grow, 0.001857 then 0.002377 then 0.002702, and the Richardson value 0.06484
+lands 24 percent above the highest rung measured. The second NACA 4412 ladder
+fitted at p = 10.467 across a mesh-recipe change, coarse and medium both
+`level (2 3)` and production alone `level (3 4)`, so it was never a
+discretization order at all. Both numbers pass a reader who checks that an
+order exists and looks sane, which is the check most readers actually perform.
+`demo-output/website/campaign/NOT_PASSING_REGISTER.md` lines 516 and 548;
+`models/curriculum/uq-studies/b52.json` and `naca4412_wing.json`.
+
+**A rung that stopped at its cap is reported cap-stopped, not settled.** An
+iteration cap is a budget, not a convergence criterion. The 208896-cell flat
+plate rung was asked for 15000 iterations; at 15000 its Cd read 0.0028936144511,
+1.05 percent above where it eventually settles, still falling by 1.04e-5 per
+thousand, tail spread 4.44e-7 against the module's own 1e-7 gate. It took 36000
+iterations to settle. Accepted as settled, that rung turns the finest triple's
+increments from shrinking into growing and publishes the ladder as a divergence
+at p = -0.745. The record now carries `settled` and the verdict that produced
+it, and the report reproduces both. Commit `ec7ca9d5`,
+`sdk/workflows/tmr_verification.py`.
+
+**A verdict names the guard that held it.** A right answer reached for a wrong
+reason survives every check that reads only the answer. The cylinder vortex
+shedding ladder was declined for an observed order outside the credible window,
+and fitted at the dimensionality its mesh actually has, that order moves from
+3.633 to 2.422 and is inside the window. The ladder stays declined, now on an
+independent guard whose extrapolated value overshoots the measured range and
+which does not depend on dimensionality at all. The verdict never moved, the
+reason did, and for a day the surface told the viewer something arithmetically
+wrong about why. Commit `e3bd0e2f`, verification charter section 3.1.
+
+**A number carries the rungs it was computed from, not the rungs it was
+handed.** Both certifiers used to fit the finest three rungs and then measure
+their fallback band and their extrapolation guard over every rung the caller
+passed, so extra rungs widened the range the guard is a fraction of without
+ever entering the fit. Measured on the flat plate 3264 / 13056 / 52224: handed
+as three rungs, the Richardson value 0.00287237 sits 21.16 percent of the range
+width above the top and is DECLINED. Handed with the coarse 816 rung in front,
+the same value sits 8.48 percent above the top of a wider range and is
+CERTIFIED at 1.99087e-5. One fit, two answers, decided by rungs the fit never
+used. Commit `5675eb6b`.
+
+**Every finding names the file it was read from, and somebody opened that
+file.** A dimensionality defect found in the shared uncertainty module was
+attributed to the flat-plate verification card. The card never had it: it has
+always fitted at the dimensionality its own mesh has, and it reproduces its
+published order. The two were conflated because both compute an order and only
+one was opened, and the wrong attribution reached a proposal and a briefing
+before anybody checked. A row in this report that attributes a defect to a
+named artifact is asserting that somebody read that artifact.
+`demo-output/website/tmr/flatplate_sst.json`, `sdk/chief_engineer/uq.py`,
+docket `w8-an-audit-attribution-is-a-claim`.
+
+**A defect is attributed to a family only after that family's own files show it
+uses the thing.** A generator finding recorded max aspect ratio worsening under
+refinement, 97.87 to 167.50, on a pyHyp extrusion, and it was carried to the
+NACA 4412 as the likely cause of its ladder trouble. The 4412 is snappyHexMesh
+throughout and its aspect ratio improves under refinement, 53.5 to 26.8 to
+13.4, so the metric moves the opposite way. Its real degradation is
+non-orthogonality at 74.96 against a 70 gate and layer coverage down to 58.3
+percent. `demo-output/website/dafoam/GENERATOR_FINDING_pyhyp_aspect_ratio.md`
+and `models/curriculum/results/naca4412_wing.json`.
+
+**A result is named for what produced it, not for what was handed in.** A polar
+was published under the name of a surface it was not computed from: the act
+took only the span from the received body, solved its own parametric section at
+camber 0.04 at 0.4 chord, and labelled the curve NACA 0012 with lift-to-drag
+peaking at zero incidence, which a symmetric section cannot produce. Measured
+rather than reasoned from the name: the received `naca0012_wing.stl` reads 0.00
+percent camber and 0.00 degrees incidence, while the solver's own `wing.stl`
+reads 3.98 percent camber at 0.38 chord. The surface was right and the label
+was wrong. Commit `3db36388`. A report row naming a body is naming the body the
+number came out of.
+
+**An uncertainty budget names its largest term.** Multifidelity fusion cut the
+race estimator standard error from 0.02832 to 0.000863, a factor of 33, and the
+budget it produced records `high_fidelity_model_form: null`: the solver
+model-form term, never measured, had become the largest contributor and was the
+one term with no number in it. Further tightening of the estimator would have
+been effort spent on the term that had already stopped mattering.
+`demo-output/website/mfmc_error_budget.json`. The result priority charter's
+section 4.5 carries the rule; this is the row that shows it.
+
+## 11. What the report never does
+
+- **Never omits a section.** An empty section prints `nothing`, and section 2
+  is what makes the omission detectable rather than arguable.
+- **Never prints `nothing` where it means `PENDING`.** Those are two different
+  statements about the state of the lab.
 - **Never rounds a spend number to look tidy.**
 - **Never curates.** Failures, wasted compute and stale rows all appear. The
   no-failures rule is a camera rule and this is not a camera surface.
@@ -200,9 +399,42 @@ Rules:
   threshold is neither. The verification charter's section 6 governs, and it
   governs here too: the report is not a camera surface, and that makes it a
   place where a mislabelled number is more likely to be believed, not less.
+- **Never supplies a confidence level the source did not state.** A page in this
+  lab defaulted the level to 95 percent whenever a verdict carried none, which
+  is a surface asserting a statistic on its own authority. All 253 recorded
+  verdicts that carry a band happen to state 95 percent, so nothing visible
+  changed when the default went. What went was the licence, and the licence was
+  the defect. Commit `f710fb59`, `sdk/chief_engineer/control_room.html`.
+- **Never renders an absent band as a value.** A missing band is absent and the
+  value stands alone. The card that read `0.6544 ± n/a (n/a)` was printing the
+  string "n/a" into a numeric slot, which is a number-shaped thing that is not
+  a number. Same commit.
+- **Never lets a qualifier travel off the row it was measured on.** A drag
+  comparison's own sentence, "within 7 percent of Ahmed, Ramm and Faltin 1984,
+  C_d 0.285", was spread into every card of one report, including the lift card
+  and the mesh row, where a drag qualifier is nonsense. A grade travels with
+  every row of one report, because every row of one report carries one grade. A
+  reason does not, because it is a statement about one comparison. Commit
+  `6880e4f3`.
+- **Never repairs a label at the consumers when the source is what is wrong.**
+  Two defects this week were one string each. A verdict reason reached every
+  card, chip and sealed page with `Cd` where the typesetter keys on the
+  underscore to see the index, so one variable was set as two plain letters
+  while every other variable on the same surface was set properly. And a
+  control-room trace named itself by its series key, where stripping the
+  separator flattened the one variable that really was an index and opening it
+  out set "history" under the C, on five acts at once, with no act-side wording
+  able to fix it because the character was eaten before the typesetter saw it.
+  Neither string was ever a label. The fix is at the source that emits it, once,
+  not at the five surfaces that render it. Commits `63352fce` and `cfe4e383`.
 - **Never states a fleet, a wall time or an iteration count the run did not
   produce.** Same section. What a report says about how a number was made is
   subject to the same evidence test as the number.
+- **Never reports a run as clean when the monitor raised a configuration risk.**
+  CONFIGURATION RISK sits outside the FATAL, FLAG and WATCH ladder on purpose:
+  "nothing fatal" is a verdict on the arithmetic, and a configuration risk is a
+  statement about the host. A run can be numerically spotless and carry one, and
+  the report carries both facts. `MONITOR_STANDARD.md` S11.
 - **Never resolves a disagreement silently.** Where two records disagree, both
   appear with the artifact each came from. L-1.
 - **Never reports a job as finished on a monitor's say-so.** L-5 and L-6: an
@@ -212,7 +444,7 @@ Rules:
 - **Never carries an em dash or an en dash.** The rule covers every surface and
   the report is a surface.
 
-## 10. Enforcement
+## 12. Enforcement
 
 - `scripts/gate_table.py` generates section 3 from act transcripts and prints
   PENDING rather than guessing.
@@ -220,26 +452,37 @@ Rules:
   they cite and reports every disagreement. It runs weekly, it names what it
   found and why, and it never edits a surface. It is a review aid with expected
   false positives, tuned that way on purpose: a false positive costs a reading,
-  a false negative costs a published number nobody rechecks.
+  a false negative costs a published number nobody rechecks. Two of the three
+  behaviours the old generator proposal existed for already live in it: a cited
+  artifact missing from disk is a finding, and FD grades are recomputed against
+  the current standard rather than copied forward.
 - The agenda's style rails reject a proposal whose visible fields carry a dash,
-  a raw URL, an internal path or a banned word, so section 5 inherits clean
+  a raw URL, an internal path or a banned word, so section 8 inherits clean
   text.
-- Sections 1, 2, 4 and 6 are assembled by hand today.
+- Sections 1, 2, 4 and 6 of the report are assembled by hand today, and **the
+  frame in section 2 is unchecked until the checker below exists.** Saying that
+  is more useful than implying a check that is not there.
 
-> **PROPOSAL. Nobody has ruled on this.** A `scripts/morning_report.py` that
-> emits all six sections from the sources named in section 2, printing
-> "nothing" for an empty section and PENDING for an unavailable artifact, would
-> make the format enforceable rather than remembered. It should refuse to emit
-> a row whose cited artifact is missing from disk, which would have caught the
-> F2 headline two days earlier than it was caught. The same script should
-> recompute FD grades against the current standard rather than copying them
-> forward, which is the defect section 6 rule 3 exists to catch.
+> **PROPOSAL. Nobody has ruled on this.** Split the old generator proposal in
+> two and build the smaller half first. A `scripts/morning_report.py --check`
+> that reads a report file and validates it against section 2 alone: the six
+> heading strings present, once each, in order; the computed section count
+> against the printed one; a `Source:` line under every section carrying
+> content; the two reserved words used where they belong; and every cited path
+> resolving on disk. It is the half that makes the frame real, because it runs
+> over a report a human wrote by hand this morning and needs no generator to
+> exist first. The emitter is the larger half and can follow, reading the
+> audit's JSON output for the parts that already exist rather than
+> reimplementing them. P-8.1 in `PROPOSALS_OPEN.md`.
 
 ## Related
 
 - `docs/charters/COMPUTE_BUDGET_CHARTER.md`. The spend header's content.
 - `docs/charters/VERIFICATION_CHARTER.md`. Gate columns, FD grading, verdict
-  vocabulary.
+  vocabulary, the label rules in section 6, the order and guard rules in
+  section 3, and attribution in section 14.
+- `docs/charters/RESULT_PRIORITY_CHARTER.md`. Section 4.5, the largest term.
 - `docs/charters/ESCALATION_CHARTER.md`. What lands on the waiting list.
 - `docs/charters/GOALS_AND_PROPOSALS_CHARTER.md`. The queue's rank order.
-- `LESSONS.md` L-1, L-5, L-6.
+- `docs/standards/MONITOR_STANDARD.md`. The severities the report reproduces.
+- `LESSONS.md` L-1, L-5, L-6, L-27.
