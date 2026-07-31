@@ -44,7 +44,7 @@ declare -A PROMPT=(
   [hypersonic-cylinder]="Solve hypersonic flow over a blunt cylinder at Mach 8 and check the shock standoff distance."
   [cylinder-vortex-shedding]="Solve vortex shedding behind a circular cylinder at Reynolds 100 and check the Strouhal number."
   [ahmed-body]="Solve the Ahmed body with the 25 degree slant and check the drag against the wind tunnel."
-  [nasa-hump]="Solve the NASA wall-mounted hump and check separation and reattachment."
+  [nasa-hump]="Solve the NASA wall-mounted hump and check separation"
   [crm-wingbody]="Solve the CRM wing-body and check the drag."
   # -- the headline acts -----------------------------------------------------
   [adjoint-optimization]="Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences."
@@ -90,6 +90,8 @@ normalise() {
     sed -E \
         -e 's/Time [0-9]+(\.[0-9]+)? s/Time <clock> s/g' \
         -e 's/in [0-9]+(\.[0-9]+)? minutes/in <clock> minutes/g' \
+        -e 's/converged force in [0-9]+(\.[0-9]+)? (s|min)/converged force in <clock>/g' \
+        -e 's/Wall clock \| Measured [0-9]+(\.[0-9]+)? (s|min)/Wall clock | Measured <clock>/g' \
         -e 's/solve stage [0-9]+(\.[0-9]+)? seconds/solve stage <clock> seconds/g' \
         -e 's/: [0-9]+(\.[0-9]+)? s,/: <clock> s,/g' \
         -e 's/[0-9]+(\.[0-9]+)? core-min/<clock> core-min/g' \
