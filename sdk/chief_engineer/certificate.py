@@ -903,9 +903,11 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
             y -= gap(26, 20)
 
         # -- result block: value +- CI + fidelity chip -----------------------
-        # The headline, its chip and its caption are one unit and never split
-        # across a leaf.
-        y = room(96, y)
+        # The headline, its chip, its caption and the parameters it resolves
+        # to are one unit: a reader must never meet the number on one leaf and
+        # the parameters that produced it on the next.
+        y = room(96 + (40 + field_lead * len(result_fields)
+                       if result_fields else 0), y)
         c.text(left, y, "Result", size=8, bold=True, color=_MUTED)
         # SOLVER-BACKED is the unlabeled default for this simulation platform:
         # a real solve with no further chip renders no badge at all.
