@@ -1111,12 +1111,73 @@ def _uq_module():
 # fit a stored study can land in: one ladder that certifies and one that is
 # declined. Both are synthetic and neither is published anywhere; they exist
 # only to ask the fit what it currently emits.
+#
+# THE UNION IS A CEILING, NOT THE REQUIREMENT. Both fixtures are monotone, so
+# both reach the branch that fits an order and the union carries
+# `asymptotic` and `richardson_extrapolated`. A non-monotone ladder never
+# fits an order, and its fit deliberately does NOT record those two -- a guard
+# that never ran is absent, not False. Measuring every study against the union
+# therefore demands fields the study's own fit refuses to invent. So the union
+# is only the fallback, used when a record cannot be refitted; a record that
+# stores its rungs is measured against what ITS OWN fit emits (`_own_fit`).
 _FIT_FIXTURES = (
     # phi = 0.42 + 0.05 h^2 on an 8x-per-rung 3D ladder: certifies at p = 2.
     ([10000, 80000, 640000], [1.22, 0.62, 0.47], 3),
     # The cylinder vortex-shedding rungs: declined, and by two guards at once.
     ([2496, 5032, 8640], [0.1245, 0.1490, 0.1578], 3),
 )
+
+# What it costs to fix each of the two faults below, stated where the fault is
+# reported. THE DEFECT THIS REPLACES: both checks reported a missing field and
+# said repairing it was "a decision about compute", which readers priced as a
+# re-run of the study. It is not. A stored study carries its own rungs under
+# `levels`, with cell counts and functionals; the fit is arithmetic on those,
+# so it can be recomputed from the record in place for nothing. Of the eight
+# fitted studies in this corpus, seven store their rungs and one does not, and
+# only that one needs a solve. A remedy quoted an order of magnitude too high
+# is a reason not to do the work, so the price now travels with the fault.
+REMEDY_REFIT = ("remedy: refit in place from the {n} rungs this study already "
+                "stores under levels[], through uq.study_numerical; NO COMPUTE")
+REMEDY_NO_RUNGS = ("remedy: this record stores no rungs, so nothing here can "
+                   "be recomputed from it; NEEDS COMPUTE (re-run the ladder) "
+                   "or the record must be marked unverifiable or withdrawn")
+
+
+def _own_fit(uq, study):
+    """Re-run the fit that produced this study, from the study's own rungs.
+
+    Returns the fit dict, or None when the record cannot be refitted -- either
+    it stores no usable rungs, or no current fit reproduces the method string
+    it has on file, which means the stored numbers came from something other
+    than the code running today. Spends no compute: `levels` already holds
+    every cell count and functional the fit reads.
+    """
+    numerical = study.get("numerical") or {}
+    levels = study.get("levels")
+    if not isinstance(levels, list) or len(levels) < 3:
+        return None
+    try:
+        cells = [float(level["cells"]) for level in levels]
+        values = [float(level["cd"]) for level in levels]
+    except (KeyError, TypeError, ValueError):
+        return None
+    # Monotonicity picks the branch, and monotonicity does not depend on dim,
+    # so a study that has not yet recorded its dim can be read at 3 without
+    # changing which fields its fit emits.
+    dim = numerical.get("dim") or 3
+    for fit_fn in (uq.eca_hoekstra_band, uq.ladder_band):
+        try:
+            fit = fit_fn(cells, values, dim=int(dim))
+        except Exception:  # noqa: BLE001 - a fit that raises is not the one
+            continue
+        if fit.get("method") == numerical.get("method"):
+            return fit
+    return None
+
+
+def _study_rungs(study) -> int:
+    levels = study.get("levels")
+    return len(levels) if isinstance(levels, list) else 0
 
 
 def check_studies_carry_what_the_fit_records() -> Result:
@@ -1135,8 +1196,20 @@ def check_studies_carry_what_the_fit_records() -> Result:
     THE CHECK. Ask the fit what it emits today, subtract the exclusions the
     writers name out loud (`uq.STUDY_NUMERICAL_DROPS`), and read every stored
     study's `numerical` block for the remainder. A study written by an older
-    writer is reported, not repaired: whether to re-run a study is a decision
-    about compute, and this file never spends any.
+    writer is reported, not repaired -- this file never writes.
+
+    WHAT "the fit emits today" MEANS PER STUDY. Preferably, the study's own
+    fit re-run from the study's own stored rungs (`_own_fit`): a non-monotone
+    ladder's fit never evaluates the post-order guards, so demanding
+    `richardson_extrapolated` of it would be demanding an invented number.
+    Only a record that cannot be refitted falls back to the union over the
+    fixtures, which is a ceiling rather than the requirement.
+
+    AND WHAT IT COSTS. Each fault now names its own remedy and whether that
+    remedy needs compute. This check used to say only that repair "is a
+    decision about compute", which read as a re-run of the study; for every
+    record that stores its rungs the repair is arithmetic on data already on
+    disk, and pricing it as a solve is how a cheap fix goes undone.
 
     This compares a published record against a re-derivation from the code
     that produces it, which is a verification of the record, not a
@@ -1160,7 +1233,7 @@ def check_studies_carry_what_the_fit_records() -> Result:
     expected -= {"band_abs_middle"}   # a runner-chosen alternative to band_abs
     studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
                      .glob("*.json"))
-    problems, checked = [], 0
+    problems, notes, checked = [], [], 0
     for path in studies:
         study = _load_json(path)
         if not isinstance(study, dict):
@@ -1179,20 +1252,49 @@ def check_studies_carry_what_the_fit_records() -> Result:
         if "observed_order" not in numerical:
             continue
         checked += 1
-        missing = sorted(expected - set(numerical))
+        rungs = _study_rungs(study)
+        own = _own_fit(uq, study)
+        if own is not None:
+            want = (set(own) - set(uq.STUDY_NUMERICAL_DROPS)
+                    - {"band_abs_middle"})
+            remedy = REMEDY_REFIT.format(n=rungs)
+        else:
+            want = expected
+            if rungs >= 3:
+                # It stores rungs, and still cannot be refitted. That is a
+                # sharper finding than a missing field: the stored method
+                # string is one no fit running today produces.
+                notes.append(
+                    f"{path.stem}: stores {rungs} rungs but no current fit "
+                    f"reproduces its stored method string, so its numbers "
+                    f"were not produced by the fit running today; measured "
+                    f"against the fixture ceiling instead")
+                remedy = ("remedy: establish which producer wrote this block "
+                          "before refitting it; NO COMPUTE to find out")
+            else:
+                remedy = REMEDY_NO_RUNGS
+        missing = sorted(want - set(numerical))
         if missing:
             problems.append(
                 f"{path.stem}: numerical block is missing "
-                f"{', '.join(missing)}; the fit records "
-                f"{len(expected)} field(s) and this study carries "
-                f"{len(expected) - len(missing)}")
+                f"{', '.join(missing)}; its own fit records "
+                f"{len(want)} field(s) and this study carries "
+                f"{len(want) - len(missing)}. {remedy}")
     if problems:
+        needs_compute = sum(1 for p in problems if "NEEDS COMPUTE" in p)
         return Result("studies carry what the fit records", FAIL,
                       f"{len(problems)} stored study(s) omit a field their "
-                      f"own fit produces", problems)
+                      f"own fit produces; {len(problems) - needs_compute} are "
+                      f"refittable in place at no compute, {needs_compute} "
+                      f"need a solve", problems + notes)
+    if notes:
+        return Result("studies carry what the fit records", INFO,
+                      f"all {checked} fitted study(s) carry every field their "
+                      f"own fit records; {len(notes)} could not be refitted",
+                      notes)
     return Result("studies carry what the fit records", PASS,
-                  f"all {checked} fitted study(s) carry every field the fit "
-                  f"records")
+                  f"all {checked} fitted study(s) carry every field their own "
+                  f"fit records")
 
 
 def check_declined_ladders_name_their_guard() -> Result:
@@ -1212,6 +1314,12 @@ def check_declined_ladders_name_their_guard() -> Result:
     one the map actually records as failing. A verdict resting on more than
     one guard is reported as INFO, not a fault: it is the case where fixing
     the stated reason would not move the verdict, and somebody should know.
+
+    AND WHAT IT COSTS. A ladder that stores its rungs can have its guard map
+    recomputed from them in place, for nothing; only a record with no rungs
+    behind it needs a solve. The remedy and its price are stated on each
+    fault, because this check's first report was read as calling for eight
+    re-runs when seven of the eight needed no compute at all.
     """
     try:
         uq = _uq_module()
@@ -1231,6 +1339,9 @@ def check_declined_ladders_name_their_guard() -> Result:
         if "observed_order" not in numerical:
             continue
         checked += 1
+        rungs = _study_rungs(study)
+        remedy = (REMEDY_REFIT.format(n=rungs) if rungs >= 3
+                  else REMEDY_NO_RUNGS)
         guard = numerical.get("not_conclusive_guard")
         guards = numerical.get("guards")
         if not guard or not isinstance(guards, dict):
@@ -1238,12 +1349,12 @@ def check_declined_ladders_name_their_guard() -> Result:
                 f"{path.stem}: declined, and the record does not say which "
                 f"guard held it; the reason on any surface showing this "
                 f"study is derived from the numbers as they stand today, not "
-                f"the guard that fired when the fit ran")
+                f"the guard that fired when the fit ran. {remedy}")
             continue
         if guards.get(guard) is not False:
             problems.append(
                 f"{path.stem}: states guard {guard!r} but its own guard map "
-                f"records that guard as {guards.get(guard)!r}")
+                f"records that guard as {guards.get(guard)!r}. {remedy}")
             continue
         held = [k for k, v in guards.items() if v is False]
         if len(held) > 1:
@@ -1251,9 +1362,13 @@ def check_declined_ladders_name_their_guard() -> Result:
                 f"{path.stem}: declined on {guard!r} and would stay declined "
                 f"on {', '.join(sorted(set(held) - {guard}))}")
     if problems:
+        needs_compute = sum(1 for p in problems if "NEEDS COMPUTE" in p)
         return Result("declined ladders name their guard", FAIL,
                       f"{len(problems)} declined ladder(s) do not record the "
-                      f"guard that held them", problems + notes)
+                      f"guard that held them; "
+                      f"{len(problems) - needs_compute} are refittable in "
+                      f"place at no compute, {needs_compute} need a solve",
+                      problems + notes)
     if notes:
         return Result("declined ladders name their guard", INFO,
                       f"all {checked} declined ladder(s) name their guard; "
