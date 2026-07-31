@@ -2220,7 +2220,9 @@ function renderAgendaDocket(docket) {
   const card = p => {
     const [cls, word] = tagFor(p.status);
     const decided = p.status === 'dismissed' && p.dismiss_reason
-      ? `<div class="rp-body">Dismissed: ${esc(p.dismiss_reason)}</div>` : '';
+      ? `<div class="rp-body">Dismissed: ${esc(p.dismiss_reason)}</div>`
+      : p.status === 'done' && p.outcome
+      ? `<div class="rp-body">Outcome: ${esc(p.outcome)}</div>` : '';
     const buttons = (p.status === 'proposed' || p.status === 'approved-queued')
       ? `<div class="rp-src"><button class="chip-btn" data-agenda-act="approve" `
         + `data-id="${esc(p.id)}">APPROVE${p.launch_prompt ? ' · LAUNCH' : ''}</button> `

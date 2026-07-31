@@ -19,7 +19,13 @@ Proposal schema (drafted and inbox alike)::
     {id, objective, rationale, citations: [display titles only],
      est_core_min, cost_basis, expected_knowledge_gain, source_kind,
      status: proposed|approved|approved-queued|dismissed|done,
-     created_at, decided_at?, dismiss_reason?, mission_id?, launch_prompt?}
+     created_at, decided_at?, dismiss_reason?, outcome?, mission_id?,
+     launch_prompt?}
+
+A proposal marked ``done`` carries an ``outcome``: one sentence saying what
+the work actually found, with the numbers in it. Without that field a done
+card on the panel shows only what the lab hoped to learn and never what it
+learned, which is the same defect as a mission that reports no result.
 
 Cost honesty: ``est_core_min`` is either derived from measured history (the
 ledger's wall seconds for the same evaluation family, or a prior graded solve
@@ -724,8 +730,13 @@ def get_proposal(proposal_id_: str) -> dict | None:
 
 def set_status(proposal_id_: str, status: str, *,
                dismiss_reason: str | None = None,
+               outcome: str | None = None,
                mission_id: str | None = None) -> dict | None:
-    """Record a human decision (or a launch) on the docket, atomically."""
+    """Record a human decision (or a launch) on the docket, atomically.
+
+    ``done`` requires an ``outcome`` unless the proposal already carries one:
+    a proposal cannot be closed without saying what closing it found.
+    """
     if status not in STATUSES:
         raise ValueError(f"unknown status: {status}")
     with _LOCK:
@@ -737,10 +748,16 @@ def set_status(proposal_id_: str, status: str, *,
                 break
         if target is None:
             return None
+        if status == "done" and not (outcome or target.get("outcome")):
+            raise ValueError(
+                "a proposal marked done must carry an outcome saying what "
+                "the work found")
         target["status"] = status
         target["decided_at"] = _now_iso()
         if dismiss_reason is not None:
             target["dismiss_reason"] = _clean(dismiss_reason)
+        if outcome is not None:
+            target["outcome"] = _clean(outcome)
         if mission_id is not None:
             target["mission_id"] = mission_id
         save_docket(ranked(proposals))
