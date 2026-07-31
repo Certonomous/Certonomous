@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T12:52:05+00:00",
+ "generated_at": "2026-07-31T12:53:34+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -314,12 +314,13 @@
    "cost_basis": "measured: the prior graded solve of this body ran 3.0 minutes of wall time",
    "expected_knowledge_gain": "Either a validated credential for the NACA 0012 finite wing or a measured account of why the setup misses the reference",
    "source_kind": "gate",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-25T02:07:58+00:00",
    "launch_prompt": "Mesh and solve the NACA 0012 wing and report the drag with its envelope.",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T12:53:34+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W3"
+   "well": "W3",
+   "outcome": "Answered with the measured account the proposal named as its other acceptable outcome, and not with a validated credential. The 148 percent deviation is discretization plus an unbuilt reference, not the 3D against 2D comparison on the record: at a lift coefficient of -0.000795 on aspect ratio 3.000 the induced drag is 8.7e-08, six orders below the section drag, so there is no induced-drag penalty to explain the gap. The credential grades the middle rung of its own ladder; the finest rung, 140,580 cells, reads 0.012053 and puts the deviation at 34 percent, and all three rungs were meshed with layer addition switched off at chord Reynolds 1.000e6. The reference itself, 0.009, was hand-set in the lab's first commit with no derivation and a hand-picked band. The repair is a derivation followed by a layer-resolved ladder, measured at 45 to 60 minutes on 4 cores from the NACA 4412 precedent, against the 3.04 core-minutes this proposal priced from the defective solve's own wall time. It carries on as a successor proposal with that cost."
   },
   {
    "id": "agp-72bef8b5583d",

@@ -1,0 +1,18 @@
+{
+ "id": "naca0012-derive-reference-then-relayer",
+ "objective": "Derive the NACA 0012 finite-wing reference, then re-run its ladder with the boundary layer resolved",
+ "rationale": "Two independent defects sit under this credential's 148 percent deviation, and both were measured on 2026-07-31. First the reference: its drag coefficient of 0.009 was hand-set in the lab's first commit and has never been touched, its tolerance of 0.30 is hand-picked prose, and its confidence reads medium. That is the same shape as the NACA 4412 reference of 0.030 which the lab already replaced with a derivation and an RSS band. Second the solve: all three ladder rungs were meshed with layer addition switched off at chord Reynolds 1.000e6, so there are no boundary-layer cells at all, the identical defect that superseded the 4412 credential. The ladder reads 27,265 cells at 0.028688, 67,356 at 0.022290 and 140,580 at 0.012053, monotone decreasing and not grid-conclusive, and the credential grades the middle rung while the study's own working value is already the finest. On the finest rung the deviation is 34 percent, not 148. The recorded root cause, a three-dimensional wing graded against two-dimensional section data, is refuted by the wing's own solved lift: at a lift coefficient of -0.000795 on a measured aspect ratio of 3.000 the induced drag is 8.7e-08, six orders of magnitude below the section drag, so there is no induced-drag penalty here to explain the gap. Deriving at near-zero lift also removes the flaw that makes the 4412 derivation self-referential, since a reference that collapses to the section term cannot be moved by the lift error it is meant to detect. An independent anchor is already indexed for the cross-check: the NASA Turbulence Modeling Resource NACA 0012 validation, CFL3D with SST on the 897x257 grid at zero incidence, drag coefficient 0.0080937, though at Reynolds 6e6 and Mach 0.15 rather than this case's Reynolds 1e6, and computed rather than measured, so the Reynolds gap travels with it.",
+ "citations": [
+  "Certonomous NACA 0012 finite-wing credential and its mesh ladder, measured 2026-07-31",
+  "Abbott and von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data",
+  "Anderson, Fundamentals of Aerodynamics, span efficiency bracket",
+  "NASA Turbulence Modeling Resource, NACA 0012 validation, CFL3D with SST on the 897x257 grid",
+  "Certonomous NACA 4412 credential repair, measured 2026-07-27"
+ ],
+ "est_core_min": 200,
+ "cost_basis": "measured on the NACA 4412 precedent: its three-rung layer-resolved ladder ran roughly 45 to 60 minutes on 4 cores, meshing dominating the solve 5 to 10 times over, with the finest rung alone at 1574 s of meshing and 279 s of solve. The derivation step adds no compute. The superseded proposal for this body priced the whole job at 3.04 core-minutes, taken from the wall time of the defective solve itself.",
+ "expected_knowledge_gain": "A NACA 0012 reference that was built rather than asserted, with its band as an RSS of pre-committed terms, and a ladder solved with the boundary layer resolved so the remaining deviation is a physics finding rather than a mesh artifact",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-31"
+}
