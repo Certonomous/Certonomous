@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T08:25:35+00:00",
+ "generated_at": "2026-07-31T08:45:24+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -51,11 +51,12 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "The monitor recognizes the graceful-degradation family of failures, so a run that exits on its iteration cap can never be mistaken for evidence again",
    "source_kind": "reading",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-25",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T08:45:24+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W2"
+   "well": "W2",
+   "dismiss_reason": "Implemented and in force, and closed out against a real failure rather than the archive alone. S6 residual stall, S7 oscillatory divergence and S8 Courant excursion were already running; this closes the item by adding S10, the family that catches the Ahmed body primal whose drag was published and withdrawn this week. That run reads converged to every earlier rule: its omega field was pegged at the top of its clipping range while the number the log calls its residual finished at 5.9e-31, because a normalised residual is a ratio and the denominator blew up with the field. S10 names it three independent ways, a ceiling clip, a residual sitting at 1e-20 for a hundred iterations after having been alive while its peers still work, and an unnormalised residual norm ten orders past momentum. All three were swept over the 383 archived solver logs before adoption and together they name exactly one, that run. The healthy coarse solve of the same case raises nothing. One rule measured badly and is recorded, not hidden: S7 ungated fires on 68 of the lab 106 archived steady logs and calls 65 of them fatal, every one a completed run whose results are on the record. Four tightenings were measured and none rescued it. S7 now requires the residual target its own proposal wording implies and stays silent on any field that reached it, and it is filed to the owner as the weakest rule in the standard with withdrawal as the live alternative."
   },
   {
    "id": "r1-credibility-scorecard",
