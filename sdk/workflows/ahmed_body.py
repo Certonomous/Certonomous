@@ -38,8 +38,9 @@ from .geometry_study import (GEOMETRY_DIR, MAX_NON_ORTHOGONALITY, MAX_SKEWNESS,
                              _build_unfamiliar_case, _curriculum, _emit_table,
                              _ladder_rows, _run_refinement_ladder, case_workers,
                              certificate_channels, display_verdict,
-                             mesh_caveat_lines, mesh_validity, pressure_slice_entry,
-                             retry_mesh_quality, surface_acceptance)
+                             format_duration, mesh_caveat_lines, mesh_validity,
+                             pressure_slice_entry, retry_mesh_quality,
+                             surface_acceptance)
 from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
 
 SURFACE = "ahmed_25.stl"
@@ -460,7 +461,7 @@ def main(request: str | None = None, params: dict | None = None,
                 "series": "Cd_history", "x": live_cd["iters"][-1],
                 "y": round(vals[-1], 5), "lo": round(mean - 2 * sd, 5),
                 "hi": round(mean + 2 * sd, 5), "x_label": "solver iteration",
-                "y_label": "Cd", "title": "Drag coefficient: solver iteration history",
+                "y_label": "C_d", "title": "Drag coefficient: solver iteration history",
                 "feasible": True})
 
         if warm_solve:
@@ -495,7 +496,7 @@ def main(request: str | None = None, params: dict | None = None,
                         "series": "Cd_history", "x": pts[i][0],
                         "y": round(pts[i][1], 5), "lo": round(mean - 2 * sd, 5),
                         "hi": round(mean + 2 * sd, 5),
-                        "x_label": "solver iteration", "y_label": "Cd",
+                        "x_label": "solver iteration", "y_label": "C_d",
                         "title": "Drag coefficient: solver iteration history",
                         "feasible": True})
                     if per_point > 0:
@@ -555,11 +556,18 @@ def main(request: str | None = None, params: dict | None = None,
                 "series": "Cd_history", "x": round(iters[i], 0),
                 "y": round(series[i], 5), "lo": round(m - 2 * s, 5),
                 "hi": round(m + 2 * s, 5), "x_label": "solver iteration",
-                "y_label": "Cd", "title": "Drag coefficient: solver iteration history",
+                "y_label": "C_d", "title": "Drag coefficient: solver iteration history",
                 "feasible": True})
 
-    roster.set(CHIEF_ENGINEER, "extracting the surface pressure field", "working")
-    from chief_engineer.field_render import extract_and_paint
+    # The body carrying its own solved field. The quantity is the pressure
+    # coefficient, formed on the freestream this case was solved at and
+    # against a zero gauge farfield, which is what the kinematic pressure the
+    # solver writes is measured from. The painter decides the outcome, not the
+    # request: without a positive dynamic pressure the coefficient is
+    # undefined and the pressure is painted instead, so what reached the
+    # screen is read back off the payload rather than assumed.
+    roster.set(CHIEF_ENGINEER, "extracting the surface field", "working")
+    from chief_engineer.field_render import QUANTITY_CP, extract_and_paint
 
     input_triangles = None
     local_surface = GEOMETRY_DIR / surface
@@ -571,10 +579,12 @@ def main(request: str | None = None, params: dict | None = None,
             input_triangles = None
 
     from . import RUN_PREFIX
+    paint_velocity = float(params.get("velocity", 40.0))
     painted = extract_and_paint(
         engineer.remote_case, engineer.out_root / f"{label}_field",
         RUN_PREFIX[:-1] if RUN_PREFIX and RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
-        field="p", name=label, input_triangles=input_triangles)
+        field="p", name=label, input_triangles=input_triangles,
+        q_kinematic=0.5 * paint_velocity ** 2, p_inf=0.0, as_cp=True)
     if painted:
         served = out / Path(painted).name
         try:
@@ -582,9 +592,23 @@ def main(request: str | None = None, params: dict | None = None,
             painted = str(served)
         except OSError:
             pass
-        announce_field(emit, "ahmed-body", painted,
-                       f"{shown}, surface pressure from the solve")
-        script.engineer("• Body carrying its own solved surface field.")
+        painted_quantity = None
+        try:
+            import json as _json
+
+            painted_quantity = (
+                (_json.loads(Path(painted).read_text(encoding="utf-8"))
+                 .get("field") or {}).get("quantity"))
+        except (OSError, ValueError):
+            painted_quantity = None
+        as_cp = painted_quantity == QUANTITY_CP
+        announce_field(
+            emit, "ahmed-body", painted,
+            f"{shown}, surface "
+            + ("pressure coefficient C_p" if as_cp else "pressure"))
+        script.engineer(
+            "• Body carrying its own solved surface field, "
+            + ("as a pressure coefficient." if as_cp else "as pressure."))
 
     plots: list[str] = []
     report_plots: list[dict] = []
@@ -730,9 +754,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
-    elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From surface to converged force in {elapsed:.1f} minutes. "
+        f"• From surface to converged force in "
+        f"{format_duration(time.monotonic() - began)}. "
         f"• The coefficient is flat across the averaging window.")
     apart = comparison.get("relative_error")
     inside = apart is not None and apart <= comparison["tolerance"]
@@ -757,21 +781,18 @@ def main(request: str | None = None, params: dict | None = None,
                 headers=("Quantity", "Value", "Reference", "Verdict"),
                 rows=verdict_rows, table_id=f"verdict-act7-{label}")
     knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
-                  f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
+                  f"C_d {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
     script.numericist("• Lessons entered to memory.")
 
     _AGENDA = [
         {"title": "The other slant angle",
-         "scope": "run the 35 degree body the same way and compare how the "
-                  "gate margin changes with the reattachment physics",
+         "scope": "run the 35 degree body and compare the gate margin",
          "cost": "one solve on the existing mesh family"},
         {"title": "Yaw sweep on the slant",
-         "scope": "sweep the approach angle and map the C-pillar vortex "
-                  "strength as the body meets the flow off-axis",
+         "scope": "sweep the approach angle and map the C-pillar vortex",
          "cost": "one solve per angle on this mesh"},
         {"title": "Resolve the wake bistability",
-         "scope": "an unsteady solve to see whether the steady solution has "
-                  "picked one branch of the real bistable wake",
+         "scope": "an unsteady solve for the branch the steady picture picked",
          "cost": "transient solve; roughly an order of magnitude over steady"},
     ]
     if emit:
@@ -779,27 +800,21 @@ def main(request: str | None = None, params: dict | None = None,
 
     report_doc = lab_report(
         title=f"Act 7: {shown}",
+        # Abstract, Methods and Uncertainty run to a few short bullets each,
+        # and every figure they used to carry in prose is a row of the results
+        # table below or of a table already on the wall. Nothing is dropped:
+        # the mesh, its gates, the published comparison and the bands are all
+        # still on the page, where a reader can scan them.
         abstract=[
-            f"We took the Ahmed body at the {config} through surface check, "
-            f"meshing, and a steady solve, and graded the converged drag "
-            f"against {GATE_SOURCE}.",
-            f"Drag settled at {drag['value']:.4g} "
-            f"± {2 * drag['sigma']:.2g} on a {cells:,} cell mesh.",
-            # The tier word stays out of the prose; the chip carries it.
-            f"Rebased onto the published area basis that is "
-            f"{comparison['compared_cd']:.4g} against the published "
-            f"{comparison['reference_cd']:g}.",
+            f"The Ahmed body at the {config} through surface check, meshing "
+            f"and a steady solve.",
+            f"The drag graded against {GATE_SOURCE}.",
         ],
         methods=[
-            f"Surface intake and check on the Ahmed body at the {config}.",
-            f"Meshed to {cells:,} cells; quality gated at "
-            f"{MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and "
-            f"{MAX_SKEWNESS:.0f} skewness.",
-            f"{iterations} steady iterations on the gated mesh.",
-            "Forces averaged over the final fifth of the iteration history; "
-            "the band is the spread of that window.",
-            f"Measured drag rebased from planform to frontal area and graded "
-            f"against {GATE_SOURCE}.",
+            "Surface intake and check, then a quality-gated mesh.",
+            f"{iterations} steady iterations, k-omega SST.",
+            "Drag rebased from planform to frontal area for the comparison; "
+            "forces averaged over the settled window.",
         ],
         results=[{
             "quantity": "Drag coefficient",
@@ -813,13 +828,14 @@ def main(request: str | None = None, params: dict | None = None,
             **verdict,
         }] if lift else []) + [{
             "quantity": "Drag vs published wind tunnel",
-            "value": f"Cd {comparison['compared_cd']:.4g} vs {comparison['reference_cd']:g}",
+            "value": f"C_d {comparison['compared_cd']:.4g} vs "
+                     f"{comparison['reference_cd']:g}",
             "envelope": (f"{comparison['relative_error'] * 100:.0f}% apart, "
                         f"±{comparison['tolerance'] * 100:.0f}% band"
                         if comparison['relative_error'] is not None else "not comparable"),
             **verdict,
         }] + ([{
-            "quantity": "Numerical uncertainty on Cd",
+            "quantity": "Mesh sensitivity on C_d",
             "value": f"±{refine['band_abs']:.2g}",
             "envelope": "measured across three meshes of this case",
             **verdict,
@@ -834,16 +850,12 @@ def main(request: str | None = None, params: dict | None = None,
             **verdict,
         }],
         uncertainty=[
-            "Reported band: settling spread of the coefficient over the "
-            "averaging window, a floor, not a bound.",
-            (f"Numerical uncertainty from a 3-mesh refinement study: "
-             f"±{refine['band_abs']:.2g} on Cd."
+            "Reported band: settling spread over the averaging window, a "
+            "floor, not a bound.",
+            ("Mesh sensitivity: measured across three meshes of this case."
              if refine and refine.get("band_abs") is not None else
-             "Numerical uncertainty: no matching refinement study on the "
-             "record for this setup."),
-            (f"Compared against {GATE_SOURCE}: {verdict['reason']}."
-             if verdict.get("reason") else
-             f"Compared against {GATE_SOURCE} at the {config}."),
+             "Mesh sensitivity: no matching refinement study for this setup."),
+            f"Graded against {GATE_SOURCE} at the {config}.",
         ],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
@@ -866,7 +878,8 @@ def main(request: str | None = None, params: dict | None = None,
              ("C_d", f"{drag['value']:.4g}")]
             + ([("C_L", f"{lift['value']:.4g}")] if lift else [])
             + [("Band (95%)", f"±{(combined if combined else 2 * drag['sigma']):.2g}"),
-               ("Cells", f"{cells:,}"), ("Solve Time", f"{elapsed:.1f} min")])
+               ("Cells", f"{cells:,}"),
+               ("Wall Clock", format_duration(time.monotonic() - began))])
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry=shown,
