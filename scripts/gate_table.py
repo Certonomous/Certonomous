@@ -65,9 +65,23 @@ def _verdict_rows(text: str) -> list[dict]:
 
 
 def _gate_values(text: str) -> dict[str, str]:
-    """``[Gate: ...] Quantity Q | Value V`` -- key/value gate reporting."""
+    """``[<table title>] Quantity Q | Value V`` -- key/value table reporting.
+
+    This used to require the title to begin ``Gate:``. When an act retitled
+    its table (the Ahmed body's became "Measured drag against the published
+    wind tunnel", and moved to the researcher), every row stopped parsing and
+    the row silently became PENDING -- on a case that had passed, in a table
+    the shoot guide calls safe to show on camera. The footer count fell from
+    9 to 8 and nothing said why.
+
+    So the shape being parsed is the table, not the title: any bracketed
+    label followed by the Quantity/Value pair. A title is prose and will be
+    rewritten again; the row shape is a contract. Keys stay per-act, so two
+    tables sharing a quantity name in one transcript would still collide --
+    that has not happened and is worth knowing if it ever does.
+    """
     out: dict[str, str] = {}
-    pat = re.compile(r"\[Gate:[^\]]*\]\s*Quantity\s*(?P<q>[^|]+?)\s*\|\s*"
+    pat = re.compile(r"\[[^\]]*\]\s*Quantity\s*(?P<q>[^|]+?)\s*\|\s*"
                      r"Value\s*(?P<v>.+)")
     for line in text.splitlines():
         m = pat.search(line)
@@ -142,7 +156,12 @@ def rows() -> list[dict]:
         g = _gate_values(text)
         src = f"mission-output/ahmed-body/{t.name}"
         ref = next((v for k, v in g.items() if k.startswith("Published")), None)
-        got = g.get("Rebased C_d (frontal basis)")
+        # The act renamed this row when it started naming its reference area
+        # explicitly: "Rebased C_d (frontal basis)" became "On the published
+        # area basis". Both are read, newest first, so regenerating this table
+        # against an older transcript still works.
+        got = (g.get("On the published area basis")
+               or g.get("Rebased C_d (frontal basis)"))
         if ref and got:
             out.append(_row("Ahmed body, 25 deg slant",
                             "Drag vs Ahmed/Ramm/Faltin SAE 840300 (frontal basis)",
