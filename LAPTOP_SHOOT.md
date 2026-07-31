@@ -199,7 +199,7 @@ Upload `b52.stl` with the button, then:
 
 ### NASA wall-mounted hump
 
-> Solve the NASA wall-mounted hump and check separation and reattachment.
+> Solve the NASA wall-mounted hump and check separation
 
 **~17 s measured** (the old 25 s figure was stale). Separation x/c 0.6544 vs
 0.665 experiment (−1.6%); reattachment 1.2534 vs 1.100 (+13.9%). The reattachment error is the *point* of this segment — it

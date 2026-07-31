@@ -77,7 +77,7 @@ mission reporting complete.
 | 4 | "Solve the diamond airfoil at Mach 2 and check the wave drag against shock-expansion theory." | 1.2 s | 0.0 s |
 | 5 | "Solve hypersonic flow over a blunt cylinder at Mach 8 and check the shock standoff distance." | 1.0 s | 0.0 s |
 | 6 | "Solve the Ahmed body with the 25 degree slant and check the drag against the wind tunnel." | 21.5 s | 0.1 s |
-| 7 | "Solve the NASA wall-mounted hump and check separation and reattachment." | 17.3 s | 0.2 s |
+| 7 | "Solve the NASA wall-mounted hump and check separation" | 17.3 s | 0.2 s |
 | 8 | "Solve the CRM wing-body and check the drag." | 0.2 s | 0.0 s |
 | — | ONERA M6: **removed from the filmed sequence, see below** | — | — |
 
