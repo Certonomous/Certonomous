@@ -35,11 +35,13 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 
 from .geometry_study import (ASSUMED_TAG, GEOMETRY_DIR, MAX_NON_ORTHOGONALITY,
-                             MAX_SKEWNESS, REGIME_TAG, SETTLED_BAND_FRACTION,
+                             MAX_SKEWNESS, MESH_STAGE_WORKERS, REGIME_TAG,
+                             SETTLED_BAND_FRACTION,
                              STATED_TAG, YPLUS_LOG_LAW_HI, YPLUS_LOG_LAW_LO,
                              _build_unfamiliar_case, _curriculum, _emit_table,
                              _ladder_rows, _run_refinement_ladder,
-                             assumed_condition_rows, case_workers,
+                             assumed_condition_rows, band_basis_phrase,
+                             case_workers,
                              certificate_channels, compressibility_line,
                              cp_range_rows, display_verdict, format_duration,
                              mesh_caveat_lines, mesh_validity,
@@ -85,9 +87,11 @@ EXTENT_MATCH = 0.02
 # Roof and base planes are excluded from the search by these bounds.
 SLANT_MIN_DEG, SLANT_MAX_DEG = 5.0, 75.0
 
-# A request that asks for a coarse mesh is answered, not ignored: the mesh
-# ladder this act already runs IS the coarse-to-fine comparison, and saying so
-# is what turns the ask into an answer.
+# INSTRUCTION ECHO (Katie, 2026-07-31). A request that asks for a coarse mesh
+# is answered, not ignored, and the answer is a measurement: the instruction is
+# repeated back, the mesh it produced is named in cells, and the price of the
+# choice is pointed at the channel that carries it. The echo therefore waits
+# until the mesh has been counted rather than leading the act with a promise.
 _COARSE_ASK = re.compile(r"\bcoarse\s+(?:mesh|grid)\b", re.I)
 
 _STATED_SLANT = re.compile(
@@ -215,6 +219,12 @@ def main(request: str | None = None, params: dict | None = None,
         next((a for a, (_, lab) in SLANT_CONFIGURATIONS.items()
               if lab == label), 25))
     config = f"{slant_deg:g} degree slant"
+    # THE OVERRIDE IS A LABELLED FACT, NOT AN ASIDE (Katie, 2026-07-31). When
+    # the request names one angle and the surface measures another, the act
+    # solves what it was handed and says so; that decision then has to survive
+    # off the transcript, so it is a line of the sealed page rather than a
+    # sentence a reader has to have watched to know about.
+    overridden = asked is not None and abs(asked - slant_deg) > SLANT_MATCH_DEG
 
     script = make_transcript(f"Act 7: {shown}", emit)
     roster = Roster(emit)
@@ -254,8 +264,8 @@ def main(request: str | None = None, params: dict | None = None,
         f"published band of {GATE_SOURCE}. "
         f"• Falsifier: the mesh misses a gate, the settled band on C_d is not "
         f"{settling_commitment()}, or the drag lands outside the band. "
-        f"• The wake here sits on the edge of reattachment, which is what "
-        f"makes this the harder angle.")
+        f"• The wake here sits on the edge of reattachment, the harder of the "
+        f"two angles.")
     # What this run commits to, as a table: the published value it will be
     # graded against, the band, the configuration those belong to, and the two
     # gates that are numbers rather than adjectives. The settling gate is
@@ -363,7 +373,7 @@ def main(request: str | None = None, params: dict | None = None,
                     title=f"{shown}, as measured from the surface",
                     headers=("Quantity", "Measured"), rows=body_rows,
                     table_id=f"body-act7-{label}")
-        if asked is not None and abs(asked - slant_deg) > SLANT_MATCH_DEG:
+        if overridden:
             # The request named one angle and the body is at another. Said
             # once, plainly, immediately under the table that measured it
             # (Katie, 2026-07-31): every number in this act belongs to the
@@ -392,18 +402,20 @@ def main(request: str | None = None, params: dict | None = None,
         script.engineer(
             "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
             "• Standard closure for a separated external wake.")
-        if _COARSE_ASK.search(request or ""):
-            script.engineer(
-                "• You asked for a coarse mesh. "
-                "• The ladder below runs three, coarse upwards, and reports "
-                "what the choice is worth.")
 
         # Nothing on camera describes how the mesh is arrived at, how it is
         # built, or what state it was in beforehand. The gates it has to clear
         # are the claim, and those are measured and shown below.
         warm = engineer.restore_cached_mesh(label)
         if warm:
+            # A warm case builds no mesh, so no FLEET is declared here: a six
+            # against a stage that did no work is narrating work that did not
+            # happen. What does run on this path is the mesh check below, one
+            # process on one core, and that is what the counter states. So the
+            # numeral leaves zero at the mesh stage on both paths, and on
+            # neither path does it stand for work nobody did.
             roster.set(CHIEF_ENGINEER, "meshing the body", "working")
+            roster.set_workers(MESH_STAGE_WORKERS, "meshing the body")
         else:
             for step, command, note in (
                 ("surfaceFeatureExtract", "surfaceFeatureExtract",
@@ -413,7 +425,8 @@ def main(request: str | None = None, params: dict | None = None,
                  "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
-                roster.set_workers(1, note)
+                # The counter leaves zero the moment meshing genuinely starts.
+                roster.set_workers(MESH_STAGE_WORKERS, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
                 stage_row("Mesh", result.seconds, note)
@@ -431,6 +444,8 @@ def main(request: str | None = None, params: dict | None = None,
                  "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
+                # A retry meshes for real too, so it declares what it runs.
+                roster.set_workers(MESH_STAGE_WORKERS, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds,
                              f"{step} remesh {retry_index} ({result.seconds:.0f}s)")
@@ -477,6 +492,15 @@ def main(request: str | None = None, params: dict | None = None,
             if gate_ok and skew_inside else
             "• The mesh misses a published gate; no validated force from it.")
         roster.idle(CHIEF_RESEARCHER)
+
+        if _COARSE_ASK.search(request or ""):
+            # The instruction repeated back, with the mesh it produced and the
+            # channel that carries what it cost.
+            script.engineer(
+                f"• You asked for a coarse mesh: production is {cells:,} "
+                f"cells. "
+                f"• What the choice costs rides the numerical channel of the "
+                f"certificate, measured by the ladder below.")
 
         solve_key = f"{label}-c{cells}-i{iterations}"
         warm_solve = engineer.restore_cached_solve(solve_key)
@@ -757,9 +781,16 @@ def main(request: str | None = None, params: dict | None = None,
         coefficient_rows.append(["C_L", f"{lift['value']:.4g}",
                                  f"±{2 * lift['sigma']:.2g}",
                                  f"final {lift['window']} iterations"])
+    # ONE NAME, ONE NUMBER (Katie, 2026-07-31). This column and the sealed
+    # page both read "Band (95%)" and they are not the same quantity: this one
+    # is the scatter of the settled window, the sealed page's is every channel
+    # combined. The column is named for what it measures, and the combined
+    # figure is stated once, in the verdict below, in the words the sealed
+    # page uses.
     _emit_table(emit, script, role=_CE_ROLE,
                title="Force coefficients over the settled window",
-               headers=("Coefficient", "Value", "Band (95%)", "Window"),
+               headers=("Coefficient", "Value", "Settling band (95%)",
+                        "Window"),
                rows=coefficient_rows, table_id=f"coefficients-act7-{label}")
 
     # Near-wall resolution, computed from the fields this run solved. The two
@@ -784,9 +815,10 @@ def main(request: str | None = None, params: dict | None = None,
             script.researcher(
                 f"• Part of the body sits outside the y+ "
                 f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f} band the "
-                f"wall functions are valid in, so the near-wall treatment is "
-                f"a modelling error this run does not separate. "
-                f"• It rides the model channel of the certificate.")
+                f"wall functions are valid in. "
+                f"• That near-wall modelling error is not separated here; it "
+                f"rides the model channel, which the certificate marks as a "
+                f"floor.")
         else:
             script.researcher(
                 f"• The whole body sits inside the y+ "
@@ -809,6 +841,9 @@ def main(request: str | None = None, params: dict | None = None,
             "• The refinement study did not complete; detail is in the run "
             "logs, and no band is reported from a partial ladder.")
         refine = None
+    # How many meshes the reported band was measured on, counted from the fit
+    # rather than typed into four separate sentences.
+    ladder_basis = band_basis_phrase(refine)
 
     if (refine is not None and refine.get("conclusive") is not None
             and refine["conclusive"] != grid_conclusive):
@@ -840,7 +875,8 @@ def main(request: str | None = None, params: dict | None = None,
                     if comparison.get("relative_error") is not None
                     and comparison["relative_error"] <= comparison["tolerance"] else ""),
         transfer=transfer,
-        wall_note=wall_resolution_note(wall) if wall else "")
+        wall_note=wall_resolution_note(wall) if wall else "",
+        wall_inside=(bool(wall["inside"]) if wall else None))
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
     combined = uq_studies.combine_expanded(
@@ -907,7 +943,14 @@ def main(request: str | None = None, params: dict | None = None,
         verdict_rows.append(
             ["Mesh sensitivity on C_d" if earned_band else "Mesh spread on C_d",
              f"±{refine['band_abs']:.2g}",
-             "Three meshes of this case", "Measured"])
+             f"{ladder_basis.capitalize()} of this case", "Measured"])
+    # The band the headline chip and the sealed page both carry, on the
+    # transcript in the same words, so the figure on screen and the figure in
+    # the digest are one number under one name (Katie, 2026-07-31).
+    verdict_rows.append(
+        ["Band (95%) on C_d, all channels combined",
+         f"±{(combined if combined else 2 * drag['sigma']):.2g}",
+         "Input, numerical and model channels", "Measured"])
     # BEYOND KATIE'S LIST: the verdict is a ruling, and she made the hump's
     # verdict line the researcher's (her item 4). Same speaker here.
     _emit_table(emit, script, role=_CR_ROLE, title="Verdict",
@@ -949,16 +992,26 @@ def main(request: str | None = None, params: dict | None = None,
             "Drag rebased from planform to frontal area for the comparison; "
             "forces averaged over the settled window.",
         ],
+        # ONE QUALIFIER, ONE ROW (Katie, 2026-07-31). The verdict dict was
+        # spread into every card, so the drag comparison's own sentence,
+        # "within 7% of Ahmed, Ramm and Faltin 1984, C_d 0.285 (band ±15%)",
+        # was appended to the lift card and the mesh card too, where a C_d
+        # qualifier is nonsense. The tier travels with every row because every
+        # row of one report carries one grade; the REASON is a statement about
+        # the drag comparison, so it rides the drag row and nothing else. The
+        # certificate prints the first row's reason, which is that row.
         results=[{
             "quantity": "Drag coefficient",
             "value": f"{drag['value']:.4g}",
             "envelope": f"±{2 * drag['sigma']:.2g} over the final {drag['window']} iterations",
-            **verdict,
+            "tier": verdict["tier"],
+            "reason": verdict.get("reason", ""),
         }] + ([{
             "quantity": "Lift coefficient",
             "value": f"{lift['value']:.4g}",
-            "envelope": f"±{2 * lift['sigma']:.2g}",
-            **verdict,
+            "envelope": f"±{2 * lift['sigma']:.2g} over the final "
+                        f"{lift['window']} iterations",
+            "tier": verdict["tier"],
         }] if lift else []) + [{
             "quantity": "Drag vs published wind tunnel",
             "value": f"C_d {comparison['compared_cd']:.4g} vs "
@@ -966,14 +1019,14 @@ def main(request: str | None = None, params: dict | None = None,
             "envelope": (f"{comparison['relative_error'] * 100:.0f}% apart, "
                         f"±{comparison['tolerance'] * 100:.0f}% band"
                         if comparison['relative_error'] is not None else "not comparable"),
-            **verdict,
+            "tier": verdict["tier"],
         }] + ([{
             "quantity": ("Mesh sensitivity on C_d"
                          if uq_studies.reportable_band(refine) is not None
                          else "Mesh spread on C_d"),
             "value": f"±{refine['band_abs']:.2g}",
-            "envelope": "measured across three meshes of this case",
-            **verdict,
+            "envelope": f"measured across {ladder_basis} of this case",
+            "tier": verdict["tier"],
         }] if refine and refine.get("band_abs") is not None else []) + [{
             "quantity": "Mesh",
             "value": f"{cells:,} cells",
@@ -982,7 +1035,7 @@ def main(request: str | None = None, params: dict | None = None,
                         f"({'pass' if gate_ok else 'caveat'}), max skewness "
                         f"{skew_s} vs {MAX_SKEWNESS:.1f} guidance "
                         f"({'pass' if skew_ok else 'caveat'})"),
-            **verdict,
+            "tier": verdict["tier"],
         }],
         uncertainty=[
             "Reported band: settling spread over the averaging window, a "
@@ -993,9 +1046,9 @@ def main(request: str | None = None, params: dict | None = None,
              f"{wall['band_lo']:.0f} to {wall['band_hi']:.0f} band."
              if wall else
              "Near-wall resolution: not evaluated on this run."),
-            (("Mesh sensitivity: measured across three meshes of this case."
+            ((f"Mesh sensitivity: measured across {ladder_basis} of this case."
               if uq_studies.reportable_band(refine) is not None else
-              "Mesh spread: measured across three meshes of this case.")
+              f"Mesh spread: measured across {ladder_basis} of this case.")
              if refine and refine.get("band_abs") is not None else
              "Mesh sensitivity: no matching refinement study for this setup."),
             f"Graded against {GATE_SOURCE} at the {config}.",
@@ -1019,11 +1072,22 @@ def main(request: str | None = None, params: dict | None = None,
         # The area that normalises the coefficients is a result field, not a
         # footnote: this body is graded against a value published on the other
         # silhouette, so the rebasing is only readable once both are named.
+        #
+        # The configuration line names the override outright when the request
+        # and the surface disagreed: the sealed page states which body was
+        # solved and which stated angle it stands in place of, so nobody has
+        # to reconstruct that from the transcript.
+        configuration_field = (
+            ("Configuration Solved",
+             f"{slant_deg:g} degrees as measured, overriding stated "
+             f"{asked:g} degrees")
+            if overridden else ("Rear Slant", config))
         cert_doc["result_fields"] = (
-            [("Body", shown), ("Rear Slant", config),
+            [("Body", shown), configuration_field,
              ("C_d", f"{drag['value']:.4g}")]
             + ([("C_L", f"{lift['value']:.4g}")] if lift else [])
-            + [("Band (95%)", f"±{(combined if combined else 2 * drag['sigma']):.2g}")]
+            + [("Band (95%), Combined",
+                f"±{(combined if combined else 2 * drag['sigma']):.2g}")]
             + ([("Reference Area", area_row[1])] if area_row else [])
             + [("Cells", f"{cells:,}"),
                ("Wall Clock", format_duration(time.monotonic() - began))])
