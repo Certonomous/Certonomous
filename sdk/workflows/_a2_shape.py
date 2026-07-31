@@ -18,12 +18,21 @@ where the same true-scale change is framed about four times tighter.
 from __future__ import annotations
 
 import json
+import struct
 from pathlib import Path
 from typing import Any
 
 _LADDER = (Path(__file__).resolve().parents[2]
            / "demo-output" / "website" / "dafoam" / "ladder-a")
 FRAMES_FILE = _LADDER / "A2_shape_frames.json"
+
+# The baseline wing, written out as a surface anyone can upload. It exists so
+# the wing that carries this act's numbers can be handed to the control room
+# through the ordinary upload path, instead of the viewer having to take on
+# faith that the surface on screen is the one the result belongs to.
+BASELINE_STL = "mach_tutorial_wing.stl"
+BASELINE_STL_PATH = (Path(__file__).resolve().parents[2]
+                     / "demo-output" / "website" / "surfaces" / BASELINE_STL)
 
 # Chordwise stations for the true-scale section figure, in metres of span.
 # Root, mid-semispan and outboard: enough to show that the change is not one
@@ -125,6 +134,34 @@ def frame_vertices(doc: dict, frame: dict) -> list[list[float]]:
     return [[round(b0 + d0, 6), round(b1 + d1, 6), round(b2 + d2, 6)]
             for (b0, b1, b2), (d0, d1, d2)
             in zip(doc["base_vertices"], frame["disp"])]
+
+
+def write_baseline_stl(doc: dict, out_stl: Path = BASELINE_STL_PATH) -> Path:
+    """Write the baseline wing patch as a binary STL and return its path.
+
+    The vertices are the baseline surface's own, unchanged, and the triangles
+    are the same ones the viewport draws, so the file and the surface on
+    screen are one body. Every facet normal is computed from its own three
+    corners rather than left at zero, so a reader that trusts the normal gets
+    the same geometry as one that recomputes it.
+    """
+    verts = doc["base_vertices"]
+    faces = doc["faces"]
+    out_stl = Path(out_stl)
+    out_stl.parent.mkdir(parents=True, exist_ok=True)
+    header = b"MACH tutorial wing, baseline surface".ljust(80, b" ")
+    body = bytearray(header + struct.pack("<I", len(faces)))
+    for a, b, c in faces:
+        pa, pb, pc = verts[a], verts[b], verts[c]
+        ux, uy, uz = (pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2])
+        vx, vy, vz = (pc[0] - pa[0], pc[1] - pa[1], pc[2] - pa[2])
+        nx, ny, nz = (uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx)
+        length = (nx * nx + ny * ny + nz * nz) ** 0.5
+        if length:
+            nx, ny, nz = nx / length, ny / length, nz / length
+        body += struct.pack("<12fH", nx, ny, nz, *pa, *pb, *pc, 0)
+    out_stl.write_bytes(bytes(body))
+    return out_stl
 
 
 def write_surfaces(doc: dict, out: Path) -> dict[str, str]:
@@ -247,8 +284,8 @@ def section_figure(doc: dict, out_png: Path) -> str | None:
                                              linewidths=width, label=label))
         ax.autoscale()
         ax.set_aspect("equal")     # true scale: the claim depends on this
-        t.style_axes(ax, "x, chordwise (m)" if z == SECTION_Z[-1] else "",
-                     "y (m)", f"span station z = {z:g} m")
+        t.style_axes(ax, r"$x$, chordwise (m)" if z == SECTION_Z[-1] else "",
+                     r"$y$ (m)", f"span station $z$ = {z:g} m")
     handles, labels = axes[0].get_legend_handles_labels()
     leg = fig.legend(handles, labels, frameon=False, fontsize=10,
                      labelcolor=t.INK, loc="upper right",
@@ -282,7 +319,7 @@ def twist_figure(doc: dict, out_png: Path) -> str | None:
     ax.annotate("root station carries no design variable",
                 xy=(z[0], 0.0), xytext=(z[0] + 0.8, -0.45), color=t.MUTED,
                 fontsize=9, arrowprops={"arrowstyle": "-", "color": t.DIM})
-    t.style_axes(ax, "Spanwise position of the reference-axis station, z (m)",
+    t.style_axes(ax, r"Spanwise position of the reference-axis station, $z$ (m)",
                  "Twist, quarter chord (deg)",
                  "Twist the optimizer added, read from the recorded design "
                  "variables. Negative is nose down")
