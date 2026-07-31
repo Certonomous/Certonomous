@@ -255,7 +255,7 @@ def section_figure(doc: dict, out_png: Path) -> str | None:
                      bbox_to_anchor=(0.995, 0.995))
     for text in leg.get_texts():
         text.set_color(t.INK)
-    fig.suptitle("Wing sections at true scale, no exaggeration",
+    fig.suptitle("Wing sections, unscaled, no exaggeration applied",
                  color=t.INK, fontsize=14, x=0.012, y=0.985, ha="left",
                  va="top", weight="bold")
     fig.tight_layout(rect=(0, 0, 1, 0.93))

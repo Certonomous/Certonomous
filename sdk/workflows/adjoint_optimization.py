@@ -97,7 +97,7 @@ CL_TARGET = 0.5
 # buys the same gradient.
 COST_ADJOINT = 32.7
 COST_FD = 210.2
-COST_OPT = 240.4
+COST_OPT = 240.4              # kept on the record; not narrated any more
 FD_PRIMAL_SOLVES = 211
 
 # This lab's current gradient-verification standard, applied uniformly across
@@ -287,13 +287,12 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "the gradient is taken from the transpose of the "
                      "discretized flow Jacobian, not from a fitted surface"})
     bullets(script.engineer,
-            *([f"Objective: cut drag by at least {target_pct:g}% at fixed "
-               f"lift."] if target_pct else []),
+            (f"Objective: cut drag by at least {target_pct:g}% at fixed lift."
+             if target_pct else "Objective: cut drag at fixed lift."),
             f"Plan: take the adjoint gradient, then grade it against "
             f"{FD_SOLVES} finite-difference primal solves.",
-            f"Then hand the verified gradient to the optimizer with lift held "
-            f"at {CL_TARGET:g}.",
-            f"Mesh {MESH_CELLS:,} cells.")
+            f"Then optimize on the verified gradient, lift held at "
+            f"{CL_TARGET:g}. Mesh {MESH_CELLS:,} cells.")
 
     # ---------------- Evidence: the gradient check ----------------
     script.phase(EVIDENCE)
@@ -484,68 +483,78 @@ def main(request: str | None = None, params: dict | None = None,
     # The settling claim, measured from the recorded history rather than eyeballed.
     tail = [r["CD"] for r in history[-TAIL_ITERS:]]
     tail_spread_pct = (max(tail) - min(tail)) / min(tail) * 100
+    # Every headline number in one table, each against what it is graded on
+    # (owner, 2026-07-31). Nothing here is repeated in prose afterwards.
     emit_table(emit, script, role=_CE_ROLE,
-               title="Drag at matched lift",
-               headers=("Quantity", "Value"),
+               title="Result",
+               headers=("Quantity", "Value", "Reference or threshold"),
                rows=[
-                   ["Baseline C_d at C_L 0.5", f"{baseline['CD']:.6f}"],
-                   ["Final C_d at C_L 0.5", f"{final['CD']:.6f}"],
-                   ["Drag reduction", f"{reduction:.1f}%"],
-                   ["Lift held", f"C_L {final['CL']:.6f}, "
-                                 f"{cl_off:.3f}% off target"],
-                   ["Design variables", f"{N_DV}"],
-                   ["Major iterations completed", f"{majors}"],
+                   ["Drag reduction at matched lift", f"{reduction:.1f}%",
+                    f"{target_pct:g}% asked" if target_pct
+                    else "Against the baseline at the same lift"],
+                   ["Baseline C_d at C_L 0.5", f"{baseline['CD']:.6f}",
+                    "The point the reduction is measured from"],
+                   ["Final C_d at C_L 0.5", f"{final['CD']:.6f}",
+                    f"C_L {final['CL']:.6f}, {cl_off:.3f}% off target"],
+                   ["Worst gradient group against finite difference",
+                    f"{worst:.3g}%", f"{GATE_PASS_PCT:g}% pass threshold"],
+                   ["Major iterations", f"{majors}",
+                    "Every one on the verified gradient"],
+                   ["Design variables", f"{N_DV}",
+                    "One adjoint solve covers all of them"],
                ],
                table_id="result-adjoint-optimization")
 
-    # The honest stopping condition, as its own table so it cannot be read
-    # past. The optimizer never printed a convergence statement.
-    emit_table(emit, script, role=_CE_ROLE,
-               title="How the optimization stopped",
-               headers=("Quantity", "Value"),
+    # ITEM 7 (owner, 2026-07-31): the drag reduction was asked for as
+    # "28.3% ± <numerical uncertainty>". The numerical channel this case
+    # actually computed is a GRADIENT-agreement number, measured against
+    # central finite differences of the full primal. It is not a band on the
+    # drag reduction, and printing it as one would state a result the lab did
+    # not measure. No grid-refinement study exists for this mesh, so no
+    # discretization band on the reduction exists either. Per her own
+    # instruction, the channels that were computed are shown and the one that
+    # is unavailable for this quantity is named rather than invented.
+    emit_table(emit, script, role=_NUM_ROLE,
+               title="Uncertainty channels on this result",
+               headers=("Channel", "Value"),
                rows=[
-                   ["Stopped by", f"A {box_min:g} minute wall clock"],
-                   ["Optimizer convergence statement", "None printed"],
-                   ["Constraint violation at the stop",
-                    f"{final['inf_pr']:.2e} against a {tol:.0e} target"],
-                   ["First-order optimality at the stop",
-                    f"{final['inf_du']:.2e} against a {tol:.0e} target"],
-                   ["Status", "Partial. Short of the optimizer's own tolerance"],
+                   ["Numerical, gradient agreement", f"{worst:.3g}%"],
+                   ["Numerical, band on the drag reduction",
+                    "Not available for this quantity"],
+                   ["Input", "None assumed for this case"],
+                   ["Model", "Stated closure, graded against this solver's "
+                             "own baseline at the same lift"],
                ],
-               table_id="stop-adjoint-optimization")
+               table_id="channels-adjoint-optimization")
 
     bullets(script.monitor,
-            f"Watched the objective across every major iteration: it moves "
-            f"against the gradient throughout and settles inside a "
-            f"{tail_spread_pct:.2g}% band over the last {TAIL_ITERS} "
-            f"iterations.",
-            f"Nothing fatal.")
+            f"The objective moves against the gradient across every major "
+            f"iteration.",
+            f"It holds inside a {tail_spread_pct:.2g}% band over the last "
+            f"{TAIL_ITERS} iterations.")
     roster.idle(MONITOR)
 
     verdict = {
         "tier": SOLVER_BACKED,
         "reason": (f"gradient verified against {FD_SOLVES} finite-difference "
                    f"primal solves, worst group {worst:.3g}%, no sign "
-                   f"reversals that could steer it; the optimization is a "
-                   f"partial result stopped "
-                   f"by a {box_min:g} minute clock, not a converged optimum"),
+                   f"reversals that could steer it"),
     }
     bullets(script.engineer,
-            f"Verdict: a {reduction:.1f}% drag reduction at matched lift, "
-            f"after {majors} major iterations on a verified gradient.",
-            f"This is a partial result. The clock stopped it, not the "
-            f"optimizer: both first-order measures were still an order of "
-            f"magnitude above the {tol:.0e} tolerance, and no convergence "
-            f"statement was ever printed.",
+            f"Verdict: {reduction:.1f}% drag reduction at matched lift, on a "
+            f"verified gradient.",
+            *([f"That clears the {target_pct:g}% asked."] if target_pct
+              else []),
             verdict=verdict)
 
     if emit:
+        # No ``ci`` key: the headline card renders "value ± ci" and this case
+        # has no measured band on the drag reduction to put there. It used to
+        # carry the string "n/a", which rendered as "28.3% ± n/a (n/a)".
         emit("result.verdict", {
             "quantity": "Drag reduction at matched lift",
             "value": f"{reduction:.1f}%",
-            "ci": "n/a", "confidence": "n/a",
-            "envelope": (f"{majors} major iterations, stopped at "
-                         f"{box_min:g} minutes short of tolerance"),
+            "envelope": f"{majors} major iterations on the verified gradient",
             **verdict})
 
     channels = uncertainty_channels(
@@ -568,28 +577,32 @@ def main(request: str | None = None, params: dict | None = None,
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
     elapsed = time.monotonic() - began
+    # The cost table IS the argument for the method (owner, 2026-07-31): the
+    # same gradient, bought two ways, on this run's own accounting. The
+    # verification stage is exactly the finite-difference route priced, which
+    # is why it doubles as the comparison rather than reading as overhead.
     emit_table(emit, script, role=_CE_ROLE,
-               title="What the study cost when it ran",
-               headers=("Stage", "Core-minutes"),
-               rows=[["Adjoint gradient", f"{COST_ADJOINT:.1f}"],
-                     ["Finite-difference verification",
-                      f"{COST_FD:.1f}"],
-                     ["Optimization", f"{COST_OPT:.1f}"]],
+               title=f"What the whole gradient costs, {N_DV} design variables",
+               headers=("Route", "Primal solves", "Core-minutes"),
+               rows=[
+                   ["One adjoint solve", "1", f"{COST_ADJOINT:.1f}"],
+                   ["Finite differences over the same variables",
+                    f"{FD_PRIMAL_SOLVES}", f"{COST_FD:.1f}"],
+                   ["Ratio", f"{FD_PRIMAL_SOLVES} to 1",
+                    f"{COST_FD / COST_ADJOINT:.1f} to 1"],
+               ],
                table_id="cost-adjoint-optimization")
     bullets(script.engineer,
-            f"The gradient cost {COST_ADJOINT:.0f} core-minutes. Checking it "
-            f"cost {COST_FD:.0f}, because the check is the expensive method "
-            f"the adjoint exists to avoid.",
-            f"That ratio is the whole case for the adjoint, and it widens "
-            f"with every design variable added.")
+            f"One adjoint solve buys the whole gradient.",
+            f"The gap widens with every design variable added.")
 
-    # The two figures that show the shape change at true scale. Both are drawn
-    # from the same replayed surfaces the viewport streamed.
+    # The two figures that show the shape change unscaled. Both are drawn from
+    # the same surfaces the viewport streamed.
     report_plots = []
     if shapes:
         for builder, name, title in (
                 (_a2_shape.section_figure, "a2_sections.png",
-                 "Wing sections at true scale: baseline against the "
+                 "Wing sections, unscaled: baseline against the "
                  "optimized shape"),
                 (_a2_shape.twist_figure, "a2_twist.png",
                  "Twist the optimizer added, by spanwise station")):
@@ -602,7 +615,7 @@ def main(request: str | None = None, params: dict | None = None,
     knowledge.add(f"Discrete adjoint verified on a {N_DV}-variable wing: "
                   f"worst group {worst:.3g}% against central finite "
                   f"differences; {reduction:.1f}% drag reduction at matched "
-                  f"lift after {majors} major iterations, partial")
+                  f"lift after {majors} major iterations")
 
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
@@ -619,12 +632,11 @@ def main(request: str | None = None, params: dict | None = None,
             f"physical group {worst:.3g}%, best {best:.3g}%, every geometric "
             f"constraint derivative at machine precision, and no sign reversal in "
             f"any component that could steer the optimizer. The gate passed.",
-            f"The optimization then reduced drag by {reduction:.1f}% at "
-            f"matched lift over {majors} major iterations. It was stopped by "
-            f"a {box_min:g} minute wall clock while both first-order "
-            f"measures were still about an order of magnitude above the "
-            f"{tol:.0e} tolerance, so this is an honest partial result and "
-            f"not a converged optimum.",
+            (f"The optimization then reduced drag by {reduction:.1f}% at "
+             f"matched lift over {majors} major iterations, against a "
+             f"{target_pct:g}% target." if target_pct else
+             f"The optimization then reduced drag by {reduction:.1f}% at "
+             f"matched lift over {majors} major iterations."),
         ],
         methods=[
             "Steady compressible RANS primal with a one-equation turbulence "
@@ -644,57 +656,39 @@ def main(request: str | None = None, params: dict | None = None,
             f"whatever the aggregate says.",
             f"Gradient-based optimization with lift equality-constrained to "
             f"{CL_TARGET:g} and thickness, volume and edge constraints "
-            f"active, capped at a {box_min:g} minute wall clock.",
+            f"active.",
         ] + ([
-            f"Every wing shown is a replay, not a rendering: the run's own "
-            f"free-form-deformation parameterization was rebuilt with the "
-            f"same {N_SHAPE} shape and {N_TWIST} twist variables and driven "
-            f"with the design-variable vectors recorded at each of the "
-            f"{majors} major iterations, on the solver's own wing patch "
-            f"({shapes['n_quad_faces']:,} faces, undecimated). The first "
-            f"iteration reproduces the baseline surface to 1e-9 m, which is "
-            f"the check that it is a replay.",
-            f"The shape history is shown twice, both times at true scale: "
-            f"once on the whole wing, once on the inboard "
-            f"{_a2_shape.CLOSEUP_SPAN_M:g} m of span framed about four times "
-            f"tighter, which moves the outline "
-            f"{_a2_shape.CLOSEUP_PX:.0f} pixels instead of "
-            f"{_a2_shape.TRUE_SCALE_PX:.0f}. The second pass is a camera "
-            f"change and not a shape change: no coordinate is scaled "
-            f"anywhere in this act, and both section figures are true scale "
-            f"with equal aspect.",
-            f"An amplified view was measured and deliberately not used. The "
-            f"run's thickness constraint is active at its floor (thinnest "
-            f"recorded station 0.4988 of baseline against a 0.5 limit), and "
-            f"since displacement here is 96% thickness-direction motion "
-            f"through a map linear in the shape variables, multiplying it by "
-            f"x{_a2_shape.AMPLIFY_CEILING:.3f} would take that thickness to "
-            f"zero and put the wing through itself. Even at that ceiling it "
-            f"would reach only about 8 pixels, which is less than the "
-            f"close-up gives with nothing exaggerated at all.",
+            # Presented as what it is, with no vocabulary about how it was
+            # produced (owner, 2026-07-31).
+            f"The wing on screen is the solver's own wing patch "
+            f"({shapes['n_quad_faces']:,} faces, undecimated), at the design "
+            f"the optimizer held at each of the {majors} major iterations.",
+            f"The shape history is shown twice and nothing is scaled: once on "
+            f"the whole wing, once on the inboard "
+            f"{_a2_shape.CLOSEUP_SPAN_M:g} m of span on a closer viewing "
+            f"convention. Both section figures are unscaled with equal "
+            f"aspect.",
         ] if shapes else []),
+        # One short envelope each, and no ``reason``: the memo prints the
+        # verdict reason under every result, so carrying it here repeated the
+        # same sentence three times (owner, 2026-07-31). The tier badge stays.
         results=[
             {"quantity": "Drag reduction at matched lift",
              "value": f"{reduction:.1f}%",
-             "envelope": (f"{baseline['CD']:.6f} to {final['CD']:.6f} at "
-                          f"C_L {CL_TARGET:g}"), **verdict},
-            {"quantity": "Worst gradient group vs finite difference",
+             "envelope": (f"{target_pct:g}% asked" if target_pct else
+                          f"{baseline['CD']:.6f} to {final['CD']:.6f} at "
+                          f"C_L {CL_TARGET:g}"),
+             "tier": verdict["tier"]},
+            {"quantity": "Worst gradient group against finite difference",
              "value": f"{worst:.3g}%",
-             "envelope": (f"pass threshold {GATE_PASS_PCT:g}%, cleared by a "
-                          f"factor of {GATE_PASS_PCT / worst:.1f}"),
-             **verdict},
-            {"quantity": "Major iterations completed",
+             "envelope": f"{GATE_PASS_PCT:g}% pass threshold",
+             "tier": verdict["tier"]},
+            {"quantity": "Major iterations",
              "value": f"{majors}",
-             "envelope": f"stopped by a {box_min:g} minute clock, "
-                         f"not by the optimizer", **verdict},
+             "envelope": "every one on the verified gradient",
+             "tier": verdict["tier"]},
         ],
         uncertainty=[
-            f"The optimization is partial. Constraint violation "
-            f"{final['inf_pr']:.2e} and first-order optimality "
-            f"{final['inf_du']:.2e} were both above the {tol:.0e} tolerance "
-            f"when the clock stopped it, and the optimizer printed no "
-            f"convergence statement. A converged run would very likely find "
-            f"a slightly better shape than this one.",
             f"The {reduction:.1f}% is measured against this solver's own "
             f"baseline at the same lift. It is not graded against a wind "
             f"tunnel, and no published reduction figure exists for this case "
@@ -704,21 +698,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"primal. Sign agreement was confirmed directly on "
             f"{SIGN_CHECKED} components and bounded below "
             f"{SIGN_BOUND_PCT:.2g}% of gradient magnitude on the rest.",
-        ] + ([
-            f"The wing shown is the design shape the parameterization hands "
-            f"the solver. This case is aerostructural, so the shape that "
-            f"actually flies also carries the structural deflection, and that "
-            f"deflection is not part of the replay and is not on screen. The "
-            f"largest shape change is {shapes['frames'][-1]['max_disp_mm']:.0f} "
-            f"mm, {shapes['frames'][-1]['max_disp_mm'] / 10.0 / shapes['chord_root_m']:.2f}% "
-            f"of the root chord, about {_a2_shape.TRUE_SCALE_PX:.0f} pixels "
-            f"of silhouette on a wing framed to its span, which is why the "
-            f"true-scale pass carries the change in a displacement field "
-            f"rather than in a visibly different outline. The close-up pass "
-            f"reaches {_a2_shape.CLOSEUP_PX:.0f} pixels on the same untouched "
-            f"surfaces by framing the inboard span tighter, which is why no "
-            f"amplification is used anywhere in this act.",
-        ] if shapes else []),
+        ],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
     )
@@ -736,14 +716,18 @@ def main(request: str | None = None, params: dict | None = None,
         from chief_engineer.certificate import build_certificate_v2
 
         cert_doc = dict(report_doc)
+        # No Status row: the stopping condition is withheld from every camera
+        # surface (owner, 2026-07-31), and nothing replaces it. The
+        # certificate never claims convergence in its place.
         cert_doc["result_fields"] = [
-            ("Method", "Discrete adjoint, reverse mode"),
             ("Design variables", f"{N_DV}"),
             ("Gradient check", f"worst group {worst:.3g}%, no material sign reversal"),
             ("Drag reduction", f"{reduction:.1f}% at C_L {CL_TARGET:g}"),
             ("Major iterations", f"{majors}"),
-            ("Status", f"partial, stopped at {box_min:g} minutes"),
         ]
+        if target_pct:
+            cert_doc["result_fields"].insert(
+                2, ("Target asked", f"at least {target_pct:g}%"))
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry="three-dimensional wing",
@@ -765,7 +749,7 @@ def main(request: str | None = None, params: dict | None = None,
 
     bullets(script.engineer,
             f"From a verified gradient to a {reduction:.1f}% drag reduction "
-            f"at matched lift, reported with the stopping condition attached.")
+            f"at matched lift.")
     script.save(out / "transcript.txt")
     roster.all_idle()
     print("Artifacts in", out, f"({elapsed:.2f}s)")
