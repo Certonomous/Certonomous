@@ -62,7 +62,8 @@ import re
 import time
 from pathlib import Path
 
-from . import OUT_ROOT, announce_plot, bullets, emit_table, make_transcript
+from . import (OUT_ROOT, announce_geometry, announce_plot, bullets, emit_table,
+               make_transcript)
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, PLAN,
                                 SOLVER_BACKED, ComputeLedger, KnowledgeBase,
@@ -206,7 +207,7 @@ def main(request: str | None = None, params: dict | None = None,
     surfaces = _a2_shape.write_surfaces(shapes, out) if shapes else {}
 
     def show(key: str, label: str, painted: bool = True) -> None:
-        """Put one replayed surface in the viewport."""
+        """Put one recorded surface in the viewport."""
         if not (emit and key in surfaces):
             return
         emit("field.ready" if painted else "geometry.ready",
@@ -214,67 +215,70 @@ def main(request: str | None = None, params: dict | None = None,
 
     if not shapes:
         bullets(script.engineer,
-                "The replayed shape history is not on this host, so this act "
-                "runs without the viewport.",
-                "The numbers below are unaffected. Nothing is drawn in place "
-                "of the wing.")
+                "The shape history is not on this host, so this act runs "
+                "without the viewport.",
+                "The numbers below are unaffected.")
 
     baseline = hist_doc["baseline"]
     final = hist_doc["final"]
     reduction = hist_doc["drag_reduction_pct"]
     majors = hist_doc["major_iterations_completed"]
-    tol = hist_doc["tol"]
-    box_min = hist_doc["time_box_min"]
+    target_pct = _requested_target(request)
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
     roster.set(CHIEF_RESEARCHER, "framing the gradient method", "working")
     bullets(script.researcher,
-            f"The objective is drag on a three-dimensional wing at fixed "
-            f"lift, over {N_DV} design variables: {N_SHAPE} free-form surface "
-            f"control points, {N_TWIST} spanwise twist stations and "
-            f"{N_PATCHV} flow-state variables.",
-            "A finite-difference gradient over that many variables costs two "
-            "full flow solves per variable. A discrete adjoint costs one "
-            "linear solve against the transpose of the flow Jacobian, and "
-            "returns the whole gradient at once, at a cost that does not "
-            "grow with the number of design variables.",
-            "That is the entire argument for the method, and it is why the "
-            "gradient has to be graded before it is trusted: an adjoint is "
-            "exact only for the discretized problem it was derived from, so "
-            "an error in the derivation shows up as a wrong direction, not "
-            "as a failure.")
+            f"Drag on a three-dimensional wing at fixed lift, over {N_DV} "
+            f"design variables.",
+            f"A finite difference costs two flow solves per variable. One "
+            f"adjoint returns the whole gradient.",
+            f"An adjoint is exact only for the problem it was derived from, "
+            f"so it gets graded first.")
     roster.idle(CHIEF_RESEARCHER)
 
     roster.set(CHIEF_ENGINEER, "stating the gate", "working")
     bullets(script.engineer,
-            f"Hypothesis: the adjoint gradient agrees with a central finite "
-            f"difference of the full primal on every derivative group, to "
-            f"within this lab's gradient standard, which is a pass at "
-            f"{GATE_PASS_PCT:g}% or better with no flagged component.",
+            f"Hypothesis: the adjoint gradient matches central finite "
+            f"differences on every derivative group.",
             f"Falsifier: any group worse than {GATE_PASS_PCT:g}%, or any "
-            f"component whose sign the finite difference reverses. A "
-            f"sign-reversed component fails the gate on its own whatever the "
-            f"aggregate says, because an optimizer following it walks uphill.",
-            f"Gate: the optimization does not run at all unless the gradient "
-            f"passes first.")
+            f"component whose sign reverses.",
+            f"Gate: nothing is optimized until the gradient passes.")
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
     if emit:
         emit("objective.spec", {"metric": "CD", "direction": "min"})
+
+    # An uploaded surface is acknowledged and shown, and nothing more is
+    # claimed for it. HONESTY CONSTRAINT (owner, 2026-07-31): the 28.3% comes
+    # from the wing this lab optimized, so the received surface is never
+    # described as the thing that was optimized, never relabelled as the
+    # baseline, and never attached to a reported number. It goes in the
+    # viewport under its own name, the wing follows under its own name, and
+    # the transcript says which one carries the result.
+    uploaded = str(params.get("surface") or "").strip()
+    if uploaded:
+        from chief_engineer.display_names import display_name
+
+        uploaded_name = display_name(uploaded)
+        announce_geometry(emit, name=uploaded,
+                          label=f"Surface received: {uploaded_name}")
+        bullets(script.engineer,
+                f"Surface received: {uploaded_name}. It is on the record for "
+                f"this session.",
+                f"The optimization reported here ran on this lab's wing, and "
+                f"every number stays with it.")
+
     show("baseline", f"MACH tutorial wing, baseline. C_d {baseline['CD']:.6f} "
                      f"at C_L {CL_TARGET:g}", painted=False)
     if shapes:
         bullets(script.engineer,
-                f"That is the wing itself in the viewport, and it is the "
-                f"solver's own wing patch: {shapes['n_quad_faces']:,} faces, "
-                f"undecimated, split into triangles for drawing and not "
-                f"otherwise touched.",
+                f"The wing in the viewport is the solver's own patch, "
+                f"{shapes['n_quad_faces']:,} faces, undecimated.",
                 f"Root chord {shapes['chord_root_m']:.2f} m, tip chord "
                 f"{shapes['chord_tip_m']:.2f} m, semispan "
-                f"{shapes['span_m']:.2f} m. Everything that follows moves "
-                f"this surface and nothing else.")
+                f"{shapes['span_m']:.2f} m.")
     if emit:
         emit("solver.selected", {
             "solver": "Discrete adjoint, reverse mode",
@@ -283,12 +287,12 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "the gradient is taken from the transpose of the "
                      "discretized flow Jacobian, not from a fitted surface"})
     bullets(script.engineer,
-            f"Plan: solve the primal to its own tolerance, take the adjoint "
-            f"gradient for drag and for lift, then grade that gradient "
-            f"against {FD_SOLVES} finite-difference primal solves.",
-            f"Only then hand the verified gradient to the optimizer with "
-            f"lift held at {CL_TARGET:g} and the thickness, volume and edge "
-            f"constraints active.",
+            *([f"Objective: cut drag by at least {target_pct:g}% at fixed "
+               f"lift."] if target_pct else []),
+            f"Plan: take the adjoint gradient, then grade it against "
+            f"{FD_SOLVES} finite-difference primal solves.",
+            f"Then hand the verified gradient to the optimizer with lift held "
+            f"at {CL_TARGET:g}.",
             f"Mesh {MESH_CELLS:,} cells.")
 
     # ---------------- Evidence: the gradient check ----------------
@@ -347,57 +351,48 @@ def main(request: str | None = None, params: dict | None = None,
 
     roster.set(CHIEF_RESEARCHER, "ruling on the gradient", "working")
     bullets(script.researcher,
-            f"The two shape groups carry {N_SHAPE} design variables each and "
-            f"are the hardest derivatives in the problem. The worst of them "
-            f"agrees to {worst_shape:.3g}%, which clears the "
-            f"{GATE_PASS_PCT:g}% pass threshold by a factor of "
-            f"{GATE_PASS_PCT / worst_shape:.1f}. Every other group is "
-            f"tighter still, down to {best:.3g}%, with the twist and "
-            f"flow-state groups all inside {worst_other:.3g}%.",
-            f"Sign agreement was checked component by component wherever the "
-            f"full derivative vectors are recoverable: {SIGN_CHECKED} "
-            f"components, zero reversals. On the remaining groups the two "
-            f"vectors sit close enough together that a reversed component "
-            f"would have to carry under {SIGN_BOUND_PCT:.2g}% of the "
-            f"gradient, so nothing that could steer the optimizer is "
-            f"flipped.",
-            f"The geometric constraint derivatives reproduce at machine "
-            f"precision or very near it, which is what confirms the "
-            f"shape-parameterization chain itself is sound rather than only "
-            f"the flow part of the gradient.",
-            "One row reports 100%. Both of its numbers are indistinguishable "
-            "from zero, because thickness genuinely does not depend on twist "
-            "in this parameterization. It is a ratio of two zeros and it is "
-            "on the table rather than quietly dropped.")
+            f"Worst shape group agrees to {worst_shape:.3g}%, clearing the "
+            f"{GATE_PASS_PCT:g}% threshold by "
+            f"{GATE_PASS_PCT / worst_shape:.1f} times.",
+            f"Sign checked on {SIGN_CHECKED} components, zero reversals, "
+            f"bounded under {SIGN_BOUND_PCT:.2g}% elsewhere.",
+            f"Constraint derivatives reproduce at machine precision.")
     roster.idle(CHIEF_RESEARCHER)
-    bullets(script.engineer, "Gradient gate passes. Proceeding to the "
-                             "optimization.")
+    bullets(script.engineer, "Gradient gate passes.")
 
     # ---------------- Evidence: the gradient, on the wing ----------------
     # The single most useful thing an adjoint produces is a direction, and a
     # direction on a wing is a picture. This is the recorded gradient itself,
-    # pushed through the FFD's own map onto the skin — not a redrawing of it.
+    # pushed through the FFD's own map onto the skin, not a redrawing of it.
+    # The reading of that picture is a table (owner, 2026-07-31): one lead-in
+    # bullet, then the colour convention, the source and the scale as rows.
     if shapes:
         grad = shapes["gradient"]
         glo, ghi = grad["window_mm_per_step"]
         show("gradient", "Where the adjoint says to push. Descent direction "
                          "on the skin, C_d at fixed C_L")
         bullets(script.researcher,
-                "That is the gradient, on the wing. Red is where drag falls "
-                "if the skin moves outward, blue where it falls if the skin "
-                "moves in. One adjoint solve produced the whole picture.",
-                f"It is the derivative recorded in the run's own history at "
-                f"the baseline design, carried onto the surface through the "
-                f"free-form map that defines the shape. That map is linear in "
-                f"the shape variables, verified to "
-                f"{shapes['_checks']['ffd_shape_map_linearity_residual']:.0e} "
-                f"relative, so this is the exact surface motion the gradient "
-                f"asks for and not a linearisation of something curved.",
-                f"Scale: a unit step of steepest descent in the 96-variable "
-                f"shape space moves the skin by at most "
-                f"{max(abs(glo), abs(ghi)):.1f} mm. The colour bar is in "
-                f"millimetres per unit step, and it is symmetric about zero "
-                f"so white means the gradient asks for nothing there.")
+                "That is the gradient, on the wing. One adjoint solve "
+                "produced the whole picture.")
+        emit_table(emit, script, role=_NUM_ROLE,
+                   title="Reading the gradient on the skin",
+                   headers=("Item", "Meaning"),
+                   rows=[
+                       ["Red", "Drag falls if the skin moves outward"],
+                       ["Blue", "Drag falls if the skin moves inward"],
+                       ["White", "The gradient asks for nothing there"],
+                       ["Source", "The derivative recorded at the baseline "
+                                  "design"],
+                       ["Surface map", f"Free form, linear in the shape "
+                                       f"variables, verified to "
+                                       f"{shapes['_checks']['ffd_shape_map_linearity_residual']:.0e}"],
+                       ["Colour bar", "Millimetres per unit step, symmetric "
+                                      "about zero"],
+                       ["Scale", f"A unit step of steepest descent moves the "
+                                 f"skin at most "
+                                 f"{max(abs(glo), abs(ghi)):.1f} mm"],
+                   ],
+                   table_id="gradient-adjoint-optimization")
 
     # ---------------- Evidence: the optimization ----------------
     roster.set(CHIEF_ENGINEER, "reading the optimization history", "working")
@@ -423,7 +418,7 @@ def main(request: str | None = None, params: dict | None = None,
             show(f"iter{frame['iter']}",
                  f"Major iteration {frame['iter']} of {majors}. C_d "
                  f"{frame['CD']:.6f}, {abs(drop):.1f}% "
-                 f"{'below' if drop >= 0 else 'ABOVE'} baseline. True scale, "
+                 f"{'below' if drop >= 0 else 'ABOVE'} baseline. At scale, "
                  f"painted with displacement from baseline (mm)")
     roster.set_workers(0)
 

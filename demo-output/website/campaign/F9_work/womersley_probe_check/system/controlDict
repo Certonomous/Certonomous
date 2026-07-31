@@ -1,0 +1,97 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+// F9 Gate-2 follow-up (2026-07-30): restart of pulsatile_physio from its
+// t=1.8 checkpoint (start of the already-analyzed last cycle) through the
+// same endTime=2.7, identical mesh/BCs/schemes, with additional radial
+// profile probe stations added at 3D, 4D and 4.5D upstream of the orifice
+// plate (the original Gate-2 comparison used only the 2D-upstream station,
+// x=0.069, retained below unchanged). This tests the report's own
+// falsifiable hypothesis: that the Womersley-gate mismatch is a
+// comparison-basis artifact from probe placement too close to the
+// restriction, not a solver defect. Restarting from the t=1.8 checkpoint
+// reproduces the same last-cycle physics as the original run at a third of
+// the cost, since PIMPLE from an identical restart state with identical BCs
+// is deterministic.
+
+application     pimpleFoam;
+startFrom       startTime;
+startTime       1.8;
+stopAt          endTime;
+endTime         2.7;
+deltaT          5e-05;
+adjustTimeStep  yes;
+maxCo           0.9;
+maxDeltaT       0.00225;
+writeControl    adjustableRunTime;
+writeInterval   0.9;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  9;
+timeFormat      general;
+timePrecision   9;
+
+functions
+{
+    probes1
+    {
+        type            probes;
+        libs            (sampling);
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (p U);
+        probeLocations
+        (
+        // -- retained: original 3 centerline dp taps --
+        (0.069 1e-06 0)
+        (0.11615 1e-06 0)
+        (0.1863 1e-06 0)
+        // -- retained: original 2D-upstream-of-plate radial profile (9 probes) --
+        (0.069 0.00058777778 0)
+        (0.069 0.0017633333 0)
+        (0.069 0.0029388889 0)
+        (0.069 0.0041144444 0)
+        (0.069 0.00529 0)
+        (0.069 0.0064655556 0)
+        (0.069 0.0076411111 0)
+        (0.069 0.0088166667 0)
+        (0.069 0.0099922222 0)
+        // -- NEW: 3D-upstream-of-plate radial profile (x=0.046 m, 2.0D from inlet) --
+        (0.046 0.00058777778 0)
+        (0.046 0.0017633333 0)
+        (0.046 0.0029388889 0)
+        (0.046 0.0041144444 0)
+        (0.046 0.00529 0)
+        (0.046 0.0064655556 0)
+        (0.046 0.0076411111 0)
+        (0.046 0.0088166667 0)
+        (0.046 0.0099922222 0)
+        // -- NEW: 4D-upstream-of-plate radial profile (x=0.023 m, 1.0D from inlet) --
+        (0.023 0.00058777778 0)
+        (0.023 0.0017633333 0)
+        (0.023 0.0029388889 0)
+        (0.023 0.0041144444 0)
+        (0.023 0.00529 0)
+        (0.023 0.0064655556 0)
+        (0.023 0.0076411111 0)
+        (0.023 0.0088166667 0)
+        (0.023 0.0099922222 0)
+        // -- NEW: 4.5D-upstream-of-plate radial profile (x=0.0115 m, 0.5D from inlet) --
+        (0.0115 0.00058777778 0)
+        (0.0115 0.0017633333 0)
+        (0.0115 0.0029388889 0)
+        (0.0115 0.0041144444 0)
+        (0.0115 0.00529 0)
+        (0.0115 0.0064655556 0)
+        (0.0115 0.0076411111 0)
+        (0.0115 0.0088166667 0)
+        (0.0115 0.0099922222 0)
+        );
+    }
+}

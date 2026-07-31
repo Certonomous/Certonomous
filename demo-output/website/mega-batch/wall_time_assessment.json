@@ -1,0 +1,411 @@
+{
+ "artifact": "wall-time assessment",
+ "disclaimer": "Retrospective assessment, not monitor history. Every row below was recorded ok with no flag at the time it was written, because the rule did not exist yet. This artifact states what the rule would have said, and changes no record.",
+ "assessed_at": "2026-07-30T19:00:33+00:00",
+ "ledger_rows_read": 208193,
+ "rows_with_a_solver_and_a_wall_time": 208193,
+ "rule": {
+  "standard": "Certonomous Monitor Standard S9",
+  "proposal": "r1-monitor-walltime-rule",
+  "flag_multiple_of_p99": 10.0,
+  "fatal_multiple_of_p99": 100.0
+ },
+ "envelope_learned_from_this_ledger": {
+  "openfoam-cylinder": {
+   "p50_seconds": 2.396,
+   "p99_seconds": 15.2308,
+   "runs": 69288
+  },
+  "openfoam-cylinder-unsteady": {
+   "p50_seconds": 395.472,
+   "p99_seconds": 445.7186,
+   "runs": 417
+  },
+  "reduced-order": {
+   "p50_seconds": 0.0,
+   "p99_seconds": 0.003,
+   "runs": 69007
+  },
+  "rhosimplefoam-naca0012-transonic": {
+   "p50_seconds": 29.632,
+   "p99_seconds": 69.9068,
+   "runs": 280
+  },
+  "simplefoam-ahmed-3d-viscous": {
+   "p50_seconds": 34.5725,
+   "p99_seconds": 44.5922,
+   "runs": 52
+  },
+  "vspaero-wing": {
+   "p50_seconds": 5.23,
+   "p99_seconds": 7.365,
+   "runs": 69149
+  }
+ },
+ "per_solver": {
+  "openfoam-cylinder": {
+   "rows": 69288,
+   "flag": 0,
+   "fatal": 3
+  },
+  "openfoam-cylinder-unsteady": {
+   "rows": 417,
+   "flag": 0,
+   "fatal": 0
+  },
+  "reduced-order": {
+   "rows": 69007,
+   "flag": 19,
+   "fatal": 5
+  },
+  "rhosimplefoam-naca0012-transonic": {
+   "rows": 280,
+   "flag": 0,
+   "fatal": 0
+  },
+  "simplefoam-ahmed-3d-viscous": {
+   "rows": 52,
+   "flag": 0,
+   "fatal": 0
+  },
+  "vspaero-wing": {
+   "rows": 69149,
+   "flag": 0,
+   "fatal": 3
+  }
+ },
+ "would_have_been_flagged": 19,
+ "would_have_been_fatal": 11,
+ "findings": [
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 23973,
+   "solver": "openfoam-cylinder",
+   "timestamp": "2026-07-23T12:09:59Z",
+   "wall_seconds": 16310.017,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 1070.9
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 23976,
+   "solver": "openfoam-cylinder",
+   "timestamp": "2026-07-23T12:10:00Z",
+   "wall_seconds": 16304.935,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 1070.5
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 23971,
+   "solver": "vspaero-wing",
+   "timestamp": "2026-07-23T12:09:57Z",
+   "wall_seconds": 16304.611,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 2213.8
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 23974,
+   "solver": "vspaero-wing",
+   "timestamp": "2026-07-23T12:10:00Z",
+   "wall_seconds": 16304.536,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 2213.8
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 36162,
+   "solver": "openfoam-cylinder",
+   "timestamp": "2026-07-24T10:20:13Z",
+   "wall_seconds": 15948.041,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 1047.1
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 36163,
+   "solver": "vspaero-wing",
+   "timestamp": "2026-07-24T10:20:18Z",
+   "wall_seconds": 15946.442,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 2165.2
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 54233,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-25T17:39:21Z",
+   "wall_seconds": 0.432,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 144.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 24020,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-23T16:47:57Z",
+   "wall_seconds": 0.425,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 141.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 2,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-23T03:53:37Z",
+   "wall_seconds": 0.383,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 127.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 36164,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-25T00:40:53Z",
+   "wall_seconds": 0.31,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 103.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 36167,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-25T00:40:53Z",
+   "wall_seconds": 0.304,
+   "would_have_been": "fatal",
+   "multiple_of_p99": 101.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 59903,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-25T20:44:54Z",
+   "wall_seconds": 0.263,
+   "would_have_been": "flag",
+   "multiple_of_p99": 87.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 57254,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-25T19:30:52Z",
+   "wall_seconds": 0.234,
+   "would_have_been": "flag",
+   "multiple_of_p99": 78.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 198647,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-28T02:29:09Z",
+   "wall_seconds": 0.222,
+   "would_have_been": "flag",
+   "multiple_of_p99": 74.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 2030,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-23T07:10:05Z",
+   "wall_seconds": 0.215,
+   "would_have_been": "flag",
+   "multiple_of_p99": 71.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 206345,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-29T02:04:20Z",
+   "wall_seconds": 0.209,
+   "would_have_been": "flag",
+   "multiple_of_p99": 69.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 184964,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T04:32:33Z",
+   "wall_seconds": 0.187,
+   "would_have_been": "flag",
+   "multiple_of_p99": 62.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 199106,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-28T03:17:57Z",
+   "wall_seconds": 0.171,
+   "would_have_been": "flag",
+   "multiple_of_p99": 57.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 24080,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-24T05:20:26Z",
+   "wall_seconds": 0.134,
+   "would_have_been": "flag",
+   "multiple_of_p99": 44.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 186842,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T05:11:30Z",
+   "wall_seconds": 0.132,
+   "would_have_been": "flag",
+   "multiple_of_p99": 44.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 180467,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T03:35:46Z",
+   "wall_seconds": 0.106,
+   "would_have_been": "flag",
+   "multiple_of_p99": 35.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 179201,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T03:22:54Z",
+   "wall_seconds": 0.098,
+   "would_have_been": "flag",
+   "multiple_of_p99": 32.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 62714,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-26T06:39:40Z",
+   "wall_seconds": 0.087,
+   "would_have_been": "flag",
+   "multiple_of_p99": 29.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 206145,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-28T22:23:50Z",
+   "wall_seconds": 0.086,
+   "would_have_been": "flag",
+   "multiple_of_p99": 28.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 62711,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-26T06:39:40Z",
+   "wall_seconds": 0.085,
+   "would_have_been": "flag",
+   "multiple_of_p99": 28.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 205386,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-28T05:28:46Z",
+   "wall_seconds": 0.077,
+   "would_have_been": "flag",
+   "multiple_of_p99": 25.7
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 182351,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T04:14:03Z",
+   "wall_seconds": 0.064,
+   "would_have_been": "flag",
+   "multiple_of_p99": 21.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 62669,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-26T06:38:00Z",
+   "wall_seconds": 0.055,
+   "would_have_been": "flag",
+   "multiple_of_p99": 18.3
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 182354,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T04:14:03Z",
+   "wall_seconds": 0.051,
+   "would_have_been": "flag",
+   "multiple_of_p99": 17.0
+  },
+  {
+   "assessment": true,
+   "recorded_ok_at_the_time": true,
+   "monitor_flagged_at_the_time": false,
+   "index": 186905,
+   "solver": "reduced-order",
+   "timestamp": "2026-07-27T22:58:11Z",
+   "wall_seconds": 0.05,
+   "would_have_been": "flag",
+   "multiple_of_p99": 16.7
+  }
+ ]
+}

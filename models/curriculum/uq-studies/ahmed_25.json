@@ -1,0 +1,40 @@
+{
+  "body": "ahmed_25",
+  "levels": [
+    {
+      "tag": "coarse",
+      "cells": 20621,
+      "cd": 0.10099115988888889,
+      "mission": "ahmed_25-rung-coarse"
+    },
+    {
+      "tag": "medium",
+      "cells": 45753,
+      "cd": 0.0897874957888889,
+      "mission": "ahmed_25-rung-medium"
+    },
+    {
+      "tag": "production",
+      "cells": 79439,
+      "cd": 0.08481225252258064,
+      "mission": "ahmed_25-production"
+    }
+  ],
+  "fingerprint": "b1e571d6081a56da",
+  "numerical": {
+    "band_abs": 0.020223634207885317,
+    "band_rel": 0.23846,
+    "observed_order": 1.95,
+    "order_used": null,
+    "clamped": false,
+    "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "conclusive": false,
+    "value_working": 0.08480834261333332
+  },
+  "provenance": [
+    "ahmed_25-rung-coarse",
+    "ahmed_25-rung-medium",
+    "ahmed_25-production"
+  ],
+  "updated_utc": "2026-07-30T23:00:29Z"
+}

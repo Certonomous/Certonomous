@@ -126,3 +126,39 @@ purely local geometric singularity.
 - `PROOF.md` §19.2 — the gradient-defect investigation this was found during (that investigation's own
   verdict on whether this explains the defect: measured, real, non-discriminating — see that section for
   the full reasoning, kept separate from this generator-level finding per the coordinator's direction)
+
+---
+
+## Independent cross-check, 2026-07-30 (roadmap 4G)
+
+This finding was re-measured from scratch by a separate investigation looking into the TMR ladder's own
+"insane mesh aspect ratio". Full record: `demo-output/website/campaign/4G_tmr_mesh_aspect_ratio.md`.
+
+**Confirmed.** Both numbers reproduce exactly on a clean `checkMesh -allGeometry`:
+97.87218721638968 → 167.4971796573039, with the global-max cell at the blunt trailing edge (x ≈ 1.0000
+and x ≈ 0.9988) in both meshes, precisely as stated above. The measurement is sound.
+
+**Two clarifications that change how the number should be read, neither of which contradicts the finding:**
+
+1. **These are 3D meshes, so the number is not computed the way a 2D mesh's is.** `checkMesh` reports
+   `Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)` for both. OpenFOAM's aspect ratio
+   (`primitiveMeshTools::cellClosedness`) takes an extra volume-based branch when `nDims == 3`, and its
+   directional loop is gated on `meshD[dir] == 1`, so a 3D mesh **includes** the span while an
+   `empty`-patched 2D mesh **excludes** it. A pyHyp "167" and a 2D TMR "20 million" are therefore not the
+   same quantity, and comparing them numerically is a mistake waiting to happen.
+2. **Worsening under refinement is normal here, not anomalous.** NASA Langley's own TMR-distributed
+   NACA0012 reference grids — the grids CFL3D and FUN3D use — were converted and measured with the same
+   tool and show the same behaviour, much more strongly: max aspect ratio **20,650,841 → 26,446,227 →
+   29,899,837** across their 113x33, 225x65 and 449x129 rungs. Refinement halves near-wall spacing while
+   the farfield extent stays fixed, so the ratio of longest to thinnest cell must grow. **"Max aspect
+   ratio worsens under refinement" is therefore a property of reference-grade wall-resolved grid families
+   in general and cannot, on its own, indicate a generator defect.**
+
+For scale: these meshes report `Max aspect ratio = 97.87 ... OK` and `167.50 ... OK` — they **pass**
+checkMesh's aspect-ratio check, which every TMR ladder mesh fails. A large part of the magnitude
+difference is simply domain extent: ~16 chords here versus ~500 chords for NASA's grids.
+
+**Still open, and still worth doing:** the `epsE`/`epsI`/`theta`/`volSmoothIter` scaling ablation this
+document proposes as its concrete next step was **not** run — pyHyp is not installed on the 4G host
+(`import pyhyp` → `ModuleNotFoundError`). The mechanism remains an unconfirmed hypothesis, exactly as
+stated above. Nothing in the cross-check settles it either way.

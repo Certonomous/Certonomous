@@ -314,6 +314,16 @@ rests on precise self-accounting cannot ship with a sentence a reviewer can fals
 reading forty lines further down the same file. **Correct the docstring to state the
 unit being counted, before submission.**
 
+> **RESOLVED 2026-07-30.** The docstring now states that exactly one *new* prediction
+> set is scored, that this is the 4th official call under the unit the ledger has
+> always counted (distinct prediction sets), and — explicitly — that the run makes
+> **four** `closure_challenge` invocations, naming the two at STAGE 3 that re-score
+> the already-counted RANS-identity floor as a harness check and the two at STAGE 4
+> that score the entry. It further records that the benchmark imposes **no**
+> scoring-call limit and that the ledger discipline must never be described as
+> compliance with one. Nothing about the code's behaviour changed; only the sentence
+> describing it, which is the point.
+
 ### 4.5 DEFECT 2 — there is no submittable artifact
 
 **No prediction CSV has ever been written.** Searched the repository and the filesystem:
@@ -329,6 +339,44 @@ CSVs requires re-running the pipeline with a CSV dump added.
 Recommendation: add CSV output and run with the `score()`/`evaluate_by_case()` calls
 disabled, then verify the files are 1000×3 by inspection alone. The scores are already
 recorded; re-deriving them buys nothing.
+
+> **RESOLVED 2026-07-30. The eight CSVs now exist**, at
+> `demo-output/website/closure_challenge_submission/test/{case}.csv`, written by
+> `sdk/scripts/export_closure_submission_csvs.py` (69.7 s, 2-core cap), alongside a
+> `MANIFEST.json` carrying a SHA-256 per file.
+>
+> **Scoring calls consumed: zero — enforced in code, not promised in prose.** The
+> script does not merely omit the calls. Before any pipeline work it replaces
+> `score`, `score_from_csv`, `evaluate_by_case`, `evaluate_from_csv_by_case`,
+> `evaluate_individual_case`, `_velocity_field`, `_ground_truth` and
+> `_load_csv_predictions` with raising stubs across the `closure_challenge`,
+> `dataset_utils` and `eval` namespaces, then **proves the guard is armed** by
+> calling `score()` and catching the refusal before continuing. If a future edit
+> reintroduces a scoring call, the script dies rather than quietly spending one.
+>
+> `evaluation_points()` *is* still called and is **not** a scoring call: it returns
+> `_ground_truth()[case]['coords']` only and never touches `['U']`. Interpolating
+> onto those points is what the benchmark task requires. No test-case ground-truth
+> velocity was reachable from that process at all.
+>
+> **Verified without scoring, on quantities that owe nothing to test truth:** both
+> harness commits, the refit alpha (0.7499) and threshold (0.1263), the top-3
+> screened feature names, all four gate decisions with their predicted baseline
+> errors, and the per-case prediction source — **8 of 8 checks pass**, so these CSVs
+> are the round-3 entry of record and not some near neighbour of it. Each file was
+> re-read from disk and confirmed 1000×3, finite, comma-delimited, header-free
+> (the only alphabetic character anywhere in the eight files is the `e` of
+> scientific notation), with round-trip error below 5e-8.
+>
+> **One further check worth its cost.** The mean velocity magnitude of our field on
+> each case sits *inside the band spanned by all four accepted submissions* on all
+> eight cases (e.g. `AR_3_Ret_360`: ours 41.13, against 39.43–41.92 across
+> wu/montoya/wang/reissmann). That would catch a point-ordering, column-ordering or
+> units blunder — the failure modes that would silently wreck a submission — and it
+> costs no scoring call.
+>
+> The recorded **0.0676 was not recomputed**. It is carried across from the round-3
+> record unchanged, exactly as §5.2 states.
 
 ### 4.6 Version label understates the metric revision
 
@@ -387,8 +435,10 @@ dated wherever it appears.
 1. A `test/` directory containing eight files, 1000 rows × 3 columns, comma-delimited,
    no header: `alpha_15_13929_4048.csv`, `alpha_15_13929_2024.csv`,
    `alpha_05_4071_4048.csv`, `alpha_05_4071_2024.csv`, `AR_1_Ret_360.csv`,
-   `AR_3_Ret_360.csv`, `AR_14_Ret_180.csv`, `NASA_2DWMH.csv`. **These do not yet
-   exist** (§4.5).
+   `AR_3_Ret_360.csv`, `AR_14_Ret_180.csv`, `NASA_2DWMH.csv`. **These now exist**, at
+   `demo-output/website/closure_challenge_submission/test/` — see the resolution note
+   in §4.5. Layout is the flat `{case}.csv` form used by wu, montoya and wang, which
+   is also what the evaluation package's own CSV loader expects.
 2. An author list with affiliation.
 3. A description document (following wu's precedent), containing §5.3 and §5.4 below.
 
@@ -491,11 +541,19 @@ steward's own scoring differs from ours, the steward's number is the number.
 
 ### 5.6 Required before anything is sent
 
-1. Fix the docstring in `apply_closure_ph_gate.py` (§4.4).
-2. Generate the eight CSVs **without** a new scoring call (§4.5).
-3. Correct the eval-package version label to the commit hash (§4.6).
-4. Katie fills the author names and the reference URL.
-5. **Katie proofreads and approves.** Nothing moves before this.
+1. ~~Fix the docstring in `apply_closure_ph_gate.py` (§4.4).~~ **DONE 2026-07-30.**
+2. ~~Generate the eight CSVs **without** a new scoring call (§4.5).~~ **DONE
+   2026-07-30, zero scoring calls, enforced in code.**
+3. ~~Correct the eval-package version label to the commit hash (§4.6).~~ **DONE** in
+   the submission manifest, which cites package commit `1c4e22c8` and benchmark
+   commit `deb91557` and records why the `0.2.1` string is not the metric revision.
+   *Note for Katie:* if the description document or `closure.html` is to quote a
+   version at all, quote the commit hash.
+4. **Katie fills the author names and the reference URL.** — OUTSTANDING
+5. **Katie proofreads and approves.** Nothing moves before this. — OUTSTANDING
+
+**Items 1–3 were the lab's to clear and are cleared. Items 4 and 5 are Katie's, and
+nothing about this package moves without them.**
 
 ---
 

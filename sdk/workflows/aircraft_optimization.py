@@ -63,6 +63,16 @@ _SIGMA_PAYLOAD = 0.025   # passenger + baggage mass, ±5% at 2-sigma
 _SIGMA_CD0_NONWING = 0.04  # non-wing parasite buildup, ±8% at 2-sigma
 # Where uploaded surfaces land (the same directory the geometry study reads).
 _GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
+# Scope-mismatch trigger. A lifting surface arrives on its own while the
+# objective names a whole aircraft, so the act says out loud what it is doing
+# with the gap before it plans anything.
+_FULL_AIRCRAFT = re.compile(r"\b(airliner|aircraft|airplane|aeroplane|jet)\b",
+                            re.I)
+# A lifting surface is thin: its smallest bounding-box extent is a small
+# fraction of its largest. A configuration carrying a fuselage or a tail is
+# not (a full airframe runs a quarter of its span deep or more). The bar sits
+# far from both, so dihedral and winglets never push a wing over it.
+_LIFTING_THICKNESS_RATIO = 0.15
 # Span ladder used to seed the search around an uploaded starting geometry:
 # the default six-rung ladder re-centred on the measured span, with the centre
 # and every rung clamped to sane airliner bounds.

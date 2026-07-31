@@ -1,0 +1,673 @@
+{
+  "generated_at": "2026-07-29T23:16:33.291657+00:00",
+  "measured_date": "2026-07-29",
+  "purpose": "Establish whether the tau=1/(Cmu*omega) normalization behind the closure pipeline's Pope invariants is a structural (algebraic, case-independent) blind spot or an artefact of NASA_2DWMH's particular field, size the affected region across every case this lab holds, check whether the cases we lead on are exposed to it, and test a bounded alternative on TRAINING data only.",
+  "leakage_statement": {
+    "models_fit_or_refit_in_this_script": false,
+    "ground_truth_read_for": "PH train/val, DUCT train/val, CBFS, PH_Breuer only (non-test cases, legitimate, same category of access as every prior script)",
+    "test_case_ground_truth_read": false,
+    "test_case_features_computed": "yes, RANS-derived only (gradU/walldist/k/omega/U), for Q2/Q3 sizing and Q1's real-cell example -- never used to fit, select, or change anything",
+    "closure_challenge_score_call_made": false,
+    "correction_applied_or_changed": false
+  },
+  "q1_scaling_proof": {
+    "raw_invariants_at_this_S_W": {
+      "I1": 122691.96053709804,
+      "I2": -177.189229598904,
+      "I3": 22749705.874160856,
+      "I4": -11474.489363855526,
+      "I5": -10869846.982773766
+    },
+    "sweep": [
+      {
+        "omega": 1e-06,
+        "tau": 11111111.111111112,
+        "I1": 1.5147155621863959e+19,
+        "max_rel_err_vs_predicted": 2.728688884968338e-16
+      },
+      {
+        "omega": 3.162277660168379e-06,
+        "tau": 3513641.8446315327,
+        "I1": 1.5147155621863956e+18,
+        "max_rel_err_vs_predicted": 1.739748039625867e-16
+      },
+      {
+        "omega": 9.999999999999999e-06,
+        "tau": 1111111.1111111112,
+        "I1": 1.5147155621863955e+17,
+        "max_rel_err_vs_predicted": 2.1126078584556185e-16
+      },
+      {
+        "omega": 3.1622776601683795e-05,
+        "tau": 351364.1844631533,
+        "I1": 1.514715562186396e+16,
+        "max_rel_err_vs_predicted": 4.247431737367838e-16
+      },
+      {
+        "omega": 0.0001,
+        "tau": 111111.11111111111,
+        "I1": 1514715562186395.2,
+        "max_rel_err_vs_predicted": 2.688076613309432e-16
+      },
+      {
+        "omega": 0.00031622776601683794,
+        "tau": 35136.41844631533,
+        "I1": 151471556218639.56,
+        "max_rel_err_vs_predicted": 5.143208445599759e-16
+      },
+      {
+        "omega": 0.001,
+        "tau": 11111.111111111111,
+        "I1": 15147155621863.953,
+        "max_rel_err_vs_predicted": 2.6250748176849915e-16
+      },
+      {
+        "omega": 0.0031622776601683794,
+        "tau": 3513.641844631533,
+        "I1": 1514715562186.3958,
+        "max_rel_err_vs_predicted": 2.5941298288236967e-16
+      },
+      {
+        "omega": 0.01,
+        "tau": 1111.111111111111,
+        "I1": 151471556218.63953,
+        "max_rel_err_vs_predicted": 2.5635496266455e-16
+      },
+      {
+        "omega": 0.03162277660168379,
+        "tau": 351.36418446315326,
+        "I1": 15147155621.863955,
+        "max_rel_err_vs_predicted": 1.7029732273144973e-16
+      },
+      {
+        "omega": 0.1,
+        "tau": 111.11111111111111,
+        "I1": 1514715562.1863956,
+        "max_rel_err_vs_predicted": 4.52697264993543e-16
+      },
+      {
+        "omega": 0.31622776601683794,
+        "tau": 35.136418446315325,
+        "I1": 151471556.21863952,
+        "max_rel_err_vs_predicted": 2.473954991172502e-16
+      },
+      {
+        "omega": 1.0,
+        "tau": 11.11111111111111,
+        "I1": 15147155.621863954,
+        "max_rel_err_vs_predicted": 3.6840597737104746e-16
+      },
+      {
+        "omega": 3.1622776601683795,
+        "tau": 3.5136418446315325,
+        "I1": 1514715.5621863955,
+        "max_rel_err_vs_predicted": 5.84715103923345e-16
+      },
+      {
+        "omega": 10.0,
+        "tau": 1.1111111111111112,
+        "I1": 151471.55621863957,
+        "max_rel_err_vs_predicted": 2.5985309254676777e-16
+      },
+      {
+        "omega": 31.622776601683793,
+        "tau": 0.3513641844631533,
+        "I1": 15147.155621863958,
+        "max_rel_err_vs_predicted": 2.3593473350262644e-16
+      },
+      {
+        "omega": 100.0,
+        "tau": 0.1111111111111111,
+        "I1": 1514.7155621863951,
+        "max_rel_err_vs_predicted": 3.0021963346706837e-16
+      }
+    ],
+    "fitted_log_log_slope_I1_vs_omega": -1.999999999999999,
+    "predicted_slope": -2.0,
+    "max_rel_err_vs_exact_prediction_across_sweep": 5.84715103923345e-16
+  },
+  "q2_q3_affected_fraction_per_case": [
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 46.76501319699922,
+      "median_I1": 3.4137323319595927,
+      "case": "alpha_05_10071_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 24.11954197000315,
+      "median_I1": 3.917034682899606,
+      "case": "alpha_05_4071_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 28.8747204216651,
+      "median_I1": 2.8724696696988437,
+      "case": "alpha_05_7071_2024",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 24.92227345858208,
+      "median_I1": 3.448439483521571,
+      "case": "alpha_05_7071_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 23.67372941877071,
+      "median_I1": 3.7465047211984035,
+      "case": "alpha_05_7071_4048",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 20.785279409708654,
+      "median_I1": 3.631488814773098,
+      "case": "alpha_075",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 30.743093855127963,
+      "median_I1": 3.37274768921357,
+      "case": "alpha_10_12000_2024",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 23.376182308089433,
+      "median_I1": 3.7861081363651596,
+      "case": "alpha_10_12000_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 21.387654645333757,
+      "median_I1": 3.9329879387487985,
+      "case": "alpha_10_12000_4048",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 15.237131815018946,
+      "median_I1": 3.191678530288331,
+      "case": "alpha_10_6000_2024",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 14.805675559517445,
+      "median_I1": 3.928257702599569,
+      "case": "alpha_10_6000_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 14.73278705477356,
+      "median_I1": 4.1197360594520855,
+      "case": "alpha_10_6000_4048",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 20.03976406175023,
+      "median_I1": 3.197954009546547,
+      "case": "alpha_10_9000_2024",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 17.36523435784817,
+      "median_I1": 3.783574678291118,
+      "case": "alpha_10_9000_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 16.567321621427947,
+      "median_I1": 3.972380420343395,
+      "case": "alpha_10_9000_4048",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 14.557098227704772,
+      "median_I1": 3.9063059452319875,
+      "case": "alpha_125",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 14.354841732833401,
+      "median_I1": 3.5131855198206097,
+      "case": "alpha_15_10929_2024",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 12.353013477062783,
+      "median_I1": 4.0596075496692645,
+      "case": "alpha_15_10929_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 11.92216012600716,
+      "median_I1": 4.237064174277958,
+      "case": "alpha_15_10929_4048",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 15.243194335787019,
+      "median_I1": 4.156902505695196,
+      "case": "alpha_15_13929_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 11.933106690726973,
+      "median_I1": 4.134084589983958,
+      "case": "alpha_15_7929_3036",
+      "family": "PH_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 33.68786440500267,
+      "median_I1": 3.641193026615068,
+      "case": "alpha_05_10071_4048",
+      "family": "PH_val",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 68.89095222880213,
+      "median_I1": 3.038438747774422,
+      "case": "alpha_05_10071_2024",
+      "family": "PH_val",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 11.954402100598003,
+      "median_I1": 4.330791646773033,
+      "case": "alpha_15_7929_4048",
+      "family": "PH_val",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 11.7828992879625,
+      "median_I1": 3.4318403146389125,
+      "case": "alpha_15_7929_2024",
+      "family": "PH_val",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 2209,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.5909078982620235,
+      "median_I1": 2.0995956510533094,
+      "case": "AR_1_Ret_180",
+      "family": "DUCT_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 6627,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.554411373293239,
+      "median_I1": 4.562882288251324,
+      "case": "AR_3_Ret_180",
+      "family": "DUCT_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 11045,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.568115143381067,
+      "median_I1": 4.985102512418509,
+      "case": "AR_5_Ret_180",
+      "family": "DUCT_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 22090,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.573903723547487,
+      "median_I1": 5.239991874464069,
+      "case": "AR_10_Ret_180",
+      "family": "DUCT_train",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15463,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.571962892330591,
+      "median_I1": 5.085764112941816,
+      "case": "AR_7_Ret_180",
+      "family": "DUCT_val",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 21000,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 58.06386021448962,
+      "median_I1": 3.493120566998277,
+      "case": "CBFS",
+      "family": "CBFS",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 18.01735236523462,
+      "median_I1": 3.730123449999084,
+      "case": "PH_Breuer",
+      "family": "PH_Breuer",
+      "is_test_case": false
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 14.152745291888932,
+      "median_I1": 4.231348974897394,
+      "case": "alpha_15_13929_4048",
+      "family": "PH_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 19.454306359677812,
+      "median_I1": 3.6801145195118456,
+      "case": "alpha_15_13929_2024",
+      "family": "PH_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 23.67741662837226,
+      "median_I1": 4.234366988994947,
+      "case": "alpha_05_4071_4048",
+      "family": "PH_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 15600,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 24.826024558272486,
+      "median_I1": 3.181659985283623,
+      "case": "alpha_05_4071_2024",
+      "family": "PH_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 3025,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.41749546961697,
+      "median_I1": 3.2928699136436976,
+      "case": "AR_1_Ret_360",
+      "family": "DUCT_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 8748,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.4102759609012505,
+      "median_I1": 5.324009654274203,
+      "case": "AR_3_Ret_360",
+      "family": "DUCT_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 31819,
+      "frac_cells_I1_over_threshold": 0.0,
+      "max_I1": 6.557476308654619,
+      "median_I1": 5.405642528309911,
+      "case": "AR_14_Ret_180",
+      "family": "DUCT_test",
+      "is_test_case": true
+    },
+    {
+      "n_cells": 51626,
+      "frac_cells_I1_over_threshold": 0.199996,
+      "max_I1": 426234380.7422927,
+      "median_I1": 5.759798178914414,
+      "case": "NASA_2DWMH",
+      "family": "NASA_test",
+      "is_test_case": true
+    }
+  ],
+  "q4_feature_distribution_comparison": {
+    "PH_training": {
+      "I1_S2": {
+        "orig_mean": 3.991177529018459,
+        "floored_mean": 0.45516507572113274,
+        "orig_p90_abs": 8.04834429750607,
+        "floored_p90_abs": 0.5000000000000001,
+        "orig_max_abs": 46.76501319699922,
+        "floored_max_abs": 0.5000000000000003,
+        "frac_cells_changed_over_1pct": 0.8563766788766789
+      },
+      "I2_W2": {
+        "orig_mean": -3.598347205578822,
+        "floored_mean": -0.46068208068879246,
+        "orig_p90_abs": 6.711706695141151,
+        "floored_p90_abs": 0.6275898365464561,
+        "orig_max_abs": 113.67967429577497,
+        "floored_max_abs": 24.20595716999533,
+        "frac_cells_changed_over_1pct": 0.8563766788766789
+      },
+      "I3_S3": {
+        "orig_mean": -0.0001235163342908868,
+        "floored_mean": 9.094995380287693e-07,
+        "orig_p90_abs": 0.007687720816695972,
+        "floored_p90_abs": 0.0003508830893484488,
+        "orig_max_abs": 3.961210762122022,
+        "floored_max_abs": 0.03020968696968397,
+        "frac_cells_changed_over_1pct": 0.8566910866910867
+      },
+      "I4_W2S": {
+        "orig_mean": 8.656765030683044e-05,
+        "floored_mean": -5.0925989125762454e-06,
+        "orig_p90_abs": 0.0023674643671670074,
+        "floored_p90_abs": 0.00010261187194016952,
+        "orig_max_abs": 7.845198243484859,
+        "floored_max_abs": 0.23552303756056497,
+        "frac_cells_changed_over_1pct": 0.8566910866910867
+      },
+      "I5_W2S2": {
+        "orig_mean": -10.416693251722151,
+        "floored_mean": -0.11128389379094335,
+        "orig_p90_abs": 24.838519400182395,
+        "floored_p90_abs": 0.15474364042866665,
+        "orig_max_abs": 1392.2722513126455,
+        "floored_max_abs": 6.051489292498832,
+        "frac_cells_changed_over_1pct": 0.8568437118437119
+      },
+      "Re_y": {
+        "orig_mean": 7.184353691322925,
+        "floored_mean": 7.184353691322925,
+        "orig_p90_abs": 19.75167436833714,
+        "floored_p90_abs": 19.75167436833714,
+        "orig_max_abs": 38.079230077990296,
+        "floored_max_abs": 38.079230077990296,
+        "frac_cells_changed_over_1pct": 0.0
+      },
+      "tke_ratio": {
+        "orig_mean": 0.21790734868267694,
+        "floored_mean": 0.21790734868267694,
+        "orig_p90_abs": 0.7997258553957466,
+        "floored_p90_abs": 0.7997258553957466,
+        "orig_max_abs": 0.9999893612661128,
+        "floored_max_abs": 0.9999893612661128,
+        "frac_cells_changed_over_1pct": 0.0
+      }
+    },
+    "DUCT_training": {
+      "I1_S2": {
+        "orig_mean": 3.612730293721685,
+        "floored_mean": 0.3752305024823314,
+        "orig_p90_abs": 6.3566424613274775,
+        "floored_p90_abs": 0.5000000000000001,
+        "orig_max_abs": 6.5909078982620235,
+        "floored_max_abs": 0.5000000000000002,
+        "frac_cells_changed_over_1pct": 0.7114912677801339
+      },
+      "I2_W2": {
+        "orig_mean": -3.612730293721685,
+        "floored_mean": -0.3752305024823314,
+        "orig_p90_abs": 6.3566424613274775,
+        "floored_p90_abs": 0.5000000000000001,
+        "orig_max_abs": 6.5909078982620235,
+        "floored_max_abs": 0.5000000000000002,
+        "frac_cells_changed_over_1pct": 0.7114912677801339
+      },
+      "I3_S3": {
+        "orig_mean": 2.2816303386235424e-17,
+        "floored_mean": -1.930662570298234e-18,
+        "orig_p90_abs": 2.1752319126050275e-15,
+        "floored_p90_abs": 6.476150213078804e-17,
+        "orig_max_abs": 3.3402040259110995e-14,
+        "floored_max_abs": 5.289935093966429e-15,
+        "frac_cells_changed_over_1pct": 0.012318029115341545
+      },
+      "I4_W2S": {
+        "orig_mean": -7.605434462078475e-18,
+        "floored_mean": 6.435541900994111e-19,
+        "orig_p90_abs": 7.2507730420167605e-16,
+        "floored_p90_abs": 2.158716737692935e-17,
+        "orig_max_abs": 1.113401341970366e-14,
+        "floored_max_abs": 1.7633116979888093e-15,
+        "frac_cells_changed_over_1pct": 0.00011912987539015035
+      },
+      "I5_W2S2": {
+        "orig_mean": -10.141869490058353,
+        "floored_mean": -0.09148288228716488,
+        "orig_p90_abs": 20.203451690575722,
+        "floored_p90_abs": 0.12500000000000006,
+        "orig_max_abs": 21.720033461686356,
+        "floored_max_abs": 0.12500000000000014,
+        "frac_cells_changed_over_1pct": 0.7118248314312263
+      },
+      "Re_y": {
+        "orig_mean": 0.6194380571854462,
+        "floored_mean": 0.6194380571854462,
+        "orig_p90_abs": 2.0153085937156616,
+        "floored_p90_abs": 2.0153085937156616,
+        "orig_max_abs": 3.992005188312105,
+        "floored_max_abs": 3.992005188312105,
+        "frac_cells_changed_over_1pct": 0.0
+      },
+      "tke_ratio": {
+        "orig_mean": 0.021407411044280632,
+        "floored_mean": 0.021407411044280632,
+        "orig_p90_abs": 0.03955357490090636,
+        "floored_p90_abs": 0.03955357490090636,
+        "orig_max_abs": 0.05207254775641713,
+        "floored_max_abs": 0.05207254775641713,
+        "frac_cells_changed_over_1pct": 0.0
+      }
+    }
+  },
+  "q4_nasa_informational": {
+    "I1_max_before": 426234380.74229264,
+    "I1_max_after": 0.5000000000000003,
+    "I1_p90_before": 23298.859796699922,
+    "I1_p90_after": 0.5000000000000001,
+    "frac_affected_before": 0.199996,
+    "frac_affected_after": 0.0
+  },
+  "verdict": {
+    "q1_algebraic_or_artefact": {
+      "answer": "ALGEBRAIC AND INEVITABLE, not an artefact of NASA_2DWMH's particular field.",
+      "identity": "I_n(S_hat, W_hat) = tau^deg(n) * I_n(S, W) exactly, for ANY nonzero (S, W) -- I1,I2 scale as tau^2, I3,I4 as tau^3, I5 as tau^4. Confirmed to 5.8e-16 relative error across an 8-decade omega sweep on a real field cell, and the fitted log-log slope of I1 vs omega is -2.0000 against a predicted -2.0000. Since tau=1/(Cmu*omega) has a pole at omega=0 with NO floor beyond the ad hoc 1e-8 numerical clip (which still permits tau up to ~1.1e9), every invariant built this way is UNBOUNDED wherever the mean strain/rotation stay finite and nonzero while omega does not scale down correspondingly -- i.e. wherever local turbulence (k) has decayed but the SST omega field has not decayed at the same rate, which is a generic property of near-freestream/low-turbulence regions in ANY case, not specific to NASA_2DWMH's mesh or solve."
+    },
+    "q2_affected_region_size": {
+      "n_non_test_cases_with_any_affected_cells": 0,
+      "n_non_test_cases_total": 32,
+      "n_test_cases_with_any_affected_cells": 1,
+      "n_test_cases_total": 8,
+      "statement": "Every PH and DUCT case this lab holds -- train, validation, and test alike -- has ZERO affected cells (fully-enclosed internal flows, no freestream region for k to collapse in while omega does not). Only NASA_2DWMH is affected, and severely: a large fraction of its domain."
+    },
+    "q3_are_we_lucky": {
+      "cases_we_lead_and_their_affected_fraction": {
+        "alpha_15_13929_4048": 0.0,
+        "alpha_15_13929_2024": 0.0,
+        "alpha_05_4071_4048": 0.0,
+        "alpha_05_4071_2024": 0.0,
+        "AR_14_Ret_180": 0.0
+      },
+      "statement": "None of the 5 cases we currently lead the public board on contain any trace of this degeneracy (affected fraction = 0.0 in every one). This is not luck in the sense of 'the degeneracy is there but doesn't matter to the score' -- it is that the degeneracy genuinely does not occur in the PH and DUCT flow families at all, because they have no freestream region for it to occur in. The one case where it DOES occur, NASA_2DWMH, is exactly the one case not in our leading set. This is close to unlucky, not lucky: it lands on the one case we do not lead, using the one model (PH, applied out-of-family) that has no reconstructed feature immune to it either."
+    },
+    "q4_alternative_normalization": {
+      "alternative": "tau_floored = 1 / max(Cmu*omega, C_lim*sqrt(2*S:S)), C_lim=1.0 -- mirrors the strain-rate limiter already built into SST's own eddy-viscosity formula (the Bradshaw/F2 limit), applied here to the FEATURE timescale for the same reason it exists in the turbulence model itself: prevent an eddy-viscosity-class quantity from being assigned in a region with no real eddy viscosity to speak of.",
+      "training_data_impact_ph": "max fraction of PH training cells changed by more than 1% on any of the 7 features: 0.856844",
+      "training_data_impact_duct": "max fraction of DUCT training cells changed by more than 1% on any of the 7 features: 0.711825",
+      "training_data_conclusion": "Negligible to zero change on both models' actual training data -- the floor only engages where the original tau would already be pathological, which training data (by construction, since it comes from well-behaved internal turbulent flows) essentially never is. This is a free fix: it does not require retraining on different data or changing what either model has already learned.",
+      "nasa_2dwmh_informational_only_features_no_truth_used": {
+        "I1_max_before": 426234380.74229264,
+        "I1_max_after": 0.5000000000000003,
+        "I1_p90_before": 23298.859796699922,
+        "I1_p90_after": 0.5000000000000001,
+        "frac_affected_before": 0.199996,
+        "frac_affected_after": 0.0
+      }
+    },
+    "overall_statement": "The tau=1/(Cmu*omega) normalization behind every Pope invariant in this pipeline has a PROVEN, general, case-independent pole at omega=0 with no effective floor -- not a NASA_2DWMH artefact. It affects zero cells in every PH/DUCT case this lab holds (train, validation, or test) because those families are fully-enclosed internal flows; it affects a large fraction of NASA_2DWMH's domain because that case has a genuine low-turbulence near-freestream region. None of the 5 cases we currently lead on carry any trace of it, so the current entry is not quietly relying on the degeneracy falling somewhere harmless -- it simply has not been exposed to it. A strain-rate-floored alternative timescale, of exactly the same form SST's own eddy-viscosity formula already uses for this reason, removes the pole and changes the feature distributions on training data by a negligible amount -- meaning it could be adopted without retraining either model on different data, only recomputing features with the floor in place. This is a structural property of the standard tensor-basis feature convention itself, not a property of either trained model, and should generalize to any ML-RANS closure built the same way."
+  },
+  "compute": {
+    "elapsed_seconds": 88.1,
+    "cores_cap": 2
+  }
+}

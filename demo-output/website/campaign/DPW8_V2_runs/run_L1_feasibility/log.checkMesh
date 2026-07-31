@@ -1,0 +1,79 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -noTopology
+Date   : Jul 29 2026
+Time   : 00:06:49
+Host   : ip-172-31-43-247
+PID    : 119205
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/DPW8_V2_runs/run_L1_feasibility
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Check mesh...
+    Disabling all topology checks.
+
+Time = 0
+
+Mesh stats 
+    points:           1632
+    internal points:  0
+    faces:            3120
+    internal faces:   1488
+    cells:            768
+    faces per cell:   6
+    boundary patches: 4
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     768
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+
+Checking geometry...
+    Overall domain bounding box (-119.7683752 -119.7425596 0) (119.7187887 119.7425596 0.02)
+    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)
+    All edges aligned with or perpendicular to non-empty directions.
+    Boundary openness (-4.921491969e-21 1.845559488e-21 -4.170275435e-16) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 3834.726825, number of cells 3
+  <<Writing 3 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 2.450570583e-13. Maximum face area = 850.6709124.  Face area magnitudes OK.
+    Min volume = 4.90114118e-15. Max volume = 17.01341825.  Total volume = 902.1956162.  Cell volumes OK.
+    Mesh non-orthogonality Max: 83.9884779 average: 17.88825924
+   *Number of severely non-orthogonal (> 70 degrees) faces: 40.
+    Non-orthogonality check OK.
+  <<Writing 40 non-orthogonal faces to set nonOrthoFaces
+    Face pyramids OK.
+    Max skewness = 1.175646405 OK.
+    Coupled point location match (average 0) OK.
+
+Failed 1 mesh checks.
+
+End
+

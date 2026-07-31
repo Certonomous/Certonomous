@@ -31,7 +31,11 @@ Two properties make it demo-safe:
 The ledger row shape (one JSON object per line)::
 
     {"index", "solver", "label", "design", "metrics",
-     "wall_seconds", "timestamp", "ok" [, "error"]}
+     "wall_seconds", "timestamp", "ok" [, "error"]
+     [, "wall_time_excursion"]}
+
+``wall_time_excursion`` appears only on a row the Monitor Standard's S9 rule
+calls an excursion, and never on an ordinary row.
 
 Concurrency is capped (default 4) to honour the machine's compute treaty; each
 solve is its own process in its own directory, so the workers never share state.
@@ -62,6 +66,10 @@ if str(_SDK_ROOT) not in sys.path:
 from chief_engineer.openfoam import OpenFoamCylinderApi  # noqa: E402
 from chief_engineer.vspaero import VspAeroWingApi  # noqa: E402
 from chief_engineer.head_engineer import parse_coefficient_history  # noqa: E402
+from chief_engineer.log_signatures import (  # noqa: E402
+    WALL_TIME_FIELD,
+    wall_time_record_field,
+)
 from chief_engineer.external_aero import analyse_surface, build_case  # noqa: E402
 from workflows import cylinder_vortex_shedding as cvs  # noqa: E402
 from workflows import transonic_airfoil as ta  # noqa: E402
@@ -736,6 +744,14 @@ def run_task(index: int, work_root: Path) -> dict[str, Any]:
         record["ok"] = False
         record["error"] = f"{type(exc).__name__}: {exc}"
     record["wall_seconds"] = round(time.time() - start, 3)
+    # Monitor Standard S9. A run whose wall time is a large multiple of the
+    # learned envelope for its solver kind keeps that finding as a named field
+    # on its own row, so fleet learning can separate genuine solver cost from
+    # infrastructure stalls instead of averaging the two together. An ordinary
+    # row carries no such field at all, and no existing field is ever altered.
+    excursion = wall_time_record_field(solver, record["wall_seconds"])
+    if excursion:
+        record[WALL_TIME_FIELD] = excursion
     return record
 
 

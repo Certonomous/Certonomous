@@ -23,18 +23,18 @@
   "fingerprint": "d38701f70845f56e",
   "numerical": {
     "band_abs": 0.007821502430555294,
-    "band_rel": 0.00708,
+    "band_rel": 0.00709,
     "observed_order": null,
     "order_used": null,
     "clamped": false,
     "method": "rungs not monotone; conservative band, largest spread times 1.25",
     "conclusive": false,
-    "value_working": 1.104171681
+    "value_working": 1.1024049215
   },
   "provenance": [
     "cube-rung-coarse",
     "cube-rung-medium",
     "cube-production"
   ],
-  "updated_utc": "2026-07-25T18:22:59Z"
+  "updated_utc": "2026-07-29T19:32:20Z"
 }

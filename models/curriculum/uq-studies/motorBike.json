@@ -29,14 +29,14 @@
     "clamped": true,
     "method": "3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
     "conclusive": false,
-    "value_working": 0.4201129966666667
+    "value_working": 0.42002781666666666
   },
   "provenance": [
     "motorBike-rung-coarse",
     "motorBike-rung-medium",
     "motorBike-production"
   ],
-  "updated_utc": "2026-07-25T18:11:43Z",
+  "updated_utc": "2026-07-29T19:18:27Z",
   "closures": {
     "kOmegaSST": 0.4155770166666667,
     "kEpsilon": 0.41915239,

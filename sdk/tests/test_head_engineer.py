@@ -127,6 +127,50 @@ class MonitorStandardRuleTests(unittest.TestCase):
         self.assertIn("fatal", severities)
         self.assertTrue(monitor.summary()["fatal"])
 
+    def _courant(self, monitor, values, *, delta_t=None):
+        for index, value in enumerate(values):
+            if delta_t is not None:
+                monitor.feed("pimpleFoam", f"deltaT = {delta_t(index)}")
+            monitor.feed("pimpleFoam",
+                         f"Courant Number mean: {value / 10:.6f} max: {value}")
+
+    def test_courant_excursion_is_flagged_once(self):
+        monitor = LogMonitor(courant_limit=1.5)
+        self._courant(monitor, [0.9] * 20 + [3.0] * 20)
+        kinds = [a.kind for a in monitor.anomalies]
+        self.assertEqual(kinds.count("courant-excursion"), 1)
+
+    def test_courant_needs_a_case_limit(self):
+        # A reported maximum means nothing without the limit it was asked to
+        # respect, so the check stays off by default.
+        monitor = LogMonitor()
+        self._courant(monitor, [9.9] * 40)
+        self.assertNotIn("courant-excursion",
+                         [a.kind for a in monitor.anomalies])
+
+    def test_archived_transient_run_raises_nothing(self):
+        # The lab's own archived transient runs are healthy and must stay so.
+        monitor = LogMonitor(courant_limit=1.5)
+        log = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
+               / "mega-batch" / "work" / "cylinder-unsteady")
+        paths = sorted(log.glob("*/log.pimpleFoam"))
+        self.assertTrue(paths)
+        with open(paths[0], encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                monitor.feed("pimpleFoam", line)
+        self.assertNotIn("courant-excursion",
+                         [a.kind for a in monitor.anomalies])
+        # The steady-solve rules must stay silent here too: this run is
+        # healthy and finished, and S7 used to call it divergent five times.
+        self.assertEqual(monitor.summary()["by_kind"], {})
+
+    def test_steady_rules_are_scoped_off_once_a_run_is_transient(self):
+        monitor = LogMonitor(residual_target=1e-6, iteration_cap=250)
+        monitor.feed("pimpleFoam", "Courant Number mean: 0.01 max: 0.4")
+        self._residuals(monitor, [1e-3] * 220)
+        self.assertNotIn("residual-stall",
+                         [a.kind for a in monitor.anomalies])
+
     def test_wall_time_excursion_against_real_ledger_rows(self):
         # 16310.017 s is a real ledger row, recorded ok with no flag: over
         # 800x the 99th percentile for its solver kind.

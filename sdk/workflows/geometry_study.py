@@ -471,12 +471,16 @@ def _rung_label(tag: str) -> str:
 
 
 def _ladder_rows(levels: list[dict]) -> list[list[str]]:
-    """Table rows for the mesh ladder, production/fine anchor first, then the
-    cheaper rungs in the order they land."""
-    anchor = [lv for lv in levels if lv.get("tag") in ("fine", "production")]
-    rungs = [lv for lv in levels if lv.get("tag") not in ("fine", "production")]
+    """Table rows for the mesh ladder, cheapest mesh first.
+
+    Coarse, then middle, then the production mesh: the table reads down as a
+    refinement sequence, which is what the ladder is. It used to lead with the
+    production anchor, which put the finest mesh at the top and made the
+    sequence read backwards.
+    """
+    ordered = sorted(levels, key=lambda lv: int(lv.get("cells", 0)))
     return [[_rung_label(lv["tag"]), f"{lv['cells']:,}", f"{lv['cd']:.4f}"]
-            for lv in anchor + rungs]
+            for lv in ordered]
 
 
 def _replay_levels(stored: list[dict], production_cells: int) -> list[dict]:
@@ -610,7 +614,7 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             script.numericist(
                 "• Grid-refinement study: two cheaper meshes of this same case "
                 "alongside the production mesh, one knob moved.")
-            rows = _ladder_rows(levels)
+            rows = _ladder_rows(levels)   # coarse, middle, production
             _emit_table(emit, script, role=_NUM_ROLE, title=title,
                         headers=headers, rows=rows[:1], table_id=table_id)
             for row in rows[1:]:
@@ -635,10 +639,20 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             "same physics, one knob moved. "
             f"• Each rung runs the full mesh-and-solve chain at {rung_iters} "
             f"iterations; the production mesh anchors the ladder.")
-        levels = [{"tag": "production", "cells": production_cells,
-                   "cd": production_cd, "mission": f"{label}-production"}]
-        _emit_table(emit, script, role=_NUM_ROLE, title=title, headers=headers,
-                    rows=_ladder_rows(levels), table_id=table_id)
+        production = {"tag": "production", "cells": production_cells,
+                      "cd": production_cd, "mission": f"{label}-production"}
+        levels = [production]
+        # Rows land cheapest mesh first, so the table reads down as a
+        # refinement sequence; the production mesh closes it rather than
+        # leading it.
+        opened = {"table": False}
+
+        def _ladder_row(level: dict) -> None:
+            _emit_table(emit, script, role=_NUM_ROLE, title=title,
+                        headers=headers, rows=_ladder_rows([level]),
+                        table_id=table_id, append=opened["table"])
+            opened["table"] = True
+
         for spec in specs:
             tag = spec["tag"]
             lo, hi = spec["surface"]
@@ -699,9 +713,8 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                      "cd": rung_results["Cd"]["value"],
                      "mission": f"{label}-rung-{tag}"}
             levels.append(level)
-            _emit_table(emit, script, role=_NUM_ROLE, title=title,
-                        headers=headers, rows=_ladder_rows([level]),
-                        table_id=table_id, append=True)
+            _ladder_row(level)
+        _ladder_row(production)
     except Exception:
         script.numericist(
             "• The refinement study did not complete; detail is in the run "

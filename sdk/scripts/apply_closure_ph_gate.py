@@ -34,10 +34,23 @@ THIS SCRIPT MAKES THAT DECISION, under the following discipline:
     (unchanged code path, unchanged models) -- the gate does not touch them
     (C1 explicitly scoped the gate to the PH family only; no matching gate
     exists for the other families).
-  - Exactly ONE closure_challenge.score()/evaluate_by_case() call is made,
-    on the final 8-case predictions dict. This is the 4th official scoring
-    call on this benchmark's test ground truth by this lab (after the floor,
-    round 1, and round 2) -- counted and stated explicitly.
+  - Exactly ONE *new* prediction set is scored: the final 8-case gated
+    predictions dict. That is the 4th official scoring call on this
+    benchmark's test ground truth by this lab (after the floor, round 1, and
+    round 2), where "official scoring call" counts DISTINCT PREDICTION SETS
+    scored, which is the unit the lab's ledger has always counted.
+    Stated precisely, because the count is part of the disclosure: this run
+    makes FOUR closure_challenge invocations, not one --
+    score(floor_predictions) and evaluate_by_case(floor_predictions) at
+    STAGE 3, then score(predictions) and evaluate_by_case(predictions) at
+    STAGE 4. The first pair re-scores the unmodified RANS-identity floor,
+    the same prediction set already counted as ledger call #1, purely as a
+    harness check that it still reproduces 0.1036; it introduces no new
+    prediction set and cannot tune anything. Only the second pair scores
+    something this lab had not scored before.
+    NOTE ALSO: the benchmark imposes no scoring-call limit of any kind. The
+    ledger discipline is self-imposed and stricter than the rules require;
+    it must never be described as compliance with a benchmark rule.
 
 Run (2-core cap, per current lab compute budget)::
     taskset -c 0-1 python sdk/scripts/apply_closure_ph_gate.py

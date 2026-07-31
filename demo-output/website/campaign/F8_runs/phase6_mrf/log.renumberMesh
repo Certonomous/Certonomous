@@ -1,0 +1,74 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : renumberMesh -parallel -overwrite
+Date   : Jul 29 2026
+Time   : 04:09:16
+Host   : ip-172-31-43-247
+PID    : 210675
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/F8_runs/phase6_mrf
+nProcs : 4
+Hosts  :
+(
+    (ip-172-31-43-247 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = constant
+
+Mesh region0 size: 230135
+Before renumbering
+    band           : 56977
+    profile        : 2.6885842e+09
+
+Using renumber-method: CuthillMcKee [default]
+
+Reading fields
+Reading cellSet: allcells region0
+
+After renumbering
+    band           : 5171
+    profile        : 6.8114729e+08
+
+Writing mesh to "constant"
+Reading hexRef8 data : cellLevel
+Reading hexRef8 data : pointLevel
+Reading hexRef8 data : level0Edge
+
+Timings:
+    read mesh   : 0.21805424
+    read fields : 0.000459494
+    decompose   : 0
+    cell-cells  : 0
+    renumber    : 0.022136562
+    write       : 0.71341847
+TotalTime = 1.0611606 s
+
+ExecutionTime = 1.06 s  ClockTime = 1 s
+
+End
+
+Finalising parallel run

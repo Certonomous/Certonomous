@@ -129,6 +129,9 @@ class LadderReplayTests(_LadderHarness):
         self.assertEqual(tables[0]["headers"], ["Mesh", "Cells", "C_d"])
         rows = [row for p in tables for row in p["rows"]]
         self.assertEqual(len(rows), 3)
+        # Cheapest mesh first: the table reads down as a refinement sequence.
+        self.assertEqual([row[0] for row in rows],
+                         ["Coarse rung", "Middle rung", "Production mesh"])
         self.assertIn(["Production mesh", "353,578", "0.4156"], rows)
         self.assertTrue(any(p["append"] for p in tables[1:]))
         # The band bullet cites the procedure and the clamp guard fires on
@@ -180,12 +183,11 @@ class LadderGuardTests(_LadderHarness):
             result = self.run_ladder(engineer=stub)
         self.assertIsNone(result)
         self.assertIn("did not complete", self.entries_text())
-        # No stored-degenerate rows were presented as a ladder: the only
-        # table rows are the fresh attempt's production anchor.
+        # No stored-degenerate rows were presented as a ladder, and the
+        # fresh attempt put nothing on screen before it failed closed.
         rows = [row for e, p in self.events if e == "transcript.table"
                 for row in p["rows"]]
-        self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0][0], "Production mesh")
+        self.assertEqual(rows, [])
 
     def test_unanchored_stored_ladder_never_replays(self):
         # Three distinct stored rungs, but none of them IS this run's
@@ -926,10 +928,9 @@ class ReplayLevelsTests(unittest.TestCase):
         self.assertEqual([lv["cd"] for lv in levels],
                          [0.02892, 0.02167, 0.01892])
         rows = _ladder_rows(levels)
-        self.assertEqual(rows[0][0], "Production mesh")
-        self.assertEqual(rows[0][1], "337,334")
-        self.assertEqual({row[0] for row in rows[1:]},
-                         {"Coarse rung", "Middle rung"})
+        self.assertEqual([row[0] for row in rows],
+                         ["Coarse rung", "Middle rung", "Production mesh"])
+        self.assertEqual(rows[-1][1], "337,334")
 
     def test_duplicate_cell_counts_collapse(self):
         from workflows.geometry_study import _replay_levels

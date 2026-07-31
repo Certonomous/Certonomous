@@ -1,4 +1,4 @@
-"""Pure detection functions for solver-log signatures S6, S7, and S9.
+"""Pure detection functions for solver-log signatures S6, S7, S8, and S9.
 
 Implements the Monitor Standard rules adopted from the reading program's
 agenda (``docs/standards/MONITOR_STANDARD.md``):
@@ -8,6 +8,9 @@ agenda (``docs/standards/MONITOR_STANDARD.md``):
   converged.
 - S7 oscillatory divergence: alternating-sign residual changes with a
   growing envelope. Flag on growth, fatal when the envelope doubles.
+- S8 Courant excursion: a transient run whose reported maximum Courant
+  number exceeds its case limit by more than the tolerance an adaptive
+  time step explains, or which grows monotonically at a fixed time step.
 - S9 wall-time excursion: a run whose wall time exceeds a configurable
   multiple of the learned 99th percentile for its solver kind. The
   expected wall-time envelope is learned from the mega-batch ledger
@@ -38,10 +41,29 @@ OSCILLATION_ACTION = (
     "stop the steady solve; the prescribed fix is the unsteady track, "
     "not more iterations"
 )
+COURANT_ACTION = (
+    "reduce the time step or enable adaptive stepping; a transient result "
+    "computed above its Courant limit is not evidence"
+)
 WALL_TIME_ACTION = (
     "stop and investigate; capture host state and separate solver cost "
     "from infrastructure stalls before trusting the record"
 )
+
+# The thresholds the owner approved on r1-monitor-walltime-rule, in the words
+# of the proposal: "flag any run beyond 10 times its solver's running 99th
+# percentile, stop and investigate beyond 100 times". Measured against the full
+# 208193-row mega-batch ledger, 10x costs almost nothing in noise over 20x: it
+# flags 30 rows rather than 27, and the three extra are reduced-order rows whose
+# absolute wall times are 0.05 to 0.43 s. Every wall-time excursion the ledger
+# actually holds (the six ~16300 s rows across the cylinder and wing solvers)
+# lands far past the fatal multiple either way.
+FLAG_MULTIPLE = 10.0
+FATAL_MULTIPLE = 100.0
+
+# The named field a record carries for a wall-time excursion, so fleet learning
+# can separate genuine solver cost from infrastructure stalls.
+WALL_TIME_FIELD = "wall_time_excursion"
 
 # The mega-batch ledger, resolved relative to the repository root.
 DEFAULT_LEDGER_PATH = (
@@ -187,6 +209,91 @@ def detect_oscillatory_divergence(
 
 
 # --------------------------------------------------------------------------
+# S8: Courant excursion
+# --------------------------------------------------------------------------
+
+# An adaptive time step is set from the PREVIOUS step's Courant number, so the
+# reported maximum routinely lands a little above the requested limit. Measured
+# on the lab's archived transient runs (the four unsteady cylinder cases under
+# the mega-batch work tree, 13308 time steps at maxCo 1.5): 42 percent of all
+# healthy steps sit strictly above the limit, and the largest overshoot anywhere
+# in the four runs is 0.403 percent. A rule written as a strict comparison would
+# therefore have called every healthy transient run in the lab an excursion. The
+# default tolerance below is 2 percent, five times the largest measured healthy
+# overshoot, so ordinary adaptive stepping never trips it.
+COURANT_TOLERANCE = 0.02
+
+# Longest monotone rising run of the reported maximum in those same healthy
+# archived runs: 17 consecutive steps. The Monitor Standard's window of 20 sits
+# above that, and the monotone rule additionally requires a fixed time step,
+# which none of those runs had.
+COURANT_GROWTH_WINDOW = 20
+
+
+def detect_courant_excursion(
+    max_courant: Sequence[float],
+    *,
+    limit: float,
+    tolerance: float = COURANT_TOLERANCE,
+    window: int = COURANT_GROWTH_WINDOW,
+    fixed_time_step: bool = False,
+) -> dict[str, Any] | None:
+    """Courant excursion in a transient run (Monitor Standard S8).
+
+    Two conditions, in severity order:
+
+    * FATAL: the reported maximum grew monotonically across ``window``
+      consecutive time steps while the time step was fixed. A fixed step with
+      a climbing Courant number means the flow is accelerating into the cell
+      size and nothing is holding it back.
+    * FLAG: the reported maximum exceeds ``limit * (1 + tolerance)``. The
+      tolerance exists because adaptive stepping overshoots its own target by
+      construction; see ``COURANT_TOLERANCE`` for the measurement behind the
+      default.
+
+    ``limit`` is the case's own requested maximum (``maxCo``). Returns a
+    finding dict or ``None``. Pure function: no I/O, no state.
+    """
+    if limit <= 0 or not max_courant:
+        return None
+    series = [float(v) for v in max_courant]
+    threshold = limit * (1.0 + tolerance)
+    peak = max(series)
+
+    if fixed_time_step and window >= 2 and len(series) >= window:
+        run = 1
+        for earlier, later in zip(series, series[1:]):
+            run = run + 1 if later > earlier else 1
+            if run >= window:
+                return {
+                    "kind": "courant-excursion",
+                    "severity": SEVERITY_FATAL,
+                    "action": COURANT_ACTION,
+                    "reason": "monotonic growth at a fixed time step",
+                    "limit": float(limit),
+                    "threshold": threshold,
+                    "peak": peak,
+                    "window": window,
+                    "steps": len(series),
+                }
+
+    if peak > threshold:
+        exceedances = sum(1 for value in series if value > threshold)
+        return {
+            "kind": "courant-excursion",
+            "severity": SEVERITY_FLAG,
+            "action": COURANT_ACTION,
+            "reason": "reported maximum above the case limit",
+            "limit": float(limit),
+            "threshold": threshold,
+            "peak": peak,
+            "exceedances": exceedances,
+            "steps": len(series),
+        }
+    return None
+
+
+# --------------------------------------------------------------------------
 # S9: wall-time excursion
 # --------------------------------------------------------------------------
 
@@ -243,8 +350,8 @@ def classify_wall_time(
     wall_seconds: float,
     envelope: Mapping[str, Mapping[str, float]] | None = None,
     *,
-    flag_multiple: float = 20.0,
-    fatal_multiple: float = 100.0,
+    flag_multiple: float = FLAG_MULTIPLE,
+    fatal_multiple: float = FATAL_MULTIPLE,
     min_samples: int = 20,
     ledger_path: str | os.PathLike[str] | None = None,
 ) -> dict[str, Any] | None:
@@ -284,4 +391,39 @@ def classify_wall_time(
         "p99": p99,
         "multiple": multiple,
         "samples": count,
+    }
+
+
+def wall_time_record_field(
+    solver_kind: str,
+    wall_seconds: float,
+    envelope: Mapping[str, Mapping[str, float]] | None = None,
+    *,
+    ledger_path: str | os.PathLike[str] | None = None,
+    flag_multiple: float = FLAG_MULTIPLE,
+    fatal_multiple: float = FATAL_MULTIPLE,
+) -> dict[str, Any] | None:
+    """The compact named field a record carries when a run is an excursion.
+
+    The approved rule requires the excursion to survive as a named field on
+    the record, so fleet learning can separate genuine solver cost from
+    infrastructure stalls rather than averaging the two together. Returns the
+    value for ``WALL_TIME_FIELD``, or ``None`` when the run is ordinary and
+    the record should carry no such field at all.
+
+    The envelope this was judged against travels with the finding, because a
+    multiple means nothing without the percentile and the sample count behind
+    it, and both move as the ledger grows.
+    """
+    finding = classify_wall_time(
+        solver_kind, wall_seconds, envelope, ledger_path=ledger_path,
+        flag_multiple=flag_multiple, fatal_multiple=fatal_multiple)
+    if not finding:
+        return None
+    return {
+        "severity": finding["severity"],
+        "multiple": round(finding["multiple"], 1),
+        "p99_seconds": round(finding["p99"], 4),
+        "envelope_samples": finding["samples"],
+        "action": finding["action"],
     }

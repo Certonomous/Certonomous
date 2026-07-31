@@ -1,0 +1,16 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      refineMeshDict;
+}
+// Diagnostic-only mesh-refinement probe (D9 follow-on, r4 band-tightening).
+// Refines only the two in-plane (tan1/tan2) directions of the hex mesh,
+// leaving the single-cell-thick "sides" (empty) direction untouched -- this
+// case is a 2D-extruded mesh and refining the empty direction would just
+// double cost for zero physical content.
+directions      (tan1 tan2);
+useHexTopology  yes;
+geometricCut    no;
+writeMesh       false;

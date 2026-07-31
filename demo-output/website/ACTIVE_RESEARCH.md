@@ -9,7 +9,10 @@ an external board was intended instead, this file should be pointed at it — th
 question is logged in the blockers list, and work did not wait on the answer.
 
 Last updated: 2026-07-30 UTC (Ladder C — closure challenge submission policy
-established, eligibility verdict recorded, compliance audit run).
+established, eligibility verdict recorded, compliance audit run; **both blocking
+defects since cleared — the eight submission CSVs now exist and the false
+docstring is corrected**. Ladder W5 — external challenge scouting sweep filed to
+the docket).
 
 ---
 
@@ -554,17 +557,34 @@ executable assertions and imports the test list solely to assert non-intersectio
 The 21-fit / 4-check gate uses exactly the benchmark's own suggested split. The
 refused 0.0675 shortcut was correctly refused.
 
-**Two defects found, neither a rule violation, both blocking submission:**
-1. `apply_closure_ph_gate.py`'s docstring claims "Exactly ONE
-   `score()`/`evaluate_by_case()` call is made." The same run makes **four
-   invocations over two prediction sets** (lines 205-206 re-score the RANS floor,
-   288-289 score the entry). Substantively harmless — re-scoring an unmodified
-   baseline tunes nothing — but an entry whose credibility rests on precise
-   self-accounting cannot ship a sentence a reviewer can falsify forty lines later.
-2. **No submittable artifact exists.** No prediction CSV has ever been written
-   anywhere in the repo or on this box; the entry of record is an in-memory dict and
-   a JSON of scores. Generating the eight CSVs must be done with scoring disabled —
-   it must not become a fifth scoring call.
+**Two defects were found, neither a rule violation, both of which blocked
+submission. BOTH ARE NOW CLEARED (2026-07-30, later the same day):**
+
+1. ~~`apply_closure_ph_gate.py`'s docstring claims "Exactly ONE
+   `score()`/`evaluate_by_case()` call is made."~~ **FIXED.** The same run makes
+   **four invocations over two prediction sets** (lines 205-206 re-score the RANS
+   floor, 288-289 score the entry). Substantively harmless — re-scoring an
+   unmodified baseline tunes nothing — but an entry whose credibility rests on
+   precise self-accounting cannot ship a sentence a reviewer can falsify forty
+   lines later. The docstring now states the four invocations explicitly, names
+   which pair is the re-score of an already-counted prediction set, and defines
+   the unit the ledger counts (distinct prediction sets scored). It also records
+   that the benchmark imposes no scoring-call limit at all.
+2. ~~**No submittable artifact exists.**~~ **FIXED — the eight CSVs now exist**, at
+   `demo-output/website/closure_challenge_submission/test/{case}.csv`, written by
+   `sdk/scripts/export_closure_submission_csvs.py` in 69.7s on the 2-core cap.
+
+   | Check | Result |
+   | --- | --- |
+   | Scoring calls consumed | **0** |
+   | How zero is guaranteed | Not by omission. `score`, `score_from_csv`, `evaluate_by_case`, `evaluate_from_csv_by_case`, `evaluate_individual_case`, `_velocity_field`, `_ground_truth` and `_load_csv_predictions` are replaced with raising stubs in all three package namespaces **before any pipeline work**, and the guard is proven armed by calling `score()` and catching the refusal. Only evaluation-point **coordinates** were readable |
+   | Is `evaluation_points()` a scoring call? | **No.** It returns `_ground_truth()[case]['coords']` only, never `['U']`. Interpolating to those points is what the task requires |
+   | Reproduces the entry of record | **8 of 8 checks pass** — both harness commits, refit alpha 0.7499, threshold 0.1263, the top-3 feature names, all four gate decisions and predicted errors, and the per-case prediction source |
+   | Format | 1000 rows x 3 cols, comma-delimited, no header, no alphabetic character except the `e` of scientific notation, trailing newline — matching accepted submissions wu, montoya and wang |
+   | Independent sanity check | Mean velocity magnitude per case sits inside the band spanned by all four accepted submissions on all eight cases, which would catch a point-ordering, column-ordering or units error **without any scoring call** |
+
+   The recorded 0.0676 was **not** recomputed and is carried across from the round-3
+   record unchanged.
 
 Also caught: our records label the eval package **v0.2.1**, but at the pinned commit
 `1c4e22c8` its `pyproject.toml` declares **0.3.1** ("vector magnitude metric, mean
@@ -589,10 +609,19 @@ body), which are not test cases and which our pipeline does not touch.
 
 **Status: draft package prepared for Katie's proofreading, nothing sent.** No
 submission, no account, no contact with the steward or a GitHub issue. Full account:
-`demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`. Ambition ahead: clear
-the two defects, get Katie's sign-off, and put the entry on the board where its
-0.0676 can be independently rescored by someone outside this lab — the first
-external check this result would ever have had.
+`demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`.
+
+**What remains before anything can be sent is now entirely Katie's, not the lab's.**
+Of the five prerequisites the draft lists, three are done: the docstring is fixed,
+the eight CSVs exist, and the version label is superseded by the commit hash
+`1c4e22c8` (recorded in the submission manifest, with the reason — upstream's
+`__init__` still says 0.2.1 while `pyproject.toml` at that commit says 0.3.1).
+Outstanding: **Katie fills the author names and the reference URL, and Katie
+proofreads and approves.** Nothing moves before that.
+
+Ambition ahead: get the sign-off, and put the entry on the board where its 0.0676
+can be independently rescored by someone outside this lab — the first external
+check this result would ever have had.
 
 ### C2 — where the deficit lives
 

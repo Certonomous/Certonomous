@@ -1,0 +1,1883 @@
+                                                               A Random Matrix Approach for Quantifying Model-Form
+                                                                       Uncertainties in Turbulence Modeling
+                                                                             Heng Xiaoa,∗, Jian-Xun Wanga , Roger G. Ghanemb
+                                                    a
+                                                        Department of Aerospace and Ocean Engineering, Virginia Tech, Blacksburg, VA 24060, United States
+                                                    b
+                                                        Department of Aerospace and Mechanical Engineering, University of Southern California, Los Angeles,
+                                                                                           CA 90089, United States
+arXiv:1603.09656v1 [physics.flu-dyn] 31 Mar 2016
+
+
+
+
+                                                   Abstract
+
+                                                   With the ever-increasing use of Reynolds-Averaged Navier–Stokes (RANS) simulations in
+                                                   mission-critical applications, the quantification of model-form uncertainty in RANS models
+                                                   has attracted attention in the turbulence modeling community. Recently, a physics-based,
+                                                   nonparametric approach for quantifying model-form uncertainty in RANS simulations has
+                                                   been proposed, where Reynolds stresses are projected to physically meaningful dimensions
+                                                   and perturbations are introduced only in the physically realizable limits (Xiao et al., 2015.
+                                                   Quantifying and reducing model-form uncertainties in Reynolds-averaged Navier–Stokes sim-
+                                                   ulations: An open-box, physics-based, Bayesian approach, arXiv:1508.06315). However, a
+                                                   challenge associated with this approach is to assess the amount of information introduced
+                                                   in the prior distribution and to avoid imposing unwarranted constraints. In this work we
+                                                   propose a random matrix approach for quantifying model-form uncertainties in RANS sim-
+                                                   ulations with the realizability of the Reynolds stress guaranteed, which is achieved by con-
+                                                   struction from the Cholesky factorization of the normalized Reynolds stress tensor. Fur-
+                                                   thermore, the maximum entropy principle is used to identify the probability distribution
+                                                   that satisfies the constraints from available information but without introducing artificial
+                                                   constraints. We demonstrate that the proposed approach is able to ensure the realizability
+                                                   of the Reynolds stress, albeit in a different manner from the physics-based approach. Monte
+                                                   Carlo sampling of the obtained probability distribution is achieved by using polynomial
+                                                   chaos expansion to map independent Gaussian random fields to the Reynolds stress random
+                                                   field with the marginal distributions and correlation structures as specified. Numerical sim-
+                                                   ulations on a typical flow with separation have shown physically reasonable results, which
+
+                                                        ∗
+                                                            Corresponding author. Tel: +1 540 231 0926
+                                                            Email address: hengxiao@vt.edu (Heng Xiao)
+
+
+
+                                                   Preprint submitted to Elsevier                                                           October 22, 2018
+verifies the proposed approach. Therefore, the proposed method is a promising alternative to
+the physics-based approach for model-form uncertainty quantification of RANS simulations.
+The method explored in this work is general and can be extended to other complex physical
+systems in applied mechanics and engineering.
+Keywords: model-form uncertainty quantification, turbulence modeling,
+Reynolds-Averaged Navier–Stokes equations, random matrix theory, maximum entropy
+principle
+
+
+Notations
+
+   We summarize the convention of notations below because of the large number of symbols
+used in this paper. The general conventions are as follows:
+
+  1. Upper case letters with brackets (e.g., [R]) indicate matrices or tensors; lower case
+     letters with arrows (e.g., ~v ) indicate vectors; undecorated letters in either upper or
+     lower cases indicate scalars. An exception is the spatial coordinate, which is denoted
+     as x for simplicity but is in fact a 3 × 1 vector. Tensors (matrices) and vectors are
+     also indicated with index notations, e.g., Rij and vi with i, j = 1, 2, 3. In this paper,
+     i and j are used with tensor indices while α and β are used as general indexes, e.g.,
+     for the modes of Kahunen–Loeve expansion or for the terms in the polynomial chaos
+     expansion.
+
+  2. Bold letters (e.g., [R]) indicate random variables (including scalars, vectors, and ma-
+     trices), the non-bold letters (e.g., [R]) indicate the corresponding realizations, and
+     underlined letters (e.g., [R]) indicate the mean.
+
+  3. Symbols Msd , Md+ , and M+0
+                              d indicate the sets of symmetric, symmetric positive definite,
+     and symmetric positive semi-definite matrices, respectively, of dimension d × d with
+     the following relation: Msd ⊂ Md+ ⊂ M+0
+                                          d .
+
+This work deals with Reynolds stresses, which are rank two tensors. Therefore, it is implied
+throughout the paper that all random or deterministic matrices have sizes 3 × 3 with real
+entries unless noted otherwise. Finally, a list of nomenclature is presented in Appendix B.
+
+1. Introduction
+
+   Numerical models based on Reynolds-Averaged Navier–Stokes (RANS) equations are
+the dominant tool for the prediction of turbulent flows in industrial and natural processes.
+
+                                             2
+For many flows the predictions from RANS simulations have large uncertainties, which are
+mostly attributed to the phenomenological closure models for the Reynolds stresses [1, 2].
+Previous efforts in quantifying and reducing model uncertainties in RANS simulation have
+mostly followed parametric approaches, e.g., by perturbing, tuning, or inferring the model
+parameters in these closure models [3]. Recently, researchers in the turbulence modeling
+community have recognized the limitations of the parametric approach and started explor-
+ing nonparametric approaches where uncertainties are directly injected into the Reynolds
+stresses [2, 4–7].
+   In their pioneering work, Iaccarino and co-workers [4, 5] projected the Reynolds stress
+onto the six physically meaningful dimensions (its magnitude, shape, and orientation) and
+perturbed the Reynolds stresses towards the limiting states in the physically realizable range.
+Xiao et al. [7] utilized the six physical dimensions as the basis to parameterize the Reynolds
+stress uncertainty space, and the physical-based parameterization is further used for system-
+atic exploration of the space and for Bayesian inferences to incorporate observation data.
+However, although the physics-based parameterization allows for a full representation of the
+uncertainty space, two limitations need to be addressed. First, the realizability constraints
+on Reynolds stresses provide guidance only on the shape of the Reynolds stress (in the form
+of the classical Lumley triangle [8] or the recently proposed Barycentric triangle [9]). In
+comparison, much weaker constraints can be imposed on the magnitude and the orientation,
+except for the constraint that the magnitude (i.e., turbulent kinetic energy) must be posi-
+tive. For this reason and partly due to stability considerations, previous works on injecting
+uncertainty to the physical projections of the Reynolds stress have focused on the shape and
+magnitude [4, 6, 7], and they did not introduce uncertainties to the orientations. Second, in
+the context of Bayesian inference of Reynolds stress uncertainties as pursued by Xiao and
+co-workers [7, 10, 11], it is not straightforward to specify a prior distribution on the physical
+variables. Xiao et al. [7] specified Gaussian priors for the Reynolds stress discrepancy in
+terms of the tensor shape parameters and the logarithmic of the magnitude. In principle the
+same prior can be specified for the orientation angles. However, it is not clear how much
+information is introduced into the prior with this choice of probability distributions (i.e.,
+log-normal distribution for the magnitude and standard normal for others). Moreover, in
+lack of physical insight, it is not clear how large the variance for each physical variable should
+be compared to each other. Although the prior plays a minor role in the Ensemble Kalman
+filtering based inference with a moderate amount of data as studied in Xiao et al. [7], it
+can be of critical importance for pure uncertainty propagation as pursued by Iaccarino and
+
+
+                                                3
+co-workers [4–6] and for Bayesian inferences with small amounts of data. In particular, it is
+critical that no artificial constraints are introduced with overly confident prior distributions.
+   The entropy measure of information has been proposed more than half a century ago [12].
+Since then, the maximum entropy principle has been extensively used as the guideline to
+specify prior probability distributions for Bayesian inferences [13]. The principle states that
+out of all possible distributions that satisfy the constraints from available information, the
+probability distribution that has the maximum entropy is a good prior distribution. Since
+entropy is a measure of randomness, the maximum entropy distribution is the most non-
+committal and most random in the dimensions in which no information is available. Conse-
+quently, it introduces the least amount of information in addition to the specified constraints.
+While the maximum entropy principle has been used extensively in many disciplines such
+as communications [14] and image processing [15], the use of maximum entropy principle in
+conjunction with random matrix theory for quantifying model-form uncertainties in physical
+systems is only a recent development. Soize [16] was the first to derive the maximum entropy
+probability distribution of a symmetric positive definite random matrices with a specified
+mean field. Applications to structural vibration problems were demonstrated, where the
+mass, stiffness, and damping matrices of the real system are described as random matrices
+with the corresponding matrices in the reduced model as their means. The framework was
+further extended to nonlinear structural dynamics problems and to other applications (e.g.,
+composite materials [17], porous media[18]) and to problems with more complicated con-
+straints, (e.g., on the variance of eigenvalues [18, 19], as well lower and upper bounds on the
+matrices [17]). See [20, 21] for comprehensive reviews of the recent development.
+   Since Reynolds stresses are symmetric positive definite tensors, it seems natural to use
+random matrix approach to describe the Reynolds stresses for the quantification of RANS
+modeling uncertainties. However, the authors’ are not aware of any existing work in the
+literature that applied the random matrix theory in quantifying model-form uncertainties in
+RANS simulations. While many of the theories developed by Soize and co-workers can be ap-
+plied here straightforwardly, an important characteristics of the RANS modeling application
+is that the Reynolds stresses are described by a random matrix field with spatial correla-
+tions. In contrast, the matrices in the previously investigated applications either involve
+only a few individual matrices (e.g., the mass, stiffness, and damping matrices in struc-
+tural dynamics applications [16] ) or a large number of random matrices without spatial
+correlation structure (e.g., the effective constitutive matrices in the meso-scale modeling of
+composite materials [17]). A notable exception is the recent work of Guilleminot [18], where
+
+
+                                               4
+the permeability tensor is modeled as a random matrix field with a specified correlation
+structure.
+   In the present contribution, we use an approach based on the random matrix theory and
+the maximum entropy principle to quantify model-form uncertainties in RANS modeling.
+The objectives of this work are two-fold. First, the proposed framework for quantifying
+model form uncertainties in RANS simulations provides an alternative to the physics-based
+approach investigated by Iaccarino and co-workers [4–6] and Xiao and co-workers [7, 10, 11].
+The advantages and disadvantages of both approaches can thus be contrasted and compared
+later on. Despite the better mathematical rigorousness of the maximum entropy approach,
+it is possible that the physics-based approach may still be preferred by RANS simulations
+practitioners for both uncertainty quantification and Bayesian inferences. This is because of
+its convenience in incorporating physical prior knowledge. As such, another objective and
+motivation for this work is to provide basis for gauging the departure of the priors used in
+the physics-based approach from the maximum entropy condition. By comparing the prior
+distributions of the obtained Reynolds stress from both approaches, the current framework
+can reveal the amount of information introduced in the physics-based prior distribution, and
+thus provide guidance for the choice of priors in the physics-based approach.
+   The rest of the paper is organized as follows. Section 2 introduces the realizability of
+Reynolds stresses in details and argues that the current framework of modeling Reynolds
+stress as positive semidefinite tensors can guarantee realizability in the same way as in the
+previously proposed physics-based approaches [7]. Section 3 introduces the random matrix
+framework for model-form uncertainty in RANS simulation and discusses its implementa-
+tions. Section 4 uses the flow over periodic hills as an example application to demonstrate the
+performance of the proposed method. The probability measure of the obtained distribution
+on the limiting states is discussed in Section 5. Finally, Section 6 concludes the paper.
+
+
+2. Realizability of Reynolds Stresses: Physical vs. Mathematical Perspectives
+
+2.1. The Origin and History of Realizability Constraints
+   For incompressible flows, the RANS equations are obtained by decomposing the instan-
+taneous velocity vi , into the mean quantity v i and its fluctuation vi0 . That is, vi = v i + vi0 .
+Note the bold letters used to denote the instantaneous velocity, indicating that it is con-
+sidered a random variable. Substituting the decomposition above into the Navier Stokes
+equation leads to a covariance term hvi0 vj0 i of the velocity fluctuations. This term is referred
+
+
+                                                 5
+to as Reynolds stress and is denoted as Rij for simplicity1 , but the covariance nature of this
+term has profound implications. Specifically, a Reynolds stress tensor must be symmetric
+positive semi-definite, i.e., Rij ∈ M+0         +0
+                                     3 , where M3 is the set of symmetric positive semidefi-
+nite matrices. In fact, the Reynolds stresses are mostly positive definite (i.e., all eigenvalues
+are positive), i.e., Rij ∈ M+
+                            3 , and zero eigenvalues occur only in extreme cases, e.g., on the
+wall boundaries or in turbulence-free regions, where velocity fluctuations for one or more
+components are zero. For practical purposes it is not essential to distinguish between M+
+                                                                                        3
+and M+0
+     3 when quantifying model form uncertainties in RANS simulations.
+       For a tensor to be a valid Reynolds stress tensor, or equivalently, to be physically re-
+alizable, there must exist a velocity that has this covariance. The physical realizability of
+Reynolds stresses and the associated second-order closure models were a topic of intensive
+research in the early years of turbulence model development. Early works of Schumann [23],
+Lumley [24], and Pope [25], among others, have lead to a class of realizable second-order
+closure models [26]. Since these models solve an evolution equation for the Reynolds stresses,
+these models guarantee the realizability by imposing certain constraints on the rate of change
+[Ṙ] of the Reynolds stress, i.e., the constraint that its principle stress components (e.g.,
+eigenvalues) do not further decrease when at zero [25]. The well known Lumley triangle [8]
+provided a map for all realizable turbulence by projecting the Reynolds stress to a plane.
+Specifically, the following decomposition is performed on the Reynolds stress:
+                                                                     
+                                  1                  1                T
+                       [R] = 2k     [I] + [A] = 2k     [I] + [E][Λ][E]                                    (1)
+                                  3                  3
+
+where k is the turbulent kinetic energy which indicates the magnitude of [R]; [I] is the second
+order identity tensor; [A] is the anisotropy tensor; [E] = [~e1 , ~e2 , ~e3 ] and [Λ] = diag[λ̃1 , λ̃2 , λ̃3 ]
+where λ̃1 + λ̃2 + λ̃3 = 0 are the orthonormal eigenvectors and the corresponding eigenvalues
+of [A], respectively, indicating the shape and orientation of [R]. The Lumley triangle is thus
+defined on a plane with the second and third invariants (II and III) of the anisotropy tensor
+as coordinates, where II = (tr[A])2 − tr([A]2 ) and III = det[A].
+       The realizable turbulence models have demonstrated superior performance in some cases
+compared to their standard counterpart models that do not guarantee realizability. In-
+terestingly, however, several decades after their development they have not dominated the
+non-realizable models. Among the handful of standard, most widely used turbulence models
+(e.g., k–ε [27], k–ω SST model [28], and SA model [29]) that are implemented in industrial
+
+   1
+       This is actually the negative of the Reynolds stress [22].
+
+
+                                                         6
+standard CFD packages, none of them are realizable models.
+
+2.2. Realizability in Physics-Based Model-Form Uncertainty Quantification
+   The past two decades have not seen significant literature on the realizability of turbulence
+models, partly because the research on RANS model development has been stagnant all
+together. However, recently the pioneering research of Iaccarino and co-workers [4, 5, 30] on
+the quantification of model form uncertainties in RANS simulations has revived the interests
+on Reynolds stresses realizability. Specifically, they performed the decomposition as shown
+in Eq. (1) and mapped the eigenvalues λ̃1 , λ̃2 , and λ̃3 to Barycentric coordinates (C1 , C2 , C3 )
+as follows:
+
+                                         C1 = λ̃1 − λ̃2                                        (2a)
+                                         C2 = 2(λ̃2 − λ̃3 )                                    (2b)
+                                         C3 = 3λ̃3 + 1 .                                       (2c)
+
+As illustrated in Fig. 1a, the Barycentric coordinates (C1 , C2 , C3 ) of a point indicate portion
+of areas of the three sub-triangles formed by the point and the edge labeled as C1 , C2 , and
+C3 , respectively, in the Barycentric triangle. For example, the ratio between the shaded
+sub-triangle and the entire triangle is C3 . A point located on the top vertex corresponds
+to C3 = 1 while a point located on the bottom edge (labeled C3 in Fig. 1a) has C3 = 0.
+Therefore, each coordinate ranges from 0 to 1, and they sum to 1 for any point, i.e., C1 +
+C2 + C3 = 1. The three edges labeled C1 , C2 and C3 are opposite to the vertices representing
+one-component, two-component, and three-component limits of realizable turbulence states.
+The Barycentric coordinates have clear physical interpretation in that they indicate the
+componentality (i.e., dimensionality) of the turbulence. For example, the upper corner in
+Fig. 1a, which corresponds to C3 = 1 or equivalently a Barycentric coordinate of (0, 0, 1),
+indicates isotropic, fully three-dimensional turbulence. Detailed physical interpretation of
+the vertices and edges are shown in Fig. 1a. The Barycentric triangle is similar to the Lumley
+triangle in that it also encloses all realizable turbulence states. Emory et al. [4] estimated
+the uncertainties in RANS simulations by perturbing the Reynolds stress towards the three
+limiting states, i.e., the vertices of the Barycentric triangle. This is illustrated in Fig. 1b as
+squares. Based on their work, Xiao et al. [7] further mapped the Barycentric coordinates
+to natural coordinates, on which the equilateral triangle is mapped to a unit square. They
+parameterized the uncertainty space on the natural coordinates and systematically explored
+the uncertainty space. The samples as obtained in Xiao et al. [7] are illustrated in Fig. 1b,
+which are in contrast to the three perturbed states of Emory et al. [4].
+
+                                                 7
+                  3-Comp (3-component isotropic)
+                         on
+
+
+
+
+                                                                                          Baseline RANS
+                                         Ax
+
+
+
+
+                                                                 Perturbed states
+                        cti
+
+
+
+
+                                           i-s
+                       tra
+
+
+
+
+                                                                   in Xiao et al.
+                                           ys
+                   on
+
+
+
+
+                                               m
+                 cc
+
+
+
+
+                                                 m
+                                                 et
+                  ri
+               et
+
+
+
+
+                                                   ric
+
+
+
+
+                       C1                 C2                                                   Perturbed states
+           m
+
+
+
+
+                                                     ex
+
+
+
+
+                                                                                                in Emory et al.
+          m
+
+
+
+
+                                                        p
+          ys
+
+
+
+
+                                                         an
+       i-s
+
+
+
+
+                                                         sio
+     Ax
+
+
+
+
+                                                            n
+
+
+
+
+                              C3
+
+   2-Comp               2-component limit                1-Comp
+(2-component               (det([R] = 0)             (1-component)
+axi-symmetric)
+                                   (a)                                              (b)
+
+Figure 1: (a) Barycentric triangle as a way of delineating realizable turbulence, its definition
+and physical interpretation. Elements in the set M+0
+                                                  d of positive semidefinite matrices maps
+to the interior and edges of the triangle, while the set M+0   +
+                                                          d − Md of singular matrices
+maps (whose element have zero determinants) maps to the bottom edge. (b) Model-form
+uncertainty quantification through perturbation of Reynolds stresses within the physically
+realizabile limit enclosed by the Barycentric triangle. The different schemes of Emory et
+al. [4] and Xiao et al. [7] are shown.
+
+
+
+
+                                                                 8
+   While both Emory et al. [4] and Xiao et al. [7] injected uncertainties only to the magnitude
+and shape of the Reynolds stress tensor, it is theoretically possible to perturb the orientation
+as well. This work is not directly concerned with the physics-based approach for uncertainty
+quantification, but the physics-based parameterization will facilitate interpretations of the
+samples obtained with the random matrix approach. To this end, a parameterization scheme
+for the orthonormal eigenvectors E = [~e1 , ~e2 , ~e3 ] is needed. We use the Euler angle with the
+z-x0 -z 00 convention to describe the orientation of the Reynolds stress tensor [31]. That is, if a
+local coordinate system x–y–z spanned by the three eigenvectors of [R] was initially aligned
+with the global coordinate system (X–Y –Z), the current configuration could be obtained
+by the following three consecutive intrinsic rotations about the axes of the local coordinate
+system: (1) a rotation about the z axis by angle ϕ1 , (2) a rotation about the x axis by ϕ2 ,
+and (3) another rotation about its z axis by ϕ3 . Note that the local coordinate axes may
+change orientations after each rotation.
+   In summary, the Reynolds stress can be represented with six independent variables with
+clear physical interpretations. The turbulent kinetic energy k represents its magnitude; the
+Barycentric coordinates C1 , C2 , C3 , of which only two are independent, indicate its shape;
+the Euler angles ϕ1 , ϕ2 and ϕ3 represent its orientation. Realizability can be guaranteed
+by injecting uncertainties in these physical variables, a fact that has been exploited in the
+physics-based approach for RANS model-form uncertainty quantification investigated in ear-
+lier works.
+
+2.3. Mathematical and Physical Interpretations of Realizability
+   The physics-based approach based on Barycentric triangle as explored by Emory et al.[4]
+and Xiao et al. [7] certainly has clear advantages. However, it is not the only way to guarantee
+realizability. Here we claim that an alternative method to guarantee the Reynolds stress
+realizability in the context of RANS model-form uncertainty quantification is to model [R]
+as a random matrix defined on the set M+0
+                                       3 of positive semidefinite matrices. In other words,
+we can directly draw [R] from the set M+0
+                                       3 and all obtained samples are guaranteed to be
+realizable Reynolds stresses. To support this claim, we utilize a theorem on the equivalence
+between the set of positive semidefinite matrices and the set of co-variance matrices (see
+e.g., [32]). That is, a covariance matrix [R] must be positive semidefinite; conversely, every
+symmetric positive semi-definite matrix [R] is a covariance matrix. The proof for the first
+part is straightforward and is thus omitted. However, the proof for the second part is of
+central importance to the theme of our work, and thus it is reproduced below. We construct a
+vector ~v = [R]1/2 ~b with [R]1/2 being the symmetric square root of [R] and ~b has a covariance
+
+                                                9
+of identity matrix, i.e., Cov{~b, ~b} = [I], where Cov{·} indicates covariance. It can be seen
+that Cov{R1/2 ~b, R1/2 ~b} = [R]1/2 Cov{~b, ~b} [R]1/2 = [R]. For any sample [R] drawn from
+the set M+0
+         d of positive semidefinite matrices, there is a real-valued velocity vector ~
+                                                                                     v whose
+covariance is [R]. Recalling the definition and origin of the Reynolds stress realizability
+described in Section 2.1, it can be seen that the matrix [R] is a realizable Reynolds stress.
+Therefore, it is concluded that the mathematical constraint that [R] must belong to the set
+M+0
+ 3 can equally guarantee the realizability of the obtained Reynolds stresses, albeit in a
+different manner from the physics-based approach. The latter utilized the constraint that
+the projection of Reynolds stresses must reside in the Barycentric triangle to ensure the
+Reynolds stress realizability.
+   We conclude this section with the following three equivalent statements on the realizabil-
+ity constraints of the Reynolds stresses:
+  1. a Reynolds stress must reside within or on the edge of the Lumley triangle or Barycen-
+      tric triangle after certain transformations [9];
+
+  2. a Reynolds stress tensor must be positive semidefinite; and
+
+  3. a Reynolds stress tensor must be the covariance matrix of a real-valued vector, i.e., a
+      velocity vector.
+The equivalence between realizability and the invariants mapping within Lumley triangle
+was established by Lumley and Neuman [8] and stated in ref. [22] (pp. 394); the equivalence
+between the positive semidefinite requirement on the Reynolds stress and the realizability
+conditions was proved by Schumann [23]. The relation among three statements above is a
+pivotal element for anchoring the present contribution to the existing literature of turbulence
+modeling [4, 8, 23]. However, note that the proposed random matrix approach for quantifying
+RANS model-form uncertainty is fundamentally different from the physics-based approach
+developed in ref. [7]. The most important difference lies in the fact that in the physics-based
+approach the user specifies the probability distribution on the physical variables, while in the
+random matrix approach the maximum entropy principle provides the basis for computing
+the distribution of the matrices.
+
+3. Random Matrix Approach and Its Implementation
+
+3.1. Probability Model for Reynolds Stress Tensors
+   Based on the discussions above on the nature of Reynolds stresses, we build a probabilistic
+model for the Reynolds stress tensors. The development below mostly follow the works of
+
+                                               10
+Soize, Ghanem, and co-workers [e.g., 16, 17].
+   Using Msd to denote the set of all symmetric matrices, the measure of matrix [R] ∈ Msd
+is given as [20]:
+                                                       Y
+                                   d[R] = 2d(d−1)/4             dRij                         (3)
+                                                      1≤i≤j≤d
+        Q
+where       indicates product, Rij are individual element of matrix [R], and dRij is the Lebesgue
+measure on the set R of real numbers. Since Reynolds stresses are rank two tensors, d = 3
+is implied.
+   The objective is to define a probability measure p[R] : M+0
+                                                            d  7→ R+ on the symmetric
+matrices set that maps a symmetric, positive semidefinite, second-order random matrix [R]
+to a positive number. While such a measure is not unique, in this work we seek a probability
+density function (PDF) that has the maximum entropy. Specifically, let Pad be the set
+of all the PDFs from M+0
+                      d  to R+ , the maximum entropy principle states that the most
+non-committal PDF is the one such that all available constraints are satisfied but without
+introducing any other artificial constraints [18], i.e.,
+
+                                       p[R] = arg max S(p)                                   (4)
+                                                  p∈Pad
+
+
+where the measure of entropy S(p) of the PDF p is defined as [16]:
+                                     Z
+                           S(p) = −       p([R]) ln p([R])d[R]                               (5)
+                                           M+0
+                                            d
+
+
+where ln denotes the natural logarithm.
+   In the context of RANS-based turbulence modeling, the following constraints should be
+satisfied by the PDF of Reynolds stress tensors:
+
+   1. All realizations [R] of the Reynolds stress [R] must be physically realizable. This
+      constraint is automatically satisfied by defining [R] on the set M+0               +0
+                                                                        d , i.e., [R] ∈ Md .
+
+
+   2. Normalization condition for the PDF:
+                                     Z
+                                         p[R] ([R])d[R] = 1,                                 (6)
+                                          M+0
+                                           d
+
+
+      which is self-evident.
+
+   3. We assume that a best estimation [R] of the unknown Reynolds stress [R] is available
+      at any location in the field. The estimation can be obtained in advance by performing
+
+                                                 11
+      a baseline RANS simulation or by incorporating observation data and incorporating
+      prior corrections to the baseline RANS-predicted Reynolds stresses. Without further
+      information, it is reasonable to take the best estimation [R] obtained this way as the
+      mean of the true Reynolds stress [R], with the latter being modeled as a random
+      variable. This constraint is expressed as follows:
+
+                                            E{[R]} = [R].                                 (7)
+
+   The theories on the maximum distribution of random matrices developed in the ear-
+lier works of Soize and co-workers focused primarily on positive definite matrices, but the
+Reynolds stress tensors of concern in the present application are positive semidefinite only.
+Although we have claimed that the difference has no practical consequences, we shall still
+carefully reconciled the differences before utilizing the theories of Soize [16]. In order to
+obtain a maximum entropy distribution for a positive definite matrix that satisfies the nor-
+malization and mean constraints similar to those outlined above, Soize [16] took a two-step
+approach. Specifically, he first obtained the PDF for a normalized, positive definite random
+matrix [G] whose mean is the identity matrix [I], i.e., E{[G]} = [I]. The probability dis-
+tribution for [G] must also satisfy the maximum entropy condition and the normalization
+condition in Eq. (6) above. Once such a matrix [G] is obtained, a matrix that satisfies the
+condition E{[R]} = [R] can be constructed as follows:
+
+                                     [R] = [LR ]T [G][LR ],                               (8)
+
+where [LR ] is an upper triangular matrix with non-negative diagonal entries obtained from
+the following factorization of the specified mean [R], i.e.,
+
+                                       [R] = [LR ]T [LR ].                                (9)
+
+In the present development, we consider the following two scenarios. (1) When [R] ∈ M+
+                                                                                     d
+is positive definite, the decomposition above is the well-known Cholesky factorization, and
+the decomposition is unique. Its numerical implementations are available in many standard
+numerical toolboxes (e.g., Matlab and the numpy library of Python). (2) When [R] ∈
+M+0   +
+ d \ Md is in the subset of singular positive semidefinite matrices, where \ indicates set
+subtraction, it can be proved that the decomposition in the form above still exits with
+L having non-negative diagonal entries, although the decomposition is no longer unique.
+Moreover, Cholesky factorization routines for such matrices are still numerically stable if
+complete pivoting is performed [33]. In practice, we can make it slightly positive definite by
+
+                                               12
+adding a small element to the diagonal entries and thus still use the conventional Cholesky
+factorization routines.
+   With the reconciliation above, hereafter we only need to focus on probability distribution
+of the normalized positive definite matrix [G] and can thus directly use the results in the
+earlier works of [20]. By using the classical optimization techniques based on Lagrange mul-
+tipliers, the probability density function of the random matrix [G] is obtained as follows [20]:
+
+                                                                            
+                                                                     d+1
+   p[G] ([G]) = 1M+ ([G]) × CG × det[G] (d + 1)(1 − δ )/(2δ ) × exp − 2 tr[G] ,
+                                                         2      2
+                                                                                           (10)
+                  d                                                   2δ
+
+where 1M+ ([G]) is an indicator function, i.e., it is one if [G] ∈ M+
+                                                                    d and is zero otherwise. The
+         d
+positive constant CG is:
+                                                       d(d+1)(2δ2 )−1
+                                   (2π)−d(d−1)/4 d+1
+                                                  2δ 2
+                              CG =      Qd       d+1      1−j
+                                                                                          (11)
+                                          j=1 Γ 2δ 2 + 2
+                                                       R ∞ z−1 −t
+where Γ(z) is gamma function defined by Γ(z) =          0
+                                                          t e dt. The dispersion parameter δ
+indicates the uncertainty in the random matrix and is defined as:
+                                                         21
+                                      1              2
+                                δ=      E{k[G] − [I]kF }                               (12)
+                                      d
+                                           p
+where k·kF is Frobenius norm, e.g., kGkF = tr([G]T [G]). It can be seen that δ is analogous
+to the variance of a scalar random variable normalized by its mean. It has been shown [16]
+that                                              r
+                                                      d+1
+                                        0<δ<              ,                                (13)
+                                                      d+5
+                               √
+which reduces to 0 < δ <           2/2 for d = 3. This constraint is related to the positive
+definiteness of matrix [G].
+   The individual elements in the random matrix [G] are correlated and the same can thus be
+said for the random matrix [R]. This correlation needs to be accounted for when generating
+Monte Carlo samples, which can be achieved in a similar way as in sampling from random
+processes (e.g., Gaussian processes). The sampling method is detailed below.
+
+3.2. Monte Carlo Sampling of Reynolds Stresses at One Point
+   Soize [16] outlined a Monte Carlo method to sample the probability distribution for
+random matrix [R] for a given dispersion parameter δ and mean [R]. To proceed with
+
+                                                13
+the sampling, the random matrix with identity mean is first represented by its Chelosky
+factorization:
+                                        [G] = [L]T [L],                                   (14)
+
+where random matrix [L] are upper triangular matrices with independent elements. In the
+procedure, each element Lij in matrix [L] is sampled independently with the algorithms
+below (see Section 5.1 in ref. [34]):
+
+   1. The off-diagonal elements Lij with i < j are obtained from
+
+                                            Lij = σd wij ,                                (15)
+
+      in which σd = δ × (d + 1)−1/2 , and wij (i.e., w12 , w13 , and w23 ) are independent
+      Gaussian random variables with zero mean and unit variance.
+
+   2. The diagonal elements are generated as follows:
+                                           √
+                                   Lii = σd 2ui     with i = 1, 2, 3                      (16)
+
+      where ui is a positive valued gamma random variable with the following probability
+      density function:
+                                                   d+1   1−i
+                                                u 2δ2 + 2 −1 exp(−u)
+                                 p(u) = 1R+ (u)                                           (17)
+                                                    Γ d+1    + 1−i
+                                                                   
+                                                        2δ 2    2
+
+      That is, the ith diagonal term ui conforms to gamma distribution with shape parameter
+      k = (d + 1)/(2δ 2 ) + (1 − i)/2 and scale parameter 1.
+
+   3. After obtaining the elements as above, a realization [L] of the random matrix [L] can be
+      assembled. Subsequently, realizations [G] and [R] for matrices [G] and [R], respectively,
+      can be obtained from [G] = [L]T [L] and [R] = [LR ]T [G][LR ] as in Eqs. (14) and (8).
+
+3.3. Random Matrix Field Model for Reynolds Stresses
+    The probability model and the Monte Carlo sampling algorithm described in Sections 3.1
+and 3.2 above concerns the Reynolds stress tensor at a single point. An important challenge
+in the present application is to represent and model the correlation of Reynolds stress at
+different spatial locations. This feature distinguishes the present contribution from previous
+applications of random matrix in composite materials models[17] and structural dynam-
+ics [21].
+
+
+
+                                              14
+   In this work we assume that the off-diagonal terms and the square roots of the diagonal
+terms have the same spatial correlation structures. Gaussian kernel is among the most com-
+mon choice in the literature, but other kernels such as periodic (e.g., sinusoidal) kernels [18]
+or exponential kernels [35] have been used as well. The choice of kernel is reflected in the
+smoothness of the realizations of the random tensor field L. With the Gaussian kernel used
+in this work, the correlation between two random variables at two spatial locations x and x0
+can be written as:
+                              Cov{Lij (x), Lij (x0 )}            |x − x0 |2
+                                                                           
+                      0
+     ρL {Lij (x), Lij (x )} ≡                           = exp −                for i < j    (18a)
+                                 σij (x)σij (x0 )                    l2
+                              Cov{L2ii (x), L2ii (x0 )}         |x − x0 |2
+                                                                          
+                        0
+           2       2
+     ρL {Lii (x), Lii (x )} ≡                           = exp −               x, x0 ∈ Ω     (18b)
+                                 σii (x)σii (x0 )                   l2
+where Ω is the spatial domain of the flow field. Note that repeated indices do not imply
+summation. σij2 (x) and σii2 (x) are the variances of the marginal distributions for the off-
+diagonal elements Lij (x) and the square of the diagonal elements L2ii (x), respectively. That
+is, var{Lij (x)} = σij2 (x) and var{L2ii (x)} = σii2 (x), the expression of which will be given in
+Eqs. (21) and (25), respectively. ρL is the correlation kernel, | · | is the Euclidean norm of
+vectors, and l is the correlation length scale of the stochastic process. We emphasize that
+the correlations above are between the same element at different locations x and x0 , and that
+the random variables L11 , L22 , L33 , L12 , L13 , and L23 , which are different elements of the
+matrix [L], are still independent of each other as pointed out above.
+   With the correlation model defined in Eq. (18) for the elements of matrix [L], the random
+variables used to generate Lij in Eqs. (15) and (16) can be generalized to random fields. First,
+it is straightforward to generalize the Gaussian random variable wij to a Gaussian random
+field (also referred to as Gaussian process),
+
+                                     Lij (x) = σd (x)wij (x),                                (19)
+
+where Lij (x) and wij (x) are random fields indexed by the spatial coordinate x, and
+
+                                    σd (x) = δ(x) (d + 1)−1/2                                (20)
+
+is a spatially varying field specifying the standard deviation of the marginal distribution
+of Lij (x) at location x. Simple algebra shows that if we choose wij (x) ∼ GP(0, K) as the
+Gaussian process with covariance kernel K(x, x0 ) = exp [−(|x − x0 |2 )/l2 ] as in Eq. (18), then
+
+                                    δ(x)                                     δ 2 (x)
+                σij (x) = σd (x) = √     ,      or equivalently σij2 (x) =           .       (21)
+                                     d+1                                     d+1
+
+                                                15
+The Gaussian processes wij (x) can be expressed by using the Karhunen–Loeve (KL) expan-
+sion, which can be written as follows when truncated to NKL terms:
+                                              N
+                                              X KL   p
+                                  wij (x) =           λα φα (x) ω α                      (22)
+                                              α=1
+
+where ω α ∼ N(0, 1) with α = 1, · · · , NKL being the standard Gaussian random variables; λα
+and φα (x) are the eigenvalue and the corresponding eigenfunction for the αth mode obtained
+by solving the Fredholm integral equation [36]:
+                               Z
+                                  ρ(x, x0 )φ(x0 ) dx0 = λφ(x) ,                          (23)
+                                   Ω
+
+where Ω is the spatial domain of the flow as defined above.
+   Remarks on using nonstationary and anisotropic kernels to reflect the structure of the flow
+field. Non-stationarity and anisotropy in the Gaussian process w(x) can be achieved by using
+spatially varying and/or anisotropic length scale l(x), which depends on the characteristics
+of the mean flow. For example, for a nonstationary Gaussian process, the length scale l in
+                              p
+Eq. (18) can be written as l = l(x)l(x0 ) following ref. [37]. As such, the physical structure
+of the flow field is encoded in the Karhunen–Loeve basis functions. It is also desirable to
+specify different variance σij (x) at different locations. For example, in regions with flow
+separation and pressure gradient, the Boussinesq assumptions are violated and thus most
+RANS models have poor performance. Consequently, the variance σij (x) should be larger in
+these regions, which can be achieved by specifying the dispersion parameter δ(x) to depend
+on the location x.
+   The sampling algorithm for the random variables of the diagonal terms in Eq. (16) can
+be similarly generalized to random fields as follows:
+                                                          p
+                                    Lii (x) = σd (x)       2 ui (x),                     (24)
+
+where σd (x) is defined the same as above. Recall the facts that ui (x) has a gamma distribu-
+tion with shape parameter k = (d + 1)/(2δ 2 ) + (1 − i)/2 and that Var{ui } = k. Substituting
+Eq. (20) into Eq. (24) and using the two facts above, after some algebra one can show that
+
+                                             2δ 2    2δ 4
+      σii2 ≡ Var{L2ii } = 4σd4 Var{ui } =         +        × (1 − i) for i = 1, 2, 3,    (25)
+                                            d + 1 (d + 1)2
+
+where d = 3, and the spatial dependence of all other variables are omitted for notational
+brevity. However, since ui (x) are random fields with gamma marginal distributions, they
+
+                                                     16
+are not straightforward to synthesize. Although the KL expansion above can still be used to
+represent the random field ui (x), the corresponding coefficients obtained from the expansion
+are neither independent nor Gaussian. To overcome this difficulty, we follow the procedure
+in ref. [35] and express the gamma random variables ui at any location x with polynomial
+chaos expansion:
+         Np
+         X
+u(x) =         Uβ (x)Ψβ (w(x))                                                              (26)
+         β=0
+
+     = U0 + U1 w(x) + U2 (w2 (x) − 1) + U3 (w3 (x) − 3w(x)) + U4 (w4 (x) − 6w2 (x) + 3) + · · ·
+
+where Np is the order of polynomial expansion; for a given x, Ψβ (w(x)) are the Hermite
+polynomials in standard Gaussian random variable w(x), with the first four terms explicitly
+written as above; Uβ is the coefficients for the β th polynomial, for which the spatial index x
+has been omitted for brevity. The coefficients can be obtained from orthogonality conditions
+with respect to the Gaussian measure [38]:
+                                       Z ∞
+                        huΨβ i    1
+                   Uβ =    2
+                               =   2
+                                           Fu−1 [Fw (w)] Ψβ (w) pw (w)dw                    (27)
+                         hΨβ i   hΨβ i −∞
+
+where hΨ2β i is the variance of ith order polynomial of standard Gaussian random variable;
+Fw (w) and pw (w) are the cumulative distribution function (CFD) and PDF, respectively,
+of the standard Gaussian variable; Fu and Fu−1 are the CDF and its inverse, respectively,
+of random variable u. As indicated previously, Eq. (27) is evaluated for each x with w(x)
+being a standard Gaussian variable.
+   Sakamoto and Ghanem [35] have derived the relation between spatial correlation of the
+non-Gaussian field u(x), i.e., ρu {u(x), u(x0 )} and the correlation ρw {w(x), w(x0 )} of the
+Gaussian random field w(x) used in its polynomial chaos representation. This is achieved
+by substituting Eq. (26) into the definition of covariance. They further showed that the
+following approximation yields very good accuracy:
+
+                                 ρu {u(x), u(x0 )} ≈ ρw {w(x), w(x0 )} .                    (28)
+
+We have verified that the two are indeed approximately equal based on the generated sam-
+ples. This approximation above is what we shall use in our work. Therefore, given the
+correlation structure of field ui , an approximation of the kernel ρw {w(x), w(x0 )} is obtained,
+which can be used in the KL expansion to find the eigenmodes and further synthesize the
+Gaussian random fields wii . Finally, the non-Gaussian random field ui (x) can be obtained
+by reconstructing from the polynomial chaos based on Eq. (26) at each location x ∈ Ω.
+
+                                                   17
+3.4. Monte Carlo Sampling of Reynolds Stress Fields
+   Based on the development above, the algorithm of Monte Carlo sampling of Reynolds
+stress field can be performed as follows:
+
+  1. Draw independent samples ωα from the standard Gaussian distribution N(0, 1) with
+     α = 1, · · · , NKL .
+
+  2. Use the KL expansion in Eq. (22) to reconstruct a Gaussian random field w(x) with
+     λα and φα (x) obtained from solving Eq. (23).
+
+  3. Repeat steps 1–2 above six times to obtain six independent realizations of Gaussian
+     random fields w12 (x), w13 (x), w23 (x), w11 (x), w22 (x), and w33 (x). The first three will
+     be used to synthesize the off-diagonal elements L12 (x), L13 (x), and L23 (x), respectively,
+     and the last three for the diagonal elements L11 (x), L22 (x), and L33 (x), respectively.
+     Remark on the choice of KL modes for the representation of the six Gaussian random
+     fields. In this work the same KL modes φα and eigenvalues λα are used for generating all
+     six realizations w(x) of Gaussian random fields above. This is a modeling choice made
+     for simplicity and also for the lack of prior knowledge to justify otherwise. However, in
+     cases where it is desirable to use a different number NKL of modes or even a different
+     kernel K(x, x0 ) for each field, it can be achieved in a straightforward manner as well.
+
+  4. Synthesize off-diagonal elements based on Eq. (19).
+
+  5. Reconstruct the random fields u1 (x), u2 (x), and u3 (x) based on the polynomial chaos
+     expansion in Eq. (26) and further obtain the fields L11 (x), L22 (x), and L33 (x) based
+     on Eq. (24).
+
+3.5. Considerations in Numerical Implementation
+   For clarity we outline the complete algorithm of sampling of Reynolds stress fields and
+the propagation to velocities and other QoIs in Appendix A. Remarks are made below on
+computational considerations in implementing the proposed algorithm.
+   In the expansions described in Sections 3.2 and 3.3, the Cholesky factorization of the
+Reynolds stress, the polynomial chaos expansion of the marginal distribution of the gamma
+random variable ui , and the KL expansion of the Gaussian random field all need to be
+performed on a mesh. Theoretically, they all can be performed on the RANS simulation
+mesh. However, this choice would lead to unnecessarily high computational costs. The RANS
+
+                                              18
+mesh is designed to resolve the flow field features. Usually it is refined in the near-wall region
+to resolve the boundary layer. On the other hand, the mesh for the KL expansion only needs
+to resolve the length scale of the correlation, i.e., the field l(x). Finally, the mesh needed for
+the polynomial chaos expansion need to resolve the variation of the dispersion parameter δ(x)
+field. If the dispersion is constant throughout the domain, one polynomial chaos expansion
+is sufficient. Therefore, the three expansions and the corresponding reconstructions below
+are performed on separate meshes, which are referred to as RANS mesh, PCE mesh, and KL
+mesh, respectively. Interpolations are needed when performing operations on fields based
+on different meshes. For example, in Eq. (26) where the gamma field is reconstructed from
+the coefficients Uβ (x) and the Hermite polynomials in the Gaussian random field w(x), the
+coefficients are based on the PCE mesh while the Gaussian random field is based on the
+KL mesh. An interpolation of the coefficients Uβ (x) from the PCE mesh to the KL mesh
+is thus needed. The obtained gamma fields ui , the diagonal terms Lii (x), and the matrix
+G(x) are thus based on the KL mesh as well. Similarly, therefore, when the Reynolds stress
+is reconstructed from [R] = [LR ]T [G][LR ], the matrix [G] is first interpolated from the KL
+mesh to the RANS mesh, so that the obtained Reynolds stress realization [R] can be used
+in the RANS simulation.
+
+
+4. Numerical Results
+
+   In this section we use the flow over periodic hills at Reynolds number Re = 2800 to
+demonstrate the proposed model-form uncertainty quantification scheme for RANS simula-
+tions. The computational domain is shown in Fig. 2, where all dimensions are normalized
+with the crest height H. The Reynolds number Re is based on the crest height H and bulk
+velocity Ub at the crest. Periodic boundary conditions are applied at the boundaries in the
+streamwise (x) direction while non-slip boundary conditions are imposed at the walls. The
+spanwise direction is not considered since the mean flow is two-dimensional. Benchmark data
+from direct numerical simulations are used to compare with the sampled Reynolds stresses
+and the velocities obtained by propagating the Reynolds stresses through the RANS solver.
+
+4.1. Cases Setup
+   The dispersion parameter is a critical free parameter in the uncertainty quantification
+                                                                     √
+scheme. The specification of δ is constrained by requirement 0 < δ < 2/2 obtained from
+Eq. (13) and guided by the subjective belief of the user on the uncertainty in the Reynolds
+stresses, i.e., larger δ indicates larger uncertainties. We investigate three cases with different
+
+                                               19
+                         General flow direction        Free shear layer
+                                                              Strong mean
+                                                              flow curvature
+
+                                Point A
+
+                   Hill crest
+                                 Point B
+                                           Recirculation region
+
+Figure 2: Domain shape for the flow in the channel with periodic hills. The x-, y- and
+z-coordinates are aligned with the streamwise, wall-normal, and spanwise directions, respec-
+tively. All dimensions are normalized by H with Lx /H = 9 and Ly /H = 3.036. The contour
+shows the dispersion parameter δ(x), where darker color denotes larger variance. Two typical
+points A and B are annotated in the figure.
+
+
+choices of dispersion parameters: (1) a small dispersion parameter δ = 0.2, (2) a large
+dispersion parameter δ = 0.6, and (3) a spatially varying δ(x) field as specified by the color
+(or grey scale) contour shown Fig. 2. A spatially varying δ(x) allows the user to encode
+empirical knowledge about the turbulence model and/or the flow of concern into the prior
+distribution of Reynolds stresses. For example, in the flow over periodic hills studied here, the
+underlying Boussinesq assumption is violated in the regions with recirculation, non-parallel
+free-shear, or strong mean flow curvature (see annotations in Fig. 2). Consequently, these
+regions are particularly problematic for eddy viscosity models (including the k–ε model used
+in this work). Hence, relatively large dispersion parameters are specified in these regions
+compared to other regions to reflect the lack of confidence on the model. This is similar
+to the practice of specifying spatially varying variance fields when injecting uncertainties to
+the physics-based quantities (magnitude and shape of the Reynolds stress) in Xiao et al. [7].
+On the other hand, it is also possible to use maximum likelihood estimation to obtain a
+dispersion parameter δ(x) field if some measurement data of Reynolds stresses are available,
+but this approach is not explored in the present work.
+   For Cases 1 and 2 with constant dispersion parameters in the domain, the marginal
+distribution of random matrix [G] is the same at all locations. Therefore, the polynomial
+chaos expansion needs to be performed only once. That is, the expansion coefficients Uβ in
+Eq. (27) is spatially uniform. Hence, a PCE mesh is not needed. For Case 3 with a spatially
+varying δ(x), a coarse PCE mesh of 15 × 10 cells is used. In all three cases, the marginal
+
+
+                                                  20
+distribution of the diagonal terms are only weakly non-Gaussian, and thus a third order
+polynomial expansion is found to be sufficient. In the KL expansion, we used 30 modes,
+allowing 90% of the variance to be captured. Since the RANS mesh is rather small with only
+3000 cells, the KL expansion is performed on the same mesh. In the correlation kernel we
+used an anisotropic yet spatially uniform length scale (lx /H = 2 and ly /H = 1) to reflect the
+aniostropy of the flow. The specific numbers are chosen based on the approximate length
+scale of the mean flow. We use 1000 samples to adequately represent the prior distribution
+of the Reynolds stresses. To limit the computational cost of the RANS simulations, only 100
+of the 1000 samples are randomly selected to propagate to the velocities. The computational
+parameters discussed above are summarized in Table 1.
+
+    Table 1: Mesh and computational parameters used in the flow over periodic hills.
+
+                      Parameters                       Case 1      Case 2        Case 3
+                dispersion parameter δ(x)                0.2         0.6       0.16–0.65(a)
+                      nature of δ(x)                   uniform uniform         nonuniform
+                        PCE mesh                         –            –          15 × 10
+           order of polynomial expansion (Np )                            3
+                         KL mesh                                     50 × 30
+                       RANS mesh                                     50 × 30
+                number of KL modes NKL                                    30
+                                            (b)
+                correlation length scales                      lx /H = 2, ly /H = 1
+           number of Reynolds stress samples                          1000
+         number of velocity propagation samples                        100
+
+
+(a) Spatial contour of δ(x) is shown in Fig. 2.
+(b) See Eq. (22)
+
+
+4.2. Results and Interpretations
+   As discussed above, 1000 samples of Reynolds stress random field [R](x) are drawn by
+using the algorithm described in Section 3.4. An additional challenge is the visualization,
+validation, and interpretation of the sampled Reynolds stress fields, because in general it is
+not straightforward to interpret the state of the turbulence from their individual components.
+To facilitate physical interpretation, in all three cases we map the sampled Reynolds stresses
+to the six independent physical dimensions with the scheme described in Section 2.2, i.e., the
+
+                                                  21
+magnitude k of Reynolds stress tensor, its shape (expressed in Barycentric coordinates C1 ,
+C2 , and C3 ), and the Euler angles (ϕ1 , ϕ2 , and ϕ3 ) of its eigenvectors. The scattering of the
+samples in the Barycentric triangle can be obtained from their Barycentric coordinates, and
+the probability density functions for all the quantities can be estimated from the samples
+with a given kernel.
+   The samples obtained in Case 1 (with δ = 0.2) and Case 2 (with δ = 0.6) are first analyzed
+by visualizing the scatter plots in the Barycentric triangle, the associated probability density
+contours, and the marginal distributions of the physical variables (e.g., C3 , k, and ϕ3 ) for
+two typical points: (1) point A located at x/H = 2.0 and y/H = 0.5 and (2) point B located
+at x/H = 2.0 and y/H = 0.01. Point A is a generic point in the recirculation region, and
+point B is a near-wall point with two-dimensional turbulence representing limiting states.
+The locations of the two points in the domain are indicated in Fig. 2 and in the insets of
+Figs. 3 and 5.
+   The scatter plots for the Reynolds stress samples at point A are shown in Figs. 3a and
+3b for Cases 1 and 2, respectively. Since this is a generic point, the Reynolds stress state
+predicted in the baseline simulation is projected to the interior of the Barycentric triangle.
+While the truth state given by the benchmark simulation is also located in the interior
+of the triangle, it is further towards the bottom edge, i.e., the two-component limit (see
+Fig. 1a). Note that the points located on the edges and vertices correspond to limiting states
+as illustrated in Fig. 1a. In both cases the samples are scattered around the baseline state,
+suggesting that perturbations introduced in the set M+0
+                                                     d about the baseline are still scattered
+around the corresponding baseline results in the Barycentric triangle. However, the two cases
+exhibit two notable differences. First, the scattering in Case 2 is much larger than that in
+Case 1, which is a direct consequence of the larger dispersion parameter (δ = 0.6) compared
+to that in Case 1 (δ = 0.2). Second, the sample mean deviates significantly from the baseline
+in Case 2 while they agree quite well in Case 1. This is an interesting observation. Recall
+that the probability distribution in Eq. (4) is derived under the constraint E{[R]} = [R]
+given in Eq. (7), which implies that the mean of the sample Reynolds stresses should be
+the baseline prediction assuming the number of samples is large enough. We have verified
+that the constraint is indeed satisfied and that the sampling error is negligible with the
+chosen sample number 1000. Therefore, we can see that the mean is not preserved during
+the projection from the Reynolds stress space to the Barycentric coordinates. This is due
+to the constraints imposed by the positive definiteness of the Reynolds stress tensor, which
+manifest itself as the edge boundaries of the Barycentric triangle. When the perturbation
+
+
+                                               22
+is small relative to the distance of the baseline state to the boundaries, as is the situation
+in Case 1, the perturbation does not “feel” the constraints. Consequently, the sample mean
+and the baseline result are approximately the same. In contrast, when the perturbation is
+large compared to the distance between the baseline and one of the boundaries, the constraint
+comes into play, leading to appreciable deviations between the sample mean and the baseline.
+This is better illustrated with the probability density contours in Figs. 3c and 3d for Cases 1
+and 2, respectively. The contours in Fig. 3c are approximately elliptic showing little influence
+from the boundaries. On the other hand, the contours in Figs. 3d clearly follow the three
+edges at the boundary and displays a triangular shape overall. Since no samples fall outside
+the Barycentric triangle as can be seen from the scatter plots in both cases, the observation
+also verified the claim that the random matrix based approach proposed in this work is
+capable of ensuring Reynolds stress realizability.
+   To further examine the probability distribution of the Reynolds stress samples, in Fig. 4
+we present the discrepancies ∆C3 , ∆ϕ3 , ∆ ln k between the sampled and the baseline Reynolds
+stress for point A. Perturbations on the other physical quantities (e.g., the other Barycentric
+coordinates ∆C1 and ∆C2 ) have similar characteristics to ∆C3 presented here and thus are
+omitted for brevity. Similarly, perturbations ∆ϕ1 and ∆ϕ2 for the Euler angles ϕ1 and ϕ2 are
+omitted as well. Xiao et al. [7] introduced uncertainties to the predicted Reynolds stresses
+by modeling the discrepancies in shape and magnitude of the Reynolds stress as Gaussian
+random fields. It is illustrative to compared the discrepancies above (which are obtained
+from samples directly drawn in M+0
+                                d ) to the corresponding Gaussian distributions having
+the same mean and variance as those of the samples. The comparison is performed in Fig. 4,
+where the PDFs of the Gaussian distributions obtained in this way are presented along with
+those estimated from samples. It can be seen that in Case 1 the distributions for all three
+discrepancy quantities ∆C3 , ∆ϕ3 , ∆ ln k are rather close to the corresponding Gaussian dis-
+tributions. In contrast, the corresponding distributions in Case 2 deviate significantly from
+the Gaussian distributions. It is also noted that the sample mean (denoted in vertical dashed
+lines; same hereafter) of ∆C3 deviate slightly from zero in Case 1 but significantly from zero
+in Case 2, which is consistent with the earlier observations from Figs. 3a and 3b. However,
+the sample means for ∆ϕ3 and ∆ ln k are zero for both Case 1 and Case 2, despite the fact
+that the sample distribution are non-Gaussian for Case 2. This can be explained by the fact
+that there are no physical constraints on ln k or ϕ (except for the range [−π, π] specified
+in the definition). This is in contrast to C3 , which is bounded in [0, 1]. Notably, Figs. 4e
+and 4f seem to suggest that k (which is the turbulent kinetic energy defined as 12 tr([R]))
+
+
+                                              23
+                      3-Comp         Samples                                3-Comp
+                                     Sample Mean
+
+                                        Benchmark
+                                    Baseline
+             C1                     C2                             C1                     C2
+
+
+
+
+    2-Comp               C3                 1-Comp        2-Comp               C3                1-Comp
+          (a) Sample scatter plot, Case 1                      (b) Sample scatter plot, Case 2
+
+                      3-Comp                                                3-Comp
+
+
+
+
+             C1                     C2                             C1                     C2
+
+
+
+
+    2-Comp               C3                 1-Comp        2-Comp               C3                1-Comp
+      (c) Probability density contour, Case 1               (d) Probability density contour, Case 2
+
+Figure 3: Scatter plots (panels a and b) and probability density contours (panels c and
+d) of the Reynolds stress samples projected to the Barycentric coordinates for point A
+(x/H = 2.0, y/H = 0.5) located in the recirculation region. Case 1 (δ = 0.2) and Case 2
+(δ = 0.6) are compared.
+
+
+
+
+                                                     24
+approximately follows a log-normal distribution. This could be related to the term with
+exponential of − tr[G] in Eq. (10). Soize [16] also gave the joint distribution of the random
+eigenvalues of [R] (see Eq. (64) therein), which theoretically can be marginalized to yield the
+analytical distribution of k. The analytical expression is, however, extremely complicated
+and is not pursued in the present work.
+   It is also of interest to see the probability distribution of the Reynolds stress at a near-wall
+location with limiting-state turbulence. Therefore, similar to Figs. 3 and 4, the scatter plots
+and distribution of physical variable are presented in Figs. 5 and 6, respectively, for point B
+located very close to the bottom wall (at x/H = 2.0 and y/H = 0.01). The true Reynolds
+stress at this point is two dimensional, and thus it is located right on the bottom edge of
+the Barycentric triangle (C3 = 0) as indicated in Figs. 5a and 5b. Recall that C3 indicates
+the degree of isotropy (three-dimensionality) of the turbulence. Hence, C3 = 0 indicates
+that the turbulence is far from isotropic (in fact, it is two-dimensional), which is because the
+blocking of the wall suppressed almost all fluctuations in wall-normal direction. A standard
+eddy viscosity model, on the contrary, would predict a nearly isotropic turbulence state with
+C3 = 1, located near the top vertex of the Barycentric triangle (indicated as dark/red filled
+circles). The scatter plots corresponding to Cases 1 and 2 are shown in Figs. 5a and 5b,
+and the corresponding probability density contours are presented in Figs. 5c and 5d. It can
+be seen that the sample distributions are influenced by the constraints in both cases, since
+the baseline state is located right next to the boundaries. Moreover, the difference between
+the sample mean and the baseline are large in both cases, which is also attributed to the
+constraints as discussed above. The distributions of ∆C3 , ∆ϕ3 , and ∆ ln k are presented
+in Figure 6. For both Cases 1 and 2, the sample distributions of ∆C3 and ∆ϕ3 deviate
+significantly from Gaussian, while the distribution of k is still quite close to log-normal.
+   The analysis above focused on the marginal distributions of the Reynolds stresses at
+two representative locations with a generic and a limiting state turbulence state. Since the
+Reynolds stress is modeled as a random matrix field, we present the turbulent shear stress
+R12 and the turbulent kinetic energy k in Figs. 7 and 8, respectively. These two quantities
+are the most relevant for the flow over period hills investigated here. The samples at eight
+streamwise locations x/H = 1, 2, · · · , 8 along with the benchmark and the baseline results.
+The geometry of the physical domain is also plotted to facilitate visualization. The sample
+mean profiles coincide with the baselines in most regions for all cases, and thus they are
+omitted to avoid cluttering. This is in contrast to the deviation of the sample means from
+the baseline results in the Barycentric triangle as observed in Figs. 3 and 5 for the same
+
+
+                                               25
+            6                                                                          3.0
+                      Sample
+                      Gaussian
+            5         Sample Mean                                                      2.5
+
+            4                                                                          2.0
+      PDF
+
+
+
+
+                                                                                PDF
+            3                                                                          1.5
+
+            2                                                                          1.0
+
+             1                                                                         0.5
+
+            00.3        0.2         0.1      0.0     0.1         0.2     0.3           0.00.6       0.4        0.2          0.0        0.2   0.4
+                                            ∆C3                                                                      ∆C3
+                    (a) Distribution of ∆C3 , Case 1                                         (b) Distribution of ∆C3 for Case 2
+
+
+         0.045                                                                       0.012
+         0.040
+                                                                                     0.010
+         0.035
+         0.030                                                                       0.008
+         0.025
+   PDF
+
+
+
+
+                                                                               PDF
+
+
+                                                                                     0.006
+         0.020
+         0.015                                                                       0.004
+         0.010
+                                                                                     0.002
+         0.005
+         0.00090        60          30       0       30          60      90          0.00090       60     30          0           30    60   90
+                                     ∆ϕ3 (degree)                                                          ∆ϕ3 (degree)
+                 (c) Distribution of ∆ϕ3 for Case 1                                          (d) Distribution of ∆ϕ3 for Case 2
+
+
+           4.5                                                                         1.6
+           4.0                                                                         1.4
+           3.5                                                                         1.2
+           3.0
+                                                                                       1.0
+           2.5
+     PDF
+
+
+
+
+                                                                                PDF
+
+
+
+
+                                                                                       0.8
+           2.0
+                                                                                       0.6
+           1.5
+           1.0                                                                         0.4
+           0.5                                                                         0.2
+           0.00.4     0.3     0.2     0.1    0.0   0.1     0.2     0.3   0.4           0.01.5       1.0        0.5          0.0        0.5   1.0
+                                            ∆lnk                                                                     ∆lnk
+                   (e) Distribution ∆ ln k for Case 1                                          (f) Distribution ∆ ln k for Case 2
+
+Figure 4: Distributions of the perturbations (∆C3 , ∆ϕ3 , and ∆ ln k ) in the physical variables
+for point A (x/H = 2.0, y/H = 0.5) located in the recirculation region. The distributions
+for Case 1 (δ = 0.2) and Case 2 (δ = 0.6) are compared.
+
+                                                                               26
+                       3-Comp           Samples                                 3-Comp
+                                        Sample Mean
+
+
+                                            Baseline
+              C1                       C2                              C1                     C2
+
+
+
+                           Benchmark
+
+    2-Comp                C3                   1-Comp        2-Comp                C3               1-Comp
+             (a) Scatter plot of samples                              (b) Scatter plot of samples
+
+                       3-Comp                                                   3-Comp
+
+
+
+
+              C1                       C2                              C1                     C2
+
+
+
+
+    2-Comp                C3                   1-Comp        2-Comp                C3               1-Comp
+             (c) Contour plot of samples                              (d) Contour plot of samples
+
+Figure 5: Scatter plots (panels a and b) and probability density contours (panels c and
+d) of the Reynolds stress samples projected to the Barycentric coordinates for point B
+(x/H = 2.0, y/H = 0.01) located in the recirculation region. Case 1 (δ = 0.2) and Case 2
+(δ = 0.6) are compared.
+
+
+
+
+                                                        27
+               7                                                            3.0
+                      Sample
+               6      Gaussian
+                      Sample Mean                                           2.5
+               5
+                                                                            2.0
+               4
+        PDF
+
+
+
+
+                                                                     PDF
+                                                                            1.5
+               3
+                                                                            1.0
+               2
+
+                1                                                           0.5
+
+               00.40 0.35 0.30 0.25 0.20 0.15 0.10 0.05 0.00 0.05           0.00.9   0.8        0.7   0.6     0.5       0.4    0.3   0.2    0.1 0.0
+                                     ∆C3                                                                          ∆C3
+                      (a) PDF of ∆C3 , Case 1                                         (b) PDF of ∆C3 , Case 2
+
+
+            0.008                                                         0.008
+            0.007                                                         0.007
+            0.006                                                         0.006
+            0.005                                                         0.005
+      PDF
+
+
+
+
+                                                                    PDF
+
+
+            0.004                                                         0.004
+            0.003                                                         0.003
+            0.002                                                         0.002
+            0.001                                                         0.001
+            0.00090    60      30      0      30      60     90           0.00090          60         30            0          30      60       90
+                                ∆ϕ3 (degree)                                                           ∆ϕ3 (degree)
+                      (c) PDF of ∆ϕ3 , Case 1                                         (d) PDF of ∆ϕ3 , Case 2
+
+
+               6                                                            2.0
+
+               5
+                                                                            1.5
+               4
+        PDF
+
+
+
+
+                                                                     PDF
+
+
+
+
+               3                                                            1.0
+
+               2
+                                                                            0.5
+                1
+
+               00.3    0.2     0.1    0.0     0.1     0.2    0.3            0.01.5          1.0             0.5          0.0         0.5        1.0
+                                     ∆lnk                                                                         ∆lnk
+                       (e) PDF ∆ ln k, Case 1                                              (f) PDF ∆ ln k, Case 2
+
+Figure 6: Probability density functions (PDF) of the perturbations (∆C3 , ∆ϕ3 , and ∆ ln k
+) in the physical variables for point B (x/H = 2.0, y/H = 0.01) located in the near-wall
+region. The PDFs for Case 1 (δ = 0.2) and Case 2 (δ = 0.6) are compared.
+
+
+                                                                    28
+cases.
+
+                         Samples         Baseline          Benchmark (Breuer et al. 2009)
+
+               3.0
+               2.5
+               2.0
+               1.5
+         y/H
+
+
+
+
+               1.0
+               0.5
+               0.0
+                     0             2                4              6             8
+                                            x/H; 20R12/Ub2 + x/H
+                                   (a) Samples of R12 profiles, Case 1
+
+               3.0
+               2.5
+               2.0
+               1.5
+         y/H
+
+
+
+
+               1.0
+               0.5
+               0.0
+                     0             2                4              6             8
+                                            x/H; 20R12/Ub2 + x/H
+                                   (b) Samples of R12 profiles, Case 2
+
+Figure 7: Comparison sample profiles R12 for Case 1 and Case 2. The profiles are shown
+at eight streamwise locations x/H = 1, · · · , 8, compared to the baseline results and the
+benchmark results obtained by direct numerical simulation [39].
+
+
+   It can be seen that the turbulent shear stress R12 in the baseline and benchmark results
+agree quite well with each other in the upper channel (y/H = 2 to 3) but deviate dramatically
+in the free-shear and recirculation regions. In the case with a small dispersion parameter
+δ = 0.2, Fig. 7a shows that the uncertainty range as represented by the R12 samples is not
+able to cover the benchmark results in regions where large discrepancies exist between the
+baseline and benchmark. This indicates that the prior may be overly confident, which may
+
+                                                    29
+                        Samples       Baseline           Benchmark (Breuer et al. 2009)
+
+              3.0
+              2.5
+              2.0
+              1.5
+        y/H
+
+
+
+
+              1.0
+              0.5
+              0.0
+                    0             2              4               6             8
+                                           x/H; 20k/Ub2 + x/H
+                                  (a) Samples of k profiles, Case 1
+
+              3.0
+              2.5
+              2.0
+              1.5
+        y/H
+
+
+
+
+              1.0
+              0.5
+              0.0
+                    0             2              4               6             8
+                                           x/H; 20k/Ub2 + x/H
+                                  (b) Samples of k profiles, Case 2
+
+Figure 8: Comparison of sample profiles of turbulence kinetic energy k profiles for Case 1 and
+Case 2. The profiles are shown at eight streamwise locations x/H = 1, · · · , 8, compared to
+the baseline results and the benchmark results obtained by direct numerical simulation [39].
+
+
+
+
+                                                 30
+lead to difficulties in Bayesian inferences. With a large dispersion parameter δ = 0.6 in Case
+2, the scattering range of R12 increases and covers the benchmark in the entire domain, which
+is shown in Fig. 7b. However, since the dispersion parameter is spatially uniform, it also
+has large scattering in the upper channel, where in fact the discrepancies between baseline
+and benchmark results are rather small. Similar patterns are also observed in the turbulent
+kinetic energy k profiles, which are shown in Figs. 8a and 8b for Cases 1 and 2, respectively.
+However, a notable difference is that the range of samples is not able to cover the benchmark
+results even in Case 2 with a large discrepancy parameter. This is because the turbulent
+kinetic energy k is significantly underestimated in the baseline turbulence model, which is a
+known deficiency of turbulence models applied this flow. The deficiency stems from the fact
+that the shear stresses and consequently the modeled turbulent kinetic energy production
+are weaker than the physical counterparts [40].
+   In light of the comparison between the samples and the benchmark above, it can be
+seen that using a spatial uniform dispersion parameter δ leads to scattering larger than
+necessary in the upper channel, but with insufficient scattering in regions that are indeed
+problematic for the baseline model (e.g., the free shear and recirculation regions). It is known
+from experiences in turbulence modeling that standard turbulence models have difficulties
+in these regions, using a nonuniform, informative dispersion field δ(x) as shown in Fig. 2 is
+justified in Section 4.1 above. The samples of R12 and k are presented in Fig. 9. In both
+cases the scattering of the samples are larger in the free-shear and recirculation regions and
+are smaller in the upper channel, which is more consistent with the actual discrepancies
+between the baseline and the benchmark results. A minor exception is that the turbulent
+kinetic energy near the upper wall is underpredicted by the baseline model but this is not
+reflected in the sample scatter, since this feature is not reflected in the prior knowledge in
+the dispersion parameter δ(x) field.
+   Overall speaking, all sample profiles of the Reynolds stress component R12 and the tur-
+bulent kinetic energy k shown in Figs. 7–9 are physically reasonable. These samples are
+qualitatively similar to those obtained with the physics-based approach by directly perturb-
+ing the physical variables C1 , C2 , and ln k around the baseline results [7].
+   Ultimately it is the velocity fields and the associated auxiliary quantities (e.g., wall
+shear stress, reattachment point, and pressure drop across the channel) that are of interest
+in turbulent flow simulations. Therefore, the sampled Reynolds stress are propagated to
+velocities by using the RANS solver tauFoam [7], and the reattachment points are obtained
+by post-processing the velocity fields. The velocity profiles obtained for the three cases with
+
+
+                                               31
+                         Samples        Baseline           Benchmark (Breuer et al. 2009)
+
+               3.0
+               2.5
+               2.0
+               1.5
+         y/H
+
+
+
+
+               1.0
+               0.5
+               0.0
+                     0             2               4              6              8
+                                           x/H; 20R12/Ub2 + x/H
+                                   (a) Sample of R12 profiles, Case 3
+
+               3.0
+               2.5
+               2.0
+               1.5
+         y/H
+
+
+
+
+               1.0
+               0.5
+               0.0
+                     0             2               4              6              8
+                                            x/H; 20k/Ub2 + x/H
+                                    (b) Sample of k profiles, Case 3
+
+Figure 9: The sample profiles of turbulent shear stress R12 and turbulent kinetic energy k
+for Case 3. The ensemble profiles are shown at eight streamwise locations x/H = 1, · · · , 8,
+compared to the baseline results and the benchmark results obtained by direct numerical
+simulation [39].
+
+
+
+
+                                                   32
+different dispersion parameters are presented and compared in Fig. 10. Similar to the profiles
+of R12 and k, the velocity sample also show a small scattering in Case 1 (δ = 0.2) and a larger
+scattering in Case 2 (δ = 0.6). The advantage of using an informative δ(x) field can also be
+observed in this figure. Compared to the uniformly small scattering in Case 1 (panel a) and
+uniformly large scattering in Case 2 (panel c), the velocity scattering in Case 3 (panel c) is
+small in the upper channel and large in the free shear and recirculation regions, adequate
+to cover the benchmark results in both regions. Finally, we note that in all three cases the
+velocity scattering in the lower part, particularly in the recirculation region, of the channel
+is larger, even though the Reynolds stress scattering is spatially uniform in Cases 1 and 2.
+This observation suggests that the velocity in the recirculation region is more sensitive to
+the Reynolds stresses, an important physical insight that is provided by the RANS solver.
+Similar analyses have been performed on other quantities of interest including the bottom
+wall shear stress and the reattachment point. Qualitatively similar observations are made as
+those presented above for the velocities, and thus the figures for the other QoIs are omitted
+here.
+
+
+5. Discussions
+
+   Whether the obtained maximum entropy distribution of Reynolds stress [R] should have
+zero measure on the two-component (and one-component) limiting states is an issue open
+for discussion. We explain below the implications based on the choices made in the pro-
+posed framework. Although practically we did not encounter this difficulty in this study,
+the discussion below adds to the theoretical completeness. The probability distribution for
+the normalized random matrix [G] as given in Eq. (10) has zero measure on the subset
+M+0   +
+ d \ Md of singular positive semidefinite matrices, since det([G]) = 0 in this set and
+thus p[G] ([G])|[G]∈M+0 \M+ = 0. This is analogous to the χ2 -distribution in the scalar case
+                   d    d
+with more than three degrees of freedom. However, a valid distribution for semi-definite
+matrices could have a concentration of measure in the set of singular matrices, i.e., it is
+possible that p[R] ([R])|[R]∈M+0 \M+ 6= 0. One can draw an analogy to the exponential dis-
+                            d    d
+tribution, for instance, in the scalar case. If the specified mean [R] of [R] is singular, i.e.,
+det([R]) = 0, then det([LR ]) = 0. Consequently, any realization [R] constructed from Eq. (8),
+[R] = [LR ]T [G][LR ], is also singular since the distributive nature of determinants leads to
+det([R]) = 0. The set M+0   +
+                       d \ Md of singular Reynolds stresses maps to the two-component
+limit edge (C3 = 0) of the Barycentric triangle. This mapping can be explained by the
+fact that all matrices in this set have at least one eigenvalue that is zero (as they have zero
+
+                                              33
+                        Samples         Baseline          Benchmark (Breuer et al. 2009)
+
+              3.0
+              2.5
+              2.0
+              1.5
+        y/H
+
+
+
+              1.0
+              0.5
+              0.0
+                    0             2           4            6            8           10
+                                            x/H; 2Ux /Ub + x/H
+                                      (a) Velocity samples, Case 1
+
+              3.0
+              2.5
+              2.0
+              1.5
+        y/H
+
+
+
+
+              1.0
+              0.5
+              0.0
+                    0             2           4            6            8           10
+                                            x/H; 2Ux /Ub + x/H
+                                      (b) Velocity samples, Case 2
+
+              3.0
+              2.5
+              2.0
+              1.5
+        y/H
+
+
+
+
+              1.0
+              0.5
+              0.0
+                    0             2           4            6            8           10
+                                            x/H; 2Ux /Ub + x/H
+                                      (c) Velocity samples, Case 3
+
+Figure 10: Comparison of propagated velocity profile samples for Cases 1, 2, and 3. The
+profiles are shown at eight streamwise locations x/H = 1, · · · , 8, compared to the baseline
+results and the benchmark results obtained by direct numerical simulation [39].
+
+
+                                                   34
+determinants), which corresponds to two-component turbulence. This correspondence is in-
+dicated in Fig. 1a. The physical interpretation of the mathematical consequences above can
+be summarized as follows:
+
+  1. When the specified Reynolds stress mean [R] corresponds to a turbulence state in a two-
+     component limit, the samples of perturbed Reynolds stresses also have two-component
+     states;
+
+  2. When the specified mean corresponds to a generic three-component state, the samples
+     can becomes infinitely close to a two-component limit but has zero probability of falling
+     on the limit.
+
+
+6. Conclusion
+
+   In this work we propose a random matrix approach to guarantee Reynolds stress realiz-
+ability for quantifying model-form uncertainty in RANS simulation. In this approach, the
+Reynolds stress field is described with a probabilistic model of a random field of positive
+semidefinite matrices with specified mean and correlation structure. The marginal proba-
+bility distribution of the Reynolds stress at any particular location satisfies the maximum
+entropy principle. To sample such a random matrix field, Gaussian random fields with
+specified covariance kernel are first generated and then are mapped to the field of positive
+semidefinite matrices based on polynomial chaos expansion and reconstruction. Numerical
+simulations have been performed with the proposed approach by sampling the Reynolds
+stress and propagating through the RANS solver to obtain velocities. The simulation re-
+sults showed that generated Reynolds stress fields not only have the specified statistics, but
+also are physically reasonable. The mathematically rigorous approach based on random
+matrix and maximum entropy principle is a promising alternative to the previously pro-
+posed physics-based approach for quantifying model-form uncertainty in RANS simulations.
+Moreover, it can be used to gauge the entropy of the prior distributions specified in the
+physics-based approach and thus to measure the information introduced therein. Detailed
+comparison between the two approaches will be pursued as follow-on work in the future.
+
+
+References
+
+ [1] S. B. Pope, Turbulent flows, Cambridge university press, 2000.
+
+
+
+                                             35
+ [2] T. Oliver, R. Moser, Uncertainty quantification for RANS turbulence model predictions,
+    in: APS Division of Fluid Dynamics Meeting Abstracts, Vol. 1, 2009.
+
+ [3] L. Margheri, M. Meldi, M. Salvetti, P. Sagaut, Epistemic uncertainties in RANS model
+    free coefficients, Computers & Fluids 102 (2014) 315–335.
+
+ [4] M. Emory, R. Pecnik, G. Iaccarino, Modeling structural uncertainties in Reynolds-
+    averaged computations of shock/boundary layer interactions, AIAA paper 479 (2011)
+    1–16.
+
+ [5] M. Emory, J. Larsson, G. Iaccarino, Modeling of structural uncertainties in Reynolds-
+    averaged Navier-Stokes closures, Physics of Fluids 25 (11) (2013) 110822.
+
+ [6] C. Gorlé, G. Iaccarino, A framework for epistemic uncertainty quantification of turbulent
+    scalar flux models for Reynolds-averaged Navier-Stokes simulations, Physics of Fluids
+    25 (5) (2013) 055105.
+
+ [7] H. Xiao, J.-L. Wu, J.-X. Wang, R. Sun, C. J. Roy, Quantifying and reducing model-form
+    uncertainties in Reynolds-Averaged Navier-Stokes simulations: An open-box, physics-
+    based, bayesian approach, submitted. Available at http://arxiv.org/abs/1508.06315
+    (2015).
+
+ [8] J. L. Lumley, G. R. Newman, The return to isotropy of homogeneous turbulence, Journal
+    of Fluid Mechanics 82 (01) (1977) 161–178.
+
+ [9] S. Banerjee, R. Krahl, F. Durst, C. Zenger, Presentation of anisotropy properties of
+    turbulence, invariants versus eigenvalue approaches, Journal of Turbulence 8 (32) (2007)
+    1–27.
+
+[10] J.-X. Wang, J.-L. Wu, H. Xiao, Incorporating prior knowledge for quantifying
+    and reducing model-form uncertainty in RANS simulations, submitted. Available at
+    http://arxiv.org/abs/1512.01750 (2015).
+
+[11] J.-L. Wu, J.-X. Wang, H. Xiao, A Bayesian calibration-prediction method for reducing
+    model-form uncertainties with application in RANS simulations, submitted. Available
+    at http://arxiv.org/abs/1510.06040 (2015).
+
+[12] C. E. Shannon, A mathematical theory of communication, Bell System Technical Jour-
+    nal 27 (1948) 379–423, 623–659.
+
+                                              36
+[13] E. T. Jaynes, Information theory and statistical mechanics, Physical Review 106 (1957)
+    620–630.
+
+[14] R. R. Coifman, M. V. Wickerhauser, Entropy-based algorithms for best basis selection,
+    Information Theory, IEEE Transactions on 38 (2) (1992) 713–718.
+
+[15] S. C. Zhu, Y. Wu, D. Mumford, Filters, random fields and maximum entropy (FRAME):
+    Towards a unified theory for texture modeling, International Journal of Computer Vision
+    27 (2) (1998) 107–126.
+
+[16] C. Soize, A nonparametric model of random uncertainties for reduced matrix models in
+    structural dynamics, Probabilistic engineering mechanics 15 (3) (2000) 277–294.
+
+[17] S. Das, R. Ghanem, A bounded random matrix approach for stochastic upscaling, Mul-
+    tiscale Modeling & Simulation 8 (1) (2009) 296–325.
+
+[18] J. Guilleminot, C. Soize, R. G. Ghanem, Stochastic representation for anisotropic per-
+    meability tensor random fields, International Journal for Numerical and Analytical
+    Methods in Geomechanics 36 (13) (2012) 1592–1608.
+
+[19] M. Mignolet, C. Soize, Nonparametric stochastic modeling of linear systems with pre-
+    scribed variance of several natural frequencies, Probabilistic Engineering Mechanics
+    23 (2) (2008) 267–278.
+
+[20] C. Soize, Random matrix theory for modeling uncertainties in computational mechanics,
+    Computer Methods in Applied Mechanics and Engineering 194 (12) (2005) 1333–1366.
+
+[21] C. Soize, Stochastic modeling of uncertainties in computational structural dynamics –
+    recent theoretical advances, Journal of Sound and Vibration 332 (10) (2013) 2379–2395.
+
+[22] S. B. Pope, Turbulent Flows, Cambridge University Press, Cambridge, 2000.
+
+[23] U. Schumann, Realizability of Reynolds-stress turbulence models, Physics of Fluids
+    (1958-1988) 20 (5) (1977) 721–725.
+
+[24] J. L. Lumley, Computational modeling of turbulent flows, Advances in applied mechan-
+    ics 18 (123) (1978) 213.
+
+[25] S. Pope, PDF methods for turbulent reactive flows, Progress in Energy and Combustion
+    Science 11 (2) (1985) 119–192.
+
+                                            37
+[26] C. G. Speziale, R. Abid, P. A. Durbin, On the realizability of Reynolds stress turbulence
+    closures, Journal of Scientific Computing 9 (4) (1994) 369–403.
+
+[27] B. E. Launder, D. Spalding, The numerical computation of turbulent flows, Computer
+    methods in applied mechanics and engineering 3 (2) (1974) 269–289.
+
+[28] F. R. Menter, Two-equation eddy-viscosity turbulence models for engineering applica-
+    tions, AIAA journal 32 (8) (1994) 1598–1605.
+
+[29] P. R. Spalart, S. R. Allmaras, A one-equation turbulence model for aerodynamic flows,
+    Recherche Aerospatiale 1 (1994) 5–21.
+
+[30] C. Gorlé, J. Larsson, M. Emory, G. Iaccarino, The deviation from parallel shear flow as
+    an indicator of linear eddy-viscosity model inaccuracy, Physics of Fluids 26 (5) (2014)
+    051702.
+
+[31] H. Goldstein, Classical Mechanics, 2nd Edition, Addison-Wesley, 1980, see “The Euler
+    Angles and Euler Angles in Alternate Conventions” in Chapter 4.4.
+
+[32] D. Stefanica, A Linear Algebra Primer for Financial Engineering, FE Press, 2014.
+
+[33] N. J. Higham, Analysis of the Cholesky decomposition of a semi-definite matrix, in:
+    M. G. Cox, S. J. Hammarling (Eds.), Reliable Numerical Computation, Oxford Univer-
+    sity Press, 1990, pp. 161–185.
+
+[34] C. Soize, A comprehensive overview of a non-parametric probabilistic approach of model
+    uncertainties for predictive models in structural dynamics, Journal of sound and vibra-
+    tion 288 (3) (2005) 623–652.
+
+[35] S. Sakamoto, R. Ghanem, Polynomial chaos decomposition for the simulation of non-
+    Gaussian nonstationary stochastic processes, Journal of engineering mechanics 128 (2)
+    (2002) 190–201.
+
+[36] O. P. Le Maı̂tre, O. M. Knio, Spectral methods for uncertainty quantification: with
+    applications to computational fluid dynamics, Springer, 2010.
+
+[37] E. Dow, Q. Wang, Optimal design and tolerancing of compressor blades subject to
+    manufacturing variability, in: 16th AIAA Non-Deterministic Approaches Conference,
+    American Institute of Aeronautics and Astronautics, 2014.
+
+
+                                             38
+[38] D. Xiu, Numerical methods for stochastic computations: a spectral method approach,
+    Princeton University Press, 2010.
+
+[39] M. Breuer, N. Peller, C. Rapp, M. Manhart, Flow over periodic hills–numerical and
+    experimental study in a wide range of reynolds numbers, Computers & Fluids 38 (2)
+    (2009) 433–457.
+
+[40] F. Billard, Development of a robust elliptic-blending turbulence model for near-wall,
+    separated and buoyant flows, Ph.D. thesis, The University of Manchester, Manchester,
+    UK (2012).
+
+[41] J. C. Helton, F. J. Davis, Latin hypercube sampling and the propagation of uncertainty
+    in analyses of complex systems, Reliability Engineering & System Safety 81 (1) (2003)
+    23–69.
+
+
+Appendix A. Summary of the Algorithm of the Proposed Method
+
+   Given the mean Reynolds stress field [R](x) along with the correlation function struc-
+ture of the random matrix field [L](x) as specified in Eq. (18), the following procedure is
+performed:
+
+  1. Expansion of given marginal distributions and covariances kernels:
+
+      1.1. Perform the Cholesky factorization of the mean Reynolds stresses [R] at each cell
+          according to Eq. (9), which yields field LR (x) of upper triangular matrices.
+      1.2. Perform KL expansion for the kernel function by solving the Fredholm equa-
+                                         √
+           tion (23) to obtain eigenmodes λα φα (x).
+      1.3. For off-diagonal terms only, perform polynomial expansion of the marginal PDF
+          as described in Eq. (17) at each cell. Coefficients Uβ are obtained from Eq. (27),
+          where β = 1, · · · , Np , and Np is the number of polynomials retained in the ex-
+          pansion.
+
+  2. Sampling and reconstruction of random matrix fields for Reynolds stresses:
+
+      2.1. For each element Lij of the random matrix field [L], independently draw NKL
+          sample from the standard Gaussian distribution ωij,α where α = 1, · · · , NKL , e.g.,
+          with random sampling or Latin hypercube sampling method [41].
+
+
+                                             39
+         2.2. Synthesize realizations of the off-diagonal terms based on KL expansion:
+                                              N
+                                              X KL   p
+                                  wij (x) =              λα φα (x) ω α   with i < j
+                                              α=1
+
+                                  Lij (x) = σd wij (x)
+
+         2.3. Synthesize the realizations of the diagonal terms based on KL and PCE expan-
+             sions:
+                                                      Np
+                                                      X
+                                           ui (x) =         Uβ (x)Ψβ (wii (x))
+                                                      β=0
+
+             where the Gaussian random field sample wii (x) obtained in the previous step is
+             used.
+                                                                           √
+         2.4. Synthesize the diagonal terms of matrix [L] from Lii (x) = σd ui , where i = 1, 2, 3.
+         2.5. Reconstruct [G] from [G] = [L]T [L] and then reconstruct the random matrix [R]
+             from [R] = [LR ]T [G][LR ].
+
+   3. Propagation the Reynolds stress field through the RANS solver to obtain velocities
+         and other QoIs:
+
+         3.1 Use the obtained sampled Reynolds stress to velocity and other QoIs by solving
+             the RANS equation.
+         3.2 Post-process the obtained velocity and QoI samples to obtain statistical moments.
+
+
+Appendix B. Nomenclature
+
+Subscripts/Superscripts
+i, j           tensor indices (i, j = 1, 2, 3). Repeated indices do not imply summation.
+α, β           indices for terms in Karhunen–Loeve and polynomial chaos expansions
+
+
+Sets, operators, and decorative symbols
+Cov(·, ·)      covariance of two random variables
+det(·)         determinant of a matrix
+E{·}           expectation of a random variable
+GP             Gaussian spatial random process (random field)
+Msd            the set of all d × d symmetric matrices
+
+                                                      40
+M+
+ d                the set of all d × d symmetric, positive definite matrices
+M+0
+ d                the set of all d × d symmetric, positive semi-definite matrices
+tr(·)             trace of a matrix
+Var(·, ·)         variance of a random variable
+ln                the natural logarithm
+1 (·)            indicator function; takes value one if · ∈ 
+~·                vector
+[·]               matrix
+                 mean value of variable 
+h·i               ensemble average/expectation of a random variable
+k · kF            Frobenius norm
+P
+                  summation
+Q
+                  product
+
+
+Roman letters
+[A]               anisotropy tensor of the Reynolds stress
+C[G]              normalization constant in the PDF of random matrix [G]
+C1 , C2 , C3      Barycentric coordinates
+d                 dimension of matrices (d = 3 implied unless noted otherwise)
+~e1 , ~e2 , ~e3   eigenvectors of tensor [A]
+[E]               matrix formed by the eigenvectors of [A], i.e., [E] = [~e1 , ~e2 , ~e3 ]
+[G], [G]          a positive definite matrix with identity matrix [I] as its mean
+[I]               identity matrix
+II, III           second and third invariants of tensor (3 × 3 matrix) [A]
+K                 kernel of a Gaussian process
+[L], [L]          an upper triangle matrix (e.g., obtained with Cholesky factorization)
+l                 length scale of Gaussian process
+N                 Gaussian normal distribution
+Np                order of polynomial in the polynomial chaos expansion
+NKL               number of modes in KL expansion
+p                 probability density function
+[R]               (negative of) Reynolds stress tensor with Rij = hu0i u0j i
+S(·)              entropy measure of a PDF
+u                 random variable used to define the diagonal terms of matrix [L]
+
+
+                                                       41
+vi              velocity at a particular location (random variable)
+vi              mean velocity
+vi0             the ith component of the fluctuation velocity (random variable)
+w               standard Gaussian random variable, i.e., w ∼ N(0, 1)
+z, t            auxiliary variables
+
+
+Greek letters
+δ               dispersion parameter (uncertainty of the random matrix)
+ν               variable indicating the order of the matrix
+Γ               Gamma function
+λ̃i             eigenvalues of the turbulence anisotropy tensor [A]
+Λ               3 × 3 diagonal matrix with eigenvalues of [A] as elements, i.e., Λ = [λ̃1 , λ̃2 , λ̃3 ]
+λα , φα         eigenvalues and basis functions of αth mode obtained from KL expansion
+Ψβ              β th order Hermite polynomial of the standard Gaussian random variable w
+Ω               spatial domain of the fluid flow field
+
+
+
+
+                                                   42
+

@@ -30,7 +30,7 @@ FoamFile
 
 startFrom       latestTime;
 
-stopAt          endTime;
+stopAt          writeNow;
 
 endTime         500000;
 

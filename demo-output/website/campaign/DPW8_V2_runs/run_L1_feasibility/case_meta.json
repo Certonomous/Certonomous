@@ -1,0 +1,19 @@
+{
+  "level": 1,
+  "Ni": 48,
+  "Nj": 16,
+  "eps": 0.1,
+  "chord_raw": 4.033333333333333,
+  "y1_target_physical": 3e-06,
+  "y1_target_raw": 1.21e-05,
+  "ratio_min": 2.894621381448565,
+  "ratio_max": 3.264306695825619,
+  "r_outer_chords": 120.0,
+  "nu": 1.6666666666666668e-07,
+  "U_inf": 1.0,
+  "Re": 6000000.0,
+  "ncells": 768,
+  "nfaces": 3120,
+  "ninternal": 1488,
+  "npoints": 1632
+}

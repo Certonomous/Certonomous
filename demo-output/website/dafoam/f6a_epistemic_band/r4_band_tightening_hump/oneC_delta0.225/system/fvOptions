@@ -1,0 +1,140 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2112                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// r4-band-tightening-hump (D9 follow-on to channel 3). Adds a blend factor
+// Delta in [0,1] to the full-corner eigenvalue perturbation used by
+// channel3_eigenvalue_perturbation/{oneC,twoC,threeC} (those runs all fixed
+// Delta=1, "full corner projection"). This is the SAME Delta the
+// Emory/Larsson/Iaccarino formulation defines: anisotropy is blended
+// linearly, bBlend = (1-Delta)*bBoussinesq + Delta*bCorner, so
+// bBlend - bBoussinesq = Delta*(bCorner - bBoussinesq), and since the
+// momentum forcing is deltaR = 2k(bBlend - bBoussinesq), the forcing is
+// EXACTLY linear in Delta -- scaling the already-computed full-corner
+// deltaR by the scalar Delta reproduces the blend without recomputing the
+// eigendecomposition differently. Delta=1 reduces identically to the
+// existing oneC/twoC/threeC runs; Delta=0 reduces the forcing to zero,
+// i.e. plain kOmegaSST with this case's own mesh/schemes/relaxation (the
+// correct anchor for THIS numerical pipeline, not channel 1's baseline
+// case, which uses different schemes/relaxation).
+//
+// Purpose: sweep Delta down from 1 toward 0 for the oneC corner (which
+// currently sets the channel-3 lower edge of the reported band) and find
+// where the combined band stops containing the NASA experimental
+// reattachment 1.100 -- i.e. how much of the band's width is load-bearing.
+
+limitVelocity1
+{
+    type            limitVelocity;
+    selectionMode   all;
+    max             70;
+}
+
+UQEigenPerturb
+{
+    type            vectorCodedSource;
+    active          true;
+    name            uqEigPerturb;
+
+    vectorCodedSourceCoeffs
+    {
+        selectionMode   all;
+        fields          (U);
+        name            uqEigPerturb;
+
+        perturbCorner   oneC;
+        blendDelta      0.225;
+
+        codeInclude
+        #{
+            #include "fvCFD.H"
+        #};
+
+        codeCorrect
+        #{
+        #};
+
+        codeConstrain
+        #{
+        #};
+
+        codeAddSup
+        #{
+            const fvMesh& mesh = this->mesh();
+            const volVectorField& U = eqn.psi();
+            const volScalarField& k = mesh.lookupObject<volScalarField>("k");
+            const volScalarField& nut = mesh.lookupObject<volScalarField>("nut");
+
+            const word corner(this->coeffs().get<word>("perturbCorner"));
+            const scalar blendDelta(this->coeffs().get<scalar>("blendDelta"));
+
+            vector eLambda(Zero);
+            if (corner == "oneC")
+            {
+                eLambda = vector(-1.0/3.0, -1.0/3.0, 2.0/3.0);
+            }
+            else if (corner == "twoC")
+            {
+                eLambda = vector(-1.0/3.0, 1.0/6.0, 1.0/6.0);
+            }
+            else if (corner == "threeC")
+            {
+                eLambda = vector(0, 0, 0);
+            }
+            else
+            {
+                FatalErrorInFunction
+                    << "perturbCorner must be oneC, twoC or threeC, got "
+                    << corner << exit(FatalError);
+            }
+
+            const volSymmTensorField Sij("Sij", symm(fvc::grad(U)));
+            const dimensionedScalar kSmall("kSmall", k.dimensions(), 1e-8);
+            const volScalarField bCoeff("bCoeff", (-1.0)*nut/max(k, kSmall));
+            volSymmTensorField bBoussField("bBoussField", bCoeff*Sij);
+
+            volSymmTensorField deltaR
+            (
+                "deltaR",
+                2.0*k*bBoussField - 2.0*k*bBoussField
+            );
+
+            const scalar kMinCell = 1e-8;
+            forAll(k, celli)
+            {
+                if (k[celli] < kMinCell) continue;
+
+                const symmTensor& bB = bBoussField[celli];
+                const vector eVals(eigenValues(bB));
+                const tensor eVecs(eigenVectors(bB, eVals));
+
+                const symmTensor bPert =
+                    eLambda.x()*sqr(eVecs.x())
+                  + eLambda.y()*sqr(eVecs.y())
+                  + eLambda.z()*sqr(eVecs.z());
+
+                // Linear blend: full-corner deltaR scaled by blendDelta.
+                // blendDelta=1 => identical to channel3's fixed corners.
+                // blendDelta=0 => zero forcing (plain kOmegaSST).
+                deltaR.primitiveFieldRef()[celli] =
+                    blendDelta*2.0*k[celli]*(bPert - bB);
+            }
+
+            eqn += fvc::div(deltaR);
+        #};
+    }
+}
+
+// ************************************************************************* //

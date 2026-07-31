@@ -1,0 +1,53 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+
+
+application     pimpleFoam;
+startFrom       startTime;
+startTime       5.4;
+stopAt          endTime;
+endTime         10.8;
+deltaT          5e-05;
+adjustTimeStep  yes;
+maxCo           0.9;
+maxDeltaT       0.009;
+writeControl    adjustableRunTime;
+writeInterval   0.9;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  9;
+timeFormat      general;
+timePrecision   9;
+
+functions
+{
+    probes1
+    {
+        type            probes;
+        libs            (sampling);
+        writeControl    timeStep;
+        writeInterval   1;
+        fields          (p U);
+        probeLocations
+        (
+        (0.069 1e-06 0)
+        (0.11615 1e-06 0)
+        (0.1863 1e-06 0)
+        (0.069 0.00058777778 0)
+        (0.069 0.0017633333 0)
+        (0.069 0.0029388889 0)
+        (0.069 0.0041144444 0)
+        (0.069 0.00529 0)
+        (0.069 0.0064655556 0)
+        (0.069 0.0076411111 0)
+        (0.069 0.0088166667 0)
+        (0.069 0.0099922222 0)
+        );
+    }
+}

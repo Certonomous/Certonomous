@@ -67,7 +67,7 @@ future runs of this exact case can be reconciled with the house standard establi
 |---|---|---|---|---|---|
 | L1 (feasibility) | 1 (Tiny) | 768 (48×16) | 92.7 s | **1.545** | COMPLETE, 3000/3000 iters |
 | L3 (physics) | 3 (Medium) | 12,288 (192×64) | 1,696.7 s (28.3 min) | **28.278** | COMPLETE, 3000/3000 iters |
-| L4 (gate) | 4 (Fine) | 49,152 (384×128) | ~56 min elapsed (partial) | not applicable | **INCOMPLETE, 1200/3000 iters (40%)** |
+| L4 (gate) | 4 (Fine) | 49,152 (384×128) | ~56 min (orig.) + 3,388 s (relaunch) | not applicable | **DIVERGED, not incomplete** — reproduced bit-for-bit on relaunch; see §3-CORRECTION |
 
 All runs single-core (`nProcs : 1`), consistent with the P1–P5 doctrine's 2–4 rank cap.
 **Total salvaged compute: 29.823 core-minutes** (L1+L3; L4 not counted — see §4).
@@ -138,6 +138,106 @@ incompleteness, read directly from the salvaged directory:
 No lift, drag, or Cp numbers are reported for L4. Re-running it (fresh launch, through
 `scripts/case_preflight.sh` first) is the natural next step if a Fine-mesh gate point is wanted, but
 that is new compute and was out of scope for this salvage pass.
+
+### 3-CORRECTION (2026-07-30). The L4 diagnosis above is WRONG. L4 did not get interrupted — it DIVERGED.
+
+The relaunch described in §3a below completed its life and settled the question. **Both readings in §3 are incorrect and are corrected here rather than edited away:**
+
+1. **"The solver process was killed mid-run"** — the process *was* eventually killed, but that is not why L4 has no result. L4 was **numerically diverged from iteration ~14 onward**. Killing it merely stopped a run that was already producing garbage.
+2. **"Cl swinging between roughly +0.40 and −0.43 iteration-to-iteration — not settled"** — this was a **column misread**. Those are columns 8-9 of `coefficient.dat` (`Cs`/moment-family entries, which for this setup are the force coefficients scaled by 1/100), not `Cl` (column 5). The true values at iteration 1201 are **Cd = −39.39, Cl = −40.30**. The run was not "not yet settled"; it was off by two orders of magnitude and unphysical.
+
+**Evidence — the relaunch reproduced the original bit-for-bit.** Same case, independent launch, and the coefficient histories are *identical* at matching iterations:
+
+| iteration | Cd (original, salvaged) | Cd (relaunch) | Cl (original) | Cl (relaunch) |
+|---:|---:|---:|---:|---:|
+| 201 | −563.6550 | −563.6550 | −396.5607 | −396.5607 |
+| 401 | −332.8891 | −332.8891 | −8.8679 | −8.8679 |
+
+Peak excursion in the original run: **max \|Cd\| = 53,437**. This is deterministic behaviour of the case setup, not a transient environmental fault — **re-running L4 as configured cannot succeed**, which is precisely what §3 recommended as "the natural next step". That recommendation is withdrawn.
+
+**Failure signature — a k-equation blow-up unique to the finest mesh:**
+
+| rung | `bounding k` events | k max reached | final y+ (min / max / avg) | outcome |
+|---|---:|---:|---|---|
+| L1 | 0 | — | — | converged, gate PASS |
+| L3 | 0 | — | 2.80e-05 / **0.4956** / **0.3510** | converged, gate PASS |
+| **L4** | **2** | **2,448,939** | 0.433 / **164.8** / **113.0** | **diverged** |
+
+L3 is properly wall-resolved (y+ < 1 everywhere). L4 sits at y+ ~113 *average* on a mesh **4× finer**, where y+ should be *smaller* — the near-wall solution is nonsense, and the y+ growth tracks the divergence (avg 11.7 at iter 50 → 51 at iter 100 → 113 by iter 1100), so it is a **symptom, not the cause**.
+
+**Two candidate causes tested and eliminated, so the next investigator does not repeat them:**
+
+- **Mesh quality — ruled out.** `checkMesh` reports **`Mesh OK`** for L4 (max non-orthogonality 61.2, max skewness 1.170, max aspect ratio 642.7).
+- **Cell aspect ratio — ruled out, and it falsified the obvious hypothesis.** L4's max aspect ratio (642.7) is *lower* than **L3's (925.3)**, and L3 converges cleanly. Aspect ratio cannot be the discriminator.
+
+**Root cause not yet established.** What is established: it is specific to the L4 refinement level, it is reproducible, it begins within ~14 iterations, and it manifests first in `k`. The untested suspects are the startup transient on the finer near-wall spacing and the `relaxationFactors` (`p 0.25`, `U/k/omega 0.6`) carried over unchanged from the coarser rungs — a finer mesh generally needs *more* relaxation, not the same. **The cheapest decisive next experiment** is a short L4 run with reduced relaxation (e.g. `p 0.15`, `k`/`omega` 0.3) and/or `limitedLinear`/upwind on the turbulence convection terms for the first few hundred iterations; if k stays bounded, the cause is startup robustness, not the discretisation.
+
+**Consequence for the report:** L4 remains **NOT GATED**, and the grid-refinement family stops at L3. The §2 L1→L3 convergence trend stands on its own (both rungs converged and passed) and is unaffected.
+
+### 3a. L4 relaunched 2026-07-29 23:14:15Z — ran 3,388 s, reached iteration 1137, DIVERGED (see 3-CORRECTION above)
+
+Two things were fixed before relaunch, both consequences of *why* the salvage found nothing usable:
+
+- **`writeInterval` was 3000 with `purgeWrite 2`** — i.e. the case was configured to write no
+  full-field checkpoint at all until the very last iteration. That is exactly why the interrupted run
+  left nothing to resume from: the `50/`…`1200/` directories the salvage found contain only the
+  `yPlus` function-object field, not the solution fields. Changed to **`writeInterval 300`**, so an
+  interruption now costs at most 300 iterations instead of the whole run.
+- The stale partial `postProcessing/` (forceCoeffs/yPlus from the dead 0→1200 run) was moved to
+  `postProcessing_partial_1200_bak` so the fresh run's time series could not be silently concatenated
+  onto the abandoned one.
+
+`startFrom startTime; startTime 0;` was **left alone** — with no field checkpoint there is nothing to
+restart from, so this run is a clean 0→3000, not a resume.
+
+**Outcome:** ran 3,387.58 s (ClockTime 3,444 s) and reached iteration 1137 of 3000 before being killed
+(log ends mid-iteration with no `End`, no `FOAM FATAL`, and no FPE message despite `trapFpe` being
+enabled — consistent with an external SIGKILL on a box at load ~19.5, not a solver abort). **The kill is
+incidental**: the solution had already diverged, as §3-CORRECTION documents. The `writeInterval` and
+stale-`postProcessing` fixes were still worth making — they are what allowed the clean
+original-vs-relaunch comparison that proved the divergence is deterministic — but they did not and
+could not rescue the rung.
+
+**A launch failure worth recording (it will recur):** the first relaunch attempt died instantly with
+`nohup: failed to run command 'simpleFoam': No such file or directory`. The Bash tool runs
+*non-login* shells, so `/etc/profile.d/openfoam-selector.sh` never executes and the OpenFOAM
+binaries are absent from `PATH`. `launch_solve.sh`'s collector caught it correctly
+(`expected_artifact: MISSING`). Fix: source `/usr/lib/openfoam/openfoam2606/etc/bashrc ""` in the
+same command as the launcher call. **The same failure mode had already produced a stale, misleading
+`.done` file for the F5a Re 3900 rung earlier the same evening** — a `.done` whose contents record a
+*launch* failure, not a *solve* failure, and which will be matched by any glob looking for
+"did this job finish". Check the `.done` body, not merely its existence.
+
+### 3b. Linear-solver stall — pre-existing across all three rungs, NOT fixed mid-family
+
+Observed at L4 and then checked against the completed rungs: the `Ux` momentum solve hits its
+**1000-sweep iteration cap on essentially every outer iteration** and barely reduces the residual
+(L4 at iteration ~780: initial 4.17×10⁻⁴ → final 1.50×10⁻⁴, a factor of 2.8 after 1000 sweeps).
+
+This is **not** new to L4 and not a symptom of the interruption — it is pre-existing and structural:
+
+| rung | capped (`No Iterations 1000`) solves | outcome |
+|---|---:|---|
+| L1 (feasibility) | 5,158 | COMPLETE, gate PASS |
+| L3 (physics) | 5,875 | COMPLETE, gate PASS |
+
+L3's *final* iterations are the clearest evidence: initial residual 5.90×10⁻⁷, final residual
+6.37×10⁻⁷ — the "solution" comes out with a *higher* residual than it went in, pinned at a ~6.4×10⁻⁷
+floor. `fvSolution` asks `smoothSolver`/`symGaussSeidel` for `tolerance 1e-10`, which that smoother
+cannot reach on this matrix (a conformal O-grid at Re=6×10⁶ has extreme near-wall cell aspect
+ratios), so every solve runs to `maxIter` and stops. A Krylov solver with a proper preconditioner
+(`PBiCGStab` + `DILU`) would be the standard remedy and would likely cut wall-time substantially.
+
+**Deliberately NOT changed for this run.** L1 and L3 were both run with these exact settings, and the
+report's only quantitative L1→L3→L4 claim is a *grid-refinement trend*. Swapping the linear solver at
+L4 alone would introduce an uncontrolled second variable into a refinement family — the precise error
+the F5a ladder committed at its Re 3900 rung the same evening (closure reverted, mesh spacing not),
+and which cost that rung its clean attribution. The consistency is worth more here than the speed.
+
+**Recommendation for future work on this case:** change the `U` solver for *all* rungs and re-run the
+family, or for none. Note also that `residualControl` (`U 1e-8`) is unreachable given the ~6.4×10⁻⁷
+floor, so every rung runs its full 3000 iterations regardless — the iteration count is a fixed budget
+here, not a convergence criterion, and should not be read as one.
 
 ---
 

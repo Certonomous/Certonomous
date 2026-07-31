@@ -240,16 +240,41 @@ def cp_bound_report(values, *, q: float, p_inf: float = 0.0,
     return report
 
 
+# The legend name carried when a caller asks for the coefficient rather than
+# the pressure. The control room prints this string verbatim, so it has to
+# read as a dimensionless coefficient and never as pressure in Pa.
+CP_FIELD_NAME = "pressure coefficient Cp"
+
+
 def load_field_surface(sources, *, field: str = "p",
                        max_faces: int = 30000, name: str = "surface",
                        q_kinematic: float | None = None,
-                       p_inf: float = 0.0) -> dict[str, Any]:
+                       p_inf: float = 0.0, as_cp: bool = False,
+                       view: dict[str, Any] | None = None) -> dict[str, Any]:
     """Read one patch file or merge several into a painted wireframe payload.
 
     ``q_kinematic`` (and optionally ``p_inf``) turn on the Cp bound check on
     the reported physical range, attached as ``field["cp"]``. Without them Cp
     is undefined, so the block is simply absent and the payload is exactly
     what it was before.
+
+    ``as_cp`` is a separate, OPT-IN switch, and it is the only thing that
+    changes a displayed number. It normalises the field to the pressure
+    coefficient ``(p - p_inf) / q`` before anything downstream sees it, so the
+    drawn faces, the colour window and the reported physical extremes are all
+    the coefficient and cannot disagree with each other. It is opt-in because
+    this module paints several acts' money shots: a default change would
+    restate every one of them at once. A caller that does not ask gets the
+    pressure it got before, value for value.
+
+    The bound check is deliberately NOT folded into that conversion. It keeps
+    running on the pressures the solver wrote, with ``q_kinematic`` and
+    ``p_inf`` as given, so ``field["cp"]`` reports the same numbers and raises
+    the same flag whether or not the display was normalised.
+
+    ``view`` is the control room's optional camera hint (``flat``, ``axes``),
+    passed straight through onto the payload. Omitted when None, which is what
+    every caller that does not pass one still sends.
     """
     paths = [sources] if isinstance(sources, (str, Path)) else list(sources)
     all_v: list[list[float]] = []
@@ -276,6 +301,20 @@ def load_field_surface(sources, *, field: str = "p",
             all_physical.extend(cell_values)
         elif values and len(values) == len(faces):
             all_physical.extend(values)
+    # The pressures the solver wrote, kept aside whatever the display does
+    # with them: the bound check below is graded on these and only these.
+    raw_field, raw_physical = all_field, all_physical
+    to_cp = bool(as_cp) and bool(q_kinematic) and q_kinematic > 0
+    if to_cp:
+        # Normalise BEFORE the packager: the decimated display values are a
+        # mean over merged source faces, and a mean commutes with this affine
+        # map, so converting here and converting after clustering give the
+        # same drawn face. Converting here also means the undecimated list the
+        # physical range is read from is the same coefficient as the picture,
+        # which is the whole point: the legend's extremes and the colours
+        # cannot drift into different units.
+        all_field = [(v - p_inf) / q_kinematic for v in all_field]
+        all_physical = [(v - p_inf) / q_kinematic for v in all_physical]
     payload, display_values = _package_painted(all_v, all_f, all_field, max_faces, name)
     # The reported physical extremes are taken UNDECIMATED and UNINTERPOLATED,
     # before clustering has seen the data, so no display simplification can
@@ -285,13 +324,21 @@ def load_field_surface(sources, *, field: str = "p",
     # peak into its cooler neighbours (see ``_package_painted``'s docstring).
     source = all_physical or all_field
     physical_range = (min(source), max(source)) if source else None
-    # The bound check runs on the very same undecimated list the reported
-    # range comes from, so the flag can never describe a different population
-    # than the number it qualifies.
-    cp_report = (cp_bound_report(source, q=q_kinematic, p_inf=p_inf)
+    # The bound check runs on the very same undecimated population the
+    # reported range comes from, so the flag can never describe a different
+    # set of faces than the number it qualifies. It reads the pressures, not
+    # the normalised display, so its own arithmetic is unchanged by ``as_cp``.
+    cp_report = (cp_bound_report(raw_physical or raw_field,
+                                 q=q_kinematic, p_inf=p_inf)
                  if q_kinematic else None)
-    _attach_field(payload, display_values, field,
-                  physical_range=physical_range, cp_report=cp_report)
+    _attach_field(payload, display_values,
+                  CP_FIELD_NAME if to_cp else field,
+                  physical_range=physical_range, cp_report=cp_report,
+                  # A coefficient lives in a span of about two, so one decimal
+                  # would collapse the whole legend into three or four labels.
+                  decimals=3 if to_cp else 1)
+    if view:
+        payload["view"] = view
     return payload
 
 
@@ -401,7 +448,8 @@ def _package_painted(vertices, faces, face_values, max_faces: int, name: str):
 
 def _attach_field(payload: dict[str, Any], face_values, field: str, *,
                   physical_range: tuple[float, float] | None = None,
-                  cp_report: dict[str, Any] | None = None) -> None:
+                  cp_report: dict[str, Any] | None = None,
+                  decimals: int = 1) -> None:
     """Carry a normalised field value per kept face, plus two distinct ranges.
 
     ``face_values`` must already be one-to-one with ``payload["faces"]`` —
@@ -430,6 +478,10 @@ def _attach_field(payload: dict[str, Any], face_values, field: str, *,
     ``cp_report`` (from :func:`cp_bound_report`) rides along as ``cp`` when
     given: it does not change any reported value, it discloses whether the
     physical maximum is inside the Cp = 1 stagnation bound.
+
+    ``decimals`` rounds the colour-window labels only. One decimal is right
+    for a kinematic pressure in the hundreds and useless for a coefficient
+    that spans about two, so a caller drawing a coefficient asks for more.
     """
     if not face_values:
         payload["field"] = None
@@ -463,8 +515,8 @@ def _attach_field(payload: dict[str, Any], face_values, field: str, *,
                    for v in sampled],
         # Color-mapping range only (clipped percentiles): label any colorbar
         # built from this as the display range, not the field's maximum.
-        "color_min": round(color_lo, 1), "color_max": round(color_hi, 1),
-        "display_min": round(color_lo, 1), "display_max": round(color_hi, 1),
+        "color_min": round(color_lo, decimals), "color_max": round(color_hi, decimals),
+        "display_min": round(color_lo, decimals), "display_max": round(color_hi, decimals),
     }
     if cp_report is not None:
         # A disclosure attached to the physical range, never a correction to
@@ -528,7 +580,9 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
                       input_triangles: int | None = None,
                       min_fraction: float = 0.15,
                       q_kinematic: float | None = None,
-                      p_inf: float = 0.0) -> str | None:
+                      p_inf: float = 0.0, as_cp: bool = False,
+                      view: dict[str, Any] | None = None,
+                      patches: tuple[str, ...] | None = None) -> str | None:
     """Run foamToVTK, merge every body patch, and write a painted-surface JSON.
 
     The body may be one patch (``body``) or a group of dozens (the motorBike's
@@ -551,6 +605,18 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
     two populations (comfortable margin above the real body, wide margin above
     the failure) rather than at a literal fraction that would sit one point
     under the real body and false-positive on any mesh variation.
+
+    ``patches`` names the patch stems to paint outright, bypassing the
+    domain-boundary reduction above. It exists for the wall-bounded cases: on
+    the NASA hump the body IS the tunnel floor, and the floor is called
+    ``bottom``, which the blocklist correctly reads as a domain boundary for
+    every free-flying body and wrongly for this one. Naming the patch is
+    honest and specific; loosening the blocklist would let a flat domain
+    rectangle through on every other act. Omitted, the automatic reduction
+    runs exactly as before.
+
+    ``as_cp`` and ``view`` are forwarded to :func:`load_field_surface`; see
+    there for why the coefficient is opt-in.
     """
     import json
     import subprocess
@@ -573,13 +639,24 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
                             capture_output=True, text=True, timeout=600)
     if "OK" not in result.stdout:
         return None
-    patches = _body_patches(list(staging.glob("*.vtp")))
-    if not patches:
+    available = list(staging.glob("*.vtp"))
+    if patches:
+        wanted = {stem.strip().lower() for stem in patches}
+        selected = [p for p in available if p.stem.lower() in wanted]
+        if not selected:
+            _log.warning("field-paint: none of the named patches %s were "
+                         "written for this case, falling back to wireframe",
+                         sorted(wanted))
+            return None
+    else:
+        selected = _body_patches(available)
+    if not selected:
         _log.warning("field-paint patch selection suspect: no body patch left "
                      "after excluding domain boundaries, falling back to wireframe")
         return None
-    payload = load_field_surface(patches, field=field, name=name,
-                                 q_kinematic=q_kinematic, p_inf=p_inf)
+    payload = load_field_surface(selected, field=field, name=name,
+                                 q_kinematic=q_kinematic, p_inf=p_inf,
+                                 as_cp=as_cp, view=view)
     if not payload.get("field"):
         return None
     cp = (payload.get("field") or {}).get("cp")
@@ -604,11 +681,11 @@ def extract_and_paint(remote_case: str, out_path: str | Path, wsl_prefix,
                 "only %.0f%% of the %d input triangles (floor %.0f%%) from patches "
                 "%s, falling back to wireframe",
                 body_faces, 100 * fraction, input_triangles, 100 * min_fraction,
-                sorted(p.stem for p in patches))
+                sorted(q.stem for q in selected))
             return None
         _log.info("field-paint: painted body has %d faces from %d patches "
                   "(%.0f%% of %d input triangles)",
-                  body_faces, len(patches), 100 * fraction, input_triangles)
+                  body_faces, len(selected), 100 * fraction, input_triangles)
     out_path.write_text(json.dumps(payload), encoding="utf-8")
     return str(out_path)
 

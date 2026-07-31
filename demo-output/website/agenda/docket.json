@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-30T04:05:00Z",
+ "generated_at": "2026-07-30T22:36:39+00:00",
  "proposals": [
   {
    "id": "r1-monitor-walltime-rule",
@@ -172,6 +172,22 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
+   "id": "naca4412-independent-reference-anchor",
+   "objective": "Anchor the NACA 4412 credential reference on a lift coefficient independent of the solve being graded, replacing the current self-referential anchor",
+   "rationale": "The reference is built as section drag plus induced drag evaluated at the solve's own lift, so a solve that over-predicts lift is graded against a wider band. Measured tonight: a 25.0 percent lift over-prediction inflates the induced term by 56.2 percent and lifts the whole band with it. Grading each rung against its own anchor puts the two best-resolved rungs out of band at 94.2 and 94.5 percent layer coverage while the worst-resolved rung at 4.4 percent coverage passes. The grade can be bought by getting lift wrong in the generous direction, so no verdict from this method is currently trustworthy",
+   "citations": [
+    "Certonomous NACA 4412 credential verdict, measured 2026-07-28",
+    "Abbott and von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar",
+    "Anderson, Fundamentals of Aerodynamics, span efficiency bracket"
+   ],
+   "est_core_min": 15.0,
+   "cost_basis": "estimate, derivation is arithmetic once the anchor source is chosen; no new solves required",
+   "expected_knowledge_gain": "A credential grade that cannot be moved by the error it is meant to detect, and a reusable pattern for every bottom-up reference in the wall",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
    "id": "agp-880b4f92bdc5",
    "objective": "Add a 7th refinement rung to the B-52 Stratofortress-class airframe grid ladder",
    "rationale": "The refinement study ended inconclusive: Cd 0.0551, 0.0448, 0.0491, 0.0472, 0.0496, 0.0523 across the rungs, and the record states the verdict as: rungs not monotone; conservative band, largest spread times 1.25. NOTE (2026-07-27): the finest-3-by-cells rule now selects (production, fine-uq, finer2), which IS monotone and would auto-fit p=2.25 with band_abs=0.0157 (see uq-b52-ladder-monotonicity lesson) -- that fit is rejected by hand-audit (successive Cd increments GROW with refinement, 0.00186->0.00238->0.00270, the opposite of asymptotic shrinkage, and the Richardson-extrapolated value 0.0657 lies far outside the whole measured range). The certified band is therefore held at the value below pending a rung that shows genuinely shrinking increments; do not let automation silently adopt the 0.0157 fit.. A further rung can settle the observed order.",
@@ -184,6 +200,20 @@
    "source_kind": "gate",
    "status": "proposed",
    "created_at": "2026-07-29T04:12:40+00:00"
+  },
+  {
+   "id": "credential-layer-coverage-gate",
+   "objective": "Add a boundary layer coverage gate to every credential that grades on drag alone",
+   "rationale": "Measured on the NACA 4412 wing: across a 17.7 fold change in boundary layer coverage from 4.36 to 77.0 percent at fixed refinement, drag moved 0.037 percent while lift moved 9.41 percent. Drag agreement is therefore not evidence of a resolved boundary layer on a low aspect ratio wing, because induced drag is roughly half the total and is set by lift distribution rather than near wall resolution. A drag only credential can read as converged over a badly under resolved boundary layer",
+   "citations": [
+    "Certonomous NACA 4412 coverage study, measured 2026-07-28"
+   ],
+   "est_core_min": 20.0,
+   "cost_basis": "estimate, a check added to existing grading code plus a re-grade of current wall credentials",
+   "expected_knowledge_gain": "Removal of a silent failure mode from the credentials wall, and a stated coverage figure on every drag credential",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
   },
   {
    "id": "agp-beadb3545c04",
@@ -304,17 +334,16 @@
    "created_at": "2026-07-25T18:10:48+00:00"
   },
   {
-   "id": "naca4412-independent-reference-anchor",
-   "objective": "Anchor the NACA 4412 credential reference on a lift coefficient independent of the solve being graded, replacing the current self-referential anchor",
-   "rationale": "The reference is built as section drag plus induced drag evaluated at the solve's own lift, so a solve that over-predicts lift is graded against a wider band. Measured tonight: a 25.0 percent lift over-prediction inflates the induced term by 56.2 percent and lifts the whole band with it. Grading each rung against its own anchor puts the two best-resolved rungs out of band at 94.2 and 94.5 percent layer coverage while the worst-resolved rung at 4.4 percent coverage passes. The grade can be bought by getting lift wrong in the generous direction, so no verdict from this method is currently trustworthy",
+   "id": "dafoam-simplec-comparison-audit",
+   "objective": "Audit every comparison between a DAFoam result and a plain OpenFOAM baseline for the silently dropped consistent pressure correction",
+   "rationale": "The Ahmed body rung measured its adjoint capable primal 22.05 percent away from our own validated baseline on the same mesh, boundary conditions and turbulence model. The cause is that the baseline sets consistent yes, selecting the consistent variant of the pressure correction, and the adjoint solver does not implement it and runs the plain variant instead without warning. On this geometry the two land on different branches of a documented bistable wake, so the discrepancy is a change of solution branch rather than a tolerance. Any credential or comparison that puts the two solvers side by side inherits this, and neither number is wrong on its own terms",
    "citations": [
-    "Certonomous NACA 4412 credential verdict, measured 2026-07-28",
-    "Abbott and von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar",
-    "Anderson, Fundamentals of Aerodynamics, span efficiency bracket"
+    "Certonomous Ahmed body adjoint rung, measured 2026-07-28",
+    "Ahmed, Ramm and Faltin, SAE 840300 (1984)"
    ],
-   "est_core_min": 15.0,
-   "cost_basis": "estimate, derivation is arithmetic once the anchor source is chosen; no new solves required",
-   "expected_knowledge_gain": "A credential grade that cannot be moved by the error it is meant to detect, and a reusable pattern for every bottom-up reference in the wall",
+   "est_core_min": 25.0,
+   "cost_basis": "estimate, a scan of existing case settings plus a re-run of any comparison found to be affected",
+   "expected_knowledge_gain": "Removal of a silent apples to oranges comparison from the credentials wall, and a stated solver equivalence caveat wherever the two are compared",
    "source_kind": "measurement",
    "status": "proposed",
    "created_at": "2026-07-28"
@@ -339,20 +368,6 @@
    "dismiss_reason": "Hypothesis tested and KILLED. The differentiated wall-function source bound to this boundary condition was read directly and shown to contain exactly one genuine discrete branch, a clip to zero; two other candidate branches are provably inactive for this configuration. Wall-face values were then measured for five fresh independent runs - baseline, the suspect mode plus and minus, and a healthy control mode plus and minus. Zero of 126 wall faces are clipped at any configuration; the global minimum sits about 400 times above the clip floor and moves by under 0.2 percent, no more erratically for the broken mode than for the healthy control. The probe was validated by reproducing this case's own established finite-difference values to four significant figures, so the null result is a measurement rather than a broken instrument. Root cause remains unidentified. Successor hypothesis in flight: the suspect mode is the only combination mode among otherwise single-station modes, and its opposite-direction motion at a high-curvature leading edge may degrade cell quality asymmetrically between the two perturbation directions, so the check differences across two differently-degraded meshes while the adjoint linearises about the undegraded one."
   },
   {
-   "id": "credential-layer-coverage-gate",
-   "objective": "Add a boundary layer coverage gate to every credential that grades on drag alone",
-   "rationale": "Measured on the NACA 4412 wing: across a 17.7 fold change in boundary layer coverage from 4.36 to 77.0 percent at fixed refinement, drag moved 0.037 percent while lift moved 9.41 percent. Drag agreement is therefore not evidence of a resolved boundary layer on a low aspect ratio wing, because induced drag is roughly half the total and is set by lift distribution rather than near wall resolution. A drag only credential can read as converged over a badly under resolved boundary layer",
-   "citations": [
-    "Certonomous NACA 4412 coverage study, measured 2026-07-28"
-   ],
-   "est_core_min": 20.0,
-   "cost_basis": "estimate, a check added to existing grading code plus a re-grade of current wall credentials",
-   "expected_knowledge_gain": "Removal of a silent failure mode from the credentials wall, and a stated coverage figure on every drag credential",
-   "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-28"
-  },
-  {
    "id": "r1-multifidelity-propagation",
    "objective": "Adopt a multifidelity Monte Carlo propagation scheme that fuses the reduced-order ensemble with a few anchoring solver evaluations instead of racing them",
    "rationale": "The race act already produces the exact data multifidelity fusion needs: the same designs evaluated through the reduced-order lane and the solver lane. Multifidelity Monte Carlo is an unbiased control-variate estimator; the measured correlation between the paired lanes and the measured cost ratio decide the optimal sample allocation analytically, and also decide honestly whether fusion pays at all. Today the pairing is discarded once the race ends. The scheme keeps the solver in the loop for the accuracy guarantee, uses the reduced-order ensemble for volume, and reports one fused envelope with the correlation and allocation on the record.",
@@ -370,19 +385,102 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
-   "id": "dafoam-simplec-comparison-audit",
-   "objective": "Audit every comparison between a DAFoam result and a plain OpenFOAM baseline for the silently dropped consistent pressure correction",
-   "rationale": "The Ahmed body rung measured its adjoint capable primal 22.05 percent away from our own validated baseline on the same mesh, boundary conditions and turbulence model. The cause is that the baseline sets consistent yes, selecting the consistent variant of the pressure correction, and the adjoint solver does not implement it and runs the plain variant instead without warning. On this geometry the two land on different branches of a documented bistable wake, so the discrepancy is a change of solution branch rather than a tolerance. Any credential or comparison that puts the two solvers side by side inherits this, and neither number is wrong on its own terms",
+   "id": "r8-how-often-does-convergence-reporting-mask-divergence",
+   "objective": "Establish how often a solver's convergence reporting can mask a run that did not converge, by classifying every run this lab holds with an automated checker and separately auditing what a sample of published papers on our own validation cases actually state about convergence",
+   "rationale": "In a single night this lab found SIX published numbers of its own resting on runs that never met their convergence criterion, including one inside the correction that fixed the first two. They hid in four distinct ways: a normalised residual collapsing to a tiny fixed value while raw statistics showed a blow up; a solver exiting zero having printed a success message over a residual that underflowed to denormal range; a run reaching its iteration cap with no convergence statement while a plausible residual was quoted anyway; and a final residual quoted where the gate tests the initial one. A seventh form was found in the case configuration rather than the log, where the convergence gate named fields the turbulence model does not transport and therefore could never fire. Every instance was found by somebody looking at something else. Two observations make this worth studying rather than merely fixing. First, an automated sweep of 92 run logs classified 55 as not converged, and although the large majority were already known and disclosed, nobody had ever counted. Second, the literature review found that the best known reproduction of one of our validation cases never states a convergence tolerance anywhere in the paper, and that its closest agreement with experiment is attributed by its own authors to a coarse mesh numerical viscosity accident rather than to a modelling result. If a defect this easy to hide occurs six times in one lab's own work in one night, the reasonable prior is that it is widespread, and nobody appears to have measured how widespread.",
    "citations": [
-    "Certonomous Ahmed body adjoint rung, measured 2026-07-28",
-    "Ahmed, Ramm and Faltin, SAE 840300 (1984)"
+    "Certonomous convergence audit and automated checker, validated against 13 known answer cases, 2026-07-30",
+    "Certonomous literature reproduction review, on convergence tolerances absent from published reproductions",
+    "ASME V and V 20 on solution verification"
    ],
-   "est_core_min": 25.0,
-   "cost_basis": "estimate, a scan of existing case settings plus a re-run of any comparison found to be affected",
-   "expected_knowledge_gain": "Removal of a silent apples to oranges comparison from the credentials wall, and a stated solver equivalence caveat wherever the two are compared",
+   "est_core_min": 30.0,
+   "cost_basis": "measured, the existing checker classifies 92 logs in minutes; the remaining cost is reading papers, not compute",
+   "expected_knowledge_gain": "A measured answer to a question the field appears not to ask: how much published computational fluid dynamics rests on runs whose convergence was never established. Our own rate is the uncomfortable part of the evidence and makes the study credible rather than accusatory, since we found it in ourselves first. It also converts a piece of internal tooling into a contribution, because the checker is the instrument the study needs and it already exists.",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-30T04:05:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "dafoam-shape-derivative-step-size-study",
+   "objective": "Establish whether the shape derivative disagreement against finite difference is a step size artefact by sweeping the difference step across several decades",
+   "rationale": "On the official unmodified airfoil tutorial the geometric constraints verify to 4.4e-14 and the flow parameter derivatives to 0.232 percent, so the harness is sound, yet the drag shape derivative shows 11.43 percent on the difference vector norm while the two gradient magnitudes agree to 0.451 percent. Same length, different direction is the signature of per component difference noise rather than a scale error, and step size is the first thing that would move it. Every future adjoint claim on a shape variable rests on knowing whether that 11 percent is the check or the gradient",
+   "citations": [
+    "Certonomous Ladder A airfoil adjoint verification, measured 2026-07-28",
+    "DAFoam verification documentation for the incompressible solver, retrieved 2026-07-28"
+   ],
+   "est_core_min": 35.0,
+   "cost_basis": "measured, the tutorial rung cost 3.51 core minutes so a sweep of eight step sizes plus reruns is bounded",
+   "expected_knowledge_gain": "A defensible tolerance for every future shape derivative verification, separating check error from gradient error",
    "source_kind": "measurement",
    "status": "proposed",
    "created_at": "2026-07-28"
+  },
+  {
+   "id": "r6-airfoil-second-gradient-mechanism",
+   "objective": "Identify the cause of the airfoil case's remaining shape-derivative error on its two interior leading-edge stations, which is now known not to be the mesh-warp defect and which worsens under mesh refinement",
+   "rationale": "The airfoil's headline defect was resolved tonight and traced to the mesh warp's own linearisation for opposing-direction combination modes. The two interior stations adjacent to the leading edge were then tested against that same mechanism and CLEARED: under the real objective seed they return 11.92 and 11.58 percent, matching their independently measured values to within 0.08 points, with no sign flip. So the warp adds nothing to them and this case carries a SECOND, distinct defect. Its signature is diagnostic and unusual: the error is step-independent, and it grows under mesh refinement. Ordinary discretisation error shrinks under refinement, so whatever this is, it is not that -- and the direction of the trend is itself a strong clue, since very few mechanisms get worse with resolution. Candidates worth separating are a geometric quantity that becomes more singular as cells shrink near a high-curvature edge, and a term whose linearisation error scales with a mesh metric rather than with cell size. The link-by-link isolation approach is what finally resolved the first defect after six wrong mechanisms and should be applied here rather than guessing again.",
+   "citations": [
+    "Certonomous shape-derivative root-cause study, the resolved first mechanism and the cleared interior stations, 2026-07-29",
+    "Certonomous airfoil case survey, mesh-refinement behaviour of the interior station errors"
+   ],
+   "est_core_min": 40.0,
+   "cost_basis": "measured, from this case's own 3.5 core-minute verification cycle across several isolation probes",
+   "expected_knowledge_gain": "The last unexplained gradient error on the lab's most heavily verified case. An error that grows under refinement is also the more dangerous kind, because the usual response to a suspect gradient is to refine the mesh, and here that would make it worse while appearing to be the responsible thing to do.",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-07-30T00:05:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
+   "id": "dafoam-adjoint-memory-scaling-law",
+   "objective": "Measure the adjoint peak memory as a function of cell count so case feasibility can be predicted before a run rather than discovered by failure",
+   "rationale": "Adjoint runs succeeded at 4032 and 4800 cells and failed at 99840 and 399360, with eight mitigations ruled out including container caps at 12 and 18 gigabytes, two and four rank decomposition, restart count, and preconditioner fill. Restricting the requested derivative to two variables did not help, because the reverse mode sweep touches every upstream input regardless, so the mesh sized Jacobian blocks are built either way. The wall is therefore real but its location is only known to lie between ten thousand and one hundred thousand cells, and it was measured while other work shared the host. A profiled curve over four or five small cases turns that into a number that tells us in advance which rungs are feasible",
+   "citations": [
+    "Certonomous Ladder A adjoint rungs, measured 2026-07-28"
+   ],
+   "est_core_min": 40.0,
+   "cost_basis": "measured, the smallest rung cost 3.51 core minutes so a sweep of five sizes with peak memory sampling is bounded",
+   "expected_knowledge_gain": "A predictive feasibility rule for every future adjoint case, replacing case by case discovery of the same wall",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
+  },
+  {
+   "id": "closure-baseline-error-estimator-gate",
+   "objective": "Build a baseline error estimator, trained on training and validation cases only, that withholds the closure correction where the uncorrected model is already accurate",
+   "rationale": "Our correction is worse than doing nothing on three of the eight benchmark test cases, costing 0.0066 on the eight case mean, which is 1.7 times the current margin over the fourth ranked entry. The pattern is clean: the periodic hill trained model hurts at every baseline error at or below 0.0719 and helps at every baseline error at or above 0.1320, with a gap of 0.0601 and nothing in it. Baseline error is not knowable at test time, so the gate must predict it from features the test cases expose, and must be fitted and validated without touching any test case",
+   "citations": [
+    "Certonomous closure challenge error decomposition, measured 2026-07-28",
+    "Closure challenge benchmark leaderboard and per case scores, retrieved 2026-07-28"
+   ],
+   "est_core_min": 45.0,
+   "cost_basis": "estimate, model fitting on cached feature sets already reconstructed for round two; no new flow solves",
+   "expected_knowledge_gain": "Recovery of the loss term without a second scoring call, and a stated domain of validity for the correction, which is itself a result about the model class",
+   "source_kind": "measurement",
+   "status": "done",
+   "created_at": "2026-07-28",
+   "decided_at": "2026-07-29T20:28:00+00:00",
+   "decision_note": "Built and validated in a prior session (C1: AUC 1.0, 4/4 correct on held-out PH validation, fit on train only) but deliberately not applied to the test set pending a separate decision. That decision was made this session (round 3, sdk/scripts/apply_closure_ph_gate.py): the frozen gate was evaluated on the 4 official PH test cases using RANS-derived features only (no ground truth), recovering 0.0065 of the predicted 0.0066 term. Overall score moved 0.0741 -> 0.0676 in a single new official scoring call (the 4th on this benchmark). Record: demo-output/website/closure_challenge_trained_entry_round3_gated.json."
+  },
+  {
+   "id": "r7-strouhal-mesh-sensitivity-across-the-ladder",
+   "objective": "Establish whether the cylinder ladder's Strouhal gates are sensitive to near-wall spacing at every rung or only at the highest one, by running a matched-spacing twin at the ladder's best-gated low-Reynolds rung and comparing the shift against the one already measured at the top",
+   "rationale": "A matched pair at the ladder's top rung, differing only in first-cell height by 55 percent, moved drag by 7.1 percent, base suction by 6.9 percent and fluctuation amplitude by 3.3 percent , all small against the 50 to 100 percent deviations those quantities carry versus the three-dimensional reference. Strouhal moved 35.1 percent, from 0.2409 to 0.1564, and that is large enough to flip which side of the reference band the run lands on, over-predicting in one member and under-predicting in the other. An independent windowed transform confirmed two genuinely distinct frequency bands rather than a period-detector artifact. So at that rung the Strouhal gate is not a solid measurement. Nothing is known about the lower rungs, which have no twins, and the ladder reports a Strouhal trend ACROSS rungs, and that is a trend whose sensitivity is therefore unquantified at every point but one. The best-supported reading is that the sensitivity belongs to a chaotic-dynamics regime in which a finite window no longer contains one robust dominant frequency, which is consistent with published evidence that two-dimensional confined cylinder wakes are fully chaotic well below this Reynolds number. That reading predicts the low rung will be ROBUST. Falsifiable either way: if the low rung's Strouhal moves comparably under the same spacing change, the sensitivity is not regime-related and every Strouhal gate on this ladder is soft; if it holds within a few percent, the sensitivity has an onset and the lower gates stand.",
+   "citations": [
+    "Certonomous cylinder ladder, matched-spacing pair at the top rung, 2026-07-30",
+    "Certonomous literature reproduction review, on two-dimensional wake chaos below this Reynolds number"
+   ],
+   "est_core_min": 45.0,
+   "cost_basis": "measured, from the low rung's own 2,417-second single-core solve, which a twin reproduces at the same cost",
+   "expected_knowledge_gain": "Tells us whether one of this ladder's four gated quantities can be trusted at all. A gate that moves 35 percent under a mesh parameter nobody varied is not a gate, and we currently cannot say whether that applies to one rung or to every rung. It also tests the chaotic-regime explanation on a prediction it makes rather than on the observation that motivated it.",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-30T03:40:00Z",
+   "decided_at": null,
+   "decision_note": null
   },
   {
    "id": "agp-e5136061890b",
@@ -400,21 +498,6 @@
    "created_at": "2026-07-25T02:07:58+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
-  },
-  {
-   "id": "dafoam-shape-derivative-step-size-study",
-   "objective": "Establish whether the shape derivative disagreement against finite difference is a step size artefact by sweeping the difference step across several decades",
-   "rationale": "On the official unmodified airfoil tutorial the geometric constraints verify to 4.4e-14 and the flow parameter derivatives to 0.232 percent, so the harness is sound, yet the drag shape derivative shows 11.43 percent on the difference vector norm while the two gradient magnitudes agree to 0.451 percent. Same length, different direction is the signature of per component difference noise rather than a scale error, and step size is the first thing that would move it. Every future adjoint claim on a shape variable rests on knowing whether that 11 percent is the check or the gradient",
-   "citations": [
-    "Certonomous Ladder A airfoil adjoint verification, measured 2026-07-28",
-    "DAFoam verification documentation for the incompressible solver, retrieved 2026-07-28"
-   ],
-   "est_core_min": 35.0,
-   "cost_basis": "measured, the tutorial rung cost 3.51 core minutes so a sweep of eight step sizes plus reruns is bounded",
-   "expected_knowledge_gain": "A defensible tolerance for every future shape derivative verification, separating check error from gradient error",
-   "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-28"
   },
   {
    "id": "agp-12fdfe05e05f",
@@ -482,20 +565,6 @@
    "decision_note": null
   },
   {
-   "id": "dafoam-adjoint-memory-scaling-law",
-   "objective": "Measure the adjoint peak memory as a function of cell count so case feasibility can be predicted before a run rather than discovered by failure",
-   "rationale": "Adjoint runs succeeded at 4032 and 4800 cells and failed at 99840 and 399360, with eight mitigations ruled out including container caps at 12 and 18 gigabytes, two and four rank decomposition, restart count, and preconditioner fill. Restricting the requested derivative to two variables did not help, because the reverse mode sweep touches every upstream input regardless, so the mesh sized Jacobian blocks are built either way. The wall is therefore real but its location is only known to lie between ten thousand and one hundred thousand cells, and it was measured while other work shared the host. A profiled curve over four or five small cases turns that into a number that tells us in advance which rungs are feasible",
-   "citations": [
-    "Certonomous Ladder A adjoint rungs, measured 2026-07-28"
-   ],
-   "est_core_min": 40.0,
-   "cost_basis": "measured, the smallest rung cost 3.51 core minutes so a sweep of five sizes with peak memory sampling is bounded",
-   "expected_knowledge_gain": "A predictive feasibility rule for every future adjoint case, replacing case by case discovery of the same wall",
-   "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-28"
-  },
-  {
    "id": "agp-a13672d0713c",
    "objective": "Next body in the class",
    "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Next body in the class: take the same gated chain to the nearest unsolved body in the library and grow the validated set.",
@@ -510,23 +579,6 @@
    "created_at": "2026-07-25T02:07:58+00:00",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
-  },
-  {
-   "id": "closure-baseline-error-estimator-gate",
-   "objective": "Build a baseline error estimator, trained on training and validation cases only, that withholds the closure correction where the uncorrected model is already accurate",
-   "rationale": "Our correction is worse than doing nothing on three of the eight benchmark test cases, costing 0.0066 on the eight case mean, which is 1.7 times the current margin over the fourth ranked entry. The pattern is clean: the periodic hill trained model hurts at every baseline error at or below 0.0719 and helps at every baseline error at or above 0.1320, with a gap of 0.0601 and nothing in it. Baseline error is not knowable at test time, so the gate must predict it from features the test cases expose, and must be fitted and validated without touching any test case",
-   "citations": [
-    "Certonomous closure challenge error decomposition, measured 2026-07-28",
-    "Closure challenge benchmark leaderboard and per case scores, retrieved 2026-07-28"
-   ],
-   "est_core_min": 45.0,
-   "cost_basis": "estimate, model fitting on cached feature sets already reconstructed for round two; no new flow solves",
-   "expected_knowledge_gain": "Recovery of the loss term without a second scoring call, and a stated domain of validity for the correction, which is itself a result about the model class",
-   "source_kind": "measurement",
-   "status": "done",
-   "created_at": "2026-07-28",
-   "decided_at": "2026-07-29T20:28:00+00:00",
-   "decision_note": "Built and validated in a prior session (C1: AUC 1.0, 4/4 correct on held-out PH validation, fit on train only) but deliberately not applied to the test set pending a separate decision. That decision was made this session (round 3, sdk/scripts/apply_closure_ph_gate.py): the frozen gate was evaluated on the 4 official PH test cases using RANS-derived features only (no ground truth), recovering 0.0065 of the predicted 0.0066 term. Overall score moved 0.0741 -> 0.0676 in a single new official scoring call (the 4th on this benchmark). Record: demo-output/website/closure_challenge_trained_entry_round3_gated.json."
   },
   {
    "id": "r5-warp-linearisation-workaround",
@@ -544,6 +596,24 @@
    "created_at": "2026-07-29T22:15:00Z",
    "decided_at": null,
    "decision_note": null
+  },
+  {
+   "id": "r5-convergence-wall-not-memory",
+   "objective": "Determine why one case family's adjoint fails to converge at every mesh size tested while another family converges on a larger mesh, and whether the failing family can be fixed by conditioning rather than by hardware or coarsening",
+   "rationale": "This proposal was written a few hours ago around a cell-count threshold and that framing is now dead; the measurement that killed it is the reason the question is worth more, not less. Within one transonic, shock-containing, compressible case family the adjoint returns the same linear-solver breakdown at 21,840 cells, at 79,560 cells and at 99,840 cells -- a 4.6-fold range with no exceptions. Within a separate incompressible family it converges cleanly at 63,920 cells, a LARGER mesh than the smallest failing one. So the failure does not track mesh size at all, and three consequences follow. Coarsening as an escape route is definitively dead rather than merely unpromising, which retires a strategy this lab has spent real time on. Buying hardware cannot help, since the smallest failing case peaked at 5.9 GB with the host holding over 20 GB free. And the discriminator is a property of the case, with the obvious candidate being what distinguishes the two families: six transported fields including temperature, transonic, shock-containing, against four or five, incompressible, smooth. An adjoint that is ill-conditioned because the primal carries a shock would be ill-conditioned at any resolution, which is exactly the pattern observed. Testing it means attacking the conditioning directly -- scaling, equilibration, a restarted or flexible Krylov variant -- at a mesh small enough to iterate on quickly, which the 21,840-cell case now provides at seven minutes per attempt. Falsified if the breakdown survives every conditioning treatment at the small mesh, in which case the limitation is structural to this solver's discrete adjoint for shock-containing flows, and that is a finding worth publishing rather than working around.",
+   "citations": [
+    "Certonomous adjoint envelope, per-family convergence measurements across a 4.6-fold mesh range, 2026-07-29",
+    "Saad, Iterative Methods for Sparse Linear Systems, on breakdown and equilibration"
+   ],
+   "est_core_min": 90.0,
+   "cost_basis": "measured, from the 420-second 21,840-cell run now established as the cheapest reproduction of the failure",
+   "expected_knowledge_gain": "Decides whether an entire class of cases -- transonic and shock-containing, which is most of external aerodynamics worth optimising -- is reachable by this adjoint at all. It also hands us a cheap test bed: a seven-minute case that reproduces the failure exactly, where previously the cheapest reproduction took sixteen minutes and was assumed to need a large mesh.",
+   "source_kind": "measurement",
+   "status": "approved",
+   "created_at": "2026-07-29T22:15:00Z",
+   "decided_at": "2026-07-29T23:04:27+00:00",
+   "decision_note": null,
+   "dismiss_reason": "Approved to run. The owner directed tonight that research directions be proposed, assessed and FOLLOWED continuously rather than queued, which is the authorisation this needed. It is also now the highest-leverage open question in the lab: the memory half of the envelope is settled and well fitted, and it does not matter, because the transonic family's adjoint diverges at every mesh size measured. A cheap reproducer exists at 21,840 cells and seven minutes per attempt, so conditioning experiments that were previously assumed to need a large mesh can now be iterated quickly."
   },
   {
    "id": "agp-d64295666c56",
@@ -659,38 +729,20 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
-   "id": "r5-convergence-wall-not-memory",
-   "objective": "Determine why one case family's adjoint fails to converge at every mesh size tested while another family converges on a larger mesh, and whether the failing family can be fixed by conditioning rather than by hardware or coarsening",
-   "rationale": "This proposal was written a few hours ago around a cell-count threshold and that framing is now dead; the measurement that killed it is the reason the question is worth more, not less. Within one transonic, shock-containing, compressible case family the adjoint returns the same linear-solver breakdown at 21,840 cells, at 79,560 cells and at 99,840 cells -- a 4.6-fold range with no exceptions. Within a separate incompressible family it converges cleanly at 63,920 cells, a LARGER mesh than the smallest failing one. So the failure does not track mesh size at all, and three consequences follow. Coarsening as an escape route is definitively dead rather than merely unpromising, which retires a strategy this lab has spent real time on. Buying hardware cannot help, since the smallest failing case peaked at 5.9 GB with the host holding over 20 GB free. And the discriminator is a property of the case, with the obvious candidate being what distinguishes the two families: six transported fields including temperature, transonic, shock-containing, against four or five, incompressible, smooth. An adjoint that is ill-conditioned because the primal carries a shock would be ill-conditioned at any resolution, which is exactly the pattern observed. Testing it means attacking the conditioning directly -- scaling, equilibration, a restarted or flexible Krylov variant -- at a mesh small enough to iterate on quickly, which the 21,840-cell case now provides at seven minutes per attempt. Falsified if the breakdown survives every conditioning treatment at the small mesh, in which case the limitation is structural to this solver's discrete adjoint for shock-containing flows, and that is a finding worth publishing rather than working around.",
+   "id": "r6-cylinder-wake-topology-onset",
+   "objective": "Locate the Reynolds number at which a two-dimensional cylinder wake stops producing a time-mean recirculation bubble, by running the single intermediate rung that halves the interval in which the transition is now known to lie",
+   "rationale": "Measured tonight across three rungs, all extracted by identical code against a definition confirmed word-for-word in the reference literature: mean recirculation length 0.397 diameters, then 0.254, then none at all. The third is a departure from the trend, not a continuation -- extrapolating the first two predicts about 0.165, and the method resolved 0.254 cleanly one rung earlier, so it would have seen 0.165. The mechanism is measured rather than assumed: reversal FREQUENCY is flat across all three rungs at 34 to 48 percent, while the amplitude of forward-going excursions grows from 0.22 to 0.52 to 0.81, so the bubble is swamped in the average rather than extinguished in the flow. Meanwhile the three-dimensional bubble GROWS with Reynolds number over the same interval, so the two dimensionalities diverge rather than one merely lagging. The transition therefore sits inside a factor-of-two window and one intermediate rung halves it. A falsifiable prediction is already recorded: the intermediate rung either shows a detectable bubble near 0.16 to 0.20, supporting smooth extinction reaching zero close to the upper rung, or shows none, placing the onset lower. Either outcome is decisive, which is the property a rung should have before it is worth its compute.",
    "citations": [
-    "Certonomous adjoint envelope, per-family convergence measurements across a 4.6-fold mesh range, 2026-07-29",
-    "Saad, Iterative Methods for Sparse Linear Systems, on breakdown and equilibration"
+    "Certonomous cylinder Reynolds ladder, three gate-checked rungs, 2026-07-29",
+    "Parnaudeau et al. (2008), recirculation length defined as the sign change of centreline mean streamwise velocity",
+    "Jiang & Cheng (2017), matched two- and three-dimensional direct simulation of this geometry"
    ],
-   "est_core_min": 90.0,
-   "cost_basis": "measured, from the 420-second 21,840-cell run now established as the cheapest reproduction of the failure",
-   "expected_knowledge_gain": "Decides whether an entire class of cases -- transonic and shock-containing, which is most of external aerodynamics worth optimising -- is reachable by this adjoint at all. It also hands us a cheap test bed: a seven-minute case that reproduces the failure exactly, where previously the cheapest reproduction took sixteen minutes and was assumed to need a large mesh.",
-   "source_kind": "measurement",
-   "status": "approved",
-   "created_at": "2026-07-29T22:15:00Z",
-   "decided_at": "2026-07-29T23:04:27+00:00",
-   "decision_note": null,
-   "dismiss_reason": "Approved to run. The owner directed tonight that research directions be proposed, assessed and FOLLOWED continuously rather than queued, which is the authorisation this needed. It is also now the highest-leverage open question in the lab: the memory half of the envelope is settled and well fitted, and it does not matter, because the transonic family's adjoint diverges at every mesh size measured. A cheap reproducer exists at 21,840 cells and seven minutes per attempt, so conditioning experiments that were previously assumed to need a large mesh can now be iterated quickly."
-  },
-  {
-   "id": "r4-coarse-adjoint-prolongation",
-   "objective": "Determine whether a gradient computed on a coarse adjoint mesh is accurate enough to drive optimization on a fine primal mesh, by measuring gradient direction agreement (cosine similarity, not just magnitude) between coarse and fine adjoints on the one case where both are affordable",
-   "rationale": "The adjoint memory wall blocks four cases and the reflex response is to buy a bigger machine. That may be the wrong purchase. Optimization does not need an accurate gradient magnitude; it needs an accurate gradient DIRECTION, because the line search recovers the step length. If the coarse-mesh adjoint points the same way as the fine-mesh adjoint, the wall stops being a blocker and becomes a cost-management technique, and it does so on hardware we already own. A4 already exercises this pattern informally, using a 2,777-cell adjoint mesh against a 45,760-cell primal, but nobody has measured whether the resulting direction is right - only that its magnitude lands within 10.04 percent on a single scalar design variable, which says nothing about direction in a many-variable space. The measurement wanted is cosine similarity across the full design-variable vector at several coarsening ratios, on a case small enough that the fine-mesh adjoint is affordable as ground truth.",
-   "citations": [
-    "Certonomous DAFoam Adjoint Memory Envelope (D3), cross-rung finding 1",
-    "Certonomous DAFoam Case Status, A4 coarse-adjoint-mesh disclosure",
-    "Nocedal & Wright, Numerical Optimization, on line-search tolerance to inexact gradients"
-   ],
-   "est_core_min": 120.0,
-   "cost_basis": "estimate, several full adjoint cycles at A1/A5 scale plus one fine-mesh reference; wide error bar because the fine reference may itself hit the wall",
-   "expected_knowledge_gain": "A direct answer to whether the memory wall requires capital expenditure or an algorithmic change. This is the proposal on this docket with the clearest commercial consequence, and the answer is the same regardless of which way it comes out: either we can optimize large geometries on this box today, or we have a measured, defensible basis for a hardware case rather than an assumed one.",
-   "source_kind": "measurement",
+   "est_core_min": 110.0,
+   "cost_basis": "measured, using the cost exponent of 1.514 derived from this ladder's own two most recent rungs rather than the shallower 0.714 assumed earlier",
+   "expected_knowledge_gain": "A located transition rather than an interval, on the ladder's sharpest result. Every other quantity here says two dimensions is high by some percentage; this one says the mean wake differs in kind, which is far better evidence for a dimensionality attribution than any deviation figure.",
+   "source_kind": "gate",
    "status": "proposed",
-   "created_at": "2026-07-29T20:15:00Z",
+   "created_at": "2026-07-30T00:05:00Z",
    "decided_at": null,
    "decision_note": null
   },
@@ -711,6 +763,24 @@
    "launch_prompt": "Run workflows.tmr_verification.run_naca_level for (medium, fine) x (10, 0, 15 degrees) sequentially with detach=True and collect_level, honoring the STOP file before every launch; then build the per-alpha summaries with build_naca_summary and persist_naca_ladder, and only then touch the card."
   },
   {
+   "id": "r4-coarse-adjoint-prolongation",
+   "objective": "Determine whether a gradient computed on a coarse adjoint mesh is accurate enough to drive optimization on a fine primal mesh, by measuring gradient direction agreement (cosine similarity, not just magnitude) between coarse and fine adjoints on the one case where both are affordable",
+   "rationale": "The adjoint memory wall blocks four cases and the reflex response is to buy a bigger machine. That may be the wrong purchase. Optimization does not need an accurate gradient magnitude; it needs an accurate gradient DIRECTION, because the line search recovers the step length. If the coarse-mesh adjoint points the same way as the fine-mesh adjoint, the wall stops being a blocker and becomes a cost-management technique, and it does so on hardware we already own. A4 already exercises this pattern informally, using a 2,777-cell adjoint mesh against a 45,760-cell primal, but nobody has measured whether the resulting direction is right - only that its magnitude lands within 10.04 percent on a single scalar design variable, which says nothing about direction in a many-variable space. The measurement wanted is cosine similarity across the full design-variable vector at several coarsening ratios, on a case small enough that the fine-mesh adjoint is affordable as ground truth.",
+   "citations": [
+    "Certonomous DAFoam Adjoint Memory Envelope (D3), cross-rung finding 1",
+    "Certonomous DAFoam Case Status, A4 coarse-adjoint-mesh disclosure",
+    "Nocedal & Wright, Numerical Optimization, on line-search tolerance to inexact gradients"
+   ],
+   "est_core_min": 120.0,
+   "cost_basis": "estimate, several full adjoint cycles at A1/A5 scale plus one fine-mesh reference; wide error bar because the fine reference may itself hit the wall",
+   "expected_knowledge_gain": "A direct answer to whether the memory wall requires capital expenditure or an algorithmic change. This is the proposal on this docket with the clearest commercial consequence, and the answer is the same regardless of which way it comes out: either we can optimize large geometries on this box today, or we have a measured, defensible basis for a hardware case rather than an assumed one.",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-29T20:15:00Z",
+   "decided_at": null,
+   "decision_note": null
+  },
+  {
    "id": "r4-band-tightening-hump",
    "objective": "Determine how tight the model-form uncertainty band on hump reattachment can be made while still containing the experiment, by replacing the extremal anisotropy limiting states with physically weighted perturbations and measuring the containment/width trade-off curve",
    "rationale": "The D9 result is the lab's flagship epistemic claim: the band contains the known +13.95 percent reattachment error, and the prediction that it would was written before the runs. But the band spans 0.5278 to 1.2534, a factor of 2.4, and the record says plainly that containment is necessary and not sufficient. The band's width comes from channel 3 taking the barycentric map's extremal limiting states, which are bounds by construction and are not predictions. The open question, stated in the record itself, is not whether the band contains but how tight it can be made while still containing. That is a research question with a curve as its answer, not a single number: sweep the perturbation magnitude from extremal down toward zero and find where containment breaks. The point at which it breaks is itself the interesting result, because it measures how much of the band is doing real work. Channel 2, documented model bias from the literature, was never incorporated and belongs in this study.",
@@ -729,18 +799,24 @@
    "decision_note": null
   },
   {
-   "id": "naca4412-converge-lift-coefficient",
-   "objective": "Identify and remove the remaining driver of lift non-monotonicity on the NACA 4412 refinement ladder so the ladder reaches the asymptotic range",
-   "rationale": "Repairing boundary layer coverage from 58.3 to 77.0 percent closed only 26.5 percent of the lift gap to the next rung, and extrapolating the coverage trend to equal coverage still leaves 9.4 percent. Drag is effectively invariant across a 17.7 fold change in coverage at 0.037 percent, so the remaining driver is not near wall resolution. The pressure and induced split and the tip and wake treatment at aspect ratio 3 are the untested suspects. Until lift converges the numerical half width of 0.0033839 dominates the acceptance band",
+   "id": "dpw8-v1-oat15a-committee-grid-primal",
+   "objective": "Run the DPW-8 V1 ONERA OAT15A transonic verification case on the committee-supplied Rizzi grid family, levels 1 through 4, to a converged primal at a single angle of attack, and report a grid-convergence trend on lift, drag and surface pressure against the workshop's own gridding and numerics rulebook",
+   "rationale": "The scoping report of 2026-07-28 left exactly one open question: nobody had counted the cells in the 2D verification grid bundles, so V1 sat at 'plausible, not confirmed'. That question is now closed by measurement. The Rizzi bundle carries a nine-level structured family and its cell counts were read straight out of the CGNS zone headers rather than trusted from its README: 15872, 34816, 63488, 100352, 144384, 253952, 471040, 667648 and 1146880 cells, all nine matching the README exactly. Levels 1 through 8 are at or below this lab's largest ever converged primal of 579072 cells, and the finest level is only twice it. This is the first Drag Prediction Workshop case found whose committee grids are inside our proven envelope at every offered level, and unlike the Joukowski case already attempted it uses a committee grid rather than one we generated ourselves, on a real transonic condition of Mach 0.73 and chord Reynolds number 3 million",
    "citations": [
-    "Certonomous NACA 4412 refinement ladder, four rungs measured 2026-07-27 and 2026-07-28"
+    "AIAA Drag Prediction Workshop 8, verification case V1, ONERA OAT15A airfoil",
+    "ONERA Rizzi structured grid family, nine levels, provider README and CGNS zone headers, measured 2026-07-30",
+    "DPW-8 gridding guidelines, wall spacing and grid family growth rule",
+    "Certonomous scoping report on the joint Drag Prediction and Aeroelastic Prediction workshop, 2026-07-28",
+    "Certonomous rung A6, CRM wing converged primal at 579072 cells",
+    "Certonomous DPW-8 V2 Joukowski verification report, 2026-07-29"
    ],
-   "est_core_min": 220.0,
-   "cost_basis": "estimate from measured cost of the 2.09 million cell rung at 37.4 core minutes, allowing for a tip refinement study and one further rung",
-   "expected_knowledge_gain": "An asymptotic ladder, a defensible observed order, and a materially tighter acceptance band on a wall credential",
-   "source_kind": "measurement",
+   "est_core_min": 240.0,
+   "cost_basis": "Estimate, bracketed by two measured anchors of our own rather than assumed. Levels 1 through 4 total 214528 cells. Scaling from rung A6 (579072 cells, 38.4 core-min for 1000 iterations) gives about 43 core-min for those four levels at 3000 iterations. Scaling instead from the Joukowski L3 rung (12288 cells, 28.3 core-min for 3000 iterations) gives about 493 core-min, but that rung is known to have been inflated by a linear-solver stall that capped every outer iteration at 1000 sweeps. The estimate of 240 core-min sits between the healthy and the pathological anchor, with headroom for a compressible solver being dearer per cell than the incompressible one A6 used. Memory is not expected to bind: A6 held 30 GB free at 579072 cells, and every level here except the ninth is smaller than that. Dollars: zero, the grids are anonymous public downloads and the 64 MB bundle is already fetched",
+   "expected_knowledge_gain": "First result this lab would have on a workshop-supplied grid rather than one it generated for itself, which is the difference between checking our solver and checking our meshing at the same time. Also the first honest measurement of how close our pipeline can get to the workshop's mandated convergence bar of about 1e-10, roughly four orders tighter than our production standard, which is the single number that decides whether any future Drag Prediction Workshop entry is credible",
+   "source_kind": "challenge",
    "status": "proposed",
-   "created_at": "2026-07-28"
+   "created_at": "2026-07-30T19:09:15+00:00",
+   "launch_prompt": "Run DPW-8 verification case V1 on the ONERA Rizzi committee grid family, levels 1 through 4 only, at one angle of attack, converged primal only. The grid bundle is already downloaded to the session scratchpad; re-fetch it from the workshop grid server if absent. Scope, and do not exceed it: a converged primal is the whole deliverable. Do NOT attempt an adjoint or any gradient on this case. Levels 1 to 3 sit below the measured adjoint memory wall of between 63920 and 156089 cells and so a gradient looks tempting; the gradient question is reserved and must be routed through the chief engineer before any adjoint work is started. Convert the CGNS grids rather than regenerating them, since using the committee grid is the entire point. Report the cell count you actually load against the published table and stop if they disagree. Expect the workshop numerics spec (a specifically qualified Spalart-Allmaras variant, adiabatic wall, residuals near 1e-10) to be out of reach on our pipeline; disclose every deviation from it plainly rather than quietly substituting, exactly as the Joukowski report did. Watch for the linear-solver stall that killed the Joukowski fine rung: if the momentum solve caps its sweep count every outer iteration, change the solver for the whole family or for none of it, never mid-family. The geometry is ONERA intellectual property and must be referred to as the ONERA OAT15A with ONERA acknowledged; do not redistribute it. Nothing is submitted anywhere: the workshop concluded in June 2026 and this is an internal verification run."
   },
   {
    "id": "r5-perturbation-destroys-its-own-measurand",
@@ -759,6 +835,20 @@
    "created_at": "2026-07-29T22:15:00Z",
    "decided_at": null,
    "decision_note": null
+  },
+  {
+   "id": "naca4412-converge-lift-coefficient",
+   "objective": "Identify and remove the remaining driver of lift non-monotonicity on the NACA 4412 refinement ladder so the ladder reaches the asymptotic range",
+   "rationale": "Repairing boundary layer coverage from 58.3 to 77.0 percent closed only 26.5 percent of the lift gap to the next rung, and extrapolating the coverage trend to equal coverage still leaves 9.4 percent. Drag is effectively invariant across a 17.7 fold change in coverage at 0.037 percent, so the remaining driver is not near wall resolution. The pressure and induced split and the tip and wake treatment at aspect ratio 3 are the untested suspects. Until lift converges the numerical half width of 0.0033839 dominates the acceptance band",
+   "citations": [
+    "Certonomous NACA 4412 refinement ladder, four rungs measured 2026-07-27 and 2026-07-28"
+   ],
+   "est_core_min": 220.0,
+   "cost_basis": "estimate from measured cost of the 2.09 million cell rung at 37.4 core minutes, allowing for a tip refinement study and one further rung",
+   "expected_knowledge_gain": "An asymptotic ladder, a defensible observed order, and a materially tighter acceptance band on a wall credential",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-07-28"
   },
   {
    "id": "tmr-flatplate-finest-grids",
@@ -830,74 +920,22 @@
    "decision_note": "Owner GO, all proposals, morning 2026-07-25"
   },
   {
-   "id": "r6-cylinder-wake-topology-onset",
-   "objective": "Locate the Reynolds number at which a two-dimensional cylinder wake stops producing a time-mean recirculation bubble, by running the single intermediate rung that halves the interval in which the transition is now known to lie",
-   "rationale": "Measured tonight across three rungs, all extracted by identical code against a definition confirmed word-for-word in the reference literature: mean recirculation length 0.397 diameters, then 0.254, then none at all. The third is a departure from the trend, not a continuation -- extrapolating the first two predicts about 0.165, and the method resolved 0.254 cleanly one rung earlier, so it would have seen 0.165. The mechanism is measured rather than assumed: reversal FREQUENCY is flat across all three rungs at 34 to 48 percent, while the amplitude of forward-going excursions grows from 0.22 to 0.52 to 0.81, so the bubble is swamped in the average rather than extinguished in the flow. Meanwhile the three-dimensional bubble GROWS with Reynolds number over the same interval, so the two dimensionalities diverge rather than one merely lagging. The transition therefore sits inside a factor-of-two window and one intermediate rung halves it. A falsifiable prediction is already recorded: the intermediate rung either shows a detectable bubble near 0.16 to 0.20, supporting smooth extinction reaching zero close to the upper rung, or shows none, placing the onset lower. Either outcome is decisive, which is the property a rung should have before it is worth its compute.",
+   "id": "hlpw6-testcase1-coarse-grid-entry",
+   "objective": "Prepare a candidate entry for the sixth High-Lift Prediction Workshop test case 1 by running the published CRM-HLS blind case on the coarsest committee grid of 2.66 million cells across the six specified angles of attack, and assess whether the result is strong enough to be worth Katie approving an approach to the workshop organisers",
+   "rationale": "This is the strongest externally verified credential currently open to this lab, and the scouting sweep of 2026-07-30 found it by looking. The workshop is underway as of January 2026 with the meeting expected June 2027, its submission repository is already public, and its participant list is full of companies including Boeing, Embraer, ONERA, DLR, JAXA and Bombardier, so a commercial entrant is normal rather than exceptional. Membership of the sponsoring society is not required. Decisively for us, the coarsest published grid is 2.66 million cells, which is under five times our largest ever converged primal, and the case is deliberately blind with no experimental data published, so there is nothing to tune toward and placing well cannot be an artifact of hindsight. A workshop entry that is externally rescored is worth more to this company than another internal case",
    "citations": [
-    "Certonomous cylinder Reynolds ladder, three gate-checked rungs, 2026-07-29",
-    "Parnaudeau et al. (2008), recirculation length defined as the sign change of centreline mean streamwise velocity",
-    "Jiang & Cheng (2017), matched two- and three-dimensional direct simulation of this geometry"
+    "Sixth AIAA High-Lift Prediction Workshop, test case 1, CRM high lift simplified configuration, specification version 1.0 of January 2026",
+    "High-Lift Prediction Workshop 6 grid statistics for the HeldenMesh family, coarsest level 2661338 cells",
+    "High-Lift Prediction Workshop 6 technology focus groups and public submission repository",
+    "Certonomous rung A6, CRM wing converged primal at 579072 cells"
    ],
-   "est_core_min": 110.0,
-   "cost_basis": "measured, using the cost exponent of 1.514 derived from this ladder's own two most recent rungs rather than the shallower 0.714 assumed earlier",
-   "expected_knowledge_gain": "A located transition rather than an interval, on the ladder's sharpest result. Every other quantity here says two dimensions is high by some percentage; this one says the mean wake differs in kind, which is far better evidence for a dimensionality attribution than any deviation figure.",
-   "source_kind": "gate",
+   "est_core_min": 3600.0,
+   "cost_basis": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
+   "expected_knowledge_gain": "The first externally rescored aerodynamic result this lab would ever hold, on a blind case, judged beside national laboratories and airframers. Even a mediocre placement establishes that our pipeline runs a modern high lift configuration end to end at several million cells, which no current record demonstrates. A failure is nearly as informative, since it would locate our ceiling against a published grid rather than against our own guess",
+   "source_kind": "challenge",
    "status": "proposed",
-   "created_at": "2026-07-30T00:05:00Z",
-   "decided_at": null,
-   "decision_note": null
-  },
-  {
-   "id": "r6-airfoil-second-gradient-mechanism",
-   "objective": "Identify the cause of the airfoil case's remaining shape-derivative error on its two interior leading-edge stations, which is now known not to be the mesh-warp defect and which worsens under mesh refinement",
-   "rationale": "The airfoil's headline defect was resolved tonight and traced to the mesh warp's own linearisation for opposing-direction combination modes. The two interior stations adjacent to the leading edge were then tested against that same mechanism and CLEARED: under the real objective seed they return 11.92 and 11.58 percent, matching their independently measured values to within 0.08 points, with no sign flip. So the warp adds nothing to them and this case carries a SECOND, distinct defect. Its signature is diagnostic and unusual: the error is step-independent, and it grows under mesh refinement. Ordinary discretisation error shrinks under refinement, so whatever this is, it is not that -- and the direction of the trend is itself a strong clue, since very few mechanisms get worse with resolution. Candidates worth separating are a geometric quantity that becomes more singular as cells shrink near a high-curvature edge, and a term whose linearisation error scales with a mesh metric rather than with cell size. The link-by-link isolation approach is what finally resolved the first defect after six wrong mechanisms and should be applied here rather than guessing again.",
-   "citations": [
-    "Certonomous shape-derivative root-cause study, the resolved first mechanism and the cleared interior stations, 2026-07-29",
-    "Certonomous airfoil case survey, mesh-refinement behaviour of the interior station errors"
-   ],
-   "est_core_min": 40.0,
-   "cost_basis": "measured, from this case's own 3.5 core-minute verification cycle across several isolation probes",
-   "expected_knowledge_gain": "The last unexplained gradient error on the lab's most heavily verified case. An error that grows under refinement is also the more dangerous kind, because the usual response to a suspect gradient is to refine the mesh, and here that would make it worse while appearing to be the responsible thing to do.",
-   "source_kind": "gate",
-   "status": "proposed",
-   "created_at": "2026-07-30T00:05:00Z",
-   "decided_at": null,
-   "decision_note": null
-  },
-  {
-   "id": "r7-strouhal-mesh-sensitivity-across-the-ladder",
-   "objective": "Establish whether the cylinder ladder's Strouhal gates are sensitive to near-wall spacing at every rung or only at the highest one, by running a matched-spacing twin at the ladder's best-gated low-Reynolds rung and comparing the shift against the one already measured at the top",
-   "rationale": "A matched pair at the ladder's top rung, differing only in first-cell height by 55 percent, moved drag by 7.1 percent, base suction by 6.9 percent and fluctuation amplitude by 3.3 percent , all small against the 50 to 100 percent deviations those quantities carry versus the three-dimensional reference. Strouhal moved 35.1 percent, from 0.2409 to 0.1564, and that is large enough to flip which side of the reference band the run lands on, over-predicting in one member and under-predicting in the other. An independent windowed transform confirmed two genuinely distinct frequency bands rather than a period-detector artifact. So at that rung the Strouhal gate is not a solid measurement. Nothing is known about the lower rungs, which have no twins, and the ladder reports a Strouhal trend ACROSS rungs, and that is a trend whose sensitivity is therefore unquantified at every point but one. The best-supported reading is that the sensitivity belongs to a chaotic-dynamics regime in which a finite window no longer contains one robust dominant frequency, which is consistent with published evidence that two-dimensional confined cylinder wakes are fully chaotic well below this Reynolds number. That reading predicts the low rung will be ROBUST. Falsifiable either way: if the low rung's Strouhal moves comparably under the same spacing change, the sensitivity is not regime-related and every Strouhal gate on this ladder is soft; if it holds within a few percent, the sensitivity has an onset and the lower gates stand.",
-   "citations": [
-    "Certonomous cylinder ladder, matched-spacing pair at the top rung, 2026-07-30",
-    "Certonomous literature reproduction review, on two-dimensional wake chaos below this Reynolds number"
-   ],
-   "est_core_min": 45.0,
-   "cost_basis": "measured, from the low rung's own 2,417-second single-core solve, which a twin reproduces at the same cost",
-   "expected_knowledge_gain": "Tells us whether one of this ladder's four gated quantities can be trusted at all. A gate that moves 35 percent under a mesh parameter nobody varied is not a gate, and we currently cannot say whether that applies to one rung or to every rung. It also tests the chaotic-regime explanation on a prediction it makes rather than on the observation that motivated it.",
-   "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-30T03:40:00Z",
-   "decided_at": null,
-   "decision_note": null
-  },
-  {
-   "id": "r8-how-often-does-convergence-reporting-mask-divergence",
-   "objective": "Establish how often a solver's convergence reporting can mask a run that did not converge, by classifying every run this lab holds with an automated checker and separately auditing what a sample of published papers on our own validation cases actually state about convergence",
-   "rationale": "In a single night this lab found SIX published numbers of its own resting on runs that never met their convergence criterion, including one inside the correction that fixed the first two. They hid in four distinct ways: a normalised residual collapsing to a tiny fixed value while raw statistics showed a blow up; a solver exiting zero having printed a success message over a residual that underflowed to denormal range; a run reaching its iteration cap with no convergence statement while a plausible residual was quoted anyway; and a final residual quoted where the gate tests the initial one. A seventh form was found in the case configuration rather than the log, where the convergence gate named fields the turbulence model does not transport and therefore could never fire. Every instance was found by somebody looking at something else. Two observations make this worth studying rather than merely fixing. First, an automated sweep of 92 run logs classified 55 as not converged, and although the large majority were already known and disclosed, nobody had ever counted. Second, the literature review found that the best known reproduction of one of our validation cases never states a convergence tolerance anywhere in the paper, and that its closest agreement with experiment is attributed by its own authors to a coarse mesh numerical viscosity accident rather than to a modelling result. If a defect this easy to hide occurs six times in one lab's own work in one night, the reasonable prior is that it is widespread, and nobody appears to have measured how widespread.",
-   "citations": [
-    "Certonomous convergence audit and automated checker, validated against 13 known answer cases, 2026-07-30",
-    "Certonomous literature reproduction review, on convergence tolerances absent from published reproductions",
-    "ASME V and V 20 on solution verification"
-   ],
-   "est_core_min": 30.0,
-   "cost_basis": "measured, the existing checker classifies 92 logs in minutes; the remaining cost is reading papers, not compute",
-   "expected_knowledge_gain": "A measured answer to a question the field appears not to ask: how much published computational fluid dynamics rests on runs whose convergence was never established. Our own rate is the uncomfortable part of the evidence and makes the study credible rather than accusatory, since we found it in ourselves first. It also converts a piece of internal tooling into a contribution, because the checker is the instrument the study needs and it already exists.",
-   "source_kind": "measurement",
-   "status": "proposed",
-   "created_at": "2026-07-30T04:05:00Z",
-   "decided_at": null,
-   "decision_note": null
+   "created_at": "2026-07-30T19:09:15+00:00",
+   "launch_prompt": "Prepare, do not send. Download the sixth High-Lift Prediction Workshop test case 1 specification and the coarsest published grid of the HeldenMesh family, 2661338 cells, from the public grid store. FIRST run a memory probe at a single angle of attack and report peak resident set size before queueing anything else; this grid is 4.6 times our largest ever converged primal and the memory envelope at that size is not established. If the probe fits, run the six specified angles of attack from 10 to 35 degrees at the published conditions of Mach 0.20 and chord Reynolds number 3.55 million, free air with no tunnel or support hardware. Produce the required outputs, which are surface streamlines, skin friction magnitude contours (magnitude, not the x component), and pressure and skin friction along the defined rows. Report every deviation from the specification plainly. ABSOLUTE: do not contact the workshop organisers, do not join a technology focus group distribution list, do not request a participant identifier, do not open a merge request against the submission repository, and do not create any account. Katie decides whether this lab approaches this workshop at all, and she proofreads anything that would be sent. The deliverable here is a result plus an honest assessment of whether it is worth her approving that approach."
   }
  ]
 }

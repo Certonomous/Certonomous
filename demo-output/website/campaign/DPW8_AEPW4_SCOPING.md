@@ -161,10 +161,57 @@ with the unstructured families (most comparable to our own OpenFOAM pipeline) cl
 guidelines' own wall-spacing (y+≈1 at Re=5×10⁶–3×10⁷) and farfield (>100 chords) requirements
 applied to this specific, geometrically complex aircraft.
 
-**Not established:** exact cell counts for the 2D verification grids (V1/V2/V3) — they ship as
-single bundled zip archives (284MB unstructured / 554MB structured for OAT15A alone) that were
-not unzipped in this pass. Given their 2D/near-2D scale, order 10⁴–10⁶ cells per level is
-plausible by convention but unconfirmed — flagged in §6 as the one genuinely open question.
+~~**Not established:** exact cell counts for the 2D verification grids (V1/V2/V3)~~ — see §4b,
+which closes this.
+
+### 4b. RESOLVED 2026-07-30 — the V1 OAT15A grid family is **15,872 to 1,146,880 cells**
+
+This report's single open question is now answered, and the answer reverses the V1 verdict.
+The ONERA_OAT15A directory offers four independent grid providers:
+
+| Provider | Bundle | Size |
+|---|---|---|
+| Cadence, structured | `Cadence-ONERA-OAT15A_..._Structured.zip` | 554.0 MB |
+| Cadence, unstructured | `Cadence-ONERA-OAT15A_..._Unstructured.zip` | 284.6 MB |
+| Helden | `Helden-ONERA-OAT15A.zip` | 1077.3 MB |
+| ONERA / Deck | `Deck-ONERA-OAT15A.zip` | **9.7 MB** |
+| ONERA / Rizzi | `ONERA-ONERA-OAT15A-Rizzi.zip` | **64.0 MB** |
+
+The two small ones were downloaded (anonymous HTTP, no auth, ~74 MB total, no compute spent).
+The **Rizzi** bundle carries a complete **9-level structured family**. Its `ReadMe.md` states the
+cell counts, and — per house practice, the table was **verified rather than trusted**, by reading
+the zone dimensions straight out of each CGNS file's HDF5 headers:
+
+| Level | Zones | Cells (README) | Cells (measured from CGNS) | Agrees |
+|---:|---:|---:|---:|:--:|
+| 1 | 4 | 15,872 | **15,872** | yes |
+| 2 | 4 | 34,816 | **34,816** | yes |
+| 3 | 4 | 63,488 | **63,488** | yes |
+| 4 | 4 | 100,352 | **100,352** | yes |
+| 5 | 4 | 144,384 | **144,384** | yes |
+| 6 | 4 | 253,952 | **253,952** | yes |
+| 7 | 4 | 471,040 | **471,040** | yes |
+| 8 | 4 | 667,648 | **667,648** | yes |
+| 9 | 4 | 1,146,880 | **1,146,880** | yes |
+
+**All nine cell counts match the README exactly.** Vertex counts do *not* match exactly (level 1:
+32,744 summed across the four zones against the README's 32,612) and that discrepancy is expected
+and benign — summing per-zone vertices double-counts the points shared on block interfaces, while
+cells are never shared. Reported rather than smoothed over.
+
+The Deck bundle is a **single 2D plane** of Sébastien Deck's structured multi-block grid, not a
+refinement family, and its own README warns that Housman's Plot3D conversion "concatenated the
+blocks that did not have extraordinary corners. This causes some discontinuities in the mesh, so
+groups with cell-centered finite-volume solvers may prefer the original mesh" — i.e. an explicit
+caution against the converted file for exactly the solver class this lab runs. Use the Rizzi
+family.
+
+**Consequence, stated plainly: the entire V1 grid family fits inside this lab's proven envelope.**
+Our largest converged primal is 579,072 cells (A6). Levels 1 through 8 are all at or below that.
+Level 9, the finest offered, is 1,146,880 cells — **1.98× our largest-ever converged case**, not
+9×–55× as the CRM configurations are. This is the first DPW-8 case found for which committee-
+supplied grids at *every* offered level are within reach, and it is a real transonic case
+(M=0.73, Re_c=3×10⁶) on a committee grid, not a self-generated one.
 
 ---
 
@@ -214,7 +261,9 @@ adopting into our own doctrine outright:
 
 | Case family | Verdict | Why |
 |---|---|---|
-| V1/V2/V3 2D verification (OAT15A, Joukowski, DPW-III increment) | **Unresolved — plausible, not confirmed** | Cell counts not directly established; 2D scale suggests 10⁴–10⁶ cells, inside our envelope, but unverified. Single actionable next step. |
+| **V1 OAT15A** | **FEASIBLE — resolved 2026-07-30, see §4b** | Rizzi 9-level committee family measured directly from the CGNS headers at **15,872 to 1,146,880 cells**. Levels 1-8 are all at or below our largest converged primal (579,072); level 9 is 1.98× it. Every offered level is within reach. |
+| V2 Joukowski | **ATTEMPTED 2026-07-29**, two rungs gated | Self-generated conformal O-grid, 768 / 12,288 cells passed the zero-lift gate; the 49,152-cell rung diverged on a pre-existing linear-solver stall. See `DPW8_V2_joukowski.md`. |
+| V3 DPW-III wing increment | **Still unresolved** | Cell counts not established in this pass; a 3D wing, so expected well above V1 but far below the CRM configurations. |
 | Config B/C/D (CRM Wing/Body(-Tail)(-Nacelle-Pylon)) and HAWG | **Not feasible on this hardware at any offered grid level** | Coarsest grid is 5.3M–31.6M cells (measured/derived across 4 providers, 2 workshop generations) — 9×–55× our largest-ever converged primal, and 75×–495× our adjoint's already-failing threshold. The workshop's own 6-grid Richardson requirement and 1e-10 convergence bar multiply real cost further. |
 | HSWG small panels (RC-19, HyMAX) | **Smaller geometry, gated by a missing capability, not a mesh-size wall** | No grid-size figures found, but a 130×80mm plate is 2–3 orders of magnitude smaller in extent than a full CRM. Blocked instead by having no structural/FSI solver stood up — this lab has proven supersonic `rhoCentralFoam` accuracy (F3 campaign, <1% vs. exact theory) but not aeroelastic coupling. |
 
@@ -237,8 +286,11 @@ adopting into our own doctrine outright:
 **Coarsest-grid or reduced-scope entry that is genuinely feasible?** **None identified** among
 the DPW-8/AePW-4 CRM-scale cases (Configs A–D, HAWG) at any offered grid level — every measured
 or derived "Tiny"/Level-1 grid for this geometry, across four independent providers, is 9× or
-more beyond our largest-ever converged case. The 2D verification cases remain the one open
-possibility, pending the cheap step of actually counting their cells.
+more beyond our largest-ever converged case. ~~The 2D verification cases remain the one open
+possibility, pending the cheap step of actually counting their cells.~~ **That step was taken on
+2026-07-30 and it landed: V1 OAT15A is feasible at every offered level (§4b).** The CRM-scale
+verdict is unchanged and unchallenged; what changed is that a genuine committee-gridded DPW-8
+case now exists inside our envelope.
 
 ---
 
@@ -251,15 +303,16 @@ converged, and the adjoint fails at a small fraction of even that coarsest numbe
 workshop has also already concluded, so "submission" is moot regardless of compute.
 
 **Do:**
-1. Download and unzip the OAT15A (V1) grid bundles — already located, ~284MB unstructured /
-   554MB structured, anonymous HTTP, essentially free — and count actual per-level cells. This is
-   the one open question standing between "not feasible" and "plausible" for this workshop
-   family, and it costs no compute.
-2. If V1/V2/V3 cell counts land inside our proven envelope, consider an off-cycle,
-   non-submitted validation run reusing our proven F2-campaign transonic pipeline
-   (`rhoCentralFoam`/`kOmegaSST`) against DPW-8's own committee-supplied OAT15A grid, purely as a
-   cross-check against a workshop-standard grid — not a workshop submission, since the event has
-   passed.
+1. ~~Download and unzip the OAT15A (V1) grid bundles and count actual per-level cells.~~
+   **DONE 2026-07-30 — see §4b. 15,872 to 1,146,880 cells across 9 levels, measured from the
+   CGNS headers, all nine matching the provider's own README.** The Rizzi bundle (64 MB) is the
+   one to use; the Deck bundle's own README warns cell-centered finite-volume solvers off its
+   converted Plot3D file.
+2. **Now unblocked and recommended:** an off-cycle, non-submitted validation run of the V1a grid
+   convergence case reusing this lab's proven F2-campaign transonic pipeline against DPW-8's own
+   committee-supplied OAT15A grid — a cross-check against a workshop-standard grid rather than a
+   self-generated one, which is what V2 had to settle for. Not a workshop submission; the event
+   has passed. Costed as a docket proposal, 2026-07-30.
 3. Bank the transferable methodology (§5) into our own doctrine regardless of whether we ever
    touch DPW/AePW data directly.
 4. Treat the openly-downloadable FEM/structural data as a future resource only if this lab stands

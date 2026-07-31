@@ -1,0 +1,26 @@
+{
+  "act": "cylinder-vortex-shedding",
+  "module": "workflows.cylinder_vortex_shedding",
+  "reynolds": 100.0,
+  "production_rung": {
+    "res_level": "fine",
+    "n_radial": 45,
+    "n_tangential": 48,
+    "cells": 8640,
+    "first_cell": 0.01,
+    "farfield_diameters": 15.0,
+    "end_time": 90.0,
+    "dt0": 0.005,
+    "perturbation": 0.1
+  },
+  "strouhal": 0.15776367834400276,
+  "strouhal_reference": 0.15899400000000002,
+  "strouhal_reference_formula": "0.198 * (1 - 19.7 / Re), Roshko 1954 / Williamson 1996",
+  "strouhal_deviation_pct": -0.7738164056488062,
+  "cd_mean": 1.2845685914685212,
+  "cd_relative_drift_pct": 3.854073764243375,
+  "stationarity_gate_pct": 10.0,
+  "mesh_warm": true,
+  "solve_warm": true,
+  "note": "Measured directly off the act's own production (fine) rung, not the campaign markdown, per the gate-table provenance rule: the row must cite the run the viewer watches. Ladder: coarse 2496 cells St 0.1245, medium 5032 cells St 0.1490, fine 8640 cells St 0.15776."
+}

@@ -1,0 +1,60 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : potentialFoam -writephi
+Date   : Jul 30 2026
+Time   : 19:09:10
+Host   : ip-172-31-43-247
+PID    : 967245
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/W3_runs/kOmega
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+potentialFlow: Operating solver in PISO mode
+
+Reading velocity field U
+
+Constructing pressure field p
+
+Constructing velocity potential field Phi
+
+No MRF models present
+
+
+Calculating potential flow
+GAMG:  Solving for Phi, Initial residual = 1, Final residual = 0.0013835004, No Iterations 2
+GAMG:  Solving for Phi, Initial residual = 0.00086804348, Final residual = 5.8976762e-06, No Iterations 4
+GAMG:  Solving for Phi, Initial residual = 9.0463463e-05, Final residual = 6.1985318e-07, No Iterations 3
+GAMG:  Solving for Phi, Initial residual = 5.9305281e-06, Final residual = 4.1925702e-07, No Iterations 1
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 6.797711e-07, Final residual = 6.797711e-07, No Iterations 0
+Continuity error = 1.0808617e-05
+Interpolated velocity error = 0.00065137284
+ExecutionTime = 0.62 s  ClockTime = 0 s
+
+End
+

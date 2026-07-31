@@ -1,0 +1,39 @@
+FoamFile
+{
+    version 2.0;
+    format  ascii;
+    class   dictionary;
+    object  thermophysicalProperties;
+}
+// Air, perfect gas, constant Cp -- adequate for this non-reacting flow at
+// T <= ~900K (post-shock estimate); avoids needing exact janaf coefficients
+// for air (the biconic25-55Run35 tutorial this case is based on uses N2 +
+// janaf, not air -- switched here to match Kussoy & Horstman's air tunnel).
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       sutherland;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+
+mixture
+{
+    specie
+    {
+        molWeight       28.9;
+    }
+    thermodynamics
+    {
+        Cp              1005;
+        Hf              0;
+    }
+    transport
+    {
+        As              1.458e-06;
+        Ts              110;
+    }
+}

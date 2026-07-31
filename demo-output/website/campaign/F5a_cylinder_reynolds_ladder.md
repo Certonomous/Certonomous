@@ -141,7 +141,7 @@ partially cancels, while a 2D solve has no span to decorrelate across and
 integrates a single in-phase signal. This is a **known, referenced physical
 mechanism**, not an unexplained residual.
 
-## Gate: Re 1000, 3D — turning the attribution into a demonstration (DESIGN PHASE, launch pending scheduling)
+## Gate: Re 1000, 3D — turning the attribution into a demonstration (`pilot` RUN COMPLETE 2026-07-30; statistics not yet graded)
 
 The Re 1000 gate above is an **attribution**: our 2D numbers are high by
 almost exactly the amount 2D-vs-3D DNS is documented to differ, so the gap
@@ -465,6 +465,99 @@ missed gate:
 
 **No launch has been made.** Awaiting scheduling given the live jobs above
 and the owner's call on a 13-to-61-hour job on a demo-filming day.
+
+> **SUPERSEDED 2026-07-30 — the `pilot` launch WAS made and HAS completed.**
+> The paragraph above was true when written and is left in place unedited so
+> the pre-stated expectation stays legible as a pre-statement. See the
+> operational record immediately below for what actually happened.
+
+### `pilot` run record — launched, survived a box outage it never met, completed
+
+**Status: COMPLETE.** Not interrupted. Recorded here because the run was
+briefly *believed* to have been killed by a machine outage, and the belief
+was wrong; the correction is worth more in the record than the tidier
+version.
+
+| | |
+|---|---|
+| Job tag | `f5a_re1000_3d_pilot` (launcher stamp `20260729T215854Z`) |
+| Case | `/home/ubuntu/certonomous-runs/f5a-cylinder-ladder/f5b_re1000_3d_pilot` |
+| Launched | 2026-07-29 21:58:54 UTC, via `scripts/launch_solve.sh` (PID 138569) |
+| Solver / decomposition | `pimpleFoam`, 8 ranks, `scotch`, 1,344,000 cells |
+| Finished | **2026-07-30 10:14:01 UTC**, cleanly — `End` + `Finalising parallel run` |
+| Wall clock | 44,102 s ClockTime ≈ **12 h 15 min** (inside the predicted 13-32 h band, at its fast end) |
+| End state | reached `endTime = 90.0` in full; all 8 `processor*/90/` dirs hold `U p phi uniform yPlus`, every file properly terminated |
+| Log | `demo-output/website/solve_registry/f5a_re1000_3d_pilot_20260729T215854Z.log` (22.5 MB) |
+
+**The outage, stated plainly.** The box performed a clean `systemd` poweroff
+at **10:40:08 UTC** on 2026-07-30 and stayed down 4 h 06 min, booting again at
+**14:46:48 UTC**. This was an orderly shutdown, not a crash or a kernel panic
+— the journal for the previous boot ends with `Reached target poweroff.target`
+and `systemd-poweroff.service: Deactivated successfully`.
+
+**It did not hit this run.** The solve had already finished **26 minutes
+earlier**, at 10:14:01 UTC. Nothing was restarted, nothing was resumed from a
+checkpoint, and no compute was lost. The run is the original, uninterrupted
+one, not a stitched-together restart — which matters, because a restarted
+unsteady run would carry a discontinuity through exactly the statistics this
+rung exists to measure.
+
+**No other work was lost either.** Every job the sanctioned launcher has ever
+started leaves a `.job` file that its armed collector deletes on exit; the
+registry holds **zero** orphaned `.job` files, and `launch_solve.sh --check`
+reports no live solves. The last file written anywhere under
+`certonomous-runs/` before the shutdown was this run's own `t=90` output at
+10:13:57. The window between 10:14 and 10:40 was idle. (Separately and
+earlier: the `mega-batch` throughput runner, PID 2033, died in the *previous*
+outage at 11:22 UTC on 2026-07-29 — last ledger entry 11:17:12, keeper also
+dead. A day of active work has passed without it being restarted, so it is
+recorded here as a known-dead background batch rather than a fresh casualty.)
+
+#### A normalization defect in this run's `forceCoeffs` output — read before using `coefficient.dat`
+
+`system/controlDict` sets `Aref 0.1` for `forceCoeffs1`. That is the **2D**
+rung's reference area (D × 0.1 unit thickness) carried over unchanged into
+the 3D case. The 3D geometry is D = 1.0 with a span of 6.0
+(`blockMeshDict`: cylinder radius 0.5, z from 0 to 6), so the correct frontal
+area is **6.0**. Every coefficient in
+`postProcessing/forceCoeffs1/0/coefficient.dat` is therefore
+**over-normalized by a factor of 60** and must not be read at face value —
+the file's raw mean Cd is ≈ 61, which is not a physical drag coefficient.
+
+This is a *post-processing* constant only: `Aref` enters as a pure divisor and
+touches neither the flow solution nor the forces themselves. **The correction
+is exact and applies after the fact — multiply by 0.1/6.0. The run does not
+need to be repeated.**
+
+#### Reduced statistics, corrected — PRELIMINARY, not yet graded
+
+Computed here only to confirm the completed run is physically sane, not to
+settle the gate. Grading against the pre-stated expectation above is the
+rung owner's call.
+
+| Window | Cd (mean) | Cl (mean) | Cl_rms | St (FFT, zero-padded) | St (zero-crossing) |
+|---|---|---|---|---|---|
+| t ≥ 40 | 0.997 | +0.0004 | 0.094 | 0.2175 | 0.2157 |
+| t ≥ 50 | 1.005 | +0.0005 | 0.103 | 0.2156 | 0.2157 |
+| t ≥ 60 | 1.018 | +0.0007 | 0.115 | 0.2146 | 0.2110 |
+| t ≥ 70 | 1.023 | −0.0048 | 0.112 | — | — |
+
+St is quoted from two independent estimators (interpolated FFT peak and mean
+Cl zero-up-crossing period) because the raw bin spacing on a 30-50 time-unit
+window is only 0.02-0.033 — coarser than the differences being discussed, so
+a bare periodogram peak would have been spurious precision. They agree at
+**St ≈ 0.215**, against the pre-stated ~0.2125 for this preset and clearly
+below the 2D rung's 0.2343.
+
+Sanity reading only: the values sit in the 3D family, Cl_mean is ~0 as a
+symmetric cylinder requires, and **Cl_rms ≈ 0.11 against the 2D rung's 0.9666
+is the order-of-magnitude drop the attribution claim was defined against**.
+Two honest caveats: (1) Cd drifts upward across the windows (0.997 → 1.023),
+so the statistics are not demonstrably stationary and the averaging window
+needs to be chosen and defended, not assumed; (2) Cl_rms lands nearer Jiang &
+Cheng's *converged* 0.1191 than their dz=0.1 case-5 value of 0.1624, which is
+the opposite of the documented +36% bias direction for this preset and wants
+explaining before the rung is written up.
 
 ## Gate: Re 2000 (banded reference, lower confidence — and said so)
 

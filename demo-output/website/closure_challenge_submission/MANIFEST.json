@@ -1,0 +1,165 @@
+{
+  "generated_at": "2026-07-30T18:58:52.823060+00:00",
+  "measured_date": "2026-07-30",
+  "purpose": "The eight submittable prediction CSVs for the Closure Challenge, reproducing the round-3 gated entry of record without making a scoring call.",
+  "produced_by": "sdk/scripts/export_closure_submission_csvs.py",
+  "reproduces": "demo-output/website/closure_challenge_trained_entry_round3_gated.json",
+  "scoring_calls_made_by_this_run": 0,
+  "how_zero_is_guaranteed": "closure_challenge.score, score_from_csv, evaluate_by_case, evaluate_from_csv_by_case, evaluate_individual_case, _velocity_field, _ground_truth and _load_csv_predictions were all replaced with raising stubs in the closure_challenge, dataset_utils and eval namespaces BEFORE any pipeline work, and the guard was proven armed by calling score() and catching the refusal. Only evaluation-point COORDINATES were read; no test-case ground-truth velocity was readable from this process.",
+  "scoring_call_limit_note": "The benchmark imposes no scoring-call limit. It ships the test ground truth in the evaluation package and instructs submitters to preview their score. The lab's four-calls-ever ledger is a self-imposed discipline, stricter than the rules require, and is not compliance with any benchmark rule.",
+  "format": {
+    "layout": "flat {case}.csv inside a test/ directory",
+    "precedent": "matches accepted submissions wu, montoya and wang at benchmark commit deb91557",
+    "rows": 1000,
+    "cols": 3,
+    "header": null,
+    "delimiter": ",",
+    "numeric_format": "%.10g"
+  },
+  "harness": {
+    "benchmark_repo_commit": "deb91557184af3cb95f5190494ec52d8f2c6a0d1",
+    "eval_package_repo_commit": "1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162",
+    "eval_package_version_string_note": "The package's __init__ reports __version__ = '0.2.1' while pyproject.toml at this commit declares 0.3.1 ('v0.3.1: vector magnitude metric, mean over cases'). Upstream never bumped __version__. Cite the commit hash, not the version string."
+  },
+  "gate_refit_check": {
+    "chosen_alpha": 0.7499,
+    "train_loo_median_threshold": 0.1263,
+    "top3_features": [
+      "p90_I4_W2S",
+      "frac_backflow",
+      "p90_I3_S3"
+    ]
+  },
+  "gate_decisions_on_official_ph_test_cases": {
+    "alpha_15_13929_4048": {
+      "predicted_baseline_error": 0.1503,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": true
+    },
+    "alpha_15_13929_2024": {
+      "predicted_baseline_error": 0.1525,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": true
+    },
+    "alpha_05_4071_4048": {
+      "predicted_baseline_error": 0.042,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": false
+    },
+    "alpha_05_4071_2024": {
+      "predicted_baseline_error": 0.0034,
+      "threshold": 0.1263,
+      "gate_says_apply_correction": false
+    }
+  },
+  "verification_against_entry_of_record": {
+    "benchmark_repo_commit_matches": true,
+    "eval_package_repo_commit_matches": true,
+    "chosen_alpha_matches": true,
+    "threshold_matches": true,
+    "top3_features_match": true,
+    "gate_decisions_match": true,
+    "gate_predicted_errors_match": true,
+    "ph_prediction_source_matches": true
+  },
+  "recorded_scores_not_recomputed_here": {
+    "overall": 0.0676,
+    "per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0919,
+      "AR_3_Ret_360": 0.0862,
+      "AR_14_Ret_180": 0.0303,
+      "NASA_2DWMH": 0.0632
+    },
+    "source": "closure_challenge_trained_entry_round3_gated.json (round-3 run)"
+  },
+  "files": {
+    "AR_14_Ret_180": {
+      "file": "test/AR_14_Ret_180.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "561f23f37c3798c67fd7930ee978c3940421d28459cd701932bcfae67cd6cb97",
+      "max_roundtrip_abs_error": 4.999733960175945e-09,
+      "prediction_source": "round-2 trained correction, unchanged"
+    },
+    "AR_1_Ret_360": {
+      "file": "test/AR_1_Ret_360.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "b09a48eb4724d3c47fc8dc88edd2d6e3e86a7b48d856582a730f14b9d2ced084",
+      "max_roundtrip_abs_error": 4.963378330558044e-08,
+      "prediction_source": "round-2 trained correction, unchanged"
+    },
+    "AR_3_Ret_360": {
+      "file": "test/AR_3_Ret_360.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "99dabb7af65c3f06c8b9241e693f0d2306b091629e69ac2e13e8cfb4f42d2027",
+      "max_roundtrip_abs_error": 4.520983054590033e-08,
+      "prediction_source": "round-2 trained correction, unchanged"
+    },
+    "NASA_2DWMH": {
+      "file": "test/NASA_2DWMH.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "cf8e023c7b8fcb0572a1189977cbfebbb8f4f76b0d59f305aebca2e3e0fba686",
+      "max_roundtrip_abs_error": 4.993815139187063e-09,
+      "prediction_source": "round-2 trained correction, unchanged"
+    },
+    "alpha_05_4071_2024": {
+      "file": "test/alpha_05_4071_2024.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "af9cccda9c322b87e2d89f79829b74152f23c8829f7f32d1d92afcca68033b4e",
+      "max_roundtrip_abs_error": 4.99269958709192e-10,
+      "prediction_source": "raw RANS floor (gate says DECLINE)"
+    },
+    "alpha_05_4071_4048": {
+      "file": "test/alpha_05_4071_4048.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "0c3865984218474ad83c97eb0be37389385dd446fcff499b510bd72839b2db4c",
+      "max_roundtrip_abs_error": 4.990901025792027e-10,
+      "prediction_source": "raw RANS floor (gate says DECLINE)"
+    },
+    "alpha_15_13929_2024": {
+      "file": "test/alpha_15_13929_2024.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "1d49b9e3135a76096046479b56883a680dc0b036b1f2876b0d9ae2c54f7b54b7",
+      "max_roundtrip_abs_error": 4.996352220842937e-10,
+      "prediction_source": "corrected (round-1 PH model, gate says APPLY)"
+    },
+    "alpha_15_13929_4048": {
+      "file": "test/alpha_15_13929_4048.csv",
+      "rows": 1000,
+      "cols": 3,
+      "has_header": false,
+      "delimiter": ",",
+      "sha256": "e7b28d5357decf691f21b1b685c641ae054f421575e97bbb94f9cf0dafbbf3e9",
+      "max_roundtrip_abs_error": 4.828870636686133e-10,
+      "prediction_source": "corrected (round-1 PH model, gate says APPLY)"
+    }
+  },
+  "compute": {
+    "elapsed_seconds": 69.7,
+    "cores_cap": 2
+  }
+}

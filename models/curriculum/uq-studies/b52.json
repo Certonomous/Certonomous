@@ -47,22 +47,32 @@
       "note": "background blockMesh divisions scaled up again (51x45x75); same recipe as fine-uq/production. Added specifically to get a second successive triple within the valid same-recipe family, per uq-b52-ladder-monotonicity lesson update."
     }
   ],
-  "updated_utc": "2026-07-27T04:40:00Z",
+  "updated_utc": "2026-07-31T00:27:40Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
-    "band_abs": 0.00535610805555556,
-    "band_rel": 0.11349,
-    "observed_order": null,
+    "band_abs": 0.006348739897916664,
+    "band_rel": 0.13451,
+    "observed_order": 2.253,
     "order_used": null,
     "clamped": false,
-    "method": "rungs not monotone; conservative band, largest spread times 1.25. NOTE (2026-07-27): the finest-3-by-cells rule now selects (production, fine-uq, finer2), which IS monotone and would auto-fit p=2.25 with band_abs=0.0157 (see uq-b52-ladder-monotonicity lesson) -- that fit is rejected by hand-audit (successive Cd increments GROW with refinement, 0.00186->0.00238->0.00270, the opposite of asymptotic shrinkage, and the Richardson-extrapolated value 0.0657 lies far outside the whole measured range). The certified band is therefore held at the value below pending a rung that shows genuinely shrinking increments; do not let automation silently adopt the 0.0157 fit.",
+    "method": "successive Cd increments GROW with refinement instead of shrinking; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
     "conclusive": false,
-    "value_working": 0.04719600808166667
+    "value_working": 0.04719920575166667
   },
   "recipe_audit": {
     "finding": "coarse and medium rungs used nearBody refinement-shell level 1 (max overall cell level 3); intermediate, production, fine-uq, and finer2 used nearBody level 2 (max overall cell level 4). Confirmed both from log.snappyHexMesh ('Refinement level N for all cells inside nearBody' and the 'Cells per refinement level' histograms) and from sdk/scripts/run_uq_studies.py's own documented castellated-level floor/degenerate-ladder issue. Only {intermediate, production, fine-uq, finer2} share one refinement recipe (background-mesh density is the only thing that varies); coarse and medium are not extrapolation-comparable to the other four and should not be mixed into a single Richardson/GCI fit with them.",
-    "valid_family_cells": [135779, 193880, 255358, 330950],
-    "valid_family_cd": [0.049053, 0.047196, 0.049573, 0.052275]
+    "valid_family_cells": [
+      135779,
+      193880,
+      255358,
+      330950
+    ],
+    "valid_family_cd": [
+      0.049053,
+      0.047196,
+      0.049573,
+      0.052275
+    ]
   },
   "provenance": [
     "b52-rung-coarse",

@@ -1,0 +1,105 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : blockMesh
+Date   : Jul 29 2026
+Time   : 04:01:17
+Host   : ip-172-31-43-247
+PID    : 188233
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/demo-output/website/campaign/F9_work/steady_q50
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating block mesh from "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+
+Creating topology patches - from boundary section
+
+Creating block mesh topology
+
+Check topology
+
+	Basic statistics
+		Number of internal faces : 4
+		Number of boundary faces : 22
+		Number of defined boundary faces : 22
+		Number of undefined boundary faces : 0
+	Checking patch -> block consistency
+
+
+Detected collapsed blocks - using merge points instead of merge topology
+
+Creating block offsets
+Creating merge list (geometric search)...
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale (1 1 1)
+    Block 0 cell size :
+        i : 0.00191666667 .. 0.00191666667
+        j : 0.000339911648 .. 0.000543858637
+        k : 0 .. 0
+
+    Block 1 cell size :
+        i : 0.00191666667 .. 0.00191666667
+        j : 4.65618628e-05 .. 0.000279371177
+        k : 0.00090924958 .. 0.00090924958
+
+    Block 2 cell size :
+        i : 0.000383333333 .. 0.000383333333
+        j : 0.000339911648 .. 0.000543858637
+        k : 0 .. 0
+
+    Block 3 cell size :
+        i : 0.0037723532 .. 0.000943088301
+        j : 0.000339911648 .. 0.000543858637
+        k : 0 .. 0
+
+    Block 4 cell size :
+        i : 0.0037723532 .. 0.000943088301
+        j : 4.65618628e-05 .. 0.000279371177
+        k : 0.00090924958 .. 0.00090924958
+
+No patch pairs to merge
+
+Writing polyMesh with 0 cellZones
+----------------
+Mesh Information
+----------------
+  boundingBox: (0 0 -0.00050162295) (0.3013 0.011489055 0.00050162295)
+  nPoints: 10125
+  nCells: 4944
+  nFaces: 19816
+  nInternalFaces: 9692
+----------------
+Patches
+----------------
+  patch 0 (start: 9692 size: 32) name: inlet
+  patch 1 (start: 9724 size: 32) name: outlet
+  patch 2 (start: 9756 size: 150) name: pipeWall
+  patch 3 (start: 9906 size: 22) name: plate
+  patch 4 (start: 9928 size: 0) name: axis
+  patch 5 (start: 9928 size: 4944) name: back
+  patch 6 (start: 14872 size: 4944) name: front
+
+End
+

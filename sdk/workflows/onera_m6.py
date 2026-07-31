@@ -33,8 +33,8 @@ from chief_engineer.docker_dafoam import (DEFAULT_RANKS, DockerDAFoamEngineer,
 from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, PLAN, SOLVER_BACKED,
-                                VALIDATED, ComputeLedger, KnowledgeBase, Roster,
-                                lab_report, per)
+                                UNCONVERGED, VALIDATED, ComputeLedger, KnowledgeBase,
+                                Roster, lab_report, per)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 
 from .crm_wingbody import _CD_RE, _CL_RE, _TIME_RE, _parse_history
@@ -55,6 +55,245 @@ U0 = 291.6           # matched to AGARD Case 2308 (M 0.8395 measured / 0.84 trad
 AOA0 = 3.06
 BUDGET_ITERATIONS = 3000   # this case's own CD/CL are bit-stable to 6 figures by here
 RANKS = DEFAULT_RANKS
+
+
+_NUTILDA_RES_RE = re.compile(r"nuTilda initRes:\s*([\d.eE+-]+)")
+_YPLUS_RE = re.compile(r"yPlus min:\s*([\d.eE+-]+)\s+max:\s*([\d.eE+-]+)\s+mean:\s*([\d.eE+-]+)")
+_PRIMAL_MIN_RES_RE = re.compile(r"Primal min residual\s+([\d.eE+-]+)")
+_PRIMAL_TOL_RE = re.compile(r"did not satisfy the prescribed tolerance\s+([\d.eE+-]+)")
+
+
+def _report_primal_plateau(*, log_text: str, cells: int, elapsed_min: float,
+                           solve_seconds: float, script, roster, ledger,
+                           knowledge, out, emit, shown: str,
+                           request: str | None) -> None:
+    """The documented-failure path: the primal ran its full budget and
+    printed forces at every iteration, then DAFoam refused it on its own
+    residual gate. Reported plainly, with what was actually measured, rather
+    than folded into a generic solver-stage failure."""
+    nutilda = [float(m.group(1)) for m in _NUTILDA_RES_RE.finditer(log_text)]
+    yplus_matches = _YPLUS_RE.findall(log_text)
+    min_res_match = _PRIMAL_MIN_RES_RE.search(log_text)
+    tol_match = _PRIMAL_TOL_RE.search(log_text)
+    min_res = float(min_res_match.group(1)) if min_res_match else None
+    tol = float(tol_match.group(1)) if tol_match else None
+    history, converged_iteration = _parse_history(log_text)
+    final_cd = history[-1][1] if history else None
+    final_cl = history[-1][2] if history else None
+
+    plateau_note = ""
+    if len(nutilda) >= 8:
+        quarter = len(nutilda) // 4
+        marks = [nutilda[quarter - 1], nutilda[2 * quarter - 1],
+                 nutilda[3 * quarter - 1], nutilda[-1]]
+        drop = marks[-1] / marks[0] if marks[0] else None
+        plateau_note = (
+            f"the turbulence-equation residual sat at "
+            f"{marks[0]:.3g} a quarter of the way through the budget and "
+            f"{marks[-1]:.3g} at the end"
+            + (f", a {drop:.2f}x change over the back three quarters of the "
+               f"run" if drop is not None else "") + "; a fixed point, not "
+            f"slow progress")
+
+    yplus_note = ""
+    if yplus_matches:
+        ylo, yhi, ymean = (float(v) for v in yplus_matches[-1])
+        yplus_note = (f"wall-adjacent y-plus ran {ylo:.1f} to {yhi:.1f}, "
+                      f"mean {ymean:.1f}, inside the range a wall-resolving "
+                      f"and a wall-function treatment both handle poorly, a "
+                      f"candidate cause not yet confirmed")
+
+    gate_rows = [["Primal residual reached", f"{min_res:.3g}" if min_res else "n/a"],
+                 ["Primal residual gate", f"{tol:.0e}" if tol else "n/a"],
+                 ["Iterations run", f"{converged_iteration:,}" if converged_iteration else "n/a"]]
+    if final_cd is not None:
+        gate_rows.append(["Drag coefficient (uncertified primal)", f"{final_cd:.6f}"])
+    if final_cl is not None:
+        gate_rows.append(["Lift coefficient (uncertified primal)", f"{final_cl:.6f}"])
+    _emit_table(emit, script, role=_CE_ROLE,
+               title="Gate: primal residual vs its own convergence tolerance",
+               headers=("Quantity", "Value"), rows=gate_rows,
+               table_id="gate-act8-onera_m6-plateau")
+    _emit_table(emit, script, role=_CE_ROLE,
+               title="ONERA M6 wing verdict",
+               headers=("Quantity", "Exact", "Solved", "Deviation"),
+               rows=[["Primal residual", f"{tol:.0e}" if tol else "n/a",
+                     f"{min_res:.3g}" if min_res else "n/a", "did not satisfy"]],
+               table_id="verdict-act8-onera_m6")
+
+    verdict = {"tier": UNCONVERGED,
+              "reason": ("the primal ran its full iteration budget and did "
+                         "not settle below its own residual tolerance; the "
+                         "gap sits in the turbulence equation specifically "
+                         "while every other field is settled, a genuine "
+                         "plateau rather than a run that needed more time")}
+    script.engineer(
+        f"• The primal ran the full budget and printed forces at every "
+        f"iteration, then did not clear its own residual gate: "
+        + (f"{min_res:.3g} against a {tol:.0e} tolerance. " if min_res and tol else "")
+        + (plateau_note + ". " if plateau_note else "")
+        + "• More iterations will not close this: the residual is flat, not "
+        "slow.", verdict=verdict)
+    if yplus_note:
+        script.researcher(f"• {yplus_note[0].upper()}{yplus_note[1:]}.")
+    script.numericist(
+        "• The surface-pressure comparison was never evaluable on this run, "
+        "not merely unreported: the solver stops on its residual gate "
+        "before writing any field past the initial state, so there is no "
+        "converged field on disk to cut at the published stations.")
+    if final_cd is not None:
+        script.engineer(
+            f"• The force history the solver printed while running is on "
+            f"the record above, drag {final_cd:.6f}, lift {final_cl:.6f}, "
+            f"but it carries the uncertified-primal caveat: the residual "
+            f"gate behind it was never cleared, so this number is not "
+            f"evidence yet.")
+    roster.idle(CHIEF_RESEARCHER)
+    monitor_summary = ("• Watched the solver log for the fatal patterns this "
+                       "regime shares with the incompressible chain (NaN, "
+                       "floating-point exceptions); none seen. The stopping "
+                       "condition here is the primal's own residual gate, "
+                       "not a monitor-flagged anomaly.")
+    script.monitor(monitor_summary)
+    roster.idle(MONITOR)
+
+    if emit:
+        emit("result.verdict", {"quantity": "Primal residual",
+                                "value": f"{min_res:.3g}" if min_res else "n/a",
+                                "ci": "n/a", "confidence": "n/a",
+                                "envelope": f"tolerance {tol:.0e}" if tol else "n/a",
+                                **verdict})
+
+    script.phase(CONCLUSION)
+    script.engineer(
+        f"• From a received surface-mesh recipe to a documented primal "
+        f"plateau in {elapsed_min:.1f} minutes, solve stage "
+        f"{solve_seconds:.0f} seconds. "
+        f"• Verdict: {verdict['tier'].lower()}. {verdict['reason']}.")
+    script.engineer(
+        f"• Spend {ledger.as_dict()['spent_core_minutes']:.0f} core-minutes.")
+    knowledge.add(f"{shown}: primal plateaus at {min_res:.3g} against a "
+                  f"{tol:.0e} tolerance, limited by the turbulence equation, "
+                  f"on a mesh whose y-plus straddles the buffer layer"
+                  if min_res and tol else
+                  f"{shown}: primal did not clear its own residual gate")
+
+    _AGENDA = [
+        {"title": "Retune the wall spacing",
+         "scope": "test whether moving the first cell off the wall out of "
+                  "the buffer-layer range clears the turbulence-equation "
+                  "plateau",
+         "cost": "a second mesh, same recipe, one wall-spacing parameter changed"},
+        {"title": "A different wall treatment",
+         "scope": "try a low-Reynolds turbulence model formulation that "
+                  "does not depend on the wall function being valid",
+         "cost": "one solve on the existing mesh, closure swapped"},
+        {"title": "The pressure comparison, once the primal clears",
+         "scope": "the seven-station AGARD cut is already wired; it runs "
+                  "the moment a converged field exists to cut",
+         "cost": "no new code, one clean solve"},
+    ]
+    if emit:
+        emit("agenda.updated", {"entries": _AGENDA})
+
+    report_doc = lab_report(
+        title=f"Act 8: {shown}",
+        abstract=[
+            f"We received the ONERA M6 wing's own surface-mesh recipe, "
+            f"extruded and checked the volume mesh, and ran the selected "
+            f"compressible solver for its full iteration budget.",
+            f"The mesh reached {cells:,} cells; the primal residual "
+            f"plateaued at {min_res:.3g} against a {tol:.0e} tolerance"
+            if min_res and tol else
+            f"The mesh reached {cells:,} cells; the primal did not clear "
+            f"its own residual tolerance.",
+            f"The result is reported as {verdict['tier'].lower()}: {verdict['reason']}.",
+        ],
+        methods=[
+            "Received the case's own surface-mesh recipe and extruded the "
+            "volume mesh with the case's own tool chain.",
+            f"Steady compressible RANS solve attempted, capped at {RANKS} "
+            f"MPI ranks, {BUDGET_ITERATIONS} iterations, at the flow "
+            f"condition matched to {GATE_SOURCE}.",
+            "The primal's own residual gate was read from the solver's own "
+            "output rather than assumed satisfied because the iteration "
+            "budget was spent.",
+        ],
+        results=([{
+            "quantity": "Primal residual", "value": f"{min_res:.3g}",
+            "envelope": f"tolerance {tol:.0e}", **verdict,
+        }] if min_res and tol else []) + ([{
+            "quantity": "Drag coefficient (uncertified primal)",
+            "value": f"{final_cd:.6f}", "envelope": "residual gate not cleared",
+            **verdict,
+        }] if final_cd is not None else []) + [{
+            "quantity": "Mesh", "value": f"{cells:,} cells",
+            "envelope": "this case's own recipe", **verdict,
+        }],
+        uncertainty=[
+            "No refinement ladder on this run: this body is meshed by the "
+            "case's own recipe rather than snapped from an STL, with no "
+            "coarser or finer variant on record.",
+            f"{verdict['reason']}.",
+        ],
+        next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
+        compute=ledger.as_dict(),
+    )
+    if emit:
+        emit("report.ready", report_doc)
+
+    cert_path = out / "certificate.pdf"
+    try:
+        cert_path.unlink()
+    except OSError:
+        pass
+    try:
+        from chief_engineer.certificate import build_certificate_v2
+        from chief_engineer.lab import uncertainty_channels
+
+        channels = uncertainty_channels(
+            input_2sigma=None, numerical=None, model=None,
+            input_note="No input uncertainty was assumed for this problem.",
+            numerical_note=("• No refinement ladder on record for this "
+                            "case's own mesh recipe."),
+            model_note=("compressible RANS closure, stated model-form; the "
+                        "primal stops on its own residual gate before any "
+                        "field past the initial state is written, so a "
+                        "comparison against the published reference was "
+                        "never evaluable on this run"))
+        cert_doc = dict(report_doc)
+        cert_doc["result_fields"] = [
+            ("Body", shown),
+            ("Primal Residual", f"{min_res:.3g}" if min_res else "n/a"),
+            ("Residual Gate", f"{tol:.0e}" if tol else "n/a"),
+        ] + ([("C_d (Uncertified Primal)", f"{final_cd:.6f}")]
+             if final_cd is not None else []) + [
+            ("Cells", f"{cells:,}"),
+            ("Solve Time", f"{elapsed_min:.1f} min"),
+        ]
+        certificate = build_certificate_v2(
+            cert_doc, out_path=cert_path,
+            geometry=shown,
+            objective=(request or "ONERA M6 transonic wing, graded against "
+                                  "AGARD Cp at seven span stations"),
+            mission_id=f"onera-m6-{LABEL}",
+            issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            channels=channels,
+            display_name=shown,
+            source_filename=SURFACE,
+            solver="DAFoam, DARhoSimpleCFoam steady compressible RANS",
+            mesh=mesh_validity(cells, None, None))
+        if emit:
+            emit("certificate.ready", {**certificate, "dir": out.name})
+    except Exception:
+        script.engineer(
+            "• No certificate could be issued for this run. "
+            "• The previous run's certificate is withdrawn, so nothing out "
+            "of date is served. "
+            "• The result above stands on the transcript and the report.")
+    script.save(out / "transcript.txt")
+    roster.all_idle()
+    print("Documented failure. Artifacts in", out)
 
 
 def main(request: str | None = None, params: dict | None = None,
@@ -251,9 +490,31 @@ def main(request: str | None = None, params: dict | None = None,
             note = f"steady compressible solve, {BUDGET_ITERATIONS} iterations"
             roster.set(CHIEF_ENGINEER, note, "working")
             roster.set_workers(RANKS, note)
-            result = engineer.run(
-                f"mpirun -np {RANKS} --allow-run-as-root python3 runScript.py -task run_model",
-                name="run_model", timeout=7200)
+            solve_start = time.monotonic()
+            try:
+                result = engineer.run(
+                    f"mpirun -np {RANKS} --allow-run-as-root python3 runScript.py -task run_model",
+                    name="run_model", timeout=7200)
+            except RuntimeError:
+                # DAFoam ran the full iteration budget and printed force
+                # coefficients at every one, then refused the primal on its
+                # own residual gate at the very end -- a genuine plateau, not
+                # a crash. The log this engine already wrote before raising
+                # carries the whole history, so that history is read and
+                # reported rather than folded into the generic "did not
+                # complete cleanly" path, which would throw away everything
+                # this run actually measured.
+                solve_seconds = time.monotonic() - solve_start
+                log_path = engineer.out_root / "log.run_model"
+                log_text = log_path.read_text(errors="replace") if log_path.exists() else ""
+                stage_row("selected solver", solve_seconds, note)
+                roster.set_workers(0)
+                _report_primal_plateau(
+                    log_text=log_text, cells=cells, elapsed_min=(time.monotonic() - began) / 60,
+                    solve_seconds=solve_seconds, script=script, roster=roster,
+                    ledger=ledger, knowledge=knowledge, out=out, emit=emit,
+                    shown=shown, request=request)
+                return 1
             ledger.spend(result.seconds, f"DARhoSimpleCFoam ({result.seconds:.0f}s)")
             stage_row("selected solver", result.seconds, note)
             roster.set_workers(0)

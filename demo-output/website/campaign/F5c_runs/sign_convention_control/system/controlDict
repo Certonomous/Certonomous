@@ -1,0 +1,10 @@
+FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }
+application simpleFoam; startFrom startTime; startTime 0; stopAt endTime;
+endTime 600; deltaT 1; writeControl timeStep; writeInterval 600; purgeWrite 1;
+writeFormat ascii; writePrecision 10; timeFormat general; timePrecision 6;
+functions
+{
+    wallShearStress1 { type wallShearStress; libs (fieldFunctionObjects); patches (bottomWall); executeControl onEnd; writeControl none; }
+    wallSample { type surfaces; libs (sampling); executeControl onEnd; writeControl onEnd; surfaceFormat raw; fields (wallShearStress); interpolate false;
+                 surfaces ( bottomWall { type patch; patches (bottomWall); } ); }
+}

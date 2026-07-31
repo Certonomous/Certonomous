@@ -37,7 +37,10 @@ from typing import Any, Callable, Sequence
 
 from .openfoam import host_launch_prefix
 from .log_signatures import (
+    COURANT_GROWTH_WINDOW,
+    FLAG_MULTIPLE,
     classify_wall_time,
+    detect_courant_excursion,
     detect_oscillatory_divergence,
     detect_residual_stall,
 )
@@ -70,7 +73,8 @@ FOAM_TUTORIALS = os.environ.get(
 @dataclass
 class Anomaly:
     # kind: nan | fpe | residual-spike | bounding | novel-warning
-    #       | residual-stall | oscillatory-divergence | wall-time-excursion
+    #       | residual-stall | oscillatory-divergence | courant-excursion
+    #       | wall-time-excursion
     kind: str
     step: str
     line: str
@@ -100,19 +104,29 @@ class LogMonitor:
     FPE = re.compile(r"Foam::sigFpe::sigHandler|^Floating point exception", re.MULTILINE)
     BOUNDING = re.compile(r"^bounding (\w+),", re.MULTILINE)
     WARNING = re.compile(r"--> FOAM Warning|FOAM Warning :")
+    # Transient runs only; a steady solver never prints these.
+    COURANT = re.compile(
+        r"Courant Number mean: ([0-9.eE+-]+) max: ([0-9.eE+-]+)")
+    DELTAT = re.compile(r"^deltaT = ([0-9.eE+-]+)")
 
     WINDOW = 25
     REPORT_LIMIT = 3
     STALL_WINDOW = 200       # Monitor Standard S6
     OSCILLATION_WINDOW = 50  # Monitor Standard S7
+    COURANT_WINDOW = COURANT_GROWTH_WINDOW  # Monitor Standard S8
 
     def __init__(self, *, novel: bool = False, spike_factor: float = 25.0,
                  on_anomaly: Callable[[Anomaly], None] | None = None,
                  residual_target: float | None = None,
-                 iteration_cap: int | None = None):
+                 iteration_cap: int | None = None,
+                 courant_limit: float | None = None):
         self.novel = novel
         self.spike_factor = spike_factor
         self.on_anomaly = on_anomaly
+        # Courant detection (S8) needs the case's own requested maximum. A
+        # transient log's reported maximum means nothing without the limit it
+        # was asked to respect, so without it the check stays off.
+        self.courant_limit = courant_limit
         # Stall detection (S6) needs the residualControl target the solve is
         # aiming for; without it a converged plateau at the solver floor is
         # indistinguishable from a stall, so the check stays off.
@@ -128,6 +142,13 @@ class LogMonitor:
         self._iterations: dict[str, int] = {}
         self._stalled: set[str] = set()
         self._oscillating: dict[str, str] = {}
+        self._courant: list[float] = []             # S8 max-Courant history
+        self._time_steps: set[float] = set()
+        self._courant_severity: str | None = None
+        # A Courant line is a transient solver's signature. S6 and S7 are
+        # steady-solve rules and are scoped off once one appears; see
+        # _check_series for the measurement behind that.
+        self._transient = False
 
     def feed(self, step: str, line: str) -> None:
         if self.FPE.search(line):
@@ -135,6 +156,15 @@ class LogMonitor:
             return
         if self.NAN.search(line) and ("Solving for" in line or "= nan" in line.lower()):
             self._raise(Anomaly("nan", step, line.strip(), "NaN in solver output"))
+            return
+        match = self.COURANT.search(line)
+        if match:
+            self._transient = True
+            self._courant_step(step, float(match.group(2)), line)
+            return
+        match = self.DELTAT.match(line.strip())
+        if match:
+            self._time_steps.add(float(match.group(1)))
             return
         match = self.RESIDUAL.search(line)
         if match:
@@ -183,7 +213,17 @@ class LogMonitor:
         A stall or a divergence is a state, not an event: each is raised once
         per field per episode, with oscillatory divergence raised again only
         when it escalates from flag to fatal.
+
+        Both rules are scoped to steady solves, which is the regime their
+        evidence comes from. In a transient run the residual series restarts
+        at every time step and the outer correctors drive it high and low in
+        turn, which is alternation with a moving envelope by construction.
+        Measured on the lab's four archived transient runs: S7 fired 5, 5, 6
+        and 9 times on runs that all completed healthily, every one of them a
+        false positive. The transient equivalent of these rules is S8.
         """
+        if self._transient:
+            return
         series = self._series[field]
         oscillation = detect_oscillatory_divergence(
             series, window=self.OSCILLATION_WINDOW)
@@ -215,6 +255,37 @@ class LogMonitor:
                 f"{stall['improvement']:.2f}x over the last {stall['window']} "
                 f"iterations; {stall['action']}",
                 severity=stall["severity"]))
+
+    def _courant_step(self, step: str, max_courant: float, line: str) -> None:
+        """Courant excursion rule S8 over the reported per-step maximum.
+
+        Like a stall, an excursion is a state rather than an event: it is
+        raised once per episode and again only when it escalates to fatal.
+        A run whose time step is being adjusted is judged on the limit alone;
+        the monotone-growth branch applies only where the step is held fixed,
+        because an adaptive stepper raising the Courant number back toward its
+        own target is the stepper working, not the flow running away.
+        """
+        if self.courant_limit is None:
+            return
+        self._courant.append(max_courant)
+        if len(self._courant) > self.COURANT_WINDOW * 4:
+            self._courant.pop(0)
+        finding = detect_courant_excursion(
+            self._courant, limit=self.courant_limit,
+            window=self.COURANT_WINDOW,
+            fixed_time_step=len(self._time_steps) <= 1)
+        if finding is None or finding["severity"] == self._courant_severity:
+            return
+        if self._courant_severity == "fatal":
+            return  # never downgrade an episode already fatal
+        self._courant_severity = finding["severity"]
+        self._raise(Anomaly(
+            "courant-excursion", step, line.strip(),
+            f"maximum Courant number reached {finding['peak']:.3g} against a "
+            f"case limit of {finding['limit']:.3g} "
+            f"({finding['reason']}); {finding['action']}",
+            severity=finding["severity"]))
 
     def check_wall_time(self, step: str, solver_kind: str, wall_seconds: float,
                         *, envelope=None, ledger_path=None,
