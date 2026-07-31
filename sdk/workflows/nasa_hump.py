@@ -11,10 +11,11 @@ reattaches — that is the textbook linear-eddy-viscosity deficiency, not a
 bug, and this act's gate is built to say exactly that rather than hide it.
 
 This act stages the case's own mesh (a benchmark asset, not one this act
-generates by snapping an STL) and solves it fresh: no snappyHexMesh stage
-applies here, so there is no coarser/finer variant of this mesh to build a
-grid-refinement ladder from, and the numerical channel says so plainly
-rather than inventing one.
+generates by snapping an STL) and solves it fresh. A fourfold refinement of
+that mesh is on the permanent record, and the numerical channel reports the
+spread it measured on the graded station: the refined rung is not in the
+asymptotic range, so the act states that measured spread and extrapolates no
+band from it.
 
     python -m workflows.nasa_hump
 """
@@ -34,11 +35,12 @@ from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_me
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, MONITOR, PLAN, SOLVER_BACKED,
                                 UNCONVERGED, VALIDATED, ComputeLedger, KnowledgeBase,
-                                Roster, lab_report, per)
+                                Roster, lab_report, per, uncertainty_channels)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 
-from .geometry_study import (MAX_NON_ORTHOGONALITY, MAX_SKEWNESS, _emit_table,
-                             certificate_channels, mesh_gates_pass, mesh_validity)
+from .geometry_study import (INPUT_ASSUMED_NOTE, MAX_NON_ORTHOGONALITY,
+                             MAX_SKEWNESS, _emit_table, mesh_gates_pass,
+                             mesh_validity)
 
 LABEL = "nasa_hump"
 SURFACE = "nasa_hump.stl"
@@ -52,6 +54,17 @@ EXP_REATTACH_XC = 1.100
 SEPARATION_GATE = 0.05          # +/-5% of chord location: a clean solve should land here
 REATTACHMENT_MODEL_BAND = 0.20  # wide, stated model-form band for the known SST bias
 BUDGET_ITERATIONS = 2000        # this case's own endTime; SIMPLE stops on residualControl
+
+# Grid sensitivity of the graded station, measured on this case's own mesh
+# refined fourfold. Both rungs and both stations are on the permanent record
+# in demo-output/website/campaign/F6a_epistemic_band.md. Their difference is
+# the numerical channel's figure and nothing is extrapolated from it: the
+# refined rung is not in the asymptotic range, so this pair supports a
+# statement about how little the separation station moves under refinement,
+# and it does not support a Richardson band. Inventing one from two rungs
+# that do not sit in that range would be manufacturing a number.
+REFINEMENT_CELLS = (51_626, 206_504)
+REFINEMENT_SEPARATION_XC = (0.6396, 0.6398)
 
 # Solver-log taps for the streaming trace: the iteration header and the
 # streamwise momentum residual the steady solver prints on every iteration.
@@ -411,9 +424,10 @@ def main(request: str | None = None, params: dict | None = None,
     script.numericist(
         f"• The mesh gates are the standard acceptance band, "
         f"{per('mesh-quality')}. "
-        f"• This case ships one fixed, already-validated mesh with no "
-        f"coarser or finer variant to build a refinement ladder from; the "
-        f"numerical channel will say so plainly rather than invent one.")
+        f"• The numerical channel reports the measured grid sensitivity of "
+        f"the graded station across a fourfold refinement of this mesh. "
+        f"• That spread is what refinement showed; no wider band is "
+        f"extrapolated from it.")
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
@@ -806,16 +820,44 @@ def main(request: str | None = None, params: dict | None = None,
            "• One fatal: do not use this result."))
     roster.idle(MONITOR)
 
-    # Uncertainty channels: no snappyHexMesh knob on this fixed benchmark
-    # mesh, so no refinement ladder is fabricated -- the numerical channel
-    # states plainly that none is on record for this case.
-    channels = certificate_channels(
-        settle_2sigma=0.0, window=0, velocity=uinf, lookup={}, cells=cells,
-        non_ortho_s=non_ortho_s, skew_s=skew_s,
-        model_extra=("reattachment inside the stated model-form band"
-                    if reattach_ok else
-                    "reattachment sits outside the stated model-form band, "
-                    "the known SST bias, stated not hidden"))
+    # Uncertainty channels, all three carrying what was measured.
+    #
+    # Numerical: the refinement pair above. The figure is the spread of the
+    # graded station across a fourfold refinement of this case's own mesh, so
+    # it is a measured sensitivity of the quantity this act reports, not a
+    # band extrapolated from rungs that do not sit in the asymptotic range.
+    #
+    # Model: the reattachment band this act committed to before the solve,
+    # expressed in the same units as the station it qualifies. It is a
+    # literature constant, justified by the documented over-prediction of
+    # this bubble by a linear eddy-viscosity closure, and it is the channel a
+    # comparison against the published experiment belongs to.
+    refinement_spread = abs(REFINEMENT_SEPARATION_XC[1]
+                            - REFINEMENT_SEPARATION_XC[0])
+    coarse_cells, fine_cells = REFINEMENT_CELLS
+    channels = uncertainty_channels(
+        input_2sigma=None,
+        numerical=refinement_spread,
+        model=REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC,
+        input_note=INPUT_ASSUMED_NOTE,
+        numerical_note=(
+            f"• Grid sensitivity of the graded station, measured on this "
+            f"case's own mesh refined fourfold, {coarse_cells:,} to "
+            f"{fine_cells:,} cells. "
+            f"• Separation moved {refinement_spread:.4f} in x/c across that "
+            f"refinement, "
+            f"{100 * refinement_spread / REFINEMENT_SEPARATION_XC[0]:.2f}% of "
+            f"the station. "
+            f"• The refined rung is not in the asymptotic range, so this is "
+            f"the measured spread and no band is extrapolated from it."),
+        model_note=(
+            f"turbulence closure k-omega SST, stated model-form; band "
+            f"±{REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC:.3f} in x/c on the "
+            f"reattachment station, the documented over-prediction of this "
+            f"bubble by a linear eddy-viscosity closure; "
+            + ("reattachment inside that band"
+               if reattach_ok else
+               "reattachment sits outside that band, stated not hidden")))
     if emit:
         emit("result.verdict", {"quantity": "Separation location (x/c)",
                                 "value": f"{separation_xc:.4f}",
@@ -835,22 +877,29 @@ def main(request: str | None = None, params: dict | None = None,
     # The measurement against the published experiment, as a table rather
     # than a sentence, with the bubble length carried alongside the two
     # stations it is the difference of.
-    comparison_rows = [["Separation station (x/c)", f"{separation_xc:.4f}",
-                        f"{EXP_SEPARATION_XC:.3f}", f"{sep_dev * 100:+.1f}%"]]
+    comparison_rows = [
+        ["Separation station (x/c)", f"{separation_xc:.4f}",
+         f"{sep_dev * 100:+.1f}%", f"{EXP_SEPARATION_XC:.3f}",
+         (f"Inside the ±{SEPARATION_GATE * 100:.0f}% gate" if sep_ok
+          else f"Outside the ±{SEPARATION_GATE * 100:.0f}% gate")]]
     if reattachment_xc is not None:
         bubble_solved = reattachment_xc - separation_xc
         bubble_published = EXP_REATTACH_XC - EXP_SEPARATION_XC
         comparison_rows += [
             ["Reattachment station (x/c)", f"{reattachment_xc:.4f}",
-             f"{EXP_REATTACH_XC:.3f}", f"{reattach_dev * 100:+.1f}%"],
+             f"{reattach_dev * 100:+.1f}%", f"{EXP_REATTACH_XC:.3f}",
+             (f"Inside the ±{REATTACHMENT_MODEL_BAND * 100:.0f}% model-form band"
+              if reattach_ok else
+              f"Outside the ±{REATTACHMENT_MODEL_BAND * 100:.0f}% model-form band")],
             ["Bubble length (x/c)", f"{bubble_solved:.4f}",
+             f"{(bubble_solved - bubble_published) / bubble_published * 100:+.1f}%",
              f"{bubble_published:.3f}",
-             f"{(bubble_solved - bubble_published) / bubble_published * 100:+.1f}%"],
+             "Not gated, the difference of the two stations"],
         ]
     _emit_table(emit, script, role=_CE_ROLE,
-               title="Measured wall events against the published experiment",
-               headers=("Quantity", "This Solve", "Published Experiment",
-                        "Deviation"),
+               title=f"Measured wall events against {GATE_SOURCE}",
+               headers=("Quantity", "Value", "Deviation", "Reference",
+                        "Verdict"),
                rows=comparison_rows, table_id="comparison-act6-nasa_hump")
 
     if verdict["tier"] == VALIDATED:
@@ -897,53 +946,57 @@ def main(request: str | None = None, params: dict | None = None,
     report_doc = lab_report(
         title=f"Act 6: {shown}",
         abstract=[
-            f"We received the benchmark's own mesh for the NASA "
-            f"wall-mounted hump, checked it against the standard gates, and "
-            f"solved it fresh to its own residual convergence.",
-            f"The mesh reached {cells:,} cells at max non-orthogonality "
-            f"{non_ortho_s} and max skewness {skew_s}; the solve converged "
-            f"at iteration {converged_iterations:,}.",
-            f"Separation landed at x/c {separation_xc:.4f} "
-            f"({sep_dev * 100:+.1f}% vs {GATE_SOURCE}); the result is "
-            f"reported as {verdict['tier'].lower()}: {verdict['reason']}.",
+            f"The benchmark's own mesh for the NASA wall-mounted hump, "
+            f"gate checked and solved fresh in OpenFOAM to its own residual "
+            f"convergence.",
+            f"{cells:,} cells, converged at iteration "
+            f"{converged_iterations:,}, graded against {GATE_SOURCE}.",
         ],
         methods=[
-            "Received the case's own mesh and checked it against the "
-            f"standard gates ({MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality, "
-            f"{MAX_SKEWNESS:.0f} skewness).",
-            "Steady k-omega SST solve from the case's own initial fields, "
-            "run to its own residual convergence criteria rather than a "
-            "fixed iteration count.",
-            "Skin friction and pressure sampled along the wall at the "
-            "converged state; separation and reattachment read from the "
-            "sign change of skin friction.",
+            f"Case mesh received and checked: {MAX_NON_ORTHOGONALITY:.0f}° "
+            f"non-orthogonality gate, {MAX_SKEWNESS:.0f} skewness guidance.",
+            "Steady k-omega SST in OpenFOAM, from the case's own initial "
+            "fields to its own convergence criteria.",
+            "Wall skin friction and pressure sampled at the converged state; "
+            "both events read from the sign change of skin friction.",
         ],
+        # One row per quantity: value, deviation against its reference, and
+        # the tier. The verdict's reasoning is stated once, on the transcript
+        # and in the model channel, never repeated onto every row.
         results=[{
             "quantity": "Separation location (x/c)",
             "value": f"{separation_xc:.4f}",
-            "envelope": f"{sep_dev * 100:+.1f}% vs {GATE_SOURCE}",
-            **verdict,
+            "envelope": f"{sep_dev * 100:+.1f}% vs x/c "
+                        f"{EXP_SEPARATION_XC:.3f}, {GATE_SOURCE}",
+            "tier": verdict["tier"],
         }] + ([{
             "quantity": "Reattachment location (x/c)",
             "value": f"{reattachment_xc:.4f}",
-            "envelope": f"{reattach_dev * 100:+.1f}% vs {GATE_SOURCE}",
-            **verdict,
+            "envelope": f"{reattach_dev * 100:+.1f}% vs x/c "
+                        f"{EXP_REATTACH_XC:.3f}, {GATE_SOURCE}",
+            "tier": verdict["tier"],
         }] if reattachment_xc is not None else []) + [{
             "quantity": "Mesh",
             "value": f"{cells:,} cells",
-            "envelope": (f"max non-orthogonality {non_ortho_s} vs "
-                        f"{MAX_NON_ORTHOGONALITY:.0f}° gate "
-                        f"({'pass' if gate_ok else 'caveat'}), max skewness "
-                        f"{skew_s} vs {MAX_SKEWNESS:.1f} guidance "
+            "envelope": (f"non-orthogonality {non_ortho_s} vs "
+                        f"{MAX_NON_ORTHOGONALITY:.0f}° "
+                        f"({'pass' if gate_ok else 'caveat'}), skewness "
+                        f"{skew_s} vs {MAX_SKEWNESS:.1f} "
                         f"({'pass' if skew_ok else 'caveat'})"),
-            **verdict,
+            "tier": verdict["tier"],
         }],
         uncertainty=[
-            "No refinement ladder on this run: the benchmark ships one "
-            "fixed, already-validated mesh with no coarser or finer variant "
-            "recipe, so the numerical channel states that plainly rather "
-            "than inventing rungs.",
-            f"Compared against {GATE_SOURCE}: {verdict['reason']}.",
+            f"Numerical: separation moved {refinement_spread:.4f} in x/c "
+            f"across a fourfold refinement of this mesh, {coarse_cells:,} to "
+            f"{fine_cells:,} cells. The refined rung is not in the asymptotic "
+            f"range, so that measured spread is what is reported and no band "
+            f"is extrapolated from it.",
+            f"Model: ±{REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC:.3f} in x/c "
+            f"on the reattachment station, the documented over-prediction of "
+            f"this bubble by a linear eddy-viscosity closure. Measured "
+            f"reattachment sits "
+            f"{'inside' if reattach_ok else 'outside'} it.",
+            INPUT_ASSUMED_NOTE,
         ],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
