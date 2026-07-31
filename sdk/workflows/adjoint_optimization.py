@@ -525,7 +525,19 @@ def main(request: str | None = None, params: dict | None = None,
     machine = [r for r in graded if r["rel_error_pct"] < 1e-6]
     tight = [r for r in graded if r["rel_error_pct"] >= 1e-6]
 
-    geom_rows = [["Constraint derivatives at machine precision",
+    # ITEM 4 (owner, 2026-07-31): a machine-precision row on a table headed
+    # "gradient check" reads as a solver-level accuracy claim, and it is not
+    # one. Thickness, volume and the edge constraints are functions of the
+    # control points alone; their derivative is analytic straight through the
+    # free-form parameterization and never touches the flow solve. Exactness
+    # there is what the arithmetic has to produce, so the table says the row
+    # is expected rather than letting it be read as the solver's own accuracy.
+    geom_rows = [["What these derivatives are",
+                  f"{len(geometric)} groups",
+                  "Analytic through the free-form parameterization. They "
+                  "never touch the flow solve, so exactness here is expected "
+                  "and is not a solver accuracy figure"],
+                 ["Constraint derivatives at machine precision",
                   f"{len(machine)} of {len(geometric)}",
                   "1e-10% or better, several of them exact"]]
     if tight:
@@ -553,7 +565,8 @@ def main(request: str | None = None, params: dict | None = None,
                     f"{SIGN_CHECKED} components, zero reversals"],
                    ["Sign agreement, bounded elsewhere",
                     f"Under {SIGN_BOUND_PCT:.2g}% of gradient magnitude"],
-                   ["Constraint derivatives", "Machine precision"],
+                   ["Constraint derivatives",
+                    "Machine precision, as analytic derivatives should be"],
                ],
                table_id="verdict-adjoint-optimization")
     roster.idle(CHIEF_RESEARCHER)
@@ -834,9 +847,13 @@ def main(request: str | None = None, params: dict | None = None,
             f"design variables.",
             f"The gradient was graded against {FD_SOLVES} central "
             f"finite-difference primal solves before it was used: worst "
-            f"physical group {worst:.3g}%, best {best:.3g}%, every geometric "
-            f"constraint derivative at machine precision, and no sign reversal in "
-            f"any component that could steer the optimizer. The gate passed.",
+            f"physical group {worst:.3g}%, best {best:.3g}%, and no sign "
+            f"reversal in any component that could steer the optimizer. The "
+            f"gate passed. The geometric constraint derivatives all came back "
+            f"at machine precision, which is expected rather than impressive: "
+            f"they are analytic through the free-form parameterization and "
+            f"never touch the flow solve, so that row grades the arithmetic, "
+            f"not the solver.",
             (f"The optimization then reduced drag by {reduction:.1f}% at "
              f"matched lift over {majors} major iterations, against a "
              f"{target_pct:g}% target." if target_pct else
