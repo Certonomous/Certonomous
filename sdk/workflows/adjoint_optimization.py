@@ -795,8 +795,11 @@ def main(request: str | None = None, params: dict | None = None,
                     "Machine precision, as analytic derivatives should be"],
                ],
                table_id="verdict-adjoint-optimization")
+    # The gate was stated as a rule, so the ruling on it belongs to the Chief
+    # Researcher (owner, 2026-07-31). The roster already had the researcher
+    # ruling here while the engineer spoke the verdict.
+    _narrate(script.researcher, "Gradient gate passes.")
     roster.idle(CHIEF_RESEARCHER)
-    _narrate(script.engineer, "Gradient gate passes.")
 
     # ---------------- Evidence: the gradient, on the wing ----------------
     # The single most useful thing an adjoint produces is a direction, and a
@@ -809,7 +812,11 @@ def main(request: str | None = None, params: dict | None = None,
         glo, ghi = grad["window_mm_per_step"]
         show("gradient", "Where the adjoint says to push. Descent direction "
                          "on the skin, C_d at fixed C_L")
-        _narrate(script.researcher,
+        # What the run produced, presented by the one that ran it: the
+        # researcher has just ruled on the gate and speaks again at the
+        # conclusion, and the same voice three beats running reads as one
+        # agent talking to itself.
+        _narrate(script.engineer,
                 "That is the gradient, on the wing. One adjoint solve "
                 "produced the whole picture.")
         gate.table(emit, script, role=_NUM_ROLE,
@@ -1062,11 +1069,15 @@ def main(request: str | None = None, params: dict | None = None,
                    f"primal solves, worst group {worst:.3g}%, no sign "
                    f"reversals that could steer it"),
     }
-    _narrate(script.engineer,
+    # The tier is a ruling on fidelity, so the Chief Researcher gives it
+    # (owner, 2026-07-31: the researcher frames and rules).
+    roster.set(CHIEF_RESEARCHER, "ruling on the result", "working")
+    _narrate(script.researcher,
             f"Verdict: drag {_headline(reduction)}, on a verified "
             f"gradient.",
             *(["That clears the target."] if target_pct else []),
             verdict=verdict)
+    roster.idle(CHIEF_RESEARCHER)
 
     if emit:
         # No ``ci`` key: the headline card renders "value ± ci" and this case
