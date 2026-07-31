@@ -1,0 +1,18 @@
+{
+ "id": "fiml-adjoint-conditioning-unblock",
+ "objective": "Fix the discrete adjoint linear solve conditioning that blocks field inversion on every closure relevant case, starting from the two levers that already convert the catastrophic failure into honest stagnation",
+ "rationale": "Field inversion capability is now proven and finite difference verified on a five thousand cell tutorial case at about 1.7 core minutes per gradient, and the mesh warp defect that fails the airfoil and the U bend is measured absent from the beta chain, so the only thing between this lab and Stage 1 is one linear solve. Both closure relevant cases fail identically: the curved backward facing step at twenty one thousand cells and the NASA hump at fifty one thousand six hundred cells both return PETSc reason minus nine with zero iterations. Memory is measured not to be the cause on the hump, peak about eleven gigabytes with nineteen gigabytes still free and Jacobian colouring completing normally. Four mechanisms were tested on the hump: wall treatment and the velocity limiter are refuted, while switching off residual normalization and switching the Jacobian reordering from reverse Cuthill McKee to natural each remove the NaN and leave a flat residual. That is the same signature the transonic conditioning study reached on a completely different physics family, which points at one shared unfixed layer of ill conditioning rather than two case specific bugs. The untried threads that study named are a per region state normalization and a preconditioner family swap, the latter needing a rebuild because the type is hard coded after the options are read",
+ "citations": [
+  "Certonomous Roadmap 4A Stage 1 field inversion record, measured 2026-07-31",
+  "Certonomous transonic adjoint conditioning study R5, measured 2026-07-30",
+  "Certonomous Ladder B3 curved backward facing step adjoint blocker, measured 2026-07-28",
+  "Certonomous F6a NASA wall mounted hump baseline against NASA published validation data, measured 2026-07-28"
+ ],
+ "est_core_min": 240,
+ "cost_basis": "measured: one hump gradient attempt costs about 8 core minutes end to end including colouring, and the four mechanism tests already run cost about 32 core minutes total; budget covers roughly a dozen further single change attempts plus one preconditioner rebuild",
+ "expected_knowledge_gain": "Either the first closure relevant field inversion this lab can actually run, which unblocks Stage 1 and the error decomposition that depends on it, or a measured statement that this adjoint stack cannot invert on wall resolved separated cases at all, which would redirect the whole closure line",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-07-31",
+ "launch_prompt": "The field inversion capability is proven and FD verified, and the target case is blocked by one thing: the adjoint linear solve. Read the Stage 1 field inversion record and the R5 conditioning study first. On the NASA hump case, four mechanisms are already tested: wall treatment REFUTED, velocity limiter REFUTED, residual normalization off and natural Jacobian reordering each REMOVE the NaN but leave the GMRES residual flat to eleven digits. Do not retest those. The two named untried threads are a per region or per cell state normalization targeting the high aspect ratio near wall band, and a preconditioner family swap which needs a library rebuild because the type is set after the options are read. Every claim cites a log path and a timestamp. A measured negative is a complete answer."
+}

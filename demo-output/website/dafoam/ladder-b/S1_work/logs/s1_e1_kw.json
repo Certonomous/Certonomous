@@ -1,0 +1,13 @@
+{
+  "obj": 0.009248459638267563,
+  "grad_norm": 0.01276229059484696,
+  "primal_s": 7.814582824707031,
+  "adjoint_s": 10.933043241500854,
+  "probe": {
+    "warper_init": 0,
+    "warper_jacvec": 0,
+    "idwarp_imported_at_setup": true,
+    "warpderiv_calls": 0
+  },
+  "n": 5000
+}

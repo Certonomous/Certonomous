@@ -1,0 +1,281 @@
+{
+  "jobs": [
+    {
+      "name": "base_a",
+      "file": "fdpts/base_a.npy",
+      "kind": "baseline"
+    },
+    {
+      "name": "base_b",
+      "file": "fdpts/base_b.npy",
+      "kind": "baseline_repeat"
+    },
+    {
+      "name": "dirg_p_0.001",
+      "file": "fdpts/dirg_p_0.001.npy",
+      "kind": "dir_grad",
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "dirg_m_0.001",
+      "file": "fdpts/dirg_m_0.001.npy",
+      "kind": "dir_grad",
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "dirr_p_0.001",
+      "file": "fdpts/dirr_p_0.001.npy",
+      "kind": "dir_rand",
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "dirr_m_0.001",
+      "file": "fdpts/dirr_m_0.001.npy",
+      "kind": "dir_rand",
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "dirg_p_0.0001",
+      "file": "fdpts/dirg_p_0.0001.npy",
+      "kind": "dir_grad",
+      "h": 0.0001,
+      "sign": 1
+    },
+    {
+      "name": "dirg_m_0.0001",
+      "file": "fdpts/dirg_m_0.0001.npy",
+      "kind": "dir_grad",
+      "h": 0.0001,
+      "sign": -1
+    },
+    {
+      "name": "dirr_p_0.0001",
+      "file": "fdpts/dirr_p_0.0001.npy",
+      "kind": "dir_rand",
+      "h": 0.0001,
+      "sign": 1
+    },
+    {
+      "name": "dirr_m_0.0001",
+      "file": "fdpts/dirr_m_0.0001.npy",
+      "kind": "dir_rand",
+      "h": 0.0001,
+      "sign": -1
+    },
+    {
+      "name": "comp1290_p_0.01",
+      "file": "fdpts/comp1290_p_0.01.npy",
+      "kind": "component",
+      "idx": 1290,
+      "h": 0.01,
+      "sign": 1
+    },
+    {
+      "name": "comp1290_m_0.01",
+      "file": "fdpts/comp1290_m_0.01.npy",
+      "kind": "component",
+      "idx": 1290,
+      "h": 0.01,
+      "sign": -1
+    },
+    {
+      "name": "comp1254_p_0.01",
+      "file": "fdpts/comp1254_p_0.01.npy",
+      "kind": "component",
+      "idx": 1254,
+      "h": 0.01,
+      "sign": 1
+    },
+    {
+      "name": "comp1254_m_0.01",
+      "file": "fdpts/comp1254_m_0.01.npy",
+      "kind": "component",
+      "idx": 1254,
+      "h": 0.01,
+      "sign": -1
+    },
+    {
+      "name": "comp4116_p_0.01",
+      "file": "fdpts/comp4116_p_0.01.npy",
+      "kind": "component",
+      "idx": 4116,
+      "h": 0.01,
+      "sign": 1
+    },
+    {
+      "name": "comp4116_m_0.01",
+      "file": "fdpts/comp4116_m_0.01.npy",
+      "kind": "component",
+      "idx": 4116,
+      "h": 0.01,
+      "sign": -1
+    },
+    {
+      "name": "comp4504_p_0.01",
+      "file": "fdpts/comp4504_p_0.01.npy",
+      "kind": "component",
+      "idx": 4504,
+      "h": 0.01,
+      "sign": 1
+    },
+    {
+      "name": "comp4504_m_0.01",
+      "file": "fdpts/comp4504_m_0.01.npy",
+      "kind": "component",
+      "idx": 4504,
+      "h": 0.01,
+      "sign": -1
+    },
+    {
+      "name": "comp1660_p_0.01",
+      "file": "fdpts/comp1660_p_0.01.npy",
+      "kind": "component",
+      "idx": 1660,
+      "h": 0.01,
+      "sign": 1
+    },
+    {
+      "name": "comp1660_m_0.01",
+      "file": "fdpts/comp1660_m_0.01.npy",
+      "kind": "component",
+      "idx": 1660,
+      "h": 0.01,
+      "sign": -1
+    },
+    {
+      "name": "comp3752_p_0.01",
+      "file": "fdpts/comp3752_p_0.01.npy",
+      "kind": "component",
+      "idx": 3752,
+      "h": 0.01,
+      "sign": 1
+    },
+    {
+      "name": "comp3752_m_0.01",
+      "file": "fdpts/comp3752_m_0.01.npy",
+      "kind": "component",
+      "idx": 3752,
+      "h": 0.01,
+      "sign": -1
+    },
+    {
+      "name": "comp1290_p_0.001",
+      "file": "fdpts/comp1290_p_0.001.npy",
+      "kind": "component",
+      "idx": 1290,
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "comp1290_m_0.001",
+      "file": "fdpts/comp1290_m_0.001.npy",
+      "kind": "component",
+      "idx": 1290,
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "comp1254_p_0.001",
+      "file": "fdpts/comp1254_p_0.001.npy",
+      "kind": "component",
+      "idx": 1254,
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "comp1254_m_0.001",
+      "file": "fdpts/comp1254_m_0.001.npy",
+      "kind": "component",
+      "idx": 1254,
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "comp4116_p_0.001",
+      "file": "fdpts/comp4116_p_0.001.npy",
+      "kind": "component",
+      "idx": 4116,
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "comp4116_m_0.001",
+      "file": "fdpts/comp4116_m_0.001.npy",
+      "kind": "component",
+      "idx": 4116,
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "comp4504_p_0.001",
+      "file": "fdpts/comp4504_p_0.001.npy",
+      "kind": "component",
+      "idx": 4504,
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "comp4504_m_0.001",
+      "file": "fdpts/comp4504_m_0.001.npy",
+      "kind": "component",
+      "idx": 4504,
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "comp1660_p_0.001",
+      "file": "fdpts/comp1660_p_0.001.npy",
+      "kind": "component",
+      "idx": 1660,
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "comp1660_m_0.001",
+      "file": "fdpts/comp1660_m_0.001.npy",
+      "kind": "component",
+      "idx": 1660,
+      "h": 0.001,
+      "sign": -1
+    },
+    {
+      "name": "comp3752_p_0.001",
+      "file": "fdpts/comp3752_p_0.001.npy",
+      "kind": "component",
+      "idx": 3752,
+      "h": 0.001,
+      "sign": 1
+    },
+    {
+      "name": "comp3752_m_0.001",
+      "file": "fdpts/comp3752_m_0.001.npy",
+      "kind": "component",
+      "idx": 3752,
+      "h": 0.001,
+      "sign": -1
+    }
+  ],
+  "picks": [
+    1290,
+    1254,
+    4116,
+    4504,
+    1660,
+    3752
+  ],
+  "grad_norm": 0.007233332581165816,
+  "dir_grad_dot": 0.007233332581165816,
+  "dir_rand_dot": -6.624566174661275e-05,
+  "comp_adj": {
+    "1290": 0.0018529073310257417,
+    "1254": -0.0018295646882390288,
+    "4116": 1.0604018570502572e-08,
+    "4504": 2.8186916122988712e-12,
+    "1660": 8.275827946680611e-07,
+    "3752": -0.0
+  }
+}
