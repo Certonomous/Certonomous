@@ -14,8 +14,8 @@ from workflows.aircraft_optimization import (buildup_band_ld, evaluate_design,
                                              measure_surface_span,
                                              parse_requirements,
                                              polar_readoff_residual,
-                                             screen_solve_gap, seeded_spans,
-                                             unresolved_family)
+                                             range_for_ld, screen_solve_gap,
+                                             seeded_spans, unresolved_family)
 
 _TINY_STL = """solid test
  facet normal 0 0 1
@@ -989,6 +989,35 @@ class SolvedRunDoctrineTests(unittest.TestCase):
                 bullet = bullet.strip()
                 if bullet:
                     self.assertFalse(bullet[0].islower(), message)
+
+    def test_the_conclusion_zone_quotes_one_range_and_it_is_solve_tier(self):
+        # THE RULE, not the instance. Whatever range the screened optimum row
+        # carries, no surface past the evidence phase may repeat it: the
+        # report result, the certificate result and the certificate's Range
+        # field all quote the Breguet range of the SOLVED L/D, and they all
+        # quote the same one.
+        events = self._run_solved()
+        tables = [p for e, p in events if e == "transcript.table"]
+        screened = [p for p in tables
+                    if p["table_id"] == "screened-optimum"][0]
+        screen_range = screened["rows"][0][4]
+        self.assertTrue(screen_range.endswith("km"), screen_range)
+
+        report = [p for e, p in events if e == "report.ready"][0]
+        envelope = report["results"][0]["envelope"]
+        self.assertIn("range ", envelope)
+        quoted = envelope.split("range ")[1]
+        self.assertNotEqual(quoted, screen_range)
+        # It is the range the solved L/D flies, on the act's own constants.
+        verdict = [p for e, p in events if e == "result.verdict"][0]
+        expected = range_for_ld(float(verdict["value"]))
+        self.assertAlmostEqual(float(quoted.split()[0]), round(expected),
+                               delta=60.0)
+        # And the certificate quotes that one figure, never the screened one.
+        cert = [p for e, p in events if e == "certificate.ready"][0]
+        text = Path(cert["path"]).read_bytes().decode("latin-1")
+        self.assertIn(quoted.split()[0], text)
+        self.assertNotIn(screen_range.split()[0], text)
 
     def test_the_limitations_section_is_titled_for_what_it_holds(self):
         # The list holds a boundary-set optimum, a discrete-grid caveat and

@@ -371,6 +371,37 @@ def buildup_band_ld(cl: float, cdo_wing: float, cdi: float,
     return max(abs(ld_hi - ld0), abs(ld0 - ld_lo))
 
 
+def range_for_ld(l_over_d: float) -> float:
+    """The Breguet range a whole-aircraft L/D flies, in km.
+
+    ONE ACT, ONE QUOTED RANGE. Range is a function of L/D and nothing else
+    here, so a range figure inherits the tier of the L/D it was computed
+    from: pass the screened L/D and the answer is a screened range, pass the
+    solved one and it is a solved range. The screening tables quote the
+    first, and the conclusion and the certificate quote only the second. That
+    is the rule; ``conclusion_range_km`` is where it is applied.
+    """
+    return (_V_CRUISE / (_G * _SFC) * float(l_over_d)
+            * math.log(1.0 / (1.0 - _FUEL_FRACTION)) / 1000.0)
+
+
+def conclusion_range_km(best: dict, *, won_solved: bool) -> float:
+    """The one range this act quotes past the evidence phase.
+
+    THE SCREENED RANGE NEVER CROSSES INTO THE CONCLUSION OR THE CERTIFICATE.
+    A screened range and a solved range differ by hundreds of kilometres on
+    the same wing, and both used to reach the page: one in the screened
+    optimum row, the other in the results and on the sealed certificate.
+    Each was correctly labelled where it sat and the act still quoted two
+    numbers for one aeroplane. So the conclusion zone takes its range from
+    the tier the headline stands on, and takes it from here rather than off
+    the screened record every caller has in hand.
+    """
+    if won_solved and best.get("L_D_solved") is not None:
+        return range_for_ld(float(best["L_D_solved"]))
+    return float(best["range_km"])
+
+
 def unresolved_family(solved, best: dict) -> list[dict]:
     """The wings this fidelity does not separate from the winner.
 
@@ -1287,9 +1318,7 @@ def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> d
     approach_speed = 1.3 * v_stall_land
     takeoff_speed = 1.2 * v_stall_to
 
-    breguet_range_km = (
-        _V_CRUISE / (_G * _SFC) * l_over_d
-        * math.log(1.0 / (1.0 - _FUEL_FRACTION)) / 1000.0)
+    breguet_range_km = range_for_ld(l_over_d)
 
     violations = []
     if approach_speed > reqs["landing_speed"] + 1e-6:
@@ -2036,6 +2065,10 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     won_solved = bool(solved_ok)
     best_ld = best["L_D_solved"] if won_solved else best["L_D"]
+    # The single range this act quotes from here on. Nothing below reads the
+    # screened figure off the winner: one act, one quoted range, on the tier
+    # the headline stands on.
+    quoted_range_km = conclusion_range_km(best, won_solved=won_solved)
 
     # ONE SENTENCE FOR THE OPEN AXIS, WRITTEN ONCE AND USED EVERYWHERE. When
     # the solved numbers do not separate the winner from the siblings sharing
@@ -2388,7 +2421,7 @@ def main(request: str | None = None, params: dict | None = None,
             "quantity": "Best feasible whole-aircraft L/D",
             "value": f"{best_ld:.1f} ± {headline_ci:.1f} (95%)",
             "envelope": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}, "
-                        f"range {best['range_km']:.0f} km",
+                        f"range {quoted_range_km:.0f} km",
             **verdict,
         }],
         uncertainty=limitations,
@@ -2438,14 +2471,14 @@ def main(request: str | None = None, params: dict | None = None,
                 {"quantity": "Winning wing",
                  "value": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}",
                  "envelope": (sweep_unresolved if sweep_note
-                              else f"range {best['range_km']:.0f} km")},
+                              else f"range {quoted_range_km:.0f} km")},
             ],
             # Structured result block: Title Case labels, verbatim numbers.
             "result_fields": [
                 ("Span", f"{best['span']:.0f} m"),
                 ("AR", f"{best['aspect_ratio']:.1f}"),
                 ("MTOW", f"{best['mtow_kg'] / 1000:.0f} t"),
-                ("Range", f"{best['range_km']:.0f} km"),
+                ("Range", f"{quoted_range_km:.0f} km"),
                 ("Approach Speed", f"{best['approach_speed']:.0f} m/s"),
                 ("Whole-aircraft L/D", f"{best_ld:.1f}"),
             ],
