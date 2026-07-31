@@ -376,7 +376,7 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
           and not low_confidence and not grid_inconclusive):
         verdict = {"tier": VALIDATED,
                    "reason": (f"within {relative_error * 100:.0f}% of {source}, "
-                              f"Cd {cd_ref:g} (band ±{tolerance * 100:.0f}%)")}
+                              f"C_d {cd_ref:g} (band ±{tolerance * 100:.0f}%)")}
     elif relative_error is not None and relative_error <= tolerance:
         blockers = []
         if low_confidence:
@@ -386,7 +386,7 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
             blockers.append("the grid-refinement study for this setup came back inconclusive")
         verdict = {"tier": SOLVER_BACKED,
                    "reason": (f"within {relative_error * 100:.0f}% of {source}, "
-                              f"Cd {cd_ref:g} (band ±{tolerance * 100:.0f}%), but "
+                              f"C_d {cd_ref:g} (band ±{tolerance * 100:.0f}%), but "
                               + " and ".join(blockers)
                               + "; not enough to call it validated")}
     else:
@@ -397,17 +397,17 @@ def validate_against_reference(*, measured_cd: float, reference: dict,
             cause = alt.get("cause")
             comparison["matched_regime"] = alt.get("label")
             verdict = {"tier": SOLVER_BACKED,
-                       "reason": (f"measured Cd {cd_cmp:.3f} matches the {alt.get('label')} regime "
-                                  f"(Cd ~{float(alt['cd']):g}, {alt.get('source', source)}), not the "
-                                  f"{primary} reference Cd {cd_ref:g}"
+                       "reason": (f"measured C_d {cd_cmp:.3f} matches the {alt.get('label')} regime "
+                                  f"(C_d ~{float(alt['cd']):g}, {alt.get('source', source)}), not the "
+                                  f"{primary} reference C_d {cd_ref:g}"
                                   + re_note
                                   + (f"; {cause}" if cause else "")
                                   + "; no like-for-like comparison available")}
         else:
             pct = "n/a" if relative_error is None else f"{relative_error * 100:.0f}%"
             verdict = {"tier": SOLVER_BACKED,
-                       "reason": (f"measured Cd {cd_cmp:.3f} is {pct} from {source}, "
-                                  f"Cd {cd_ref:g}, outside the ±{tolerance * 100:.0f}% band")}
+                       "reason": (f"measured C_d {cd_cmp:.3f} is {pct} from {source}, "
+                                  f"C_d {cd_ref:g}, outside the ±{tolerance * 100:.0f}% band")}
     verdict["comparison"] = comparison
     return verdict
 
