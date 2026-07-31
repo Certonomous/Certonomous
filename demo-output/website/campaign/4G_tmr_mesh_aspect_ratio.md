@@ -610,6 +610,25 @@ the record: a plausible-looking order on a monotone total can be hiding a compon
 is going the wrong way. Here the total passes the increment test and the pressure
 component fails it.
 
+**And this claim gets the same treatment 10.3 gave the total — it would be absurd to
+convict the published ladder of unmatched caps and then rest the diagnosis on numbers
+read off those same caps.** `forceCoeffs` prints the pressure/viscous split at every
+iteration into `log.simpleFoam`, so the split is recoverable at matched counts for free:
+
+| matched n | pressure increments | verdict | viscous p |
+|---|---|---|---|
+| 3,000 | −1.912e-05, **+6.373e-06** | non-monotone | 0.944 |
+| 4,000 | −1.890e-05, **+6.790e-06** | non-monotone | 1.033 |
+| 6,000 | −1.873e-05, **+7.308e-06** | non-monotone | 1.058 |
+| 9,000 | −1.881e-05, **+7.836e-06** | non-monotone | 1.075 |
+| *published caps* | −2.009e-05, **+6.435e-06** | non-monotone | 1.090 |
+
+**The sign flip holds at every matched count tested**, and the second increment grows
+steadily more positive as the rungs converge rather than shrinking toward zero. The
+pressure drag is not a nearly-converged quantity that a longer run would tidy up; it is
+going the wrong way, and it is going there harder the longer the ladder runs. The viscous
+order is likewise stable at 1.03-1.07 matched against the 1.090 published.
+
 CFL3D's pressure drag on the coarse grid is **3.7x ours** (1.479e-03 against 3.969e-04)
 and falls cleanly at p = 2.91 to 4.32e-04. Ours starts at 3.97e-04 and stays there.
 We are not resolving the same quantity on the coarse grid; we are landing near the

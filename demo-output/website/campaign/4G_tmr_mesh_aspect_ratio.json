@@ -691,6 +691,55 @@
       },
       "reproduction": "global maxima and wall-band maxima both reproduce the 2026-07-30 values exactly (2136801.242 / 2192932.91; 4714.0 / 4416.0)",
       "discriminator": "checkMesh's default 1000 threshold flags hundreds of cells on BOTH families and discriminates nothing. AR > 1e5 separates them completely: 68 and 260 cells for ours against 0 and 0 for NASA's."
+    },
+    "drag_decomposition_at_matched_iterations": {
+      "why": "the 10.4 claim must not rest on the same unequal caps 10.3 convicts the published total of. forceCoeffs prints the Total/Pressure/Viscous split every iteration into log.simpleFoam, so it is recoverable at matched counts for free.",
+      "pressure_increments": {
+        "3000": [
+          -1.912e-05,
+          6.373e-06
+        ],
+        "4000": [
+          -1.89e-05,
+          6.79e-06
+        ],
+        "5000": [
+          -1.879e-05,
+          7.076e-06
+        ],
+        "6000": [
+          -1.873e-05,
+          7.308e-06
+        ],
+        "7000": [
+          -1.873e-05,
+          7.515e-06
+        ],
+        "8000": [
+          -1.876e-05,
+          7.691e-06
+        ],
+        "9000": [
+          -1.881e-05,
+          7.836e-06
+        ],
+        "published_caps": [
+          -2.009e-05,
+          6.435e-06
+        ]
+      },
+      "viscous_observed_order": {
+        "3000": 0.944,
+        "4000": 1.033,
+        "5000": 1.05,
+        "6000": 1.058,
+        "7000": 1.065,
+        "8000": 1.07,
+        "9000": 1.075,
+        "published_caps": 1.09
+      },
+      "verdict": "the pressure sign flip holds at EVERY matched count tested, and the second increment grows steadily MORE positive as the rungs converge rather than shrinking toward zero. The pressure drag is not a nearly-converged quantity a longer run would tidy up; it is going the wrong way and going there harder. The viscous order is stable at 1.03-1.07 matched against 1.090 published.",
+      "script": "4G_runs/bump_iteration_matched/drag_split.py"
     }
   }
 }
