@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T14:43:29Z",
+  "generated_at": "2026-07-31T16:18:25Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -1541,6 +1541,63 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T14:43:29Z"
+    },
+    {
+      "id": "w8-a-plausible-order-can-be-a-divergence",
+      "well": "W8",
+      "objective": "Write the two ways an observed order lies into the verification charter and a preflight check",
+      "rationale": "The B-52 fourth rung returned an observed order of 2.253 on a monotone ladder, which reads as textbook second order. Its increments grow at every step and its extrapolation lands 24 percent above the highest rung: it is a divergence wearing a credible number. Separately the NACA 4412 reported an order of 10.467 fitted across a mesh-recipe change, so it was never a discretization order at all. Both numbers would pass a reader who checked only that an order existed and looked sane.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A preflight refuses an observed order when increments grow or when the rungs do not share one recipe, and names which",
+      "expected_knowledge_gain": "The two failure modes that survive the check most people actually perform",
+      "source_kind": "report",
+      "citations": [
+        "campaign/NOT_PASSING_REGISTER.md",
+        "docs/charters/VERIFICATION_CHARTER.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T16:18:25Z"
+    },
+    {
+      "id": "w8-largest-term-rule",
+      "well": "W8",
+      "objective": "Require an uncertainty budget to name its largest term and stop work on the others",
+      "rationale": "Multifidelity fusion cut the race estimator error by a factor of 33, and the budget it produced showed that the estimator was then no longer the largest contributor: the solver model-form term, never measured, was. Further tightening of the estimator would have been effort spent on the term that had already stopped mattering. A budget that does not rank its own terms invites exactly that.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every reported budget names its largest term, and a proposal to tighten a smaller one states why",
+      "expected_knowledge_gain": "Stops the lab optimising the term it can already measure instead of the one that dominates",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/mfmc_error_budget.json",
+        "docs/charters/RESULT_PRIORITY_CHARTER.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T16:18:25Z"
+    },
+    {
+      "id": "w6-generator-claims-are-per-case",
+      "well": "W6",
+      "objective": "Check which mesh generator a case actually uses before attributing a defect to one",
+      "rationale": "A generator finding recorded max aspect ratio worsening under refinement, 97.9 to 167.5, on a pyHyp extrusion. That was carried to the NACA 4412 as the likely cause of its ladder trouble and is wrong twice over: the 4412 is snappyHexMesh throughout, and its aspect ratio improves under refinement, 53.5 to 26.8 to 13.4. The real degradation there is non-orthogonality reaching 74.96 against a 70 gate and layer coverage falling to 58.3 percent.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A defect attributed to a generator names the case files showing that case uses it",
+      "expected_knowledge_gain": "One family inheriting another family diagnosis is how a wrong cause spreads quietly",
+      "source_kind": "report",
+      "citations": [
+        "dafoam/GENERATOR_FINDING_pyhyp_aspect_ratio.md",
+        "models/curriculum/results/naca4412_wing.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T16:18:25Z"
     }
   ]
 }
