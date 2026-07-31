@@ -215,6 +215,16 @@ MESH_ASPECT_RANGE = (376.0, 993.3)
 # The thresholds this case configured, which are the ones the solver judged
 # against. A face past the non-orthogonality mark is counted and reported;
 # OpenFOAM's own check only errors at 90 degrees, where a face has folded.
+#
+# ITEM 3 (owner, 2026-07-31): 70 degrees carries two different severities
+# across this ladder, and the same number under two severities invites the
+# screenshot that says the lab moved its own goalposts. So it is NAMED for the
+# severity it has HERE, everywhere it appears in this act: a REVIEW MARK on
+# the deformed mesh, with the solver's own error at 90 degrees. Faces past it
+# are counted and disclosed, and none of them stops a result. Where another
+# act uses 70 degrees as the criterion a result must clear, that act calls it
+# an ACCEPTANCE GATE. Skewness and aspect ratio here are acceptance gates: the
+# solver refuses a design that fails them, so they are named that way.
 MESH_NON_ORTHO_MARK = 70.0
 MESH_NON_ORTHO_ERROR = 90.0
 MESH_SKEW_GATE = 5.0
@@ -1026,7 +1036,8 @@ def main(request: str | None = None, params: dict | None = None,
             alo, ahi = MESH_ASPECT_RANGE
             gate.table(emit, script, role=_MON_ROLE,
                        title="Mesh quality after deformation",
-                       headers=("Metric", "Across the pass", "Threshold"),
+                       headers=("Metric", "Across the pass",
+                                "Review mark or acceptance gate"),
                        rows=[
                            ["Why this is reported",
                             f"The shape moved {thickness_pct:.0f}% of local "
@@ -1038,20 +1049,21 @@ def main(request: str | None = None, params: dict | None = None,
                             f"{MESH_DEFORM_CHECKS_PASSED} returned mesh OK"],
                            ["Worst cell non-orthogonality",
                             f"{nlo:.1f} to {nhi:.1f} deg",
-                            f"{MESH_NON_ORTHO_MARK:g} deg mark, "
-                            f"{MESH_NON_ORTHO_ERROR:g} deg error"],
-                           ["Faces past that mark at the worst check",
+                            f"{MESH_NON_ORTHO_MARK:g} deg review mark, "
+                            f"solver error at {MESH_NON_ORTHO_ERROR:g} deg. "
+                            f"Past the mark is disclosed, not refused"],
+                           ["Faces past the review mark at the worst check",
                             f"{MESH_WORST_FLAGGED_FACES} of "
                             f"{MESH_FACES:,}",
                             f"{MESH_CHECKS_OVER_MARK} of "
                             f"{MESH_DEFORM_CHECKS} checks had any"],
                            ["Maximum skewness", f"{slo:.2f} to {shi:.2f}",
-                            f"{MESH_SKEW_GATE:g}"],
+                            f"{MESH_SKEW_GATE:g} acceptance gate"],
                            ["Maximum aspect ratio",
                             f"{alo:.0f} to {ahi:.0f}",
-                            f"{MESH_ASPECT_GATE:g}"],
+                            f"{MESH_ASPECT_GATE:g} acceptance gate"],
                            ["Designs refused on mesh quality", "None",
-                            "The solver refuses any that fail"],
+                            "The solver refuses any that fails a gate"],
                        ],
                        table_id="meshdeform-adjoint-optimization")
 
@@ -1384,13 +1396,15 @@ def main(request: str | None = None, params: dict | None = None,
             f"deformed mesh was checked again at every one of the "
             f"{MESH_DEFORM_CHECKS} design evaluations: worst cell "
             f"non-orthogonality ranged to {MESH_NON_ORTHO_RANGE[1]:.1f} deg "
-            f"against a {MESH_NON_ORTHO_MARK:g} deg mark, with "
-            f"{MESH_WORST_FLAGGED_FACES} of {MESH_FACES:,} faces past it at "
-            f"the worst check, maximum skewness to "
-            f"{MESH_SKEW_RANGE[1]:.2f} against {MESH_SKEW_GATE:g} and "
-            f"maximum aspect ratio to {MESH_ASPECT_RANGE[1]:.0f} against "
-            f"{MESH_ASPECT_GATE:g}. Every check returned mesh OK and no "
-            f"design was refused on mesh quality.",
+            f"against a {MESH_NON_ORTHO_MARK:g} deg review mark, with the "
+            f"solver's own error at {MESH_NON_ORTHO_ERROR:g} deg, and "
+            f"{MESH_WORST_FLAGGED_FACES} of {MESH_FACES:,} faces past the "
+            f"mark at the worst check. Maximum skewness reached "
+            f"{MESH_SKEW_RANGE[1]:.2f} against a {MESH_SKEW_GATE:g} "
+            f"acceptance gate and maximum aspect ratio "
+            f"{MESH_ASPECT_RANGE[1]:.0f} against {MESH_ASPECT_GATE:g}. Every "
+            f"check returned mesh OK and no design was refused: a face past "
+            f"the review mark is disclosed, not refused.",
         ],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
