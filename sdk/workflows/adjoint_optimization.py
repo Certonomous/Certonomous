@@ -178,6 +178,40 @@ def _fmt(x: float) -> str:
     return f"{x:.6e}"
 
 
+class _Falsifier:
+    """The falsifier and the gate, put on the record before any evidence.
+
+    ITEM 1 (owner, 2026-07-31): "required output pattern, not narration". The
+    hypothesis, the falsifier and the gate used to be three bullets sitting in
+    the hypothesis phase, which is exactly the kind of line an edit drops
+    without anything noticing. So they are structure instead: this object is
+    the only route an evidence table has to the screen in this act, and it
+    refuses to pass one until ``state`` has run. Delete the falsifier and the
+    act stops with an error rather than quietly showing results first.
+    """
+
+    def __init__(self) -> None:
+        self._stated = False
+
+    def state(self, script, roster) -> None:
+        roster.set(CHIEF_ENGINEER, "stating the gate", "working")
+        bullets(script.engineer,
+                f"Hypothesis: the adjoint gradient matches central finite "
+                f"differences on every derivative group.",
+                f"Falsifier: any group worse than {GATE_PASS_PCT:g}%, or any "
+                f"component whose sign reverses.",
+                f"Gate: nothing is optimized until the gradient passes.")
+        self._stated = True
+
+    def table(self, emit, script, **kwargs) -> None:
+        """One evidence table, refused until the falsifier is on the record."""
+        if not self._stated:
+            raise RuntimeError(
+                "the falsifier and the gate must reach the screen before this "
+                "act emits any evidence")
+        emit_table(emit, script, **kwargs)
+
+
 # The mesh check's own verdict line, as the record carries it. Read rather than
 # retyped so the certificate's mesh block shows the measured numbers against
 # their published gates instead of two "not reported" cells.
@@ -200,6 +234,7 @@ def main(request: str | None = None, params: dict | None = None,
     out.mkdir(parents=True, exist_ok=True)
 
     script = make_transcript(LABEL, emit)
+    gate = _Falsifier()
     roster = Roster(emit)
     ledger = ComputeLedger(emit)
     knowledge = KnowledgeBase(emit)
@@ -259,13 +294,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"An adjoint is exact only for the problem it was derived from.")
     roster.idle(CHIEF_RESEARCHER)
 
-    roster.set(CHIEF_ENGINEER, "stating the gate", "working")
-    bullets(script.engineer,
-            f"Hypothesis: the adjoint gradient matches central finite "
-            f"differences on every derivative group.",
-            f"Falsifier: any group worse than {GATE_PASS_PCT:g}%, or any "
-            f"component whose sign reverses.",
-            f"Gate: nothing is optimized until the gradient passes.")
+    gate.state(script, roster)
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
@@ -356,7 +385,7 @@ def main(request: str | None = None, params: dict | None = None,
             _fmt(row["analytic_magnitude"]),
             _fmt(row["fd_magnitude"]),
             f"{row['rel_error_pct']:.3g}%"])
-    emit_table(emit, script, role=_NUM_ROLE,
+    gate.table(emit, script, role=_NUM_ROLE,
                title="Gradient check: adjoint against central finite differences",
                headers=("Derivative", "Adjoint", "Finite difference",
                         "Relative error"),
@@ -386,13 +415,13 @@ def main(request: str | None = None, params: dict | None = None,
     geom_rows.append(["Both quantities at the numerical noise floor",
                       f"{len(noise)} of {len(geometric)}",
                       "Ratio of two zeros, reported rather than hidden"])
-    emit_table(emit, script, role=_NUM_ROLE,
+    gate.table(emit, script, role=_NUM_ROLE,
                title="Gradient check: the geometric constraints",
                headers=("Group", "Count", "Agreement"),
                rows=geom_rows, table_id="fd-geom-adjoint-optimization")
 
     roster.set(CHIEF_RESEARCHER, "ruling on the gradient", "working")
-    emit_table(emit, script, role=_NUM_ROLE,
+    gate.table(emit, script, role=_NUM_ROLE,
                title="Gradient verdict",
                headers=("Check", "Result"),
                rows=[
@@ -424,7 +453,7 @@ def main(request: str | None = None, params: dict | None = None,
         bullets(script.researcher,
                 "That is the gradient, on the wing. One adjoint solve "
                 "produced the whole picture.")
-        emit_table(emit, script, role=_NUM_ROLE,
+        gate.table(emit, script, role=_NUM_ROLE,
                    title="Reading the gradient on the skin",
                    headers=("Item", "Meaning"),
                    rows=[
@@ -487,7 +516,7 @@ def main(request: str | None = None, params: dict | None = None,
         dlo, dhi = shapes["disp_window_mm"]
         chord = shapes["chord_root_m"]
         twist_worst = min(last["twist_deg"])
-        emit_table(emit, script, role=_CE_ROLE,
+        gate.table(emit, script, role=_CE_ROLE,
                    title="What the gradient moved",
                    headers=("Quantity", "Value"),
                    rows=[
@@ -542,7 +571,7 @@ def main(request: str | None = None, params: dict | None = None,
     tail_spread_pct = (max(tail) - min(tail)) / min(tail) * 100
     # Every headline number in one table, each against what it is graded on
     # (owner, 2026-07-31). Nothing here is repeated in prose afterwards.
-    emit_table(emit, script, role=_CE_ROLE,
+    gate.table(emit, script, role=_CE_ROLE,
                title="Result",
                headers=("Quantity", "Value", "Reference or threshold"),
                rows=[
@@ -572,7 +601,7 @@ def main(request: str | None = None, params: dict | None = None,
     # discretization band on the reduction exists either. Per her own
     # instruction, the channels that were computed are shown and the one that
     # is unavailable for this quantity is named rather than invented.
-    emit_table(emit, script, role=_NUM_ROLE,
+    gate.table(emit, script, role=_NUM_ROLE,
                title="Uncertainty channels on this result",
                headers=("Channel", "Value"),
                rows=[
@@ -637,7 +666,7 @@ def main(request: str | None = None, params: dict | None = None,
     # same gradient, bought two ways, on this run's own accounting. The
     # verification stage is exactly the finite-difference route priced, which
     # is why it doubles as the comparison rather than reading as overhead.
-    emit_table(emit, script, role=_CE_ROLE,
+    gate.table(emit, script, role=_CE_ROLE,
                title=f"What the whole gradient costs, {N_DV} design variables",
                headers=("Route", "Primal solves", "Core-minutes"),
                rows=[
