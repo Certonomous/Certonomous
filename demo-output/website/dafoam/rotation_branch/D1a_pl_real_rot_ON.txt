@@ -1,0 +1,18 @@
+REPRO === primal ===
+REPRO === primal done t=3.2s OBJ.val=5.234521633934580e+01 ===
+REPRO === adjoint done t=11.8s, warper captured 1 rev call(s) ===
+REPRO seed=real objective=pressure-loss ||w||=5.81214119e+03 nRanks=4 h=1.0e-04 useRotations=on cornerAngle=None
+REPRO_ANFINGERPRINT useRotations=on ||dXs||=1.495168856286067e+03 sum(dXs)=-1.242703578364597e+02 max|dXs|=6.321090006736259e+02
+REPRO_XVFINGERPRINT useRotations=on ||Xv0||=5.180082220691975e+01
+REPRO_RIGID axis=x useRotations=on FD=9.9017017412e+00 AN=9.9017017411e+00 rel_err=1.014e-11
+REPRO_RIGID axis=y useRotations=on FD=-9.0353464793e+00 AN=-8.8800604573e+00 rel_err=1.719e-02
+REPRO_RIGID axis=z useRotations=on FD=-1.2188128364e+02 AN=-1.2529199912e+02 rel_err=2.798e-02
+REPRO idx  FD(warp)         AN(warpDeriv)    rel_err    sign   framework_dOBJ/dDV
+REPRO 2    -4.06880154e-01  -4.17657510e-01  0.0265     ok     -4.17657510e-01
+REPRO 3    7.08623060e-01   1.96883727e+00   1.7784     ok     1.96883727e+00
+REPRO 8    7.87898342e-01   -8.43372580e-01  2.0704     FLIP   -8.43372580e-01
+REPRO 15   -2.42564294e+01  -1.38604167e+01  0.4286     ok     -1.38604167e+01
+REPRO 17   2.91315567e+00   -6.28812054e-01  1.2159     FLIP   -6.28812054e-01
+REPRO 26   -1.89917527e+00  -1.95653977e+00  0.0302     ok     -1.95653977e+00
+REPRO_SUMMARY seed=real objective=pressure-loss h=1.0e-04 nRanks=4 n=6 sign_flips=2 worst_idx=8 worst_rel_err=2.0704 t=12.1s
+REPRO_SUMMARY2 useRotations=on cornerAngle=None
