@@ -123,5 +123,77 @@
       "mfmc_now_wins": true
     },
     "verdict": "For the race's actual estimand (peak L/D under the Reynolds spread at fixed alpha), the Reynolds-aware surrogate moves the correlation from UNDEFINED (constant lane) to 0.9997, and MFMC NOW WINS: variance ratio 0.0006 (1622.73x vs the direct approach) at the estimand's own 41 s budget. On the full alpha x Reynolds paired set the correlation moved from 0.9967 to 0.9969 and the variance ratio from 0.00663 to 0.00622 (160.8x vs direct MC)."
+  },
+  "error_budget_evidence": {
+    "measured_at": "2026-07-31",
+    "script": "sdk/scripts/run_mfmc_error_budget.py",
+    "recovery_script": "sdk/scripts/recover_lost_race_members.py",
+    "record": "demo-output/website/mfmc_error_budget.json",
+    "ensemble": {
+      "surviving_records": 88,
+      "recovered_records": 88,
+      "recovered_from": "/home/ubuntu/Certonomous/mission-output/mfmc-recovery/work",
+      "dropped_cause": "log.vspaero contains only the Windows python-launcher stub message; the solver never ran. Cause is identical for all 88 and is independent of the design.",
+      "control_reproduction": "mc-s0a0 re-solved on this host returned L/D 18.140687390989, bit-identical to the 2026-07-25 record",
+      "distinct_reynolds_samples_surviving": 8,
+      "distinct_reynolds_samples_recovered": 8,
+      "distinct_reynolds_samples_union": 15
+    },
+    "fusion": {
+      "estimand": "peak L/D over the drawn chord-Reynolds spread",
+      "n_pairs": 15,
+      "rho": 0.9995494425884482,
+      "control_variate_alpha": 1.1741579313839254,
+      "cost_hi_s": 3.8852102272727276,
+      "cost_lo_s": 7.928061900020111e-07,
+      "cost_ratio": 4900580.086619747,
+      "budget_s": 58.27815340909091,
+      "n_hi": 14,
+      "n_lo": 1032083,
+      "variance_ratio": 0.0009282208359733344,
+      "equal_budget_speedup": 1077.329834932436,
+      "pays": true,
+      "fused_estimate": 18.136887427600886,
+      "hi_only_mean": 18.0815426577274,
+      "control_variate_shift": 0.05534476987348493
+    },
+    "error_budget": {
+      "estimator_direct_sem": 0.02832145885650043,
+      "estimator_fused_sem": 0.0008628618679250461,
+      "cheap_lane_heldout_rmse_if_unanchored": 0.26255054729953625,
+      "cheap_lane_bias_contribution": 0.0,
+      "missing_member_bias_measured": 0.00015403048822548726,
+      "high_fidelity_model_form": null
+    },
+    "combined": {
+      "combined_95": 0.2193838645571713,
+      "contributions": {
+        "input": 0.21937707698304945,
+        "numerical": 0.0017257237358500922
+      },
+      "missing": [
+        "model"
+      ]
+    },
+    "drawn_reynolds": {
+      "n_distinct_reynolds": 15,
+      "drawn_mean": 958975.5933333334,
+      "drawn_sd": 80959.36136718284,
+      "population_mean": 1000000.0,
+      "population_sigma": 80000.0,
+      "sample_mean_sem": 19955.506062794353,
+      "sample_mean_z": -2.055793851460062,
+      "note": "the ensemble fixes sample 0 at nominal and draws the rest, so the sample mean has sem sigma*sqrt(n-1)/n"
+    },
+    "replay_check": {
+      "budget_solves": 6,
+      "resamples": 4000,
+      "empirical_variance_ratio": 0.0008594314625043818,
+      "analytic_variance_ratio": 0.0009282208359733344,
+      "rmse_direct": 0.04339025494571728,
+      "rmse_fused": 0.0012720313829574774,
+      "note": "both lanes estimate the same target (the paired population mean of the solver lane), so this confirms the estimator's VARIANCE. It does not test the control-variate shift reported above, which deliberately aims at the wider Reynolds population the 15 drawn samples represent."
+    },
+    "verdict": "Fusion pays and the budget says why it does not matter much. On the race's own estimand (peak L/D under the drawn chord-Reynolds spread) the Reynolds-aware cheap lane correlates at rho 0.999549 with the solver over 15 paired samples; the optimal allocation at the lane's own budget is 14 solves plus 1.03e6 cheap evaluations, variance ratio 0.000928 (1077x), confirmed empirically at 0.000859 over 4000 resamples. That drops the estimator's standard error from 0.02832 to 0.00086 L/D. It does not drop the other three terms: the cheap lane's held-out RMSE 0.26255 is what the answer would carry if the anchors were dropped (it contributes zero BIAS while they are kept, which is the point of a control variate); the measured missing-member bias is 0.00015; and VSPAERO's own model-form error against truth is UNQUANTIFIED, named as a Roadmap gap in docs/UNCERTAINTY.md. Combined over the quantified channels the answer is 0.21938 at 95%, of which the physical Reynolds spread is 100.0% and the fused estimator is 0.79%. After fusion the estimator is no longer the largest term in this budget and the largest term is the one nobody has measured."
   }
 }

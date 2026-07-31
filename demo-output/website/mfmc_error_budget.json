@@ -1,0 +1,165 @@
+{
+ "measured_utc": "2026-07-31T14:34:11Z",
+ "script": "sdk/scripts/run_mfmc_error_budget.py",
+ "solver": "VSPAERO, OpenVSP 3.51.1",
+ "ensemble": {
+  "surviving_records": 88,
+  "recovered_records": 88,
+  "recovered_from": "/home/ubuntu/Certonomous/mission-output/mfmc-recovery/work",
+  "dropped_cause": "log.vspaero contains only the Windows python-launcher stub message; the solver never ran. Cause is identical for all 88 and is independent of the design.",
+  "control_reproduction": "mc-s0a0 re-solved on this host returned L/D 18.140687390989, bit-identical to the 2026-07-25 record",
+  "distinct_reynolds_samples_surviving": 8,
+  "distinct_reynolds_samples_recovered": 8,
+  "distinct_reynolds_samples_union": 15
+ },
+ "cheap_lane": {
+  "train": {
+   "n": 25,
+   "rmse": 0.22043926201340153,
+   "max_abs_error": 0.40161779926125263,
+   "r2": 0.9943415753138448
+  },
+  "val": {
+   "n": 16,
+   "rmse": 0.26255054729953625,
+   "max_abs_error": 0.45037759939684463,
+   "r2": 0.9892565472435462
+  },
+  "n_train": 25,
+  "n_val": 16,
+  "leakage_check": "PASS: no training or validation design coincides with any evaluated race design"
+ },
+ "cheap_lane_coefficients": [
+  18.287426194017716,
+  -0.8449782260649652,
+  0.001998939552518559,
+  1.13519033159841,
+  -0.3060361028666153,
+  -0.11710950866496309
+ ],
+ "fusion": {
+  "estimand": "peak L/D over the drawn chord-Reynolds spread",
+  "n_pairs": 15,
+  "rho": 0.9995494425884482,
+  "control_variate_alpha": 1.1741579313839254,
+  "cost_hi_s": 3.8852102272727276,
+  "cost_lo_s": 7.928061900020111e-07,
+  "cost_ratio": 4900580.086619747,
+  "budget_s": 58.27815340909091,
+  "n_hi": 14,
+  "n_lo": 1032083,
+  "variance_ratio": 0.0009282208359733344,
+  "equal_budget_speedup": 1077.329834932436,
+  "pays": true,
+  "fused_estimate": 18.136887427600886,
+  "hi_only_mean": 18.0815426577274,
+  "control_variate_shift": 0.05534476987348493
+ },
+ "estimand_surviving_half": {
+  "n_samples": 8,
+  "mean": 18.081696688215626,
+  "sd": 0.10226600121884001,
+  "sem": 0.03615649147333675,
+  "min": 17.866225656611,
+  "max": 18.202441254942,
+  "re_values": [
+   810892.3,
+   919672.1,
+   938526.1,
+   958930.2,
+   991749.2,
+   998707.5,
+   1000000.0,
+   1048615.8
+  ],
+  "peak_alphas": [
+   0.0
+  ]
+ },
+ "estimand_recovered_half": {
+  "n_samples": 8,
+  "mean": 18.088781718896875,
+  "sd": 0.11851002926165216,
+  "sem": 0.041899622664765206,
+  "min": 17.966114447214,
+  "max": 18.309351537187,
+  "re_values": [
+   874954.2,
+   886152.1,
+   892370.5,
+   914095.0,
+   1000000.0,
+   1002574.6,
+   1008647.8,
+   1138746.5
+  ],
+  "peak_alphas": [
+   0.0
+  ]
+ },
+ "estimand_full_ensemble": {
+  "n_samples": 15,
+  "mean": 18.0815426577274,
+  "sd": 0.10968853849152473,
+  "sem": 0.02832145885650043,
+  "min": 17.866225656611,
+  "max": 18.309351537187,
+  "re_values": [
+   810892.3,
+   874954.2,
+   886152.1,
+   892370.5,
+   914095.0,
+   919672.1,
+   938526.1,
+   958930.2,
+   991749.2,
+   998707.5,
+   1000000.0,
+   1002574.6,
+   1008647.8,
+   1048615.8,
+   1138746.5
+  ],
+  "peak_alphas": [
+   0.0
+  ]
+ },
+ "replay_check": {
+  "budget_solves": 6,
+  "resamples": 4000,
+  "empirical_variance_ratio": 0.0008594314625043818,
+  "analytic_variance_ratio": 0.0009282208359733344,
+  "rmse_direct": 0.04339025494571728,
+  "rmse_fused": 0.0012720313829574774,
+  "note": "both lanes estimate the same target (the paired population mean of the solver lane), so this confirms the estimator's VARIANCE. It does not test the control-variate shift reported above, which deliberately aims at the wider Reynolds population the 15 drawn samples represent."
+ },
+ "drawn_reynolds": {
+  "n_distinct_reynolds": 15,
+  "drawn_mean": 958975.5933333334,
+  "drawn_sd": 80959.36136718284,
+  "population_mean": 1000000.0,
+  "population_sigma": 80000.0,
+  "sample_mean_sem": 19955.506062794353,
+  "sample_mean_z": -2.055793851460062,
+  "note": "the ensemble fixes sample 0 at nominal and draws the rest, so the sample mean has sem sigma*sqrt(n-1)/n"
+ },
+ "error_budget": {
+  "estimator_direct_sem": 0.02832145885650043,
+  "estimator_fused_sem": 0.0008628618679250461,
+  "cheap_lane_heldout_rmse_if_unanchored": 0.26255054729953625,
+  "cheap_lane_bias_contribution": 0.0,
+  "missing_member_bias_measured": 0.00015403048822548726,
+  "high_fidelity_model_form": null
+ },
+ "combined": {
+  "combined_95": 0.2193838645571713,
+  "contributions": {
+   "input": 0.21937707698304945,
+   "numerical": 0.0017257237358500922
+  },
+  "missing": [
+   "model"
+  ]
+ }
+}
