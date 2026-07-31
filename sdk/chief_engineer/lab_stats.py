@@ -277,9 +277,13 @@ def research_programs() -> dict[str, Any]:
         "title": closure_raw.get("name", "Closure-challenge benchmark"),
         "status": "ACTIVE RESEARCH",
         "board": closure_raw.get("board", "public leaderboard"),
-        # The board is shown at its top entry, rank #1, never at whichever
-        # entry our own score happens to sit nearest.
-        "target_rank": closure_raw.get("target_rank", 1),
+        # Which rank the board is shown against is a decision recorded in
+        # benchmarks.json, not here. This fallback exists only so a missing
+        # key cannot render a blank rank, and it must never silently disagree
+        # with the generator: the number and the per-case row it labels have
+        # to come from the same entry, or the card credits one team's cases
+        # to another's rank.
+        "target_rank": closure_raw.get("target_rank", 4),
         "target_overall": closure_raw.get("target_overall"),
         "target_per_case": closure_raw.get("target_per_case", []),
         "our_entry": closure_raw.get("our_entry", _NO_ENTRY_YET),
