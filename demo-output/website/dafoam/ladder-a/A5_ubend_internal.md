@@ -972,3 +972,268 @@ investigation, with `getdFScaling` named as the specific place to look next.
 
 Evidence: `probeA5FixedDFdW.py`, `fixeddfdw_out.log`, `probeA5FixedDRdXv.py`, `fixeddrdxv_out.log` (all
 in `ladder-a/A5_work/UBend_Channel_pressureloss/`).
+
+## Addendum, 2026-07-31 (well W4): the warpDeriv clearance is RETRACTED. A5's defect is the same `mesh.warpDeriv` mis-linearization as A1's, and it was hidden by testing with a random seed
+
+**This addendum overturns the 2026-07-29 addendum above ("tested against A1's confirmed
+`mesh.warpDeriv` root cause -- does NOT share it") and the 2026-07-30 addendum that confirmed it
+("A5's `mesh.warpDeriv` clearance is CONFIRMED, not merely unretracted"). Both conclusions were
+wrong, for one specific and now-measured reason: every `mesh.warpDeriv` test ever run on A5 --
+`probeWarpDerivA5.py` (seeds 2026, 42) and `probeA5HandComposition.py` (seeds 2026, 42) -- seeded
+the dot-product identity with an ARBITRARY RANDOM vector on the volume-mesh output space. A1's own
+record already says, in `PROOF.md` section 17, that this is exactly the test that gives a
+misleading answer, and it says so from a measurement: under a random seed A1's idx6 and idx7 failed
+identically (108-149%, both sign-flipped); under the real `dCD/dXv` seed they split apart exactly
+along the line the real `check_totals` result draws (idx6 634% flipped, idx7 1.74% clean). A random
+direction measures whether `warpDeriv`'s error is large SOMEWHERE. Only the real objective's own
+seed measures whether that error reaches THIS gradient. A5's clearance was never repeated with the
+real seed. It has now been, and it fails.**
+
+### Note on case state before any of this ran
+
+The case directory on disk was left in the **convergence-tightening variant** of `system/fvSolution`
+(committed in `20dc8724`, the primal-convergence-hypothesis addendum): `residualControl` added, GAMG
+`relTol` 0.1->0.01, `tolerance` 0->1e-10, `smoothSolver` `nSweeps` 1->2. That is not the
+configuration the headline numbers at the top of this document (46.6%, 5/27, idx8/idx17 flips) came
+from. The stock `fvSolution` was restored from commit `eb687c56` before any run below and verified
+byte-identical to the untouched tutorial's (`/home/ubuntu/dafoam-tutorials/UBend_Channel/system/
+fvSolution`); the tightened file is kept alongside as `system/fvSolution.tightened_2026-07-30`.
+`system/controlDict` was already byte-identical to the tutorial's (`endTime 1000`). Confirmation
+that the restore worked: the primal below reproduces this document's original converged values
+**bit-for-bit** -- `TP1=8.811838267130871e+01`, `TP2=3.577316633196290e+01`,
+`OBJ.val=5.234521633934580e+01` -- and the adjoint reproduces the original 27-component analytic
+vector to all 8 printed digits (`0.23711358, -0.43555559, -0.41765751, 1.96883727, ...`).
+
+### Test 1: `mesh.warpDeriv` under the real `d(OBJ.val)/dXv` seed
+
+New script `probeA5RealSeed.py`, A5's analog of A1's `probeWarpDerivRealSeed.py` +
+`probeHandComposition.py`, run as one script so all quantities come from one model instance and one
+captured seed. It builds the exact `Top` model from `runScript.py` (all 6 DV groups, same
+`daOptions`, same `meshOptions`, same `OBJ = TP1 - TP2` ExecComp), runs the real primal, runs ONE
+real reverse-mode adjoint (`compute_totals(of=["OBJ.val"], wrt=["shapexUpper"])`), and captures the
+real seed with a monkeypatched hook on `dafoam.mphys.mphys_dafoam.DAFoamWarper.compute_jacvec_product`
+-- the literal `dxV` the real adjoint chain hands to `self.DASolver.mesh.warpDeriv(dxV)`. The hook
+fired **exactly once** (`captured 1 rev-mode call(s)`, `||.||_2 = 5.81214119e+03`), so the captured
+vector is unambiguously the one real vector used, not an average.
+
+Three quantities per component, all with `w = w_real`:
+
+```
+AN       = <warpDeriv(w_real), dXs/dShape_idx>            (hand-composed chain)
+FD_dvgeo = <w_real, [Xv(shape+h e) - Xv(shape-h e)]/2h>   (FD through DVGeo.update)
+FD_xs    = <w_real, [Xv(xs0+h eta) - Xv(xs0-h eta)]/2h>   (FD with DVGeo BYPASSED)
+```
+
+`np=4` (matching this case's own `decomposeParDict`), `--cpus=4 --memory=6g`, 30 s wall
+(08:23:06Z -> 08:23:36Z, 2026-07-31), preflight passed clean, `processor*` cleared first. Raw log:
+`demo-output/website/dafoam/a5_realseed_np4_run1.log`.
+
+| idx | AN = framework | FD_xs (real seed, `DVGeo` bypassed) | rel. err | sign | established `check_totals` rel. err | established sign |
+|---|---|---|---|---|---|---|
+| 2 (control) | -4.176575101804e-01 | -4.068801538845e-01 | **2.65%** | agree | 1.1% | agree |
+| 3 | 1.968837269006e+00 | 7.086230595114e-01 | **177.84%** | agree | 179.2% | agree |
+| 8 (FLIP) | -8.433725799274e-01 | 7.878983424005e-01 | **207.04%** | **FLIPPED** | 207.6% | **FLIPPED** |
+| 15 (largest component) | -1.386041672615e+01 | -2.425642941732e+01 | **42.86%** | agree | 42.9% | agree |
+| 17 (FLIP) | -6.288120537154e-01 | 2.913155666635e+00 | **121.59%** | **FLIPPED** | 121.6% | **FLIPPED** |
+| 26 (control) | -1.956539769317e+00 | -1.899175267081e+00 | **3.02%** | agree | 2.7% | agree |
+
+**A solve-free, pure-geometry test of one function reproduces the entire full-chain CFD+adjoint
+`check_totals` disagreement, component by component, across a range spanning 2.6% to 207%, including
+both sign flips, for all six components tested.** Under the random seeds used previously, idx8 and
+idx17 measured 0.32-1.30% at this same link and were declared clean. Under the real seed they
+measure 207% and 122%, sign-flipped. That is a 160x change in the measured error produced by nothing
+but replacing an arbitrary direction with the objective's own.
+
+Three further readings from the same run:
+
+1. **Hand-composition equals the framework exactly.** `AN` (hand-composed by this script's own
+   arithmetic from `warpDeriv(w_real)` and `DVGeo.totalSensitivityProd`) matches the framework's own
+   `compute_totals` column to a relative difference of **0.0 to 2.1e-15** for every component. This
+   is A1 `PROOF.md` section 21.1's Stage-1 test, repeated here: **OpenMDAO's multi-component linear
+   solve performs the same chain-rule contraction a manual replay does. There is no bug in the
+   assembly.** It also validates the seed capture -- a wrong or partial seed could not reproduce the
+   framework's own answer to machine zero.
+2. **`DVGeo` nonlinearity is excluded again, now under the real seed.** `FD_dvgeo` and `FD_xs`
+   (the latter never calling `DVGeo.update()` at all) agree to `3.8e-8` - `1.2e-6` at `h=1e-4`. The
+   disagreement is not the FFD parameterization; it is the warp.
+3. **The independent cross-check A1's section 17.2 used, repeated here, passes.** `FD_xs` is a
+   geometry-only quantity computed by a script that did not exist when this document's original
+   `check_totals` sweep ran, at a different step size, by a different method. It nonetheless
+   reproduces that sweep's measured FD column to **0.07% - 1.5%** for all six components:
+
+   | idx | `FD_xs` (this run) | established `check_totals` FD (step=1e-4) | agreement |
+   |---|---|---|---|
+   | 2 | -0.40688 | -0.41319 | 1.5% |
+   | 3 | 0.70862 | 0.70507 | 0.50% |
+   | 8 | 0.78790 | 0.78391 | 0.51% |
+   | 15 | -24.25643 | -24.27272 | 0.067% |
+   | 17 | 2.91316 | 2.90530 | 0.27% |
+   | 26 | -1.89918 | -1.90572 | 0.34% |
+
+   Two independent measurements of "the true derivative", one requiring 55 primal re-solves and one
+   requiring none, agree to within 1.5%. The framework's analytic answer is the outlier, by the same
+   margin, for the same components.
+
+**Step-size check (one of the two probe-failure signatures this investigation has been burned by):**
+every component was run at `h=1e-4` and `h=1e-5`. The relative errors move by less than 0.03
+percentage points between them (e.g. idx8: 207.0408% vs 207.0487%; idx17: 121.5853% vs 121.5879%).
+**No step-size instability. Not a noise artifact.**
+
+**Implausible-constant-ratio check (the other signature):** `AN/FD_xs` is -1.0704 (idx8), -0.2159
+(idx17), 2.7784 (idx3), 0.5714 (idx15), 1.0265 (idx2), 1.0302 (idx26) -- six different values, none
+matching this case's `normalizeStates` constants (8.4, 35.28, 1e-3, 300) or any other scaler in the
+setup. **Not a units-convention artifact of the kind that closed the `dR/dW` lead.**
+
+### Test 2: the two links either side of `warpDeriv`, so the localization is not by elimination alone
+
+New script `probeA5DObjDXv.py`, serial (`np=1`), 08:25:55Z -> 08:28:10Z, log
+`demo-output/website/dafoam/a5_dobjdxv_np1_run1.log`.
+
+**`dXs/dShape` (Stage A): machine precision, componentwise.** `DVGeo.totalSensitivityProd`'s
+analytic column vs a central FD of `DVGeo.update()`, compared **componentwise over all surface
+points** rather than as a contracted scalar (a scalar dot product can hide a componentwise defect
+that happens to be orthogonal to the contraction direction -- the exact failure mode that made A5's
+original warpDeriv clearance wrong, so it is deliberately not repeated here):
+
+| idx | h | max abs diff | max rel |
+|---|---|---|---|
+| 8 | 1e-4 | 1.085e-12 | **3.32e-12** |
+| 8 | 5e-5 | 2.007e-12 | **6.13e-12** |
+| 17 | 1e-4 | 1.048e-12 | **3.20e-12** |
+| 17 | 5e-5 | 2.109e-12 | **6.44e-12** |
+| 2 | 1e-4 | 9.064e-13 | **2.79e-12** |
+| 2 | 5e-5 | 2.030e-12 | **6.24e-12** |
+
+**`dObj/dXv` (Stage B): clean at the flagged components.** `AN = <w_real, delta_Xv>` against
+`FD = [OBJ(Xv0 + h*delta_Xv) - OBJ(Xv0 - h*delta_Xv)] / 2h`, where each `OBJ()` is a **full nonlinear
+primal re-solve at a directly-set volume mesh** (`DASolver.setVolCoords`), bypassing `DVGeo` and
+IDWarp entirely on the FD side. The objective is read back two ways at every solve --
+`solver.calcFunction()` (live) and `evalFunctions()` (the time-history getter that produced this
+document's earlier retracted `dF/dW` bug) -- and they agreed to `0.000e+00` at all 14 solves, so that
+ambiguity is closed rather than assumed away.
+
+| idx | h | AN | FD (true re-solve) | rel. err | sign |
+|---|---|---|---|---|---|
+| 8 (FLIP) | 1e-4 | 7.870912e-01 | 7.940838e-01 | **0.88%** | agree |
+| 8 (FLIP) | 5e-5 | 7.870927e-01 | 7.884142e-01 | **0.17%** | agree |
+| 17 (FLIP) | 1e-4 | 2.912138e+00 | 2.931680e+00 | **0.67%** | agree |
+
+### Two controls run on the probe itself, because the first sweep did NOT come back clean everywhere
+
+The same sweep gave `rel_err = 56.7%` for idx17 at `h=5e-5` and 390% / 268% for idx2 at both steps.
+Per the standing rule that a probe's own instability is the first suspect, two controls were run
+before reporting anything.
+
+**Control 1 -- the noise floor, measured rather than argued.** This document has hypothesized since
+its first version that the residual plateau (`p initRes ~ 2.26e-4`) makes FD differencing noisy.
+`probeA5NoiseFloor.py` tested it directly: re-solve the **identical, unperturbed** `Xv0` four times,
+interleaved with scrambled solves so the warm-start path differs between repeats exactly as it does
+in a real FD sweep (08:31:04Z -> 08:32:31Z, log `a5_noisefloor_np1_run1.log`):
+
+```
+A5NOISEFLOOR n=4 vals=[52.345227439913 52.345227439915 52.345227439912 52.345227439914]
+             spread_max_min=2.849276e-12  std=1.034480e-12
+             implied FD noise at h=1e-4 = 1.424638e-08
+```
+
+**The primal is reproducible to 2.8e-12, so the FD noise floor on the derivative is 1.4e-8.** That
+is seven orders of magnitude too small to explain anything here. **The residual-plateau-noise
+hypothesis, carried in this document since 2026-07-28 as candidate cause #1 and never measured, is
+refuted by direct measurement.** The plateau is a genuine fixed point in the strongest sense: the
+solver returns to the same 13 significant figures every time.
+
+**Control 2 -- warm-start path dependence, found and corrected.** The four repeats above averaged
+`52.345227439913` while OpenMDAO's own `run_model` gave `52.345216915593` -- a **reproducible**
+offset of `1.05e-5`, not noise. Cause: in the sweep, each FD leg warm-starts from the *previous*
+leg's converged state, so the `+` and `-` legs of a central difference travel different paths to
+the limit cycle. `probeA5DObjDXvReset.py` resets every solve to the same captured baseline state
+first (08:36:54Z -> 08:38:51Z, log `a5_dobjdxv_reset_np1_run1.log`). With the reset, the baseline
+re-solve reproduces OpenMDAO to `-5.083e-10` (vs `1.052e-05` on the warm path), confirming the
+diagnosis, and:
+
+| idx | h | AN | FD (reset path) | rel. err | sign |
+|---|---|---|---|---|---|
+| 8 (FLIP) | 1e-4 | 7.870912e-01 | 8.004034e-01 | **1.66%** | agree |
+| 8 (FLIP) | 5e-5 | 7.870927e-01 | 8.072198e-01 | **2.49%** | agree |
+| 17 (FLIP) | 1e-4 | 2.912138e+00 | 2.882827e+00 | **1.02%** | agree |
+| 17 (FLIP) | 5e-5 | 2.912078e+00 | 2.866879e+00 | **1.58%** | agree |
+| 2 (control) | 1e-4 | -4.071165e-01 | -8.719458e-01 | 53.3% | agree |
+| 2 (control) | 5e-5 | -4.071125e-01 | -1.297023e+00 | 68.6% | agree |
+
+**idx8 and idx17 -- the two components the verdict rests on -- are stable and clean at 0.17-2.49%
+across two step sizes AND two independent path protocols. That is the result being relied on.**
+
+**idx2 is reported as a probe failure, not as a finding.** Its direct-`Xv` re-solve FD is
+contaminated by an additive offset in the two-leg objective difference of ~+6.5e-5 (warm path) and
+~-9e-5 (reset path) that is **constant in `h`** rather than scaling with it -- so it inflates the
+relative error without bound as `h` shrinks, which is what the numbers show. A constant offset is
+not a derivative error (a derivative error scales with `h` in the difference); it is a jump. Its
+mechanism (most plausibly a discrete branch -- a limiter or wall-function switch -- toggling as soon
+as the mesh moves along this particular direction) was not chased, and idx2's `dObj/dXv` is
+therefore recorded as **not measurable by this probe**, neither clean nor defective. This does not
+touch the verdict: idx2 is a control that agrees at 1.1% in the real `check_totals` and at 2.65% in
+Test 1, and the verdict rests on idx8/idx17, where the probe is stable.
+
+**Serial-vs-parallel cross-check, unplanned but worth recording:** Test 1 ran at `np=4` and Test 2
+at `np=1`, on different partitionings, and the same quantity `<w_real, true dXv/dShape_8>` came out
+`7.878983e-01` and `7.870912e-01` -- 0.10% apart -- while the framework's analytic answer was
+`-8.433726e-01` and `-8.445469e-01` in the two runs. **The contradiction is present within a single
+serial process, so it is not a decomposition artifact.**
+
+### Verdict: same mechanism as A1, and the scope of the upstream bug is larger than filed
+
+| link | test | result |
+|---|---|---|
+| `dXs/dShape` (DVGeo FFD Jacobian) | analytic column vs componentwise FD of `DVGeo.update` | **clean, 2.8e-12 - 6.4e-12** |
+| `dXv/dXs` (`mesh.warpDeriv`) | dot-product identity, **real** `dOBJ/dXv` seed, `DVGeo` bypassed | **DEFECTIVE: 42.9% - 207%, two sign flips; reproduces the full-chain gap component-by-component** |
+| `dObj/dXv` (state adjoint) | true re-solve FD at a directly-set `Xv` | **clean, 0.17-2.49% at idx8/idx17, two step sizes, two path protocols** |
+| composition (OpenMDAO assembly) | hand-composed vs `compute_totals` | **exact, 0 - 2.1e-15** |
+
+**A5's defect is the same defect as A1's: `mesh.warpDeriv` mis-linearizes the surface-to-volume mesh
+warp. The lab has one upstream bug, not two.** The mechanism A1 established -- the defect reaches a
+component's real gradient only where its location overlaps the objective's own `dObj/dXv`
+sensitivity field -- is what hid it here: contracted against a random direction the error is
+0.3-1.3%; contracted against the real pressure-loss adjoint's own sensitivity field it is 207%.
+
+**What this adds to the upstream bug report's scope, all of it new:**
+
+- **A second, unrelated geometry and flow regime.** A1 is an external 2D airfoil (`DASimpleFoam`,
+  force objective, C-mesh from `pyHyp`). A5 is an internal 3D curved duct (`DASimpleFoam`,
+  total-pressure-loss objective, 6-block `blockMesh` structured mesh, half-model with a symmetry
+  plane). The bug is not a property of one mesh generator or one topology.
+- **A different objective type.** A1's is a surface force integral; A5's is a difference of two
+  total-pressure patch integrals at inlet and outlet -- an objective whose sensitivity field is
+  distributed through the duct rather than concentrated at a stagnation point.
+- **Plain single-point, single-axis design variables, with a SIGN FLIP.** A5's `shapexUpper` is
+  built by `nom_addLocalDV(axis="x", pointSelect=PS)` -- one FFD control point moving along one axis
+  per DV, unconditionally, with no opposing-direction or combination construction anywhere in the
+  case. The upstream report currently says the sign-flipping failure requires the
+  opposing-direction combination construction ("necessary for it to be large enough to flip sign, in
+  the cases tested"). **A5 idx8 and idx17 are single-point single-axis DVs and they flip sign at
+  207% and 122%. That qualification is now falsified and must be removed from the report.**
+- **Symmetry-plane handling is not the discriminator.** This case runs `meshOptions
+  ["symmetryPlanes"] = []` (an omission inherited from the official tutorial, not introduced here),
+  A1 declares two. Both fail. The 2026-07-30 addendum above had already exonerated symmetry-plane
+  proximity within A5 on geometric grounds; this is the cross-case version of the same point.
+
+### What this addendum does NOT claim
+
+- It does not explain *why* `warpDeriv` mis-linearizes, or where in IDWarp's reverse mode the error
+  is. No IDWarp source was traced this session. The finding is that the function's output disagrees
+  with a finite difference of the function it claims to differentiate.
+- It does not revisit the earlier `dR/dW` work. That Jacobian was cleared to machine precision on
+  and off the diagonal (2026-07-30 addendum) and nothing here contradicts it; it was simply not the
+  defective link.
+- It leaves the `dF/dW` scaling pattern (`AN/FD = 35.28` for `TP1`, `8.4` for `TP2`, exactly,
+  direction-independent) **open and unexplained**. That test measured a different link with a
+  different tool and its per-function constants are still uninterpreted; `getdFScaling` remains the
+  named place to look. It is not needed for this verdict -- the `dObj/dXv` test above measures the
+  composed objective sensitivity end-to-end against a true re-solve and finds it clean -- but it is
+  not resolved by it either, and is left on the record as open.
+- idx2's `dObj/dXv` measurement failed as described and is recorded as unmeasurable by that probe.
+
+Evidence, all new this session (2026-07-31), all in
+`ladder-a/A5_work/UBend_Channel_pressureloss/` unless noted:
+`probeA5RealSeed.py`, `probeA5DObjDXv.py`, `probeA5NoiseFloor.py`, `probeA5DObjDXvReset.py`, and
+four raw logs in `demo-output/website/dafoam/`: `a5_realseed_np4_run1.log`,
+`a5_dobjdxv_np1_run1.log`, `a5_noisefloor_np1_run1.log`, `a5_dobjdxv_reset_np1_run1.log`.
