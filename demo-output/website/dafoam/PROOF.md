@@ -2237,3 +2237,84 @@ previously attributed to it). idx2, idx3, idx4, idx5, idx7 remain independently 
   `DVGeo`)
 - `handcomp_idx0_run1.log`, `handcomp_idx1_run1.log`, `handcomp_idx4_run1.log` -- the 3 raw runs behind
   sections 21.1-21.2's tables
+
+## 22. Session 2026-07-31 (well W4): A5 tested under the real seed -- the mechanism GENERALIZES, and section 16's scope answer is corrected
+
+Section 21 closed A1. This section records the result of applying A1's own closing method to A5 (the
+U-Bend Channel case), because A5's clearance in section 16.1 was obtained by the exact test section 17
+had already shown to be unreliable, and that inconsistency sat unresolved in this document.
+
+**Section 16.1 and section 16.4 are corrected.** They state that A5's `shapexUpper` components are
+"clean of this specific `warpDeriv` defect" and that "A5's idx8/idx17 sign flips are real but come from
+a different mechanism entirely," and 16.4 builds a predictive rule on top of that: *"an opposing-direction
+combination mode is a NECESSARY red flag ... no single-station DV anywhere has shown it, across three
+independent cases"* and *"do not assume single-station DVs need this scrutiny at all."*
+
+**Both conclusions were reached with an arbitrary random seed on the volume-mesh output space (seeds
+2026 and 42), the same seeding this document's own section 17 proved gives the wrong answer.** Section
+17's finding was applied to A1's idx7 and never back-applied to A5. Repeated with the real
+`d(OBJ.val)/dXv` seed, captured verbatim from the framework's own reverse-mode call on `DAFoamWarper`
+(same hook, same method as sections 17-19), A5 fails:
+
+| A5 idx | construction | random seed (16.1) | **real seed (this section)** | established `check_totals` |
+|---|---|---|---|---|
+| 2 (control) | single-point, single-axis | 0.0078% | 2.65%, agree | 1.1%, agree |
+| 3 | single-point, single-axis | -- | 177.8%, agree | 179.2%, agree |
+| **8** | single-point, single-axis | 0.32% | **207.0%, SIGN-FLIPPED** | 207.6%, sign-flipped |
+| 15 | single-point, single-axis | -- | 42.86%, agree | 42.9%, agree |
+| **17** | single-point, single-axis | 1.30% | **121.6%, SIGN-FLIPPED** | 121.6%, sign-flipped |
+| 26 (control) | single-point, single-axis | 0.0075% | 3.02%, agree | 2.7%, agree |
+
+The real-seed column reproduces the full CFD+adjoint `check_totals` column component by component across
+a 2.6%-to-207% range, including both sign flips, from a solve-free geometric test of one function. A5's
+other two links were isolated in the same session and are clean (`dXs/dShape` to 2.8e-12 componentwise;
+`dObj/dXv` to 0.17-2.49% against a true re-solve-based FD at directly-set volume coordinates), and A5's
+hand-composed chain equals its `compute_totals` to 0-2.1e-15, exactly as A1's did in section 21.1.
+
+**Corrected scope statement, replacing section 16.4's:**
+
+- The opposing-direction combination construction is **NOT necessary**. A5's 27 `shapexUpper` components
+  are built by `nom_addLocalDV(pointSelect=PS, axis="x")` -- one FFD control point, one axis, no
+  combination construction anywhere in the case -- and two of them are sign-flipped at 207% and 122%.
+- Section 16.4's guidance *"do not assume single-station DVs need this scrutiny at all"* is **withdrawn.
+  Single-station DVs need exactly the same scrutiny.** Section 21 had already established this within A1
+  (idx0/idx1, single-station, 11.6-11.9%); A5 extends it to sign-flip magnitude on a second case.
+- What **is** necessary, and is the surviving predictive content of sections 16-17, is the overlap rule:
+  the defect reaches a component's real gradient in proportion to how much the error's location overlaps
+  the objective's own `dF/dXv` sensitivity field. That is why A1's idx7 comes clean under the real seed
+  and A5's idx8/idx17 come dirty, and it is why a random-seed test cannot be used to clear this function.
+- The lab's two gradient-accuracy failures **do collapse to one upstream cause.** The statement in the
+  section 16.1 addendum and in `A5_ubend_internal.md` that "this lab's two gradient-accuracy failures do
+  not collapse to one upstream cause; they are two separate defects" is retracted.
+
+**Final running tally, superseding section 21.4's, now covering both cases:**
+
+| # | link / mechanism | verdict | section |
+|---|---|---|---|
+| 1 | FD/residual-tolerance noise | refuted on A1 (8.2); refuted on A5 by direct measurement (primal reproducible to 2.8e-12, FD noise floor 1.4e-8) | 8.2, 22 |
+| 2 | `dXs/dShape`: FFD/DVGeo Jacobian or DV convention | refuted, machine precision on both cases | 11.1, 22 |
+| 3 | plain coarse-mesh spatial-discretization error | refuted | 11.2 |
+| 4 | frozen wall-distance (`forceMeshWaveFrozen`) | refuted | 12 |
+| 5 | SA wall-function branch-crossing (`nutw` clip) | refuted | 13, 19.1 |
+| 6 | combo-mode LE mesh pinching | refuted | 14 |
+| 7 | `DVGeo`'s own nonlinearity | refuted on both cases (1e-7 to 1e-10) | 21.2, 22 |
+| 8 | OpenMDAO assembly/composition | refuted on both cases (0 to 2.1e-15) | 21.1, 22 |
+| 9 | mesh-quality metric (aspect ratio) near LE | measured, non-discriminating | 19.2 |
+| 10 | LE-curvature geometric singularity | weighed against | 19.2 |
+| 11 | A5-specific: primal-convergence plateau | refuted twice -- by tightening (A5 addendum 2026-07-28) and by direct noise-floor measurement | 22 |
+| 12 | A5-specific: symmetry-plane proximity | exonerated geometrically | A5 addendum 2026-07-30 |
+| 13 | A5-specific: adjoint-solve (GMRES) accuracy | eliminated, 7 orders of magnitude tighter moves it <1% | A5 addendum 2026-07-30 |
+| 14 | A5-specific: `dR/dW` on and off diagonal | cleared to machine precision under the `max(D_row, D_col)` convention | A5 addendum 2026-07-30 |
+| 15 | `dObj/dXv` / `dCD/dXv`: state-adjoint sensitivity to volume coords | clean on both cases (0.2-1.4% A1; 0.17-2.49% A5) | 20, 22 |
+| 16 | **`mesh.warpDeriv` mis-linearization of the surface-to-volume warp** | **CONFIRMED on A1 (idx0, idx1, idx6) and, this session, on A5 (idx3, idx8, idx15, idx17)** | 15-18, 21, 22 |
+
+**One open item is carried forward, not closed:** A5's `dF/dW` probe returns an exact,
+direction-independent per-function scaling (`AN/FD` = 35.28 for `TP1`, 8.4 for `TP2`) that is
+uninterpreted. It is not needed for this verdict -- `dObj/dXv`, which composes past it, was measured
+end-to-end against a true re-solve and is clean -- but it is not explained either. `getdFScaling` in
+`pyDASolvers.pyx` is the named place to look.
+
+Evidence: `ladder-a/A5_work/UBend_Channel_pressureloss/probeA5RealSeed.py`, `probeA5DObjDXv.py`,
+`probeA5NoiseFloor.py`, `probeA5DObjDXvReset.py`; logs `a5_realseed_np4_run1.log`,
+`a5_dobjdxv_np1_run1.log`, `a5_noisefloor_np1_run1.log`, `a5_dobjdxv_reset_np1_run1.log`; full write-up
+in `ladder-a/A5_ubend_internal.md` (addendum, 2026-07-31); standalone reproducer in `upstream_repro/`.
