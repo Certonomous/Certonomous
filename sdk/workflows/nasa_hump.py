@@ -947,12 +947,11 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
+    # The wall clock is still measured and still reported: it is the
+    # certificate's Solve Time row below. What came off the narration (Katie,
+    # 2026-07-31) is the sentence that announced it alongside the convergence
+    # iteration, which the gate table already carries.
     elapsed = (time.monotonic() - began) / 60
-    script.engineer(
-        f"• From a received mesh to a converged wall state in {elapsed:.1f} "
-        f"minutes. "
-        f"• Residuals below the case's own convergence control at iteration "
-        f"{converged_iterations:,}.")
     # The measurement against the published experiment, as a table rather
     # than a sentence, with the bubble length carried alongside the two
     # stations it is the difference of.
