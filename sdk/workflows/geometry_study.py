@@ -2326,8 +2326,11 @@ def main(request: str | None = None, params: dict | None = None,
         # The mesh sensitivity is the numericist's finding, so the numericist
         # states it; the spend stays with the Chief Engineer, whose ledger it is.
         script.numericist(
-            "• Mesh sensitivity measured on three meshes of this case; the "
-            "figure rides the numerical channel of the certificate.")
+            ("• Mesh sensitivity measured on three meshes of this case; the "
+             "figure rides the numerical channel of the certificate."
+             if uq_studies.reportable_band(refine) is not None else
+             "• Mesh spread measured on three meshes of this case; the "
+             "figure rides the numerical channel of the certificate."))
         spend = ledger.as_dict()['spent_core_minutes']
         if spend >= 1:
             script.engineer(f"• Total spend {spend:.0f} core-minutes, "
@@ -2370,8 +2373,15 @@ def main(request: str | None = None, params: dict | None = None,
              f"{wall['min']:,.0f} to {wall['max']:,.0f}, median "
              f"{wall['median']:,.0f}"])
     if refine and refine.get("band_abs") is not None:
-        closing_rows.append(["Mesh sensitivity on C_d",
-                             f"±{refine['band_abs']:.2g}"])
+        # Same naming rule as the ladder table above: a ladder in the
+        # asymptotic range closes on a sensitivity band, one that is not
+        # closes on the spread it measured. The two surfaces must never
+        # disagree about what the figure is called.
+        closing_rows.append(
+            ["Mesh sensitivity on C_d"
+             if uq_studies.reportable_band(refine) is not None
+             else "Mesh spread on C_d",
+             f"±{refine['band_abs']:.2g}"])
     closing_rows.append(["Solver events flagged",
                          f"{monitor_summary['anomalies']}"])
     closing_rows.append(["Fatal events",
