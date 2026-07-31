@@ -231,6 +231,21 @@ def _fmt(x: float) -> str:
     return f"{x:.6e}"
 
 
+# ITEM 7 (owner, 2026-07-31): optimizer status is reported as descent. These
+# are the phrasings this act may not use for it, banned by name. The first is
+# the one that started the rule: it reads as the optimizer going the wrong
+# way when it meant the opposite. The rest are the internals the act has no
+# business narrating in the first place, so they are not translated, they are
+# refused.
+_BANNED_OPTIMIZER_PHRASES = (
+    "against the gradient",
+    "merit function",
+    "backtrack",
+    "line search",
+    "line-search",
+)
+
+
 class _Falsifier:
     """The falsifier and the gate, put on the record before any evidence.
 
@@ -262,6 +277,20 @@ class _Falsifier:
             raise RuntimeError(
                 "the falsifier and the gate must reach the screen before this "
                 "act emits any evidence")
+        # ITEM 7 (owner, 2026-07-31): "moving against the gradient" is banned
+        # by name, and a banned phrase that is only banned in prose is not
+        # banned. bullets() already runs the wording doctrine over narration;
+        # this closes the other door a phrase can walk through, which is a
+        # table cell. Checked here rather than trusted, so a slip fails on the
+        # first run instead of reaching the control room.
+        for row in kwargs.get("rows") or ():
+            for cell in row:
+                lowered = str(cell).lower()
+                for phrase in _BANNED_OPTIMIZER_PHRASES:
+                    if phrase in lowered:
+                        raise ValueError(
+                            f"banned optimizer phrasing {phrase!r} in table "
+                            f"cell {cell!r}")
         emit_table(emit, script, **kwargs)
 
 
@@ -796,6 +825,15 @@ def main(request: str | None = None, params: dict | None = None,
     # The settling claim, measured from the recorded history rather than eyeballed.
     tail = [r["CD"] for r in history[-TAIL_ITERS:]]
     tail_spread_pct = (max(tail) - min(tail)) / min(tail) * 100
+    # ITEM 7 (owner, 2026-07-31): the optimizer's status is reported as
+    # descent and nothing else. "Moving against the gradient" is banned by
+    # name: it reads as the optimizer going the wrong way when it meant the
+    # opposite, and no viewer should have to work out which. Merit functions
+    # and step cutbacks are not translated into plainer words, they are simply
+    # not on screen; what IS on screen is how many of the recorded steps took
+    # drag down, counted from the history rather than characterised.
+    steps_down = sum(1 for a, b in zip(tail, tail[1:]) if b < a)
+    tail_steps = len(tail) - 1
     # Every headline number in one table, each against what it is graded on
     # (owner, 2026-07-31). Nothing here is repeated in prose afterwards.
     gate.table(emit, script, role=_CE_ROLE,
@@ -815,7 +853,10 @@ def main(request: str | None = None, params: dict | None = None,
                     "Every one on the verified gradient"],
                    ["Objective band over the last "
                     f"{TAIL_ITERS} iterations", f"{tail_spread_pct:.2g}%",
-                    "Moving against the gradient throughout"],
+                    "Measured across the recorded objective"],
+                   [f"Steps that took drag down, last {TAIL_ITERS} iterations",
+                    f"{steps_down} of {tail_steps}",
+                    "Still descending on the verified gradient"],
                ],
                table_id="result-adjoint-optimization")
 
