@@ -371,6 +371,45 @@ def buildup_band_ld(cl: float, cdo_wing: float, cdi: float,
     return max(abs(ld_hi - ld0), abs(ld0 - ld_lo))
 
 
+def unresolved_family(solved, best: dict) -> list[dict]:
+    """The wings this fidelity does not separate from the winner.
+
+    WHY THIS EXISTS. Span and area rail to the edges of the feasible box, so
+    the finalists pile up on one planform and differ only in quarter-chord
+    sweep. Their solved whole-aircraft L/D then lands within a fraction of a
+    percent of each other, on a headline whose own interval is more than a
+    unit wide. Ranking those siblings and crowning one of them would be
+    reading a difference the numbers do not carry — and picking the maximum
+    is exactly where that reads highest, because the screen-to-solve
+    correction is noisiest there. So the act names the FAMILY.
+
+    A sibling shares the winner's span and area and is counted separated from
+    it only when the gap between their solved L/D exceeds the band this
+    fidelity carries on each: the documented component-buildup band
+    propagated to whole-aircraft L/D at the winner's own cruise point.
+
+    Returns the family ordered by sweep, the winner included. A one-member
+    list means the solved numbers do separate the winner from its siblings.
+    """
+    try:
+        band = buildup_band_ld(float(best["cl_cruise"]),
+                               float(best["cdo_wing_solved"]),
+                               float(best["cdi_solved"]))
+        top = float(best["L_D_solved"])
+    except (KeyError, TypeError, ValueError):
+        return [best]
+    family = []
+    for f in solved:
+        try:
+            if (abs(float(f["span"]) - float(best["span"])) < 1e-6
+                    and abs(float(f["area"]) - float(best["area"])) < 1e-6
+                    and abs(top - float(f["L_D_solved"])) <= band):
+                family.append(f)
+        except (KeyError, TypeError, ValueError):
+            continue
+    return sorted(family, key=lambda f: float(f["sweep_deg"])) or [best]
+
+
 def screen_solve_gap(finalists) -> float | None:
     """Mean absolute gap between the sizing screen's L/D and the solved L/D
     over the finalists carrying both — measured model-channel evidence for
@@ -1758,6 +1797,8 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---- real solves on the finalists --------------------------------------
     solved_ok: list[dict] = []
+    # The winner's unresolved siblings, filled once the finalists are solved.
+    family: list[dict] = []
     if solver_live:
         finalists = sorted(feasible, key=lambda r: r["L_D"],
                            reverse=True)[:_N_FINALISTS]
@@ -1929,12 +1970,28 @@ def main(request: str | None = None, params: dict | None = None,
 
         if solved_ok:
             best = max(solved_ok, key=lambda r: r["L_D_solved"])
-            screen_agreed = best is max(feasible, key=lambda r: r["L_D"])
-            script.engineer(
-                f"• Winner: whole-aircraft L/D {best['L_D_solved']:.1f} "
-                f"{TIER_SOLVE}."
-                + (" • The screen ranked it first as well."
-                   if screen_agreed else ""))
+            # THE WINNER IS A FAMILY WHEN THE NUMBERS SAY SO. The siblings
+            # sharing this planform sit inside the band this fidelity carries,
+            # so the act names the planform and says what is still open.
+            family = unresolved_family(solved_ok, best)
+            if len(family) > 1:
+                lo = min(float(f["L_D_solved"]) for f in family)
+                hi = max(float(f["L_D_solved"]) for f in family)
+                script.engineer(
+                    f"• Winner: the {best['span']:.0f} m, "
+                    f"{best['area']:.0f} m² family, whole-aircraft L/D "
+                    f"{lo:.1f} to {hi:.1f} {TIER_SOLVE}. "
+                    + "• Sweep "
+                    + ", ".join(f"{f['sweep_deg']:.0f}" for f in family)
+                    + " degrees all land inside that spread. "
+                    "• Quarter-chord sweep is not resolved at this fidelity.")
+            else:
+                screen_agreed = best is max(feasible, key=lambda r: r["L_D"])
+                script.engineer(
+                    f"• Winner: whole-aircraft L/D {best['L_D_solved']:.1f} "
+                    f"{TIER_SOLVE}."
+                    + (" • The screen ranked it first as well."
+                       if screen_agreed else ""))
             winner_surface = (out / f"wing-span{best['span']:g}"
                                     f"-area{best['area']:g}"
                                     f"-sweep{best['sweep_deg']:g}.stl")
@@ -1955,6 +2012,20 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     won_solved = bool(solved_ok)
     best_ld = best["L_D_solved"] if won_solved else best["L_D"]
+
+    # ONE SENTENCE FOR THE OPEN AXIS, WRITTEN ONCE AND USED EVERYWHERE. When
+    # the solved numbers do not separate the winner from the siblings sharing
+    # its planform, the result is the family, and the memo, the report and the
+    # certificate all say that in the same words rather than three ways.
+    sweep_unresolved = "quarter-chord sweep is not resolved at this fidelity"
+    sweep_note = ""
+    if len(family) > 1:
+        angles = [f"{f['sweep_deg']:.0f}" for f in family]
+        sweep_note = (
+            f"{sweep_unresolved.capitalize()}: the {best['span']:.0f} m, "
+            f"{best['area']:.0f} m² wings at "
+            f"{', '.join(angles[:-1])} and {angles[-1]} degrees all fall "
+            f"inside the reported interval, so the family is the result.")
 
     # The conclusion opens on figures, both drawn from this run's own numbers:
     # the sweep axis the landscape canvas has no room for, and, when the
@@ -2253,8 +2324,8 @@ def main(request: str | None = None, params: dict | None = None,
     abstract = [
         f"We searched a {len(grid)}-wing design space for the highest "
         f"whole-aircraft L/D meeting the stated mission requirements.",
-        f"The best feasible wing reaches whole-aircraft L/D {best_ld:.1f} "
-        f"± {headline_ci:.1f} (95%) "
+        f"The best feasible {'family' if sweep_note else 'wing'} reaches "
+        f"whole-aircraft L/D {best_ld:.1f} ± {headline_ci:.1f} (95%) "
         f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
         f"{n_infeasible} designs were infeasible on low-speed or range.",
         ("The winner stands on a wing polar solved with VSPAERO plus Raymer's "
@@ -2264,6 +2335,7 @@ def main(request: str | None = None, params: dict | None = None,
     ]
 
     uncertainty = [
+        sweep_note,
         "Whole-aircraft L/D rises with aspect ratio and does not turn over, so "
         "the reported design is set by the structural span limit and the "
         "landing-speed area floor, not by an interior optimum.",
@@ -2323,9 +2395,15 @@ def main(request: str | None = None, params: dict | None = None,
                 {"quantity": "Best feasible whole-aircraft L/D",
                  "value": f"{best_ld:.1f}",
                  "envelope": f"{headline_ci:.1f}", **verdict},
+                # Span, aspect ratio and MTOW are shared by every member of
+                # the family, so this row names the winner whether one wing
+                # or four came out of the solves. What is NOT shared is the
+                # sweep, and the envelope says so rather than leaving a
+                # reader to assume one angle was picked on the numbers.
                 {"quantity": "Winning wing",
                  "value": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}",
-                 "envelope": f"range {best['range_km']:.0f} km"},
+                 "envelope": (sweep_unresolved if sweep_note
+                              else f"range {best['range_km']:.0f} km")},
             ],
             # Structured result block: Title Case labels, verbatim numbers.
             "result_fields": [

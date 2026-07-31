@@ -14,7 +14,8 @@ from workflows.aircraft_optimization import (buildup_band_ld, evaluate_design,
                                              measure_surface_span,
                                              parse_requirements,
                                              polar_readoff_residual,
-                                             screen_solve_gap, seeded_spans)
+                                             screen_solve_gap, seeded_spans,
+                                             unresolved_family)
 
 _TINY_STL = """solid test
  facet normal 0 0 1
@@ -809,6 +810,45 @@ class ComputedUncertaintyHelperTests(unittest.TestCase):
                      {"L_D": 19.0, "L_D_solved": 18.5}]
         self.assertAlmostEqual(screen_solve_gap(finalists), 1.25, places=9)
         self.assertIsNone(screen_solve_gap([]))
+
+    # -- the winner is a family when the numbers do not separate it --------
+    CRUISE = {"cl_cruise": 0.478, "cdo_wing_solved": 0.006014,
+              "cdi_solved": 0.004889}
+
+    def _sibling(self, sweep, ld, **over):
+        row = {"span": 67.0, "area": 300.0, "sweep_deg": sweep,
+               "L_D_solved": ld, **self.CRUISE}
+        row.update(over)
+        return row
+
+    def test_siblings_inside_the_fidelity_band_are_one_family(self):
+        solved = [self._sibling(s, ld) for s, ld in
+                  ((20.0, 20.0), (25.0, 20.0), (30.0, 20.0), (35.0, 20.1))]
+        best = solved[-1]
+        family = unresolved_family(solved, best)
+        # The whole 67 m / 300 m² set: a 0.1 spread against a band of order 1.
+        self.assertEqual([f["sweep_deg"] for f in family],
+                         [20.0, 25.0, 30.0, 35.0])
+        self.assertGreater(buildup_band_ld(**{
+            "cl": self.CRUISE["cl_cruise"],
+            "cdo_wing": self.CRUISE["cdo_wing_solved"],
+            "cdi": self.CRUISE["cdi_solved"]}), 0.2)
+
+    def test_a_different_planform_is_never_family_however_close(self):
+        best = self._sibling(35.0, 20.1)
+        solved = [best,
+                  self._sibling(25.0, 20.1, span=61.0),   # same area, off span
+                  self._sibling(25.0, 20.1, area=360.0)]  # same span, off area
+        self.assertEqual(unresolved_family(solved, best), [best])
+
+    def test_a_sibling_beyond_the_band_is_separated(self):
+        best = self._sibling(35.0, 20.1)
+        far = self._sibling(20.0, 12.0)
+        self.assertEqual(unresolved_family([best, far], best), [best])
+
+    def test_a_winner_without_solved_terms_stands_alone(self):
+        best = {"span": 67.0, "area": 300.0, "sweep_deg": 35.0}
+        self.assertEqual(unresolved_family([best], best), [best])
 
     def test_polar_readoff_residual_is_computed_not_invented(self):
         polar = {"CLtot": [0.1, 0.5, 0.9],
