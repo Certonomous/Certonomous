@@ -25,7 +25,8 @@ import re
 import time
 from pathlib import Path
 
-from . import OUT_ROOT, RUN_PREFIX, announce_geometry, announce_plot, make_transcript
+from . import (OUT_ROOT, RUN_PREFIX, announce_field, announce_geometry,
+               announce_plot, make_transcript)
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
 from chief_engineer.head_engineer import HeadEngineer
@@ -43,6 +44,7 @@ LABEL = "nasa_hump"
 SURFACE = "nasa_hump.stl"
 CASE_TEMPLATE = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
                 / "dafoam" / "f6a_nasa_hump" / "case_template")
+CASE_DEF = CASE_TEMPLATE / "caseDef"
 GATE_SOURCE = "NASA Turbulence Modeling Resource, wall-mounted hump experiment"
 CHORD = 0.42
 EXP_SEPARATION_XC = 0.665
@@ -57,6 +59,82 @@ _TIME_RE = re.compile(r"^Time = (\d+)")
 _MOMENTUM_RESIDUAL_RE = re.compile(
     r"Solving for Ux,\s*Initial residual = ([-+0-9.eE]+)")
 _TRACE_MIN_INTERVAL_S = 0.75    # at most a few points a second on the wire
+
+# The wall this act solves is 1.523 m long and the hump stands 0.054 m off it,
+# 3.5% of the body's longest side. The viewport infers "draw the planform"
+# whenever the third extent falls under 12% of the longest, so this body trips
+# that inference, and the planform camera on a wall-bounded body looks along
+# the wall and draws a featureless sliver with no hump in it. The decision is
+# pinned here instead, which is what the hint exists for. The axes are left
+# alone: the case's own convention (streamwise x, spanwise y, height z)
+# already suits the fixed camera, and only an even permutation would be
+# honoured anyway, since an odd one mirrors the body.
+HUMP_VIEW = {"flat": False}
+# The wall patch carrying the solved surface field. This case is wall bounded:
+# the body IS the tunnel floor, so the patch is named for the floor rather
+# than for a vehicle, and the painter has to be told which one to paint.
+WALL_PATCH = "bottom"
+# The value the case's own definition evaluates to, kept as the fallback so a
+# parse failure can never take the act down. ``freestream_velocity`` reads it
+# from the case; this is the same expression, already evaluated.
+UINF_FALLBACK = 34.62531106959954
+
+GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
+
+_CASE_DEF_ENTRY = re.compile(r"^\s*(\w+)\s+([-+0-9.eE]+)\s*;", re.M)
+
+
+def announce_body(emit, out: Path, label: str) -> None:
+    """Put the wall in the viewport under the pinned camera.
+
+    The surface is the act's own body file read by the same reader every
+    viewport payload goes through, with ``HUMP_VIEW`` added and nothing else:
+    not one coordinate is touched. It is written into the act's own output
+    directory and announced from there because the shared surface route
+    carries no camera hint, and without the hint this body draws as a sliver.
+    Any failure falls back to that shared route, so the body always reaches
+    the screen.
+    """
+    if emit is None:
+        return
+    import json
+
+    try:
+        from chief_engineer.geometry import load_surface
+
+        payload = load_surface(GEOMETRY_DIR / SURFACE)
+        payload["view"] = HUMP_VIEW
+        target = out / f"{LABEL}_body.json"
+        target.write_text(json.dumps(payload), encoding="utf-8")
+    except Exception:
+        announce_geometry(emit, name=SURFACE, label=label)
+        return
+    emit("geometry.ready", {"url": f"/api/field/{out.name}/{target.name}",
+                            "label": label})
+
+
+def freestream_velocity(case_def: Path = CASE_DEF) -> tuple[float, str]:
+    """The case's own freestream velocity in m/s, and where it came from.
+
+    Read from the case definition the benchmark ships rather than carried
+    here as a literal: the reference Mach number and the reference
+    temperature are the case's own, and the freestream is the speed of sound
+    at that temperature times that Mach number. Returns the velocity and a
+    short provenance string for the record.
+    """
+    try:
+        entries = dict(_CASE_DEF_ENTRY.findall(
+            case_def.read_text(errors="replace")))
+        mach = float(entries["Mref"])
+        temperature = float(entries["Tref"])
+        gamma = float(entries["gamma"])
+        gas_constant = float(entries["R"])
+        speed_of_sound = math.sqrt(gamma * gas_constant * temperature)
+        return (mach * speed_of_sound,
+                "the case's own reference Mach number and reference "
+                "temperature")
+    except (OSError, KeyError, ValueError):
+        return UINF_FALLBACK, "the case's own reference state"
 
 
 def _read_raw(text: str, ncols: int) -> tuple[list[float], list[list[float]]]:
@@ -313,7 +391,7 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(ENGINEER_ACK)
 
     roster.set(CHIEF_ENGINEER, f"reading {shown}", "working")
-    announce_geometry(emit, name=SURFACE, label=shown)
+    announce_body(emit, out, shown)
     script.engineer(
         f"• Hypothesis: a quality-gated steady k-omega SST solve lands the "
         f"separation point within ±{SEPARATION_GATE * 100:.0f}% of NASA's "
@@ -567,7 +645,7 @@ def main(request: str | None = None, params: dict | None = None,
     time_dir = solved_times[-1]
     converged_iterations = int(time_dir)
 
-    uinf = 34.62531106959954  # from this case's own thermophysical/caseDef state
+    uinf, uinf_source = freestream_velocity()
     roster.set(CHIEF_ENGINEER, "sampling the wall", "working")
     gate = compute_gate(engineer, engineer.remote_case, time_dir, uinf)
     if not gate or gate.get("separation_xc") is None:
@@ -621,6 +699,50 @@ def main(request: str | None = None, params: dict | None = None,
                 f"assumed one. "
                 f"• The strongest suction is marked with its measured "
                 f"station.")
+
+    # The body carrying its own solved surface field. It is drawn as the
+    # pressure COEFFICIENT rather than the pressure: the reference pair below
+    # is the same one the wall Cp curve above is drawn from, so the painted
+    # wall and that figure are the same numbers on the same scale, and the
+    # legend reads dimensionless instead of in pascals.
+    roster.set(CHIEF_ENGINEER, "painting the wall with its solved field",
+               "working")
+    painted = None
+    try:
+        from chief_engineer.field_render import extract_and_paint
+
+        try:
+            from chief_engineer.geometry import load_surface
+            input_triangles = load_surface(
+                GEOMETRY_DIR / SURFACE)["triangles_total"]
+        except Exception:
+            input_triangles = None
+        painted = extract_and_paint(
+            engineer.remote_case, engineer.out_root / f"{LABEL}_field",
+            RUN_PREFIX[:-1] if RUN_PREFIX and RUN_PREFIX[-1] == "openfoam2606"
+            else RUN_PREFIX,
+            field="p", name=LABEL, patches=(WALL_PATCH,),
+            input_triangles=input_triangles,
+            q_kinematic=gate["q_inf"], p_inf=gate["p_ref"],
+            as_cp=True, view=HUMP_VIEW)
+    except Exception:
+        painted = None
+    if painted:
+        served = out / Path(painted).name
+        try:
+            served.write_bytes(Path(painted).read_bytes())
+            painted = str(served)
+        except OSError:
+            pass
+        announce_field(emit, out.name, painted,
+                       f"{shown}, surface pressure coefficient from the solve")
+        script.engineer(
+            f"• Wall carrying its own solved surface field, as a pressure "
+            f"coefficient. "
+            f"• Freestream from {uinf_source}; the reference pressure is the "
+            f"measured upstream wall value. "
+            f"• Same reference pair as the wall curve, so the two agree "
+            f"number for number.")
 
     gate_rows = [
         ["Converged at iteration", f"{converged_iterations:,}"],
