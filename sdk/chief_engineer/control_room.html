@@ -661,7 +661,7 @@ async function resumeMission(id, staticReplay) {
           const gx = new XMLHttpRequest(); gx.open('GET', gurl, false); gx.send(null);
           const m = normalizeMesh(JSON.parse(gx.responseText.replace(/\bNaN\b/g, 'null')));
           _geomSeq++; state.mesh = m; setHidden('viewportEmpty', true);
-          if (gp.label) $('viewportLabel').textContent = gp.label;
+          if (gp.label) subText('viewportLabel', gp.label);
           $('viewportStats').textContent = (m.faces.length).toLocaleString() + ' faces';
         } catch {}
       }
@@ -920,8 +920,8 @@ function pushTrace(p) {
   if (!state.trace || state.trace.series !== p.series) {
     state.trace = { series: p.series, pts: [], xLabel: p.x_label || 'x', yLabel: p.y_label || 'y',
                     title: p.title || 'Objective trace' };
-    $('traceTitle').textContent = p.title || 'Objective trace';
-    $('traceSeriesLbl').textContent = p.series ? String(p.series).replace(/_/g, ' ') : 'objective';
+    subText('traceTitle', p.title || 'Objective trace');
+    subText('traceSeriesLbl', p.series ? String(p.series).replace(/_/g, ' ') : 'objective');
   }
   state.trace.pts.push({ x: +p.x, y: +p.y, lo: p.lo != null ? +p.lo : null, hi: p.hi != null ? +p.hi : null,
                          feasible: p.feasible !== false });
@@ -952,8 +952,8 @@ function drawTrace() {
     ctx.textAlign='center'; ctx.fillText(fmt(xv), X, MT+PH+11);
   }
   ctx.textAlign='center'; ctx.fillStyle='rgba(210,225,240,.85)';
-  ctx.fillText(tr.xLabel, ML+PW/2, H-3);
-  ctx.save(); ctx.translate(11, MT+PH/2); ctx.rotate(-Math.PI/2); ctx.fillText(tr.yLabel, 0, 0); ctx.restore();
+  fillTextSub(ctx, tr.xLabel, ML+PW/2, H-3);
+  ctx.save(); ctx.translate(11, MT+PH/2); ctx.rotate(-Math.PI/2); fillTextSub(ctx, tr.yLabel, 0, 0); ctx.restore();
   // envelope band
   const hasBand = pts.some(p=>p.lo!=null&&p.hi!=null);
   if (hasBand && pts.length>1){
@@ -1000,7 +1000,7 @@ function initRace(p) {
   $('raceLanes').innerHTML = state.race.order.map(k => {
     const l = lanes[k];
     return `<div class="race-lane ${esc(k)}" id="lane-${esc(k)}">`
-      + `<div class="rl-head"><span class="rl-title">${esc(l.title)}</span>`
+      + `<div class="rl-head"><span class="rl-title">${subScript(esc(l.title))}</span>`
       + `<span class="rl-flag" id="flag-${esc(k)}" hidden>FINISHED</span></div>`
       + `<div class="rl-sub">${esc(l.subtitle)}</div>`
       + `<canvas class="rl-polar" id="polar-${esc(k)}"></canvas>`
@@ -1117,7 +1117,7 @@ function drawRaceLane(key, ymin, ymax) {
     ctx.textAlign = 'center'; ctx.fillText(fmt(xv), X, MT + PH + 11);
   }
   ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(210,225,240,.8)';
-  ctx.fillText(state.race.xLabel, ML + PW / 2, H - 2);
+  fillTextSub(ctx, state.race.xLabel, ML + PW / 2, H - 2);
   const color = RACE_COLOR[key] || '#8fc3ff';
   // reduced-order: the fitted surface curve behind the anchors
   if (l.curve && l.curve.c && l.curve.c.length === 3) {
@@ -1292,10 +1292,10 @@ const stamp = at => at ? new Date(at * 1000).toISOString().slice(11, 19) : '';
 const capBullet = s => /^[a-z]/.test(s) ? s[0].toUpperCase() + s.slice(1) : s;
 function bulletHTML(message, suffix = '') {
   const msg = String(message ?? '');
-  if (!msg.includes('•')) return esc(msg) + suffix;
+  if (!msg.includes('•')) return subScript(esc(msg)) + suffix;
   const parts = msg.split('•').map(s => s.trim()).filter(Boolean);
   return parts.map((s, i) =>
-    `<span class="bline">• ${esc(capBullet(s))}${i === parts.length - 1 ? suffix : ''}</span>`
+    `<span class="bline">• ${subScript(esc(capBullet(s)))}${i === parts.length - 1 ? suffix : ''}</span>`
   ).join('');
 }
 function addEntry(p) {
@@ -1307,12 +1307,64 @@ function addEntry(p) {
 // among. The first event for a table_id creates the table (headers + any
 // rows); append:true events land new rows into that same table, so rows
 // arrive live as solves finish without repeating the header block.
-// Table cells typeset simple coefficient symbols: C_d renders as C with a
-// subscript d. Applied AFTER escaping (the only markup that can reach the
-// cell is the <sub> tag this formatter itself inserts), and only inside
-// tables, where content is short symbols and numbers rather than prose.
+// EVERY VARIABLE IS TYPESET (Katie, 2026-07-31). The acts write C_d, C_L and
+// C_p everywhere, and a surface that renders the raw underscore reads as a
+// missing feature. One pattern serves all of them, so the transcript, a table
+// cell, a legend name and a rotated canvas axis all agree on what a subscript
+// is: a single letter, an underscore, and up to three letters or digits.
+// A function, not a const, so every caller can reach it — the ?mission= resume
+// path writes a viewport label while the script is still evaluating.
+function subPattern() { return /\b([A-Za-z])_([A-Za-z0-9]{1,3})\b/g; }
+// Applied AFTER escaping — the only markup that can reach the page is the
+// <sub> tag this formatter itself inserts.
 function subScript(escaped) {
-  return String(escaped).replace(/\b([A-Za-z])_([A-Za-z0-9]{1,3})\b/g, '$1<sub>$2</sub>');
+  return String(escaped).replace(subPattern(), '$1<sub>$2</sub>');
+}
+// The same typesetting for a plain-text surface: escape, typeset, and write as
+// markup. `subText` is how a textContent surface earns its subscripts.
+function subText(id, text) { $(id).innerHTML = subScript(esc(text ?? '')); }
+// Canvas carries no markup, so a variable is drawn as two runs: the symbol at
+// the label's own size, then the index smaller and dropped below the baseline.
+// The runs are measured first so textAlign still means what it says.
+function subRuns(text) {
+  const s = String(text ?? ''), runs = [], re = subPattern();
+  let i = 0;
+  for (let m; (m = re.exec(s)); ) {
+    if (m.index > i) runs.push({ t: s.slice(i, m.index), sub: false });
+    runs.push({ t: m[1], sub: false });
+    runs.push({ t: m[2], sub: true });
+    i = m.index + m[0].length;
+  }
+  if (i < s.length) runs.push({ t: s.slice(i), sub: false });
+  return runs.length ? runs : [{ t: s, sub: false }];
+}
+function measureTextSub(ctx, text) {
+  const base = ctx.font;
+  const px = parseFloat((/(\d+(?:\.\d+)?)px/.exec(base) || [0, 11])[1]) || 11;
+  const subFont = base.replace(/(\d+(?:\.\d+)?)px/, `${Math.max(7, Math.round(px * 0.76))}px`);
+  let total = 0;
+  for (const r of subRuns(text)) { ctx.font = r.sub ? subFont : base; total += ctx.measureText(r.t).width; }
+  ctx.font = base;
+  return total;
+}
+function fillTextSub(ctx, text, x, y) {
+  const runs = subRuns(text);
+  if (runs.length === 1) { ctx.fillText(runs[0].t, x, y); return; }
+  const base = ctx.font;
+  const px = parseFloat((/(\d+(?:\.\d+)?)px/.exec(base) || [0, 11])[1]) || 11;
+  const subFont = base.replace(/(\d+(?:\.\d+)?)px/, `${Math.max(7, Math.round(px * 0.76))}px`);
+  let total = 0;
+  for (const r of runs) { ctx.font = r.sub ? subFont : base; total += ctx.measureText(r.t).width; }
+  const align = ctx.textAlign || 'left';
+  let cx = (align === 'center') ? x - total / 2
+         : (align === 'right' || align === 'end') ? x - total : x;
+  ctx.textAlign = 'left';
+  for (const r of runs) {
+    ctx.font = r.sub ? subFont : base;
+    ctx.fillText(r.t, cx, y + (r.sub ? px * 0.22 : 0));
+    cx += ctx.measureText(r.t).width;
+  }
+  ctx.font = base; ctx.textAlign = align;
 }
 function addTable(p) {
   const rows = p.rows || [];
@@ -1326,7 +1378,7 @@ function addTable(p) {
       const el = document.createElement('div'); el.className = roleClass(p.role);
       const head = (p.headers || []).map(h => `<th>${subScript(esc(h))}</th>`).join('');
       el.innerHTML = `<span class="who">${esc(p.role || 'System')}<time>${stamp(p.at)}</time></span>`
-        + (p.title ? `<p>${esc(p.title)}</p>` : '')
+        + (p.title ? `<p>${subScript(esc(p.title))}</p>` : '')
         + `<div class="t-wrap"><table class="t-table"><thead><tr>${head}</tr></thead>`
         + `<tbody data-tid="${esc(String(p.table_id || ''))}"></tbody></table></div>`;
       host.appendChild(el);
@@ -1527,7 +1579,7 @@ async function loadGeometry(p) {
     // Viewport labels are display names, never raw filenames/slugs (R1). The
     // workflows already emit human labels; this is the graceful fallback until
     // the shared display-name registry lands on main.
-    $('viewportLabel').textContent = p.label || displayName(p.name) || 'surface';
+    subText('viewportLabel', p.label || displayName(p.name) || 'surface');
     $('viewportStats').textContent = mesh.faces.length.toLocaleString() + ' faces';
     drawGeometry();
   } catch (e) {}
@@ -1540,7 +1592,7 @@ async function loadField(p) {
     const mesh = normalizeMesh(await (await fetch(url)).json());
     if (seq !== _geomSeq) return;
     state.mesh = mesh; setHidden('viewportEmpty', true);
-    $('viewportLabel').textContent = p.label || $('viewportLabel').textContent;
+    if (p.label) subText('viewportLabel', p.label);
     if (mesh.field) {
       $('legend').classList.add('on');
       // Two ranges, kept apart on purpose. The bar's end labels are the
@@ -1552,7 +1604,7 @@ async function loadField(p) {
       const colorLo = fld.color_min !== undefined ? fld.color_min : fld.display_min;
       const colorHi = fld.color_max !== undefined ? fld.color_max : fld.display_max;
       $('legendLo').textContent = colorLo; $('legendHi').textContent = colorHi;
-      $('legendName').textContent = (fld.name||'p') === 'p' ? 'pressure (Pa)' : fld.name;
+      subText('legendName', (fld.name||'p') === 'p' ? 'pressure (Pa)' : fld.name);
       const clipped = fld.min !== undefined && fld.max !== undefined
         && (Number(fld.min) < Number(colorLo) || Number(fld.max) > Number(colorHi));
       const fmtF = v => Math.abs(v) >= 100 ? (+v).toFixed(0) : +(+v).toPrecision(3);
@@ -1731,7 +1783,7 @@ function initLandscape(p) {
   // renders immediately, then fills as evidence lands.
   state.landMeta = p || {}; state.landscape = [];
   setHidden('landscapeBox', false);
-  if (p && p.title) $('landTitle').textContent = p.title;
+  if (p && p.title) subText('landTitle', p.title);
   drawLandscape();
 }
 function setLandscapeLegend(p) {
@@ -1801,8 +1853,8 @@ function drawLandscape() {
     }
   }
   ctx.textAlign='center'; ctx.fillStyle='rgba(210,225,240,.85)';
-  ctx.fillText(xLab, ML+PW/2, H-4);
-  ctx.save(); ctx.translate(10, MT+PH/2); ctx.rotate(-Math.PI/2); ctx.fillText(yLab, 0, 0); ctx.restore();
+  fillTextSub(ctx, xLab, ML+PW/2, H-4);
+  ctx.save(); ctx.translate(10, MT+PH/2); ctx.rotate(-Math.PI/2); fillTextSub(ctx, yLab, 0, 0); ctx.restore();
 
   // colorbar for the objective
   const CBX=W-MR+14, CBW=10;
@@ -1814,7 +1866,7 @@ function drawLandscape() {
     ctx.fillText(fmt(cbHi), CBX+CBW+3, MT+8);
     ctx.fillText(fmt(cbLo), CBX+CBW+3, MT+PH);
   }
-  ctx.save(); ctx.translate(W-6, MT+PH/2); ctx.rotate(Math.PI/2); ctx.textAlign='center'; ctx.fillText(objLabel, 0, 0); ctx.restore();
+  ctx.save(); ctx.translate(W-6, MT+PH/2); ctx.rotate(Math.PI/2); ctx.textAlign='center'; fillTextSub(ctx, objLabel, 0, 0); ctx.restore();
 
   if (!have){
     ctx.textAlign='center'; ctx.fillStyle='rgba(160,180,200,.55)';
@@ -1861,7 +1913,7 @@ function drawLandscape() {
         ctx.fillStyle=color;
         ctx.beginPath(); ctx.arc(KX+3,KY-3,3.2,0,6.29); ctx.fill();
       }
-      ctx.fillStyle='rgba(200,215,230,.85)'; ctx.fillText(label,KX+11,KY);
+      ctx.fillStyle='rgba(200,215,230,.85)'; fillTextSub(ctx, label, KX+11, KY);
       KY -= 14;
     }
   }
@@ -1871,9 +1923,11 @@ function drawLandscape() {
   ctx.strokeStyle='#57a5ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(BX,BY,7,0,6.29); ctx.stroke();
   const lbl=`${objLabel} ${fmt(best.obj)}`;
   ctx.font='bold 10px ui-monospace,monospace';
-  const tw=ctx.measureText(lbl).width, LX=Math.min(Math.max(BX+10,ML+2),ML+PW-tw-6), LY=Math.max(BY-10,MT+12);
+  // The plate is sized with the same subscript-aware measure that draws the
+  // label, so a typeset C_d still sits inside its box.
+  const tw=measureTextSub(ctx,lbl), LX=Math.min(Math.max(BX+10,ML+2),ML+PW-tw-6), LY=Math.max(BY-10,MT+12);
   ctx.fillStyle='rgba(8,10,12,.9)'; ctx.fillRect(LX-3,LY-10,tw+6,14);
-  ctx.fillStyle='#8fc3ff'; ctx.textAlign='left'; ctx.fillText(lbl,LX,LY);
+  ctx.fillStyle='#8fc3ff'; ctx.textAlign='left'; fillTextSub(ctx,lbl,LX,LY);
 }
 // hover tooltips: the point under the cursor explains itself
 $('landscape').addEventListener('mousemove', e => {
