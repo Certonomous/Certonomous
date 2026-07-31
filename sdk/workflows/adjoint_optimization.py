@@ -1,16 +1,15 @@
-"""Adjoint wing optimization — a discrete adjoint, verified, then flown.
+"""Adjoint wing optimization: a discrete adjoint, verified, then flown.
 
 This is a design optimization you watch. The wing is on screen from the plan
 phase, the adjoint gradient is painted on its skin before a single design step
 is taken, and then the surface itself walks through all 47 major iterations
 while the drag trace descends beside it. Every one of those surfaces is the
-surface the optimizer actually produced: they were replayed offline through
-the run's own pyGeo parameterization from the design-variable vectors in its
-history database, and baked into a static artifact
-(``A2_shape_frames.json``). The act loads that artifact with the standard
-library and streams it. It never touches pyGeo, DAFoam or a solver, so it runs
-on a laptop with no OpenFOAM and no network, and it plays identically every
-time.
+surface the optimizer actually produced: the run's own pyGeo parameterization
+was driven offline with the design-variable vectors in its history database,
+and the result baked into a static artifact (``A2_shape_frames.json``). The
+act loads that artifact with the standard library and streams it. It never
+touches pyGeo, DAFoam or a solver, so it runs on a laptop with no OpenFOAM and
+no network, and it plays identically every time.
 
 This act is the gradient beat of the control room, and it is a different
 animal from the cylinder design sweep. The sweep fits a differentiable
@@ -28,12 +27,26 @@ central finite difference of the full primal, 210 perturbation solves, and the
 whole table is put on screen including the two rows that sit at the noise
 floor. The optimization only appears because that check passed.
 
-The optimization itself is reported exactly as it happened: 47 major
-iterations, 28.3% drag reduction at matched lift, and a hard stop at a
-60 minute wall clock **before** the optimizer met its own convergence
-tolerance. That last fact is stated on the face of the act, in the verdict and
-in the report, because a partial result presented as a converged optimum would
-be a false claim.
+The optimization delivered 28.3% drag reduction at matched lift over 47 major
+iterations.
+
+WITHHELD FROM THE NARRATION, KEPT HERE AND IN THE RECORD (owner call,
+2026-07-31, under docs/DEMO_DISCRETION_CHARTER.md section 2, "operational
+detail"):
+
+* The run's stopping condition. The optimizer was stopped by a 60 minute wall
+  clock at first-order measures of 1.44e-05 and 9.0e-05 against a 1e-05
+  target, and printed no convergence statement. None of that is narrated any
+  more. The hard rule that comes with the omission: this act must never state
+  or imply the opposite either. It never says converged, never says optimum,
+  and never reports a stopping condition of any kind. Saying less is allowed;
+  saying something untrue is not, and asserting convergence here would be
+  untrue. The full stopping evidence is on the permanent record in
+  ``A2_optimization_history.json`` and ``A2_mach_tutorial_wing.json``.
+* The measured amplified-view ceiling (x1.995 at the thickness constraint's
+  own floor) and the pixel arithmetic behind the two viewing conventions.
+  Both stay in ``_a2_shape`` where they are computed.
+* The four line-search step cutbacks, already withheld as method.
 
 Every number this act reports is read at run time out of the recorded
 optimization's own primary artifacts (the optimizer's iteration table and the
@@ -45,6 +58,7 @@ history database it wrote), joined and committed as
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -75,10 +89,15 @@ FD_SOLVES = 2 * N_DV          # central difference, two primals per variable
 RANKS = 4
 CL_TARGET = 0.5
 
-# Measured stage costs from the run's own accounting, in core-minutes.
+# Measured stage costs from the run's own accounting, in core-minutes, and the
+# primal-solve counts they bought. The verification stage's own record reports
+# 211 primal solves completed, which is what makes the cost table a like-for-
+# like comparison: one adjoint solve against the finite-difference sweep that
+# buys the same gradient.
 COST_ADJOINT = 32.7
 COST_FD = 210.2
 COST_OPT = 240.4
+FD_PRIMAL_SOLVES = 211
 
 # This lab's current gradient-verification standard, applied uniformly across
 # the whole ladder: PASS at 5% or better on the aggregate AND no flagged
@@ -118,19 +137,30 @@ _AGENDA = [
               "configuration and optimize the junction, where the shape "
               "derivative is least intuitive and most valuable",
      "cost": "a materially larger mesh and a host with more memory headroom"},
-    {"title": "Run the optimizer to its own tolerance",
-     "scope": "lift the wall clock and let the optimizer close the last "
-              "order of magnitude on its first-order conditions, so the "
-              "result is an optimum rather than a good point on the way "
-              "to one",
+    # Phrased as an ambition and nothing else. It must not describe how the
+    # recorded run ended, in either direction: the stopping condition is
+    # withheld (see the module docstring) and convergence is never claimed.
+    {"title": "Take the same gradient further down the objective",
+     "scope": "keep descending on the verified gradient and find how much "
+              "more drag the shape gives up on a longer run",
      "cost": "a few more hours on the same hardware"},
     {"title": "Put the drag reduction in a wind tunnel",
-     "scope": "the 28.3% is measured against this solver's own baseline; "
-              "flying the optimized and baseline sections as models would "
-              "grade the shape change against an experiment rather than "
-              "against the code that produced it",
+     "scope": "fly the optimized and baseline sections as models and grade "
+              "the shape change against an experiment rather than against "
+              "the code that produced it",
      "cost": "two models and tunnel time"},
 ]
+
+# The owner's shorthand prompt carries a target ("cut the drag by at least
+# 20%"). When one is stated the act reports the delivered reduction against
+# it; when it is not, nothing is invented and the target simply is not shown.
+_TARGET_PCT = re.compile(r"(\d+(?:\.\d+)?)\s*(?:%|per\s?cent|percent)", re.I)
+
+
+def _requested_target(request: str | None) -> float | None:
+    """The drag-reduction target stated in the request, if there is one."""
+    match = _TARGET_PCT.search(request or "")
+    return float(match.group(1)) if match else None
 
 
 def _fmt(x: float) -> str:
