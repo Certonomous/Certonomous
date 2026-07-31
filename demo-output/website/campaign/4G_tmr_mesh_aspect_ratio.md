@@ -4,16 +4,20 @@
 **Host:** c7a.4xlarge, 16 vCPU. OpenFOAM 2606, native (`/usr/bin/openfoam2606`).
 **Status:** Diagnosis complete. Aspect ratio is cleared as a solution defect in every
 case tested. A **different, real defect** — the bump-in-channel rungs are not converged —
-was found underneath it, quantified, and left open with its cause unidentified.
+was found underneath it and quantified; section 10 then measured what it does and does
+not cost, and identified the defect that actually blocks the ladder.
 **Full figures:** `4G_tmr_mesh_aspect_ratio.json`. **Logs:** `4G_runs/`.
 
-> **Read section 10 before quoting section 4 on the bump.** NASA publishes bump grids
-> too, at exactly our three rung sizes; they were fetched and measured on 2026-07-31.
-> They carry **zero** cells above aspect ratio 1e5. Section 4's conclusion — that a huge,
-> refinement-worsening aspect ratio is a normal property of a wall-resolved family — holds
-> for the NACA0012 C-grid it was measured on and **does not hold for the bump**. The 2.1
-> million is ours alone. It is still not what is wrong with the bump result; section 10
-> says what is.
+> **Read section 10 before quoting section 4 on the bump, or section 6 or 9 on the cause.**
+> NASA publishes bump grids too, at exactly our three rung sizes; they were fetched and
+> measured on 2026-07-31, and they carry **zero** cells above aspect ratio 1e5 where ours
+> carry 68 and 260. Section 4's claim splits: *"worsens under refinement"* is still normal
+> (NASA's bump grids do it too) but *"in the millions"* does **not** transfer from the
+> NACA0012 C-grid to the bump — that part is our generator, not a family property.
+> Section 10 also retires this document's "cause unidentified": the convergence stall is
+> real but is **not** what makes the ladder unusable. The observed order is a mixture of a
+> viscous part at p ≈ 1.08 and a pressure part with no order at all, on a family that has
+> no single *h*.
 
 The brief was: stop and understand the mesh problem before advancing the ladder.
 The ladder was not advanced. This document explains why that was the right call, and
