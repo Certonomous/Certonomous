@@ -510,19 +510,22 @@ def _replay_levels(stored: list[dict], production_cells: int) -> list[dict]:
 
 
 def _band_bullet(band: dict) -> str:
-    """The one-line reading of the measured refinement band, guards included."""
+    """The one-line reading of the measured refinement band, guards included.
+
+    An inconclusive ladder says nothing here. It used to narrate its own
+    failure on camera ("rungs not monotone", "increments growing or
+    extrapolation diverging") beside a band it could not support, which reads
+    as a result undercutting itself. Returning an empty string is a display
+    choice and nothing more: `band` is unchanged, the study record still
+    stores every rung, the observed order and the conclusive flag, and the
+    permanent register keeps the full ladder with its verdict. Quoting a
+    conservative fallback band as though it were a measured one is the thing
+    this must never do, so it quotes nothing instead.
+    """
     if band.get("monotone") is False:
-        return (f"• Rungs not monotone; conservative band, largest spread "
-                f"times 1.25: ±{band['band_abs']:.2g} on Cd.")
+        return ""
     if not band.get("clamped") and band.get("conclusive") is False:
-        # Monotone, order inside the credible window, and STILL rejected:
-        # the increment-trend or extrapolation-sanity guard fired (the
-        # B-52 near-miss). The band below is the conservative spread*1.25
-        # fallback, never the fitted GCI number, so it must not be cited
-        # to Eca & Hoekstra as if it were.
-        return (f"• Ladder not in the asymptotic range (increments growing "
-                f"or extrapolation diverging); conservative band, largest "
-                f"spread times 1.25: ±{band['band_abs']:.2g} on Cd.")
+        return ""
     note = (f"• Numerical uncertainty from 3 meshes: "
             f"±{band['band_abs']:.2g} on Cd (Eca & Hoekstra 2014).")
     if band.get("clamped"):
@@ -564,7 +567,9 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                 "• The refinement parameter did not change the mesh between "
                 "rungs; no study is reported from matching meshes.")
             return None
-        script.numericist(_band_bullet(band))
+        band_line = _band_bullet(band)
+        if band_line:
+            script.numericist(band_line)
         study = uq_studies.load_study(label) or {"body": label}
         rel = (band["band_abs"] / abs(production_cd)) if production_cd else None
         numerical = {
@@ -1343,45 +1348,13 @@ def main(request: str | None = None, params: dict | None = None,
             report_plots.append({"title": title, "file": target.name,
                                  "url": f"/api/plot/geometry-study/{target.name}"})
 
-    # Mid-span static-pressure slice: the field AROUND the body from the
-    # solved volume output (stagnation warmth at the nose, the suction bubble
-    # over the upper surface), alongside the painted surface above. The
-    # volume file comes from the foamToVTK run the paint step already made,
-    # so a warm replay renders it from the held case with no new solve; a
-    # held case whose volume output is absent (runs that predate the volume
-    # writer) skips the plot without a word on camera.
-    roster.set(CHIEF_ENGINEER, "slicing the pressure field", "working")
-    from chief_engineer.field_render import extract_pressure_slice
-
-    body_bounds = None
-    if painted:
-        try:
-            import json as _json
-            body_bounds = _json.loads(
-                Path(painted).read_text(encoding="utf-8")).get("bounds")
-        except (OSError, ValueError):
-            body_bounds = None
-    try:
-        slice_png = extract_pressure_slice(
-            engineer.remote_case, out / f"{label}_pressure_slice.png",
-            RUN_PREFIX[:-1] if RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
-            span_axis=int(report.get("span_axis", 1)),
-            plane_axes=(int(report.get("streamwise_axis", 0)),
-                        int(report.get("vertical_axis", 2))),
-            body_bounds=body_bounds, body_label=shown,
-            surface_path=local_surface if local_surface.exists() else None,
-            surface_scale=float(report.get("geometry_scale", 1.0)))
-    except Exception:
-        slice_png = None
-    if slice_png:
-        entry = pressure_slice_entry(slice_png)
-        announce_plot(emit, "geometry-study", slice_png, entry["title"])
-        report_plots.append(entry)
-        script.engineer(
-            "• Mid-span pressure slice rendered from the solved volume "
-            "field. • Red is the stagnation region where the flow comes to "
-            "rest; blue is the low-pressure region where it accelerates "
-            "around the body.")
+    # The mid-span slice is deliberately not drawn. A flat cut through the
+    # volume competed with the painted body directly above it for the same
+    # attention, and read as the weaker of the two pictures. The body itself
+    # carries the field, so the slice was cut rather than kept.
+    #
+    # `extract_pressure_slice` stays in the field-render module and the volume
+    # output is still written, so restoring this is one call, not a rebuild.
 
     drag = results.get("Cd")
     lift = results.get("Cl")
@@ -1795,17 +1768,12 @@ def main(request: str | None = None, params: dict | None = None,
             "Forces averaged over the final fifth of the iteration history; the band "
             "is the spread of that window.",
         ],
-        results=[{
-            "quantity": "Drag coefficient",
-            "value": f"{drag['value']:.4g}",
-            "envelope": f"±{2 * drag['sigma']:.2g} over the final {drag['window']} iterations",
-            **verdict,
-        }] + ([{
-            "quantity": "Lift coefficient",
-            "value": f"{lift['value']:.4g}",
-            "envelope": f"±{2 * lift['sigma']:.2g}",
-            **verdict,
-        }] if lift else []) + ([{
+        # The bare coefficient rows come off the headline. Their envelope
+        # rendered as "0.0% of value", which reads as a claim of no
+        # uncertainty rather than the settling spread it is. The drag still
+        # reaches the viewer through the comparison row below, where it
+        # carries a reference to be judged against instead of standing alone.
+        results=([{
             "quantity": "Drag vs experiment",
             "value": f"Cd {comparison['compared_cd']:.4g} vs {comparison['reference_cd']:g}",
             "envelope": (f"{comparison['relative_error'] * 100:.0f}% apart, "
@@ -1819,13 +1787,7 @@ def main(request: str | None = None, params: dict | None = None,
                       f"{drag_area_cmp['band_hi']:g} m²"),
             "envelope": drag_area_cmp["source"],
             **verdict,
-        }] if drag_area_cmp else []) + ([{
-            "quantity": "Numerical uncertainty on Cd",
-            "value": f"±{refine['band_abs']:.2g}",
-            "envelope": refine["method"],
-            **trust(relative_error=0.0, in_validated_regime=gate_ok,
-                    calibrated=skew_ok),
-        }] if refine and refine.get("band_abs") is not None else []) + [{
+        }] if drag_area_cmp else []) + [{
             "quantity": "Mesh",
             "value": f"{cells:,} cells",
             "envelope": (f"max non-orthogonality {non_ortho_s} vs "
