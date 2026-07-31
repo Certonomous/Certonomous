@@ -1278,8 +1278,8 @@ class HeadEngineer:
         if monitor.get("configuration_risk"):
             lines += ["", "## Configuration risk (S11)", ""]
             for risk in monitor["configuration_risk"]:
-                lines += [f"- `{risk['line']}` — severity **{risk['severity']}**. "
-                          f"{risk['action']}."]
+                lines += [f"- `{risk['line']}` (severity "
+                          f"**{risk['severity']}**). {risk['action']}."]
         if monitor["novel_observations"]:
             lines += ["", "## Novel observations (candidate knowledge)", ""]
             lines += [f"- `{obs}`" for obs in monitor["novel_observations"][:10]]

@@ -121,13 +121,23 @@ class DockerDAFoamEngineer:
     def _assert_case_code_vetted(self) -> None:
         """The same trust boundary HeadEngineer.stage_case enforces.
 
-        The container is not a sandbox for this purpose. It runs as root on a
-        bind mount of the case directory with ``--network=host``, and its
-        OpenFOAM also reports ``allowSystemOperations : Allowing`` (visible at
-        the head of every archived DAFoam log, e.g.
-        ``demo-output/website/dafoam/probe_baseline_run1.log`` line 33). So a
-        case carrying its own C++ compiles and runs it there too, with the host
-        network and write access to the mounted directory.
+        The container's OpenFOAM (v2506) also ships
+        ``allowSystemOperations 1`` at ``etc/controlDict`` line 75, and every
+        archived DAFoam log carries the banner
+        (``demo-output/website/dafoam/probe_baseline_run1.log`` line 33, in the
+        bare form with no "FOAM Warning" prefix).
+
+        Measured in the container 2026-07-31: a ``#calc`` entry there fails
+        anyway, at ``dynamicCode.C:73`` -- "This code should not be executed by
+        someone with administrator rights" -- because ``run`` deliberately runs
+        as root, and ``checkSecurity`` refuses ``isAdministrator()`` before it
+        ever consults the switch. So the container path is closed today, but by
+        the root decision above and not by configuration.
+
+        That makes this check the thing that keeps it closed. If the ownership
+        problem in ``run`` is ever solved by switching to ``dafoamuser``, the
+        root refusal disappears and the switch is all that is left -- and it is
+        on, as root, on a bind mount of this directory, with --network=host.
         """
         from .head_engineer import CASE_CODE_PATTERN, vetted_case_reason
         pattern = CASE_CODE_PATTERN

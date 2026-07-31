@@ -652,9 +652,18 @@ record that is supposed to check it.
 `/usr/lib/openfoam/openfoam2606/etc/controlDict` line 75 as
 `allowSystemOperations 1`; OpenFOAM's own compiled default is `0`
 (`dynamicCode.C:44`), and `dpkg --verify openfoam2606-common` reports that file
-unmodified. The DAFoam container is on as well, and is not a sandbox for this
-purpose: it runs as root, `--network=host`, on a bind mount of the case
-directory.
+unmodified. The DAFoam container ships the switch on too (OpenFOAM v2506,
+`etc/controlDict` line 75).
+
+**Which of the two paths is actually open, measured rather than assumed.** The
+host path is open: it runs as `ubuntu`, uid 1000, and a `#calc` entry compiles
+and evaluates. The container path is closed, but not by configuration — it runs
+as root, and `checkSecurity` refuses `isAdministrator()` at `dynamicCode.C:73`
+before it ever reads the switch. Measured in the container 2026-07-31: a
+`#calc` entry fails with "This code should not be executed by someone with
+administrator rights". So the container is safe today by accident of the
+ownership decision in `docker_dafoam.run`, and the staging check is what keeps
+it safe if that decision is ever revisited.
 
 **How to turn it off, when a case does not need it.** Merge an override at the
 user tier, which wins over the package file (`etcFiles.C` returns
