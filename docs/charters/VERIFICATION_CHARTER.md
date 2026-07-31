@@ -112,8 +112,9 @@ at `dim=2` through `uq.eca_hoekstra_band` and `uq.ladder_band`:
 
 | Quantity | Result |
 | --- | --- |
-| Observed order, `p(dim=3) / p(dim=2)` | 1.5 on every case, worst deviation 9e-16 relative |
-| Richardson extrapolated value | identical, worst deviation 1.4e-16 relative |
+| Observed order, `p(dim=3) / p(dim=2)`, from the unrounded fit | 1.5 on every case, worst deviation 9e-16 relative |
+| The same ratio computed from the stored `observed_order` | 1.5 to 3e-4, because the stored order is rounded to three places. The invariance is exact; the record of it is not, and any check written against stored orders has to allow for the rounding |
+| Richardson extrapolated value | identical, worst deviation 5.5e-13 relative, on the real cylinder ladder |
 | Band, when the ladder is conclusive at both dimensionalities | identical, worst deviation 1.2e-15 relative |
 | Band, when the change moves the ladder across the order window | **not identical**, and this is the whole point |
 
