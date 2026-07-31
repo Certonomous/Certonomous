@@ -40,9 +40,15 @@ BASELINE_STL_PATH = (Path(__file__).resolve().parents[2]
 # the act never puts three near-miss millimetre figures on screen and leaves a
 # viewer to guess which one is the shape change. The reference is the FINAL
 # surface measured against the baseline, unscaled, at the point that moved
-# most. Every other millimetre figure the act shows (the fixed colour window,
-# a frame's own legend extremes) is a figure about the pass rather than the
-# shape change, and is labelled against this reference where it is shown.
+# most, and it is that point's TOTAL motion. Every other millimetre figure the
+# act shows (the fixed colour window, a frame's own legend extremes) is a
+# figure about the pass rather than the shape change, and is labelled against
+# this reference where it is shown.
+#
+# ITEM 2 (owner, 2026-07-31): the reference is unchanged, and it is now named
+# for the quantity it is. The painted field is a different quantity, the
+# outward normal COMPONENT of that motion averaged over each face, so its
+# extremes are smaller and the legend says which is which.
 DISP_REFERENCE = "final surface against baseline, unscaled"
 
 # ITEM 2 (owner, 2026-07-31): the act says on screen that it is handing the
@@ -271,7 +277,14 @@ def write_surfaces(doc: dict, out: Path) -> dict[str, str]:
         # millimetres, same fixed colour window; only the framing differs.
         values = _normalise(frame["disp_n_mm"], -dmax, dmax)
         field = {
-            "name": "displacement from baseline, outward normal (mm)",
+            # ITEM 2 (owner, 2026-07-31): the legend names the quantity it is
+            # painting, down to the averaging. This field is the outward
+            # NORMAL COMPONENT of the displacement, averaged over each
+            # quadrilateral face, so its extremes sit inside the reference
+            # (which is the largest TOTAL motion of any single point). Without
+            # "per face" on the legend the two read as the same measurement
+            # disagreeing, when they are two measurements agreeing.
+            "name": "displacement from baseline, outward normal per face (mm)",
             # The convention rides with the payload so the legend and the act
             # cannot drift apart about what a millimetre on this bar means.
             "reference": DISP_REFERENCE,

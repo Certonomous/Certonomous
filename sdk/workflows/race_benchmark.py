@@ -38,6 +38,26 @@ from workflows.shape_optimization import _fit_quadratic, _predict
 # The curriculum wing (models/curriculum/naca4412_wing/reference.yaml).
 WING = {"span": 3.0, "area": 3.0, "sweep": 0.0, "taper": 1.0,
         "camber": 0.04, "camber_loc": 0.4, "thick_chord": 0.12}
+
+
+def wing_section_name(wing: dict | None = None) -> str:
+    """The four-digit NACA name this wing's OWN parameters spell.
+
+    The section is set by three numbers the solver is handed — maximum
+    camber, where it sits, and thickness — and a four-digit NACA name is
+    exactly those three numbers written out. Deriving the name from the
+    parameters rather than writing it down beside them is the point: a
+    section label can then never drift from the section that was solved,
+    which is how a cambered anchor came to be raced under a symmetric
+    section's name.
+    """
+    wing = wing or WING
+    camber = int(round(100 * float(wing.get("camber", 0.0))))
+    location = int(round(10 * float(wing.get("camber_loc", 0.0))))
+    thickness = int(round(100 * float(wing.get("thick_chord", 0.12))))
+    if not camber:
+        location = 0
+    return f"NACA {camber}{location}{thickness:02d}"
 RE_NOMINAL = 1.0e6
 RE_SIGMA = 0.08 * RE_NOMINAL      # stated freestream/Re input uncertainty (8%)
 ALPHAS = [float(a) for a in range(0, 11)]          # 0..10 deg, 1-deg grid

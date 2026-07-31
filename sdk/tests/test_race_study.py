@@ -254,8 +254,10 @@ class RacedWingUpload(unittest.TestCase):
                                   request=None, seed=7)
         said = _said(events)
         self.assertEqual(rc, 0)
-        self.assertIn("Raced wing received: NACA 4412 finite wing", said)
-        self.assertIn("Span 40 m measured from the surface bounding box",
+        self.assertIn("Wing received: NACA 4412 finite wing", said)
+        self.assertIn("Span 40 m measured off the surface", said)
+        # The surface lends its span, never its name to the polar.
+        self.assertIn("Both lanes race a NACA 4412 section on that span",
                       said)
         # No raw filename on camera.
         self.assertNotIn("naca4412_wing.stl", said)
@@ -283,8 +285,8 @@ class RacedWingUpload(unittest.TestCase):
                 rc, events = _run(params={"surface": "blob.stl"}, seed=7)
         said = _said(events)
         self.assertEqual(rc, 0)
-        self.assertIn("Raced wing received: Blob", said)
-        self.assertIn("on file as the reference shape", said)
+        self.assertIn("Wing received: Blob", said)
+        self.assertIn("The surface is on file and sets nothing here", said)
         # No invented measurement: the lanes race the curriculum wing.
         self.assertEqual([s.wing for s in _StubSolver.created], [None, None])
 
@@ -294,6 +296,150 @@ class RacedWingUpload(unittest.TestCase):
         # test_race_benchmark.TimedSolverContract.
         from workflows import race_benchmark
         self.assertIs(rs._TimedSolver, race_benchmark._TimedSolver)
+
+
+def _wing_stl(camber: float, *, chord: float = 1.0, span: float = 2.0,
+              half_thickness: float = 0.06) -> str:
+    """A three-station wing surface with a stated camber, as ASCII STL.
+
+    Deliberately crude: the point is that the camber line and the thickness
+    are what they were asked for, so a measurement of the file has a known
+    answer to be checked against.
+    """
+    stations = [(0.0, 0.0, 0.0), (0.5 * chord, camber + half_thickness,
+                                  camber - half_thickness),
+                (chord, 0.0, 0.0)]
+    facets = []
+
+    def facet(a, b, c):
+        facets.append("facet normal 0 0 1\n outer loop\n"
+                      + "".join(f"  vertex {p[0]:g} {p[1]:g} {p[2]:g}\n"
+                                for p in (a, b, c))
+                      + " endloop\nendfacet\n")
+
+    for y0, y1 in ((-span / 2, 0.0), (0.0, span / 2)):
+        for i in range(len(stations) - 1):
+            xa, ua, la = stations[i]
+            xb, ub, lb = stations[i + 1]
+            for za, zb in ((ua, ub), (la, lb)):
+                facet((xa, y0, za), (xb, y0, zb), (xb, y1, zb))
+                facet((xa, y0, za), (xb, y1, zb), (xa, y1, za))
+    return "solid wing\n" + "".join(facets) + "endsolid wing\n"
+
+
+class SymmetricSectionPrior(unittest.TestCase):
+    """A named symmetric section may not carry lift at α = 0.
+
+    The act used to take a received surface's NAME for the polar while both
+    lanes solved the cambered parametric anchor, so a genuine NACA 0012
+    arrived and a curve peaking at α = 0 went out under its name. These pin
+    the measurement that settles it and the guard that flags it.
+    """
+
+    def test_section_measurement_reads_camber_thickness_and_incidence(self):
+        from chief_engineer.geometry import measure_section
+
+        with tempfile.TemporaryDirectory() as tmp:
+            flat = Path(tmp) / "flat.stl"
+            flat.write_text(_wing_stl(0.0), encoding="utf-8")
+            bent = Path(tmp) / "bent.stl"
+            bent.write_text(_wing_stl(0.04), encoding="utf-8")
+            symmetric = measure_section(flat)
+            cambered = measure_section(bent)
+        self.assertTrue(symmetric["symmetric"])
+        self.assertAlmostEqual(symmetric["max_camber_frac_chord"], 0.0,
+                               places=6)
+        self.assertAlmostEqual(symmetric["max_thickness_frac_chord"], 0.12,
+                               places=3)
+        self.assertAlmostEqual(symmetric["incidence_deg"], 0.0, places=6)
+        self.assertFalse(cambered["symmetric"])
+        self.assertAlmostEqual(cambered["max_camber_frac_chord"], 0.04,
+                               places=3)
+        self.assertAlmostEqual(cambered["max_camber_at_x_over_c"], 0.5,
+                               places=1)
+
+    def test_guard_flags_a_symmetric_name_carrying_lift_at_zero(self):
+        from chief_engineer.geometry import zero_lift_report
+
+        flagged = zero_lift_report(name="NACA 0012 finite wing", alpha_deg=0.0,
+                                   cl=0.2483, camber_frac_chord=0.0398)
+        self.assertFalse(flagged["consistent"])
+        self.assertIn("cambered", flagged["caveat"])
+        # An offset angle reference is the other admissible explanation, and
+        # the guard names whichever one the measurement supports.
+        offset = zero_lift_report(name="NACA 0012 finite wing", alpha_deg=0.0,
+                                  cl=0.2483, camber_frac_chord=0.0,
+                                  incidence_deg=2.0)
+        self.assertIn("built-in incidence", offset["caveat"])
+        # A section that declares camber has nothing to answer for, and an
+        # angle away from the zero reference is not the prior's business.
+        self.assertIsNone(zero_lift_report(name="NACA 4412 finite wing",
+                                           alpha_deg=0.0, cl=0.2483,
+                                           camber_frac_chord=0.04))
+        self.assertIsNone(zero_lift_report(name="NACA 0012 finite wing",
+                                           alpha_deg=3.3, cl=0.5))
+
+    def test_polar_is_never_labelled_with_the_received_surfaces_name(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "naca0012_wing.stl").write_text(_wing_stl(0.0),
+                                                         encoding="utf-8")
+            with mock.patch.object(rs, "_GEOMETRY_DIR", Path(tmp)):
+                rc, events = _run(params={"surface": "naca0012_wing.stl"},
+                                  request=None, seed=7)
+        self.assertEqual(rc, 0)
+        init = [p for e, p in events if e == "race.init"][0]
+        self.assertTrue(init["subject"].startswith("NACA 4412 finite wing"))
+        self.assertIn("received NACA 0012 finite wing", init["subject"])
+        report = [p for e, p in events if e == "report.ready"][0]
+        self.assertIn("NACA 4412", report["title"])
+        self.assertNotIn("NACA 0012", report["title"])
+        # The setup table states the section and the angle's reference.
+        setup = [p for e, p in events if e == "transcript.table"
+                 and p.get("table_id") == rs._SETUP_TABLE][0]
+        rows = {row[0]: row[1] for row in setup["rows"]}
+        self.assertEqual(rows["Raced body"], "NACA 4412 finite wing")
+        self.assertIn("camber 4% chord at 0.4 chord", rows["Raced section"])
+        self.assertEqual(rows["Angle α reference"],
+                         "the raced section's chord line")
+
+    def test_received_section_is_measured_on_camera(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "naca0012_wing.stl").write_text(_wing_stl(0.0),
+                                                         encoding="utf-8")
+            with mock.patch.object(rs, "_GEOMETRY_DIR", Path(tmp)):
+                _, events = _run(params={"surface": "naca0012_wing.stl"},
+                                 request=None, seed=7)
+        table = [p for e, p in events if e == "transcript.table"
+                 and p.get("table_id") == rs._SECTION_TABLE][0]
+        rows = {row[0]: (row[1], row[2]) for row in table["rows"]}
+        self.assertEqual(rows["Maximum camber"], ("0.00% chord", "4.00% chord"))
+        self.assertEqual(rows["Built-in incidence"], ("0.00°", "0.00°"))
+        self.assertIn("The received section measures 0.00% camber",
+                      _said(events))
+
+    def test_guard_fires_when_the_received_name_claims_symmetry(self):
+        # The stub lifts at every angle, so a symmetric received surface and a
+        # lifting α = 0 solve are exactly the contradiction that shipped.
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "naca0012_wing.stl").write_text(_wing_stl(0.0),
+                                                         encoding="utf-8")
+            with mock.patch.object(rs, "_GEOMETRY_DIR", Path(tmp)):
+                _, events = _run(params={"surface": "naca0012_wing.stl"},
+                                 request=None, seed=7)
+        guards = [p for e, p in events if e == "physics.guard"]
+        self.assertTrue(guards)
+        flagged = [g for g in guards if not g["consistent"]]
+        self.assertEqual([g["name"] for g in flagged],
+                         ["NACA 0012 finite wing"])
+        self.assertTrue(flagged[0]["measured_symmetric"])
+        self.assertIn("cannot belong to this surface", _said(events))
+
+    def test_guard_stays_silent_when_no_name_claims_symmetry(self):
+        # The raced section declares its camber, so the prior has no opinion
+        # and the act says nothing rather than reassuring about a clean check.
+        _, events = _run(seed=7)
+        self.assertEqual([p for e, p in events if e == "physics.guard"], [])
+        self.assertNotIn("symmetric section", _said(events))
 
 
 class RaceCertificateConvention(unittest.TestCase):

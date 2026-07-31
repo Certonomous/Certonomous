@@ -475,11 +475,20 @@ def section_measurement(vertices, faces, *, span_frac: float = 0.5,
     # Upper and lower surface are separated by the chord line rather than by
     # binning, because a coarse export can put its upper and lower points at
     # different chordwise stations and a bin would then hold one surface only.
+    # A point sitting ON the chord line belongs to both, which is what keeps a
+    # closed leading and trailing edge on both curves.
+    on_line = 1e-6 * chord
     upper: list[tuple[float, float]] = []
     lower: list[tuple[float, float]] = []
     for x, y in points:
         deviation = y - on_chord((x - x_le) / chord)
-        (upper if deviation >= 0 else lower).append((x, deviation))
+        if abs(deviation) <= on_line:
+            upper.append((x, deviation))
+            lower.append((x, deviation))
+        elif deviation > 0:
+            upper.append((x, deviation))
+        else:
+            lower.append((x, deviation))
     if len(upper) < 3 or len(lower) < 3:
         return None
     upper.sort()
@@ -499,10 +508,17 @@ def section_measurement(vertices, faces, *, span_frac: float = 0.5,
                 return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
         return curve[-1][1]
 
+    # Only where BOTH curves carry their own points. Reading a camber line
+    # past the end of one of them would be reading the clamp, not the surface.
+    x_from = max(upper[0][0], lower[0][0])
+    x_to = min(upper[-1][0], lower[-1][0])
+    if x_to <= x_from:
+        return None
+
     camber_max, camber_at, thick_max, thick_at = 0.0, 0.0, 0.0, 0.0
     for i in range(1, stations):
-        fraction = i / stations
-        x = x_le + chord * fraction
+        x = x_from + (x_to - x_from) * i / stations
+        fraction = (x - x_le) / chord
         up, down = interpolate(upper, x), interpolate(lower, x)
         camber = (up + down) / 2.0
         if abs(camber) > abs(camber_max):

@@ -959,13 +959,33 @@ def main(request: str | None = None, params: dict | None = None,
         # against its total point motion. Both round to the same millimetre
         # here; comparing like with like is the point.
         reference_n_mm = last.get("max_dn_mm") or reference_mm
+        # ITEM 2 (owner, 2026-07-31): THREE QUANTITIES, ALL REAL, ALL NAMED.
+        # The legend's own extremes were reading against the reference as if
+        # they were the same measurement, and they are not:
+        #
+        #   reference_mm    186 mm, the largest TOTAL motion of any point on
+        #                   the final surface. The canonical reference, set
+        #                   deliberately, and unchanged here.
+        #   reference_n_mm  186 mm, the OUTWARD NORMAL COMPONENT of that
+        #                   motion at the point that moved most. Same to the
+        #                   millimetre, which is why it never needed naming
+        #                   until the third number appeared.
+        #   face_lo/hi      the painted field, which is that normal component
+        #                   AVERAGED OVER EACH FACE. Averaging a face's four
+        #                   corners pulls the extremes in, which is why the
+        #                   colour legend reads under the reference rather
+        #                   than at it. Neither figure is stale; they measure
+        #                   different things, so both are labelled.
+        face_lo = min(last["disp_n_mm"])
+        face_hi = max(last["disp_n_mm"])
         gate.table(emit, script, role=_CE_ROLE,
                    title="What the gradient moved",
                    headers=("Quantity", "Value"),
                    rows=[
                        ["Reference for every millimetre in this act",
                         f"{_a2_shape.DISP_REFERENCE.capitalize()}, "
-                        f"{reference_mm:.0f} mm at the point that moved most"],
+                        f"{reference_mm:.0f} mm of total motion at the point "
+                        f"that moved most"],
                        ["As a fraction of the root chord",
                         f"{reference_mm / 10.0 / chord:.2f}% of "
                         f"{chord:.2f} m"],
@@ -977,12 +997,16 @@ def main(request: str | None = None, params: dict | None = None,
                         f"{shapes['refaxis_z_m'][last['twist_deg'].index(twist_worst) + 1]:.1f} m station"],
                        ["Twist at the tip station",
                         f"{last['twist_deg'][-1]:.2f} deg"],
+                       ["What the colour on the wing reads",
+                        f"The outward normal part of that motion, averaged "
+                        f"over each face. {reference_n_mm:.0f} mm at the "
+                        f"point that moved most, {face_lo:.0f} to "
+                        f"{face_hi:.0f} mm face by face on the final surface"],
                        ["Colour window, fixed across every frame",
-                        f"{dlo:.0f} to {dhi:.0f} mm on the outward normal. "
-                        f"Set by the widest normal displacement reached at "
-                        f"any iteration, {widest / reference_n_mm:.2f} times "
-                        f"the {reference_mm:.0f} mm reference, so it holds "
-                        f"still while the wing moves"],
+                        f"{dlo:.0f} to {dhi:.0f} mm, the widest face reading "
+                        f"at any iteration and {widest / reference_n_mm:.2f} "
+                        f"times the {reference_mm:.0f} mm reference. The same "
+                        f"colour means the same millimetres in every frame"],
                        ["Display scaling", "None anywhere in this act"],
                    ],
                    table_id="shape-adjoint-optimization")

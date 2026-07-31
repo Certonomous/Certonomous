@@ -44,7 +44,7 @@ from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
 from workflows.race_benchmark import (ALPHAS, ANCHOR_ALPHAS, RE_NOMINAL,
                                       RE_SIGMA, TOLERANCE_DEG, VSPAERO_THREADS,
-                                      WING, _TimedSolver)
+                                      WING, _TimedSolver, wing_section_name)
 from workflows.shape_optimization import _fit_quadratic, _predict
 # The canonical uploaded-surface measurement lives in the airliner act; it is
 # imported, not duplicated, so every act measures an uploaded surface the same
@@ -117,6 +117,17 @@ _ROM_HEADERS = ("Step", "Angle α", "L/D", "Solve seconds")
 _AGREE_TABLE = "race-agreement"
 _AGREE_TITLE = "The two lanes side by side"
 _AGREE_HEADERS = ("Quantity", "Monte Carlo", "Reduced order", "Agreement")
+_SECTION_TABLE = "race-section"
+_SECTION_TITLE = "The received surface against the raced section"
+_SECTION_HEADERS = ("Section property", "Received surface, measured",
+                    "Raced section, as set")
+
+# The section both lanes solve, spelled by its own parameters rather than
+# written down beside them (``wing_section_name``). Every place the act names
+# the raced body reads this, so the name on screen and the camber in the
+# solver's job can never disagree again.
+RACED_SECTION = wing_section_name(WING)
+RACED_WING = f"{RACED_SECTION} finite wing"
 
 
 def _seconds_cell(seconds) -> str:
@@ -261,8 +272,46 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
     return summary
 
 
+def _zero_lift_guard(emit, script, point: dict, *, wing: dict | None,
+                     received: str = "", section: dict | None = None) -> list:
+    """Hold every name this act puts on the polar to the zero-lift prior.
+
+    A section with no camber has no circulation at zero incidence, so a curve
+    presented under a symmetric section's name must read no lift at α = 0.
+    The check runs on the α = 0 solve itself, against BOTH names a viewer
+    sees: the section the lanes race, and the surface the request arrived
+    with. A flag is spoken, never drawn silently past.
+    """
+    from chief_engineer.geometry import zero_lift_report
+
+    camber = float((wing or WING).get("camber", 0.0))
+    reports = [zero_lift_report(name=RACED_WING, alpha_deg=point["alpha"],
+                                cl=point["cl"], camber_frac_chord=camber)]
+    if received:
+        reports.append(zero_lift_report(
+            name=received, alpha_deg=point["alpha"], cl=point["cl"],
+            camber_frac_chord=(None if not section
+                               else section["max_camber_frac_chord"]),
+            incidence_deg=(None if not section else section["incidence_deg"])))
+    reports = [r for r in reports if r]
+    for report in reports:
+        if emit:
+            emit("physics.guard", {"check": "zero lift on a symmetric "
+                                            "section", **report})
+    flagged = [r for r in reports if not r["consistent"]]
+    if flagged:
+        script.numericist(
+            "• " + " • ".join(r["caveat"] for r in flagged))
+    elif reports:
+        script.numericist(
+            f"• Zero lift check clear: no name on this polar claims a "
+            f"symmetric section at α = {point['alpha']:g}°.")
+    return reports
+
+
 def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
-              wing: dict | None = None) -> dict:
+              wing: dict | None = None, received: str = "",
+              section: dict | None = None) -> dict:
     """The reduced-order lane: four anchor solves, a fitted surface, one
     confirmation solve. Shares the same four-slot pool as the Monte-Carlo lane,
     so on a busy box it queues behind those solves — the race stays honest."""
@@ -289,6 +338,12 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
                            "state": "running"})
         _rom_row(emit, script, "Anchor solve", alpha,
                  f"{point['l_d']:.2f}", point.get("seconds"))
+        # The zero-angle anchor is the one the prior has an opinion about, so
+        # the check runs the moment that solve lands rather than after the act
+        # has already put the curve on screen under a name.
+        if alpha == 0.0 and "cl" in point:
+            _zero_lift_guard(emit, script, point, wing=wing,
+                             received=received, section=section)
 
     anchors.sort(key=lambda p: p["alpha"])
     xs = [a["alpha"] for a in anchors]
@@ -345,55 +400,103 @@ def main(request: str | None = None, params: dict | None = None,
     script = make_transcript("race study", emit)
     roster = Roster(emit)
 
-    # ---- uploaded raced wing -------------------------------------------
-    # A surface uploaded with the race prompt is the raced wing: it is
-    # acknowledged on the record under its display name, shown in the
-    # viewport before the race takes the stage, and its span measured from
-    # the file's bounding box anchors the parametric wing both lanes solve
-    # (reference chord held at the family's 1 m). The STL itself is never
-    # pretended to be the parametric family; it stays on file.
+    # ---- received surface, and the section that is actually raced -------
+    # A surface uploaded with the race prompt is acknowledged on the record
+    # under its display name, shown in the viewport before the race takes the
+    # stage, and its span measured from the file's bounding box anchors the
+    # parametric wing both lanes solve (reference chord held at the family's
+    # 1 m). The STL itself is never pretended to be the parametric family.
+    #
+    # WHAT THE SPAN DOES AND DOES NOT CARRY (2026-07-31). A received surface
+    # lends the lanes its SPAN and nothing else: the section stays the
+    # anchor's own camber, camber position and thickness. The act used to let
+    # it lend its NAME too, so a symmetric NACA 0012 arrived, a cambered
+    # section was solved, and the polar went on screen labelled 0012 with its
+    # lift-to-drag peaking at α = 0 — the signature of camber, impossible for
+    # a symmetric section at a zero-angle reference. Both surfaces were
+    # measured to settle it rather than reasoned about from their names:
+    # naca0012_wing.stl reads 0.00% camber, 12.00% thickness and 0.00° of
+    # built-in incidence, so the file is a genuine NACA 0012 and the angle
+    # reference is sound; the wing the solver was handed carries camber 0.04
+    # at 0.4 chord. So the surface was right, the label was wrong, and the
+    # raced body is now named by the section its own parameters spell.
     surface = str(params.get("surface") or "").strip()
     surface_name = display_name(surface) if surface else ""
     chord_ref = WING["area"] / WING["span"]
     wing = None
     measured_span = None
+    section = None
     if surface:
+        from chief_engineer.geometry import measure_section
+
         measured_span = measure_surface_span(_GEOMETRY_DIR / surface)
+        section = measure_section(_GEOMETRY_DIR / surface)
         if measured_span:
             wing = {**WING, "span": measured_span,
                     "area": round(measured_span * chord_ref, 3)}
 
+    raced_name = RACED_WING
     if wing:
-        subject = (f"{surface_name} (span {measured_span:g} m measured from "
-                   f"the surface bounding box, reference chord {chord_ref:g} m, "
+        subject = (f"{RACED_WING} (span {measured_span:g} m measured off the "
+                   f"received {surface_name}, reference chord {chord_ref:g} m, "
                    f"chord Reynolds 1e6)")
     elif surface:
-        subject = (f"{surface_name} (surface on file; raced on the NACA 4412 "
-                   f"parametric anchor)")
+        subject = (f"{RACED_WING} (chord {chord_ref:g} m, span "
+                   f"{WING['span']:g} m, chord Reynolds 1e6; the received "
+                   f"{surface_name} is on file)")
     else:
-        subject = ("NACA 4412 finite wing (chord 1 m, span 3 m, unswept, "
-                   "chord Reynolds 1e6)")
-    raced_name = surface_name or "NACA 4412 finite wing"
+        subject = (f"{RACED_WING} (chord 1 m, span 3 m, unswept, "
+                   f"chord Reynolds 1e6)")
     script.system(request or f"Race a full Monte-Carlo sweep against the "
                              f"reduced-order path on the {raced_name}: "
                              f"same objective, same tolerance, both timed.")
 
     if surface:
+        # The label says where the numbers live, so a viewer never has to work
+        # out which of two named wings the polar belongs to.
         announce_geometry(emit, name=surface,
-                          label=f"raced wing: {surface_name}")
+                          label=f"{surface_name}, received. The polar comes "
+                                f"from the {RACED_SECTION} section")
         if wing:
             script.engineer(
-                f"• Raced wing received: {surface_name}. "
-                f"• Span {measured_span:g} m measured from the surface "
-                f"bounding box; reference chord {chord_ref:g} m sets the "
-                f"area at {wing['area']:g} m². "
-                f"• Both lanes race this wing's parametric anchor; the "
-                f"surface itself stays on file.")
+                f"• Wing received: {surface_name}. "
+                f"• Span {measured_span:g} m measured off the surface; "
+                f"reference chord {chord_ref:g} m sets the area at "
+                f"{wing['area']:g} m². "
+                f"• Both lanes race a {RACED_SECTION} section on that span, "
+                f"so the polar below is a {RACED_SECTION} polar.")
         else:
             script.engineer(
-                f"• Raced wing received: {surface_name}. "
-                f"• The surface is on file as the reference shape; both "
-                f"lanes race the NACA 4412 parametric anchor.")
+                f"• Wing received: {surface_name}. "
+                f"• The surface is on file and sets nothing here. "
+                f"• Both lanes race the {RACED_WING}.")
+        # Measured against as-set, side by side, before either lane starts.
+        # The received column is read off the file; the raced column is the
+        # three numbers the solver is handed.
+        if section:
+            emit_table(
+                emit, script, role=_CE_ROLE, title=_SECTION_TITLE,
+                headers=list(_SECTION_HEADERS),
+                rows=[["Maximum camber",
+                       f"{100 * section['max_camber_frac_chord']:.2f}% chord",
+                       f"{100 * float((wing or WING)['camber']):.2f}% chord"],
+                      ["Camber position",
+                       (f"{section['max_camber_at_x_over_c']:.2f} chord"
+                        if not section["symmetric"] else ""),
+                       f"{float((wing or WING)['camber_loc']):.2f} chord"],
+                      ["Maximum thickness",
+                       f"{100 * section['max_thickness_frac_chord']:.2f}% chord",
+                       f"{100 * float((wing or WING)['thick_chord']):.2f}% chord"],
+                      ["Built-in incidence",
+                       f"{section['incidence_deg']:.2f}°", "0.00°"]],
+                table_id=_SECTION_TABLE)
+            script.numericist(
+                f"• The received section measures "
+                f"{100 * section['max_camber_frac_chord']:.2f}% camber; the "
+                f"raced section carries "
+                f"{100 * float((wing or WING)['camber']):.2f}%. "
+                f"• Angle α is measured from the raced section's own chord "
+                f"line, at zero built-in incidence.")
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
@@ -429,6 +532,11 @@ def main(request: str | None = None, params: dict | None = None,
     emit_table(emit, script, role=_CR_ROLE, title=_SETUP_TITLE,
                headers=list(_SETUP_HEADERS),
                rows=[["Raced body", raced_name],
+                     ["Raced section",
+                      f"{RACED_SECTION}, camber "
+                      f"{100 * float((wing or WING)['camber']):.0f}% chord at "
+                      f"{float((wing or WING)['camber_loc']):.1f} chord"],
+                     ["Angle α reference", "the raced section's chord line"],
                      ["Objective", "Peak L/D over angle of attack α"],
                      ["Angle range α",
                       f"{ALPHAS[0]:g}° to {ALPHAS[-1]:g}°, "
@@ -522,7 +630,9 @@ def main(request: str | None = None, params: dict | None = None,
          ThreadPoolExecutor(max_workers=2) as drivers:
         futs = [
             drivers.submit(_run, lambda: _rom_lane(rom_pool, work_root, emit,
-                                                   script, wing=wing),
+                                                   script, wing=wing,
+                                                   received=surface_name,
+                                                   section=section),
                            "rom"),
             drivers.submit(_run, lambda: _mc_lane(mc_pool, work_root, emit,
                                                   script, samples=samples,
@@ -608,16 +718,17 @@ def main(request: str | None = None, params: dict | None = None,
                       "anchors still beat the ensemble on a curved trade",
              "cost": "a few extra anchor solves"},
             {"title": "Sweep from α = -4° for an interior peak",
-             "scope": "the cambered AR-3 wing peaks at the α = 0° boundary; a "
-                      "wider sweep would put the peak inside the range",
+             "scope": f"the cambered {RACED_SECTION} section peaks at the "
+                      f"α = 0° boundary, where the fit reads a slope and not "
+                      f"a curvature; a wider sweep puts the peak inside the "
+                      f"range",
              "cost": "one-line change, ~2 min rerun"},
             {"title": "Re-race under measured box load",
              "scope": "record the speedup with the mega-batch and UQ ladders "
                       "sharing the four slots, to bound the busy-box number",
              "cost": "one contended pass"}]})
         emit("report.ready", {
-            "title": (f"Speed, certified: the {surface_name} race" if surface
-                      else "Speed, certified: the NACA 4412 race"),
+            "title": f"Speed, certified: the {RACED_SECTION} race",
             "subject": subject,
             "summary": (f"Two real paths, both timed on this machine. Full "
                         f"Monte-Carlo: {mc['n_solves']} solver runs, "
@@ -702,10 +813,12 @@ def main(request: str | None = None, params: dict | None = None,
             "compute": {"spent_core_minutes": round(cm_mc + cm_rom, 2),
                         "saved_core_minutes": round(cm_mc - cm_rom, 2)},
         }
-        geometry_key = Path(surface).stem if surface else "naca4412"
+        # The certificate's subject is the body the numbers belong to, which
+        # is the raced section, never the received surface. The surface gets
+        # the scope line, where what it did and did not set is stated.
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
-            geometry=geometry_key,
+            geometry="naca4412",
             # The objective is always THIS run's verbatim request.
             objective=(request or "Locate the peak lift-to-drag over angle "
                        "of attack two ways, same objective and tolerance, "
@@ -713,8 +826,16 @@ def main(request: str | None = None, params: dict | None = None,
             mission_id="race-comparison",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=race_channels,
-            display_name=display_name(geometry_key),
+            display_name=RACED_WING,
             source_filename=subject,
+            scope=(f"Peak lift-to-drag of the {RACED_WING}, angle of attack "
+                   f"measured from that section's chord line."
+                   + (f" The received {surface_name} set the span "
+                      f"({measured_span:g} m) and nothing else; its own "
+                      f"section is not the section raced."
+                      if surface and measured_span else
+                      f" The received {surface_name} is on file and set "
+                      f"nothing." if surface else "")),
             solver="OpenVSP VSPAERO, vortex lattice, run on both lanes")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
