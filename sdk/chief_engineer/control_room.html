@@ -1601,7 +1601,13 @@ function renderCompute(p) {
   const tiles = [];
   if (p.spent_core_minutes != null) tiles.push(['Core-min spent', p.spent_core_minutes]);
   if (p.saved_core_minutes != null) tiles.push(['Avoided', p.saved_core_minutes]);
-  if (p.full_fidelity) tiles.push(['Fidelity', 'full']);
+  // `full_fidelity` means the ledger substituted nothing: every number came
+  // out of the full solver rather than a reduced-order stand-in. The tile used
+  // to read "Fidelity | full", which on a run that was ASKED for a coarse mesh
+  // reads as the lab contradicting the instruction it just honoured. The tile
+  // names the solver, which is what the flag is actually about (Katie,
+  // 2026-07-31).
+  if (p.full_fidelity) tiles.push(['Solver', 'full order']);
   if (p.efficiency != null) tiles.push(['Reuse', Math.round(p.efficiency*100)+'%']);
   $('computeTiles').innerHTML = tiles.map(([k,v]) => `<div class="tile"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('');
   subText('computeNote', (p.notes && p.notes.length) ? p.notes[p.notes.length-1] : '');
@@ -2103,10 +2109,26 @@ $('landscape').addEventListener('mouseleave', () => { $('landTip').hidden=true; 
 
 function renderResult(p) {
   const rc = $('resultCard'); if (!rc) return;
-  // Headline format: value ± CI (confidence). The CI comes from the mission's
-  // real spread machinery; the chip says what stands behind it.
-  const head = p.ci != null
-    ? `${p.value} ± ${p.ci} (${p.confidence || '95%'})`
+  // Headline format: value ± band (confidence). Every number here is the
+  // mission's: the page chooses none of them, and combines none of them. Which
+  // channel the band represents is the act's composition, written by the act
+  // that measured it, and the Uncertainty · V&V 20 panel beside this card shows
+  // the channels it was composed from.
+  //
+  // Two things the page does decide, and both are now decided the same way — by
+  // refusing to speak for the mission:
+  //   * A BAND IS A NUMBER. A verdict with no interval to report sends none;
+  //     older records sent the literal "n/a", and the card printed
+  //     "0.6544 ± n/a (n/a)". The value now stands alone instead.
+  //   * The confidence level is quoted only when the mission states it. This
+  //     used to default to 95%, which is the page asserting a confidence level
+  //     on its own authority. Every recorded verdict that carries a band states
+  //     95%, so nothing on camera changes; what goes is the page's licence to
+  //     put a number there when it was not told one.
+  const band = p.ci != null && isFinite(parseFloat(p.ci)) ? String(p.ci) : null;
+  const level = /\d/.test(String(p.confidence ?? '')) ? ` (${p.confidence})` : '';
+  const head = band
+    ? `${p.value} ± ${band}${level}`
     : (p.value ?? 'not reported');
   // The "envelope N% of value" share measures settle-window flatness, a
   // DIFFERENT number from the headline's ± band one line above; on the card
