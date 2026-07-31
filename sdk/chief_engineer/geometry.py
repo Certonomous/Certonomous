@@ -14,6 +14,7 @@ reference, so the silhouette survives while the payload drops by ~30x.
 from __future__ import annotations
 
 import math
+import re
 import struct
 from pathlib import Path
 from typing import Any
@@ -380,3 +381,247 @@ def available_surfaces(root: str | Path) -> list[str]:
         return []
     return sorted(p.name for p in root.iterdir()
                   if p.suffix.lower() in {".obj", ".stl"})
+
+
+# --------------------------------------------------------------------------
+# Section measurement, and the lift prior that reads it
+# --------------------------------------------------------------------------
+# ``_a2_shape.identify`` measures a received surface's three overall extents
+# against a known body, so a file arriving under the right name carrying a
+# different body disagrees on the measurement rather than on the label. This
+# is the same idea taken one step inward: the extents say how big a wing is,
+# and these say what SECTION it is — how much camber it carries, where the
+# camber peaks, how thick it is, and whether the file has a built-in
+# incidence relative to its own axes.
+#
+# Both numbers are needed together because a lift curve can be shifted by
+# either one. A cambered section lifts at zero angle; so does a symmetric
+# section mounted at an incidence the sweep does not count. Measuring only
+# one of them cannot tell those two apart.
+
+# A four-digit NACA writes its maximum camber as the first digit, in percent
+# of chord, so "00xx" is exactly zero camber. Nothing measured off a
+# triangulated surface is exactly zero, so a section counts as symmetric when
+# its measured camber is under this fraction of chord: 0.1% of chord is an
+# order of magnitude below the 1% that the smallest non-zero four-digit digit
+# would carry, and comfortably above STL round-off.
+SYMMETRIC_CAMBER_MAX = 0.001
+# The same allowance in degrees for a built-in incidence.
+ZERO_INCIDENCE_MAX_DEG = 0.05
+# How much lift coefficient counts as "no lift" at a zero-angle reference.
+# A vortex-lattice solve of a genuinely symmetric wing at true zero incidence
+# returns machine-zero circulation; anything at the second decimal place is a
+# section or a reference, not arithmetic.
+ZERO_LIFT_CL_MAX = 0.01
+
+
+def section_measurement(vertices, faces, *, span_frac: float = 0.5,
+                        stations: int = 60) -> dict[str, Any] | None:
+    """Measure one spanwise section of a wing surface.
+
+    Cuts the triangulation at a plane a fraction of the way out the span and
+    reads the outline it produces: leading and trailing edge, camber line
+    about the chord line joining them, maximum thickness, and the incidence
+    the file was written with. Axes are inferred from the body itself —
+    largest extent is span, smallest is thickness — so no caller has to
+    declare a convention and no surface is measured on the wrong axis.
+
+    Returns None when the plane produces no usable outline, so a caller can
+    say the section could not be read rather than report a shape it never
+    measured. Nothing here is fitted: every value is read off the surface's
+    own points.
+    """
+    if not vertices or not faces:
+        return None
+    extents = [max(v[a] for v in vertices) - min(v[a] for v in vertices)
+               for a in range(3)]
+    order = sorted(range(3), key=lambda a: extents[a])
+    thick_a, chord_a, span_a = order
+    lo = min(v[span_a] for v in vertices)
+    hi = max(v[span_a] for v in vertices)
+    plane = lo + (hi - lo) * float(span_frac)
+
+    points: list[tuple[float, float]] = []
+    for tri in faces:
+        corners = [vertices[i] for i in tri]
+        for u, w in ((0, 1), (1, 2), (2, 0)):
+            a, b = corners[u], corners[w]
+            sa, sb = a[span_a], b[span_a]
+            if (sa - plane) * (sb - plane) > 0 or sa == sb:
+                continue
+            t = (plane - sa) / (sb - sa)
+            points.append((a[chord_a] + t * (b[chord_a] - a[chord_a]),
+                           a[thick_a] + t * (b[thick_a] - a[thick_a])))
+    if len(points) < 8:
+        return None
+
+    xs = [p[0] for p in points]
+    x_le, x_te = min(xs), max(xs)
+    chord = x_te - x_le
+    if chord <= 0:
+        return None
+    near = 0.002 * chord
+    at_le = [p[1] for p in points if p[0] - x_le <= near]
+    at_te = [p[1] for p in points if x_te - p[0] <= near]
+    y_le = sum(at_le) / len(at_le)
+    y_te = sum(at_te) / len(at_te)
+
+    # The chord line is the leading-edge-to-trailing-edge line of THIS file,
+    # so camber is measured about the section's own chord and the incidence
+    # of that chord line is reported separately instead of leaking into it.
+    def on_chord(fraction: float) -> float:
+        return y_le + (y_te - y_le) * fraction
+
+    # Upper and lower surface are separated by the chord line rather than by
+    # binning, because a coarse export can put its upper and lower points at
+    # different chordwise stations and a bin would then hold one surface only.
+    upper: list[tuple[float, float]] = []
+    lower: list[tuple[float, float]] = []
+    for x, y in points:
+        deviation = y - on_chord((x - x_le) / chord)
+        (upper if deviation >= 0 else lower).append((x, deviation))
+    if len(upper) < 3 or len(lower) < 3:
+        return None
+    upper.sort()
+    lower.sort()
+
+    def interpolate(curve: list[tuple[float, float]], x: float) -> float:
+        if x <= curve[0][0]:
+            return curve[0][1]
+        if x >= curve[-1][0]:
+            return curve[-1][1]
+        for i in range(1, len(curve)):
+            if curve[i][0] >= x:
+                x0, y0 = curve[i - 1]
+                x1, y1 = curve[i]
+                if x1 == x0:
+                    return y1
+                return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+        return curve[-1][1]
+
+    camber_max, camber_at, thick_max, thick_at = 0.0, 0.0, 0.0, 0.0
+    for i in range(1, stations):
+        fraction = i / stations
+        x = x_le + chord * fraction
+        up, down = interpolate(upper, x), interpolate(lower, x)
+        camber = (up + down) / 2.0
+        if abs(camber) > abs(camber_max):
+            camber_max, camber_at = camber, fraction
+        if up - down > thick_max:
+            thick_max, thick_at = up - down, fraction
+
+    return {
+        "span_fraction": float(span_frac),
+        "chord": chord,
+        # Positive incidence is nose up: the leading edge above the trailing
+        # edge in the file's own axes.
+        "incidence_deg": math.degrees(math.atan2(y_le - y_te, chord)),
+        "max_camber_frac_chord": camber_max / chord,
+        "max_camber_at_x_over_c": camber_at,
+        "max_thickness_frac_chord": thick_max / chord,
+        "max_thickness_at_x_over_c": thick_at,
+        "symmetric": (abs(camber_max / chord) <= SYMMETRIC_CAMBER_MAX),
+    }
+
+
+def measure_section(path: str | Path, *, span_frac: float = 0.5
+                    ) -> dict[str, Any] | None:
+    """:func:`section_measurement` straight off a surface file on disk.
+
+    No decimation: a merged vertex moves a camber line, and the camber line is
+    the measurement.
+    """
+    try:
+        payload = load_surface(path, max_faces=10 ** 9)
+    except (OSError, ValueError):
+        return None
+    return section_measurement(payload["vertices"], payload["faces"],
+                               span_frac=span_frac)
+
+
+def declares_symmetric_section(name: str) -> bool | None:
+    """Whether a body's NAME declares a symmetric section.
+
+    True for a four-digit NACA whose first digit is zero (NACA 0012, 0015),
+    False for one that declares camber (NACA 4412), None when the name makes
+    no section claim at all and there is nothing to hold it to.
+    """
+    match = re.search(r"naca[\s_-]*(\d{4})\b", str(name or ""), re.IGNORECASE)
+    if not match:
+        return None
+    return match.group(1)[0] == "0"
+
+
+def zero_lift_report(*, name: str, alpha_deg: float, cl: float,
+                     camber_frac_chord: float | None = None,
+                     incidence_deg: float | None = None,
+                     cl_tolerance: float = ZERO_LIFT_CL_MAX,
+                     camber_tolerance: float = SYMMETRIC_CAMBER_MAX,
+                     incidence_tolerance: float = ZERO_INCIDENCE_MAX_DEG
+                     ) -> dict[str, Any] | None:
+    """Check a solved lift against what the section it is named for permits.
+
+    The prior is the oldest one in thin-airfoil theory and it has no free
+    parameters: a section with no camber has no circulation at zero
+    incidence, so a body presented as a symmetric section must read zero lift
+    at its own zero-angle reference. Non-zero lift there means one of exactly
+    two things, and the report says which is available to distinguish them:
+    the section carries camber, or the angle is being measured from an axis
+    that is not the chord line.
+
+    Same shape as :func:`~chief_engineer.field_render.cp_bound_report`: it
+    never alters a measured value, it returns a disclosure. ``name`` is what
+    the body is about to be CALLED on screen, because the contradiction a
+    viewer sees is between the label and the curve.
+
+    Returns None when nothing claims symmetry — neither the name nor a camber
+    measurement — since then there is no prior to check, and when the angle
+    is not the zero-angle reference.
+    """
+    if abs(float(alpha_deg)) > 1e-9:
+        return None
+    declared = declares_symmetric_section(name)
+    measured_symmetric = (None if camber_frac_chord is None
+                          else abs(float(camber_frac_chord)) <= camber_tolerance)
+    if not declared and not measured_symmetric:
+        return None
+
+    lifting = abs(float(cl)) > cl_tolerance
+    offset = (incidence_deg is not None
+              and abs(float(incidence_deg)) > incidence_tolerance)
+    report: dict[str, Any] = {
+        "name": name,
+        "alpha_deg": float(alpha_deg),
+        "cl": float(cl),
+        "cl_tolerance": cl_tolerance,
+        "declared_symmetric": declared,
+        "measured_camber_frac_chord": camber_frac_chord,
+        "measured_symmetric": measured_symmetric,
+        "incidence_deg": incidence_deg,
+        "incidence_offset": offset,
+        # The headline flag. False means the lift on screen cannot belong to
+        # the section the label names.
+        "consistent": not lifting,
+    }
+    if lifting:
+        if measured_symmetric is False:
+            cause = (f"the section measures {100 * abs(camber_frac_chord):.2f}% "
+                     f"camber, so the body is cambered and the name is wrong")
+        elif offset:
+            cause = (f"the section measures symmetric but the file carries "
+                     f"{incidence_deg:+.2f}° of built-in incidence, so the "
+                     f"angle is not measured from the chord line")
+        elif measured_symmetric:
+            cause = ("the section measures symmetric and carries no built-in "
+                     "incidence, so the lift cannot belong to this surface")
+        else:
+            cause = ("no section measurement accompanies the name, so either "
+                     "the body is cambered or the angle reference is offset")
+        report["caveat"] = (
+            f"{name} is presented as a symmetric section, which carries no "
+            f"lift at its own zero-angle reference, but the solved lift "
+            f"coefficient at α = {float(alpha_deg):g}° is {float(cl):.4f}: "
+            f"{cause}. State the section that produced the curve, or state "
+            f"the reference the angle is measured from; do not present this "
+            f"curve under this name.")
+    return report
