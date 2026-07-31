@@ -199,7 +199,16 @@ class WallArithmetic(unittest.TestCase):
     def test_wall_serves_only_mission_bodies(self):
         """Owner curation: the wall response carries the on-screen mission
         bodies alone. The wider graded library stays on disk, ungraded rows and
-        all, but never rides the credentials payload."""
+        all, but never rides the credentials payload.
+
+        The curation list is `_WALL_BODIES` and only `_WALL_BODIES`; the
+        subset assertion below is what enforces it. The hard-coded roll call
+        that used to sit here was written on 2026-07-24 against the
+        three-name list of that day, and 0bd166c2 later widened the list to
+        the bodies that actually hold a curriculum record. Naming bodies
+        twice is what let the two drift, so the names that stayed out are
+        asserted against `_WALL_BODIES` rather than against a second copy of
+        it."""
         import os
         os.environ.setdefault("CERTONOMOUS_CREDENTIALS", str(RESULTS))
         from chief_engineer.server import _WALL_BODIES, _credentials
@@ -207,9 +216,10 @@ class WallArithmetic(unittest.TestCase):
         served = {card["name"] for card in _credentials()}
         self.assertTrue(served, "the wall still serves the mission bodies")
         self.assertLessEqual(served, set(_WALL_BODIES))
-        for retired in ("ahmed_25", "ahmed_35", "cube", "cylinder",
-                        "flat_plate", "naca0012_wing", "sphere"):
-            self.assertNotIn(retired, served)
+        for ungraded in ("ahmed_35", "cylinder", "naca0012_wing", "sphere"):
+            self.assertNotIn(ungraded, _WALL_BODIES,
+                             f"{ungraded} is not an on-screen mission body")
+            self.assertNotIn(ungraded, served)
 
     def test_wall_payload_obeys_the_style_rules(self):
         """No banned words, no em dashes, and no internal file references in
