@@ -82,12 +82,13 @@ R_Y = 8.5e4           # wall-normal: first cell ~4.6e-6 m on the coarse level
 R_X_PLATE = 100.0     # clustered at the leading edge, stretching to the TE
 R_X_UP = 40.0         # upstream block shrinks toward the leading edge
 
-# The coarse pilot was flat in Cd to 1e-9 by iteration 433 of 20000, and the
-# SIMPLE residual normalization plateaus long before residualControl would
-# fire, so each level runs a fixed, generous iteration budget and must then
-# PROVE its own flatness through the tail-spread gate in run_level.
-ITERATIONS = {"coarse": 3000, "medium": 4000, "fine": 5000,
-              "finer": 9000, "finest": 15000}
+# These were the fixed per-rung iteration budgets. They were guesses, and on
+# 2026-07-31 the finest one decided a ladder: see SETTLE_TOL below and
+# iteration_backstop(). They are kept only as the historical record of what
+# each rung was asked for, so a re-reading of any run before that date knows
+# what stopped it. NOTHING reads this to size a run any more.
+ITERATIONS_AS_GUESSED = {"coarse": 3000, "medium": 4000, "fine": 5000,
+                         "finer": 9000, "finest": 15000}
 
 REFERENCE_SOURCE = ("turbmodels.larc.nasa.gov 2D flat plate, SST-V "
                     "convergence data (mirror tmbwg.github.io/turbmodels, "
@@ -261,6 +262,128 @@ def final_coefficient(dat_text: str, column: str = "Cd",
             "iterations": len(series)}
 
 
+# ---------------------------------------------------------------------------
+# The settle criterion: what stops a rung
+#
+# WHY THIS EXISTS. Every rung used to run a fixed, hand-chosen iteration
+# budget and only afterwards prove its own flatness. On 2026-07-31 that cost
+# a ladder. The finest flat-plate rung (208896 cells) was asked for 15000
+# iterations; at 15000 its Cd read 0.0028936144511, 1.05% above the value it
+# eventually settled at, still falling by 1.04e-5 per thousand iterations,
+# with a peak-to-peak spread of 4.44e-7 over its last fifty against the
+# module's own 1e-7 gate. Fed to the certifier that value turns the finest
+# triple's increments from shrinking into growing and publishes the ladder as
+# a divergence at p = -0.745. It took 36000 iterations to settle. A cap
+# chosen by hand is a guess, and it gets worse the finer the grid, which is
+# where the ladder needs it most.
+#
+# So the flatness measure now DRIVES the run instead of only judging it.
+#
+# WHAT THE TOLERANCE IS AND WHY. A rung is settled when the peak-to-peak
+# spread of the monitored coefficient over a trailing window is at or below
+# SETTLE_TOL = 3e-7 absolute in Cd.
+#
+# The window cannot be the fifty iterations _extract_record judges on. Fifty
+# iterations is a plateau detector, not a settle detector: measured on the
+# five solved rungs, a "tail-50 peak-to-peak <= 1e-7" stopping rule stops the
+# finest rung at iteration 19463 with Cd = 0.0028712455, which is +0.268% of
+# the value it finishes at and 1.8 TIMES the 4.244e-6 band the ladder goes on
+# to report. A slow monotone drift is invisible in a fifty-iteration window.
+# The window therefore grows with the run, to a quarter of the iterations so
+# far, capped at 2000.
+#
+# 3e-7 is read off the five solved rungs (histories in
+# demo-output/website/tmr/runs/*/postProcessing/forceCoeffs1/*/coefficient.dat,
+# solved 2026-07-24 to 2026-07-31). Applied live it would have stopped:
+#   coarse   (816 cells)    at    176 of    482   Cd +0.0022%  0.014 x band
+#   medium   (3264)         at    488 of    966   Cd +0.0023%  0.015 x band
+#   fine     (13056)        at   2474 of   2846   Cd +0.0006%  0.004 x band
+#   finest   (208896)       at  30720 of  36000   Cd +0.0069%  0.047 x band
+# so the iterative error left in any rung is at most 5% of the discretization
+# band the ladder reports, which keeps it the order of magnitude below the
+# discretization estimate that ASME V&V 20 asks for. It also separates
+# cleanly from the states the fixed caps actually stopped runs in: the four
+# settled rungs end at window spreads of 7.2e-9, 1.5e-8, 8.2e-8 and 9.1e-9,
+# all at or under 8.2e-8, while the finest rung's state at its 15000 cap is
+# 2.4e-5, eighty times the tolerance.
+#
+# AND ONE RUNG DOES NOT MEET IT. The 52224-cell rung, which is inside the
+# certified finest triple, never reaches 3e-7 in the 9000 iterations its cap
+# allowed: its window spread at exit is 5.522e-7, 1.84 times the tolerance
+# (0.130 of the band). That rung was stopped by its cap, not by settling.
+# Under this criterion it would run on, and if it still had not settled at
+# its backstop it would be reported as backstop-stopped rather than settled.
+# The fixed cap concealed that; saying it is the point.
+SETTLE_TOL = 3.0e-7
+
+# Trailing window: a quarter of the iterations run so far, floored so a
+# just-started run is not judged on three samples and capped so a long run
+# does not drag its own startup transient into the window.
+SETTLE_WINDOW_MIN = 50
+SETTLE_WINDOW_MAX = 2000
+SETTLE_WINDOW_DIVISOR = 4
+
+# A run is not eligible to be called settled until its window is fully
+# populated. Derived, not chosen: SETTLE_WINDOW_MIN * SETTLE_WINDOW_DIVISOR.
+SETTLE_MIN_ITERATIONS = SETTLE_WINDOW_MIN * SETTLE_WINDOW_DIVISOR
+
+# Iterations per cell to settle, measured on the one rung that was run until
+# it did: the 208896-cell flat plate reached SETTLE_TOL at iteration 30720,
+# which is 0.147 iterations per cell. The BACKSTOP doubles that, so the cap
+# is twice the only settle cost this lab has measured and is reached only by
+# a rung that is not settling.
+SETTLE_ITERATIONS_PER_CELL = 30720 / 208896
+BACKSTOP_SAFETY_FACTOR = 2.0
+BACKSTOP_MIN_ITERATIONS = 3000
+
+
+def iteration_backstop(cells: int) -> int:
+    """The iteration cap, as a backstop rather than a commitment.
+
+    A rung is meant to stop when :func:`settle_verdict` says it has settled.
+    This number only bounds a rung that never does, so it is deliberately
+    generous: twice the measured iterations-per-cell settle cost, rounded up
+    to a whole thousand, and never below BACKSTOP_MIN_ITERATIONS.
+    """
+    want = (BACKSTOP_SAFETY_FACTOR * SETTLE_ITERATIONS_PER_CELL * int(cells))
+    want = max(want, BACKSTOP_MIN_ITERATIONS)
+    return int(math.ceil(want / 1000.0) * 1000)
+
+
+def settle_window(iterations: int) -> int:
+    """Trailing window the settle test measures over, for a run this long."""
+    return min(max(SETTLE_WINDOW_MIN, int(iterations) // SETTLE_WINDOW_DIVISOR),
+               SETTLE_WINDOW_MAX)
+
+
+def settle_verdict(series: Sequence[float], *,
+                   tol: float = SETTLE_TOL) -> dict[str, Any]:
+    """Has this coefficient history settled, and on what evidence.
+
+    ``series`` is the coefficient's value at every iteration so far, oldest
+    first. Returns the window used, the peak-to-peak spread over it, the
+    tolerance, and a plain sentence. Pure: no files, no clock, so the rule
+    that stops a solve is testable without one.
+    """
+    n = len(series)
+    if n < SETTLE_MIN_ITERATIONS:
+        return {"settled": False, "iterations": n, "window": None,
+                "spread": None, "tol": tol,
+                "reason": (f"only {n} iterations; the settle test needs "
+                           f"{SETTLE_MIN_ITERATIONS}")}
+    window = settle_window(n)
+    tail = list(series[-window:])
+    spread = max(tail) - min(tail)
+    settled = spread <= tol
+    return {
+        "settled": settled, "iterations": n, "window": window,
+        "spread": spread, "tol": tol,
+        "reason": (f"peak-to-peak {spread:.3g} over the last {window} "
+                   f"iterations is {'at or under' if settled else 'above'} "
+                   f"the settle tolerance {tol:g}"),
+    }
+
+
 def parse_force_split(log_text: str, name: str = "Cd") -> dict[str, float] | None:
     """Total/pressure/viscous split of a force coefficient from the solver
     log's final forceCoeffs write block (the last occurrence wins)."""
@@ -424,6 +547,14 @@ def control_dict(iterations: int = 5000, *, patch: str = "plate",
                  lref: float = PLATE_LENGTH, aref: float = PLATE_LENGTH,
                  drag_dir: str = "(1 0 0)",
                  lift_dir: str = "(0 1 0)") -> str:
+    """``iterations`` is the BACKSTOP, not the commitment.
+
+    ``runTimeModifiable yes`` is what lets the settle criterion stop the run:
+    :func:`request_solver_stop` rewrites ``stopAt`` to ``writeNow`` in this
+    file while the solver is running, and simpleFoam re-reads it at the top
+    of the next iteration, writes its fields and exits cleanly. Without it
+    the only thing that can stop a rung is the cap, which is the defect.
+    """
     return _foam_header("dictionary", "controlDict", "system") + f"""
 application     simpleFoam;
 startFrom       startTime;
@@ -438,6 +569,7 @@ writeFormat     ascii;
 writePrecision  10;
 timeFormat      general;
 timePrecision   6;
+runTimeModifiable yes;
 
 functions
 {{
@@ -705,7 +837,7 @@ def write_case(root: Path, level: GridLevel) -> Path:
         (case / sub).mkdir(parents=True, exist_ok=True)
     files = {
         "system/blockMeshDict": blockmesh_dict(level),
-        "system/controlDict": control_dict(ITERATIONS.get(level.name, 5000)),
+        "system/controlDict": control_dict(iteration_backstop(level.cells)),
         "system/fvSchemes": fv_schemes(),
         "system/fvSolution": fv_solution(),
         "constant/transportProperties": transport_properties(),
@@ -817,7 +949,8 @@ def _stage_and_mesh(level: GridLevel, case_root: Path, out_dir: Path,
 def _extract_record(level: GridLevel, out_dir: Path, remote: str,
                     timings: dict[str, float], station: float | None,
                     yplus_patch: str,
-                    log: Callable[[str], None]) -> dict[str, Any]:
+                    log: Callable[[str], None],
+                    settle: dict[str, Any] | None = None) -> dict[str, Any]:
     """Pull one solved case's results out of the run root and extract the
     record.
 
@@ -886,6 +1019,16 @@ def _extract_record(level: GridLevel, out_dir: Path, remote: str,
         "wall_seconds": sum(timings.values()),
         "timings": timings,
         "cf_profile": [(round(x, 6), round(c, 8)) for x, c in profile],
+        # What stopped this rung, on the record. A rung that ran to its
+        # backstop without settling is still extracted (the flatness gate
+        # above has already refused the indefensible ones), but the reader is
+        # told, because "stopped because the budget ran out" and "stopped
+        # because the answer stopped moving" are different facts and only the
+        # second one is evidence.
+        "iteration_backstop": iteration_backstop(level.cells),
+        "settled": bool((settle or {}).get("settled")),
+        "settle": settle or {"settled": False,
+                             "reason": "run was not settle-driven"},
     }
     if cl is not None:
         record["cl"] = cl["value"]
@@ -898,8 +1041,113 @@ def _extract_record(level: GridLevel, out_dir: Path, remote: str,
                     f"Cl={record.get('cl', float('nan')):.5f} ")
     log(f"[tmr:{level.name}] Cd={cd['value']:.6f} "
         f"{station_note}iters={cd['iterations']} "
+        f"{'settled' if record['settled'] else 'NOT settled'} "
         f"wall={record['wall_seconds']:.0f}s")
     return record
+
+
+def live_coefficient_series(remote_dir: Path,
+                            column: str = "Cd") -> list[float]:
+    """The coefficient history of a run IN PROGRESS, oldest sample first.
+
+    Stitched across restart directories in time order, because a rung that
+    was continued from ``latestTime`` writes a second ``coefficient.dat``
+    under a directory named for the iteration it resumed at. Sorting those
+    directory names as strings puts "15000" before "0"; they are sorted
+    numerically here so a continued run's history reads forward.
+    """
+    root = Path(remote_dir) / "postProcessing" / "forceCoeffs1"
+    if not root.is_dir():
+        return []
+    series: list[float] = []
+    try:
+        stages = sorted(root.iterdir(), key=lambda p: float(p.name))
+    except (OSError, ValueError):
+        return []
+    for stage in stages:
+        dat = stage / "coefficient.dat"
+        if not dat.exists():
+            continue
+        try:
+            text = dat.read_text(errors="replace")
+        except OSError:
+            continue
+        series.extend(parse_coefficient_history(text).get(column) or [])
+    return series
+
+
+def request_solver_stop(remote_dir: Path) -> bool:
+    """Ask a running solver to stop cleanly at its next iteration.
+
+    Rewrites ``stopAt`` to ``writeNow`` in the live case's controlDict.
+    ``runTimeModifiable yes`` (see :func:`control_dict`) makes simpleFoam
+    re-read the file, write its fields and exit 0, so everything downstream
+    (the exit-status check, the extraction globs) is unchanged. Returns False
+    if the file is not there or is not in the shape this expects, so a failed
+    stop request degrades to running on to the backstop rather than to a
+    crash.
+    """
+    path = Path(remote_dir) / "system" / "controlDict"
+    try:
+        text = path.read_text(errors="replace")
+    except OSError:
+        return False
+    if "stopAt" not in text:
+        return False
+    patched = re.sub(r"^stopAt\s+\S+;", "stopAt          writeNow;", text,
+                     count=1, flags=re.MULTILINE)
+    if patched == text:
+        return False
+    try:
+        path.write_text(patched, newline="\n")
+    except OSError:
+        return False
+    return True
+
+
+def _await_settle(level: GridLevel, remote: str, log: Callable[[str], None],
+                  *, is_running: Callable[[], bool],
+                  poll_seconds: float = 20.0,
+                  column: str = "Cd") -> dict[str, Any]:
+    """Watch a running solve and stop it as soon as the quantity has settled.
+
+    This is the whole point of the settle criterion: the flatness measure
+    drives the run instead of judging it after a hand-chosen cap has already
+    decided the answer. Polls the live coefficient history, and the first
+    time :func:`settle_verdict` says settled, asks the solver to stop. If the
+    solver reaches its backstop first, this returns the last verdict with
+    ``settled`` False and the caller reports the rung as backstop-stopped.
+    """
+    remote_dir = Path(remote)
+    verdict: dict[str, Any] = {"settled": False, "iterations": 0,
+                               "window": None, "spread": None,
+                               "tol": SETTLE_TOL,
+                               "reason": "no coefficient history was written"}
+    announced = False
+    while is_running():
+        series = live_coefficient_series(remote_dir, column)
+        if series:
+            verdict = settle_verdict(series)
+            if verdict["settled"]:
+                if request_solver_stop(remote_dir):
+                    log(f"[tmr:{level.name}] settled at iteration "
+                        f"{verdict['iterations']}: {verdict['reason']}; "
+                        f"asked the solver to stop")
+                    verdict["stop_requested"] = True
+                else:
+                    log(f"[tmr:{level.name}] settled at iteration "
+                        f"{verdict['iterations']} but the stop request did "
+                        f"not take; running on to the backstop")
+                    verdict["stop_requested"] = False
+                return verdict
+            if not announced and verdict["iterations"]:
+                announced = True
+                log(f"[tmr:{level.name}] watching {column} for settle at "
+                    f"peak-to-peak <= {SETTLE_TOL:g}")
+        time.sleep(poll_seconds)
+    log(f"[tmr:{level.name}] solver stopped before settling: "
+        f"{verdict['reason']}")
+    return verdict
 
 
 def run_level(level: GridLevel, case_root: Path, out_dir: Path,
@@ -908,17 +1156,31 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
               remote_prefix: str = "tmr-flatplate",
               station: float | None = CF_STATION, yplus_patch: str = "plate",
               solver_timeout: float = 5400.0,
-              init_potential: bool = False) -> dict[str, Any]:
-    """Mesh and solve one ladder level natively, extract the record."""
+              init_potential: bool = False,
+              settle: bool = True,
+              poll_seconds: float = 20.0) -> dict[str, Any]:
+    """Mesh and solve one ladder level natively, extract the record.
+
+    The solve runs to its settle criterion, with
+    :func:`iteration_backstop` as the backstop. ``settle=False`` runs
+    straight to the backstop, for a caller that wants the whole history.
+    """
     remote = f"{_RUN_ROOT}/{remote_prefix}-{level.name}"
     out_dir = Path(out_dir)
     timings = _stage_and_mesh(level, case_root, out_dir, remote, writer, log)
     if init_potential:
         _run_potential_init(level, remote, timings, log)
     start = time.monotonic()
-    log(f"[tmr:{level.name}] simpleFoam started")
-    result = _foam(["simpleFoam"], Path(remote), "log.simpleFoam",
-                   timeout=solver_timeout)
+    log(f"[tmr:{level.name}] simpleFoam started "
+        f"(backstop {iteration_backstop(level.cells)} iterations)")
+    verdict: dict[str, Any] | None = None
+    if settle:
+        result, verdict = _run_simplefoam_to_settle(
+            level, remote, log, timeout=solver_timeout,
+            poll_seconds=poll_seconds)
+    else:
+        result = _foam(["simpleFoam"], Path(remote), "log.simpleFoam",
+                       timeout=solver_timeout)
     timings["simpleFoam"] = round(time.monotonic() - start, 1)
     if result.returncode != 0:
         tail = (Path(remote) / "log.simpleFoam").read_text(errors="replace")
@@ -927,7 +1189,37 @@ def run_level(level: GridLevel, case_root: Path, out_dir: Path,
     log(f"[tmr:{level.name}] simpleFoam finished in "
         f"{timings['simpleFoam']:.1f} s")
     return _extract_record(level, out_dir, remote, timings, station,
-                           yplus_patch, log)
+                           yplus_patch, log, settle=verdict)
+
+
+def _run_simplefoam_to_settle(level: GridLevel, remote: str,
+                              log: Callable[[str], None], *,
+                              timeout: float,
+                              poll_seconds: float,
+                              ) -> tuple[subprocess.CompletedProcess,
+                                         dict[str, Any]]:
+    """Run simpleFoam and stop it when the monitored quantity has settled.
+
+    The solver is started without waiting on it so the settle watcher can
+    read the coefficient history it is writing; the backstop in the case's
+    controlDict still bounds a rung that never settles, and ``timeout``
+    still bounds the wall clock.
+    """
+    remote_dir = Path(remote)
+    command = [*_run_prefix(), "simpleFoam"]
+    log_path = remote_dir / "log.simpleFoam"
+    with log_path.open("w") as log_file:
+        proc = subprocess.Popen(command, stdout=log_file,
+                                stderr=subprocess.STDOUT, cwd=str(remote_dir))
+        try:
+            verdict = _await_settle(level, remote, log,
+                                    is_running=lambda: proc.poll() is None,
+                                    poll_seconds=poll_seconds)
+            proc.wait(timeout=timeout)
+        except BaseException:
+            proc.kill()
+            raise
+    return (subprocess.CompletedProcess(command, proc.returncode), verdict)
 
 
 def _run_potential_init(level: GridLevel, remote: str,
@@ -985,6 +1277,24 @@ def launch_level_solver(level: GridLevel, case_root: Path, out_dir: Path,
     return timings
 
 
+def poll_settle(level: GridLevel, remote_prefix: str = "tmr-flatplate",
+                log: Callable[[str], None] = print) -> dict[str, Any]:
+    """Settle check for a DETACHED solve; stops it if it has settled.
+
+    The detached path has no watcher process of its own, so whoever polls
+    :func:`solver_exit_status` calls this in the same loop. Same criterion,
+    same stop mechanism as the foreground path: the two must not be able to
+    stop a rung on different evidence.
+    """
+    remote = Path(f"{_RUN_ROOT}/{remote_prefix}-{level.name}")
+    verdict = settle_verdict(live_coefficient_series(remote))
+    if verdict["settled"] and solver_exit_status(level, remote_prefix) is None:
+        verdict["stop_requested"] = request_solver_stop(remote)
+        log(f"[tmr:{level.name}] settled at iteration "
+            f"{verdict['iterations']}: {verdict['reason']}")
+    return verdict
+
+
 def solver_exit_status(level: GridLevel,
                        remote_prefix: str = "tmr-flatplate") -> int | None:
     """Exit code of a detached solve, or None while it is still running."""
@@ -1012,8 +1322,13 @@ def collect_level(level: GridLevel, out_dir: Path,
     timings = dict(mesh_timings or {})
     if solve_seconds is not None:
         timings["simpleFoam"] = round(solve_seconds, 1)
+    # The settle criterion is a pure function of the coefficient history, so
+    # the verdict at the end of a detached run is reconstructable here
+    # whether or not anyone was polling poll_settle while it ran. Same rule,
+    # same evidence, no second definition of "settled".
+    settle = settle_verdict(live_coefficient_series(Path(remote)))
     return _extract_record(level, Path(out_dir), remote, timings, station,
-                           yplus_patch, log)
+                           yplus_patch, log, settle=settle)
 
 
 # ---------------------------------------------------------------------------
@@ -1160,6 +1475,40 @@ def build_summary(grids: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def rung_shades(count: int) -> list[str]:
+    """One colour per rung, coarse (dim) to fine (live), for ANY rung count.
+
+    WHY THIS EXISTS. The Cf-profile figures used to zip the ladder against a
+    literal three-colour list, so a fourth and fifth rung were dropped in
+    silence. The flat plate now has five rungs, and the two that were
+    dropped, 273x193 and 545x385, are the two the earned discretization band
+    rests on: the figure was showing everything except the evidence.
+
+    Three rungs reproduce the original DIM / MUTED / LIVE exactly, so no
+    existing figure changes; more rungs sample the same ramp finely.
+    """
+    from chief_engineer import plot_theme as _t
+    anchors = [_t.DIM, _t.MUTED, _t.LIVE]
+    if count <= 0:
+        return []
+    if count == 1:
+        return [_t.LIVE]
+
+    def _rgb(value: str) -> tuple[int, int, int]:
+        value = value.lstrip("#")
+        return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
+
+    out: list[str] = []
+    for i in range(count):
+        pos = (len(anchors) - 1) * i / (count - 1)
+        lo = min(int(pos), len(anchors) - 2)
+        w = pos - lo
+        a, b = _rgb(anchors[lo]), _rgb(anchors[lo + 1])
+        out.append("#%02x%02x%02x" % tuple(
+            int(round(a[c] + w * (b[c] - a[c]))) for c in range(3)))
+    return out
+
+
 def _figures(grids: list[dict[str, Any]], summary: dict[str, Any],
              out_dir: Path) -> list[str]:
     """Cf-profile and grid-convergence figures in the control-room theme."""
@@ -1168,7 +1517,10 @@ def _figures(grids: list[dict[str, Any]], summary: dict[str, Any],
     if plt is None:
         return []
     made: list[str] = []
-    shades = [_t.DIM, _t.MUTED, _t.LIVE]
+    # One shade per rung, however many there are: zipping the ladder against
+    # a fixed three-colour list dropped the two finest flat-plate rungs, the
+    # ones the earned band rests on, without saying so.
+    shades = rung_shades(len(grids))
 
     fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
     for grid, color in zip(grids, shades):
@@ -1209,18 +1561,32 @@ def _figures(grids: list[dict[str, Any]], summary: dict[str, Any],
         ax.plot([math.sqrt(1.0 / n) for n in cells],
                 [data[n]["cd"] for n in cells], color=color, linewidth=1.6,
                 marker="s", markersize=5, linestyle=(0, (4, 3)), label=source)
+    # WHICH extrapolate. summary["convergence"]["cd"] is the fit over the
+    # three rungs the ladder was first built from; on a longer ladder that is
+    # no longer the fit the result is quoted from, and a diamond at h=0 that
+    # belongs to a different triple than the curve beside it is a figure
+    # disagreeing with its own caption. When the record carries per-triple
+    # fits, the marker is the FINEST triple's, and it says which rungs made
+    # it.
     rich = summary["convergence"]["cd"].get("richardson")
+    rich_rungs = None
+    triples = (summary.get("convergence_extended") or {}).get("cd_triples")
+    if triples and triples[-1].get("richardson") is not None:
+        rich = triples[-1]["richardson"]
+        rich_rungs = triples[-1].get("rungs")
     if rich is not None:
+        label = ("Richardson extrapolate (finest triple)" if rich_rungs
+                 else "Richardson extrapolate (ours)")
         ax.scatter([0.0], [rich], s=120, color=_t.LIVE, marker="D",
-                   edgecolor=_t.INK, linewidth=1.2, zorder=5,
-                   label="Richardson extrapolate (ours)")
-        ax.annotate(f"h=0 extrapolate {rich:.5f}", xy=(0.0, rich),
-                    xytext=(10, -18), textcoords="offset points",
-                    fontsize=11, color=_t.INK, weight="bold")
+                   edgecolor=_t.INK, linewidth=1.2, zorder=5, label=label)
+        which = ("\nfrom " + " + ".join(rich_rungs)) if rich_rungs else ""
+        ax.annotate(f"h=0 extrapolate {rich:.5f}{which}", xy=(0.0, rich),
+                    xytext=(22, -62), textcoords="offset points",
+                    fontsize=10.5, color=_t.INK, weight="bold")
     _t.style_axes(ax, r"$h = \sqrt{1/N}$", r"$C_D$ (plate, Aref = 2)",
                   "TMR flat plate: drag-coefficient grid convergence vs "
                   "published CFL3D and FUN3D ladders")
-    leg = ax.legend(frameon=False, fontsize=10.5, loc="upper right")
+    leg = ax.legend(frameon=False, fontsize=10.5, loc="lower right")
     for text in leg.get_texts():
         text.set_color(_t.INK)
     fig.tight_layout()
@@ -1354,7 +1720,9 @@ BUMP_LEVELS = (
 R_Y_BUMP = ratio_for_first_cell(BUMP_HEIGHT, 40, 5.0e-6)
 R_X_OUTER = ratio_for_first_cell(25.0, 12, BUMP_WALL_LENGTH / 64)
 
-BUMP_ITERATIONS = {"coarse": 4000, "medium": 6000, "fine": 9000}
+# Guessed caps, kept only as the record of what these rungs were asked for
+# before the settle criterion; see SETTLE_TOL. Nothing sizes a run from them.
+BUMP_ITERATIONS_AS_GUESSED = {"coarse": 4000, "medium": 6000, "fine": 9000}
 
 
 def bump_profile(x: float) -> float:
@@ -1516,7 +1884,7 @@ def write_bump_case(root: Path, level: BumpGridLevel) -> Path:
     files = {
         "system/blockMeshDict": bump_blockmesh_dict(level),
         "system/controlDict": control_dict(
-            BUMP_ITERATIONS.get(level.name, 8000), patch="bump",
+            iteration_backstop(level.cells), patch="bump",
             lref=BUMP_WALL_LENGTH, aref=BUMP_WALL_LENGTH),
         "system/fvSchemes": fv_schemes(),
         "system/fvSolution": fv_solution(),
@@ -1647,7 +2015,10 @@ def _bump_figures(grids: list[dict[str, Any]], summary: dict[str, Any],
     if plt is None:
         return []
     made: list[str] = []
-    shades = [_t.DIM, _t.MUTED, _t.LIVE]
+    # One shade per rung, however many there are: zipping the ladder against
+    # a fixed three-colour list dropped the two finest flat-plate rungs, the
+    # ones the earned band rests on, without saying so.
+    shades = rung_shades(len(grids))
 
     fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
     for grid, color in zip(grids, shades):
@@ -1945,7 +2316,9 @@ NACA_LEVELS = (
     NacaGridLevel("fine", "449x129", 64, 96, 128),
 )
 
-NACA_ITERATIONS = {"coarse": 5000, "medium": 8000, "fine": 12000}
+# Guessed caps, kept only as the record of what these rungs were asked for
+# before the settle criterion; see SETTLE_TOL. Nothing sizes a run from them.
+NACA_ITERATIONS_AS_GUESSED = {"coarse": 5000, "medium": 8000, "fine": 12000}
 
 # Family gradings, fixed across levels. Surface: expansion away from the
 # leading edge and contraction into the trailing edge (the two mid-chord
@@ -2217,7 +2590,7 @@ def write_naca_case(root: Path, level: NacaGridLevel,
     files = {
         "system/blockMeshDict": naca_blockmesh_dict(level),
         "system/controlDict": control_dict(
-            NACA_ITERATIONS.get(level.name, 10000), patch="airfoil",
+            iteration_backstop(level.cells), patch="airfoil",
             lref=1.0, aref=1.0,
             drag_dir=f"({math.cos(rad):.8f} {math.sin(rad):.8f} 0)",
             lift_dir=f"({-math.sin(rad):.8f} {math.cos(rad):.8f} 0)"),
@@ -2564,7 +2937,7 @@ def run_naca_level(level: NacaGridLevel, alpha_deg: float, out_dir: Path,
     case = case_root / f"a{alpha_deg:g}" / level.name
     for sub in ("system",):
         (case / sub).mkdir(parents=True, exist_ok=True)
-    budget = iterations or NACA_ITERATIONS.get(level.name, 10000)
+    budget = iterations or iteration_backstop(level.cells)
     dicts = {
         "system/controlDict": control_dict(
             budget, patch="PLACEHOLDER", lref=1.0, aref=1.0),

@@ -8,7 +8,9 @@ rules on everything user-visible.
 from __future__ import annotations
 
 import math
+import tempfile
 import unittest
+from pathlib import Path
 
 from workflows.tmr_verification import (halves_drift, measure_period,
                                         time_weighted_stats)
@@ -23,6 +25,13 @@ from workflows.tmr_verification import (
     grid_convergence_index, naca_fields_tmr, naca_thickness, observed_order,
     parse_boundary_patches, parse_force_split, parse_wall_shear_raw,
     parse_yplus_dat, ratio_for_first_cell, richardson_extrapolate,
+)
+
+from workflows.tmr_verification import (
+    BACKSTOP_MIN_ITERATIONS, SETTLE_MIN_ITERATIONS, SETTLE_TOL,
+    SETTLE_WINDOW_MAX, SETTLE_WINDOW_MIN, control_dict, iteration_backstop,
+    live_coefficient_series, request_solver_stop, rung_shades,
+    settle_verdict, settle_window,
 )
 
 
@@ -527,6 +536,135 @@ class TimeAccurateStatistics(unittest.TestCase):
 
     def test_halves_drift_none_without_enough_samples_each_half(self):
         self.assertIsNone(halves_drift([1.0, 2.0], [1.0, 2.0], 0.0, 2.0))
+
+
+class SettleCriterion(unittest.TestCase):
+    """A rung stops when the answer stops moving, not when a guess runs out.
+
+    The 2026-07-31 lesson: the 208896-cell flat plate was asked for 15000
+    iterations, read Cd 1.05% high there, still falling, and would have
+    published the ladder as a divergence at p = -0.745. It took 36000.
+    """
+
+    def test_a_flat_history_settles(self):
+        series = [0.0028635 + 1e-9 * ((i % 7) - 3) for i in range(4000)]
+        out = settle_verdict(series)
+        self.assertTrue(out["settled"])
+        self.assertLessEqual(out["spread"], SETTLE_TOL)
+
+    def test_a_slow_monotone_drift_does_not_settle(self):
+        # The failure the fifty-iteration gate cannot see: 1e-5 per thousand
+        # iterations is 5e-7 over fifty, but 2e-5 over the 2000-iteration
+        # window, which is what the ladder actually cares about.
+        series = [0.0029 - 1e-8 * i for i in range(9000)]
+        out = settle_verdict(series)
+        self.assertFalse(out["settled"])
+        self.assertGreater(out["spread"], SETTLE_TOL)
+        self.assertIn("above", out["reason"])
+
+    def test_a_short_history_is_never_called_settled(self):
+        # A run that has barely started can look arbitrarily flat.
+        out = settle_verdict([0.003] * (SETTLE_MIN_ITERATIONS - 1))
+        self.assertFalse(out["settled"])
+        self.assertIsNone(out["window"])
+        self.assertIn("iterations", out["reason"])
+
+    def test_the_window_grows_with_the_run_and_is_clamped(self):
+        self.assertEqual(settle_window(0), SETTLE_WINDOW_MIN)
+        self.assertEqual(settle_window(4000), 1000)
+        self.assertEqual(settle_window(10 ** 6), SETTLE_WINDOW_MAX)
+        # Monotone, so a longer run is never judged on a shorter window.
+        widths = [settle_window(n) for n in range(0, 20000, 137)]
+        self.assertEqual(widths, sorted(widths))
+
+    def test_the_backstop_is_a_backstop_not_the_commitment(self):
+        # The 208896-cell rung settled at iteration 30720; the backstop must
+        # leave room beyond that, and must exceed the 15000 that decided the
+        # ladder wrongly.
+        self.assertGreater(iteration_backstop(208896), 30720)
+        self.assertGreater(iteration_backstop(208896), 15000)
+        # Floored, monotone in cells, and a whole number of thousands.
+        self.assertEqual(iteration_backstop(1), BACKSTOP_MIN_ITERATIONS)
+        counts = [816, 3264, 13056, 52224, 208896]
+        caps = [iteration_backstop(c) for c in counts]
+        self.assertEqual(caps, sorted(caps))
+        for cap in caps:
+            self.assertEqual(cap % 1000, 0)
+
+    def test_the_control_dict_can_be_stopped_while_it_runs(self):
+        # Without runTimeModifiable the only thing that can stop a rung is
+        # the cap, which is the defect.
+        text = control_dict(12345)
+        self.assertIn("runTimeModifiable yes;", text)
+        self.assertIn("endTime         12345;", text)
+
+    def test_a_stop_request_rewrites_stop_at_and_nothing_else(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            case = Path(tmp) / "system"
+            case.mkdir(parents=True)
+            (case / "controlDict").write_text(control_dict(9000))
+            self.assertTrue(request_solver_stop(Path(tmp)))
+            after = (case / "controlDict").read_text()
+            self.assertIn("stopAt          writeNow;", after)
+            self.assertNotIn("stopAt          endTime;", after)
+            self.assertIn("endTime         9000;", after)
+
+    def test_a_missing_case_does_not_raise(self):
+        # A failed stop request must degrade to running on to the backstop.
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertFalse(request_solver_stop(Path(tmp)))
+
+    def test_a_continued_run_reads_forward_not_lexicographically(self):
+        # A rung continued from latestTime writes its second history under a
+        # directory named for the iteration it resumed at. Sorted as strings
+        # "15000" comes before "0" and the history reads backwards.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "postProcessing" / "forceCoeffs1"
+            header = "# Force coefficients\n# Time Cd Cs Cl\n"
+            for start, first in (("0", 1.0), ("15000", 2.0)):
+                d = root / start
+                d.mkdir(parents=True)
+                (d / "coefficient.dat").write_text(
+                    header + "\n".join(f"{i} {first + i * 0.0} 0 0"
+                                       for i in range(1, 4)) + "\n")
+            series = live_coefficient_series(Path(tmp))
+            self.assertEqual(series, [1.0, 1.0, 1.0, 2.0, 2.0, 2.0])
+
+    def test_no_history_at_all_is_not_settled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(live_coefficient_series(Path(tmp)), [])
+            self.assertFalse(settle_verdict([])["settled"])
+
+
+class RungShades(unittest.TestCase):
+    """Every rung gets a colour, because two of them used to vanish.
+
+    The Cf-profile figures zipped the ladder against a literal three-colour
+    list. With five rungs the 273x193 and 545x385 profiles were dropped in
+    silence, and those two are exactly the rungs the flat plate's earned
+    discretization band rests on.
+    """
+
+    def test_three_rungs_are_unchanged(self):
+        from chief_engineer import plot_theme as theme
+        self.assertEqual(rung_shades(3), [theme.DIM, theme.MUTED, theme.LIVE])
+
+    def test_every_rung_gets_its_own_colour(self):
+        for count in range(1, 12):
+            shades = rung_shades(count)
+            self.assertEqual(len(shades), count, count)
+            self.assertEqual(len(set(shades)), count, count)
+            for shade in shades:
+                self.assertRegex(shade, r"^#[0-9a-f]{6}$")
+
+    def test_the_ladder_still_reads_coarse_to_fine(self):
+        from chief_engineer import plot_theme as theme
+        shades = rung_shades(5)
+        self.assertEqual(shades[0], theme.DIM)
+        self.assertEqual(shades[-1], theme.LIVE)
+
+    def test_no_rungs_is_no_colours(self):
+        self.assertEqual(rung_shades(0), [])
 
 
 if __name__ == "__main__":
