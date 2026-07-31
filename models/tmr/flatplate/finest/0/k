@@ -1,0 +1,46 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      k;
+}
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 2.25e-07;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 2.25e-07;
+    }
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform 2.25e-07;
+        value           uniform 2.25e-07;
+    }
+    top
+    {
+        type            inletOutlet;
+        inletValue      uniform 2.25e-07;
+        value           uniform 2.25e-07;
+    }
+    plate
+    {
+        type            kLowReWallFunction;
+        value           uniform 1e-12;
+    }
+    bottomSym
+    {
+        type            symmetry;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}
