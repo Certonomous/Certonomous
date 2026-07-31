@@ -1,11 +1,19 @@
 # 4G — TMR ladder: what the "insane mesh aspect ratio" actually is
 
-**Date:** 2026-07-30
+**Date:** 2026-07-30, **continued 2026-07-31 (section 10)**.
 **Host:** c7a.4xlarge, 16 vCPU. OpenFOAM 2606, native (`/usr/bin/openfoam2606`).
 **Status:** Diagnosis complete. Aspect ratio is cleared as a solution defect in every
 case tested. A **different, real defect** — the bump-in-channel rungs are not converged —
 was found underneath it, quantified, and left open with its cause unidentified.
 **Full figures:** `4G_tmr_mesh_aspect_ratio.json`. **Logs:** `4G_runs/`.
+
+> **Read section 10 before quoting section 4 on the bump.** NASA publishes bump grids
+> too, at exactly our three rung sizes; they were fetched and measured on 2026-07-31.
+> They carry **zero** cells above aspect ratio 1e5. Section 4's conclusion — that a huge,
+> refinement-worsening aspect ratio is a normal property of a wall-resolved family — holds
+> for the NACA0012 C-grid it was measured on and **does not hold for the bump**. The 2.1
+> million is ours alone. It is still not what is wrong with the bump result; section 10
+> says what is.
 
 The brief was: stop and understand the mesh problem before advancing the ladder.
 The ladder was not advanced. This document explains why that was the right call, and
@@ -425,6 +433,203 @@ What was produced instead, all mesh-metric only, no solves:
 
 ---
 
+## 10. Follow-up, 2026-07-31 — NASA's own bump grids, and what actually holds the ladder back
+
+Section 9 left two things open that a proposal to add a fourth bump rung
+(`agp-e5136061890b`) depends on: whether the aspect ratio is pathological or merely
+alarming, and whether the unconverged rungs make the ladder unusable. Both are now
+measured. Neither answer is the one the session expected.
+
+### 10.1 The comparison section 4 could not make
+
+Section 4 compared our bump mesh against NASA's **NACA0012** C-grids, because those were
+the only TMR grids the lab held. NASA publishes **bump** grids as well, at exactly the
+node counts of our three rungs. Two of the three came down from the tmbwg.github.io
+mirror (the 353x161 is git-lfs-only and did not); they are now held at
+`models/tmr/bump/grids/`.
+
+They were measured with `4G_runs/structured_grid_aspect_ratio.py`, which transcribes
+checkMesh's own 2D branch and is **validated against checkMesh rather than asserted**: on
+NASA's NACA0012 113x33 it returns 20650841.436 against the 20650841.43 in
+`4G_runs/nasa/log.checkMesh.coarse` — ratio 1.000000.
+
+| 3,520-cell rung (89x41) | global max AR | where the worst cell is | cells > 1e5 | first wall cell |
+|---|---|---|---|---|
+| **NASA's own grid** | **4,844.5** | **on the viscous wall, x = 0.258** | **0** | 8.058e-06 |
+| ours (blockMesh) | 2,136,801 | far field, x = ±21, 19.7 from any wall | 494 | 5.000e-06 |
+
+| 14,080-cell rung (177x81) | global max AR | where the worst cell is | cells > 1e5 | first wall cell |
+|---|---|---|---|---|
+| **NASA's own grid** | **5,210.2** | **on the viscous wall, x = 1.212** | **0** | 3.977e-06 |
+| ours (blockMesh) | 2,192,933 | far field, x = 23.6 | 1,976 | 2.669e-06 |
+
+Our three mesh metrics were regenerated from scratch this session and reproduce the
+recorded values exactly — 2136801.242, 2192932.91, 2218683.129 — so the two rows are the
+same quantity measured the same way.
+
+**Section 4's conclusion does not survive this for the bump.** "Max aspect ratio in the
+millions, worsening under refinement, is a normal property of a wall-resolved grid family
+with a fixed farfield extent" is true of NASA's NACA0012 C-grid, whose worst cells live
+271-476 chords out in a wake cut that runs to 569 chords. It is **not** true of the bump,
+where NASA's own reference grid — same case, same node count, same 25-units-each-way
+domain — has not one cell above 1e5.
+
+The mechanism is specific and it is ours:
+
+| | NASA 89x41 | ours, coarse |
+|---|---|---|
+| cells along the viscous wall, x ∈ [0, 1.5] | 40 | 64 |
+| cells across the two 25-unit extensions | 48 | **24** |
+| first wall-normal spacing, at the bump | 8.06e-06 | 5.00e-06 |
+| first wall-normal spacing, in the extensions | **3.21e-03** | **5.00e-06** |
+
+NASA clusters the wall-normal grid at the viscous wall and **relaxes it by a factor of
+400 along the symmetry extensions**, where there is no boundary layer to resolve. Our
+`bump_blockmesh_dict` applies one `simpleGrading` in y across all three blocks, so the
+5e-6 first cell is carried along the whole 51.5-unit bottom — and then spans it with 12
+cells per side, half NASA's count. A cell 2 units long and 5e-6 thick is where the 2.1
+million comes from. It is a construction choice, not a property of the case.
+
+### 10.2 Pathological, or merely alarming?
+
+Three separate measurements, and they do not all point the same way, so all three go on
+the record:
+
+1. **Where the answer is computed, our grid is as good as NASA's.** Max AR inside the
+   viscous wall band x ∈ [0, 1.5]: ours **4,714 / 4,416 / 4,274**, improving under
+   refinement; NASA's **4,844 / 5,210**. Ours is marginally *better* there. On the part
+   of the mesh the forces are integrated over, there is nothing to fix.
+2. **The 2.1 million is nevertheless a real defect of our generator**, not a family
+   property, and section 4 got that wrong for this case. It lives entirely in undisturbed
+   uniform flow 20-25 units from the wall.
+3. **It is not degrading the solution.** Section 7 already tested this the only way that
+   settles it: near-wake aspect ratio cut 4.4x by a single-variable change, convergence
+   got slightly *slower*, and the Cd drift was unchanged at −0.207% against −0.197%.
+   Nothing in this session revises that.
+
+**So: alarming, genuinely untidy, worth fixing for hygiene — and not the cause of
+anything.** The roadmap note's "insane mesh aspect ratio" is a fair reading of the
+number, and its instinct that the number is abnormal turns out to be right for the bump
+in a way section 4 denied. But **"amongst the worst possible results" attributes the bad
+result to the wrong thing.** The next two subsections say what the result actually is.
+
+### 10.3 The observed order is a reading of where the runs were stopped
+
+The published bump ladder stops its three rungs at **different** iteration counts —
+4,000 / 6,000 / 9,000 — so the iterative error is unequal across the rungs by
+construction, and it enters the grid-to-grid increments directly. That had never been
+tested. It is cheap to test: `coefficient.dat` records Cd at every iteration, so the
+ladder can be recomputed at any **matched** iteration count.
+
+Coarse and medium were re-run to 30,000 iterations (2 and 4 ranks; the coarse rebuild
+reproduces the section-6 serial run to +0.0009% at n = 4,000, so the decomposition is not
+perturbing anything). Fine is on its published 9,000.
+
+| matched n | Cd coarse | Cd medium | Cd fine | observed order p | GCI fine |
+|---|---|---|---|---|---|
+| 500 | 0.003453773 | 0.003548832 | 0.004162531 | **−2.69** | −21.8% |
+| 1,000 | 0.003446886 | 0.003524381 | 0.003770437 | **−1.67** | −11.9% |
+| 2,000 | 0.003445925 | 0.003521268 | 0.003596738 | **−0.002** | **−1,545%** † |
+| 3,000 | 0.003444278 | 0.003519468 | 0.003574833 | 0.442 | 5.41% |
+| 4,000 | 0.003443049 | 0.003518155 | 0.003570874 | 0.511 | 4.35% |
+| 6,000 | 0.003441278 | 0.003516263 | 0.003568587 | 0.519 | 4.23% |
+| 9,000 | 0.003439572 | 0.003514280 | 0.003566521 | 0.516 | 4.26% |
+| *as published, caps 4,000/6,000/9,000* | 0.003443019 | 0.003516287 | 0.003566521 | **0.5446** | **3.839%** |
+
+† At n = 2,000 the two increments very nearly cancel, so p passes through zero and the
+GCI is numerically meaningless — it swings by a factor of five on the last digit of the
+medium rung. That row is here to show the pole, not to quote a number through it.
+
+Two things fall out, and they pull in opposite directions.
+
+**The published 0.5446 is not a matched number.** At the same fine-grid cap of 9,000, the
+matched ladder gives **0.516**, and the matched GCI is **4.26%** against the published
+3.839%. The difference is entirely the unmatched caps. The published observed order is
+inflated ~5.5% and the published GCI understated ~10% by an artifact of the iteration
+budget, nothing else.
+
+**But the iterative error does not swamp the discretization increments.** That was the
+working hypothesis going in, and it is wrong. Below about n = 3,000 the ladder is
+worthless — p is negative, and at n = 2,000 the increments cross and GCI reads −1,545%.
+Above n = 3,000 it is stable: p sits between 0.511 and 0.519 across a factor of three in
+iteration count. Whatever is holding the order at 0.52 is not the iteration budget.
+
+A note for anyone tempted by the cheap route: fitting Cd(n) = Cd_∞ + A·n^−q to the
+coarse trajectory over [1,000, 4,000] predicts Cd at n = 30,000 to **+0.027%** — and
+predicts Cd_∞ **1.9% low**. The trajectory is extrapolable an order of magnitude in n;
+the limit is not identifiable from it at all. Do not extrapolate these to convergence.
+
+### 10.4 What is actually holding p at 0.52
+
+Splitting the drag, against CFL3D on the same three grids:
+
+| | coarse | medium | fine | increments | p |
+|---|---|---|---|---|---|
+| ours, viscous | 3.046138e-03 | 3.139451e-03 | 3.183268e-03 | +9.33e-05, +4.38e-05 | **1.091** |
+| ours, pressure | 3.968809e-04 | 3.768365e-04 | 3.832532e-04 | −2.00e-05, **+6.42e-06** | **non-monotone** |
+| ours, total | 3.443019e-03 | 3.516287e-03 | 3.566521e-03 | +7.33e-05, +5.02e-05 | 0.545 |
+| CFL3D, viscous | 3.083082e-03 | 3.152801e-03 | 3.175491e-03 | +6.97e-05, +2.27e-05 | 1.620 |
+| CFL3D, pressure | 1.478772e-03 | 5.543436e-04 | 4.316468e-04 | −9.24e-04, −1.23e-04 | 2.914 |
+| CFL3D, total | 4.561854e-03 | 3.707144e-03 | 3.607137e-03 | −8.55e-04, −1.00e-04 | 3.095 |
+
+**Our viscous drag behaves; our pressure drag does not converge at all.** Its increments
+change sign. The total-drag order of 0.545 is a mixture artifact — a well-behaved p ≈ 1.1
+component plus a component with no order — and it is the reason the total looks monotone
+while the physics underneath is not. This is exactly the check the B-52 near-miss put on
+the record: a plausible-looking order on a monotone total can be hiding a component that
+is going the wrong way. Here the total passes the increment test and the pressure
+component fails it.
+
+CFL3D's pressure drag on the coarse grid is **3.7x ours** (1.479e-03 against 3.969e-04)
+and falls cleanly at p = 2.91 to 4.32e-04. Ours starts at 3.97e-04 and stays there.
+We are not resolving the same quantity on the coarse grid; we are landing near the
+converged answer for a reason that is not convergence.
+
+And the grid family is not geometrically similar, which a Richardson study assumes:
+
+| | coarse → medium | medium → fine |
+|---|---|---|
+| our first wall cell (fixed total expansion ratio 274,657, ny doubling) | ×0.5337 | ×0.5167 |
+| NASA's (every-other-point coarsenings of one 1409x641 grid) | ×0.4936 | — |
+
+Every spacing in NASA's family halves. Ours holds the expansion ratio fixed and doubles
+the count, so the wall-normal spacing scales by 0.52-0.53 while the streamwise spacing
+scales by exactly 0.5. There is no single *h* refining this family — the same defect the
+register already records against the motorBike ladder.
+
+### 10.5 The lab's own gate already refuses this ladder
+
+`uq.eca_hoekstra_band` on the bump triplet returns `conclusive: False`,
+`reportable_band` **None**, and `not_conclusive_reason` **"the extrapolation
+diverges"** — on the published ladder and on the matched one alike. The Richardson value
+lands 0.887 of the ladder's entire measured range beyond its finest rung, against a
+tolerance of 0.15. That is the B-52 extrapolation guard doing its job.
+
+One incidental finding worth having: that helper builds its representative size as
+h = (1/N)^(1/3), the 3D convention. On this 2D case, where doubling both directions
+quadruples N, that makes r21 = 4^(1/3) = 1.587 instead of the true 2, and it reports the
+observed order as **0.817** where the 2D calculation gives 0.545. The verdict is the same
+either way here, but the order it prints on any 2D ladder is overstated. Flagged, not
+edited — `sdk/chief_engineer/` is out of scope for this session.
+
+### 10.6 Did the ladder advance?
+
+No, and a fourth rung is still the wrong next move — but for a different and more
+specific reason than section 8 gave. It is not that the iterative error swamps
+everything; measured, it does not, past n ≈ 3,000. It is that the bump ladder has **three
+independent defects, none of which a fourth rung repairs**: a pressure-drag component
+with no observed order, a grid family with no single *h*, and three rungs that never
+converge. `agp-e5136061890b` was closed against this measurement rather than built on.
+
+**Newly open, and concrete enough to act on** (unlike section 9's "cause unidentified"):
+rebuild the bump family from NASA's own distributed grids, the way the NACA0012 case was
+already pivoted to NASA grids on 2026-07-26. Two of the three are now held in
+`models/tmr/bump/grids/`. That replaces all three defects at once — NASA's family is
+point-dropped from a single grid so it has one *h*, it clusters where the physics is, and
+its pressure drag converges at p = 2.91 in CFL3D's hands on those very grids.
+
+---
+
 ## Provenance
 
 Every number above is reproducible from `4G_runs/`:
@@ -436,6 +641,20 @@ Every number above is reproducible from `4G_runs/`:
 - `pyhyp/log.checkMesh.{coarse,refined}` — the generator cross-check
 - `bump_wake_variant/{blockMeshDict,log.checkMesh}` — the negative-result experiment's exact mesh
 - `probe_aspect_ratio.py` — the field-reading probe used for all location analysis
+
+Added by section 10 (2026-07-31):
+
+- `structured_grid_aspect_ratio.py` — checkMesh's 2D aspect ratio from PLOT3D node
+  coordinates; run it as a script and it re-validates itself against
+  `nasa/log.checkMesh.coarse` (20650841.436 vs 20650841.43)
+- `models/tmr/bump/grids/bump_{4levelsdown_89x41.p3dfmt,3levelsdown_177x81.p2dfmt}.gz` —
+  NASA TMR's own bump grids, tmbwg.github.io mirror, retrieved 2026-07-31. The 353x161 is
+  git-lfs-only on that mirror and did not come down.
+- `bump_iteration_matched/{coarse,medium,fine}/` — the 30,000-iteration re-runs behind the
+  matched-iteration table: `log.checkMesh` (which reproduces `bump/log.checkMesh.*`
+  exactly), `log.simpleFoam.gz`, and `coefficient.dat.gz` recording Cd at every iteration
+- `bump_iteration_matched/ladder.py` — regenerates the matched table and the drag split
+  from those files and from `demo-output/website/tmr/runs/bump-*/`
 
 Pre-existing evidence cited, not re-derived: `demo-output/website/tmr/runs/*/log.checkMesh`,
 `demo-output/website/tmr/{bump_sst,flatplate_sst}.json`,

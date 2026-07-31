@@ -5,7 +5,6 @@
   "host": "c7a.4xlarge, 16 vCPU",
   "openfoam": "OpenFOAM 2606 (native, /usr/bin/openfoam2606)",
   "status": "diagnosis complete; aspect ratio cleared as a solution defect; a separate, real bump convergence defect quantified and left open",
-
   "checkmesh_aspect_ratio_definition": {
     "source_file": "/usr/lib/openfoam/openfoam2606/src/OpenFOAM/meshes/primitiveMesh/primitiveMeshCheck/primitiveMeshTools.C",
     "function": "primitiveMeshTools::cellClosedness, lines ~705-727",
@@ -16,63 +15,204 @@
     "refuted_hypothesis": "the initial hypothesis that the huge numbers were an artifact of the unit spanwise thickness is WRONG and is recorded as refuted",
     "evidence": "checkMesh prints 'Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)' (flat plate, bump) and '(1 0 1)' (NACA); pyHyp meshes print '(1 1 1)', i.e. 3 directions"
   },
-
   "flat_plate": {
     "generator": "blockMesh, sdk/workflows/tmr_verification.py blockmesh_dict()",
     "geometry": "x -1/3..2, y 0..1, span z 0..1 one cell, frontAndBack empty",
     "note": "max-AR cell is ON the plate, in the first wall-normal cell near the trailing end",
     "rungs": [
-      {"tmr_nodes": "35x25",   "cells": 816,    "max_aspect_ratio": 74041.01706, "n_high_ar_cells": 146,   "loc_x": 1.83035, "loc_y": 2.29126e-06, "wall_distance": 2.291e-06, "max_non_orth_deg": 0.0, "max_skewness": 3.330669085e-15},
-      {"tmr_nodes": "69x49",   "cells": 3264,   "max_aspect_ratio": 69042.82289, "n_high_ar_cells": 549,   "loc_x": 1.91286, "loc_y": 1.26207e-06, "max_non_orth_deg": 0.0, "max_skewness": 8.004862337e-15},
-      {"tmr_nodes": "137x97",  "cells": 13056,  "max_aspect_ratio": 66642.53839, "n_high_ar_cells": 2151,  "loc_x": 1.95585, "loc_y": 6.62457e-07, "max_non_orth_deg": 0.0, "max_skewness": 2.063359435e-14},
-      {"tmr_nodes": "273x193", "cells": 52224,  "max_aspect_ratio": 65467.84834, "n_high_ar_cells": 8415,  "loc_x": 1.97778, "loc_y": 3.39386e-07, "new_this_session": true},
-      {"tmr_nodes": "545x385", "cells": 208896, "max_aspect_ratio": 64886.93622, "n_high_ar_cells": 33362, "loc_x": 1.98885, "loc_y": 1.71771e-07, "new_this_session": true}
+      {
+        "tmr_nodes": "35x25",
+        "cells": 816,
+        "max_aspect_ratio": 74041.01706,
+        "n_high_ar_cells": 146,
+        "loc_x": 1.83035,
+        "loc_y": 2.29126e-06,
+        "wall_distance": 2.291e-06,
+        "max_non_orth_deg": 0.0,
+        "max_skewness": 3.330669085e-15
+      },
+      {
+        "tmr_nodes": "69x49",
+        "cells": 3264,
+        "max_aspect_ratio": 69042.82289,
+        "n_high_ar_cells": 549,
+        "loc_x": 1.91286,
+        "loc_y": 1.26207e-06,
+        "max_non_orth_deg": 0.0,
+        "max_skewness": 8.004862337e-15
+      },
+      {
+        "tmr_nodes": "137x97",
+        "cells": 13056,
+        "max_aspect_ratio": 66642.53839,
+        "n_high_ar_cells": 2151,
+        "loc_x": 1.95585,
+        "loc_y": 6.62457e-07,
+        "max_non_orth_deg": 0.0,
+        "max_skewness": 2.063359435e-14
+      },
+      {
+        "tmr_nodes": "273x193",
+        "cells": 52224,
+        "max_aspect_ratio": 65467.84834,
+        "n_high_ar_cells": 8415,
+        "loc_x": 1.97778,
+        "loc_y": 3.39386e-07,
+        "new_this_session": true
+      },
+      {
+        "tmr_nodes": "545x385",
+        "cells": 208896,
+        "max_aspect_ratio": 64886.93622,
+        "n_high_ar_cells": 33362,
+        "loc_x": 1.98885,
+        "loc_y": 1.71771e-07,
+        "new_this_session": true
+      }
     ],
     "trend": "monotonically DECREASING under refinement, 74041 -> 64887, converging to ~64500",
-    "fraction_cells_above_1e4": [0.044, 0.036, 0.032, 0.030, 0.029],
+    "fraction_cells_above_1e4": [
+      0.044,
+      0.036,
+      0.032,
+      0.03,
+      0.029
+    ],
     "verdict": "healthy: aspect ratio improves under refinement and the solution agrees with CFL3D to +0.2931% on the matched grid",
     "logs": "demo-output/website/campaign/4G_runs/flatplate/log.checkMesh.*"
   },
-
   "bump_in_channel": {
     "generator": "blockMesh, tmr_verification.py bump_blockmesh_dict()",
     "geometry": "x -25..26.5 (bump wall only x 0..1.5), y 0..5, span z 0..1 one cell, frontAndBack empty",
     "key_finding": "the max-AR cells are NOT on the viscous wall; they sit on the upstream/downstream SYMMETRY-plane extensions 20-25 units from the bump, in undisturbed flow",
     "rungs": [
-      {"tmr_nodes": "89x41",   "cells": 3520,   "max_aspect_ratio": 2136801.242, "n_high_ar_cells": 494,   "loc_x": 21.158, "loc_y": 2.5e-06,     "wall_distance": 19.67, "max_non_orth_deg": 12.7657156},
-      {"tmr_nodes": "177x81",  "cells": 14080,  "max_aspect_ratio": 2192932.91,  "n_high_ar_cells": 1976,  "loc_x": 23.5738, "loc_y": 1.33436e-06, "wall_distance": 22.08, "max_non_orth_deg": 12.92278063},
-      {"tmr_nodes": "353x161", "cells": 56320,  "max_aspect_ratio": 2218683.129, "n_high_ar_cells": 7800,  "loc_x": 24.9704, "loc_y": 6.89415e-07, "wall_distance": 23.47, "max_non_orth_deg": 13.47944835},
-      {"tmr_nodes": "705x321", "cells": 225280, "max_aspect_ratio": 2230928.97,  "n_high_ar_cells": 30976, "max_non_orth_deg": 14.08059396, "source": "demo-output/website/tmr/runs/finer/log.checkMesh (meshed, never solved)"}
+      {
+        "tmr_nodes": "89x41",
+        "cells": 3520,
+        "max_aspect_ratio": 2136801.242,
+        "n_high_ar_cells": 494,
+        "loc_x": 21.158,
+        "loc_y": 2.5e-06,
+        "wall_distance": 19.67,
+        "max_non_orth_deg": 12.7657156
+      },
+      {
+        "tmr_nodes": "177x81",
+        "cells": 14080,
+        "max_aspect_ratio": 2192932.91,
+        "n_high_ar_cells": 1976,
+        "loc_x": 23.5738,
+        "loc_y": 1.33436e-06,
+        "wall_distance": 22.08,
+        "max_non_orth_deg": 12.92278063
+      },
+      {
+        "tmr_nodes": "353x161",
+        "cells": 56320,
+        "max_aspect_ratio": 2218683.129,
+        "n_high_ar_cells": 7800,
+        "loc_x": 24.9704,
+        "loc_y": 6.89415e-07,
+        "wall_distance": 23.47,
+        "max_non_orth_deg": 13.47944835
+      },
+      {
+        "tmr_nodes": "705x321",
+        "cells": 225280,
+        "max_aspect_ratio": 2230928.97,
+        "n_high_ar_cells": 30976,
+        "max_non_orth_deg": 14.08059396,
+        "source": "demo-output/website/tmr/runs/finer/log.checkMesh (meshed, never solved)"
+      }
     ],
     "trend": "increasing but CONVERGING: deltas +56132, +25750, +12246 -- halving each step, asymptote ~2.24e6",
-    "max_ar_in_bump_wall_band_x_0_to_1.5": {"coarse": 4714.0, "medium": 4416.0, "fine": 4273.6, "trend": "IMPROVES under refinement, opposite to the global maximum"},
+    "max_ar_in_bump_wall_band_x_0_to_1.5": {
+      "coarse": 4714.0,
+      "medium": 4416.0,
+      "fine": 4273.6,
+      "trend": "IMPROVES under refinement, opposite to the global maximum"
+    },
     "verdict": "the global maximum is a far-field artifact in uniform flow; the physically meaningful wall band tops out at 4714 and gets BETTER with refinement (4714 -> 4416 -> 4274) while the global maximum gets worse -- the two numbers move in opposite directions, which is why only the global one looks alarming",
     "logs": "demo-output/website/campaign/4G_runs/bump/log.checkMesh.*"
   },
-
   "nasa_tmr_reference_grids": {
     "what": "NASA Langley TMR's OWN distributed NACA0012 C-grids, the grids CFL3D and FUN3D use to produce the reference results this ladder is graded against",
     "source_files": "models/tmr/naca0012/grids/n0012_{113-33,225-65,449-129}.p3dfmt",
     "pipeline": "plot3dToFoam -noBlank; autoPatch 80 -overwrite; span patches set to empty; checkMesh -allGeometry",
     "farfield_extent_chords": 568.7,
     "rungs": [
-      {"nodes": "113x33",  "cells": 3584,  "max_aspect_ratio": 20650841.43, "n_high_ar_cells": 454,  "radius_of_worst_cell_chords": 414.4, "max_ar_within_1_chord": 87.6,   "max_ar_within_1.5_chords": 22671.4, "max_ar_within_2_chords": 34846.4, "small_determinant_cells": 1002,  "max_non_orth_deg": 85.69872592, "failed_mesh_checks": 4},
-      {"nodes": "225x65",  "cells": 14336, "max_aspect_ratio": 26446226.94, "n_high_ar_cells": 1822, "radius_of_worst_cell_chords": 453.1, "max_ar_within_1_chord": 241.1,  "max_ar_within_1.5_chords": 29293.1, "max_ar_within_2_chords": 55549.9, "small_determinant_cells": 4004,  "max_non_orth_deg": 77.44174221},
-      {"nodes": "449x129", "cells": 57344, "max_aspect_ratio": 29899837.32, "n_high_ar_cells": 7320, "radius_of_worst_cell_chords": 475.8, "max_ar_within_1_chord": 2555.5, "max_ar_within_1.5_chords": 29867.6, "max_ar_within_2_chords": 62909.2, "small_determinant_cells": 15906, "new_this_session": true}
+      {
+        "nodes": "113x33",
+        "cells": 3584,
+        "max_aspect_ratio": 20650841.43,
+        "n_high_ar_cells": 454,
+        "radius_of_worst_cell_chords": 414.4,
+        "max_ar_within_1_chord": 87.6,
+        "max_ar_within_1.5_chords": 22671.4,
+        "max_ar_within_2_chords": 34846.4,
+        "small_determinant_cells": 1002,
+        "max_non_orth_deg": 85.69872592,
+        "failed_mesh_checks": 4
+      },
+      {
+        "nodes": "225x65",
+        "cells": 14336,
+        "max_aspect_ratio": 26446226.94,
+        "n_high_ar_cells": 1822,
+        "radius_of_worst_cell_chords": 453.1,
+        "max_ar_within_1_chord": 241.1,
+        "max_ar_within_1.5_chords": 29293.1,
+        "max_ar_within_2_chords": 55549.9,
+        "small_determinant_cells": 4004,
+        "max_non_orth_deg": 77.44174221
+      },
+      {
+        "nodes": "449x129",
+        "cells": 57344,
+        "max_aspect_ratio": 29899837.32,
+        "n_high_ar_cells": 7320,
+        "radius_of_worst_cell_chords": 475.8,
+        "max_ar_within_1_chord": 2555.5,
+        "max_ar_within_1.5_chords": 29867.6,
+        "max_ar_within_2_chords": 62909.2,
+        "small_determinant_cells": 15906,
+        "new_this_session": true
+      }
     ],
     "reproduction_check": "the 113x33 and 225x65 values reproduce the already-recorded 20650841.43 and 26446226.94 EXACTLY (demo-output/website/tmr/runs/naca-a0-coarse/log.checkMesh, naca-a10-medium/log.checkMesh), confirming the pipeline is faithful",
     "headline": "aspect ratio WORSENS monotonically under refinement on NASA's OWN reference grids: 20.65M -> 26.45M -> 29.90M",
-    "radius_distribution_113x33": {"AR>1e3": "454 cells, r 1.02..414", "AR>1e6": "52 cells, r >= 22.1", "AR>1e7": "6 cells, r 271..414"},
+    "radius_distribution_113x33": {
+      "AR>1e3": "454 cells, r 1.02..414",
+      "AR>1e6": "52 cells, r >= 22.1",
+      "AR>1e7": "6 cells, r 271..414"
+    },
     "verdict": "NASA's reference-grade grids fail OpenFOAM's aspect-ratio check by 20-30 MILLION, entirely in the far field / wake cut; within 1 chord of the airfoil the coarse grid's max AR is 87.6",
     "logs": "demo-output/website/campaign/4G_runs/nasa/log.checkMesh.*"
   },
-
   "pyhyp_generator_finding_crosscheck": {
     "claim_under_test": "demo-output/website/dafoam/GENERATOR_FINDING_pyhyp_aspect_ratio.md: max AR worsens 97.9 -> 167.5 under refinement",
     "reproduced": true,
     "measured": [
-      {"mesh": "work/NACA0012_Airfoil_Incompressible", "cells": 4032, "max_aspect_ratio": 97.87218721638968, "loc_x": 1.0, "location": "blunt trailing edge", "le_band_max_ar": 32.60, "te_band_max_ar": 97.87, "checkmesh_verdict": "OK"},
-      {"mesh": "work_refined/NACA0012_Airfoil_Incompressible_refined", "cells": 14720, "max_aspect_ratio": 167.4971796573039, "loc_x": 0.9988, "location": "blunt trailing edge", "le_band_max_ar": 62.99, "te_band_max_ar": 167.50, "checkmesh_verdict": "OK"}
+      {
+        "mesh": "work/NACA0012_Airfoil_Incompressible",
+        "cells": 4032,
+        "max_aspect_ratio": 97.87218721638968,
+        "loc_x": 1.0,
+        "location": "blunt trailing edge",
+        "le_band_max_ar": 32.6,
+        "te_band_max_ar": 97.87,
+        "checkmesh_verdict": "OK"
+      },
+      {
+        "mesh": "work_refined/NACA0012_Airfoil_Incompressible_refined",
+        "cells": 14720,
+        "max_aspect_ratio": 167.4971796573039,
+        "loc_x": 0.9988,
+        "location": "blunt trailing edge",
+        "le_band_max_ar": 62.99,
+        "te_band_max_ar": 167.5,
+        "checkmesh_verdict": "OK"
+      }
     ],
     "geometric_directions": "3 (1 1 1) -- these are one-cell-thick 3D meshes, NOT empty-patched 2D",
     "formula_branch_differs": "because nDims==3, the pyHyp numbers use the volume-based branch and include the span direction; they are NOT computed the same way as the 2D TMR numbers and are not directly comparable",
@@ -90,23 +230,45 @@
     "generator_fix_attempted": false,
     "generator_fix_blocked_because": "pyHyp is not installed on this host (python3 -c 'import pyhyp' -> ModuleNotFoundError), so the epsE/epsI/volSmoothIter scaling ablation the finding proposes could not be run; and it is not load-bearing for the TMR ladder, whose meshes pyHyp does not build"
   },
-
   "bump_convergence_defect": {
     "relation_to_aspect_ratio": "investigated as a candidate cause and REFUTED by direct experiment (see wake_refinement_experiment)",
     "register_entry": "demo-output/website/campaign/NOT_PASSING_REGISTER.md lines 546-553",
     "confirmed_from_logs": "none of the three rungs prints 'SIMPLE solution converged'; all stop at their iteration cap (4000/6000/9000)",
-    "bump_fine_final_residuals": {"Ux": 2.043759648e-06, "Ux_target": 1e-08, "k": 4.175852899e-06, "k_target": 1e-08, "p": 3.669607508e-07, "p_target": 1e-06, "p_target_met": true},
+    "bump_fine_final_residuals": {
+      "Ux": 2.043759648e-06,
+      "Ux_target": 1e-08,
+      "k": 4.175852899e-06,
+      "k_target": 1e-08,
+      "p": 3.669607508e-07,
+      "p_target": 1e-06,
+      "p_target_met": true
+    },
     "residual_localisation_bump_coarse_t4000": {
       "method": "solverInfo function object, writeResidualFields yes, on a faithful local rebuild of bump-coarse",
-      "max_Ux_residual_at": {"x": 2.687, "y": 2.5e-06, "aspect_ratio": 132200.0},
-      "fraction_of_summed_abs_residual_outside_bump_region": {"Ux": 0.814, "k": 0.722, "omega": 0.798, "p": 0.599},
+      "max_Ux_residual_at": {
+        "x": 2.687,
+        "y": 2.5e-06,
+        "aspect_ratio": 132200.0
+      },
+      "fraction_of_summed_abs_residual_outside_bump_region": {
+        "Ux": 0.814,
+        "k": 0.722,
+        "omega": 0.798,
+        "p": 0.599
+      },
       "note": "the three fields that MISS their target (Ux, k, omega) concentrate their residual in the high-AR near-wake band x 1.9-5.2; p, which MEETS its target, has its own maximum on ordinary cells of AR 19-51"
     },
     "is_it_just_a_short_budget": "NO",
     "extended_run": {
       "case": "faithful local rebuild of bump-coarse, run to 30000 iterations",
-      "Ux_residual": {"at_4000": 5.269609699e-06, "at_30000": 1.230682024e-06},
-      "k_residual": {"at_4000": 3.980098904e-06, "at_30000": 6.650746463e-07},
+      "Ux_residual": {
+        "at_4000": 5.269609699e-06,
+        "at_30000": 1.230682024e-06
+      },
+      "k_residual": {
+        "at_4000": 3.980098904e-06,
+        "at_30000": 6.650746463e-07
+      },
       "still_descending": true,
       "converged": false,
       "extrapolated_iterations_to_reach_1e-8": "~2.5e7, i.e. ~830x more than 30000 -- infeasible",
@@ -123,32 +285,67 @@
       "why_this_matters": "the cd_tail_spread metric used to certify the ladder (5.3e-8 on this rung) is ~4000x smaller than the actual accumulated drift and therefore badly understates the convergence error; the published bump Cd values carry an un-quantified convergence error of at least this order, and the drift direction (downward) would WORSEN, not improve, the fine rung's already-negative -1.126% deviation vs CFL3D"
     }
   },
-
   "wake_refinement_experiment": {
     "purpose": "test whether the extreme near-wake aspect ratio CAUSES the bump's residual stall, rather than merely co-locating with it",
     "what_changed_and_why": "ONE variable: the downstream block's streamwise cell count nx_down 12 -> 48, with the total expansion ratio recomputed (455.85 -> 100.58) so the FIRST downstream cell is byte-identical at 0.0234375. Nothing else touched: same wall spacing, same y-grading, same upstream block, same schemes, same relaxation. Chosen because the residual is concentrated in exactly this block.",
-    "cells": {"original": 3520, "variant": 4960},
+    "cells": {
+      "original": 3520,
+      "variant": 4960
+    },
     "aspect_ratio_by_band": {
-      "upstream_far_x_lt_-5":  {"original": 2136801.0, "variant": 2136801.0, "ratio": 1.00},
-      "bump_wall_0_to_1.5":    {"original": 4714.0,    "variant": 4714.0,    "ratio": 1.00},
-      "near_wake_1.5_to_10":   {"original": 702000.0,  "variant": 160200.0,  "ratio": 0.23},
-      "far_wake_x_gt_10":      {"original": 2136801.0, "variant": 471500.0,  "ratio": 0.22}
+      "upstream_far_x_lt_-5": {
+        "original": 2136801.0,
+        "variant": 2136801.0,
+        "ratio": 1.0
+      },
+      "bump_wall_0_to_1.5": {
+        "original": 4714.0,
+        "variant": 4714.0,
+        "ratio": 1.0
+      },
+      "near_wake_1.5_to_10": {
+        "original": 702000.0,
+        "variant": 160200.0,
+        "ratio": 0.23
+      },
+      "far_wake_x_gt_10": {
+        "original": 2136801.0,
+        "variant": 471500.0,
+        "ratio": 0.22
+      }
     },
     "residuals_at_matched_iterations": {
-      "iter_9000":  {"orig_Ux": 3.009e-06, "variant_Ux": 4.061e-06, "orig_k": 1.879e-06, "variant_k": 2.068e-06},
-      "iter_9800":  {"orig_Ux": 2.826e-06, "variant_Ux": 3.817e-06, "orig_k": 1.731e-06, "variant_k": 1.915e-06},
-      "iter_30000": {"orig_Ux": 1.230682024e-06, "variant_Ux": 1.606e-06, "orig_k": 6.650746463e-07, "variant_k": 8.702e-07}
+      "iter_9000": {
+        "orig_Ux": 3.009e-06,
+        "variant_Ux": 4.061e-06,
+        "orig_k": 1.879e-06,
+        "variant_k": 2.068e-06
+      },
+      "iter_9800": {
+        "orig_Ux": 2.826e-06,
+        "variant_Ux": 3.817e-06,
+        "orig_k": 1.731e-06,
+        "variant_k": 1.915e-06
+      },
+      "iter_30000": {
+        "orig_Ux": 1.230682024e-06,
+        "variant_Ux": 1.606e-06,
+        "orig_k": 6.650746463e-07,
+        "variant_k": 8.702e-07
+      }
     },
     "both_run_to_30000": true,
     "neither_converged": true,
-    "cd_drift_4000_to_30000_percent": {"original": -0.19656, "variant": -0.20656},
+    "cd_drift_4000_to_30000_percent": {
+      "original": -0.19656,
+      "variant": -0.20656
+    },
     "cd_sensitivity_to_downstream_resolution_at_30000_percent": 0.06507,
     "result": "NEGATIVE",
     "verdict": "cutting near-wake aspect ratio by 4.4x did NOT accelerate convergence -- the variant is SLOWER at every matched iteration including 30000 (Ux 1.606e-06 vs 1.231e-06) -- and did NOT reduce the Cd drift (-0.207% vs -0.197%, essentially identical). The spatial coincidence between the stalled residual and the high-AR cells is therefore NOT evidence of causation: the residual lives there because that is where the wake is developing, not because the cells are stretched. Aspect ratio is cleared as the cause of BOTH the bump convergence stall and the Cd drift.",
     "separate_minor_finding": "downstream streamwise resolution does have a small real effect on Cd, +0.065% at 30000 iterations -- about a third of the convergence drift, and a genuine (small) grid sensitivity of the bump ladder that is not currently accounted for",
     "cause_of_bump_stall": "still unidentified -- left open, not guessed at"
   },
-
   "answers": {
     "what_is_the_aspect_ratio_problem": "checkMesh's aspect-ratio check (advisory threshold 1000) fires on every TMR mesh in the ladder. The reported number is genuine in-plane cell stretching, not a spanwise artifact. It is the geometrically necessary price of holding y+<1 at the wall while the domain extends 25 units (bump) or 500 chords (NACA) away.",
     "which_cases": "all of them, at very different magnitudes: flat plate 6.5e4, bump 2.2e6, NASA NACA grids 2-3e7",
@@ -158,11 +355,294 @@
     "does_it_explain_the_gradient_defect": "No new evidence for a link. The existing null result (PROOF.md 19.2) stands, and this session adds an independent reason to doubt the link: the refinement-worsening signature is exhibited by NASA's own reference grids, so it is not anomalous enough to discriminate anything.",
     "did_the_ladder_advance": "No new rung was solved. Bump-in-channel was already measured on three rungs before this session; what this session found is that those three rungs are NOT converged and carry a measured -0.197% drift, which is a repair job, not a new rung. Two new flat-plate mesh rungs (52224, 208896 cells) and one new NASA grid conversion (449x129) were measured for mesh metrics only, no solve."
   },
-
   "open_items": [
     "the bump-in-channel convergence stall: real, quantified (-0.197% Cd drift, residuals 200-400x over target, not budget-limited), cause unidentified, aspect ratio ruled out",
     "the published bump Cd numbers in demo-output/website/tmr/bump_sst.json and the wall.json research card carry an un-quantified convergence error and should not be quoted as a clean 1.1% agreement until repaired",
     "the pyHyp epsE/epsI/volSmoothIter scaling ablation proposed by the generator finding remains unrun (pyHyp not installed on this host)",
     "docs/standards/MESH_STANDARD.md 3.3 calibrates the aspect-ratio advisory against the flat-plate numbers (74041 max) only; it does not cover the bump (2.2e6) or the NASA reference grids (2-3e7), and says nothing about the 2D/3D formula-branch difference that makes those numbers non-comparable"
-  ]
+  ],
+  "followup_2026_07_31": {
+    "what": "NASA's own bump grids fetched and measured; the bump ladder recomputed at matched iteration counts; the drag split into pressure and viscous parts.",
+    "correction_to_section_4": "section 4 concluded that a huge, refinement-worsening max aspect ratio is a normal property of a wall-resolved family with a fixed farfield extent. That holds for NASA's NACA0012 C-grid (worst cells 271-476 chords out in a 569-chord wake cut). It does NOT hold for the bump: NASA's own bump grids at our exact rung sizes carry ZERO cells above aspect ratio 1e5, worst cell ON the viscous wall. The 2.1e6 is ours.",
+    "aspect_ratio_verdict": "not pathological as a solution defect and not the cause of the bump result, but a real defect of our generator rather than a family property. Inside the viscous wall band our grid (4714/4416/4274, improving under refinement) matches NASA's own (4844/5210). The 2.1e6 lives in uniform undisturbed flow 20-25 units from any wall, and section 7 already showed cutting it 4.4x changes neither convergence nor drift.",
+    "measurement_method": "4G_runs/structured_grid_aspect_ratio.py, checkMesh's own 2D branch computed from node coordinates, validated against checkMesh on NASA's NACA0012 113x33: 20650841.436 vs the recorded 20650841.43, ratio 1.000000. Our own three bump meshes were regenerated and reproduce 2136801.242 / 2192932.91 / 2218683.129 exactly.",
+    "nasa_own_bump_grids": {
+      "89x41": {
+        "nodes": "89x41",
+        "cells": 3520,
+        "max_aspect_ratio": 4844.5,
+        "worst_cell_x": 0.2579,
+        "worst_cell_y": 4.07e-06,
+        "worst_cell_is_on_the_viscous_wall": true,
+        "max_ar_in_bump_wall_band_x_0_to_1p5": 4844.5,
+        "cells_above_ar_1e5": 0,
+        "cells_above_ar_1e6": 0,
+        "first_wall_normal_spacing": 8.0576e-06,
+        "cells_on_viscous_wall": 40
+      },
+      "177x81": {
+        "nodes": "177x81",
+        "cells": 14080,
+        "max_aspect_ratio": 5210.2,
+        "worst_cell_x": 1.2119,
+        "worst_cell_y": 2.009e-06,
+        "worst_cell_is_on_the_viscous_wall": true,
+        "max_ar_in_bump_wall_band_x_0_to_1p5": 5210.2,
+        "cells_above_ar_1e5": 0,
+        "cells_above_ar_1e6": 0,
+        "first_wall_normal_spacing": 3.9769e-06,
+        "cells_on_viscous_wall": 80
+      }
+    },
+    "our_bump_family": {
+      "rungs": [
+        {
+          "level": "coarse",
+          "ny": 40,
+          "first_wall_cell": 5e-06,
+          "cells_on_viscous_wall": 64,
+          "cells_in_the_two_50_unit_extensions": 24
+        },
+        {
+          "level": "medium",
+          "ny": 80,
+          "first_wall_cell": 2.6687e-06,
+          "cells_on_viscous_wall": 128,
+          "cells_in_the_two_50_unit_extensions": 48,
+          "wall_cell_ratio_to_previous": 0.5337
+        },
+        {
+          "level": "fine",
+          "ny": 160,
+          "first_wall_cell": 1.3788e-06,
+          "cells_on_viscous_wall": 256,
+          "cells_in_the_two_50_unit_extensions": 96,
+          "wall_cell_ratio_to_previous": 0.5167
+        }
+      ],
+      "fixed_total_expansion_ratio": 274657.1
+    },
+    "iteration_matched_ladder": [
+      {
+        "matched_iterations": 500,
+        "cd": [
+          0.003453772702,
+          0.003548831631,
+          0.004162530633
+        ],
+        "observed_order": -2.6906,
+        "gci_fine_pct": -21.807,
+        "richardson_above_fine_pct": -17.446
+      },
+      {
+        "matched_iterations": 1000,
+        "cd": [
+          0.003446886096,
+          0.003524380627,
+          0.003770436868
+        ],
+        "observed_order": -1.6668,
+        "gci_fine_pct": -11.908,
+        "richardson_above_fine_pct": -9.526
+      },
+      {
+        "matched_iterations": 2000,
+        "cd": [
+          0.003445925346,
+          0.003521267525,
+          0.003596737837
+        ],
+        "observed_order": -0.0025,
+        "gci_fine_pct": -1544.871,
+        "richardson_above_fine_pct": -1235.897
+      },
+      {
+        "matched_iterations": 3000,
+        "cd": [
+          0.003444277884,
+          0.003519467903,
+          0.00357483254
+        ],
+        "observed_order": 0.4416,
+        "gci_fine_pct": 5.406,
+        "richardson_above_fine_pct": 4.325
+      },
+      {
+        "matched_iterations": 4000,
+        "cd": [
+          0.003443048921,
+          0.003518155483,
+          0.003570873784
+        ],
+        "observed_order": 0.5106,
+        "gci_fine_pct": 4.345,
+        "richardson_above_fine_pct": 3.476
+      },
+      {
+        "matched_iterations": 5000,
+        "cd": [
+          0.00344207368,
+          0.003517120515,
+          0.003569516197
+        ],
+        "observed_order": 0.5183,
+        "gci_fine_pct": 4.244,
+        "richardson_above_fine_pct": 3.395
+      },
+      {
+        "matched_iterations": 6000,
+        "cd": [
+          0.003441277924,
+          0.003516262762,
+          0.003568586673
+        ],
+        "observed_order": 0.5191,
+        "gci_fine_pct": 4.232,
+        "richardson_above_fine_pct": 3.386
+      },
+      {
+        "matched_iterations": 7000,
+        "cd": [
+          0.003440615219,
+          0.003515521173,
+          0.003567806381
+        ],
+        "observed_order": 0.5187,
+        "gci_fine_pct": 4.234,
+        "richardson_above_fine_pct": 3.387
+      },
+      {
+        "matched_iterations": 8000,
+        "cd": [
+          0.003440052622,
+          0.003514863974,
+          0.003567125118
+        ],
+        "observed_order": 0.5175,
+        "gci_fine_pct": 4.244,
+        "richardson_above_fine_pct": 3.395
+      },
+      {
+        "matched_iterations": 9000,
+        "cd": [
+          0.003439572,
+          0.003514279551,
+          0.003566520748
+        ],
+        "observed_order": 0.5161,
+        "gci_fine_pct": 4.258,
+        "richardson_above_fine_pct": 3.406
+      }
+    ],
+    "as_published_unmatched_caps": {
+      "caps": [
+        4000,
+        6000,
+        9000
+      ],
+      "observed_order": 0.5446,
+      "gci_fine_pct": 3.839
+    },
+    "drag_decomposition": {
+      "ours": {
+        "total": {
+          "ladder": [
+            0.003443019,
+            0.003516287,
+            0.003566521
+          ],
+          "increments": [
+            7.3269e-05,
+            5.0233e-05
+          ],
+          "monotone": true,
+          "observed_order": 0.5446
+        },
+        "viscous": {
+          "ladder": [
+            0.003046138,
+            0.003139451,
+            0.003183268
+          ],
+          "increments": [
+            9.3313e-05,
+            4.3817e-05
+          ],
+          "monotone": true,
+          "observed_order": 1.0906
+        },
+        "pressure": {
+          "ladder": [
+            0.0003968809,
+            0.0003768365,
+            0.0003832532
+          ],
+          "increments": [
+            -2.0044e-05,
+            6.4167e-06
+          ],
+          "monotone": false
+        }
+      },
+      "cfl3d": {
+        "total": {
+          "ladder": [
+            0.004561854,
+            0.003707144,
+            0.003607137
+          ],
+          "increments": [
+            -0.00085471,
+            -0.00010001
+          ],
+          "monotone": true,
+          "observed_order": 3.0953
+        },
+        "viscous": {
+          "ladder": [
+            0.003083082,
+            0.003152801,
+            0.003175491
+          ],
+          "increments": [
+            6.9719e-05,
+            2.269e-05
+          ],
+          "monotone": true,
+          "observed_order": 1.6195
+        },
+        "pressure": {
+          "ladder": [
+            0.001478772,
+            0.0005543436,
+            0.0004316468
+          ],
+          "increments": [
+            -0.00092443,
+            -0.0001227
+          ],
+          "monotone": true,
+          "observed_order": 2.9135
+        }
+      }
+    },
+    "iterative_error_verdict": "does NOT swamp the discretization increments past n ~ 3000: p is stable at 0.511-0.519 across n = 3000..9000 matched. Below n = 3000 the ladder is worthless (p negative; at n = 2000 the increments cross and GCI reads -1545%). The published 0.5446 / 3.839% come from UNMATCHED caps 4000/6000/9000; matched at the same fine cap of 9000 the ladder reads p = 0.516, GCI 4.26%.",
+    "power_law_extrapolation_is_not_identifiable": "fitting Cd(n) = Cd_inf + A n^-q to the coarse trajectory over [1000,4000] predicts Cd(30000) to +0.027% but Cd_inf 1.9% low. The trajectory extrapolates; the limit does not.",
+    "why_p_is_0p52": "a mixture artifact. Our viscous drag converges monotonically at p = 1.091; our pressure drag is NON-MONOTONE (increments -2.00e-05 then +6.42e-06) and has no observed order. CFL3D's pressure drag on the same grids converges at p = 2.914 from 3.7x our coarse-grid value. Compounding it, the family is not geometrically similar: our first wall cell scales x0.5337 then x0.5167 while every spacing in NASA's point-dropped family halves exactly, so there is no single h.",
+    "uq_gate": {
+      "helper": "sdk/chief_engineer/uq.eca_hoekstra_band",
+      "conclusive": false,
+      "reportable_band": null,
+      "not_conclusive_reason": "the extrapolation diverges",
+      "detail": "Richardson lands 0.887 of the ladder's whole measured range beyond its finest rung against a 0.15 tolerance; fires on the published and the matched ladder alike.",
+      "incidental_finding": "the helper builds h = (1/N)^(1/3), the 3D convention. On this 2D case r21 becomes 4^(1/3) = 1.587 instead of 2, so it reports the observed order as 0.817 where the 2D calculation gives 0.545. Verdict unchanged here; the order it prints on any 2D ladder is overstated. Flagged, not edited."
+    },
+    "ladder_advanced": false,
+    "proposal": {
+      "id": "agp-e5136061890b",
+      "closed": "done",
+      "see": "demo-output/website/agenda/docket.json"
+    },
+    "next_step_now_concrete": "rebuild the bump family from NASA's own distributed grids (two of three now held at models/tmr/bump/grids/), as the NACA0012 case was already pivoted on 2026-07-26. One h, clustering where the physics is, and a pressure drag that converges at p = 2.91 in CFL3D's hands on those very grids."
+  }
 }
