@@ -1108,7 +1108,10 @@ def main(request: str | None = None, params: dict | None = None,
                headers=("Route", "Primal solves", "Core-minutes"),
                rows=_cost_rows(),
                table_id="cost-adjoint-optimization")
-    _narrate(script.engineer,
+    # ITEM 3 (owner, 2026-07-31): the Chief Researcher says this, not the
+    # Chief Engineer. It is the standing claim the method rests on rather than
+    # a report of what this run did, and the researcher owns the framing.
+    _narrate(script.researcher,
             f"One adjoint solve buys the whole gradient.",
             f"The gap widens with every design variable added.")
 
