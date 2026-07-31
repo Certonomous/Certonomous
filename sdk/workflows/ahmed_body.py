@@ -34,14 +34,22 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 lab_report, per, validate_against_reference)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 
-from .geometry_study import (GEOMETRY_DIR, MAX_NON_ORTHOGONALITY, MAX_SKEWNESS,
+from .geometry_study import (ASSUMED_TAG, GEOMETRY_DIR, MAX_NON_ORTHOGONALITY,
+                             MAX_SKEWNESS, REGIME_TAG, SETTLED_BAND_FRACTION,
+                             STATED_TAG, YPLUS_LOG_LAW_HI, YPLUS_LOG_LAW_LO,
                              _build_unfamiliar_case, _curriculum, _emit_table,
-                             _ladder_rows, _run_refinement_ladder, case_workers,
-                             certificate_channels, display_verdict,
-                             format_duration, mesh_caveat_lines, mesh_validity,
-                             pressure_slice_entry, retry_mesh_quality,
-                             surface_acceptance)
+                             _ladder_rows, _run_refinement_ladder,
+                             assumed_condition_rows, case_workers,
+                             certificate_channels, compressibility_line,
+                             cp_range_rows, display_verdict, format_duration,
+                             mesh_caveat_lines, mesh_validity,
+                             painted_field_meta, pressure_slice_entry,
+                             reference_area_row, retry_mesh_quality,
+                             settling_check, settling_commitment,
+                             surface_acceptance, wall_resolution,
+                             wall_resolution_note, wall_resolution_rows)
 from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
+from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
 
 SURFACE = "ahmed_25.stl"
 LABEL = "ahmed_25"
@@ -186,9 +194,18 @@ def main(request: str | None = None, params: dict | None = None,
     surface, label, slant, refusal = identify_configuration(params.get("surface"))
     params["surface"] = surface
     shown = display_name(label)
+    # Where the freestream came from, decided BEFORE any hint fills a gap. On
+    # this body it is normally the regime tag: the request states no speed and
+    # the reference sets one that puts the solve at the published Reynolds
+    # number, which is a different thing from an arbitrary default.
+    speed_stated = ("velocity" in params) or ("reynolds" in params)
     reference, hints = _curriculum(label)
     for key, value in hints.items():
         params.setdefault(key, value)
+    regime_speed = (not speed_stated
+                    and ("velocity" in hints or "reynolds" in hints))
+    speed_basis = (STATED_TAG if speed_stated
+                   else REGIME_TAG if regime_speed else ASSUMED_TAG)
     tolerance = float((reference or {}).get("tolerance", GATE_TOLERANCE))
     asked = stated_slant(request)
     # The angle in every label comes from the measurement, never from the
@@ -235,12 +252,15 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(
         f"• Hypothesis: a quality-gated steady RANS solve lands inside the "
         f"published band of {GATE_SOURCE}. "
-        f"• Falsifier: the mesh misses a gate, the force never settles, or "
-        f"the drag lands outside the band. "
+        f"• Falsifier: the mesh misses a gate, the settled band on C_d is not "
+        f"{settling_commitment()}, or the drag lands outside the band. "
         f"• The wake here sits on the edge of reattachment, which is what "
         f"makes this the harder angle.")
     # What this run commits to, as a table: the published value it will be
-    # graded against, the band, and the configuration those belong to.
+    # graded against, the band, the configuration those belong to, and the two
+    # gates that are numbers rather than adjectives. The settling gate is
+    # pre-registered here and judged below; the iteration budget is the cap on
+    # the search for that state, never the commitment itself.
     _emit_table(emit, script, role=_CE_ROLE,
                 title="What this run is graded against",
                 headers=("Commitment", "Value"),
@@ -248,6 +268,10 @@ def main(request: str | None = None, params: dict | None = None,
                       ["Published C_d",
                        f"{float((reference or {}).get('cd', 0.285)):g}"],
                       ["Acceptance band", f"±{tolerance * 100:.0f}%"],
+                      ["Near-wall y+ band",
+                       f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f}"],
+                      ["Settled band on C_d", settling_commitment()],
+                      ["Iteration cap", f"{iterations}"],
                       ["Source", GATE_SOURCE]],
                 table_id=f"gate-plan-act7-{label}")
     script.numericist(
@@ -316,16 +340,33 @@ def main(request: str | None = None, params: dict | None = None,
         if report.get("frontal_area"):
             body_rows.append(["Frontal area",
                               f"{report['frontal_area']:.3g} m²"])
-        if case_reference.get("velocity"):
-            body_rows.append(["Freestream",
-                              f"{case_reference['velocity']:g} m/s"])
-        if case_reference.get("reynolds"):
-            body_rows.append(["Reynolds number",
-                              f"{case_reference['reynolds']:.1e}"])
+        # Which of the two silhouettes divides the force. This body is graded
+        # against a published value quoted on the other one, so the area the
+        # solver used has to be on the record before the rebasing below can be
+        # read as anything but a fudge.
+        area_row = reference_area_row(engineer, report)
+        if area_row:
+            body_rows.append(area_row)
+        # The freestream and everything riding on it are NOT measurements and
+        # have left this table for the assumed-values ledger below.
         _emit_table(emit, script, role=_CE_ROLE,
                     title=f"{shown}, as measured from the surface",
                     headers=("Quantity", "Measured"), rows=body_rows,
                     table_id=f"body-act7-{label}")
+
+        solved_velocity = float(case_reference.get("velocity")
+                                or params.get("velocity", 40.0))
+        stream_axis = report.get("streamwise_axis")
+        assumed_rows = assumed_condition_rows(
+            velocity=solved_velocity,
+            reynolds=case_reference.get("reynolds"),
+            basis=speed_basis,
+            axis_name=("XYZ"[int(stream_axis)]
+                       if stream_axis is not None else ""))
+        _emit_table(emit, script, role=_NUM_ROLE, title="Assumed values",
+                    headers=("Quantity", "Value", "Basis"), rows=assumed_rows,
+                    table_id=f"assumed-act7-{label}")
+        script.numericist(compressibility_line(solved_velocity))
         if asked is not None and abs(asked - slant_deg) > SLANT_MATCH_DEG:
             # The request named one angle and the body is at another. Say both,
             # once, plainly: every number below belongs to the measured one.
@@ -592,16 +633,8 @@ def main(request: str | None = None, params: dict | None = None,
             painted = str(served)
         except OSError:
             pass
-        painted_quantity = None
-        try:
-            import json as _json
-
-            painted_quantity = (
-                (_json.loads(Path(painted).read_text(encoding="utf-8"))
-                 .get("field") or {}).get("quantity"))
-        except (OSError, ValueError):
-            painted_quantity = None
-        as_cp = painted_quantity == QUANTITY_CP
+        painted_field = painted_field_meta(painted)
+        as_cp = painted_field.get("quantity") == QUANTITY_CP
         announce_field(
             emit, "ahmed-body", painted,
             f"{shown}, surface "
@@ -609,6 +642,17 @@ def main(request: str | None = None, params: dict | None = None,
         script.engineer(
             "• Body carrying its own solved surface field, "
             + ("as a pressure coefficient." if as_cp else "as pressure."))
+        if as_cp:
+            # A bluff body has a genuine stagnation face, so its painted
+            # maximum is the sanity check with teeth: it should approach the
+            # incompressible bound of 1 and must never pass it.
+            cp_rows = cp_range_rows(painted_field, bluff=True)
+            if cp_rows:
+                _emit_table(emit, script, role=_CE_ROLE,
+                            title="Surface pressure coefficient, as painted",
+                            headers=("Quantity", "Measured", "Bound",
+                                     "Verdict"),
+                            rows=cp_rows, table_id=f"cp-act7-{label}")
 
     plots: list[str] = []
     report_plots: list[dict] = []
@@ -674,7 +718,16 @@ def main(request: str | None = None, params: dict | None = None,
     roster.idle(CHIEF_RESEARCHER)
 
     verdict = display_verdict(verdict)
-    script.engineer("• Forces settled; the window is flat.", verdict=verdict)
+    # The settling falsifier was pre-registered as a number, so it is judged as
+    # one rather than asserted.
+    settled = settling_check(drag)
+    script.engineer(
+        (f"• Settled band on C_d: {settled['share'] * 100:.2g}% of the value "
+         f"over the final {settled['window']} iterations, "
+         + ("inside" if settled["inside"] else "outside")
+         + f" the {SETTLED_BAND_FRACTION * 100:.0f}% commitment."
+         if settled else "• Forces settled; the window is flat."),
+        verdict=verdict)
     coefficient_rows = [["C_d", f"{drag['value']:.4g}",
                          f"±{2 * drag['sigma']:.2g}",
                          f"final {drag['window']} iterations"]]
@@ -686,6 +739,32 @@ def main(request: str | None = None, params: dict | None = None,
                title="Force coefficients over the settled window",
                headers=("Coefficient", "Value", "Band (95%)", "Window"),
                rows=coefficient_rows, table_id=f"coefficients-act7-{label}")
+
+    # Near-wall resolution, computed from the fields this run solved. The two
+    # mesh gates above say nothing about whether the mesh resolves the wall
+    # well enough for the closure chosen, and on a separated wake that question
+    # is sharper still: where the flow leaves the slant is where the near-wall
+    # treatment matters most.
+    roster.set(CHIEF_RESEARCHER, "measuring near-wall resolution", "working")
+    wall = wall_resolution(engineer)
+    if wall:
+        _emit_table(emit, script, role=_CR_ROLE,
+                    title="Near-wall resolution, as solved",
+                    headers=("Check", "Measured", "Valid range", "Verdict"),
+                    rows=wall_resolution_rows(wall),
+                    table_id=f"wall-act7-{label}")
+        if not wall["inside"]:
+            script.numericist(
+                f"• Part of the body sits outside the y+ "
+                f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f} band the "
+                f"wall functions are valid in, so the near-wall treatment is "
+                f"a modelling error this run does not separate. "
+                f"• It rides the model channel of the certificate.")
+    else:
+        script.numericist(
+            "• Near-wall resolution could not be evaluated on this run; no y+ "
+            "range is reported from an evaluation that did not run.")
+    roster.idle(CHIEF_RESEARCHER)
 
     try:
         refine = _run_refinement_ladder(
@@ -728,7 +807,8 @@ def main(request: str | None = None, params: dict | None = None,
         model_extra=(f"within ±{comparison['tolerance'] * 100:.0f}% of {GATE_SOURCE}"
                     if comparison.get("relative_error") is not None
                     and comparison["relative_error"] <= comparison["tolerance"] else ""),
-        transfer=transfer)
+        transfer=transfer,
+        wall_note=wall_resolution_note(wall) if wall else "")
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
     combined = uq_studies.combine_expanded(
@@ -773,6 +853,18 @@ def main(request: str | None = None, params: dict | None = None,
          f"{MAX_NON_ORTHOGONALITY:.0f}° gate, {MAX_SKEWNESS:.1f} guidance",
          "Pass" if (gate_ok and skew_ok) else "Caveat"],
     ]
+    if settled:
+        verdict_rows.append(
+            ["Settled band on C_d", f"{settled['share'] * 100:.2g}% of C_d",
+             f"±{SETTLED_BAND_FRACTION * 100:.0f}% commitment",
+             "Pass" if settled["inside"] else "Fail"])
+    if wall:
+        verdict_rows.append(
+            ["Near-wall y+ on the body",
+             f"{wall['min']:,.0f} to {wall['max']:,.0f}, median "
+             f"{wall['median']:,.0f}",
+             f"y+ {wall['band_lo']:.0f} to {wall['band_hi']:.0f}",
+             "Pass" if wall["inside"] else "Caveat"])
     if refine and refine.get("band_abs") is not None:
         verdict_rows.append(
             ["Mesh sensitivity on C_d", f"±{refine['band_abs']:.2g}",
@@ -852,6 +944,12 @@ def main(request: str | None = None, params: dict | None = None,
         uncertainty=[
             "Reported band: settling spread over the averaging window, a "
             "floor, not a bound.",
+            (f"Near-wall resolution: y+ {wall['min']:,.0f} to "
+             f"{wall['max']:,.0f} on the body under "
+             f"{wall['treatment'].lower()}, judged against the "
+             f"{wall['band_lo']:.0f} to {wall['band_hi']:.0f} band."
+             if wall else
+             "Near-wall resolution: not evaluated on this run."),
             ("Mesh sensitivity: measured across three meshes of this case."
              if refine and refine.get("band_abs") is not None else
              "Mesh sensitivity: no matching refinement study for this setup."),
@@ -873,12 +971,16 @@ def main(request: str | None = None, params: dict | None = None,
         from chief_engineer.certificate import build_certificate_v2
 
         cert_doc = dict(report_doc)
+        # The area that normalises the coefficients is a result field, not a
+        # footnote: this body is graded against a value published on the other
+        # silhouette, so the rebasing is only readable once both are named.
         cert_doc["result_fields"] = (
             [("Body", shown), ("Rear Slant", config),
              ("C_d", f"{drag['value']:.4g}")]
             + ([("C_L", f"{lift['value']:.4g}")] if lift else [])
-            + [("Band (95%)", f"±{(combined if combined else 2 * drag['sigma']):.2g}"),
-               ("Cells", f"{cells:,}"),
+            + [("Band (95%)", f"±{(combined if combined else 2 * drag['sigma']):.2g}")]
+            + ([("Reference Area", area_row[1])] if area_row else [])
+            + [("Cells", f"{cells:,}"),
                ("Wall Clock", format_duration(time.monotonic() - began))])
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
@@ -891,7 +993,11 @@ def main(request: str | None = None, params: dict | None = None,
             display_name=display_name(label),
             source_filename=surface,
             solver="OpenFOAM, k-omega SST steady RANS",
-            mesh=mesh_validity(cells, non_ortho, skew))
+            # Every number the answer rests on that neither the request stated
+            # nor a solver produced: the freestream, what rides on it, and the
+            # incidence the lift coefficient silently depends on.
+            assumptions=assumed_rows,
+            mesh=mesh_validity(cells, non_ortho, skew, wall))
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception:
