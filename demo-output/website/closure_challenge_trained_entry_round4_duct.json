@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-07-31T23:10:04.870065+00:00",
+  "purpose": "Round 4: DUCT-only change. Variant D (Reynolds-invariant d/d_max feature + velocity-scale-normalised target) replaces the round-2/3 duct model. The five non-duct predictions are byte-identical to the entry of record.",
+  "pre_registration": "Variant D was selected on the benchmark's own suggested duct validation case AR_7_Ret_180 and recorded in closure_challenge_duct_reynolds_transfer.json, committed before any test score for it existed. No test outcome influenced it.",
+  "duct_training": {
+    "cases": [
+      "AR_1_Ret_180",
+      "AR_3_Ret_180",
+      "AR_5_Ret_180",
+      "AR_10_Ret_180"
+    ],
+    "n_cells": 41971,
+    "n_features": 8,
+    "target": "(U_LES - U_RANS) / mean|U_RANS| per case"
+  },
+  "unchanged_cases_sha256": {
+    "alpha_15_13929_4048": "e7b28d5357decf691f21b1b685c641ae054f421575e97bbb94f9cf0dafbbf3e9",
+    "alpha_15_13929_2024": "1d49b9e3135a76096046479b56883a680dc0b036b1f2876b0d9ae2c54f7b54b7",
+    "alpha_05_4071_4048": "0c3865984218474ad83c97eb0be37389385dd446fcff499b510bd72839b2db4c",
+    "alpha_05_4071_2024": "af9cccda9c322b87e2d89f79829b74152f23c8829f7f32d1d92afcca68033b4e",
+    "NASA_2DWMH": "cf8e023c7b8fcb0572a1189977cbfebbb8f4f76b0d59f305aebca2e3e0fba686"
+  },
+  "unchanged_cases_verified_against_entry_manifest": [
+    "NASA_2DWMH",
+    "alpha_05_4071_2024",
+    "alpha_05_4071_4048",
+    "alpha_15_13929_2024",
+    "alpha_15_13929_4048"
+  ],
+  "official_test_harness_result": {
+    "round4_overall": 0.0654,
+    "round4_overall_full": 0.06543140783850523,
+    "round4_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0811,
+      "AR_3_Ret_360": 0.0775,
+      "AR_14_Ret_180": 0.0325,
+      "NASA_2DWMH": 0.0632
+    },
+    "round3_overall": 0.0676,
+    "round3_per_case": {
+      "alpha_15_13929_4048": 0.0501,
+      "alpha_15_13929_2024": 0.1011,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.0919,
+      "AR_3_Ret_360": 0.0862,
+      "AR_14_Ret_180": 0.0303,
+      "NASA_2DWMH": 0.0632
+    },
+    "rans_identity_floor_per_case": {
+      "alpha_15_13929_4048": 0.132,
+      "alpha_15_13929_2024": 0.2049,
+      "alpha_05_4071_4048": 0.0461,
+      "alpha_05_4071_2024": 0.0719,
+      "AR_1_Ret_360": 0.1288,
+      "AR_3_Ret_360": 0.1243,
+      "AR_14_Ret_180": 0.059,
+      "NASA_2DWMH": 0.0621
+    },
+    "delta_vs_round3": -0.0022,
+    "improves_on_round3": true
+  },
+  "scoring_calls": {
+    "this_run": 1,
+    "cumulative_distinct_prediction_sets_scored": 5,
+    "note": "The benchmark imposes NO scoring-call limit and instructs submitters to preview their score. This ledger is a self-imposed discipline, not compliance with a rule."
+  },
+  "leaderboard_comparison_dated_2026_07_31": {
+    "source": "closure-challenge-benchmark README at commit deb91557, re-scored locally; all four entrants reproduce their published per-case and overall values exactly",
+    "overall": {
+      "Reissmann": 0.0595,
+      "Wu": 0.0624,
+      "ours_round4": 0.0654,
+      "Liu_Wang": 0.0737,
+      "Montoya": 0.0779
+    },
+    "our_rank_overall": "3 of 5",
+    "gap_to_rank2_before": 0.0052,
+    "gap_to_rank2_after": 0.003,
+    "best_on_board_count": "5 of 8 (unchanged)",
+    "duct_rank_change": {
+      "AR_1_Ret_360": "5 of 5 -> 3 of 5 (0.0919 -> 0.0811; now ahead of Liu/Wang 0.0875 and Montoya 0.0895)",
+      "AR_3_Ret_360": "4 of 5 -> 3 of 5 (0.0862 -> 0.0775; now ahead of Liu/Wang 0.0805 and Montoya 0.0866)",
+      "AR_14_Ret_180": "1 of 5 -> 1 of 5, but the lead collapses from 0.0022 to 0.00003 (ours 0.0324698 vs Reissmann's published 0.0325). That is a nominal lead, not a meaningful one, and it must not be reported as a comfortable win."
+    },
+    "now_last_on_board_only_on": "NASA_2DWMH (0.0632 vs best 0.0364). We are no longer last on any duct."
+  },
+  "the_AR_14_regression_is_not_reverted": "AR_14_Ret_180 got worse, 0.0303 -> 0.0325. It is NOT reverted, and the reason is the same one that stopped the NASA hump regression being reverted in round 3: choosing per-case between two models after seeing their per-case test scores is selection on test outcomes, which is what the benchmark's one strict rule exists to prevent. Variant D was frozen on validation evidence and applied to all three ducts or none. It was applied to all three.",
+  "what_the_result_confirms": "The diagnosis predicted improvement concentrated on the two cases where Re_y leaves the trained range and little or none on the case where it does not. Measured: -0.0108 and -0.0087 on AR_1_Ret_360 and AR_3_Ret_360, +0.0022 on AR_14_Ret_180. The sign pattern matches the prediction on all three cases."
+}
