@@ -328,8 +328,18 @@ def main(request: str | None = None, params: dict | None = None,
     try:
         report = _build_unfamiliar_case(engineer, script, roster, surface,
                                         params, iterations, emit)
-        acceptance_line, shells = surface_acceptance(report, shown)
-        script.engineer(acceptance_line)
+        # Katie, 2026-07-31: "Surface accepted: ..., closed." and "No defects
+        # reported by the surface check." are off camera. The body is named by
+        # the table below and a clean surface has nothing to report. Anything
+        # the check DID flag still speaks, so no finding is ever dropped: the
+        # boilerplate bullets are filtered out, the findings are not.
+        acceptance_line, _shells = surface_acceptance(report, shown)
+        findings = [part for part in
+                    (p.strip() for p in acceptance_line.split("•"))
+                    if part and not part.startswith("Surface accepted")
+                    and not part.startswith("No defects reported")]
+        if findings:
+            script.engineer(" ".join(f"• {part}" for part in findings))
 
         # The body as the surface itself gives it, the rear slant included.
         # The angle is a measurement here, which is what lets every number
@@ -353,6 +363,18 @@ def main(request: str | None = None, params: dict | None = None,
                     title=f"{shown}, as measured from the surface",
                     headers=("Quantity", "Measured"), rows=body_rows,
                     table_id=f"body-act7-{label}")
+        if asked is not None and abs(asked - slant_deg) > SLANT_MATCH_DEG:
+            # The request named one angle and the body is at another. Said
+            # once, plainly, immediately under the table that measured it
+            # (Katie, 2026-07-31): every number in this act belongs to the
+            # measured angle. The Chief Researcher says it, because which
+            # configuration gets graded is a ruling, not an execution step.
+            roster.set(CHIEF_RESEARCHER, "fixing the configuration", "working")
+            script.researcher(
+                f"• Request names a {asked:g} degree slant. "
+                f"• The body measures {slant_deg:g} degrees, and that is the "
+                f"configuration solved and graded here.")
+            roster.idle(CHIEF_RESEARCHER)
 
         solved_velocity = float(case_reference.get("velocity")
                                 or params.get("velocity", 40.0))
@@ -367,13 +389,6 @@ def main(request: str | None = None, params: dict | None = None,
                     headers=("Quantity", "Value", "Basis"), rows=assumed_rows,
                     table_id=f"assumed-act7-{label}")
         script.numericist(compressibility_line(solved_velocity))
-        if asked is not None and abs(asked - slant_deg) > SLANT_MATCH_DEG:
-            # The request named one angle and the body is at another. Say both,
-            # once, plainly: every number below belongs to the measured one.
-            script.engineer(
-                f"• Request names a {asked:g} degree slant. "
-                f"• The body measures {slant_deg:g} degrees, and that is the "
-                f"configuration solved and graded here.")
         script.engineer(
             "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
             "• Standard closure for a separated external wake.")
