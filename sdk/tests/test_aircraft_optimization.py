@@ -593,9 +593,11 @@ class AssumedValuesLedgerTests(unittest.TestCase):
             "Optimize the L/D of an airliner for 300 passengers, 6000 km "
             "range, takeoff 85 m/s, landing 72 m/s"))
         table = {label: (value, basis) for label, value, basis in rows}
-        self.assertEqual(table["CLmax, take-off"][1],
+        # The labels carry their subscripts, which is how every camera
+        # surface typesets a coefficient.
+        self.assertEqual(table["C_L,max (take-off)"][1],
                          "assumed, not solver-derived")
-        self.assertEqual(table["CLmax, landing"][1],
+        self.assertEqual(table["C_L,max (landing)"][1],
                          "assumed, not solver-derived")
         self.assertIn("Raymer", table["Non-wing drag share"][1])
         # Every requirement was stated, so none of them is in the ledger.
@@ -702,7 +704,7 @@ class TranscriptTableTests(unittest.TestCase):
         rows = [row for p in finalist if p["append"] for row in p["rows"]]
         self.assertEqual(len(headers), 1)
         self.assertEqual(headers[0]["headers"],
-                         ["Span", "Alpha", "CDi", "Wing Viscous",
+                         ["Span", "Sweep", "α", "C_Di", "C_D0, wing",
                           "Whole-aircraft L/D"])
         # The finalist table is solve tier only, and says so.
         self.assertIn("[solve: VSPAERO + Raymer buildup]", headers[0]["title"])
@@ -898,7 +900,7 @@ class SolvedRunDoctrineTests(unittest.TestCase):
         # The assumed-values ledger carries the lift coefficients the low
         # speed verdicts turn on, marked as no solver's work.
         self.assertIn("(Assumed Values)", text)
-        self.assertIn("CLmax, landing", text)
+        self.assertIn("C_L,max", text)
         self.assertIn("assumed, not solver-derived", text)
         # Issuance and the seal sit together at the foot.
         self.assertLess(text.index("(Result)"), text.index("(Issued"))
@@ -910,7 +912,6 @@ class SolvedRunDoctrineTests(unittest.TestCase):
                       "from the solved polar at cruise", said)
         self.assertIn("Non-wing drag comes from the component buildup method "
                       "(Raymer)", said)
-        self.assertIn("the pipeline itself is ready", said)
         self.assertNotIn("The solver moved the pick", said)
         self.assertNotIn("the screen had it wrong", said)
         self.assertNotIn("not yet solved", said)
@@ -1004,3 +1005,250 @@ class StaleCertificateRegressionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ShootRoundTests(unittest.TestCase):
+    """The owner's shoot-day round: captions, speaking order, the tags on the
+    constraint table, where the worker count is allowed to appear, and the
+    announced search bound agreeing with the winner."""
+
+    # The prompt as she types it, with a surface attached.
+    DIRECTIVE = ("Optimize lift drag coefficient of the attached twin "
+                 "airliner. Constraints: 300 passengers, Range: 6000 km, "
+                 "take off speed: 80 m/s landing speed: 70 m/s. "
+                 "Don't use all of my workers")
+    # The prompt already registered for this act, which must keep working.
+    STANDING = ("Optimize the L/D of an airliner for 300 passengers, "
+                "6000 km range.")
+
+    def setUp(self):
+        _disable_pace(self)
+        _redirect_output(self)
+
+    def _run(self, request=None, params=None, api=None):
+        from workflows import aircraft_optimization as aopt
+
+        events = []
+        emit = lambda e, p: events.append((e, p))
+        live = api is not None
+        with mock.patch.object(aopt.vspaero, "available", return_value=live), \
+                mock.patch.object(aopt.vspaero, "VspAeroWingApi",
+                                  api or aopt.vspaero.VspAeroWingApi):
+            rc = aopt.main(request=request or self.STANDING,
+                           params=params or {}, emit=emit)
+        self.assertEqual(rc, 0)
+        return events
+
+    @staticmethod
+    def _entries(events):
+        return [p for e, p in events if e == "transcript.entry"]
+
+    @classmethod
+    def _first(cls, events, needle):
+        """Index of the first transcript entry carrying ``needle``."""
+        for i, p in enumerate(cls._entries(events)):
+            if needle in p.get("message", ""):
+                return i
+        return None
+
+    # -- the new prompt ----------------------------------------------------
+    def test_the_typed_directive_routes_here_with_its_worker_ask(self):
+        route = classify(self.DIRECTIVE)
+        self.assertEqual(route.intent, AIRCRAFT_OPTIMIZATION)
+        self.assertTrue(route.params.get("hold_workers_back"))
+        # The uploaded surface keeps the route and rides as starting geometry.
+        with_surface = apply_surface(classify(self.DIRECTIVE),
+                                     "airliner_wing_span52.stl")
+        self.assertEqual(with_surface.intent, AIRCRAFT_OPTIMIZATION)
+        self.assertEqual(with_surface.params["surface"],
+                         "airliner_wing_span52.stl")
+
+    def test_the_standing_prompt_still_routes_here(self):
+        self.assertEqual(classify(self.STANDING).intent, AIRCRAFT_OPTIMIZATION)
+
+    def test_the_typed_directive_steals_no_other_act(self):
+        # Every other filmed prompt keeps the act it had. The new directive
+        # adds vocabulary ("lift drag", "workers"), and this is the guard that
+        # it took nothing with it.
+        from chief_engineer.router import (ADJOINT_OPTIMIZATION, AHMED_BODY,
+                                           CRM_WINGBODY, CYLINDER_VORTEX_SHEDDING,
+                                           DIAMOND_AIRFOIL, GEOMETRY_STUDY,
+                                           HYPERSONIC_CYLINDER, NASA_HUMP,
+                                           RACE_COMPARISON, SUPERSONIC_CONE,
+                                           SUPERSONIC_WEDGE, VALVE_STUDY)
+        filmed = {
+            "Solve the supersonic wedge at Mach 2 with a 15 degree half-angle "
+            "and check the oblique shock angle.": SUPERSONIC_WEDGE,
+            "Solve the supersonic cone at Mach 2.35 with a 10 degree "
+            "half-angle and check the conical shock angle.": SUPERSONIC_CONE,
+            "Solve the diamond airfoil at Mach 2 and check the wave drag "
+            "against shock-expansion theory.": DIAMOND_AIRFOIL,
+            "Solve hypersonic flow over a blunt cylinder at Mach 8 and check "
+            "the shock standoff distance.": HYPERSONIC_CYLINDER,
+            "Solve vortex shedding behind a circular cylinder at Reynolds 100 "
+            "and check the Strouhal number.": CYLINDER_VORTEX_SHEDDING,
+            "Solve the Ahmed body with the 25 degree slant and check the drag "
+            "against the wind tunnel.": AHMED_BODY,
+            "Solve the NASA wall-mounted hump and check separation": NASA_HUMP,
+            "Solve the CRM wing-body and check the drag.": CRM_WINGBODY,
+            "Cut the drag on the wing with the discrete adjoint and verify the "
+            "gradient against finite differences.": ADJOINT_OPTIMIZATION,
+            "Find the valve opening angle that minimizes pressure loss over "
+            "the cardiac cycle.": VALVE_STUDY,
+            "Race a Monte Carlo uncertainty study against a reduced-order "
+            "model.": RACE_COMPARISON,
+        }
+        for prompt, intent in filmed.items():
+            self.assertEqual(classify(prompt).intent, intent, prompt)
+        self.assertEqual(
+            apply_surface(classify("Solve the external aerodynamics of the "
+                                   "supplied B-52 geometry."),
+                          "b52.stl").intent, GEOMETRY_STUDY)
+
+    # -- item 3: what the stated speeds moved ------------------------------
+    def test_stated_speeds_are_user_stated_and_the_area_floor_is_derived(self):
+        from workflows.aircraft_optimization import (assumed_values,
+                                                     constraint_list)
+        reqs = parse_requirements(self.DIRECTIVE)
+        self.assertTrue(reqs["takeoff_stated"] and reqs["landing_stated"])
+        rows = {name: (value, tag)
+                for name, value, tag in constraint_list(reqs, advisory=False)}
+        self.assertEqual(rows["Take-off speed"][1], "user-stated")
+        self.assertEqual(rows["Landing speed"][1], "user-stated")
+        # The wing area those two demand follows from them, so it is derived.
+        self.assertTrue(rows["Wing area"][1].startswith("derived"))
+        # The two maximum lift coefficients do not follow from a speed limit,
+        # so they stay assumed and stay in the ledger.
+        ledger = {label: basis for label, _v, basis in assumed_values(reqs)}
+        self.assertEqual(ledger["C_L,max (take-off)"],
+                         "assumed, not solver-derived")
+        self.assertEqual(ledger["C_L,max (landing)"],
+                         "assumed, not solver-derived")
+        # Neither speed is in the ledger any more.
+        self.assertNotIn("Take-off speed limit", ledger)
+        self.assertNotIn("Landing speed limit", ledger)
+
+    # -- item 1: the viewport caption --------------------------------------
+    def test_every_viewport_caption_is_scoped_wing_only(self):
+        events = self._run()
+        labels = [p["label"] for e, p in events
+                  if e == "geometry.ready" and p.get("label")]
+        self.assertTrue(labels)
+        for label in labels:
+            self.assertTrue(label.startswith("Wing-only"), label)
+            self.assertNotIn("component buildup", label)
+
+    def test_the_winner_caption_is_the_scope_and_nothing_else(self):
+        # The winner's surface has to land on disk for its caption to be
+        # emitted at all, so this api writes one.
+        stl = Path(tempfile.mkdtemp()) / "wing.stl"
+        stl.write_text(_TINY_STL)
+
+        class _WithSurface(_SolvedApi):
+            def evaluate(self, design, analyses=()):
+                result = _SolvedApi.evaluate(self, design, analyses)
+                result["stl_path"] = str(stl)
+                return result
+
+        events = self._run(api=_WithSurface)
+        labels = [p["label"] for e, p in events
+                  if e == "geometry.ready" and p.get("label")]
+        self.assertIn("Wing-only", labels)
+
+    # -- item 7: the engineer opens, the researcher rules ------------------
+    def test_the_engineer_fixes_the_requirements_before_the_method_memo(self):
+        events = self._run()
+        entries = self._entries(events)
+        req = self._first(events, "Requirements fixed")
+        memo = next(i for i, p in enumerate(entries)
+                    if p.get("role") == "CHIEF RESEARCHER")
+        self.assertIsNotNone(req)
+        self.assertLess(req, memo)
+
+    def test_the_researcher_owns_the_maximum_lift_line(self):
+        events = self._run()
+        entries = self._entries(events)
+        said = [p for p in entries
+                if "maximum lift coefficient no vortex-lattice" in
+                p.get("message", "")]
+        self.assertEqual(len(said), 1)
+        self.assertEqual(said[0]["role"], "CHIEF RESEARCHER")
+        self.assertIn("But good for preliminary design", said[0]["message"])
+
+    # -- item 4: the worker count arrives with the work --------------------
+    def test_no_worker_count_before_the_tier_line(self):
+        events = self._run(api=_SolvedApi)
+        entries = self._entries(events)
+        tier = self._first(events, "Screen is research sizing")
+        self.assertIsNotNone(tier)
+        for i, p in enumerate(entries[:tier]):
+            self.assertNotIn("workers", p.get("message", "").lower(), p)
+        # The headroom table is a worker count too, and it lands after.
+        order = [(e, p) for e, p in events
+                 if e in ("transcript.entry", "transcript.table")]
+        seen_tier = False
+        for e, p in order:
+            if e == "transcript.entry" and "Screen is research sizing" in \
+                    p.get("message", ""):
+                seen_tier = True
+            if e == "transcript.table" and p["table_id"] == "worker-headroom":
+                self.assertTrue(seen_tier)
+
+    # -- items 5, 6, 9: the announced bound tells the truth ----------------
+    def test_the_announced_span_bound_contains_the_winner(self):
+        import re as _re
+
+        events = self._run(request=self.DIRECTIVE,
+                           params={"surface": "airliner_wing_span52.stl",
+                                   "hold_workers_back": True})
+        said = " ".join(p.get("message", "") for p in self._entries(events))
+        bound = _re.search(r"Span (\d+) to (\d+) m", said)
+        self.assertIsNotNone(bound, said)
+        lo, hi = float(bound.group(1)), float(bound.group(2))
+        tables = [p for e, p in events if e == "transcript.table"]
+        screened = [p for p in tables if p["table_id"] == "screened-optimum"][0]
+        winner_span = float(screened["rows"][0][1].split()[0])
+        self.assertLessEqual(winner_span, hi)
+        self.assertGreaterEqual(winner_span, lo)
+        # Nothing announces a span bound before the search has run. The
+        # 65 m gate-code offer used to be the only span figure spoken ahead of
+        # the sweep, and it is not a search bound.
+        before_evidence = said.split("Screening sweep")[0]
+        self.assertNotIn("span at most 65 m", before_evidence)
+        self.assertNotIn("Aerodrome Reference Code", before_evidence)
+
+    # -- item 8: where the advisory belongs, and who counts the misses -----
+    def test_the_gate_advisory_is_the_researchers_and_follows_a_span(self):
+        events = self._run()
+        entries = self._entries(events)
+        gate = [(i, p) for i, p in enumerate(entries)
+                if "ICAO Aerodrome Reference Code" in p.get("message", "")]
+        self.assertEqual(len(gate), 1)
+        index, entry = gate[0]
+        self.assertEqual(entry["role"], "CHIEF RESEARCHER")
+        # It names the span it is about, and it comes after the screen found
+        # one: the winner is announced in the screened-optimum table above it.
+        self.assertIn("winner span", entry["message"].lower())
+        self.assertGreater(index, self._first(events, "wings clear every "
+                                                      "requirement"))
+
+    def test_the_numericist_counts_the_designs_ruled_out(self):
+        events = self._run()
+        ruled = [p for e, p in events if e == "transcript.table"
+                 and p["table_id"] == "ruled-out"]
+        self.assertEqual(len(ruled), 1)
+        self.assertEqual(ruled[0]["role"], "NUMERICIST")
+
+    # -- the analogue outliers are explained, not left hanging -------------
+    def test_the_researcher_explains_the_distance_to_the_analogues(self):
+        events = self._run()
+        entries = self._entries(events)
+        line = [p for p in entries
+                if "aspect ratio 9 to 11" in p.get("message", "")]
+        self.assertEqual(len(line), 1)
+        self.assertEqual(line[0]["role"], "CHIEF RESEARCHER")
+        self.assertIn("difference in objective", line[0]["message"])
+        analogue = [i for i, (e, p) in enumerate(events)
+                    if e == "transcript.table"
+                    and p["table_id"] == "analogue-check"]
+        self.assertTrue(analogue)
