@@ -237,6 +237,28 @@ def _fmt(x: float) -> str:
 # way when it meant the opposite. The rest are the internals the act has no
 # business narrating in the first place, so they are not translated, they are
 # refused.
+# ITEM 8 (owner, 2026-07-31): the reduction is never stated without the
+# baseline it is measured from. A percentage on its own invites the reader to
+# supply their own reference, and the one they supply is usually a published
+# figure for some other wing. The baseline here is the same wing with every
+# shape and twist variable at zero, so it is named for what it is. Every
+# headline in the act, the report and the certificate is built from these two
+# helpers rather than written out, so there is no occurrence to miss and no
+# second wording to drift away from the first.
+BASELINE_NAME = "untwisted baseline"
+
+
+def _headline(pct: float) -> str:
+    """The reduction, and the baseline it is measured against. Always both."""
+    return f"{pct:.1f}% below {BASELINE_NAME} at matched lift"
+
+
+def _against_baseline(pct: float) -> str:
+    """A per-iteration reading, which can sit either side of the baseline."""
+    side = "below" if pct >= 0 else "ABOVE"
+    return f"{abs(pct):.1f}% {side} {BASELINE_NAME}"
+
+
 _BANNED_OPTIMIZER_PHRASES = (
     "against the gradient",
     "merit function",
@@ -446,8 +468,9 @@ def main(request: str | None = None, params: dict | None = None,
                  f"Received: {uploaded_name}. Every number below belongs to "
                  f"the MACH tutorial wing."))
 
-    show("baseline", f"MACH tutorial wing, baseline. C_d {baseline['CD']:.6f} "
-                     f"at C_L {CL_TARGET:g}", painted=False)
+    show("baseline", f"MACH tutorial wing, {BASELINE_NAME}. C_d "
+                     f"{baseline['CD']:.6f} at C_L {CL_TARGET:g}",
+         painted=False)
     if shapes:
         # The wing's dimensions and the case size are numbers, so they are a
         # table, not a sentence. Nothing here describes how the surface came
@@ -693,8 +716,7 @@ def main(request: str | None = None, params: dict | None = None,
             drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
             show(f"iter{frame['iter']}",
                  f"Major iteration {frame['iter']} of {majors}. C_d "
-                 f"{frame['CD']:.6f}, {abs(drop):.1f}% "
-                 f"{'below' if drop >= 0 else 'ABOVE'} baseline. At scale, "
+                 f"{frame['CD']:.6f}, {_against_baseline(drop)}. At scale, "
                  f"painted with displacement from baseline (mm)")
     roster.set_workers(0)
 
@@ -702,8 +724,7 @@ def main(request: str | None = None, params: dict | None = None,
         last = shapes["frames"][-1]
         show(f"iter{last['iter']}",
              f"Optimized wing at major iteration {last['iter']}. C_d "
-             f"{last['CD']:.6f}, {reduction:.1f}% below baseline at matched "
-             f"lift")
+             f"{last['CD']:.6f}, {_headline(reduction)}")
         dlo, dhi = shapes["disp_window_mm"]
         chord = shapes["chord_root_m"]
         twist_worst = min(last["twist_deg"])
@@ -813,11 +834,10 @@ def main(request: str | None = None, params: dict | None = None,
                 show(f"near{frame['iter']}",
                      f"Inboard span, at scale. Major iteration "
                      f"{frame['iter']} of {majors}, C_d {frame['CD']:.6f}, "
-                     f"{abs(drop):.1f}% "
-                     f"{'below' if drop >= 0 else 'ABOVE'} baseline")
+                     f"{_against_baseline(drop)}")
         show(f"near{last['iter']}",
              f"Inboard span, at scale. Optimized, C_d {last['CD']:.6f}, "
-             f"{reduction:.1f}% below baseline at matched lift")
+             f"{_headline(reduction)}")
         bullets(script.engineer,
                 f"That is the shape the gradient bought, at the size it is.")
 
@@ -840,9 +860,10 @@ def main(request: str | None = None, params: dict | None = None,
                title="Result",
                headers=("Quantity", "Value", "Reference or threshold"),
                rows=[
-                   ["Drag reduction at matched lift", f"{reduction:.1f}%",
+                   [f"Drag reduction below {BASELINE_NAME} at matched lift",
+                    f"{reduction:.1f}%",
                     f"{target_pct:g}% asked" if target_pct
-                    else "Against the baseline at the same lift"],
+                    else "The two drags below are what it is measured from"],
                    ["Baseline C_d at C_L 0.5", f"{baseline['CD']:.6f}",
                     "The point the reduction is measured from"],
                    ["Final C_d at C_L 0.5", f"{final['CD']:.6f}",
@@ -879,8 +900,8 @@ def main(request: str | None = None, params: dict | None = None,
                    ["Numerical, band on the drag reduction",
                     "Not available for this quantity"],
                    ["Input", "None assumed for this case"],
-                   ["Model", "Stated closure, graded against this solver's "
-                             "own baseline at the same lift"],
+                   ["Model", f"Stated closure, graded against this solver's "
+                             f"own {BASELINE_NAME} at the same lift"],
                ],
                table_id="channels-adjoint-optimization")
 
@@ -895,8 +916,8 @@ def main(request: str | None = None, params: dict | None = None,
                    f"reversals that could steer it"),
     }
     bullets(script.engineer,
-            f"Verdict: {reduction:.1f}% drag reduction at matched lift, on a "
-            f"verified gradient.",
+            f"Verdict: drag {_headline(reduction)}, on a verified "
+            f"gradient.",
             *(["That clears the target."] if target_pct else []),
             verdict=verdict)
 
@@ -905,7 +926,8 @@ def main(request: str | None = None, params: dict | None = None,
         # has no measured band on the drag reduction to put there. It used to
         # carry the string "n/a", which rendered as "28.3% ± n/a (n/a)".
         emit("result.verdict", {
-            "quantity": "Drag reduction at matched lift",
+            "quantity": f"Drag reduction below {BASELINE_NAME} at matched "
+                        f"lift",
             "value": f"{reduction:.1f}%",
             "envelope": f"{majors} major iterations on the verified gradient",
             **verdict})
@@ -920,10 +942,10 @@ def main(request: str | None = None, params: dict | None = None,
                         f"{SIGN_CHECKED} components directly and bounded "
                         f"below {SIGN_BOUND_PCT:.2g}% of gradient magnitude "
                         f"on the rest."),
-        model_note=("compressible RANS closure with wall functions, stated "
-                    "model form; the drag reduction is measured against this "
-                    "solver's own baseline at the same lift, not against an "
-                    "experiment"))
+        model_note=(f"compressible RANS closure with wall functions, "
+                    f"stated model form; the drag reduction is measured "
+                    f"against this solver's own {BASELINE_NAME} at the same "
+                    f"lift, not against an experiment"))
     if emit:
         emit("uncertainty.channels", channels)
 
@@ -967,8 +989,8 @@ def main(request: str | None = None, params: dict | None = None,
 
     knowledge.add(f"Discrete adjoint verified on a {N_DV}-variable wing: "
                   f"worst group {worst:.3g}% against central finite "
-                  f"differences; {reduction:.1f}% drag reduction at matched "
-                  f"lift after {majors} major iterations")
+                  f"differences; drag {_headline(reduction)} after "
+                  f"{majors} major iterations")
 
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
@@ -989,11 +1011,11 @@ def main(request: str | None = None, params: dict | None = None,
             f"they are analytic through the free-form parameterization and "
             f"never touch the flow solve, so that row grades the arithmetic, "
             f"not the solver.",
-            (f"The optimization then reduced drag by {reduction:.1f}% at "
-             f"matched lift over {majors} major iterations, against a "
-             f"{target_pct:g}% target." if target_pct else
-             f"The optimization then reduced drag by {reduction:.1f}% at "
-             f"matched lift over {majors} major iterations."),
+            (f"The optimization then took drag {_headline(reduction)} over "
+             f"{majors} major iterations, against a {target_pct:g}% target."
+             if target_pct else
+             f"The optimization then took drag {_headline(reduction)} over "
+             f"{majors} major iterations."),
         ],
         methods=[
             "Steady compressible RANS primal with a one-equation turbulence "
@@ -1042,8 +1064,9 @@ def main(request: str | None = None, params: dict | None = None,
             # no measured band on the drag reduction, and the target it was
             # asked for is not one. It rides in the certificate's result table
             # and in the on-screen Result table instead.
-            {"quantity": "Drag reduction at matched lift",
+            {"quantity": "Drag reduction",
              "value": f"{reduction:.1f}%",
+             "envelope": f"below {BASELINE_NAME} at matched lift",
              "tier": verdict["tier"]},
             {"quantity": "Worst gradient group against finite difference",
              "value": f"{worst:.3g}%",
@@ -1056,9 +1079,9 @@ def main(request: str | None = None, params: dict | None = None,
         ],
         uncertainty=[
             f"The {reduction:.1f}% is measured against this solver's own "
-            f"baseline at the same lift. It is not graded against a wind "
-            f"tunnel, and no published reduction figure exists for this case "
-            f"to compare it with.",
+            f"{BASELINE_NAME} at the same lift. It is not graded against a "
+            f"wind tunnel, and no published reduction figure exists for this "
+            f"case to compare it with.",
             f"Gradient accuracy is measured, not assumed: worst group "
             f"{worst:.3g}% against central finite differences of the full "
             f"primal. Sign agreement was confirmed directly on "
@@ -1099,7 +1122,8 @@ def main(request: str | None = None, params: dict | None = None,
         cert_doc["result_fields"] = [
             ("Design variables", f"{N_DV}"),
             ("Gradient check", f"worst group {worst:.3g}%, no material sign reversal"),
-            ("Drag reduction", f"{reduction:.1f}% at C_L {CL_TARGET:g}"),
+            ("Drag reduction",
+             f"{_headline(reduction)}, C_L {CL_TARGET:g}"),
             ("Major iterations", f"{majors}"),
         ]
         if target_pct:
@@ -1125,8 +1149,7 @@ def main(request: str | None = None, params: dict | None = None,
                 "The result above stands on the transcript and the report.")
 
     bullets(script.engineer,
-            f"From a verified gradient to a {reduction:.1f}% drag reduction "
-            f"at matched lift.")
+            f"From a verified gradient to drag {_headline(reduction)}.")
     script.save(out / "transcript.txt")
     roster.all_idle()
     print("Artifacts in", out, f"({elapsed:.2f}s)")
