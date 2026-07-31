@@ -356,6 +356,54 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     return result
 
 
+def reportable_band(band: dict[str, Any] | None) -> float | None:
+    """The band, but only when the ladder earned the right to state one.
+
+    WHY THIS EXISTS. ``eca_hoekstra_band`` returns a ``band_abs`` whether or
+    not it also sets ``conclusive``: on a failed ladder that number is a
+    deliberately conservative fallback, not a measured uncertainty. Five acts
+    independently read ``band_abs``, trusted it, and printed it on sealed
+    certificates captioned "95% confidence interval". One of them was quoting
+    15% of its own value; another was quoting a band that rounds to zero at
+    its display precision.
+
+    Five authors making the same mistake is a fact about the return shape, not
+    about the authors. So the safe read gets its own name, and a caller that
+    wants the fallback has to reach past this and say so.
+    """
+    if not band:
+        return None
+    if not band.get("conclusive"):
+        return None
+    return band.get("band_abs")
+
+
+def not_conclusive_reason(band: dict[str, Any] | None) -> str | None:
+    """Why this ladder cannot state a band, in one clause. None if it can.
+
+    The ``method`` string is not usable for this: on a clamped ladder it ends
+    "(band uses p = 0.5)", which contradicts an act that is declining to
+    report a band at all.
+    """
+    if not band or band.get("conclusive"):
+        return None
+    if band.get("monotone") is False:
+        return "the rungs are not monotone"
+    p = band.get("observed_order")
+    if band.get("clamped") and p is not None:
+        return (f"the observed order p = {p} falls outside the credible "
+                f"range 0.5 to 2.5")
+    note = band.get("asymptotic_note") or band.get("method") or ""
+    if "increment" in note:
+        return "successive increments grow with refinement"
+    if "extrapolat" in note:
+        return "the extrapolation diverges"
+    if p is not None:
+        return (f"the observed order p = {p} falls outside the credible "
+                f"range 0.5 to 2.5")
+    return "the ladder is not in the asymptotic range"
+
+
 # --------------------------------------------------------------------------
 # Closure / family spreads (Q2)
 # --------------------------------------------------------------------------
