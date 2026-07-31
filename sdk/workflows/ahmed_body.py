@@ -29,8 +29,8 @@ from chief_engineer.display_names import display_name
 from chief_engineer.head_engineer import FOAM_TUTORIALS, HeadEngineer
 from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
-                                EVIDENCE, HYPOTHESIS, MONITOR, PLAN,
-                                ComputeLedger, KnowledgeBase, Roster,
+                                EVIDENCE, HYPOTHESIS, MONITOR, NUMERICIST,
+                                PLAN, ComputeLedger, KnowledgeBase, Roster,
                                 lab_report, per, validate_against_reference)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 
@@ -455,7 +455,11 @@ def main(request: str | None = None, params: dict | None = None,
         skew_s = f"{skew:.2f}" if skew is not None else "n/a"
         gate_ok = (non_ortho or 0) <= MAX_NON_ORTHOGONALITY
         skew_inside = (skew or 0) <= MAX_SKEWNESS
-        _emit_table(emit, script, role=_CR_ROLE,
+        # BEYOND KATIE'S LIST, her own division: mesh evidence is the
+        # numericist's. This table was the researcher's and the researcher's
+        # ruling landed directly under it, two Chief Researcher headers in a
+        # row. Now the numericist measures and the researcher rules.
+        _emit_table(emit, script, role=_NUM_ROLE,
                     title="Mesh quality gates, as measured",
                     headers=("Check", "Measured", "Standard", "Verdict"),
                     rows=[["Cells in the mesh", f"{cells:,}",
@@ -718,7 +722,10 @@ def main(request: str | None = None, params: dict | None = None,
         solved_reynolds=report.get("reference", {}).get("reynolds"))
     comparison = verdict.get("comparison")
 
-    roster.set(CHIEF_RESEARCHER, "grading against the wind tunnel", "working")
+    # BEYOND KATIE'S LIST: the same table she moved to the numericist on the
+    # hump act (her item 2), measured values against a published reference.
+    # The researcher's ruling on it is the Verdict table in the conclusion.
+    roster.set(NUMERICIST, "grading against the wind tunnel", "working")
     gate_rows = [["C_d from the solve", f"{comparison['measured_cd']:.4g}"],
                  ["On the published area basis", f"{comparison['compared_cd']:.4g}"],
                  [f"Published C_d, {config}", f"{comparison['reference_cd']:g}"],
@@ -726,11 +733,11 @@ def main(request: str | None = None, params: dict | None = None,
                   if comparison['relative_error'] is not None else "not comparable"],
                  ["Acceptance band", f"±{comparison['tolerance'] * 100:.0f}%"],
                  ["Source", GATE_SOURCE]]
-    _emit_table(emit, script, role=_CR_ROLE,
+    _emit_table(emit, script, role=_NUM_ROLE,
                title="Measured drag against the published wind tunnel",
                headers=("Quantity", "Value"), rows=gate_rows,
                table_id=f"gate-act7-{label}")
-    roster.idle(CHIEF_RESEARCHER)
+    roster.idle(NUMERICIST)
 
     verdict = display_verdict(verdict)
     # The settling falsifier was pre-registered as a number, so it is judged as
@@ -760,26 +767,36 @@ def main(request: str | None = None, params: dict | None = None,
     # well enough for the closure chosen, and on a separated wake that question
     # is sharper still: where the flow leaves the slant is where the near-wall
     # treatment matters most.
-    roster.set(CHIEF_RESEARCHER, "measuring near-wall resolution", "working")
+    # BEYOND KATIE'S LIST, same division: near-wall resolution is mesh
+    # evidence, so the numericist measures it and the researcher rules on what
+    # it costs the claim. Both branches of the ruling are spoken, so a mesh
+    # that lands inside the band is not left as a dangling table either.
+    roster.set(NUMERICIST, "measuring near-wall resolution", "working")
     wall = wall_resolution(engineer)
     if wall:
-        _emit_table(emit, script, role=_CR_ROLE,
+        _emit_table(emit, script, role=_NUM_ROLE,
                     title="Near-wall resolution, as solved",
                     headers=("Check", "Measured", "Valid range", "Verdict"),
                     rows=wall_resolution_rows(wall),
                     table_id=f"wall-act7-{label}")
+        roster.idle(NUMERICIST)
         if not wall["inside"]:
-            script.numericist(
+            script.researcher(
                 f"• Part of the body sits outside the y+ "
                 f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f} band the "
                 f"wall functions are valid in, so the near-wall treatment is "
                 f"a modelling error this run does not separate. "
                 f"• It rides the model channel of the certificate.")
+        else:
+            script.researcher(
+                f"• The whole body sits inside the y+ "
+                f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f} band the "
+                f"wall functions are valid in.")
     else:
         script.numericist(
             "• Near-wall resolution could not be evaluated on this run; no y+ "
             "range is reported from an evaluation that did not run.")
-    roster.idle(CHIEF_RESEARCHER)
+        roster.idle(NUMERICIST)
 
     try:
         refine = _run_refinement_ladder(
@@ -891,7 +908,9 @@ def main(request: str | None = None, params: dict | None = None,
             ["Mesh sensitivity on C_d" if earned_band else "Mesh spread on C_d",
              f"±{refine['band_abs']:.2g}",
              "Three meshes of this case", "Measured"])
-    _emit_table(emit, script, role=_CE_ROLE, title="Verdict",
+    # BEYOND KATIE'S LIST: the verdict is a ruling, and she made the hump's
+    # verdict line the researcher's (her item 4). Same speaker here.
+    _emit_table(emit, script, role=_CR_ROLE, title="Verdict",
                 headers=("Quantity", "Value", "Reference", "Verdict"),
                 rows=verdict_rows, table_id=f"verdict-act7-{label}")
     knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
