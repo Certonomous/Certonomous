@@ -364,6 +364,38 @@ RES_LEVELS = ("coarse", "medium", "fine")
 RES_GRID = {"coarse": (24, 26), "medium": (34, 37), "fine": (45, 48)}
 INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
 
+
+def _ladder_reason(band: dict[str, Any] | None) -> str:
+    """Why the uncertainty layer did not call this refinement ladder conclusive.
+
+    ``eca_hoekstra_band`` hands back a fallback ``band_abs`` even when it sets
+    ``conclusive`` False, so the flag is what decides whether a number may be
+    reported, and this sentence is what the act says instead of the number.
+    """
+    if band is None or band.get("band_abs") is None:
+        return "it did not produce three usable rungs"
+    if band.get("monotone") is False:
+        return "the three rungs do not move one way under refinement"
+    if band.get("asymptotic") is False:
+        return "it is not in the asymptotic range"
+    if band.get("clamped"):
+        return (f"the observed order p = {band['observed_order']:.2f} falls "
+                f"outside the credible range 0.5 to 2.5")
+    return "it did not meet the conclusive test"
+
+
+def _ladder_bullet(numerical_abs: float | None, spread: float | None,
+                   reason: str) -> str:
+    """What the numericist says about the ladder, on camera."""
+    if numerical_abs is not None:
+        return (f"The ladder is conclusive, so the numerical channel carries "
+                f"{numerical_abs:.4f} on the Strouhal number.")
+    moved = (f"The Strouhal number moved {spread:.4f} across the three "
+             f"rungs. " if spread is not None else "")
+    return (f"{moved}The ladder is not conclusive because {reason}, so no "
+            f"band is read from it.")
+
+
 _AGENDA = [
     {"title": "Carry the ladder to Re 150 and Re 180",
      "scope": "Run the same body at two more Reynolds numbers inside the "
@@ -571,17 +603,36 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     roster.set(NUMERICIST, "grid sensitivity across the cylinder ladder", "working")
     cells_series = [levels[r]["cells"] for r in RES_LEVELS]
     st_series = [levels[r]["strouhal"] for r in RES_LEVELS]
-    band_abs = None
+    from chief_engineer import uq as uq_studies
+
+    band = None
+    ladder_spread = None
     if all(v is not None for v in st_series):
-        from chief_engineer import uq as uq_studies
         band = uq_studies.eca_hoekstra_band(cells_series, st_series)
-        band_abs = band.get("band_abs")
+        ladder_spread = max(st_series) - min(st_series)
+    # The ladder's own verdict on itself decides whether a number may leave
+    # this act. A band the uncertainty layer marks not conclusive is the
+    # conservative fallback, not a 95% figure, and the certificate captions
+    # the first result's envelope "95% confidence interval", so an
+    # unquantified numerical channel is the only honest reading here.
+    ladder_conclusive = bool(band and band.get("conclusive")
+                             and band.get("band_abs") is not None)
+    numerical_abs = band["band_abs"] if ladder_conclusive else None
+    ladder_reason = _ladder_reason(band)
+    # The total is the root sum of squares over the channels that carry a
+    # figure, through the same call every other act uses. Input and model are
+    # passed as absent, so they are stated as unquantified rather than
+    # silently counted as zero.
+    total = uq_studies.combine_expanded(
+        input_2sigma=None, numerical_abs=numerical_abs, model_abs=None)
+    combined = total["combined_95"]
     bullets(script.numericist,
            "Grid sensitivity study: three meshes of the same wake, one "
            "knob moved, the Strouhal number tracked at each.",
            f"Stationarity drift on the production mesh: "
            f"{production['cd_relative_drift'] * 100:.1f}%, inside the 10% "
-           f"stationarity gate.")
+           f"stationarity gate.",
+           _ladder_bullet(numerical_abs, ladder_spread, ladder_reason))
     roster.idle(NUMERICIST)
 
     st_computed = production["strouhal"]
@@ -603,18 +654,31 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
                     f"{production['cd_mean']:.4f}", "not a point gate"]],
               table_id="cylinder-vortex-verdict")
     if emit:
-        emit("result.verdict", {"quantity": "Strouhal number",
-                                "value": (f"{st_computed:.4f}" if st_computed
-                                         else "n/a"),
-                                "confidence": "95%", **verdict})
+        # The interval keys ride along only when a combined 95% figure exists.
+        # With no quantified channel there is no interval, and the headline
+        # says so by carrying no interval at all.
+        verdict_payload = {"quantity": "Strouhal number",
+                           "value": (f"{st_computed:.4f}" if st_computed
+                                     else "n/a"),
+                           **verdict}
+        if combined is not None:
+            verdict_payload["ci"] = f"{combined:.4f}"
+            verdict_payload["confidence"] = "95%"
+        emit("result.verdict", verdict_payload)
 
     channels = uncertainty_channels(
-        input_2sigma=None, numerical=band_abs, model=None,
+        input_2sigma=None, numerical=numerical_abs, model=None,
         input_note=INPUT_ASSUMED_NOTE,
         numerical_note=(
-            f"Grid sensitivity band across the mesh ladder: {band_abs:.4f} "
-            f"on the Strouhal number." if band_abs is not None else
-            "Grid sensitivity band pending a conclusive ladder."),
+            f"Grid sensitivity band across the mesh ladder: "
+            f"{numerical_abs:.4f} on the Strouhal number."
+            if numerical_abs is not None else
+            (f"• The Strouhal number moved {ladder_spread:.4f} across the "
+             f"three rungs of this mesh ladder. "
+             if ladder_spread is not None else "")
+            + f"• The ladder is not conclusive: {ladder_reason}. "
+              f"• No band is read from the ladder, so this channel is not "
+              f"quantified."),
         model_note=("Two dimensional laminar Navier Stokes assumption; no "
                     "turbulence closure is invoked at this Reynolds number, "
                     "below where the real wake becomes three dimensional. "
@@ -623,11 +687,32 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
                     "quantified here."))
     if emit:
         emit("uncertainty.channels", channels)
+    emit_table(
+        emit, script, role="CHIEF ENGINEER",
+        title="Total uncertainty on the Strouhal number",
+        headers=("Channel", "Value", "In the total"),
+        rows=[["Input", "Not quantified", "No, and not counted as zero"],
+              ["Numerical",
+               f"{numerical_abs:.4f}" if numerical_abs is not None
+               else "Not quantified",
+               "Yes" if numerical_abs is not None
+               else "No, the mesh ladder is not conclusive"],
+              ["Model form", "Not quantified",
+               "No, the two dimensional idealisation gap is not quantified"],
+              ["Total",
+               f"{combined:.4f}" if combined is not None else "Not reported",
+               "The quantified channels" if combined is not None
+               else "No channel is quantified, so no interval is reported"]],
+        table_id="cylinder-vortex-uncertainty")
     bullets(script.researcher,
-           "Three uncertainty channels stand behind this number: the input "
+           "Three uncertainty channels are named for this number: the input "
            "channel, the numerical channel from the mesh ladder, and the "
-           "model channel, stated even where it is not separately "
-           "quantified.")
+           "model channel, each with its state on the table above.",
+           ("The Strouhal number is reported as a point estimate: no channel "
+            "carries a figure, so there is no 95% interval to quote."
+            if combined is None else
+            f"The Strouhal number carries a combined 95% interval of "
+            f"{combined:.4f} over the quantified channels."))
 
     caveat_bullets = caveats or ["Mesh quality cleared both published gates."]
     bullets(script.engineer, *caveat_bullets)
@@ -636,6 +721,17 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
                   "Roshko and Williamson correlation.")
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
+
+    # The certificate captions the first result's envelope "95% confidence
+    # interval" whenever it reads as a bare magnitude, so the key is present
+    # only when a combined 95% figure exists. Absent, it prints as a point
+    # estimate.
+    headline_result: dict[str, Any] = {
+        "quantity": "Strouhal number",
+        "value": f"{st_computed:.4f}" if st_computed else "n/a",
+        "tier": verdict["tier"], "reason": verdict["reason"]}
+    if combined is not None:
+        headline_result["envelope"] = f"{combined:.4f}"
 
     report_doc = lab_report(
         title="Cylinder vortex shedding: Strouhal validation",
@@ -646,10 +742,7 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
                 "through the selected solver.", "Measure the shedding "
                 "period from the settled portion of the lift history.",
                 "Report the Cd mean and band over the same window."],
-        results=[{"quantity": "Strouhal number",
-                 "value": f"{st_computed:.4f}" if st_computed else "n/a",
-                 "envelope": f"{band_abs:.4f}" if band_abs is not None else "pending",
-                 "tier": verdict["tier"], "reason": verdict["reason"]}],
+        results=[headline_result],
         uncertainty=[c["note"] for c in channels["channels"]],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict())
@@ -665,7 +758,9 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
             ("Body", display_name(BODY)),
             ("Strouhal number", f"{st_computed:.4f}" if st_computed else "n/a"),
             ("Cd mean", f"{production['cd_mean']:.4f}"),
-            ("Grid sensitivity band", f"{band_abs:.4f}" if band_abs is not None else "pending"),
+            ("Grid sensitivity band",
+             f"{numerical_abs:.4f}" if numerical_abs is not None
+             else "Not reported, the ladder is not conclusive"),
             ("Cells", f"{production['cells']}"),
         ]
         certificate = build_certificate_v2(

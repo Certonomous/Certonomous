@@ -45,6 +45,26 @@ RES_LEVELS = ("coarse", "medium", "fine")
 RES_CELLS = {"coarse": 2000, "medium": 8000, "fine": 32000}
 INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
 
+
+def _ladder_reason(band: dict[str, Any] | None) -> str:
+    """Why the uncertainty layer did not call this refinement ladder conclusive.
+
+    ``eca_hoekstra_band`` hands back a fallback ``band_abs`` even when it sets
+    ``conclusive`` False, so the flag is what decides whether a number may be
+    reported, and this sentence is what the act says instead of the number.
+    """
+    if band is None or band.get("band_abs") is None:
+        return "it did not produce three usable rungs"
+    if band.get("monotone") is False:
+        return "the three rungs do not move one way under refinement"
+    if band.get("asymptotic") is False:
+        return "it is not in the asymptotic range"
+    if band.get("clamped"):
+        return (f"the observed order p = {band['observed_order']:.2f} falls "
+                f"outside the credible range 0.5 to 2.5")
+    return "it did not meet the conclusive test"
+
+
 _AGENDA = [
     {"title": "Add a second Mach number to the diamond family",
      "scope": "Stand up the case at a second Mach number so the wave drag "
@@ -190,10 +210,32 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     cells_series = [levels[r]["cells"] for r in RES_LEVELS]
     cd_series = [levels[r]["cd_computed"] for r in RES_LEVELS]
     band = uq_studies.eca_hoekstra_band(cells_series, cd_series)
-    band_abs = band.get("band_abs")
+    # The ladder's own verdict on itself decides whether a number may leave
+    # this act. A band the uncertainty layer marks not conclusive is the
+    # conservative fallback, not a 95% figure, and the certificate captions
+    # the first result's envelope "95% confidence interval", so an
+    # unquantified numerical channel is the only honest reading here.
+    ladder_conclusive = (bool(band.get("conclusive"))
+                         and band.get("band_abs") is not None)
+    numerical_abs = band["band_abs"] if ladder_conclusive else None
+    ladder_reason = _ladder_reason(band)
+    ladder_spread = max(cd_series) - min(cd_series)
+    # The total is the root sum of squares over the channels that carry a
+    # figure, through the same call every other act uses. Input and model are
+    # passed as absent, so they are stated as unquantified rather than
+    # silently counted as zero.
+    total = uq_studies.combine_expanded(
+        input_2sigma=None, numerical_abs=numerical_abs, model_abs=None)
+    combined = total["combined_95"]
     bullets(script.numericist,
            "Grid sensitivity study: three meshes of the same diamond "
            "section, one knob moved, the wave drag tracked at each.",
+           (f"The wave drag coefficient moved {ladder_spread:.5f} across the "
+            f"three rungs, and the ladder is not conclusive because "
+            f"{ladder_reason}, so no band is read from that spread."
+            if numerical_abs is None else
+            f"The ladder is conclusive, so the numerical channel carries "
+            f"{numerical_abs:.5f}."),
            citations=[per("shock-expansion")])
     roster.idle(NUMERICIST)
 
@@ -212,25 +254,57 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
                     f"{cd_computed:.5f}", f"{100 * rel_error:.2f}%"]],
               table_id="diamond-verdict")
     if emit:
-        emit("result.verdict", {"quantity": "Wave drag coefficient",
-                                "value": f"{cd_computed:.5f}",
-                                "confidence": "95%", **verdict})
+        # The interval keys ride along only when a combined 95% figure exists.
+        # With no quantified channel there is no interval, and the headline
+        # says so by carrying no interval at all.
+        verdict_payload = {"quantity": "Wave drag coefficient",
+                           "value": f"{cd_computed:.5f}", **verdict}
+        if combined is not None:
+            verdict_payload["ci"] = f"{combined:.5f}"
+            verdict_payload["confidence"] = "95%"
+        emit("result.verdict", verdict_payload)
 
     channels = uncertainty_channels(
-        input_2sigma=None, numerical=band_abs, model=None,
+        input_2sigma=None, numerical=numerical_abs, model=None,
         input_note=INPUT_ASSUMED_NOTE,
         numerical_note=(
-            f"Grid sensitivity band across the mesh ladder: {band_abs:.5f}."
-            if band_abs is not None else
-            "Grid sensitivity band pending a conclusive ladder."),
+            f"Grid sensitivity band across the mesh ladder: "
+            f"{numerical_abs:.5f}." if numerical_abs is not None else
+            f"• The wave drag coefficient moved {ladder_spread:.5f} across "
+            f"the three rungs of this mesh ladder. "
+            f"• The ladder is not conclusive: {ladder_reason}. "
+            f"• No band is read from that spread, so this channel is not "
+            f"quantified."),
         model_note=("The solved case shares the reference theory's inviscid "
                     "assumption, so no closure model form gap applies here."))
     if emit:
         emit("uncertainty.channels", channels)
+    emit_table(
+        emit, script, role="CHIEF ENGINEER",
+        title="Total uncertainty on the wave drag coefficient",
+        headers=("Channel", "Value", "In the total"),
+        rows=[["Input", "Not quantified", "No, and not counted as zero"],
+              ["Numerical",
+               f"{numerical_abs:.5f}" if numerical_abs is not None
+               else "Not quantified",
+               "Yes" if numerical_abs is not None
+               else "No, the mesh ladder is not conclusive"],
+              ["Model form", "Not quantified",
+               "No, the case shares the theory's inviscid assumption"],
+              ["Total",
+               f"{combined:.5f}" if combined is not None else "Not reported",
+               "The quantified channels" if combined is not None
+               else "No channel is quantified, so no interval is reported"]],
+        table_id="diamond-uncertainty")
     bullets(script.researcher,
-           "Three uncertainty channels stand behind this number: the input "
+           "Three uncertainty channels are named for this number: the input "
            "channel, the numerical channel from the mesh ladder, and the "
-           "model channel, stated even where it does not apply.")
+           "model channel, each with its state on the table above.",
+           ("The wave drag coefficient is reported as a point estimate: no "
+            "channel carries a figure, so there is no 95% interval to quote."
+            if combined is None else
+            f"The wave drag coefficient carries a combined 95% interval of "
+            f"{combined:.5f} over the quantified channels."))
 
     caveat_bullets = caveats or ["Mesh quality cleared both published gates."]
     bullets(script.engineer, *caveat_bullets)
@@ -240,6 +314,16 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     if emit:
         emit("agenda.updated", {"entries": _AGENDA})
 
+    # The certificate captions the first result's envelope "95% confidence
+    # interval" whenever it reads as a bare magnitude, so the key is present
+    # only when a combined 95% figure exists. Absent, it prints as a point
+    # estimate.
+    headline_result: dict[str, Any] = {
+        "quantity": "Wave drag coefficient", "value": f"{cd_computed:.5f}",
+        "tier": verdict["tier"], "reason": verdict["reason"]}
+    if combined is not None:
+        headline_result["envelope"] = f"{combined:.5f}"
+
     report_doc = lab_report(
         title="Diamond airfoil: shock-expansion wave drag validation",
         abstract=["A symmetric diamond section at a stated Mach number "
@@ -248,9 +332,7 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
         methods=["Mesh and solve the diamond section at three resolutions "
                 "through the selected solver.", "Integrate the pressure "
                 "over the four panels to the wave drag coefficient."],
-        results=[{"quantity": "Wave drag coefficient", "value": f"{cd_computed:.5f}",
-                 "envelope": f"{band_abs:.5f}" if band_abs is not None else "pending",
-                 "tier": verdict["tier"], "reason": verdict["reason"]}],
+        results=[headline_result],
         uncertainty=[c["note"] for c in channels["channels"]],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict())
@@ -265,7 +347,9 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
         cert_doc["result_fields"] = [
             ("Body", display_name(BODY)),
             ("Wave drag coefficient", f"{cd_computed:.5f}"),
-            ("Grid sensitivity band", f"{band_abs:.5f}" if band_abs is not None else "pending"),
+            ("Grid sensitivity band",
+             f"{numerical_abs:.5f}" if numerical_abs is not None
+             else "Not reported, the ladder is not conclusive"),
             ("Cells", f"{production['cells']}"),
         ]
         certificate = build_certificate_v2(
