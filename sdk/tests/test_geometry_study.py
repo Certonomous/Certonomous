@@ -142,7 +142,13 @@ class LadderReplayTests(_LadderHarness):
         # only what the figure is; WHY the ladder did not settle is method,
         # and it lives on the numerical channel, not here.
         text = self.entries_text()
-        self.assertIn("Eca & Hoekstra 2014", text)
+        # The procedure is named; its AUTHORS are not. The house rule that
+        # kept method authors off the sealed page and the channel notes covers
+        # every camera surface, and this bullet is read on camera (Katie,
+        # 2026-07-31). The citation stays on the permanent record.
+        self.assertIn(gs.GRID_UNCERTAINTY_PROCEDURE, text)
+        for banned in ("Eca", "Hoekstra"):
+            self.assertNotIn(banned, text)
         self.assertIn("Spread across 3 meshes", text)
         self.assertNotIn("Observed order of convergence", text)
         self.assertNotIn("asymptotic range", text)

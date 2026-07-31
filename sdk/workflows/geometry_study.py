@@ -57,6 +57,12 @@ AIR_KINEMATIC_VISCOSITY = 1.5e-5
 # the condition it actually solved and judges it, rather than asserting a
 # figure. The speed of sound is the sea-level standard-atmosphere value,
 # a = sqrt(gamma R T), which is the state the freestream default belongs to.
+# A request that hands the closure choice to the lab. The instruction-echo
+# signature answers it by name rather than quietly running the standing setup.
+_PICK_MODEL_ASK = re.compile(
+    r"\b(?:pick|choose|select|decide|you\s+pick)\b[^.;]{0,30}?\b"
+    r"(?:turbulence\s+)?(?:model|closure)\b", re.I)
+
 SEA_LEVEL_TEMPERATURE_K = 288.15
 AIR_GAMMA = 1.4
 AIR_GAS_CONSTANT = 287.05
@@ -207,9 +213,8 @@ def wall_resolution_note(wall: dict) -> str:
                 f"{wall['band_hi']:.0f} band the wall functions are valid in")
     return (f"near-wall y+ {wall['min']:,.0f} to {wall['max']:,.0f} on the "
             f"body, outside the {wall['band_lo']:.0f} to "
-            f"{wall['band_hi']:.0f} band the wall functions are valid in; the "
-            f"near-wall treatment is a modelling error this run does not "
-            f"separate")
+            f"{wall['band_hi']:.0f} band the wall functions are valid in, a "
+            f"modelling error this run does not separate")
 
 
 # --- the settling commitment ------------------------------------------------
@@ -619,10 +624,14 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         ["Planform area",
          f"{geometry['planform_area'] * scale * scale:.3g} m²"],
     ]
-    script.engineer(
-        "".join(f"• {line}. " for line in basis_lines)
-        + "• The Reynolds number and every force ride on the working length, "
-          "which is a row of the table below.")
+    # SPEAKER SPLIT (Katie, 2026-07-31). The scale basis is the engineer's
+    # reading of the file; what rides on the working length is a numerics
+    # statement, so the numericist makes it.
+    if basis_lines:
+        script.engineer("".join(f"• {line}. " for line in basis_lines).strip())
+    script.numericist(
+        "• The Reynolds number and every force ride on the working length, "
+        "which is a row of the table below.")
     if velocity_line:
         script.engineer(velocity_line)
 
@@ -912,6 +921,58 @@ def _rung_label(tag: str) -> str:
     return _RUNG_LABELS.get(str(tag), str(tag).capitalize())
 
 
+# WHAT THE MESH STAGE PUTS ON THE COUNTER (Katie, 2026-07-31; fleet shape).
+# The required shape is 0, the fleet the moment meshing genuinely starts, then
+# 0 when the run completes. The mesher in this chain runs serially, one process
+# on one core, so the count that goes up when meshing starts is one, and it is
+# the first rise off zero on a cold run. It is NOT declared on a warm case: a
+# case that builds no mesh spends nothing, and a numeral against a stage that
+# did no work is narrating work that did not happen. On a warm run the counter
+# therefore rises later, at the solve, which is the first stage that genuinely
+# spends. Honest and late beats early and invented.
+MESH_STAGE_WORKERS = 1
+
+# How the grid-refinement band is named out loud. The house rule keeps a
+# method's authors off the sealed page and off every camera surface, so the
+# procedure is named for what it does and the citation stays on the permanent
+# record (Katie, 2026-07-31).
+GRID_UNCERTAINTY_PROCEDURE = "per the grid-refinement uncertainty procedure"
+
+_COUNT_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five",
+                6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+
+
+def count_word(count: int) -> str:
+    """A small count written the way a speaker says it."""
+    return _COUNT_WORDS.get(int(count), f"{int(count)}")
+
+
+def ladder_title(cheaper: int) -> str:
+    """The ladder table's caption, counting the rungs the table actually shows.
+
+    The caption used to say "two cheaper meshes" whatever the table held, and
+    a body with a longer record on the wall (the B-52 shows three cheaper
+    rungs beside the production mesh) put a caption and a table on screen that
+    disagreed about how many meshes were in front of the viewer. The count
+    comes from the rungs being rendered, so it cannot drift from them again.
+    """
+    return (f"Mesh sensitivity: {count_word(max(1, cheaper))} cheaper "
+            f"mesh{'es' if cheaper != 1 else ''} of this case beside the "
+            f"production mesh")
+
+
+def band_basis_phrase(refine: dict | None) -> str:
+    """How many meshes the reported band was measured on, in words.
+
+    The ladder on screen can be longer than the fit behind the band, so this
+    counts the meshes the BAND came from rather than the rows of the table.
+    """
+    counted = list((refine or {}).get("band_cells") or [])
+    if not counted:
+        counted = list((refine or {}).get("levels") or [])
+    return f"{count_word(len(counted) or 3)} meshes"
+
+
 def _ladder_rows(levels: list[dict]) -> list[list[str]]:
     """Table rows for the mesh ladder, cheapest mesh first.
 
@@ -984,11 +1045,14 @@ def _band_bullet(band: dict) -> str:
     if band.get("band_abs") is None:
         return ""
     meshes = len(band.get("cells") or []) or 3
+    # The procedure is named, its authors are not: the house rule keeps a
+    # method's authors off the sealed page and off every camera surface alike,
+    # and this bullet is read on camera (Katie, 2026-07-31).
     if uq_studies.reportable_band(band) is None:
         return (f"• Spread across {meshes} meshes: ±{band['band_abs']:.2g} on "
-                f"C_d (Eca & Hoekstra 2014).")
+                f"C_d, {GRID_UNCERTAINTY_PROCEDURE}.")
     note = (f"• Numerical uncertainty from {meshes} meshes: "
-            f"±{band['band_abs']:.2g} on C_d (Eca & Hoekstra 2014).")
+            f"±{band['band_abs']:.2g} on C_d, {GRID_UNCERTAINTY_PROCEDURE}.")
     if band.get("observed_order") is not None:
         note += (f" • Observed order of convergence "
                  f"{band['observed_order']:.2f}.")
@@ -1023,8 +1087,11 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
     # immediately underneath it, so the same speaker appeared twice in a row
     # for what is one piece of evidence. The sentence IS the table's caption,
     # so it is the table's caption: one block, one header, nothing said twice.
-    title = ("Mesh sensitivity: two cheaper meshes of this case beside the "
-             "production mesh")
+    #
+    # The caption counts the rungs the table is about to show, which is how
+    # the two stay in step on a body whose record carries more than two
+    # cheaper meshes (Katie, 2026-07-31).
+    title = ladder_title(2)
 
     def _finish(levels: list[dict], *, replay: bool) -> dict | None:
         ordered = sorted(levels, key=lambda lv: lv["cells"])
@@ -1095,6 +1162,10 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             # itself is untouched and goes on to _finish, so the band is
             # measured across the full ladder either way.
             rows = _ladder_rows(displayed_levels(levels))
+            # The caption counts the cheaper rungs this table is about to
+            # show, so a record longer than two rungs is captioned by what is
+            # on the screen rather than by what a fresh ladder would run.
+            title = ladder_title(max(1, len(rows) - 1))
             _emit_table(emit, script, role=_NUM_ROLE, title=title,
                         headers=headers, rows=rows[:1], table_id=table_id)
             for row in rows[1:]:
@@ -1113,6 +1184,7 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
     try:
         specs = refinement_rungs(familiar=familiar,
                                  refinement=int(params.get("refinement", 3)))
+        title = ladder_title(len(specs))
         rung_iters = rung_iterations(iterations)
         production = {"tag": "production", "cells": production_cells,
                       "cd": production_cd, "mission": f"{label}-production"}
@@ -1205,7 +1277,8 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
                          lookup: dict, cells: int, non_ortho_s: str,
                          skew_s: str, model_extra: str = "",
                          transfer: dict | None = None,
-                         wall_note: str = "") -> dict:
+                         wall_note: str = "",
+                         wall_inside: bool | None = None) -> dict:
     """The three V&V-20 channels for this study, built from what was measured.
 
     Doctrine (docs/UNCERTAINTY-DOCTRINE.md): input conditions taken as
@@ -1289,8 +1362,8 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         # transferred from the lab's measured validation history.
         model_val = transfer["band_abs"]
         model_note = ("turbulence closure k-omega SST, stated model-form; "
-                      "band estimated from the lab's validation history "
-                      "(screening estimate, not a bound)")
+                      "closure spread estimated from the lab's validation "
+                      "history, a screening estimate")
     if model_extra:
         # A positive published comparison rides the model channel: that is the
         # channel a magnitude check against reality belongs to.
@@ -1301,6 +1374,19 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         # mesh does not resolve. So the measured y+ reading rides this channel,
         # and it rides it whether it cleared the band or missed it.
         model_note += "; " + wall_note
+    if wall_inside is False and model_val is not None:
+        # THE TWO STATEMENTS MUST NOT UNDERCUT EACH OTHER (Katie, 2026-07-31).
+        # This channel was showing a figure smaller than the numerical channel
+        # by a factor of fifty while its own text named a wall-function
+        # validity violation, and a reviewer reads that as the number
+        # contradicting the sentence beside it. Nothing about how the band is
+        # computed changes; what changes is that the display now says what the
+        # figure covers and what it does not. The figure is a closure-spread
+        # estimate, the near-wall gap is not inside it, and the channel is
+        # therefore a floor rather than a bound.
+        model_note += ("; that gap is outside what the figure above measures, "
+                       "which is closure spread, so this channel is a floor "
+                       "on model form and not a bound")
     return uncertainty_channels(
         input_2sigma=None, numerical=numerical_val, model=model_val,
         input_note=input_note,
@@ -1559,10 +1645,21 @@ def main(request: str | None = None, params: dict | None = None,
                 Path(surface).stem.lower().replace("-", "_"), {}).get("kind")
                 == "aircraft")))
 
-        script.engineer(
-            "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
-            "• Standard closure for attached external flow, on a "
-            "quality-gated mesh.")
+        # INSTRUCTION ECHO (Katie, 2026-07-31). A request that hands the
+        # closure choice over is answered by repeating the instruction back,
+        # naming what was picked, and giving the reason. The rationale was
+        # already here; the echo is what makes it an answer to the ask.
+        if _PICK_MODEL_ASK.search(request or ""):
+            script.engineer(
+                "• You asked me to pick the model: k-omega SST, the standard "
+                "closure for attached external flow. "
+                "• Solver of choice: OpenFOAM, steady RANS, on a "
+                "quality-gated mesh.")
+        else:
+            script.engineer(
+                "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
+                "• Standard closure for attached external flow, on a "
+                "quality-gated mesh.")
 
         # A previously snapped mesh is reused silently: the demo shows the
         # lab's capability, and the transcript never talks about storage.
@@ -1571,7 +1668,14 @@ def main(request: str | None = None, params: dict | None = None,
         # are the claim, and those are measured and shown below.
         warm = engineer.restore_cached_mesh(label)
         if warm:
+            # A warm case builds no mesh, so no FLEET is declared here: a six
+            # against a stage that did no work is narrating work that did not
+            # happen. What does run on this path is the mesh check below, one
+            # process on one core, and that is what the counter states. So the
+            # numeral leaves zero at the mesh stage on both paths, and on
+            # neither path does it stand for work nobody did.
             roster.set(CHIEF_ENGINEER, "meshing the body", "working")
+            roster.set_workers(MESH_STAGE_WORKERS, "meshing the body")
         else:
             # ``stage_name`` is the on-screen stage label. ``step`` stays the
             # tool name because the runner and the ledger key off it, but the
@@ -1588,7 +1692,8 @@ def main(request: str | None = None, params: dict | None = None,
                  "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
-                roster.set_workers(1, note)
+                # The counter leaves zero the moment meshing genuinely starts.
+                roster.set_workers(MESH_STAGE_WORKERS, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
                 stage_row(stage_name, result.seconds, note)
@@ -1613,6 +1718,8 @@ def main(request: str | None = None, params: dict | None = None,
                  "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
+                # A retry meshes for real too, so it declares what it runs.
+                roster.set_workers(MESH_STAGE_WORKERS, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds,
                              f"{step} remesh {retry_index} "
@@ -2043,9 +2150,14 @@ def main(request: str | None = None, params: dict | None = None,
         coefficient_rows.append(["C_L", f"{lift['value']:.4g}",
                                  f"±{2 * lift['sigma']:.2g}",
                                  f"final {lift['window']} iterations"])
+    # ONE NAME, ONE NUMBER (Katie, 2026-07-31). This column and the closing
+    # table both read "Band (95%)" and they are not the same quantity: this
+    # one is the scatter of the settled window, the closing table's is every
+    # channel combined. Each is named for what it measures.
     _emit_table(emit, script, role=_CE_ROLE,
                 title="Force coefficients over the settled window",
-                headers=("Coefficient", "Value", "Band (95%)", "Window"),
+                headers=("Coefficient", "Value", "Settling band (95%)",
+                         "Window"),
                 rows=coefficient_rows, table_id=f"coefficients-{label}")
 
     # Near-wall resolution, computed from the fields this run solved. The two
@@ -2065,18 +2177,19 @@ def main(request: str | None = None, params: dict | None = None,
             script.numericist(
                 f"• Part of the body sits outside the y+ "
                 f"{YPLUS_LOG_LAW_LO:.0f} to {YPLUS_LOG_LAW_HI:.0f} band the "
-                f"wall functions are valid in, so the near-wall treatment is "
-                f"a modelling error this run does not separate. "
-                f"• It rides the model channel of the certificate.")
+                f"wall functions are valid in. "
+                f"• That near-wall modelling error is not separated here; it "
+                f"rides the model channel, which the certificate marks as a "
+                f"floor.")
     else:
         script.numericist(
             "• Near-wall resolution could not be evaluated on this run; no y+ "
             "range is reported from an evaluation that did not run.")
     roster.idle(NUMERICIST)
 
-    # The grid-refinement study runs INSIDE the act: two cheaper rungs of the
-    # same case, the Eca & Hoekstra band on Cd across the three meshes, and
-    # the band lands in the numerical channel of this mission's certificate.
+    # The grid-refinement study runs INSIDE the act: cheaper rungs of the same
+    # case, the grid-refinement band on Cd across the meshes it fits, and the
+    # band lands in the numerical channel of this mission's certificate.
     # A refinement study must never take down a solved mission: any failure
     # is said plainly and the numerical channel states the missing band.
     try:
@@ -2090,6 +2203,9 @@ def main(request: str | None = None, params: dict | None = None,
             "• The refinement study did not complete; detail is in the run "
             "logs, and no band is reported from a partial ladder.")
         refine = None
+    # How many meshes the reported band was measured on, counted from the fit
+    # rather than typed into each sentence that mentions it.
+    ladder_basis = band_basis_phrase(refine)
 
     # The ladder's own statistics go on the wall next to its rungs: the rung
     # table shows the three meshes, this one shows what the three meshes
@@ -2126,12 +2242,20 @@ def main(request: str | None = None, params: dict | None = None,
         # changes is the word in front of it, so no row can be read as a band
         # this ladder did not earn.
         earned_band = uq_studies.reportable_band(refine) is not None
+        band_shown = None
         if refine.get("band_abs") is not None:
+            band_shown = f"{refine['band_abs']:.2g}"
             ladder_stats.append(
                 ["Discretization band on C_d" if earned_band
-                 else "Mesh spread on C_d",
-                 f"±{refine['band_abs']:.2g}"])
-        band_share = refine.get("band_rel")
+                 else "Mesh spread on C_d", f"±{band_shown}"])
+        # QUOTED FROM THE PRECISION SHOWN (Katie, 2026-07-31). The share used
+        # to come from the fit's own full-precision ratio, so the table read
+        # "±0.0063", "0.0472" and "13.5%", and 0.0063 over 0.0472 is 13.3%. A
+        # reader who divides the two numbers in front of them has to get the
+        # third, so the share is computed from the figures on screen.
+        band_share = None
+        if band_shown is not None and drag["value"]:
+            band_share = abs(float(band_shown) / float(f"{drag['value']:.4g}"))
         if band_share is not None and 0 < band_share <= 1.0:
             ladder_stats.append(
                 ["Band as a share of C_d" if earned_band
@@ -2197,7 +2321,8 @@ def main(request: str | None = None, params: dict | None = None,
         velocity=20.0 if familiar else float(params.get("velocity", 100.0)),
         lookup=lookup, cells=cells, non_ortho_s=non_ortho_s, skew_s=skew_s,
         model_extra=model_extra, transfer=transfer,
-        wall_note=wall_resolution_note(wall) if wall else "")
+        wall_note=wall_resolution_note(wall) if wall else "",
+        wall_inside=(bool(wall["inside"]) if wall else None))
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
     # The combined 95% band still carries the settled-state scatter of the
@@ -2217,13 +2342,17 @@ def main(request: str | None = None, params: dict | None = None,
                                 **verdict})
         emit("uncertainty.channels", channels)
 
+    # WHOSE LINE THIS IS (Katie, 2026-07-31). What a measured band is worth
+    # against a body with no published counterpart is a ruling, so the Chief
+    # Researcher gives it. The procedure is named generically: the sealed page
+    # and the camera surfaces never carry a method's authors.
     if refine and refine.get("band_abs") is not None:
-        script.numericist(
-            (f"• Discretization band measured from three meshes of this case, "
-             f"{per('grid-uncertainty')}. "
+        script.researcher(
+            (f"• Discretization band measured from {ladder_basis} of this "
+             f"case, {GRID_UNCERTAINTY_PROCEDURE}. "
              if uq_studies.reportable_band(refine) is not None else
-             f"• Mesh spread measured across three meshes of this case, "
-             f"{per('grid-uncertainty')}. ")
+             f"• Mesh spread measured across {ladder_basis} of this case, "
+             f"{GRID_UNCERTAINTY_PROCEDURE}. ")
             + ("• A published comparison for this body is on the record above."
                if (comparison or drag_area_cmp) else
                "• No published comparison exists for this body yet."))
@@ -2334,12 +2463,13 @@ def main(request: str | None = None, params: dict | None = None,
         # sentence is dropped rather than rounded down to zero on screen.
         # The mesh sensitivity is the numericist's finding, so the numericist
         # states it; the spend stays with the Chief Engineer, whose ledger it is.
+        # Said once. The meshes it was measured on are the researcher's line
+        # above; this one places the figure, and repeating the basis here was
+        # the same sentence twice (Katie, 2026-07-31).
         script.numericist(
-            ("• Mesh sensitivity measured on three meshes of this case; the "
-             "figure rides the numerical channel of the certificate."
-             if uq_studies.reportable_band(refine) is not None else
-             "• Mesh spread measured on three meshes of this case; the "
-             "figure rides the numerical channel of the certificate."))
+            "• The mesh sensitivity rides the numerical channel."
+            if uq_studies.reportable_band(refine) is not None else
+            "• The mesh spread rides the numerical channel.")
         spend = ledger.as_dict()['spent_core_minutes']
         if spend >= 1:
             script.engineer(f"• Total spend {spend:.0f} core-minutes, "
@@ -2365,8 +2495,13 @@ def main(request: str | None = None, params: dict | None = None,
                              f"{closing_spend:.0f} core-minutes"])
     closing_rows.append(["Cells solved", f"{cells:,}"])
     closing_rows.append(["C_d", f"{drag['value']:.4g}"])
+    # ONE CLARIFYING WORD (Katie, 2026-07-31). This row and the mesh-spread
+    # row below it read "±0.0064" and "±0.0063", close enough to be taken for
+    # a typo of each other. They are different quantities: this one is every
+    # channel combined, that one is the spread one channel measured. The row
+    # says which, so nobody has to guess.
     closing_rows.append(
-        ["Band (95%)",
+        ["Band (95%), all channels combined",
          f"±{(combined if combined else 2 * drag['sigma']):.2g}"])
     if lift:
         closing_rows.append(["C_L", f"{lift['value']:.4g}"])
@@ -2459,7 +2594,7 @@ def main(request: str | None = None, params: dict | None = None,
                          if uq_studies.reportable_band(refine) is not None
                          else "Mesh spread on C_d"),
             "value": f"±{refine['band_abs']:.2g}",
-            "envelope": "measured across meshes of this case",
+            "envelope": f"measured across {ladder_basis} of this case",
             **verdict,
         }] if refine and refine.get("band_abs") is not None else []),
         # The band the ladder measured stays, verbatim, as a row of the table
@@ -2478,9 +2613,9 @@ def main(request: str | None = None, params: dict | None = None,
              f"{wall['band_lo']:.0f} to {wall['band_hi']:.0f} band."
              if wall else
              "Near-wall resolution: not evaluated on this run."),
-            (("Mesh sensitivity: measured across meshes of this case."
+            ((f"Mesh sensitivity: measured across {ladder_basis} of this case."
               if uq_studies.reportable_band(refine) is not None else
-              "Mesh spread: measured across meshes of this case.")
+              f"Mesh spread: measured across {ladder_basis} of this case.")
              if refine and refine.get("band_abs") is not None else
              "Mesh sensitivity: no matching refinement study for this setup."),
             (f"Graded against {reference['source']}."
@@ -2523,7 +2658,7 @@ def main(request: str | None = None, params: dict | None = None,
         cert_doc["result_fields"] = (
             [("Body", shown), ("C_d", f"{drag['value']:.4g}")]
             + ([("C_L", f"{lift['value']:.4g}")] if lift else [])
-            + [("Band (95%)",
+            + [("Band (95%), Combined",
                 f"±{(combined if combined else 2 * drag['sigma']):.2g}")]
             + ([("Reference Area", area_row[1])] if area_row else [])
             + [("Cells", f"{cells:,}"),
