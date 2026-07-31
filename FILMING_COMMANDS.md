@@ -152,10 +152,10 @@ routes at 0.74 and takes the attached wing as its subject. Attach
 by measuring it, and reports 28.3% and 47 major iterations against the two
 conditions the prompt stated. Either prompt plays the same beats below.
 
-The act itself runs in
-about 1 second, but it **plays for about 47 seconds on screen** — it is now a
-design optimization you watch, not a page of tables. Time your narration
-against the playback, not the run.
+The act paces itself now, so the mission takes **about 38 seconds** and
+**plays for about 55 seconds on screen**: it is a design optimization you
+watch, not a page of tables. Time your narration against the playback, not the
+mission.
 
 **The visual beats, in order:** baseline wing → the adjoint gradient painted on
 the skin (~18 s) → the wing morphing across 48 frames with the drag trace
