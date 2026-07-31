@@ -618,7 +618,10 @@ function solverSelected(p) {
   $('runtime').textContent = `SOLVER / ${name}`;
   toast(`Solver selected: ${name}`);
 }
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600); }
+// Toasts carry solver names, upload results and raw server error text, so they
+// are typeset too: a variable must not lose its subscript just because it
+// appeared in a transient message rather than a panel.
+function toast(msg) { const t = $('toast'); t.innerHTML = subScript(esc(msg)); t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2600); }
 // The workspace eyebrow shows a neutral label, never the raw mission slug (R3).
 // The slug rides a hover title only, and lives in provenance surfaces (the
 // sealed certificate footer) — never as on-camera text.
@@ -656,7 +659,7 @@ async function launchMission() {
     // No raw mission slug on camera (R3): the header reads a neutral label; the
     // id stays available on hover and in provenance surfaces (certificate).
     setMissionLabel('ACTIVE MISSION', data.mission_id);
-    $('missionGoal').textContent = goal; $('missionGoal').title = goal;
+    subText('missionGoal', goal); $('missionGoal').title = goal;
     setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true);
     if (data.route) showRoute(data.route);
     connect(data.mission_id);
@@ -713,11 +716,11 @@ async function resumeMission(id, staticReplay) {
       if (!upto && !document.querySelector('.tab[data-view="memo"]').hidden) showView('memo');
       drawGeometry(); drawLandscape(); drawTrace(); drawRace();
       fetch(`/api/missions/${id}`).then(r => r.json())
-        .then(rec => { const g = rec.request || id; $('missionGoal').textContent = g; $('missionGoal').title = g; }).catch(() => {});
+        .then(rec => { const g = rec.request || id; subText('missionGoal', g); $('missionGoal').title = g; }).catch(() => {});
     } else {
       const rec = await (await fetch(`/api/missions/${id}`)).json();
       const g = rec.request || id;
-      $('missionGoal').textContent = g; $('missionGoal').title = g;
+      subText('missionGoal', g); $('missionGoal').title = g;
       connect(id);
     }
   } catch (e) { toast('Could not replay: ' + e.message); }
@@ -876,7 +879,7 @@ function renderAudit(p) {
   $('auditMemory').textContent = p.memory ?? 'not reported';
   $('auditJobs').textContent = p.other_jobs ?? 'not reported';
   $('auditLoad').textContent = p.load ?? 'not reported';
-  $('auditReason').textContent = p.reason || '';
+  subText('auditReason', p.reason || '');
   // Feed the dispatch panel's requested-vs-granted line from the same audit.
   if (p.requested != null && p.capacity != null) {
     const full = fits && p.requested <= p.capacity;
@@ -904,8 +907,8 @@ function renderDispatch() {
   $('dispatchGrid').innerHTML = slots.map(n => {
     const s = state.dispatch[n];
     return `<div class="slot ${esc(s.state)}"><span class="sn">Worker ${n+1}</span>`
-      + `<span class="sl">${esc(s.label || 'waiting')}</span>`
-      + `<span class="st">${esc(stateWord(s.state))}${s.detail ? ' · ' + esc(s.detail) : ''}</span></div>`;
+      + `<span class="sl">${subHTML(s.label || 'waiting')}</span>`
+      + `<span class="st">${esc(stateWord(s.state))}${s.detail ? ' · ' + subHTML(s.detail) : ''}</span></div>`;
   }).join('');
 }
 
@@ -1037,15 +1040,15 @@ function initRace(p) {
   state.race = { lanes, order: (p.lanes || []).map(l => l.key),
                  xLabel: p.x_label || 'x', yLabel: p.y_label || 'L/D',
                  objective: p.objective || '', subject: p.subject || '' };
-  $('raceObj').textContent = p.objective || 'The race';
-  $('raceSub').textContent = [p.subject, p.tolerance ? 'tolerance ' + p.tolerance : '']
-    .filter(Boolean).join('  ·  ');
+  subText('raceObj', p.objective || 'The race');
+  subText('raceSub', [p.subject, p.tolerance ? 'tolerance ' + p.tolerance : '']
+    .filter(Boolean).join('  ·  '));
   $('raceLanes').innerHTML = state.race.order.map(k => {
     const l = lanes[k];
     return `<div class="race-lane ${esc(k)}" id="lane-${esc(k)}">`
       + `<div class="rl-head"><span class="rl-title">${subScript(esc(l.title))}</span>`
       + `<span class="rl-flag" id="flag-${esc(k)}" hidden>FINISHED</span></div>`
-      + `<div class="rl-sub">${esc(l.subtitle)}</div>`
+      + `<div class="rl-sub">${subHTML(l.subtitle)}</div>`
       + `<canvas class="rl-polar" id="polar-${esc(k)}"></canvas>`
       + `<div class="rl-meta"><div class="rl-prog"><div class="rl-bar"><i id="bar-${esc(k)}"></i></div>`
       + `<span class="rl-count" id="count-${esc(k)}">0 / ${l.total} solves</span></div>`
@@ -1107,7 +1110,7 @@ function raceLane(p) {
   } else if (state.instant && clk) {
     clk.textContent = (+p.elapsed_s || 0).toFixed(1);
   }
-  if (note) note.textContent = l.note || '';
+  if (note) subNode(note, l.note || '');
 }
 function raceResult(p) {
   const bars = $('raceBars'); if (!bars) return;
@@ -1126,7 +1129,7 @@ function raceResult(p) {
   // but is not rendered here (owner, 2026-07-25).
   $('raceVerdict').innerHTML =
     `Measured speedup <b>${esc(p.speedup_core_min)}×</b> in core-minutes. `
-    + `${esc(p.agreement || '')}`;
+    + `${subHTML(p.agreement || '')}`;
   setHidden('raceCard', false);
 }
 function drawRace() {
@@ -1195,7 +1198,7 @@ function renderAgenda(p) {
   if (!entries.length) return;
   setHidden('agendaSection', false);
   $('agenda').innerHTML = entries.map(e =>
-    `<div class="agenda-item"><b>${esc(e.title||'')}</b><span class="scope">${esc(e.scope||'')}</span>${e.cost?`<span class="cost">${esc(e.cost)}</span>`:''}</div>`).join('');
+    `<div class="agenda-item"><b>${subHTML(e.title||'')}</b><span class="scope">${subHTML(e.scope||'')}</span>${e.cost?`<span class="cost">${esc(e.cost)}</span>`:''}</div>`).join('');
 }
 
 function roleSlug(role) { return String(role||'system').toLowerCase().replace(/[^a-z]+/g,'-'); }
@@ -1354,18 +1357,43 @@ function addEntry(p) {
 // C_p everywhere, and a surface that renders the raw underscore reads as a
 // missing feature. One pattern serves all of them, so the transcript, a table
 // cell, a legend name and a rotated canvas axis all agree on what a subscript
-// is: a single letter, an underscore, and up to three letters or digits.
+// is.
+//
+// The pattern used to be "one letter, underscore, up to three letters or
+// digits". That silently excluded the two variables most often reported as
+// still showing their underscore: y_plus lost because its index is four
+// characters, and Re_x, Re_L, Cf_x lost because their SYMBOL is two letters.
+// Every call site below was already correct; the pattern simply never matched,
+// so widening it here is what reaches all of them at once.
+//
+// Widened on two axes and no further, because over-matching is the worse
+// failure: a slug typeset as a variable is a wrong word on camera. A
+// multi-letter symbol must be a named dimensionless group, which is why
+// PH_Breuer, NASA_2DWMH and check_totals stay untouched while Re_x does not.
+const SUB_GROUPS = 'Re|Cf|Cp|Cd|Cl|Cm|Cn|St|Pr|Nu|Ma|Kn|Fr|Gr|Ra|Sc|Sh|Bi|Pe|We|Ro|Le|Ec';
 // A function, not a const, so every caller can reach it — the ?mission= resume
-// path writes a viewport label while the script is still evaluating.
-function subPattern() { return /\b([A-Za-z])_([A-Za-z0-9]{1,3})\b/g; }
+// path writes a viewport label while the script is still evaluating. A fresh
+// RegExp per call because the /g lastIndex is stateful and subRuns iterates.
+function subPattern() {
+  return new RegExp('\\b(' + SUB_GROUPS + '|[A-Za-z])_([A-Za-z0-9]{1,6}(?:_[A-Za-z0-9]{1,6})?)\\b', 'g');
+}
+// A chained index (C_L_max) is one subscript, comma separated, the way it is
+// set in print. Leaving the second underscore in place would defeat the point.
+function subIndex(s) { return String(s).replace(/_/g, ','); }
 // Applied AFTER escaping — the only markup that can reach the page is the
 // <sub> tag this formatter itself inserts.
 function subScript(escaped) {
-  return String(escaped).replace(subPattern(), '$1<sub>$2</sub>');
+  return String(escaped).replace(subPattern(),
+    (_, sym, idx) => `${sym}<sub>${subIndex(idx)}</sub>`);
 }
 // The same typesetting for a plain-text surface: escape, typeset, and write as
 // markup. `subText` is how a textContent surface earns its subscripts.
 function subText(id, text) { $(id).innerHTML = subScript(esc(text ?? '')); }
+// The same, for an element already in hand rather than one looked up by id,
+// and the one-liner for interpolating a value into a template literal. Every
+// screen string that can carry a variable goes through one of these three.
+function subNode(node, text) { if (node) node.innerHTML = subScript(esc(text ?? '')); }
+function subHTML(text) { return subScript(esc(text ?? '')); }
 // Canvas carries no markup, so a variable is drawn as two runs: the symbol at
 // the label's own size, then the index smaller and dropped below the baseline.
 // The runs are measured first so textAlign still means what it says.
@@ -1375,7 +1403,7 @@ function subRuns(text) {
   for (let m; (m = re.exec(s)); ) {
     if (m.index > i) runs.push({ t: s.slice(i, m.index), sub: false });
     runs.push({ t: m[1], sub: false });
-    runs.push({ t: m[2], sub: true });
+    runs.push({ t: subIndex(m[2]), sub: true });
     i = m.index + m[0].length;
   }
   if (i < s.length) runs.push({ t: s.slice(i), sub: false });
@@ -1544,7 +1572,7 @@ function renderRoster(p) {
   setHidden('rosterSection', false);
   const members = p.members || [];
   $('roster').innerHTML = members.map(m =>
-    `<div class="roster-row"><span class="roster-dot ${esc(m.state||'')}"></span><span class="who">${esc(m.name||m.role||'')}</span><span class="doing">${esc(m.doing||m.status||'')}</span></div>`).join('');
+    `<div class="roster-row"><span class="roster-dot ${esc(m.state||'')}"></span><span class="who">${esc(m.name||m.role||'')}</span><span class="doing">${subHTML(m.doing||m.status||'')}</span></div>`).join('');
 }
 function renderCompute(p) {
   setHidden('computeSection', false);
@@ -1554,23 +1582,26 @@ function renderCompute(p) {
   if (p.full_fidelity) tiles.push(['Fidelity', 'full']);
   if (p.efficiency != null) tiles.push(['Reuse', Math.round(p.efficiency*100)+'%']);
   $('computeTiles').innerHTML = tiles.map(([k,v]) => `<div class="tile"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('');
-  $('computeNote').textContent = (p.notes && p.notes.length) ? p.notes[p.notes.length-1] : '';
+  subText('computeNote', (p.notes && p.notes.length) ? p.notes[p.notes.length-1] : '');
 }
 function renderChannels(p) {
   setHidden('channelsSection', false);
   $('channels').innerHTML = (p.channels||[]).map(c =>
-    `<div class="channel"><div class="channel-top"><b>${esc(title(c.name))}</b>${c.quantified ? `<span class="val">${esc(c.value)}</span>` : '<span class="q">not quantified</span>'}</div><div class="channel-note">${bulletHTML(c.note||'')}</div></div>`).join('');
+    `<div class="channel"><div class="channel-top"><b>${subHTML(title(c.name))}</b>${c.quantified ? `<span class="val">${subHTML(c.value)}</span>` : '<span class="q">not quantified</span>'}</div><div class="channel-note">${bulletHTML(c.note||'')}</div></div>`).join('');
 }
 function knowledgeAdded(p, fresh) {
   setHidden('knowSection', false);
-  if (p.title) { const el = document.createElement('div'); el.className = 'know' + (fresh?' fresh':''); el.textContent = p.title; $('knowledge').appendChild(el); }
+  if (p.title) { const el = document.createElement('div'); el.className = 'know' + (fresh?' fresh':''); subNode(el, p.title); $('knowledge').appendChild(el); }
 }
 
 function renderMemo(rep) {
   state.report = rep;   // plots landing after the report re-render it (below)
-  const list = a => `<ul>${(a||[]).map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  // The report view is the densest variable text on the page: abstract,
+  // methods, uncertainty and next investigations are written by the acts in
+  // the same register as the transcript, so every one of them is typeset.
+  const list = a => `<ul>${(a||[]).map(x => `<li>${subHTML(x)}</li>`).join('')}</ul>`;
   const results = (rep.results||[]).map(r =>
-    `<div class="memo-result"><span><b class="val">${esc(r.value)}</b> <span class="q">${esc(r.quantity)}</span><br><span class="q">${esc(r.envelope||'')}${r.reason?' · '+esc(r.reason):''}</span></span>${verdictBadge(r.tier)}</div>`).join('');
+    `<div class="memo-result"><span><b class="val">${subHTML(r.value)}</b> <span class="q">${subHTML(r.quantity)}</span><br><span class="q">${subHTML(r.envelope||'')}${r.reason?' · '+subHTML(r.reason):''}</span></span>${verdictBadge(r.tier)}</div>`).join('');
   // Reports lead with plots: every figure the mission produced comes first,
   // clickable to its full-size PNG. The list is the union of the report's
   // own plot manifest (rep.plots, immune to queue timing: a fast act can
@@ -1584,10 +1615,10 @@ function renderMemo(rep) {
         `<a href="${esc(pl.url)}" target="_blank" rel="noopener"><img src="${esc(pl.url)}" title="${esc(pl.title||'')}" alt="${esc(pl.title||'figure')}"></a>`).join('')}</div>`
     : '';
   $('memo').innerHTML =
-    `<span class="eyebrow">Lab report</span><h3>${esc(rep.title||'Mission report')}</h3>`
+    `<span class="eyebrow">Lab report</span><h3>${subHTML(rep.title||'Mission report')}</h3>`
     + figs
     + `<h4>Results</h4>${results}`
-    + `<h4>Abstract</h4>${(rep.abstract||[]).map(x=>`<p>${esc(x)}</p>`).join('')}`
+    + `<h4>Abstract</h4>${(rep.abstract||[]).map(x=>`<p>${subHTML(x)}</p>`).join('')}`
     + `<h4>Methods</h4>${list(rep.methods)}`
     + `<h4>Uncertainty</h4>${list(rep.uncertainty)}`
     + `<h4>Next investigations</h4>${list(rep.next_investigations)}`;
@@ -2036,10 +2067,12 @@ $('landscape').addEventListener('mousemove', e => {
   const tip=$('landTip');
   if (!near){ tip.hidden=true; return; }
   const meta=state.landMeta||{}, objLabel=(meta.objective&&meta.objective.label)||'objective';
-  const design=Object.entries(near.p.design).map(([k,v])=>`${esc(axisLabel(k))} <b>${esc(v)}</b>`).join('<br>');
+  // The canvas draws these labels through fillTextSub; the tooltip over the
+  // same plot has to agree, or hovering a point un-typesets what is painted.
+  const design=Object.entries(near.p.design).map(([k,v])=>`${subHTML(axisLabel(k))} <b>${subHTML(v)}</b>`).join('<br>');
   const why = near.p.feasible ? (near.p.solved?'feasible · solved polar':'feasible')
-    : `<span class="bad">infeasible${near.p.why?': '+esc([].concat(near.p.why).join('; ')) :''}</span>`;
-  tip.innerHTML = `${design}<br>${esc(objLabel)} <b>${esc(+(+near.p.obj).toPrecision(4))}</b><br>${why}`;
+    : `<span class="bad">infeasible${near.p.why?': '+subHTML([].concat(near.p.why).join('; ')) :''}</span>`;
+  tip.innerHTML = `${design}<br>${subHTML(objLabel)} <b>${esc(+(+near.p.obj).toPrecision(4))}</b><br>${why}`;
   tip.hidden=false;
   const bw=$('landscape').clientWidth;
   tip.style.left=Math.min(mx+12, bw-215)+'px'; tip.style.top=Math.max(my-10,0)+'px';
@@ -2059,9 +2092,9 @@ function renderResult(p) {
   // here (owner). The full reason stays untouched on the report,
   // transcript and certificate.
   const reason = (p.reason || '').replace(/;\s*envelope\s+[\d.]+%\s+of\s+value\s*$/, '');
-  rc.innerHTML = `<div class="r-head"><b class="rv">${esc(head)}</b><span class="rq">${esc(p.quantity||'result')}</span>`
+  rc.innerHTML = `<div class="r-head"><b class="rv">${subHTML(head)}</b><span class="rq">${subHTML(p.quantity||'result')}</span>`
     + verdictBadge(p.tier) + `</div>`
-    + `<span class="re">${esc([p.envelope, reason].filter(Boolean).join(' · '))}</span>`;
+    + `<span class="re">${subHTML([p.envelope, reason].filter(Boolean).join(' · '))}</span>`;
   rc.hidden = false;
 }
 
@@ -2153,7 +2186,7 @@ function credCard(r) {
   const ref = r.reference_cd!=null ? (+r.reference_cd).toPrecision(3) : 'n/a';
   return `<div class="cred-card"><div class="cred-top"><b>${esc(title(r.name))}</b>${verdictBadge(r.tier)}</div>`
     + `<div class="cred-nums">measured Cd <b>${esc(meas)}</b><span class="vs">vs</span>reference Cd <b>${esc(ref)}</b>${r.wall_minutes!=null?` · ${r.wall_minutes} min`:''}</div>`
-    + (r.source?`<div class="cred-src">${esc(r.source)}</div>`:'') + (r.reason?`<div class="cred-reason">${esc(r.reason)}</div>`:'') + `</div>`;
+    + (r.source?`<div class="cred-src">${subHTML(r.source)}</div>`:'') + (r.reason?`<div class="cred-reason">${subHTML(r.reason)}</div>`:'') + `</div>`;
 }
 // ACTIVE RESEARCH (R5): the lab's real programmes shown as work in progress, so
 // the credentials view reads as a working lab, not a finished homework set. Data
@@ -2166,9 +2199,9 @@ function renderResearch(r) {
   if (!r) return '';
   const tag = s => `<span class="rp-tag ${s === 'ACTIVE RESEARCH' ? 'active' : s === 'measured' ? 'measured' : 'queued'}">${esc(s)}</span>`;
   const chCard = c =>
-    `<div class="rp-card"><div class="rp-top"><b>${esc(c.title)}</b>${tag(c.status)}</div>`
-    + `<div class="rp-body">${esc(c.what)}.</div>`
-    + `<div class="rp-body">Our entry: ${esc(c.entry)}.</div>`
+    `<div class="rp-card"><div class="rp-top"><b>${subHTML(c.title)}</b>${tag(c.status)}</div>`
+    + `<div class="rp-body">${subHTML(c.what)}.</div>`
+    + `<div class="rp-body">Our entry: ${subHTML(c.entry)}.</div>`
     + `<div class="rp-src">public external benchmark · ${esc(c.host)} · ${esc(c.url)}</div></div>`;
   const ch = r.challenges || [];
   const leadChallenges = ch.filter(c => c.lead);
@@ -2196,12 +2229,12 @@ function renderResearch(r) {
         + `<b>${esc((+cl.our_score).toFixed(4))}</b></div>`
         + `<div class="rp-body">Scaled velocity error, lower is better.</div>`
       : '';
-    cards.push(`<div class="rp-card"><div class="rp-top"><b>${esc(cl.title)}</b>`
+    cards.push(`<div class="rp-card"><div class="rp-top"><b>${subHTML(cl.title)}</b>`
       + `<span style="display:flex;gap:6px">${unsub}${tag(cl.status)}</span></div>`
       + move
       + `<div class="rp-body">Public leaderboard, rank #${esc(cl.target_rank)} entry: overall <b>${esc((+cl.target_overall).toFixed(4))}</b>.</div>`
       + `<div class="rp-nums">per-case ${esc(per)}</div>`
-      + `<div class="rp-body">Our entry: <b>${esc(cl.our_entry)}</b></div>`
+      + `<div class="rp-body">Our entry: <b>${subHTML(cl.our_entry)}</b></div>`
       + `<div class="rp-src">public external data · ${esc(cl.repo)}</div></div>`);
   }
 
@@ -2211,8 +2244,8 @@ function renderResearch(r) {
   // (c) Reduced-order speed program — measured speedup, NACA 4412 race.
   const sp = r.speed;
   if (sp && sp.speedup_x != null) {
-    cards.push(`<div class="rp-card"><div class="rp-top"><b>${esc(sp.title)}</b>${tag(sp.status)}</div>`
-      + `<div class="rp-body">${esc(sp.case)} race: reduced-order path is a measured <b>${esc((+sp.speedup_x).toFixed(1))}×</b> in core-minutes`
+    cards.push(`<div class="rp-card"><div class="rp-top"><b>${subHTML(sp.title)}</b>${tag(sp.status)}</div>`
+      + `<div class="rp-body">${subHTML(sp.case)} race: reduced-order path is a measured <b>${esc((+sp.speedup_x).toFixed(1))}×</b> in core-minutes`
       + (sp.full_core_min != null && sp.reduced_core_min != null
           ? ` (${esc(sp.full_core_min)} to ${esc(sp.reduced_core_min)} core-min).` : '.')
       + `</div></div>`);
@@ -2222,8 +2255,8 @@ function renderResearch(r) {
   const q = r.queued || [];
   if (q.length) {
     cards.push(`<div class="rp-card"><div class="rp-top"><b>Queued research</b>${tag('queued')}</div>`
-      + q.map(item => `<div class="rp-geo"><span class="rp-geo-name">${esc(item.name)}</span>`
-          + `<span class="rp-geo-detail">${esc(item.note || '')}</span></div>`).join('')
+      + q.map(item => `<div class="rp-geo"><span class="rp-geo-name">${subHTML(item.name)}</span>`
+          + `<span class="rp-geo-detail">${subHTML(item.note || '')}</span></div>`).join('')
       + `</div>`);
   }
 
@@ -2259,7 +2292,7 @@ function renderAgendaDocket(docket) {
     ? `est ${+p.est_core_min} core-min · ${p.cost_basis || 'estimate'}`
     : `cost: ${p.cost_basis || 'estimate'}`;
   const digestRows = open.map(p =>
-    `<div class="rp-geo"><span class="rp-geo-name">${esc(p.objective)}</span>`
+    `<div class="rp-geo"><span class="rp-geo-name">${subHTML(p.objective)}</span>`
     + `<span class="rp-geo-detail">${esc(p.expected_knowledge_gain || '')}`
     + ` · ${esc(cost(p))}</span></div>`).join('');
   const digest = open.length
@@ -2275,19 +2308,19 @@ function renderAgendaDocket(docket) {
   const card = p => {
     const [cls, word] = tagFor(p.status);
     const decided = p.status === 'dismissed' && p.dismiss_reason
-      ? `<div class="rp-body">Dismissed: ${esc(p.dismiss_reason)}</div>`
+      ? `<div class="rp-body">Dismissed: ${subHTML(p.dismiss_reason)}</div>`
       : p.status === 'done' && p.outcome
-      ? `<div class="rp-body">Outcome: ${esc(p.outcome)}</div>` : '';
+      ? `<div class="rp-body">Outcome: ${subHTML(p.outcome)}</div>` : '';
     const buttons = (p.status === 'proposed' || p.status === 'approved-queued')
       ? `<div class="rp-src"><button class="chip-btn" data-agenda-act="approve" `
         + `data-id="${esc(p.id)}">APPROVE${p.launch_prompt ? ' · LAUNCH' : ''}</button> `
         + `<button class="chip-btn" data-agenda-act="dismiss" data-id="${esc(p.id)}">DISMISS</button></div>`
       : '';
-    return `<div class="rp-card"><div class="rp-top"><b>${esc(p.objective)}</b>`
+    return `<div class="rp-card"><div class="rp-top"><b>${subHTML(p.objective)}</b>`
       + `<span class="rp-tag ${cls}">${esc(word)}</span></div>`
-      + `<div class="rp-body">${esc(p.rationale || '')}</div>`
+      + `<div class="rp-body">${subHTML(p.rationale || '')}</div>`
       + (p.expected_knowledge_gain
-          ? `<div class="rp-body">Expected gain: ${esc(p.expected_knowledge_gain)}.</div>` : '')
+          ? `<div class="rp-body">Expected gain: ${subHTML(p.expected_knowledge_gain)}.</div>` : '')
       + `<div class="rp-nums">${esc(cost(p))}</div>`
       + decided
       + ((p.citations || []).length
@@ -2325,7 +2358,7 @@ async function approveProposal(id) {
       $('launch').disabled = true; $('beacon').classList.add('live');
       $('globalStatus').textContent = 'FORMING THE TEAM';
       state.mission = d.mission_id; setMissionLabel('ACTIVE MISSION', d.mission_id);
-      $('missionGoal').textContent = goal; $('missionGoal').title = goal;
+      subText('missionGoal', goal); $('missionGoal').title = goal;
       setHidden('kpis', false); setHidden('tabs', false); setHidden('dormant', true);
       if (d.route) showRoute(d.route);
       connect(d.mission_id);
@@ -2358,14 +2391,14 @@ function renderDormant(wallHtml) {
 async function askLab(q) {
   bumpTouch();
   const log = $('askLog');
-  log.insertAdjacentHTML('beforeend', `<div class="ask-q">${esc(q)}</div><div class="ask-a" id="askPending">…</div>`);
+  log.insertAdjacentHTML('beforeend', `<div class="ask-q">${subHTML(q)}</div><div class="ask-a" id="askPending">…</div>`);
   log.scrollTop = log.scrollHeight;
   try {
     const r = await fetch('/api/ask', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question:q}) });
     const d = await r.json();
     const cites = (d.citations||[]).length ? `<div class="ask-cites">${d.citations.map(c=>`<span>${esc(c)}</span>`).join('')}</div>` : '';
     const tag = d.grounded ? `<div class="ask-mode">${d.mode==='synthesized'?'reasoned from the record':'from the record'}</div>` : '';
-    $('askPending').outerHTML = `<div class="ask-a ${d.grounded?'':'ungrounded'}">${esc(d.text||'')}${tag}${cites}</div>`;
+    $('askPending').outerHTML = `<div class="ask-a ${d.grounded?'':'ungrounded'}">${subHTML(d.text||'')}${tag}${cites}</div>`;
   } catch (e) { $('askPending').outerHTML = `<div class="ask-a ungrounded">Could not reach the lab.</div>`; }
   log.scrollTop = log.scrollHeight;
 }
