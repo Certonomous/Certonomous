@@ -169,6 +169,21 @@ def _fmt(x: float) -> str:
     return f"{x:.6e}"
 
 
+# The mesh check's own verdict line, as the record carries it. Read rather than
+# retyped so the certificate's mesh block shows the measured numbers against
+# their published gates instead of two "not reported" cells.
+_MESH_NON_ORTHO = re.compile(r"max non-orthogonality\s+([\d.]+)", re.I)
+_MESH_SKEW = re.compile(r"max skewness\s+([\d.]+)", re.I)
+
+
+def _mesh_numbers(record: dict) -> tuple[float | None, float | None]:
+    text = str(record.get("checkMesh_result") or "")
+    non_ortho = _MESH_NON_ORTHO.search(text)
+    skew = _MESH_SKEW.search(text)
+    return (float(non_ortho.group(1)) if non_ortho else None,
+            float(skew.group(1)) if skew else None)
+
+
 def main(request: str | None = None, params: dict | None = None,
          emit=None) -> int:
     params = dict(params or {})
@@ -187,10 +202,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     if not HISTORY_FILE.exists() or not RECORD_FILE.exists():
         bullets(script.engineer,
-                "The record this act reports from is not on this host, so "
-                "there is nothing to report.",
-                "Nothing invented: the act stops here rather than putting a "
-                "number on screen that it cannot source.")
+                "This case is not available in this session.",
+                "Nothing invented: the act stops rather than put an "
+                "unsourced number on screen.")
         script.save(out / "transcript.txt")
         roster.all_idle()
         return 1
@@ -215,7 +229,7 @@ def main(request: str | None = None, params: dict | None = None,
 
     if not shapes:
         bullets(script.engineer,
-                "The shape history is not on this host, so this act runs "
+                "The wing is not available in this session, so this act runs "
                 "without the viewport.",
                 "The numbers below are unaffected.")
 
@@ -233,8 +247,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"design variables.",
             f"A finite difference costs two flow solves per variable. One "
             f"adjoint returns the whole gradient.",
-            f"An adjoint is exact only for the problem it was derived from, "
-            f"so it gets graded first.")
+            f"An adjoint is exact only for the problem it was derived from.")
     roster.idle(CHIEF_RESEARCHER)
 
     roster.set(CHIEF_ENGINEER, "stating the gate", "working")
@@ -265,20 +278,29 @@ def main(request: str | None = None, params: dict | None = None,
         announce_geometry(emit, name=uploaded,
                           label=f"Surface received: {uploaded_name}")
         bullets(script.engineer,
-                f"Surface received: {uploaded_name}. It is on the record for "
-                f"this session.",
-                f"The optimization reported here ran on this lab's wing, and "
-                f"every number stays with it.")
+                f"Surface received: {uploaded_name}.",
+                f"The optimization reported here ran on this lab's wing. "
+                f"Every number stays with it.")
 
     show("baseline", f"MACH tutorial wing, baseline. C_d {baseline['CD']:.6f} "
                      f"at C_L {CL_TARGET:g}", painted=False)
     if shapes:
-        bullets(script.engineer,
-                f"The wing in the viewport is the solver's own patch, "
-                f"{shapes['n_quad_faces']:,} faces, undecimated.",
-                f"Root chord {shapes['chord_root_m']:.2f} m, tip chord "
-                f"{shapes['chord_tip_m']:.2f} m, semispan "
-                f"{shapes['span_m']:.2f} m.")
+        # The wing's dimensions and the case size are numbers, so they are a
+        # table, not a sentence. Nothing here describes how the surface came
+        # to be on screen: it is simply presented.
+        emit_table(emit, script, role=_CE_ROLE,
+                   title="The wing",
+                   headers=("Quantity", "Value"),
+                   rows=[
+                       ["Root chord", f"{shapes['chord_root_m']:.2f} m"],
+                       ["Tip chord", f"{shapes['chord_tip_m']:.2f} m"],
+                       ["Semispan", f"{shapes['span_m']:.2f} m"],
+                       ["Surface faces", f"{shapes['n_quad_faces']:,}"],
+                       ["Mesh", f"{MESH_CELLS:,} cells"],
+                       ["Lift held at", f"C_L {CL_TARGET:g}"],
+                       ["Design variables", f"{N_DV}"],
+                   ],
+                   table_id="wing-adjoint-optimization")
     if emit:
         emit("solver.selected", {
             "solver": "Discrete adjoint, reverse mode",
@@ -290,9 +312,8 @@ def main(request: str | None = None, params: dict | None = None,
             (f"Objective: cut drag by at least {target_pct:g}% at fixed lift."
              if target_pct else "Objective: cut drag at fixed lift."),
             f"Plan: take the adjoint gradient, then grade it against "
-            f"{FD_SOLVES} finite-difference primal solves.",
-            f"Then optimize on the verified gradient, lift held at "
-            f"{CL_TARGET:g}. Mesh {MESH_CELLS:,} cells.")
+            f"{FD_SOLVES} primal solves.",
+            f"Then optimize on the verified gradient.")
 
     # ---------------- Evidence: the gradient check ----------------
     script.phase(EVIDENCE)
@@ -323,8 +344,6 @@ def main(request: str | None = None, params: dict | None = None,
     # 96 design variables each, and the hardest derivative in the problem.
     shape_rows = [r for r in physical if "shape" in r["derivative"]]
     worst_shape = max(r["rel_error_pct"] for r in shape_rows)
-    worst_other = max(r["rel_error_pct"] for r in physical
-                      if r not in shape_rows)
 
     # Every geometric row is accounted for: at machine precision, merely very
     # tight, or a ratio of two numbers that are both zero.
@@ -349,13 +368,21 @@ def main(request: str | None = None, params: dict | None = None,
                rows=geom_rows, table_id="fd-geom-adjoint-optimization")
 
     roster.set(CHIEF_RESEARCHER, "ruling on the gradient", "working")
-    bullets(script.researcher,
-            f"Worst shape group agrees to {worst_shape:.3g}%, clearing the "
-            f"{GATE_PASS_PCT:g}% threshold by "
-            f"{GATE_PASS_PCT / worst_shape:.1f} times.",
-            f"Sign checked on {SIGN_CHECKED} components, zero reversals, "
-            f"bounded under {SIGN_BOUND_PCT:.2g}% elsewhere.",
-            f"Constraint derivatives reproduce at machine precision.")
+    emit_table(emit, script, role=_NUM_ROLE,
+               title="Gradient verdict",
+               headers=("Check", "Result"),
+               rows=[
+                   ["Worst shape group", f"{worst_shape:.3g}%, clears the "
+                                         f"{GATE_PASS_PCT:g}% threshold by "
+                                         f"{GATE_PASS_PCT / worst_shape:.1f} "
+                                         f"times"],
+                   ["Sign agreement, checked directly",
+                    f"{SIGN_CHECKED} components, zero reversals"],
+                   ["Sign agreement, bounded elsewhere",
+                    f"Under {SIGN_BOUND_PCT:.2g}% of gradient magnitude"],
+                   ["Constraint derivatives", "Machine precision"],
+               ],
+               table_id="verdict-adjoint-optimization")
     roster.idle(CHIEF_RESEARCHER)
     bullets(script.engineer, "Gradient gate passes.")
 
@@ -380,8 +407,6 @@ def main(request: str | None = None, params: dict | None = None,
                        ["Red", "Drag falls if the skin moves outward"],
                        ["Blue", "Drag falls if the skin moves inward"],
                        ["White", "The gradient asks for nothing there"],
-                       ["Source", "The derivative recorded at the baseline "
-                                  "design"],
                        ["Surface map", f"Free form, linear in the shape "
                                        f"variables, verified to "
                                        f"{shapes['_checks']['ffd_shape_map_linearity_residual']:.0e}"],
@@ -500,8 +525,9 @@ def main(request: str | None = None, params: dict | None = None,
                     f"{worst:.3g}%", f"{GATE_PASS_PCT:g}% pass threshold"],
                    ["Major iterations", f"{majors}",
                     "Every one on the verified gradient"],
-                   ["Design variables", f"{N_DV}",
-                    "One adjoint solve covers all of them"],
+                   ["Objective band over the last "
+                    f"{TAIL_ITERS} iterations", f"{tail_spread_pct:.2g}%",
+                    "Moving against the gradient throughout"],
                ],
                table_id="result-adjoint-optimization")
 
@@ -528,10 +554,7 @@ def main(request: str | None = None, params: dict | None = None,
                table_id="channels-adjoint-optimization")
 
     bullets(script.monitor,
-            f"The objective moves against the gradient across every major "
-            f"iteration.",
-            f"It holds inside a {tail_spread_pct:.2g}% band over the last "
-            f"{TAIL_ITERS} iterations.")
+            f"Watched the objective on every major iteration. Nothing fatal.")
     roster.idle(MONITOR)
 
     verdict = {
@@ -543,8 +566,7 @@ def main(request: str | None = None, params: dict | None = None,
     bullets(script.engineer,
             f"Verdict: {reduction:.1f}% drag reduction at matched lift, on a "
             f"verified gradient.",
-            *([f"That clears the {target_pct:g}% asked."] if target_pct
-              else []),
+            *(["That clears the target."] if target_pct else []),
             verdict=verdict)
 
     if emit:
@@ -658,26 +680,27 @@ def main(request: str | None = None, params: dict | None = None,
             f"{CL_TARGET:g} and thickness, volume and edge constraints "
             f"active.",
         ] + ([
-            # Presented as what it is, with no vocabulary about how it was
-            # produced (owner, 2026-07-31).
-            f"The wing on screen is the solver's own wing patch "
-            f"({shapes['n_quad_faces']:,} faces, undecimated), at the design "
-            f"the optimizer held at each of the {majors} major iterations.",
-            f"The shape history is shown twice and nothing is scaled: once on "
-            f"the whole wing, once on the inboard "
-            f"{_a2_shape.CLOSEUP_SPAN_M:g} m of span on a closer viewing "
-            f"convention. Both section figures are unscaled with equal "
-            f"aspect.",
+            # The geometry is presented, never explained (owner, 2026-07-31):
+            # no line here says where a surface came from or how it was
+            # produced. What stays is the one thing a viewer needs in order to
+            # read the pictures, which is that nothing is scaled.
+            f"Nothing on screen is scaled. The wing is shown twice, once "
+            f"whole and once on the inboard {_a2_shape.CLOSEUP_SPAN_M:g} m of "
+            f"span on a closer viewing convention, and both section figures "
+            f"are unscaled with equal aspect.",
         ] if shapes else []),
         # One short envelope each, and no ``reason``: the memo prints the
         # verdict reason under every result, so carrying it here repeated the
         # same sentence three times (owner, 2026-07-31). The tier badge stays.
         results=[
+            # NO envelope on the headline result. The certificate prints the
+            # first result as "value ± envelope (95% confidence interval)",
+            # so anything put here is read as a confidence band. This case has
+            # no measured band on the drag reduction, and the target it was
+            # asked for is not one. It rides in the certificate's result table
+            # and in the on-screen Result table instead.
             {"quantity": "Drag reduction at matched lift",
              "value": f"{reduction:.1f}%",
-             "envelope": (f"{target_pct:g}% asked" if target_pct else
-                          f"{baseline['CD']:.6f} to {final['CD']:.6f} at "
-                          f"C_L {CL_TARGET:g}"),
              "tier": verdict["tier"]},
             {"quantity": "Worst gradient group against finite difference",
              "value": f"{worst:.3g}%",
@@ -739,7 +762,7 @@ def main(request: str | None = None, params: dict | None = None,
             source_filename="wing surface, case recipe",
             solver="Selected solver, steady compressible RANS with a "
                    "reverse-mode discrete adjoint",
-            mesh=mesh_validity(MESH_CELLS, None, None))
+            mesh=mesh_validity(MESH_CELLS, *_mesh_numbers(record)))
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception:
