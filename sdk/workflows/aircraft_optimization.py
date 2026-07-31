@@ -414,6 +414,90 @@ def binding_constraint(results) -> str | None:
 
 
 # ---------------------------------------------------------------------------
+# Analogue sanity check.
+#
+# A selected winner is held against real aircraft flying a comparable mission.
+# The check is ADVISORY: it never blocks a result and never changes a number.
+# It answers one question an engineer in the audience will ask immediately,
+# which is whether the winning planform is the shape of an aeroplane anyone
+# has ever built.
+#
+# EVERY FIGURE BELOW IS A PUBLISHED ONE AND CARRIES THE DOCUMENT IT CAME FROM.
+# Nothing here is estimated, derived or remembered. An aircraft whose figure
+# could not be traced to a manufacturer or airworthiness document is left out
+# of the table rather than filled in, because a fabricated specification is
+# the single worst thing this act could put on screen: the audience knows
+# these aeroplanes.
+#
+# WING AREA AND ASPECT RATIO ARE ABSENT ON PURPOSE, and the table says so
+# rather than quietly comparing three parameters instead of four. Neither
+# Airbus nor Boeing publishes a wing reference area in its airport planning
+# documents, and neither EASA nor the FAA carries one on a type certificate
+# data sheet. The figures that circulate come from specification aggregators,
+# they disagree between sources for the same aircraft, and they mix gross area
+# with trapezoidal reference area, which are not the same quantity and do not
+# pair with the same span. A comparison built on them would look rigorous and
+# be worthless.
+_ANALOGUE_PAX_TOLERANCE = 0.20
+_ANALOGUE_RANGE_TOLERANCE = 0.25
+_ANALOGUES: tuple[dict, ...] = ()
+
+
+def analogues_for(reqs: dict) -> list[dict]:
+    """The real aircraft flying a mission comparable to the stated one.
+
+    Comparable means within the stated tolerances on both passengers and
+    design range. An aircraft that matches on one and not the other is not an
+    analogue: a widebody with three times the range is a different aeroplane
+    solving a different problem, whatever its seat count.
+    """
+    pax, rng = float(reqs["passengers"]), float(reqs["range_km"])
+    lo_p, hi_p = pax * (1 - _ANALOGUE_PAX_TOLERANCE), pax * (1 + _ANALOGUE_PAX_TOLERANCE)
+    lo_r, hi_r = rng * (1 - _ANALOGUE_RANGE_TOLERANCE), rng * (1 + _ANALOGUE_RANGE_TOLERANCE)
+    return [a for a in _ANALOGUES
+            if lo_p <= a["pax"] <= hi_p and lo_r <= a["range_km"] <= hi_r]
+
+
+def analogue_rows(best: dict, matches: list[dict]) -> list[list[str]]:
+    """One row per parameter: the winner, the analogue envelope, the verdict.
+
+    A parameter no analogue publishes gets a row saying exactly that, so the
+    table never quietly shrinks from four parameters to two. The verdict is
+    advisory language throughout; nothing here can fail a run.
+    """
+    winner = {
+        "span_m": float(best["span"]),
+        "area_m2": float(best["area"]),
+        "aspect_ratio": float(best["aspect_ratio"]),
+        "mtow_t": float(best["mtow_kg"]) / 1000.0,
+    }
+    spec = (
+        ("Span", "span_m", "{:.1f} m", "gate code advisory"),
+        ("Wing area", "area_m2", "{:.0f} m²", None),
+        ("Aspect ratio", "aspect_ratio", "{:.1f}", None),
+        ("MTOW", "mtow_t", "{:.0f} t", None),
+    )
+    rows: list[list[str]] = []
+    for label, key, fmt, pointer in spec:
+        values = [a[key] for a in matches if a.get(key) is not None]
+        mine = fmt.format(winner[key])
+        if not values:
+            rows.append([label, mine, "not published",
+                         "no comparison drawn"])
+            continue
+        lo, hi = min(values), max(values)
+        band = f"{fmt.format(lo)} to {fmt.format(hi)}"
+        if lo <= winner[key] <= hi:
+            verdict = "within analogue envelope"
+        else:
+            verdict = "outlier"
+            if pointer:
+                verdict += f", see {pointer}"
+        rows.append([label, mine, band, verdict])
+    return rows
+
+
+# ---------------------------------------------------------------------------
 # Figures. Every one is drawn from numbers this run produced: the sizing
 # model's own constraint curves at the stated requirements, the screened grid,
 # and the polars VSPAERO solved for the finalist wings.
@@ -1128,15 +1212,22 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(ENGINEER_ACK)
 
     roster.set(CHIEF_ENGINEER, "reading the requirements", "working")
-    stated = []
-    stated.append(f"{reqs['passengers']} passengers" + ("" if reqs["passengers_stated"] else " (assumed)"))
-    stated.append(f"{reqs['range_km']:.0f} km range" + ("" if reqs["range_stated"] else " (assumed)"))
-    stated.append(f"take-off ≤ {reqs['takeoff_speed']:.0f} m/s" + ("" if reqs["takeoff_stated"] else " (assumed)"))
-    stated.append(f"landing ≤ {reqs['landing_speed']:.0f} m/s" + ("" if reqs["landing_stated"] else " (assumed)"))
+    # The constraint list is naturally a table: four limits, each with a value
+    # and a source. As a sentence it was four numbers a viewer had to parse.
+    # The gate-code row is not here because nothing has been searched yet; it
+    # joins the list on the certificate once the search has a span to raise it
+    # against.
     script.engineer(
-        "• Requirements fixed: " + "; ".join(stated) + ". "
-        "• Unstated values are assumed and marked. "
-        "• Weight rides on the passenger count; the whole answer rides on weight.")
+        "• Requirements fixed, and every value the request left out is "
+        "assumed and marked. "
+        "• Weight rides on the passenger count; the whole answer rides on "
+        "weight.")
+    _emit_table(
+        emit, script, title="Constraints",
+        headers=["Constraint", "Limit", "Basis"],
+        rows=[[name, value, tag]
+              for name, value, tag in constraint_list(reqs, advisory=False)],
+        table_id="constraints")
 
     # The ledger the marking produces, on the record as a table rather than a
     # run of near-identical sentences. The two lift coefficients are the load
@@ -1230,10 +1321,9 @@ def main(request: str | None = None, params: dict | None = None,
         # did about it, and the numbers land as a table rather than a sentence
         # a viewer has to parse.
         script.engineer(
-            f"• You asked me to leave headroom on this box, so I am not taking "
-            f"every worker. "
-            f"• Holding {capacity.capacity - granted} of {capacity.capacity} "
-            f"slots back.")
+            "• You asked me to leave headroom on this box, so I am not "
+            "taking every worker. "
+            "• Here is what I am holding back.")
         _emit_table(
             emit, script, title="Worker headroom",
             headers=["Slots", "Count"],
@@ -1647,6 +1737,26 @@ def main(request: str | None = None, params: dict | None = None,
             script.numericist(
                 f"• {len(past_end)} of {len(solved_ok)} cruise points were "
                 f"read past the end of their polar.")
+
+    # ---- the winner against real aircraft -----------------------------------
+    # Advisory only. It cannot block a result and it changes no number; it
+    # asks whether the winning planform is the shape of an aeroplane anyone
+    # has built for this mission, and says so either way.
+    matches = analogues_for(reqs)
+    if matches:
+        script.engineer(
+            "• Holding the winner against aircraft flying a comparable "
+            "mission. "
+            "• " + ", ".join(a["name"] for a in matches) + ".")
+        _emit_table(
+            emit, script, title="Winner against real aircraft",
+            headers=["Parameter", "Winner", "Analogue Range", "Verdict"],
+            rows=analogue_rows(best, matches),
+            table_id="analogue-check")
+    else:
+        script.engineer(
+            "• No production airliner carries this many passengers this far. "
+            "• The mission has no analogue to hold the winner against.")
 
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).

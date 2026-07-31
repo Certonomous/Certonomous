@@ -222,6 +222,84 @@ class WorkflowTests(unittest.TestCase):
                         if e == "transcript.entry")
         self.assertIn("leave headroom", said)
         self.assertIn("Time budget on the record: 2 minutes", said)
+        # The compliance decision is a required output, and it is numeric:
+        # the slot counts land as a table, not as a sentence to parse.
+        headroom = [p for e, p in lines if e == "transcript.table"
+                    and p["table_id"] == "worker-headroom"]
+        self.assertEqual(len(headroom), 1)
+        self.assertEqual(headroom[0]["headers"], ["Slots", "Count"])
+        counts = {row[0]: int(row[1]) for row in headroom[0]["rows"]}
+        self.assertEqual(sorted(counts), ["Available", "Held back", "Taken"])
+        self.assertEqual(counts["Taken"] + counts["Held back"],
+                         counts["Available"])
+        self.assertGreater(counts["Held back"], 0)
+
+
+class GateCodeAdvisoryTests(unittest.TestCase):
+    """ICAO Annex 14 Volume I, aerodrome reference code, code element 2.
+
+    The bands are wingspan only and the bounds read "up to but not including",
+    so a span of exactly 65 m is already Code F. Both of those are easy to get
+    wrong and an engineer in the audience will know the table."""
+
+    def setUp(self):
+        _disable_pace(self)
+        _redirect_output(self)
+
+    def test_the_bands_are_the_published_ones(self):
+        from workflows.aircraft_optimization import icao_code_letter
+        self.assertEqual(icao_code_letter(36.0), "D")
+        self.assertEqual(icao_code_letter(51.9), "D")
+        self.assertEqual(icao_code_letter(52.0), "E")
+        self.assertEqual(icao_code_letter(64.9), "E")
+        self.assertEqual(icao_code_letter(65.0), "F")
+        self.assertEqual(icao_code_letter(79.9), "F")
+
+    def test_the_upper_bound_of_each_band_is_exclusive(self):
+        # "52 m up to but not including 65 m" is Code E, so 65.0 is Code F and
+        # a 65 m span already trips the advisory.
+        from workflows.aircraft_optimization import spans_over_code_e
+        self.assertEqual(spans_over_code_e([64.99]), [])
+        self.assertEqual(spans_over_code_e([65.0]), [65.0])
+        self.assertEqual(spans_over_code_e([52, 64, 65, 68]), [65.0, 68.0])
+
+    def test_the_advisory_never_rules_a_design_infeasible(self):
+        from workflows.aircraft_optimization import (evaluate_design,
+                                                     parse_requirements)
+        reqs = parse_requirements("300 passengers, 6000 km range")
+        wide = evaluate_design(68.0, 300.0, 25.0, reqs)
+        self.assertTrue(wide["feasible"])
+        self.assertFalse([v for v in wide["violations"] if "gate" in v.lower()])
+
+    def test_the_advisory_and_its_offer_reach_the_digest(self):
+        events = []
+        main(request="Optimize the L/D of an airliner for 300 passengers, "
+                     "6000 km range",
+             emit=lambda e, p: events.append((e, p)))
+        said = " ".join(p.get("message", "") for e, p in events
+                        if e == "transcript.entry")
+        self.assertIn("ICAO Aerodrome Reference Code E", said)
+        self.assertIn("52 to 65 m", said)
+        self.assertIn("65 to 80 m", said)
+        self.assertIn("Code F", said)
+        self.assertIn("Offer: re-run with span at most 65 m", said)
+
+    def test_the_constraint_list_tags_every_row_and_disposes_the_advisory(self):
+        from workflows.aircraft_optimization import (constraint_list,
+                                                     parse_requirements)
+        reqs = parse_requirements("300 passengers, 6000 km range")
+        rows = constraint_list(reqs, advisory=True, winner_span=68.0)
+        tags = {name: tag for name, _value, tag in rows}
+        self.assertEqual(tags["Passengers"], "user-stated")
+        self.assertEqual(tags["Range"], "user-stated")
+        self.assertEqual(tags["Landing speed"], "assumed")
+        self.assertEqual(tags["ICAO gate code"], "advisory, re-run offer open")
+        inside = constraint_list(reqs, advisory=True, winner_span=60.0)
+        self.assertEqual(dict((n, t) for n, _v, t in inside)["ICAO gate code"],
+                         "advisory, winner inside Code E")
+        # No advisory raised means no advisory row.
+        quiet = constraint_list(reqs, advisory=False)
+        self.assertNotIn("ICAO gate code", [n for n, _v, _t in quiet])
 
 
 class StartingGeometryTests(unittest.TestCase):
