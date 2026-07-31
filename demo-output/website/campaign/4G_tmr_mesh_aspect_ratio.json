@@ -378,7 +378,8 @@
         "cells_above_ar_1e5": 0,
         "cells_above_ar_1e6": 0,
         "first_wall_normal_spacing": 8.0576e-06,
-        "cells_on_viscous_wall": 40
+        "cells_on_viscous_wall": 40,
+        "cells_above_ar_1000": 274
       },
       "177x81": {
         "nodes": "177x81",
@@ -391,7 +392,8 @@
         "cells_above_ar_1e5": 0,
         "cells_above_ar_1e6": 0,
         "first_wall_normal_spacing": 3.9769e-06,
-        "cells_on_viscous_wall": 80
+        "cells_on_viscous_wall": 80,
+        "cells_above_ar_1000": 1090
       }
     },
     "our_bump_family": {
@@ -666,6 +668,29 @@
         "note": "re-run capped at 15000 rather than 30000; the ladder is being retired for a rebuild on NASA's grids and 17 more core-hours of it would refine a number on a ladder that cannot support one"
       },
       "reading": "the drift is near common-mode across rungs, which is why it largely cancels out of the increments and the matched observed order is stable past n~3000. The ladder's ORDER survives the iterative error; its VALUES do not -- every Cd on it is low-biased by roughly 0.2% and still falling, in the direction that widens the gap to CFL3D rather than closing it."
+    },
+    "our_bump_grids_remeasured_this_session": {
+      "method": "blockMesh; checkMesh -writeAllFields; postProcess -func writeCellCentres",
+      "coarse": {
+        "cells": 3520,
+        "max_aspect_ratio": 2136801.242,
+        "worst_cell_x": 21.158,
+        "worst_cell_y": 2.5e-06,
+        "max_ar_in_bump_wall_band": 4714.0,
+        "cells_above_ar_1000": 494,
+        "cells_above_ar_1e5": 68,
+        "cells_above_ar_1e6": 8
+      },
+      "medium": {
+        "cells": 14080,
+        "max_aspect_ratio": 2192932.9,
+        "max_ar_in_bump_wall_band": 4416.0,
+        "cells_above_ar_1000": 1976,
+        "cells_above_ar_1e5": 260,
+        "cells_above_ar_1e6": 22
+      },
+      "reproduction": "global maxima and wall-band maxima both reproduce the 2026-07-30 values exactly (2136801.242 / 2192932.91; 4714.0 / 4416.0)",
+      "discriminator": "checkMesh's default 1000 threshold flags hundreds of cells on BOTH families and discriminates nothing. AR > 1e5 separates them completely: 68 and 260 cells for ours against 0 and 0 for NASA's."
     }
   }
 }

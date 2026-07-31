@@ -453,19 +453,26 @@ checkMesh's own 2D branch and is **validated against checkMesh rather than asser
 NASA's NACA0012 113x33 it returns 20650841.436 against the 20650841.43 in
 `4G_runs/nasa/log.checkMesh.coarse` — ratio 1.000000.
 
-| 3,520-cell rung (89x41) | global max AR | where the worst cell is | cells > 1e5 | first wall cell |
-|---|---|---|---|---|
-| **NASA's own grid** | **4,844.5** | **on the viscous wall, x = 0.258** | **0** | 8.058e-06 |
-| ours (blockMesh) | 2,136,801 | far field, x = ±21, 19.7 from any wall | 494 | 5.000e-06 |
+| 3,520-cell rung (89x41) | global max AR | where the worst cell is | AR > 1,000 | **AR > 1e5** | first wall cell |
+|---|---|---|---|---|---|
+| **NASA's own grid** | **4,844.5** | **on the viscous wall, x = 0.258** | 274 | **0** | 8.058e-06 |
+| ours (blockMesh) | 2,136,801 | far field, x = 21.16, 19.7 from any wall | 494 | **68** | 5.000e-06 |
 
-| 14,080-cell rung (177x81) | global max AR | where the worst cell is | cells > 1e5 | first wall cell |
-|---|---|---|---|---|
-| **NASA's own grid** | **5,210.2** | **on the viscous wall, x = 1.212** | **0** | 3.977e-06 |
-| ours (blockMesh) | 2,192,933 | far field, x = 23.6 | 1,976 | 2.669e-06 |
+| 14,080-cell rung (177x81) | global max AR | where the worst cell is | AR > 1,000 | **AR > 1e5** | first wall cell |
+|---|---|---|---|---|---|
+| **NASA's own grid** | **5,210.2** | **on the viscous wall, x = 1.212** | 1,090 | **0** | 3.977e-06 |
+| ours (blockMesh) | 2,192,933 | far field, x = 23.6 | 1,976 | **260** | 2.669e-06 |
 
-Our three mesh metrics were regenerated from scratch this session and reproduce the
-recorded values exactly — 2136801.242, 2192932.91, 2218683.129 — so the two rows are the
-same quantity measured the same way.
+Both families trip checkMesh's default advisory threshold of 1,000 on hundreds of cells,
+which is the calibration `MESH_STANDARD.md` §3.3 already records and section 3 extended —
+that threshold does not discriminate anything on a wall-resolved grid. **AR > 1e5 does
+discriminate, and it separates the two families completely: 68 and 260 cells against
+zero and zero.**
+
+Our meshes were regenerated from scratch this session and reproduce the recorded values
+exactly — global maxima 2136801.242, 2192932.91, 2218683.129, and wall-band maxima 4,714.0
+and 4,416.0 from `checkMesh -writeAllFields` against cell centres — so the rows above are
+the same quantity measured the same way.
 
 **Section 4's conclusion does not survive this for the bump.** "Max aspect ratio in the
 millions, worsening under refinement, is a normal property of a wall-resolved grid family
