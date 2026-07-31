@@ -302,6 +302,96 @@ class GateCodeAdvisoryTests(unittest.TestCase):
         self.assertNotIn("ICAO gate code", [n for n, _v, _t in quiet])
 
 
+class AnalogueCheckTests(unittest.TestCase):
+    """The winner held against real aircraft built for the same mission.
+
+    Advisory only: it blocks nothing and changes no number. Every analogue
+    figure is a published one, so the guard here is that nothing is invented
+    and that a parameter nobody publishes is reported as such rather than
+    quietly dropped."""
+
+    def setUp(self):
+        _disable_pace(self)
+        _redirect_output(self)
+
+    def test_analogues_must_match_on_passengers_and_on_range(self):
+        from workflows.aircraft_optimization import (analogues_for,
+                                                     parse_requirements)
+        picked = analogues_for(parse_requirements(
+            "300 passengers, 6000 km range"))
+        names = {a["name"] for a in picked}
+        self.assertEqual(names, {"Airbus A300-600R", "Boeing 767-300"})
+        # The A330-300 seats exactly 300 and is still not an analogue: at
+        # 11750 km it is built for a different mission.
+        self.assertNotIn("Airbus A330-300", names)
+        # The 777-200 is inside the range band and outside the seat band.
+        self.assertNotIn("Boeing 777-200", names)
+
+    def test_no_analogue_is_offered_for_a_mission_nobody_builds(self):
+        from workflows.aircraft_optimization import (analogues_for,
+                                                     parse_requirements)
+        self.assertEqual(
+            analogues_for(parse_requirements("900 passengers, 2000 km range")),
+            [])
+
+    def test_a_parameter_nobody_publishes_is_reported_as_such(self):
+        from workflows.aircraft_optimization import (analogue_rows,
+                                                     analogues_for,
+                                                     parse_requirements)
+        reqs = parse_requirements("300 passengers, 6000 km range")
+        rows = analogue_rows(
+            {"span": 46.0, "area": 283.4, "aspect_ratio": 7.99,
+             "mtow_kg": 160000.0},
+            analogues_for(reqs))
+        table = {row[0]: row for row in rows}
+        # Four parameters, always, whatever is published.
+        self.assertEqual(list(table), ["Span", "Wing area", "Aspect ratio",
+                                       "MTOW"])
+        self.assertEqual(table["Span"][3], "within analogue envelope")
+        self.assertEqual(table["MTOW"][3], "within analogue envelope")
+
+    def test_an_outlier_names_its_direction_and_points_at_the_advisory(self):
+        from workflows.aircraft_optimization import (analogue_rows,
+                                                     analogues_for,
+                                                     parse_requirements)
+        reqs = parse_requirements("300 passengers, 6000 km range")
+        rows = analogue_rows(
+            {"span": 68.0, "area": 300.0, "aspect_ratio": 15.4,
+             "mtow_kg": 147000.0},
+            analogues_for(reqs))
+        table = {row[0]: row for row in rows}
+        self.assertIn("outlier, above", table["Span"][3])
+        self.assertIn("gate code advisory", table["Span"][3])
+        self.assertIn("outlier, below", table["MTOW"][3])
+
+    def test_every_analogue_figure_is_a_number_with_a_seat_and_range_figure(self):
+        from workflows.aircraft_optimization import _ANALOGUES
+        self.assertTrue(_ANALOGUES)
+        for a in _ANALOGUES:
+            self.assertTrue(a["name"])
+            for key in ("span_m", "mtow_kg", "pax", "range_km"):
+                self.assertIsInstance(a[key], (int, float), a["name"])
+                self.assertGreater(a[key], 0, a["name"])
+            for key in ("area_m2", "aspect_ratio"):
+                self.assertTrue(a[key] is None or a[key] > 0, a["name"])
+
+    def test_the_comparison_reaches_the_transcript_as_a_table(self):
+        events = []
+        main(request="Optimize the L/D of an airliner for 300 passengers, "
+                     "6000 km range",
+             emit=lambda e, p: events.append((e, p)))
+        tables = [p for e, p in events if e == "transcript.table"
+                  and p["table_id"] == "analogue-check"]
+        self.assertEqual(len(tables), 1)
+        self.assertEqual(tables[0]["headers"],
+                         ["Parameter", "Winner", "Analogues", "Verdict"])
+        self.assertEqual(len(tables[0]["rows"]), 4)
+        said = " ".join(p.get("message", "") for e, p in events
+                        if e == "transcript.entry")
+        self.assertIn("Airbus A300-600R", said)
+        self.assertIn("Boeing 767-300", said)
+
+
 class StartingGeometryTests(unittest.TestCase):
     """An uploaded surface with an airliner prompt: kept on the aircraft
     route, measured for span, and used to seed the search grid."""

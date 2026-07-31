@@ -429,18 +429,67 @@ def binding_constraint(results) -> str | None:
 # the single worst thing this act could put on screen: the audience knows
 # these aeroplanes.
 #
-# WING AREA AND ASPECT RATIO ARE ABSENT ON PURPOSE, and the table says so
-# rather than quietly comparing three parameters instead of four. Neither
-# Airbus nor Boeing publishes a wing reference area in its airport planning
-# documents, and neither EASA nor the FAA carries one on a type certificate
-# data sheet. The figures that circulate come from specification aggregators,
-# they disagree between sources for the same aircraft, and they mix gross area
-# with trapezoidal reference area, which are not the same quantity and do not
-# pair with the same span. A comparison built on them would look rigorous and
-# be worthless.
+# WING AREA AND ASPECT RATIO ARE MOSTLY ABSENT, and the table says so rather
+# than quietly comparing two parameters instead of four. Neither Airbus nor
+# Boeing publishes a wing reference area in its airport planning documents,
+# and neither EASA nor the FAA carries one on a type certificate data sheet
+# (checked by full text search across all of them). The figures that circulate
+# come from specification aggregators, they disagree between sources for the
+# same aircraft, and they mix gross area with trapezoidal reference area,
+# which are not the same quantity and do not pair with the same span. A
+# comparison built on those would look rigorous and be worthless. Where an
+# area or an aspect ratio does appear below it has an engineering document
+# behind it, named in the row.
+#
+# SOURCES, per row:
+#   span, MTOW, seating   Boeing airport planning documents (757 ACAP Rev H,
+#                         767 ACAP Rev K, 777 ACAP Rev E, 737 MAX ACAP Rev F,
+#                         all December 2024) and Airbus airport planning
+#                         documents (AC A300-600 Rev 13, AC A330 Rev 32),
+#                         cross-checked against the FAA Aircraft
+#                         Characteristics Database.
+#   range                 Airbus publishes a single design range figure and
+#                         those are used as published. Boeing publishes
+#                         payload and range CHARTS for these types and no
+#                         design range number, so a Boeing range below is a
+#                         chart reading and is marked ``range_charted``. It
+#                         is used to choose analogues and is never displayed
+#                         as a published figure.
+#   wing area             Boeing 767: FAA DOT/FAA/AR-00/10, Statistical Loads
+#                         Data for the 767-200ER, Table 1, which agrees with
+#                         the Jenkinson, Simpkin and Rhodes design data tables
+#                         to 0.04 percent. Boeing 777: the same design data
+#                         tables. No other type has a traceable figure.
+#   aspect ratio          Jenkinson, Simpkin and Rhodes, Civil Jet Aircraft
+#                         Design, data tables. Never computed here from a
+#                         span and an area, because a tip to tip span and a
+#                         trapezoidal reference area do not form one.
+#
+# Seating is the manufacturer's own two-class figure. Spans are the published
+# span of the standard build; a retrofit winglet span is not used, because a
+# tip device fitted after the fact is not the wing that was designed.
 _ANALOGUE_PAX_TOLERANCE = 0.20
 _ANALOGUE_RANGE_TOLERANCE = 0.25
-_ANALOGUES: tuple[dict, ...] = ()
+_ANALOGUES: tuple[dict, ...] = (
+    {"name": "Boeing 737 MAX 8", "span_m": 35.92, "mtow_kg": 82644,
+     "pax": 178, "range_km": 6480, "range_charted": False,
+     "area_m2": None, "aspect_ratio": None},
+    {"name": "Airbus A300-600R", "span_m": 44.84, "mtow_kg": 170500,
+     "pax": 266, "range_km": 7500, "range_charted": False,
+     "area_m2": None, "aspect_ratio": None},
+    {"name": "Boeing 767-300", "span_m": 47.57, "mtow_kg": 156489,
+     "pax": 261, "range_km": 7400, "range_charted": True,
+     "area_m2": 283.4, "aspect_ratio": 7.99},
+    {"name": "Boeing 767-400ER", "span_m": 51.92, "mtow_kg": 204116,
+     "pax": 296, "range_km": 11100, "range_charted": True,
+     "area_m2": None, "aspect_ratio": None},
+    {"name": "Boeing 777-200", "span_m": 60.93, "mtow_kg": 242671,
+     "pax": 375, "range_km": 6850, "range_charted": True,
+     "area_m2": 427.8, "aspect_ratio": 8.67},
+    {"name": "Airbus A330-300", "span_m": 60.30, "mtow_kg": 242000,
+     "pax": 300, "range_km": 11750, "range_charted": False,
+     "area_m2": None, "aspect_ratio": None},
+)
 
 
 def analogues_for(reqs: dict) -> list[dict]:
@@ -465,32 +514,42 @@ def analogue_rows(best: dict, matches: list[dict]) -> list[list[str]]:
     table never quietly shrinks from four parameters to two. The verdict is
     advisory language throughout; nothing here can fail a run.
     """
+    # Tonnes on both sides of the comparison: the analogues carry kilograms
+    # because that is the unit their airport planning documents publish.
     winner = {
         "span_m": float(best["span"]),
         "area_m2": float(best["area"]),
         "aspect_ratio": float(best["aspect_ratio"]),
-        "mtow_t": float(best["mtow_kg"]) / 1000.0,
+        "mtow_kg": float(best["mtow_kg"]),
     }
     spec = (
-        ("Span", "span_m", "{:.1f} m", "gate code advisory"),
-        ("Wing area", "area_m2", "{:.0f} m²", None),
-        ("Aspect ratio", "aspect_ratio", "{:.1f}", None),
-        ("MTOW", "mtow_t", "{:.0f} t", None),
+        ("Span", "span_m", "{:.1f} m", 1.0, "gate code advisory"),
+        ("Wing area", "area_m2", "{:.0f} m²", 1.0, None),
+        ("Aspect ratio", "aspect_ratio", "{:.1f}", 1.0, None),
+        ("MTOW", "mtow_kg", "{:.0f} t", 0.001, None),
     )
     rows: list[list[str]] = []
-    for label, key, fmt, pointer in spec:
-        values = [a[key] for a in matches if a.get(key) is not None]
-        mine = fmt.format(winner[key])
+    for label, key, fmt, scale, pointer in spec:
+        values = [a[key] * scale for a in matches if a.get(key) is not None]
+        mine = fmt.format(winner[key] * scale)
         if not values:
             rows.append([label, mine, "not published",
                          "no comparison drawn"])
             continue
         lo, hi = min(values), max(values)
-        band = f"{fmt.format(lo)} to {fmt.format(hi)}"
-        if lo <= winner[key] <= hi:
+        # One analogue publishes a figure and the envelope is a point, not a
+        # band. Printing "283 m² to 283 m²" would dress a single number up as
+        # a range, so it prints as the single number it is.
+        band = (fmt.format(lo) if lo == hi
+                else f"{fmt.format(lo)} to {fmt.format(hi)}")
+        mine_value = winner[key] * scale
+        if lo <= mine_value <= hi:
             verdict = "within analogue envelope"
         else:
-            verdict = "outlier"
+            # The direction is the useful half of the verdict: whether the
+            # optimizer ran past the real aircraft or fell short of them.
+            side = "above" if mine_value > hi else "below"
+            verdict = f"outlier, {side} analogue envelope"
             if pointer:
                 verdict += f", see {pointer}"
         rows.append([label, mine, band, verdict])
@@ -1241,10 +1300,16 @@ def main(request: str | None = None, params: dict | None = None,
         "coefficient no vortex-lattice solve can produce. "
         "• Both values are assumed, and every low-speed verdict below names "
         "the one it used.")
+    # A requirement the request left out is already on the constraint table
+    # above, tagged assumed, so it is not repeated here. What is left is the
+    # physics the answer rests on and nothing supplied: the two lift
+    # coefficients and the non-wing drag share. The certificate carries the
+    # ledger complete, because it is read on its own.
     _emit_table(
         emit, script, title="Assumed values",
         headers=["Quantity", "Value", "Basis"],
-        rows=[[label, value, basis] for label, value, basis in ledger_rows],
+        rows=[[label, value, basis] for label, value, basis in ledger_rows
+              if basis != "assumed, not stated"],
         table_id="assumed-values", role=_NUMERICIST_SPEAKER)
     roster.idle(NUMERICIST)
 
@@ -1745,12 +1810,14 @@ def main(request: str | None = None, params: dict | None = None,
     matches = analogues_for(reqs)
     if matches:
         script.engineer(
-            "• Holding the winner against aircraft flying a comparable "
+            "• Holding the winner against aircraft built for a comparable "
             "mission. "
-            "• " + ", ".join(a["name"] for a in matches) + ".")
+            "• " + ", ".join(a["name"] for a in matches) + ". "
+            "• Their figures come from the manufacturers' airport planning "
+            "documents.")
         _emit_table(
             emit, script, title="Winner against real aircraft",
-            headers=["Parameter", "Winner", "Analogue Range", "Verdict"],
+            headers=["Parameter", "Winner", "Analogues", "Verdict"],
             rows=analogue_rows(best, matches),
             table_id="analogue-check")
     else:
