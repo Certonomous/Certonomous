@@ -1371,7 +1371,8 @@ def main(request: str | None = None, params: dict | None = None,
     if emit and n_infeasible:
         emit("landscape.legend", {
             "infeasible": (f"infeasible: {binding}" if binding
-                           else "infeasible")})
+                           else "infeasible"),
+            "solved": ("promoted to the solver" if solver_live else None)})
 
     def _say_ruled_out() -> None:
         if ruled_out:
@@ -1556,9 +1557,14 @@ def main(request: str | None = None, params: dict | None = None,
                     "polar": result["polar"], "matched": matched,
                     "L_D_total": f["L_D_solved"],
                     "solver": result.get("solver_version", "VSPAERO")})
+                # The landscape is one tier from edge to edge: its axis, its
+                # colour scale and its annotated best are all screened
+                # numbers. A promoted wing is marked as promoted and keeps
+                # its screened value, so no solved number lands on a screen
+                # tier scale. The solved numbers have their own surfaces.
                 emit("landscape.point", {
                     "design": {"span": f["span"], "wing_area": f["area"]},
-                    "metrics": {"L_D": f["L_D_solved"]},
+                    "metrics": {"L_D": f["L_D"]},
                     "feasible": True, "solved": True})
                 if surface:
                     emit("geometry.ready", {

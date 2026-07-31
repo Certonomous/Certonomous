@@ -1753,15 +1753,27 @@ function drawLandscape() {
   }
   // key for the two point classes. The binding limit is named when the run
   // knows it; otherwise the grey points are simply labelled infeasible.
-  const legend = (meta.legend && meta.legend.infeasible) || null;
-  if (legend){
+  const key = meta.legend || {};
+  const keyRows = [];
+  if (key.infeasible) keyRows.push([key.infeasible, 'rgba(120,130,140,.75)', false]);
+  if (key.solved)     keyRows.push([key.solved, 'rgba(255,255,255,.85)', true]);
+  if (keyRows.length){
     ctx.font='9px ui-monospace,monospace'; ctx.textAlign='left';
-    const kw=ctx.measureText(legend).width;
-    const KX=ML+6, KY=MT+PH-8;
-    ctx.fillStyle='rgba(8,10,12,.82)'; ctx.fillRect(KX-4,KY-9,kw+18,13);
-    ctx.fillStyle='rgba(120,130,140,.75)';
-    ctx.beginPath(); ctx.arc(KX+3,KY-3,3.2,0,6.29); ctx.fill();
-    ctx.fillStyle='rgba(200,215,230,.85)'; ctx.fillText(legend,KX+11,KY);
+    let KY = MT+PH-8;
+    for (let i=keyRows.length-1; i>=0; i--){
+      const [label, color, ring] = keyRows[i];
+      const kw=ctx.measureText(label).width, KX=ML+6;
+      ctx.fillStyle='rgba(8,10,12,.82)'; ctx.fillRect(KX-4,KY-9,kw+18,13);
+      if (ring){
+        ctx.strokeStyle=color; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(KX+3,KY-3,3.6,0,6.29); ctx.stroke();
+      } else {
+        ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(KX+3,KY-3,3.2,0,6.29); ctx.fill();
+      }
+      ctx.fillStyle='rgba(200,215,230,.85)'; ctx.fillText(label,KX+11,KY);
+      KY -= 14;
+    }
   }
 
   // the winner is annotated with its value — the one number this plot exists for
