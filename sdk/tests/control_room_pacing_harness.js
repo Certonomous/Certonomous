@@ -238,16 +238,22 @@ check(kWorkers() === '4', `after the queue drained kWorkers is ${kWorkers()}, ex
 check(kAgents() === '3', `after the queue drained kAgents is ${kAgents()}, expected 3`);
 
 // ---------------------------------------------------------------- test 3
-// Releases come back down, and the peak is remembered for the summary.
+// Releases come back down, and stay down.
 for (let i = 0; i < 4; i++) api.dispatch(ev('worker.released', { worker_id: 'w' + i }, t++));
 drain();
 check(kWorkers() === '0', `after every release kWorkers is ${kWorkers()}, expected 0`);
-check(api.state.peakWorkers === 4,
-      `peakWorkers is ${api.state.peakWorkers}, expected 4 so the summary can show it`);
+check(api.state.highWorkers === 4,
+      `the numeral never reached the fleet size: high water mark is ${api.state.highWorkers}, expected 4`);
 
 // ---------------------------------------------------------------- test 4
 // A mission that ends while the queue is still revealing must not close out
 // on a stale count. mission.completed arrives immediately after a burst.
+//
+// 2026-07-31. What "the right count" means at the end changed: Katie's shape is
+// "start at 0, then # workers as soon as the meshing starts, then 0 when the
+// run is complete". Six workers were provisioned and never released, so the
+// fleet numeral rests at 6 here; the release case is test 3 and the recorded
+// missions below, every one of which ends on 0.
 api.resetMission();
 t = 2000;
 for (let i = 0; i < 6; i++) api.dispatch(ev('worker.provisioned', { worker_id: 'x' + i }, t++));
@@ -261,7 +267,7 @@ check(api.state.finished === true,
       'the mission never finished: finish() is still waiting on the queue');
 check(kWorkers() === '6',
       `mission ended on a stale count: kWorkers reads ${kWorkers()}, expected the ` +
-      `peak of 6 once the queue drained`);
+      `six provisioned slots that were never released`);
 check(kAgents() === '4',
       `mission ended on a stale count: kAgents reads ${kAgents()}, expected 4`);
 
@@ -494,7 +500,14 @@ function replay(file) {
     kAgents: stat('kAgents'), kWorkers: w, kCycle: stat('kCycle'),
     wireWork, wireWorkLine, wireFleet, screenWork, screenWorkLine, heldMs,
     finished: p.api.state.finished,
-    peakWorkers: p.api.state.peakWorkers, peakAgents: p.api.state.peakAgents,
+    // Katie's shape, on the wire and on the screen: 0, the fleet size while the
+    // meshing and solving happen, 0 when the run is complete. A "bounce" is the
+    // numeral leaving zero AGAIN after it has come back to zero. Counting it on
+    // both sides is what says who owns one: a bounce the backend declared is the
+    // act's, a bounce only the screen shows is the page's.
+    wireShape: ['0'].concat(wire.map(x => x.v)).filter((v, i, a) => v !== a[i - 1]),
+    screenShape: ['0'].concat(w.timeline.map(c => c.v)).filter((v, i, a) => v !== a[i - 1]),
+    highWorkers: p.api.state.highWorkers, peakAgents: p.api.state.peakAgents,
   };
 }
 
@@ -531,6 +544,14 @@ for (const file of replayFiles) {
     (r.screenWork != null && r.kWorkers.firstNonZero != null
       ? `, gap ${s(r.kWorkers.firstNonZero - r.screenWork)}` : '') +
     `, held non zero ${s(r.heldMs)} of ${s(r.runEnd)}   [${r.screenWorkLine}]`);
+  const bounces = shape => shape.filter((v, i) => i > 1 && v !== '0' && shape[i - 1] === '0').length;
+  console.log(`  SHAPE  wire ${r.wireShape.join(' -> ')}` +
+    `   screen ${r.screenShape.join(' -> ')}` +
+    `   (bounces: wire ${bounces(r.wireShape)}, screen ${bounces(r.screenShape)})`);
+  if (bounces(r.wireShape))
+    console.log(`  NOTE   the mission stands its fleet down and declares one again ` +
+      `mid run, so the shape on camera cannot be cleaner than 0 -> N -> 0. ` +
+      `That belongs to the act, not the page.`);
   if (r.errors.length) console.log(`  ${r.errors.length} error(s) thrown, first: ${r.errors[0].message}`);
 
   // ---- the behavioural bar --------------------------------------------
@@ -594,9 +615,29 @@ for (const file of replayFiles) {
           `first reads non zero at ` +
           `${r.kWorkers.firstNonZero == null ? 'never' : s(r.kWorkers.firstNonZero)}`);
   }
-  check(r.kWorkers.resting === String(r.peakWorkers) || r.peakWorkers === 0,
-        `${label} the resting kWorkers is ${r.kWorkers.resting} but the peak was ` +
-        `${r.peakWorkers}: the end state lost the mission's effort`);
+  // THE END STATE IS ZERO. Katie, 2026-07-31: "start at 0, then # workers as
+  // soon as the meshing starts, then 0 when the run is complete." A completed
+  // mission holds no slots, so the numeral reads none. This check used to
+  // demand the opposite — that the run ends on its PEAK — and the peak being
+  // restored by finish() is exactly the "6 to 0 to 6" that was on camera.
+  const lastWire = r.wire.length ? r.wire[r.wire.length - 1].v : '0';
+  if (lastWire === '0') {
+    check(r.kWorkers.resting === '0',
+          `${label} the mission stood its fleet down but the numeral rests at ` +
+          `${r.kWorkers.resting}: the count climbs back up after the run is complete`);
+  }
+  // Every value on camera has to be one the mission actually declared — the
+  // page may lag a stand down onto its beat, but it may not synthesise a number.
+  const declared = new Set(r.wire.map(x => x.v).concat('0'));
+  check(r.kWorkers.timeline.every(c => declared.has(c.v)),
+        `${label} the numeral showed ` +
+        `${r.kWorkers.timeline.filter(c => !declared.has(c.v)).map(c => c.v).join(', ')}, ` +
+        `which the mission never put on the wire`);
+  // The page must not invent a bounce the mission did not emit.
+  check(bounces(r.screenShape) <= bounces(r.wireShape),
+        `${label} the screen bounces ${bounces(r.screenShape)} time(s) ` +
+        `(${r.screenShape.join(' -> ')}) but the mission only declared ` +
+        `${bounces(r.wireShape)} (${r.wireShape.join(' -> ')})`);
 }
 
 // ---------------------------------------------------------------- report

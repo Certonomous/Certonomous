@@ -738,7 +738,7 @@ function resetMission() {
   if (state.source) state.source.close();
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null; state.report=null;
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
-  state.peakAgents=0; state.peakWorkers=0; state.workersShown=0; state.fleetAhead=0;
+  state.peakAgents=0; state.highWorkers=0; state.workersShown=0; state.fleetAhead=0;
   state.fleetAheadToken=0; state.fleetSeq=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
   hideKillBanner();
@@ -773,10 +773,18 @@ function finish(status) {
   if (revealQ.length || revealing) { setTimeout(() => finish(status), 500); return; }
   state.finished = true; $('beacon').classList.remove('live'); $('launch').disabled = false;
   $('globalStatus').textContent = status === 'failed' ? 'MISSION ENDED' : 'MISSION COMPLETE';
-  // The roster idles at completion; the KPIs keep the mission's peak effort
-  // on screen instead of dropping back to zero.
+  // THE FLEET NUMERAL ENDS AT ZERO (Katie, 2026-07-31: "start at 0, then #
+  // workers as soon as the meshing starts, then 0 when the run is complete").
+  // A completed mission has no workers on the machine, so the numeral reads
+  // what the machine reads. This line used to put the mission's PEAK back on
+  // screen at completion, and that is the whole of the "6 to 0 to 6" the
+  // viewer kept seeing: the fleet rose to 6, stood down to 0 with the solve,
+  // and then climbed back to 6 the instant the mission closed out.
+  //
+  // The team tally is different in kind and is untouched: an agent that spoke
+  // this mission was on the job whatever it is doing now, so Agents holds the
+  // count of everyone seen rather than falling back to whoever is still busy.
   if (state.peakAgents) $('kAgents').textContent = state.peakAgents;
-  if (state.peakWorkers) $('kWorkers').textContent = state.peakWorkers;
   if (state.source) { state.source.close(); state.source = null; }
   // End state (B4): the completed mission is not a lone report pane — the painted
   // geometry and the evidence plots stay in the centre column while the report
@@ -1525,18 +1533,20 @@ function renderAgentCount() {
   $('kAgents').textContent = n;
   state.peakAgents = n;
 }
-// Workers is the live provisioned count: it climbs through fan-out and falls
-// back as slots release, so the numeral shows the fleet as it stands right
-// now. Two channels write it, exactly as before: the fleet's own
-// provisioned/released tally, and the lab roster's absolute count. Whichever
-// spoke last owns the display. The peak is remembered separately so the
-// end-of-mission summary can show the effort the mission actually took
-// instead of the idle zero it finishes on.
+// Workers is the live provisioned count and nothing else: 0 before the fleet
+// goes on the mesh, the fleet size while it meshes and solves, 0 again the
+// moment the slots stand down — and it stays at 0 through the conclusion and
+// past the end of the mission, because by then there are no workers. Two
+// channels write it, exactly as before: the fleet's own provisioned/released
+// tally, and the lab roster's absolute count. Whichever spoke last owns the
+// display. The mission's effort is reported where it is measured, in
+// core-minutes on the compute panel, not by putting a spent fleet back on the
+// KPI row.
 function renderWorkerCount(live) {
   const n = live == null ? state.workers : live;
   $('kWorkers').textContent = n;
   state.workersShown = n;
-  state.peakWorkers = Math.max(state.peakWorkers || 0, n);
+  state.highWorkers = Math.max(state.highWorkers || 0, n);   // measurement only
 }
 // The roster arrives as one event but carries three separable things: the panel
 // of who is on the job, the Agents tally, and the fleet size. They are split so

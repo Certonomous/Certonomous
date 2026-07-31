@@ -21,8 +21,7 @@ queue one beat at a time and read the KPI row between beats. It asserts:
     idle queue applies synchronously, which is correct: the queue must not add
     latency to a mission's first beat);
   * the numerals climb as the queue drains, and rest on the right values;
-  * releases bring the count back down while `peakWorkers` remembers the peak
-    for the end-of-mission summary;
+  * releases bring the count back down, and it stays down;
   * a mission whose backend finishes early does not close out on a stale
     count, because `finish()` waits for the queue to be empty and done;
   * a counter event sandwiched between two narration beats is revealed
@@ -68,6 +67,18 @@ Measured on those four acts plus the original three, against the pre-fix page:
 and against the fixed page: the worst wire-to-screen lag on a fleet RISE is
 0.0 s on all seven streams, and the numeral stands at a fleet size for 20% to
 97% of each run.
+
+2026-07-31, third time. "The worker count is still not synchro, it goes from 6
+to 0 to 6 again whereas it should be 6 when the meshing/run starts and go to 0
+when the run is complete." The shape she asked for is 0, then the fleet, then 0,
+once. The bounce was NOT the acts: replayed, every one of the seven streams puts
+a clean 0 -> N -> 0 on the wire (only the screening sweep declares two fleets,
+12 and then 9, which is what that act does). The third value was the page's:
+`finish()` restored the mission's PEAK to the KPI row on completion, so a run
+that had honestly stood its fleet down to 0 climbed back to 6 the moment it
+ended. The peak restore is gone; the fleet numeral now rests where the machine
+does. The harness asserts the shape directly and prints wire-versus-screen, so a
+bounce can be attributed to the act that emitted it.
 """
 from __future__ import annotations
 
@@ -134,7 +145,9 @@ class ControlRoomPacing(unittest.TestCase):
           * every fleet size declared reaches the numeral;
           * the race lanes and the worker count start together;
           * the Agents and Cycle numerals each move at least twice;
-          * the resting count after the queue drains is the mission's peak.
+          * the run ends on 0 whenever the mission stood its fleet down;
+          * every number on camera is one the mission put on the wire, and the
+            screen bounces no more than the wire does.
         """
         for stream in STREAMS:
             self.assertTrue(stream.exists(), f"missing replay fixture {stream}")
