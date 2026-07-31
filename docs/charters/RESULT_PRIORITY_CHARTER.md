@@ -1,12 +1,22 @@
 # Certonomous Result Priority Charter
 
-Version 0.1, dated 2026-07-30. **This is a draft for the owner to react to, not
+Version 0.2, dated 2026-07-31. **This is a draft for the owner to react to, not
 a settled charter.** Her own note on it is "still need to think abt how to go
 abt this", and this document takes that literally. The orderings below are
 proposals. The open questions in section 6 are named rather than papered over,
 and several of them could change the whole shape of the answer.
 
-Version 0.1 rather than 1.0 for that reason. It becomes 1.0 when she rules.
+Version 0.2 rather than 1.0 for that reason. It becomes 1.0 when she rules.
+
+**What changed in 0.2, and why it is still 0.x.** Nothing was settled. Three
+things were sharpened so that ruling is cheaper than re-deriving. Every class
+in section 4 now states the decision that would violate its ordering, because
+an ordering nobody can breach is a preference with a table around it. Section
+4.5 gains a rank zero, admissibility, after five acts ranked a non-conclusive
+refinement band as though it were a measured interval. And section 8 is new: a
+one-line decision sheet, each open question reduced to named options with the
+lab's recommendation where it has one, so the answer can be "Q2: B" rather than
+an essay.
 
 ## 1. The problem, in her words
 
@@ -69,6 +79,22 @@ Read these as lexicographic within a class: a higher rank is settled before a
 lower one is considered. Section 6 question 2 asks whether strict lexicographic
 ordering is actually right, and it is a real question.
 
+**The whole proposal on one line each, so the shape is arguable before the
+detail is.** Two of these six are her own examples and are marked as such.
+
+| Class | Rank 1, what settles first | Rank last |
+| --- | --- | --- |
+| External aerodynamics (hers) | Integrated forces and moments | Field detail |
+| The challenge (hers) | The eight scored columns | Nothing else |
+| Gradients and adjoints | Per-component sign agreement | The objective value |
+| Free surface and interface | The gated front position, metric swept | Field detail |
+| Uncertainty quantification | Coverage, after admissibility | The central value |
+| Unsteady statistics | Stationarity, per quantity | The band |
+
+Each class below carries a **Violated when** line. That line is the charter's
+own test from `README.md`: if no decision could break the ordering, the
+ordering is decoration.
+
 ### 4.1 External aerodynamics
 
 Her stated example, expanded.
@@ -82,6 +108,11 @@ Her stated example, expanded.
    express.
 3. **Surface distributions.** Pressure and skin friction along the body.
 4. **Field detail.** Everything in the volume.
+
+**Violated when** a model or a mesh is adopted because its wake, its pressure
+distribution or its picture improved, while its integrated forces moved further
+from the reference, and no trade block says so. The forces do not have to win.
+The trade has to be written.
 
 ### 4.2 The challenge
 
@@ -98,6 +129,19 @@ method that improves the physics and not the score has not moved the challenge,
 and saying so plainly is more useful than a ranking that pretends otherwise.
 The deficit decomposition already exists per case, and two duct cases carry
 62.9 percent of it.
+
+**The ordering names one entry of record, and the published number is that
+entry's.** Because rank 1 is the score, the entry of record is whichever
+scoring round scores best, and every published surface carries that round's
+overall and its eight per-case values. This is not theory. The credentials wall
+carried an overall of 0.0741 while the entry of record scored 0.0676, claimed a
+single scoring call where four were made, and claimed best on three of eight
+cases where round 3 records five of eight. The audit in the verification
+charter's section 11 catches this class now.
+
+**Violated when** a round is adopted, or a claim published, on a physics
+argument the eight scored columns do not support, or when a surface publishes a
+score that is not the entry of record's.
 
 ### 4.3 Gradients and adjoints
 
@@ -116,6 +160,10 @@ already in force. Written out:
 A gradient that points the right way with the wrong magnitude still descends. A
 gradient with a flipped component climbs.
 
+**Violated when** an adjoint is adopted, or its gradient used to drive an
+optimisation, on an aggregate agreement while a component's sign is flipped.
+A5 is the standing example: 46.6 percent aggregate with two sign flips.
+
 ### 4.4 Free surface and interface flows
 
 1. **The gated interface or front position**, measured with a metric whose free
@@ -124,8 +172,21 @@ gradient with a flipped component climbs.
 2. **Integrated forces.**
 3. **Field detail.**
 
+**Violated when** a front-position result is ranked at all before its metric's
+free parameter has been swept. Rank 1 here is not "the front position", it is
+"the front position measured by a metric shown to be metric-independent". An
+unswept number does not enter the ordering.
+
 ### 4.5 Uncertainty quantification
 
+0. **Admissibility, before any rank.** A band whose producing procedure marks
+   itself non-conclusive is not a band and does not enter the ordering at any
+   rank. Coverage cannot be assessed on an interval that does not exist, and a
+   width comparison between a real band and a fallback is arithmetic on two
+   different kinds of thing. Five acts ranked a non-conclusive Eca and Hoekstra
+   fallback as though it were measured, under a caption that made it a 95
+   percent confidence interval. The verification charter's section 6 governs
+   the label. This clause governs the rank.
 1. **Coverage.** Does the band contain the truth. A narrow band that misses is
    worse than a wide band that contains, and reporting only the width inverts
    this.
@@ -138,6 +199,9 @@ the phase-aligned waveform, the peak and the band, not just the mean, because
 between two cycles of one run the mean moved 2.1 percent while the peak moved
 by a factor of 18.5.
 
+**Violated when** a framework is preferred for a narrower band with no coverage
+statement, or when a non-conclusive band is compared on width at all.
+
 ### 4.6 Unsteady statistics
 
 1. **Stationarity of the reported statistic**, per quantity and not per run.
@@ -146,6 +210,12 @@ by a factor of 18.5.
 4. **The band.**
 
 L-24 again. A run is not converged, a quantity is.
+
+**Violated when** a mean or a band is reported for a quantity whose own
+stationarity was never tested, on the strength of the run having converged.
+F9 is the standing example: six reference runs judged stationary on the throat
+differential, publishing a downstream differential with peak-to-trough bands of
+39, 113 and 128 percent of its own mean.
 
 ## 5. What the ordering does not do
 
@@ -223,6 +293,131 @@ The interim rule, which is safe under every resolution of section 6:
    section 6.
 3. **When the choice is genuinely undecidable under section 4, escalate.** That
    is charter 7's job and the honest output is a question, not a coin flip.
+
+## 8. The one-line decision sheet
+
+Section 6 states the questions. This section states the answers she can pick
+from, so ruling costs a line rather than a re-derivation. Every option is
+written to be chosen by name: "Q2: B" is a complete decision.
+
+Where the lab has a recommendation it says so and says why. Where it has none
+it says that too, because a manufactured recommendation on a question this
+open would be the invention this charter exists to avoid.
+
+**D0. Does the trade block bind, whatever else is unresolved?** Section 3.
+
+- **A. Yes.** Every ordering-driven choice carries the nine-line block.
+- **B. Only above a stated cost or visibility threshold.**
+- **C. No.**
+
+Trade: A costs a paragraph per decision and produces the record's only
+inventory of what the lab does not know. B needs a threshold nobody has set and
+the cheap decisions are exactly the ones that accumulate unrecorded. *Lab
+recommends A*, and it is the one part of this document written as binding
+already, because it is safe under every resolution below.
+
+**D1, from Q1. Which ordering governs a case in two classes?** A challenge case
+that is also a duct flow, an adjoint on a free surface.
+
+- **A. The most specific scored purpose wins.** If a case produces a scored
+  column, 4.2 governs.
+- **B. The physics class wins**, and the score is reported alongside.
+- **C. Both orderings are stated and any disagreement escalates**, so a
+  cross-class case is never decided silently.
+
+Trade: A is the honest reading of what the mission is for, and it is also how a
+lab ends up optimising a metric instead of a physics. B protects the science
+and can leave the ranked entry unimproved for a quarter. C never picks wrong
+and produces more dockets. *No recommendation.* This one turns on how much of
+the lab's year the challenge is meant to own, which is hers.
+
+**D2, from Q2. Strict lexicographic, or a tolerance band?** The question the
+lab most wants answered.
+
+- **A. Strict.** Rank 1 settles before rank 2 is looked at. Clean, and it lets
+  a 0.2 percent force improvement beat a 30 percent separation improvement.
+- **B. Banded.** Rank 1 counts as tied inside a per-class tolerance, then rank
+  2 decides. Needs one number per class, and inventing six numbers is what this
+  charter refuses to do without her.
+- **C. Banded, with the band set once per class at the moment it first
+  matters**, recorded in the trade block that needed it, rather than six
+  numbers set in advance from nothing.
+
+Trade: A is enforceable today and is probably wrong in the specific case named
+in Q2. B is right in principle and blocked on six numbers. C gets the behaviour
+of B while paying for each band only when a real decision needs it, and the
+cost is that two decisions in the same class can be made against different
+bands until the first one is recorded. *Lab recommends C*, weakly, and would
+rather she picked A than left it open.
+
+**D3, from Q3. Higher-priority quantity has no reference.** Forces first, but
+only the surface pressure has experimental data.
+
+- **A. The ordering follows the mission's purpose.** The forces still outrank,
+  the case reports that rank 1 is ungradeable, and the pressure agreement is
+  reported without being promoted.
+- **B. The ordering follows the available reference.** The gradeable quantity
+  becomes rank 1 for that case, and the record says the ordering was rewritten
+  by data availability.
+
+Trade: A keeps the ordering honest and produces cases whose top rank is blank.
+B produces a gradeable verdict on every case and quietly lets the reference
+catalogue set the lab's priorities. *Lab recommends A*, because B is the shape
+that turns "what matters" into "what we happen to be able to measure", and the
+wall credential is a reason to prefer B that should be visible rather than
+structural.
+
+**D4, from Q4. Does the ordering bind selection or only reporting?**
+
+- **A. Selection.** A method that loses on rank 1 is not adopted.
+- **B. Reporting only.** Anything may be tried; the ordering governs what the
+  record claims.
+- **C. Selection at adoption, reporting during investigation.** An exploratory
+  round is exempt; the round that becomes the entry of record is not.
+
+Trade: A is her framing taken literally and would have blocked the closure
+work's first rounds, which did not move the score. B makes the ordering
+unfalsifiable at the moment it matters most. C needs a visible line between
+investigating and adopting, and the lab already has one, because a round
+becomes the entry of record by an explicit act. *Lab recommends C.*
+
+**D5, from Q5. Fidelity chip versus rank.** A VALIDATED field result against an
+UNCONVERGED force.
+
+- **A. The chip wins.** UNCONVERGED means there is no number to prioritise, so
+  the ordering skips it and says it skipped it.
+- **B. The rank wins.** The case is blocked at rank 1 until the force
+  converges, and nothing lower is reported as the result.
+
+Trade: A keeps work moving and makes the ordering conditional on convergence in
+a way section 4 does not say. B is the hard ladder rule of the verification
+charter applied to priority, and it is consistent with a failed gate blocking
+every downstream rung. *Lab recommends B*, and notes it is the stricter of the
+two and the one that costs more.
+
+**D6, from Q6. Who declares an ordering for an unlisted class?** Rotating
+machinery, conjugate heat transfer, aeroelasticity, combustion.
+
+- **A. The proposal drafts it**, marked PROPOSAL, and the class is enterable
+  immediately with the ordering going to the docket for ratification.
+- **B. The class stays unenterable** until she rules.
+
+Trade: A costs the risk of a class running for weeks under an ordering she
+would not have chosen, and every such ordering is on the record and reversible.
+B costs a night every time the lab meets a new class. *Lab recommends A*, on
+the same reasoning the escalation charter uses for reversible and cheap.
+
+**D7, from Q7. Does a trade expire?**
+
+- **A. No.** "Revisit when" carries a trigger and that is enough.
+- **B. Every trade carries a review date as well as a trigger**, and an expired
+  trade is a row on the morning report's waiting list until it is renewed or
+  retired.
+
+Trade: A is what is written and it means a trade made under a memory ceiling
+survives the ceiling. B costs a recurring report row per trade and is the only
+version that fires without anybody remembering. *Lab recommends B*, and it is
+cheap: the trigger is already written, the date is one more line.
 
 ## Related
 
