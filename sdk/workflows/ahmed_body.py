@@ -76,6 +76,11 @@ EXTENT_MATCH = 0.02
 # Roof and base planes are excluded from the search by these bounds.
 SLANT_MIN_DEG, SLANT_MAX_DEG = 5.0, 75.0
 
+# A request that asks for a coarse mesh is answered, not ignored: the mesh
+# ladder this act already runs IS the coarse-to-fine comparison, and saying so
+# is what turns the ask into an answer.
+_COARSE_ASK = re.compile(r"\bcoarse\s+(?:mesh|grid)\b", re.I)
+
 _STATED_SLANT = re.compile(
     r"\bslant\b\s*[:=]?\s*(\d{1,3}(?:\.\d+)?)\s*(?:deg|degree|°)|"
     r"(\d{1,3}(?:\.\d+)?)\s*(?:deg(?:ree)?s?|°)\s*(?:rear\s+)?slant\b", re.I)
@@ -330,6 +335,11 @@ def main(request: str | None = None, params: dict | None = None,
         script.engineer(
             "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
             "• Standard closure for a separated external wake.")
+        if _COARSE_ASK.search(request or ""):
+            script.engineer(
+                "• You asked for a coarse mesh. "
+                "• The ladder below runs three, coarse upwards, and reports "
+                "what the choice is worth.")
 
         # Nothing on camera describes how the mesh is arrived at, how it is
         # built, or what state it was in beforehand. The gates it has to clear
@@ -746,9 +756,7 @@ def main(request: str | None = None, params: dict | None = None,
                 rows=verdict_rows, table_id=f"verdict-act7-{label}")
     knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                   f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
-    script.numericist(
-        f"• Lessons entered to memory. "
-        f"• Next question about a body like {shown} answers from a solve.")
+    script.numericist("• Lessons entered to memory.")
 
     _AGENDA = [
         {"title": "The other slant angle",

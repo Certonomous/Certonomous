@@ -279,8 +279,10 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         ["Triangles in the surface", f"{geometry['triangles']:,}"],
         ["Streamwise axis", axes[geometry["streamwise_axis"]]],
         ["Span axis", axes[geometry["span_axis"]]],
-        ["Working length", f"{geometry['length'] * scale:.1f} m"],
-        ["Working span", f"{geometry['span'] * scale:.1f} m"],
+        ["Working length", f"{geometry['length'] * scale:.2f} m"],
+        ["Working span", f"{geometry['span'] * scale:.2f} m"],
+        ["Planform area",
+         f"{geometry['planform_area'] * scale * scale:.3g} m²"],
     ]
     script.engineer(
         " ".join(f"• {line}." for line in basis_lines)
@@ -292,13 +294,8 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
     reference_values = build_case(
         Path(engineer.out_root) / "case", surface, geometry,
         velocity=velocity, scale=scale, refinement=refinement, iterations=iterations)
-    script.engineer(
-        f"• Case built: farfield from the body's own bounding box, k-omega SST. "
-        f"• Reference area: measured planform "
-        f"{reference_values['planform_area']:.3g} m². "
-        f"• Freestream {velocity:g} m/s; Re {reference_values['reynolds']:.1e}.")
-    script.researcher(
-        "• Reference area must be measured from the body itself. ")
+    # The numbers this line used to run together are rows of the body table
+    # instead, and how the domain is built is not narrated.
 
     # Stage the case inside the compute node and scale the surface with it.
     local_case = Path(engineer.out_root) / "case"
@@ -592,7 +589,8 @@ def _band_bullet(band: dict) -> str:
     """
     if band.get("band_abs") is None:
         return ""
-    note = (f"• Numerical uncertainty from 3 meshes: "
+    meshes = len(band.get("cells") or []) or 3
+    note = (f"• Numerical uncertainty from {meshes} meshes: "
             f"±{band['band_abs']:.2g} on Cd (Eca & Hoekstra 2014).")
     if band.get("clamped"):
         note += " • Observed order limited to the theoretical range."
@@ -625,7 +623,7 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
 
     headers = ("Mesh", "Cells", "C_d")
     table_id = f"refinement-{label}"
-    title = "Mesh sensitivity: three meshes of the same case"
+    title = "Mesh sensitivity across meshes of this case"
 
     def _finish(levels: list[dict], *, replay: bool) -> dict | None:
         ordered = sorted(levels, key=lambda lv: lv["cells"])
@@ -655,7 +653,8 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                       "provenance": [lv.get("mission", f"{label}-{lv['tag']}")
                                      for lv in ordered]})
         uq_studies.save_study(label, study)
-        return {**numerical, "levels": ordered, "replay": replay}
+        return {**numerical, "levels": ordered, "replay": replay,
+                "band_cells": band.get("cells") or []}
 
     existing = uq_studies.load_study(label) or {}
     stored_levels = existing.get("levels", [])
@@ -1055,7 +1054,7 @@ def main(request: str | None = None, params: dict | None = None,
             body_rows.append(["Length", f"{case_reference['length']:.1f} m"])
         if not report.get("intake_rows") and case_reference.get("span"):
             body_rows.append(["Span", f"{case_reference['span']:.1f} m"])
-        if report.get("planform_area"):
+        if report.get("planform_area") and not report.get("intake_rows"):
             body_rows.append(["Planform area",
                               f"{report['planform_area']:.3g} m²"])
         if report.get("frontal_area"):
@@ -1177,7 +1176,9 @@ def main(request: str | None = None, params: dict | None = None,
                  f"Limit {MESH_RETRY_LIMIT}",
                  "Brought inside the gates" if retried_gates_ok
                  else "Gates still missed"])
-        _emit_table(emit, script, role=_CE_ROLE,
+        from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
+
+        _emit_table(emit, script, role=_CR_ROLE,
                     title="Mesh quality gates, as measured",
                     headers=("Check", "Measured", "Standard", "Verdict"),
                     rows=gate_rows, table_id=f"mesh-gates-{label}")
@@ -1556,10 +1557,17 @@ def main(request: str | None = None, params: dict | None = None,
         rung_cells = [int(lv.get("cells", 0))
                       for lv in (refine.get("levels") or [])
                       if lv.get("cells")]
+        band_cells = [int(c) for c in (refine.get("band_cells") or [])]
         if len(rung_cells) >= 2:
-            ladder_stats.append(["Meshes compared", f"{len(rung_cells)}"])
+            ladder_stats.append(["Meshes on the ladder", f"{len(rung_cells)}"])
             ladder_stats.append(["Cell counts",
                                  f"{min(rung_cells):,} to {max(rung_cells):,}"])
+        if band_cells and len(band_cells) != len(rung_cells):
+            # A long ladder carries more rungs than the band is measured on.
+            # Say which meshes the band came from rather than let the row
+            # above be read as its basis.
+            ladder_stats.append(["Meshes behind the band",
+                                 f"{min(band_cells):,} to {max(band_cells):,}"])
         if refine.get("band_abs") is not None:
             ladder_stats.append(["Discretization band on C_d",
                                  f"±{refine['band_abs']:.2g}"])
@@ -1805,9 +1813,7 @@ def main(request: str | None = None, params: dict | None = None,
     if not familiar:
         knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
-        script.numericist(
-            f"• Lessons entered to memory. "
-            f"• Next question about a body like {shown} answers from a solve.")
+        script.numericist("• Lessons entered to memory.")
 
     report_doc = lab_report(
         title=f"Geometry study: {shown}",
