@@ -98,18 +98,22 @@ MC_SEED: int | None = (None if _SEED_ENV in {"clock", "none", "random"}
 # The act's four tables. Each one opens with its headers before any row lands,
 # then grows a row at a time from the lane that measured it: the ensemble table
 # gains a row when a sample's whole alpha sweep has resolved, the reduced-order
-# table gains one per anchor and then the surface peak and the confirmation.
+# table gains one per anchor and then the reduced space peak and the
+# confirmation.
 # Every cell below is a number the run measured or a setting it was handed.
+# Every variable is written as its symbol wherever it is named on camera — the
+# lift-to-drag ratio L/D, the angle of attack α, the chord Reynolds number Re —
+# and Reynolds numbers are set in scientific notation, not exponent shorthand.
 _SETUP_TABLE = "race-setup"
 _SETUP_TITLE = "What is raced and what settles it"
 _SETUP_HEADERS = ("Item", "Setting")
 _MC_TABLE = "race-mc-samples"
 _MC_TITLE = "Monte Carlo ensemble: peak per sample"
-_MC_HEADERS = ("Sample", "Chord Reynolds", "Peak L/D", "Peak angle",
+_MC_HEADERS = ("Sample", "Chord Reynolds Re", "Peak L/D", "Peak angle α",
                "Solve seconds")
 _ROM_TABLE = "race-rom-steps"
-_ROM_TITLE = "Reduced-order lane: anchors, fitted surface, confirmation"
-_ROM_HEADERS = ("Step", "Angle", "L/D", "Solve seconds")
+_ROM_TITLE = "Reduced-order lane: anchors, reduced space, confirmation"
+_ROM_HEADERS = ("Step", "Angle α", "L/D", "Solve seconds")
 _AGREE_TABLE = "race-agreement"
 _AGREE_TITLE = "The two lanes side by side"
 _AGREE_HEADERS = ("Quantity", "Monte Carlo", "Reduced order", "Agreement")
@@ -134,7 +138,7 @@ def _mc_sample_row(emit, script, sample: int, re_cref: float,
     emit_table(emit, script, role=_CE_ROLE, title=_MC_TITLE,
                headers=list(_MC_HEADERS),
                rows=[[f"{sample} (nominal)" if sample == 0 else f"{sample}",
-                      f"{re_cref / 1e6:.3f}e6",
+                      f"{re_cref / 1e6:.3f}×10⁶",
                       f"{best['l_d']:.2f}",
                       f"{best['alpha']:g}°",
                       _seconds_cell(spent)]],
@@ -227,7 +231,7 @@ def _mc_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
             emit("trace.point", {"series": "mc", "x": alpha,
                                  "y": round(point["l_d"], 3),
                                  "nominal": s == 0, "sample": s,
-                                 "x_label": "angle of attack [deg]",
+                                 "x_label": "angle of attack α [deg]",
                                  "y_label": "L/D",
                                  "title": "Full Monte-Carlo: polar"})
         emit("race.lane", {"lane": "mc", "done": done, "total": total,
@@ -277,9 +281,9 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
         anchors.append(point)
         emit("trace.point", {"series": "rom", "x": alpha,
                              "y": round(point["l_d"], 3), "kind": "anchor",
-                             "x_label": "angle of attack [deg]",
+                             "x_label": "angle of attack α [deg]",
                              "y_label": "L/D",
-                             "title": "Reduced-order: anchors + surface"})
+                             "title": "Reduced-order: anchors + reduced space"})
         emit("race.lane", {"lane": "rom", "done": len(anchors), "total": total,
                            "elapsed_s": round(time.time() - started, 1),
                            "state": "running"})
@@ -304,19 +308,19 @@ def _rom_lane(pool: ThreadPoolExecutor, work_root: Path, emit, script, *,
                         "predicted": round(predicted, 3)})
     # The prediction goes on the record before the solve that tests it, so the
     # confirmation row lands beside a number nobody could have adjusted.
-    _rom_row(emit, script, "Fitted surface peak", alpha_star,
+    _rom_row(emit, script, "Reduced space peak", alpha_star,
              f"{predicted:.2f}")
 
     confirm = solver.solve(alpha_star, RE_NOMINAL, "rom-confirm")
     wall = time.time() - started
     emit("trace.point", {"series": "rom", "x": alpha_star,
                          "y": round(confirm["l_d"], 3), "kind": "confirm",
-                         "x_label": "angle of attack [deg]", "y_label": "L/D",
+                         "x_label": "angle of attack α [deg]", "y_label": "L/D",
                          "title": "Reduced-order: confirmation solve"})
     surrogate_error = abs(confirm["l_d"] - predicted)
     _rom_row(emit, script, "Confirmation solve", alpha_star,
              f"{confirm['l_d']:.2f}", confirm.get("seconds"))
-    _rom_row(emit, script, "Confirmation against the surface", alpha_star,
+    _rom_row(emit, script, "Confirmation against the reduced space", alpha_star,
              f"{surrogate_error:.3g}")
     core_minutes = round(sum(solver.solve_seconds) * VSPAERO_THREADS / 60, 2)
     emit("race.lane", {"lane": "rom", "done": total, "total": total,
@@ -425,11 +429,11 @@ def main(request: str | None = None, params: dict | None = None,
     emit_table(emit, script, role=_CR_ROLE, title=_SETUP_TITLE,
                headers=list(_SETUP_HEADERS),
                rows=[["Raced body", raced_name],
-                     ["Objective", "Peak L/D over angle of attack"],
-                     ["Angle range",
+                     ["Objective", "Peak L/D over angle of attack α"],
+                     ["Angle range α",
                       f"{ALPHAS[0]:g}° to {ALPHAS[-1]:g}°, "
                       f"{len(ALPHAS)} angles"],
-                     ["Tolerance on the peak angle", f"±{TOLERANCE_DEG:g}°"],
+                     ["Tolerance on the peak angle α", f"±{TOLERANCE_DEG:g}°"],
                      ["Ensemble samples", f"{samples}"],
                      ["Ensemble draw",
                       f"seed {seed}" if seed is not None
@@ -457,7 +461,7 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Left lane: full Monte-Carlo, {samples} Reynolds samples "
         f"× {len(ALPHAS)} direct solves = {total_mc} solver runs. "
         f"• Right lane: reduced-order, {len(ANCHOR_ALPHAS)} anchors, a "
-        f"fitted surface, one confirmation = {total_rom} solver runs. "
+        f"reduced space, one confirmation = {total_rom} solver runs. "
         f"• Same peak, same ±{TOLERANCE_DEG:g}° tolerance, the same box: "
         f"{MAX_WORKERS} slots split evenly, {ROM_WORKERS} per lane. "
         + (f"• Ensemble drawn from seed {seed}, so the same {samples} Reynolds "
@@ -470,15 +474,16 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("race.init", {
             "subject": subject,
-            "objective": "peak L/D over angle of attack 0 to 10°",
+            "objective": "peak L/D over angle of attack α, 0° to 10°",
             "tolerance": f"±{TOLERANCE_DEG:g}°",
-            "x_label": "angle of attack [deg]", "y_label": "L/D",
+            "x_label": "angle of attack α [deg]", "y_label": "L/D",
             "lanes": [
                 {"key": "mc", "title": "FULL MONTE-CARLO",
                  "subtitle": f"{samples} samples × {len(ALPHAS)} alphas",
                  "total": total_mc},
                 {"key": "rom", "title": "REDUCED-ORDER",
-                 "subtitle": f"{len(ANCHOR_ALPHAS)} anchors + surface + confirm",
+                 "subtitle": f"{len(ANCHOR_ALPHAS)} anchors + reduced space "
+                             f"+ confirm",
                  "total": total_rom}]})
 
     # ---------------- Evidence: the race ----------------
@@ -566,7 +571,7 @@ def main(request: str | None = None, params: dict | None = None,
                       f"{mc['peak_mean']:.2f} ± {2 * mc['peak_sem']:.2f}",
                       f"{rom['confirmed']:.2f}",
                       "" if agreement_pct is None else f"{agreement_pct}%"],
-                     ["Peak angle", f"{mc['peak_alpha']:g}°",
+                     ["Peak angle α", f"{mc['peak_alpha']:g}°",
                       f"{rom['alpha_star']:g}°", f"{alpha_gap:g}° apart"],
                      ["Solver runs", f"{mc['n_solves']}",
                       f"{rom['n_solves']}", ""],
@@ -597,12 +602,13 @@ def main(request: str | None = None, params: dict | None = None,
             "reason": f"every evaluation on both lanes ran the selected solver; the "
                       f"paths agree to {agreement_pct}%"})
         emit("agenda.updated", {"entries": [
-            {"title": "Push the reduced-order lane to a two-parameter surface",
+            {"title": "Push the reduced-order lane to a two-parameter "
+                      "reduced space",
              "scope": "add camber to the anchor set; measure whether five real "
                       "anchors still beat the ensemble on a curved trade",
              "cost": "a few extra anchor solves"},
-            {"title": "Sweep from -4° for an interior peak",
-             "scope": "the cambered AR-3 wing peaks at the alpha=0 boundary; a "
+            {"title": "Sweep from α = -4° for an interior peak",
+             "scope": "the cambered AR-3 wing peaks at the α = 0° boundary; a "
                       "wider sweep would put the peak inside the range",
              "cost": "one-line change, ~2 min rerun"},
             {"title": "Re-race under measured box load",
@@ -628,7 +634,7 @@ def main(request: str | None = None, params: dict | None = None,
     # input is the ensemble spread over the stated Reynolds uncertainty;
     # numerical is the angle-grid bracket computed from the lane data; model
     # is the measured agreement of the two independent solve paths, which is
-    # direct cross-path evidence, with the surface's own confirmation
+    # direct cross-path evidence, with the reduced space's own confirmation
     # residual stated beside it. Generic register only; no method names.
     bracket = peak_grid_bracket(rom.get("anchors") or [], rom["alpha_star"])
     race_channels = uncertainty_channels(
@@ -648,7 +654,7 @@ def main(request: str | None = None, params: dict | None = None,
                         "variation on this run."),
         model_note=(f"Measured agreement between the two independent solve "
                     f"paths: {agreement:.2f} in peak lift-to-drag "
-                    f"({agreement_pct}%). The fitted surface's residual "
+                    f"({agreement_pct}%). The reduced space's residual "
                     f"against its confirmation solve is "
                     f"{rom['surrogate_error']:.2g}."))
     if emit:
