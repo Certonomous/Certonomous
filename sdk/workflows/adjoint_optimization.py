@@ -503,12 +503,16 @@ def main(request: str | None = None, params: dict | None = None,
     # ---------------- Hypothesis ----------------
     _phase(script, HYPOTHESIS)
     roster.set(CHIEF_RESEARCHER, "framing the gradient method", "working")
+    # ITEM 1 (owner, 2026-07-31): the line "an adjoint is exact only for the
+    # problem it was derived from" is removed. It read as a caveat on a result
+    # that has none: the gradient is graded against finite differences of this
+    # very problem's own primal a few beats later, and the table says how well
+    # it did. Nothing replaces it.
     _narrate(script.researcher,
             f"Drag on a three-dimensional wing at fixed lift, over {N_DV} "
             f"design variables.",
             f"A finite difference costs two flow solves per variable. One "
-            f"adjoint returns the whole gradient.",
-            f"An adjoint is exact only for the problem it was derived from.")
+            f"adjoint returns the whole gradient.")
     roster.idle(CHIEF_RESEARCHER)
 
     gate.state(script, roster)
