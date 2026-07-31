@@ -1,11 +1,6 @@
 # Certonomous Monitor Standard
 
 Version 1.1, dated 2026-07-31. Produced by the overnight reading program (R1).
-Version 1.1 adds section 3, the set reviewed as a set: which rules have been
-replayed against the archive and which are still hypotheses, which fires too
-often to be useful, why a rule that fires on every run is sometimes right, and
-the four failure modes seen this week that no rule covers. Standing rules 6 and
-7 follow from it. No rule's detection, severity or action was changed.
 Names every solver-log signature the lab's monitor recognizes or should
 recognize, with a detection rule, a severity, and a prescribed action. Derived
 from the lab's own logs: the mega-batch ledger
@@ -14,6 +9,12 @@ mission logs and learned lessons under
 `sdk/chief-engineer-runs/mission-state/`, the TMR and motorcycle run logs, and
 the monitor implementation in `sdk/chief_engineer/head_engineer.py`
 (`LogMonitor`).
+
+Version 1.1 adds section 3, the set reviewed as a set: which rules have been
+replayed against the archive and which are still hypotheses, which one fires
+too often to be useful, why a rule that fires on every run is sometimes right,
+and the four failure modes seen this week that no rule covers. Standing rules 6
+and 7 follow from it. No rule's detection, severity or action was changed.
 
 Severities: FATAL (stop and investigate, the run is not evidence), FLAG
 (continue, mark the record, cap trust until resolved), WATCH (continue,
