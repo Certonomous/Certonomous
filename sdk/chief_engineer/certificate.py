@@ -262,6 +262,33 @@ def _avg_width(size: float) -> float:
     return 0.52 * size
 
 
+def _looks_like_interval(env_text: str) -> bool:
+    """Is this envelope actually a plus-or-minus interval?
+
+    Conservative on purpose. The cost of a false positive is a sealed
+    certificate claiming a 95% confidence interval the run never computed; the
+    cost of a false negative is only that a genuine interval prints its own
+    text instead of carrying the CI caption. So this returns True only for
+    something that reads as a magnitude and nothing else: a bare number, with
+    an optional unit or percent sign, and no prose.
+
+    Rejected by design: "converged at iteration 1,734", "5% pass threshold",
+    "this case's own recipe", "at the design condition", "non-orthogonality
+    40.5 vs 70 gate", "0.029620 to 0.021245 at C_L 0.5". The last one is the
+    case that prompted this: a range of drag values, printed as if it were a
+    confidence interval on a percentage.
+    """
+    t = env_text.strip()
+    if not t:
+        return False
+    # One number, optionally signed, optionally with a unit, and nothing else.
+    # Anchoring the whole string is what does the work: any trailing prose
+    # fails the match, so no sentence can be mistaken for a magnitude.
+    return bool(re.fullmatch(
+        r"[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?"
+        r"\s*(?:%|deg|rad|m|mm|cm|km|s|ms|Pa|kPa|kg|N|m/s|m2|m\^2)?", t))
+
+
 def _wrap(text: str, size: float, max_width: float) -> list[str]:
     words = _fold(text).split()
     if not words:
@@ -745,10 +772,26 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # Some report envelopes already carry their own leading "±"; never
         # print the sign twice.
         env_text = env.lstrip("± ").strip() if env else ""
-        headline = f"{value}   {_fold('±')} {env_text}" if env_text else value
+        # The envelope field is not always an interval. Acts legitimately put
+        # a gate threshold, a convergence iteration, a mesh reading or a
+        # reference condition here: "converged at iteration 1,734",
+        # "5% pass threshold", "non-orthogonality 40.5 vs 70 gate". Printing
+        # "95% confidence interval" under those is not a formatting slip, it
+        # states a statistical claim the run never made, on a sealed
+        # certificate. Only an interval is labelled as one; everything else
+        # prints as itself, and a bare value stays a point estimate.
+        is_interval = bool(env_text) and _looks_like_interval(env_text)
+        if is_interval:
+            headline = f"{value}   {_fold('±')} {env_text}"
+            caption = "95% confidence interval"
+        elif env_text:
+            headline = value
+            caption = env_text
+        else:
+            headline = value
+            caption = "point estimate"
         c.text(left, y, headline, size=24, bold=True, color=_INK, serif=True)
-        c.text(left + 8, y - 16, "95% confidence interval" if env else "point estimate",
-               size=8.5, color=_MUTED)
+        c.text(left + 8, y - 16, caption, size=8.5, color=_MUTED)
         y -= gap(34, 30)
         reason = primary.get("reason")
         if reason:
