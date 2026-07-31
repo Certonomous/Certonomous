@@ -131,6 +131,21 @@ ICAO_ADVISORY = (
     f"Code F, {_ICAO_CODE_E_MAX_SPAN:.0f} to {_ICAO_CODE_F_MAX_SPAN:.0f} m, is "
     f"A380 class gate infrastructure (ICAO Annex 14).",
     f"Offer: re-run with span at most {_ICAO_CODE_E_MAX_SPAN:.0f} m.")
+
+
+def icao_advisory(span_m: float) -> tuple[str, str, str]:
+    """The gate-code advisory, naming the span that raised it.
+
+    The advisory is spoken once a winner exists, so it can say which span it
+    is about. Without that the viewer met a bare "52 to 65 m" band and had to
+    guess which number on screen it was measuring.
+    """
+    return (f"Advisory: winner span {span_m:.0f} m exceeds ICAO Aerodrome "
+            f"Reference Code E, wingspan {_ICAO_CODE_E_MIN_SPAN:.0f} to "
+            f"{_ICAO_CODE_E_MAX_SPAN:.0f} m.",
+            ICAO_ADVISORY[1], ICAO_ADVISORY[2])
+
+
 # The same advisory as one line, for the certificate constraint list.
 ICAO_CONSTRAINT_ROW = (
     "ICAO gate code",
@@ -911,11 +926,22 @@ def constraint_list(reqs: dict, *, advisory: bool,
                     ) -> list[tuple[str, str, str]]:
     """Every constraint the run used, tagged by where it came from.
 
-    ``user-stated`` is a limit the request named, ``assumed`` is one the act
+    ``user-stated`` is a limit the request named, ``derived`` is one that
+    follows from the limits the request named, ``assumed`` is one the act
     supplied because the request did not, and ``advisory`` is a limit nobody
     asked for that the run raised anyway. The gate-code row carries its own
     disposition, so the page says what happened to the advisory and not just
     that it fired.
+
+    THE WING-AREA FLOOR IS A DERIVED ROW, and the distinction is the whole
+    reason the third tag exists. When the request states the take-off and the
+    landing speed, those two limits stop being lab assumptions, and the wing
+    area they demand stops being one with them: it falls straight out of the
+    stall-speed relations at the MTOW the stated passenger count sets. What
+    does NOT become derived is the pair of maximum lift coefficients that
+    floor rests on. A speed limit on its own fixes no maximum lift
+    coefficient, so those two stay in the assumed-values ledger and the floor
+    stays here, tagged for what it is.
     """
     def tag(stated: bool) -> str:
         return "user-stated" if stated else "assumed"
@@ -929,9 +955,18 @@ def constraint_list(reqs: dict, *, advisory: bool,
          tag(bool(reqs.get("takeoff_stated")))),
         ("Landing speed", f"at most {reqs['landing_speed']:.0f} m/s",
          tag(bool(reqs.get("landing_stated")))),
-        ("Structural span limit", f"at most {_SPAN_STRUCTURAL_LIMIT:.0f} m",
-         "assumed"),
     ]
+    floor_mtow = low_speed_area_floor(reqs)
+    if floor_mtow:
+        speeds_stated = (bool(reqs.get("takeoff_stated"))
+                         and bool(reqs.get("landing_stated")))
+        rows.append((
+            "Wing area", f"at least {floor_mtow[0]:.0f} m²",
+            "derived, from the stated speeds" if speeds_stated
+            else "derived, from the speed limits above"))
+    rows.append(
+        ("Structural span limit", f"at most {_SPAN_STRUCTURAL_LIMIT:.0f} m",
+         "assumed"))
     if advisory:
         if winner_span is not None and winner_span < _ICAO_CODE_E_MAX_SPAN:
             disposition = "advisory, winner inside Code E"
@@ -1321,25 +1356,13 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
-    # Chief Researcher puts the method choice on the record before anything runs.
-    roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
-    props = MissionProperties(
-        kind="parametric-optimization",
-        objective="maximise the cruise lift-to-drag ratio",
-        dimensionality=3,          # wing span, area, and quarter-chord sweep
-        regime="steady",
-        smoothness="smooth",
-        fidelity="a research sizing model",
-        constraints=("take-off speed", "landing speed", "range"))
-    for line in method_memo(props):
-        script.researcher(line)
-    roster.idle(CHIEF_RESEARCHER)
-    script.engineer(ENGINEER_ACK)
-
+    # THE ENGINEER OPENS. The requirements are what everything else is chosen
+    # against, so they go on the record first and the method memo answers a
+    # question the viewer has already been asked.
     roster.set(CHIEF_ENGINEER, "reading the requirements", "working")
-    # The constraint list is naturally a table: four limits, each with a value
-    # and a source. As a sentence it was four numbers a viewer had to parse.
-    # The gate-code row is not here because nothing has been searched yet; it
+    # The constraint list is naturally a table: each limit with a value and a
+    # source. As a sentence it was a run of numbers a viewer had to parse. The
+    # gate-code row is not here because nothing has been searched yet; it
     # joins the list on the certificate once the search has a span to raise it
     # against.
     script.engineer(
@@ -1354,18 +1377,55 @@ def main(request: str | None = None, params: dict | None = None,
               for name, value, tag in constraint_list(reqs, advisory=False)],
         table_id="constraints")
 
+    # Chief Researcher rules on the method, on the record, before anything runs.
+    roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
+    props = MissionProperties(
+        kind="parametric-optimization",
+        objective="maximise the cruise lift-to-drag ratio",
+        dimensionality=3,          # wing span, area, and quarter-chord sweep
+        regime="steady",
+        smoothness="smooth",
+        fidelity="a research sizing model",
+        constraints=("take-off speed", "landing speed", "range"))
+    for line in method_memo(props):
+        script.researcher(line)
+    # The one thing the selected method cannot reach, said by the chief who
+    # chose it rather than by the numericist who inherits it.
+    script.researcher(
+        "• Take-off and landing feasibility rests on a maximum lift "
+        "coefficient no vortex-lattice solve can produce. "
+        "• But good for preliminary design.")
+    roster.idle(CHIEF_RESEARCHER)
+    script.engineer(ENGINEER_ACK)
+
     # The ledger the marking produces, on the record as a table rather than a
     # run of near-identical sentences. The two lift coefficients are the load
     # bearing rows: every take-off and landing verdict below turns on them,
     # and a vortex-lattice solver cannot produce a maximum lift coefficient,
     # so the number is stated with where it came from instead of implied.
+    #
+    # WHAT MOVED WHEN THE SPEEDS BECAME STATED, because the split is easy to
+    # overstate in the aircraft's favour. A request that names the take-off
+    # and landing speeds moves both out of this ledger and onto the constraint
+    # table as user-stated, and the wing area they demand moves with them as a
+    # derived row. The two maximum lift coefficients do NOT move: a speed
+    # limit fixes no maximum lift coefficient on its own, and calling them
+    # derived would credit the request for a number it never gave. They stay
+    # here, and the line below says which half went where.
     ledger_rows = assumed_values(reqs)
     roster.set(NUMERICIST, "marking the assumed values", "working")
-    script.numericist(
-        "• Take-off and landing feasibility rests on a maximum lift "
-        "coefficient no vortex-lattice solve can produce. "
-        "• Both values are assumed, and every low-speed verdict below names "
-        "the one it used.")
+    if reqs.get("takeoff_stated") and reqs.get("landing_stated"):
+        script.numericist(
+            "• You stated both speeds, so the wing area they demand is "
+            "derived, not assumed. "
+            "• The maximum lift coefficients that floor rests on are still "
+            "assumed, and named.")
+    else:
+        script.numericist(
+            "• Both low-speed limits are assumed here, and so is the wing "
+            "area they demand. "
+            "• Every low-speed verdict below names the lift coefficient it "
+            "used.")
     # A requirement the request left out is already on the constraint table
     # above, tagged assumed, so it is not repeated here. What is left is the
     # physics the answer rests on and nothing supplied: the two lift
@@ -1432,6 +1492,86 @@ def main(request: str | None = None, params: dict | None = None,
     # ---------------- Plan ----------------
     script.phase(PLAN)
     grid = _design_grid(seeded_spans(measured_span) if measured_span else None)
+    solver_live = vspaero.available()
+    if solver_live and emit:
+        # The plan just committed to a solver — this is the moment the badge
+        # is earned, never before.
+        emit("solver.selected", {
+            "solver": "VSPAERO", "method": "vortex lattice",
+            "basis": "plan commits the finalist wings to the selected solver"})
+    if emit:
+        # The plan phase puts the landscape skeleton on screen before any
+        # point exists — axes, units, and objective announced up front.
+        emit("landscape.init", {
+            # The canvas is screen tier throughout, and says so in its own
+            # caption: no solve-tier number shares this axis unlabelled.
+            "title": f"Design-space landscape {TIER_SCREEN}",
+            "x": {"key": "span", "label": "span [m]"},
+            "y": {"key": "wing_area", "label": "wing area [m²]"},
+            "objective": {"key": "L_D", "label": "whole-aircraft L/D",
+                          "direction": "max"}})
+    # ---- what the search actually spans, announced -------------------------
+    # THE ANNOUNCED BOUND AND THE WINNER HAVE TO AGREE. The plan used to name
+    # the design count and nothing else, and the only span figure spoken
+    # before the search was the 65 m gate-code offer below, which is a
+    # different quantity entirely. A viewer heard "65 m" and then met a 67 m
+    # winner. The bound is now read off the grid the sweep is about to run, so
+    # the winner cannot land outside the range the plan just named, whatever
+    # re-centres the ladder.
+    spans_searched = sorted({span for span, _area, _sweep in grid})
+    areas_searched = sorted({area for _span, area, _sweep in grid})
+    sweeps_searched = sorted({sweep for _span, _area, sweep in grid})
+    bounds_line = (f"• Span {spans_searched[0]:.0f} to {spans_searched[-1]:.0f} m, "
+                   f"area {areas_searched[0]:.0f} to {areas_searched[-1]:.0f} m², "
+                   f"sweep {sweeps_searched[0]:.0f} to {sweeps_searched[-1]:.0f} degrees. ")
+    if solver_live:
+        plan_line = (
+            f"• Plan: screen {len(grid)} wings, then solve the top "
+            f"{_N_FINALISTS} feasible with VSPAERO. ")
+    else:
+        plan_line = (f"• Plan: screen {len(grid)} wings over span, area and "
+                     f"quarter-chord sweep. ")
+    plan_line += bounds_line
+    plan_line += "• Infeasible designs stay on the plot, keeping the trade visible."
+    script.engineer(plan_line)
+
+    # ---- gate-code advisory, raised where a span is known -------------------
+    # A constraint the request never mentioned. It used to be raised here, off
+    # the spans the grid was about to sweep, which put a 65 m figure on camera
+    # before a single wing had been sized. The advisory is about the aircraft
+    # that comes out, not the range that goes in, so the Chief Researcher
+    # raises it in the conclusion against the winner's own span. Only the
+    # certificate flag is set here, and it records that the search could reach
+    # Code F spans at all.
+    over_code_e = spans_over_code_e(span for span, _area, _sweep in grid)
+    gate_advisory = bool(over_code_e)
+
+    if solver_live:
+        script.numericist(
+            "• Screen is research sizing; finalists are solved, induced plus "
+            "wing viscous drag. "
+            "• Fuselage, tail and nacelle drag come from Raymer's component "
+            "buildup method. "
+            f"• Screened numbers carry {TIER_SCREEN}; solved numbers carry "
+            f"{TIER_SOLVE}.")
+    else:
+        script.engineer(
+            "• The aero solver is not connected in this session; no launcher "
+            "is configured on this machine. "
+            "• Running the research sizing screen only; reconnect the solver "
+            "and rerun for solved numbers.")
+        script.numericist(
+            "• Research sizing only, a drag polar, not a solved flow. "
+            "• It ranks designs and finds the trade; it validates nothing. "
+            "• A run of a selected aero solver is what would set the magnitude.")
+
+    # ---- compute, audited once the work is defined --------------------------
+    # THE WORKER COUNT ARRIVES WITH THE WORK, never ahead of it. The audit and
+    # the headroom table are the first surfaces on the run that carry a number
+    # of workers, and they used to open the plan phase: the fleet was sized on
+    # camera before the viewer had been told what the fleet was for. They now
+    # sit directly after the tier line above, so the count and the sizing it
+    # pays for arrive together.
     capacity = audit(min(12, len(grid)), memory_per_worker_mb=128)
     if emit:
         emit("audit.completed", capacity.panel())
@@ -1468,65 +1608,6 @@ def main(request: str | None = None, params: dict | None = None,
             f"• The screening sweep costs seconds and the finalist wave fits "
             f"well inside the window, so nothing is cut to make the deadline.")
 
-    solver_live = vspaero.available()
-    if solver_live and emit:
-        # The plan just committed to a solver — this is the moment the badge
-        # is earned, never before.
-        emit("solver.selected", {
-            "solver": "VSPAERO", "method": "vortex lattice",
-            "basis": "plan commits the finalist wings to the selected solver"})
-    if emit:
-        # The plan phase puts the landscape skeleton on screen before any
-        # point exists — axes, units, and objective announced up front.
-        emit("landscape.init", {
-            # The canvas is screen tier throughout, and says so in its own
-            # caption: no solve-tier number shares this axis unlabelled.
-            "title": f"Design-space landscape {TIER_SCREEN}",
-            "x": {"key": "span", "label": "span [m]"},
-            "y": {"key": "wing_area", "label": "wing area [m²]"},
-            "objective": {"key": "L_D", "label": "whole-aircraft L/D",
-                          "direction": "max"}})
-    plan_line = (
-        f"• Plan: screen {len(grid)} wings over span, area, and quarter-chord sweep. "
-        f"• Infeasible designs stay on the plot, keeping the trade visible.")
-    if solver_live:
-        plan_line += (
-            f" • Top {_N_FINALISTS} feasible finalists then get solved with "
-            f"VSPAERO, the selected vortex-lattice solver, in parallel.")
-    script.engineer(plan_line)
-
-    # ---- gate-code advisory -------------------------------------------------
-    # A constraint the request never mentioned. The search can reach spans that
-    # need a different class of gate, so the run raises it, cites the table it
-    # comes from, and offers the capped re-run. It is an advisory: nothing is
-    # ruled infeasible by it and no candidate is dropped.
-    over_code_e = spans_over_code_e(span for span, _area, _sweep in grid)
-    gate_advisory = bool(over_code_e)
-    if gate_advisory:
-        script.engineer(
-            f"• {ICAO_ADVISORY[0]} "
-            f"• {ICAO_ADVISORY[1]} "
-            f"• {ICAO_ADVISORY[2]}")
-
-    if solver_live:
-        script.numericist(
-            "• Screen is research sizing; finalists are solved, induced plus "
-            "wing viscous drag. "
-            "• Fuselage, tail and nacelle drag come from Raymer's component "
-            "buildup method. "
-            f"• Screened numbers carry {TIER_SCREEN}; solved numbers carry "
-            f"{TIER_SOLVE}.")
-    else:
-        script.engineer(
-            "• The aero solver is not connected in this session; no launcher "
-            "is configured on this machine. "
-            "• Running the research sizing screen only; reconnect the solver "
-            "and rerun for solved numbers.")
-        script.numericist(
-            "• Research sizing only, a drag polar, not a solved flow. "
-            "• It ranks designs and finds the trade; it validates nothing. "
-            "• A run of a selected aero solver is what would set the magnitude.")
-
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "sizing the design space", "working")
@@ -1553,8 +1634,14 @@ def main(request: str | None = None, params: dict | None = None,
             emit("geometry.ready", {
                 "url": (f"/api/geometry?span={r['span']:g}&area={r['area']:g}"
                         f"&sweep={r['sweep_deg']:g}&taper={_TAPER:g}"),
-                "label": f"wing, whole-aircraft L/D via component buildup, "
-                         f"span {r['span']:.0f} m, area {r['area']:.0f} m²"})
+                # The caption names the SCOPE of what is on screen and nothing
+                # else. The quoted L/D is whole-aircraft while the body in the
+                # viewport is a wing, and "Wing-only" is the whole of what the
+                # viewer needs to hold those two together; the span and area
+                # stay because they are what tells one candidate from the next
+                # while the planform morphs.
+                "label": f"Wing-only, span {r['span']:.0f} m, "
+                         f"area {r['area']:.0f} m²"})
             # Live best-feasible-L/D trace — the running optimum climbs on screen.
             if r["feasible"]:
                 best_ld_so_far = (r["L_D"] if best_ld_so_far is None
@@ -1596,13 +1683,16 @@ def main(request: str | None = None, params: dict | None = None,
             "solved": ("promoted to the solver" if solver_live else None)})
 
     def _say_ruled_out() -> None:
+        # The numericist owns this table. Every row is a count taken off the
+        # violation strings and a statement of what the verdict rests on,
+        # which is the numericist's beat, not the engineer's.
         if ruled_out:
             _emit_table(
                 emit, script, title="Why designs were ruled out",
                 headers=["Requirement Missed", "Wings", "Verdict Rests On"],
                 rows=[[label, str(count), basis]
                       for label, count, basis in ruled_out],
-                table_id="ruled-out")
+                table_id="ruled-out", role=_NUMERICIST_SPEAKER)
 
     if not feasible:
         _say_ruled_out()
@@ -1812,8 +1902,7 @@ def main(request: str | None = None, params: dict | None = None,
                 if surface:
                     emit("geometry.ready", {
                         "url": f"/api/surface/aircraft-optimization/{surface.name}",
-                        "label": f"wing, whole-aircraft L/D via component "
-                                 f"buildup, span {f['span']:.0f} m, "
+                        "label": f"Wing-only, span {f['span']:.0f} m, "
                                  f"area {f['area']:.0f} m², "
                                  f"sweep {f['sweep_deg']:.0f}°"})
             # The per-finalist numbers land as live rows in the "Finalist
@@ -1833,10 +1922,12 @@ def main(request: str | None = None, params: dict | None = None,
                                     f"-sweep{best['sweep_deg']:g}.stl")
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
+                    # The winner's caption is the scope statement and nothing
+                    # more: the span, the sweep and the aspect ratio all sit in
+                    # tables a few lines above, and repeating them under the
+                    # body only crowds the viewport.
                     "url": f"/api/surface/aircraft-optimization/{winner_surface.name}",
-                    "label": f"wing, whole-aircraft L/D via component "
-                             f"buildup, winner, span {best['span']:.0f} m, "
-                             f"sweep {best['sweep_deg']:.0f}°"})
+                    "label": "Wing-only"})
         else:
             script.engineer(
                 "• No finalist returned a usable polar. "
@@ -1912,10 +2003,44 @@ def main(request: str | None = None, params: dict | None = None,
             headers=["Parameter", "Winner", "Analogues", "Verdict"],
             rows=analogue_rows(best, matches),
             table_id="analogue-check")
+        # WHY THE OUTLIER ROWS ARE OUTLIERS, said beside the table rather than
+        # left for the viewer to read as a mistake. The objective here is
+        # cruise lift-to-drag and nothing else, and for a parabolic polar that
+        # objective rises with aspect ratio without ever turning over. The
+        # aeroplanes in the table were not drawn against it. Naming the
+        # difference in objective is the whole of the explanation, and it is
+        # the Chief Researcher's to give.
+        script.researcher(
+            "• Real airliners sit at aspect ratio 9 to 11, not at the cruise "
+            "L/D optimum. "
+            "• They optimise fuel burn and operating cost under gate, flutter "
+            "and wing-box limits. "
+            "• The distance to the analogues is a difference in objective, "
+            "not an error.")
     else:
         script.engineer(
             "• No production airliner carries this many passengers this far. "
             "• The mission has no analogue to hold the winner against.")
+
+    # ---- the gate code the winner actually falls in -------------------------
+    # Raised here, where a span exists, and raised by the Chief Researcher.
+    # The span row in the table above points at this advisory by name, so the
+    # two sit together. A winner inside Code E gets the finding rather than
+    # the advisory: the run raised the question and the answer was that
+    # nothing needs to change.
+    winner_code = icao_code_letter(float(best["span"]))
+    if winner_code == "F":
+        advisory = icao_advisory(float(best["span"]))
+        script.researcher(
+            f"• {advisory[0]} "
+            f"• {advisory[1]} "
+            f"• {advisory[2]}")
+    elif winner_code:
+        script.researcher(
+            f"• Winner span {best['span']:.0f} m falls in ICAO Aerodrome "
+            f"Reference Code {winner_code}. "
+            f"• Existing gates serve it, so no gate change is asked for "
+            f"(ICAO Annex 14).")
 
     # ---- what the winner is sitting on --------------------------------------
     # Said whether or not the analogue check ran, and said plainly. Cruise L/D
