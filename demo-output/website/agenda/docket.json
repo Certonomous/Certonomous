@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T20:18:26Z",
+  "generated_at": "2026-07-31T20:18:31Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -1936,6 +1936,63 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T20:18:26Z"
+    },
+    {
+      "id": "w8-whitelist-writers-drop-new-fields",
+      "well": "W8",
+      "objective": "Find every record writer that whitelists keys and is silently dropping fields added upstream",
+      "rationale": "The ladder fit began recording which dimensionality produced its mesh size, and none of the eight stored studies carried it. The reason was not that the studies predate the field: both study writers copy a fixed list of keys, so anything added upstream is dropped without a word. A record that silently omits what it was not told to keep is worse than one that never had the field, because it looks complete.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every record writer either copies what it is given or names the keys it drops, and the audit checks it",
+      "expected_knowledge_gain": "The failure is invisible by construction, so it will recur in every writer nobody has looked at",
+      "source_kind": "report",
+      "citations": [
+        "sdk/scripts/run_uq_studies.py",
+        "sdk/workflows/geometry_study.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T20:18:31Z"
+    },
+    {
+      "id": "w8-right-verdict-wrong-reason",
+      "well": "W8",
+      "objective": "Record the near miss where a gate held for a reason that turned out to be arithmetic",
+      "rationale": "The vortex shedding ladder was declined for an observed order of 3.646, outside the credible window. Fitted with the correct dimensionality that order is 2.430, inside it. The act is still declined, now by an independent guard whose extrapolated value overshoots the measured range, and that guard does not depend on dimensionality at all. The verdict never moved; the reason behind it did, and for a day the act told the viewer something arithmetically wrong about why.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A gate records which guard held it, so a verdict surviving on a different guard than the one stated is visible",
+      "expected_knowledge_gain": "A right answer reached for a wrong reason survives every check that only looks at the answer",
+      "source_kind": "report",
+      "citations": [
+        "campaign/NOT_PASSING_REGISTER.md",
+        "sdk/chief_engineer/uq.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T20:18:31Z"
+    },
+    {
+      "id": "w3-dimension-decides-one-thing",
+      "well": "W3",
+      "objective": "State in the verification charter that dimensionality decides admission to the window and nothing else",
+      "rationale": "Changing the assumed dimensionality divides every observed order by exactly 1.5 and leaves the extrapolated value and a conclusive ladder band untouched, because the refinement ratio raised to the order is invariant under the change. So the assumption cannot corrupt a band; it can only wrongly admit or wrongly reject one. That is a narrow and checkable consequence, and stating it stops the next reader treating the parameter as a general modelling choice.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The charter states the invariance and the preflight refuses a ladder whose dimensionality is unstated",
+      "expected_knowledge_gain": "Turns a subtle parameter into a single checkable question",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/uq.py",
+        "docs/charters/VERIFICATION_CHARTER.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T20:18:31Z"
     }
   ]
 }
