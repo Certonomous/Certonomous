@@ -968,17 +968,28 @@ def _band_bullet(band: dict) -> str:
     the permanent record rather than the promotional surface. The study file
     still stores every rung, the observed order and the conclusive flag, and
     the register keeps the full ladder with its verdict. Nothing measured is
-    dropped: the band and the observed order both display, and a wide band
-    stays wide rather than being narrowed to look better.
+    dropped, and a wide band stays wide rather than being narrowed to look
+    better.
+
+    The two states are told apart by what the figure is CALLED, never by a
+    clause explaining the ladder. A ladder in the asymptotic range reports a
+    numerical uncertainty and the order it converged at; one that is not
+    reports the spread it measured, and no order at all, because an observed
+    order is a claim of asymptotic convergence. So no label here can be read
+    as an uncertainty the ladder did not earn, and the reason it did not earn
+    one is stated once, on the numerical channel, which is the record.
     """
+    from chief_engineer import uq as uq_studies
+
     if band.get("band_abs") is None:
         return ""
     meshes = len(band.get("cells") or []) or 3
+    if uq_studies.reportable_band(band) is None:
+        return (f"• Spread across {meshes} meshes: ±{band['band_abs']:.2g} on "
+                f"C_d (Eca & Hoekstra 2014).")
     note = (f"• Numerical uncertainty from {meshes} meshes: "
             f"±{band['band_abs']:.2g} on C_d (Eca & Hoekstra 2014).")
-    if band.get("clamped"):
-        note += " • Observed order limited to the theoretical range."
-    elif band.get("observed_order") is not None:
+    if band.get("observed_order") is not None:
         note += (f" • Observed order of convergence "
                  f"{band['observed_order']:.2f}.")
     return note
@@ -1029,6 +1040,10 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             "observed_order": band["observed_order"],
             "order_used": band.get("order_used"),
             "clamped": band.get("clamped", False),
+            # Carried so the reason a ladder did not settle can be stated in
+            # one clause on the certificate without re-deriving it from a
+            # method string that was never meant to serve that purpose.
+            "monotone": band.get("monotone"),
             "method": band["method"], "conclusive": band["conclusive"],
             "value_working": production_cd,
         }
@@ -1199,6 +1214,8 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
     body path still quantifies all three channels. Channel notes stay on the
     generic register: no named method ever reaches a certificate note.
     """
+    from chief_engineer import uq as uq_studies
+
     del settle_2sigma, window, velocity, cells, non_ortho_s, skew_s  # mesh-validity block owns these
     input_note = INPUT_ASSUMED_NOTE
     numerical_val = model_val = None
@@ -1217,16 +1234,34 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
                          f"this case: {cells_s} cells")
         else:
             parts.append("Grid-refinement study on meshes of this case")
-        order = num.get("observed_order")
-        if order is not None:
-            # The order is a measurement and it displays. How the band was
-            # widened when the ladder did not settle is method, and it stays
-            # on the study record rather than the certificate.
-            parts.append(f"Observed order {order:.2f}"
-                         + ("; limited to the theoretical range for the band"
-                            if num.get("clamped") else ""))
-        parts.append(f"Band ±{num['band_abs']:.2g} on the drag coefficient "
-                     f"by the default numerical consistency method")
+        if uq_studies.reportable_band(num) is None:
+            # A ladder outside the asymptotic range still measured a spread,
+            # and that number stays: dropping it would leave this channel
+            # reading as unquantified on a case where the scatter across
+            # meshes was measured, and removing a number for the look of it is
+            # the one thing the charter forbids outright. What it may NOT do
+            # is wear the labels an asymptotic ladder earns. So no observed
+            # order is quoted, the figure is named as the conservative
+            # estimate it is, and the limit on it is stated here.
+            #
+            # This is the ONE surface that carries the reason. The charter
+            # keeps the channels behind a band on the record and requires an
+            # honest limit on a result to stay; the narration and the tables
+            # carry the figure alone, so the reason is said once, here, where
+            # a reviewer auditing the band will look for it.
+            parts.append(f"Spread ±{num['band_abs']:.2g} on the drag "
+                         f"coefficient, the conservative estimate this "
+                         f"ladder supports and not an extrapolated band")
+            parts.append("Ladder outside the asymptotic range: "
+                         + (uq_studies.not_conclusive_reason(num)
+                            or "the ladder is not in the asymptotic range"))
+        else:
+            order = num.get("observed_order")
+            if order is not None:
+                parts.append(f"Observed order {order:.2f}")
+            parts.append(f"Band ±{num['band_abs']:.2g} on the drag "
+                         f"coefficient by the default numerical consistency "
+                         f"method")
         numerical_note = " ".join(f"• {part}." for part in parts)
     elif lookup.get("pending"):
         numerical_note = ("• Grid-refinement study pending for this setup. "
@@ -2076,13 +2111,23 @@ def main(request: str | None = None, params: dict | None = None,
             # would raise the question the row exists to answer.
             ladder_stats.append(["Meshes behind the band",
                                  f"{min(band_cells):,} to {max(band_cells):,}"])
+        # A ladder that reached the asymptotic range states a discretization
+        # band; one that did not states the spread it measured. The number is
+        # the same measurement either way and it is shown either way; what
+        # changes is the word in front of it, so no row can be read as a band
+        # this ladder did not earn.
+        earned_band = uq_studies.reportable_band(refine) is not None
         if refine.get("band_abs") is not None:
-            ladder_stats.append(["Discretization band on C_d",
-                                 f"±{refine['band_abs']:.2g}"])
+            ladder_stats.append(
+                ["Discretization band on C_d" if earned_band
+                 else "Mesh spread on C_d",
+                 f"±{refine['band_abs']:.2g}"])
         band_share = refine.get("band_rel")
         if band_share is not None and 0 < band_share <= 1.0:
-            ladder_stats.append(["Band as a share of C_d",
-                                 f"{band_share * 100:.1f}%"])
+            ladder_stats.append(
+                ["Band as a share of C_d" if earned_band
+                 else "Spread as a share of C_d",
+                 f"{band_share * 100:.1f}%"])
         order = refine.get("observed_order")
         if (refine.get("conclusive") and not refine.get("clamped")
                 and order is not None and 0.5 <= order <= 4.0):
@@ -2165,8 +2210,11 @@ def main(request: str | None = None, params: dict | None = None,
 
     if refine and refine.get("band_abs") is not None:
         script.numericist(
-            f"• Discretization band measured from three meshes of this case, "
-            f"{per('grid-uncertainty')}. "
+            (f"• Discretization band measured from three meshes of this case, "
+             f"{per('grid-uncertainty')}. "
+             if uq_studies.reportable_band(refine) is not None else
+             f"• Mesh spread measured across three meshes of this case, "
+             f"{per('grid-uncertainty')}. ")
             + ("• A published comparison for this body is on the record above."
                if (comparison or drag_area_cmp) else
                "• No published comparison exists for this body yet."))
@@ -2279,7 +2327,7 @@ def main(request: str | None = None, params: dict | None = None,
         # states it; the spend stays with the Chief Engineer, whose ledger it is.
         script.numericist(
             "• Mesh sensitivity measured on three meshes of this case; the "
-            "band rides the numerical channel of the certificate.")
+            "figure rides the numerical channel of the certificate.")
         spend = ledger.as_dict()['spent_core_minutes']
         if spend >= 1:
             script.engineer(f"• Total spend {spend:.0f} core-minutes, "
@@ -2388,7 +2436,9 @@ def main(request: str | None = None, params: dict | None = None,
                                     in_validated_regime=gate_ok,
                                     calibrated=(skew or 0) <= MAX_SKEWNESS)),
         }] + ([{
-            "quantity": "Mesh sensitivity on C_d",
+            "quantity": ("Mesh sensitivity on C_d"
+                         if uq_studies.reportable_band(refine) is not None
+                         else "Mesh spread on C_d"),
             "value": f"±{refine['band_abs']:.2g}",
             "envelope": "measured across meshes of this case",
             **verdict,
@@ -2398,7 +2448,8 @@ def main(request: str | None = None, params: dict | None = None,
         # wide as it is: that clause is the narration of a struggle and it is
         # method twice over, and the discretion charter puts both on the
         # permanent record rather than the report. The study file still holds
-        # the observed order, the conclusive flag and the reason in full.
+        # the observed order, the conclusive flag and the reason in full, and
+        # the numerical channel states the limit itself in one clause.
         uncertainty=[
             "Reported band: settling spread over the averaging window, a "
             "floor, not a bound.",
@@ -2408,7 +2459,9 @@ def main(request: str | None = None, params: dict | None = None,
              f"{wall['band_lo']:.0f} to {wall['band_hi']:.0f} band."
              if wall else
              "Near-wall resolution: not evaluated on this run."),
-            ("Mesh sensitivity: measured across meshes of this case."
+            (("Mesh sensitivity: measured across meshes of this case."
+              if uq_studies.reportable_band(refine) is not None else
+              "Mesh spread: measured across meshes of this case.")
              if refine and refine.get("band_abs") is not None else
              "Mesh sensitivity: no matching refinement study for this setup."),
             (f"Graded against {reference['source']}."

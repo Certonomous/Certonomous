@@ -866,8 +866,15 @@ def main(request: str | None = None, params: dict | None = None,
              f"y+ {wall['band_lo']:.0f} to {wall['band_hi']:.0f}",
              "Pass" if wall["inside"] else "Caveat"])
     if refine and refine.get("band_abs") is not None:
+        # The number is the same measurement either way, and the row says so.
+        # What changes is the word in front of it: a ladder in the asymptotic
+        # range states a sensitivity band, one that is not states the spread
+        # it measured, so nothing on this row can be read as a band the ladder
+        # did not earn. The limit itself is stated on the numerical channel.
+        earned_band = uq_studies.reportable_band(refine) is not None
         verdict_rows.append(
-            ["Mesh sensitivity on C_d", f"±{refine['band_abs']:.2g}",
+            ["Mesh sensitivity on C_d" if earned_band else "Mesh spread on C_d",
+             f"±{refine['band_abs']:.2g}",
              "Three meshes of this case", "Measured"])
     _emit_table(emit, script, role=_CE_ROLE, title="Verdict",
                 headers=("Quantity", "Value", "Reference", "Verdict"),
@@ -927,7 +934,9 @@ def main(request: str | None = None, params: dict | None = None,
                         if comparison['relative_error'] is not None else "not comparable"),
             **verdict,
         }] + ([{
-            "quantity": "Mesh sensitivity on C_d",
+            "quantity": ("Mesh sensitivity on C_d"
+                         if uq_studies.reportable_band(refine) is not None
+                         else "Mesh spread on C_d"),
             "value": f"±{refine['band_abs']:.2g}",
             "envelope": "measured across three meshes of this case",
             **verdict,
@@ -950,7 +959,9 @@ def main(request: str | None = None, params: dict | None = None,
              f"{wall['band_lo']:.0f} to {wall['band_hi']:.0f} band."
              if wall else
              "Near-wall resolution: not evaluated on this run."),
-            ("Mesh sensitivity: measured across three meshes of this case."
+            (("Mesh sensitivity: measured across three meshes of this case."
+              if uq_studies.reportable_band(refine) is not None else
+              "Mesh spread: measured across three meshes of this case.")
              if refine and refine.get("band_abs") is not None else
              "Mesh sensitivity: no matching refinement study for this setup."),
             f"Graded against {GATE_SOURCE} at the {config}.",

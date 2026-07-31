@@ -134,11 +134,19 @@ class LadderReplayTests(_LadderHarness):
                          ["Coarse rung", "Middle rung", "Production mesh"])
         self.assertIn(["Production mesh", "353,578", "0.4156"], rows)
         self.assertTrue(any(p["append"] for p in tables[1:]))
-        # The band bullet cites the procedure and the clamp guard fires on
-        # this real ladder (observed order 4.8).
+        # The band bullet cites the procedure, and the clamp guard fires on
+        # this ladder (fitted order 4.8, outside the credible range). The
+        # spread it measured is stated, at the width it came out at; the
+        # order is NOT, because an observed order claims asymptotic
+        # convergence and this ladder never reached it. The narration says
+        # only what the figure is; WHY the ladder did not settle is method,
+        # and it lives on the numerical channel, not here.
         text = self.entries_text()
         self.assertIn("Eca & Hoekstra 2014", text)
-        self.assertIn("Observed order limited to the theoretical range", text)
+        self.assertIn("Spread across 3 meshes", text)
+        self.assertNotIn("Observed order of convergence", text)
+        self.assertNotIn("asymptotic range", text)
+        self.assertNotIn("conservative estimate", text)
         # The study record now carries the in-act numerical band and keeps
         # the model spread it already had.
         study = uq.load_study("testbody")
@@ -393,13 +401,24 @@ class ScaleBasisTests(unittest.TestCase):
 # --------------------------------------------------------------------------
 
 class ChannelNoteTests(unittest.TestCase):
+    # A CLAMPED ladder: the fitted order sits outside the credible range, so
+    # eca_hoekstra_band marks it not-conclusive and its band is the
+    # conservative fallback rather than an extrapolated one. The certificate
+    # used to print "Observed order 4.82" beside it, which is an asymptotic
+    # claim the ladder never earned; that expectation is gone.
     LOOKUP = {"numerical": {"band_abs": 0.0019, "observed_order": 4.824,
-                            "clamped": True, "method": "3-mesh study"},
+                            "clamped": True, "conclusive": False,
+                            "method": "3-mesh study"},
               "model": None, "pending": False,
               "provenance": ["motorBike-rung-coarse"],
               "levels": [{"tag": "coarse", "cells": 14714, "cd": 0.4707},
                          {"tag": "medium", "cells": 66316, "cd": 0.4202},
                          {"tag": "production", "cells": 353578, "cd": 0.4156}]}
+    # The same ladder, settled: monotone rungs and an order inside the range.
+    SETTLED = {**LOOKUP,
+               "numerical": {"band_abs": 0.0019, "observed_order": 1.94,
+                             "clamped": False, "conclusive": True,
+                             "monotone": True, "method": "3-mesh study"}}
 
     def _channels(self, lookup):
         return gs.certificate_channels(
@@ -413,11 +432,10 @@ class ChannelNoteTests(unittest.TestCase):
         self.assertEqual(gs.INPUT_ASSUMED_NOTE, inp["note"])
 
     def test_numerical_channel_is_three_clean_bullets(self):
-        num = self._channels(self.LOOKUP)["channels"][1]
+        num = self._channels(self.SETTLED)["channels"][1]
         self.assertEqual(num["note"].count("•"), 3)
         self.assertIn("14,714, 66,316, 353,578 cells", num["note"])
-        self.assertIn("Observed order 4.82", num["note"])
-        self.assertIn("limited to the theoretical range", num["note"])
+        self.assertIn("Observed order 1.94", num["note"])
         self.assertIn("±0.0019", num["note"])
         # Generic register (owner rule, 2026-07-24): the certificate never
         # states a method by name; transcript citations stay in the
@@ -431,6 +449,34 @@ class ChannelNoteTests(unittest.TestCase):
             part = part.strip()
             if part:
                 self.assertTrue(part[0].isupper(), part)
+
+    def test_unsettled_ladder_states_the_spread_and_no_observed_order(self):
+        # A figure on screen is fine; a figure wearing a statistical label it
+        # did not earn is not. So the measured spread stays, at the width it
+        # came out at, and the observed order goes: an observed order is a
+        # claim of asymptotic convergence and this ladder has none. The reason
+        # it did not settle belongs on this permanent record, in one clause.
+        num = self._channels(self.LOOKUP)["channels"][1]
+        self.assertIn("±0.0019", num["note"])
+        # p may still appear, but only as the figure that DISQUALIFIED the
+        # ladder, never as an observed order the run is claiming.
+        self.assertNotIn("Observed order", num["note"])
+        self.assertIn("falls outside the credible range", num["note"])
+        self.assertIn("outside the asymptotic range", num["note"])
+        self.assertIn("conservative estimate", num["note"])
+        self.assertIn("not an extrapolated band", num["note"])
+        for part in num["note"].split("•"):
+            part = part.strip()
+            if part:
+                self.assertTrue(part[0].isupper(), part)
+
+    def test_the_two_acts_never_read_band_abs_for_a_displayed_label(self):
+        # Both acts must decide what a band may be CALLED through the safe
+        # read, never by trusting band_abs on its own (the defect the audit
+        # found in five other acts).
+        for name in ("geometry_study.py", "ahmed_body.py"):
+            source = (SDK / "workflows" / name).read_text(encoding="utf-8")
+            self.assertIn("reportable_band", source, name)
 
     def test_model_channel_transfers_from_validation_history_when_no_study(self):
         # Doctrine fallback: a body with no closure study of its own still
