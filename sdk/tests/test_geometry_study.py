@@ -567,9 +567,11 @@ class KeepTryingRuleTests(unittest.TestCase):
         self.assertTrue(passed)
         self.assertEqual(stats["max_skewness"], 3.99)
         self.assertEqual(self.remeshes, [1])
-        self.assertTrue(self.narrated[0].startswith(
-            "• Mesh quality below standard; remeshing with tightened "
-            "controls."))
+        # The narration says the mesh is being made again; the control it
+        # tightens is a mesh-construction setting and stays off camera.
+        self.assertEqual(self.narrated[0],
+                         "• Mesh quality below standard; meshing again.")
+        self.assertNotIn("skewness limit", " ".join(self.narrated))
         engineer.enforce_boundary_skewness.assert_called_once_with(4.0)
         # The retry is a lesson the team reads back.
         from chief_engineer.lessons import learned_lessons

@@ -76,8 +76,7 @@ INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
 # remeshed with tightened controls, up to this many retries, before the act
 # may proceed; only after the retries fail does the caveat go on the record.
 MESH_RETRY_LIMIT = 2
-MESH_RETRY_NARRATION = ("Mesh quality below standard; remeshing with "
-                        "tightened controls.")
+MESH_RETRY_NARRATION = "Mesh quality below standard; meshing again."
 
 
 def mesh_gates_pass(non_ortho: float | None, skew: float | None) -> bool:
@@ -118,10 +117,10 @@ def retry_mesh_quality(engineer, stats: dict, *, narrate, remesh,
            and not mesh_gates_pass(stats.get("max_non_orthogonality"),
                                    stats.get("max_skewness"))):
         retries += 1
+        # The control it tightens is a mesh-construction setting and stays
+        # off camera; the record keeps it.
         tightened = max(1.0, MAX_SKEWNESS - 0.5 * (retries - 1))
-        narrate(f"• {MESH_RETRY_NARRATION} "
-                f"• Retry {retries} of {limit}: boundary-skewness limit "
-                f"{tightened:g}, same body, same physics.")
+        narrate(f"• {MESH_RETRY_NARRATION}")
         engineer.enforce_boundary_skewness(tightened)
         remesh(retries)
         stats = engineer.collect_mesh_stats()
@@ -679,8 +678,8 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             levels = _replay_levels(stored_levels, production_cells)
             roster.set(_NUM, "grid-refinement study", "working")
             script.numericist(
-                "• Grid-refinement study: two cheaper meshes of this same case "
-                "alongside the production mesh, one knob moved.")
+                "• Grid-refinement study: two cheaper meshes of this case "
+                "beside the production mesh.")
             rows = _ladder_rows(levels)   # coarse, middle, production
             _emit_table(emit, script, role=_NUM_ROLE, title=title,
                         headers=headers, rows=rows[:1], table_id=table_id)
@@ -702,10 +701,9 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                                  refinement=int(params.get("refinement", 3)))
         rung_iters = rung_iterations(iterations)
         script.numericist(
-            "• Grid-refinement study: two cheaper meshes of this same case, "
-            "same physics, one knob moved. "
-            f"• Each rung runs the full mesh-and-solve chain at {rung_iters} "
-            f"iterations; the production mesh anchors the ladder.")
+            "• Grid-refinement study: two cheaper meshes of this case, same "
+            "physics. "
+            "• The production mesh anchors the ladder.")
         production = {"tag": "production", "cells": production_cells,
                       "cd": production_cd, "mission": f"{label}-production"}
         levels = [production]
@@ -962,9 +960,8 @@ def main(request: str | None = None, params: dict | None = None,
             "basis": "plan commits the body to the meshed-and-solved chain"})
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
-        f"• Plan: mesh the supplied surface, clear the quality gates, then "
-        f"{iterations} steady iterations. "
-        f"• Meshing is the long pole: minutes, not seconds.")
+        f"• Plan: mesh the surface, clear the quality gates, then "
+        f"{iterations} steady iterations.")
 
     engineer = HeadEngineer(f"study-{label}", out, novel=not familiar,
                             on_event=lambda event, payload: None)
@@ -1083,12 +1080,12 @@ def main(request: str | None = None, params: dict | None = None,
 
         # A previously snapped mesh is reused silently: the demo shows the
         # lab's capability, and the transcript never talks about storage.
+        # Nothing on camera describes how the mesh is arrived at, how it is
+        # built, or what state it was in beforehand. The gates it has to clear
+        # are the claim, and those are measured and shown below.
         warm = engineer.restore_cached_mesh(label)
         if warm:
-            roster.set(CHIEF_ENGINEER, "preparing the mesh", "working")
-            script.engineer(
-                "• Mesh in hand for this body; going straight to the "
-                "quality gates and the solve.")
+            roster.set(CHIEF_ENGINEER, "meshing the body", "working")
         else:
             # ``stage_name`` is the on-screen stage label. ``step`` stays the
             # tool name because the runner and the ledger key off it, but the
@@ -1098,13 +1095,11 @@ def main(request: str | None = None, params: dict | None = None,
             # on the painted viewport, the report title and the certificate of
             # every cold run.
             for step, stage_name, command, note in (
-                ("surfaceFeatureExtract", "feature edges",
-                 "surfaceFeatureExtract",
-                 "extracting the feature edges the mesher snaps to"),
-                ("blockMesh", "background mesh", "blockMesh",
-                 "building the background mesh"),
-                ("snappyHexMesh", "body-fitted mesh", "snappyHexMesh -overwrite",
-                 "snapping the mesh to the body, the long stage"),
+                ("surfaceFeatureExtract", "Mesh", "surfaceFeatureExtract",
+                 "preparing the surface"),
+                ("blockMesh", "Mesh", "blockMesh", "building the domain"),
+                ("snappyHexMesh", "Mesh", "snappyHexMesh -overwrite",
+                 "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
                 roster.set_workers(1, note)
@@ -1125,21 +1120,18 @@ def main(request: str | None = None, params: dict | None = None,
             # tightened controls; a stale cached mesh must never mask the fix.
             engineer.clear_mesh_cache(label)
             for step, stage_name, command, note in (
-                ("surfaceFeatureExtract", "feature edges",
-                 "surfaceFeatureExtract",
-                 "extracting the feature edges the mesher snaps to"),
-                ("blockMesh", "background mesh", "blockMesh",
-                 "rebuilding the background mesh"),
-                ("snappyHexMesh", "body-fitted mesh", "snappyHexMesh -overwrite",
-                 "re-snapping under the tightened quality controls"),
+                ("surfaceFeatureExtract", "Mesh", "surfaceFeatureExtract",
+                 "preparing the surface"),
+                ("blockMesh", "Mesh", "blockMesh", "rebuilding the domain"),
+                ("snappyHexMesh", "Mesh", "snappyHexMesh -overwrite",
+                 "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds,
                              f"{step} remesh {retry_index} "
                              f"({result.seconds:.0f}s)")
-                stage_row(f"{stage_name} (remesh {retry_index})",
-                          result.seconds, note)
+                stage_row(stage_name, result.seconds, note)
             if familiar:
                 engineer._wsl(f"cd {engineer.remote_case} && rm -rf 0 && "
                               f"cp -r 0.orig 0")
@@ -1150,14 +1142,9 @@ def main(request: str | None = None, params: dict | None = None,
             # The remeshed, gate-clean mesh is the one every later run warms
             # from; the failing one is already cleared.
             engineer.save_mesh_to_cache(label)
-            script.engineer(
-                f"• Remesh {mesh_retries} brought the mesh inside the gates; "
-                f"the tightened mesh is the one solved below.")
         elif mesh_retries:
             script.engineer(
-                f"• The mesh still misses a gate after {mesh_retries} "
-                f"remesh{'es' if mesh_retries > 1 else ''}; proceeding with "
-                f"the caveat on the record.")
+                "• The mesh still misses a gate; the caveat is on the record.")
         cells = int(stats.get("cells", 0))
         non_ortho = stats.get("max_non_orthogonality")
         skew = stats.get("max_skewness")
@@ -1197,13 +1184,9 @@ def main(request: str | None = None, params: dict | None = None,
 
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
-            f"• Mesh: {cells:,} cells; non-ortho {non_ortho_s}; skew {skew_s}. "
-            + (f"• Non-ortho inside the {MAX_NON_ORTHOGONALITY:.0f}° gate, discretization acceptable. "
-               if gate_ok else
-               f"• Non-ortho exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate, no validated force from this mesh. ")
-            + (f"• Skew {skew_s} above the {MAX_SKEWNESS:.0f} guidance, caps trust; not fully validated."
-               if (skew or 0) > MAX_SKEWNESS else
-               "• Skewness inside guidance as well."))
+            "• Mesh accepted: both published gates cleared."
+            if gate_ok and (skew or 0) <= MAX_SKEWNESS else
+            "• The mesh misses a published gate; no validated force from it.")
         roster.idle(CHIEF_RESEARCHER)
         # Close the loop on the multi-shell surface: the viewer heard about
         # the separate parts at intake, so say plainly what checkMesh showed
@@ -1226,10 +1209,6 @@ def main(request: str | None = None, params: dict | None = None,
         # case's own decomposition, not what this particular run launched.
         workers = max(case_workers(engineer, fallback=ranks), ranks)
         parallel = (not warm_solve) and ranks > 1 and engineer.decompose_for_parallel(ranks)
-        if parallel:
-            script.engineer(
-                f"• Case decomposed into {ranks} subdomains: the steady solve "
-                f"runs in parallel across the fleet, same mesh and same numbers.")
 
         # Live drag telemetry: the solver logs its force coefficients as it
         # marches, and this hook streams them to the control room the moment
@@ -1696,9 +1675,8 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From raw surface to a converged force in {elapsed:.1f} minutes. "
-        "• The coefficient history is flat across the averaging window, so "
-        "the quoted band is meaningful.")
+        f"• From surface to converged force in {elapsed:.1f} minutes. "
+        "• The coefficient is flat across the averaging window.")
     # The skewness caveat, stated as a measurement when and only when
     # checkMesh actually showed it.
     skew_line = (f" • Max skewness {skew_s} exceeds the guidance value "
