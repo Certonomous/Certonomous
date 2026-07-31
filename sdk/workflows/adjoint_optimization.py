@@ -261,6 +261,32 @@ def _narrate(sayer, *lines: str, **kwargs):
     return entry
 
 
+def _cost_rows() -> list[list[str]]:
+    """The cost of the same gradient, bought two ways. Both ratios, always.
+
+    ITEM 10 (owner, 2026-07-31): whenever this act quotes adjoint economics it
+    quotes the primal-solve count ratio AND the core-time ratio. Quoting one
+    is the oldest way to oversell an adjoint, because the solve-count ratio is
+    the flattering one and the core-time ratio is the one a buyer pays. The
+    rows are built here so there is a single place both live, and the guard
+    below means an edit that drops either one fails the run instead of
+    shipping half an argument.
+    """
+    rows = [
+        ["One adjoint solve", "1", f"{COST_ADJOINT:.1f}"],
+        ["Finite differences over the same variables",
+         f"{FD_PRIMAL_SOLVES}", f"{COST_FD:.1f}"],
+        ["Ratio, adjoint against finite differences",
+         f"{FD_PRIMAL_SOLVES} to 1", f"{COST_FD / COST_ADJOINT:.1f} to 1"],
+    ]
+    ratios = [r for r in rows if r[0].lower().startswith("ratio")]
+    if len(ratios) != 1 or not all("to 1" in cell for cell in ratios[0][1:]):
+        raise RuntimeError(
+            "adjoint economics are quoted with both ratios, the primal-solve "
+            "count and the core time, or they are not quoted at all")
+    return rows
+
+
 def _phase(script, name: str):
     """A phase marker, which carries a clock of its own like any other entry."""
     entry = script.phase(name)
@@ -1003,13 +1029,7 @@ def main(request: str | None = None, params: dict | None = None,
     gate.table(emit, script, role=_CE_ROLE,
                title=f"What the whole gradient costs, {N_DV} design variables",
                headers=("Route", "Primal solves", "Core-minutes"),
-               rows=[
-                   ["One adjoint solve", "1", f"{COST_ADJOINT:.1f}"],
-                   ["Finite differences over the same variables",
-                    f"{FD_PRIMAL_SOLVES}", f"{COST_FD:.1f}"],
-                   ["Ratio", f"{FD_PRIMAL_SOLVES} to 1",
-                    f"{COST_FD / COST_ADJOINT:.1f} to 1"],
-               ],
+               rows=_cost_rows(),
                table_id="cost-adjoint-optimization")
     _narrate(script.engineer,
             f"One adjoint solve buys the whole gradient.",
