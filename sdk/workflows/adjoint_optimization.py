@@ -89,6 +89,7 @@ _LADDER = (Path(__file__).resolve().parents[2]
            / "demo-output" / "website" / "dafoam" / "ladder-a")
 HISTORY_FILE = _LADDER / "A2_optimization_history.json"
 RECORD_FILE = _LADDER / "A2_mach_tutorial_wing.json"
+STEPSWEEP_FILE = _LADDER / "A_stepsize_study.json"
 
 # The case, as it was actually run.
 MESH_CELLS = 38_304
@@ -217,6 +218,35 @@ class _Falsifier:
 # their published gates instead of two "not reported" cells.
 _MESH_NON_ORTHO = re.compile(r"max non-orthogonality\s+([\d.]+)", re.I)
 _MESH_SKEW = re.compile(r"max skewness\s+([\d.]+)", re.I)
+
+
+def _step_sweep() -> dict | None:
+    """The step-size sweep this ladder ran, read rather than described.
+
+    ITEM 2 (owner, 2026-07-31): a finite-difference number with an unstated
+    step is not a check, so the step is disclosed with the sweep that fixed
+    it. The hard fact this function exists to keep straight: THE SWEEP WAS RUN
+    ON A DIFFERENT CASE. This case was graded at one step. The table built
+    from this says so in as many words, because quoting a plateau next to a
+    result implies a sweep, and implying one that was not run here would be
+    the exact dishonesty the disclosure is meant to prevent.
+
+    Returns None on a host that does not carry the sweep, in which case the
+    act reports the step it used and that no sweep exists, and nothing else.
+    """
+    try:
+        doc = json.loads(STEPSWEEP_FILE.read_text(encoding="utf-8"))
+        rows = doc["sweep_table"]
+    except (OSError, ValueError, KeyError):
+        return None
+    steps = [r["step"] for r in rows if r.get("step")]
+    plateau = [r["step"] for r in rows
+               if r.get("regime") == "well-converged plateau"]
+    if not steps or not plateau:
+        return None
+    return {"steps": len(rows), "lo": min(steps), "hi": max(steps),
+            "plateau_lo": min(plateau), "plateau_hi": max(plateau),
+            "cells": (doc.get("case") or {}).get("mesh_cells")}
 
 
 def _mesh_numbers(record: dict) -> tuple[float | None, float | None]:
@@ -372,6 +402,44 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(EVIDENCE)
     roster.set(MONITOR, "watching the verification table", "watching")
     roster.set(CHIEF_ENGINEER, "grading the gradient", "working")
+
+    # ITEM 2 (owner, 2026-07-31): the step comes first, before a single
+    # agreement figure. The step, the form, and whether this case was swept.
+    # Read from the verification record so the number on screen is the one the
+    # check was run at, not a constant that could drift away from it.
+    fd_spec = record["fd_verification_table"]
+    fd_step = float(fd_spec.get("step", FD_STEP))
+    fd_form = str(fd_spec.get("form", "central"))
+    fd_calc = str(fd_spec.get("step_calc", "abs"))
+    sweep = _step_sweep()
+    step_rows = [
+        ["Step", f"{fd_step:g}, {fd_form} difference, "
+                 f"{'absolute' if fd_calc == 'abs' else fd_calc}"],
+        ["Steps this case was graded at",
+         "One. This case was not swept across decades"],
+    ]
+    if sweep:
+        step_rows += [
+            ["The sweep the step was chosen from",
+             f"{sweep['steps']} steps from {sweep['lo']:g} to "
+             f"{sweep['hi']:g}, on this ladder's smaller "
+             f"{sweep['cells']:,} cell case, not on this one"],
+            ["Plateau in that sweep",
+             f"{sweep['plateau_lo']:g} to {sweep['plateau_hi']:g}, and "
+             f"{fd_step:g} sits inside it"],
+            ["Below the plateau",
+             "The two perturbed drags differ by less than the primal's own "
+             "residual floor, and the difference degrades"],
+            ["Above the plateau",
+             "The perturbed primal stops converging at all"],
+        ]
+    else:
+        step_rows.append(
+            ["Sweep", "No step-size sweep exists on this host for this case"])
+    gate.table(emit, script, role=_NUM_ROLE,
+               title="The finite difference the gradient is graded against",
+               headers=("Item", "Value"),
+               rows=step_rows, table_id="fdstep-adjoint-optimization")
 
     physical, geometric = [], []
     for row in fd_rows:
@@ -730,9 +798,12 @@ def main(request: str | None = None, params: dict | None = None,
             "Reverse-mode discrete adjoint for drag and for lift with "
             "respect to surface control points, spanwise twist and the flow "
             "state.",
-            f"Verification by central finite difference of the full primal, "
-            f"{FD_SOLVES} perturbation solves covering every one of the "
-            f"{N_DV} design variables.",
+            f"Verification by {fd_form} finite difference of the full primal "
+            f"at a single absolute step of {fd_step:g}, {FD_SOLVES} "
+            f"perturbation solves covering every one of the {N_DV} design "
+            f"variables. This case was graded at that one step and was not "
+            f"itself swept across decades; the step comes from a sweep run on "
+            f"the smaller case at the foot of the same ladder.",
             f"Graded against this lab's current gradient standard, applied "
             f"uniformly across the whole ladder: pass at {GATE_PASS_PCT:g}% "
             f"or better with no flagged component, conditional between "
