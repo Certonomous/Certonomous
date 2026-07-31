@@ -47,17 +47,40 @@
       "note": "background blockMesh divisions scaled up again (51x45x75); same recipe as fine-uq/production. Added specifically to get a second successive triple within the valid same-recipe family, per uq-b52-ladder-monotonicity lesson update."
     }
   ],
-  "updated_utc": "2026-07-31T14:38:33Z",
+  "updated_utc": "2026-07-31T22:24:09Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
-    "band_abs": 0.006348739897916664,
-    "band_rel": 0.13451,
+    "dim": 3,
+    "order_window": [
+      0.5,
+      2.5
+    ],
     "observed_order": 2.253,
     "order_used": null,
     "clamped": false,
+    "band_abs": 0.006348739897916664,
     "monotone": true,
-    "method": "successive Cd increments GROW with refinement instead of shrinking; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
     "conclusive": false,
+    "asymptotic": false,
+    "richardson_extrapolated": 0.06484210401663687,
+    "method": "successive Cd increments GROW with refinement instead of shrinking; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "guards": {
+      "distinct_rungs": true,
+      "monotone": true,
+      "order_window": true,
+      "increment_trend": false,
+      "extrapolation_sanity": false
+    },
+    "guards_failed": [
+      "increment_trend",
+      "extrapolation_sanity"
+    ],
+    "not_conclusive_guard": "increment_trend",
+    "dropped_from_fit": [
+      "cells",
+      "values"
+    ],
+    "band_rel": 0.13451,
     "value_working": 0.04719920575166667
   },
   "recipe_audit": {

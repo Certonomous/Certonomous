@@ -22,13 +22,36 @@
   ],
   "fingerprint": "b1e571d6081a56da",
   "numerical": {
-    "band_abs": 0.020223634207885317,
-    "band_rel": 0.23846,
+    "dim": 3,
+    "order_window": [
+      0.5,
+      2.5
+    ],
     "observed_order": 1.95,
     "order_used": null,
     "clamped": false,
-    "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "band_abs": 0.020223634207885317,
+    "monotone": true,
     "conclusive": false,
+    "asymptotic": false,
+    "richardson_extrapolated": 0.07327589152491365,
+    "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "guards": {
+      "distinct_rungs": true,
+      "monotone": true,
+      "order_window": true,
+      "increment_trend": true,
+      "extrapolation_sanity": false
+    },
+    "guards_failed": [
+      "extrapolation_sanity"
+    ],
+    "not_conclusive_guard": "extrapolation_sanity",
+    "dropped_from_fit": [
+      "cells",
+      "values"
+    ],
+    "band_rel": 0.23846,
     "value_working": 0.08480834261333332
   },
   "provenance": [
@@ -36,5 +59,5 @@
     "ahmed_25-rung-medium",
     "ahmed_25-production"
   ],
-  "updated_utc": "2026-07-30T23:00:29Z"
+  "updated_utc": "2026-07-31T22:23:28Z"
 }
