@@ -1028,8 +1028,14 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
 
     def _finish(levels: list[dict], *, replay: bool) -> dict | None:
         ordered = sorted(levels, key=lambda lv: lv["cells"])
+        # dim=3 is stated, not defaulted: this ladder is a closed STL body
+        # meshed by snappyHexMesh, which refines in all three directions, so
+        # the representative size is the cube root of the cell count. The fit
+        # refuses an unstated dimensionality outright, so no ladder in this
+        # act can be fitted on an assumption nobody wrote down.
         band = uq_studies.eca_hoekstra_band(
-            [lv["cells"] for lv in ordered], [lv["cd"] for lv in ordered])
+            [lv["cells"] for lv in ordered], [lv["cd"] for lv in ordered],
+            dim=3)
         if band.get("band_abs") is None:
             script.numericist(
                 "• The refinement parameter did not change the mesh between "
@@ -1040,24 +1046,17 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             script.numericist(band_line)
         study = uq_studies.load_study(label) or {"body": label}
         rel = (band["band_abs"] / abs(production_cd)) if production_cd else None
-        numerical = {
-            "band_abs": band["band_abs"],
-            "band_rel": None if rel is None else round(rel, 5),
-            "observed_order": band["observed_order"],
-            "order_used": band.get("order_used"),
-            "clamped": band.get("clamped", False),
-            # Carried so the reason a ladder did not settle can be stated in
-            # one clause on the certificate without re-deriving it from a
-            # method string that was never meant to serve that purpose.
-            "monotone": band.get("monotone"),
-            # Which dimensionality set the representative mesh size. Cell
-            # counts cannot reveal it, so it is an assumption on every fit,
-            # and a study file that does not carry it cannot be audited for
-            # the one mistake that stretches an observed order by 1.5.
-            "dim": band.get("dim"),
-            "method": band["method"], "conclusive": band["conclusive"],
-            "value_working": production_cd,
-        }
+        # The fit is copied wholesale and `uq.STUDY_NUMERICAL_DROPS` names the
+        # exclusions. The hand-typed list this replaces had to be edited every
+        # time the fit learned to record something new -- the monotone flag,
+        # then the dimensionality -- and every study written before each edit
+        # is silently missing the field. Wholesale means the guard record and
+        # anything after it arrive without anybody remembering.
+        numerical = uq_studies.study_numerical(
+            band,
+            band_rel=None if rel is None else round(rel, 5),
+            value_working=production_cd,
+        )
         study.update({"levels": ordered, "fingerprint": study_fp,
                       "numerical": numerical,
                       "provenance": [lv.get("mission", f"{label}-{lv['tag']}")

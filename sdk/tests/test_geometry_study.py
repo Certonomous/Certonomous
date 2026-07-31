@@ -1027,7 +1027,7 @@ class GridEvidenceGovernsTheChip(unittest.TestCase):
     def test_a_measured_inconclusive_ladder_refuses_the_chip(self):
         # The ladder as measured on this lab's NACA 4412 case.
         band = uq.eca_hoekstra_band([67826, 137569, 337334],
-                                    [0.02892, 0.02167, 0.01892])
+                                    [0.02892, 0.02167, 0.01892], dim=3)
         self.assertFalse(band["conclusive"])
         reference = {"cd": 0.030, "tolerance": 0.35, "confidence": "medium",
                      "source": "a published measurement"}
@@ -1038,7 +1038,7 @@ class GridEvidenceGovernsTheChip(unittest.TestCase):
         # The same agreement with a settled ladder behind it still validates,
         # so the gate is the grid evidence, not a blanket refusal.
         clean = uq.eca_hoekstra_band([1000, 8000, 64000],
-                                     [1.04, 1.01, 1.0025])
+                                     [1.04, 1.01, 1.0025], dim=3)
         self.assertTrue(clean["conclusive"])
         self.assertEqual(
             lab.validate_against_reference(

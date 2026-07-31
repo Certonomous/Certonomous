@@ -92,6 +92,65 @@ F7c are recorded BLOCKED on F7a's gate failure and stay blocked. A downstream
 rung run on a failed foundation is not a result, it is a second unexplained
 number.
 
+### 3.1 Dimensionality decides exactly one thing
+
+A refinement ladder's representative mesh size is `h = (1/N)^(1/dim)`. Cell
+counts cannot reveal `dim`, so `dim` is an assumption on every fit, and the
+following is what that assumption can and cannot do.
+
+> Changing the assumed dimensionality divides every observed order by exactly
+> 1.5 and leaves both the extrapolated value and a conclusive ladder's band
+> untouched, because the refinement ratio raised to the order is invariant
+> under the change. The assumption cannot corrupt a band. It can only wrongly
+> admit or wrongly reject one.
+
+**This was verified numerically before it was written here, and the exact
+result is on the record.** Four synthetic ladders built to a known order (a
+constant ratio triple, a non constant ratio triple, a steep one, a shallow
+one) plus the real cylinder vortex shedding ladder, each fitted at `dim=3` and
+at `dim=2` through `uq.eca_hoekstra_band` and `uq.ladder_band`:
+
+| Quantity | Result |
+| --- | --- |
+| Observed order, `p(dim=3) / p(dim=2)` | 1.5 on every case, worst deviation 9e-16 relative |
+| Richardson extrapolated value | identical, worst deviation 1.4e-16 relative |
+| Band, when the ladder is conclusive at both dimensionalities | identical, worst deviation 1.2e-15 relative |
+| Band, when the change moves the ladder across the order window | **not identical**, and this is the whole point |
+
+The mechanism: `log r` scales by `dim`, so `p` scales by `dim`, so `r^p` is
+invariant, and every quantity that reaches a published number is built from
+`r^p`. The invariance holds exactly for non constant refinement ratios too,
+because the `q` correction in the fixed point solve is itself a function of
+`r^p` alone.
+
+**The fourth row is the rule.** The band a conclusive ladder states cannot be
+corrupted by this assumption. What the assumption decides is whether the
+ladder is conclusive at all, and it decides that by moving `p` across the
+credible window while nothing physical about the ladder has changed. The
+cylinder vortex shedding ladder, cells 2496, 5032, 8640, is the worked case:
+`p = 3.633` at `dim=3` and `p = 2.422` at `dim=2`, one outside the window and
+one inside it, on identical measurements.
+
+Three rules follow, all of them checkable.
+
+1. **A ladder whose dimensionality is unstated is refused.** Not defaulted.
+   `uq.ladder_band` and `uq.eca_hoekstra_band` raise on `dim=None`, and every
+   call site names the dimensionality with the mesh fact that justifies it. A
+   two dimensional blockMesh with the front and back planes typed `empty` is
+   `dim=2`. A closed body meshed by snappyHexMesh is `dim=3`.
+2. **A stored study carries the dimensionality its band was fitted with.** A
+   study file that does not carry `dim` cannot be audited for the one mistake
+   this section exists to name, and a record that omits what it was not told
+   to keep looks complete.
+3. **A ladder declined for an observed order outside the window must have its
+   dimensionality checked before the decline is believed.** That decline is
+   the one verdict this assumption can fabricate, and it is the only one.
+
+**What this section does not license.** Refitting a ladder at a different
+dimensionality to move it across the window is falsification of the record
+unless the mesh itself says so. The justification is the blockMeshDict or the
+mesher, quoted, not the answer that comes out.
+
 ## 4. Convergence. What may be read, and what may not
 
 This section is almost entirely lessons, because almost every one of them was

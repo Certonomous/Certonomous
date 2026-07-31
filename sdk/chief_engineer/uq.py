@@ -37,8 +37,8 @@ DIM_UNSTATED = (
     "refinement ladder refused: the dimensionality that sets the "
     "representative mesh size is unstated. Pass dim=2 or dim=3. Cell counts "
     "cannot reveal it, so it is an assumption on every fit, and the wrong one "
-    "scales every observed order by exactly 1.5 -- enough to admit a ladder "
-    "that should be rejected or reject one that should be admitted.")
+    "scales every observed order by exactly 1.5, which is enough to admit a "
+    "ladder that should be rejected or reject one that should be admitted.")
 
 
 def _require_dim(dim: int | None) -> int:

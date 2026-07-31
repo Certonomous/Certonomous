@@ -624,5 +624,157 @@ class HonestyRails(unittest.TestCase):
         self.assertTrue(spread["method"])
 
 
+class DimensionalityDecidesOneThing(unittest.TestCase):
+    """VERIFICATION_CHARTER section 3.1, made checkable.
+
+    The charter claims that changing the assumed dimensionality divides every
+    observed order by exactly 1.5 and leaves the extrapolated value and a
+    conclusive ladder's band untouched. These tests are that claim; if the
+    arithmetic ever stops satisfying them the charter is wrong and says so
+    here first.
+    """
+
+    # Ladders built to a known order on a 3D reading of the cell counts. The
+    # non-constant-ratio case matters: the fixed point solve carries a q
+    # correction, and the invariance has to survive it.
+    CASES = {
+        "constant ratio, p = 2": ([10000, 80000, 640000], 2.0),
+        "non-constant ratio, p = 1.7": ([12000, 73000, 610000], 1.7),
+        "steep, p = 3.6": ([9000, 72000, 576000], 3.6),
+        "shallow, p = 0.9": ([5000, 40000, 320000], 0.9),
+    }
+
+    @staticmethod
+    def _values(cells, order, *, phi0=0.42, amp=0.05):
+        h = [(1.0 / n) ** (1.0 / 3.0) for n in cells]
+        return [phi0 + amp * ((x / h[-1]) ** order) for x in h]
+
+    def test_dimensionality_is_required_not_defaulted(self):
+        cells, values = [1000, 8000, 64000], [1.0, 1.1, 1.15]
+        for fit in (uq.ladder_band, uq.eca_hoekstra_band):
+            with self.subTest(fit=fit.__name__):
+                with self.assertRaises(ValueError) as caught:
+                    fit(cells, values)
+                self.assertIn("unstated", str(caught.exception))
+
+    def test_order_scales_by_exactly_one_and_a_half(self):
+        for label, (cells, order) in self.CASES.items():
+            values = self._values(cells, order)
+            for fit in (uq.ladder_band, uq.eca_hoekstra_band):
+                with self.subTest(case=label, fit=fit.__name__):
+                    p3 = fit(cells, values, dim=3)["observed_order"]
+                    p2 = fit(cells, values, dim=2)["observed_order"]
+                    # Stored orders are rounded to three places, so the check
+                    # is on the unrounded ratio implied by them, to a
+                    # tolerance the rounding itself sets.
+                    self.assertAlmostEqual(p3 / p2, 1.5, places=2)
+
+    def test_extrapolated_value_does_not_move(self):
+        for label, (cells, order) in self.CASES.items():
+            values = self._values(cells, order)
+            for fit in (uq.ladder_band, uq.eca_hoekstra_band):
+                with self.subTest(case=label, fit=fit.__name__):
+                    a = fit(cells, values, dim=3)["richardson_extrapolated"]
+                    b = fit(cells, values, dim=2)["richardson_extrapolated"]
+                    self.assertIsNotNone(a)
+                    self.assertLess(abs(a - b) / abs(a), 1e-12)
+
+    def test_a_conclusive_band_does_not_move(self):
+        checked = 0
+        for label, (cells, order) in self.CASES.items():
+            values = self._values(cells, order)
+            for fit in (uq.ladder_band, uq.eca_hoekstra_band):
+                three = fit(cells, values, dim=3)
+                two = fit(cells, values, dim=2)
+                if not (three["conclusive"] and two["conclusive"]):
+                    continue
+                checked += 1
+                with self.subTest(case=label, fit=fit.__name__):
+                    self.assertLess(
+                        abs(three["band_abs"] - two["band_abs"])
+                        / abs(three["band_abs"]), 1e-12)
+        self.assertGreater(checked, 0, "no case was conclusive both ways")
+
+    def test_what_the_assumption_can_change_is_the_verdict(self):
+        # The other half of the claim, and the reason the preflight exists.
+        # The real cylinder vortex-shedding rungs: p = 3.63 read as three
+        # dimensional, 2.42 read on the two dimensional mesh it actually is.
+        cells, values = [2496, 5032, 8640], [0.1245, 0.1490, 0.1578]
+        three = uq.eca_hoekstra_band(cells, values, dim=3)
+        two = uq.eca_hoekstra_band(cells, values, dim=2)
+        self.assertTrue(three["clamped"])
+        self.assertFalse(two["clamped"])
+        # And the verdict still does not move, because a guard that owes
+        # nothing to dimensionality holds it either way.
+        self.assertFalse(three["conclusive"])
+        self.assertFalse(two["conclusive"])
+
+
+class WhichGuardHeldTheVerdict(unittest.TestCase):
+    def test_a_declined_ladder_records_the_guard_that_held_it(self):
+        cells, values = [2496, 5032, 8640], [0.1245, 0.1490, 0.1578]
+        two = uq.eca_hoekstra_band(cells, values, dim=2)
+        self.assertEqual(two["not_conclusive_guard"], uq.GUARD_EXTRAPOLATION)
+        self.assertIs(two["guards"][uq.GUARD_EXTRAPOLATION], False)
+        self.assertIs(two["guards"][uq.GUARD_ORDER_WINDOW], True)
+
+    def test_every_guard_is_evaluated_even_when_one_already_decided(self):
+        # Read three dimensionally the same ladder is declined on its order,
+        # but the extrapolation guard is still run and still recorded as
+        # failing, so the record shows the verdict does not rest on the order.
+        cells, values = [2496, 5032, 8640], [0.1245, 0.1490, 0.1578]
+        three = uq.eca_hoekstra_band(cells, values, dim=3)
+        self.assertEqual(three["not_conclusive_guard"], uq.GUARD_ORDER_WINDOW)
+        self.assertEqual(uq.guards_holding(three),
+                         [uq.GUARD_ORDER_WINDOW, uq.GUARD_EXTRAPOLATION])
+        # And it no longer claims to be asymptotic without having asked.
+        self.assertFalse(three["asymptotic"])
+
+    def test_the_reason_names_the_recorded_guard_not_a_re_derivation(self):
+        band = {"conclusive": False, "observed_order": 1.9,
+                "clamped": False, "monotone": True,
+                "method": "3-mesh study, observed order p = 1.90",
+                "not_conclusive_guard": uq.GUARD_INCREMENT_TREND,
+                "guards": {uq.GUARD_INCREMENT_TREND: False},
+                "guards_failed": [uq.GUARD_INCREMENT_TREND]}
+        # Nothing in the numbers says "increments grow"; only the record does.
+        self.assertEqual(uq.not_conclusive_reason(band),
+                         "successive increments grow with refinement")
+
+    def test_a_conclusive_ladder_records_no_guard(self):
+        cells = [10000, 80000, 640000]
+        values = DimensionalityDecidesOneThing._values(cells, 2.0)
+        out = uq.eca_hoekstra_band(cells, values, dim=3)
+        self.assertTrue(out["conclusive"])
+        self.assertIsNone(out["not_conclusive_guard"])
+        self.assertEqual(uq.guards_holding(out), [])
+        self.assertIsNone(uq.not_conclusive_reason(out))
+
+
+class StudyWritersCopyWhatTheyAreGiven(unittest.TestCase):
+    def test_a_new_fit_field_reaches_the_stored_block_unaided(self):
+        band = uq.eca_hoekstra_band([2496, 5032, 8640],
+                                    [0.1245, 0.1490, 0.1578], dim=2)
+        band["a_field_invented_after_every_writer_was_written"] = 7
+        numerical = uq.study_numerical(band, value_working=0.1578)
+        self.assertEqual(
+            numerical["a_field_invented_after_every_writer_was_written"], 7)
+        self.assertEqual(numerical["dim"], 2)
+        self.assertEqual(numerical["not_conclusive_guard"],
+                         uq.GUARD_EXTRAPOLATION)
+        self.assertEqual(numerical["value_working"], 0.1578)
+
+    def test_what_is_dropped_is_named_on_the_record(self):
+        band = uq.eca_hoekstra_band([10000, 80000, 640000],
+                                    [1.22, 0.62, 0.47], dim=3)
+        numerical = uq.study_numerical(band)
+        for key in uq.STUDY_NUMERICAL_DROPS:
+            self.assertNotIn(key, numerical)
+        self.assertEqual(numerical["dropped_from_fit"],
+                         sorted(k for k in uq.STUDY_NUMERICAL_DROPS
+                                if k in band))
+        self.assertTrue(numerical["dropped_from_fit"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -136,8 +136,11 @@ def ladder_unfamiliar(body: str, stl_name: str, *,
         _log(f"{body} rung r={r}: cells {level['cells']:,}, "
              f"Cd {level['cd']:.4f}, {level['wall_minutes']} min")
     ordered = [levels[k] for k in sorted(levels)]
+    # dim=3 is stated, not defaulted: every body on this path is a closed
+    # STL meshed by snappyHexMesh, refining in all three directions. The fit
+    # refuses an unstated dimensionality, so the assumption is on the record.
     band = uq.ladder_band([lv["cells"] for lv in ordered],
-                          [lv["cd"] for lv in ordered])
+                          [lv["cd"] for lv in ordered], dim=3)
     # The act solves at refinement 3. When the ladder's fine rung is coarser
     # or finer than that, the band reported for the act mesh is the middle-
     # level GCI (Celik's GCI_med), and the method note says so.
@@ -159,14 +162,17 @@ def ladder_unfamiliar(body: str, stl_name: str, *,
         refinement=act_refinement, iterations=ITERATIONS)
     _checkpoint(
         body, fingerprint=fingerprint,
-        numerical={"band_abs": band_abs,
-                   "band_rel": None if rel is None else round(rel, 5),
-                   "observed_order": band["observed_order"],
-                   # The dimensionality that set h. An assumption on every
-                   # fit, so it belongs in the file an audit reads.
-                   "dim": band.get("dim"),
-                   "method": method, "conclusive": band["conclusive"],
-                   "value_working": act_level.get("cd")},
+        # The fit is copied wholesale (uq.study_numerical); only what the
+        # fit cannot know is added here. The old hand-typed key list dropped
+        # every field the fit learned to record after the list was written --
+        # the dimensionality, the monotone flag, the extrapolated value, the
+        # guard record -- without saying so.
+        numerical=uq.study_numerical(
+            band,
+            band_abs=band_abs,
+            band_rel=None if rel is None else round(rel, 5),
+            method=method,
+            value_working=act_level.get("cd")),
         provenance=[lv["mission"] for lv in ordered])
     _log(f"{body} ladder DONE: {method}, band {band_abs:.4g}")
 
@@ -235,8 +241,10 @@ def ladder_motorbike() -> None:
         _log(f"motorBike {tag}: cells {level['cells']:,}, Cd {level['cd']:.4f}, "
              f"{level['wall_minutes']} min")
     ordered = [levels[t] for t, *_ in _MB_RUNGS]
+    # dim=3: the motorBike tutorial mesh is a three-dimensional
+    # snappyHexMesh case and its snappy levels refine in all three.
     band = uq.ladder_band([lv["cells"] for lv in ordered],
-                          [lv["cd"] for lv in ordered])
+                          [lv["cd"] for lv in ordered], dim=3)
     fine = ordered[-1]
     rel = band["band_abs"] / abs(fine["cd"]) if fine["cd"] else None
     fingerprint = uq.setup_fingerprint(
@@ -244,12 +252,14 @@ def ladder_motorbike() -> None:
         velocity=20.0, refinement="tutorial-5-6", iterations=ITERATIONS)
     _checkpoint(
         body, fingerprint=fingerprint,
-        numerical={"band_abs": band["band_abs"],
-                   "band_rel": None if rel is None else round(rel, 5),
-                   "observed_order": band["observed_order"],
-                   "dim": band.get("dim"),
-                   "method": band["method"], "conclusive": band["conclusive"],
-                   "value_fine": fine["cd"]},
+        # `value_working`, not the `value_fine` this writer used to spell it:
+        # `transferred_model_band` pools stored studies by reading
+        # `value_working`, so a study written under the other spelling dropped
+        # out of the pool without anything saying it had.
+        numerical=uq.study_numerical(
+            band,
+            band_rel=None if rel is None else round(rel, 5),
+            value_working=fine["cd"]),
         provenance=[lv["mission"] for lv in ordered])
     _log(f"motorBike ladder DONE: {band['method']}, band {band['band_abs']:.4g}")
 
@@ -618,22 +628,16 @@ def b52_fourth_rung() -> None:
     # rungs (the fit, clamp rules included, when the finest triplet is
     # monotone; the conservative largest-spread band with the honest
     # sentence when it is not).
+    # dim=3: the B-52 ladder is a three-dimensional snappyHexMesh body.
     band = uq.eca_hoekstra_band([lv["cells"] for lv in levels],
-                                [lv["cd"] for lv in levels])
+                                [lv["cd"] for lv in levels], dim=3)
     production = next(lv for lv in levels if lv.get("tag") == "production")
     working = production.get("cd")
-    numerical = {
-        "band_abs": band["band_abs"],
-        "band_rel": (None if not working
-                     else round(band["band_abs"] / abs(working), 5)),
-        "observed_order": band["observed_order"],
-        "order_used": band.get("order_used"),
-        "clamped": band.get("clamped", False),
-        "dim": band.get("dim"),
-        "method": band["method"],
-        "conclusive": band["conclusive"],
-        "value_working": working,
-    }
+    numerical = uq.study_numerical(
+        band,
+        band_rel=(None if not working
+                  else round(band["band_abs"] / abs(working), 5)),
+        value_working=working)
     _checkpoint(body, numerical=numerical,
                 provenance=[lv.get("mission", f"{body}-{lv['tag']}")
                             for lv in levels])
