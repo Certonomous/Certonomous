@@ -550,7 +550,7 @@ def main(request: str | None = None, params: dict | None = None,
                        ["Semispan", f"{shapes['span_m']:.2f} m"],
                        ["Surface faces", f"{shapes['n_quad_faces']:,}"],
                        ["Mesh", f"{MESH_CELLS:,} cells"],
-                       ["Lift held at", f"C_L {CL_TARGET:g}"],
+                       ["Lift constrained to", f"C_L {CL_TARGET:g}"],
                        ["Design variables", f"{N_DV}"],
                    ],
                    table_id="wing-adjoint-optimization")
