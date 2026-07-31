@@ -277,7 +277,9 @@ def research_programs() -> dict[str, Any]:
         "title": closure_raw.get("name", "Closure-challenge benchmark"),
         "status": "ACTIVE RESEARCH",
         "board": closure_raw.get("board", "public leaderboard"),
-        "target_rank": closure_raw.get("target_rank", 4),
+        # The board is shown at its top entry, rank #1, never at whichever
+        # entry our own score happens to sit nearest.
+        "target_rank": closure_raw.get("target_rank", 1),
         "target_overall": closure_raw.get("target_overall"),
         "target_per_case": closure_raw.get("target_per_case", []),
         "our_entry": closure_raw.get("our_entry", _NO_ENTRY_YET),

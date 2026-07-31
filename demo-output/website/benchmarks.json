@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T20:25:08Z",
+  "generated_at": "2026-07-31T08:17:26Z",
   "ledger": "/home/ubuntu/Certonomous/demo-output/website/mega-batch/ledger.jsonl",
   "totals": {
     "evaluations_ok": 208102,
@@ -41,19 +41,19 @@
     "name": "Closure-challenge benchmark",
     "status": "ACTIVE RESEARCH",
     "board": "public leaderboard",
-    "target_rank": 4,
-    "target_overall": 0.0779,
+    "target_rank": 1,
+    "target_overall": 0.0595,
     "target_per_case": [
-      0.068,
-      0.1364,
-      0.0591,
-      0.0882,
-      0.0895,
-      0.0866,
-      0.0487,
-      0.0464
+      0.0592,
+      0.1339,
+      0.0606,
+      0.076,
+      0.0387,
+      0.0341,
+      0.0325,
+      0.0412
     ],
-    "our_entry": "Trained + gated entry scored 0.0676 overall through the benchmark's own unmodified harness across four pre-registered scoring calls (RANS-identity floor, round-1 periodic-hills correction, round-2 extended to ducts and NASA hump, round-3 test-blind decline-gate). Best result on the public board on five of the eight test cases. Not submitted to the benchmark's steward.",
+    "our_entry": "Trained + gated entry scored 0.0676 overall through the benchmark's own unmodified harness across four pre-registered scoring calls (RANS-identity floor, round-1 periodic-hills correction, round-2 extended to ducts and NASA hump, round-3 test-blind decline-gate). Best result on the public board on five of the eight test cases. Not yet submitted to the benchmark's steward.",
     "rans_identity_floor_overall": 0.1036,
     "rans_identity_floor_per_case": [
       0.132,

@@ -61,12 +61,17 @@ _SOLVER_LABEL = {
     "reduced-order": "Valve cycle\n(reduced-order)",
 }
 
-# Public closure-challenge leaderboard target (rank #4). Target values
-# reproduced independently against the benchmark's own scorer (see
-# demo-output/website/closure_challenge_rans_floor.json). No entry has been
-# SUBMITTED to the benchmark's steward -- "our_score" below is this lab's own
-# internally measured position against the public board, current as of round
-# 3 (closure_challenge_trained_entry_round3_gated.json, measured 2026-07-29).
+# Public closure-challenge leaderboard target: the TOP entry on the board,
+# rank #1 (Reissmann, Fang, and Sandberg), read from the benchmark repository's
+# own leaderboard table (closure-challenge-benchmark/README.md, "Current
+# leaderboard"). Overall 0.0595, per-case in the README's column order:
+# alpha_15_13929_4048, alpha_15_13929_2024, alpha_05_4071_4048,
+# alpha_05_4071_2024, AR_1_Ret_360, AR_3_Ret_360, AR_14_Ret_180, NASA_2DWMH.
+# The board is shown at its top, not at the entry we happen to sit nearest.
+# No entry has been SUBMITTED to the benchmark's steward -- "our_score" below
+# is this lab's own internally measured position against the public board,
+# current as of round 3
+# (closure_challenge_trained_entry_round3_gated.json, measured 2026-07-29).
 # This literal is the single source for the status text: build_benchmarks.py
 # writes it into benchmarks.json, and lab_stats.research_programs() reads it
 # back from that file rather than holding its own copy. KEEP THIS IN SYNC:
@@ -77,14 +82,14 @@ _CLOSURE = {
     "name": "Closure-challenge benchmark",
     "status": "ACTIVE RESEARCH",
     "board": "public leaderboard",
-    "target_rank": 4,
-    "target_overall": 0.0779,
-    "target_per_case": [0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464],
+    "target_rank": 1,
+    "target_overall": 0.0595,
+    "target_per_case": [0.0592, 0.1339, 0.0606, 0.076, 0.0387, 0.0341, 0.0325, 0.0412],
     "our_entry": "Trained + gated entry scored 0.0676 overall through the benchmark's own "
                  "unmodified harness across four pre-registered scoring calls (RANS-identity "
                  "floor, round-1 periodic-hills correction, round-2 extended to ducts and NASA "
                  "hump, round-3 test-blind decline-gate). Best result on the public board on "
-                 "five of the eight test cases. Not submitted to the benchmark's steward.",
+                 "five of the eight test cases. Not yet submitted to the benchmark's steward.",
     "rans_identity_floor_overall": 0.1036,   # zero-training reference floor; see comment above
     "rans_identity_floor_per_case": [0.132, 0.2049, 0.0461, 0.0719, 0.1288, 0.1243, 0.059, 0.0621],
     "our_score": 0.0676,   # round-3 gated entry (best measured position to date)
