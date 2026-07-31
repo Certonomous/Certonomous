@@ -98,19 +98,29 @@ TIER_SOLVE = "[solve: VSPAERO + Raymer buildup]"
 #   Code E  52 m up to but not including 65 m
 #   Code F  65 m up to but not including 80 m
 #
-# VERIFIED before shipping rather than taken on anyone's word. The bands were
-# read off Annex 14 Vol I 8th Edition July 2018 (incorporating Amendment 14)
-# Table 1-1, and cross-checked against ICAO Doc 9157 Aerodrome Design Manual
-# Part 1 4th Edition 2020, EASA CS-ADR-DSN Issue 4 Table A-1, and the Airbus
-# aerodrome reference code note ME1911189 Issue 4.0. Every source gives the
-# identical wingspan figures. Current edition is the 9th, July 2022.
+# VERIFIED against the sources before shipping rather than taken on anyone's
+# word, because an engineer in the audience will know this table. The bands
+# were read verbatim off Annex 14 Vol I 8th Edition July 2018 (incorporating
+# Amendment 14) Table 1-1, and cross-checked against ICAO Doc 9157 Aerodrome
+# Design Manual Part 1 4th Edition 2020 and EASA CS-ADR-DSN Issue 6 (ED
+# Decision 2022/006/R) Table A-1, which is the currently in force European
+# text. Every source gives identical wingspan figures. Annex 14 Vol I is now
+# in its 9th Edition, July 2022 (Amendment 17), and the reproduced clause is
+# unchanged there; Amendment 18 (August 2025) was not readable, so the claim
+# on screen names the table rather than an amendment state.
 #
-# ONE TRAP, recorded because it is easy to reintroduce: before Amendment 14
-# (applicable 8 November 2018) code element 2 also carried an outer main gear
-# wheel span column, and the code letter was whichever of the two was more
-# demanding. Amendment 14 deleted that column. Code element 2 is wingspan
-# alone today, and wheel span is referenced directly in the runway and taxiway
-# width provisions on its own bands. Never reintroduce the second criterion.
+# TWO TRAPS, recorded because both are easy to reintroduce.
+#
+# 1. The bounds are lower inclusive and upper exclusive: the text reads "52 m
+#    up to but not including 65 m". A span of exactly 65.0 m is therefore
+#    already Code F, which is why the test below is >= and not >.
+# 2. Before Amendment 14 (applicable 8 November 2018) code element 2 also
+#    carried an outer main gear wheel span column, and the code letter was
+#    whichever of the two was more demanding. Amendment 14 deleted that
+#    column. Code element 2 is wingspan alone today, and wheel span feeds the
+#    runway and taxiway width provisions directly on its own bands. Several
+#    widely used secondary sources are still stale on this point, so never
+#    reintroduce the second criterion from one of them.
 _ICAO_CODE_D_MIN_SPAN = 36.0
 _ICAO_CODE_E_MIN_SPAN = 52.0
 _ICAO_CODE_E_MAX_SPAN = 65.0
@@ -893,6 +903,13 @@ SCOPE_STATEMENT = (
     "Fuselage, tail, and nacelle drag are added from Raymer's component "
     "buildup method.",
     "All L/D figures quoted are whole-aircraft.")
+
+# The same scope, in one line, for the certificate's own labelled Scope field.
+# The certificate is read on its own, away from the digest, so it carries the
+# statement itself rather than assuming the reader saw the run.
+CERTIFICATE_SCOPE = (
+    "Wing-optimized; fuselage, tail, and nacelle drag from Raymer's component "
+    "buildup. Result is whole-aircraft L/D.")
 
 
 def seeded_spans(measured_span: float) -> tuple[float, ...]:
@@ -1895,6 +1912,18 @@ def main(request: str | None = None, params: dict | None = None,
             # The objective is always THIS run's verbatim request.
             objective=(request or "Maximise the airliner cruise lift-to-drag "
                        "ratio subject to its mission requirements."),
+            # What the search moved, and what the reported number covers. A
+            # labelled field directly under the objective, because a reader
+            # who takes the headline for a wing-only figure has misread the
+            # certificate, and that is the certificate's fault, not theirs.
+            scope=CERTIFICATE_SCOPE,
+            # Every limit the run applied, tagged by where it came from, with
+            # the gate-code advisory carrying its own disposition.
+            constraints=constraint_list(reqs, advisory=gate_advisory,
+                                        winner_span=best["span"]),
+            # Every number the answer rests on that neither the request stated
+            # nor a solver produced, the two lift coefficients included.
+            assumptions=ledger_rows,
             mission_id="aircraft-optimization",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels,

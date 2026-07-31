@@ -716,6 +716,25 @@ class SolvedRunDoctrineTests(unittest.TestCase):
                       "Approach Speed", "L/D"):
             self.assertIn(token, text)
 
+    def test_certificate_states_its_scope_constraints_and_assumed_values(self):
+        events = self._run_solved()
+        cert = [p for e, p in events if e == "certificate.ready"][0]
+        text = Path(cert["path"]).read_bytes().decode("latin-1")
+        # The scope is a labelled field, read with the objective it qualifies.
+        self.assertIn("(Scope)", text)
+        self.assertIn("Result is whole-aircraft L/D.", text)
+        # Every constraint says where it came from.
+        self.assertIn("(Constraints)", text)
+        self.assertIn("user-stated", text)
+        self.assertIn("Structural span limit", text)
+        # The assumed-values ledger carries the lift coefficients the low
+        # speed verdicts turn on, marked as no solver's work.
+        self.assertIn("(Assumed Values)", text)
+        self.assertIn("CLmax, landing", text)
+        self.assertIn("assumed, not solver-derived", text)
+        # Issuance and the seal sit together at the foot.
+        self.assertLess(text.index("(Result)"), text.index("(Issued"))
+
     def test_wording_is_the_cleared_capability_statement(self):
         events = self._run_solved()
         said = " ".join(self._messages(events))

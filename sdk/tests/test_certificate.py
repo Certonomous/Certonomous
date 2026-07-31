@@ -488,5 +488,97 @@ class ChannelNoteLineTests(unittest.TestCase):
                           "(Cossalter 2006; Hoerner 1965)"])
 
 
+class ScopeConstraintsAndLedgerTests(unittest.TestCase):
+    """The three fields a certificate needs to be read on its own: what the
+    run actually covered, every limit it applied and where each came from, and
+    every number it assumed because nothing else supplied one."""
+
+    CONSTRAINTS = [("Passengers", "300", "user-stated"),
+                   ("Landing speed", "at most 70 m/s", "assumed"),
+                   ("ICAO gate code", "Code E, span at most 65 m",
+                    "advisory, re-run offer open")]
+    ASSUMED = [("CLmax, landing", "2.6", "assumed, not solver-derived"),
+               ("CLmax, take-off", "2.1", "assumed, not solver-derived")]
+    SCOPE = ("Wing-optimized; fuselage, tail, and nacelle drag from Raymer's "
+             "component buildup. Result is whole-aircraft L/D.")
+
+    def _render(self, **kw):
+        with tempfile.TemporaryDirectory() as d:
+            out = build_certificate_v2(_report(), out_path=Path(d) / "c.pdf",
+                                       channels=_CHANNELS, **_KW, **kw)
+            return out, Path(out["path"]).read_bytes().decode("latin-1")
+
+    def test_scope_is_a_labelled_field_not_fine_print(self):
+        _, text = self._render(scope=self.SCOPE)
+        self.assertIn("Scope", text)
+        self.assertIn("Result is whole-aircraft L/D.", text)
+
+    def test_scope_sits_between_the_objective_and_the_solver(self):
+        _, text = self._render(scope=self.SCOPE)
+        self.assertLess(text.index("(Objective)"), text.index("(Scope)"))
+        self.assertLess(text.index("(Scope)"), text.index("(Solver & Model)"))
+
+    def test_every_constraint_carries_the_tag_it_came_with(self):
+        _, text = self._render(constraints=self.CONSTRAINTS)
+        self.assertIn("Constraints", text)
+        for name, value, tag in self.CONSTRAINTS:
+            self.assertIn(name, text)
+            self.assertIn(value, text)
+            self.assertIn(tag, text)
+
+    def test_the_advisory_carries_its_disposition_not_just_its_existence(self):
+        _, text = self._render(constraints=self.CONSTRAINTS)
+        self.assertIn("advisory, re-run offer open", text)
+
+    def test_the_ledger_marks_a_value_no_solver_produced(self):
+        _, text = self._render(assumptions=self.ASSUMED)
+        self.assertIn("Assumed Values", text)
+        self.assertIn("CLmax, landing", text)
+        self.assertIn("assumed, not solver-derived", text)
+
+    def test_constraints_and_ledger_precede_the_result(self):
+        _, text = self._render(constraints=self.CONSTRAINTS,
+                               assumptions=self.ASSUMED)
+        self.assertLess(text.index("(Constraints)"), text.index("(Assumed Values)"))
+        self.assertLess(text.index("(Assumed Values)"), text.index("(Result)"))
+
+    def test_issuance_and_the_seal_sit_together_at_the_foot(self):
+        _, text = self._render(scope=self.SCOPE)
+        self.assertLess(text.index("(Result)"), text.index("(Issued \\(UTC\\))"))
+        self.assertLess(text.index("(Issued \\(UTC\\))"),
+                        text.index("(Evidence Seal"))
+
+    def test_all_three_are_sealed_with_the_run(self):
+        bare, _ = self._render()
+        scoped, _ = self._render(scope=self.SCOPE)
+        constrained, _ = self._render(constraints=self.CONSTRAINTS)
+        assumed, _ = self._render(assumptions=self.ASSUMED)
+        seals = {bare["hash"], scoped["hash"], constrained["hash"],
+                 assumed["hash"]}
+        self.assertEqual(len(seals), 4)
+        tampered = [list(row) for row in self.CONSTRAINTS]
+        tampered[0][1] = "301"
+        other, _ = self._render(constraints=tampered)
+        self.assertNotEqual(other["hash"], constrained["hash"])
+
+    def test_a_certificate_passing_none_of_them_is_one_page_as_before(self):
+        _, text = self._render()
+        self.assertEqual(text.count("/Type /Page "), 1)
+        self.assertNotIn("(Scope)", text)
+        self.assertNotIn("(Constraints)", text)
+
+    def test_a_long_body_continues_onto_a_second_leaf_rather_than_cutting(self):
+        many = [(f"Limit {i}", f"at most {i} m/s", "assumed")
+                for i in range(24)]
+        out, text = self._render(scope=self.SCOPE, constraints=many,
+                                 assumptions=self.ASSUMED)
+        self.assertGreater(text.count("/Type /Page "), 1)
+        # Nothing is lost to the page break: the last constraint, the ledger
+        # and the seal all reach the page.
+        self.assertIn("Limit 23", text)
+        self.assertIn("Assumed Values", text)
+        self.assertIn(out["hash"][:32], text)
+
+
 if __name__ == "__main__":
     unittest.main()

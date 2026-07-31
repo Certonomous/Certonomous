@@ -180,10 +180,26 @@ def _channel_fields(ch: dict) -> tuple[str, str, bool, str]:
 # --------------------------------------------------------------------------
 
 class _Canvas:
-    """Accumulate drawing operators for one page, then serialise to PDF bytes."""
+    """Accumulate drawing operators, then serialise to PDF bytes.
+
+    One page is the norm and stays byte-for-byte what it always was. A
+    certificate that carries a full constraint list and an assumed-values
+    ledger can outgrow a single leaf, so ``new_page`` starts a second: the
+    operators simply move to a fresh stream and the document grows a page.
+    """
 
     def __init__(self) -> None:
         self._ops: list[str] = []
+        self._done: list[list[str]] = []
+
+    def new_page(self) -> None:
+        """Close the current page and start drawing on the next one."""
+        self._done.append(self._ops)
+        self._ops = []
+
+    @property
+    def page_count(self) -> int:
+        return len(self._done) + 1
 
     # -- primitives --------------------------------------------------------
     def text(self, x: float, y: float, s: str, size: float = 10.0,
@@ -211,15 +227,29 @@ class _Canvas:
 
     # -- serialise ---------------------------------------------------------
     def to_pdf(self) -> bytes:
-        content = "\n".join(self._ops).encode("cp1252", "replace")
+        pages = [*self._done, self._ops]
+        streams = ["\n".join(ops).encode("cp1252", "replace") for ops in pages]
+        # Object numbering: 1 catalog, 2 page tree, then one page object and
+        # one content stream per leaf, then the four fonts.
+        n = len(streams)
+        page_ids = [3 + 2 * i for i in range(n)]
+        font_first = 3 + 2 * n
+        kids = " ".join(f"{i} 0 R" for i in page_ids)
         objects: list[bytes] = [
             b"<< /Type /Catalog /Pages 2 0 R >>",
-            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-            (f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {_PAGE_W:.2f} "
-             f"{_PAGE_H:.2f}] /Resources << /Font << /F1 5 0 R /F2 6 0 R "
-             f"/F3 7 0 R /F4 8 0 R >> >> /Contents 4 0 R >>").encode("ascii"),
-            (b"<< /Length " + str(len(content)).encode("ascii") + b" >>\nstream\n"
-             + content + b"\nendstream"),
+            (f"<< /Type /Pages /Kids [{kids}] /Count {n} >>").encode("ascii"),
+        ]
+        for i, content in enumerate(streams):
+            objects.append(
+                (f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {_PAGE_W:.2f} "
+                 f"{_PAGE_H:.2f}] /Resources << /Font << "
+                 f"/F1 {font_first} 0 R /F2 {font_first + 1} 0 R "
+                 f"/F3 {font_first + 2} 0 R /F4 {font_first + 3} 0 R >> >> "
+                 f"/Contents {page_ids[i] + 1} 0 R >>").encode("ascii"))
+            objects.append(
+                b"<< /Length " + str(len(content)).encode("ascii")
+                + b" >>\nstream\n" + content + b"\nendstream")
+        objects += [
             b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica "
             b"/Encoding /WinAnsiEncoding >>",
             b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold "
@@ -317,7 +347,8 @@ def evidence_hash(payload: dict) -> str:
 
 
 def _seal_payload(*, mission_id, geometry, objective, results, channels,
-                  compute, issued_utc, mesh=None, result_fields=None) -> dict:
+                  compute, issued_utc, mesh=None, result_fields=None,
+                  scope=None, constraints=None, assumptions=None) -> dict:
     """The exact fields the seal covers — nothing cosmetic, everything factual.
 
     ``mesh`` (the mission's actual checkMesh facts) and ``result_fields`` (the
@@ -344,7 +375,38 @@ def _seal_payload(*, mission_id, geometry, objective, results, channels,
         payload["mesh"] = dict(mesh)
     if result_fields:
         payload["result_fields"] = [[label, value] for label, value in result_fields]
+    if scope:
+        payload["scope"] = scope
+    if constraints:
+        payload["constraints"] = [list(row) for row in constraints]
+    if assumptions:
+        payload["assumptions"] = [list(row) for row in assumptions]
     return payload
+
+
+def _normalized_triples(raw) -> list[tuple[str, str, str]]:
+    """Ordered (name, value, tag) rows from whatever shape the caller holds.
+
+    The same contract as ``_normalized_result_fields``: sequences or dicts in,
+    verbatim strings out. A row missing its third column keeps an empty tag
+    rather than being dropped, because a constraint with no tag is still a
+    constraint the run applied.
+    """
+    rows: list[tuple[str, str, str]] = []
+    for item in raw or ():
+        if isinstance(item, dict):
+            cells = [item.get("name"), item.get("value"), item.get("tag")]
+        else:
+            try:
+                cells = list(item)
+            except TypeError:
+                continue
+        cells += [""] * (3 - len(cells))
+        name, value, tag = cells[0], cells[1], cells[2]
+        if name is None or value is None:
+            continue
+        rows.append((str(name), str(value), "" if tag is None else str(tag)))
+    return rows
 
 
 def _normalized_result_fields(raw) -> list[tuple[str, str]]:
@@ -653,7 +715,11 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
                          source_filename: str | None = None,
                          solver: str | None = None,
                          fidelity: str | None = None,
-                         mesh: dict | None = None) -> dict[str, Any]:
+                         mesh: dict | None = None,
+                         scope: str | None = None,
+                         constraints: Iterable[Any] | None = None,
+                         assumptions: Iterable[Any] | None = None
+                         ) -> dict[str, Any]:
     """Redesigned certificate: a certificate, not a log dump.
 
     Serif/sans pairing, a human certificate number in the masthead (the mission
@@ -672,6 +738,21 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     Title Case from the act, values verbatim — and is sealed with the run.
     Acts not yet migrated keep the sentence fallback.
 
+    ``scope`` is a labelled field, not fine print: it states what was actually
+    optimized and what the reported quantity covers, and it sits directly under
+    the objective so the two are read together.
+
+    ``constraints`` is the run's complete constraint list as (name, value,
+    tag) rows, where the tag says whether a limit was stated by the user,
+    assumed by the act, or raised as an advisory nobody asked for. An advisory
+    row carries its disposition in the same tag column, so the page says what
+    happened to it rather than only that it fired.
+
+    ``assumptions`` is the assumed-values ledger as (quantity, value, basis)
+    rows: every number the answer rests on that neither the request stated nor
+    a solver produced. Both tables are sealed with the run, and both are
+    optional, so an act that passes neither renders exactly as before.
+
     Additive and non-default: nothing here changes ``build_certificate``.
     """
     results = list(report_doc.get("results", []))
@@ -680,6 +761,9 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     channels = [c for c in (channels or []) if isinstance(c, dict)]
     compute = report_doc.get("compute", {})
     result_fields = _normalized_result_fields(report_doc.get("result_fields"))
+    constraint_rows = _normalized_triples(constraints)
+    assumption_rows = _normalized_triples(assumptions)
+    scope = str(scope).strip() if scope else None
     primary = results[0] if results else {}
     tier = (primary.get("tier") or "").upper()
     chip = (fidelity or _infer_fidelity(tier, compute, results)).upper()
@@ -688,7 +772,9 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     seal = evidence_hash(_seal_payload(
         mission_id=mission_id, geometry=geometry, objective=objective,
         results=results, channels=channels, compute=compute,
-        issued_utc=issued_utc, mesh=mesh, result_fields=result_fields))
+        issued_utc=issued_utc, mesh=mesh, result_fields=result_fields,
+        scope=scope, constraints=constraint_rows,
+        assumptions=assumption_rows))
     cert_no = _human_number(mission_id, issued_utc, seal)
 
     left = _MARGIN + 8
@@ -697,15 +783,21 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     # The body must never run into the provenance box at the page bottom.
     page_floor = _MARGIN + 22 + 66 + 8
 
-    def render(level: int) -> tuple[_Canvas, float]:
+    def render(level: int, paginate: bool = False) -> tuple[_Canvas, float]:
         """Draw the body once at the given density; return (canvas, final y).
 
         Level 0 is the exact spacing the signed-off redesign shipped with;
         level 1 is the tightened rhythm the mesh-validity certificates already
         use; level 2 additionally compacts the note leading and table rows.
-        The page is a single sealed leaf, so a dense run tightens its rhythm
-        rather than spilling over the provenance box — wording, numbers, and
-        order never change between levels.
+        A dense run tightens its rhythm rather than spilling over the
+        provenance box — wording, numbers, and order never change between
+        levels.
+
+        ``paginate`` is the last resort, used only when even the densest
+        rhythm cannot hold the body on one leaf: the constraint list and the
+        ledger then continue onto a second page in the same order. Tightening
+        is always tried first, so a certificate that fitted before still
+        renders as a single page.
         """
         compact = level >= 1
         dense = level >= 2
@@ -719,6 +811,24 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
 
         c = _Canvas()
         y = _PAGE_H - _MARGIN - 6
+
+        def room(need: float, at: float) -> float:
+            """Keep ``need`` points of body on this leaf, or start the next.
+
+            Returns the y to carry on drawing at. With pagination off it is
+            the identity, so the measured overflow still drives the fit loop.
+            """
+            if not paginate or at - need >= page_floor:
+                return at
+            c.new_page()
+            top = _PAGE_H - _MARGIN - 6
+            c.text(left, top - 12, "CERTONOMOUS", size=13, bold=True,
+                   color=_INK, serif=True)
+            c.text(right - 150, top - 12, f"Certificate No. {cert_no}",
+                   size=8, bold=True, color=_MUTED)
+            top -= 24
+            c.rule(left, top, right, width=1.0, color=_INK)
+            return top - gap(26, 22)
 
         # -- masthead: wordmark (serif) + document class + human number -----
         c.text(left, y - 18, "CERTONOMOUS", size=25, bold=True, color=_INK, serif=True)
@@ -741,9 +851,14 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
                    color=_MUTED)
             y -= gap(16, 14)
         y -= gap(6, 4)
-        for label, value in (("Objective", objective),
-                             ("Solver & Model", solver or "-"),
-                             ("Issued (UTC)", issued_utc)):
+        # Objective first and verbatim, then what the run actually covered,
+        # then what solved it. Scope sits between them because it qualifies
+        # the objective and is read with it, never as a footnote.
+        fields = [("Objective", objective)]
+        if scope:
+            fields.append(("Scope", scope))
+        fields.append(("Solver & Model", solver or "-"))
+        for label, value in fields:
             c.text(left, y, label, size=8, bold=True, color=_MUTED)
             for line in _wrap(str(value), 10.5, width - 120):
                 c.text(left + 120, y, line, size=10.5, color=_INK)
@@ -753,7 +868,44 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         c.rule(left, y, right)
         y -= gap(28, 22)
 
+        # -- constraint list and assumed-values ledger -----------------------
+        # Every limit the run applied, tagged by where it came from, and every
+        # number the answer rests on that neither the request stated nor a
+        # solver produced. They sit ahead of the result because they are what
+        # the result is conditional on.
+        for title, head, rows in (
+                ("Constraints", ("Constraint", "Limit", "Basis"),
+                 constraint_rows),
+                ("Assumed Values", ("Quantity", "Value", "Basis"),
+                 assumption_rows)):
+            if not rows:
+                continue
+            y = room(38 + row_lead * min(len(rows), 3), y)
+            c.text(left, y, title, size=8, bold=True, color=_MUTED)
+            y -= gap(8, 6)
+            c.rule(left, y, right, width=0.5)
+            y -= gap(16, 14)
+            for i, cell in enumerate(head):
+                c.text(left + (0, 150, 290)[i], y, cell, size=7.5, bold=True,
+                       color=_MUTED)
+            y -= gap(6, 5)
+            c.rule(left, y, right, width=0.5)
+            y -= gap(16, 14)
+            for name, value, tag in rows:
+                y = room(row_lead, y)
+                c.text(left, y, name, size=9.5, bold=True, color=_INK)
+                c.text(left + 150, y, value, size=9.5, color=_INK)
+                if tag:
+                    c.text(left + 290, y, tag, size=9, color=_MUTED)
+                y -= row_lead
+            y -= gap(12, 8)
+            c.rule(left, y, right)
+            y -= gap(26, 20)
+
         # -- result block: value +- CI + fidelity chip -----------------------
+        # The headline, its chip and its caption are one unit and never split
+        # across a leaf.
+        y = room(96, y)
         c.text(left, y, "Result", size=8, bold=True, color=_MUTED)
         # SOLVER-BACKED is the unlabeled default for this simulation platform:
         # a real solve with no further chip renders no badge at all.
@@ -833,6 +985,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         y -= gap(26, 20)
 
         # -- three-channel uncertainty table ---------------------------------
+        y = room(54 + row_lead, y)
         c.text(left, y, "Uncertainty", size=8, bold=True, color=_MUTED)
         y -= gap(8, 6)
         c.rule(left, y, right, width=0.5)
@@ -846,6 +999,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         table = channels or [{"name": n} for n in ("Input", "Numerical", "Model form")]
         for ch in table:
             name, cval, quantified, note = _channel_fields(ch)
+            y = room(row_lead + (note_lead * 2 if note else 0), y)
             state = "quantified" if quantified else "not quantified"
             c.text(left, y, name, size=9.5, bold=True, color=_INK)
             c.text(left + val_x, y, cval, size=9.5, color=_INK)
@@ -882,19 +1036,29 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         return c, y
 
     # Fit loop: start at the density this certificate class ships with and
-    # tighten only when the body would otherwise reach the provenance box.
+    # tighten only when the body would otherwise reach the provenance box. A
+    # body that still will not fit at the tightest rhythm continues onto a
+    # second leaf rather than being cut, so nothing the run applied is
+    # dropped for want of room.
     density = 1 if mesh else 0
     c, body_bottom = render(density)
     while body_bottom < page_floor and density < 2:
         density += 1
         c, body_bottom = render(density)
+    if body_bottom < page_floor:
+        c, body_bottom = render(2, paginate=True)
 
     # -- provenance footer -------------------------------------------------
+    # Issuance and the seal that covers it sit together at the foot of the
+    # last leaf: when the certificate was issued, and the hash that proves
+    # what it said when it was.
     foot_h = 66
     fy = _MARGIN + 22
     c.rect(left, fy, width, foot_h, fill=(0.965, 0.972, 0.980))
     ty = fy + foot_h - 15
-    c.text(left + 12, ty, "Evidence Seal  ·  SHA-256", size=8,
+    c.text(left + 12, ty, "Issued (UTC)", size=8, bold=True, color=_SEAL)
+    c.text(left + 92, ty, issued_utc, size=8.5, color=_INK)
+    c.text(right - 190, ty, "Evidence Seal  ·  SHA-256", size=8,
            bold=True, color=_SEAL)
     ty -= 15
     c.text(left + 12, ty, seal[:32], size=9, bold=True, color=_SEAL)
