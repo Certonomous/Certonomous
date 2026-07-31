@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T18:18:00Z",
+  "generated_at": "2026-07-31T18:18:27Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -1746,6 +1746,63 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T18:18:00Z"
+    },
+    {
+      "id": "w3-refit-the-2d-ladders",
+      "well": "W3",
+      "objective": "Refit the five two-dimensional ladders with the correct dimensionality and see which earn a band",
+      "rationale": "The band fit derives mesh size from the cube root of cell count and none of the five two-dimensional acts overrides it, so every one has been fitted as though it were three-dimensional. On the TMR bump the same rungs read 0.776 under the default and 0.517 correctly, a factor of about 1.5. All five were switched to point estimates on the grounds that their ladders were not conclusive, and an order overstated by half again is exactly what pushes a credible fit outside the window. Some of these may have been denied a band they earned.",
+      "est_core_min": 20,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.274,
+      "cost_basis": "estimate",
+      "gate": "Each of the five reports its order under the correct dimensionality, and any that becomes conclusive is regraded",
+      "expected_knowledge_gain": "Either several filmed acts recover a measured uncertainty band, or the non-conclusive verdicts are confirmed on the right arithmetic",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/uq.py",
+        "campaign/4G_tmr_mesh_aspect_ratio.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:27Z"
+    },
+    {
+      "id": "w1-bump-on-nasa-own-grids",
+      "well": "W1",
+      "objective": "Rebuild the bump family on the reference grids NASA publishes and solves on",
+      "rationale": "Our bump mesh carries a near-wall spacing along the whole symmetry plane where the reference relaxes it four hundredfold, and spans it with half the cell count, giving a maximum aspect ratio of 2.1 million against the reference 4,844. The ladder also has no single mesh size, since our wall cell scales by 0.53 while the reference grids are exact point-drops of one another. The pressure component of drag has no observed order at all on our meshes, where the reference code resolves it at 2.91 on the same case. HARD: wall-bounded separated flow against a maintained validation reference.",
+      "est_core_min": 180,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 2.463,
+      "cost_basis": "estimate",
+      "gate": "An observed order inside the theoretical range on the pressure component, on grids refined by point-dropping",
+      "expected_knowledge_gain": "The only route to a defensible verification ladder on this family, and it removes our mesh from the list of suspects",
+      "source_kind": "gate",
+      "citations": [
+        "NASA Turbulence Modeling Resource bump-in-channel grids",
+        "campaign/4G_tmr_mesh_aspect_ratio.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:27Z"
+    },
+    {
+      "id": "w5-disclose-the-bump-claim",
+      "well": "W5",
+      "objective": "Disclose or withdraw the bump drag comparison shown beside the verified flat plate",
+      "rationale": "The credentials wall and a verification card present a bump drag of 0.003567 against 0.003607 next to the flat plate result, with nothing saying the bump ladder is not conclusive. Two sessions have now flagged it and neither would edit a published claim without a ruling. The flat plate beside it is genuinely verified, which makes the pairing read as two results of equal standing.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The bump comparison either carries its non-conclusive status where it is shown, or is withdrawn from that surface",
+      "expected_knowledge_gain": "The wall is the most public surface the lab has, and this is the second unqualified claim found on it this week",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/tmr/bump_sst.json",
+        "campaign/4G_tmr_mesh_aspect_ratio.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:27Z"
     }
   ]
 }
