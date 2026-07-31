@@ -71,8 +71,8 @@
   <div class="cred-kicker">Certonomous · laboratory credentials</div>
   <h2 class="cred-title">What this lab has measured</h2>
     <div class="cred-counters">
-      <div class="cred-counter"><span class="cred-counter-value">72,298</span><span class="cred-counter-label">missions run</span></div>
-      <div class="cred-counter"><span class="cred-counter-value">101.534</span><span class="cred-counter-label">solver core-hours</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">208,102</span><span class="cred-counter-label">missions run</span></div>
+      <div class="cred-counter"><span class="cred-counter-value">239.259</span><span class="cred-counter-label">solver core-hours</span></div>
       <div class="cred-counter"><span class="cred-counter-value">8</span><span class="cred-counter-label">knowledge entries</span></div>
       <div class="cred-counter"><span class="cred-counter-value">8</span><span class="cred-counter-label">experimental anchors</span></div>
       <div class="cred-counter"><span class="cred-counter-value">2</span><span class="cred-counter-label">benchmarks active</span></div>
@@ -81,7 +81,7 @@
     <details class="cal-suite">
       <summary>
         <span class="cal-title">Calibration suite</span>
-        <span class="cal-sub">8 canonical bodies benchmarked against published experiment · 1 validated within band</span>
+        <span class="cal-sub">8 canonical bodies benchmarked against published experiment · 0 validated within band</span>
         <span class="cal-hint">expand</span>
       </summary>
       <div class="cal-table-wrap">
@@ -90,15 +90,15 @@
         <tbody>
         <tr>
           <td class="cal-body">Ahmed body — 25° slant</td>
-          <td class="cal-num">Cd 0.3219 vs 0.285</td>
-          <td class="cal-env">±1.6e-06</td>
-          <td><span class="vtier vt-validated">VALIDATED</span></td>
+          <td class="cal-num">Cd 0.3041 vs 0.285</td>
+          <td class="cal-env">±0.02 across the 3-mesh refinement study</td>
+          <td></td>
           <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
         </tr>
         <tr>
           <td class="cal-body">Ahmed body — 35° slant</td>
-          <td class="cal-num">Cd 0.3141 vs 0.26</td>
-          <td class="cal-env">±1.8e-06</td>
+          <td class="cal-num">Cd 0.2924 vs 0.26</td>
+          <td class="cal-env">±2.1e-05 over the final 35 iterations</td>
           <td></td>
           <td class="cal-src">Ahmed, Ramm &amp; Faltin 1984, SAE 840300</td>
         </tr>
@@ -125,17 +125,17 @@
         </tr>
         <tr>
           <td class="cal-body">NACA 0012 wing</td>
-          <td class="cal-num">Cd 0.02229 vs 0.009</td>
-          <td class="cal-env">±2.5e-07</td>
+          <td class="cal-num">Cd 0.01205 vs 0.009</td>
+          <td class="cal-env">±0.015 across the 3-mesh refinement study</td>
           <td></td>
           <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 0012 section data</td>
         </tr>
         <tr>
           <td class="cal-body">NACA 4412 wing</td>
-          <td class="cal-num">Cd 0.01892 vs 0.03</td>
-          <td class="cal-env">±0.0031 across the 3-mesh refinement study</td>
+          <td class="cal-num">Cd 0.01826 vs 0.01357</td>
+          <td class="cal-env">±7.6e-06 over the final 20% of iterations</td>
           <td></td>
-          <td class="cal-src">Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section data (section Cd ~ 0.006-0.009)</td>
+          <td class="cal-src">Cd_section: Abbott &amp; von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed.</td>
         </tr>
         <tr>
           <td class="cal-body">Sphere</td>
