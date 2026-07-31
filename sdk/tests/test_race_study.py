@@ -494,6 +494,44 @@ class RaceCertificateConvention(unittest.TestCase):
                       "solve paths", by["model"]["note"])
         self.assertIn("confirmation solve", by["model"]["note"])
 
+    def test_headline_band_composes_every_quantified_channel(self):
+        # The banner used to publish the input channel alone, which on the
+        # filmed inputs was the SMALLEST of three numbers in the same panel.
+        # It is now the root sum of squares over the quantified channels,
+        # through the same call the rest of the lab closes its acts with.
+        import math
+
+        from chief_engineer import uq
+
+        by = self._channels()
+        expected = math.sqrt(sum(c["value"] ** 2 for c in by.values()))
+        self.assertAlmostEqual(
+            expected,
+            uq.combine_expanded(input_2sigma=by["input"]["value"],
+                                numerical_abs=by["numerical"]["value"],
+                                model_abs=by["model"]["value"])["combined_95"],
+            places=9)
+        verdict = [p for e, p in self.events if e == "result.verdict"][0]
+        self.assertAlmostEqual(float(verdict["ci"]), expected, places=2)
+        self.assertEqual(verdict["confidence"], "95%")
+        # Strictly larger than any one channel: a composition, not a pick.
+        for channel in by.values():
+            self.assertGreater(float(verdict["ci"]), channel["value"])
+        # The certificate publishes the same composed band, and states the
+        # ensemble spread beside it rather than in place of it.
+        self.assertIn(f"+-{expected:.2f}".replace("+-", ""), self.text)
+        self.assertIn("Ensemble Spread", self.text)
+
+    def test_agreement_table_separates_lane_spread_from_published_band(self):
+        table = [p for e, p in self.events if e == "transcript.table"
+                 and p.get("table_id") == rs._AGREE_TABLE][0]
+        rows = {row[0]: row for row in table["rows"]}
+        verdict = [p for e, p in self.events if e == "result.verdict"][0]
+        self.assertEqual(rows["Published band (95%)"][3],
+                         f"±{float(verdict['ci']):.2f}")
+        # The Monte Carlo column still carries that lane's own spread.
+        self.assertIn("±", rows["Peak L/D"][1])
+
     def test_notes_stay_on_the_generic_register(self):
         blob = " ".join(str(c["note"]) for c in self._channels().values())
         for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra", "GCI",

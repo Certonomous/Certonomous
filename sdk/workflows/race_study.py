@@ -32,7 +32,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from . import OUT_ROOT, announce_geometry, emit_table, make_transcript
-from chief_engineer import vspaero
+from chief_engineer import uq, vspaero
 from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
@@ -664,12 +664,66 @@ def main(request: str | None = None, params: dict | None = None,
     agreement = abs(mc["peak_mean"] - rom["confirmed"])
     agreement_pct = round(100 * agreement / mc["peak_mean"], 1) if mc["peak_mean"] else None
 
+    # The three uncertainty channels, every value measured in THIS run:
+    # input is the ensemble spread over the stated Reynolds uncertainty;
+    # numerical is the angle-grid bracket computed from the lane data; model
+    # is the measured agreement of the two independent solve paths, which is
+    # direct cross-path evidence, with the reduced space's own confirmation
+    # residual stated beside it. Generic register only; no method names.
+    bracket = peak_grid_bracket(rom.get("anchors") or [], rom["alpha_star"])
+    race_channels = uncertainty_channels(
+        input_2sigma=round(2 * mc["peak_sem"], 3),
+        numerical=None if bracket is None else round(bracket, 3),
+        model=round(agreement, 3),
+        input_note="Ensemble run over the stated spread in chord Reynolds "
+                   "number, propagated to the peak lift-to-drag through "
+                   "direct solves.",
+        numerical_note=("Both lanes locate the peak on a discrete angle "
+                        "grid, so the true optimum lies between grid points. "
+                        "The band is the change in peak lift-to-drag across "
+                        "half a grid step at the winning angle."
+                        if bracket is not None else
+                        "Both lanes locate the peak on a discrete angle "
+                        "grid; the anchor set cannot bracket the half-step "
+                        "variation on this run."),
+        model_note=(f"Measured agreement between the two independent solve "
+                    f"paths: {agreement:.2f} in peak lift-to-drag "
+                    f"({agreement_pct}%). The reduced space's residual "
+                    f"against its confirmation solve is "
+                    f"{rom['surrogate_error']:.2g}."))
+
+    # THE HEADLINE BAND COMPOSES (2026-07-31). The act used to publish the
+    # ensemble spread alone beside it: the banner read ±0.07 while the
+    # numerical channel in the same panel read six times that, so a viewer
+    # saw the smallest of three numbers quoted as the answer's band. Eight
+    # other acts already close their channels through the same call; this one
+    # now does too, so the headline is the root sum of squares over every
+    # channel that carries a figure. The Monte Carlo lane keeps its own
+    # ±{2 sigma / sqrt(N)} in the lane table, which is what that column is.
+    #
+    # The numerical channel is large here for a physical reason worth stating
+    # rather than smoothing: the peak sits on the α = 0 boundary, so the
+    # half-step bracket reads the curve's slope and not its curvature.
+    total = uq.combine_expanded(
+        input_2sigma=round(2 * mc["peak_sem"], 3),
+        numerical_abs=None if bracket is None else round(bracket, 3),
+        model_abs=round(agreement, 3))
+    headline_ci = total["combined_95"]
+
     script.engineer(
         f"• Same answer: full MC peak L/D {mc['peak_mean']:.2f} ± "
         f"{2 * mc['peak_sem']:.2f}; reduced-order {rom['confirmed']:.2f} at "
         f"{rom['alpha_star']:g}°, and they agree to {agreement_pct}%. "
         f"• Cost: {cm_mc:.1f} core-min versus {cm_rom:.1f} core-min. "
         f"• Measured speedup {speedup_cm}× in core-minutes.")
+    if headline_ci is not None:
+        script.numericist(
+            f"• Peak L/D {rom['confirmed']:.2f} ± {headline_ci:.2f} at 95%, "
+            f"composed over the "
+            f"{len(total['contributions'])} channels below. "
+            f"• The angle grid dominates it: the peak sits on the α = "
+            f"{rom['alpha_star']:g}° boundary, where a half step reads slope "
+            f"and not curvature.")
 
     # The two lanes' independently located answers, and what they cost, in one
     # table. Every cell is carried straight from the lane summaries above; the
@@ -686,7 +740,12 @@ def main(request: str | None = None, params: dict | None = None,
                      ["Solver runs", f"{mc['n_solves']}",
                       f"{rom['n_solves']}", ""],
                      ["Cost in core minutes", f"{cm_mc:.1f}",
-                      f"{cm_rom:.1f}", ""]],
+                      f"{cm_rom:.1f}", ""],
+                     # The lane columns carry each lane's own spread; the
+                     # published band is the composition of the channels and
+                     # belongs to the answer, not to either lane.
+                     ["Published band (95%)", "", "",
+                      "" if headline_ci is None else f"±{headline_ci:.2f}"]],
                table_id=_AGREE_TABLE)
 
     if emit:
@@ -705,7 +764,8 @@ def main(request: str | None = None, params: dict | None = None,
                           f"Both within confidence bounds.")})
         emit("result.verdict", {
             "quantity": "Peak L/D",
-            "value": f"{rom['confirmed']:.2f}", "ci": f"{2 * mc['peak_sem']:.2f}",
+            "value": f"{rom['confirmed']:.2f}",
+            "ci": ("" if headline_ci is None else f"{headline_ci:.2f}"),
             "confidence": "95%", "tier": "SOLVER-BACKED",
             "envelope": f"full MC {cm_mc:.1f} core-min vs reduced {cm_rom:.1f} "
                         f"core-min, {speedup_cm}× measured",
@@ -741,38 +801,11 @@ def main(request: str | None = None, params: dict | None = None,
                         f"{speedup_cm}× in core-minutes."),
             "figures": []})
 
-    # The three uncertainty channels, every value measured in THIS run:
-    # input is the ensemble spread over the stated Reynolds uncertainty;
-    # numerical is the angle-grid bracket computed from the lane data; model
-    # is the measured agreement of the two independent solve paths, which is
-    # direct cross-path evidence, with the reduced space's own confirmation
-    # residual stated beside it. Generic register only; no method names.
-    bracket = peak_grid_bracket(rom.get("anchors") or [], rom["alpha_star"])
-    race_channels = uncertainty_channels(
-        input_2sigma=round(2 * mc["peak_sem"], 3),
-        numerical=None if bracket is None else round(bracket, 3),
-        model=round(agreement, 3),
-        input_note="Ensemble run over the stated spread in chord Reynolds "
-                   "number, propagated to the peak lift-to-drag through "
-                   "direct solves.",
-        numerical_note=("Both lanes locate the peak on a discrete angle "
-                        "grid, so the true optimum lies between grid points. "
-                        "The band is the change in peak lift-to-drag across "
-                        "half a grid step at the winning angle."
-                        if bracket is not None else
-                        "Both lanes locate the peak on a discrete angle "
-                        "grid; the anchor set cannot bracket the half-step "
-                        "variation on this run."),
-        model_note=(f"Measured agreement between the two independent solve "
-                    f"paths: {agreement:.2f} in peak lift-to-drag "
-                    f"({agreement_pct}%). The reduced space's residual "
-                    f"against its confirmation solve is "
-                    f"{rom['surrogate_error']:.2g}."))
     if emit:
         emit("uncertainty.channels", race_channels)
 
     # The Certonomous certificate for the race act: the peak lift-to-drag
-    # with its measured ensemble band as the headline, the measured speedup
+    # with its composed band as the headline, the measured speedup
     # and agreement in the structured result table. Every evaluation on both
     # lanes was a real solve, so the chip is SOLVER-BACKED. Uniform
     # convention (airliner pattern): the previous run's page is withdrawn
@@ -794,7 +827,8 @@ def main(request: str | None = None, params: dict | None = None,
             "results": [
                 {"quantity": "Peak lift-to-drag",
                  "value": f"{rom['confirmed']:.2f}",
-                 "envelope": f"{2 * mc['peak_sem']:.2f}", **verdict},
+                 "envelope": ("" if headline_ci is None
+                              else f"{headline_ci:.2f}"), **verdict},
                 {"quantity": "Measured speedup, reduced-order vs full "
                              "ensemble sweep",
                  "value": f"{speedup_cm}x in core-minutes"},
@@ -803,7 +837,11 @@ def main(request: str | None = None, params: dict | None = None,
             "result_fields": [
                 ("Peak L/D", f"{rom['confirmed']:.2f} at "
                              f"{rom['alpha_star']:g} deg"),
-                ("Band (95%)", f"±{2 * mc['peak_sem']:.2f}"),
+                # Composed over the quantified channels, not the smallest of
+                # them. The channel table one level down carries the split.
+                ("Band (95%)", "not composed" if headline_ci is None
+                 else f"±{headline_ci:.2f}"),
+                ("Ensemble Spread (95%)", f"±{2 * mc['peak_sem']:.2f}"),
                 ("Agreement", f"{agreement_pct}%"),
                 ("Speedup", f"{speedup_cm}x core-minutes"),
                 ("Solver Runs", f"{mc['n_solves']} ensemble lane, "
