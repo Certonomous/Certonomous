@@ -900,7 +900,13 @@ class SolvedRunDoctrineTests(unittest.TestCase):
         # The assumed-values ledger carries the lift coefficients the low
         # speed verdicts turn on, marked as no solver's work.
         self.assertIn("(Assumed Values)", text)
-        self.assertIn("C_L,max", text)
+        # C_L,max is TYPESET on the sealed page, so the underscore form never
+        # appears in the stream: the symbol is drawn at the row's own size and
+        # the index smaller, dropped below the baseline. This asserts the two
+        # runs, and that the raw form is gone.
+        self.assertIn("(C) Tj", text)
+        self.assertIn("(L,max) Tj", text)
+        self.assertNotIn("C_L,max", text)
         self.assertIn("assumed, not solver-derived", text)
         # Issuance and the seal sit together at the foot.
         self.assertLess(text.index("(Result)"), text.index("(Issued"))
