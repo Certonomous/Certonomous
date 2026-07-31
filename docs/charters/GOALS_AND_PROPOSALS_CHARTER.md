@@ -1,8 +1,12 @@
 # Certonomous Goals and Research Proposal Charter
 
-Version 1.0, dated 2026-07-30. Governs what the lab optimizes for when it
+Version 1.1, dated 2026-07-31. Governs what the lab optimizes for when it
 drafts its own work. It applies to every proposal that reaches the agenda
 inbox, and therefore to every night the lab spends unattended.
+
+Version 1.1 adds disqualifier 10, the archive replay a detection rule owes
+before it is adopted, after S7 was measured firing on two thirds of the lab's
+completed steady runs.
 
 ## 1. The line
 
@@ -203,7 +207,18 @@ tie-breakers and not deductions. They are refusals.
 8. **No stated cost, or a cost over the rung cap with no escalation.**
    Charter 6.
 9. **Training or validating on challenge test-case data.** Section 2, axis C.
-10. **A visible field that breaks the style rails.** The agenda enforces these
+10. **A detection rule with no archive replay.** A proposal that adds a rule,
+    a signature, a gate or a check which will fire on the lab's own work states
+    what it does to the archive before it is adopted: the corpus it was replayed
+    against, the number of logs it fires on, the number it calls fatal, and its
+    behaviour on the case that motivated it. S7 entered without one and was
+    later measured firing on 68 of 106 archived steady logs and reaching FATAL
+    on 65, every one of them a completed run whose results are on the record.
+    The verification charter's section 5 carries the rule; this is the intake
+    refusal that makes it bite. A rule is an instrument and section 1 applies to
+    it unchanged: a rule that fires on everything cannot come out more than one
+    way.
+11. **A visible field that breaks the style rails.** The agenda enforces these
     mechanically: no en dashes or em dashes, no raw URLs, no internal file
     paths or extensions, and none of the banned vocabulary, in `objective`,
     `rationale`, `expected_knowledge_gain`, `cost_basis` or `dismiss_reason`.

@@ -1,8 +1,12 @@
 # Certonomous Compute Budget Charter
 
-Version 1.0, dated 2026-07-30. Governs what the lab is allowed to spend, how it
+Version 1.1, dated 2026-07-31. Governs what the lab is allowed to spend, how it
 counts what it spent, and the contract between the lab and the machine it runs
 on.
+
+Version 1.1 adds the gross-versus-cleaned clause to section 2, after the audit
+measured 11.3 percent of the published solver core-hours to be host stalls that
+re-derive perfectly from the ledger and are still not solver cost.
 
 ## 1. The line
 
@@ -44,6 +48,24 @@ Real `cost_basis` strings, both kinds, so the difference is visible:
 
 The last one is the model. An estimate that names what would upgrade it is
 worth more than a confident number.
+
+**A measured total that includes infrastructure stalls is not measured solver
+cost.** Measured is not the same as clean. The published `solver_core_hours`
+counter on the credentials wall re-derives exactly from the ledger, which is
+the check that matters and it passes, and it still carries 26.98 core-hours of
+host stall inside a 239.259 core-hour headline, 11.3 percent of it. The
+evidence that these are stalls rather than solver cost is not a judgement
+call: six rows near 16,300 seconds land in two tight wall-clock clusters and
+are shared across two independent solver families, which no per-solver cost
+mechanism can produce, against a cylinder median of 2.4 seconds. **A spend
+figure states whether it is gross or cleaned, and names the cleaning rule.**
+The lab's rule today is the one in `scripts/self_audit.py`: a ledger row over
+3600 seconds is an infrastructure stall, and the justification for that
+threshold is the clustering above, measured, not assumed.
+
+This is also why the wall-time monitor exists and why its threshold is
+governed. Every one of those six rows was recorded ok at the time, at 1070 and
+2214 times its own solver's 99th percentile.
 
 ## 3. Per-rung budgets
 

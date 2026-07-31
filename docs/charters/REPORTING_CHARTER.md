@@ -1,8 +1,11 @@
 # Certonomous Reporting Charter
 
-Version 1.0, dated 2026-07-30. Freezes the morning report. It is the one
+Version 1.1, dated 2026-07-31. Freezes the morning report. It is the one
 document the owner reads every day, so its shape is fixed and its sections do
 not get reordered, merged or skipped.
+
+Version 1.1 adds two never-clauses to section 9, on labels and on declared
+configuration, and names `scripts/self_audit.py` in section 10.
 
 ## 1. The line
 
@@ -192,6 +195,14 @@ Rules:
 - **Never curates.** Failures, wasted compute and stale rows all appear. The
   no-failures rule is a camera rule and this is not a camera surface.
 - **Never quotes a number without its artifact.**
+- **Never prints a label the number did not earn.** A confidence interval is a
+  confidence interval, a refinement band is a refinement band, and a gate
+  threshold is neither. The verification charter's section 6 governs, and it
+  governs here too: the report is not a camera surface, and that makes it a
+  place where a mislabelled number is more likely to be believed, not less.
+- **Never states a fleet, a wall time or an iteration count the run did not
+  produce.** Same section. What a report says about how a number was made is
+  subject to the same evidence test as the number.
 - **Never resolves a disagreement silently.** Where two records disagree, both
   appear with the artifact each came from. L-1.
 - **Never reports a job as finished on a monitor's say-so.** L-5 and L-6: an
@@ -205,6 +216,11 @@ Rules:
 
 - `scripts/gate_table.py` generates section 3 from act transcripts and prints
   PENDING rather than guessing.
+- `scripts/self_audit.py` re-derives published headlines from the artifacts
+  they cite and reports every disagreement. It runs weekly, it names what it
+  found and why, and it never edits a surface. It is a review aid with expected
+  false positives, tuned that way on purpose: a false positive costs a reading,
+  a false negative costs a published number nobody rechecks.
 - The agenda's style rails reject a proposal whose visible fields carry a dash,
   a raw URL, an internal path or a banned word, so section 5 inherits clean
   text.
