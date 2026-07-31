@@ -1666,11 +1666,20 @@ def main(request: str | None = None, params: dict | None = None,
     screen_elapsed = time.time() - screen_started
     ledger.spend(len(grid) * 0.02, f"{len(grid)} research sizing evaluations")
     roster.set_workers(0)
-    script.engineer(f"• Screening sweep: {screen_elapsed:.2f} s, {len(grid)} designs.")
 
     feasible = [r for r in results if r["feasible"]]
     infeasible = results[:]  # for narration counts
     n_infeasible = len(results) - len(feasible)
+    # The sweep's clock and the sweep's tally are ONE entry. They used to be
+    # two, one bullet each, which put two Chief Engineer headers back to back
+    # for what is a single statement about a single sweep. On the branch where
+    # nothing clears, the tally has a phase of its own below and this entry
+    # carries the clock alone.
+    swept = f"• Screening sweep: {screen_elapsed:.2f} s, {len(grid)} designs. "
+    if feasible:
+        swept += (f"• {len(feasible)} of {len(results)} wings clear every "
+                  f"requirement; {n_infeasible} shown infeasible.")
+    script.engineer(swept)
     # The bare infeasible count becomes a breakdown: which limit ruled each
     # wing out, counted off the violation strings the screen wrote. A wing
     # that misses two limits is counted under both, so the rows do not sum to
@@ -1725,9 +1734,6 @@ def main(request: str | None = None, params: dict | None = None,
         return 0
 
     best = max(feasible, key=lambda r: r["L_D"])
-    script.engineer(
-        f"• {len(feasible)} of {len(results)} wings clear every requirement; "
-        f"{n_infeasible} shown infeasible.")
     _say_ruled_out()
     _emit_table(
         emit, script, title=f"Screened optimum {TIER_SCREEN}",
