@@ -798,12 +798,18 @@ def low_speed_floor_figure(out_png: str | Path, reqs: dict) -> str | None:
     # The line is drawn at ONE weight and the caption says which, because the
     # requirement scales with weight: a heavier wing is asked for more area
     # than this, and the screen holds each design to its own figure.
+    # LEFT OF THE LINE AND LOW. The caption grew to three lines when it
+    # started naming the weight; to the right of the line it ran under the
+    # legend, and high on the left it crossed the approach curve. Under both
+    # speed limits and left of the floor is the one empty corner of the
+    # panel: every curve is above the limits everywhere in it.
     ax.annotate(f"wing area at least {floor:.0f} m$^2$\n"
                 f"at reference MTOW {mtow / 1000:.0f} t;\n"
                 f"applied per design at each wing's weight",
-                xy=(floor, top * 0.72), xytext=(10, 0),
-                textcoords="offset points", ha="left", fontsize=11.5,
-                color=t.VALID, weight="bold", fontfamily="monospace")
+                xy=(floor, top * 0.44), xytext=(-10, 0),
+                textcoords="offset points", ha="right", va="center",
+                fontsize=11.5, color=t.VALID, weight="bold",
+                fontfamily="monospace")
     t.style_axes(ax, r"wing area  $S$  [m$^2$]", r"speed  $V$  [m/s]",
                  "Low speed limits set a floor under wing area")
     return _finish(fig, ax, plt, t, out_png, loc="upper right")
