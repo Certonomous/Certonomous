@@ -31,6 +31,7 @@ from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
 from chief_engineer.researcher import ENGINEER_ACK, MissionProperties, method_memo
 from chief_engineer.transcript import CHIEF_ENGINEER as _SPEAKER
+from chief_engineer.transcript import NUMERICIST as _NUMERICIST_SPEAKER
 from chief_engineer.transcript import Entry
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN,
@@ -76,6 +77,73 @@ _FULL_AIRCRAFT = re.compile(r"\b(airliner|aircraft|airplane|aeroplane|jet)\b",
 # any body on the other.
 _LIFTING_THICKNESS_RATIO = 0.08
 _LIFTING_CHORD_RATIO = 0.5
+# Provenance tiers. Every quoted number carries the one it came from, and the
+# two never share a table, an axis, or a counter without saying which is which.
+TIER_SCREEN = "[screen: reduced-order sizing]"
+TIER_SOLVE = "[solve: VSPAERO + Raymer buildup]"
+
+# ---------------------------------------------------------------------------
+# Gate-code advisory.
+#
+# ICAO Annex 14, Volume I (Aerodrome Design and Operations), Table 1-1,
+# aerodrome reference code, code element 2. The code letter is set by the
+# greatest wingspan the facility is intended to serve; the lower bound of each
+# band is inclusive and the upper bound is exclusive, which is why a 65 m span
+# is already Code F.
+#
+#   Code D  36 m up to but not including 52 m
+#   Code E  52 m up to but not including 65 m
+#   Code F  65 m up to but not including 80 m
+#
+# VERIFIED before shipping rather than taken on anyone's word. The bands were
+# read off Annex 14 Vol I 8th Edition July 2018 (incorporating Amendment 14)
+# Table 1-1, and cross-checked against ICAO Doc 9157 Aerodrome Design Manual
+# Part 1 4th Edition 2020, EASA CS-ADR-DSN Issue 4 Table A-1, and the Airbus
+# aerodrome reference code note ME1911189 Issue 4.0. Every source gives the
+# identical wingspan figures. Current edition is the 9th, July 2022.
+#
+# ONE TRAP, recorded because it is easy to reintroduce: before Amendment 14
+# (applicable 8 November 2018) code element 2 also carried an outer main gear
+# wheel span column, and the code letter was whichever of the two was more
+# demanding. Amendment 14 deleted that column. Code element 2 is wingspan
+# alone today, and wheel span is referenced directly in the runway and taxiway
+# width provisions on its own bands. Never reintroduce the second criterion.
+_ICAO_CODE_D_MIN_SPAN = 36.0
+_ICAO_CODE_E_MIN_SPAN = 52.0
+_ICAO_CODE_E_MAX_SPAN = 65.0
+_ICAO_CODE_F_MAX_SPAN = 80.0
+ICAO_ADVISORY = (
+    f"Advisory: span exceeds ICAO Aerodrome Reference Code E, wingspan "
+    f"{_ICAO_CODE_E_MIN_SPAN:.0f} to {_ICAO_CODE_E_MAX_SPAN:.0f} m.",
+    f"Code F is {_ICAO_CODE_E_MAX_SPAN:.0f} to {_ICAO_CODE_F_MAX_SPAN:.0f} m, "
+    f"A380 class gate infrastructure, ICAO Annex 14 reference code table.",
+    f"Offer: re-run with span at most {_ICAO_CODE_E_MAX_SPAN:.0f} m.")
+# The same advisory as one line, for the certificate constraint list.
+ICAO_CONSTRAINT_ROW = (
+    "ICAO gate code",
+    f"Code E, span at most {_ICAO_CODE_E_MAX_SPAN:.0f} m")
+
+
+def icao_code_letter(span_m: float) -> str | None:
+    """The ICAO aerodrome reference code letter a wingspan falls in, over the
+    bands this act can produce. None outside them."""
+    if span_m < _ICAO_CODE_D_MIN_SPAN:
+        return None
+    if span_m < _ICAO_CODE_E_MIN_SPAN:
+        return "D"
+    if span_m < _ICAO_CODE_E_MAX_SPAN:
+        return "E"
+    if span_m < _ICAO_CODE_F_MAX_SPAN:
+        return "F"
+    return None
+
+
+def spans_over_code_e(spans) -> list[float]:
+    """Every span in the search that lands beyond Code E. Advisory input, and
+    never a feasibility test: a Code F span is buildable, it just asks for
+    different gates."""
+    return sorted({float(s) for s in spans
+                   if float(s) >= _ICAO_CODE_E_MAX_SPAN})
 # Span ladder used to seed the search around an uploaded starting geometry:
 # the default six-rung ladder re-centred on the measured span, with the centre
 # and every rung clamped to sane airliner bounds.
@@ -285,26 +353,51 @@ def screen_solve_gap(finalists) -> float | None:
     return (sum(gaps) / len(gaps)) if gaps else None
 
 
-def violation_breakdown(results) -> list[tuple[str, int]]:
+# Each kind of requirement miss, with the assumed input the verdict rests on.
+# The two low-speed limits are driven by a maximum lift coefficient that no
+# vortex-lattice solver can produce, so the verdict names the number it used.
+_VIOLATION_KINDS = (
+    ("approach speed", "Approach speed above the landing limit",
+     f"assumed CLmax_L = {_CLMAX_LANDING:.1f}"),
+    ("take-off speed", "Take-off speed above the limit",
+     f"assumed CLmax_TO = {_CLMAX_TAKEOFF:.1f}"),
+    ("range", "Range short of the requirement", "stated range requirement"),
+    ("span", "Span beyond the structural limit", "structural span limit"),
+)
+
+
+def violation_breakdown(results) -> list[tuple[str, int, str]]:
     """Count the wings ruled out by each kind of requirement miss.
 
     ``evaluate_design`` writes one human-readable violation string per limit a
     wing misses; a wing can miss several. This groups them by limit so the
     bare infeasible count becomes a breakdown, with every count taken straight
-    from the screened results. Kinds with no wings are left out.
+    from the screened results. Each row also carries what the verdict rests
+    on, which for the low-speed limits is an assumed lift coefficient. Kinds
+    with no wings are left out.
     """
-    kinds = (
-        ("approach speed", "Approach speed above the landing limit"),
-        ("take-off speed", "Take-off speed above the limit"),
-        ("range", "Range short of the requirement"),
-        ("span", "Span beyond the structural limit"),
-    )
-    counts = {label: 0 for _key, label in kinds}
+    counts = {label: 0 for _key, label, _basis in _VIOLATION_KINDS}
     for r in results:
-        for key, label in kinds:
+        for key, label, _basis in _VIOLATION_KINDS:
             if any(v.startswith(key) for v in r.get("violations") or ()):
                 counts[label] += 1
-    return [(label, counts[label]) for _key, label in kinds if counts[label]]
+    return [(label, counts[label], basis)
+            for _key, label, basis in _VIOLATION_KINDS if counts[label]]
+
+
+def binding_constraint(results) -> str | None:
+    """The limit that rules out the most wings: the binding constraint on the
+    infeasible region, named for the design-space plot's legend."""
+    rows = violation_breakdown(results)
+    if not rows:
+        return None
+    label, _count, _basis = max(rows, key=lambda row: row[1])
+    return {
+        "Approach speed above the landing limit": "landing speed",
+        "Take-off speed above the limit": "take-off speed",
+        "Range short of the requirement": "range",
+        "Span beyond the structural limit": "span",
+    }.get(label)
 
 
 # ---------------------------------------------------------------------------
@@ -618,6 +711,41 @@ def assumed_values(reqs: dict) -> list[tuple[str, str, str]]:
     return rows
 
 
+def constraint_list(reqs: dict, *, advisory: bool,
+                    winner_span: float | None = None
+                    ) -> list[tuple[str, str, str]]:
+    """Every constraint the run used, tagged by where it came from.
+
+    ``user-stated`` is a limit the request named, ``assumed`` is one the act
+    supplied because the request did not, and ``advisory`` is a limit nobody
+    asked for that the run raised anyway. The gate-code row carries its own
+    disposition, so the page says what happened to the advisory and not just
+    that it fired.
+    """
+    def tag(stated: bool) -> str:
+        return "user-stated" if stated else "assumed"
+
+    rows = [
+        ("Passengers", f"{reqs['passengers']:.0f}",
+         tag(bool(reqs.get("passengers_stated")))),
+        ("Range", f"at least {reqs['range_km']:.0f} km",
+         tag(bool(reqs.get("range_stated")))),
+        ("Take-off speed", f"at most {reqs['takeoff_speed']:.0f} m/s",
+         tag(bool(reqs.get("takeoff_stated")))),
+        ("Landing speed", f"at most {reqs['landing_speed']:.0f} m/s",
+         tag(bool(reqs.get("landing_stated")))),
+        ("Structural span limit", f"at most {_SPAN_STRUCTURAL_LIMIT:.0f} m",
+         "assumed"),
+    ]
+    if advisory:
+        if winner_span is not None and winner_span < _ICAO_CODE_E_MAX_SPAN:
+            disposition = "advisory, winner inside Code E"
+        else:
+            disposition = "advisory, re-run offer open"
+        rows.append((*ICAO_CONSTRAINT_ROW, disposition))
+    return rows
+
+
 def measure_surface_span(path: str | Path) -> float | None:
     """Measure an uploaded STL/OBJ starting geometry: the largest horizontal
     extent of its bounding box (z up), taken as the approximate span.
@@ -779,11 +907,13 @@ def seeded_spans(measured_span: float) -> tuple[float, ...]:
 
 
 # Transcript-table headers for the live finalist-solve rows.
-_FINALIST_HEADERS = ("Span", "Alpha", "CDi", "Wing Viscous", "L/D")
+_FINALIST_HEADERS = ("Span", "Alpha", "CDi", "Wing Viscous",
+                     "Whole-aircraft L/D")
+_FINALIST_TABLE_TITLE = f"Finalist solves {TIER_SOLVE}"
 
 
 def _emit_table(emit, script, *, title: str, headers, rows, table_id: str,
-                append: bool = False) -> None:
+                append: bool = False, role: str = _SPEAKER) -> None:
     """Put a transcript table on the record.
 
     The control room renders it as a compact table in the same paced feed as
@@ -792,13 +922,13 @@ def _emit_table(emit, script, *, title: str, headers, rows, table_id: str,
     saved transcript so the on-disk record keeps the numbers."""
     if emit:
         emit("transcript.table", {
-            "role": _SPEAKER, "title": title,
+            "role": role, "title": title,
             "headers": [str(h) for h in headers],
             "rows": [[str(cell) for cell in row] for row in rows],
             "table_id": table_id, "append": bool(append), "at": time.time()})
     for row in rows:
         line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
-        entry = Entry(_SPEAKER, f"[{title}] {line}")
+        entry = Entry(role, f"[{title}] {line}")
         script.entries.append(entry)
         if emit is None and script.echo:
             script.echo(entry.render())
@@ -837,10 +967,14 @@ def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> d
     violations = []
     if approach_speed > reqs["landing_speed"] + 1e-6:
         violations.append(
-            f"approach speed {approach_speed:.0f} m/s exceeds the {reqs['landing_speed']:.0f} m/s landing limit")
+            f"approach speed {approach_speed:.0f} m/s exceeds the "
+            f"{reqs['landing_speed']:.0f} m/s landing limit "
+            f"(assumed CLmax_L = {_CLMAX_LANDING:.1f})")
     if takeoff_speed > reqs["takeoff_speed"] + 1e-6:
         violations.append(
-            f"take-off speed {takeoff_speed:.0f} m/s exceeds the {reqs['takeoff_speed']:.0f} m/s limit")
+            f"take-off speed {takeoff_speed:.0f} m/s exceeds the "
+            f"{reqs['takeoff_speed']:.0f} m/s limit "
+            f"(assumed CLmax_TO = {_CLMAX_TAKEOFF:.1f})")
     if breguet_range_km < reqs["range_km"] - 1e-6:
         violations.append(
             f"range {breguet_range_km:.0f} km short of the {reqs['range_km']:.0f} km requirement")
@@ -909,7 +1043,11 @@ def _design_grid(spans: tuple[float, ...] | None = None
     ``spans`` re-centres the ladder around a measured starting-geometry span.
     """
     grid = []
-    for span in (spans or (34, 40, 46, 52, 58, 64)):
+    # The ladder runs all the way to the structural span limit. The hypothesis
+    # is that L/D climbs with aspect ratio until a limit stops it, and a ladder
+    # that stops short of its own stated limit never tests that. The top rungs
+    # also reach past the gate-code band, which is where the advisory lives.
+    for span in (spans or (34, 40, 46, 52, 58, 64, _SPAN_STRUCTURAL_LIMIT)):
         for area in (240, 300, 360, 420):
             for sweep in _SWEEPS:
                 grid.append((float(span), float(area), float(sweep)))
@@ -979,6 +1117,25 @@ def main(request: str | None = None, params: dict | None = None,
         "• Unstated values are assumed and marked. "
         "• Weight rides on the passenger count; the whole answer rides on weight.")
 
+    # The ledger the marking produces, on the record as a table rather than a
+    # run of near-identical sentences. The two lift coefficients are the load
+    # bearing rows: every take-off and landing verdict below turns on them,
+    # and a vortex-lattice solver cannot produce a maximum lift coefficient,
+    # so the number is stated with where it came from instead of implied.
+    ledger_rows = assumed_values(reqs)
+    roster.set(NUMERICIST, "marking the assumed values", "working")
+    script.numericist(
+        "• Take-off and landing feasibility rests on a maximum lift "
+        "coefficient no vortex-lattice solve can produce. "
+        "• Both values are assumed, and every low-speed verdict below names "
+        "the one it used.")
+    _emit_table(
+        emit, script, title="Assumed values",
+        headers=["Quantity", "Value", "Basis"],
+        rows=[[label, value, basis] for label, value, basis in ledger_rows],
+        table_id="assumed-values", role=_NUMERICIST_SPEAKER)
+    roster.idle(NUMERICIST)
+
     # The hypothesis phase shows the trade before it claims it: the stall-speed
     # relations the screen will use, evaluated at the MTOW this passenger count
     # sets, give the wing area the stated speeds require. No wing has been
@@ -1023,8 +1180,10 @@ def main(request: str | None = None, params: dict | None = None,
                 f"runs on default bounds.")
 
     script.engineer(
-        "• Hypothesis: L/D climbs with aspect ratio, so push span to the limit. "
-        "• Low-speed limits floor the area; Breguet ties range to L/D. "
+        "• Hypothesis: whole-aircraft L/D climbs with aspect ratio, so push "
+        "span to the limit. "
+        "• Low-speed limits floor the area; Breguet ties range to whole-aircraft "
+        "L/D. "
         "• Expect the optimum where landing speed caps aspect ratio.")
 
     # ---------------- Plan ----------------
@@ -1045,11 +1204,22 @@ def main(request: str | None = None, params: dict | None = None,
     time_budget_min = params.get("deadline_minutes")
     if hold_back:
         granted = max(4, capacity.capacity // 2)
+        # The compliance decision is a required output, not a nicety. The
+        # request restricted a resource, so the run states in numbers what it
+        # did about it, and the numbers land as a table rather than a sentence
+        # a viewer has to parse.
         script.engineer(
             f"• You asked me to leave headroom on this box, so I am not taking "
             f"every worker. "
             f"• Holding {capacity.capacity - granted} of {capacity.capacity} "
-            f"slots back: fanning out on {granted}.")
+            f"slots back.")
+        _emit_table(
+            emit, script, title="Worker headroom",
+            headers=["Slots", "Count"],
+            rows=[["Available", f"{capacity.capacity}"],
+                  ["Taken", f"{granted}"],
+                  ["Held back", f"{capacity.capacity - granted}"]],
+            table_id="worker-headroom")
     if time_budget_min:
         script.engineer(
             f"• Time budget on the record: {time_budget_min:g} minutes. "
@@ -1067,10 +1237,13 @@ def main(request: str | None = None, params: dict | None = None,
         # The plan phase puts the landscape skeleton on screen before any
         # point exists — axes, units, and objective announced up front.
         emit("landscape.init", {
-            "title": "Design-space landscape",
+            # The canvas is screen tier throughout, and says so in its own
+            # caption: no solve-tier number shares this axis unlabelled.
+            "title": f"Design-space landscape {TIER_SCREEN}",
             "x": {"key": "span", "label": "span [m]"},
             "y": {"key": "wing_area", "label": "wing area [m²]"},
-            "objective": {"key": "L_D", "label": "L/D", "direction": "max"}})
+            "objective": {"key": "L_D", "label": "whole-aircraft L/D",
+                          "direction": "max"}})
     plan_line = (
         f"• Plan: screen {len(grid)} wings over span, area, and quarter-chord sweep. "
         f"• Infeasible designs stay on the plot, keeping the trade visible.")
@@ -1079,12 +1252,28 @@ def main(request: str | None = None, params: dict | None = None,
             f" • Top {_N_FINALISTS} feasible finalists then get solved with "
             f"VSPAERO, the selected vortex-lattice solver, in parallel.")
     script.engineer(plan_line)
+
+    # ---- gate-code advisory -------------------------------------------------
+    # A constraint the request never mentioned. The search can reach spans that
+    # need a different class of gate, so the run raises it, cites the table it
+    # comes from, and offers the capped re-run. It is an advisory: nothing is
+    # ruled infeasible by it and no candidate is dropped.
+    over_code_e = spans_over_code_e(span for span, _area, _sweep in grid)
+    gate_advisory = bool(over_code_e)
+    if gate_advisory:
+        script.engineer(
+            f"• {ICAO_ADVISORY[0]} "
+            f"• {ICAO_ADVISORY[1]} "
+            f"• {ICAO_ADVISORY[2]}")
+
     if solver_live:
         script.numericist(
             "• Screen is research sizing; finalists are solved, induced plus "
             "wing viscous drag. "
             "• Fuselage, tail and nacelle drag come from Raymer's component "
-            "buildup method.")
+            "buildup method. "
+            f"• Screened numbers carry {TIER_SCREEN}; solved numbers carry "
+            f"{TIER_SOLVE}.")
     else:
         script.engineer(
             "• The aero solver is not connected in this session; no launcher "
@@ -1122,23 +1311,25 @@ def main(request: str | None = None, params: dict | None = None,
             emit("geometry.ready", {
                 "url": (f"/api/geometry?span={r['span']:g}&area={r['area']:g}"
                         f"&sweep={r['sweep_deg']:g}&taper={_TAPER:g}"),
-                "label": f"candidate wing, span {r['span']:.0f} m, "
-                         f"area {r['area']:.0f} m²"})
+                "label": f"wing, whole-aircraft L/D via component buildup, "
+                         f"span {r['span']:.0f} m, area {r['area']:.0f} m²"})
             # Live best-feasible-L/D trace — the running optimum climbs on screen.
             if r["feasible"]:
                 best_ld_so_far = (r["L_D"] if best_ld_so_far is None
                                   else max(best_ld_so_far, r["L_D"]))
                 emit("trace.point", {
                     "series": "best_L_D", "x": idx + 1, "y": round(best_ld_so_far, 3),
-                    "x_label": "candidates screened", "y_label": "best feasible L/D",
-                    "title": "Best feasible L/D, running optimum", "feasible": True})
+                    "x_label": "candidates screened",
+                    "y_label": "best feasible whole-aircraft L/D",
+                    "title": ("Best feasible whole-aircraft L/D, running "
+                              f"optimum {TIER_SCREEN}"), "feasible": True})
         if _PACE_S:
             time.sleep(_PACE_S)
         if emit:
             emit("dispatch.update", {"slot": slot, "state": "done",
                                      "label": f"span {r['span']:.0f} m / {r['area']:.0f} m²",
-                                     "detail": (f"L/D {r['L_D']:.1f}" if r["feasible"]
-                                                else "infeasible")})
+                                     "detail": (f"whole-aircraft L/D {r['L_D']:.1f}"
+                                                if r["feasible"] else "infeasible")})
     screen_elapsed = time.time() - screen_started
     ledger.spend(len(grid) * 0.02, f"{len(grid)} research sizing evaluations")
     roster.set_workers(0)
@@ -1157,8 +1348,9 @@ def main(request: str | None = None, params: dict | None = None,
         if ruled_out:
             _emit_table(
                 emit, script, title="Why designs were ruled out",
-                headers=["Requirement Missed", "Wings"],
-                rows=[[label, str(count)] for label, count in ruled_out],
+                headers=["Requirement Missed", "Wings", "Verdict Rests On"],
+                rows=[[label, str(count), basis]
+                      for label, count, basis in ruled_out],
                 table_id="ruled-out")
 
     if not feasible:
@@ -1193,9 +1385,9 @@ def main(request: str | None = None, params: dict | None = None,
         f"{n_infeasible} shown infeasible.")
     _say_ruled_out()
     _emit_table(
-        emit, script, title="Screened optimum",
+        emit, script, title=f"Screened optimum {TIER_SCREEN}",
         headers=["Best Screened", "Span", "AR", "MTOW", "Range",
-                 "Approach Speed", "L/D"],
+                 "Approach Speed", "Whole-aircraft L/D"],
         rows=[[f"Rank 1 of {len(feasible)} feasible",
                f"{best['span']:.0f} m",
                f"{best['aspect_ratio']:.1f}",
@@ -1220,7 +1412,7 @@ def main(request: str | None = None, params: dict | None = None,
         script.engineer(
             "• Each row below lands as its solve finishes; L/D is whole-aircraft "
             "with Raymer's non-wing component buildup.")
-        _emit_table(emit, script, title="Finalist solves",
+        _emit_table(emit, script, title=_FINALIST_TABLE_TITLE,
                     headers=list(_FINALIST_HEADERS), rows=[],
                     table_id="finalist-solves")
         designs = [{
@@ -1255,7 +1447,7 @@ def main(request: str | None = None, params: dict | None = None,
                     whole_ld = f["cl_cruise"] / (
                         _CD0_NONWING + matched["cdo_wing"] + matched["cdi"])
                     _emit_table(
-                        emit, script, title="Finalist solves",
+                        emit, script, title=_FINALIST_TABLE_TITLE,
                         headers=list(_FINALIST_HEADERS),
                         rows=[[f"{f['span']:.0f} m",
                                f"{matched['alpha']:.1f}°",

@@ -327,7 +327,7 @@ class StartingGeometryTests(unittest.TestCase):
         self.assertIn("on file as the reference shape", said)
         spans = sorted({p["design"]["span"] for e, p in events
                         if e == "landscape.point" and "design" in p})
-        self.assertEqual(spans, [34.0, 40.0, 46.0, 52.0, 58.0, 64.0])
+        self.assertEqual(spans, [34.0, 40.0, 46.0, 52.0, 58.0, 64.0, 68.0])
 
 
 class ScopeStatementTests(unittest.TestCase):
@@ -512,7 +512,10 @@ class TranscriptTableTests(unittest.TestCase):
         self.assertEqual(len(screened), 1)
         self.assertEqual(screened[0]["headers"],
                          ["Best Screened", "Span", "AR", "MTOW", "Range",
-                          "Approach Speed", "L/D"])
+                          "Approach Speed", "Whole-aircraft L/D"])
+        # The screen tier is named in the table's own title, so a screened
+        # number can never be read as a solved one.
+        self.assertIn("[screen: reduced-order sizing]", screened[0]["title"])
         self.assertEqual(len(screened[0]["rows"]), 1)
         self.assertTrue(screened[0]["rows"][0][0].startswith("Rank 1"))
         # Finalists are not solved on this path, so no finalist table exists.
@@ -531,7 +534,10 @@ class TranscriptTableTests(unittest.TestCase):
         rows = [row for p in finalist if p["append"] for row in p["rows"]]
         self.assertEqual(len(headers), 1)
         self.assertEqual(headers[0]["headers"],
-                         ["Span", "Alpha", "CDi", "Wing Viscous", "L/D"])
+                         ["Span", "Alpha", "CDi", "Wing Viscous",
+                          "Whole-aircraft L/D"])
+        # The finalist table is solve tier only, and says so.
+        self.assertIn("[solve: VSPAERO + Raymer buildup]", headers[0]["title"])
         self.assertEqual(len(rows), 9)   # one row per finalist solve
         said = self._said(events)
         self.assertIn("Solver of choice: VSPAERO", said)
