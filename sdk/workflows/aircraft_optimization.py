@@ -1996,7 +1996,22 @@ def main(request: str | None = None, params: dict | None = None,
     # has built for this mission, and says so either way.
     matches = analogues_for(reqs)
     if matches:
-        script.engineer(
+        # WHY THE OUTLIER ROWS ARE OUTLIERS, said BEFORE the table rather than
+        # after it, so no row is read as a mistake on the way past. The
+        # objective here is cruise lift-to-drag and nothing else, and for a
+        # parabolic polar that objective rises with aspect ratio without ever
+        # turning over. The aeroplanes in the table were not drawn against it.
+        # Naming the difference in objective is the whole of the explanation,
+        # and it is the Chief Researcher's to give: the researcher frames the
+        # comparison, the numericist then holds the numbers up against it.
+        script.researcher(
+            "• Real airliners sit at aspect ratio 9 to 11, not at the cruise "
+            "L/D optimum. "
+            "• They optimise fuel burn and operating cost under gate, flutter "
+            "and wing-box limits. "
+            "• The distance to the analogues is a difference in objective, "
+            "not an error.")
+        script.numericist(
             "• Holding the winner against aircraft built for a comparable "
             "mission. "
             "• " + ", ".join(a["name"] for a in matches) + ". "
@@ -2006,23 +2021,12 @@ def main(request: str | None = None, params: dict | None = None,
             emit, script, title="Winner against real aircraft",
             headers=["Parameter", "Winner", "Analogues", "Verdict"],
             rows=analogue_rows(best, matches),
-            table_id="analogue-check")
-        # WHY THE OUTLIER ROWS ARE OUTLIERS, said beside the table rather than
-        # left for the viewer to read as a mistake. The objective here is
-        # cruise lift-to-drag and nothing else, and for a parabolic polar that
-        # objective rises with aspect ratio without ever turning over. The
-        # aeroplanes in the table were not drawn against it. Naming the
-        # difference in objective is the whole of the explanation, and it is
-        # the Chief Researcher's to give.
-        script.researcher(
-            "• Real airliners sit at aspect ratio 9 to 11, not at the cruise "
-            "L/D optimum. "
-            "• They optimise fuel burn and operating cost under gate, flutter "
-            "and wing-box limits. "
-            "• The distance to the analogues is a difference in objective, "
-            "not an error.")
+            table_id="analogue-check", role=_NUMERICIST_SPEAKER)
     else:
-        script.engineer(
+        # No comparison set exists, which is a fact about the reference
+        # aircraft rather than a ruling, so the numericist states it and the
+        # gate-code finding below stays the researcher's.
+        script.numericist(
             "• No production airliner carries this many passengers this far. "
             "• The mission has no analogue to hold the winner against.")
 
