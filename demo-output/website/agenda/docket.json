@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T14:39:49+00:00",
+ "generated_at": "2026-07-31T14:41:36+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -546,11 +546,13 @@
    "cost_basis": "estimate; the finest rung holds 337,334 cells and the next roughly doubles it",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the NACA 4412 finite wing drag",
    "source_kind": "gate",
-   "status": "approved",
+   "status": "dismissed",
    "created_at": "2026-07-25T02:07:58+00:00",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T14:41:36+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W3"
+   "well": "W3",
+   "dismiss_reason": "A fifth rung would measure the mesh generator and the ladder's own construction, not the physics, and its cost basis is wrong. The proposal quotes Cd 0.0289/0.0289/0.0217/0.0189 and p = 4.62, which belong to the ladder retired on 2026-07-27 for having no boundary-layer cells; the live ladder reads 0.0302/0.0289/0.0217 at p = 10.467 and is still layerless. It also assumes the next rung roughly doubles the cell count, while the measured cascade on this family is 2.45x to 2.87x and the r=4 rung already exists solved in the study's superseded block, so the first new rung is r=5 at 830,000 to 970,000 cells. Fix the ladder before lengthening it: one castellated recipe across at least three rungs, layers on, and an iteration budget every rung actually converges within.",
+   "outcome": "Withdrawn on preflight, no rung solved. Observed order before: 10.467, clamped, conclusive false, reportable_band None; after: unchanged, because the rung was not built and the preflight found three defects a rung would inherit. The ladder has no same-recipe triple (coarse and medium are both surface level (2 3), production alone is (3 4)), so p = 10.467 is fitted across a recipe change the B-52 recipe_audit already forbids; two of the three rungs never converged, running to the 180-iteration cap with no convergence statement while production converged at 124 of 300; and all three rungs are addLayers false at chord Reynolds 1.00e6, the exact defect for which the previous 4412 ladder was superseded on 2026-07-27. The pyHyp aspect-ratio hypothesis was tested and does not apply: the 4412 is snappyHexMesh throughout and its max aspect ratio IMPROVES under refinement (53.50, 26.76, 13.42); what degrades is non-orthogonality (58.37, 64.99, 74.96 against a 70 degree gate) and achieved layer coverage (94.2%, 94.5%, 58.3%)."
   },
   {
    "id": "agp-804d7038bf9e",

@@ -2,90 +2,62 @@
   "body": "naca4412_wing",
   "levels": [
     {
-      "cells": 263359,
-      "cd": 0.024478019838095238,
-      "cl": 0.2519217621904762,
-      "mission": "credential-repair-naca4412-medium",
-      "refinement": 3,
-      "wall_seconds_mesh": 29,
-      "wall_seconds_solve": 46,
+      "tag": "coarse",
+      "cells": 27237,
+      "cd": 0.0302438522,
+      "mission": "naca4412_wing-rung-coarse"
+    },
+    {
       "tag": "medium",
-      "add_layers": true,
-      "max_non_orthogonality": 58.374353,
-      "max_skewness": 1.1072287,
-      "mesh_gates_pass": true,
-      "layers_target": 12,
-      "layers_achieved_avg": 9.2,
-      "layer_thickness_pct_of_target": 94.2,
-      "y_plus_min": 7.9358764,
-      "y_plus_max": 386.84775,
-      "y_plus_average_face_mean": 35.211027,
-      "y_plus_area_fraction": {"below_30": 0.753, "in_30_to_300": 0.247, "above_300": 0.0002}
+      "cells": 67826,
+      "cd": 0.028925677858333332,
+      "mission": "naca4412_wing-rung-medium"
     },
     {
-      "cells": 645251,
-      "cd": 0.018262420944444444,
-      "cl": 0.20954745755555554,
-      "mission": "credential-repair-naca4412-fine",
-      "refinement": 4,
-      "wall_seconds_mesh": 82,
-      "wall_seconds_solve": 84,
-      "tag": "fine",
-      "add_layers": true,
-      "max_non_orthogonality": 64.989619,
-      "max_skewness": 3.3232022,
-      "mesh_gates_pass": true,
-      "layers_target": 12,
-      "layers_achieved_avg": 9.34,
-      "layer_thickness_pct_of_target": 94.5,
-      "y_plus_min": 7.3673662,
-      "y_plus_max": 261.34966,
-      "y_plus_average_face_mean": 33.36179,
-      "y_plus_area_fraction": {"below_30": 0.824, "in_30_to_300": 0.176, "above_300": 0.0},
-      "graded": true
-    },
-    {
-      "cells": 1849113,
-      "cd": 0.018327306772727273,
-      "cl": 0.250178721,
-      "mission": "credential-repair-naca4412-finer",
-      "refinement": 5,
-      "wall_seconds_mesh": 1574,
-      "wall_seconds_solve": 279,
-      "tag": "finer",
-      "add_layers": true,
-      "max_non_orthogonality": 74.962218,
-      "max_skewness": 2.030437,
-      "mesh_gates_pass": false,
-      "mesh_gate_failure": "non-orthogonality 74.96 deg exceeds the lab's 70 deg gate (geometry_study.MAX_NON_ORTHOGONALITY)",
-      "layers_target": 12,
-      "layers_achieved_avg": 6.0,
-      "layer_thickness_pct_of_target": 58.3,
-      "y_plus_min": 3.2799039,
-      "y_plus_max": 242.56849,
-      "y_plus_average_face_mean": 37.184205,
-      "y_plus_area_fraction": {"below_30": 0.739, "in_30_to_300": 0.261, "above_300": 0.0}
+      "tag": "production",
+      "cells": 137569,
+      "cd": 0.021672248783333334,
+      "mission": "naca4412_wing-production"
     }
   ],
-  "updated_utc": "2026-07-27T04:09:34Z",
+  "updated_utc": "2026-07-31T14:41:36Z",
   "numerical": {
+    "band_abs": 0.011294571411314567,
+    "band_rel": 0.52115,
+    "observed_order": 10.467,
+    "order_used": 2.5,
+    "clamped": true,
+    "method": "3-mesh study (r = 1.27), observed order p = 10.47; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
     "conclusive": false,
-    "method": "3-rung ladder (263,359 / 645,251 / 1,849,113 cells), all with resolved boundary layers (add_layers=True, target y+ 30). Cd and Cl are NOT monotonic across the ladder, so no Richardson extrapolation or observed-order fit is performed -- fitting an order to non-asymptotic data would manufacture false precision.",
-    "cd_range_observed": [0.018262420944444444, 0.024478019838095238],
-    "cl_range_observed": [0.20954745755555554, 0.2519217621904762],
-    "why_not_conclusive": "medium->fine Cd fell 25% (0.024478->0.018262); fine->finer Cd moved <1% (0.018262->0.018327) but Cl swung back up 19% (0.209547->0.250179). The finer (largest, 1,849,113-cell) rung independently failed the lab's own mesh non-orthogonality gate (74.96 deg vs a 70 deg gate) and achieved only 58.3% of its target boundary-layer thickness (vs ~94% on the other two rungs), so its apparent near-plateau in Cd is not trusted as evidence of grid convergence.",
-    "graded_rung": "fine (645,251 cells) -- the only rung passing both mesh-quality gates with full layer coverage",
-    "band_used_in_reference": {
-      "note": "the reference derivation (sdk/scripts/derive_naca4412_reference.py) folds this ladder's own Cd/Cl spread into its acceptance band as a direct numerical-uncertainty term, rather than computing an observed order.",
-      "numerical_half_width_abs": 0.0033843774260715388
-    }
+    "value_working": 0.021672248783333334
   },
   "superseded": {
     "reason": "2026-07-27: this earlier ladder had addLayers false at Re 1e6 (no boundary-layer cells at all) and archived no polyMesh, so it was not reproducible. Replaced by the layered ladder above (levels[]).",
     "levels": [
-      {"cells": 67826, "cd": 0.02892, "mission": "uq-naca4412_wing-r1", "refinement": 1, "wall_minutes": 1.7, "tag": "coarse"},
-      {"cells": 137569, "cd": 0.02167, "mission": "uq-naca4412_wing-r3", "refinement": 3, "wall_minutes": 2.2, "tag": "medium"},
-      {"cells": 337334, "cd": 0.01892, "mission": "uq-naca4412_wing-r4", "refinement": 4, "wall_minutes": 9.0, "tag": "production"}
+      {
+        "cells": 67826,
+        "cd": 0.02892,
+        "mission": "uq-naca4412_wing-r1",
+        "refinement": 1,
+        "wall_minutes": 1.7,
+        "tag": "coarse"
+      },
+      {
+        "cells": 137569,
+        "cd": 0.02167,
+        "mission": "uq-naca4412_wing-r3",
+        "refinement": 3,
+        "wall_minutes": 2.2,
+        "tag": "medium"
+      },
+      {
+        "cells": 337334,
+        "cd": 0.01892,
+        "mission": "uq-naca4412_wing-r4",
+        "refinement": 4,
+        "wall_minutes": 9.0,
+        "tag": "production"
+      }
     ],
     "closures": {
       "kOmegaSST": 0.02167,
@@ -113,7 +85,128 @@
       "conclusive": false,
       "value_working": 0.018922308558333333
     },
-    "provenance": ["uq-naca4412_wing-r1", "uq-naca4412_wing-r3", "uq-naca4412_wing-r4"],
+    "provenance": [
+      "uq-naca4412_wing-r1",
+      "uq-naca4412_wing-r3",
+      "uq-naca4412_wing-r4"
+    ],
     "fingerprint_note": "re-keyed 2026-07-24: the ladder rungs solved with the registry velocity hint 15.0 m/s (see provenance runs); the original key had recorded the runner default 100.0 by mistake. No measured number changed."
+  },
+  "fingerprint": "3a4b75b1f37b6a61",
+  "provenance": [
+    "naca4412_wing-rung-coarse",
+    "naca4412_wing-rung-medium",
+    "naca4412_wing-production"
+  ],
+  "fifth_rung_preflight": {
+    "measured_utc": "2026-07-31T14:30:00Z",
+    "question": "whether a fifth rung would settle this ladder's observed order (10.467, clamped, conclusive false), asked before spending the rung",
+    "answer": "no, and the reasons are properties of the ladder, not of its length",
+    "recipe_defect": {
+      "surface_levels_read_from_dicts": {
+        "coarse (27,237 cells)": "level (2 3)",
+        "medium (67,826 cells)": "level (2 3)",
+        "production (137,569 cells)": "level (3 4)"
+      },
+      "source": [
+        "/home/ubuntu/certonomous-runs/study-naca4412_wing-coarse-a6c5e0/system/snappyHexMeshDict",
+        "/home/ubuntu/certonomous-runs/study-naca4412_wing-medium-337080/system/snappyHexMeshDict",
+        "/home/ubuntu/certonomous-runs/study-naca4412_wing-1af072/system/snappyHexMeshDict"
+      ],
+      "finding": "coarse and medium share ONE castellated recipe and differ only in background block density (23x42x14 vs 33x60x20); production is the only rung at (3 4). By the standard the B-52 recipe_audit already set in this corpus -- rungs that do not share a refinement recipe are not extrapolation-comparable and must not be mixed into one Richardson/GCI fit -- this ladder has NO same-recipe triple. p = 10.467 is fitted across a recipe change, so it is not a discretization order at all, and a fifth rung inherits that."
+    },
+    "convergence_defect": {
+      "coarse": {
+        "endTime": 180,
+        "simple_converged_messages": 0,
+        "last_time": 180
+      },
+      "medium": {
+        "endTime": 180,
+        "simple_converged_messages": 0,
+        "last_time": 180
+      },
+      "production": {
+        "endTime": 300,
+        "simple_converged_messages": 1,
+        "last_time": 124
+      },
+      "source": "mission-output/geometry-study/study-naca4412_wing{,-coarse,-medium}/log.simpleFoam",
+      "finding": "two of the three rungs never converged; they ran to the 180-iteration cap with no convergence statement"
+    },
+    "wall_treatment_defect": {
+      "addLayers": {
+        "coarse": false,
+        "medium": false,
+        "production": false
+      },
+      "source": "system/snappyHexMeshDict, line 'addLayers false;' in all three run dirs",
+      "finding": "every rung of this ladder is layerless at chord Reynolds 1.00e6. That is the exact defect for which the PREVIOUS 4412 ladder was superseded on 2026-07-27 (superseded.reason: 'addLayers false at Re 1e6 (no boundary-layer cells at all)'). The replacement ladder carries it too."
+    },
+    "generator_hypothesis_tested_and_rejected": {
+      "hypothesis": "that the pyHyp aspect-ratio finding (GENERATOR_FINDING_pyhyp_aspect_ratio.md: max cell aspect ratio worsening under refinement, 97.9 to 167.5, because the extrusion holds its smoothing fixed while doubling point density) explains the finer 4412 rung's mesh-gate failure",
+      "verdict": "REJECTED on two independent grounds, both measured",
+      "wrong_generator": "every NACA 4412 mesh in this corpus is built by blockMesh + surfaceFeatureExtract + snappyHexMesh via external_aero.build_case. pyHyp appears nowhere in any 4412 path.",
+      "wrong_direction": {
+        "max_aspect_ratio_layered_family": [
+          53.501908,
+          26.763491,
+          13.416773
+        ],
+        "cells": [
+          263359,
+          645251,
+          1849113
+        ],
+        "note": "max aspect ratio IMPROVES monotonically under refinement here, the opposite of the pyHyp signature"
+      },
+      "what_actually_degrades": {
+        "max_non_orthogonality": [
+          58.374353,
+          64.989619,
+          74.962218
+        ],
+        "lab_gate_deg": 70.0,
+        "boundary_layer_coverage_pct": [
+          94.2,
+          94.5,
+          58.3
+        ],
+        "source": "credential-repair-naca4412-{medium,fine,finer}/log.checkMesh and log.snappyHexMesh final layer table",
+        "note": "non-orthogonality worsens monotonically and crosses the lab's own 70 degree gate at the finest rung, and achieved layer coverage collapses from 94% to 58.3%. checkMesh itself still prints 'Mesh OK' -- the failure is against the lab's stricter gate, not OpenFOAM's."
+      }
+    },
+    "cost_basis_correction": {
+      "docket_assumed": "the next rung roughly doubles the cell count",
+      "measured_cascade": {
+        "r3_to_r4_layerless": 2.452,
+        "medium_to_fine_layered": 2.45,
+        "fine_to_finer_layered": 2.865
+      },
+      "note": "the r=4 layerless rung already exists and is already solved (337,334 cells, Cd 0.01892) in this file's superseded block, so the first genuinely new rung is r=5 at roughly 830,000 to 970,000 cells, not the ~675,000 the cost basis assumed"
+    },
+    "ladder_a_quality_trend": {
+      "cells": [
+        27237,
+        67826,
+        137569
+      ],
+      "max_aspect_ratio": [
+        3.9202816,
+        3.3399691,
+        4.1060394
+      ],
+      "max_non_orthogonality": [
+        43.314432,
+        33.270917,
+        45.794738
+      ],
+      "max_skewness": [
+        1.6789335,
+        1.4609207,
+        1.883405
+      ],
+      "note": "quality appears to improve from coarse to medium and then degrade at production. That is not a refinement effect: coarse and medium differ only in background block density, so the one real castellated step in this ladder (medium to production) makes every metric worse."
+    }
   }
 }
