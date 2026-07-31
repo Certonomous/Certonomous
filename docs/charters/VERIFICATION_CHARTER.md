@@ -14,6 +14,15 @@ legitimate field-inversion capability turned out to have a leakage route into a
 scored benchmark case that no rule covered. Enforcement moves to section 12 and
 gains the gate that checks it. Nothing in 1.1 was weakened.
 
+Version 1.3 adds three things and weakens nothing. Section 3.2, the two ways an
+observed order lies, after a divergence fitted a textbook second-order number
+and a second ladder fitted an order across a change of mesh recipe. Section
+3.3, a guard measures the rungs the fit used, after one fit was declined on
+three rungs and certified on four without the fit changing. And section 14,
+attribution, after three findings in one week travelled to the wrong file, the
+wrong family and the wrong body. Section 4 gains the settle criterion and
+section 6 gains four display clauses.
+
 ## 1. The line
 
 > **Done means a gate has a verdict, the verdict cites an artifact, and the
@@ -152,6 +161,93 @@ dimensionality to move it across the window is falsification of the record
 unless the mesh itself says so. The justification is the blockMeshDict or the
 mesher, quoted, not the answer that comes out.
 
+### 3.2 The two ways an observed order lies
+
+Section 3.1 is about a number that is wrong by a known factor. This section is
+about two numbers that are not wrong at all and are not observed orders. Both
+survive the check most readers actually perform, which is that an order exists
+and looks plausible.
+
+> **An observed order is not evidence of convergence. It is a slope, and a
+> slope can be fitted through a divergence and through a change of experiment.**
+
+**The first way: a credible order on a diverging ladder.** The B-52 ladder's
+fourth rung made the fit succeed at `p = 2.253`, monotone, inside the credible
+window 0.5 to 4. That reads as a textbook second-order result and it is a
+divergence. Its increments **grow** at every step, 0.001857 then 0.002377 then
+0.002702, and the Richardson value 0.06484 lands **24 percent above the highest
+rung measured**. Monotone is not the same as converging: a sequence can move in
+one direction with increasing steps, and a least-squares slope through it is a
+number rather than an error estimate. The band halved to 0.006349, 13.451
+percent of the working value, and `uq.reportable_band` still correctly returns
+`None`. `demo-output/website/campaign/NOT_PASSING_REGISTER.md` line 516,
+`models/curriculum/uq-studies/b52.json`.
+
+**The second way: an order fitted across a change of recipe.** The second NACA
+4412 ladder reported `p = 10.467` on rungs of 27,237 / 67,826 / 137,569 cells.
+Read from the dictionaries, coarse and medium are both `level (2 3)` and differ
+only in background block density; production alone is `level (3 4)`. Rungs that
+do not share a refinement recipe are not extrapolation-comparable, so that
+number is fitted across a change of experiment and **is not a discretization
+order at all**. Two of the three rungs also never converged, both running to a
+180-iteration cap with `grep -c "SIMPLE solution converged"` returning zero.
+Same register, line 548, and `models/curriculum/uq-studies/naca4412_wing.json`.
+
+**What follows, and all four are checkable before any compute is spent.**
+
+1. **A reported order is accompanied or it is not reported.** On the same row:
+   monotonicity, the direction of the increments, where the Richardson value
+   lands relative to the highest rung measured, the assumed dimensionality, and
+   whether the rungs share one mesh recipe. Five facts, none of them a new
+   measurement, all of them derivable from the rungs already stored.
+2. **Growing increments refuse the fit.** Not a caveat on the fit, a refusal.
+   An extrapolation outside the measured range is an extrapolation the ladder
+   does not support, and the guard that catches it is independent of
+   dimensionality, which is what makes it the useful one.
+3. **A recipe audit precedes an order.** The B-52's `recipe_audit` set the
+   standard in this corpus and it is cheap: read the refinement level from each
+   rung's own dictionary and refuse a triple that does not share one.
+4. **An order inside the credible window earns no presumption.** The window
+   filters implausible numbers. It does not certify plausible ones, and both
+   failures here are inside it or trivially outside it while being wrong for
+   reasons the window cannot see.
+
+### 3.3 A guard measures the rungs the fit used
+
+A verdict on a ladder is produced by two things: a fit, and a guard on the fit.
+If the guard reads a different set of rungs than the fit did, one fit has more
+than one verdict, and which one you get is decided by what the caller happened
+to pass.
+
+Both certifiers used to fit the finest three rungs and then measure the
+conservative fallback band and the extrapolation-guard tolerance over **every**
+rung handed in. Extra rungs widened the range that the guard is a fraction of,
+without ever entering the fit. Measured on the flat plate, rungs
+3264 / 13056 / 52224:
+
+| Handed in | Where the Richardson value 0.00287237 sits | Verdict |
+| --- | --- | --- |
+| the three rungs of the fit | 21.16 percent of the range width above the top | **DECLINED** |
+| the same three, with the coarse 816 rung in front | 8.48 percent of a wider range width above the top | **CERTIFIED** at 1.99087e-5 |
+
+Same fit, same rungs fitted, same Richardson value, two verdicts. `_asymptotic_guard`
+now takes only the fit triple, and `ladder_band`'s factor-3 fallback is the fit
+triple's range. Commit `5675eb6b`.
+
+**The rule, and it binds every guard the lab writes, not this one.** A guard
+states the sample it measured over, and that sample is the sample the quantity
+was computed from. A tolerance measured over a superset is measuring the
+caller, not the fit.
+
+**A constant that was calibrated on the defect loses its calibration, and it
+does not get moved to restore the margin.** `EXTRAPOLATION_TOL_FRAC` was read
+off a "good case" that turned out to be the four-rung call. Re-read on
+three-rung fixtures, the flat plate's finest triple clears 0.15 by 1.30x rather
+than the 1.77x claimed, and the B-52 still fails it by a factor of 16. The
+constant keeps its value and loses its stated justification, which is recorded
+rather than repaired: moving it to restore the old-looking margin would be
+tuning the gate to the answer, which section 8 forbids.
+
 ## 4. Convergence. What may be read, and what may not
 
 This section is almost entirely lessons, because almost every one of them was
@@ -192,6 +288,38 @@ paid for.
 - **L-19.** Interrupted and diverged look identical from outside. Relaunch and
   compare the coefficient history at matching iterations. Bit-identical values
   prove the failure is deterministic and in the case setup.
+
+**An iteration cap is a budget, not a settle criterion, and a rung stopped by
+one says so.** A cap is a number somebody guessed before the run. A rung that
+reaches it has not converged, it has run out of money, and the two are recorded
+differently or the ladder inherits the guess as if it were a measurement.
+
+The 208896-cell flat plate rung was asked for 15000 iterations. At 15000 its Cd
+read 0.0028936144511, **1.05 percent above the value it eventually settles at,
+still falling by 1.04e-5 per thousand iterations**, with a trailing spread of
+4.44e-7 against the module's own 1e-7 gate. It took **36000** iterations to
+settle. Accepted as settled, that one rung turns the finest triple's increments
+from shrinking into growing and publishes the whole ladder as a divergence at
+`p = -0.745`. The cap decided the ladder, and nothing in the record said a cap
+had been involved.
+
+Three rules, and they are already in force in `sdk/workflows/tmr_verification.py`
+under commit `ec7ca9d5`.
+
+1. **A rung stops when the monitored coefficient stops moving**, measured as a
+   peak-to-peak spread over a trailing window at or under a stated tolerance,
+   with the iteration cap demoted to a backstop. The flatness measure drives
+   the run instead of judging it after a guess has already decided the answer.
+2. **The record carries `settled` and the verdict that produced it.** A rung
+   that hit its backstop is recorded backstop-stopped, never settled. Three
+   bump rungs and one plate rung in the current corpus ran to their caps
+   unsettled and the record now says which, without any published number
+   changing.
+3. **The exposure is reported, not patched over.** Where a cap-stopped rung
+   already sits inside a published ladder, both the ladder and the fact are
+   stated, per L-1. This is L-24 one level up: a run is not converged, a
+   quantity is, and a quantity is not converged because an iteration counter
+   reached a number somebody chose.
 
 **A diverged run poisons its own diagnostics.** Every derived quantity is
 downstream of the divergence. L-19's corollary: a y-plus of 113 average on a
@@ -338,6 +466,47 @@ result-bearing function the lab writes, not the one that failed.
 That is L-16 in code. A status flag sitting beside a number is a derived signal
 that is further from hand than the number itself, and a flag that can be
 ignored will be.
+
+**A surface never supplies a statistic the source did not state.** The
+certificate defect above is a caption invented over a value. This is its
+smaller sibling: a page that filled in the confidence level itself whenever a
+verdict carried none, defaulting to 95 percent. All 253 recorded verdicts that
+carry a band happen to state 95 percent, so removing the default changed
+nothing on screen. **What changed was the licence, and the licence was the
+defect.** A surface that is right today because the data happens to agree with
+its assumption is a surface that will be wrong on the first record that does
+not. Commit `f710fb59`, `sdk/chief_engineer/control_room.html`. The same commit
+removed a second shape of the same fault: older verdicts sent the literal
+string "n/a" for a band and a level, and the card rendered `0.6544 ± n/a (n/a)`,
+which is a number-shaped thing that is not a number. **An absent band is absent
+and the value stands alone.**
+
+**A qualifier belongs to the row it was measured on. A grade belongs to all of
+them.** The Ahmed report's verdict dictionary was spread into every card, so
+the drag comparison's own sentence, "within 7 percent of Ahmed, Ramm and Faltin
+1984, C_d 0.285", was appended to the lift card and the mesh row, where a drag
+qualifier is nonsense. The distinction is exact and it is worth stating as a
+rule rather than as a fix: the fidelity grade travels with every row of one
+report, because every row of one report carries one grade; the reason does not,
+because it is a statement about one comparison. Commit `6880e4f3`. **A template
+that spreads a per-quantity field across per-report rows is a defect at the
+moment it is written**, on the same reasoning as the fixed caption over a
+free-form field.
+
+**A label is repaired at the source that emits it, never at the surfaces that
+render it.** Two defects this week were one string each, and both were reached
+by five consumers. A verdict reason carried `Cd` where the typesetter keys on
+the underscore to see the index, so one variable arrived as two plain letters
+while every other variable on the same surface was set correctly (commit
+`63352fce`). And a control-room trace named itself by its series key: stripping
+the separator flattened the one variable that really was an index, opening the
+separator out set "history" under the C, and **no act-side wording could fix
+either, because the character was eaten before the typesetter ever saw it**
+(commit `cfe4e383`, and the trace now names itself by the axis label the acts
+already send). Neither string was ever a label. The general rule: when a
+rendering defect appears on several surfaces at once, the count of surfaces is
+evidence about where the fix goes. Repairing it five times leaves the sixth
+consumer broken and the source still wrong.
 
 **A configuration a surface declares is a claim about the run.** The hump act
 called `roster.set_workers(ranks)` on its warm path, where the mesh and the
@@ -701,11 +870,76 @@ of closing the exemption.
 files, and what those files use the capability for. "It broke without it" is
 not a reason; it is the symptom that starts the review.
 
+## 14. A finding is attributed to what somebody opened
+
+L-22 already says a failure attributed to a case must be checked against that
+case's own logs. Three findings in one week travelled anyway, and none of them
+was a crash or a resource failure, which is why L-22's wording did not catch
+them. All three are the same shape: a true statement about one artifact
+restated as a statement about a different one, because the two were adjacent in
+somebody's head.
+
+> **An attribution is a claim, and it is a claim about a file. Name the file,
+> and open it before the finding leaves the room.**
+
+**The file nobody opened.** A dimensionality defect found in the shared
+uncertainty module was attributed to the flat-plate verification card. The card
+never had it: it has always fitted at the dimensionality its own mesh has, it
+reproduces its published order, and it follows the reference convention. The
+two were conflated because both compute an observed order and only one of them
+was read. **The wrong attribution reached a proposal and a briefing before
+anybody checked.** `demo-output/website/tmr/flatplate_sst.json`,
+`sdk/chief_engineer/uq.py`, docket `w8-an-audit-attribution-is-a-claim`.
+
+**The family that does not use the thing.** A generator finding measured max
+aspect ratio worsening under refinement, 97.87 to 167.50, on a pyHyp extrusion.
+That was carried to the NACA 4412 as the likely cause of its ladder trouble,
+and it is wrong twice over: the 4412 is snappyHexMesh throughout, and its
+aspect ratio **improves** under refinement, 53.5 to 26.8 to 13.4. The metric
+moves the opposite way. The real degradation on that family is non-orthogonality
+reaching 74.96 against a 70 gate and layer coverage falling to 58.3 percent, so
+the borrowed cause also displaced the true one.
+`demo-output/website/dafoam/GENERATOR_FINDING_pyhyp_aspect_ratio.md`,
+`models/curriculum/results/naca4412_wing.json`.
+
+**The body the number did not come from.** A polar was published under the name
+of a surface it was not computed from. A NACA 0012 arrived, the act took only
+its **span**, both lanes solved the act's own parametric anchor at camber 0.04
+at 0.4 chord, and the curve went on screen labelled NACA 0012 with lift-to-drag
+peaking at zero incidence. A symmetric section has no circulation at zero
+incidence, so that curve could never have been its. Measured rather than
+reasoned from the name: the received `naca0012_wing.stl` reads 0.00 percent
+camber, 12.00 percent thickness and 0.00 degrees built-in incidence, while the
+`wing.stl` the solver wrote reads 3.98 percent camber at 0.38 chord. **The
+surface was right and the label was wrong.** Commit `3db36388`, and the fix
+spells the name from the three section parameters the solver is handed, so a
+label can no longer drift from the section that was solved.
+
+**Four rules.**
+
+1. **A finding names the file and the line it was read from**, and a second
+   reader opens that file before the finding is filed. This is the literature
+   charter's provenance tier pointed at the lab's own artifacts: a finding
+   carried from another of our documents without re-opening the original is the
+   same act as a citation copied without re-checking it.
+2. **A defect attributed to a tool, a generator or a template names the case
+   files showing that case uses it.** One line of evidence, and it is free.
+3. **A result is named for what produced it, not for what was handed in.** An
+   input that contributes a span contributes a span; the record says which
+   properties came from the received artifact and which the run chose. This is
+   section 6's evidence test applied to the subject line rather than the value.
+4. **A cheap prior that contradicts the name is worth writing down.** The polar
+   was caught by the observation that a symmetric section cannot lift at zero
+   incidence, which costs nothing and is now an armed check on the alpha equal
+   to zero anchor. P1 applies: run the cheapest control before publishing the
+   attribution, not after.
+
 ## Related
 
 - `docs/charters/RESULT_PRIORITY_CHARTER.md`. Which quantity wins when two
   methods verify different ones.
-- `docs/charters/REPORTING_CHARTER.md`. Where gate tables and FD tables land.
+- `docs/charters/REPORTING_CHARTER.md`. Where gate tables and FD tables land,
+  and section 10 there is the reporting side of sections 3.2, 3.3 and 14 here.
 - `docs/standards/MESH_STANDARD.md`. The pre-solve mesh gate.
 - `docs/charters/LITERATURE_CHARTER.md`. Section 7 carries the intake side of
   section 11: a reading is where a scored case gets proposed as a training case.
