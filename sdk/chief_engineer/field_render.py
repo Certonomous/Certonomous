@@ -240,9 +240,16 @@ def cp_bound_report(values, *, q: float, p_inf: float = 0.0,
     return report
 
 
-# The legend name carried when a caller asks for the coefficient rather than
-# the pressure. The control room prints this string verbatim, so it has to
-# read as a dimensionless coefficient and never as pressure in Pa.
+# Which quantity a painted payload is carrying, stated on the payload itself
+# as ``field["quantity"]`` rather than inferred from the legend string. A
+# consumer must never have to guess whether it is holding a pressure or a
+# coefficient: the two differ by an offset and a scale, and reading one as
+# the other misstates every number on the legend.
+QUANTITY_PRESSURE = "pressure"
+QUANTITY_CP = "cp"
+# The legend name carried when the coefficient is the one being drawn. The
+# control room prints this string verbatim, so it has to read as a
+# dimensionless coefficient and never as pressure in Pa.
 CP_FIELD_NAME = "pressure coefficient Cp"
 
 
@@ -258,19 +265,30 @@ def load_field_surface(sources, *, field: str = "p",
     is undefined, so the block is simply absent and the payload is exactly
     what it was before.
 
-    ``as_cp`` is a separate, OPT-IN switch, and it is the only thing that
-    changes a displayed number. It normalises the field to the pressure
-    coefficient ``(p - p_inf) / q`` before anything downstream sees it, so the
-    drawn faces, the colour window and the reported physical extremes are all
-    the coefficient and cannot disagree with each other. It is opt-in because
-    this module paints several acts' money shots: a default change would
-    restate every one of them at once. A caller that does not ask gets the
-    pressure it got before, value for value.
+    ``as_cp`` is a separate switch, and it is the only thing that changes a
+    displayed number. It normalises the field to the pressure coefficient
+    ``(p - p_inf) / q`` before anything downstream sees it, so the drawn
+    faces, the colour window and the reported physical extremes are all the
+    coefficient and cannot disagree with each other.
 
-    The bound check is deliberately NOT folded into that conversion. It keeps
+    It is a TOGGLE, not a migration. Pressure is the default and stays fully
+    supported: a caller that does not ask gets the pressure it got before,
+    value for value. The two are equally first class, and either can be
+    chosen per act.
+
+    The choice is never left to be inferred. The payload states which
+    quantity it is carrying as ``field["quantity"]``, one of
+    :data:`QUANTITY_PRESSURE` or :data:`QUANTITY_CP`, so a legend can be
+    labelled from the payload rather than from a guess. Asking for the
+    coefficient without a positive ``q_kinematic`` is not an error and not a
+    warning: Cp is undefined without it, so the pressure is drawn instead and
+    ``field["quantity"]`` says ``pressure``. A caller that narrates what it
+    drew reads that key rather than assuming it got what it asked for.
+
+    The bound check is deliberately NOT folded into the conversion. It keeps
     running on the pressures the solver wrote, with ``q_kinematic`` and
     ``p_inf`` as given, so ``field["cp"]`` reports the same numbers and raises
-    the same flag whether or not the display was normalised.
+    the same flag whichever quantity is on the screen.
 
     ``view`` is the control room's optional camera hint (``flat``, ``axes``),
     passed straight through onto the payload. Omitted when None, which is what
@@ -336,7 +354,8 @@ def load_field_surface(sources, *, field: str = "p",
                   physical_range=physical_range, cp_report=cp_report,
                   # A coefficient lives in a span of about two, so one decimal
                   # would collapse the whole legend into three or four labels.
-                  decimals=3 if to_cp else 1)
+                  decimals=3 if to_cp else 1,
+                  quantity=QUANTITY_CP if to_cp else QUANTITY_PRESSURE)
     if view:
         payload["view"] = view
     return payload
@@ -449,7 +468,8 @@ def _package_painted(vertices, faces, face_values, max_faces: int, name: str):
 def _attach_field(payload: dict[str, Any], face_values, field: str, *,
                   physical_range: tuple[float, float] | None = None,
                   cp_report: dict[str, Any] | None = None,
-                  decimals: int = 1) -> None:
+                  decimals: int = 1,
+                  quantity: str = QUANTITY_PRESSURE) -> None:
     """Carry a normalised field value per kept face, plus two distinct ranges.
 
     ``face_values`` must already be one-to-one with ``payload["faces"]`` —
@@ -482,6 +502,9 @@ def _attach_field(payload: dict[str, Any], face_values, field: str, *,
     ``decimals`` rounds the colour-window labels only. One decimal is right
     for a kinematic pressure in the hundreds and useless for a coefficient
     that spans about two, so a caller drawing a coefficient asks for more.
+
+    ``quantity`` states which of the two the numbers above are, so nothing
+    downstream has to infer it from the legend name.
     """
     if not face_values:
         payload["field"] = None
@@ -504,6 +527,8 @@ def _attach_field(payload: dict[str, Any], face_values, field: str, *,
         true_min, true_max = min(sampled), max(sampled)
     payload["field"] = {
         "name": field,
+        # Pressure or coefficient, stated rather than inferred.
+        "quantity": quantity,
         # Physical range: the solver's own unclipped extremes. This is what
         # any reported/published Cp_max or Cp_min must be read from.
         "min": true_min,

@@ -92,6 +92,14 @@ WALL_PATCH = "bottom"
 # from the case; this is the same expression, already evaluated.
 UINF_FALLBACK = 34.62531106959954
 
+# Which quantity the painted wall carries. Pressure is the default everywhere
+# and stays fully supported; this act selects the coefficient, which on a
+# wall-bounded body reads better than pascals and puts the painted wall on
+# the same scale as the wall curve beside it. Flip this to False and the act
+# paints pressure with nothing else changed. A caller may override it for one
+# run with a ``field_quantity`` parameter of "cp" or "pressure".
+PAINT_AS_CP = True
+
 GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
 
 _CASE_DEF_ENTRY = re.compile(r"^\s*(\w+)\s+([-+0-9.eE]+)\s*;", re.M)
@@ -126,28 +134,39 @@ def announce_body(emit, out: Path, label: str) -> None:
                             "label": label})
 
 
-def freestream_velocity(case_def: Path = CASE_DEF) -> tuple[float, str]:
-    """The case's own freestream velocity in m/s, and where it came from.
+def freestream_velocity(case_def: Path = CASE_DEF) -> float:
+    """The case's own freestream velocity, in m/s.
 
-    Read from the case definition the benchmark ships rather than carried
-    here as a literal: the reference Mach number and the reference
-    temperature are the case's own, and the freestream is the speed of sound
-    at that temperature times that Mach number. Returns the velocity and a
-    short provenance string for the record.
+    PROVENANCE, kept here because it is dropped from the narration: this is
+    read out of the case definition the benchmark ships rather than carried
+    as a literal. The reference Mach number and the reference temperature are
+    the case's own; the freestream is the speed of sound at that temperature
+    times that Mach number. The dynamic pressure the painted coefficient is
+    normalised against is half its square, kinematic to match the
+    incompressible solver's own p over rho.
     """
     try:
         entries = dict(_CASE_DEF_ENTRY.findall(
             case_def.read_text(errors="replace")))
-        mach = float(entries["Mref"])
-        temperature = float(entries["Tref"])
-        gamma = float(entries["gamma"])
-        gas_constant = float(entries["R"])
-        speed_of_sound = math.sqrt(gamma * gas_constant * temperature)
-        return (mach * speed_of_sound,
-                "the case's own reference Mach number and reference "
-                "temperature")
+        return float(entries["Mref"]) * math.sqrt(
+            float(entries["gamma"]) * float(entries["R"])
+            * float(entries["Tref"]))
     except (OSError, KeyError, ValueError):
-        return UINF_FALLBACK, "the case's own reference state"
+        return UINF_FALLBACK
+
+
+def paints_coefficient(params: dict) -> bool:
+    """Whether this run paints the coefficient rather than the pressure.
+
+    The act's own setting, overridable for one run. Anything unrecognised
+    leaves the act's setting alone rather than guessing.
+    """
+    choice = str((params or {}).get("field_quantity") or "").strip().lower()
+    if choice in {"cp", "coefficient"}:
+        return True
+    if choice in {"p", "pressure"}:
+        return False
+    return PAINT_AS_CP
 
 
 def _read_raw(text: str, ncols: int) -> tuple[list[float], list[list[float]]]:
@@ -403,8 +422,29 @@ def main(request: str | None = None, params: dict | None = None,
     roster.idle(CHIEF_RESEARCHER)
     script.engineer(ENGINEER_ACK)
 
+    # A surface uploaded with the prompt is acknowledged, put on screen, and
+    # changes no number. This act is a comparison against a published
+    # experiment: every station it reports is read off the wall of the case
+    # that experiment is published with. Meshing and solving the uploaded
+    # body instead would produce a different result with nothing to grade it
+    # against, and reporting these stations as if they came from it would
+    # attach a measurement to a body that did not produce it. So the surface
+    # is shown as the reference shape and the transcript says which geometry
+    # the numbers belong to, in the same breath. It gets the viewport to
+    # itself through the opening beats; the wall takes over at staging.
+    uploaded = str(params.get("surface") or "").strip()
+    if uploaded:
+        uploaded_name = display_name(uploaded)
+        roster.set(CHIEF_ENGINEER, f"reading {uploaded_name}", "working")
+        announce_geometry(emit, name=uploaded,
+                          label=f"reference surface: {uploaded_name}")
+        script.engineer(
+            f"• Surface received: {uploaded_name}. "
+            f"• The stations below are read off the published case's own "
+            f"wall and belong to that geometry.")
     roster.set(CHIEF_ENGINEER, f"reading {shown}", "working")
-    announce_body(emit, out, shown)
+    if not uploaded:
+        announce_body(emit, out, shown)
     script.engineer(
         f"• Hypothesis: a quality-gated steady k-omega SST solve lands the "
         f"separation point within ±{SEPARATION_GATE * 100:.0f}% of NASA's "
@@ -424,10 +464,9 @@ def main(request: str | None = None, params: dict | None = None,
     script.numericist(
         f"• The mesh gates are the standard acceptance band, "
         f"{per('mesh-quality')}. "
-        f"• The numerical channel reports the measured grid sensitivity of "
-        f"the graded station across a fourfold refinement of this mesh. "
-        f"• That spread is what refinement showed; no wider band is "
-        f"extrapolated from it.")
+        f"• The numerical channel carries the graded station's measured "
+        f"sensitivity to a fourfold refinement, with no band extrapolated "
+        f"from it.")
 
     # ---------------- Plan ----------------
     script.phase(PLAN)
@@ -521,6 +560,8 @@ def main(request: str | None = None, params: dict | None = None,
     try:
         template_path = str(CASE_TEMPLATE).replace("C:", "/mnt/c").replace("\\", "/")
         engineer.stage_case(template_path)
+        if uploaded:
+            announce_body(emit, out, shown)
         script.engineer(
             "• Case received: the benchmark's own case, initial fields, and "
             "mesh, staged as it starts, no solved state carried over.")
@@ -659,7 +700,7 @@ def main(request: str | None = None, params: dict | None = None,
     time_dir = solved_times[-1]
     converged_iterations = int(time_dir)
 
-    uinf, uinf_source = freestream_velocity()
+    uinf = freestream_velocity()
     roster.set(CHIEF_ENGINEER, "sampling the wall", "working")
     gate = compute_gate(engineer, engineer.remote_case, time_dir, uinf)
     if not gate or gate.get("separation_xc") is None:
@@ -714,16 +755,21 @@ def main(request: str | None = None, params: dict | None = None,
                 f"• The strongest suction is marked with its measured "
                 f"station.")
 
-    # The body carrying its own solved surface field. It is drawn as the
-    # pressure COEFFICIENT rather than the pressure: the reference pair below
-    # is the same one the wall Cp curve above is drawn from, so the painted
-    # wall and that figure are the same numbers on the same scale, and the
-    # legend reads dimensionless instead of in pascals.
+    # The wall carrying its own solved surface field. Which quantity it
+    # carries is this act's choice (see PAINT_AS_CP), and the reference pair
+    # for the coefficient is the one the wall curve above already uses, so
+    # the painted wall and that figure land on the same scale. The painter
+    # decides the outcome, not the request: without a positive dynamic
+    # pressure the coefficient is undefined and the pressure is painted
+    # instead, so what reached the screen is read back off the payload rather
+    # than assumed from what was asked for.
     roster.set(CHIEF_ENGINEER, "painting the wall with its solved field",
                "working")
-    painted = None
+    painted, painted_quantity = None, None
     try:
-        from chief_engineer.field_render import extract_and_paint
+        import json as _json
+
+        from chief_engineer.field_render import QUANTITY_CP, extract_and_paint
 
         try:
             from chief_engineer.geometry import load_surface
@@ -738,7 +784,11 @@ def main(request: str | None = None, params: dict | None = None,
             field="p", name=LABEL, patches=(WALL_PATCH,),
             input_triangles=input_triangles,
             q_kinematic=gate["q_inf"], p_inf=gate["p_ref"],
-            as_cp=True, view=HUMP_VIEW)
+            as_cp=paints_coefficient(params), view=HUMP_VIEW)
+        if painted:
+            painted_quantity = (
+                (_json.loads(Path(painted).read_text(encoding="utf-8"))
+                 .get("field") or {}).get("quantity"))
     except Exception:
         painted = None
     if painted:
@@ -748,15 +798,15 @@ def main(request: str | None = None, params: dict | None = None,
             painted = str(served)
         except OSError:
             pass
-        announce_field(emit, out.name, painted,
-                       f"{shown}, surface pressure coefficient from the solve")
+        as_cp = painted_quantity == QUANTITY_CP
+        announce_field(
+            emit, out.name, painted,
+            f"{shown}, surface "
+            + ("pressure coefficient" if as_cp else "pressure")
+            + " from the solve")
         script.engineer(
-            f"• Wall carrying its own solved surface field, as a pressure "
-            f"coefficient. "
-            f"• Freestream from {uinf_source}; the reference pressure is the "
-            f"measured upstream wall value. "
-            f"• Same reference pair as the wall curve, so the two agree "
-            f"number for number.")
+            "• Wall carrying its own solved surface field, "
+            + ("as a pressure coefficient." if as_cp else "as pressure."))
 
     gate_rows = [
         ["Converged at iteration", f"{converged_iterations:,}"],
@@ -834,22 +884,16 @@ def main(request: str | None = None, params: dict | None = None,
     # comparison against the published experiment belongs to.
     refinement_spread = abs(REFINEMENT_SEPARATION_XC[1]
                             - REFINEMENT_SEPARATION_XC[0])
-    coarse_cells, fine_cells = REFINEMENT_CELLS
     channels = uncertainty_channels(
         input_2sigma=None,
         numerical=refinement_spread,
         model=REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC,
         input_note=INPUT_ASSUMED_NOTE,
         numerical_note=(
-            f"• Grid sensitivity of the graded station, measured on this "
-            f"case's own mesh refined fourfold, {coarse_cells:,} to "
-            f"{fine_cells:,} cells. "
-            f"• Separation moved {refinement_spread:.4f} in x/c across that "
-            f"refinement, "
-            f"{100 * refinement_spread / REFINEMENT_SEPARATION_XC[0]:.2f}% of "
-            f"the station. "
-            f"• The refined rung is not in the asymptotic range, so this is "
-            f"the measured spread and no band is extrapolated from it."),
+            f"• Separation moved {refinement_spread:.4f} in x/c under a "
+            f"fourfold refinement of this mesh. "
+            f"• The refined rung is not in the asymptotic range, so no band "
+            f"is extrapolated from that spread."),
         model_note=(
             f"turbulence closure k-omega SST, stated model-form; band "
             f"±{REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC:.3f} in x/c on the "
@@ -945,18 +989,19 @@ def main(request: str | None = None, params: dict | None = None,
 
     report_doc = lab_report(
         title=f"Act 6: {shown}",
+        # Prose carries no numbers: every one of them is in a table above,
+        # and repeating a value in a sentence is how two versions of it
+        # start to drift.
         abstract=[
-            f"The benchmark's own mesh for the NASA wall-mounted hump, "
-            f"gate checked and solved fresh in OpenFOAM to its own residual "
-            f"convergence.",
-            f"{cells:,} cells, converged at iteration "
-            f"{converged_iterations:,}, graded against {GATE_SOURCE}.",
+            f"The benchmark's own mesh for the NASA wall-mounted hump, gate "
+            f"checked and solved in OpenFOAM to its own residual "
+            f"convergence, then graded against {GATE_SOURCE}.",
         ],
         methods=[
-            f"Case mesh received and checked: {MAX_NON_ORTHOGONALITY:.0f}° "
-            f"non-orthogonality gate, {MAX_SKEWNESS:.0f} skewness guidance.",
-            "Steady k-omega SST in OpenFOAM, from the case's own initial "
-            "fields to its own convergence criteria.",
+            "Case mesh received and checked against the standard quality "
+            "gates.",
+            "Steady k-omega SST in OpenFOAM, to the case's own convergence "
+            "criteria.",
             "Wall skin friction and pressure sampled at the converged state; "
             "both events read from the sign change of skin friction.",
         ],
@@ -987,10 +1032,8 @@ def main(request: str | None = None, params: dict | None = None,
         }],
         uncertainty=[
             f"Numerical: separation moved {refinement_spread:.4f} in x/c "
-            f"across a fourfold refinement of this mesh, {coarse_cells:,} to "
-            f"{fine_cells:,} cells. The refined rung is not in the asymptotic "
-            f"range, so that measured spread is what is reported and no band "
-            f"is extrapolated from it.",
+            f"under a fourfold refinement of this mesh. No band is "
+            f"extrapolated from that spread.",
             f"Model: ±{REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC:.3f} in x/c "
             f"on the reattachment station, the documented over-prediction of "
             f"this bubble by a linear eddy-viscosity closure. Measured "

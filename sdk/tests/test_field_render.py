@@ -24,7 +24,8 @@ from pathlib import Path
 
 from chief_engineer.field_render import (_attach_field, _package_painted,
                                          _patch_cell_values, _read_patch,
-                                         cp_bound_report, load_field_surface)
+                                         CP_FIELD_NAME, cp_bound_report,
+                                         load_field_surface)
 from chief_engineer.geometry import _package
 
 
@@ -179,9 +180,17 @@ class NonDecimatedFrozenPipelineTests(unittest.TestCase):
     def test_golden_payload_matches_pre_fix_output(self):
         # Byte-for-byte golden captured from the pre-fix pipeline for a
         # two-triangle body with point pressures (10, 20, 30, 40): face means
-        # 20 and 30, normalised to 0 and 1. Any change to this JSON changes
-        # the frozen rendering of every non-decimated body.
-        golden = {
+        # 20 and 30, normalised to 0 and 1. Any change to a value in this JSON
+        # changes the frozen rendering of every non-decimated body.
+        #
+        # ``quantity`` was added when the pressure/Cp toggle landed. It is a
+        # descriptor, not a rendered quantity: nothing that draws reads it,
+        # and on the default path it always reads "pressure". The two
+        # assertions below keep that honest — the whole payload is pinned,
+        # AND every key the renderer actually consumes is pinned separately
+        # against the pre-toggle golden, so no future addition can smuggle a
+        # changed value in behind a new key.
+        drawn = {
             "bounds": {"max": [1.0, 1.0, 0.0], "min": [0.0, 0.0, 0.0]},
             "faces": [[0, 1, 2], [1, 3, 2]],
             "field": {"color_max": 30.0, "color_min": 20.0,
@@ -193,7 +202,8 @@ class NonDecimatedFrozenPipelineTests(unittest.TestCase):
             "vertices": [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
                          [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
         }
-        vertices = golden["vertices"]
+        golden = dict(drawn, field=dict(drawn["field"], quantity="pressure"))
+        vertices = drawn["vertices"]
         faces = [[0, 1, 2], [1, 3, 2]]
         point_pressure = [10.0, 20.0, 30.0, 40.0]
         face_values = [sum(point_pressure[i] for i in f) / 3.0 for f in faces]
@@ -202,6 +212,10 @@ class NonDecimatedFrozenPipelineTests(unittest.TestCase):
         _attach_field(payload, display_values, "p")
         self.assertEqual(json.dumps(payload, sort_keys=True),
                          json.dumps(golden, sort_keys=True))
+        rendered = dict(payload, field={k: v for k, v in payload["field"].items()
+                                        if k != "quantity"})
+        self.assertEqual(json.dumps(rendered, sort_keys=True),
+                         json.dumps(drawn, sort_keys=True))
 
     def test_percentile_normalisation_unchanged(self):
         # The 2/98 percentile clip and 4-decimal rounding, hand-computed.
@@ -481,6 +495,76 @@ class CpStagnationBoundFlagTests(unittest.TestCase):
             # And the flag describes the same population the range came from.
             self.assertAlmostEqual(cp["max"], flagged["field"]["max"] / 200.0,
                                    places=9)
+
+
+class PressureCoefficientToggleTests(unittest.TestCase):
+    """Pressure and Cp are two settings of one switch, not a migration."""
+
+    def _body(self, tmp):
+        vtp = Path(tmp) / "body.vtp"
+        n = 12
+        n_quads = (n - 1) * (n - 1)
+        cells = [-30.0] * n_quads
+        cells[0] = 150.0
+        _write_vtp(vtp, n, [1.0] * (n * n), cell_values=cells)
+        return vtp
+
+    def test_pressure_is_the_default_and_says_so(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            payload = load_field_surface(self._body(tmp), field="p",
+                                         max_faces=400, name="b")
+            self.assertEqual(payload["field"]["quantity"], "pressure")
+            self.assertEqual(payload["field"]["name"], "p")
+
+    def test_cp_is_selectable_and_rescales_every_reported_number(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = self._body(tmp)
+            q, p_inf = 200.0, 10.0
+            pressure = load_field_surface(vtp, field="p", max_faces=400,
+                                          name="b", q_kinematic=q,
+                                          p_inf=p_inf)
+            coefficient = load_field_surface(vtp, field="p", max_faces=400,
+                                             name="b", q_kinematic=q,
+                                             p_inf=p_inf, as_cp=True)
+            self.assertEqual(coefficient["field"]["quantity"], "cp")
+            self.assertEqual(coefficient["field"]["name"], CP_FIELD_NAME)
+            # The physical extremes are the same measurement in the other unit.
+            for key in ("min", "max"):
+                self.assertAlmostEqual(coefficient["field"][key],
+                                       (pressure["field"][key] - p_inf) / q,
+                                       places=12)
+            # The picture itself is identical: an affine map cannot move a
+            # face's place in the normalised colour range.
+            self.assertEqual(coefficient["field"]["values"],
+                             pressure["field"]["values"])
+            # And the bound check is graded on the pressures either way.
+            self.assertEqual(coefficient["field"]["cp"],
+                             pressure["field"]["cp"])
+
+    def test_cp_without_a_usable_q_falls_back_to_pressure(self):
+        # Not an error and not a warning: Cp is undefined without a positive
+        # q, so the pressure is drawn and the payload says which it is. A
+        # caller narrating the picture reads that key instead of assuming.
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = self._body(tmp)
+            for q in (None, 0.0, -5.0):
+                payload = load_field_surface(vtp, field="p", max_faces=400,
+                                             name="b", q_kinematic=q,
+                                             as_cp=True)
+                self.assertEqual(payload["field"]["quantity"], "pressure")
+                self.assertEqual(payload["field"]["name"], "p")
+                self.assertAlmostEqual(payload["field"]["max"], 150.0,
+                                       places=6)
+
+    def test_the_camera_hint_is_carried_only_when_given(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            vtp = self._body(tmp)
+            self.assertNotIn("view", load_field_surface(vtp, field="p",
+                                                        max_faces=400,
+                                                        name="b"))
+            hinted = load_field_surface(vtp, field="p", max_faces=400,
+                                        name="b", view={"flat": False})
+            self.assertEqual(hinted["view"], {"flat": False})
 
 
 if __name__ == "__main__":
