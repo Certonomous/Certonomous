@@ -434,12 +434,20 @@ def active_limits(best: dict, results) -> list[str]:
     on: list[str] = []
     if abs(float(best["span"]) - _SPAN_STRUCTURAL_LIMIT) < 1e-6:
         on.append(f"the {_SPAN_STRUCTURAL_LIMIT:.0f} m structural span limit")
-    # The area floor is the smallest area on the grid that clears every
-    # low-speed limit at the winner's span, taken from the screened results
-    # rather than recomputed, so it is the floor this run actually found.
+    # The winner takes the smallest wing it is allowed, so the question is what
+    # stopped it going smaller — and the two answers are different claims. A
+    # low-speed limit ruling out every smaller area is a floor the physics set.
+    # Nothing smaller having been searched is a floor the GRID set, and calling
+    # that one a landing-speed floor would credit the model for an edge of the
+    # sweep. A light aircraft clears the low-speed limits at every area on the
+    # grid and lands in the second case, so both are named, separately.
     feasible_areas = [float(r["area"]) for r in results if r.get("feasible")]
+    all_areas = [float(r["area"]) for r in results]
     if feasible_areas and abs(float(best["area"]) - min(feasible_areas)) < 1e-6:
-        on.append("the wing-area floor the landing speed sets")
+        if min(all_areas) < min(feasible_areas) - 1e-6:
+            on.append("the wing-area floor the low-speed limits set")
+        else:
+            on.append("the smallest wing area searched")
     return on
 
 
@@ -2036,8 +2044,8 @@ def main(request: str | None = None, params: dict | None = None,
                 "added from Raymer's component buildup method")
     else:
         script.researcher(
-            "• Ranking trustworthy: aspect ratio buys whole-aircraft L/D "
-            "until landing speed stops it. "
+            "• Ranking trustworthy: aspect ratio buys whole-aircraft L/D up "
+            "to the limits above. "
             f"• Magnitude {best['L_D']:.1f} ± {headline_ci:.1f} "
             f"{TIER_SCREEN}. "
             f"• A solved flow and a comparison would set the magnitude.")
