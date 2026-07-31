@@ -1,7 +1,122 @@
-# Bug report: `mesh.warpDeriv` disagrees with a finite difference of the actual warp, sign-flipped, for opposing-direction/combination FFD shape variables
+# Bug report: `mesh.warpDeriv` disagrees with a finite difference of the actual warp it differentiates, by up to 207% and with the sign flipped, on two unrelated official tutorials
 
-**Status: not filed anywhere.** This document is written so it could be filed as-is against
-`mdolab/idwarp` and/or `mdolab/dafoam` on GitHub, but no issue has been opened.
+**Status: NOT FILED ANYWHERE. No issue has been opened, no maintainer has been contacted, nothing
+has been posted.** This document is prepared to be filed against `mdolab/idwarp` (and cross-linked
+to `mdolab/dafoam`), and as of 2026-07-31 it is submission-ready in the sense set out in
+"Submission readiness" immediately below. **Whether it is sent is Katie's call, not the lab's.**
+
+## Submission readiness, 2026-07-31
+
+| requirement | state |
+|---|---|
+| Reproducer that runs **outside this project's tree** on stock DAFoam | **Done and verified.** `upstream_repro/run_repro.sh` goes from nothing to results in ~2 minutes: fresh `git clone` of the official tutorials at a pinned commit, each case meshed by its own `preProcessing.sh`, two self-contained scripts, no tutorial file edited. Executed end-to-end in a scratch directory on 2026-07-31 08:50:03Z-08:52:11Z; every number below came out of that run. |
+| Exact versions | **Done.** Image digest, OpenFOAM build string, and all ten package versions in `upstream_repro/README.md`. `idwarp 2.6.2` is the package under test. |
+| Smallest case showing the sign flip | **Done, and it got smaller.** `UBend_Channel`, 4,800 cells, ~13 s for primal + adjoint + all 27 components. The airfoil variant is smaller still (4,032 cells, **no CFD solve at all**, seconds) but exercises the combination-mode DV construction rather than the plain one. |
+| Second, independent case | **Done** -- see the 2026-07-31 update immediately below. |
+
+Reproducer bundle: `upstream_repro/` (`README.md`, `run_repro.sh`,
+`repro_warpderiv_ubend.py`, `repro_warpderiv_airfoil.py`, and the raw logs).
+
+## Update, 2026-07-31: a SECOND, unrelated case reproduces this, on plain single-point design variables, WITH sign flips -- and this report's central qualification is falsified
+
+Everything below this section was written when the defect was believed to be specific to
+opposing-direction/combination FFD modes on one airfoil case. Three of this report's own claims are
+now wrong and are corrected here rather than quietly edited out of the text beneath.
+
+**1. "Opposing-direction construction is necessary for the error to be large enough to flip sign"
+is FALSIFIED.** The official `DAFoam/tutorials` `UBend_Channel` case (internal 3D curved duct,
+4,800-cell `blockMesh`, `DASimpleFoam`) builds its shape variables with
+`nom_addLocalDV(dvName="shapexUpper", pointSelect=PS, axis="x")` -- **one FFD control point moving
+along one axis per design variable, unconditionally**, with no opposing-direction, multi-point, or
+combination construction anywhere in the case. Two of its 27 components are nonetheless
+**sign-flipped at 207.0% and 121.6%**, measured by this report's own identity. The construction is
+not the trigger.
+
+**2. This report's statement that a second case "was tested and shown NOT to share this specific
+`warpDeriv` mechanism" is RETRACTED.** That test (and a follow-up that confirmed it) seeded the
+dot-product identity with an **arbitrary random vector**. Under a random seed those same two
+components measure **0.32% and 1.30%** -- clean by any standard. Under the real seed they measure
+207% and 122%, sign-flipped. **The analytic call is byte-identical in the two runs; only the
+direction it is contracted against changes.** The random-seed clearance was wrong, and this report
+had already documented the reason for it (see "Why idx6 corrupts the real gradient and idx7 does
+not") without applying it to the second case.
+
+**Methodological consequence, and the single most useful sentence in this report for anyone
+verifying a fix: a random-seed dot-product test of `warpDeriv` does not clear it.** It measures
+whether the error is large in a generic direction. What determines whether the error reaches a real
+gradient is whether the error's location overlaps the objective's own `dF/dXv` sensitivity field.
+Both reproducers therefore take `--seed real`, which captures the literal vector the framework
+passes to `mesh.warpDeriv` by hooking `DAFoamWarper.compute_jacvec_product`.
+
+**3. The defect is visible on the `UBend_Channel` tutorial with NOT ONE CHARACTER CHANGED.** No
+objective substitution, no option change. Under the real seed, with the tutorial's own weighted
+`scalePL*(TP1-TP2) + scaleHFX*HFX` objective, the errors span 0.5% to **80.8%**, with **13 of 27
+components above 30%** (log: `upstream_repro/repro_ubend_stock_real_np4.log`). The sign flips
+require one further change -- a pure total-pressure-loss objective, `val = TP1 - TP2`, a physically
+ordinary thing to optimize a duct for -- which the reproducer applies via `--objective
+pressure-loss` rather than by editing the tutorial.
+
+### The U-bend numbers (`--objective pressure-loss --seed real`, `h=1e-4`, `np=4`)
+
+| idx | FD of the warp | `warpDeriv` | rel. err | sign | FFD-nonlinearity control | same idx, **random** seed |
+|---|---|---|---|---|---|---|
+| 2 (control) | -4.06880154e-01 | -4.17657510e-01 | 2.65% | agree | 8.59e-07 | 0.01% |
+| 3 | 7.08623060e-01 | 1.96883727e+00 | **177.8%** | agree | 1.71e-06 | 3.65% |
+| **8** | 7.87898342e-01 | **-8.43372580e-01** | **207.0%** | **FLIPPED** | 1.01e-07 | **0.32%** |
+| 15 | -2.42564294e+01 | -1.38604167e+01 | **42.9%** | agree | 3.83e-08 | 40.7% |
+| **17** | 2.91315567e+00 | **-6.28812054e-01** | **121.6%** | **FLIPPED** | 2.98e-07 | **1.30%** |
+| 26 (control) | -1.89917527e+00 | -1.95653977e+00 | 3.02% | agree | 1.25e-06 | 0.01% |
+
+Three controls were run alongside, all in the same script:
+
+- **The FD side does not go through the FFD parameterization.** It perturbs surface coordinates
+  directly along `eta = dXs/dShape_idx` and calls `mesh.warpMesh()`; `DVGeo.update()` is never
+  called on that side. The `--fd-via-dvgeo` column above runs the composed variant too: the two
+  agree to `4e-8` - `2e-6`. **FFD nonlinearity is not the explanation.**
+- **The analytic scalar equals the framework's own `compute_totals` column** for every component,
+  to `0` - `2.1e-15` relative. The captured seed is the real one, and **OpenMDAO's assembly is
+  not the problem** -- a hand-replay of the chain rule reproduces the framework exactly.
+- **Step size.** Every component was also run at `h=1e-5`; relative errors move by under 0.03
+  percentage points (idx8: 207.0408% vs 207.0487%). **Not a finite-difference resolution artifact.**
+
+### Independent corroboration on the same case
+
+The `FD of the warp` column above is a solve-free geometric quantity. It reproduces the same case's
+full CFD+adjoint `check_totals` finite-difference column -- 55 primal re-solves, measured months
+earlier by a different method -- to **0.07% - 1.5%** for all six components. Two independent
+measurements of "the true derivative" agree; `warpDeriv` is the outlier, by the same margin, for the
+same components.
+
+The two links either side of `warpDeriv` were isolated on this case and are clean:
+`dXs/dShape` (pyGeo's FFD Jacobian) agrees with a componentwise finite difference of
+`DVGeo.update()` to **2.8e-12 - 6.4e-12**; `dObj/dXv` (the flow adjoint's own sensitivity to the
+volume mesh) agrees with a **true re-solve-based** finite difference -- full nonlinear primal
+solves at directly-set volume coordinates via `DASolver.setVolCoords`, bypassing IDWarp entirely --
+to **0.17% - 2.49%** at both flagged components, across two step sizes and two solve-path
+protocols. On this case the primal is reproducible to `2.8e-12` across repeated identical
+re-solves, so the finite-difference noise floor is `1.4e-8` and cannot account for any of this.
+
+### Why two cases matter
+
+| | NACA0012 | UBend_Channel |
+|---|---|---|
+| flow | external, 2D airfoil | internal, 3D curved duct (half-model) |
+| mesh | 4,032 cells, `pyHyp` hyperbolic C-mesh | 4,800 cells, 6-block `blockMesh` |
+| objective | drag force integral | total-pressure loss / wall heat flux |
+| DV API | `addShapeFunctionDV`, opposing-direction pairs | `addLocalDV`, one point, one axis |
+| `meshOptions["symmetryPlanes"]` | two declared | `[]`, as the tutorial ships it |
+| result | sign flips at 108-149% | sign flips at 122-207% |
+
+Two mesh generators, two topologies, two objective types, two design-variable APIs, opposite
+symmetry-plane configurations. The shared factor is `mesh.warpDeriv`.
+
+### What is still not known
+
+No IDWarp source has been traced. This report establishes that the function's output disagrees with
+a finite difference of the function it differentiates; it does not identify the line responsible,
+and the "suggested starting point" further down (an indexing/sign-accumulation bug specific to
+multi-point DVs) was reasoned from the combination-mode evidence alone and **is now weakened** by
+the U-bend result, where the affected DVs are single-point.
 
 ## Update, 2026-07-30: the "single-point DVs are unaffected" claim below is corrected, not merely
 qualified
@@ -41,9 +156,13 @@ edge while a paired "mirror" point moves the opposite way, keeping the LE/TE pos
 `mesh.warpDeriv` — IDWarp's reverse-mode mesh-warp derivative, and the exact function DAFoam's real
 discrete adjoint calls for its mesh sensitivity — returns a result that disagrees with a finite
 difference of the actual nonlinear warp by **108–149% relative error, with the sign flipped**, verified
-via the standard adjoint dot-product identity. Single-point ("local") shape design variables — one FFD
+via the standard adjoint dot-product identity. ~~Single-point ("local") shape design variables — one FFD
 point moving along one axis per DV, no opposing-direction pairing — do not show this defect in any of
-3 independently tested cases (2 different tutorials, 2 different DV APIs).
+3 independently tested cases (2 different tutorials, 2 different DV APIs).~~ **This sentence is struck
+out and RETRACTED (2026-07-31). Single-point single-axis `addLocalDV` design variables DO show this
+defect, including sign flips at 207% and 122%, on the `UBend_Channel` tutorial — see the 2026-07-31
+update at the top of this document. The three cases it refers to were all cleared by random-seed tests,
+which are now known not to clear this function.**
 
 Consequence for users of `check_totals`/gradient verification on this class of design variable: the
 finite-difference check is correct; the analytic (adjoint) gradient is wrong. On the official,
@@ -331,11 +450,27 @@ not traced this into IDWarp's own source in this investigation and cannot point 
   identity for idx4/idx6/idx7 with that real seed instead of a random one
 - `demo-output/website/dafoam/probewarpderiv_realseed_idx4_idx6_idx7_np4_run1.log` — raw stdout behind
   the real-seed results table above
-- `demo-output/website/dafoam/PROOF.md`, sections 15–17 — full investigation history, including 6 other
-  mechanisms tested and refuted before this one was found (residual-tolerance noise, FFD/DVGeo Jacobian
-  convention, coarse-mesh discretization error, frozen wall-distance, a wall-function branch-crossing
-  hypothesis, and combination-mode mesh pinching), a second, independent case (A5, U-Bend Channel) that
-  shares the coarse symptom profile (step-independent, sign-flipped) but was tested and shown NOT to
-  share this specific `warpDeriv` mechanism — so this defect is confirmed for the NACA0012 case
-  specifically, not assumed to explain every gradient-accuracy failure encountered — and section 17, the
-  real-seed follow-up that resolved the idx6-vs-idx7 question above.
+- `demo-output/website/dafoam/PROOF.md`, sections 15–21 — full investigation history on the NACA0012
+  case, including 8 other mechanisms tested and refuted before this one was found (residual-tolerance
+  noise, FFD/DVGeo Jacobian convention, coarse-mesh discretization error, frozen wall-distance, a
+  wall-function branch-crossing hypothesis, combination-mode mesh pinching, DVGeo's own nonlinearity,
+  and OpenMDAO's assembly), section 17 (the real-seed follow-up that resolved the idx6-vs-idx7
+  question above) and section 21 (the hand-composition test that isolated `warpDeriv` for idx0/idx1).
+
+  **Correction, 2026-07-31:** this bullet previously stated that the second case (A5, U-Bend Channel)
+  "was tested and shown NOT to share this specific `warpDeriv` mechanism," and used that to scope the
+  defect to NACA0012. **That is retracted.** The test behind it used a random seed; under the real
+  seed the U-bend shares the mechanism and sign-flips two components. See the 2026-07-31 update at the
+  top of this document and `demo-output/website/dafoam/ladder-a/A5_ubend_internal.md` (addendum,
+  2026-07-31) for the retraction and the full link-by-link evidence.
+
+- `demo-output/website/dafoam/upstream_repro/` — the standalone reproducer bundle referenced at the
+  top: `run_repro.sh` (clone-to-result, verified 2026-07-31 08:50:03Z–08:52:11Z on a fresh clone in a
+  scratch directory outside this repo), `repro_warpderiv_ubend.py`, `repro_warpderiv_airfoil.py`,
+  `README.md` (exact versions), and four raw logs.
+- `demo-output/website/dafoam/ladder-a/A5_work/UBend_Channel_pressureloss/probeA5RealSeed.py`,
+  `probeA5DObjDXv.py`, `probeA5NoiseFloor.py`, `probeA5DObjDXvReset.py`, with raw logs
+  `demo-output/website/dafoam/a5_realseed_np4_run1.log`, `a5_dobjdxv_np1_run1.log`,
+  `a5_noisefloor_np1_run1.log`, `a5_dobjdxv_reset_np1_run1.log` — the in-repo versions of the
+  U-bend work, including the two links either side of `warpDeriv` and the noise-floor and
+  path-dependence controls on the probes themselves.
