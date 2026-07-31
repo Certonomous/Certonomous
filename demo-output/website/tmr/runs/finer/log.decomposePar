@@ -1,0 +1,78 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : decomposePar -force
+Date   : Jul 27 2026
+Time   : 03:43:03
+Host   : ip-172-31-43-247
+PID    : 1101845
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/tmr-flatplate-finer
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [2] (region region0)
+
+Finished decomposition in 0.03 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+
+Processor 0
+    Number of cells = 25920
+    Number of points = 52496
+    Number of faces shared with processor 1 = 192
+    Number of processor patches = 1
+    Number of processor faces = 192
+    Number of boundary faces = 52302
+
+Processor 1
+    Number of cells = 26304
+    Number of points = 53268
+    Number of faces shared with processor 0 = 192
+    Number of processor patches = 1
+    Number of processor faces = 192
+    Number of boundary faces = 53074
+
+Number of processor faces = 192
+Max number of cells = 26304 (0.7352941176% above average 26112)
+Max number of processor patches = 1 (0% above average 1)
+Max number of faces between processors = 192 (0% above average 192)
+
+
+Time = 0
+
+Processor 0: field transfer
+Processor 1: field transfer
+
+End
+

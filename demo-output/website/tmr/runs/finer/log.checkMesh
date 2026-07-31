@@ -9,11 +9,11 @@ Build  : _481094f-20260618 OPENFOAM=2606 version=2606
 Arch   : "LSB;label=32;scalar=64"
 Exec   : checkMesh
 Date   : Jul 27 2026
-Time   : 04:17:22
+Time   : 03:43:02
 Host   : ip-172-31-43-247
-PID    : 1511283
+PID    : 1101578
 I/O    : uncollated
-Case   : /home/ubuntu/certonomous-runs/tmr-bump-finer
+Case   : /home/ubuntu/certonomous-runs/tmr-flatplate-finer
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 memory pool : not available
@@ -33,11 +33,11 @@ Check mesh...
 Time = 0
 
 Mesh stats 
-    points:           452610
+    points:           105378
     internal points:  0
-    faces:            902144
-    internal faces:   449536
-    cells:            225280
+    faces:            209360
+    internal faces:   103984
+    cells:            52224
     faces per cell:   6
     boundary patches: 6
     point zones:      0
@@ -45,7 +45,7 @@ Mesh stats
     cell zones:       0
 
 Overall number of cells of each type:
-    hexahedra:     225280
+    hexahedra:     52224
     prisms:        0
     wedges:        0
     pyramids:      0
@@ -63,13 +63,13 @@ Checking topology...
 
 Checking patch topology for multiply connected surfaces...
     Patch               Faces    Points     Surface topology
-    inlet               320      642      ok (non-closed singly connected)  
-    outlet              320      642      ok (non-closed singly connected)  
-    top                 704      1410     ok (non-closed singly connected)  
-    bottomSym           192      388      ok (non-closed singly connected)  
-    bump                512      1026     ok (non-closed singly connected)  
-    frontAndBack        450560   452610   ok (non-closed singly connected)  
-    ".*"                452608   452610   ok (closed singly connected)      
+    inlet               192      386      ok (non-closed singly connected)  
+    outlet              192      386      ok (non-closed singly connected)  
+    top                 272      546      ok (non-closed singly connected)  
+    bottomSym           64       130      ok (non-closed singly connected)  
+    plate               208      418      ok (non-closed singly connected)  
+    frontAndBack        104448   105378   ok (non-closed singly connected)  
+    ".*"                105376   105378   ok (closed singly connected)      
 
 
 Checking faceZone topology for multiply connected surfaces...
@@ -82,19 +82,19 @@ Checking basic pointZone addressing...
     No pointZones found.
 
 Checking geometry...
-    Overall domain bounding box (-25 0 0) (26.5 5 1)
+    Overall domain bounding box (-0.3333333333 0 0) (2 1 1)
     Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
     Mesh has 2 solution (non-empty) directions (1 1 0)
     All edges aligned with or perpendicular to non-empty directions.
-    Boundary openness (-2.121530607e-18 6.718180281e-18 -2.129910661e-14) OK.
- ***High aspect ratio cells found, Max aspect ratio: 2230928.97, number of cells 30976
-  <<Writing 30976 cells with high aspect ratio to set highAspectRatioCells
-    Minimum face area = 2.002032508e-09. Maximum face area = 1.56349685.  Face area magnitudes OK.
-    Min volume = 2.002032508e-09. Max volume = 0.3009532434.  Total volume = 257.483125.  Cell volumes OK.
-    Mesh non-orthogonality Max: 14.08059396 average: 4.86312215
+    Boundary openness (3.428629929e-17 -4.898042756e-17 9.466615604e-16) OK.
+ ***High aspect ratio cells found, Max aspect ratio: 65467.84834, number of cells 8415
+  <<Writing 8415 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 3.016305146e-10. Maximum face area = 0.057695578.  Face area magnitudes OK.
+    Min volume = 3.016305146e-10. Max volume = 0.002563859363.  Total volume = 2.333333333.  Cell volumes OK.
+    Mesh non-orthogonality Max: 0 average: 0
     Non-orthogonality check OK.
     Face pyramids OK.
-    Max skewness = 0.009518348414 OK.
+    Max skewness = 4.376137948e-14 OK.
     Coupled point location match (average 0) OK.
 
 Failed 1 mesh checks.
