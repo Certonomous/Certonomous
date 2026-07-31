@@ -23,6 +23,7 @@ _DISPLAY_NAMES: dict[str, str] = {
     "airliner": "300-passenger twin-aisle airliner, planform study",
     "aircraft-optimization": "300-passenger twin-aisle airliner, planform study",
     "aircraft_optimization": "300-passenger twin-aisle airliner, planform study",
+    "airliner_wing_span52": "Transport wing, 52 m span",
     "naca4412": "NACA 4412 finite wing",
     "naca4412_wing": "NACA 4412 finite wing",
     "naca0012": "NACA 0012 finite wing",

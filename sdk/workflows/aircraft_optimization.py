@@ -719,15 +719,19 @@ def surface_bodies(path: str | Path) -> dict | None:
 def is_lifting_surface_only(shape: dict | None) -> bool:
     """True when the uploaded surface is one lifting surface and nothing else.
 
-    One connected body, and thin against its own span. A configuration that
-    carries a fuselage or a tail fails one test or the other.
+    One connected body, thin against its own span, and longer across than
+    along. A configuration that carries a fuselage or a tail fails at least
+    one of the three.
     """
     if not shape or shape.get("bodies") != 1:
         return False
     span = float(shape.get("span") or 0.0)
     if span <= 0:
         return False
-    return float(shape.get("thickness") or 0.0) / span <= _LIFTING_THICKNESS_RATIO
+    return (float(shape.get("thickness") or 0.0) / span
+            <= _LIFTING_THICKNESS_RATIO
+            and float(shape.get("chord") or 0.0) / span
+            <= _LIFTING_CHORD_RATIO)
 
 
 def scope_mismatch(request: str, shape: dict | None) -> bool:

@@ -330,6 +330,122 @@ class StartingGeometryTests(unittest.TestCase):
         self.assertEqual(spans, [34.0, 40.0, 46.0, 52.0, 58.0, 64.0])
 
 
+class ScopeStatementTests(unittest.TestCase):
+    """Section 1: a wing arrives, the objective names an aircraft, and the
+    act opens by saying what it is doing with the gap."""
+
+    REQUEST = ("Optimize the L/D of an airliner for 300 passengers, "
+               "6000 km range, takeoff 85 m/s, landing 72 m/s")
+
+    def setUp(self):
+        _disable_pace(self)
+        _redirect_output(self)
+
+    def _run(self, request=None, surface=None, geometry_dir=None):
+        from workflows import aircraft_optimization as aopt
+
+        events = []
+        ctx = [mock.patch.object(aopt.vspaero, "available", return_value=False)]
+        if geometry_dir is not None:
+            ctx.append(mock.patch.object(aopt, "_GEOMETRY_DIR", geometry_dir))
+        with ctx[0]:
+            if len(ctx) > 1:
+                ctx[1].start()
+                self.addCleanup(ctx[1].stop)
+            rc = aopt.main(request=request or self.REQUEST,
+                           params=({"surface": surface} if surface else {}),
+                           emit=lambda e, p: events.append((e, p)))
+        self.assertEqual(rc, 0)
+        return events
+
+    @staticmethod
+    def _digest_lines(events):
+        """The entries the control room shows in the digest: bulleted or
+        keyword-bearing narration, never the system echo of the request."""
+        return [p.get("message", "") for e, p in events
+                if e == "transcript.entry"
+                and (p.get("role") or "") != "SYSTEM"]
+
+    def test_detector_separates_a_wing_from_a_configuration(self):
+        from workflows.aircraft_optimization import (is_lifting_surface_only,
+                                                     surface_bodies)
+
+        wing = surface_bodies(
+            Path(__file__).resolve().parents[1] / "geometry"
+            / "airliner_wing_span52.stl")
+        self.assertEqual(wing["bodies"], 1)
+        self.assertTrue(is_lifting_surface_only(wing))
+        body = surface_bodies(
+            Path(__file__).resolve().parents[1] / "geometry"
+            / "crm_wingbody.stl")
+        # A wing-body carries a fuselage, so it is not a lifting surface only.
+        self.assertFalse(is_lifting_surface_only(body))
+        self.assertFalse(is_lifting_surface_only(None))
+
+    def test_scope_statement_is_the_first_digest_line_when_triggered(self):
+        events = self._run(surface="airliner_wing_span52.stl")
+        first = self._digest_lines(events)[0]
+        self.assertIn("Geometry received is a wing only", first)
+        self.assertIn("Treating this as wing design for the stated aircraft",
+                      first)
+        self.assertIn("Fuselage, tail, and nacelle drag are added from "
+                      "Raymer's component buildup method", first)
+        self.assertIn("All L/D figures quoted are whole-aircraft", first)
+        # The ambiguity clause rides the same entry as one clause.
+        self.assertIn("geometry and objective scope mismatch resolved as "
+                      "above", first)
+        self.assertRegex(first, r"Interpretation confidence \d+%")
+
+    def test_no_scope_statement_without_an_uploaded_wing(self):
+        said = " ".join(self._digest_lines(self._run()))
+        self.assertNotIn("Geometry received is a wing only", said)
+
+    def test_no_scope_statement_when_the_objective_names_no_aircraft(self):
+        said = " ".join(self._digest_lines(self._run(
+            request="Maximise the lift to drag of this wing for 300 "
+                    "passengers, 6000 km range",
+            surface="airliner_wing_span52.stl")))
+        self.assertNotIn("Geometry received is a wing only", said)
+
+    def test_no_scope_statement_when_the_upload_carries_a_body(self):
+        said = " ".join(self._digest_lines(
+            self._run(surface="crm_wingbody.stl")))
+        self.assertNotIn("Geometry received is a wing only", said)
+
+
+class AssumedValuesLedgerTests(unittest.TestCase):
+    """The ledger sections 3 and 5 read: unstated requirements, the low-speed
+    lift coefficients, and the non-wing drag share."""
+
+    def test_clmax_rows_are_always_present_and_marked(self):
+        from workflows.aircraft_optimization import (assumed_values,
+                                                     parse_requirements)
+
+        rows = assumed_values(parse_requirements(
+            "Optimize the L/D of an airliner for 300 passengers, 6000 km "
+            "range, takeoff 85 m/s, landing 72 m/s"))
+        table = {label: (value, basis) for label, value, basis in rows}
+        self.assertEqual(table["CLmax, take-off"][1],
+                         "assumed, not solver-derived")
+        self.assertEqual(table["CLmax, landing"][1],
+                         "assumed, not solver-derived")
+        self.assertIn("Raymer", table["Non-wing drag share"][1])
+        # Every requirement was stated, so none of them is in the ledger.
+        self.assertNotIn("Passengers", table)
+        self.assertNotIn("Range requirement", table)
+
+    def test_unstated_requirements_join_the_ledger(self):
+        from workflows.aircraft_optimization import (assumed_values,
+                                                     parse_requirements)
+
+        rows = assumed_values(parse_requirements(
+            "Optimize the lift to drag of this airliner"))
+        labels = [label for label, _value, _basis in rows]
+        for label in ("Passengers", "Range requirement",
+                      "Take-off speed limit", "Landing speed limit"):
+            self.assertIn(label, labels)
+
+
 class _SolvedApi:
     """A stand-in for VspAeroWingApi returning complete solved results."""
 
