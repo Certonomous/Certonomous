@@ -86,7 +86,8 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
                 "band_abs": 3.0 * spread,
                 "monotone": None,
                 "method": DEGENERATE,
-                "conclusive": False}
+                "conclusive": False,
+                "dim": int(dim)}
     (n1, f1), (n2, f2), (n3, f3) = distinct[-3:]
     if not (n1 < n2 < n3):
         raise ValueError("cell counts must increase coarse to fine")
@@ -95,9 +96,15 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
     r32 = h1 / h2
     e21 = f3 - f2       # fine-mesh change
     e32 = f2 - f1
+    # Record which dimensionality produced h, for the same reason
+    # eca_hoekstra_band does: cell counts cannot reveal a ladder's
+    # dimensionality, so the default is an assumption, and an assumption a
+    # study file does not carry is one no audit can check. A 2D ladder fitted
+    # with the cube root has its observed order stretched by exactly 1.5,
+    # which is enough to push a credible fit out of the credible window.
     result: dict[str, Any] = {
         "cells": [n1, n2, n3], "values": [f1, f2, f3],
-        "h": [h1, h2, h3],
+        "h": [h1, h2, h3], "dim": int(dim),
     }
     monotone = (e21 * e32) > 0.0
     if not monotone or e21 == 0.0:
@@ -399,7 +406,7 @@ def not_conclusive_reason(band: dict[str, Any] | None) -> str | None:
     if not band or band.get("conclusive"):
         return None
     if band.get("monotone") is False:
-        return "the rungs are not monotone"
+        return "the three rungs do not move one way under refinement"
     p = band.get("observed_order")
     if band.get("clamped") and p is not None:
         return (f"the observed order p = {p} falls outside the credible "
@@ -408,7 +415,8 @@ def not_conclusive_reason(band: dict[str, Any] | None) -> str | None:
     if "increment" in note:
         return "successive increments grow with refinement"
     if "extrapolat" in note:
-        return "the extrapolation diverges"
+        return ("the value the ladder extrapolates to falls outside the range "
+                "it measured")
     if p is not None:
         return (f"the observed order p = {p} falls outside the credible "
                 f"range 0.5 to 2.5")
