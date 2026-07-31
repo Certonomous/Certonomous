@@ -967,7 +967,11 @@ function pushTrace(p) {
     state.trace = { series: p.series, pts: [], xLabel: p.x_label || 'x', yLabel: p.y_label || 'y',
                     title: p.title || 'Objective trace' };
     subText('traceTitle', p.title || 'Objective trace');
-    subText('traceSeriesLbl', p.series ? String(p.series).replace(/_/g, ' ') : 'objective');
+    // The underscore is the subscript marker, so stripping it here defeated
+    // the typesetter downstream: "Cd_history" reached the screen as the flat
+    // string "Cd history" on five acts, and no act-side wording could fix it
+    // because the character was eaten before subText ever saw it.
+    subText('traceSeriesLbl', p.series ? String(p.series) : 'objective');
   }
   state.trace.pts.push({ x: +p.x, y: +p.y, lo: p.lo != null ? +p.lo : null, hi: p.hi != null ? +p.hi : null,
                          feasible: p.feasible !== false });
