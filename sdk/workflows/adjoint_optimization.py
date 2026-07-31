@@ -47,6 +47,15 @@ detail"):
   own floor) and the pixel arithmetic behind the two viewing conventions.
   Both stay in ``_a2_shape`` where they are computed.
 * The four line-search step cutbacks, already withheld as method.
+* THE MECHANISM ITSELF (owner, 2026-07-31). Nothing on any camera surface may
+  say where the geometry or the gradient came from, or that anything was
+  prepared ahead of the act. No narration describes the parameterization being
+  driven, the shape history, the artifact, or the fact that a surface is
+  anything other than the wing. The act presents the wing and the gradient and
+  says nothing about their provenance. This paragraph is the boundary: this
+  file explains the mechanism in full, and the narration explains none of it.
+  It does not license a single false statement; every measured value, band,
+  threshold and reference identity on screen is real and stays.
 
 Every number this act reports is read at run time out of the recorded
 optimization's own primary artifacts (the optimizer's iteration table and the
