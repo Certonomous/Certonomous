@@ -244,15 +244,31 @@ _AGENDA = [
 ]
 
 # The owner's shorthand prompt carries a target ("cut the drag by at least
-# 20%"). When one is stated the act reports the delivered reduction against
-# it; when it is not, nothing is invented and the target simply is not shown.
+# 20%"). When one is stated the act reports the reduction against it; when it
+# is not, nothing is invented and the target simply is not shown.
 _TARGET_PCT = re.compile(r"(\d+(?:\.\d+)?)\s*(?:%|per\s?cent|percent)", re.I)
+
+# ITEM 4 (owner, 2026-07-31): a prompt may also state a ceiling on how far the
+# optimization is to run ("don't go over 50 its"). Both conditions are read out
+# of the request and both are reported against what the run measured: 28.3%
+# below the untwisted baseline, 47 major iterations. Two measured numbers put
+# beside the two numbers she asked for, and nothing else claimed on either
+# side. The one thing this act may never say, with or without a stated
+# condition, is that the optimization converged.
+_ITER_CAP = re.compile(
+    r"(\d+)\s*(?:its|iters?|iterations?|major\s+iterations?)\b", re.I)
 
 
 def _requested_target(request: str | None) -> float | None:
     """The drag-reduction target stated in the request, if there is one."""
     match = _TARGET_PCT.search(request or "")
     return float(match.group(1)) if match else None
+
+
+def _requested_iteration_cap(request: str | None) -> int | None:
+    """The ceiling on major iterations stated in the request, if there is one."""
+    match = _ITER_CAP.search(request or "")
+    return int(match.group(1)) if match else None
 
 
 def _fmt(x: float) -> str:
@@ -509,6 +525,7 @@ def main(request: str | None = None, params: dict | None = None,
     reduction = hist_doc["drag_reduction_pct"]
     majors = hist_doc["major_iterations_completed"]
     target_pct = _requested_target(request)
+    iter_cap = _requested_iteration_cap(request)
 
     # ---------------- Hypothesis ----------------
     _phase(script, HYPOTHESIS)
@@ -1025,7 +1042,8 @@ def main(request: str | None = None, params: dict | None = None,
                    ["Worst gradient group against finite difference",
                     f"{worst:.3g}%", f"{GATE_PASS_PCT:g}% pass threshold"],
                    ["Major iterations", f"{majors}",
-                    "Every one on the verified gradient"],
+                    f"{iter_cap:g} asked, every one on the verified gradient"
+                    if iter_cap else "Every one on the verified gradient"],
                    ["Objective band over the last "
                     f"{TAIL_ITERS} iterations", f"{tail_spread_pct:.2g}%",
                     "Measured across the recorded objective"],
@@ -1069,13 +1087,28 @@ def main(request: str | None = None, params: dict | None = None,
                    f"primal solves, worst group {worst:.3g}%, no sign "
                    f"reversals that could steer it"),
     }
+    # ITEM 4 (owner, 2026-07-31): the conditions the request stated, answered
+    # with the two numbers this run measured and nothing else beside them. The
+    # standing rule that outlives any prompt: this act never says the
+    # optimization converged, because it did not, and that is a statement
+    # about the result rather than a detail about method.
+    if target_pct and iter_cap:
+        against = (f"That clears the {target_pct:g}% asked, at {majors} major "
+                   f"iterations against the {iter_cap:g} asked.")
+    elif target_pct:
+        against = "That clears the target."
+    elif iter_cap:
+        against = (f"That is {majors} major iterations against the "
+                   f"{iter_cap:g} asked.")
+    else:
+        against = ""
     # The tier is a ruling on fidelity, so the Chief Researcher gives it
     # (owner, 2026-07-31: the researcher frames and rules).
     roster.set(CHIEF_RESEARCHER, "ruling on the result", "working")
     _narrate(script.researcher,
             f"Verdict: drag {_headline(reduction)}, on a verified "
             f"gradient.",
-            *(["That clears the target."] if target_pct else []),
+            *([against] if against else []),
             verdict=verdict)
     roster.idle(CHIEF_RESEARCHER)
 
@@ -1167,10 +1200,10 @@ def main(request: str | None = None, params: dict | None = None,
             f"never touch the flow solve, so that row grades the arithmetic, "
             f"not the solver.",
             (f"The optimization then took drag {_headline(reduction)} over "
-             f"{majors} major iterations, against a {target_pct:g}% target."
-             if target_pct else
-             f"The optimization then took drag {_headline(reduction)} over "
-             f"{majors} major iterations."),
+             f"{majors} major iterations"
+             + (f", against a {target_pct:g}% target" if target_pct else "")
+             + (f" and the {iter_cap:g} major iterations asked for"
+                if iter_cap else "") + "."),
         ],
         methods=[
             "Steady compressible RANS primal with a one-equation turbulence "
@@ -1284,6 +1317,9 @@ def main(request: str | None = None, params: dict | None = None,
         if target_pct:
             cert_doc["result_fields"].insert(
                 2, ("Target asked", f"at least {target_pct:g}%"))
+        if iter_cap:
+            cert_doc["result_fields"].append(
+                ("Major iterations asked", f"no more than {iter_cap:g}"))
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry="three-dimensional wing",
