@@ -139,3 +139,165 @@ states in its own text that it does **not** reproduce Table I, because the data 
 cannot be assembled.
 
 ---
+
+## 2. Schmelzer, Dwight & Cinnella — SpaRTA
+
+**Schmelzer, M., Dwight, R.P. & Cinnella, P., "Discovery of Algebraic Reynolds-Stress Models
+Using Sparse Symbolic Regression," *Flow, Turbulence and Combustion* 104:579–603 (2020), DOI
+`10.1007/s10494-019-00089-x`.** **READ IN FULL** — the **published version of record**, fetched
+2026-07-31 from the Springer open-access PDF endpoint and held at
+`docs/papers/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf` with its text
+extraction alongside. Received 2 May 2019, accepted 2 October 2019, published online
+17 December 2019.
+
+**Availability checks run, and their answers.** CrossRef on the DOI returns the article under
+two `creativecommons.org/licenses/by/4.0` licence records. Unpaywall returns `is_oa: true`,
+`oa_status: "hybrid"`, with four locations: the Springer published version, an arXiv
+submitted version at `arxiv.org/pdf/1905.07510`, TU Delft, and HAL. **The published version
+was taken in preference to the preprint**, so unlike section 1 this reading is of the version
+of record and no preprint caveat attaches to it. The article's own text states: "This article
+is distributed under the terms of the Creative Commons Attribution 4.0 International License."
+**No MIT access required.**
+
+### Claim, source, where it applies
+
+| Claim | Source and tier | Where it applies | Where it does not |
+| --- | --- | --- | --- |
+| **The load-bearing claim for this lab: SpaRTA's data-extraction step needs no adjoint and no optimiser.** k-corrective-frozen-RANS solves the ω transport equation passively with `Ui`, `k` and `bij` frozen at their high-fidelity values, and takes the residual of the k equation as the correction `R`. "For the cases studied the solver reaches convergence after a few hundred iterations." The authors contrast it directly with field inversion: that "method is built upon a computationally-intensive optimisation problem, whereas k-corrective-frozen-RANS only requires a single equation to be solved." | Schmelzer, Dwight & Cinnella 2020, published version, READ IN FULL, section 2.1. | **This rung is not blocked by the adjoint conditioning problem, because it never forms an adjoint.** Everything in the lab's blocker record about `warpDeriv`, gradient conditioning and the missing closure-relevant inversion case is irrelevant to SpaRTA's step 1. | It is "limited to full-field data". Field inversion works from sparse observations — Singh, Medida & Duraisamy inverted on lift coefficient alone. SpaRTA cannot. The trade is: no optimiser, but you must have `Ui`, `k` and `τij` everywhere. |
+| Two additive corrections, not one, and this is the paper's stated novelty: "we identify not only a correction of the stress-strain relation, but also one for the turbulent transport equations". `b_ij = −(ν_t/k) S_ij + b_ij^Δ` (Eq. 3), and `R` enters both transport equations, added to `P_k` in Eq. 4 and carried into the ω equation as `(γ/ν_t)(P_k + R)` in Eq. 5. | Same, section 2.1, Eqs. 3–5. | The exact solver modification a reproduction must make: two source terms in a k-ω SST solver, both read as static fields for the validation step. | The k production is bounded by Menter's limiter, `P_k = min(−2k(b°+b^Δ)∂_j U_i, 10 β* ω k)` (Eq. 6). A reproduction that omits the limiter is not reproducing this. |
+| **The headline result is counter-intuitive and is the single most useful thing in the paper: the `R` correction alone is what works.** "for the set of models, only providing a correction for `b_ij^Δ`, not all lead to an improvement of the resulting velocity field. In contrast to that, if only a correction for `R` is deployed, the result is a consistent, substantial improvement across all test cases. Using both a model for `b_ij^Δ` and `R` only provides a minor additional improvement for some cases. For the test case CBFS13700 using both corrections leads to a detrimental effect". | Same, section 5. | Sequencing a reproduction: build the transport-equation correction first, and only then the stress-strain correction. The cheap half of the method carries the result. | Stated for three 2-D separating flows. Nothing here says `R`-only would suffice for the duct's secondary flow, which is an anisotropy phenomenon by construction and which `R` cannot generate. |
+| Two of the three selected models have **no** `b^Δ` term at all and one scalar coefficient each: `M_R^(1) = 0.39 T_ij^(1)` (Eq. 22) and `M_R^(3) = 0.93 T_ij^(1)` (Eq. 24). The third is `M_{b^Δ}^(2) = 0.1 T^(1) + 4.09 T^(2)` with `M_R^(2) = 1.39 T^(1)` (Eq. 23). The paper's summary: "To correct the velocity prediction sufficiently only a slight modification of the baseline k-ω SST model is necessary. A model for `R` using a scalar times `T_ij^(1)` is sufficient for the given test cases." | Same, section 5, Eqs. 22–24 and Table 2. | These are three numbers, publishable in a sentence and implementable in an afternoon. They are also the most checkable reproduction target in either paper. | `T^(1)` is `S_ij` scaled by the timescale `τ = 1/ω`, so `R = 2k b^R_ij ∂_j U_i` with `b^R ∝ S` is a production multiplier in disguise. The physical mechanism the authors identify is that positive `R` raises `P_k`, raises eddy viscosity, raises shear stress and shortens the recirculation bubble. |
+| Quantitative targets, published. **Table 1** — mean-squared error of the reconstructed field with `b^Δ` and `R` added as static fields, normalised by the baseline: PH10595 `ε(Ui)/ε(Ui°) = 0.00165` and `ε(τij)/ε(τij°) = 0.1495`; CD12600 `0.0229` and `0.4781`; **CBFS13700 `0.22703` and `0.4949`**. **Table 2** — best model normalised velocity error per case, e.g. `M(1)` on PH10595 at `0.17166` and `M(3)` on CBFS13700 at `0.32062`. | Same, sections 2.1 and 5, Tables 1 and 2. | Table 1 is the reproduction gate for step 1 on its own, before any regression is written. It asks only: does your frozen extraction, propagated back through the solver, recover the LES mean flow? | Table 1's PH10595 velocity figure of 0.00165 is three orders below the baseline; CBFS13700's 0.22703 is only a factor of four. The method's own reconstruction quality varies by case by two orders of magnitude, and CBFS is the hard one. |
+| **The paper does report its compute cost for the regression, and it is trivial**: "The duration for the model selection step given the number of data points K ∼ 15000 is of the order of a minute on a standard consumer laptop." | Same, section 3.2. | Budgeting the discovery. Elastic net over a 100 × 9 grid of `(λ, ρ)` on a ~48-column library is a laptop-minute. | It prices **only** the model selection step. See the omission below — the cross-validation is not priced, and it is four orders of magnitude larger. |
+| The candidate library is fully specified and small. Raw features are the two nonzero invariants `I1 = S_mn S_nm` and `I2 = Ω_mn Ω_nm`; the 16-entry vector `B` of their products is given in full in Eq. 13; each entry multiplies each of three base tensors, giving `|C_Δ| ≈ 48`. A candidate is discarded "if it contains values with a magnitude larger than 10^5". Model selection is elastic net (Eq. 17) over `ρ = [0.01, 0.1, 0.2, 0.5, 0.7, 0.9, 0.95, 0.99, 1.0]` and 100 log-spaced `λ` down to `10^-3 λ_max`; coefficient inference is a separate Ridge regression (Eq. 20) with `0.01 < λ_r < 0.1`. | Same, sections 3.1–3.3, Eqs. 13, 17–20. | Everything needed to rebuild the regression without seeing their code. This is a materially better disclosure posture than Ling's. | The `λ_r` range is empirical and the authors say so plainly: "Our efforts are based on an empirical observation, but do not guarantee a well-behaving numerical setup under all conditions." |
+| **Two dimensions only.** "In the following, we only consider two-dimensional flow cases, for which the first three base tensors form a linear independent basis and only the first two invariants are nonzero." Basis is `T^(1) = S`, `T^(2) = SΩ − ΩS`, `T^(3) = S² − (1/3)δ Tr(S²)`. | Same, section 2.2, Eqs. 10–11. | Periodic hills, converging–diverging channel, curved backward-facing step, the NASA hump — the 2-D families. | **The duct is out.** SpaRTA as published cannot represent a duct's secondary flow, which needs the higher tensors. This is the exact complement of TBNN's position in section 1, and it is why the two rungs are not substitutes. |
+| Cross-validation is done **in CFD**, not on the training residual, and deliberately: "For the purpose of CFD a true validation of the models can only be performed once they are implemented in a solver and applied to a test case… we select a wide spectrum of models varying in accuracy and complexity… instead of a single one." A model is discarded if it fails to converge. | Same, sections 3.2, 3.3 and 5. | The methodological point worth stealing: a low training residual does not survive contact with a solver, and the paper found that "the best model per test case is not always identified on the associated training data". | It costs what it costs — see the omission. |
+| True prediction outside the training range works: the three models applied to periodic hills at `Re = 37000`, against Rapp & Manhart's experiment, "improve significantly compared to the baseline", and "the models `M(2)` and `M(3)` are providing a better fit of the data than `M(1)`, which was performing better on the lower Re case." | Same, section 5, Fig. 13. | Evidence that a model fitted at one Reynolds number transfers up a factor of 3.5 in the same geometry. | Rank order among the models **inverts** between the training Re and the prediction Re. Selecting a model on training-case rank does not select the best extrapolator. |
+| Honest negative results are reported. On CD12600 "we observe a small recirculation zone as reported in the literature using `M(1)`, but too far down-stream. However, while the baseline k-ω SST drastically over-predicts this zone, `M(2)` and `M(3)` ignore it entirely." And the paper concedes to its competitors: "using more complex function approximators from the machine learning toolbox, e.g. neural networks or random forest, more details of the flow can be captured, e.g. on the hill's crest of PH10595, which are missed by SpaRTA." | Same, sections 5 and 6. | Reading the ladder honestly: SpaRTA is the cheap, interpretable, robust rung, not the accurate one. | — |
+| An acknowledged inconsistency, stated by the authors and not buried: treating `b^Δ` and `R` separately means "energy is not conserved, because Eq. 12 has no corresponding part in the momentum equation". They note others violate it too and that fixing it "improves the predictive performance", but that a joint fit "requires a multi-objective version of the deterministic symbolic regression detailed below, which is beyond the scope of this paper." | Same, section 2.2. | A named, open defect in the published method — the obvious place a reproduction could contribute something rather than only re-measure. | — |
+
+### The omission, recorded as the finding
+
+**The paper prices the cheap step and not the expensive one.** The regression is priced to the
+minute. The cross-validation is not priced at all, and the paper states its size in the same
+breath: "all models are applied to the three test cases, which requires 61, 48 and 75
+simulations for the cases PH10595, CD12600 and CBFS13700 respectively." That is **184 CFD
+simulations**, and no wall time, core count or hardware is given for any of them.
+
+This lab can put a number on it, because it has run that exact case on this exact mesh.
+Ladder-B rung B2 ran the benchmark's CBFS case, 21,000 cells, k-ω SST, serially on this box:
+**1,753.3 s CPU / 1,770 s wall, 29.5 core-minutes**, converged field agreeing with the
+benchmark's own shipped baseline to 0.068% scaled MAE. At that rate the CBFS column of the
+cross-validation alone is **75 × 29.5 ≈ 2,213 core-minutes, about 37 core-hours**. So the
+honest cost profile of SpaRTA is a **one-minute regression wrapped in a thirty-seven-core-hour
+validation**, and the paper reports only the minute. Recorded because this lab has just been
+burned by a proposal priced off the wrong run.
+
+### The finding that changes what this lab can do next
+
+**SpaRTA's demonstration meshes and this lab's benchmark data are the same objects.** The paper
+states the CBFS mesh is "140 × 150 cells" and the periodic-hills mesh "120 × 130 cells". The
+closure-challenge clone's `data/CBFS/constant/polyMesh/owner` header reads `nCells: 21000`,
+which is 140 × 150 exactly; `data/PH_Breuer` reads `nCells:15600`, which is 120 × 130 exactly.
+The benchmark ships SpaRTA's own case setups.
+
+And it ships the training signal. Each case directory carries `0/U_LES`, `0/k_LES` and
+`0/tauij_LES` alongside the k-ω SST baseline — precisely the `Ui`, `k` and `τij` full fields
+that k-corrective-frozen-RANS consumes, on the same mesh, with no interpolation needed.
+
+**One known blocker, and why it does not bite here.** Rung B2 recorded that CBFS's `0/U_LES`,
+`0/k_LES` and `0/tauij_LES` are assembled from `#include`-macro'd dictionaries under
+`0/interpolatedFields/`, and that the `Ofpp` Python reader "cannot resolve these macros — it
+silently returns `None` rather than erroring". That blocker is specific to the **Python-side**
+reader. k-corrective-frozen-RANS runs **inside OpenFOAM**, whose own dictionary parser expands
+`#include` natively — the field is read by the solver, not by Ofpp. A SpaRTA step-1
+reproduction therefore steps around B2's blocker rather than inheriting it. Any *scoring* or
+plotting done in Python afterwards still needs `foamDictionary` or `postProcess` to
+pre-resolve, exactly as B2 flagged.
+
+### In-sample verdict on SpaRTA's training data
+
+Checked against the clone's README table and against the derived list from
+`sdk/scripts/closure_in_sample_gate.py`, run this session:
+
+| SpaRTA's own case | Available here? | Role in benchmark | Scored? |
+| --- | --- | --- | --- |
+| PH10595 (Breuer LES) | **yes**, `data/PH_Breuer`, 15,600 cells | training (single variation) | **no** |
+| CBFS13700 (Bentaleb LES) | **yes**, `data/CBFS`, 21,000 cells | training (single variation) | **no** |
+| CD12600 (Laval & Marquillie DNS) | **no** — not shipped with the benchmark | not in the benchmark | n/a |
+| PH37000 (Rapp & Manhart experiment) | **no** — not shipped | not in the benchmark | n/a |
+
+**Verdict: clean. Not in sample, and not marginally so.** Two of SpaRTA's three training cases
+are in the tree, and both are cases the benchmark itself designates as *training*. Neither is
+one of the eight scored cases. A SpaRTA reproduction on `CBFS` and `PH_Breuer` touches no test
+truth at any point, which is a stronger position than the lab's field-inversion line, whose
+stated target was blocked partly by this very rule.
+
+**What is missing is the third case, not permission.** A faithful three-case reproduction needs
+CD12600, the Laval & Marquillie converging–diverging channel DNS, which the benchmark does not
+ship. That is a data-sourcing task, not a leakage question, and it is not on the critical path:
+the paper's own cross-validation found that "the data of CD12600 and CBFS13700 provide models,
+which are well performing on all test cases", so CBFS alone still yields a transferable model.
+
+### The two rungs are complements, not alternatives
+
+Worth stating because `docs/research/CLOSURE_METHODS.md` currently ranks them against each
+other on code-availability grounds, before either had been read:
+
+- **SpaRTA is 2-D by its own restriction and its demonstrated cases are the separated-flow
+  family** — periodic hills, curved backward-facing step. In benchmark terms that is the PHLL
+  and hump side of the board, and the training data is in the tree.
+- **TBNN carries all ten of Pope's tensors and its demonstrated case is a duct** — the 3-D
+  secondary-flow family, where this lab's deficit to rank two is largest, and where SpaRTA's
+  published ansatz cannot represent the physics at all.
+
+They divide the board. Running both is not redundancy.
+
+### Reproduction proposal filed
+
+`w2-sparta-frozen-rans-cbfs` on `demo-output/website/agenda/docket.json`. It is scoped to
+**step 1 only** — k-corrective-frozen-RANS on CBFS13700, propagated back as static fields —
+because that step has a published number to hit (Table 1's CBFS row, `0.22703` and `0.4949`),
+needs no adjoint, and settles whether the extraction works before 37 core-hours of
+cross-validation is committed to.
+
+---
+
+## Papers to add to the W2 seed list, from what these two cite
+
+Named here as **leads only**. Nothing below has been fetched or read, and no claim anywhere in
+this lab's records is sourced to any of them.
+
+1. **Pope, S.B., "A more general effective-viscosity hypothesis," *J. Fluid Mech.* 72:331
+   (1975).** The ten-tensor integrity basis. **Both** papers rest on it — Ling's Eq. 1–2 and
+   SpaRTA's Eq. 9–11 are the same result. It is the only shared foundation of the two rungs and
+   the lab has read neither it nor a substitute. Highest priority of this list.
+2. **Weatheritt, J. & Sandberg, R.D. (2016, *JCP* 325:22; 2017, *IJHFF* 68).** SpaRTA is
+   explicitly built as the deterministic answer to their GEP method, and SpaRTA's
+   frozen-RANS is "an extension of the method introduced in" the 2017 paper. Reading SpaRTA
+   without them leaves the frozen-RANS lineage sourced second-hand.
+3. **Zhao, Y., Akolekar, H.D., Weatheritt, J., Michelassi, V. & Sandberg, R.D.,
+   "Turbulence model development using CFD-driven machine learning," arXiv:1902.09075 (2019).**
+   SpaRTA names it as the approach that puts CFD *inside* the model search, which "increases
+   the costs of the model search drastically" but yields better convergence. That trade is
+   exactly the 37-core-hour question above.
+4. **Duraisamy, K., Iaccarino, G. & Xiao, H., "Turbulence modeling in the age of data,"
+   *Annu. Rev. Fluid Mech.* 51 (2019).** Already on the standing W2 seed list; both papers cite
+   it as the field review.
+5. **Ling, J., Jones, R. & Templeton, J., *JCP* 318:22 (2016).** Ling's own predecessor, the
+   invariant-feature-set result that motivated the TBNN. Cited as ref 18 for the claim that
+   embedding invariance is what buys the accuracy.
+6. **Breuer, M., Peller, N., Rapp, C. & Manhart, M., *Computers and Fluids* 38(2):433 (2009)**
+   and **Bentaleb, Y., Lardeau, S. & Leschziner, M.A., *J. Turbulence* 13(4) (2012).** The
+   sources of the LES fields shipped in `data/PH_Breuer` and `data/CBFS`. Reading them is how
+   the lab would learn what the shipped truth fields actually are, rather than trusting the
+   benchmark's re-packaging of them.
+7. **Laval, J.-P. & Marquillie, M. (2011), converging–diverging channel DNS.** The one SpaRTA
+   case not in the tree. Reading it is a prerequisite to sourcing the data.
+
+## MIT-access list
+
+**Empty for this session.** Both target papers were fetched by this lab without institutional
+access — Ling from the OSTI repository copy of Sandia accepted manuscript SAND2016-7345J, and
+SpaRTA as the CC-BY published version of record from Springer. `docs/research/MIT_ACCESS_DOCKET.md`
+gains a closed row for SpaRTA and its one open row, Parish & Duraisamy (2016), is unchanged.

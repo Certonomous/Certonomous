@@ -1475,6 +1475,28 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T14:41:00Z"
+    },
+    {
+      "id": "w2-sparta-frozen-rans-cbfs",
+      "well": "W2",
+      "objective": "Reproduce step one of SpaRTA on the curved backward-facing step: extract the two additive model-form corrections b_ij^Delta and R from the shipped LES fields by k-corrective-frozen-RANS, add them back as static fields to a k-omega SST solver, and hit the paper's published Table 1 row for CBFS13700",
+      "rationale": "Three facts found by reading the paper in full make this the cheapest genuine rung on the M2 ladder. First, k-corrective-frozen-RANS needs no adjoint and no optimiser: it solves the omega transport equation passively with Ui, k and bij frozen at their high-fidelity values and takes the k-equation residual as R, converging in the authors' words after a few hundred iterations. Every blocker on this lab's field-inversion line, the warpDeriv defect and the gradient conditioning, is therefore irrelevant to it. Second, the benchmark ships SpaRTA's own case: the paper states the CBFS mesh is 140 by 150 cells and the clone's polyMesh header reads nCells 21000, which is that product exactly, and each case directory carries 0/U_LES, 0/k_LES and 0/tauij_LES, precisely the three full fields the method consumes, on the same mesh, with no interpolation. Third, there is a published number to hit, so this is a reproduction and not an exercise. Scoped to step one deliberately: the paper's own cross-validation is 75 CFD simulations for CBFS alone, which at this lab's measured rate is about 37 core-hours, and none of it is worth committing until the extraction is shown to work. Ladder-B rung B2 recorded that Ofpp cannot resolve the #include macros in those LES field files and silently returns None; that blocker is specific to the Python reader and does not bite here, because k-corrective-frozen-RANS runs inside OpenFOAM, whose own dictionary parser expands #include natively.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured, on this hardware, on this exact case and mesh. Ladder-B rung B2 ran the benchmark's CBFS case, 21,000 cells, k-omega SST, serial, to its designed 30,000 iterations in 1,753.3 s CPU and 1,770 s wall, 29.5 core-minutes, and the converged field agreed with the benchmark's own shipped baseline to 0.068 percent scaled MAE. That run completed, is not superseded and is not the run this proposal would replace. The frozen extraction solves one transport equation for a few hundred iterations and is bounded well under 2 core-minutes against that per-iteration rate; the validation propagation restarts from the baseline solution and is bounded at one full primal, 29.5 core-minutes. Sixty core-minutes carries a full retry. Memory from the same rung: MemAvailable was 20.4 GB before and 13.0 GB after three serial runs including this one, never near the 6 GB threshold. The paper's own compute disclosure was NOT used for any of this: it prices only the model selection step, at the order of a minute on a consumer laptop for 15,000 data points, and leaves all 184 of its cross-validation simulations unpriced.",
+      "gate": "Primary, quantitative, published: with b_ij^Delta and R added as static fields, the mean-squared error of the reconstructed velocity normalised by the baseline k-omega SST must land within a factor of two of the paper's Table 1 CBFS13700 value of 0.22703, and must be below 1.0 as a hard floor since a value above 1.0 means the extraction made the field worse than the model it corrects. The Reynolds-stress ratio is reported alongside against the paper's 0.4949 but is not gated, because Table 1 shows the method's own stress reconstruction is the weaker of the two on every case. Secondary and non-negotiable: sdk/scripts/closure_in_sample_gate.py must return PASS with the CBFS training declaration present. CBFS13700 is a benchmark training case, not one of the eight scored cases, so no test truth is opened at any point.",
+      "expected_knowledge_gain": "The third rung of the M2 ladder, and the first closure correction this lab would extract from real high-fidelity data rather than from a synthetic tutorial. It also settles the open question the reading raised: whether the honest cost of SpaRTA is the one-minute regression the paper advertises or the thirty-seven core-hours of CFD cross-validation it does not price. Failing the gate is informative too, because the extraction step has no free parameters worth blaming.",
+      "source_kind": "reading",
+      "citations": [
+        "Schmelzer, M., Dwight, R.P. & Cinnella, P., Discovery of Algebraic Reynolds-Stress Models Using Sparse Symbolic Regression, Flow, Turbulence and Combustion 104:579-603 (2020), DOI 10.1007/s10494-019-00089-x; published CC-BY version of record read in full, docs/papers/schmelzer_dwight_cinnella_ftac2020_s10494-019-00089-x.pdf; Table 1, sections 2.1 and 2.2, Eqs. 3 to 6",
+        "Bentaleb, Y., Lardeau, S. & Leschziner, M.A., J. Turbulence 13(4) (2012) - the source of the CBFS13700 LES field, cited only as Schmelzer et al. attribute it; NOT read by this session",
+        "Closure challenge benchmark clone, data/CBFS case directory and polyMesh header, read 2026-07-31",
+        "Certonomous ladder-B rung B2 CBFS baseline run and Ofpp macro blocker, measured 2026-07-28, demo-output/website/dafoam/ladder-b/B2_duct_baseline.md",
+        "demo-output/website/campaign/W2_TBNN_SPARTA_READING.md section 2"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T14:52:00Z"
     }
   ]
 }

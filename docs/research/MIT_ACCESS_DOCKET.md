@@ -70,7 +70,19 @@ Kept so the docket shows what was checked, not only what failed.
 deep neural networks with embedded invariance*, DOI `10.1017/jfm.2016.615`, *Journal of
 Fluid Mechanics* (CrossRef, 2026-07-30). Unpaywall reported `is_oa: true` with a
 repository copy at OSTI. The Sandia accepted manuscript **SAND2016-7345J** was fetched
-and read in full. **No MIT access required.**
+and read in full. **No MIT access required.** Full text read into the knowledge store
+2026-07-31, `demo-output/website/campaign/W2_TBNN_SPARTA_READING.md` section 1.
+
+**Schmelzer, Dwight & Cinnella (2020).** *Discovery of Algebraic Reynolds-Stress Models
+Using Sparse Symbolic Regression*, DOI `10.1007/s10494-019-00089-x`, *Flow, Turbulence
+and Combustion* 104:579–603. Checks run 2026-07-31: **CrossRef** returns the article with
+two `creativecommons.org/licenses/by/4.0` licence records; **Unpaywall** returns
+`is_oa: true`, `oa_status: "hybrid"`, with four locations — the Springer published
+version, an arXiv submitted version at `arxiv.org/pdf/1905.07510`, TU Delft and HAL. The
+**published version of record** was fetched from Springer in preference to the preprint
+and read in full, so no preprint caveat attaches to anything sourced to it.
+**No MIT access required.** Read into the knowledge store 2026-07-31,
+`demo-output/website/campaign/W2_TBNN_SPARTA_READING.md` section 2.
 
 ---
 
