@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T22:19:05Z",
+  "generated_at": "2026-07-31T22:52:00Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -403,10 +403,12 @@
         "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
         "dafoam/PROOF.md section 22"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T10:18:18Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "progress_note": "W5, 2026-07-31. Line named. getRotationMatrix3d guards its acos/normalize parameterization with a sqrt(eps) threshold on |n0 x n| at src/utils/vectorUtils.f90:58; at an undeformed baseline the normals coincide bit-for-bit so the guard always fires, and Tapenade's reverse of that branch (src/adjoint/outputReverse/vectorUtils_b.f90:123-128) zeroes the entire adjoint path, giving dMi/dnormals = 0 where the true value is [n0 x dn]_x. Proof the term was never in the analytic answer: useRotations=False leaves warpDeriv's output bit-identical (||dXs||=1.495168856286067e+03 both ways) while the FD changes sign and the error falls from 207.0% to 0.0000.",
+      "outcome": "ROOTCAUSE_getRotationMatrix3d.md; PROOF.md section 23; evidence in dafoam/rotation_branch/"
     },
     {
       "id": "w7-weekly-claim-audit",
@@ -1495,7 +1497,8 @@
       "created_at": "2026-07-29T22:15:00Z",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-      "well": "W4"
+      "well": "W4",
+      "progress_note": "SUPERSEDED by W5, 2026-07-31. This item rests on 'single-point variables never show it -- confirmed across three cases', which PROOF.md section 22 already retracted and section 23 explains: the defect is the degenerate-rotation branch, which fires for any design variable that tilts a surface normal, single-point or not. Re-expressing a combination mode as weighted single-point variables therefore cannot avoid it -- the error is upstream of the mode construction entirely. The real workaround is useRotations=False; see w5-rotations-off-mesh-quality-price. Kept on the docket as a record of a line of attack that the root cause closes."
     },
     {
       "id": "r5-convergence-wall-not-memory",
@@ -2146,10 +2149,12 @@
         "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
         "dafoam/PROOF.md section 22"
       ],
-      "status": "approved",
+      "status": "done",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-      "created_at": "2026-07-31T22:18:09Z"
+      "created_at": "2026-07-31T22:18:09Z",
+      "progress_note": "W5, 2026-07-31. All 25 issues and 81 PRs ever opened on mdolab/idwarp enumerated, plus all 15 releases and the mdolab/dafoam trackers and Discussions. THE defect is already filed upstream: mdolab/idwarp issue #57, 'inflate_cube test appears to fail', opened 2021-07-14, labelled bug, OPEN with zero comments for five years, reporting 216% and 218% errors with sign flips from IDWarp's own verifyWarpDeriv. Reproduced here at 210.16%/212.62% and explained. No PR in IDWarp history touches warpDeriv mathematics; upgrading 2.6.2 to 2.6.4 will not fix it. Three adjacent undiagnosed DAFoam reports found (#905, #914, #714/#833), recorded as suggestive only. One disclosed gap: the Secco 2021 AIAA paper could not be retrieved (403), so no claim is made about what it says.",
+      "outcome": "ROOTCAUSE_getRotationMatrix3d.md section 2; if ever filed it is a comment on #57, not a new issue"
     },
     {
       "id": "w5-closure-strategy-prior-art",
@@ -2247,6 +2252,151 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T22:19:05Z"
+    },
+    {
+      "id": "w5-idwarp-singularity-free-rotation-patch",
+      "well": "W5",
+      "objective": "Patch getRotationMatrix3d to the singularity-free rotation form and show the gradient comes out right with rotations still ON",
+      "rationale": "The mechanism is established by subtraction -- turn rotations off and the error vanishes. That is proof of location but not proof of the fix, and it costs the boundary-layer orthogonality rotations exist to preserve. The singularity-free form R = I + [v]x + [v]x^2/(1+c), with v = a x b and c = a.b, is a polynomial in v with a smooth coefficient: correct and differentiable at a = b, no threshold, no acos, and it cannot NaN except at exact reversal, which is a real singularity of the problem rather than of the parameterization. Building IDWarp with that form and re-running the six confirmed geometries converts a diagnosis into a demonstrated fix, which is what an upstream maintainer can act on and what a five-year-old open issue has never had.",
+      "est_core_min": 240.0,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; the diagnostic cycle itself is measured at ~1 core-minute per case, so essentially all of this is the IDWarp/Tapenade build, which the lab has never done and which may need the reverse routine hand-written rather than regenerated",
+      "gate": "A rebuilt IDWarp on which the U-bend pressure-loss case reads under 1% on all 27 components and upstream's own inflate_cube DOFs 0 and 3 read under 1e-3%, with useRotations left ON",
+      "expected_knowledge_gain": "Either the named line is the whole cause and a fix exists, or patching it does not help and the localization is incomplete -- both decisive",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md sections 1.3, 1.7, 4.1",
+        "dafoam/rotation_branch/issue57_rot_on.txt"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-rotations-off-mesh-quality-price",
+      "well": "W5",
+      "objective": "Price the useRotations=False workaround before anyone is told to use it",
+      "rationale": "useRotations=False restores gradient consistency to roundoff, on six geometries. It is the only workaround available today and it is one line. But IDWarp documents rotation interpolation as what preserves boundary-layer orthogonality under large orientation changes, and this lab has measured exactly none of that price: no mesh-quality metric, no optimisation re-run, no large-deformation case. Handing out a one-line fix whose cost is unmeasured is how a gradient problem becomes a mesh problem. Falsified as a workaround if mesh quality collapses at deformations the ladder actually uses.",
+      "est_core_min": 90.0,
+      "predicted_memory_gb": 6.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate, anchored on the measured 15 s wall / 4 cores per U-bend diagnostic cycle; the cost is in the optimisation re-runs, not the warps",
+      "gate": "Non-orthogonality, skewness and aspect ratio reported for both settings at the largest deformation the ladder uses, plus one full optimisation run to convergence under each",
+      "expected_knowledge_gain": "Turns 'there is a workaround' into 'here is the workaround and here is what it costs', or withdraws it",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md section 5.1",
+        "dafoam/rotation_branch/D1b_pl_real_rot_OFF.txt"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-regrade-every-published-gradient-claim",
+      "well": "W5",
+      "objective": "Re-run every gradient and optimisation result this lab has published under corrected gradients, and say which conclusions move",
+      "rationale": "Every adjoint shape gradient this lab has computed was evaluated at a state where the degenerate-rotation guard fires, so every one of them is missing the same term. Some were reported as verified. The lab already had to retract a random-seed clearance and a published qualification on this same line; the honest close is to regrade the whole body of work rather than wait to be asked which results survive. Cheap where the case is small, and the answer may well be that most conclusions hold -- but that has to be measured, not assumed.",
+      "est_core_min": 300.0,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; scales with how many published cases carry a shape gradient, and the per-case verification cycle is measured at ~1 core-minute for the small cases",
+      "gate": "Every published shape-gradient or shape-optimisation claim is listed with its corrected value and a verdict of holds, moves, or withdrawn",
+      "expected_knowledge_gain": "Either the published record survives a known defect, or the lab finds out which parts do not before a reader does",
+      "source_kind": "ledger",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md section 4.4",
+        "dafoam/PROOF.md section 23"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-degenerate-point-derivative-check",
+      "well": "W5",
+      "objective": "Make a reusable check that evaluates every adjoint at its own degenerate point, and run it across the stack",
+      "rationale": "This defect was invisible for a specific and generalisable reason: the derivative is correct everywhere except at the one state where it is always evaluated, and the guard that breaks it exists to stop a NaN. Upstream's own test suite could not see it because the only quantity it asserts on -- the sum of dXs -- is exactly the quantity the missing term leaves unchanged, five times out of five. Both failure modes are patterns, not accidents: threshold-guarded branches in differentiated code, and aggregate assertions that a structured error sums out of. Any adjoint this lab publishes should be checked at its degenerate configuration, against a vector-valued comparison rather than a scalar one.",
+      "est_core_min": 60.0,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; the check itself is a finite difference at an unperturbed state, which is the cheapest test in the repertoire",
+      "gate": "Every differentiated code path the lab depends on is either checked at its degenerate configuration or listed as unreachable, and no check passes on a scalar aggregate alone",
+      "expected_knowledge_gain": "The next defect of this shape is caught by a standing check rather than by a two-week investigation",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md sections 2.2, 4.2",
+        "dafoam/PROOF.md section 23"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-test-community-reports-against-mechanism",
+      "well": "W5",
+      "objective": "Run DAFoam discussions 905 and 914 against the degenerate-branch mechanism instead of guessing",
+      "rationale": "Two open, undiagnosed community reports carry this signature and are recorded in our root-cause document as suggestive only, because we have not run them. #905 reports 40 to 126 percent analytic-vs-FD on NACA0012 with the error tracking which mesh generator made the grid rather than the flow; #914 reports pure-surface constraints at 1e-12 while the drag objective, the only quantity crossing warpDeriv, sits at 1.27e-02. Both are one useRotations=False run away from an answer. If they collapse, this lab has two independent confirmations it did not construct itself and two users get a cause. If they do not, there is a second mechanism and our scope claim is too broad.",
+      "est_core_min": 20.0,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; the equivalent U-bend and NACA0012 diagnostic cycles ran at 15 s wall on 4 cores each this session",
+      "gate": "Each report reproduced or explicitly recorded as not reproducible from the information given, with its error under both useRotations settings",
+      "expected_knowledge_gain": "Two independent confirmations we did not build, or the discovery that our scope claim is too wide",
+      "source_kind": "reading",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md section 2.5"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-near-threshold-ill-conditioned-regime",
+      "well": "W5",
+      "objective": "Isolate the second failure regime -- rotations just above the guard threshold -- to a line the way the first one was",
+      "rationale": "The same parameterization fails twice. Below the sqrt(eps) guard the derivative is silently zero, which is now localized and demonstrated. Just above it the branch runs but computes argb = -(angleb/sqrt(1-arg^2)) with arg approaching one, where 1-arg^2 is formed by catastrophic cancellation. ONERA M6 measures that regime at 1.0 to 1.3 percent -- three orders above the 1e-6 percent the same mesh reaches with rotations off, and far too small to notice without looking. This is the regime a real optimisation sits in after the first design iteration, so it is the one that matters for a converged result, and it is the one still described as a measurement rather than a mechanism.",
+      "est_core_min": 30.0,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; the ONERA M6 geometry run took under a minute on 4 cores this session",
+      "gate": "Error reported as a function of rotation angle across the threshold, with the cancellation either confirmed as the cause or ruled out",
+      "expected_knowledge_gain": "Says whether the workaround and any fix need to cover one regime or two",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md sections 1.6, 4.3",
+        "dafoam/rotation_branch/geom_onera_m6_on.txt"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w5-close-the-secco-2021-citation-gap",
+      "well": "W5",
+      "objective": "Read the primary IDWarp reference and close the one disclosed gap in the novelty claim",
+      "rationale": "Our root-cause document states that no documentation, docstring, release note or source comment qualifies warpDeriv as approximate, and that claim carries real weight -- an undocumented defect and a documented approximation are different things to report. But it rests on code and docs alone, because Secco, Kenway, He, Mader and Martins, AIAA J. 59(4) 1151-1168, 2021, doi 10.2514/1.J059491, returned 403 on every URL tried and has no open-access copy. The gap is disclosed rather than papered over, and it is the single sentence in the whole finding that a reader with library access could overturn. It costs no compute to close.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; needs journal access, not machine time",
+      "gate": "The paper's mesh-deformation-derivative section is read and quoted, and the 'not a documented approximation' claim is either upheld or withdrawn",
+      "expected_knowledge_gain": "The novelty claim stops resting on an unread source",
+      "source_kind": "reading",
+      "citations": [
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md section 2.3"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T22:52:00Z",
+      "decided_at": "2026-07-31T22:52:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     }
   ]
 }
