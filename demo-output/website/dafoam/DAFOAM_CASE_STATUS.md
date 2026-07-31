@@ -99,6 +99,8 @@ A real mid-session mistake, caught and fixed: a cleanup command between probe ru
 - **Stage 3 (timed adjoint pilot): BLOCKED — this is the case named explicitly in the brief.** Design variable substituted, disclosed: inlet patchVelocity stood in for the paper's real β(x) field DV (building the custom turbulence-model library was out of scope). Failure mode, precisely: the discrete-adjoint GMRES solve returns **PETSc `KSPConvergedReason = -9` (`DIVERGED_NANORINF`) at iteration 0** — NaN/Inf detected before any GMRES progress. Reproduced identically across 4 independent configurations: 2 primal convergence levels (1e-4, 1e-6), 2 objective types (a custom field-variance loss and a standard force/CD objective already known to work in this lab's naca0012 case), and 2 ILU fill levels (1, 4). Mesh quality checked and ruled out (`DACheckMesh`: max AR 14.76, max non-orthogonality 33.3°, max skewness 0.26, all "OK"). **Root cause not resolved within this rung's budget** — reported as an open blocker, not routed around. A separate, second silent-failure trap was also found and fixed en route: `DAFunctionVariance` hardcodes reading its reference data from folder `"0"` regardless of `startFrom`, so a `startFrom=latestTime` run silently produced a fake all-zero objective/gradient (caught by checking the printed value, not trusting "success").
 - **Stage 4 (full CBFS field inversion): DID NOT RUN**, correctly gated by Stage 3's unresolved blocker, per the docket's own instruction.
 - No GMRES-iteration cost was ever measured (the solver never completed one iteration), so B1's 140–420 core-minute estimate for a full inversion **cannot be confirmed or refuted** by this rung.
+- **2026-07-31: B3's design-variable substitution is RETRACTED as unnecessary (`S1_FIML_FIELD_INVERSION.md`).** B3 recorded that the paper's real β(x) design variable "requires a custom OpenFOAM turbulence-model library whose source is not distributed anywhere in the public benchmark clone" and stood inlet `patchVelocity` in for it. Read directly from the installed source: **DAFoam v5's own `DAkOmegaSST` already carries `betaFIOmega_` and `betaFIK_` as `READ_IF_PRESENT` volScalarFields defaulting to 1.0**, and `DAInputField` (`TypeName("field")`) exposes them as per-cell design variables; an official steady field-inversion tutorial ships with the case. No library needed to be built. **Disclosed correction to the target itself, in the other direction: `betaFIOmega_` multiplies the omega equation's PRODUCTION term (`DAkOmegaSST.C:743`), not the destruction term** that B1/B3 and roadmap 4A Stage 1 both name; the destruction term's `beta` is the F1-blended model constant with no field hook.
+- **2026-07-31: B3's `-9` blocker is NOT a property of the SST adjoint, and the SST-vs-SA discriminator `B3_supervisor_debug.md` left open is answered.** A kOmegaSST field-inversion adjoint with 5,000 per-cell beta DVs converges cleanly (GMRES 91 iterations, `PetscConvergedReason: 2`) on the official tutorial case. **Two levers each remove the NaN**, tested on the hump rather than CBFS: `normalizeResiduals=["None"]`, and `jacMatReOrdering: natural` in place of the `rcm` that B3's own script used. Neither produces convergence — both leave the GMRES residual flat to 13 significant figures. Note also that rung 4 of the supervisor's ladder, the frozen-turbulence adjoint, is **structurally unavailable to field inversion**: β lives inside the turbulence model, so freezing those residuals out of the Jacobian deletes the sensitivity being solved for.
 
 ---
 
@@ -162,6 +164,19 @@ confirm the mechanism directly.
 **Consequence: A3's adjoint and A6's adjoint (not attempted) are both blocked by this
 same wall.** A genuine matrix-free path exists (`adjUseColoring=False`) but trades memory
 for an unmeasured runtime cost and was not attempted anywhere in this ladder.
+
+**2026-07-31 — the "10³–10⁴ cells" envelope is REFUTED as a general statement, by direct
+measurement on a 51,626-cell case (`S1_FIML_FIELD_INVERSION.md`).** The NASA hump
+(incompressible, kOmegaSST, wall-resolved, 51,626 cells, 51,626 per-cell design variables)
+ran the full adjoint pipeline with **Jacobian colouring completing normally in 68.62 s** and
+host `MemAvailable` falling only from 30.06 GB to a minimum of **18.99 GB** — a peak of
+roughly 11 GB, no OOM, no kill. It then failed *in the linear solve* with
+`PetscConvergedReason: -9`. So for this case the constraint is **conditioning, not memory**,
+and the two are now known to be separable: `naca0015_sail_coarse` (63,920 cells) was already
+the counterexample on the memory side, and the hump adds a case that gets *past* colouring at
+51,626 cells. The envelope statement should be read as applying to the **compressible
+6-field** family it was measured on (A3, A6, and the two truncated pre-ladder logs), not to
+incompressible cases.
 
 ## Cross-rung finding 2: is the airfoil shape-derivative disagreement real, or a check artefact?
 

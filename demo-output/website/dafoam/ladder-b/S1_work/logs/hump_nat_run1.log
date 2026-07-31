@@ -22,7 +22,7 @@ Build  : _615aae61d7-20250627 OPENFOAM=2506 version=v2506
 Arch   : "LSB;label=32;scalar=64"
 Exec   : decomposePar
 Date   : Jul 31 2026
-Time   : 10:46:38
+Time   : 10:51:40
 Host   : ip-172-31-43-247
 PID    : 406
 --> FOAM Warning : 
@@ -34,7 +34,7 @@ I/O    : uncollated
     From Foam::fileName Foam::cwd_L()
     in file POSIX.C at line 554
     PWD is not the cwd() - reverting to physical description
-Case   : /home/dafoamuser/mount/hump_nrn
+Case   : /home/dafoamuser/mount/hump_nat
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
@@ -117,7 +117,7 @@ I/O    : uncollated
     From Foam::fileName Foam::cwd_L()
     in file POSIX.C at line 554
     PWD is not the cwd() - reverting to physical description
-Case   : /home/dafoamuser/mount/hump_nrn
+Case   : /home/dafoamuser/mount/hump_nat
 nProcs : 4
 Hosts  :
 (
@@ -136,16 +136,16 @@ Create time
 Create mesh for time = 0
 Replacing wallDist.method meshWave -> meshWaveFrozen
 DAOption created. DASolver initialized.
+[1] UPstream::init : could not attach buffer
+[2] UPstream::init : could not attach buffer
+[0] UPstream::init : could not attach buffer
+[3] UPstream::init : could not attach buffer
 I/O    : uncollated
 --> FOAM Warning : 
     From Foam::fileName Foam::cwd_L()
     in file POSIX.C at line 554
     PWD is not the cwd() - reverting to physical description
-[0] UPstream::init : could not attach buffer
-[3] UPstream::init : could not attach buffer
-[2] UPstream::init : could not attach buffer
-[1] UPstream::init : could not attach buffer
-Case   : /home/dafoamuser/mount/hump_nrn
+Case   : /home/dafoamuser/mount/hump_nat
 nProcs : 4
 Hosts  :
 (
@@ -179,21 +179,21 @@ Reading/calculating face flux field phi
 
 Creating source term. 
 Using #calc - line 18 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_24bbeb1bad12bcbcb17c2ba7c878597d19a98dde.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_24bbeb1bad12bcbcb17c2ba7c878597d19a98dde.so"
 Using #calc - line 19 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0d6678cbded004d7cff33762219d91290a61a9f4.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0d6678cbded004d7cff33762219d91290a61a9f4.so"
 Using #calc - line 20 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0dee2414eac12253e27b45de5fa81372da1f7d5f.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0dee2414eac12253e27b45de5fa81372da1f7d5f.so"
 Using #calc - line 21 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_51588cb650d3f721123e72a417fe1112fd4e2c12.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_51588cb650d3f721123e72a417fe1112fd4e2c12.so"
 Using #calc - line 22 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_5f749c2b1b6281bda8cc61ab6d6bfa8f95a3d9a3.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_5f749c2b1b6281bda8cc61ab6d6bfa8f95a3d9a3.so"
 Using #calc - line 23 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c6d603e51afce46f6f8772827c7af981e83c02f0.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c6d603e51afce46f6f8772827c7af981e83c02f0.so"
 Using #calc - line 24 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c5ba4ed67d72ee919ca1aa5201a1d2a770d7bf79.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c5ba4ed67d72ee919ca1aa5201a1d2a770d7bf79.so"
 Using #calc - line 25 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_7e0b8a2f6fcb53aca39613ab6911531c010cc674.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_7e0b8a2f6fcb53aca39613ab6911531c010cc674.so"
 Selecting incompressible transport model Newtonian
 Selecting turbulence model type RAS
 Selecting RAS turbulence model kOmegaSST
@@ -281,21 +281,21 @@ Reading/calculating face flux field phi
 
 Creating source term. 
 Using #calc - line 18 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_24bbeb1bad12bcbcb17c2ba7c878597d19a98dde.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_24bbeb1bad12bcbcb17c2ba7c878597d19a98dde.so"
 Using #calc - line 19 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0d6678cbded004d7cff33762219d91290a61a9f4.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0d6678cbded004d7cff33762219d91290a61a9f4.so"
 Using #calc - line 20 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0dee2414eac12253e27b45de5fa81372da1f7d5f.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_0dee2414eac12253e27b45de5fa81372da1f7d5f.so"
 Using #calc - line 21 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_51588cb650d3f721123e72a417fe1112fd4e2c12.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_51588cb650d3f721123e72a417fe1112fd4e2c12.so"
 Using #calc - line 22 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_5f749c2b1b6281bda8cc61ab6d6bfa8f95a3d9a3.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_5f749c2b1b6281bda8cc61ab6d6bfa8f95a3d9a3.so"
 Using #calc - line 23 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c6d603e51afce46f6f8772827c7af981e83c02f0.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c6d603e51afce46f6f8772827c7af981e83c02f0.so"
 Using #calc - line 24 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c5ba4ed67d72ee919ca1aa5201a1d2a770d7bf79.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_c5ba4ed67d72ee919ca1aa5201a1d2a770d7bf79.so"
 Using #calc - line 25 in file "constant/transportProperties"
-Using #codeStream with "/home/dafoamuser/mount/hump_nrn/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_7e0b8a2f6fcb53aca39613ab6911531c010cc674.so"
+Using #codeStream with "/home/dafoamuser/mount/hump_nat/dynamicCode/platforms/linux64GccDPInt32Opt/lib/libcodeStream_7e0b8a2f6fcb53aca39613ab6911531c010cc674.so"
 Selecting incompressible transport model Newtonian
 Selecting turbulence model type RAS
 Selecting RAS turbulence model kOmegaSST
@@ -369,7 +369,7 @@ maxIncorrectlyOrientedFaces: 0
     Found matching patch bottom with 622 faces
 Find 622 reference points for variance of wallShearStress
 Init solver done! ElapsedClockTime 1.000000 s
-Init solver done! ElapsedCpuTime 0.620000 s
+Init solver done! ElapsedCpuTime 0.900000 s
 initState: 
 7
 (
@@ -387,7 +387,7 @@ I/O    : uncollated
     From Foam::fileName Foam::cwd_L()
     in file POSIX.C at line 554
     PWD is not the cwd() - reverting to physical description
-Case   : /home/dafoamuser/mount/hump_nrn
+Case   : /home/dafoamuser/mount/hump_nat
 nProcs : 4
 Hosts  :
 (
@@ -549,10 +549,10 @@ DAFoam option dictionary:
         globalPCIters   0;
         asmOverlap      1;
         localPCIters    1;
-        jacMatReOrdering rcm;
+        jacMatReOrdering natural;
         pcFillLevel     1;
-        gmresMaxIters   2000;
-        gmresRestart    2000;
+        gmresMaxIters   1000;
+        gmresRestart    1000;
         gmresRelTol     1e-06;
         gmresAbsTol     1e-14;
         gmresTolDiff    100;
@@ -568,7 +568,7 @@ DAFoam option dictionary:
         KSPCalcSingularVal 0;
         readPCMat       0;
     }
-    normalizeResiduals 1 ( None );
+    normalizeResiduals 11 ( URes pRes p_rghRes nuTildaRes phiRes TRes DRes kRes omegaRes epsilonRes alpha.waterRes );
     maxResConLv4JacPCMat
     {
         pRes            2;
@@ -694,7 +694,7 @@ DILUPBiCGStab:  Solving for k, Initial residual = 8.77578e-07, Final residual = 
 k initRes: 8.77578e-07 finalRes: 2.27814e-08 nIters: 1
 cfVar: 0.162466 final: 0.162466
 yPlus min: 0.0828977 max: 2.13364 mean: 1.45864
-ExecutionTime = 1.46 s  ClockTime = 1 s
+ExecutionTime = 2.07 s  ClockTime = 2 s
 
 DILUPBiCGStab:  Solving for Ux, Initial residual = 3.83652e-06, Final residual = 1.58773e-07, No Iterations 1
 DILUPBiCGStab:  Solving for Uy, Initial residual = 0.644905, Final residual = 0.00791373, No Iterations 1
@@ -1601,7 +1601,7 @@ DILUPBiCGStab:  Solving for k, Initial residual = 1.37652e-07, Final residual = 
 k initRes: 1.37652e-07 finalRes: 1.13963e-08 nIters: 1
 cfVar: 0.162637 final: 0.162637
 yPlus min: 0.0812349 max: 2.11992 mean: 1.45737
-ExecutionTime = 10.85 s  ClockTime = 11 s
+ExecutionTime = 15.32 s  ClockTime = 15 s
 
 DILUPBiCGStab:  Solving for Ux, Initial residual = 7.53999e-08, Final residual = 5.31091e-09, No Iterations 1
 DILUPBiCGStab:  Solving for Uy, Initial residual = 0.53985, Final residual = 0.00705322, No Iterations 1
@@ -1691,22 +1691,22 @@ cfVar: 0.162637 final: 0.162637
 End
 
 Printing Primal Residual Statistics.
-U Residual Norm2: (9.33974e-06 5.11357e-16 7.59031e-06)
-U Residual Mean: (1.22794e-08 3.34438e-19 8.73929e-09)
-U Residual Max: (5.39562e-07 7.21063e-17 3.69311e-07)
-p Residual Norm2: 2.87362e-08
-p Residual Mean: 2.89458e-11
-p Residual Max: 4.19934e-09
-omega Residual Norm2: 0.00615477
-omega Residual Mean: 4.38467e-06
-omega Residual Max: 0.000827137
-k Residual Norm2: 5.81322e-05
-k Residual Mean: 4.11511e-08
-k Residual Max: 7.06493e-06
-phi Residual Norm2: 2.38768e-07
-phi Residual Mean: 9.58537e-11
-phi Residual Max: 1.22249e-08
-Total Residual Norm2: 0.00615505
+U Residual Norm2: (7.80745 5.26111e-11 3.54522)
+U Residual Mean: (0.0132323 8.20473e-14 0.00504878)
+U Residual Max: (0.245406 2.69339e-12 0.159055)
+p Residual Norm2: 0.213244
+p Residual Mean: 0.000104897
+p Residual Max: 0.0542067
+omega Residual Norm2: 13945.6
+omega Residual Mean: 12.3809
+omega Residual Max: 1684.19
+k Residual Norm2: 26.4914
+k Residual Mean: 0.0286247
+k Residual Max: 2.76895
+phi Residual Norm2: 0.000270339
+phi Residual Mean: 1.21872e-07
+phi Residual Max: 1.23329e-05
+Total Residual Norm2: 13945.7
  
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -1717,7 +1717,7 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-TIMING primal_wall_s: 11.480
+TIMING primal_wall_s: 15.771
 OBJ cfVar: 1.6263651522923017e-01
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -1727,12 +1727,12 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-Computing d[cfVar]/d[aero_states]^T * psi 12.68 s
+Computing d[cfVar]/d[aero_states]^T * psi 17.38 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-Computing d[cfVar]/d[beta]^T * psi 13.39 s
+Computing d[cfVar]/d[beta]^T * psi 18.2 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -1742,15 +1742,15 @@ dRdWColoring_4.bin exists.
 Moving time 109 to 0.0001
 Driver total derivatives for iteration: 1
 ---------------------------------------------
-Computing dRdWTPC 14.15 s
-Initializing dRdWCon. 14.15 s
-dRdWCon Created. 20.18 s
+Computing dRdWTPC 19.27 s
+Initializing dRdWCon. 19.27 s
+dRdWCon Created. 26.04 s
 Reading Coloring dRdWColoring_4
 Validating Coloring...
 No Conflicting Colors Found!
-Partial derivative matrix created. 20.44 s
+Partial derivative matrix created. 26.32 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-dRdWTPC: 0 of 473, ExecutionTime: 20.54 s
+dRdWTPC: 0 of 473, ExecutionTime: 26.45 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -1851,7 +1851,7 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-dRdWTPC: 100 of 473, ExecutionTime: 28.7 s
+dRdWTPC: 100 of 473, ExecutionTime: 39.06 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -1952,7 +1952,7 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-dRdWTPC: 200 of 473, ExecutionTime: 37.42 s
+dRdWTPC: 200 of 473, ExecutionTime: 51.87 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -2053,7 +2053,7 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-dRdWTPC: 300 of 473, ExecutionTime: 46.17 s
+dRdWTPC: 300 of 473, ExecutionTime: 64.27 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -2154,7 +2154,7 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-dRdWTPC: 400 of 473, ExecutionTime: 55.15 s
+dRdWTPC: 400 of 473, ExecutionTime: 76.87 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
@@ -2227,73 +2227,88 @@ limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-dRdWTPC: 472 of 473, ExecutionTime: 61.46 s
+dRdWTPC: 472 of 473, ExecutionTime: 85.43 s
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 Solver Type: gmres
-GMRES Restart: 2000
+GMRES Restart: 1000
 ASM Overlap: 1
 Global PC Iters: 0
 Local PC Iters: 1
-Mat ReOrdering: rcm
+Mat ReOrdering: natural
 ILU PC Fill Level: 1
-GMRES Max Iterations: 2000
+GMRES Max Iterations: 1000
 GMRES Relative Tolerance: 1e-06
 GMRES Absolute Tolerance: 1e-14
-Solving Linear Equation... 61.65 s
-Main iteration 0 KSP Residual norm 1.094138002900e+00 68.37 s. 
+Solving Linear Equation... 85.48 s
+Main iteration 0 KSP Residual norm 1.094138002900e+00 87.16 s. 
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
-Main iteration 100 KSP Residual norm 1.094138002900e+00 92.67 s. 
-Main iteration 200 KSP Residual norm 1.094138002900e+00 117.76 s. 
-Main iteration 300 KSP Residual norm 1.094138002900e+00 145.38 s. 
-Main iteration 400 KSP Residual norm 1.094138002900e+00 175.22 s. 
-Main iteration 500 KSP Residual norm 1.094138002900e+00 207.63 s. 
-Main iteration 600 KSP Residual norm 1.094138002900e+00 242.65 s. 
-Main iteration 700 KSP Residual norm 1.094138002900e+00 281.25 s. 
-Main iteration 800 KSP Residual norm 1.094138002900e+00 329.61 s. 
-Main iteration 900 KSP Residual norm 1.094138002900e+00 386.77 s. 
-Main iteration 1000 KSP Residual norm 1.094138002900e+00 433.37 s. 
-Main iteration 1100 KSP Residual norm 1.094138002900e+00 479.88 s. 
-Main iteration 1200 KSP Residual norm 1.094138002900e+00 529.02 s. 
-Main iteration 1300 KSP Residual norm 1.094138002900e+00 580.65 s. 
-Main iteration 1400 KSP Residual norm 1.094138002900e+00 634.58 s. 
-Main iteration 1500 KSP Residual norm 1.094138002900e+00 689.98 s. 
-Main iteration 1600 KSP Residual norm 1.094138002900e+00 750.63 s. 
-Main iteration 1700 KSP Residual norm 1.094138002900e+00 811.86 s. 
-Main iteration 1800 KSP Residual norm 1.094138002900e+00 873.72 s. 
-Main iteration 1900 KSP Residual norm 1.094138002900e+00 917.71 s. 
-Main iteration 2000 KSP Residual norm 1.094138002900e+00 963.58 s. 
-Main iteration 2000 KSP Residual norm 1.094138002900e+00 965.94 s 
-**Completed**! Total iterations: 2000. PetscConvergedReason: -3. 965.94 s
+Main iteration 100 KSP Residual norm 1.094138002841e+00 120.19 s. 
+Main iteration 200 KSP Residual norm 1.094138002841e+00 153.81 s. 
+Main iteration 300 KSP Residual norm 1.094138002841e+00 190.27 s. 
+Main iteration 400 KSP Residual norm 1.094138002841e+00 230.75 s. 
+Main iteration 500 KSP Residual norm 1.094138002841e+00 275.74 s. 
+Main iteration 600 KSP Residual norm 1.094138002841e+00 324.91 s. 
+Main iteration 700 KSP Residual norm 1.094138002841e+00 379.26 s. 
+Main iteration 800 KSP Residual norm 1.094138002841e+00 439.52 s. 
+Main iteration 900 KSP Residual norm 1.094138002841e+00 500.52 s. 
+Main iteration 1000 KSP Residual norm 1.094138002841e+00 565.58 s. 
+Main iteration 1000 KSP Residual norm 1.094138002841e+00 565.71 s 
+**Completed**! Total iterations: 1000. PetscConvergedReason: -3. 565.71 s
 Residual tolerance not satisfied, solution failed!
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 limitVelocity limitVelocity1 Limited 0 (0%) of cells, 0 (0%) of faces, with max limit 70
 Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
 Traceback (most recent call last):
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
     yield
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    yield
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
     self.solve_linear(d_outputs, d_residuals, mode)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
+    raise AnalysisError("Adjoint solution failed!")
     raise AnalysisError("Adjoint solution failed!")
 openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/dafoamuser/mount/runScript_hump_nrn.py", line 113, in <module>
+  File "/home/dafoamuser/mount/runScript_hump_nat.py", line 112, in <module>
+    tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/runScript_hump_nat.py", line 112, in <module>
     tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
     return total_info.compute_totals()
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    model._solve_linear(mode, rel_systems)
     model._solve_linear(mode, rel_systems)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
     self._linear_solver.solve(mode, rel_systems)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
     self._single_iteration()
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
     subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
     return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
@@ -2310,12 +2325,18 @@ Traceback (most recent call last):
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
     subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
+    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
     with self._call_user_function('solve_linear'):
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
-Traceback (most recent call last):
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
     self.gen.throw(typ, value, traceback)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
     raise err_type(
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
     yield
@@ -2324,103 +2345,6 @@ Traceback (most recent call last):
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
     raise AnalysisError("Adjoint solution failed!")
 openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_linear(), Adjoint solution failed!
-Traceback (most recent call last):
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
-    yield
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
-    self.solve_linear(d_outputs, d_residuals, mode)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
-    raise AnalysisError("Adjoint solution failed!")
-openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/dafoamuser/mount/runScript_hump_nrn.py", line 113, in <module>
-    tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
-    return total_info.compute_totals()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
-    model._solve_linear(mode, rel_systems)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
-    self._linear_solver.solve(mode, rel_systems)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
-    self._single_iteration()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
-    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
-    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
-    self._linear_solver.solve(mode, rel_systems)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
-    self._single_iteration()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
-    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
-    self._linear_solver.solve(mode, rel_systems)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
-    self._single_iteration()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
-    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
-    with self._call_user_function('solve_linear'):
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
-    self.gen.throw(typ, value, traceback)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
-    raise err_type(
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
-    yield
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
-    self.solve_linear(d_outputs, d_residuals, mode)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
-    raise AnalysisError("Adjoint solution failed!")
-openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_linear(), Adjoint solution failed!
-    yield
-    yield
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
-    self.solve_linear(d_outputs, d_residuals, mode)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
-    raise AnalysisError("Adjoint solution failed!")
-    self.solve_linear(d_outputs, d_residuals, mode)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
-    raise AnalysisError("Adjoint solution failed!")
-openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/dafoamuser/mount/runScript_hump_nrn.py", line 113, in <module>
-    tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
-openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-    return total_info.compute_totals()
-  File "/home/dafoamuser/mount/runScript_hump_nrn.py", line 113, in <module>
-    tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
-    model._solve_linear(mode, rel_systems)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
-    self._linear_solver.solve(mode, rel_systems)
-    return total_info.compute_totals()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
-    self._single_iteration()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
-    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
-    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
-    self._linear_solver.solve(mode, rel_systems)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
-    self._single_iteration()
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
-    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
-  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
     self._linear_solver.solve(mode, rel_systems)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
     self._single_iteration()
@@ -2439,6 +2363,23 @@ Traceback (most recent call last):
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
     raise AnalysisError("Adjoint solution failed!")
 openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_linear(), Adjoint solution failed!
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+Traceback (most recent call last):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
+    raise AnalysisError("Adjoint solution failed!")
+openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/runScript_hump_nat.py", line 112, in <module>
+    tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
     model._solve_linear(mode, rel_systems)
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
     self._linear_solver.solve(mode, rel_systems)
@@ -2473,3 +2414,65 @@ openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class D
   File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
     raise AnalysisError("Adjoint solution failed!")
 openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_linear(), Adjoint solution failed!
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
+    raise AnalysisError("Adjoint solution failed!")
+openmdao.core.analysis_error.AnalysisError: Adjoint solution failed!
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dafoamuser/mount/runScript_hump_nat.py", line 112, in <module>
+    tot = prob.compute_totals(of=[OF], wrt=["beta"]); t2=time.time()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/problem.py", line 1799, in compute_totals
+    return total_info.compute_totals()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/total_jac.py", line 1444, in compute_totals
+    model._solve_linear(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/mphys/scenario.py", line 69, in _solve_linear
+    return super()._solve_linear(mode, rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/group.py", line 2705, in _solve_linear
+    self._linear_solver.solve(mode, rel_systems)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_runonce.py", line 38, in solve
+    self._single_iteration()
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/solvers/linear/linear_block_gs.py", line 161, in _single_iteration
+    subsys._solve_linear(mode, self._rel_systems, scope_out, scope_in)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 301, in _solve_linear
+    with self._call_user_function('solve_linear'):
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/contextlib.py", line 153, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2933, in _call_user_function
+    raise err_type(
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/system.py", line 2927, in _call_user_function
+    yield
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openmdao/core/implicitcomponent.py", line 302, in _solve_linear
+    self.solve_linear(d_outputs, d_residuals, mode)
+  File "/home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/dafoam/mphys/mphys_dafoam.py", line 574, in solve_linear
+    raise AnalysisError("Adjoint solution failed!")
+openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.solver' <class DAFoamSolver>: Error calling solve_linear(), Adjoint solution failed!
+Finalising parallel run
+Finalising parallel run
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[11624,1],2]
+  Exit code:    1
+--------------------------------------------------------------------------

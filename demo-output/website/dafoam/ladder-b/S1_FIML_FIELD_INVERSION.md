@@ -252,8 +252,26 @@ Each is one change against the same case, prediction written before launch.
 |---|---|---|
 | 1 | `useWallFunction: True` (high-Re wall treatment; verified applied, `nutkWallFunction` / `kqRWallFunction` / `omegaWallFunction` on `bottom`) | **REFUTED** — still `-9` at iteration 0 |
 | 2 | `limitVelocity` fvOption removed (a non-differentiable clip active on all 51,626 cells; inert at the solution, max abs U 44.54 against a limit of 70) | **REFUTED** — still `-9`, identical initial residual |
-| 3 | `normalizeResiduals: ["None"]` (verified applied: `normalizeResiduals 1 ( None )` against the baseline's 11 normalized residuals) | **SIGNATURE CHANGED** — no NaN, GMRES iterates honestly, but the residual is **exactly flat** (1.094138002900e+00 unchanged to 13 digits across 700+ iterations) |
-| 4 | tutorial's own adjoint settings (`jacMatReOrdering: natural`, restart 1000) instead of `rcm` | see below |
+| 3 | `normalizeResiduals: ["None"]` (verified applied: `normalizeResiduals 1 ( None )` against the baseline's 11 normalized residuals) | **SIGNATURE CHANGED** — no NaN. Runs the full budget and terminates `PetscConvergedReason: -3` (`DIVERGED_ITS`), 2000 of 2000 iterations, 965.94 s, residual **exactly flat** at 1.094138002900e+00 to 13 digits throughout |
+| 4 | `jacMatReOrdering: natural` instead of `rcm`, matching the working tutorial's own adjoint settings | **SIGNATURE CHANGED** — no NaN. Runs the full budget and terminates `PetscConvergedReason: -3` (`DIVERGED_ITS`), 1000 of 1000 iterations, 565.71 s, residual flat at 1.094138002841e+00 to 13 digits throughout |
+
+Rung 4's terminal state is worth quoting exactly, because it reproduces R5's most useful
+mechanical observation. R5 established that DAFoam's success gate is fooled by a collapsing
+residual: a `-5`/`-9` run prints "Residual tolerance satisfied, solution finished!" and lets
+OpenMDAO continue, while a `-3` run prints "not satisfied" and correctly aborts. The hump
+follows that exactly — `-9` while the NaN is present, `-3` once it is not.
+
+**Rung 4 matters for reading B3.** The reverse Cuthill-McKee reordering is what B3's CBFS script
+used and what this hump attempt used first; the working tutorial uses `natural`. Switching to
+`natural` is on its own enough to stop the NaN. So `rcm` is implicated in *producing* the
+`DIVERGED_NANORINF` specifically, and any future attempt should treat the reordering as a variable
+rather than a constant. It is not, however, the whole story: with the NaN gone the solver still
+makes no progress at all.
+
+**The two levers that change the signature do not stack into a fix.** Both rung 3 and rung 4
+convert catastrophic failure into honest stagnation, and in both the residual is flat to 13
+significant figures — not slow convergence, zero progress. That is the same place R5 ended up on
+the M6 family after four levers.
 
 **Result 3 reproduces R5's headline finding on a completely different physics family.** R5
 established on the compressible transonic M6 that `normalizeResiduals=None` converts a
@@ -339,7 +357,7 @@ Logs and scripts: `S1_work/logs/` and `S1_work/scripts/`.
 | `logs/s1_e1_kw.json`, `s1_e2_sst.json`, `s1_e2_tight.json` | gradients, timings, warp probe |
 | `logs/hump_adjoint_run1.log` | hump `-9` blocker, primary evidence |
 | `logs/hump_mem_run1.log` | host MemAvailable sampled every 2 s during that run |
-| `logs/hump_wf_run1.log`, `hump_nofvopt_run1.log`, `hump_nrn_run1.log` | mechanism ladder |
+| `logs/hump_wf_run1.log`, `hump_nofvopt_run1.log`, `hump_nrn_run1.log`, `hump_nat_run1.log` | mechanism ladder rungs 1 to 4 |
 | `scripts/` | run scripts, FD generator and analyzer, reference-field builder |
 
 Case working directories are not committed (OpenFOAM binary and processor state, regenerable):
