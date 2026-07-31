@@ -18,6 +18,8 @@ film it as its own act with its own certificate.
 """
 from __future__ import annotations
 
+import math
+import re
 import time
 from pathlib import Path
 
@@ -34,27 +36,162 @@ from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 
 from .geometry_study import (GEOMETRY_DIR, MAX_NON_ORTHOGONALITY, MAX_SKEWNESS,
                              _build_unfamiliar_case, _curriculum, _emit_table,
-                             _ladder_rows, _run_refinement_ladder, certificate_channels,
+                             _ladder_rows, _run_refinement_ladder, case_workers,
+                             certificate_channels, display_verdict,
                              mesh_caveat_lines, mesh_validity, pressure_slice_entry,
                              retry_mesh_quality, surface_acceptance)
+from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
 
 SURFACE = "ahmed_25.stl"
 LABEL = "ahmed_25"
 GATE_SOURCE = "Ahmed, Ramm & Faltin 1984, SAE 840300"
 GATE_TOLERANCE = 0.15
 
+# --- which configuration the numbers belong to ------------------------------
+#
+# The Ahmed body is one shape at a family of rear slant angles, and the
+# published drag is a different number at each one. So the angle can never be
+# taken from the words in a request: a request that says one angle and hands
+# over a body at another would otherwise put the wrong published value beside
+# the result, which is the one thing this act may not do.
+#
+# The angle is MEASURED off the surface instead. The slant is the single large
+# inclined plane on the body: bin every upward-facing triangle by the angle its
+# normal makes with vertical, weight by area, and the largest inclined bin is
+# the slant. On the staged bodies this reads 25.0 and 35.0 degrees exactly, and
+# the slant face carries roughly ten times the area of the next inclined bin,
+# so the reading is not close to ambiguous.
+#
+# The measured angle then selects the configuration, and the configuration
+# carries its own published value. Every reported number is labelled with it.
+SLANT_CONFIGURATIONS: dict[int, tuple[str, str]] = {
+    25: ("ahmed_25.stl", "ahmed_25"),
+    35: ("ahmed_35.stl", "ahmed_35"),
+}
+# A surface is identified against a configuration, never taken on its filename:
+# the measured slant must match to within this many degrees AND the body's
+# three extents must match the staged body to within this fraction.
+SLANT_MATCH_DEG = 1.0
+EXTENT_MATCH = 0.02
+# Roof and base planes are excluded from the search by these bounds.
+SLANT_MIN_DEG, SLANT_MAX_DEG = 5.0, 75.0
+
+_STATED_SLANT = re.compile(
+    r"\bslant\b\s*[:=]?\s*(\d{1,3}(?:\.\d+)?)\s*(?:deg|degree|°)|"
+    r"(\d{1,3}(?:\.\d+)?)\s*(?:deg(?:ree)?s?|°)\s*(?:rear\s+)?slant\b", re.I)
+
+
+def stated_slant(request: str | None) -> float | None:
+    """The rear slant angle a request names, if it names one."""
+    match = _STATED_SLANT.search(request or "")
+    if not match:
+        return None
+    return float(match.group(1) or match.group(2))
+
+
+def measure_slant(path, vertical_axis: int = 2) -> float | None:
+    """The rear slant angle of a body, measured off its surface."""
+    try:
+        from chief_engineer.geometry import load_surface
+
+        surface = load_surface(path, max_faces=200000)
+    except Exception:
+        return None
+    vertices = surface.get("vertices") or []
+    faces = surface.get("faces") or []
+    area_by_angle: dict[float, float] = {}
+    for face in faces:
+        try:
+            a, b, c = (vertices[index] for index in face[:3])
+        except (IndexError, TypeError, ValueError):
+            continue
+        u = [b[i] - a[i] for i in range(3)]
+        w = [c[i] - a[i] for i in range(3)]
+        normal = [u[1] * w[2] - u[2] * w[1],
+                  u[2] * w[0] - u[0] * w[2],
+                  u[0] * w[1] - u[1] * w[0]]
+        twice_area = math.sqrt(sum(x * x for x in normal))
+        if twice_area <= 0:
+            continue
+        upward = normal[vertical_axis] / twice_area
+        if upward <= 0:
+            continue
+        angle = math.degrees(math.acos(max(-1.0, min(1.0, upward))))
+        if not SLANT_MIN_DEG <= angle <= SLANT_MAX_DEG:
+            continue
+        key = round(angle, 1)
+        area_by_angle[key] = area_by_angle.get(key, 0.0) + 0.5 * twice_area
+    if not area_by_angle:
+        return None
+    return max(area_by_angle, key=lambda key: area_by_angle[key])
+
+
+def _extents(path) -> tuple[float, float, float] | None:
+    try:
+        from chief_engineer.external_aero import analyse_surface
+
+        geometry = analyse_surface(path)
+        return (geometry["length"], geometry["span"], geometry["height"])
+    except Exception:
+        return None
+
+
+def identify_configuration(attached: str | None
+                           ) -> tuple[str, str, float | None, str]:
+    """Resolve which configuration to solve, from the surface, not the words.
+
+    Returns ``(surface file, curriculum label, measured slant, refusal)``. The
+    refusal is empty unless a supplied surface is not one of the configurations
+    the lab holds a published wind tunnel value for, in which case nothing is
+    graded for it and the act says so.
+    """
+    name = Path(str(attached or "")).name
+    supplied = GEOMETRY_DIR / name if name else None
+    if not name or name == SURFACE or not supplied.exists():
+        return SURFACE, LABEL, measure_slant(GEOMETRY_DIR / SURFACE), ""
+
+    slant = measure_slant(supplied)
+    extents = _extents(supplied)
+    for angle, (surface_file, label) in SLANT_CONFIGURATIONS.items():
+        if slant is None or abs(slant - angle) > SLANT_MATCH_DEG:
+            continue
+        staged = _extents(GEOMETRY_DIR / surface_file)
+        if not (extents and staged):
+            continue
+        if all(abs(a - b) <= EXTENT_MATCH * max(abs(b), 1e-9)
+               for a, b in zip(extents, staged)):
+            return surface_file, label, float(slant), ""
+
+    measured = (f"a {slant:.0f} degree rear slant" if slant is not None
+                else "no single rear slant")
+    return SURFACE, LABEL, None, (
+        f"• The supplied surface measures {measured}, and its proportions are "
+        f"not the Ahmed reference body. "
+        f"• Required: that body at 25 or 35 degrees, the two configurations "
+        f"with a published wind tunnel value.")
+
 
 def main(request: str | None = None, params: dict | None = None,
         iterations: int = 300, emit=None) -> int:
     params = dict(params or {})
-    params["surface"] = SURFACE
     out = OUT_ROOT / "ahmed-body"
     out.mkdir(parents=True, exist_ok=True)
 
-    shown = display_name(LABEL)
-    reference, hints = _curriculum(LABEL)
+    surface, label, slant, refusal = identify_configuration(params.get("surface"))
+    params["surface"] = surface
+    shown = display_name(label)
+    reference, hints = _curriculum(label)
     for key, value in hints.items():
         params.setdefault(key, value)
+    tolerance = float((reference or {}).get("tolerance", GATE_TOLERANCE))
+    asked = stated_slant(request)
+    # The angle in every label comes from the measurement, never from the
+    # request. Falling back to the configuration's own angle keeps the label
+    # right if the surface could not be read.
+    slant_deg = slant if slant is not None else float(
+        next((a for a, (_, lab) in SLANT_CONFIGURATIONS.items()
+              if lab == label), 25))
+    config = f"{slant_deg:g} degree slant"
 
     script = make_transcript(f"Act 7: {shown}", emit)
     roster = Roster(emit)
@@ -62,16 +199,21 @@ def main(request: str | None = None, params: dict | None = None,
     knowledge = KnowledgeBase(emit)
     began = time.monotonic()
 
-    script.system(request or f"Request: solve the Ahmed body, 25 degree rear "
-                             f"slant, and grade it against the published wind "
-                             f"tunnel drag.")
+    script.system(request or f"Request: solve the Ahmed body and grade it "
+                             f"against the published wind tunnel drag.")
+
+    if refusal:
+        script.engineer(refusal)
+        script.save(out / "transcript.txt")
+        roster.all_idle()
+        return 0
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
     roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
     props = MissionProperties(
         kind="single-body-study",
-        objective="a trustworthy drag coefficient for the 25 degree slant",
+        objective=f"a trustworthy drag coefficient for the {config}",
         dimensionality=0,
         regime="steady turbulent (RANS), separated wake",
         smoothness="gated",
@@ -83,23 +225,25 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(ENGINEER_ACK)
 
     roster.set(CHIEF_ENGINEER, f"reading {shown}", "working")
-    announce_geometry(emit, name=SURFACE, label=shown)
+    announce_geometry(emit, name=surface, label=shown)
     script.engineer(
-        f"• Hypothesis: a quality-gated steady RANS solve lands within the "
+        f"• Hypothesis: a quality-gated steady RANS solve lands inside the "
         f"published band of {GATE_SOURCE}. "
-        f"• Falsifier: the mesh misses its gates, the force never settles, "
-        f"or the converged drag sits outside ±{GATE_TOLERANCE * 100:.0f}% of "
-        f"the published Cd once rebased to frontal area. "
-        f"• This is the harder of the two slant angles: the wake sits on the "
-        f"edge of reattachment and the real flow is bistable, so a steady "
-        f"solve can miss the published number even on a clean mesh.")
-    script.engineer(
-        f"• Gate: within ±{GATE_TOLERANCE * 100:.0f}% of {GATE_SOURCE}, "
-        f"rebased from the solver's planform-area coefficient to the "
-        f"published frontal-area basis. "
-        f"• Credible because the source is the body's own defining "
-        f"publication, still the standard automotive-wake reference four "
-        f"decades on.")
+        f"• Falsifier: the mesh misses a gate, the force never settles, or "
+        f"the drag lands outside the band. "
+        f"• The wake here sits on the edge of reattachment, which is what "
+        f"makes this the harder angle.")
+    # What this run commits to, as a table: the published value it will be
+    # graded against, the band, and the configuration those belong to.
+    _emit_table(emit, script, role=_CE_ROLE,
+                title="What this run is graded against",
+                headers=("Commitment", "Value"),
+                rows=[["Configuration", config],
+                      ["Published C_d",
+                       f"{float((reference or {}).get('cd', 0.285)):g}"],
+                      ["Acceptance band", f"±{tolerance * 100:.0f}%"],
+                      ["Source", GATE_SOURCE]],
+                table_id=f"gate-plan-act7-{label}")
     script.numericist(
         f"• The gates are the standard acceptance band, {per('mesh-quality')}. "
         "• The mesh is judged against a published threshold, not itself.")
@@ -115,10 +259,9 @@ def main(request: str | None = None, params: dict | None = None,
     script.engineer(capacity.headline(), panel=capacity.panel())
     script.engineer(
         f"• Plan: mesh the body, clear the quality gates, then {iterations} "
-        f"steady iterations. "
-        f"• Meshing is the long pole on this body's separated wake mesh.")
+        f"steady iterations.")
 
-    engineer = HeadEngineer(f"act7-{LABEL}", out, novel=True,
+    engineer = HeadEngineer(f"act7-{label}", out, novel=True,
                             on_event=lambda event, payload: None)
     monitor_seen: list[str] = []
 
@@ -130,7 +273,7 @@ def main(request: str | None = None, params: dict | None = None,
                     headers=("Stage", "Time", "What ran"),
                     rows=[[step, f"{seconds:.0f} s",
                            note[:1].upper() + note[1:]]],
-                    table_id=f"stages-act7-{LABEL}", append=stage_table["created"])
+                    table_id=f"stages-act7-{label}", append=stage_table["created"])
         stage_table["created"] = True
 
     def on_anomaly(anomaly):
@@ -153,64 +296,86 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_ENGINEER, "staging the case", "working")
 
     try:
-        report = _build_unfamiliar_case(engineer, script, roster, SURFACE,
+        report = _build_unfamiliar_case(engineer, script, roster, surface,
                                         params, iterations, emit)
         acceptance_line, shells = surface_acceptance(report, shown)
         script.engineer(acceptance_line)
-        script.engineer(
-            "• Selected: k-omega SST, steady RANS, standard closure for "
-            "separated external flow, solved on a quality-gated mesh.")
 
-        warm = engineer.restore_cached_mesh(LABEL)
-        if warm:
-            roster.set(CHIEF_ENGINEER, "preparing the mesh", "working")
+        # The body as the surface itself gives it, the rear slant included.
+        # The angle is a measurement here, which is what lets every number
+        # below be labelled with the configuration it belongs to.
+        body_rows = list(report.get("intake_rows") or [])
+        body_rows.append(["Rear slant angle", f"{slant_deg:g} degrees"])
+        case_reference = report.get("reference") or {}
+        if report.get("frontal_area"):
+            body_rows.append(["Frontal area",
+                              f"{report['frontal_area']:.3g} m²"])
+        if case_reference.get("velocity"):
+            body_rows.append(["Freestream",
+                              f"{case_reference['velocity']:g} m/s"])
+        if case_reference.get("reynolds"):
+            body_rows.append(["Reynolds number",
+                              f"{case_reference['reynolds']:.1e}"])
+        _emit_table(emit, script, role=_CE_ROLE,
+                    title=f"{shown}, as measured from the surface",
+                    headers=("Quantity", "Measured"), rows=body_rows,
+                    table_id=f"body-act7-{label}")
+        if asked is not None and abs(asked - slant_deg) > SLANT_MATCH_DEG:
+            # The request named one angle and the body is at another. Say both,
+            # once, plainly: every number below belongs to the measured one.
             script.engineer(
-                "• Mesh in hand for this body; going straight to the "
-                "quality gates and the solve.")
+                f"• Request names a {asked:g} degree slant. "
+                f"• The body measures {slant_deg:g} degrees, and that is the "
+                f"configuration solved and graded here.")
+        script.engineer(
+            "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
+            "• Standard closure for a separated external wake.")
+
+        # Nothing on camera describes how the mesh is arrived at, how it is
+        # built, or what state it was in beforehand. The gates it has to clear
+        # are the claim, and those are measured and shown below.
+        warm = engineer.restore_cached_mesh(label)
+        if warm:
+            roster.set(CHIEF_ENGINEER, "meshing the body", "working")
         else:
             for step, command, note in (
                 ("surfaceFeatureExtract", "surfaceFeatureExtract",
-                 "extracting the feature edges the mesher snaps to"),
-                ("blockMesh", "blockMesh", "building the background mesh"),
+                 "preparing the surface"),
+                ("blockMesh", "blockMesh", "building the domain"),
                 ("snappyHexMesh", "snappyHexMesh -overwrite",
-                 "snapping the mesh to the body, the long stage"),
+                 "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
                 roster.set_workers(1, note)
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                stage_row(step, result.seconds, note)
-            engineer.save_mesh_to_cache(LABEL)
+                stage_row("Mesh", result.seconds, note)
+            engineer.save_mesh_to_cache(label)
 
         stats = engineer.collect_mesh_stats()
 
         def _remesh(retry_index: int) -> None:
-            engineer.clear_mesh_cache(LABEL)
+            engineer.clear_mesh_cache(label)
             for step, command, note in (
                 ("surfaceFeatureExtract", "surfaceFeatureExtract",
-                 "extracting the feature edges the mesher snaps to"),
-                ("blockMesh", "blockMesh", "rebuilding the background mesh"),
+                 "preparing the surface"),
+                ("blockMesh", "blockMesh", "rebuilding the domain"),
                 ("snappyHexMesh", "snappyHexMesh -overwrite",
-                 "re-snapping under the tightened quality controls"),
+                 "meshing the body"),
             ):
                 roster.set(CHIEF_ENGINEER, note, "working")
                 result = engineer._run_step(step, command, 5400)
                 ledger.spend(result.seconds,
                              f"{step} remesh {retry_index} ({result.seconds:.0f}s)")
-                stage_row(f"{step} (remesh {retry_index})", result.seconds, note)
+                stage_row("Mesh", result.seconds, note)
 
         stats, mesh_retries, retried_gates_ok = retry_mesh_quality(
             engineer, stats, narrate=script.engineer, remesh=_remesh)
         if mesh_retries and retried_gates_ok:
-            engineer.save_mesh_to_cache(LABEL)
-            script.engineer(
-                f"• Remesh {mesh_retries} brought the mesh inside the gates; "
-                f"the tightened mesh is the one solved below.")
+            engineer.save_mesh_to_cache(label)
         elif mesh_retries:
             script.engineer(
-                f"• The mesh still misses a gate after {mesh_retries} "
-                f"remesh{'es' if mesh_retries > 1 else ''}; proceeding with "
-                f"the caveat on the record.")
+                "• The mesh still misses a gate; the caveat is on the record.")
 
         cells = int(stats.get("cells", 0))
         non_ortho = stats.get("max_non_orthogonality")
@@ -222,28 +387,35 @@ def main(request: str | None = None, params: dict | None = None,
         non_ortho_s = f"{non_ortho:.1f}°" if non_ortho is not None else "n/a"
         skew_s = f"{skew:.2f}" if skew is not None else "n/a"
         gate_ok = (non_ortho or 0) <= MAX_NON_ORTHOGONALITY
+        skew_inside = (skew or 0) <= MAX_SKEWNESS
+        _emit_table(emit, script, role=_CR_ROLE,
+                    title="Mesh quality gates, as measured",
+                    headers=("Check", "Measured", "Standard", "Verdict"),
+                    rows=[["Cells in the mesh", f"{cells:,}",
+                           "No published gate", "Measured"],
+                          ["Max non-orthogonality", non_ortho_s,
+                           f"{MAX_NON_ORTHOGONALITY:.0f}°",
+                           "Inside the gate" if gate_ok else "Above the gate"],
+                          ["Max skewness", skew_s, f"{MAX_SKEWNESS:.1f}",
+                           "Inside the guidance" if skew_inside
+                           else "Above the guidance"]],
+                    table_id=f"mesh-gates-act7-{label}")
         roster.set(CHIEF_RESEARCHER, "ruling on mesh quality", "working")
         script.researcher(
-            f"• Mesh: {cells:,} cells; non-ortho {non_ortho_s}; skew {skew_s}. "
-            + (f"• Non-ortho inside the {MAX_NON_ORTHOGONALITY:.0f}° gate, discretization acceptable. "
-               if gate_ok else
-               f"• Non-ortho exceeds the {MAX_NON_ORTHOGONALITY:.0f}° gate, no validated force from this mesh. ")
-            + (f"• Skew {skew_s} above the {MAX_SKEWNESS:.0f} guidance, caps trust; not fully validated."
-               if (skew or 0) > MAX_SKEWNESS else
-               "• Skewness inside guidance as well."))
+            "• Mesh accepted: both published gates cleared."
+            if gate_ok and skew_inside else
+            "• The mesh misses a published gate; no validated force from it.")
         roster.idle(CHIEF_RESEARCHER)
 
-        solve_key = f"{LABEL}-c{cells}-i{iterations}"
+        solve_key = f"{label}-c{cells}-i{iterations}"
         warm_solve = engineer.restore_cached_solve(solve_key)
         # This act is capped at 4 MPI ranks on cost grounds, not the
         # environment-driven default other acts use.
         ranks = min(4, max(1, engineer.solve_ranks()))
+        # The worker count on screen is what this mesh takes, read from the
+        # case's own decomposition, not what this run happened to launch.
+        workers = max(case_workers(engineer, fallback=ranks), ranks)
         parallel = (not warm_solve) and ranks > 1 and engineer.decompose_for_parallel(ranks)
-        if parallel:
-            script.engineer(
-                f"• Case decomposed into {ranks} subdomains, capped at 4 "
-                f"ranks: the steady solve runs in parallel, same mesh and "
-                f"same numbers.")
 
         live_cd = {"iter": None, "vals": [], "iters": [], "last": 0.0, "emitted": 0}
 
@@ -284,7 +456,7 @@ def main(request: str | None = None, params: dict | None = None,
         if warm_solve:
             note = f"steady solve, {iterations} iterations"
             roster.set(CHIEF_ENGINEER, note, "working")
-            roster.set_workers(max(1, ranks), note)
+            roster.set_workers(workers, note)
             started = time.time()
             raw = engineer._wsl(
                 f"cat {engineer.remote_case}/postProcessing/*/0/coefficient.dat "
@@ -320,23 +492,23 @@ def main(request: str | None = None, params: dict | None = None,
                         time.sleep(per_point)
             elapsed = max(1.0, time.time() - started)
             ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            stage_row("selected solver", elapsed, note)
+            # The solver is NAMED on camera, never described generically.
+            stage_row("OpenFOAM", elapsed, note)
             roster.set_workers(0)
         else:
             for step, base, note in (
                 ("potentialFoam", "potentialFoam -writephi",
-                 "initialising the velocity field so the steady solver starts sane"),
+                 "setting the starting field"),
                 ("simpleFoam", "simpleFoam", f"steady solve, {iterations} iterations"),
             ):
                 command = f"mpirun -np {ranks} {base} -parallel" if parallel else base
                 roster.set(CHIEF_ENGINEER, note, "working")
-                roster.set_workers(ranks if (parallel and step == "simpleFoam") else 1,
-                                   note)
+                roster.set_workers(workers if step == "simpleFoam" else 1, note)
                 result = engineer._run_step(
                     step, command, 7200,
                     line_hook=_cd_line_hook if step == "simpleFoam" else None)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                stage_row(step, result.seconds, note)
+                stage_row("OpenFOAM", result.seconds, note)
             roster.set_workers(0)
             if parallel:
                 engineer.reconstruct_latest()
@@ -378,7 +550,7 @@ def main(request: str | None = None, params: dict | None = None,
     from chief_engineer.field_render import extract_and_paint
 
     input_triangles = None
-    local_surface = GEOMETRY_DIR / SURFACE
+    local_surface = GEOMETRY_DIR / surface
     if local_surface.exists():
         try:
             from chief_engineer.geometry import load_surface
@@ -388,9 +560,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     from . import RUN_PREFIX
     painted = extract_and_paint(
-        engineer.remote_case, engineer.out_root / f"{LABEL}_field",
+        engineer.remote_case, engineer.out_root / f"{label}_field",
         RUN_PREFIX[:-1] if RUN_PREFIX and RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
-        field="p", name=LABEL, input_triangles=input_triangles)
+        field="p", name=label, input_triangles=input_triangles)
     if painted:
         served = out / Path(painted).name
         try:
@@ -434,11 +606,11 @@ def main(request: str | None = None, params: dict | None = None,
 
     from chief_engineer import uq as uq_studies
     study_fp = uq_studies.setup_fingerprint(
-        body=LABEL, solver="openfoam-simpleFoam", closure="kOmegaSST",
+        body=label, solver="openfoam-simpleFoam", closure="kOmegaSST",
         velocity=float(params.get("velocity", 40.0)),
         refinement=int(params.get("refinement", 3)), iterations=iterations)
     grid_conclusive = None
-    existing_study = uq_studies.load_study(LABEL) or {}
+    existing_study = uq_studies.load_study(label) or {}
     if existing_study.get("fingerprint") == study_fp:
         grid_conclusive = (existing_study.get("numerical") or {}).get("conclusive")
 
@@ -451,16 +623,21 @@ def main(request: str | None = None, params: dict | None = None,
         solved_reynolds=report.get("reference", {}).get("reynolds"))
     comparison = verdict.get("comparison")
 
-    gate_rows = [["Measured C_d (planform basis)", f"{comparison['measured_cd']:.4g}"],
-                 ["Rebased C_d (frontal basis)", f"{comparison['compared_cd']:.4g}"],
-                 [f"Published C_d ({GATE_SOURCE})", f"{comparison['reference_cd']:g}"],
+    roster.set(CHIEF_RESEARCHER, "grading against the wind tunnel", "working")
+    gate_rows = [["C_d from the solve", f"{comparison['measured_cd']:.4g}"],
+                 ["On the published area basis", f"{comparison['compared_cd']:.4g}"],
+                 [f"Published C_d, {config}", f"{comparison['reference_cd']:g}"],
                  ["Deviation", f"{(comparison['relative_error'] * 100):.1f}%"
                   if comparison['relative_error'] is not None else "not comparable"],
-                 ["Gate", f"±{comparison['tolerance'] * 100:.0f}%"]]
-    _emit_table(emit, script, role=_CE_ROLE, title="Gate: measured drag vs the published wind tunnel",
+                 ["Acceptance band", f"±{comparison['tolerance'] * 100:.0f}%"],
+                 ["Source", GATE_SOURCE]]
+    _emit_table(emit, script, role=_CR_ROLE,
+               title="Measured drag against the published wind tunnel",
                headers=("Quantity", "Value"), rows=gate_rows,
-               table_id=f"gate-act7-{LABEL}")
+               table_id=f"gate-act7-{label}")
+    roster.idle(CHIEF_RESEARCHER)
 
+    verdict = display_verdict(verdict)
     script.engineer("• Forces settled; the window is flat.", verdict=verdict)
     coefficient_rows = [["C_d", f"{drag['value']:.4g}",
                          f"±{2 * drag['sigma']:.2g}",
@@ -472,11 +649,11 @@ def main(request: str | None = None, params: dict | None = None,
     _emit_table(emit, script, role=_CE_ROLE,
                title="Force coefficients over the settled window",
                headers=("Coefficient", "Value", "Band (95%)", "Window"),
-               rows=coefficient_rows, table_id=f"coefficients-act7-{LABEL}")
+               rows=coefficient_rows, table_id=f"coefficients-act7-{label}")
 
     try:
         refine = _run_refinement_ladder(
-            engineer=engineer, label=LABEL, familiar=False, params=params,
+            engineer=engineer, label=label, familiar=False, params=params,
             iterations=iterations, production_cells=cells,
             production_cd=drag["value"], study_fp=study_fp, script=script,
             roster=roster, ledger=ledger, emit=emit, out=out)
@@ -498,15 +675,16 @@ def main(request: str | None = None, params: dict | None = None,
             grid_conclusive=grid_conclusive,
             solved_reynolds=report.get("reference", {}).get("reynolds"))
         comparison = verdict.get("comparison")
-        if verdict.get("tier") != before:
+        moved = verdict.get("tier") != before
+        verdict = display_verdict(verdict)
+        if moved:
             script.numericist(
-                f"• The refinement study just measured settles the grade: the "
-                f"chip moves from {before} to {verdict['tier']} on this run's "
-                f"own grid evidence, not on the agreement alone.")
+                f"• The grid evidence settles the grade: the chip moves from "
+                f"{before} to {verdict['tier']}.")
 
-    lookup = uq_studies.channels_for(LABEL, study_fp)
+    lookup = uq_studies.channels_for(label, study_fp)
     transfer = (None if lookup.get("model")
-               else uq_studies.transferred_model_band(drag["value"], exclude=LABEL))
+               else uq_studies.transferred_model_band(drag["value"], exclude=label))
     channels = certificate_channels(
         settle_2sigma=2 * drag["sigma"], window=drag["window"],
         velocity=float(params.get("velocity", 40.0)),
@@ -525,7 +703,6 @@ def main(request: str | None = None, params: dict | None = None,
                                 "value": f"{drag['value']:.4g}",
                                 "ci": f"{(combined if combined else 2 * drag['sigma']):.2g}",
                                 "confidence": "95%",
-                                "envelope": f"over the final {drag['window']} iterations",
                                 **verdict})
         emit("uncertainty.channels", channels)
 
@@ -543,16 +720,30 @@ def main(request: str | None = None, params: dict | None = None,
     script.phase(CONCLUSION)
     elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From raw surface to a converged force in {elapsed:.1f} minutes. "
-        "• The coefficient history is flat across the averaging window, so "
-        "the quoted band is meaningful.")
-    if verdict["tier"] == "VALIDATED":
-        script.engineer(
-            f"• Verdict: validated. {verdict['reason']}. "
-            f"• The harder of the two slant angles cleared its own gate.")
-    else:
-        script.engineer(
-            f"• Verdict: {verdict['tier'].lower()}. {verdict['reason']}.")
+        f"• From surface to converged force in {elapsed:.1f} minutes. "
+        f"• The coefficient is flat across the averaging window.")
+    apart = comparison.get("relative_error")
+    inside = apart is not None and apart <= comparison["tolerance"]
+    verdict_rows = [
+        [f"Drag coefficient, {config}", f"{comparison['compared_cd']:.4g}",
+         f"{comparison['reference_cd']:g}, {GATE_SOURCE}",
+         "Inside the band" if inside else "Outside the band"],
+        ["Deviation from the published value",
+         f"{apart * 100:.1f}%" if apart is not None else "Not comparable",
+         f"±{comparison['tolerance'] * 100:.0f}% band",
+         "Pass" if inside else "Fail"],
+        ["Mesh quality",
+         f"non-orthogonality {non_ortho_s}, skewness {skew_s}",
+         f"{MAX_NON_ORTHOGONALITY:.0f}° gate, {MAX_SKEWNESS:.1f} guidance",
+         "Pass" if (gate_ok and skew_ok) else "Caveat"],
+    ]
+    if refine and refine.get("band_abs") is not None:
+        verdict_rows.append(
+            ["Mesh sensitivity on C_d", f"±{refine['band_abs']:.2g}",
+             "Three meshes of this case", "Measured"])
+    _emit_table(emit, script, role=_CE_ROLE, title="Verdict",
+                headers=("Quantity", "Value", "Reference", "Verdict"),
+                rows=verdict_rows, table_id=f"verdict-act7-{label}")
     knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
                   f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
     script.numericist(
@@ -579,16 +770,18 @@ def main(request: str | None = None, params: dict | None = None,
     report_doc = lab_report(
         title=f"Act 7: {shown}",
         abstract=[
-            f"We took the Ahmed body, 25 degree slant, through surface "
-            f"check, meshing, and a steady solve, and graded the converged "
-            f"drag against {GATE_SOURCE}.",
-            f"The mesh reached {cells:,} cells at max non-orthogonality "
-            f"{non_ortho_s} and max skewness {skew_s}; drag settled at "
-            f"{drag['value']:.4g} ± {2 * drag['sigma']:.2g}.",
-            f"The result is reported as {verdict['tier'].lower()}: {verdict['reason']}.",
+            f"We took the Ahmed body at the {config} through surface check, "
+            f"meshing, and a steady solve, and graded the converged drag "
+            f"against {GATE_SOURCE}.",
+            f"Drag settled at {drag['value']:.4g} "
+            f"± {2 * drag['sigma']:.2g} on a {cells:,} cell mesh.",
+            # The tier word stays out of the prose; the chip carries it.
+            f"Rebased onto the published area basis that is "
+            f"{comparison['compared_cd']:.4g} against the published "
+            f"{comparison['reference_cd']:g}.",
         ],
         methods=[
-            "Surface intake and check on the 25 degree Ahmed body.",
+            f"Surface intake and check on the Ahmed body at the {config}.",
             f"Meshed to {cells:,} cells; quality gated at "
             f"{MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and "
             f"{MAX_SKEWNESS:.0f} skewness.",
@@ -618,7 +811,7 @@ def main(request: str | None = None, params: dict | None = None,
         }] + ([{
             "quantity": "Numerical uncertainty on Cd",
             "value": f"±{refine['band_abs']:.2g}",
-            "envelope": refine["method"],
+            "envelope": "measured across three meshes of this case",
             **verdict,
         }] if refine and refine.get("band_abs") is not None else []) + [{
             "quantity": "Mesh",
@@ -634,11 +827,13 @@ def main(request: str | None = None, params: dict | None = None,
             "Reported band: settling spread of the coefficient over the "
             "averaging window, a floor, not a bound.",
             (f"Numerical uncertainty from a 3-mesh refinement study: "
-             f"±{refine['band_abs']:.2g} on Cd; {refine['method']}."
+             f"±{refine['band_abs']:.2g} on Cd."
              if refine and refine.get("band_abs") is not None else
-             "Numerical uncertainty not quantified on this run: no matching "
-             "refinement study on the record for this setup."),
-            f"Compared against {GATE_SOURCE}: {verdict['reason']}.",
+             "Numerical uncertainty: no matching refinement study on the "
+             "record for this setup."),
+            (f"Compared against {GATE_SOURCE}: {verdict['reason']}."
+             if verdict.get("reason") else
+             f"Compared against {GATE_SOURCE} at the {config}."),
         ],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
@@ -657,20 +852,21 @@ def main(request: str | None = None, params: dict | None = None,
 
         cert_doc = dict(report_doc)
         cert_doc["result_fields"] = (
-            [("Body", shown), ("C_d", f"{drag['value']:.4g}")]
+            [("Body", shown), ("Rear Slant", config),
+             ("C_d", f"{drag['value']:.4g}")]
             + ([("C_L", f"{lift['value']:.4g}")] if lift else [])
             + [("Band (95%)", f"±{(combined if combined else 2 * drag['sigma']):.2g}"),
                ("Cells", f"{cells:,}"), ("Solve Time", f"{elapsed:.1f} min")])
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry=shown,
-            objective=(request or f"Ahmed body, 25 degree slant, graded "
-                                  f"against {GATE_SOURCE}"),
-            mission_id=f"ahmed-body-{LABEL}",
+            objective=(request or f"Ahmed body, {config}, graded against "
+                                  f"{GATE_SOURCE}"),
+            mission_id=f"ahmed-body-{label}",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels,
-            display_name=display_name(LABEL),
-            source_filename=SURFACE,
+            display_name=display_name(label),
+            source_filename=surface,
             solver="OpenFOAM, k-omega SST steady RANS",
             mesh=mesh_validity(cells, non_ortho, skew))
         if emit:
