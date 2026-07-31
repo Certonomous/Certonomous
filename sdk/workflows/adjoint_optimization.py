@@ -391,13 +391,20 @@ class _Falsifier:
         self._stated = False
 
     def state(self, script, roster) -> None:
-        roster.set(CHIEF_ENGINEER, "stating the gate", "working")
+        # The engineer commits the hypothesis and the falsifier; the gate is a
+        # rule, so the Chief Researcher sets it (owner, 2026-07-31: the
+        # researcher frames and rules, the engineer executes). This is the
+        # same split the hump act carries, so the two acts read alike.
+        roster.set(CHIEF_ENGINEER, "stating the falsifier", "working")
         _narrate(script.engineer,
                 f"Hypothesis: the adjoint gradient matches central finite "
                 f"differences on every derivative group.",
                 f"Falsifier: any group worse than {GATE_PASS_PCT:g}%, or any "
-                f"component whose sign reverses.",
+                f"component whose sign reverses.")
+        roster.set(CHIEF_RESEARCHER, "setting the gate", "working")
+        _narrate(script.researcher,
                 f"Gate: nothing is optimized until the gradient passes.")
+        roster.idle(CHIEF_RESEARCHER)
         self._stated = True
 
     def table(self, emit, script, **kwargs) -> None:
@@ -589,6 +596,7 @@ def main(request: str | None = None, params: dict | None = None,
 
         uploaded_name = display_name(uploaded)
         is_this_wing = bool(identity and identity["match"])
+        roster.set(CHIEF_ENGINEER, "reading the received wing", "working")
         if identity is None:
             # Nothing to confirm against, so nothing is claimed and nothing is
             # delegated on screen.
@@ -993,10 +1001,17 @@ def main(request: str | None = None, params: dict | None = None,
         # 2026-07-31) and stay in _a2_shape where they are computed.
         show("near0", f"Inboard span, at scale. Baseline, C_d "
                       f"{baseline['CD']:.6f}")
-        _narrate(script.engineer,
+        # Whether what is on screen is at its true size is a statement about
+        # measurement, so the numericist makes it (owner, 2026-07-31). It also
+        # keeps the engineer from speaking twice running: this entry and the
+        # one that closes the pass are separated by the whole second sweep, so
+        # they cannot be merged into one.
+        roster.set(NUMERICIST, "holding the viewing convention", "working")
+        _narrate(script.numericist,
                 f"Same surfaces on a closer viewing convention: the inboard "
                 f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span.",
                 f"Unscaled. The viewing convention moved, the wing did not.")
+        roster.idle(NUMERICIST)
         for point in history:
             frame = frames.get(point["iter"])
             if frame is not None:
