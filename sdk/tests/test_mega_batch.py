@@ -131,9 +131,16 @@ class LabStatsTests(unittest.TestCase):
         )
 
         closure = r["closure"]
-        # The board is shown at its top entry, rank #1, never at whichever
-        # entry our own score sits nearest (owner, 2026-07-31).
-        self.assertEqual(closure["target_rank"], 1)
+        # The board is shown at rank #4, the entry the docket registered as
+        # this programme's target (Katie, 2026-07-31), with rank #4's OWN
+        # per-case row: Montoya, Oulghelou, and Cinnella, overall 0.0779, read
+        # from the benchmark's own leaderboard in
+        # closure-challenge-benchmark/README.md.
+        self.assertEqual(closure["target_rank"], 4)
+        self.assertEqual(closure["target_overall"], 0.0779)
+        self.assertEqual(
+            closure["target_per_case"],
+            [0.068, 0.1364, 0.0591, 0.0882, 0.0895, 0.0866, 0.0487, 0.0464])
         self.assertEqual(len(closure["target_per_case"]), 8)
         self.assertIn("rmcconke/closure-challenge-benchmark", closure["repo"])
         # our_score is not invented: it is the gated entry of record, scored

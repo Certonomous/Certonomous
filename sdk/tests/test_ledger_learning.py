@@ -233,9 +233,10 @@ class FleetLearningCardTests(unittest.TestCase):
         r = lab_stats.research_programs()
         for key in ("closure", "speed", "queued"):
             self.assertIn(key, r)
-        # The board is shown at its top entry, never at the one our own
-        # score happens to sit nearest (owner, 2026-07-31).
-        self.assertEqual(r["closure"]["target_rank"], 1)
+        # The board is shown at rank #4, the docket's registered target
+        # (Katie, 2026-07-31).
+        self.assertEqual(r["closure"]["target_rank"], 4)
+        self.assertEqual(r["closure"]["target_overall"], 0.0779)
         self.assertTrue(r["queued"])
 
     def test_missing_study_is_pending_with_no_numbers(self):
