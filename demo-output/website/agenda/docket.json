@@ -1452,6 +1452,29 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T14:18:26Z"
+    },
+    {
+      "id": "w2-tbnn-duct-reynolds-generalisation",
+      "well": "W2",
+      "objective": "Rebuild Ling's tensor-basis neural network and run his own Reynolds-number-generalisation experiment on the closure challenge's duct family: train on AR_1, AR_3, AR_5 and AR_10 at Ret 180, hold AR_7_Ret_180 for hyper-parameters, and predict the three scored duct cases without opening them",
+      "rationale": "Ling, Kurzawski and Templeton trained on a duct at Re_b 3500 and tested on a duct at Re_b 2000, a Reynolds-number generalisation inside one geometry family. The benchmark's duct split is that same experiment: AR_1_Ret_360 holds the aspect ratio fixed and moves the Reynolds number, and AR_14_Ret_180 does the reverse and extrapolates beyond the trained aspect-ratio range of 1 to 10. The duct is where this lab's deficit to the rank two entry is largest, and it is the one family where the full ten-tensor basis is live, since the secondary flow is three-dimensional. The Sandia reference implementation is public under BSD-3-Clause. This proposal reproduces the architecture and the experiment design; it explicitly does NOT reproduce the paper's Table I, because two of the six training flows behind those numbers are Sandia and Stanford internal simulations with no public archive named in the paper, so the training database cannot be assembled from the paper. That non-reproducibility is itself the recorded finding of the reading.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured, from this lab's own hardware, plus one stated extrapolation. Ladder-B rung B2 timed the benchmark duct primals serially on this box: AR_1_Ret_360 at 8 s (0.13 core-min) and AR_3_Ret_360 at 76 s (1.27 core-min), both runs completed and agreeing with the benchmark's shipped baseline field. AR_14_Ret_180 was not timed; scaling AR_3_Ret_360 linearly by cell count (8,748 to 31,819) gives roughly 5 core-min and is labelled an extrapolation, not a measurement. Propagation on all three scored cases is therefore about 7 core-min per model. The balance is feature and label extraction over the 57,434 training and validation cells and pointwise training of an 8-layer, 30-node network on CPU. The paper reports NO compute cost of any kind, so no part of this estimate is taken from it. Ling's Spearmint Bayesian hyper-parameter search is deliberately out of scope and unbudgeted: its cost is undisclosed and this proposal uses the paper's own stated values instead, 8 hidden layers, 30 nodes, learning rate 2.5e-7.",
+      "gate": "Out of sample by construction and checked, not asserted: sdk/scripts/closure_in_sample_gate.py must return PASS with the training declaration present, and the three scored duct cases AR_1_Ret_360, AR_3_Ret_360 and AR_14_Ret_180 must never be opened for training or validation. Second gate, a priori before a posteriori: the TBNN must beat the k-omega SST baseline on RMSE of the anisotropy tensor b against the held-out AR_7_Ret_180 LES field before any solver modification is attempted. Third, the DNS-b control of the paper's section IV.B must be run alongside any propagation, so that closure error is separated from k and omega transport error rather than conflated with it.",
+      "expected_knowledge_gain": "The second rung of the M2 reproduction ladder, standing up on data already in the tree. It also answers a question the taxonomy in docs/research/CLOSURE_METHODS.md left open by ranking TBNN on code availability alone: whether an invariant tensor-basis network trained only on low-Reynolds ducts transfers to the scored ducts at all. A negative result is worth as much as a positive one and costs the same hour.",
+      "source_kind": "reading",
+      "citations": [
+        "Ling, J., Kurzawski, A. & Templeton, J., Reynolds averaged turbulence modelling using deep neural networks with embedded invariance, Journal of Fluid Mechanics 807:155-166 (2016), DOI 10.1017/jfm.2016.615; read in full as Sandia accepted manuscript SAND2016-7345J, docs/papers/ling_kurzawski_templeton_jfm2016_osti1333570.pdf",
+        "Pope, S.B., A more general effective-viscosity hypothesis, Journal of Fluid Mechanics 72:331 (1975) - the ten-tensor integrity basis, cited by Ling as the source of Eq. 1 and Eq. 2; NOT read by this session, cited only as Ling attributes it",
+        "sandialabs/tbnn, BSD-3-Clause reference implementation",
+        "Closure challenge benchmark README train/validation/test table and case directories, read from the clone 2026-07-31",
+        "Certonomous ladder-B rung B2 duct baseline timings, measured 2026-07-28, demo-output/website/dafoam/ladder-b/B2_duct_baseline.md",
+        "demo-output/website/campaign/W2_TBNN_SPARTA_READING.md section 1"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T14:41:00Z"
     }
   ]
 }
