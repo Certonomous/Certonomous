@@ -371,9 +371,9 @@ def screen_solve_gap(finalists) -> float | None:
 # vortex-lattice solver can produce, so the verdict names the number it used.
 _VIOLATION_KINDS = (
     ("approach speed", "Approach speed above the landing limit",
-     f"assumed CLmax_L = {_CLMAX_LANDING:.1f}"),
+     f"assumed C_L,max (landing) = {_CLMAX_LANDING:.1f}"),
     ("take-off speed", "Take-off speed above the limit",
-     f"assumed CLmax_TO = {_CLMAX_TAKEOFF:.1f}"),
+     f"assumed C_L,max (take-off) = {_CLMAX_TAKEOFF:.1f}"),
     ("range", "Range short of the requirement", "stated range requirement"),
     ("span", "Span beyond the structural limit", "structural span limit"),
 )
@@ -859,9 +859,9 @@ def assumed_values(reqs: dict) -> list[tuple[str, str, str]]:
     if not reqs.get("landing_stated"):
         rows.append(("Landing speed limit", f"{reqs['landing_speed']:.0f} m/s",
                      "assumed, not stated"))
-    rows.append(("CLmax, take-off", f"{_CLMAX_TAKEOFF:.1f}",
+    rows.append(("C_L,max (take-off)", f"{_CLMAX_TAKEOFF:.1f}",
                  "assumed, not solver-derived"))
-    rows.append(("CLmax, landing", f"{_CLMAX_LANDING:.1f}",
+    rows.append(("C_L,max (landing)", f"{_CLMAX_LANDING:.1f}",
                  "assumed, not solver-derived"))
     rows.append(("Non-wing drag share", f"C_D0 {_CD0_NONWING:.3f}",
                  "assumed, Raymer component buildup"))
@@ -1071,7 +1071,14 @@ def seeded_spans(measured_span: float) -> tuple[float, ...]:
 
 
 # Transcript-table headers for the live finalist-solve rows.
-_FINALIST_HEADERS = ("Span", "Alpha", "CDi", "Wing Viscous",
+#
+# SWEEP IS IN THE TABLE because without it the rows are not identifiable. The
+# finalists cluster on the top span rungs, so three of nine read "68 m" and
+# differ only in a tenth of a degree of alpha — which is an OUTPUT of the
+# solve, not a design variable. Sweep is the design variable that separates
+# them, and it is the one the screened-against-solved table below already
+# carries, so the two tables now name the same wing the same way.
+_FINALIST_HEADERS = ("Span", "Sweep", "α", "C_Di", "C_D0, wing",
                      "Whole-aircraft L/D")
 _FINALIST_TABLE_TITLE = f"Finalist solves {TIER_SOLVE}"
 
@@ -1154,12 +1161,12 @@ def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> d
         violations.append(
             f"approach speed {approach_speed:.0f} m/s exceeds the "
             f"{reqs['landing_speed']:.0f} m/s landing limit "
-            f"(assumed CLmax_L = {_CLMAX_LANDING:.1f})")
+            f"(assumed C_L,max (landing) = {_CLMAX_LANDING:.1f})")
     if takeoff_speed > reqs["takeoff_speed"] + 1e-6:
         violations.append(
             f"take-off speed {takeoff_speed:.0f} m/s exceeds the "
             f"{reqs['takeoff_speed']:.0f} m/s limit "
-            f"(assumed CLmax_TO = {_CLMAX_TAKEOFF:.1f})")
+            f"(assumed C_L,max (take-off) = {_CLMAX_TAKEOFF:.1f})")
     if breguet_range_km < reqs["range_km"] - 1e-6:
         violations.append(
             f"range {breguet_range_km:.0f} km short of the {reqs['range_km']:.0f} km requirement")
@@ -1634,7 +1641,8 @@ def main(request: str | None = None, params: dict | None = None,
                 live_now = slot < n_par
                 emit("dispatch.update", {
                     "slot": slot, "state": "solving" if live_now else "idle",
-                    "label": f"finalist span {f['span']:.0f} m",
+                    "label": (f"finalist span {f['span']:.0f} m, "
+                              f"sweep {f['sweep_deg']:.0f}\u00b0"),
                     "detail": ("VSPAERO solve" if live_now
                                else "queued for a free slot")})
         started = time.time()
@@ -1658,6 +1666,7 @@ def main(request: str | None = None, params: dict | None = None,
                     whole_ld = f["cl_cruise"] / (
                         _CD0_NONWING + matched["cdo_wing"] + matched["cdi"])
                     row = [f"{f['span']:.0f} m",
+                           f"{f['sweep_deg']:.0f}°",
                            f"{matched['alpha']:.1f}°",
                            f"{matched['cdi']:.4f}",
                            f"{matched['cdo_wing']:.4f}",
@@ -1689,7 +1698,8 @@ def main(request: str | None = None, params: dict | None = None,
             for slot, (f, result) in enumerate(zip(finalists, batch)):
                 emit("dispatch.update", {
                     "slot": slot, "state": "done" if result else "lost",
-                    "label": f"finalist span {f['span']:.0f} m",
+                    "label": (f"finalist span {f['span']:.0f} m, "
+                              f"sweep {f['sweep_deg']:.0f}\u00b0"),
                     "detail": "solved" if result else "no polar"})
         ledger.spend(elapsed * len(finalists),
                      f"{len(finalists)} VSPAERO wing solves")
@@ -1734,7 +1744,13 @@ def main(request: str | None = None, params: dict | None = None,
             f["extrapolated"] = bool(matched["extrapolated"])
             f["_polar"] = result["polar"]
             solved_ok.append(f)
-            surface = out / f"wing-span{f['span']:g}-area{f['area']:g}.stl"
+            # Sweep is in the filename because it is in the design vector. The
+            # finalists cluster on the top span rungs, so several share a span
+            # and an area and differ only in sweep; without it they all wrote
+            # to one path and the surface shown as the winner was whichever
+            # wing finished last.
+            surface = (out / f"wing-span{f['span']:g}-area{f['area']:g}"
+                             f"-sweep{f['sweep_deg']:g}.stl")
             try:
                 shutil.copy(result["stl_path"], surface)
             except OSError:
@@ -1760,7 +1776,8 @@ def main(request: str | None = None, params: dict | None = None,
                         "url": f"/api/surface/aircraft-optimization/{surface.name}",
                         "label": f"wing, whole-aircraft L/D via component "
                                  f"buildup, span {f['span']:.0f} m, "
-                                 f"area {f['area']:.0f} m²"})
+                                 f"area {f['area']:.0f} m², "
+                                 f"sweep {f['sweep_deg']:.0f}°"})
             # The per-finalist numbers land as live rows in the "Finalist
             # solves" transcript table (emitted the moment each solve
             # finished), so no per-wing transcript entry repeats them here.
@@ -1773,12 +1790,15 @@ def main(request: str | None = None, params: dict | None = None,
                 f"{TIER_SOLVE}."
                 + (" • The screen ranked it first as well."
                    if screen_agreed else ""))
-            winner_surface = out / f"wing-span{best['span']:g}-area{best['area']:g}.stl"
+            winner_surface = (out / f"wing-span{best['span']:g}"
+                                    f"-area{best['area']:g}"
+                                    f"-sweep{best['sweep_deg']:g}.stl")
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
                     "url": f"/api/surface/aircraft-optimization/{winner_surface.name}",
                     "label": f"wing, whole-aircraft L/D via component "
-                             f"buildup, winner, span {best['span']:.0f} m"})
+                             f"buildup, winner, span {best['span']:.0f} m, "
+                             f"sweep {best['sweep_deg']:.0f}°"})
         else:
             script.engineer(
                 "• No finalist returned a usable polar. "
