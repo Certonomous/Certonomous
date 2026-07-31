@@ -162,6 +162,9 @@ def ladder_unfamiliar(body: str, stl_name: str, *,
         numerical={"band_abs": band_abs,
                    "band_rel": None if rel is None else round(rel, 5),
                    "observed_order": band["observed_order"],
+                   # The dimensionality that set h. An assumption on every
+                   # fit, so it belongs in the file an audit reads.
+                   "dim": band.get("dim"),
                    "method": method, "conclusive": band["conclusive"],
                    "value_working": act_level.get("cd")},
         provenance=[lv["mission"] for lv in ordered])
@@ -244,6 +247,7 @@ def ladder_motorbike() -> None:
         numerical={"band_abs": band["band_abs"],
                    "band_rel": None if rel is None else round(rel, 5),
                    "observed_order": band["observed_order"],
+                   "dim": band.get("dim"),
                    "method": band["method"], "conclusive": band["conclusive"],
                    "value_fine": fine["cd"]},
         provenance=[lv["mission"] for lv in ordered])
@@ -625,6 +629,7 @@ def b52_fourth_rung() -> None:
         "observed_order": band["observed_order"],
         "order_used": band.get("order_used"),
         "clamped": band.get("clamped", False),
+        "dim": band.get("dim"),
         "method": band["method"],
         "conclusive": band["conclusive"],
         "value_working": working,

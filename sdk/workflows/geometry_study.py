@@ -1044,6 +1044,11 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             # one clause on the certificate without re-deriving it from a
             # method string that was never meant to serve that purpose.
             "monotone": band.get("monotone"),
+            # Which dimensionality set the representative mesh size. Cell
+            # counts cannot reveal it, so it is an assumption on every fit,
+            # and a study file that does not carry it cannot be audited for
+            # the one mistake that stretches an observed order by 1.5.
+            "dim": band.get("dim"),
             "method": band["method"], "conclusive": band["conclusive"],
             "value_working": production_cd,
         }
