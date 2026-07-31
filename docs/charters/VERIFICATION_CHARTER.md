@@ -1,6 +1,6 @@
 # Certonomous Verification Charter
 
-Version 1.2, dated 2026-07-31. Defines what counts as done. It binds every
+Version 1.3, dated 2026-07-31. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
 
@@ -811,8 +811,8 @@ execute C++ inside the solver process, with the running user's rights:
 `#codeStream`, `#calc`, any `coded*` boundary condition or function object, and
 the `systemCall` function object (`dynamicCode::checkSecurity`, called from
 `codeStream.C:268`, `calcEntry.C:75`, `codedBase.C:302`, `systemCall.C:131`).
-So "we read the case dictionaries and the setup is inspectable" — section 9's
-evidence record — is a claim about a program, not about a table of numbers. A
+So "we read the case dictionaries and the setup is inspectable", which is
+section 9's evidence record, is a claim about a program, not about a table of numbers. A
 case that can rewrite its own inputs at run time can also rewrite the evidence
 record that is supposed to check it.
 
@@ -826,7 +826,7 @@ unmodified. The DAFoam container ships the switch on too (OpenFOAM v2506,
 
 **Which of the two paths is actually open, measured rather than assumed.** The
 host path is open: it runs as `ubuntu`, uid 1000, and a `#calc` entry compiles
-and evaluates. The container path is closed, but not by configuration — it runs
+and evaluates. The container path is closed, but not by configuration: it runs
 as root, and `checkSecurity` refuses `isAdministrator()` at `dynamicCode.C:73`
 before it ever reads the switch. Measured in the container 2026-07-31: a
 `#calc` entry fails with "This code should not be executed by someone with
@@ -853,7 +853,7 @@ OpenFOAM case; `caseDef` derives `Uinf`, `nu`, `kRef` and `omegaRef` with
 dictionaries place their probes with `#calc`. Nine files in all. Measured
 2026-07-31: with the switch off, `foamDictionary caseDef -entry Uinf` exits 1
 at `dynamicCode.C:83`, so the act cannot run. The exemption is recorded in
-`VETTED_SYSTEM_OPERATION_CASES` with that reason, and note what it means — the
+`VETTED_SYSTEM_OPERATION_CASES` with that reason, and note what it means, that the
 one case that needs the capability is itself a case from outside. That is the
 argument for the rule, not against it.
 
@@ -861,7 +861,7 @@ argument for the rule, not against it.
 expression parser and is not gated by the switch, so the hump's `#calc` entries
 have a route out. Measured on `caseDef`, `#eval` reproduces six of the eight
 derived constants bit-for-bit and the other two (`nu`, `kRef`) to within four
-units in the last place — a floating-point association-order difference, about
+units in the last place, a floating-point association-order difference of about
 3e-16 relative. Adopting it needs one act-7 rerun to confirm the published
 separation and reattachment stations are unchanged, and that rerun is the price
 of closing the exemption.
