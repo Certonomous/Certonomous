@@ -17,11 +17,17 @@ if str(SDK) not in sys.path:
 
 from chief_engineer.log_signatures import (
     COURANT_TOLERANCE,
+    DEAD_FIELD_FLOOR,
     FATAL_MULTIPLE,
     FLAG_MULTIPLE,
+    RESIDUAL_NORM_ORDERS,
+    classify_bound_line,
     classify_wall_time,
+    detect_ceiling_clip,
     detect_courant_excursion,
+    detect_normalisation_collapse,
     detect_oscillatory_divergence,
+    detect_residual_norm_contradiction,
     detect_residual_stall,
     percentile,
     wall_time_percentiles,
@@ -320,6 +326,165 @@ class WallTimeEnvelopeTests(unittest.TestCase):
         self.assertEqual(wall_time_percentiles(LEDGER_SLICE / "nope"), {})
         self.assertIsNone(classify_wall_time(
             "openfoam-cylinder", 1e6, ledger_path=LEDGER_SLICE / "nope"))
+
+
+class BoundLineTests(unittest.TestCase):
+    """S10a: which end of its range the field was held at is the finding."""
+
+    def test_a_ceiling_clip_is_read_as_a_ceiling(self):
+        bound = classify_bound_line("Bounding omega<1e+16")
+        self.assertEqual(bound["field"], "omega")
+        self.assertEqual(bound["direction"], "ceiling")
+        self.assertEqual(bound["bound"], 1e16)
+
+    def test_a_floor_clip_is_read_as_a_floor(self):
+        for line in ("Bounding k>1e-16",
+                     "bounding epsilon, min: -1 max: 3 average: 1"):
+            self.assertEqual(classify_bound_line(line)["direction"], "floor",
+                             line)
+
+    def test_an_ordinary_line_is_not_a_bound(self):
+        self.assertIsNone(classify_bound_line(
+            "smoothSolver:  Solving for k, Initial residual = 0.1"))
+
+    def test_only_a_ceiling_clip_is_a_divergence_finding(self):
+        self.assertIsNone(detect_ceiling_clip("Bounding k>1e-16"))
+        finding = detect_ceiling_clip("Bounding omega<1e+16")
+        self.assertEqual(finding["severity"], "fatal")
+        self.assertEqual(finding["field"], "omega")
+
+
+class NormalisationCollapseTests(unittest.TestCase):
+    """S10b: a residual that collapsed rather than converged."""
+
+    def _collapsed(self, alive=5, dead=200):
+        return [1.0] * alive + [1e-31] * dead
+
+    def test_a_field_that_died_after_working_is_caught(self):
+        finding = detect_normalisation_collapse(
+            self._collapsed(), peer_residuals=[2e-4])
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding["kind"], "normalisation-collapse")
+        self.assertEqual(finding["severity"], "flag")
+        self.assertGreaterEqual(finding["iterations_at_floor"], 100)
+
+    def test_a_field_that_was_never_alive_is_not_a_finding(self):
+        # A conserved variable updated explicitly reports exactly zero from
+        # first iteration to last. Five such series sit in the lab's archive
+        # and this condition is the only thing that passes over them.
+        self.assertIsNone(detect_normalisation_collapse(
+            [0.0] * 300, peer_residuals=[2e-4]))
+
+    def test_a_solve_that_finished_everywhere_is_not_a_contradiction(self):
+        self.assertIsNone(detect_normalisation_collapse(
+            self._collapsed(), peer_residuals=[1e-31, 1e-30]))
+
+    def test_an_ordinary_converged_field_is_not_a_collapse(self):
+        # Converging to 1e-09 is convergence. The floor sits twelve orders
+        # below the tightest target any of the lab's cases asks for.
+        self.assertGreater(1e-9, DEAD_FIELD_FLOOR)
+        self.assertIsNone(detect_normalisation_collapse(
+            [1.0] * 5 + [1e-9] * 200, peer_residuals=[2e-4]))
+
+    def test_a_short_series_gives_no_judgment(self):
+        self.assertIsNone(detect_normalisation_collapse(
+            [1.0] * 5 + [1e-31] * 40, peer_residuals=[2e-4]))
+
+
+class ResidualNormContradictionTests(unittest.TestCase):
+    """S10c: the unnormalised norms contradict the reported convergence."""
+
+    def test_the_withdrawn_runs_norms_are_a_contradiction(self):
+        # Verbatim from the withdrawn run's own end-of-run block.
+        finding = detect_residual_norm_contradiction({
+            "U": 6876.645, "p": 701.77652, "omega": 1.1347097e35,
+            "k": 1.4648128e8, "phi": 18.937782})
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding["field"], "omega")
+        self.assertEqual(finding["severity"], "fatal")
+        self.assertGreater(finding["orders_of_magnitude"], 30.0)
+
+    def test_the_healthy_solve_of_the_same_case_is_not(self):
+        # Verbatim from the healthy coarse run. Its worst ratio is 3.6 orders,
+        # the largest anywhere in the 157 archived blocks, against a threshold
+        # of 10.
+        finding = detect_residual_norm_contradiction({
+            "U": 0.4264852, "p": 0.0063069121, "omega": 1848.2911,
+            "k": 14.319406, "phi": 0.002601756})
+        self.assertIsNone(finding)
+        self.assertEqual(RESIDUAL_NORM_ORDERS, 10.0)
+
+    def test_a_non_finite_norm_is_a_contradiction(self):
+        finding = detect_residual_norm_contradiction(
+            {"U": 1.0, "omega": float("inf")})
+        self.assertEqual(finding["field"], "omega")
+
+    def test_no_reference_field_means_no_judgment(self):
+        self.assertIsNone(detect_residual_norm_contradiction({"omega": 1e30}))
+        self.assertIsNone(detect_residual_norm_contradiction(
+            {"U": 0.0, "omega": 1e30}))
+
+
+class ArchiveSweepTests(unittest.TestCase):
+    """S10 against every solver log the lab has archived.
+
+    A rule that names a healthy run is worse than no rule, so the whole
+    corpus is swept rather than a chosen sample. All three branches together
+    name exactly one log, and it is the run whose drag was withdrawn.
+    """
+
+    ROOT = Path(__file__).resolve().parents[2] / "demo-output"
+    WITHDRAWN = "A4_fine_primal_par4.log"
+
+    _RESIDUAL = re.compile(
+        r"Solving for (\w+),.*Initial residual = ([0-9.eE+-]+)")
+    _NORM = re.compile(
+        r"^\s*(\w[\w.]*) Residual Norm2: (?:\(([^)]*)\)|([0-9.eE+-]+))")
+
+    def _sweep(self, path):
+        series, norms, ceiling = {}, {}, set()
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                match = self._RESIDUAL.search(line)
+                if match:
+                    series.setdefault(match.group(1), []).append(
+                        float(match.group(2)))
+                    continue
+                match = self._NORM.match(line)
+                if match:
+                    if match.group(1).lower() != "total":
+                        raw = match.group(2) or match.group(3)
+                        norms[match.group(1)] = max(
+                            abs(float(token)) for token in raw.split())
+                    continue
+                bound = classify_bound_line(line)
+                if bound and bound["direction"] == "ceiling":
+                    ceiling.add(bound["field"])
+        found = set()
+        if ceiling:
+            found.add("ceiling-clip")
+        latest = {name: values[-1] for name, values in series.items()}
+        for name, values in series.items():
+            peers = [v for other, v in latest.items() if other != name]
+            if detect_normalisation_collapse(values, peer_residuals=peers):
+                found.add("normalisation-collapse")
+        if detect_residual_norm_contradiction(norms):
+            found.add("residual-norm-contradiction")
+        return found
+
+    def test_exactly_one_archived_log_is_named_and_it_is_the_withdrawn_one(self):
+        logs = sorted(self.ROOT.rglob("*.log"))
+        self.assertGreater(len(logs), 300, "the log archive did not resolve")
+        named = {}
+        for path in logs:
+            found = self._sweep(path)
+            if found:
+                named[path.name] = found
+        self.assertEqual(sorted(named), [self.WITHDRAWN])
+        self.assertEqual(
+            named[self.WITHDRAWN],
+            {"ceiling-clip", "normalisation-collapse",
+             "residual-norm-contradiction"})
 
 
 if __name__ == "__main__":

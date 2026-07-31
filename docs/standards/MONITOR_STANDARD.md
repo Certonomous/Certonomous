@@ -75,6 +75,16 @@ run in the lab an excursion; S6 and S7 are scoped to steady solves because they
 fired on every healthy transient run; and the S9 flag threshold was corrected
 from 20x back to the 10x the owner actually approved.
 
+Adoption note, 2026-07-31: closing out both monitor proposals against a real
+failure rather than against the archive alone. S10 is added, designed on the
+Ahmed body primal whose drag was published and withdrawn this week, and it is
+the branch that catches a run whose field diverged while its residual read as
+converged. Two older things were corrected on the way: the S9 flag threshold
+correction had landed on the shared constant but not on the monitor entry
+point, which kept its own literal 20x, and S7 turns out to fire on two thirds
+of the lab's archived steady runs and now carries a gate and a recorded
+weakness. Both are written up in their own sections.
+
 ### S6. Residual stall (proposal r1-monitor-stall-rule)
 
 - Evidence: the Re 200 cylinder case stalls at residual near 1e-3 with Cd
@@ -111,10 +121,34 @@ from 20x back to the 10x the owner actually approved.
   four archived transient runs: S7 fired 5, 5, 6 and 9 times on runs that all
   completed healthily, every one of them a false positive. The transient
   equivalent of these rules is S8, and it now exists.
+- Scope, added 2026-07-31 on measured evidence: S7 needs a `residual_target`
+  and stays silent on any field that has already reached it. **Measured over
+  every steady solver log the lab has archived, 106 of them: ungated, S7 fires
+  on 68 and reaches FATAL on 65.** Every one of those runs completed and its
+  results are on the record, so on this corpus the rule is calling roughly two
+  thirds of the lab's healthy work divergent. Four tightenings were measured
+  and none rescued it: requiring the residual level to stop improving (68 logs
+  still fire), requiring the finding to persist a full window (40), measuring
+  growth against a 200 iteration baseline (59), and raising the growth factor
+  to four times (23). The cause is that a converged field sits flat with small
+  noise, and the ratio of one noise envelope to the next is a coin toss that a
+  run of thousands of iterations wins somewhere. The gate comes from the
+  proposal's own words, which say the rule is about oscillation "around a
+  stalled residual": a field below its target has converged, and its noise is
+  not the subject. S6 has always been gated this way and does not
+  false-positive.
+- **Recorded weakness, not hidden.** The gate is reasoning from the proposal's
+  wording plus S6's measured behaviour; it is not a measurement of its own,
+  because the archived logs do not record the residual target each run was
+  aiming for and the corpus cannot be replayed with the gate in place. S7 is
+  the weakest rule in this standard. It is filed for the owner as a decision
+  rather than quietly kept: the alternative is to withdraw the branch outright,
+  and the evidence for keeping it is a knowledge base fact rather than a run.
 - Status: implemented (`detect_oscillatory_divergence` in
   `sdk/chief_engineer/log_signatures.py`; runs on every residual line of a
-  steady run in `LogMonitor`, raised once per episode and again only on
-  escalation to FATAL).
+  steady run in `LogMonitor` once a `residual_target` is given and while the
+  field is above it, raised once per episode and again only on escalation to
+  FATAL).
 
 ### S8. Courant excursion (same proposal)
 
@@ -215,6 +249,58 @@ from 20x back to the 10x the owner actually approved.
   would fix it and is deliberately NOT added here, because no such floor was
   in the approved proposal and inventing a threshold is how a rule stops
   meaning what it says. Filed as an observation for the owner.
+
+### S10. Divergence behind a converged residual (proposal r1-monitor-stall-rule)
+
+- **The run this rule was designed against.** The Ahmed body primal on the
+  45760-cell mesh (ladder rung A4) ran to its iteration cap, printed a drag
+  coefficient, and that number was published and then withdrawn. Its
+  turbulence field had diverged: omega was pegged against the top of its
+  clipping range from iteration 100 onward, and its unnormalised residual norm
+  finished at 1.13e+35 against 6.9e+03 for momentum. The number the log reports
+  as the omega residual finished at 5.9e-31, which reads as converged to every
+  rule S1 to S9. A normalised residual is a ratio, and when the field blows up
+  the denominator blows up with it, so the ratio collapses toward zero exactly
+  when the field is worst. Nothing else fired: no NaN, no exception, no spike,
+  no stall (the residual is far below target, not above it), no Courant line,
+  18 s of wall time.
+- Detection rule, three independent branches, any one sufficient:
+  - **S10a, ceiling clip.** The solver reports a field clipped at the TOP of
+    its permitted range. Direction is the whole finding: a turbulence quantity
+    held up off its floor is ordinary and stays the S4 watch, while an eddy
+    frequency at 1e+16 has left the physical range. Severity FATAL.
+  - **S10b, normalisation collapse.** A field's normalised residual has sat at
+    or below 1e-20 for 100 consecutive iterations, having been above it earlier
+    in the run, while another field in the same solve is still working. All
+    three conditions carry weight: the floor sits twelve orders below the
+    tightest target any of the lab's cases asks for, so nothing converges into
+    it legitimately; "alive earlier" separates a diverged field from a
+    conserved variable that reports exactly zero from first iteration to last,
+    which is what five series in the archive do; a working peer is what makes
+    the reading a contradiction rather than a finished solve. Severity FLAG,
+    FATAL when the same field also hit its ceiling.
+  - **S10c, residual norm contradiction.** Where a solver prints unnormalised
+    residual norms at the end of a run, a field whose norm exceeds the momentum
+    norm by more than ten orders of magnitude. That block is the honest one: it
+    is not divided by anything that can blow up with the field. Severity FATAL.
+- **Why ten orders and not a rounder number.** Measured over the 157 archived
+  runs that print such a block: the largest healthy ratio anywhere is 3.6
+  orders of magnitude, and it belongs to the healthy coarse solve of this very
+  case. The withdrawn run sits at 31.2. The threshold is six orders above
+  anything healthy and twenty one below the failure.
+- Severity: FATAL on S10a and S10c, FLAG on S10b alone. Action: no quantity
+  computed from that state is evidence, and any number already published from
+  it is withdrawn. That is what happened to this one, three days late.
+- **False positives, swept rather than sampled.** All three branches were run
+  over every solver log the lab has archived, 383 of them, before adoption.
+  Together they name exactly one: the withdrawn run. A test sweeps the whole
+  archive on every run and fails if a second log is ever named.
+- Status: implemented (`classify_bound_line`, `detect_ceiling_clip`,
+  `detect_normalisation_collapse` and `detect_residual_norm_contradiction` in
+  `sdk/chief_engineer/log_signatures.py`, wired into `LogMonitor`; each raised
+  once per field per episode). Tests feed both A4 logs through the monitor line
+  by line and assert that the withdrawn run is fatal on all three branches
+  while the healthy coarse solve of the same case raises nothing at all.
 
 ## 3. Standing rules for any monitor rule
 

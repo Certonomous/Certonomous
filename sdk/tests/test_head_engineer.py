@@ -110,7 +110,7 @@ class MonitorStandardRuleTests(unittest.TestCase):
         self.assertNotIn("residual-stall", [a.kind for a in monitor.anomalies])
 
     def test_growing_oscillation_is_flagged(self):
-        monitor = LogMonitor()
+        monitor = LogMonitor(residual_target=1e-6)
         series = [1e-2 + 1e-4 * (1.02 ** i) * (-1) ** i for i in range(60)]
         self._residuals(monitor, series)
         oscillation = [a for a in monitor.anomalies
@@ -119,13 +119,34 @@ class MonitorStandardRuleTests(unittest.TestCase):
         self.assertFalse(monitor.summary()["fatal"])
 
     def test_doubling_oscillation_envelope_is_fatal(self):
-        monitor = LogMonitor()
+        monitor = LogMonitor(residual_target=1e-6)
         series = [1e-2 + 1e-4 * (1.05 ** i) * (-1) ** i for i in range(60)]
         self._residuals(monitor, series)
         severities = {a.severity for a in monitor.anomalies
                       if a.kind == "oscillatory-divergence"}
         self.assertIn("fatal", severities)
         self.assertTrue(monitor.summary()["fatal"])
+
+    def test_oscillation_needs_a_residual_target(self):
+        # Measured 2026-07-31: ungated, S7 fires on 68 of the lab's 106
+        # archived steady logs and reaches fatal on 65, every one of them a
+        # completed run whose results are on the record.
+        monitor = LogMonitor()
+        series = [1e-2 + 1e-4 * (1.05 ** i) * (-1) ** i for i in range(60)]
+        self._residuals(monitor, series)
+        self.assertNotIn("oscillatory-divergence",
+                         [a.kind for a in monitor.anomalies])
+
+    def test_oscillation_is_silent_on_a_field_that_reached_its_target(self):
+        # A converged field sits flat with small noise, and the ratio of one
+        # noise envelope to the next is a coin toss. The proposal's rule is
+        # about oscillation around a STALLED residual, so a field below target
+        # is out of scope however its noise happens to fall.
+        monitor = LogMonitor(residual_target=1e-6)
+        series = [1e-9 + 1e-11 * (1.05 ** i) * (-1) ** i for i in range(60)]
+        self._residuals(monitor, series)
+        self.assertNotIn("oscillatory-divergence",
+                         [a.kind for a in monitor.anomalies])
 
     def _courant(self, monitor, values, *, delta_t=None):
         for index, value in enumerate(values):
@@ -214,6 +235,81 @@ class MonitorStandardRuleTests(unittest.TestCase):
                                           envelope=envelope)
         self.assertIsNotNone(finding)
         self.assertEqual(finding["severity"], "flag")
+
+
+class DivergenceBehindAConvergedResidualTests(unittest.TestCase):
+    """Monitor Standard S10, against the run it was designed on.
+
+    The Ahmed body primal on the 45760-cell mesh ran to its iteration cap,
+    printed a drag coefficient, and that number was published and later
+    withdrawn: the turbulence field had diverged while the number the log
+    reports as its residual read as converged. The same case on its coarse
+    mesh is healthy, so the two logs are a matched pair and the rules must
+    separate them.
+    """
+
+    LOGS = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
+            / "dafoam" / "ladder-a" / "logs_A4")
+    WITHDRAWN = LOGS / "A4_fine_primal_par4.log"
+    HEALTHY = LOGS / "A4_coarse_primal_par4.log"
+
+    def _run(self, path):
+        monitor = LogMonitor()
+        with open(path, encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                monitor.feed("DASimpleFoam", line)
+        return monitor
+
+    def test_the_withdrawn_run_is_caught_and_is_fatal(self):
+        self.assertTrue(self.WITHDRAWN.exists())
+        monitor = self._run(self.WITHDRAWN)
+        kinds = monitor.summary()["by_kind"]
+        # All three branches fire, and the run is fatal, so no quantity
+        # computed from that state can be presented as evidence.
+        self.assertGreaterEqual(kinds.get("ceiling-clip", 0), 1)
+        self.assertEqual(kinds.get("normalisation-collapse", 0), 1)
+        self.assertEqual(kinds.get("residual-norm-contradiction", 0), 1)
+        self.assertTrue(monitor.summary()["fatal"])
+
+    def test_the_healthy_solve_of_the_same_case_stays_quiet(self):
+        self.assertTrue(self.HEALTHY.exists())
+        monitor = self._run(self.HEALTHY)
+        self.assertEqual(monitor.summary()["by_kind"], {})
+        self.assertFalse(monitor.summary()["fatal"])
+
+    def test_none_of_the_older_rules_saw_the_withdrawn_run(self):
+        # This is why S10 was needed. The rules that existed before it are
+        # silent on this log: no NaN, no exception, no spike, and the residual
+        # is far BELOW its target rather than stalled above it.
+        monitor = self._run(self.WITHDRAWN)
+        for kind in ("nan", "fpe", "residual-spike", "residual-stall",
+                     "courant-excursion"):
+            self.assertNotIn(kind, monitor.summary()["by_kind"], kind)
+
+    def test_the_collapsed_field_is_named_with_what_it_did(self):
+        monitor = self._run(self.WITHDRAWN)
+        collapse = [a for a in monitor.anomalies
+                    if a.kind == "normalisation-collapse"][0]
+        self.assertEqual(collapse.severity, "fatal")
+        self.assertIn("omega", collapse.detail)
+        clip = [a for a in monitor.anomalies if a.kind == "ceiling-clip"][0]
+        self.assertIn("omega", clip.detail)
+        self.assertEqual(clip.severity, "fatal")
+
+    def test_a_floor_clip_stays_the_ordinary_watch_it_always_was(self):
+        # Turbulence quantities are held off zero on healthy runs everywhere.
+        monitor = LogMonitor()
+        monitor.feed("DASimpleFoam", "Bounding k>1e-16")
+        monitor.feed("simpleFoam", "bounding epsilon, min: -1 max: 2 average: 1")
+        kinds = monitor.summary()["by_kind"]
+        self.assertEqual(kinds, {"bounding": 2})
+        self.assertFalse(monitor.summary()["fatal"])
+
+    def test_the_solver_total_is_not_double_counted(self):
+        monitor = LogMonitor()
+        monitor.feed("DASimpleFoam", "U Residual Norm2: 1.0")
+        monitor.feed("DASimpleFoam", "Total Residual Norm2: 1e+30")
+        self.assertEqual(monitor.summary()["by_kind"], {})
 
 
 class StatisticsTests(unittest.TestCase):

@@ -37,11 +37,18 @@ from typing import Any, Callable, Sequence
 
 from .openfoam import host_launch_prefix
 from .log_signatures import (
+    CEILING,
     COURANT_GROWTH_WINDOW,
+    DEAD_FIELD_WINDOW,
+    DIVERGENCE_ACTION,
     FLAG_MULTIPLE,
+    classify_bound_line,
     classify_wall_time,
+    detect_ceiling_clip,
     detect_courant_excursion,
+    detect_normalisation_collapse,
     detect_oscillatory_divergence,
+    detect_residual_norm_contradiction,
     detect_residual_stall,
 )
 
@@ -74,7 +81,8 @@ FOAM_TUTORIALS = os.environ.get(
 class Anomaly:
     # kind: nan | fpe | residual-spike | bounding | novel-warning
     #       | residual-stall | oscillatory-divergence | courant-excursion
-    #       | wall-time-excursion
+    #       | wall-time-excursion | ceiling-clip | normalisation-collapse
+    #       | residual-norm-contradiction
     kind: str
     step: str
     line: str
@@ -108,12 +116,17 @@ class LogMonitor:
     COURANT = re.compile(
         r"Courant Number mean: ([0-9.eE+-]+) max: ([0-9.eE+-]+)")
     DELTAT = re.compile(r"^deltaT = ([0-9.eE+-]+)")
+    # The unnormalised residual norms some solvers print when a run ends. A
+    # vector field prints its three components in brackets.
+    RESIDUAL_NORM = re.compile(
+        r"^\s*(\w[\w.]*) Residual Norm2: (?:\(([^)]*)\)|([0-9.eE+-]+))")
 
     WINDOW = 25
     REPORT_LIMIT = 3
     STALL_WINDOW = 200       # Monitor Standard S6
     OSCILLATION_WINDOW = 50  # Monitor Standard S7
     COURANT_WINDOW = COURANT_GROWTH_WINDOW  # Monitor Standard S8
+    COLLAPSE_WINDOW = DEAD_FIELD_WINDOW     # Monitor Standard S10b
 
     def __init__(self, *, novel: bool = False, spike_factor: float = 25.0,
                  on_anomaly: Callable[[Anomaly], None] | None = None,
@@ -145,6 +158,12 @@ class LogMonitor:
         self._courant: list[float] = []             # S8 max-Courant history
         self._time_steps: set[float] = set()
         self._courant_severity: str | None = None
+        # S10: divergence behind a converged residual.
+        self._latest: dict[str, float] = {}         # last residual per field
+        self._ceiling_clipped: set[str] = set()
+        self._collapsed: dict[str, str] = {}
+        self._residual_norms: dict[str, float] = {}
+        self._norm_contradiction = False
         # A Courant line is a transient solver's signature. S6 and S7 are
         # steady-solve rules and are scoped off once one appears; see
         # _check_series for the measurement behind that.
@@ -170,9 +189,14 @@ class LogMonitor:
         if match:
             self._residual(step, match.group(1), float(match.group(2)), line)
             return
-        if self.BOUNDING.search(line):
-            self._raise(Anomaly("bounding", step, line.strip(),
-                                "a variable was clipped to stay physical"))
+        match = self.RESIDUAL_NORM.match(line)
+        if match:
+            self._residual_norm(step, match.group(1),
+                                match.group(2) or match.group(3), line)
+            return
+        bound = classify_bound_line(line)
+        if bound:
+            self._bound(step, bound, line)
             return
         if self.novel and self.WARNING.search(line):
             key = re.sub(r"[0-9.eE+-]+", "#", line.strip())[:120]
@@ -182,12 +206,82 @@ class LogMonitor:
                 self._raise(Anomaly("novel-warning", step, line.strip(),
                                     "first occurrence on an unfamiliar case"))
 
+    def _bound(self, step: str, bound: dict[str, Any], line: str) -> None:
+        """Clipping messages, split by which end of the range was hit (S4, S10a).
+
+        A field held up off its floor is the ordinary case and stays the S4
+        watch it always was. A field dragged down off its ceiling is S10a: an
+        eddy frequency at 1e+16 has left the physical range, and everything
+        integrated from the field afterwards inherits that.
+        """
+        if bound["direction"] != CEILING:
+            self._raise(Anomaly("bounding", step, line.strip(),
+                                "a variable was clipped to stay physical"))
+            return
+        finding = detect_ceiling_clip(line)
+        field = bound["field"]
+        self._ceiling_clipped.add(field)
+        if self._collapsed.get(field) == "flag":
+            self._escalate_collapse(step, field, line)
+        self._raise(Anomaly(
+            "ceiling-clip", step, line.strip(),
+            f"{field} was clipped at the top of its range "
+            f"({finding['bound']:.3g}), so the field has left the physical "
+            f"range; {finding['action']}",
+            severity=finding["severity"]))
+
+    def _residual_norm(self, step: str, field: str, raw: str,
+                       line: str) -> None:
+        """Unnormalised residual norms printed at the end of a run (S10c).
+
+        This block is the honest one: it is not divided by anything that can
+        blow up with the field, so it can contradict a normalised residual
+        that read as converged. The solver's own total is skipped, since it is
+        the maximum over the fields already collected.
+        """
+        if field.lower() == "total":
+            return
+        try:
+            parts = [abs(float(token)) for token in raw.split()]
+        except ValueError:
+            return
+        if not parts:
+            return
+        self._residual_norms[field] = max(parts)
+        if self._norm_contradiction:
+            return
+        finding = detect_residual_norm_contradiction(self._residual_norms)
+        if not finding:
+            return
+        self._norm_contradiction = True
+        self._raise(Anomaly(
+            "residual-norm-contradiction", step, line.strip(),
+            f"the {finding['field']} residual norm exceeds the "
+            f"{finding['reference_field']} norm by "
+            f"{finding['orders_of_magnitude']:.1f} orders of magnitude, so the "
+            f"equations were never jointly satisfied whatever the reported "
+            f"residuals said; {finding['action']}",
+            severity=finding["severity"]))
+
+    def _escalate_collapse(self, step: str, field: str, line: str) -> None:
+        """A collapsed residual on a field that also hit its ceiling is fatal."""
+        self._collapsed[field] = "fatal"
+        self._raise(Anomaly(
+            "normalisation-collapse", step, line.strip(),
+            f"{field} reads converged only because its own divergence "
+            f"inflated the quantity its residual is divided by; the field is "
+            f"clipped at the top of its range at the same time; "
+            f"{DIVERGENCE_ACTION}",
+            severity="fatal"))
+
     def _residual(self, step: str, field: str, residual: float, line: str) -> None:
+        self._latest[field] = residual
         series = self._series.setdefault(field, [])
         series.append(residual)
         if len(series) > self.STALL_WINDOW:
             series.pop(0)
         self._iterations[field] = self._iterations.get(field, 0) + 1
+        self._check_collapse(step, field, line)
         self._check_series(step, field, line)
         history = self._history.setdefault(field, [])
         history.append(residual)
@@ -207,6 +301,69 @@ class LogMonitor:
                 f"recent median {median:.3g} and still climbing"))
             history.clear()
 
+    def _oscillation_applies(self, field: str) -> bool:
+        """Whether S7 is entitled to speak about this field yet.
+
+        MEASURED 2026-07-31, and the reason this gate exists. S7 as written
+        fires on 68 of the lab's 106 archived steady solver logs and reaches
+        fatal on 65 of them. Every one of those runs completed and its results
+        are on the record. Four tightenings were measured and none rescued it:
+        requiring the residual level to stop improving (68 logs), requiring the
+        finding to persist a full window (40), measuring growth against a 200
+        iteration baseline (59), and raising the growth factor to 4x (23).
+
+        The cause is that a converged field sits flat with small noise, and the
+        ratio of one noise envelope to the next is a coin toss that a run of
+        thousands of iterations will win somewhere. The proposal's own words
+        say the rule is about oscillation "around a stalled residual", and that
+        is the gate: the field must still be above the target the solve is
+        aiming for. S6 has always been gated this way and does not
+        false-positive. So S7 now needs the same ``residual_target``, and it
+        stays silent on any field that has reached it.
+
+        RECORDED WEAKNESS: this gate is reasoning from the proposal's wording
+        plus S6's measured behaviour, not a measurement of its own. The
+        archived logs do not record the residual target each run was aiming
+        for, so the corpus cannot be replayed with the gate in place. S7 is the
+        weakest rule in the set and is filed to the owner as such.
+        """
+        if self.residual_target is None:
+            return False
+        latest = self._latest.get(field)
+        return latest is not None and latest > self.residual_target
+
+    def _check_collapse(self, step: str, field: str, line: str) -> None:
+        """Normalisation collapse S10b, raised once per field per episode.
+
+        Unlike S6 and S7 this rule is NOT scoped to steady solves. It was
+        measured over every archived log the lab holds, transient runs
+        included, and fires on exactly one of them. A residual that reads
+        converged because its own field diverged is a hazard in either regime,
+        and there is no measured reason to switch it off in one of them.
+        """
+        if field in self._collapsed:
+            return
+        peers = [value for name, value in self._latest.items()
+                 if name != field]
+        finding = detect_normalisation_collapse(
+            self._series[field], peer_residuals=peers,
+            window=self.COLLAPSE_WINDOW)
+        if not finding:
+            return
+        if field in self._ceiling_clipped:
+            self._collapsed[field] = "flag"
+            self._escalate_collapse(step, field, line)
+            return
+        self._collapsed[field] = finding["severity"]
+        self._raise(Anomaly(
+            "normalisation-collapse", step, line.strip(),
+            f"{field} has read at or below {finding['floor']:.0e} for "
+            f"{finding['iterations_at_floor']} iterations after peaking at "
+            f"{finding['peak']:.3g}, while other fields are still working; a "
+            f"residual is a ratio, and this one collapsed rather than "
+            f"converged; {finding['action']}",
+            severity=finding["severity"]))
+
     def _check_series(self, step: str, field: str, line: str) -> None:
         """Series-level rules S6 and S7 over the long residual history.
 
@@ -225,21 +382,22 @@ class LogMonitor:
         if self._transient:
             return
         series = self._series[field]
-        oscillation = detect_oscillatory_divergence(
-            series, window=self.OSCILLATION_WINDOW)
-        if oscillation is None:
-            self._oscillating.pop(field, None)
-        elif self._oscillating.get(field) != oscillation["severity"]:
-            previous = self._oscillating.get(field)
-            self._oscillating[field] = oscillation["severity"]
-            if previous != "fatal":  # never downgrade an episode already fatal
-                self._raise(Anomaly(
-                    "oscillatory-divergence", step, line.strip(),
-                    f"{field} residual oscillation envelope grew "
-                    f"{oscillation['growth']:.2f}x over the last "
-                    f"{oscillation['window']} iterations; "
-                    f"{oscillation['action']}",
-                    severity=oscillation["severity"]))
+        if self._oscillation_applies(field):
+            oscillation = detect_oscillatory_divergence(
+                series, window=self.OSCILLATION_WINDOW)
+            if oscillation is None:
+                self._oscillating.pop(field, None)
+            elif self._oscillating.get(field) != oscillation["severity"]:
+                previous = self._oscillating.get(field)
+                self._oscillating[field] = oscillation["severity"]
+                if previous != "fatal":  # never downgrade an already fatal episode
+                    self._raise(Anomaly(
+                        "oscillatory-divergence", step, line.strip(),
+                        f"{field} residual oscillation envelope grew "
+                        f"{oscillation['growth']:.2f}x over the last "
+                        f"{oscillation['window']} iterations; "
+                        f"{oscillation['action']}",
+                        severity=oscillation["severity"]))
         if self.residual_target is None or field in self._stalled:
             return
         stall = detect_residual_stall(

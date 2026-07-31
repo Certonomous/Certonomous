@@ -1,4 +1,4 @@
-"""Pure detection functions for solver-log signatures S6, S7, S8, and S9.
+"""Pure detection functions for solver-log signatures S6 to S10.
 
 Implements the Monitor Standard rules adopted from the reading program's
 agenda (``docs/standards/MONITOR_STANDARD.md``):
@@ -15,6 +15,10 @@ agenda (``docs/standards/MONITOR_STANDARD.md``):
   multiple of the learned 99th percentile for its solver kind. The
   expected wall-time envelope is learned from the mega-batch ledger
   (``demo-output/website/mega-batch/ledger.jsonl``).
+- S10 divergence behind a converged residual: a field that has left the
+  physical range while the number the run reports as its residual reads
+  converged. Three independent branches, each measured against the lab's
+  archived logs before adoption.
 
 Every detector is a pure function over plain numbers and sequences, so each
 is unit-testable without a solver. Detectors only name findings, each with a
@@ -25,7 +29,9 @@ percentiles are computed lazily on first use and memoized per file version.
 from __future__ import annotations
 
 import json
+import math
 import os
+import re
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -48,6 +54,10 @@ COURANT_ACTION = (
 WALL_TIME_ACTION = (
     "stop and investigate; capture host state and separate solver cost "
     "from infrastructure stalls before trusting the record"
+)
+DIVERGENCE_ACTION = (
+    "stop and investigate; no quantity computed from this state is evidence, "
+    "and any number already published from it is withdrawn"
 )
 
 # The thresholds the owner approved on r1-monitor-walltime-rule, in the words
@@ -426,4 +436,201 @@ def wall_time_record_field(
         "p99_seconds": round(finding["p99"], 4),
         "envelope_samples": finding["samples"],
         "action": finding["action"],
+    }
+
+
+# --------------------------------------------------------------------------
+# S10: divergence behind a converged residual
+# --------------------------------------------------------------------------
+#
+# THE RUN THIS FAMILY WAS DESIGNED AGAINST. The Ahmed body primal on the
+# 45760-cell mesh (ladder rung A4) ran to its iteration cap, printed a drag
+# coefficient, and that number was published and later withdrawn. Its
+# turbulence field had diverged: omega was pegged against the upper end of its
+# clipping range from iteration 100 onward, and its unnormalised residual norm
+# finished at 1.13e+35 against 6.9e+03 for momentum. The number the log
+# reports as the omega residual finished at 5.9e-31, which reads as converged
+# to every rule the monitor had. A normalised residual is a ratio, and when
+# the field blows up the denominator blows up with it, so the ratio collapses
+# toward zero exactly when the field is worst. None of S1 to S9 sees this: no
+# NaN, no exception, no spike, no stall (the residual is far BELOW target, not
+# above it), no oscillation, no Courant line, and 18 s of wall time.
+#
+# Each branch below was measured over every solver log the lab has archived,
+# 379 of them, before adoption. Each fires on exactly one: the withdrawn run.
+
+# A normalised residual at or below this is not convergence, it is a field
+# that has stopped being a ratio of anything meaningful. The tightest
+# residualControl target anywhere in the lab's cases is 1e-08; this floor sits
+# twelve orders below that, so no case can converge into it legitimately.
+DEAD_FIELD_FLOOR = 1e-20
+
+# Consecutive iterations at the floor before the reading is called an
+# artefact. Measured: the withdrawn run holds it for 497 of its 500
+# iterations, and no other archived log reaches 50 at this floor. The window
+# is set at 100, and the survey shows the finding is identical at 50 and 200.
+DEAD_FIELD_WINDOW = 100
+
+# S10c compares a field's unnormalised residual norm against momentum. Over
+# the 157 archived runs that print such a block, the largest healthy ratio is
+# 3.6 orders of magnitude (a turbulence field on the healthy coarse mesh of
+# the very same case). The withdrawn run sits at 31.2 orders. The threshold is
+# 10 orders: six above anything healthy, twenty one below the failure.
+RESIDUAL_NORM_ORDERS = 10.0
+
+# The three forms a clipping message takes in the lab's solvers. The first two
+# are the DAFoam form and carry the direction of the clip, which is the whole
+# point: a field held UP off a floor is ordinary, a field dragged DOWN off a
+# ceiling has left the physical range. The third is the classic OpenFOAM form,
+# which clips from below only and stays an S4 watch.
+_BOUND_CEILING = re.compile(r"^\s*Bounding (\w[\w.]*)<([0-9.eE+-]+)")
+_BOUND_FLOOR = re.compile(r"^\s*Bounding (\w[\w.]*)>([0-9.eE+-]+)")
+_BOUND_CLASSIC = re.compile(r"^\s*bounding (\w[\w.]*),")
+
+CEILING = "ceiling"
+FLOOR = "floor"
+
+
+def classify_bound_line(line: str) -> dict[str, Any] | None:
+    """Which end of its clipping range a field was held at (Monitor Standard S10a).
+
+    Returns ``{"field", "direction", "bound"}`` or ``None``. ``direction`` is
+    ``"ceiling"`` when the solver clipped the field DOWN from above and
+    ``"floor"`` when it held the field UP from below.
+
+    The distinction is the finding. Turbulence quantities are held off zero on
+    almost every healthy run, and S4 already watches that. Being clipped at
+    the top of the range is different in kind: an eddy frequency at 1e+16 is
+    not a small numerical difference, it is a field that has diverged and is
+    being stopped from taking the run down with it. Measured over the lab's
+    379 archived logs, a ceiling clip appears in exactly one of them, and it
+    is the run whose drag was withdrawn.
+    """
+    match = _BOUND_CEILING.match(line)
+    if match:
+        return {"field": match.group(1), "direction": CEILING,
+                "bound": float(match.group(2))}
+    match = _BOUND_FLOOR.match(line) or _BOUND_CLASSIC.match(line)
+    if match:
+        bound = float(match.group(2)) if match.re is _BOUND_FLOOR else None
+        return {"field": match.group(1), "direction": FLOOR, "bound": bound}
+    return None
+
+
+def detect_ceiling_clip(line: str) -> dict[str, Any] | None:
+    """A field clipped at the top of its permitted range (Monitor Standard S10a).
+
+    Severity fatal. A clipped ceiling is not a warning about the solve, it is
+    the statement that the field is no longer physical, and every quantity
+    integrated from it afterwards inherits that.
+    """
+    bound = classify_bound_line(line)
+    if not bound or bound["direction"] != CEILING:
+        return None
+    return {
+        "kind": "ceiling-clip",
+        "severity": SEVERITY_FATAL,
+        "action": DIVERGENCE_ACTION,
+        "field": bound["field"],
+        "bound": bound["bound"],
+    }
+
+
+def detect_normalisation_collapse(
+    residuals: Sequence[float],
+    *,
+    peer_residuals: Sequence[float] = (),
+    floor: float = DEAD_FIELD_FLOOR,
+    window: int = DEAD_FIELD_WINDOW,
+) -> dict[str, Any] | None:
+    """A residual reading that collapsed rather than converged (S10b).
+
+    Fires when a field's normalised residual has sat at or below ``floor`` for
+    the last ``window`` iterations, having been above it earlier in the run,
+    while at least one other field in the same solve is still working above
+    the floor.
+
+    All three conditions carry weight. Sitting at the floor is the symptom.
+    Having been above it earlier is what separates a diverged field from one
+    the solver never solves at all: a conserved variable updated explicitly
+    reports a residual of exactly zero from the first iteration to the last,
+    and five such series in the archive are correctly passed over on this
+    condition alone. A working peer is what makes the reading a contradiction
+    rather than a finished solve.
+
+    Returns a finding dict or ``None``. Pure function: no I/O, no state.
+    """
+    if window < 8 or len(residuals) < window:
+        return None
+    series = [float(value) for value in residuals]
+    trailing = 0
+    for value in reversed(series):
+        if value <= floor:
+            trailing += 1
+        else:
+            break
+    if trailing < window:
+        return None
+    if max(series) <= floor:
+        return None  # never alive: this field is not being solved
+    peers = [float(value) for value in peer_residuals]
+    if peers and not any(value > floor for value in peers):
+        return None  # the whole solve is at the floor, so nothing contradicts
+    return {
+        "kind": "normalisation-collapse",
+        "severity": SEVERITY_FLAG,
+        "action": DIVERGENCE_ACTION,
+        "floor": floor,
+        "window": window,
+        "iterations_at_floor": trailing,
+        "iterations_seen": len(series),
+        "peak": max(series),
+    }
+
+
+def detect_residual_norm_contradiction(
+    norms: Mapping[str, float],
+    *,
+    reference_field: str = "U",
+    orders: float = RESIDUAL_NORM_ORDERS,
+) -> dict[str, Any] | None:
+    """Unnormalised residual norms that contradict the reported convergence (S10c).
+
+    Some solvers print the unnormalised residual norm of every field at the
+    end of a run. That block is the honest one: it is not divided by anything
+    that can blow up with the field. Fires when any field's norm exceeds the
+    momentum norm by more than ``orders`` orders of magnitude, which means the
+    equations were never jointly satisfied whatever the reported residuals
+    said.
+
+    ``norms`` maps field name to residual norm. Returns a finding dict for the
+    worst offending field, or ``None``. Pure function: no I/O, no state.
+    """
+    reference = norms.get(reference_field)
+    if reference is None or not math.isfinite(reference) or reference <= 0:
+        return None
+    worst_field, worst_ratio = None, 0.0
+    for field, value in norms.items():
+        if field == reference_field:
+            continue
+        value = abs(float(value))
+        if not math.isfinite(value):
+            worst_field, worst_ratio = field, math.inf
+            break
+        ratio = value / reference
+        if ratio > worst_ratio:
+            worst_field, worst_ratio = field, ratio
+    if worst_field is None or worst_ratio <= 0:
+        return None
+    decades = math.inf if worst_ratio == math.inf else math.log10(worst_ratio)
+    if decades <= orders:
+        return None
+    return {
+        "kind": "residual-norm-contradiction",
+        "severity": SEVERITY_FATAL,
+        "action": DIVERGENCE_ACTION,
+        "field": worst_field,
+        "reference_field": reference_field,
+        "orders_of_magnitude": decades,
+        "threshold_orders": orders,
     }
