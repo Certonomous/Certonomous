@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T14:38:33+00:00",
+ "generated_at": "2026-07-31T14:39:49+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -611,11 +611,13 @@
    "cost_basis": "estimate; the finest rung holds 353,688 cells and the next roughly doubles it",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Motorcycle with rider, highway configuration drag",
    "source_kind": "gate",
-   "status": "approved",
+   "status": "dismissed",
    "created_at": "2026-07-25T02:07:58+00:00",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T14:39:49+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W3"
+   "well": "W3",
+   "dismiss_reason": "A fourth rung cannot answer the question it was proposed to answer, and does not fit the budget either. Measured obstacle first: the production rung's remaining iterative drift (0.0017507 between its 150-225 and 225-300 windows) exceeds the fine-pair grid increment (-0.0014097), and its final-window 2-sigma of 0.001210 is 86% of it, so the medium-to-production difference is not resolvable above the solver's own noise. A finer rung makes that increment smaller, not larger. Measured cost second: a rung at levels 7/(6 7)/5 lands near 1.8M cells and roughly 85 core-minutes at 300 iterations, over four times the 20 core-minute budget, and the production mesh is already at max skewness 3.995 against a 4.0 gate. The correct next step is iterative convergence on the production mesh, then a same-recipe family built with the background-density knob the way the B-52's fine-uq and finer2 rungs were, not another refinement level.",
+   "outcome": "Withdrawn after measuring what the rung would have inherited. The observed order is 7.298 before and 7.082 after the ladder's iteration-budget inconsistency is removed (rungs re-solved at production's own 300 iterations instead of 180, 2.5 core-min, cell counts and 180-iteration Cd reproduced exactly) -- still clamped, still not conclusive, band 0.000528 to 0.000580 and reportable_band None either way. The obstacle is not the number of rungs: the production rung is still drifting at 300 iterations by 0.0017507, which is 1.24 times the entire fine-pair grid increment of -0.0014097 the order is fitted to, so the finest increment sits below its own iterative noise floor and a finer rung would shrink it further."
   },
   {
    "id": "agp-e71b0542e6f9",

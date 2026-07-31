@@ -36,7 +36,7 @@
     "motorBike-rung-medium",
     "motorBike-production"
   ],
-  "updated_utc": "2026-07-29T19:18:27Z",
+  "updated_utc": "2026-07-31T14:39:49Z",
   "closures": {
     "kOmegaSST": 0.4155770166666667,
     "kEpsilon": 0.41915239,
@@ -55,5 +55,46 @@
       "SpalartAllmaras": "unconverged at 300 iterations (final-window spread 3.19, Cd still drifting)"
     },
     "screening_estimate": true
+  },
+  "iteration_consistency_audit": {
+    "measured_utc": "2026-07-31T14:36:25Z",
+    "why": "the stored ladder mixes two iteration budgets: geometry_study solves its cheaper rungs at RUNG_ITERATION_FRACTION 0.6 of the production budget (180 iterations, floor 120) while the production rung runs the full 300. On a case still drifting at 300 that inconsistency enters the fit as if it were grid error.",
+    "what_changed": "the coarse and medium meshes were rebuilt from the production case with only the snappyHexMesh levels stepped down to each rung's own recorded setting (feature 4 / surface (3 4) / region 2 and feature 5 / surface (4 5) / region 3), then solved to 300 iterations instead of 180. Nothing else moved: same case, same background blockMesh (20 8 8), same kOmegaSST, same freestream, serial.",
+    "reproduction_check": "both rebuilt meshes reproduce their stored cell counts exactly (14,714 and 66,302) and their stored Cd exactly at the 180-iteration window (0.4709343 and 0.4213963), so the rebuild is the same measurement, not a new one",
+    "case_dirs": [
+      "/home/ubuntu/certonomous-runs/mb-iterfix/coarse",
+      "/home/ubuntu/certonomous-runs/mb-iterfix/medium"
+    ],
+    "cost_core_min": 2.5,
+    "cd_at_300": {
+      "coarse": 0.4702344,
+      "medium": 0.4214375,
+      "production": 0.4200278
+    },
+    "cd_as_stored": {
+      "coarse": 0.47093433333333334,
+      "medium": 0.4213963111111111,
+      "production": 0.4201129966666667
+    },
+    "refit": {
+      "observed_order_before": 7.298,
+      "observed_order_after": 7.082,
+      "conclusive_before": false,
+      "conclusive_after": false,
+      "clamped_before": true,
+      "clamped_after": true,
+      "band_abs_before": 0.000528438150851199,
+      "band_abs_after": 0.000580481,
+      "reportable_band_after": null,
+      "reason_after": "the observed order p = 7.082 falls outside the credible range 0.5 to 2.5"
+    },
+    "the_real_obstacle": {
+      "production_halves_drift_150_225_vs_225_300": 0.0017507,
+      "production_final_60_window_2sigma": 0.00121,
+      "fine_pair_grid_increment_after_fix": -0.0014097,
+      "drift_over_increment": 1.242,
+      "statement": "the production rung is still drifting at 300 iterations by more than the entire grid increment the observed order is fitted to. Coarse and medium are settled at 300 (final-window 2-sigma 2.41e-04 each, halves-drift below 4e-04); production is not (2-sigma 1.21e-03, halves-drift 1.75e-03). A FOURTH RUNG CANNOT FIX THIS. A finer rung makes the finest increment smaller, driving the signal further beneath the noise, not above it. The prerequisite is iterative convergence on the production mesh."
+    },
+    "levels_not_rewritten": "levels[] is left exactly as published. The refit changes neither the conclusive flag nor the reportable band (both remain False and None), so there is nothing here that would improve a published number, and silently restating a live ladder is not this audit's call to make."
   }
 }
