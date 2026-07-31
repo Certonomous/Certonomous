@@ -1175,14 +1175,25 @@ const APPLY = {
   dispatch:   p => dispatchUpdate(p),
   trace:      p => pushTrace(p),
   result:     p => renderResult(p),
-  roster:     p => renderRoster(p),
   workerKill: p => workerKilled(p),
   workerBack: p => workerReprovisioned(p),
-  // The Agents and Workers KPI numerals move on this queue too, so the count
-  // changes land on the SAME beat as the operation the viewer is watching
-  // rather than racing ahead of the narration that explains them (Katie,
-  // 2026-07-30: "the number of agents and numbers of workers must appear at
-  // the same time as the operations that are shown").
+  // The KPI numerals move on this queue too, so the count changes land on the
+  // SAME beat as the operation the viewer is watching rather than racing ahead
+  // of the narration that explains them (Katie, 2026-07-30: "the number of
+  // agents and numbers of workers must appear at the same time as the
+  // operations that are shown"). Their count side lives in COUNT below, which
+  // is what lets a backed up queue release the numeral early without letting
+  // the panel jump the narration.
+  roster:     (p, item) => { applyCounts(item); renderRoster(p); },
+  agentUp:    (p, item) => applyCounts(item),
+  workerUp:   (p, item) => applyCounts(item),
+  workerDown: (p, item) => applyCounts(item),
+};
+// The KPI-bearing half of a queued beat. Real missions carry their counts on
+// `roster.update`; `agent.started` / `worker.provisioned` / `worker.released`
+// are the fleet's own per-slot channel.
+const COUNT = {
+  roster:     p => rosterCounts(p),
   agentUp:    () => { state.agents++;
                       state.agentsSeen = Math.max(state.agentsSeen || 0, state.agents);
                       renderAgentCount(); },
@@ -1190,18 +1201,56 @@ const APPLY = {
   workerDown: () => { state.workers = Math.max(0, state.workers - 1);
                       renderWorkerCount(); },
 };
+function applyCounts(item) {
+  if (!item || item.counted || !COUNT[item.kind]) return;
+  item.counted = true;
+  COUNT[item.kind](item.p);
+}
+// KPI CATCH UP (Katie, 2026-07-31: "the workers should appear as soon as
+// either reduced or mc start", and "this only appeared at the end whereas it
+// should appear as the solve is happening").
+//
+// The counters ride the paced queue so they can never run ahead of the
+// operation that earns them. What went wrong is the other direction. A mission
+// front loads its hypothesis and plan narration: a dozen entries land inside
+// the first fraction of a second, which is ~20 s of reading beats. The roster
+// update that announces the fleet is queued BEHIND them, while `race.init` and
+// the race lanes render live and unpaced, so the Monte Carlo and reduced order
+// lanes were already running with the Workers numeral still reading 0.
+//
+// So the numerals get a lag budget. A queued count that has waited longer than
+// KPI_LAG_MS is applied now, in queue order; the roster panel it belongs to
+// still paints on its own beat. Under a queue that is keeping up nothing is
+// promoted and the counts stay in exact lockstep, which is the invariant the
+// earlier complaint bought. The budget is longer than one reading beat on
+// purpose: it fires only when the queue is genuinely backed up.
+const KPI_LAG_MS = 2500;
+const nowMs = () => (typeof performance !== 'undefined' && performance.now)
+  ? performance.now() : Date.now();
+function catchUpCounts() {
+  const cutoff = nowMs() - KPI_LAG_MS;
+  // revealQ is in arrival order, so qAt is non decreasing: the first item
+  // inside the budget ends the sweep.
+  for (const item of revealQ) {
+    if (item.qAt > cutoff) break;
+    applyCounts(item);
+  }
+}
 // The worker-kill beat holds on screen: the LOST banner and lane must dwell long
 // enough to read (and to catch in a still) before the fresh worker takes over.
 const KILL_DWELL_MS = 2600;
 function enqueue(kind, p, ts) {
-  revealQ.push({ kind, p, ts });
+  revealQ.push({ kind, p, ts, qAt: nowMs() });
   if (!revealing) { revealing = true; drainReveal(); }
 }
 function drainReveal() {
   const item = revealQ.shift();
   if (!item) { revealing = false; return; }
-  (APPLY[item.kind] || (() => {}))(item.p);
+  (APPLY[item.kind] || (() => {}))(item.p, item);
   if (state.instant) { drainReveal(); return; }   // still-capture: no pacing
+  // Every beat is also a chance for a starved KPI count to catch up, so the
+  // numerals keep reading live while the queue works through the narration.
+  catchUpCounts();
   const next = revealQ[0];
   let delay;
   // The LOST beat always dwells, in either pace, so the fresh-worker hand-off
@@ -1348,18 +1397,24 @@ function renderWorkerCount(live) {
   $('kWorkers').textContent = n;
   state.peakWorkers = Math.max(state.peakWorkers || 0, n);
 }
+// The roster arrives as one event but carries two separable things: the panel
+// of who is on the job, and the KPI counts. They are split so the counts can
+// catch up on their own budget when a burst of narration backs the queue up
+// (see `catchUpCounts`) while the panel still paints on its own paced beat.
+function rosterCounts(p) {
+  // Workers is the live provisioned count (0 -> fan-out -> 0). Agents adds any
+  // roster member seen non-idle to the same seen-on-the-job set the transcript
+  // feeds, so the numeral matches whoever is on screen the moment they appear.
+  (p.members || []).filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle')
+                   .forEach(m => noteAgentRole(m.name || m.role));
+  renderWorkerCount(p.workers ?? 0);
+  renderAgentCount();
+}
 function renderRoster(p) {
   setHidden('rosterSection', false);
   const members = p.members || [];
   $('roster').innerHTML = members.map(m =>
     `<div class="roster-row"><span class="roster-dot ${esc(m.state||'')}"></span><span class="who">${esc(m.name||m.role||'')}</span><span class="doing">${esc(m.doing||m.status||'')}</span></div>`).join('');
-  // Workers is the live provisioned count (0 -> fan-out -> 0). Agents adds any
-  // roster member seen non-idle to the same seen-on-the-job set the transcript
-  // feeds, so the numeral matches whoever is on screen the moment they appear.
-  members.filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle')
-         .forEach(m => noteAgentRole(m.name || m.role));
-  renderWorkerCount(p.workers ?? 0);
-  renderAgentCount();
 }
 function renderCompute(p) {
   setHidden('computeSection', false);

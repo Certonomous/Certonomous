@@ -30,6 +30,26 @@ queue one beat at a time and read the KPI row between beats. It asserts:
 
 Run against the pre-fix page this harness reports seven failures, including
 "7 of 7 counter events applied before the queue paced them".
+
+2026-07-31. Katie reported the SAME symptom again on every act, and on the
+Monte Carlo race in particular: "the workers should appear as soon as either
+reduced or mc start". The synthetic tests above still passed, because they
+feed the three events the page had been taught to pace. No recorded mission
+emits any of them: real streams carry the counts on `roster.update`, which
+rides the queue behind a dozen front loaded narration beats, so the fleet
+numeral surfaced tens of seconds after the fleet was visibly working.
+
+The replay test below settles that on recorded streams instead of synthetic
+ones. It pushes a real mission through `dispatch` at its real inter event
+timing and measures, for every fleet size the backend put on the wire, how
+long before that number is on screen. Measured against the pre-fix page:
+
+    race   worst wire to screen lag 18.3 s (fleet numeral first moves at
+           18.6 s, while the race lanes started at 0.2 s)
+    act    worst lag 26.8 s
+    sweep  worst lag 19.6 s
+
+and against the fixed page: 2.9 s, 3.7 s, 3.7 s.
 """
 from __future__ import annotations
 
@@ -40,8 +60,16 @@ from pathlib import Path
 
 SDK = Path(__file__).resolve().parents[1]
 HARNESS = Path(__file__).resolve().parent / "control_room_pacing_harness.js"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 CONTROL_ROOM = SDK / "chief_engineer" / "control_room.html"
 NODE = shutil.which("node") or shutil.which("nodejs")
+
+# Recorded missions, kept whole so the replay carries the real burst shape.
+STREAMS = [
+    FIXTURES / "control_room_race_stream.jsonl",    # Monte Carlo vs reduced order
+    FIXTURES / "control_room_act_stream.jsonl",     # a narrated act, 137 s
+    FIXTURES / "control_room_sweep_stream.jsonl",   # a short fan out sweep, 40 s
+]
 
 
 @unittest.skipUnless(NODE, "node is needed to run the control room page script")
@@ -62,6 +90,28 @@ class ControlRoomPacing(unittest.TestCase):
         self.assertNotIn("did not evaluate", done.stderr,
                          "the control room script failed to evaluate:\n"
                          + done.stderr)
+
+    def test_the_kpis_read_live_on_recorded_missions(self):
+        """The numerals must climb while the work is on screen, not after it.
+
+        Katie's whole objection is that a demo whose numbers arrive at the end
+        "looks hardcoded". The bar the harness enforces per stream: the fleet
+        numeral leaves zero in the first half of the run, every fleet size the
+        backend declared reaches the numeral within six seconds of being
+        declared, the race lanes and the worker count start together, the
+        Agents and Cycle numerals each move at least twice during the run, and
+        the resting count after the queue drains is still the mission's peak.
+        """
+        for stream in STREAMS:
+            self.assertTrue(stream.exists(), f"missing replay fixture {stream}")
+        args = [NODE, str(HARNESS), str(CONTROL_ROOM)]
+        for stream in STREAMS:
+            args += ["--replay", str(stream)]
+        done = subprocess.run(args, capture_output=True, text=True, timeout=600)
+        self.assertEqual(
+            done.returncode, 0,
+            "replaying recorded missions shows the KPI row lagging the work "
+            "it reports:\n" + done.stdout + done.stderr)
 
 
 if __name__ == "__main__":
