@@ -1652,10 +1652,10 @@ def main(request: str | None = None, params: dict | None = None,
             f"{TIER_SOLVE}.")
     else:
         script.engineer(
-            "• The aero solver is not connected in this session; no launcher "
-            "is configured on this machine. "
-            "• Running the research sizing screen only; reconnect the solver "
-            "and rerun for solved numbers.")
+            "• The aero solver is not connected on this machine, and no "
+            "launcher is configured. "
+            "• Running the sizing screen only; reconnect and rerun for "
+            "solved numbers.")
         script.numericist(
             "• Research sizing only, a drag polar, not a solved flow. "
             "• It ranks designs and finds the trade; it validates nothing. "
@@ -1696,8 +1696,8 @@ def main(request: str | None = None, params: dict | None = None,
         # did about it, and the numbers land as a table rather than a sentence
         # a viewer has to parse.
         script.engineer(
-            "• You asked me to leave headroom on this box, so I am not "
-            "taking every worker. "
+            "• You asked me to leave headroom, so I am not taking every "
+            "worker. "
             "• Here is what I am holding back.")
         _emit_table(
             emit, script, title="Worker headroom",
@@ -1709,13 +1709,18 @@ def main(request: str | None = None, params: dict | None = None,
     if time_budget_min:
         script.engineer(
             f"• Time budget on the record: {time_budget_min:g} minutes. "
-            f"• The screening sweep costs seconds and the finalist wave fits "
-            f"well inside the window, so nothing is cut to make the deadline.")
+            f"• The sweep and the finalist wave both fit inside it, so "
+            f"nothing is cut for the deadline.")
 
     # ---------------- Evidence ----------------
     script.phase(EVIDENCE)
     roster.set(CHIEF_ENGINEER, "sizing the design space", "working")
     n_slots = min(granted, len(grid))
+    # THE FLEET COMES UP ONCE AND GOES DOWN ONCE. Zero until sizing starts,
+    # the granted count for the whole of the work, zero at completion. It used
+    # to drop back to zero between the screening sweep and the finalist wave
+    # and climb again, which reads on camera as the box losing its workers and
+    # being handed them back for no stated reason.
     roster.set_workers(n_slots, "sizing wings")
     results = []
     screen_started = time.time()
@@ -1765,7 +1770,10 @@ def main(request: str | None = None, params: dict | None = None,
                                                 if r["feasible"] else "infeasible")})
     screen_elapsed = time.time() - screen_started
     ledger.spend(len(grid) * 0.02, f"{len(grid)} research sizing evaluations")
-    roster.set_workers(0)
+    # The fleet stays up when the finalist wave is the next thing it does, and
+    # is stood down once there is no more work for it.
+    if not solver_live:
+        roster.set_workers(0)
 
     feasible = [r for r in results if r["feasible"]]
     infeasible = results[:]  # for narration counts
@@ -2201,7 +2209,7 @@ def main(request: str | None = None, params: dict | None = None,
     if limits:
         script.engineer(
             "• The winner sits on " + " and on ".join(limits) + ". "
-            "• Cruise L/D rises with aspect ratio and does not turn over, so "
+            "• Cruise L/D rises with aspect ratio without turning over, so "
             "these limits set it. "
             "• Move a limit and the winner moves with it.")
 
@@ -2310,8 +2318,8 @@ def main(request: str | None = None, params: dict | None = None,
             "• Wing solved with VSPAERO: induced and viscous drag from the "
             "solved polar at cruise. "
             "• Non-wing drag comes from the component buildup method (Raymer). "
-            "• To solve that too: a full-configuration surface and an "
-            "external-aerodynamics case for it.")
+            "• To solve that too: a full-configuration surface and a case "
+            "for it.")
         verdict = trust(
             converged=True, in_validated_regime=False, calibrated=True,
             solver_backed=True,
