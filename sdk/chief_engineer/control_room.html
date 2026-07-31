@@ -777,6 +777,7 @@ function dispatch(env) {
     case 'field.ready': enqueue('field', p, ts); break;
     case 'plot.ready': enqueue('plot', p, ts); break;
     case 'landscape.point': enqueue('landscape', p, ts); break;
+    case 'landscape.legend': enqueue('landLegend', p, ts); break;
     case 'dispatch.update': enqueue('dispatch', p, ts); break;
     // Race events render in real time: the race IS its measured timing, so
     // pacing them would falsify the wall clocks.
@@ -1170,6 +1171,7 @@ const APPLY = {
   field:      p => loadField(p),
   plot:       p => addPlot(p),
   landscape:  p => pushLandscape(p),
+  landLegend: p => setLandscapeLegend(p),
   dispatch:   p => dispatchUpdate(p),
   trace:      p => pushTrace(p),
   result:     p => renderResult(p),
@@ -1642,6 +1644,14 @@ function initLandscape(p) {
   if (p && p.title) $('landTitle').textContent = p.title;
   drawLandscape();
 }
+function setLandscapeLegend(p) {
+  // Infeasible designs stay on the plot, so the plot carries a key for them.
+  // When one limit rules out more wings than any other it is named, because
+  // "infeasible" alone does not tell the viewer what is binding.
+  state.landMeta = state.landMeta || {};
+  state.landMeta.legend = p || {};
+  drawLandscape();
+}
 function pushLandscape(p) {
   const meta = state.landMeta || {};
   const objKey = (meta.objective && meta.objective.key) || state.objMetric;
@@ -1741,6 +1751,19 @@ function drawLandscape() {
     ctx.beginPath(); ctx.arc(X,Y,p.solved?4.4:3.2,0,6.29); ctx.fill();
     if (p.solved){ ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=1; ctx.stroke(); }
   }
+  // key for the two point classes. The binding limit is named when the run
+  // knows it; otherwise the grey points are simply labelled infeasible.
+  const legend = (meta.legend && meta.legend.infeasible) || null;
+  if (legend){
+    ctx.font='9px ui-monospace,monospace'; ctx.textAlign='left';
+    const kw=ctx.measureText(legend).width;
+    const KX=ML+6, KY=MT+PH-8;
+    ctx.fillStyle='rgba(8,10,12,.82)'; ctx.fillRect(KX-4,KY-9,kw+18,13);
+    ctx.fillStyle='rgba(120,130,140,.75)';
+    ctx.beginPath(); ctx.arc(KX+3,KY-3,3.2,0,6.29); ctx.fill();
+    ctx.fillStyle='rgba(200,215,230,.85)'; ctx.fillText(legend,KX+11,KY);
+  }
+
   // the winner is annotated with its value — the one number this plot exists for
   const BX=px(best.design[kx]), BY=py(best.design[ky]);
   ctx.strokeStyle='#57a5ff'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(BX,BY,7,0,6.29); ctx.stroke();

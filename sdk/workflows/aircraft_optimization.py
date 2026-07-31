@@ -1347,6 +1347,14 @@ def main(request: str | None = None, params: dict | None = None,
     # that misses two limits is counted under both, so the rows do not sum to
     # the count above.
     ruled_out = violation_breakdown(results)
+    # The infeasible designs stay on the landscape, so the landscape carries a
+    # key for them, and the key names the limit that ruled out the most wings
+    # rather than leaving the grey points to speak for themselves.
+    binding = binding_constraint(results)
+    if emit and n_infeasible:
+        emit("landscape.legend", {
+            "infeasible": (f"infeasible: {binding}" if binding
+                           else "infeasible")})
 
     def _say_ruled_out() -> None:
         if ruled_out:
