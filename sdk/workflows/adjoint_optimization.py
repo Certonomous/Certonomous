@@ -27,8 +27,26 @@ central finite difference of the full primal, 210 perturbation solves, and the
 whole table is put on screen including the two rows that sit at the noise
 floor. The optimization only appears because that check passed.
 
-The optimization delivered 28.3% drag reduction at matched lift over 47 major
-iterations.
+The optimization delivered drag 28.3% below the untwisted baseline at matched
+lift over 47 major iterations. The baseline is named wherever that figure
+appears, on screen, in the report and on the certificate, and it is built by
+one helper so there is no occurrence to miss.
+
+Four things this act discloses before it is asked, because an adjoint-literate
+reviewer asks them first. The finite-difference step, with the fact that THIS
+case was graded at one step and the sweep that fixed it was run elsewhere. The
+differentiation: reverse-mode AD of the residuals with the turbulence
+transport equation among the differentiated states, verified from the run's
+own echoed configuration rather than assumed from the solver's defaults. That
+the machine-precision constraint derivatives are analytic and so are expected
+to be exact. And what the deformation did to the mesh, over all 81 checks the
+run made on it.
+
+The act paces itself. Every conversation entry keeps its own true emission
+time, and the act takes the time rather than writing one it did not: the
+narration beat is a shade over a second so no two entries share a clock
+second. ``CERTONOMOUS_NARRATION_PACE_MS`` and ``CERTONOMOUS_SWEEP_PACE_MS``
+override it for a still capture, where nothing is watched.
 
 WITHHELD FROM THE NARRATION, KEPT HERE AND IN THE RECORD (owner call,
 2026-07-31, under docs/DEMO_DISCRETION_CHARTER.md section 2, "operational
