@@ -289,7 +289,18 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     r32 = h1 / h2
     e21 = f3 - f2
     e32 = f2 - f1
-    result: dict[str, Any] = {"cells": [n1, n2, n3], "values": [f1, f2, f3]}
+    # Record which dimensionality produced h. This is a DEFAULT, not a
+    # detection: cell counts alone cannot tell a 2D ladder from a 3D one, so a
+    # 2D case that does not pass dim=2 is silently fitted with the cube root
+    # and its observed order comes out scaled by log(2)/log(4**(1/3)), about
+    # 1.5. A true 1.6 prints as 2.4 and is then rejected for being outside the
+    # credible window, which is the wrong verdict for the wrong reason.
+    #
+    # Writing dim into the result does not fix a miscalled caller, but it puts
+    # the assumption in the study file where an audit can see it, instead of
+    # leaving it inferable only from the source.
+    result: dict[str, Any] = {"cells": [n1, n2, n3], "values": [f1, f2, f3],
+                              "dim": int(dim)}
     if (e21 * e32) <= 0.0:
         spread = max(f1, f2, f3) - min(f1, f2, f3)
         result.update({
