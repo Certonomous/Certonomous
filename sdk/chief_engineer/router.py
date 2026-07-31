@@ -93,6 +93,13 @@ _ADJOINT_VERIFY = re.compile(
     r"\b(finite[\s-]?difference[s]?|fd\s+check|gradient\s+"
     r"(?:check|verification|accuracy)|verify\s+the\s+gradient|"
     r"check\s+the\s+gradient)\b", re.I)
+# A request can ask for the outcome without naming the method: "cut the drag on
+# the wing by at least 20%". That is the same act, asked for the way someone
+# who wants the result rather than the technique would ask for it.
+_DRAG_CUT = re.compile(
+    r"\b(cut|reduce|lower|minimi[sz]e|shave|trim|drop)\b[^.?!]{0,40}"
+    r"\bdrag\b", re.I)
+_WING_BODY = re.compile(r"\bwing\b", re.I)
 
 # Optimising lift-to-drag for an aircraft against mission requirements is a
 # distinct beat from the OpenFOAM shape sweep: it searches a wing design space.
@@ -469,6 +476,19 @@ def classify(request: str) -> Route:
         if _ADJOINT_VERIFY.search(text):
             add(ADJOINT_OPTIMIZATION, 0.6,
                 "asks for the gradient to be graded against finite differences")
+    elif (_DRAG_CUT.search(text) and _WING_BODY.search(text)
+          and not (surface_file or named_phrase or _LIFT_DRAG.search(text)
+                   or _CRM_WINGBODY_NAME.search(text)
+                   or _ONERA_M6_NAME.search(text)
+                   or _AHMED_BODY_NAME.search(text)
+                   or _NASA_HUMP_NAME.search(text))):
+        # The exclusions carry the weight here. "Cut the drag on the B-52 wing"
+        # names a body, and a named body outranks a method every time, so it
+        # belongs to the geometry study. Without these guards this rule would
+        # quietly steal any prompt that happens to contain "wing" and "drag".
+        add(ADJOINT_OPTIMIZATION, 2.0,
+            "asks for the drag on the wing to be cut, which this lab answers "
+            "with the verified gradient")
     # --- optimization ---
     if _OPTIMIZE.search(text):
         add(SHAPE_OPTIMIZATION, 0.7, "asks for an objective to be improved")
@@ -610,7 +630,7 @@ def classify(request: str) -> Route:
 # each of these acts accepts the surface honestly on its own terms (starting
 # geometry, raced wing, reference body) rather than being rerouted.
 _SURFACE_KEEPS_ROUTE = (AIRCRAFT_OPTIMIZATION, RACE_COMPARISON, VALVE_STUDY,
-                        SHAPE_OPTIMIZATION)
+                        SHAPE_OPTIMIZATION, ADJOINT_OPTIMIZATION)
 
 
 def apply_surface(route: Route, surface: str | None) -> Route:
