@@ -32,6 +32,15 @@ lift over 47 major iterations. The baseline is named wherever that figure
 appears, on screen, in the report and on the certificate, and it is built by
 one helper so there is no occurrence to miss.
 
+A wing handed to the act is identified rather than taken on trust. The act
+says on screen that it is delegating the confirmation, so the confirmation
+happens: the surface that arrived is read and three of its overall dimensions
+are measured against the same three measured off the wing this act's numbers
+belong to. What the measurement found is reported either way. Where a stated
+condition rides in with the request, a drag-reduction target or a ceiling on
+major iterations, the act puts the two numbers it measured beside the two
+numbers it was asked for and claims nothing further about either.
+
 Four things this act discloses before it is asked, because an adjoint-literate
 reviewer asks them first. The finite-difference step, with the fact that THIS
 case was graded at one step and the sweep that fixed it was run elsewhere. The
@@ -93,9 +102,10 @@ from pathlib import Path
 from . import (OUT_ROOT, announce_geometry, announce_plot, bullets, emit_table,
                make_transcript)
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
-                                EVIDENCE, HYPOTHESIS, MONITOR, PLAN,
-                                SOLVER_BACKED, ComputeLedger, KnowledgeBase,
-                                Roster, lab_report, uncertainty_channels)
+                                EVIDENCE, HYPOTHESIS, MONITOR, NUMERICIST,
+                                PLAN, SOLVER_BACKED, ComputeLedger,
+                                KnowledgeBase, Roster, lab_report,
+                                uncertainty_channels)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
 from chief_engineer.transcript import MONITOR as _MON_ROLE
 from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
@@ -536,25 +546,70 @@ def main(request: str | None = None, params: dict | None = None,
     # baseline's label names the wing that produced them. When the uploaded
     # surface IS this wing there is nothing to separate, and the line says
     # that instead of drawing a distinction that is not there.
+    #
+    # ITEM 2 (owner, 2026-07-31): the act announces that it is delegating the
+    # identification, so the identification HAPPENS. Two stages, and each
+    # sentence says only what its own stage knows.
+    #
+    #   "Appears to be" is the name the surface declares itself under, which
+    #   is exactly as much as an appearance is worth and no more.
+    #
+    #   The confirmation is a measurement. _a2_shape.identify reads the
+    #   surface the control room took in and compares three overall
+    #   dimensions against the same three measured off this act's own wing.
+    #   The numericist reports what it found, whichever way it went.
+    #
+    # A delegation that is announced and not performed would narrate a step
+    # the run never took, which the discretion charter forbids as squarely as
+    # a fabricated number. So the check runs FIRST: if the surface cannot be
+    # read, no delegation is announced and the act simply acknowledges what
+    # arrived. The act never prints a hand-off it did not make.
     uploaded = str(params.get("surface") or "").strip()
+    identity = _a2_shape.identify(shapes, uploaded) if (uploaded and shapes) \
+        else None
     if uploaded:
         from chief_engineer.display_names import display_name
 
         uploaded_name = display_name(uploaded)
-        is_this_wing = (Path(uploaded).stem.strip().lower()
-                        == Path(_a2_shape.BASELINE_STL).stem)
-        announce_geometry(
-            emit, name=uploaded,
-            label=(f"{uploaded_name}, received. This is the wing the numbers "
-                   f"come from" if is_this_wing else
-                   f"{uploaded_name}, received. The numbers come from the "
-                   f"MACH tutorial wing, on screen next"))
-        _narrate(script.engineer,
-                (f"Received: {uploaded_name}. That is the wing every number "
-                 f"below belongs to."
-                 if is_this_wing else
-                 f"Received: {uploaded_name}. Every number below belongs to "
-                 f"the MACH tutorial wing."))
+        is_this_wing = bool(identity and identity["match"])
+        if identity is None:
+            # Nothing to confirm against, so nothing is claimed and nothing is
+            # delegated on screen.
+            _narrate(script.engineer, f"Wing received: {uploaded_name}.")
+        else:
+            _narrate(script.engineer,
+                    f"Wing received: Appears to be a {uploaded_name}. "
+                    f"Delegating to sub-agent to confirm.")
+            roster.set(NUMERICIST, "confirming the received wing", "working")
+        if is_this_wing:
+            label = (f"{uploaded_name}, received. This is the wing the "
+                     f"numbers come from")
+        else:
+            # "On screen next" only where the wing is about to be on screen.
+            label = (f"{uploaded_name}, received. The numbers come from the "
+                     f"MACH tutorial wing"
+                     + (", on screen next" if shapes else ""))
+        announce_geometry(emit, name=uploaded, label=label)
+        if identity:
+            rows = [[name, f"{identity['measured'][name]:.3f} m",
+                     f"{identity['known'][name]:.3f} m"]
+                    for name in identity["known"]]
+            rows.append(["Widest disagreement between them",
+                         f"{identity['worst_pct']:.3g}%",
+                         f"{_a2_shape.IDENT_TOLERANCE_PCT:g}% to confirm"])
+            emit_table(emit, script, role=_NUM_ROLE,
+                       title="Confirming the received wing",
+                       headers=("Dimension", "Received surface",
+                                "MACH tutorial wing"),
+                       rows=rows, table_id="ident-adjoint-optimization")
+            _beat(_NARRATION_PACE_S)
+            _narrate(script.numericist,
+                    (f"Confirmed: the received surface measures as the MACH "
+                     f"tutorial wing." if is_this_wing else
+                     f"The received surface does not measure as the MACH "
+                     f"tutorial wing."),
+                    f"Every number below belongs to the MACH tutorial wing.")
+            roster.idle(NUMERICIST)
 
     show("baseline", f"MACH tutorial wing, {BASELINE_NAME}. C_d "
                      f"{baseline['CD']:.6f} at C_L {CL_TARGET:g}",

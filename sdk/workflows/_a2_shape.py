@@ -3,10 +3,12 @@
 This module is the act-time half of the shape replay. It reads the static
 artifact ``A2_shape_frames.json`` that :mod:`scripts.build_a2_shape_frames`
 baked offline and turns it into the viewport payloads the control room
-already knows how to render. It imports nothing but the standard library:
-the act must run on a laptop with no OpenFOAM, no DAFoam, no pyGeo and no
-network, so no part of the deformation is recomputed here. Every surface it
-writes came out of the optimizer's own parameterization, offline, once.
+already knows how to render. Outside the standard library it reaches for one
+thing only, the surface reader that serves the viewport, and that is for
+measuring a surface the control room took in. The act must run on a laptop
+with no OpenFOAM, no DAFoam, no pyGeo and no network, so no part of the
+deformation is recomputed here. Every surface it writes came out of the
+optimizer's own parameterization, offline, once.
 
 Nothing here scales, amplifies or smooths anything. Every surface that
 reaches the screen is at TRUE SCALE, and every number on the legend is a true
@@ -42,6 +44,21 @@ BASELINE_STL_PATH = (Path(__file__).resolve().parents[2]
 # a frame's own legend extremes) is a figure about the pass rather than the
 # shape change, and is labelled against this reference where it is shown.
 DISP_REFERENCE = "final surface against baseline, unscaled"
+
+# ITEM 2 (owner, 2026-07-31): the act says on screen that it is handing the
+# received wing to a sub-agent to confirm, so a confirmation genuinely runs and
+# genuinely reports back. It is a MEASUREMENT, not a filename comparison: the
+# surface that arrived is read and its overall dimensions are compared against
+# the same three dimensions measured off the wing this act's numbers belong to.
+# A file arriving under the right name carrying a different body disagrees
+# here, which is the whole reason the check is not done on the name.
+#
+# The tolerance is deliberately tight. These are overall extents of the same
+# body written by the same writer, so agreement is a rounding artefact and
+# anything else is a different surface; there is no grey band to tune.
+IDENT_TOLERANCE_PCT = 1.0
+# Where the control room puts a surface it has taken in.
+GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
 
 # Chordwise stations for the true-scale section figure, in metres of span.
 # Root, mid-semispan and outboard: enough to show that the change is not one
@@ -84,6 +101,45 @@ def load() -> dict[str, Any] | None:
         return json.loads(FRAMES_FILE.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
+
+
+def dimensions(vertices: list) -> dict[str, float]:
+    """The three overall extents of a wing surface, in metres.
+
+    Ordered as a reader reads a wing: how far it reaches across, how far it
+    reaches back, how thick it gets. Axis convention is the one every surface
+    in this act shares, x chordwise, y thickness, z span.
+    """
+    axes = [[v[axis] for v in vertices] for axis in range(3)]
+    return {"Span": max(axes[2]) - min(axes[2]),
+            "Streamwise extent": max(axes[0]) - min(axes[0]),
+            "Maximum thickness": max(axes[1]) - min(axes[1])}
+
+
+def identify(doc: dict, surface: str,
+             directory: Path | None = None) -> dict[str, Any] | None:
+    """Measure a received surface against this act's own wing.
+
+    Returns the two sets of dimensions, the widest relative disagreement
+    between them, and whether that clears :data:`IDENT_TOLERANCE_PCT`. Returns
+    None when the file cannot be read at all, so the caller can say what
+    happened rather than announce a check it could not run.
+    """
+    from chief_engineer.geometry import load_surface
+
+    path = Path(directory or GEOMETRY_DIR) / Path(str(surface)).name
+    try:
+        # No decimation: a merged vertex moves an extent, and an extent is the
+        # measurement. The whole surface is read exactly as it arrived.
+        payload = load_surface(path, max_faces=10 ** 9)
+    except (OSError, ValueError):
+        return None
+    measured = dimensions(payload["vertices"])
+    known = dimensions(doc["base_vertices"])
+    worst = max(abs(measured[key] - known[key]) / known[key] * 100.0
+                for key in known)
+    return {"measured": measured, "known": known, "worst_pct": worst,
+            "match": worst <= IDENT_TOLERANCE_PCT}
 
 
 def _surface(doc: dict, verts: list, field: dict | None, *,
