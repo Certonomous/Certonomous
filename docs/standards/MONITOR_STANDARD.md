@@ -1,6 +1,11 @@
 # Certonomous Monitor Standard
 
-Version 1.0, dated 2026-07-25. Produced by the overnight reading program (R1).
+Version 1.1, dated 2026-07-31. Produced by the overnight reading program (R1).
+Version 1.1 adds section 3, the set reviewed as a set: which rules have been
+replayed against the archive and which are still hypotheses, which fires too
+often to be useful, why a rule that fires on every run is sometimes right, and
+the four failure modes seen this week that no rule covers. Standing rules 6 and
+7 follow from it. No rule's detection, severity or action was changed.
 Names every solver-log signature the lab's monitor recognizes or should
 recognize, with a detection rule, a severity, and a prescribed action. Derived
 from the lab's own logs: the mega-batch ledger
@@ -83,7 +88,7 @@ special case of S5.
    line only inside `if (dynamicCode::allowSystemOperations)`
    (`argList.C:2241`). The line exists because the switch is on. With the
    switch off the same code prints `Disallowing` and the detector returns
-   nothing — the same distinction that separates the FPE *handler* from the
+   nothing, the same distinction that separates the FPE *handler* from the
    FPE *trapping banner* in S1.
 2. **It cannot ride on S5, because in the container it is not a warning.**
    OpenFOAM v2606 on the host prints `--> FOAM Warning : allowSystemOperations
@@ -91,7 +96,7 @@ special case of S5.
    the DAFoam container prints `allowSystemOperations : Allowing user-supplied
    system call operations` bare, with no warning prefix
    (`demo-output/website/dafoam/probe_baseline_run1.log` line 33). S5 matches
-   on `FOAM Warning` and would miss every containerized run — which is exactly
+   on `FOAM Warning` and would miss every containerized run, which is exactly
    the run that executes as root on a bind mount.
 3. **It is recorded on every run, not only in novel mode.** A machine that
    executes case-supplied code does so whether or not the body is new to the
@@ -346,7 +351,130 @@ weakness. Both are written up in their own sections.
   by line and assert that the withdrawn run is fatal on all three branches
   while the healthy coarse solve of the same case raises nothing at all.
 
-## 3. Standing rules for any monitor rule
+## 3. The set as a set, reviewed 2026-07-31
+
+Sections 1 and 2 grade each rule on its own. This section grades the standard,
+which is a different question and one nobody had asked. Adding rules one at a
+time produces a set whose overall behaviour nobody has measured, and the two
+things that matter about a monitor are what it catches and what it says about
+work that was fine.
+
+> **A rule nobody has replayed against real logs is a hypothesis, not a check.**
+
+### 3.1 What has actually been replayed
+
+| Rule | Replayed against | Fires on | Status |
+| --- | --- | --- | --- |
+| S1 FPE | not replayed | not counted | **hypothesis.** Derived from motorcycle benchmark logs and knowledge base fact 7. The handler-versus-banner distinction is reasoned from the source, not from a sweep. |
+| S2 NaN | not replayed | not counted | **hypothesis.** Almost certainly sound and still uncounted. |
+| S3 residual spike | not replayed | not counted | **hypothesis.** The rolling-median design is reasoned from the failure a minimum-based rule would produce, and that reasoning has never been run over the archive. |
+| S4 bounding | not replayed | not counted | **hypothesis.** The startup scoping, WATCH in the first ten percent and FLAG after, is a judgement about transients with no measured startup fraction behind it. |
+| S5 first-seen warning | not replayed | not counted | **hypothesis by construction.** It fires on novelty, so a fire rate over an archive of things the lab has already seen would measure the wrong thing. |
+| S6 residual stall | partly | not counted | **partly measured.** Its gate on the residual target is the same gate S7 needed, and the 106-log measurement records that S6 does not false-positive on that corpus. No independent fire count exists. |
+| S7 oscillatory divergence | **106 archived steady logs** | **68, FATAL on 65** | **measured and failing.** See 3.2. |
+| S8 Courant excursion | **4 archived transient logs, 13308 time steps, 417 ledger rows** | 0 healthy runs | **validated.** Tolerance measured, not assumed: largest healthy overshoot 0.403 percent against a 2 percent tolerance, longest healthy monotone run 17 steps against a window of 20. |
+| S9 wall time | **208193 ledger rows** | 19 FLAG, 11 FATAL | **validated**, with a recorded weakness. The six ~16300 s runs land at 1070x and 2214x their own p99 and were all recorded ok at the time. |
+| S10 divergence behind a converged residual | **383 archived solver logs**, and 157 for the norm branch | **exactly 1**, the withdrawn run | **validated, and the strongest rule here.** A test sweeps the whole archive and fails if a second log is ever named. |
+| S11 system operations | every run, by design | **every run** | **outside the ladder, and correctly so.** See 3.3. |
+
+**Seven of eleven rules have never been replayed against the archive.** Six of
+those seven are the rules the monitor already shipped with before the reading
+program, which is exactly why nobody thought to measure them: they were
+inherited rather than proposed, so they never met the intake requirement that
+`GOALS_AND_PROPOSALS_CHARTER.md` disqualifier 10 now imposes on new ones. **The
+disqualifier binds new rules and the old ones were grandfathered in without
+anybody deciding to grandfather them.** That is the finding of this review, and
+it is a decision for the owner rather than a defect to fix quietly, because
+replaying S1 through S5 costs a zero-compute afternoon and could plausibly
+return nothing.
+
+The honest reading of the table: the three rules the lab measured before
+adopting are the three it can defend. The one it adopted on reasoning alone is
+the one that failed. That is a small sample and it points the same way as D12.
+
+### 3.2 The one rule that fires too often
+
+S7 is the whole of this category. Ungated it fires on 68 of 106 archived steady
+logs and reaches FATAL on 65, every one of them a completed run whose results
+are on the record. Four tightenings were measured and none rescued it: 68, 40,
+59 and 23 respectively. It also cannot separate the two logs of the case it was
+written for, which is the sharpest statement available about a detector.
+
+Its shipped gate is not a measurement. The archived logs do not record the
+residual target each run was aiming for, so the corpus cannot be replayed with
+the gate in place, and the gate is reasoning from the proposal's own wording
+plus S6's measured behaviour. **S7 is the only rule in this standard whose
+current form has no evidence behind it**, and it is filed as C-2 in
+`PROPOSALS_OPEN.md` rather than quietly kept.
+
+Nothing else in the set is in this category on the evidence available. S11
+fires on every run and is not a false positive, for the reason in 3.3. The
+seven unreplayed rules cannot be placed in or out of this category at all,
+which is the point of 3.1.
+
+### 3.3 Why a rule that fires on everything is usually broken, and why S11 is not
+
+The verification charter's section 5 states the test: a rule that fires on two
+thirds of known-good work is measuring the population, not the defect. S11
+fires on one hundred percent of runs on this host and is correct.
+
+The test has a scope that was never written down, and this is the place to
+write it: **it applies to a rule that returns a verdict on the numbers.** S7
+claims a run diverged, so its firing on 68 completed runs is 68 false claims.
+S11 claims the host allows case files to compile and execute code, which is
+true on every run because the switch is on for every run. Its fire rate is a
+property of the machine, not a discrimination failure, and the day it stops
+firing is the day somebody turned the switch off.
+
+Two conditions separate the two cases, and a future severity that sits outside
+the ladder has to meet both:
+
+1. **It makes no claim about the numbers.** A configuration risk never moves
+   the anomaly count, the by-kind table or the fatal verdict, and it is never
+   folded into "nothing fatal".
+2. **Its fire rate is a measured property of the environment**, with the
+   measurement on the record. S11's is:
+   `/usr/lib/openfoam/openfoam2606/etc/controlDict` line 75, shipped
+   `allowSystemOperations 1` by the Debian package and reported unmodified by
+   `dpkg --verify`, against OpenFOAM's compiled default of `0`.
+
+### 3.4 Failure modes seen this week with no rule at all
+
+Four, and they are listed with what each would take.
+
+1. **A solve that never started and left a plausible directory behind.** Half
+   the race design set, 88 of 176, carried no result: every log holds only a
+   launcher stub, and the act reported the ensemble without saying part of it
+   was missing. S6 catches a residual that stalls; nothing catches a log with no
+   solver output in it at all. This is the cheapest rule in this list to write
+   and the failure mode least likely to be noticed. Docket
+   `w7-solver-stub-detector`.
+2. **A rung stopped by its iteration cap and recorded as settled.** The
+   208896-cell flat plate rung was asked for 15000 iterations, read 1.05 percent
+   above its settled value with the coefficient still falling by 1.04e-5 per
+   thousand, and took 36000 to settle. Nothing in S1 through S11 fires: the
+   residual is fine, the field is fine, the run completes. The signature is
+   readable from the log without any new instrumentation, because it is the
+   iteration counter reaching the configured cap while the monitored coefficient
+   is still moving by more than the settle tolerance. Verification charter
+   section 4 now carries the criterion.
+3. **A monitored quantity that is not a residual.** S1 through S10 all read the
+   residual block or the solver's own status lines. The failure in item 2 lives
+   in the coefficient history, which the monitor does not currently watch, and
+   L-24's rule is that a run is not converged, a quantity is. A monitor that
+   only reads residuals can only ever grade one quantity.
+4. **Nothing here can see six of this week's eight defects, and that is a
+   boundary rather than a gap.** The certificate caption, the defaulted
+   confidence level, the trace label, the leaked drag qualifier, the
+   misattributed audit finding and the mis-named polar all happened downstream
+   of a correct solve, in the display and record layers, where a solver log
+   signature has nothing to look at. Those belong to
+   `VERIFICATION_CHARTER.md` sections 6 and 14 and to `scripts/self_audit.py`.
+   Recording the boundary matters because a lab with a good monitor can come to
+   believe the monitor is the check, and this week the monitor was not where the
+   defects were.
+
+## 4. Standing rules for any monitor rule
 
 1. A rule states its detection pattern, severity, and action before it ships;
    a rule that only prints is not a rule.
@@ -355,13 +483,26 @@ weakness. Both are written up in their own sections.
    `LogMonitor`).
 3. Banner text is never matched; only handlers and measured values are. A line
    the solver prints only when a condition holds is a measured value, not a
-   banner — that is the test S11 passes and the FPE trapping banner fails.
+   banner, and that is the test S11 passes and the FPE trapping banner fails.
 4. New rules enter through the innovation path (see
    `docs/standards/INNOVATION_STANDARD.md`): proposal, offline evidence
    against archived logs, then adoption.
 5. A severity that is not about the numbers says so. It does not borrow FLAG
    or FATAL to be noticed, and it is not allowed to disappear into "nothing
    fatal" for being unable to. S11 is the first of these.
+6. **Every rule carries its replay line: the corpus, the fire count, the fatal
+   count, and its behaviour on the case that motivated it.** A rule with no
+   replay line is labelled a hypothesis in section 3.1 and stays labelled until
+   somebody runs it. This is the same requirement as disqualifier 10 in
+   `GOALS_AND_PROPOSALS_CHARTER.md`, applied backwards to the rules that were
+   already here when the disqualifier was written.
+7. **A rule's severity is reviewed against its own fire rate, not only against
+   the seriousness of the thing it names.** S9 assesses five reduced-order rows
+   of 0.30 to 0.43 s as FATAL because it is purely relative, and the detection
+   is arguably right while the severity is out of proportion to a third of a
+   second. No absolute floor is added here, because no such floor was in the
+   approved proposal and inventing a threshold is how a rule stops meaning what
+   it says. Filed as an observation for the owner.
 
 ## Sources
 
