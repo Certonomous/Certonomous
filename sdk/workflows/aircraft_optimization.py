@@ -386,9 +386,9 @@ def screen_solve_gap(finalists) -> float | None:
 # vortex-lattice solver can produce, so the verdict names the number it used.
 _VIOLATION_KINDS = (
     ("approach speed", "Approach speed above the landing limit",
-     f"assumed C_L,max (landing) = {_CLMAX_LANDING:.1f}"),
+     f"assumed C_L_max (landing) = {_CLMAX_LANDING:.1f}"),
     ("take-off speed", "Take-off speed above the limit",
-     f"assumed C_L,max (take-off) = {_CLMAX_TAKEOFF:.1f}"),
+     f"assumed C_L_max (take-off) = {_CLMAX_TAKEOFF:.1f}"),
     ("range", "Range short of the requirement", "stated range requirement"),
     ("span", "Span beyond the structural limit", "structural span limit"),
 )
@@ -912,9 +912,9 @@ def assumed_values(reqs: dict) -> list[tuple[str, str, str]]:
     if not reqs.get("landing_stated"):
         rows.append(("Landing speed limit", f"{reqs['landing_speed']:.0f} m/s",
                      "assumed, not stated"))
-    rows.append(("C_L,max (take-off)", f"{_CLMAX_TAKEOFF:.1f}",
+    rows.append(("C_L_max (take-off)", f"{_CLMAX_TAKEOFF:.1f}",
                  "assumed, not solver-derived"))
-    rows.append(("C_L,max (landing)", f"{_CLMAX_LANDING:.1f}",
+    rows.append(("C_L_max (landing)", f"{_CLMAX_LANDING:.1f}",
                  "assumed, not solver-derived"))
     rows.append(("Non-wing drag share", f"C_D0 {_CD0_NONWING:.3f}",
                  "assumed, Raymer component buildup"))
@@ -1234,12 +1234,12 @@ def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> d
         violations.append(
             f"approach speed {approach_speed:.0f} m/s exceeds the "
             f"{reqs['landing_speed']:.0f} m/s landing limit "
-            f"(assumed C_L,max (landing) = {_CLMAX_LANDING:.1f})")
+            f"(assumed C_L_max (landing) = {_CLMAX_LANDING:.1f})")
     if takeoff_speed > reqs["takeoff_speed"] + 1e-6:
         violations.append(
             f"take-off speed {takeoff_speed:.0f} m/s exceeds the "
             f"{reqs['takeoff_speed']:.0f} m/s limit "
-            f"(assumed C_L,max (take-off) = {_CLMAX_TAKEOFF:.1f})")
+            f"(assumed C_L_max (take-off) = {_CLMAX_TAKEOFF:.1f})")
     if breguet_range_km < reqs["range_km"] - 1e-6:
         violations.append(
             f"range {breguet_range_km:.0f} km short of the {reqs['range_km']:.0f} km requirement")

@@ -595,9 +595,9 @@ class AssumedValuesLedgerTests(unittest.TestCase):
         table = {label: (value, basis) for label, value, basis in rows}
         # The labels carry their subscripts, which is how every camera
         # surface typesets a coefficient.
-        self.assertEqual(table["C_L,max (take-off)"][1],
+        self.assertEqual(table["C_L_max (take-off)"][1],
                          "assumed, not solver-derived")
-        self.assertEqual(table["C_L,max (landing)"][1],
+        self.assertEqual(table["C_L_max (landing)"][1],
                          "assumed, not solver-derived")
         self.assertIn("Raymer", table["Non-wing drag share"][1])
         # Every requirement was stated, so none of them is in the ledger.
@@ -900,12 +900,14 @@ class SolvedRunDoctrineTests(unittest.TestCase):
         # The assumed-values ledger carries the lift coefficients the low
         # speed verdicts turn on, marked as no solver's work.
         self.assertIn("(Assumed Values)", text)
-        # C_L,max is TYPESET on the sealed page, so the underscore form never
-        # appears in the stream: the symbol is drawn at the row's own size and
-        # the index smaller, dropped below the baseline. This asserts the two
-        # runs, and that the raw form is gone.
+        # The maximum lift coefficient is TYPESET on the sealed page, so no
+        # underscore form reaches the stream: the symbol is drawn at the row's
+        # own size and its chained index smaller, comma separated and dropped
+        # below the baseline. This asserts the two runs and the absence of
+        # either raw spelling.
         self.assertIn("(C) Tj", text)
         self.assertIn("(L,max) Tj", text)
+        self.assertNotIn("C_L_max", text)
         self.assertNotIn("C_L,max", text)
         self.assertIn("assumed, not solver-derived", text)
         # Issuance and the seal sit together at the foot.
@@ -1126,9 +1128,9 @@ class ShootRoundTests(unittest.TestCase):
         # The two maximum lift coefficients do not follow from a speed limit,
         # so they stay assumed and stay in the ledger.
         ledger = {label: basis for label, _v, basis in assumed_values(reqs)}
-        self.assertEqual(ledger["C_L,max (take-off)"],
+        self.assertEqual(ledger["C_L_max (take-off)"],
                          "assumed, not solver-derived")
-        self.assertEqual(ledger["C_L,max (landing)"],
+        self.assertEqual(ledger["C_L_max (landing)"],
                          "assumed, not solver-derived")
         # Neither speed is in the ledger any more.
         self.assertNotIn("Take-off speed limit", ledger)
