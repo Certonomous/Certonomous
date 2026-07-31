@@ -133,6 +133,13 @@ _AHMED_BODY_NAME = re.compile(
 _AHMED_SLANT = re.compile(
     r"\bslant\b\s*[:=]?\s*\d{1,3}(?:\.\d+)?\s*(?:deg|degree|°)|"
     r"\b\d{1,3}(?:\.\d+)?\s*(?:deg(?:ree)?s?|°)\s*(?:rear\s+)?slant\b", re.I)
+# The same pattern with the angle captured, plus the slant angles the lab has
+# a staged body for. Kept beside the pattern so adding a configuration is one
+# edit: stage the surface, add the entry.
+_AHMED_SLANT_VALUE = re.compile(
+    r"\bslant\b\s*[:=]?\s*(\d{1,3}(?:\.\d+)?)\s*(?:deg|degree|°)|"
+    r"\b(\d{1,3}(?:\.\d+)?)\s*(?:deg(?:ree)?s?|°)\s*(?:rear\s+)?slant\b", re.I)
+_AHMED_SLANT_SURFACES = {25: "ahmed_25.stl", 35: "ahmed_35.stl"}
 _NASA_HUMP_NAME = re.compile(
     r"\bnasa\b.{0,20}\bhump\b|\bwall[\s-]?mounted\s+hump\b|"
     r"\b(?:glauert[\s-]?goldschmied)\b.{0,10}\bhump\b|\b2d\s*wmh\b", re.I)
@@ -567,6 +574,29 @@ def classify(request: str) -> Route:
         # Named but never staged: carried so the workflow says so honestly
         # instead of silently solving the default body.
         params["surface_unavailable"] = named_phrase
+    # The Ahmed act runs a family of slant angles and stages a surface for
+    # each, but the act's DEFAULT is the 25 degree body. A prompt naming 35
+    # degrees therefore used to reach the act with no surface at all, solve
+    # the 25 degree body, and print a line saying the request named a
+    # different angle. That is honest and it is also the wrong answer to the
+    # question asked. The angle is resolved to its staged surface here.
+    #
+    # Deliberately NOT through the _NAMED_BODIES table: that table adds
+    # weight to the geometry-study score, which would move this act's
+    # confidence number on camera for a prompt whose routing has not changed.
+    # Nothing below touches ``scores``. The act still MEASURES the slant off
+    # the surface it receives and grades on what it measured, so a wrong
+    # resolution here cannot mislabel a result.
+    if intent == AHMED_BODY and "surface" not in params:
+        slant_ask = _AHMED_SLANT_VALUE.search(text)
+        if slant_ask:
+            asked = float(slant_ask.group(1) or slant_ask.group(2))
+            staged = _AHMED_SLANT_SURFACES.get(round(asked))
+            if staged and (_GEOMETRY_DIR / staged).exists():
+                params["surface"] = staged
+            elif not staged:
+                params["surface_unavailable"] = (
+                    f"an Ahmed body with a {asked:g} degree slant")
     if solver_setup:
         params["solver_setup"] = solver_setup.group(0)
     if geometry:

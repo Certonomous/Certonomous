@@ -1,0 +1,41 @@
+{
+  "body": "ahmed_35",
+  "levels": [
+    {
+      "tag": "coarse",
+      "cells": 20425,
+      "cd": 0.10607551347222223,
+      "mission": "ahmed_35-rung-coarse"
+    },
+    {
+      "tag": "medium",
+      "cells": 45813,
+      "cd": 0.08762203240000001,
+      "mission": "ahmed_35-rung-medium"
+    },
+    {
+      "tag": "production",
+      "cells": 79778,
+      "cd": 0.08154989922571428,
+      "mission": "ahmed_35-production"
+    }
+  ],
+  "fingerprint": "7b7dd1c5fd5f8be7",
+  "numerical": {
+    "band_abs": 0.012916891788024713,
+    "band_rel": 0.15839,
+    "observed_order": 3.169,
+    "order_used": 2.5,
+    "clamped": true,
+    "monotone": true,
+    "method": "3-mesh study (r = 1.20), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "conclusive": false,
+    "value_working": 0.08154989922571428
+  },
+  "provenance": [
+    "ahmed_35-rung-coarse",
+    "ahmed_35-rung-medium",
+    "ahmed_35-production"
+  ],
+  "updated_utc": "2026-07-31T12:43:00Z"
+}

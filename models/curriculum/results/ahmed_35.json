@@ -2,58 +2,126 @@
   "name": "ahmed_35",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 3.06,
-  "cd_measured": "0.0876",
-  "cd_compared": 0.3141,
+  "wall_minutes": 1.5,
+  "wall_basis": "the act's own measurement, surface to converged force; the two cheaper ladder rungs ran from meshes already on disk",
+  "cd_measured": "0.081547",
+  "cl_measured": "0.091420",
   "area_basis": "frontal",
   "basis_note": "rebased from the measured planform area onto frontal area",
-  "relative_error": 0.2081,
-  "envelope": "\u00b11.8e-06",
-  "tier": "TREND ONLY",
-  "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend",
+  "cd_compared": 0.2924,
+  "relative_error": 0.1246,
+  "envelope": "±2.1e-05 over the final 35 iterations",
+  "tier": "SOLVER-BACKED",
+  "reason": "within 12% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 (band ±15%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated",
   "reference_cd": 0.26,
   "reference_source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
-  "finished_at": "2026-07-23T04:20:22+00:00",
+  "finished_at": "2026-07-31T12:43:00+00:00",
+  "case": "~/certonomous-runs/act7-ahmed_35-02688b",
+  "produced_by": "sdk/workflows/ahmed_body.py, the act, with ahmed_35.stl threaded as the surface",
+  "history": {
+    "previous_credential": {
+      "cd_measured": 0.0876,
+      "cd_compared_then": 0.3141,
+      "relative_error_then": 0.2081,
+      "tier_then": "TREND ONLY",
+      "cells_then": 45813,
+      "why_superseded": "graded on models/curriculum/run_suite.py's tier-0 setup (refinement 2, 250 iterations, 45,813 cells), which is the MIDDLE rung of the act's own three-mesh ladder. The act's production mesh (79,778 cells) moves C_d from 0.0876 to 0.081547 and the deviation from 21% to 12%. The reference (0.26) and its band (±15%) did not move; the mesh did. Same STL, same freestream (40 m/s), same closure (k-omega SST)."
+    }
+  },
+  "grid_study": {
+    "grid_conclusive": false,
+    "note": "Three meshes of this case, same physics, run by the act: 20,425 / 45,813 / 79,778 cells at C_d 0.1061 / 0.0876 / 0.0815. Monotone, but the observed order comes out at 3.17, outside the theoretical range, so the ladder is recorded as not conclusive and the band is reported at the clamped order. That is what holds this credential at SOLVER-BACKED rather than VALIDATED; the published band itself is met at 12%.",
+    "rungs": [
+      {
+        "tag": "coarse",
+        "cells": 20425,
+        "cd": 0.1061
+      },
+      {
+        "tag": "middle",
+        "cells": 45813,
+        "cd": 0.0876
+      },
+      {
+        "tag": "production",
+        "cells": 79778,
+        "cd": 0.0815,
+        "graded": true
+      }
+    ],
+    "spread_abs": 0.013
+  },
+  "mesh_gates": {
+    "cells": 79778,
+    "max_non_orthogonality": 49.6,
+    "max_skewness": 1.48,
+    "gates_pass": true,
+    "standard": "70 degree non-orthogonality gate, 4.0 skewness guidance"
+  },
+  "near_wall": {
+    "treatment": "wall functions, k-omega SST",
+    "valid_range": "y+ 30 to 300",
+    "y_plus_min": 48,
+    "y_plus_median": 276,
+    "y_plus_max": 2134,
+    "verdict": "part of the body sits above the band the wall functions are valid in; that near-wall modelling error is not separated by this run and rides the model channel"
+  },
   "report_results": [
     {
       "quantity": "Drag coefficient",
-      "value": "0.0876",
-      "envelope": "\u00b11.8e-06 over the final 50 iterations",
-      "tier": "TREND ONLY",
-      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend"
+      "value": "0.081547",
+      "envelope": "±2.1e-05 over the final 35 iterations",
+      "tier": "SOLVER-BACKED",
+      "reason": "within 12% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 (band ±15%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated"
     },
     {
       "quantity": "Lift coefficient",
-      "value": "0.1001",
-      "envelope": "\u00b12.6e-05",
-      "tier": "TREND ONLY",
-      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend"
+      "value": "0.091420",
+      "envelope": "±0.0001 over the final 35 iterations",
+      "tier": "SOLVER-BACKED",
+      "reason": "within 12% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 (band ±15%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated"
     },
     {
       "quantity": "Drag vs experiment",
-      "value": "Cd 0.3141 vs 0.26",
-      "envelope": "21% apart, \u00b115% band",
-      "tier": "TREND ONLY",
-      "reason": "measured Cd 0.314 is 21% from Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 \u2014 outside the \u00b115% band, so it stands as a trend"
+      "value": "Cd 0.2924 vs 0.26",
+      "envelope": "12% apart, ±15% band",
+      "tier": "SOLVER-BACKED",
+      "reason": "within 12% of Ahmed, Ramm & Faltin 1984, SAE 840300, Cd 0.26 (band ±15%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated"
+    },
+    {
+      "quantity": "Rear slant angle",
+      "value": "35 degrees",
+      "envelope": "measured off the surface that was solved, not taken from the request",
+      "tier": "SOLVER-BACKED",
+      "reason": "the area-weighted upward-facing normals put the slant face at 35.0 degrees"
     },
     {
       "quantity": "Mesh",
-      "value": "45,813 cells",
-      "envelope": "max non-orthogonality 37.054876, max skewness 1.4233872",
-      "tier": "VALIDATED",
-      "reason": "converged, inside the validated regime, envelope 0.0% of value"
+      "value": "79,778 cells",
+      "envelope": "max non-orthogonality 49.6, max skewness 1.48",
+      "tier": "SOLVER-BACKED",
+      "reason": "converged, inside the validated regime, both published mesh gates cleared"
+    },
+    {
+      "quantity": "Mesh spread on Cd",
+      "value": "±0.013",
+      "envelope": "across three meshes of this case",
+      "tier": "SOLVER-BACKED",
+      "reason": "a spread across three meshes; no observed-order fit was performed"
     }
   ],
   "comparison": {
-    "measured_cd": 0.0876,
-    "compared_cd": 0.3141,
+    "measured_cd": 0.0815,
+    "compared_cd": 0.2924,
     "reference_cd": 0.26,
-    "relative_error": 0.2081,
+    "relative_error": 0.1246,
     "tolerance": 0.15,
     "area_basis": "frontal",
     "basis_note": "rebased from the measured planform area onto frontal area",
     "source": "Ahmed, Ramm & Faltin 1984, SAE 840300",
-    "solved_reynolds": null,
+    "solved_reynolds": 2784000.0,
     "regime": "fully separated slant, quasi-two-dimensional wake"
-  }
+  },
+  "tier_basis": "derived by chief_engineer.lab.displayed_credential from this record and the case's own refinement ladder, not asserted in the file",
+  "gap_verdict": "The drag gap this proposal was raised on is closed: 12% against the published value on a +-15% band, from 21% before. What now stands between this body and a validated credential is the grid-refinement study, not the reference. The 25 degree configuration sits at 7% and is held at the same tier by the same blocker."
 }
