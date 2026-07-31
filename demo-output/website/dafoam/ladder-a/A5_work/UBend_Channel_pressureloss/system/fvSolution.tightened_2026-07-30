@@ -19,17 +19,29 @@ SIMPLE
 {
     consistent                         false;
     nNonOrthogonalCorrectors           0;
+    // LADDER A5 convergence-tightening test (coordinator-directed, cheap test):
+    // stock tutorial has no residualControl and runs a fixed 1000 steps regardless.
+    // Add residualControl so a genuinely converged primal can exit early, and see
+    // whether p/U (and T) can actually reach a much lower residual than the stock
+    // plateau (p initRes ~2.26e-4) given tighter inner solves.
+    residualControl
+    {
+        p                               1e-8;
+        U                               1e-8;
+        T                               1e-8;
+        nuTilda                         1e-8;
+    }
 }
 
 solvers
 {
     "(p|p_rgh|G)"
     {
-        
+
         solver                         GAMG;
         smoother                       GaussSeidel;
-        relTol                         0.1;
-        tolerance                      0;
+        relTol                         0.01;
+        tolerance                      1e-10;
     }
     Phi
     {
@@ -41,9 +53,9 @@ solvers
     {
         solver                         smoothSolver;
         smoother                       GaussSeidel;
-        relTol                         0.1;
-        tolerance                      0;
-        nSweeps                        1;
+        relTol                         0.01;
+        tolerance                      1e-10;
+        nSweeps                        2;
     }
 }
 
