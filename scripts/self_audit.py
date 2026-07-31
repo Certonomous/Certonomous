@@ -14,18 +14,46 @@ Run weekly:
     python3 scripts/self_audit.py --quiet    # only FAIL and WARN lines
 
 Exit status is 0 when every check passes, 1 when any check FAILs, so a cron
-entry or a CI step can gate on it.
+entry or a CI step can gate on it. The weekly schedule is one line and it is
+not installed by this file, because installing a timer is a change to the box
+and belongs to whoever owns the box:
+
+    0 6 * * 1 cd /home/ubuntu/Certonomous && python3 scripts/self_audit.py \
+        > demo-output/website/audit/self_audit_$(date +\\%Y\\%m\\%d).txt 2>&1
+
+WHAT THIS IS AND IS NOT. It is a review aid. It names what it found and the
+reason the check exists, and a human decides. It never edits a surface, and it
+never will: a script that quietly corrects the record is a script that can
+quietly corrupt it, and the whole point of the exercise is that a published
+number changed only where somebody chose to change it.
+
+TUNING. False positives are cheap and false negatives are not, and every
+check here is tuned on that asymmetry. A false positive costs one reading. A
+false negative costs a published number that nobody rechecks, which is how
+every defect this file looks for got onto a surface in the first place. So a
+check that is unsure reports, and says why it is unsure.
 
 Adding a check: write a function that returns a Result, and list it in CHECKS.
 A check must read primary evidence (a ledger row, a solver log, a raw
 coefficient file) and compare it against a published surface. A check that
 compares two published surfaces to each other is a consistency check, not a
 verification, and must say so in its name.
+
+The checks below fall into two rounds. The first ten came from the audit that
+caught `wall.json` and the memory exponent. The second ten, added 2026-07-31,
+each encode a defect that was caught once by hand, by somebody looking at
+something else: a gate table row whose cited transcript no longer supports it,
+a credential wall that would change on rebuild, a generator holding published
+numbers as hard-coded constants, an FD grade against a retired band, a
+statistical caption on a value no statistical procedure produced, a caller
+trusting a band its own flag calls non-conclusive, a worker fleet declared on
+a path that dispatches nothing, and a governed threshold restated as a literal.
 """
 
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import math
 import os
@@ -490,6 +518,637 @@ def check_ungated_completed_runs() -> Result:
                   "no completed run is missing its gate verdict")
 
 
+# --------------------------------------------------------------------------
+# Round 2 checks, added 2026-07-31 under well W7.
+#
+# Each one is here because the defect it looks for was found once, by hand, by
+# somebody who was looking at something else. The tuning rule for all of them
+# is the asymmetry the certificate fix was tuned on: a false positive costs a
+# reading, a false negative costs a published number nobody rechecks. So they
+# are noisy on purpose, they name what they found and why, and none of them
+# edits anything.
+# --------------------------------------------------------------------------
+
+MISSION = REPO / "mission-output"
+CAMPAIGN = WEB / "campaign"
+GATE_TABLE = CAMPAIGN / "NINE_ACT_GATE_TABLE.md"
+ACTIVE = WEB / "ACTIVE_RESEARCH.md"
+REGISTER = CAMPAIGN / "NOT_PASSING_REGISTER.md"
+RESULTS = REPO / "models" / "curriculum" / "results"
+
+
+def _md_rows(path: Path) -> list[list[str]]:
+    """Cells of every pipe-delimited markdown row in a file, separators out."""
+    rows = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line.startswith("|") or not line.endswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if all(set(c) <= {"-", ":"} and c for c in cells):
+            continue
+        rows.append(cells)
+    return rows
+
+
+def check_gate_table_vs_transcripts() -> Result:
+    """The published gate table must re-derive from the act transcripts.
+
+    `gate_table.py` is the generator and the act transcript is its source of
+    truth. If the published table and a fresh generation disagree, one of three
+    things is true and all three are findings: the table was hand-edited, an
+    act changed its output and the row is now unsupported, or the generator
+    can no longer read an act it cites. This check does not say which. It says
+    they disagree, and where.
+    """
+    if not GATE_TABLE.exists():
+        return Result("gate table vs transcripts", FAIL,
+                      "the published nine-act gate table is missing")
+    sys.path.insert(0, str(REPO / "scripts"))
+    try:
+        import gate_table  # noqa: PLC0415 - imported here so a broken
+        generated = gate_table.rows()  # generator is a finding, not a crash
+    except Exception as exc:  # noqa: BLE001
+        return Result("gate table vs transcripts", FAIL,
+                      f"the generator could not run: {type(exc).__name__}: {exc}")
+
+    published = {}
+    for cells in _md_rows(GATE_TABLE):
+        if len(cells) >= 7 and cells[0] not in ("act",):
+            published[cells[0]] = cells
+
+    problems, pending = [], []
+    for row in generated:
+        case = row["case"]
+        if case not in published:
+            problems.append(f"{case}: generated but not published")
+            continue
+        pub = published[case]
+        fields = (("reference", pub[2]), ("measured", pub[3]),
+                  ("deviation", pub[4]), ("verdict", pub[5]))
+        for key, published_value in fields:
+            fresh = str(row[key])
+            if fresh == PENDING_TOKEN and published_value != PENDING_TOKEN:
+                pending.append(
+                    f"{case}: published {key} is {published_value!r} but the "
+                    f"generator now reads PENDING from "
+                    f"{row['source']}; the cited artifact no longer supports "
+                    f"the row as written")
+                break
+            if fresh != PENDING_TOKEN and fresh != published_value:
+                problems.append(
+                    f"{case}: {key} published {published_value!r}, "
+                    f"re-derived {fresh!r} from {row['source']}")
+    for case in published:
+        if case not in {r["case"] for r in generated}:
+            problems.append(f"{case}: published but the generator emits no such row")
+
+    text = GATE_TABLE.read_text(encoding="utf-8", errors="replace")
+    graded = sum(1 for r in generated
+                 if str(r["verdict"]) != PENDING_TOKEN)
+    claim = re.search(r"(\d+) of (\d+) acts have run; (\d+) carry a graded number",
+                      text)
+    if claim and int(claim.group(3)) != graded:
+        problems.append(
+            f"footer claims {claim.group(3)} graded rows; the generator "
+            f"produces {graded}")
+
+    if problems or pending:
+        return Result("gate table vs transcripts", FAIL,
+                      f"{len(problems) + len(pending)} row(s) do not re-derive "
+                      f"from the artifact they cite", pending + problems)
+    return Result("gate table vs transcripts", PASS,
+                  f"all {len(generated)} rows re-derive from their cited "
+                  f"transcript")
+
+
+PENDING_TOKEN = "PENDING"
+
+
+def check_wall_credentials_vs_results() -> Result:
+    """Every credential on the wall must re-derive from its own result file.
+
+    The join is positional and undocumented on the wall itself: a credential
+    named `ahmed_25` is backed by `models/curriculum/results/ahmed_25.json`.
+    That file is the primary evidence; `wall.json` is a build product of it.
+    The wall is rebuilt by hand, so it can drift, and nothing else notices.
+    """
+    wall = _load_json(WALL)
+    creds = wall.get("credentials") if isinstance(wall, dict) else None
+    if not creds:
+        return Result("wall credentials vs results", FAIL,
+                      "wall.json carries no credentials array")
+    sys.path.insert(0, str(REPO / "sdk"))
+    try:
+        from chief_engineer import lab  # noqa: PLC0415
+    except Exception as exc:  # noqa: BLE001
+        return Result("wall credentials vs results", WARN,
+                      f"cannot import the re-derivation used by the wall "
+                      f"builder: {type(exc).__name__}: {exc}")
+    # The stored result file is the as-run archive. The wall displays what
+    # `displayed_credential` makes of it today: the finest anchored rung, the
+    # current grading rules. Comparing the wall against the raw tier would
+    # flag every re-grade as a defect, so the comparison is against the same
+    # re-derivation the builder performs. What this catches is drift: a wall
+    # that would change if it were rebuilt right now.
+    problems, checked = [], 0
+    for cred in creds:
+        name = cred.get("name")
+        source = RESULTS / f"{name}.json"
+        if not source.exists():
+            problems.append(f"{name}: no result file at "
+                            f"models/curriculum/results/{name}.json")
+            continue
+        raw = _load_json(source)
+        checked += 1
+        try:
+            shown = lab.displayed_credential(raw)
+        except Exception as exc:  # noqa: BLE001
+            problems.append(f"{name}: re-derivation raised "
+                            f"{type(exc).__name__}: {exc}")
+            continue
+        for wall_key, shown_key in (("tier", "tier"),
+                                    ("measured", "on_reference_basis"),
+                                    ("envelope", "envelope"),
+                                    ("reason", "reason")):
+            if wall_key not in cred or shown_key not in shown:
+                continue
+            if str(cred[wall_key]) != str(shown[shown_key]):
+                problems.append(
+                    f"{name}: wall {wall_key} is {cred[wall_key]!r}; a rebuild "
+                    f"from models/curriculum/results/{name}.json would write "
+                    f"{shown[shown_key]!r}")
+        try:
+            compared = float(raw.get("cd_compared"))
+            reference = float(raw.get("reference_cd"))
+            recomputed = abs(compared - reference) / abs(reference)
+            stated = float(raw.get("relative_error"))
+            if abs(recomputed - stated) > 5e-3:
+                problems.append(
+                    f"{name}: result file states relative_error {stated}, "
+                    f"recomputed {recomputed:.4f} from its own cd_compared "
+                    f"and reference_cd")
+        except (TypeError, ValueError):
+            problems.append(f"{name}: a compared value is not a number")
+    if problems:
+        return Result("wall credentials vs results", FAIL,
+                      f"{len(problems)} credential field(s) do not re-derive",
+                      problems)
+    return Result("wall credentials vs results", PASS,
+                  f"all {checked} credentials re-derive from their result file")
+
+
+def check_benchmarks_vs_closure_record() -> Result:
+    """`benchmarks.json` and its generator's hard-coded block must agree.
+
+    This is the defect that would have overwritten a corrected card in
+    silence. `sdk/scripts/build_benchmarks.py` holds the closure numbers as a
+    module-level dict rather than reading them from the scored artifacts, so a
+    hand-correction to `benchmarks.json` survives exactly until the next
+    regeneration. The generator's own docstring says KEEP THIS IN SYNC. That
+    instruction is a check waiting to be written, so here it is.
+    """
+    published = _load_json(WEB / "benchmarks.json")
+    block = published.get("closure_challenge", {}) if isinstance(published, dict) else {}
+    generator = REPO / "sdk" / "scripts" / "build_benchmarks.py"
+    if not block:
+        return Result("benchmarks vs closure record", FAIL,
+                      "benchmarks.json carries no closure_challenge block")
+    if not generator.exists():
+        return Result("benchmarks vs closure record", WARN,
+                      "the benchmarks generator is not on disk")
+    problems = []
+    try:
+        tree = ast.parse(generator.read_text(encoding="utf-8"))
+        constants = {}
+        for node in tree.body:
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 and \
+                    isinstance(node.targets[0], ast.Name):
+                try:
+                    constants[node.targets[0].id] = ast.literal_eval(node.value)
+                except Exception:  # noqa: BLE001
+                    continue
+        hard_coded = constants.get("_CLOSURE")
+        if hard_coded is None:
+            problems.append("_CLOSURE not found in the generator; the sync "
+                            "rule this check enforces may have moved")
+        else:
+            for key in sorted(set(block) | set(hard_coded)):
+                if block.get(key) != hard_coded.get(key):
+                    problems.append(
+                        f"{key}: published {block.get(key)!r}, the generator "
+                        f"would write {hard_coded.get(key)!r}")
+    except Exception as exc:  # noqa: BLE001
+        problems.append(f"could not read the generator: {type(exc).__name__}: {exc}")
+
+    # And the published block against the scored artifacts themselves.
+    entry = _load_json(WEB / "closure_challenge_trained_entry_round3_gated.json")
+    harness = entry.get("official_test_harness_result", {}) if isinstance(entry, dict) else {}
+    scored = harness.get("overall") or harness.get("overall_score")
+    if scored is not None and block.get("our_score") is not None:
+        if abs(float(scored) - float(block["our_score"])) > 1e-9:
+            problems.append(
+                f"our_score: benchmarks.json says {block['our_score']}, the "
+                f"round-3 gated entry's own harness result is {scored}")
+    if problems:
+        return Result("benchmarks vs closure record", FAIL,
+                      f"{len(problems)} closure field(s) disagree with the "
+                      f"artifact or would regress on the next build", problems)
+    return Result("benchmarks vs closure record", PASS,
+                  "the published closure block matches the generator and the "
+                  "scored entry of record")
+
+
+_GRADE_WORDS = ("PASS", "CONDITIONAL", "FAIL")
+
+
+def _fd_grade(percent: float, sign_flip: bool) -> str:
+    """The current standard, verification charter section 7. One place."""
+    if sign_flip or percent > 15.0:
+        return "FAIL"
+    if percent > 5.0:
+        return "CONDITIONAL"
+    return "PASS"
+
+
+def check_fd_grades_current_standard() -> Result:
+    """Every published FD grade is recomputed against the current standard.
+
+    The retired band was "1 to 12 percent is normal". A row still graded
+    against it reads as a pass and is not one. Charter clause: grades are
+    recomputed every time a table is regenerated, and a row carrying a retired
+    grade is a defect.
+    """
+    surfaces = [ACTIVE]
+    surfaces += sorted(WEB.rglob("*.md"))
+    seen, problems, ungraded = set(), [], []
+    percent = re.compile(r"\*\*([\d.]+)%\*\*")
+    for doc in surfaces:
+        if doc in seen or any(p in {"work", "processor0"} for p in doc.parts):
+            continue
+        seen.add(doc)
+        lines = doc.read_text(encoding="utf-8", errors="replace").splitlines()
+        for number, line in enumerate(lines, 1):
+            if not line.startswith("|") or "%" not in line:
+                continue
+            if "wrt" not in line and "derivative" not in line and "FD" not in line:
+                continue
+            found = percent.search(line)
+            if not found:
+                continue
+            value = float(found.group(1))
+            sign_flip = "sign flip" in line.lower()
+            stated = [w for w in _GRADE_WORDS
+                      if re.search(rf"\*\*{w}\*\*", line)]
+            expected = _fd_grade(value, sign_flip)
+            where = f"{doc.relative_to(REPO)}:{number}"
+            if not stated:
+                ungraded.append(f"{where}: {value}% carries no grade")
+                continue
+            if stated[0] != expected:
+                problems.append(
+                    f"{where}: graded {stated[0]} at {value}%"
+                    f"{' with a sign flip' if sign_flip else ''}; the current "
+                    f"standard grades it {expected}. Row reads: {line.strip()}")
+    if problems:
+        return Result("FD grades vs current standard", FAIL,
+                      f"{len(problems)} FD row(s) carry a grade the current "
+                      f"standard does not give", problems + ungraded[:5])
+    return Result("FD grades vs current standard", PASS,
+                  f"no published FD grade disagrees with the current standard",
+                  ungraded[:10])
+
+
+def _looks_like_interval(text: str) -> bool:
+    """Deliberately conservative, and the same shape the certificate uses.
+
+    One signed number with an optional unit, anchored end to end. Anything
+    with prose in it is not an interval. A false positive here would let a
+    fabricated confidence interval past; a false negative only costs a real
+    interval a flag.
+    """
+    return bool(re.fullmatch(
+        r"\s*[+-]?\s*(?:±|\+/-|\+-)?\s*\d+(?:\.\d+)?(?:[eE][+-]?\d+)?"
+        r"\s*[A-Za-z%/°]{0,12}\s*", text or ""))
+
+
+def check_statistical_labels() -> Result:
+    """A statistical caption may only sit on a value a procedure produced.
+
+    Two surfaces. The code that prints the caption, wherever a copy of it
+    lives, must gate it on an interval test; an ungated copy in a bundle or a
+    snapshot will seal fabricated intervals exactly as the tracked copy used
+    to. And any transcript line carrying the caption must carry an interval
+    next to it.
+    """
+    problems, checked = [], 0
+    caption = "95% confidence interval"
+    for source in sorted(REPO.rglob("certificate.py")):
+        if "__pycache__" in source.parts:
+            continue
+        text = source.read_text(encoding="utf-8", errors="replace")
+        if caption not in text:
+            continue
+        checked += 1
+        if "_looks_like_interval" not in text:
+            problems.append(
+                f"{source.relative_to(REPO)} prints {caption!r} with no "
+                f"interval test in the file; every envelope it is handed "
+                f"becomes a statistical claim")
+    for transcript in sorted(MISSION.glob("*/transcript.*")):
+        checked += 1
+        for number, line in enumerate(
+                transcript.read_text(encoding="utf-8",
+                                     errors="replace").splitlines(), 1):
+            low = line.lower()
+            if "confidence interval" not in low:
+                continue
+            if any(word in low for word in
+                   ("no 95", "not a confidence", "no confidence",
+                    "point estimate", "declin", "is not an interval")):
+                continue
+            if "±" in line or "+-" in line or "+/-" in line:
+                continue
+            problems.append(
+                f"{transcript.relative_to(REPO)}:{number} says confidence "
+                f"interval with no interval on the line: {line.strip()[:120]}")
+    if problems:
+        return Result("statistical labels", FAIL,
+                      f"{len(problems)} statistical label(s) sit on something "
+                      f"that is not an interval", problems)
+    return Result("statistical labels", PASS,
+                  f"{checked} caption site(s) and transcripts carry no "
+                  f"unearned confidence interval")
+
+
+def _py_sources() -> list[Path]:
+    out = []
+    for root in ("sdk/workflows", "sdk/chief_engineer"):
+        base = REPO / root
+        if base.exists():
+            out += [p for p in sorted(base.rglob("*.py"))
+                    if "__pycache__" not in p.parts]
+    return out
+
+
+def check_nonconclusive_band_readers() -> Result:
+    """A caller reading `band_abs` must also read `conclusive`.
+
+    `eca_hoekstra_band` returns a conservative fallback band even when it sets
+    `conclusive` False. Five independent authors read the number and printed
+    it. That is a fact about the return shape, so the check is on the shape:
+    a function that calls the ladder fit, reads `band_abs` off it, and never
+    mentions `conclusive` or `reportable_band` is the same defect again.
+
+    Scoped to callers of the fit rather than to every reader of a key named
+    `band_abs`, because other producers use the same key for bands that carry
+    no conclusiveness flag at all, and flagging those would be noise with no
+    defect behind it. `uq.py` itself is exempt: it owns the return shape.
+    """
+    problems, checked = [], 0
+    for source in _py_sources():
+        if source.name == "uq.py":
+            continue
+        text = source.read_text(encoding="utf-8", errors="replace")
+        if "band_abs" not in text or "eca_hoekstra_band" not in text:
+            continue
+        try:
+            tree = ast.parse(text)
+        except SyntaxError as exc:
+            problems.append(f"{source.relative_to(REPO)} does not parse: {exc}")
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            body = ast.get_source_segment(text, node) or ""
+            if "band_abs" not in body or "eca_hoekstra_band(" not in body:
+                continue
+            checked += 1
+            if "conclusive" in body or "reportable_band" in body:
+                continue
+            problems.append(
+                f"{source.relative_to(REPO)}:{node.lineno} {node.name}() fits "
+                f"a refinement ladder, reads band_abs off it and never reads "
+                f"conclusive; on a failed ladder that number is a fallback, "
+                f"not a measured uncertainty")
+    if problems:
+        return Result("non-conclusive band readers", FAIL,
+                      f"{len(problems)} reader(s) trust a band without its flag",
+                      problems)
+    return Result("non-conclusive band readers", PASS,
+                  f"all {checked} band_abs readers also read the flag")
+
+
+def check_declared_fleet_vs_work() -> Result:
+    """A fleet declared on a restored path is a fleet the run never used.
+
+    The hump act called `set_workers(ranks)` inside its warm-solve branch,
+    where the mesh and the solve are both restored from cache and nothing is
+    dispatched. The declaration reaches the worker numeral and the spend line,
+    so it is a claim about the run. This finds the shape: a non-zero worker
+    declaration inside a branch whose condition is a cache restore.
+    """
+    problems, branches = [], 0
+    for source in _py_sources():
+        text = source.read_text(encoding="utf-8", errors="replace")
+        if "set_workers" not in text:
+            continue
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.If):
+                continue
+            test = (ast.get_source_segment(text, node.test) or "").lower()
+            if not any(word in test for word in ("warm", "cached", "restore")):
+                continue
+            branches += 1
+            # Body only. The `else` of a warm-path branch is the cold path,
+            # where the fleet is real and the declaration is correct.
+            inner_nodes = [n for stmt in node.body for n in ast.walk(stmt)]
+            for inner in inner_nodes:
+                if not isinstance(inner, ast.Call):
+                    continue
+                func = inner.func
+                if not (isinstance(func, ast.Attribute)
+                        and func.attr == "set_workers"):
+                    continue
+                if not inner.args:
+                    continue
+                first = inner.args[0]
+                if isinstance(first, ast.Constant) and first.value == 0:
+                    continue
+                problems.append(
+                    f"{source.relative_to(REPO)}:{inner.lineno} declares "
+                    f"workers inside a restored-path branch "
+                    f"({test.strip()[:60]}); the run dispatches nothing there")
+    if problems:
+        return Result("declared fleet vs work", FAIL,
+                      f"{len(problems)} worker declaration(s) on a path that "
+                      f"runs no parallel work", problems)
+    return Result("declared fleet vs work", PASS,
+                  f"no worker declaration on any of {branches} restored-path "
+                  f"branches")
+
+
+# Governed thresholds and the parameter names that must not restate them as
+# literals. The monitor held its own 20.0 for five days after the approved
+# constant moved to 10.0, and every caller taking the default judged on a
+# threshold nobody approved.
+GOVERNED_THRESHOLDS = {
+    "flag_multiple": ("sdk/chief_engineer/log_signatures.py", "FLAG_MULTIPLE"),
+    "fatal_multiple": ("sdk/chief_engineer/log_signatures.py", "FATAL_MULTIPLE"),
+}
+
+
+def check_restated_thresholds() -> Result:
+    """A governed threshold restated as a literal is a defect at review.
+
+    Whether or not it currently agrees with its source. On the day it stops
+    agreeing, nothing announces it.
+    """
+    problems, pinned = [], 0
+    for source in _py_sources():
+        text = source.read_text(encoding="utf-8", errors="replace")
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            args = node.args
+            names = [a.arg for a in args.args + args.kwonlyargs]
+            defaults = ([None] * (len(args.args) - len(args.defaults))
+                        + list(args.defaults) + list(args.kw_defaults))
+            for name, default in zip(names, defaults):
+                if name not in GOVERNED_THRESHOLDS or default is None:
+                    continue
+                governed_file, governed_name = GOVERNED_THRESHOLDS[name]
+                if isinstance(default, ast.Name):
+                    pinned += 1
+                    continue
+                if isinstance(default, ast.Constant) and isinstance(
+                        default.value, (int, float)):
+                    problems.append(
+                        f"{source.relative_to(REPO)}:{node.lineno} "
+                        f"{node.name}() restates {name} as the literal "
+                        f"{default.value}; the governed value is "
+                        f"{governed_name} in {governed_file}")
+    if problems:
+        return Result("restated thresholds", FAIL,
+                      f"{len(problems)} governed threshold(s) restated as a "
+                      f"literal", problems)
+    return Result("restated thresholds", PASS,
+                  f"{pinned} threshold default(s) read the governed constant")
+
+
+def check_register_group_counts() -> Result:
+    """The failure register's declared counts must match its own entries.
+
+    A miscount is not cosmetic here. The register is the lab's inventory of
+    what did not work, and a group that says five and holds four has lost an
+    entry without anybody noticing.
+    """
+    if not REGISTER.exists():
+        return Result("register group counts", FAIL,
+                      "NOT_PASSING_REGISTER.md is missing")
+    lines = REGISTER.read_text(encoding="utf-8", errors="replace").splitlines()
+    groups, current, entries = [], None, 0
+    declared = None
+    for line in lines:
+        if line.startswith("## GROUP"):
+            if current is not None:
+                groups.append((current, declared, entries))
+            current, declared, entries = line[3:].strip(), None, 0
+        elif line.startswith("## ") and current is not None:
+            groups.append((current, declared, entries))
+            current, declared, entries = None, None, 0
+        elif current is not None:
+            found = re.match(r"\*\*Count:\s*(\d+)\s*cases?\*\*", line.strip())
+            if found:
+                declared = int(found.group(1))
+            elif line.startswith("### "):
+                entries += 1
+    if current is not None:
+        groups.append((current, declared, entries))
+    problems = []
+    for name, count, actual in groups:
+        if count is None:
+            problems.append(f"{name}: declares no count")
+        elif count != actual:
+            problems.append(f"{name}: declares {count}, holds {actual} entries")
+    total_declared = None
+    for cells in _md_rows(REGISTER):
+        if cells and cells[0].strip().upper().startswith("**TOTAL"):
+            digits = re.search(r"(\d+)", cells[1] if len(cells) > 1 else "")
+            if digits:
+                total_declared = int(digits.group(1))
+    total_actual = sum(a for _, _, a in groups)
+    if total_declared is not None and total_declared != total_actual:
+        problems.append(f"summary total declares {total_declared}, the groups "
+                        f"hold {total_actual}")
+    if problems:
+        return Result("register group counts", WARN,
+                      f"{len(problems)} count(s) in the failure register do "
+                      f"not match its own entries",
+                      problems + ["counted by heading; one entry can cover "
+                                  "several cases, so a mismatch is a reading, "
+                                  "not automatically an error"])
+    return Result("register group counts", PASS,
+                  f"{len(groups)} groups, {total_actual} entries, every count "
+                  f"agrees")
+
+
+def check_campaign_json_citations() -> Result:
+    """Machine-readable citations in the campaign records must resolve.
+
+    The markdown citation check covers backticked paths in prose. The JSON
+    companions carry theirs as fields, and nothing looked at those.
+    """
+    interesting = {"report", "report_json", "artifact", "log", "evidence",
+                   "ledger", "source_file", "primary_evidence"}
+    missing, total = [], 0
+
+    def walk(node, path, where):
+        nonlocal total
+        if isinstance(node, dict):
+            for key, value in node.items():
+                walk(value, f"{path}.{key}" if path else key, where)
+        elif isinstance(node, list):
+            for index, value in enumerate(node):
+                walk(value, f"{path}[{index}]", where)
+        elif isinstance(node, str):
+            leaf = path.rsplit(".", 1)[-1].split("[")[0]
+            if leaf not in interesting or "/" not in node:
+                return
+            # An `evidence` field is sometimes a sentence that happens to
+            # contain a slash. A citation is path-shaped: no whitespace, and
+            # it ends in a file extension or a directory.
+            if re.search(r"\s", node) or not re.search(
+                    r"(\.[A-Za-z0-9]{1,6}|/)$", node):
+                return
+            candidate = node.lstrip("/")
+            if node.startswith("/"):
+                candidate = node
+                resolved = Path(candidate)
+            else:
+                resolved = REPO / candidate
+            total += 1
+            if not resolved.exists():
+                missing.append(f"{where}: {path} cites {node}")
+
+    for source in sorted(CAMPAIGN.glob("*.json")):
+        walk(_load_json(source), "", source.relative_to(REPO))
+    if missing:
+        return Result("campaign json citations", FAIL,
+                      f"{len(missing)} of {total} machine-readable citations "
+                      f"do not resolve", missing[:25])
+    return Result("campaign json citations", PASS,
+                  f"all {total} machine-readable campaign citations resolve")
+
+
 CHECKS = (
     check_ledger_integrity,
     check_wall_counters_vs_ledger,
@@ -501,6 +1160,16 @@ CHECKS = (
     check_f2_reproduction,
     check_cost_predictions,
     check_ungated_completed_runs,
+    check_gate_table_vs_transcripts,
+    check_wall_credentials_vs_results,
+    check_benchmarks_vs_closure_record,
+    check_fd_grades_current_standard,
+    check_statistical_labels,
+    check_nonconclusive_band_readers,
+    check_declared_fleet_vs_work,
+    check_restated_thresholds,
+    check_register_group_counts,
+    check_campaign_json_citations,
 )
 
 
