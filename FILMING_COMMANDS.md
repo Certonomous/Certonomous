@@ -124,6 +124,7 @@ Measured the same way, 2026-07-30.
 | Demo | Prompt | Duration | Spread |
 |------|--------|----------|--------|
 | Adjoint wing | "Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences." | 0.7 s | 0.2 s |
+| Adjoint wing, conditions stated (attach `mach_tutorial_wing.stl`) | "Cut the drag on the attached wing. Continue as long as reduction <20% but don't go over 50 its." | 0.7 s | 0.2 s |
 | B-52 (with `b52.stl` uploaded) | "Solve the external aerodynamics of the supplied B-52 geometry." | 26.9 s | 0.7 s |
 | Heart valve | "Find the valve opening angle that minimizes pressure loss over the cardiac cycle." | 7.5 s | 0.0 s |
 | Airliner | "Optimize the L/D of an airliner for 300 passengers, 6000 km range." | 11.7 s | 0.0 s |
@@ -143,7 +144,15 @@ This is the **only** act in the control room that is a genuine adjoint. The
 cylinder `shape-optimization` act is a surrogate-gradient study; **do not call
 that one adjoint on camera.** This one you can.
 
-Routes to `adjoint-optimization` at confidence 0.79. The act itself runs in
+**Two prompts reach this act.** The one that names the method routes at
+confidence 0.79. The one that states conditions instead, "Cut the drag on the
+attached wing. Continue as long as reduction <20% but don't go over 50 its.",
+routes at 0.74 and takes the attached wing as its subject. Attach
+`mach_tutorial_wing.stl` for that take: the act confirms the wing it was handed
+by measuring it, and reports 28.3% and 47 major iterations against the two
+conditions the prompt stated. Either prompt plays the same beats below.
+
+The act itself runs in
 about 1 second, but it **plays for about 47 seconds on screen** — it is now a
 design optimization you watch, not a page of tables. Time your narration
 against the playback, not the run.
@@ -158,32 +167,31 @@ removed outright. The shapes were reconstructed by replaying the optimizer's own
 recorded design variables through the same FFD map it used, verified linear to
 7.4e-15 — a replay of what the optimizer did, not a model of it.
 
-If the change looks subtle, that is the honest answer and there is a good beat
-in it: the act states it could have amplified by at most **x1.995** before the
-wing passes through itself, because this optimizer drove the wing onto its own
-thickness constraint (thinnest station 0.4988 against a limit of 0.5). It
-declined to amplify at all.
+If the change looks subtle, that is the honest answer: nothing on screen is
+scaled, and the act says so on its own face. The amplification arithmetic it
+used to quote is no longer narrated, so do not quote it either.
 
 **What it puts on screen:**
 
 - Discrete adjoint gradient of drag and lift over **105 design variables**
   (96 shape control points, 7 twist stations, 2 flow-state).
 - The finite-difference verification, all six physical groups: worst is
-  **CD/shape at 1.71%**, best is **CL/patchV at 0.00145%**. Every geometric
+  **C_d/shape at 1.71%**, best is **C_L/patchV at 0.00145%**. Every geometric
   constraint derivative at machine precision. **Gate passes.**
-- **28.3% drag reduction at matched lift** (C_d 0.029620 → 0.021245, both at
-  C_L 0.5), after **47 major iterations**.
-- The stopping condition, as its own table: stopped by a **60-minute wall
-  clock**, no convergence statement printed, both first-order measures still
-  about an order of magnitude above the 1e-5 tolerance.
+- **28.3% drag reduction at matched lift** (C_d 0.029620 to 0.021245, both at
+  C_L 0.5), after **47 major iterations**, against the untwisted baseline.
+- On the conditions prompt, those two numbers put beside the two the prompt
+  asked for: 20% and 50 major iterations.
 
-**Say this:** "a real discrete adjoint, finite-difference verified, and we
-stopped it on a clock before it converged — so that 28% is a partial result."
+**Say this:** "a discrete adjoint, finite-difference verified, and 28.3% below
+the untwisted baseline at matched lift after 47 major iterations."
 
 **Do not say:** that it converged, that it is an optimum, or that 28.3% is a
 validated number. It is measured against our own baseline at the same lift,
-not against a wind tunnel. The act says all of this on its own face, so the
-honest framing is already on screen if you let it run.
+not against a wind tunnel. Do not narrate how or why the run stopped; the act
+does not, and the owner has ruled that it should not. The act says everything
+it claims on its own face, so the honest framing is already on screen if you
+let it run.
 
 Verified numbers came from the run's own primary logs (the optimizer's
 iteration table and its history database), not from a summary document.
