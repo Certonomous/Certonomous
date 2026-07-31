@@ -1591,10 +1591,12 @@ async function loadField(p) {
     const seq = ++_geomSeq;   // the painted field is the newest state of the body
     const mesh = normalizeMesh(await (await fetch(url)).json());
     if (seq !== _geomSeq) return;
+    anchorSignedRamp(mesh.field);
     state.mesh = mesh; setHidden('viewportEmpty', true);
     if (p.label) subText('viewportLabel', p.label);
     if (mesh.field) {
       $('legend').classList.add('on');
+      setLegendRamp(mesh.field);
       // Two ranges, kept apart on purpose. The bar's end labels are the
       // COLOUR window: a 2nd/98th percentile clip that stops one stagnation
       // spike flattening the whole body to a single hue. They are NOT the
@@ -1632,6 +1634,59 @@ async function loadField(p) {
 function normalizeMesh(m) {
   return dropOrphanIslands({ verts: m.vertices || m.points || [], faces: m.faces || m.triangles || [], field: m.field || null,
                              view: m.view || null });
+}
+// ZERO IS THE NEUTRAL COLOUR ON A SIGNED COEFFICIENT (Katie, 2026-07-31).
+//
+// The painted values arrive already normalised to 0..1 across the clipped
+// percentile window, and the ramp is a diverging one whose middle stop is the
+// neutral off white. Spanning that window LINEARLY puts the neutral colour at
+// the middle of the WINDOW rather than at the middle of the QUANTITY, so on
+// bodies whose suction is deeper than their stagnation — every one of them —
+// Cp = 0 landed well past the middle and undisturbed flow came out warm. Warm
+// reads as "something is happening here" where nothing is.
+//
+// So for a signed coefficient the two sides are scaled independently to their
+// own extreme: the suction side fills the lower half of the ramp, the pressure
+// side the upper half, and Cp = 0 sits on the neutral stop. Nothing is clipped
+// that was not clipped before and no value changes sign; only the ramp position
+// of each value moves.
+//
+// It applies ONLY to a payload the workflow marked `quantity: "cp"`. A pressure
+// field is a solver quantity in its own units whose zero carries no meaning
+// (it is a gauge against an arbitrary reference), so it keeps the linear window
+// it has always had, byte for byte.
+const RAMP_MID = 0.5;
+function anchorSignedRamp(fld) {
+  if (!fld || fld.quantity !== 'cp' || !Array.isArray(fld.values)) return fld;
+  const lo = Number(fld.color_min !== undefined ? fld.color_min : fld.display_min);
+  const hi = Number(fld.color_max !== undefined ? fld.color_max : fld.display_max);
+  // A window that does not straddle zero has no midpoint to anchor: one sided
+  // data would be squeezed into half the ramp for nothing.
+  if (!(lo < 0 && hi > 0)) return fld;
+  const span = hi - lo;
+  fld.values = fld.values.map(t => {
+    const v = lo + Math.max(0, Math.min(1, Number(t))) * span;   // back to Cp
+    const r = v < 0 ? RAMP_MID * (1 - v / lo) : RAMP_MID + RAMP_MID * (v / hi);
+    return Math.max(0, Math.min(1, r));
+  });
+  fld.ramp_anchor = RAMP_MID;          // where zero sits on the ramp
+  fld.ramp_zero_at = -lo / span;       // where zero sits along the VALUE axis
+  return fld;
+}
+// The bar reads left to right in the quantity, from the low label to the high
+// one, so an anchored ramp moves its stops rather than its ends: the neutral
+// colour is placed at the value position of zero and each half is spread over
+// its own side. A viewer reading a value off the bar still reads it linearly,
+// and the colour they are looking at is the colour the body was painted.
+const RAMP_STOPS = ['#3b4cc0', '#7aa0e0', '#f2f2f2', '#e8926a', '#b40426'];
+function setLegendRamp(fld) {
+  const bar = document.querySelector('#legend .bar');
+  if (!bar) return;
+  const z = fld && fld.ramp_zero_at;
+  if (z == null || !(z > 0 && z < 1)) { bar.style.background = ''; return; }
+  const at = [0, z / 2, z, z + (1 - z) / 2, 1];
+  bar.style.background = 'linear-gradient(90deg, ' +
+    RAMP_STOPS.map((c, i) => `${c} ${(at[i] * 100).toFixed(2)}%`).join(', ') + ')';
 }
 // DISPLAY-only cleanup (Katie's B-52 screenshot): a meshed body can carry a
 // tiny detached island of triangles floating in empty space. Connected

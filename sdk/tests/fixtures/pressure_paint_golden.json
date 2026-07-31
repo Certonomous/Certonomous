@@ -1,0 +1,17 @@
+{
+  "b52 pressure": {
+    "triangles": 15592,
+    "sha256": "f9ffe7e208adb746e73cf9aa2b1cc8382055c236fa888351bdee5a76093d630b",
+    "legend": ""
+  },
+  "motorBike pressure": {
+    "triangles": 19102,
+    "sha256": "4321be14224b83610d0998c10883191d21fad59ce1edfc6e4ff3f07bd817fc97",
+    "legend": ""
+  },
+  "cube pressure": {
+    "triangles": 27648,
+    "sha256": "6521cb38d71421ab774f3ae79c4f3ad4340ace29a83419f547137cb0573729c4",
+    "legend": ""
+  }
+}
