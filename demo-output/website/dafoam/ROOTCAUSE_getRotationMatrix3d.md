@@ -445,6 +445,45 @@ turned off, and the AN column is unchanged — all consistent, none of it a clea
 The genuinely clean instance of P7 came from elsewhere: DOFs 1, 2, 4, 5 of upstream's own
 `inflate_cube` (§4.1), which are in-plane perturbations and read 4e-05% with rotations **on**.
 
+### 4.9 Capstone: pre-deform the baseline so the guard does *not* fire
+
+The sharpest consequence of §4.2's narrowing is a prediction about this lab's own case, not about
+IDWarp's test meshes. If the failure really is the degenerate branch, then moving the U-bend off its
+undeformed baseline — so the current normals no longer coincide with the reference normals — should
+make the guard stop firing, at which point `warpDeriv` must (a) *become* sensitive to `useRotations`,
+and (b) get dramatically more accurate. If instead the rotation term were mis-differentiated
+generally, pre-deforming would change nothing.
+
+`D6`, all 27 shape DVs set to 0.02 before the geometric test, pressure-loss objective, real seed:
+
+| idx | undeformed baseline, rot ON | **pre-deformed, rot ON** | pre-deformed, rot OFF |
+|---|---|---|---|
+| 2 | 2.65% | **0.0000** | 0.0000 |
+| 3 | 177.8% | **0.0000** | 0.0000 |
+| **8** | **207.0%, FLIP** | **1.48%, no flip** | 0.0000 |
+| 15 | 42.9% | **7.61%** | 0.0000 |
+| **17** | **121.6%, FLIP** | **8.22%, no flip** | 0.0000 |
+| 26 | 3.02% | **0.0000** | 0.0000 |
+
+And the fingerprint, which is the direct test of whether the guard is live:
+
+| | `||dXs||`, rot ON | `||dXs||`, rot OFF |
+|---|---|---|
+| undeformed baseline | 1.495168856286067e+03 | 1.495168856286067e+03 (**identical** — branch dead) |
+| pre-deformed | **1.566420804338303e+03** | 1.495168856286067e+03 (**differs** — branch live) |
+
+**Both sign flips vanish and the worst error falls from 207% to 8.2% purely by moving off the
+degenerate point, with nothing else changed.** The residual 1.5%–8.2% is §1.6's second, ill-conditioned
+regime, consistent with the 1.0%–1.3% seen on ONERA M6. This is the strongest single confirmation of
+the narrowed claim, and it is one that would have failed flatly had the mechanism been "rotations are
+mis-differentiated".
+
+A seventh instance of §4.2(b) also falls out of it: `sum(dXs)` is `-1.242703578364590e+02` versus
+`-1.242703578364597e+02` — agreeing to 13 digits — while `||dXs||` differs by 4.8%. Upstream's only
+assertion on `warpDeriv` remains blind.
+
+---
+
 ---
 
 ## 5. Verdict
@@ -492,6 +531,7 @@ item `w5-rotations-off-mesh-quality-price`.
 | `rotation_branch/D2,D2b` | §4.5 corner path, incl. the inverted first attempt |
 | `rotation_branch/D3` | §4.6 evalMode=exact |
 | `rotation_branch/D5a,D5b` | §4.7 rcm reordering |
+| `rotation_branch/D6_predeform_{on,off}` | §4.9 capstone, pre-deformed baseline |
 
 Working tree (outside the repo, not version-controlled):
 `/home/ubuntu/certonomous-runs/W5-idwarp-source/` (source clone at `v2.6.2`, upstream input files,

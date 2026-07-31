@@ -2411,3 +2411,13 @@ under large deformation -- has **not** been measured here, and it is docketed ra
 
 Full write-up, source quotations, line numbers, all seven pre-stated falsifiers and every diagnostic:
 `ROOTCAUSE_getRotationMatrix3d.md`. Evidence: `rotation_branch/`.
+
+**Capstone, added the same session.** The narrowing in point 1 above makes a prediction about A5
+itself: move the U-bend off its undeformed baseline and the guard should stop firing, at which point
+`warpDeriv` must become sensitive to `useRotations` and must get much more accurate. With all 27 shape
+DVs pre-set to 0.02 and nothing else changed, `||dXs||` goes from bit-identical between the two
+settings to `1.566420804338303e+03` versus `1.495168856286067e+03` -- the branch is live -- and **both
+sign flips disappear, with the worst of the six components falling from 207.0% to 8.22%.** Had the
+mechanism been "the rotation term is mis-differentiated", pre-deforming would have changed nothing.
+The residual 1.5%-8.2% is the second, ill-conditioned regime, and it is docketed rather than claimed.
+Evidence: `rotation_branch/D6_predeform_on.txt`, `D6_predeform_off.txt`.

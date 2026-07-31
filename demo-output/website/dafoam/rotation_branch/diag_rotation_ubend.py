@@ -91,6 +91,11 @@ parser.add_argument("--eval-mode", type=str, default=None, choices=["fast", "exa
 parser.add_argument("--corner-angle", type=float, default=None,
                     help="IDWarp meshOption cornerAngle (deg). 180 makes every node a corner, which "
                          "forces Mi=I through a DIFFERENT code path than useRotations=off.")
+parser.add_argument("--predeform", type=float, default=0.0,
+                    help="set ALL shape DVs to this value before the geometric test, so the current "
+                         "normals no longer coincide with the reference normals and the degenerate "
+                         "guard should NOT fire. Tests the NARROWED claim: with the guard live, "
+                         "warpDeriv should become sensitive to useRotations and much more accurate.")
 parser.add_argument("--rigid", action="store_true",
                     help="ALSO test a pure rigid translation of the design surface. By the rotation "
                          "mechanism this direction rotates no normals, so it MUST come out clean "
@@ -278,7 +283,8 @@ if rank == 0:
           % (args.seed, args.objective, wn, comm.size, args.h, args.use_rotations, args.corner_angle), flush=True)
 
 h_rigid = args.h
-set_shape(np.zeros(nShape))
+_base_dv = np.full(nShape, args.predeform)
+set_shape(_base_dv)
 xs_base = DVGeo.update(ptSetName)
 DASolver.setSurfaceCoordinates(xs_base, DASolver.designSurfacesGroup)
 mesh.warpMesh()
@@ -351,7 +357,7 @@ for idx in idxs:
         FD2 = comm.allreduce(float(np.dot(w, (Xv_p2 - Xv_m2) / (2.0 * h))), op=MPI.SUM)
         extra = "  FD_via_DVGeo=%.8e  ffd_nonlin=%.2e" % (FD2, abs(FD2 - FD) / (abs(FD2) + 1e-300))
 
-    set_shape(np.zeros(nShape))
+    set_shape(_base_dv)
     DVGeo.update(ptSetName)
     DASolver.setSurfaceCoordinates(xs_base, DASolver.designSurfacesGroup)
     mesh.warpMesh()
@@ -384,5 +390,5 @@ if args.verify_dofs > 0:
 if rank == 0:
     print("REPRO_SUMMARY seed=%s objective=%s h=%.1e nRanks=%d n=%d sign_flips=%d worst_idx=%s worst_rel_err=%.4f t=%.1fs"
           % (args.seed, args.objective, h, comm.size, len(list(idxs)), nflip, worst[0], worst[1], time.time() - t0), flush=True)
-    print("REPRO_SUMMARY2 useRotations=%s cornerAngle=%s evalMode=%s reordering=%s"
-          % (args.use_rotations, args.corner_angle, args.eval_mode, daOptionsAero["adjEqnOption"]["jacMatReOrdering"]), flush=True)
+    print("REPRO_SUMMARY2 useRotations=%s cornerAngle=%s evalMode=%s predeform=%g reordering=%s"
+          % (args.use_rotations, args.corner_angle, args.eval_mode, args.predeform, daOptionsAero["adjEqnOption"]["jacMatReOrdering"]), flush=True)
