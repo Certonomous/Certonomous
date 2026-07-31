@@ -1,50 +1,51 @@
 {
-  "body": "ahmed_35",
+  "body": "naca0012_wing",
   "levels": [
     {
       "tag": "coarse",
-      "cells": 20425,
-      "cd": 0.10607551347222223,
-      "mission": "ahmed_35-rung-coarse"
+      "cells": 27265,
+      "cd": 0.028688263224999996,
+      "mission": "naca0012_wing-rung-coarse"
     },
     {
       "tag": "medium",
-      "cells": 45813,
-      "cd": 0.08762203240000001,
-      "mission": "ahmed_35-rung-medium"
+      "cells": 67356,
+      "cd": 0.022289916261111112,
+      "mission": "naca0012_wing-rung-medium"
     },
     {
       "tag": "production",
-      "cells": 79778,
-      "cd": 0.08154989922571428,
-      "mission": "ahmed_35-production"
+      "cells": 140580,
+      "cd": 0.0120533144,
+      "mission": "naca0012_wing-production"
     }
   ],
-  "fingerprint": "7b7dd1c5fd5f8be7",
+  "fingerprint": "b1c1b6349e5055d2",
   "numerical": {
     "dim": 3,
     "order_window": [
       0.5,
       2.5
     ],
-    "observed_order": 3.169,
+    "observed_order": 3.173,
     "order_used": 2.5,
     "clamped": true,
-    "band_abs": 0.012916891788024713,
+    "band_abs": 0.015120620546983623,
     "monotone": true,
     "conclusive": false,
-    "method": "3-mesh study (r = 1.20), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "method": "3-mesh study (r = 1.28), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
     "asymptotic": false,
-    "richardson_extrapolated": 0.07392914303370804,
+    "richardson_extrapolated": 0.003359066201011906,
     "guards": {
       "distinct_rungs": true,
       "monotone": true,
       "order_window": false,
-      "increment_trend": true,
+      "increment_trend": false,
       "extrapolation_sanity": false
     },
     "guards_failed": [
       "order_window",
+      "increment_trend",
       "extrapolation_sanity"
     ],
     "not_conclusive_guard": "order_window",
@@ -52,13 +53,13 @@
       "cells",
       "values"
     ],
-    "band_rel": 0.15839,
-    "value_working": 0.08154989922571428
+    "band_rel": 1.25448,
+    "value_working": 0.0120533144
   },
   "provenance": [
-    "ahmed_35-rung-coarse",
-    "ahmed_35-rung-medium",
-    "ahmed_35-production"
+    "naca0012_wing-rung-coarse",
+    "naca0012_wing-rung-medium",
+    "naca0012_wing-production"
   ],
   "updated_utc": "2026-07-31T22:28:09Z",
   "dimensionality": {
@@ -66,8 +67,7 @@
     "established_from": "this body's own archived case files, not its name",
     "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
     "evidence": [
-      "constant/polyMesh/boundary of all three rungs carries exactly two patches, of type patch and wall; no empty, no wedge (/home/ubuntu/certonomous-runs/study-ahmed_35-coarse-186b41 nCells 20425, /home/ubuntu/certonomous-runs/study-ahmed_35-medium-d198f3 nCells 45813, /home/ubuntu/certonomous-runs/act7-ahmed_35-02688b nCells 79778 -- each matching its recorded rung)",
-      "mission-output/geometry-study/study-ahmed_35/log.checkMesh: 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)' and 'Mesh has 3 solution (non-empty) directions (1 1 1)'"
+      "all three rungs' own log.checkMesh state 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', each at the recorded cell count: mission-output/geometry-study/study-naca0012_wing-coarse (27265), study-naca0012_wing-medium (67356), study-naca0012_wing (140580)"
     ],
     "checked_utc": "2026-07-31T22:30:00Z"
   },
@@ -80,14 +80,15 @@
       "dropped_from_fit",
       "guards",
       "guards_failed",
+      "monotone",
       "not_conclusive_guard",
       "order_window",
       "richardson_extrapolated"
     ],
     "reproduced_exactly": {
-      "observed_order": 3.169,
-      "band_abs": 0.012916891788024713,
-      "method": "3-mesh study (r = 1.20), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
+      "observed_order": 3.173,
+      "band_abs": 0.015120620546983623,
+      "method": "3-mesh study (r = 1.28), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
     },
     "verdict_moved": false
   }

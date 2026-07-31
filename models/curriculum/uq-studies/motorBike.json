@@ -22,13 +22,36 @@
   ],
   "fingerprint": "db438daafabf8793",
   "numerical": {
-    "band_abs": 0.000528438150851199,
-    "band_rel": 0.00126,
+    "dim": 3,
+    "order_window": [
+      0.5,
+      2.5
+    ],
     "observed_order": 7.298,
     "order_used": 2.5,
     "clamped": true,
-    "method": "3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "band_abs": 0.000528438150851199,
+    "monotone": true,
     "conclusive": false,
+    "method": "3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "asymptotic": true,
+    "richardson_extrapolated": 0.42009076129119516,
+    "guards": {
+      "distinct_rungs": true,
+      "monotone": true,
+      "order_window": false,
+      "increment_trend": true,
+      "extrapolation_sanity": true
+    },
+    "guards_failed": [
+      "order_window"
+    ],
+    "not_conclusive_guard": "order_window",
+    "dropped_from_fit": [
+      "cells",
+      "values"
+    ],
+    "band_rel": 0.00126,
     "value_working": 0.42002781666666666
   },
   "provenance": [
@@ -36,7 +59,7 @@
     "motorBike-rung-medium",
     "motorBike-production"
   ],
-  "updated_utc": "2026-07-31T14:39:49Z",
+  "updated_utc": "2026-07-31T22:28:09Z",
   "closures": {
     "kOmegaSST": 0.4155770166666667,
     "kEpsilon": 0.41915239,
@@ -96,5 +119,35 @@
       "statement": "the production rung is still drifting at 300 iterations by more than the entire grid increment the observed order is fitted to. Coarse and medium are settled at 300 (final-window 2-sigma 2.41e-04 each, halves-drift below 4e-04); production is not (2-sigma 1.21e-03, halves-drift 1.75e-03). A FOURTH RUNG CANNOT FIX THIS. A finer rung makes the finest increment smaller, driving the signal further beneath the noise, not above it. The prerequisite is iterative convergence on the production mesh."
     },
     "levels_not_rewritten": "levels[] is left exactly as published. The refit changes neither the conclusive flag nor the reportable band (both remain False and None), so there is nothing here that would improve a published number, and silently restating a live ladder is not this audit's call to make."
+  },
+  "dimensionality": {
+    "dim": 3,
+    "established_from": "this body's own archived case files, not its name",
+    "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
+    "evidence": [
+      "all three rungs' own log.checkMesh state 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', each at the recorded cell count: mission-output/geometry-study/study-motorBike-coarse (14714), study-motorBike-medium (66302), study-motorBike (353688)"
+    ],
+    "checked_utc": "2026-07-31T22:30:00Z"
+  },
+  "refit_in_place": {
+    "method": "recomputed in place on 2026-07-31 from this study's own levels[] through the current fit (chief_engineer.uq.eca_hoekstra_band), written through uq.study_numerical so the record carries every field the fit produces rather than a hand-typed subset. No solve was run and no measured number changed: the refit reproduces the recorded observed order, band_abs and method string exactly, and the fields below are the ones the fit was already computing but the old writer was not copying out.",
+    "compute_spent": "none",
+    "fields_added": [
+      "asymptotic",
+      "dim",
+      "dropped_from_fit",
+      "guards",
+      "guards_failed",
+      "monotone",
+      "not_conclusive_guard",
+      "order_window",
+      "richardson_extrapolated"
+    ],
+    "reproduced_exactly": {
+      "observed_order": 7.298,
+      "band_abs": 0.000528438150851199,
+      "method": "3-mesh study (r = 1.75), observed order p = 7.30; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
+    },
+    "verdict_moved": false
   }
 }

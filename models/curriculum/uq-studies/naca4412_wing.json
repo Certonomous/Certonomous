@@ -20,15 +20,39 @@
       "mission": "naca4412_wing-production"
     }
   ],
-  "updated_utc": "2026-07-31T14:41:36Z",
+  "updated_utc": "2026-07-31T22:28:09Z",
   "numerical": {
-    "band_abs": 0.011294571411314567,
-    "band_rel": 0.52115,
+    "dim": 3,
+    "order_window": [
+      0.5,
+      2.5
+    ],
     "observed_order": 10.467,
     "order_used": 2.5,
     "clamped": true,
-    "method": "3-mesh study (r = 1.27), observed order p = 10.47; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "band_abs": 0.011294571411314567,
+    "monotone": true,
     "conclusive": false,
+    "method": "3-mesh study (r = 1.27), observed order p = 10.47; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+    "asymptotic": false,
+    "richardson_extrapolated": 0.02100015393187187,
+    "guards": {
+      "distinct_rungs": true,
+      "monotone": true,
+      "order_window": false,
+      "increment_trend": false,
+      "extrapolation_sanity": true
+    },
+    "guards_failed": [
+      "order_window",
+      "increment_trend"
+    ],
+    "not_conclusive_guard": "order_window",
+    "dropped_from_fit": [
+      "cells",
+      "values"
+    ],
+    "band_rel": 0.52115,
     "value_working": 0.021672248783333334
   },
   "superseded": {
@@ -208,5 +232,36 @@
       ],
       "note": "quality appears to improve from coarse to medium and then degrade at production. That is not a refinement effect: coarse and medium differ only in background block density, so the one real castellated step in this ladder (medium to production) makes every metric worse."
     }
+  },
+  "dimensionality": {
+    "dim": 3,
+    "established_from": "this body's own archived case files, not its name",
+    "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
+    "evidence": [
+      "all three rungs' own log.checkMesh state 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', each at the recorded cell count: mission-output/geometry-study/study-naca4412_wing-coarse (27237), study-naca4412_wing-medium (67826), study-naca4412_wing (137569)",
+      "mission-output/geometry-study/study-naca4412_wing/case/constant/polyMesh/boundary carries only patch and wall types"
+    ],
+    "checked_utc": "2026-07-31T22:30:00Z"
+  },
+  "refit_in_place": {
+    "method": "recomputed in place on 2026-07-31 from this study's own levels[] through the current fit (chief_engineer.uq.eca_hoekstra_band), written through uq.study_numerical so the record carries every field the fit produces rather than a hand-typed subset. No solve was run and no measured number changed: the refit reproduces the recorded observed order, band_abs and method string exactly, and the fields below are the ones the fit was already computing but the old writer was not copying out.",
+    "compute_spent": "none",
+    "fields_added": [
+      "asymptotic",
+      "dim",
+      "dropped_from_fit",
+      "guards",
+      "guards_failed",
+      "monotone",
+      "not_conclusive_guard",
+      "order_window",
+      "richardson_extrapolated"
+    ],
+    "reproduced_exactly": {
+      "observed_order": 10.467,
+      "band_abs": 0.011294571411314567,
+      "method": "3-mesh study (r = 1.27), observed order p = 10.47; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
+    },
+    "verdict_moved": false
   }
 }

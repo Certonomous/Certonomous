@@ -22,13 +22,36 @@
   ],
   "fingerprint": "c8bbf70374542fbd",
   "numerical": {
-    "band_abs": 0.007206904996527777,
-    "band_rel": 0.70962,
+    "dim": 3,
+    "order_window": [
+      0.5,
+      2.5
+    ],
     "observed_order": 1.696,
     "order_used": null,
     "clamped": false,
-    "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "band_abs": 0.007206904996527777,
+    "monotone": true,
     "conclusive": false,
+    "asymptotic": false,
+    "richardson_extrapolated": 0.005059071051593566,
+    "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "guards": {
+      "distinct_rungs": true,
+      "monotone": true,
+      "order_window": true,
+      "increment_trend": true,
+      "extrapolation_sanity": false
+    },
+    "guards_failed": [
+      "extrapolation_sanity"
+    ],
+    "not_conclusive_guard": "extrapolation_sanity",
+    "dropped_from_fit": [
+      "cells",
+      "values"
+    ],
+    "band_rel": 0.70962,
     "value_working": 0.010156030882142857
   },
   "provenance": [
@@ -36,5 +59,36 @@
     "naca0015_sail-rung-medium",
     "naca0015_sail-production"
   ],
-  "updated_utc": "2026-07-29T19:25:25Z"
+  "updated_utc": "2026-07-31T22:28:09Z",
+  "dimensionality": {
+    "dim": 3,
+    "established_from": "this body's own archived case files, not its name",
+    "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
+    "evidence": [
+      "all three rungs' own log.checkMesh state 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)', each at the recorded cell count: mission-output/geometry-study/study-naca0015_sail-coarse (63920), study-naca0015_sail-medium (156089), study-naca0015_sail (243929)",
+      "mission-output/geometry-study/study-naca0015_sail/case/constant/polyMesh/boundary carries only patch and wall types"
+    ],
+    "checked_utc": "2026-07-31T22:30:00Z"
+  },
+  "refit_in_place": {
+    "method": "recomputed in place on 2026-07-31 from this study's own levels[] through the current fit (chief_engineer.uq.eca_hoekstra_band), written through uq.study_numerical so the record carries every field the fit produces rather than a hand-typed subset. No solve was run and no measured number changed: the refit reproduces the recorded observed order, band_abs and method string exactly, and the fields below are the ones the fit was already computing but the old writer was not copying out.",
+    "compute_spent": "none",
+    "fields_added": [
+      "asymptotic",
+      "dim",
+      "dropped_from_fit",
+      "guards",
+      "guards_failed",
+      "monotone",
+      "not_conclusive_guard",
+      "order_window",
+      "richardson_extrapolated"
+    ],
+    "reproduced_exactly": {
+      "observed_order": 1.696,
+      "band_abs": 0.007206904996527777,
+      "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25"
+    },
+    "verdict_moved": false
+  }
 }
