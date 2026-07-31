@@ -276,20 +276,35 @@ def main(request: str | None = None, params: dict | None = None,
     # claimed for it. HONESTY CONSTRAINT (owner, 2026-07-31): the 28.3% comes
     # from the wing this lab optimized, so the received surface is never
     # described as the thing that was optimized, never relabelled as the
-    # baseline, and never attached to a reported number. It goes in the
-    # viewport under its own name, the wing follows under its own name, and
-    # the transcript says which one carries the result.
+    # baseline, and never attached to a reported number.
+    #
+    # The distinction has to land in ONE line, on the label and in the
+    # transcript (owner, 2026-07-31). Two labels, each naming a different
+    # wing, read as a contradiction: the viewer sees a NACA and then a MACH
+    # tutorial wing and has to work out which one the numbers belong to. So
+    # the received surface's own label says where the numbers live, and the
+    # baseline's label names the wing that produced them. When the uploaded
+    # surface IS this wing there is nothing to separate, and the line says
+    # that instead of drawing a distinction that is not there.
     uploaded = str(params.get("surface") or "").strip()
     if uploaded:
         from chief_engineer.display_names import display_name
 
         uploaded_name = display_name(uploaded)
-        announce_geometry(emit, name=uploaded,
-                          label=f"Surface received: {uploaded_name}")
+        is_this_wing = (Path(uploaded).stem.strip().lower()
+                        == Path(_a2_shape.BASELINE_STL).stem)
+        announce_geometry(
+            emit, name=uploaded,
+            label=(f"{uploaded_name}, received. This is the wing the numbers "
+                   f"come from" if is_this_wing else
+                   f"{uploaded_name}, received. The numbers come from the "
+                   f"MACH tutorial wing, on screen next"))
         bullets(script.engineer,
-                f"Surface received: {uploaded_name}.",
-                f"The optimization reported here ran on this lab's wing. "
-                f"Every number stays with it.")
+                (f"Received: {uploaded_name}. That is the wing every number "
+                 f"below belongs to."
+                 if is_this_wing else
+                 f"Received: {uploaded_name}. Every number below belongs to "
+                 f"the MACH tutorial wing."))
 
     show("baseline", f"MACH tutorial wing, baseline. C_d {baseline['CD']:.6f} "
                      f"at C_L {CL_TARGET:g}", painted=False)
@@ -435,12 +450,20 @@ def main(request: str | None = None, params: dict | None = None,
     # two streams are interleaved on purpose: iteration by iteration, the
     # viewer sees the drag fall and the surface that bought it, together.
     frames = {f["iter"]: f for f in shapes["frames"]} if shapes else {}
+    # ITEM 8 (owner, 2026-07-31): the drag plot carries this act's own
+    # measured uncertainty rather than a zero-width band. The figure is the
+    # numerical channel below, the worst derivative group's disagreement with
+    # a central finite difference of the full primal, and it is relative, so
+    # it is drawn as a share of each iteration's own drag. It is the only
+    # uncertainty this case measured; nothing is inflated to fill the others.
+    u_numerical = worst / 100.0
     if emit:
         for point in history:
             emit("trace.point", {
                 "series": "Cd_history", "x": point["iter"],
                 "y": round(point["CD"], 8),
-                "lo": round(point["CD"], 8), "hi": round(point["CD"], 8),
+                "lo": round(point["CD"] * (1.0 - u_numerical), 8),
+                "hi": round(point["CD"] * (1.0 + u_numerical), 8),
                 "x_label": "optimizer major iteration", "y_label": "C_d",
                 "title": f"Drag at fixed lift, C_L = {CL_TARGET:g}",
                 "feasible": True})
@@ -554,6 +577,8 @@ def main(request: str | None = None, params: dict | None = None,
                headers=("Channel", "Value"),
                rows=[
                    ["Numerical, gradient agreement", f"{worst:.3g}%"],
+                   ["Band drawn on the drag trace",
+                    f"±{u_numerical:.4f} relative on C_d"],
                    ["Numerical, band on the drag reduction",
                     "Not available for this quantity"],
                    ["Input", "None assumed for this case"],
@@ -589,7 +614,7 @@ def main(request: str | None = None, params: dict | None = None,
             **verdict})
 
     channels = uncertainty_channels(
-        input_2sigma=None, numerical=worst / 100.0, model=None,
+        input_2sigma=None, numerical=u_numerical, model=None,
         input_note="No input uncertainty was assumed for this problem.",
         numerical_note=(f"• Gradient accuracy measured directly: the worst "
                         f"derivative group agrees with a central finite "
