@@ -1018,7 +1018,13 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
 
     headers = ("Mesh", "Cells", "C_d")
     table_id = f"refinement-{label}"
-    title = "Mesh sensitivity across meshes of this case"
+    # ONE ENTRY, ONE SPEAKER HEADER (Katie, 2026-07-31). The ladder used to
+    # open with a numericist sentence and then land a numericist table
+    # immediately underneath it, so the same speaker appeared twice in a row
+    # for what is one piece of evidence. The sentence IS the table's caption,
+    # so it is the table's caption: one block, one header, nothing said twice.
+    title = ("Mesh sensitivity: two cheaper meshes of this case beside the "
+             "production mesh")
 
     def _finish(levels: list[dict], *, replay: bool) -> dict | None:
         ordered = sorted(levels, key=lambda lv: lv["cells"])
@@ -1080,9 +1086,6 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
         try:
             levels = _replay_levels(stored_levels, production_cells)
             roster.set(_NUM, "grid-refinement study", "working")
-            script.numericist(
-                "• Grid-refinement study: two cheaper meshes of this case "
-                "beside the production mesh.")
             # Cheapest mesh first, withheld rungs off the screen. ``levels``
             # itself is untouched and goes on to _finish, so the band is
             # measured across the full ladder either way.
@@ -1106,10 +1109,6 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
         specs = refinement_rungs(familiar=familiar,
                                  refinement=int(params.get("refinement", 3)))
         rung_iters = rung_iterations(iterations)
-        script.numericist(
-            "• Grid-refinement study: two cheaper meshes of this case, same "
-            "physics. "
-            "• The production mesh anchors the ladder.")
         production = {"tag": "production", "cells": production_cells,
                       "cd": production_cd, "mission": f"{label}-production"}
         levels = [production]
