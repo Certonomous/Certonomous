@@ -446,10 +446,11 @@ dated wherever it appears.
 
 | Claim | Value | Source |
 | --- | --- | --- |
-| Overall score | **0.0676** | `closure_challenge_trained_entry_round3_gated.json`, `official_test_harness_result.round3_gated_overall` |
-| RANS-identity floor, our harness | **0.1036** | same record, reproduced in-run |
-| Improvement over floor | **−0.0360, 34.7% below** | derived |
-| Per-case | 0.0501 / 0.1011 / 0.0461 / 0.0719 / 0.0919 / 0.0862 / 0.0303 / 0.0632 | same record |
+| Overall score | **0.0654** | `closure_challenge_trained_entry_round4_duct.json` (round 4, duct-only change) |
+| RANS-identity floor, our harness | **0.1036** | round-3 record, reproduced in-run — but see §7.2 |
+| Improvement over floor | **−0.0382, 36.9% below** | derived |
+| Per-case | 0.0501 / 0.1011 / 0.0461 / 0.0719 / 0.0811 / 0.0775 / 0.0325 / 0.0632 | round-4 record |
+| Superseded round-3 entry | 0.0676, per-case … / 0.0919 / 0.0862 / 0.0303 / … | `closure_challenge_trained_entry_round3_gated.json` |
 | Scored with | benchmark's own unmodified scorer, package commit `1c4e22c8`, benchmark commit `deb91557` | `harness_check` |
 
 **No number here is adjusted, rounded favourably, or restated to fit a rule.** If the
@@ -554,6 +555,86 @@ steward's own scoring differs from ours, the steward's number is the number.
 
 **Items 1–3 were the lab's to clear and are cleared. Items 4 and 5 are Katie's, and
 nothing about this package moves without them.**
+
+---
+
+## 7. ADDENDUM 2026-07-31 — four things that change this document
+
+Everything in §1–§6 above was written on 2026-07-30 against the round-3 entry. Four
+findings from 2026-07-31 supersede parts of it. **Read this section before the rest.**
+
+### 7.1 The entry of record is now 0.0654, not 0.0676
+
+A duct-only change (round 4, `sdk/scripts/closure_round4_duct_rescale.py`) took the
+entry from 0.0676 to **0.0654**. The five non-duct CSVs were **copied, not regenerated**,
+and all five were hash-verified against the round-3 `MANIFEST.json`, so the entire delta
+is attributable to the duct family and the decline gate's behaviour is untouched.
+
+| case | round 3 | round 4 |
+| --- | --- | --- |
+| `AR_1_Ret_360` | 0.0919 (last of 5) | **0.0811** (3rd of 5) |
+| `AR_3_Ret_360` | 0.0862 (4th of 5) | **0.0775** (3rd of 5) |
+| `AR_14_Ret_180` | 0.0303 (best) | **0.0325** (still best, by 0.00003) |
+
+Two consequences must be disclosed, not buried:
+
+- **`AR_14_Ret_180` regressed by +0.0022 and was not reverted**, for the same reason the
+  NASA hump's +0.0011 was not: choosing per-case between two models after reading their
+  per-case test scores is selection on test outcomes. The fix was frozen on validation
+  evidence and applied to all three ducts or none.
+- **The `AR_14_Ret_180` best-on-board margin collapsed from 0.0022 to 0.00003** against a
+  published four-decimal value. It is a nominal lead, not a meaningful one. §5.3 must say
+  so; describing it as a win would be misleading.
+
+New disclosure item for §5.3, and it replaces item 6 outright: the published duct
+diagnosis was **wrong**. `I3_S3` and `I4_W2S` are indeed algebraically zero on every
+duct — that is reproduced — but they are equally zero on `AR_14_Ret_180`, the duct we
+score best on. The mechanism that actually discriminates is that `Re_y` reaches 1.85×
+and 2.07× its trained maximum on the two ducts we lose and 0.90× on the one we win, and
+a gradient-boosted tree cannot extrapolate. Full record:
+`closure_challenge_duct_reynolds_transfer.json`. **The fix is validated for no-harm on
+every held-out set the rules permit and is NOT proven to close the deficit** — no legal
+test of Reynolds transfer at a doubled velocity scale exists in this benchmark.
+
+### 7.2 The 0.1036 floor is our own number, with no external corroboration
+
+`scripts/rans_identity_baseline.py` in the benchmark clone is **untracked** — it was
+authored by this lab, not shipped by the benchmark. The benchmark README quotes no
+RANS-identity baseline anywhere. 0.1036 reproduces exactly and is honestly derived, but
+**any wording implying the floor is the benchmark's own published figure is false and
+must be corrected before sending.**
+
+### 7.3 "We are last on the ducts" was never true
+
+The lab's working belief, repeated in internal notes, was that it was last on the board
+across the duct family. Re-derived from the harness: at round 3 it was last on
+`AR_1_Ret_360` only, 4th of 5 on `AR_3_Ret_360`, and **best on board** on
+`AR_14_Ret_180`. It was also last on `NASA_2DWMH`, which the belief never mentioned.
+After round 4 the lab is last on **NASA_2DWMH alone**.
+
+### 7.4 The decline gate is not novel, and the nearest prior art is by the challenge's own authors
+
+Full review: `CLOSURE_CHALLENGE_PRIOR_ART.md`. A classifier reading only the uncorrected
+solve and controlling where a data-driven correction may act is established prior art —
+Ling & Templeton (2015), Wu, Wang, Xiao & Ling (2017), Steiner, Dwight & Viré (2022),
+Buchanan, Lăcătuş, West & Dwight (2025). **Tyler Buchanan and Richard Dwight are
+co-authors of the Closure Challenge paper itself**; Dwight also co-wrote Steiner et al.
+and SpaRTA.
+
+**Mandatory for §5.3, as a new item:** the description document must cite this prior art
+and must claim only what survives it — that the gate acts on a whole case rather than a
+cell, that it is trained to predict the *baseline's* error rather than distribution
+shift, and that its "off" state means submitting the uncorrected field. **Any sentence
+presenting confidence-gated correction as novel must be struck.** None currently exists
+on `closure.html`, which was checked; the risk is that one gets written.
+
+### 7.5 Everything in §4.1–§4.6 still holds
+
+The in-sample gate passes (0 failures, 6 benign review lines, all read). All eight
+round-3 CSVs remain 1000×3, finite, header-free, and SHA-256-matched to their manifest.
+All four accepted submissions re-score to their published leaderboard values exactly on
+this harness, per-case and overall, which is the strongest available evidence the
+harness is being driven correctly.
 
 ---
 
