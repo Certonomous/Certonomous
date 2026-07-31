@@ -693,6 +693,15 @@ def low_speed_area_floor(reqs: dict) -> tuple[float, float] | None:
     ``evaluate_design`` uses, at the MTOW the stated passenger count sets, so
     no wing has to be sized before the requirement can be stated.
 
+    THIS IS THE FLOOR AT ONE WEIGHT, AND EVERY SURFACE THAT SHOWS IT SAYS SO.
+    Stall speed puts required area in proportion to weight at a fixed speed,
+    so the floor moves with the design: MTOW carries a span-structural
+    penalty in ``evaluate_design``, and a wing at the top of the span ladder
+    is asked for about 8% more area than this number. The screen applies the
+    moving floor already — it computes each design's own weight and tests
+    that design's own approach and take-off speed — so this figure is the
+    reference the requirement is quoted at, never the test that was run.
+
     Returns ``(area_m2, mtow_kg)``, or None when the requirements cannot
     support the calculation.
     """
@@ -740,7 +749,7 @@ def low_speed_floor_figure(out_png: str | Path, reqs: dict) -> str | None:
 
     fig, ax = plt.subplots(figsize=(11.4, 4.6), dpi=150)
     ax.axvspan(lo, floor, color=t.NEEDS, alpha=0.09, linewidth=0,
-               label="wing area that misses a limit")
+               label="wing area below the floor at the reference MTOW")
     ax.plot(areas, approach, color=t.LIVE, linewidth=2.4,
             label="approach speed, 1.3 times landing stall")
     ax.plot(areas, takeoff, color=t.TREND, linewidth=2.4,
@@ -755,8 +764,12 @@ def low_speed_floor_figure(out_png: str | Path, reqs: dict) -> str | None:
     top = max(reqs["landing_speed"], reqs["takeoff_speed"]) * 1.7
     ax.set_xlim(lo, hi)
     ax.set_ylim(min(min(approach), min(takeoff)) * 0.86, top)
+    # The line is drawn at ONE weight and the caption says which, because the
+    # requirement scales with weight: a heavier wing is asked for more area
+    # than this, and the screen holds each design to its own figure.
     ax.annotate(f"wing area at least {floor:.0f} m$^2$\n"
-                f"at {mtow / 1000:.0f} t MTOW",
+                f"at reference MTOW {mtow / 1000:.0f} t;\n"
+                f"applied per design at each wing's weight",
                 xy=(floor, top * 0.72), xytext=(10, 0),
                 textcoords="offset points", ha="left", fontsize=11.5,
                 color=t.VALID, weight="bold", fontfamily="monospace")
@@ -981,6 +994,13 @@ def constraint_list(reqs: dict, *, advisory: bool,
     floor rests on. A speed limit on its own fixes no maximum lift
     coefficient, so those two stay in the assumed-values ledger and the floor
     stays here, tagged for what it is.
+
+    AND THE FLOOR IS QUOTED AT A WEIGHT. Required area scales with weight at
+    a fixed stall speed, so one number cannot be the floor for every design.
+    The row names the reference MTOW its value belongs to and says that the
+    screen holds each wing to the floor its own weight sets, which is what
+    ``evaluate_design`` does: it re-weighs the design, then tests that
+    design's own approach and take-off speed.
     """
     def tag(stated: bool) -> str:
         return "user-stated" if stated else "assumed"
@@ -1000,9 +1020,12 @@ def constraint_list(reqs: dict, *, advisory: bool,
         speeds_stated = (bool(reqs.get("takeoff_stated"))
                          and bool(reqs.get("landing_stated")))
         rows.append((
-            "Wing area", f"at least {floor_mtow[0]:.0f} m²",
-            "derived, from the stated speeds" if speeds_stated
-            else "derived, from the speed limits above"))
+            "Wing area",
+            f"at least {floor_mtow[0]:.0f} m² at reference MTOW "
+            f"{floor_mtow[1] / 1000:.0f} t",
+            ("derived, from the stated speeds" if speeds_stated
+             else "derived, from the speed limits above")
+            + "; applied per-design at each wing's weight"))
     rows.append(
         ("Structural span limit", f"at most {_SPAN_STRUCTURAL_LIMIT:.0f} m",
          "assumed"))
@@ -1498,10 +1521,11 @@ def main(request: str | None = None, params: dict | None = None,
         area_floor = low_speed_area_floor(reqs)
         if area_floor:
             script.engineer(
-                f"• The take-off and landing limits already ask for "
-                f"{area_floor[0]:.0f} m² of wing. "
-                f"• Below that area a wing misses a low-speed limit whatever "
-                f"its span.")
+                f"• The two speed limits already ask for "
+                f"{area_floor[0]:.0f} m² of wing at "
+                f"{area_floor[1] / 1000:.0f} t. "
+                f"• That floor rises with weight, and every wing is held to "
+                f"its own.")
 
     # ---- uploaded starting geometry -----------------------------------------
     # A surface uploaded with the prompt is the search's starting geometry: it

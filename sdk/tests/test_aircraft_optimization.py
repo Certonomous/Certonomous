@@ -1165,6 +1165,12 @@ class ShootRoundTests(unittest.TestCase):
         self.assertEqual(rows["Landing speed"][1], "user-stated")
         # The wing area those two demand follows from them, so it is derived.
         self.assertTrue(rows["Wing area"][1].startswith("derived"))
+        # And it is a floor at ONE weight, so the row names that weight and
+        # says the screen holds each wing to the floor its own weight sets.
+        self.assertIn("at reference MTOW 136 t", rows["Wing area"][0])
+        self.assertIn("applied per-design at each wing's weight",
+                      rows["Wing area"][1])
+
         # The two maximum lift coefficients do not follow from a speed limit,
         # so they stay assumed and stay in the ledger.
         ledger = {label: basis for label, _v, basis in assumed_values(reqs)}
@@ -1175,6 +1181,23 @@ class ShootRoundTests(unittest.TestCase):
         # Neither speed is in the ledger any more.
         self.assertNotIn("Take-off speed limit", ledger)
         self.assertNotIn("Landing speed limit", ledger)
+
+    def test_the_screen_applies_the_area_floor_at_each_wings_own_weight(self):
+        # PROOF, not inference. 250 m² clears the approach limit on a short
+        # span and misses it on a long one, because the long wing's own MTOW
+        # carries the span-structural penalty and asks for more area. One
+        # fixed floor could not produce both verdicts.
+        reqs = parse_requirements(self.DIRECTIVE)
+        light = evaluate_design(37.0, 250.0, 25.0, reqs)
+        heavy = evaluate_design(67.0, 250.0, 25.0, reqs)
+        self.assertGreater(heavy["mtow_kg"], light["mtow_kg"])
+        self.assertFalse(any(v.startswith("approach speed")
+                             for v in light["violations"]), light)
+        self.assertTrue(any(v.startswith("approach speed")
+                            for v in heavy["violations"]), heavy)
+        # The heavy wing clears once it is given the area its own weight asks
+        # for, which is above the reference floor quoted on the table.
+        self.assertTrue(evaluate_design(67.0, 266.0, 25.0, reqs)["feasible"])
 
     # -- item 1: the viewport caption --------------------------------------
     def test_every_viewport_caption_is_scoped_wing_only(self):
