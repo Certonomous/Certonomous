@@ -37,7 +37,7 @@ from chief_engineer.compute_audit import audit
 from chief_engineer.display_names import display_name
 from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 EVIDENCE, HYPOTHESIS, NUMERICIST, PLAN, Roster,
-                                uncertainty_channels)
+                                lab_report, uncertainty_channels)
 from chief_engineer.researcher import (ENGINEER_ACK, MissionProperties,
                                        method_memo)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
@@ -716,14 +716,21 @@ def main(request: str | None = None, params: dict | None = None,
         f"{rom['alpha_star']:g}°, and they agree to {agreement_pct}%. "
         f"• Cost: {cm_mc:.1f} core-min versus {cm_rom:.1f} core-min. "
         f"• Measured speedup {speedup_cm}× in core-minutes.")
+    # Whether the located peak sits on an end of the swept range. It decides
+    # what the angle-grid channel is reading, so the act says which rather
+    # than asserting the boundary case it happened to be filmed in.
+    peak_at_edge = float(rom["alpha_star"]) in (ALPHAS[0], ALPHAS[-1])
     if headline_ci is not None:
         script.numericist(
             f"• Peak L/D {rom['confirmed']:.2f} ± {headline_ci:.2f} at 95%, "
             f"composed over the "
             f"{len(total['contributions'])} channels below. "
-            f"• The angle grid dominates it: the peak sits on the α = "
-            f"{rom['alpha_star']:g}° boundary, where a half step reads slope "
-            f"and not curvature.")
+            + (f"• The angle grid dominates it: the peak sits on the α = "
+               f"{rom['alpha_star']:g}° edge of the range, where a half step "
+               f"reads slope and not curvature."
+               if peak_at_edge else
+               f"• The peak sits inside the range, so the angle grid reads "
+               f"curvature at α = {rom['alpha_star']:g}°."))
 
     # The two lanes' independently located answers, and what they cost, in one
     # table. Every cell is carried straight from the lane summaries above; the
@@ -771,35 +778,117 @@ def main(request: str | None = None, params: dict | None = None,
                         f"core-min, {speedup_cm}× measured",
             "reason": f"every evaluation on both lanes ran the selected solver; the "
                       f"paths agree to {agreement_pct}%"})
-        emit("agenda.updated", {"entries": [
+        agenda = [
             {"title": "Push the reduced-order lane to a two-parameter "
                       "reduced space",
-             "scope": "add camber to the anchor set; measure whether five real "
+             "scope": "add camber to the anchor set; measure whether five "
                       "anchors still beat the ensemble on a curved trade",
              "cost": "a few extra anchor solves"},
-            {"title": "Sweep from α = -4° for an interior peak",
-             "scope": f"the cambered {RACED_SECTION} section peaks at the "
-                      f"α = 0° boundary, where the fit reads a slope and not "
-                      f"a curvature; a wider sweep puts the peak inside the "
-                      f"range",
-             "cost": "one-line change, ~2 min rerun"},
+            ({"title": "Sweep from α = -4° for an interior peak",
+              "scope": f"the cambered {RACED_SECTION} section peaks at the "
+                       f"α = {rom['alpha_star']:g}° edge of the range, where "
+                       f"the fit reads a slope and not a curvature; a wider "
+                       f"sweep puts the peak inside the range",
+              "cost": "one-line change, ~2 min rerun"}
+             if peak_at_edge else
+             {"title": "Tighten the angle grid around the located peak",
+              "scope": f"the peak sits at α = {rom['alpha_star']:g}°, inside "
+                       f"the range; a finer grid there shrinks the angle-grid "
+                       f"channel that leads the published band",
+              "cost": "a few extra solves near the peak"}),
             {"title": "Re-race under measured box load",
              "scope": "record the speedup with the mega-batch and UQ ladders "
                       "sharing the four slots, to bound the busy-box number",
-             "cost": "one contended pass"}]})
-        emit("report.ready", {
-            "title": f"Speed, certified: the {RACED_SECTION} race",
-            "subject": subject,
-            "summary": (f"Two real paths, both timed on this machine. Full "
-                        f"Monte-Carlo: {mc['n_solves']} solver runs, "
-                        f"{cm_mc:.1f} core-min, peak L/D {mc['peak_mean']:.2f} "
-                        f"± {2 * mc['peak_sem']:.2f}. Reduced-order: "
-                        f"{rom['n_solves']} solver runs, {cm_rom:.1f} core-min, "
-                        f"peak L/D {rom['confirmed']:.2f} at "
-                        f"{rom['alpha_star']:g}°. They agree to "
-                        f"{agreement_pct}%; the measured speedup is "
-                        f"{speedup_cm}× in core-minutes."),
-            "figures": []})
+             "cost": "one contended pass"}]
+        emit("agenda.updated", {"entries": agenda})
+        # THE REPORT TAB (2026-07-31). The act used to emit a report.ready
+        # carrying title, subject, summary and an empty figure list. The
+        # report view renders abstract, methods, results, uncertainty and
+        # next investigations, and reads none of those three keys, so every
+        # heading in the export came out as an empty list while the digest
+        # beside it was full. The certificate links from that page. Built
+        # through lab_report now, the same assembly every other act uses, so
+        # the structure the view renders is the structure the act writes.
+        emit("report.ready", lab_report(
+            title=f"Speed, certified: the {RACED_SECTION} race",
+            abstract=[
+                f"One question, where the {RACED_WING}'s lift-to-drag peaks "
+                f"over angle of attack {ALPHAS[0]:g}° to {ALPHAS[-1]:g}°, "
+                f"answered two ways at once and both timed on this machine.",
+                f"The ensemble lane took {mc['n_solves']} direct solves to "
+                f"peak L/D {mc['peak_mean']:.2f} ± {2 * mc['peak_sem']:.2f} at "
+                f"α = {mc['peak_alpha']:g}°. The reduced-order lane reached "
+                f"{rom['confirmed']:.2f} at α = {rom['alpha_star']:g}° in "
+                f"{rom['n_solves']}, and the two agree to {agreement_pct}%.",
+                f"Cost was {cm_mc:.1f} core-minutes against {cm_rom:.1f}, a "
+                f"measured {speedup_cm}× at equal parallelism, both lanes "
+                f"drawing on the same four solver slots.",
+            ],
+            methods=[
+                f"Both lanes solve with VSPAERO, a vortex-lattice method. "
+                f"Every evaluation is its own solve; nothing is interpolated "
+                f"and no prior result is reused.",
+                f"The raced body is the {RACED_WING}: camber "
+                f"{100 * float((wing or WING)['camber']):.0f}% of chord at "
+                f"{float((wing or WING)['camber_loc']):.1f} chord, thickness "
+                f"{100 * float((wing or WING)['thick_chord']):.0f}%, span "
+                f"{float((wing or WING)['span']):g} m, reference chord "
+                f"{chord_ref:g} m, chord Reynolds 1e6.",
+                f"Angle of attack α is measured from that section's own chord "
+                f"line, over {len(ALPHAS)} angles on a "
+                f"{ALPHAS[1] - ALPHAS[0]:g}° grid.",
+                f"Ensemble lane: {samples} chord Reynolds samples over the "
+                f"stated 8% input spread, each swept across all "
+                f"{len(ALPHAS)} angles, "
+                + (f"drawn from seed {seed} so the inputs replay exactly."
+                   if seed is not None else "drawn from the clock."),
+                f"Reduced-order lane: {len(ANCHOR_ALPHAS)} anchor solves, a "
+                f"quadratic response surface locating the peak, and one "
+                f"confirmation solve at the located angle.",
+                f"The two lanes run concurrently through one pool of "
+                f"{MAX_WORKERS} solver slots split evenly, so neither lane "
+                f"wins on parallelism.",
+            ] + ([f"The received {surface_name} contributed its measured span "
+                  f"and nothing else. Its own section measures "
+                  f"{100 * section['max_camber_frac_chord']:.2f}% camber and "
+                  f"{section['incidence_deg']:.2f}° of built-in incidence, so "
+                  f"it is not the section these curves belong to."]
+                 if surface and section else []),
+            results=[
+                {"quantity": "Peak lift-to-drag",
+                 "value": f"{rom['confirmed']:.2f} at α = "
+                          f"{rom['alpha_star']:g}°",
+                 "envelope": ("" if headline_ci is None
+                              else f"± {headline_ci:.2f} at 95%, composed over "
+                                   f"{len(total['contributions'])} channels"),
+                 "tier": "SOLVER-BACKED",
+                 "reason": f"every evaluation on both lanes ran the selected "
+                           f"solver; the paths agree to {agreement_pct}%"},
+                {"quantity": "Measured speedup, reduced-order against the "
+                             "full ensemble sweep",
+                 "value": f"{speedup_cm}× in core-minutes",
+                 "envelope": f"{mc['n_solves']} solves against "
+                             f"{rom['n_solves']}, on the same box"},
+            ],
+            uncertainty=[
+                channel["note"] for channel in race_channels["channels"]
+                if channel.get("note")
+            ] + ([f"The published band is the root sum of squares over the "
+                  f"{len(total['contributions'])} quantified channels, "
+                  f"± {headline_ci:.2f}, and not any one of them alone."]
+                 if headline_ci is not None else []
+                 ) + [
+                f"The peak sits on the α = {rom['alpha_star']:g}° edge of the "
+                f"swept range, so the angle-grid channel reads the curve's "
+                f"slope rather than its curvature and dominates the total."
+                if peak_at_edge else
+                f"The peak sits inside the swept range, so the angle-grid "
+                f"channel reads the curvature at the located angle.",
+            ],
+            next_investigations=[f"{entry['title']}: {entry['scope']}"
+                                 for entry in agenda],
+            compute={"spent_core_minutes": round(cm_mc + cm_rom, 2),
+                     "saved_core_minutes": round(cm_mc - cm_rom, 2)}))
 
     if emit:
         emit("uncertainty.channels", race_channels)

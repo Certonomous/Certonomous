@@ -200,8 +200,10 @@ class WordingPins(unittest.TestCase):
         self.assertIn("in core-minutes.", self.said)
         self.assertNotIn("(wall", self.said)
         report = [p for e, p in self.events if e == "report.ready"][0]
-        self.assertIn("in core-minutes.", report["summary"])
-        self.assertNotIn("(wall", report["summary"])
+        prose = " ".join(report["abstract"]
+                         + [r["value"] for r in report["results"]])
+        self.assertIn("core-minutes", prose)
+        self.assertNotIn("(wall", prose)
 
     def test_envelope_contrast_derives_from_configured_counts(self):
         total_mc = 3 * len(rs.ALPHAS)
@@ -440,6 +442,64 @@ class SymmetricSectionPrior(unittest.TestCase):
         _, events = _run(seed=7)
         self.assertEqual([p for e, p in events if e == "physics.guard"], [])
         self.assertNotIn("symmetric section", _said(events))
+
+
+class ReportTabIsPopulated(unittest.TestCase):
+    """The exported report renders abstract, methods, uncertainty and next.
+
+    The act used to emit title, subject, summary and an empty figure list.
+    The report view reads none of those last three, so every heading in the
+    export came out empty while the digest beside it was full, and the
+    certificate links from that page.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.rc, cls.events = _run(seed=7)
+        cls.report = [p for e, p in cls.events if e == "report.ready"][0]
+
+    def test_every_section_the_view_renders_carries_content(self):
+        for section in ("abstract", "methods", "uncertainty",
+                        "next_investigations", "results"):
+            self.assertTrue(self.report.get(section),
+                            f"{section} ships empty into the report tab")
+        self.assertTrue(self.report.get("title"))
+
+    def test_results_carry_a_value_an_envelope_and_a_chip(self):
+        headline = self.report["results"][0]
+        self.assertIn("Peak lift-to-drag", headline["quantity"])
+        self.assertIn("18", headline["value"])
+        self.assertIn("95%", headline["envelope"])
+        self.assertEqual(headline["tier"], "SOLVER-BACKED")
+
+    def test_methods_state_the_section_and_the_angle_reference(self):
+        methods = " ".join(self.report["methods"])
+        self.assertIn("NACA 4412 finite wing", methods)
+        self.assertIn("camber 4% of chord at 0.4 chord", methods)
+        self.assertIn("measured from that section's own chord line", methods)
+
+    def test_uncertainty_carries_the_channel_notes_and_the_composition(self):
+        lines = " ".join(self.report["uncertainty"])
+        self.assertIn("Ensemble run over the stated spread", lines)
+        self.assertIn("root sum of squares", lines)
+
+    def test_boundary_claim_follows_the_located_peak(self):
+        # The stub peaks at alpha 2, inside the swept range, so the act must
+        # not repeat the boundary sentence it was filmed saying.
+        rom_peak = [p for e, p in self.events if e == "race.curve"][0]
+        self.assertNotIn(rom_peak["alpha_star"], (rs.ALPHAS[0], rs.ALPHAS[-1]))
+        lines = " ".join(self.report["uncertainty"]
+                         + self.report["next_investigations"])
+        self.assertIn("sits inside the swept range", lines)
+        self.assertNotIn("edge of the range", lines)
+        self.assertNotIn("Sweep from", lines)
+        self.assertNotIn("edge of the range", _said(self.events))
+
+    def test_next_investigations_are_the_emitted_agenda(self):
+        agenda = [p for e, p in self.events if e == "agenda.updated"][0]
+        self.assertEqual(
+            self.report["next_investigations"],
+            [f"{e['title']}: {e['scope']}" for e in agenda["entries"]])
 
 
 class RaceCertificateConvention(unittest.TestCase):
