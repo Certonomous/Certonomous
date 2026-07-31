@@ -121,6 +121,20 @@ _INPUT_ASSUMED = "No input uncertainty was assumed for this problem."
 _INPUT_ASSUMED_HINTS = ("as specified exactly", "no input spread")
 
 
+# What an unquantified uncertainty channel prints instead of a placeholder.
+# The value column states the channel; the state column states the
+# consequence, which is the part a reader actually needs: an unquantified
+# channel is NOT a zero contribution, it is one nobody has measured, and a
+# total that omits it covers less than the whole. Wording follows the NASA
+# hump act, which has been saying exactly this on camera and reads well:
+# "Not quantified" / "No, and not counted as zero".
+_CHANNEL_NO_VALUE = "Not quantified"
+_CHANNEL_NO_STATE = "stated, not set to zero"
+_CHANNEL_IN_STATE = "quantified"
+# A field with nothing behind it says so rather than printing a rule.
+_NOT_STATED = "Not stated"
+
+
 def _channel_rails(text: str) -> str:
     """Strip internal identifiers, tool jargon, and named UQ methods from one
     channel line. Wording only; every number passes through verbatim."""
@@ -164,7 +178,13 @@ def _channel_fields(ch: dict) -> tuple[str, str, bool, str]:
     """
     quantified = bool(ch.get("quantified"))
     name = _channel_rails(str(ch.get("name", "")))
-    value = str(ch.get("value", "")) if ch.get("value") is not None else "-"
+    # A channel with no figure says what it is. It used to print a bare "-",
+    # which is a dash on a sealed camera surface and, worse, reads as a value:
+    # a reader scanning the column sees a dash where the other rows carry
+    # numbers and takes it for nothing measured, i.e. zero. The channel is
+    # stated instead, in the register the hump's own table uses.
+    value = (str(ch.get("value", "")) if ch.get("value") is not None
+             else _CHANNEL_NO_VALUE)
     note = str(ch.get("note") or "")
     if (not quantified and name.strip().lower().startswith("input")
             and (note.strip() == _INPUT_ASSUMED
@@ -209,9 +229,31 @@ class _Canvas:
         else:
             font = "F2" if bold else "F1"
         r, g, b = color
-        self._ops.append(
-            f"BT /{font} {size:.2f} Tf {r:.3f} {g:.3f} {b:.3f} rg "
-            f"1 0 0 1 {x:.2f} {y:.2f} Tm ({_escape(s)}) Tj ET")
+        folded = _fold(s)
+        runs = _sub_runs(folded)
+        head = (f"BT /{font} {size:.2f} Tf {r:.3f} {g:.3f} {b:.3f} rg "
+                f"1 0 0 1 {x:.2f} {y:.2f} Tm")
+        if len(runs) == 1:
+            self._ops.append(f"{head} ({_escape_only(folded)}) Tj ET")
+            return
+        # A variable is drawn as two runs inside ONE text object: the symbol at
+        # the line's own size, then the index smaller and dropped below the
+        # baseline with Ts (text rise). Successive Tj in one BT block advance
+        # from the viewer's own metrics, so the index lands exactly after the
+        # symbol without this module needing a font width table -- which is
+        # also why nothing measured for wrapping has to change.
+        sub_size = round(size * 0.72, 2)
+        rise = -round(size * 0.20, 2)
+        parts = [head]
+        for run, is_sub in runs:
+            if is_sub:
+                parts.append(f"/{font} {sub_size:.2f} Tf {rise:.2f} Ts "
+                             f"({_escape_only(run)}) Tj")
+            else:
+                parts.append(f"/{font} {size:.2f} Tf 0 Ts "
+                             f"({_escape_only(run)}) Tj")
+        parts.append("ET")
+        self._ops.append(" ".join(parts))
 
     def rule(self, x1: float, y: float, x2: float, width: float = 0.7,
              color=_RULE) -> None:
@@ -282,9 +324,43 @@ def _fold(s: str) -> str:
     return s
 
 
-def _escape(s: str) -> str:
-    s = _fold(s)
+def _escape_only(s: str) -> str:
     return s.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def _escape(s: str) -> str:
+    return _escape_only(_fold(s))
+
+
+# Subscript typesetting on the sealed page. Same grammar as the control room's
+# subPattern, deliberately: what counts as a variable must not differ between
+# the screen and the certificate of the same run. A multi-letter symbol has to
+# be a named dimensionless group, so Re_x sets and supersonic_cone.stl,
+# ahmed_25 and aircraft_optimization do not.
+_SUB_GROUPS = ("Re|Cf|Cp|Cd|Cl|Cm|Cn|St|Pr|Nu|Ma|Kn|Fr|Gr|Ra|Sc|Sh|Bi|Pe|We|"
+               "Ro|Le|Ec")
+_SUB_RE = re.compile(
+    r"\b(" + _SUB_GROUPS + r"|[A-Za-z])"
+    r"_([A-Za-z0-9]{1,6}(?:_[A-Za-z0-9]{1,6})?(?:,(?:[a-z]{2,4}|\d{1,2}))?)\b")
+
+
+def _sub_runs(folded: str) -> list[tuple[str, bool]]:
+    """Split ALREADY-FOLDED text into (run, is_subscript) pairs.
+
+    Folding first matters: the language rails rewrite whole phrases, and a
+    phrase split across runs would escape them.
+    """
+    runs: list[tuple[str, bool]] = []
+    i = 0
+    for m in _SUB_RE.finditer(folded):
+        if m.start() > i:
+            runs.append((folded[i:m.start()], False))
+        runs.append((m.group(1), False))
+        runs.append((m.group(2).replace("_", ","), True))
+        i = m.end()
+    if i < len(folded):
+        runs.append((folded[i:], False))
+    return runs or [(folded, False)]
 
 
 def _avg_width(size: float) -> float:
@@ -575,7 +651,7 @@ def build_certificate(report_doc: dict, *, out_path: str | Path,
     if channels:
         for ch in channels:
             name, value, quantified, note = _channel_fields(ch)
-            state = "quantified" if quantified else "not quantified"
+            state = _CHANNEL_IN_STATE if quantified else _CHANNEL_NO_STATE
             c.text(left, y, name, size=9.5, bold=True, color=_INK)
             c.text(left + 130, y, value, size=9.5, color=_INK)
             c.text(left + 230, y, f"({state})", size=9,
@@ -837,6 +913,15 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         def gap(normal: float, tight: float) -> float:
             return tight if compact else normal
 
+        # Height of a table's title + header chrome, from the SAME gaps the
+        # block below draws with. A reserve written as a constant drifts away
+        # from the block the moment either value is retuned, and a reserve that
+        # is larger than the drawing is not a safety margin: `room` breaks the
+        # page on it, so the leaf ends early and content moves to a second page
+        # that would have fitted on the first. Reserve what is drawn, exactly.
+        def table_head_h() -> float:
+            return gap(8, 6) + gap(16, 14) + gap(6, 5) + gap(16, 14)
+
         c = _Canvas()
         y = _PAGE_H - _MARGIN - 6
 
@@ -885,7 +970,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         fields = [("Objective", objective)]
         if scope:
             fields.append(("Scope", scope))
-        fields.append(("Solver & Model", solver or "-"))
+        fields.append(("Solver & Model", solver or _NOT_STATED))
         for label, value in fields:
             c.text(left, y, label, size=8, bold=True, color=_MUTED)
             for line in _wrap(str(value), 10.5, width - 120):
@@ -908,7 +993,9 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
                  assumption_rows)):
             if not rows:
                 continue
-            y = room(38 + row_lead * min(len(rows), 3), y)
+            # Header plus at least three rows, so a table never starts with a
+            # widow row stranded under its own heading.
+            y = room(table_head_h() + row_lead * min(len(rows), 3), y)
             c.text(left, y, title, size=8, bold=True, color=_MUTED)
             y -= gap(8, 6)
             c.rule(left, y, right, width=0.5)
@@ -934,8 +1021,17 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # The headline, its chip, its caption and the parameters it resolves
         # to are one unit: a reader must never meet the number on one leaf and
         # the parameters that produced it on the next.
-        y = room(96 + (40 + field_lead * len(result_fields)
-                       if result_fields else 0), y)
+        # Reserved from the block's own gaps, not a constant. The old 96
+        # happened to be right only for a case carrying exactly ONE credibility
+        # caption; a case with none was over-reserved by that caption's height
+        # and broke the page early for room it was never going to use.
+        cred_lines = _credibility_captions(geometry)
+        head_h = (gap(30, 26)
+                  + (gap(12, 11) * len(cred_lines) + gap(6, 5) if cred_lines else 0.0)
+                  + gap(26, 24) + gap(34, 30))
+        fields_h = (gap(4, 2) + gap(15, 13) + gap(6, 5) + gap(15, 13)
+                    + field_lead * len(result_fields)) if result_fields else 0.0
+        y = room(head_h + fields_h, y)
         c.text(left, y, "Result", size=8, bold=True, color=_MUTED)
         # SOLVER-BACKED is the unlabeled default for this simulation platform:
         # a real solve with no further chip renders no badge at all.
@@ -954,10 +1050,10 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # Silence when the case is unknown is deliberate: a case with no
         # record scores nothing rather than a row of zeros, because a zero
         # reads as "measured and poor" where the truth is "never assessed".
-        for line in _credibility_captions(geometry):
+        for line in cred_lines:
             c.text(left, y, line, size=8.5, color=_MUTED)
             y -= gap(12, 11)
-        if _credibility_captions(geometry):
+        if cred_lines:
             y -= gap(6, 5)
         quantity = str(primary.get("quantity", "Result"))
         value = str(primary.get("value", ""))
@@ -1042,7 +1138,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         y -= gap(26, 20)
 
         # -- three-channel uncertainty table ---------------------------------
-        y = room(54 + row_lead, y)
+        y = room(table_head_h() + row_lead, y)
         c.text(left, y, "Uncertainty", size=8, bold=True, color=_MUTED)
         y -= gap(8, 6)
         c.rule(left, y, right, width=0.5)
@@ -1057,7 +1153,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         for ch in table:
             name, cval, quantified, note = _channel_fields(ch)
             y = room(row_lead + (note_lead * 2 if note else 0), y)
-            state = "quantified" if quantified else "not quantified"
+            state = _CHANNEL_IN_STATE if quantified else _CHANNEL_NO_STATE
             c.text(left, y, name, size=9.5, bold=True, color=_INK)
             c.text(left + val_x, y, cval, size=9.5, color=_INK)
             c.text(left + state_x, y, state, size=9,
@@ -1079,10 +1175,22 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
             # long body pushed it straight through the provenance box instead
             # of triggering the fit loop or a second leaf. It reserves its own
             # height now, like every table above it.
-            y = room(21 + 13.0 * len(rows), y)
             # Tighten the row rhythm when the remaining room is short rather
-            # than stranding rows against the footer.
-            row_h = 13.0 if y - (21 + 13.0 * len(rows)) >= page_floor + 4 else 11.0
+            # than stranding rows against the footer -- and decide that BEFORE
+            # reserving, so the reserve is the height actually drawn. Reserving
+            # the loose rhythm and then drawing the tight one asked `room` for
+            # 2 pt per row that never got used, which is enough to break a leaf
+            # this block would otherwise have finished on.
+            def mesh_h(row_h: float) -> float:
+                return 21 + row_h * len(rows)
+
+            # Reserve the LEAST this block can occupy, then take the loose
+            # rhythm only if the leaf it actually landed on has room for it.
+            # Reserving the loose rhythm and drawing the tight one asked for
+            # 2 pt a row that was never used; deciding the rhythm before the
+            # reserve instead carried a page-1 squeeze onto a fresh page 2.
+            y = room(mesh_h(11.0), y)
+            row_h = 13.0 if y - mesh_h(13.0) >= page_floor + 4 else 11.0
             y -= 4
             c.rule(left, y + 12, right, width=0.5)
             c.text(left, y - 2, "Mesh Validity", size=8, bold=True, color=_MUTED)
