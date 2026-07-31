@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T18:18:27Z",
+  "generated_at": "2026-07-31T19:11:01Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -284,6 +284,25 @@
       "created_at": "2026-07-31T08:18:16Z"
     },
     {
+      "id": "w7-one-way-in-for-operator-artifacts",
+      "well": "W7",
+      "objective": "Serve everything the operator needs through the one port already proven reachable",
+      "rationale": "Surfaces live behind the static site while the control room answers on a different port. During filming the control room was reachable and the surfaces were not, so an act that wanted an attached body could not get one. A second port is a second thing that can be shut, and nothing warned that it had been.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every artifact an act needs is retrievable through the control room own port, verified from outside",
+      "expected_knowledge_gain": "The shoot stops depending on two doors being open when only one is checked",
+      "source_kind": "capability",
+      "citations": [
+        "sdk/chief_engineer/server.py",
+        "demo-output/website/surfaces"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:00Z"
+    },
+    {
       "id": "w4-idwarp-source-trace",
       "well": "W4",
       "objective": "Trace the warpDeriv mis-linearization to a line in the IDWarp source",
@@ -321,6 +340,25 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T08:18:16Z"
+    },
+    {
+      "id": "w7-verify-reachability-from-outside",
+      "well": "W7",
+      "objective": "Check every surface the operator needs from outside the box, not from the box",
+      "rationale": "The demo surfaces were served on a port that answers perfectly from the instance and is not reachable from the operator laptop. It was verified with a local request every time and failed the first time it was needed live, mid-shoot. Every readiness check the lab runs on itself shares this blind spot: a service can pass from inside and be unusable from where it is actually used.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Readiness names which surfaces are reachable from outside and which are loopback only, and says how it knows",
+      "expected_knowledge_gain": "Removes a class of check that can only ever return a false pass",
+      "source_kind": "report",
+      "citations": [
+        "scripts/self_audit.py",
+        "LAPTOP_SHOOT.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:00Z"
     },
     {
       "id": "w6-generator-claims-are-per-case",
@@ -377,6 +415,25 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T14:43:29Z"
+    },
+    {
+      "id": "w5-disclose-the-bump-claim",
+      "well": "W5",
+      "objective": "Disclose or withdraw the bump drag comparison shown beside the verified flat plate",
+      "rationale": "The credentials wall and a verification card present a bump drag of 0.003567 against 0.003607 next to the flat plate result, with nothing saying the bump ladder is not conclusive. Two sessions have now flagged it and neither would edit a published claim without a ruling. The flat plate beside it is genuinely verified, which makes the pairing read as two results of equal standing.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The bump comparison either carries its non-conclusive status where it is shown, or is withdrawn from that surface",
+      "expected_knowledge_gain": "The wall is the most public surface the lab has, and this is the second unqualified claim found on it this week",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/tmr/bump_sst.json",
+        "campaign/4G_tmr_mesh_aspect_ratio.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:27Z"
     },
     {
       "id": "w8-certificate-interval-lesson",
@@ -795,6 +852,25 @@
       "well": "W3"
     },
     {
+      "id": "w3-refit-the-2d-ladders",
+      "well": "W3",
+      "objective": "Refit the five two-dimensional ladders with the correct dimensionality and see which earn a band",
+      "rationale": "The band fit derives mesh size from the cube root of cell count and none of the five two-dimensional acts overrides it, so every one has been fitted as though it were three-dimensional. On the TMR bump the same rungs read 0.776 under the default and 0.517 correctly, a factor of about 1.5. All five were switched to point estimates on the grounds that their ladders were not conclusive, and an order overstated by half again is exactly what pushes a credible fit outside the window. Some of these may have been denied a band they earned.",
+      "est_core_min": 20,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.274,
+      "cost_basis": "estimate",
+      "gate": "Each of the five reports its order under the correct dimensionality, and any that becomes conclusive is regraded",
+      "expected_knowledge_gain": "Either several filmed acts recover a measured uncertainty band, or the non-conclusive verdicts are confirmed on the right arithmetic",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/uq.py",
+        "campaign/4G_tmr_mesh_aspect_ratio.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:27Z"
+    },
+    {
       "id": "dafoam-simplec-comparison-audit",
       "objective": "Audit every comparison between a DAFoam result and a plain OpenFOAM baseline for the silently dropped consistent pressure correction",
       "rationale": "The Ahmed body rung measured its adjoint capable primal 22.05 percent away from our own validated baseline on the same mesh, boundary conditions and turbulence model. The cause is that the baseline sets consistent yes, selecting the consistent variant of the pressure correction, and the adjoint solver does not implement it and runs the plain variant instead without warning. On this geometry the two land on different branches of a documented bistable wake, so the discrepancy is a change of solution branch rather than a tolerance. Any credential or comparison that puts the two solvers side by side inherits this, and neither number is wrong on its own terms",
@@ -934,6 +1010,25 @@
       "decided_at": "2026-07-29T20:28:00+00:00",
       "decision_note": "Built and validated in a prior session (C1: AUC 1.0, 4/4 correct on held-out PH validation, fit on train only) but deliberately not applied to the test set pending a separate decision. That decision was made this session (round 3, sdk/scripts/apply_closure_ph_gate.py): the frozen gate was evaluated on the 4 official PH test cases using RANS-derived features only (no ground truth), recovering 0.0065 of the predicted 0.0066 term. Overall score moved 0.0741 -> 0.0676 in a single new official scoring call (the 4th on this benchmark). Record: demo-output/website/closure_challenge_trained_entry_round3_gated.json.",
       "well": "W6"
+    },
+    {
+      "id": "w5-sparta-is-still-the-cheapest-real-result",
+      "well": "W5",
+      "objective": "Escalate the SpaRTA frozen-RANS rung, unclaimed for two passes and still the cheapest route to a closure result",
+      "rationale": "It forms no adjoint, so the conditioning blocker that has held this line for days does not reach it. The benchmark already ships its two cases at the mesh sizes the paper states, with reference fields on that mesh, and both are training cases so nothing is in-sample against a scored one. Sixty core-minutes against a published number to hit. It has sat unclaimed while more expensive work was approved.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.821,
+      "cost_basis": "estimate",
+      "gate": "Reproduce the published correction-field result on the backward-facing step before any cross-validation budget is committed",
+      "expected_knowledge_gain": "The first closure rung the lab can actually run, and the line is the product",
+      "source_kind": "challenge",
+      "citations": [
+        "Schmelzer, Dwight & Cinnella, Flow Turbulence and Combustion 2020",
+        "campaign/W2_TBNN_SPARTA_READING.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:00Z"
     },
     {
       "id": "r7-strouhal-mesh-sensitivity-across-the-ladder",
@@ -1126,12 +1221,13 @@
       "cost_basis": "measured, from the 420-second 21,840-cell run now established as the cheapest reproduction of the failure",
       "expected_knowledge_gain": "Decides whether an entire class of cases -- transonic and shock-containing, which is most of external aerodynamics worth optimising -- is reachable by this adjoint at all. It also hands us a cheap test bed: a seven-minute case that reproduces the failure exactly, where previously the cheapest reproduction took sixteen minutes and was assumed to need a large mesh.",
       "source_kind": "measurement",
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-29T22:15:00Z",
-      "decided_at": "2026-07-29T23:04:27+00:00",
-      "decision_note": null,
+      "decided_at": "2026-07-31T19:11:01Z",
+      "decision_note": "Closed on evidence gathered under the Stage 1 field-inversion work and the A3 record, not by a run against this proposal.",
       "dismiss_reason": "Approved to run. The owner directed tonight that research directions be proposed, assessed and FOLLOWED continuously rather than queued, which is the authorisation this needed. It is also now the highest-leverage open question in the lab: the memory half of the envelope is settled and well fitted, and it does not matter, because the transonic family's adjoint diverges at every mesh size measured. A cheap reproducer exists at 21,840 cells and seven minutes per attempt, so conditioning experiments that were previously assumed to need a large mesh can now be iterated quickly.",
-      "well": "W4"
+      "well": "W4",
+      "outcome": "Answered. The failure is a linear-solver breakdown, not a memory ceiling. The ONERA M6 adjoint returns the same breakdown at 21,840, 42,120, 79,560 and 99,840 cells, so mesh size is not the constraint and coarsening was never going to help. The NASA hump reproduces it independently: DIVERGED_NANORINF at GMRES iteration 0 with Jacobian colouring completing normally and available memory bottoming at 18.99 GB of 30. Two levers remove the NaN and neither converges, and the matrix reordering is implicated in producing it since the failing scripts use rcm where the one working tutorial uses natural. The family that does converge, field inversion, differs in that its warping component is never constructed at all."
     },
     {
       "id": "w3-find-an-invertible-closure-case",
@@ -1468,6 +1564,25 @@
       "well": "W5"
     },
     {
+      "id": "w1-bump-on-nasa-own-grids",
+      "well": "W1",
+      "objective": "Rebuild the bump family on the reference grids NASA publishes and solves on",
+      "rationale": "Our bump mesh carries a near-wall spacing along the whole symmetry plane where the reference relaxes it four hundredfold, and spans it with half the cell count, giving a maximum aspect ratio of 2.1 million against the reference 4,844. The ladder also has no single mesh size, since our wall cell scales by 0.53 while the reference grids are exact point-drops of one another. The pressure component of drag has no observed order at all on our meshes, where the reference code resolves it at 2.91 on the same case. HARD: wall-bounded separated flow against a maintained validation reference.",
+      "est_core_min": 180,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 2.463,
+      "cost_basis": "estimate",
+      "gate": "An observed order inside the theoretical range on the pressure component, on grids refined by point-dropping",
+      "expected_knowledge_gain": "The only route to a defensible verification ladder on this family, and it removes our mesh from the list of suspects",
+      "source_kind": "gate",
+      "citations": [
+        "NASA Turbulence Modeling Resource bump-in-channel grids",
+        "campaign/4G_tmr_mesh_aspect_ratio.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T18:18:27Z"
+    },
+    {
       "id": "dpw8-v1-oat15a-committee-grid-primal",
       "objective": "Run the DPW-8 V1 ONERA OAT15A transonic verification case on the committee-supplied Rizzi grid family, levels 1 through 4, to a converged primal at a single angle of attack, and report a grid-convergence trend on lift, drag and surface pressure against the workshop's own gridding and numerics rulebook",
       "rationale": "The scoping report of 2026-07-28 left exactly one open question: nobody had counted the cells in the 2D verification grid bundles, so V1 sat at 'plausible, not confirmed'. That question is now closed by measurement. The Rizzi bundle carries a nine-level structured family and its cell counts were read straight out of the CGNS zone headers rather than trusted from its README: 15872, 34816, 63488, 100352, 144384, 253952, 471040, 667648 and 1146880 cells, all nine matching the README exactly. Levels 1 through 8 are at or below this lab's largest ever converged primal of 579072 cells, and the finest level is only twice it. This is the first Drag Prediction Workshop case found whose committee grids are inside our proven envelope at every offered level, and unlike the Joukowski case already attempted it uses a committee grid rather than one we generated ourselves, on a real transonic condition of Mach 0.73 and chord Reynolds number 3 million",
@@ -1691,118 +1806,23 @@
       "well": "W5"
     },
     {
-      "id": "w7-verify-reachability-from-outside",
-      "well": "W7",
-      "objective": "Check every surface the operator needs from outside the box, not from the box",
-      "rationale": "The demo surfaces were served on a port that answers perfectly from the instance and is not reachable from the operator laptop. It was verified with a local request every time and failed the first time it was needed live, mid-shoot. Every readiness check the lab runs on itself shares this blind spot: a service can pass from inside and be unusable from where it is actually used.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Readiness names which surfaces are reachable from outside and which are loopback only, and says how it knows",
-      "expected_knowledge_gain": "Removes a class of check that can only ever return a false pass",
-      "source_kind": "report",
-      "citations": [
-        "scripts/self_audit.py",
-        "LAPTOP_SHOOT.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:00Z"
-    },
-    {
-      "id": "w7-one-way-in-for-operator-artifacts",
-      "well": "W7",
-      "objective": "Serve everything the operator needs through the one port already proven reachable",
-      "rationale": "Surfaces live behind the static site while the control room answers on a different port. During filming the control room was reachable and the surfaces were not, so an act that wanted an attached body could not get one. A second port is a second thing that can be shut, and nothing warned that it had been.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 1.0,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Every artifact an act needs is retrievable through the control room own port, verified from outside",
-      "expected_knowledge_gain": "The shoot stops depending on two doors being open when only one is checked",
-      "source_kind": "capability",
-      "citations": [
-        "sdk/chief_engineer/server.py",
-        "demo-output/website/surfaces"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:00Z"
-    },
-    {
-      "id": "w5-sparta-is-still-the-cheapest-real-result",
-      "well": "W5",
-      "objective": "Escalate the SpaRTA frozen-RANS rung, unclaimed for two passes and still the cheapest route to a closure result",
-      "rationale": "It forms no adjoint, so the conditioning blocker that has held this line for days does not reach it. The benchmark already ships its two cases at the mesh sizes the paper states, with reference fields on that mesh, and both are training cases so nothing is in-sample against a scored one. Sixty core-minutes against a published number to hit. It has sat unclaimed while more expensive work was approved.",
-      "est_core_min": 60,
-      "predicted_memory_gb": 2.0,
-      "predicted_usd": 0.821,
-      "cost_basis": "estimate",
-      "gate": "Reproduce the published correction-field result on the backward-facing step before any cross-validation budget is committed",
-      "expected_knowledge_gain": "The first closure rung the lab can actually run, and the line is the product",
-      "source_kind": "challenge",
-      "citations": [
-        "Schmelzer, Dwight & Cinnella, Flow Turbulence and Combustion 2020",
-        "campaign/W2_TBNN_SPARTA_READING.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:00Z"
-    },
-    {
-      "id": "w3-refit-the-2d-ladders",
-      "well": "W3",
-      "objective": "Refit the five two-dimensional ladders with the correct dimensionality and see which earn a band",
-      "rationale": "The band fit derives mesh size from the cube root of cell count and none of the five two-dimensional acts overrides it, so every one has been fitted as though it were three-dimensional. On the TMR bump the same rungs read 0.776 under the default and 0.517 correctly, a factor of about 1.5. All five were switched to point estimates on the grounds that their ladders were not conclusive, and an order overstated by half again is exactly what pushes a credible fit outside the window. Some of these may have been denied a band they earned.",
-      "est_core_min": 20,
-      "predicted_memory_gb": 2.0,
-      "predicted_usd": 0.274,
-      "cost_basis": "estimate",
-      "gate": "Each of the five reports its order under the correct dimensionality, and any that becomes conclusive is regraded",
-      "expected_knowledge_gain": "Either several filmed acts recover a measured uncertainty band, or the non-conclusive verdicts are confirmed on the right arithmetic",
-      "source_kind": "measurement",
-      "citations": [
-        "sdk/chief_engineer/uq.py",
-        "campaign/4G_tmr_mesh_aspect_ratio.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:27Z"
-    },
-    {
-      "id": "w1-bump-on-nasa-own-grids",
+      "id": "w1-approved-backlog-below-the-floor",
       "well": "W1",
-      "objective": "Rebuild the bump family on the reference grids NASA publishes and solves on",
-      "rationale": "Our bump mesh carries a near-wall spacing along the whole symmetry plane where the reference relaxes it four hundredfold, and spans it with half the cell count, giving a maximum aspect ratio of 2.1 million against the reference 4,844. The ladder also has no single mesh size, since our wall cell scales by 0.53 while the reference grids are exact point-drops of one another. The pressure component of drag has no observed order at all on our meshes, where the reference code resolves it at 2.91 on the same case. HARD: wall-bounded separated flow against a maintained validation reference.",
-      "est_core_min": 180,
-      "predicted_memory_gb": 8.0,
-      "predicted_usd": 2.463,
-      "cost_basis": "estimate",
-      "gate": "An observed order inside the theoretical range on the pressure component, on grids refined by point-dropping",
-      "expected_knowledge_gain": "The only route to a defensible verification ladder on this family, and it removes our mesh from the list of suspects",
-      "source_kind": "gate",
-      "citations": [
-        "NASA Turbulence Modeling Resource bump-in-channel grids",
-        "campaign/4G_tmr_mesh_aspect_ratio.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T18:18:27Z"
-    },
-    {
-      "id": "w5-disclose-the-bump-claim",
-      "well": "W5",
-      "objective": "Disclose or withdraw the bump drag comparison shown beside the verified flat plate",
-      "rationale": "The credentials wall and a verification card present a bump drag of 0.003567 against 0.003607 next to the flat plate result, with nothing saying the bump ladder is not conclusive. Two sessions have now flagged it and neither would edit a published claim without a ruling. The flat plate beside it is genuinely verified, which makes the pairing read as two results of equal standing.",
+      "objective": "Rule on nine approved follow-ons that may sit below the hardness floor",
+      "rationale": "Nine of the twelve approved items are agenda-generated follow-ons on the vortex-lattice airliner and the analytic valve: composite span limits, a cruise Mach trade, drag under yaw, the next body in the class, a full-configuration solve. The case-selection charter puts a floor at HARD, meaning three-dimensional separated flow, shocks, unsteady statistics, free surface, rotating or challenge-aligned, and requires anything below it to be labelled a regression test. Several of these are screening studies on a panel method. Worse, the model-form error of that panel method against truth is unquantified and is now the largest term in its own error budget, so more studies on it refine the term that has already stopped mattering.",
       "est_core_min": 0,
       "predicted_memory_gb": 0.5,
       "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "The bump comparison either carries its non-conclusive status where it is shown, or is withdrawn from that surface",
-      "expected_knowledge_gain": "The wall is the most public surface the lab has, and this is the second unqualified claim found on it this week",
+      "gate": "Each of the nine is either shown to clear the floor, relabelled a regression test, or dismissed",
+      "expected_knowledge_gain": "Twelve approved items and 1400 core-minutes of queue should not rest on a floor nobody checked them against",
       "source_kind": "report",
       "citations": [
-        "demo-output/website/tmr/bump_sst.json",
-        "campaign/4G_tmr_mesh_aspect_ratio.md"
+        "docs/charters/CASE_SELECTION_CHARTER.md",
+        "demo-output/website/mfmc_error_budget.json"
       ],
       "status": "proposed",
-      "created_at": "2026-07-31T18:18:27Z"
+      "created_at": "2026-07-31T19:11:01Z"
     }
   ]
 }
