@@ -87,7 +87,7 @@ def main():
           {level: max(runs[level]) for level in LEVELS})
     for name, index in COMPONENTS:
         print(f"\n{name} drag at matched iteration counts")
-        for n in (3000, 4000, 5000, 6000, 7000, 8000, 9000):
+        for n in (3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000):
             if all(n in runs[level] for level in LEVELS):
                 print("   " + show(f"n = {n:5d} ",
                                    [runs[level][n][index] for level in LEVELS]))

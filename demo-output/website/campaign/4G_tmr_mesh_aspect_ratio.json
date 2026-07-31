@@ -730,11 +730,15 @@
         ],
         "9000": [
           -1.881e-05,
-          7.836e-06
+          7.847e-06
         ],
         "published_caps": [
           -2.009e-05,
           6.435e-06
+        ],
+        "10000": [
+          -1.887e-05,
+          7.967e-06
         ]
       },
       "viscous_observed_order": {
@@ -745,7 +749,8 @@
         "7000": 1.065,
         "8000": 1.07,
         "9000": 1.075,
-        "published_caps": 1.09
+        "published_caps": 1.09,
+        "10000": 1.08
       },
       "verdict": "the pressure sign flip holds at EVERY matched count tested, and the second increment grows steadily MORE positive as the rungs converge rather than shrinking toward zero. The pressure drag is not a nearly-converged quantity a longer run would tidy up; it is going the wrong way and going there harder. The viscous order is stable at 1.03-1.07 matched against 1.090 published.",
       "script": "4G_runs/bump_iteration_matched/drag_split.py"
@@ -755,6 +760,13 @@
       "max_coordinate_difference": 0.0,
       "note": "verified rather than taken from the 'Nlevelsdown' filenames"
     },
-    "iteration_matched_ladder_reaches": 10000
+    "iteration_matched_ladder_reaches": 10000,
+    "spend_core_min": {
+      "coarse_30000_iter_2_ranks": 6.8,
+      "medium_30000_iter_4_ranks": 68.7,
+      "fine_10098_iter_8_ranks": 331.0,
+      "solve_total": 406.5,
+      "note": "plus a few core-minutes of blockMesh/checkMesh/decomposePar; about 410 total. The proposal's own estimate of 30 core-min covered building one rung, not the diagnosis the owner's roadmap note asked for first."
+    }
   }
 }

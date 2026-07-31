@@ -632,7 +632,8 @@ iteration into `log.simpleFoam`, so the split is recoverable at matched counts f
 | 3,000 | −1.912e-05, **+6.373e-06** | non-monotone | 0.944 |
 | 4,000 | −1.890e-05, **+6.790e-06** | non-monotone | 1.033 |
 | 6,000 | −1.873e-05, **+7.308e-06** | non-monotone | 1.058 |
-| 9,000 | −1.881e-05, **+7.836e-06** | non-monotone | 1.075 |
+| 9,000 | −1.881e-05, **+7.847e-06** | non-monotone | 1.075 |
+| 10,000 | −1.887e-05, **+7.967e-06** | non-monotone | 1.080 |
 | *published caps* | −2.009e-05, **+6.435e-06** | non-monotone | 1.090 |
 
 **The sign flip holds at every matched count tested**, and the second increment grows
