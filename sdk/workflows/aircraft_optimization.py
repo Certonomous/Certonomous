@@ -1574,11 +1574,12 @@ def main(request: str | None = None, params: dict | None = None,
         announce_geometry(emit, name=start_surface,
                           label=f"starting geometry: {surface_name}")
         received = (
-            f"• Starting geometry received: {surface_name}, "
-            f"measured span about {measured_span:.0f} m; the search "
-            f"brackets it. " if measured_span else
-            f"• Starting geometry received: {surface_name}, on file as the "
-            f"reference shape; the search runs on default bounds. ")
+            f"• Starting geometry received: {surface_name}. Measured span "
+            f"about {measured_span:.0f} m; the search brackets it. "
+            if measured_span else
+            f"• Starting geometry received: {surface_name}. The surface is "
+            f"on file as the reference shape; the search runs on default "
+            f"bounds. ")
 
     script.engineer(
         received
@@ -2094,6 +2095,11 @@ def main(request: str | None = None, params: dict | None = None,
     # certificate all say that in the same words rather than three ways.
     sweep_unresolved = "quarter-chord sweep is not resolved at this fidelity"
     sweep_note = ""
+    # The certificate's result table carries one row per design variable, so
+    # the open axis has to be a row there and not a footnote: a page that
+    # lists span, aspect ratio and weight and simply omits sweep reads as
+    # though sweep were settled.
+    sweep_field = f"{best['sweep_deg']:.0f}°"
     if len(family) > 1:
         angles = [f"{f['sweep_deg']:.0f}" for f in family]
         sweep_note = (
@@ -2101,6 +2107,8 @@ def main(request: str | None = None, params: dict | None = None,
             f"{best['area']:.0f} m² wings at "
             f"{', '.join(angles[:-1])} and {angles[-1]} degrees all fall "
             f"inside the reported interval, so the family is the result.")
+        sweep_field = (f"{angles[0]} to {angles[-1]}°, not resolved at this "
+                       f"fidelity")
 
     # The conclusion opens on figures, both drawn from this run's own numbers:
     # the sweep axis the landscape canvas has no room for, and, when the
@@ -2495,6 +2503,7 @@ def main(request: str | None = None, params: dict | None = None,
             "result_fields": [
                 ("Span", f"{best['span']:.0f} m"),
                 ("AR", f"{best['aspect_ratio']:.1f}"),
+                ("Sweep", sweep_field),
                 ("MTOW", f"{best['mtow_kg'] / 1000:.0f} t"),
                 ("Range", f"{quoted_range_km:.0f} km"),
                 ("Approach Speed", f"{best['approach_speed']:.0f} m/s"),

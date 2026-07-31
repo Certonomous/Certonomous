@@ -464,7 +464,7 @@ class StartingGeometryTests(unittest.TestCase):
         said = " ".join(p.get("message", "") for e, p in events
                         if e == "transcript.entry")
         self.assertIn("Starting geometry received: Startwing", said)
-        self.assertIn("measured span about 40 m; the search brackets it", said)
+        self.assertIn("Measured span about 40 m; the search brackets it", said)
         # No raw filename on camera.
         self.assertNotIn("startwing.stl", said)
         # The uploaded surface shows in the geometry viewport via the same
@@ -1026,6 +1026,22 @@ class SolvedRunDoctrineTests(unittest.TestCase):
         report = [p for e, p in self._run_solved() if e == "report.ready"][0]
         self.assertEqual(report["uncertainty_title"], "Limitations")
         self.assertTrue(report["uncertainty"])
+
+    def test_the_certificate_names_the_family_and_the_open_sweep_axis(self):
+        # Span, AR and MTOW are shared by every member, so the page names the
+        # winner either way. Sweep is not, and gets a row saying so.
+        events = self._run_solved()
+        said = " ".join(self._messages(events))
+        self.assertIn("family, whole-aircraft L/D", said)
+        self.assertIn("Quarter-chord sweep is not resolved at this fidelity",
+                      said)
+        report = [p for e, p in events if e == "report.ready"][0]
+        self.assertTrue(any("not resolved at this fidelity" in line
+                            for line in report["uncertainty"]))
+        cert = [p for e, p in events if e == "certificate.ready"][0]
+        text = Path(cert["path"]).read_bytes().decode("latin-1")
+        self.assertIn("Sweep", text)
+        self.assertIn("not resolved at this", text)
 
     def test_lesson_records_the_computed_uncertainty_patterns(self):
         from chief_engineer.lessons import learned_lessons
