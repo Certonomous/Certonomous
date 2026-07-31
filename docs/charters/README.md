@@ -56,7 +56,10 @@ standards document, or a lesson. The distinction matters more than any single
 clause: the lab must never present its own invention as the owner's policy.
 
 `PROPOSALS_OPEN.md` collects every open marker across all eight in one place,
-so the owner can react to the whole set without reading the whole set.
+so the owner can react to the whole set without reading the whole set. From
+version 2.0 it also carries the conflicts, which are rulings rather than
+proposals, and the escalations the weekly audit turns up. Every item in it is
+answerable by label: "P-1.1: A" is a complete decision.
 
 ## How they get revised
 
@@ -88,3 +91,7 @@ They are iterated like code, on the owner's instruction.
 - `docs/UNCERTAINTY-DOCTRINE.md`. The three channels and their recipes.
 - `LESSONS.md`. L-1 through L-28 plus the process doctrine P1 through P5.
 - `demo-output/website/campaign/NOT_PASSING_REGISTER.md`. Where failures live.
+- `scripts/self_audit.py`. The weekly re-verification of published claims
+  against the artifacts they cite. It is where several of these clauses stop
+  being text: a charter that is checked by something is worth more than a
+  charter that is remembered. It reports and never repairs.

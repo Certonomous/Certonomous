@@ -207,7 +207,9 @@ tie-breakers and not deductions. They are refusals.
 8. **No stated cost, or a cost over the rung cap with no escalation.**
    Charter 6.
 9. **Training or validating on challenge test-case data.** Section 2, axis C.
-10. **A detection rule with no archive replay.** A proposal that adds a rule,
+10. **A detection rule with no archive replay. PROPOSAL, nobody has ruled on
+    this**, and it is written here because the gap is measured rather than
+    theoretical. A proposal that adds a rule,
     a signature, a gate or a check which will fire on the lab's own work states
     what it does to the archive before it is adopted: the corpus it was replayed
     against, the number of logs it fires on, the number it calls fatal, and its

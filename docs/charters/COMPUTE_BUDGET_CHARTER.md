@@ -63,6 +63,13 @@ The lab's rule today is the one in `scripts/self_audit.py`: a ledger row over
 3600 seconds is an infrastructure stall, and the justification for that
 threshold is the clustering above, measured, not assumed.
 
+> **PROPOSAL on the reporting half only.** The stall threshold and its
+> justification are already in the audit script and are measured. Requiring
+> every published spend figure to declare itself gross or cleaned is the lab's
+> draft and nobody has ruled on it. The alternative is to keep publishing the
+> gross figure alone, which is what the wall does today and which the audit
+> reports every week.
+
 This is also why the wall-time monitor exists and why its threshold is
 governed. Every one of those six rows was recorded ok at the time, at 1070 and
 2214 times its own solver's 99th percentile.

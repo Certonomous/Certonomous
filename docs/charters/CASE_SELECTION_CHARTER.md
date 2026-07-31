@@ -210,7 +210,9 @@ makes it a violation twice over.
 Somebody has to choose. Either the camera rule means "toy regime" and its
 wording should say so, or it means "toy shape" and two rehearsed acts need
 replacing. This charter takes no position, because both readings trace to the
-owner and picking one would be inventing policy. It goes to her.
+owner and picking one would be inventing policy. It goes to her, as **C-1** in
+`PROPOSALS_OPEN.md`, with the two options and the cost of each stated so the
+answer is one word.
 
 ## 9. Enforcement
 
