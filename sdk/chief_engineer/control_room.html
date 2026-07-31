@@ -78,7 +78,17 @@
   .upload input { display: none; }
   .upload label { display: block; text-align: center; padding: 10px; border: 1px dashed var(--line-2); color: var(--muted); font: 9px var(--mono); letter-spacing: .14em; cursor: pointer; }
   .upload label:hover { border-color: var(--live); color: var(--ink); }
+  /* The attached state has to READ as attached from across the room. The
+     resting placeholder is 9px muted mono in a dashed box; the filename used
+     to be written into that same 9px muted box, so an upload that had in fact
+     succeeded looked pixel-for-pixel identical to one that had never happened
+     -- reported from the floor three times. `.on` gives the box a solid live
+     border and puts the filename in ink at a legible size. Kept to one line
+     and +3px of height so the frozen command-panel layout does not move. */
+  .upload label.on { border-style: solid; border-color: var(--live); color: var(--muted); padding: 9px 10px; font: 10px var(--mono); letter-spacing: .06em; }
+  .upload label.on b { color: var(--live); font: 600 12.5px var(--mono); letter-spacing: .02em; }
   #surfaceNote { margin-top: 8px; color: var(--muted); font-size: 11px; }
+  #surfaceNote i { color: var(--ink); font-style: normal; }
   .launch { width: 100%; margin-top: 20px; padding: 15px; background: var(--ink); color: #060708; border: 0; font: 800 12px/1 var(--cond); letter-spacing: .16em; text-transform: uppercase; cursor: pointer; transition: opacity .15s; }
   .launch:hover { opacity: .88; }
   .launch:disabled { opacity: .3; cursor: default; }
@@ -526,10 +536,43 @@ const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const setHidden = (id, v) => { const n = $(id); if (n) n.hidden = v; };
 const title = s => String(s||'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
-// Graceful display name from a raw surface name/slug: strip the extension and
-// path, humanise separators. Real display names come from event labels (and,
-// once it lands on main, the shared registry); this only guards raw fallbacks.
-const displayName = s => { if (!s) return ''; const base = String(s).split(/[\\/]/).pop().replace(/\.(stl|obj)$/i,''); return title(base); };
+// Ratified display names, mirroring chief_engineer/display_names.py. The page
+// has no endpoint that serves that table, and /api/geometry/upload answers with
+// the filename only, so the browser needs its own copy to put a human name on a
+// body the moment it is attached. Keys are the same normalized slugs (lowercase
+// stem, spaces and dashes folded to underscores) -- add a body in BOTH places.
+const SURFACE_NAMES = {
+  b52: 'B-52 Stratofortress-class airframe',
+  motorbike: 'Motorcycle with rider, highway configuration',
+  airliner: '300-passenger twin-aisle airliner, planform study',
+  aircraft_optimization: '300-passenger twin-aisle airliner, planform study',
+  airliner_wing_span52: 'Transport wing, 52 m span',
+  naca4412: 'NACA 4412 finite wing', naca4412_wing: 'NACA 4412 finite wing',
+  naca0012: 'NACA 0012 finite wing', naca0012_wing: 'NACA 0012 finite wing',
+  mach_tutorial_wing: 'MACH tutorial wing',
+  naca0015: 'NACA 0015 sail', naca0015_sail: 'NACA 0015 sail',
+  valve: 'Idealized trileaflet aortic valve, systolic configuration',
+  aortic_valve: 'Idealized trileaflet aortic valve, systolic configuration',
+  valve_study: 'Idealized trileaflet aortic valve, systolic configuration',
+  ahmed_25: 'Ahmed reference body, 25° slant', ahmed_35: 'Ahmed reference body, 35° slant',
+  sphere: 'Canonical calibration body: sphere', cube: 'Canonical calibration body: cube',
+  plate: 'Canonical calibration body: plate', flat_plate: 'Canonical calibration body: plate',
+  cylinder: 'Canonical calibration body: cylinder',
+  cylinder_shedding: 'Circular cylinder, unsteady vortex shedding configuration',
+  supersonic_wedge: 'Compression wedge, 15 degree ramp',
+  supersonic_cone: 'Axisymmetric cone, 10 degree half angle',
+  diamond_airfoil: 'Symmetric diamond airfoil',
+  hypersonic_cylinder: 'Circular cylinder, blunt body leading edge',
+};
+// Display name from a raw surface name/slug: the ratified table first, then a
+// graceful humanisation (strip path and extension, fold separators) so an
+// unregistered body still reads as a name and never as a path or a code slug.
+const displayName = s => {
+  if (!s) return '';
+  const base = String(s).split(/[\\/]/).pop().replace(/\.(stl|obj)$/i,'');
+  const slug = base.trim().toLowerCase().replace(/[\s-]/g,'_');
+  return SURFACE_NAMES[slug] || title(base);
+};
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
                 landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest',
                 dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set() };
@@ -2027,23 +2070,35 @@ function renderResult(p) {
 // receive it.
 function releaseSurface() {
   state.uploaded = null;
+  $('surfaceLabel').classList.remove('on');
   $('surfaceLabel').textContent = 'Load a surface (STL / OBJ)';
   setHidden('surfaceNote', true);
 }
 
+// The one place a raw filename is allowed on camera. Everywhere else a body is
+// named by the ratified display name (R1), but here the filename IS the point:
+// it is the proof that the file the operator picked is the file the lab took.
+// The human name for the body rides in the note directly beneath it, so the
+// panel says both what arrived and what it is.
 async function uploadSurface(e) {
   const file = e.target.files && e.target.files[0]; if (!file) return;
+  $('surfaceLabel').classList.remove('on');
   $('surfaceLabel').textContent = `Reading ${file.name}…`;
   try {
     const r = await fetch('/api/geometry/upload', { method:'POST', headers:{'X-Surface-Name':file.name,'Content-Type':'application/octet-stream'}, body: await file.arrayBuffer() });
     const b = await r.json(); if (!r.ok) throw new Error(b.error||'could not read surface');
-    $('surfaceLabel').textContent = `Loaded ${b.name}`; state.uploaded = b.name;
+    const body = displayName(b.name);
+    $('surfaceLabel').classList.add('on');
+    $('surfaceLabel').innerHTML = `Surface loaded: <b>${esc(b.name)}</b>`;
+    state.uploaded = b.name;
     setHidden('surfaceNote', false);
-    $('surfaceNote').innerHTML = `<b>${(+b.triangles).toLocaleString()}</b> triangles ready. Write your objective and launch. It runs on this surface.`;
-    if (!$('goal').value.trim()) $('goal').value = b.suggested || '';
-    loadGeometry({ url: b.url, label: b.name });
-    toast(`${b.name} loaded`);
-  } catch (err) { $('surfaceLabel').textContent = 'Load a surface (STL / OBJ)'; toast(err.message); }
+    $('surfaceNote').innerHTML = `<i>${esc(body)}</i> · <b>${(+b.triangles).toLocaleString()}</b> triangles ready. Write your objective and launch. It runs on this surface.`;
+    // The suggested objective is a camera surface: it lands in the operator's
+    // own prompt box, so it names the body, not the file the server wrote.
+    if (!$('goal').value.trim()) $('goal').value = (b.suggested || '').split(b.name).join(body);
+    loadGeometry({ url: b.url, label: body });
+    toast(`${body} loaded`);
+  } catch (err) { releaseSurface(); toast(err.message); }
   finally { e.target.value = ''; }
 }
 
