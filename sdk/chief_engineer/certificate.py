@@ -292,6 +292,34 @@ def _avg_width(size: float) -> float:
     return 0.52 * size
 
 
+def _credibility_captions(case_key: str | None) -> list[str]:
+    """Validation tier and the two credibility factors, as caption lines.
+
+    Empty when the case is not placed. A case nobody has assessed prints
+    nothing here rather than zeros, because a zero on a sealed page reads as
+    a measured verdict and this one would be an absence.
+    """
+    if not case_key:
+        return []
+    try:
+        from chief_engineer import credibility
+        block = credibility.credibility_block(case_key)
+    except Exception:
+        return []
+    lines: list[str] = []
+    tier = (block or {}).get("validation_tier") or {}
+    name = tier.get("validation_tier")
+    if name:
+        rank, of = tier.get("rank"), tier.get("of")
+        lines.append(f"Validation tier: {name}"
+                     + (f", {rank} of {of}" if rank and of else ""))
+    cred = (block or {}).get("credibility") or {}
+    scored = [f for f in cred.get("factors", []) if f.get("level")]
+    for f in scored:
+        lines.append(f"{f['factor']}: {f['level']} of {f['of']}")
+    return lines
+
+
 def _looks_like_interval(env_text: str) -> bool:
     """Is this envelope actually a plus-or-minus interval?
 
@@ -918,6 +946,19 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
             c.rect(right - chip_w, y - 5, chip_w, 21, fill=chip_color)
             c.text(right - chip_w + 11, y + 1, shown_chip, size=9.5, bold=True, color=_WHITE)
         y -= gap(30, 26)
+        # The chip says how far the result is trusted. It does not say where
+        # the case sits in the validation hierarchy, nor how well its inputs
+        # and sensitivities are known, and a reader cannot infer either from a
+        # colour. Those two go beneath it as plain captions.
+        #
+        # Silence when the case is unknown is deliberate: a case with no
+        # record scores nothing rather than a row of zeros, because a zero
+        # reads as "measured and poor" where the truth is "never assessed".
+        for line in _credibility_captions(geometry):
+            c.text(left, y, line, size=8.5, color=_MUTED)
+            y -= gap(12, 11)
+        if _credibility_captions(geometry):
+            y -= gap(6, 5)
         quantity = str(primary.get("quantity", "Result"))
         value = str(primary.get("value", ""))
         env = primary.get("envelope")
