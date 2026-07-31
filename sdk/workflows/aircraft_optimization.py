@@ -1447,28 +1447,11 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
-    # THE ENGINEER OPENS. The requirements are what everything else is chosen
-    # against, so they go on the record first and the method memo answers a
-    # question the viewer has already been asked.
-    roster.set(CHIEF_ENGINEER, "reading the requirements", "working")
-    # The constraint list is naturally a table: each limit with a value and a
-    # source. As a sentence it was a run of numbers a viewer had to parse. The
-    # gate-code row is not here because nothing has been searched yet; it
-    # joins the list on the certificate once the search has a span to raise it
-    # against.
-    script.engineer(
-        "• Requirements fixed, and every value the request left out is "
-        "assumed and marked. "
-        "• Weight rides on the passenger count; the whole answer rides on "
-        "weight.")
-    _emit_table(
-        emit, script, title="Constraints",
-        headers=["Constraint", "Limit", "Basis"],
-        rows=[[name, value, tag]
-              for name, value, tag in constraint_list(reqs, advisory=False)],
-        table_id="constraints")
-
-    # Chief Researcher rules on the method, on the record, before anything runs.
+    # THE RESEARCHER OPENS. The method ruling is the first thing on the record
+    # and it is two entries under one Chief Researcher header: how the problem
+    # classifies, and what makes the choice admissible. The engineer answers
+    # it, and the requirements the method will be run against come with the
+    # answer rather than in a second Chief Engineer entry of their own.
     roster.set(CHIEF_RESEARCHER, "selecting the method", "working")
     props = MissionProperties(
         kind="parametric-optimization",
@@ -1481,7 +1464,25 @@ def main(request: str | None = None, params: dict | None = None,
     for line in method_memo(props):
         script.researcher(line)
     roster.idle(CHIEF_RESEARCHER)
-    script.engineer(ENGINEER_ACK)
+
+    roster.set(CHIEF_ENGINEER, "reading the requirements", "working")
+    # The constraint list is naturally a table: each limit with a value and a
+    # source. As a sentence it was a run of numbers a viewer had to parse. The
+    # gate-code row is not here because nothing has been searched yet; it
+    # joins the list on the certificate once the search has a span to raise it
+    # against.
+    script.engineer(
+        f"{ENGINEER_ACK} "
+        "• Requirements fixed, every value the request left out assumed and "
+        "marked. "
+        "• Weight rides on the passenger count, and the answer rides on "
+        "weight.")
+    _emit_table(
+        emit, script, title="Constraints",
+        headers=["Constraint", "Limit", "Basis"],
+        rows=[[name, value, tag]
+              for name, value, tag in constraint_list(reqs, advisory=False)],
+        table_id="constraints")
 
     # The ledger the marking produces, on the record as a table rather than a
     # run of near-identical sentences. The two lift coefficients are the load
@@ -1561,25 +1562,27 @@ def main(request: str | None = None, params: dict | None = None,
     # is acknowledged on the record under its display name, its span measured
     # from the file's bounding box, and the span ladder re-centred around that
     # measurement. The STL itself is never morphed and never pretended solved.
+    #
+    # THE RECEIPT RIDES ON THE HYPOTHESIS, one entry, not two. What arrived
+    # and what the engineer expects the search to do with it are one thought,
+    # and splitting them put a third Chief Engineer header in a row.
     measured_span = None
+    received = ""
     if start_surface:
         surface_name = display_name(start_surface)
         measured_span = measure_surface_span(_GEOMETRY_DIR / start_surface)
         announce_geometry(emit, name=start_surface,
                           label=f"starting geometry: {surface_name}")
-        if measured_span:
-            script.engineer(
-                f"• Starting geometry received: {surface_name}. "
-                f"• Measured span about {measured_span:.0f} m; the search "
-                f"brackets it.")
-        else:
-            script.engineer(
-                f"• Starting geometry received: {surface_name}. "
-                f"• The surface is on file as the reference shape; the search "
-                f"runs on default bounds.")
+        received = (
+            f"• Starting geometry received: {surface_name}, "
+            f"measured span about {measured_span:.0f} m; the search "
+            f"brackets it. " if measured_span else
+            f"• Starting geometry received: {surface_name}, on file as the "
+            f"reference shape; the search runs on default bounds. ")
 
     script.engineer(
-        "• Hypothesis: whole-aircraft L/D climbs with aspect ratio, so push "
+        received
+        + "• Hypothesis: whole-aircraft L/D climbs with aspect ratio, so push "
         "span to the limit. "
         "• Low-speed limits floor the area; Breguet ties range to whole-aircraft "
         "L/D. "
@@ -1629,7 +1632,14 @@ def main(request: str | None = None, params: dict | None = None,
                      f"quarter-chord sweep. ")
     plan_line += bounds_line
     plan_line += "• Infeasible designs stay on the plot, keeping the trade visible."
-    script.engineer(plan_line)
+    # THE PLAN IS THE RESEARCHER'S. It is the method ruling made concrete —
+    # what gets screened, what gets promoted, and over what bounds — so it
+    # belongs to the chief who chose the method, not to the engineer who runs
+    # it. The engineer's hypothesis closes the phase above, and the
+    # numericist's tier line answers below, so no speaker repeats.
+    roster.set(CHIEF_RESEARCHER, "setting the search bounds", "working")
+    script.researcher(plan_line)
+    roster.idle(CHIEF_RESEARCHER)
 
     # ---- gate-code advisory, raised where a span is known -------------------
     # A constraint the request never mentioned. It used to be raised here, off

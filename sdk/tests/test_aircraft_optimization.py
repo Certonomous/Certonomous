@@ -464,7 +464,7 @@ class StartingGeometryTests(unittest.TestCase):
         said = " ".join(p.get("message", "") for e, p in events
                         if e == "transcript.entry")
         self.assertIn("Starting geometry received: Startwing", said)
-        self.assertIn("Measured span about 40 m; the search brackets it", said)
+        self.assertIn("measured span about 40 m; the search brackets it", said)
         # No raw filename on camera.
         self.assertNotIn("startwing.stl", said)
         # The uploaded surface shows in the geometry viewport via the same
@@ -1263,15 +1263,63 @@ class ShootRoundTests(unittest.TestCase):
                   if e == "geometry.ready" and p.get("label")]
         self.assertIn("Wing-only", labels)
 
-    # -- item 7: the engineer opens, the researcher rules ------------------
-    def test_the_engineer_fixes_the_requirements_before_the_method_memo(self):
+    # -- item 7: the researcher opens, the engineer answers ----------------
+    def test_the_method_memo_opens_and_the_engineer_answers_with_the_limits(self):
         events = self._run()
         entries = self._entries(events)
-        req = self._first(events, "Requirements fixed")
-        memo = next(i for i, p in enumerate(entries)
-                    if p.get("role") == "CHIEF RESEARCHER")
-        self.assertIsNotNone(req)
-        self.assertLess(req, memo)
+        spoken = [p for p in entries
+                  if p.get("role") not in ("SYSTEM", "PHASE")]
+        # The two method-memo blocks are the first thing spoken, under one
+        # Chief Researcher header.
+        self.assertEqual([p["role"] for p in spoken[:2]],
+                         ["CHIEF RESEARCHER", "CHIEF RESEARCHER"])
+        self.assertIn("Smooth 3-parameter space", spoken[0]["message"])
+        self.assertIn("The landscape is smooth", spoken[1]["message"])
+        # The engineer answers, and the requirements ride in on the answer
+        # rather than in a second Chief Engineer entry of their own.
+        self.assertEqual(spoken[2]["role"], "CHIEF ENGINEER")
+        self.assertTrue(spoken[2]["message"].startswith("On it."))
+        self.assertIn("Requirements fixed", spoken[2]["message"])
+    def test_no_speaker_takes_three_headers_in_a_row(self):
+        # A phase marker is a visual break, so it stays in the sequence and
+        # resets the run. Both the bare prompt and the shoot-day one with a
+        # surface attached, because the surface adds an entry.
+        for request, params in ((self.STANDING, None),
+                                (self.DIRECTIVE,
+                                 {"surface": "airliner_wing_span52.stl",
+                                  "hold_workers_back": True})):
+            with self.subTest(request=request[:30]):
+                entries = self._entries(self._run(request=request,
+                                                  params=params))
+                roles = [p.get("role") for p in entries
+                         if p.get("role") != "SYSTEM"]
+                for i in range(len(roles) - 2):
+                    self.assertFalse(roles[i] == roles[i + 1] == roles[i + 2],
+                                     f"{roles[i]} three times at entry {i}")
+
+    def test_the_fleet_comes_up_once_and_goes_down_once(self):
+        # 0, then the fleet as sizing starts, then 0 at completion. No bounce
+        # back to zero between the screening sweep and the finalist wave.
+        for api in (None, _SolvedApi):
+            with self.subTest(api=api):
+                events = self._run(api=api)
+                counts = [p["workers"] for e, p in events
+                          if e == "roster.update"]
+                shape = [n for i, n in enumerate(counts)
+                         if i == 0 or n != counts[i - 1]]
+                self.assertEqual(len(shape), 3, shape)
+                self.assertEqual(shape[0], 0)
+                self.assertGreater(shape[1], 0)
+                self.assertEqual(shape[2], 0)
+
+    def test_the_plan_is_the_researchers(self):
+        events = self._run()
+        entries = self._entries(events)
+        plan = [p for p in entries if "• Plan: screen" in p.get("message", "")]
+        self.assertEqual(len(plan), 1)
+        self.assertEqual(plan[0]["role"], "CHIEF RESEARCHER")
+        self.assertIn("Infeasible designs stay on the plot",
+                      plan[0]["message"])
 
     def test_the_researcher_owns_the_maximum_lift_line(self):
         events = self._run()
