@@ -17,7 +17,7 @@ class LadderMath(unittest.TestCase):
         cells = [1000, 8000, 64000]           # h ratio 2 per level
         h = [(1.0 / n) ** (1 / 3) for n in cells]
         values = [1.0 + 4.0 * hh ** 2 for hh in h]
-        out = uq.ladder_band(cells, values)
+        out = uq.ladder_band(cells, values, dim=3)
         self.assertTrue(out["conclusive"])
         self.assertAlmostEqual(out["observed_order"], 2.0, places=2)
         # GCI band on the fine mesh: 1.25*|e21|/(r^p-1)
@@ -26,7 +26,7 @@ class LadderMath(unittest.TestCase):
         self.assertIn("observed order p = 2.00", out["method"])
 
     def test_non_monotone_ladder_says_the_sentence(self):
-        out = uq.ladder_band([1000, 8000, 64000], [1.0, 1.2, 1.1])
+        out = uq.ladder_band([1000, 8000, 64000], [1.0, 1.2, 1.1], dim=3)
         self.assertFalse(out["conclusive"])
         self.assertIsNone(out["observed_order"])
         self.assertEqual(out["method"], uq.INCONCLUSIVE)
@@ -35,7 +35,7 @@ class LadderMath(unittest.TestCase):
 
     def test_wild_order_gets_conservative_band(self):
         # Nearly stalled coarse pair -> huge apparent order -> factor-3 band.
-        out = uq.ladder_band([1000, 8000, 64000], [1.5, 1.00001, 1.0])
+        out = uq.ladder_band([1000, 8000, 64000], [1.5, 1.00001, 1.0], dim=3)
         self.assertFalse(out["conclusive"])
         self.assertGreaterEqual(out["band_abs"], 3.0 * 0.49)
 
@@ -56,10 +56,23 @@ class LadderAsymptoticGuards(unittest.TestCase):
     B52_CELLS = [135779, 193880, 255358, 330950]
     B52_CD = [0.049053, 0.047196, 0.049573, 0.052275]
 
-    # TMR flat plate: cells 816, 3264, 13056, 52224.
-    TMR_CELLS = [816, 3264, 13056, 52224]
+    # TMR 2D zero-pressure-gradient flat plate, the full five-rung ladder as
+    # measured (demo-output/website/tmr/flatplate_sst.json,
+    # convergence_extended.ladder_cells / .cd_ladder; the 208896 rung was
+    # solved 2026-07-31). Fitted dim=2, which is what that module uses and
+    # what NASA's own drag_convergence_sstv.dat header declares.
+    #
+    # This fixture used to stop at 52224, four rungs, and asserted that the
+    # ladder certifies. It certified for the wrong reason: the fit was the
+    # 3264/13056/52224 triple, whose Richardson value overshoots its own
+    # measured range by 21.16% and should have been declined -- the coarse
+    # 816 rung, which never entered the fit, widened the range the guard
+    # measures against until the overshoot read 8.48%. The good case is now
+    # the finest triple, which passes the guard on its own three rungs.
+    TMR_CELLS = [816, 3264, 13056, 52224, 208896]
     TMR_CD = [0.0026686916613, 0.0027811695632, 0.0028342538677,
-              0.0028564381699]
+              0.0028564381699, 0.0028635838023]
+    TMR_DIM = 2
 
     def test_b52_increments_grow_and_are_rejected(self):
         # Increments (magnitudes) GROW: 0.00186 -> 0.00238 -> 0.00270, the
@@ -69,20 +82,24 @@ class LadderAsymptoticGuards(unittest.TestCase):
         self.assertLess(increments[0], increments[1])
         self.assertLess(increments[1], increments[2])
 
-        out = uq.ladder_band(self.B52_CELLS, self.B52_CD)
+        out = uq.ladder_band(self.B52_CELLS, self.B52_CD, dim=3)
         # Monotone, and p lands inside ladder_band's own [0.5, 4.0] window,
         # so the order-window check alone would have certified this.
         self.assertTrue(out["monotone"])
         self.assertAlmostEqual(out["observed_order"], 2.253, places=2)
         self.assertFalse(out["conclusive"])
         self.assertEqual(out["method"], uq.LADDER_GROWING_INCREMENT_NOTE)
-        # The conservative fallback stands: factor-3 on the full observed
-        # range, not the (much tighter, and wrong) fitted GCI band.
-        spread = max(self.B52_CD) - min(self.B52_CD)
+        # The conservative fallback stands: factor-3 on the range of the FIT
+        # TRIPLE, not the (much tighter, and wrong) fitted GCI band. On this
+        # fixture the fit triple's range happens to equal the four-rung
+        # range, so the number is the same either way; the assertion is
+        # written on the three rungs the fit used, which is what the band is
+        # now defined over.
+        spread = max(self.B52_CD[-3:]) - min(self.B52_CD[-3:])
         self.assertAlmostEqual(out["band_abs"], 3.0 * spread, places=10)
 
     def test_b52_richardson_value_is_far_outside_the_measured_range(self):
-        out = uq.ladder_band(self.B52_CELLS, self.B52_CD)
+        out = uq.ladder_band(self.B52_CELLS, self.B52_CD, dim=3)
         lo, hi = min(self.B52_CD[-3:]), max(self.B52_CD[-3:])
         self.assertIsNotNone(out["richardson_extrapolated"])
         self.assertGreater(out["richardson_extrapolated"], hi)
@@ -90,19 +107,51 @@ class LadderAsymptoticGuards(unittest.TestCase):
         self.assertGreater(out["richardson_extrapolated"] - hi, width)
 
     def test_tmr_flat_plate_still_certifies(self):
-        # Increments shrink: 0.000112 -> 0.0000531 -> 0.0000222.
+        # Increments shrink at every one of the four steps:
+        # 1.1248e-4 -> 5.3084e-5 -> 2.2184e-5 -> 7.1456e-6.
         increments = [abs(b - a) for a, b in
                      zip(self.TMR_CD, self.TMR_CD[1:])]
-        self.assertGreater(increments[0], increments[1])
-        self.assertGreater(increments[1], increments[2])
+        for coarser, finer in zip(increments, increments[1:]):
+            self.assertGreater(coarser, finer)
 
-        out = uq.ladder_band(self.TMR_CELLS, self.TMR_CD)
+        out = uq.ladder_band(self.TMR_CELLS, self.TMR_CD, dim=self.TMR_DIM)
         self.assertTrue(out["monotone"])
         self.assertTrue(out["conclusive"])
         self.assertIn("GCI band, Fs = 1.25", out["method"])
         lo, hi = min(self.TMR_CD[-3:]), max(self.TMR_CD[-3:])
         self.assertGreater(out["richardson_extrapolated"], hi)
         self.assertLess(out["richardson_extrapolated"] - hi, 0.25 * (hi - lo))
+
+    def test_the_verdict_does_not_depend_on_how_many_rungs_were_passed(self):
+        # The fix. The fit uses the finest three rungs; the guard tolerance
+        # and the fallback band must therefore be measured over those three
+        # and no others, or the same fit answers two ways.
+        fit = uq.ladder_band(self.TMR_CELLS[-3:], self.TMR_CD[-3:],
+                             dim=self.TMR_DIM)
+        for n in range(3, len(self.TMR_CELLS) + 1):
+            out = uq.ladder_band(self.TMR_CELLS[-n:], self.TMR_CD[-n:],
+                                 dim=self.TMR_DIM)
+            self.assertEqual(out["conclusive"], fit["conclusive"], n)
+            self.assertEqual(out["band_abs"], fit["band_abs"], n)
+            self.assertEqual(out["observed_order"], fit["observed_order"], n)
+
+    def test_the_declined_middle_triple_stays_declined_with_a_rung_in_front(self):
+        # The reproduction. 3264/13056/52224 extrapolates to 0.00287237,
+        # 21.16% of its own range width above the top of it, so it is
+        # declined. Handing the same fit the coarse 816 rung used to widen
+        # the range until that read 8.48% and the ladder certified at a band
+        # of 1.99087e-5, 0.70% of the drag.
+        three = uq.ladder_band(self.TMR_CELLS[1:4], self.TMR_CD[1:4],
+                               dim=self.TMR_DIM)
+        four = uq.ladder_band(self.TMR_CELLS[0:4], self.TMR_CD[0:4],
+                              dim=self.TMR_DIM)
+        self.assertFalse(three["conclusive"])
+        self.assertFalse(four["conclusive"])
+        self.assertIsNone(uq.reportable_band(three))
+        self.assertIsNone(uq.reportable_band(four))
+        self.assertEqual(uq.not_conclusive_reason(three),
+                         uq.not_conclusive_reason(four))
+        self.assertEqual(three["band_abs"], four["band_abs"])
 
 
 class DegenerateLadder(unittest.TestCase):
@@ -117,7 +166,7 @@ class DegenerateLadder(unittest.TestCase):
     """
 
     def test_identical_meshes_collapse_to_the_honest_sentence(self):
-        out = uq.ladder_band([50000, 50000, 100000], [0.4, 0.4, 0.3])
+        out = uq.ladder_band([50000, 50000, 100000], [0.4, 0.4, 0.3], dim=3)
         self.assertFalse(out["conclusive"])
         self.assertEqual(out["method"], uq.DEGENERATE)
         self.assertAlmostEqual(out["band_abs"], 3.0 * (0.4 - 0.3), places=8)
@@ -127,7 +176,7 @@ class DegenerateLadder(unittest.TestCase):
         h = [(1.0 / n) ** (1 / 3) for n in (1000, 8000, 64000)]
         vals = [1.0 + 4.0 * h[0] ** 2, 1.0 + 4.0 * h[0] ** 2,
                 1.0 + 4.0 * h[1] ** 2, 1.0 + 4.0 * h[2] ** 2]
-        out = uq.ladder_band(cells, vals)
+        out = uq.ladder_band(cells, vals, dim=3)
         self.assertTrue(out["conclusive"])
         self.assertAlmostEqual(out["observed_order"], 2.0, places=2)
         self.assertIn("band_abs_middle", out)
@@ -141,7 +190,7 @@ class EcaHoekstraBand(unittest.TestCase):
         cells = [1000, 8000, 64000]
         h = [(1.0 / n) ** (1 / 3) for n in cells]
         values = [1.0 + 4.0 * hh ** 2 for hh in h]
-        out = uq.eca_hoekstra_band(cells, values)
+        out = uq.eca_hoekstra_band(cells, values, dim=3)
         self.assertTrue(out["monotone"])
         self.assertFalse(out["clamped"])
         self.assertAlmostEqual(out["observed_order"], 2.0, places=2)
@@ -154,7 +203,7 @@ class EcaHoekstraBand(unittest.TestCase):
         # The real overnight motorbike ladder: p = 4.82, outside [0.5, 2.5].
         out = uq.eca_hoekstra_band(
             [14714, 66316, 353578],
-            [0.47066928, 0.4201672083333333, 0.4155770166666667])
+            [0.47066928, 0.4201672083333333, 0.4155770166666667], dim=3)
         self.assertTrue(out["clamped"])
         self.assertAlmostEqual(out["observed_order"], 4.824, places=2)
         self.assertEqual(out["order_used"], 2.5)
@@ -167,12 +216,12 @@ class EcaHoekstraBand(unittest.TestCase):
         cells = [1000, 8000, 64000]
         h = [(1.0 / n) ** (1 / 3) for n in cells]
         values = [1.0 + 0.5 * hh ** 0.2 for hh in h]     # apparent p ~ 0.2
-        out = uq.eca_hoekstra_band(cells, values)
+        out = uq.eca_hoekstra_band(cells, values, dim=3)
         self.assertTrue(out["clamped"])
         self.assertEqual(out["order_used"], 0.5)
 
     def test_non_monotone_falls_back_to_spread_times_1_25(self):
-        out = uq.eca_hoekstra_band([1000, 8000, 64000], [1.0, 1.2, 1.1])
+        out = uq.eca_hoekstra_band([1000, 8000, 64000], [1.0, 1.2, 1.1], dim=3)
         self.assertFalse(out["monotone"])
         self.assertIsNone(out["observed_order"])
         self.assertAlmostEqual(out["band_abs"], 1.25 * 0.2, places=10)
@@ -180,7 +229,7 @@ class EcaHoekstraBand(unittest.TestCase):
 
     def test_identical_meshes_refuse_a_band(self):
         out = uq.eca_hoekstra_band([67826, 67826, 137569],
-                                   [0.0289, 0.0289, 0.0217])
+                                   [0.0289, 0.0289, 0.0217], dim=3)
         self.assertIsNone(out["band_abs"])
         self.assertFalse(out["conclusive"])
         self.assertEqual(out["method"], uq.DEGENERATE)
@@ -189,7 +238,7 @@ class EcaHoekstraBand(unittest.TestCase):
         for args in (([1000, 8000, 64000], [1.0, 1.1, 1.15]),
                      ([1000, 8000, 64000], [1.0, 1.2, 1.1]),
                      ([1000, 1000, 64000], [1.0, 1.0, 1.1])):
-            out = uq.eca_hoekstra_band(*args)
+            out = uq.eca_hoekstra_band(*args, dim=3)
             self.assertNotIn("—", out["method"])
             self.assertNotIn("→", out["method"])
 
@@ -212,10 +261,15 @@ class AsymptoticGuards(unittest.TestCase):
     B52_CELLS = [135779, 193880, 255358, 330950]
     B52_CD = [0.049053, 0.047196, 0.049573, 0.052275]
 
-    # TMR flat plate: cells 816, 3264, 13056, 52224.
-    TMR_CELLS = [816, 3264, 13056, 52224]
+    # TMR 2D flat plate, the full five-rung ladder as measured
+    # (demo-output/website/tmr/flatplate_sst.json, convergence_extended).
+    # See LadderAsymptoticGuards for why this fixture no longer stops at
+    # four rungs: the four-rung reading certified a fit that its own three
+    # rungs decline.
+    TMR_CELLS = [816, 3264, 13056, 52224, 208896]
     TMR_CD = [0.0026686916613, 0.0027811695632, 0.0028342538677,
-              0.0028564381699]
+              0.0028564381699, 0.0028635838023]
+    TMR_DIM = 2
 
     def test_b52_increments_grow_and_are_rejected(self):
         # Sanity on the raw numbers before the gate even runs: the human's
@@ -227,7 +281,7 @@ class AsymptoticGuards(unittest.TestCase):
         self.assertLess(increments[0], increments[1])
         self.assertLess(increments[1], increments[2])
 
-        out = uq.eca_hoekstra_band(self.B52_CELLS, self.B52_CD)
+        out = uq.eca_hoekstra_band(self.B52_CELLS, self.B52_CD, dim=3)
         # The triple used is the last three by cells: monotone, and p would
         # land inside the accept window on the order test alone.
         self.assertTrue(out["monotone"])
@@ -245,7 +299,7 @@ class AsymptoticGuards(unittest.TestCase):
     def test_b52_richardson_value_is_far_outside_the_measured_range(self):
         # The human's second, independent reason: even ignoring the
         # increment trend, the extrapolated "limit" is not a limit.
-        out = uq.eca_hoekstra_band(self.B52_CELLS, self.B52_CD)
+        out = uq.eca_hoekstra_band(self.B52_CELLS, self.B52_CD, dim=3)
         lo, hi = min(self.B52_CD[-3:]), max(self.B52_CD[-3:])
         self.assertIsNotNone(out["richardson_extrapolated"])
         self.assertGreater(out["richardson_extrapolated"], hi)
@@ -255,23 +309,58 @@ class AsymptoticGuards(unittest.TestCase):
         self.assertGreater(out["richardson_extrapolated"] - hi, width)
 
     def test_tmr_flat_plate_still_certifies(self):
-        # Increments shrink: 0.000112 -> 0.0000531 -> 0.0000222.
+        # Increments shrink at every step: 1.1248e-4, 5.3084e-5, 2.2184e-5,
+        # 7.1456e-6.
         increments = [abs(b - a) for a, b in
                      zip(self.TMR_CD, self.TMR_CD[1:])]
-        self.assertGreater(increments[0], increments[1])
-        self.assertGreater(increments[1], increments[2])
+        for coarser, finer in zip(increments, increments[1:]):
+            self.assertGreater(coarser, finer)
 
-        out = uq.eca_hoekstra_band(self.TMR_CELLS, self.TMR_CD)
+        out = uq.eca_hoekstra_band(self.TMR_CELLS, self.TMR_CD,
+                                   dim=self.TMR_DIM)
         self.assertTrue(out["monotone"])
         self.assertFalse(out["clamped"])
         self.assertTrue(out["conclusive"])
         self.assertIn("Eca and Hoekstra 2014", out["method"])
-        # The Richardson value (~0.0028724) sits just above the measured
-        # range (up to 0.0028564381699) -- close enough that the guard must
-        # accept it, unlike the B-52 case's multi-range-width overshoot.
+        # The band the flat plate published on 2026-07-31: 4.244e-6 on a Cd
+        # of 0.0028635838023, 0.148% of the value.
+        self.assertAlmostEqual(uq.reportable_band(out), 4.244064059104043e-06,
+                               places=12)
+        # The Richardson value (0.00286698) sits just above the measured
+        # range of the FIT TRIPLE (up to 0.0028635838023) -- 11.58% of that
+        # range's width, close enough that the guard must accept it, unlike
+        # the B-52 case's multi-range-width overshoot.
         lo, hi = min(self.TMR_CD[-3:]), max(self.TMR_CD[-3:])
         self.assertGreater(out["richardson_extrapolated"], hi)
-        self.assertLess(out["richardson_extrapolated"] - hi, 0.25 * (hi - lo))
+        self.assertLess(out["richardson_extrapolated"] - hi, 0.15 * (hi - lo))
+
+    def test_the_guard_measures_against_the_rungs_it_fitted(self):
+        # A certifier must not answer two ways to one fit. Every call shape
+        # that fits the same finest triple must return the same verdict and
+        # the same width.
+        fit = uq.eca_hoekstra_band(self.TMR_CELLS[-3:], self.TMR_CD[-3:],
+                                   dim=self.TMR_DIM)
+        self.assertTrue(fit["conclusive"])
+        for n in range(3, len(self.TMR_CELLS) + 1):
+            out = uq.eca_hoekstra_band(self.TMR_CELLS[-n:], self.TMR_CD[-n:],
+                                       dim=self.TMR_DIM)
+            self.assertEqual(out["conclusive"], fit["conclusive"], n)
+            self.assertEqual(out["band_abs"], fit["band_abs"], n)
+            self.assertEqual(uq.reportable_band(out), uq.reportable_band(fit), n)
+
+        # And the fit that must NOT certify does not, at either call shape.
+        # 3264/13056/52224 was declined on three rungs and certified at
+        # 1.99087e-5 on four; that was the defect.
+        three = uq.eca_hoekstra_band(self.TMR_CELLS[1:4], self.TMR_CD[1:4],
+                                     dim=self.TMR_DIM)
+        four = uq.eca_hoekstra_band(self.TMR_CELLS[0:4], self.TMR_CD[0:4],
+                                    dim=self.TMR_DIM)
+        self.assertFalse(three["conclusive"])
+        self.assertFalse(four["conclusive"])
+        self.assertIsNone(uq.reportable_band(four))
+        self.assertEqual(three["band_abs"], four["band_abs"])
+        self.assertEqual(uq.not_conclusive_reason(three),
+                         uq.not_conclusive_reason(four))
 
 
 class Spreads(unittest.TestCase):
@@ -402,7 +491,7 @@ class RealNaca4412Ladder(unittest.TestCase):
         self.assertTrue(self.CD[0] > self.CD[1] > self.CD[2])
 
     def test_band_is_clamped_and_inconclusive(self):
-        out = uq.eca_hoekstra_band(self.CELLS, self.CD)
+        out = uq.eca_hoekstra_band(self.CELLS, self.CD, dim=3)
         self.assertTrue(out["monotone"])
         self.assertAlmostEqual(out["observed_order"], 4.625, places=2)
         self.assertTrue(out["clamped"])
@@ -529,7 +618,7 @@ class HonestyRails(unittest.TestCase):
         self.assertNotEqual(verdict["tier"], VALIDATED)
 
     def test_method_label_mandatory(self):
-        out = uq.ladder_band([1000, 8000, 64000], [1.0, 1.1, 1.15])
+        out = uq.ladder_band([1000, 8000, 64000], [1.0, 1.1, 1.15], dim=3)
         self.assertTrue(out["method"])
         spread = uq.spread_estimate({"a": 1, "b": 2}, label="model-form vs solver anchors")
         self.assertTrue(spread["method"])
