@@ -91,6 +91,17 @@ function newPage() {
       checked: false, disabled: false, files: [], selectedIndex: 0,
       toDataURL() { return 'data:,'; },
     };
+    // textContent and innerHTML are one piece of content in a real element:
+    // writing either REPLACES what the other was showing. The stub kept two
+    // independent strings, so a panel the page had put back to its resting
+    // text still answered with the markup it used to hold, and a test that
+    // read the wrong one of the two could not see a reset at all.
+    let _html = '';
+    Object.defineProperty(el, 'innerHTML', {
+      get: () => _html, set: v => { _html = String(v); }, enumerable: true });
+    Object.defineProperty(el, 'textContent', {
+      get: () => _html.replace(/<[^>]*>/g, ''),
+      set: v => { _html = String(v); }, enumerable: true });
     return el;
   }
   const els = new Map();
@@ -158,8 +169,22 @@ function newPage() {
     setTimeout: setTimeout_, clearTimeout: clearTimeout_,
     setInterval: () => 0, clearInterval: noop,
     requestAnimationFrame: fn => setTimeout_(fn, 16),
-    fetch: () => Promise.resolve({ ok: true, json: () => Promise.resolve({}),
-                                   text: () => Promise.resolve('') }),
+    // The two endpoints the operator's own actions hit. UPLOAD answers with the
+    // real body the running server returned for b52.stl on 2026-07-31, so the
+    // surface panel is driven by the shape it will actually receive; the mission
+    // POST answers with an id, so a launch can be driven without a solver.
+    fetch: (url, opts) => {
+      const u = String(url);
+      if (u.startsWith('/api/geometry/upload'))
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({
+          name: 'b52.stl', triangles: 13784, url: '/api/geometry?name=b52.stl',
+          suggested: 'Mesh and solve b52.stl and report the drag.' }) });
+      if (u.startsWith('/api/missions') && opts && opts.method === 'POST')
+        return Promise.resolve({ ok: true,
+                                 json: () => Promise.resolve({ mission_id: 'harness-1' }) });
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}),
+                               text: () => Promise.resolve('') });
+    },
     EventSource: function () {
       return { addEventListener: noop, close: noop, onmessage: null, onerror: null };
     },
@@ -179,7 +204,8 @@ function newPage() {
   try {
     const names = Object.keys(sandbox);
     const fn = new Function(...names,
-      source + '\n;return { dispatch, resetMission, state, revealQ };');
+      source + '\n;return { dispatch, resetMission, state, revealQ, '
+            + 'uploadSurface, launchMission };');
     api = fn(...names.map(n => sandbox[n]));
   } catch (err) {
     console.error('FAIL: the page script did not evaluate: ' + err.message);
@@ -640,10 +666,75 @@ for (const file of replayFiles) {
         `${bounces(r.wireShape)} (${r.wireShape.join(' -> ')})`);
 }
 
-// ---------------------------------------------------------------- report
-if (failures.length) {
-  console.error('CONTROL ROOM PACING FAILURES:');
-  for (const f of failures) console.error('  * ' + f);
-  process.exit(1);
-}
-console.log('control room pacing: all checks passed');
+// =============================================== the surface panel, test 6
+// THE FILE THE ACT IS RUNNING ON STAYS ON SCREEN, FOR THE WHOLE ACT.
+// Katie, 2026-07-31: "Everywhere we must see loaded_surface.stl in the load
+// surface section ... throughout the entire act." Reported twice. The launch
+// CONSUMES the attachment on purpose (one surface, one launch: carrying it
+// invisibly routed the next act onto the previous act's body), and clearing the
+// attachment used to blank the panel with it, so the acts she films lost the
+// filename the moment they started.
+//
+// This lives here because it is the same page script on the same stub DOM, and
+// because it is the same class of complaint: what the panel says while the act
+// is running. The operator's two actions are driven for real -- upload, then
+// launch -- and the panel is read at every stage of the act that follows.
+const text = el => String(el.innerHTML || el.textContent).replace(/<[^>]+>/g, '');
+(async () => {
+  const sp = newPage();
+  const label = () => text(sp.byId('surfaceLabel'));
+  const note = () => (sp.byId('surfaceNote').hidden ? '' : text(sp.byId('surfaceNote')));
+  sp.api.resetMission();
+
+  await sp.api.uploadSurface({ target: { files: [{ name: 'b52.stl',
+    arrayBuffer: async () => new ArrayBuffer(8) }], value: 'x' } });
+  await new Promise(r => setImmediate(r));
+  check(label().includes('b52.stl'),
+        `after the upload the panel reads ${JSON.stringify(label())}, expected the filename`);
+  check(sp.api.state.uploaded === 'b52.stl',
+        `the surface was not attached to the next launch (${sp.api.state.uploaded})`);
+
+  sp.byId('goal').value = 'Solve the external aerodynamics of the supplied B-52 geometry.';
+  await sp.api.launchMission();
+  await new Promise(r => setImmediate(r));
+  // The router's rule is untouched: the attachment is spent by this launch.
+  check(sp.api.state.uploaded === null,
+        `the launch left the surface attached (${sp.api.state.uploaded}): the next act ` +
+        `would silently run on this body too`);
+  check(label().includes('b52.stl'),
+        `the launch blanked the panel: it reads ${JSON.stringify(label())}`);
+  check(note().includes('running on it'),
+        `the panel does not say the mission is running on the file: ${JSON.stringify(note())}`);
+  // No dashes and nothing "held", "saved" or "prepared" on a camera surface.
+  check(!/[\u2013\u2014]|\b(stored|held|saved|cached|prepared)\b/i.test(label() + note()),
+        `the surface panel breaks house style: ${JSON.stringify(label() + ' ' + note())}`);
+
+  // Through the act, and past the end of it.
+  let n = 0;
+  for (const e of ['transcript.entry', 'roster.update', 'mesh.stats', 'plot.ready']) {
+    sp.api.dispatch({ event: e, payload: { role: 'CHIEF ENGINEER', message: 'Meshing.',
+                                           workers: 6 }, timestamp: 1000 + n++ });
+  }
+  sp.drain();
+  check(label().includes('b52.stl'),
+        `mid act the panel reads ${JSON.stringify(label())}`);
+  sp.api.dispatch({ event: 'mission.completed', payload: {}, timestamp: 1100 });
+  sp.drain();
+  check(sp.api.state.finished && label().includes('b52.stl'),
+        `at completion the panel reads ${JSON.stringify(label())}`);
+
+  // The NEXT act, launched with no surface, must not inherit this one's body.
+  sp.byId('goal').value = 'Solve the NASA wall mounted hump and check separation.';
+  await sp.api.launchMission();
+  await new Promise(r => setImmediate(r));
+  check(!label().includes('b52.stl'),
+        `an act launched with no surface still names the last one: ${JSON.stringify(label())}`);
+
+  // ---------------------------------------------------------------- report
+  if (failures.length) {
+    console.error('CONTROL ROOM PACING FAILURES:');
+    for (const f of failures) console.error('  * ' + f);
+    process.exit(1);
+  }
+  console.log('control room pacing: all checks passed');
+})();

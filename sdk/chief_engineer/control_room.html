@@ -574,7 +574,7 @@ const displayName = s => {
   return SURFACE_NAMES[slug] || title(base);
 };
 const state = { mission:null, source:null, workers:0, agents:0, finished:false, plots:[], surface:null, mesh:null,
-                landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, certificate:null, digestPhase:null, currentView:'digest',
+                landscape:[], objMetric:'L_D', objDir:'max', touchpoints:0, uploaded:null, surfaceMeta:null, actSurface:null, certificate:null, digestPhase:null, currentView:'digest',
                 dispatch:{}, dispatchGrant:null, trace:null, fastPace:false, race:null, agentsSeen:0, rolesSeen:new Set() };
 // Declared before any top-level caller of resetMission (the ?mission= resume
 // path runs during initial evaluation).
@@ -645,8 +645,13 @@ async function launchMission() {
   // nothing on screen to say why. Re-attaching for a second act on the same
   // body costs one click and is explicit; carrying it invisibly is not.
   const surface = state.uploaded;
+  const meta = state.surfaceMeta;
   releaseSurface();
   resetMission();
+  // The attachment is spent; the file this act is solving stays in the panel
+  // for the whole act (see `showActSurface`). An act launched with no surface
+  // leaves the control at rest, so the panel never carries the last act's body.
+  if (surface) showActSurface(meta || { name: surface });
   state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('shell').classList.remove('browsing');
   $('launch').disabled = true; $('beacon').classList.add('live'); $('globalStatus').textContent = 'FORMING THE TEAM';
@@ -667,6 +672,9 @@ async function launchMission() {
 }
 
 async function resumeMission(id, staticReplay) {
+  // A replayed mission is not the one whose file is in the panel, so the upload
+  // control goes back to rest rather than naming another act's body.
+  releaseSurface();
   resetMission(); state.touchpoints = 1; renderTouch();
   $('shell').classList.add('launched'); $('beacon').classList.add('live');
   $('globalStatus').textContent = 'REPLAYING MISSION'; $('launch').disabled = true;
@@ -2116,10 +2124,33 @@ function renderResult(p) {
 // state, so the panel never reads "Loaded x.stl" for a mission that will not
 // receive it.
 function releaseSurface() {
-  state.uploaded = null;
+  state.uploaded = null; state.surfaceMeta = null; state.actSurface = null;
   $('surfaceLabel').classList.remove('on');
   $('surfaceLabel').textContent = 'Load a surface (STL / OBJ)';
   setHidden('surfaceNote', true);
+}
+
+// THE FILE THE ACT IS RUNNING ON STAYS ON SCREEN (Katie, 2026-07-31:
+// "make sure that the loaded surface appears here Load a surface (STL / OBJ)
+// throughout the entire act").
+//
+// The attachment and the display are two different facts and were one variable.
+// A launch CONSUMES the attachment on purpose — a surface means "run it on this
+// body", so carrying it invisibly into the next act sent the NASA hump to a
+// geometry study on the B-52 — and clearing the attachment used to blank the
+// panel with it. The router keeps its one surface, one launch rule exactly;
+// what the operator sees is the file this act is solving, from the moment it
+// launches until the next act takes the panel.
+function showActSurface(meta) {
+  if (!meta || !meta.name) return;
+  state.actSurface = meta;
+  $('surfaceLabel').classList.add('on');
+  $('surfaceLabel').innerHTML = `Surface loaded: <b>${esc(meta.name)}</b>`;
+  setHidden('surfaceNote', false);
+  $('surfaceNote').innerHTML =
+    `<i>${esc(meta.body || displayName(meta.name))}</i>`
+    + (meta.triangles ? ` · <b>${(+meta.triangles).toLocaleString()}</b> triangles` : '')
+    + `. This mission is running on it. Choose the file again for another mission.`;
 }
 
 // The one place a raw filename is allowed on camera. Everywhere else a body is
@@ -2138,6 +2169,8 @@ async function uploadSurface(e) {
     $('surfaceLabel').classList.add('on');
     $('surfaceLabel').innerHTML = `Surface loaded: <b>${esc(b.name)}</b>`;
     state.uploaded = b.name;
+    // What the panel keeps showing once the launch consumes the attachment.
+    state.surfaceMeta = { name: b.name, body, triangles: +b.triangles };
     setHidden('surfaceNote', false);
     $('surfaceNote').innerHTML = `<i>${esc(body)}</i> · <b>${(+b.triangles).toLocaleString()}</b> triangles ready. Write your objective and launch. It runs on this surface.`;
     // The suggested objective is a camera surface: it lands in the operator's
