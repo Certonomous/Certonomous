@@ -665,9 +665,18 @@
       },
       "fine": {
         "published_cap": 9000,
-        "note": "re-run capped at 15000 rather than 30000; the ladder is being retired for a rebuild on NASA's grids and 17 more core-hours of it would refine a number on a ladder that cannot support one"
+        "cd_at_cap": 0.003566536,
+        "rerun_reached": 10098,
+        "converged": false,
+        "termination": "the re-run stopped at iteration 10098 of a requested 15000; its log ends mid-iteration with no error, no OOM in dmesg and 407 GB free. Cause not identified. 10098 is past the published 9000 cap, which is what the matched table needed, so it was not re-run."
       },
-      "reading": "the drift is near common-mode across rungs, which is why it largely cancels out of the increments and the matched observed order is stable past n~3000. The ladder's ORDER survives the iterative error; its VALUES do not -- every Cd on it is low-biased by roughly 0.2% and still falling, in the direction that widens the gap to CFL3D rather than closing it."
+      "reading": "the drift is near common-mode across rungs, which is why it largely cancels out of the increments and the matched observed order is stable past n~3000. The ladder's ORDER survives the iterative error; its VALUES do not -- every Cd on it is low-biased by roughly 0.2% and still falling, in the direction that widens the gap to CFL3D rather than closing it.",
+      "matched_window_9000_to_10000_pct": {
+        "coarse": -0.01203,
+        "medium": -0.01495,
+        "fine": -0.01522,
+        "reading": "all three descend within 27% of each other over one identical window, fine fastest and coarse slowest. The cancellation is good but not exact, and the residue biases the observed order slightly downward as the ladder runs: p goes 0.5191 at n=6000 to 0.5140 at n=10000, decelerating."
+      }
     },
     "our_bump_grids_remeasured_this_session": {
       "method": "blockMesh; checkMesh -writeAllFields; postProcess -func writeCellCentres",
@@ -745,6 +754,7 @@
       "check": "NASA's 89x41 node array equals their 177x81 array sliced [::2,::2]",
       "max_coordinate_difference": 0.0,
       "note": "verified rather than taken from the 'Nlevelsdown' filenames"
-    }
+    },
+    "iteration_matched_ladder_reaches": 10000
   }
 }

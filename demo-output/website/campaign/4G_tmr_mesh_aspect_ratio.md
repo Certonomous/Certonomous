@@ -549,7 +549,8 @@ perturbing anything). Fine is on its published 9,000.
 | 3,000 | 0.003444278 | 0.003519468 | 0.003574833 | 0.442 | 5.41% |
 | 4,000 | 0.003443049 | 0.003518155 | 0.003570874 | 0.511 | 4.35% |
 | 6,000 | 0.003441278 | 0.003516263 | 0.003568587 | 0.519 | 4.23% |
-| 9,000 | 0.003439572 | 0.003514280 | 0.003566521 | 0.516 | 4.26% |
+| 9,000 | 0.003439572 | 0.003514280 | 0.003566536 | 0.516 | 4.26% |
+| 10,000 | 0.003439158 | 0.003513754 | 0.003565993 | 0.514 | 4.28% |
 | *as published, caps 4,000/6,000/9,000* | 0.003443019 | 0.003516287 | 0.003566521 | **0.5446** | **3.839%** |
 
 † At n = 2,000 the two increments very nearly cancel, so p passes through zero and the
@@ -570,19 +571,30 @@ worthless — p is negative, and at n = 2,000 the increments cross and GCI reads
 Above n = 3,000 it is stable: p sits between 0.511 and 0.519 across a factor of three in
 iteration count. Whatever is holding the order at 0.52 is not the iteration budget.
 
-**Why it is stable, and why that is not reassurance.** The drift is comparable on both
-rungs measured, which is why it largely cancels out of the increments:
+**Why it is stable, and why that is not reassurance.** The drift is near common-mode
+across the rungs, which is why it largely cancels out of the increments. Measured two
+ways — each rung from its own cap, and all three over one identical window:
 
-| rung | Cd at its published cap | Cd at 30,000 | drift | move over the last 5,000 |
+| rung | Cd at its published cap | Cd at 30,000 | drift from its cap | **drift over the matched window 9,000 → 10,000** |
 |---|---|---|---|---|
-| coarse (cap 4,000) | 0.0034430489 | 0.0034362550 | **−0.1973%** | −0.0081% |
-| medium (cap 6,000) | 0.0035162628 | 0.0035085605 | **−0.2190%** | −0.0219% |
+| coarse (cap 4,000) | 0.0034430489 | 0.0034362550 | **−0.1973%** | −0.01203% |
+| medium (cap 6,000) | 0.0035162628 | 0.0035085605 | **−0.2190%** | −0.01495% |
+| fine (cap 9,000) | 0.0035665360 | *re-run reached 10,098* | — | −0.01522% |
 
-Neither prints `SIMPLE solution converged` at 30,000 and both are still descending, the
-medium one faster than the coarse. So the ladder's *order* survives the iterative error
-because the error is nearly common-mode; the ladder's *values* do not. Every Cd on it is
-low-biased by roughly a fifth of a percent and falling, in the direction that widens the
-gap to CFL3D rather than closing it.
+None of the three prints `SIMPLE solution converged` anywhere, and all three are still
+descending. Over the matched window they descend at within 27% of each other, fine
+fastest and coarse slowest — so the cancellation is good but not exact, and the residue
+biases the order slightly downward as the ladder runs (p drifts 0.5191 at n = 6,000 to
+0.5140 at n = 10,000, decelerating).
+
+So the ladder's *order* survives the iterative error; the ladder's *values* do not. Every
+Cd on it is low-biased by roughly a fifth of a percent and still falling, in the direction
+that widens the gap to CFL3D rather than closing it.
+
+*The fine re-run stopped at iteration 10,098 of a requested 15,000. Its log ends mid-
+iteration with no error, no OOM in `dmesg`, and 407 GB free on the volume; the cause was
+not identified. It is recorded rather than smoothed over. 10,098 is past that rung's
+published 9,000 cap, which is what the matched table needed, so it was not re-run.*
 
 A note for anyone tempted by the cheap route: fitting Cd(n) = Cd_∞ + A·n^−q to the
 coarse trajectory over [1,000, 4,000] predicts Cd at n = 30,000 to **+0.027%** — and
