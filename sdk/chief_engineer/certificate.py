@@ -944,9 +944,23 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         else:
             headline = value
             caption = "point estimate"
-        c.text(left, y, headline, size=24, bold=True, color=_INK, serif=True)
-        c.text(left + 8, y - 16, caption, size=8.5, color=_MUTED)
-        y -= gap(34, 30)
+        # Neither line may run off the leaf. The headline is one unbreakable
+        # figure, so it is fitted by size rather than wrapped: it shrinks
+        # until it sits inside the text column, and never below the size the
+        # secondary rows use. The caption is prose, and prose wraps, so a
+        # reference the length of a published source title reads to its last
+        # word instead of being cut mid-word with the remainder underneath.
+        head_size = 24.0
+        while (head_size > 10.0
+               and len(headline) * _avg_width(head_size) > width):
+            head_size -= 0.5
+        c.text(left, y, headline, size=head_size, bold=True, color=_INK,
+               serif=True)
+        cap_y = y - 16
+        for line in _wrap(caption, 8.5, width - 8):
+            c.text(left + 8, cap_y, line, size=8.5, color=_MUTED)
+            cap_y -= 11
+        y -= gap(34, 30) + max(0.0, (y - 16) - cap_y - 11)
         reason = primary.get("reason")
         if reason:
             for line in _wrap(reason[:1].upper() + reason[1:], 9.5, width):
@@ -1020,6 +1034,11 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # -- mesh validity (solved-mesh acts) --------------------------------
         if mesh:
             rows = _mesh_rows(mesh)
+            # This block used to be the one table with no room check, so a
+            # long body pushed it straight through the provenance box instead
+            # of triggering the fit loop or a second leaf. It reserves its own
+            # height now, like every table above it.
+            y = room(21 + 13.0 * len(rows), y)
             # Tighten the row rhythm when the remaining room is short rather
             # than stranding rows against the footer.
             row_h = 13.0 if y - (21 + 13.0 * len(rows)) >= page_floor + 4 else 11.0
