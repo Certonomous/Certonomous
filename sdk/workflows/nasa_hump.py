@@ -980,12 +980,13 @@ def main(request: str | None = None, params: dict | None = None,
                         "Verdict"),
                rows=comparison_rows, table_id="comparison-act6-nasa_hump")
 
+    # The verdict is a ruling, so the Chief Researcher gives it.
+    roster.set(CHIEF_RESEARCHER, "ruling on the gate", "working")
     if verdict["tier"] == VALIDATED:
-        script.engineer(f"• Verdict: validated. {verdict['reason']}.")
+        script.researcher(f"• Verdict: validated. {verdict['reason']}.")
     else:
-        script.engineer(f"• Verdict: {verdict['tier'].lower()}. {verdict['reason']}.")
-    script.engineer(
-        f"• Spend {ledger.as_dict()['spent_core_minutes']:.0f} core-minutes.")
+        script.researcher(f"• Verdict: {verdict['tier'].lower()}. {verdict['reason']}.")
+    roster.idle(CHIEF_RESEARCHER)
 
     knowledge.add(f"{shown} solved: {cells:,} cells, separation x/c "
                   f"{separation_xc:.4f}, converged at iteration "
