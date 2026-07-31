@@ -60,12 +60,12 @@ def setup_fingerprint(*, body: str, solver: str, closure: str,
 # --------------------------------------------------------------------------
 
 def ladder_band(cells: Sequence[float], values: Sequence[float],
-                ) -> dict[str, Any]:
+                *, dim: int = 3) -> dict[str, Any]:
     """Observed order and discretization band from a 3-level ladder.
 
     ``cells`` are the mesh cell counts coarse-to-fine; ``values`` the solution
     functional on each mesh in the same order. Representative mesh size is
-    h_i = (1/N_i)^(1/3). With three meshes the least-squares fit of
+    h_i = (1/N_i)^(1/dim). With three meshes the least-squares fit of
     phi = phi0 + a h^p reduces to the classical observed-order solve; the band
     is the GCI on the fine mesh with Fs = 1.25 when the ladder is clean
     (monotone, 0.5 <= p <= 4), and the conservative fallback otherwise
@@ -90,7 +90,7 @@ def ladder_band(cells: Sequence[float], values: Sequence[float],
     (n1, f1), (n2, f2), (n3, f3) = distinct[-3:]
     if not (n1 < n2 < n3):
         raise ValueError("cell counts must increase coarse to fine")
-    h1, h2, h3 = ((1.0 / n) ** (1.0 / 3.0) for n in (n1, n2, n3))
+    h1, h2, h3 = ((1.0 / n) ** (1.0 / float(dim)) for n in (n1, n2, n3))
     r21 = h2 / h3       # fine pair ratio (>1)
     r32 = h1 / h2
     e21 = f3 - f2       # fine-mesh change
@@ -236,11 +236,11 @@ def _asymptotic_guard(f1: float, f2: float, f3: float, e21: float,
 
 def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
                       *, p_lo: float = 0.5, p_hi: float = 2.5,
-                      fs: float = 1.25) -> dict[str, Any]:
+                      fs: float = 1.25, dim: int = 3) -> dict[str, Any]:
     """In-mission numerical-uncertainty band from a 3-mesh study.
 
     The act's live grid-refinement procedure (Eca and Hoekstra 2014,
-    least-squares / GCI practice): representative size h = (1/N)^(1/3), the
+    least-squares / GCI practice): representative size h = (1/N)^(1/dim), the
     observed order solved from the standard implicit relation, and the band
     Fs * |e21| / (r21^p - 1) on the fine mesh. Guards, per Katie's spec:
 
@@ -284,7 +284,7 @@ def eca_hoekstra_band(cells: Sequence[float], values: Sequence[float],
     (n1, f1), (n2, f2), (n3, f3) = distinct[-3:]
     if not (n1 < n2 < n3):
         raise ValueError("cell counts must increase coarse to fine")
-    h1, h2, h3 = ((1.0 / n) ** (1.0 / 3.0) for n in (n1, n2, n3))
+    h1, h2, h3 = ((1.0 / n) ** (1.0 / float(dim)) for n in (n1, n2, n3))
     r21 = h2 / h3
     r32 = h1 / h2
     e21 = f3 - f2
