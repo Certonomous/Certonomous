@@ -454,14 +454,19 @@ def main(request: str | None = None, params: dict | None = None,
         f"• Falsifier: the mesh misses its gates, the residuals never settle, "
         f"or the converged separation point sits outside that band with no "
         f"stated cause.")
-    script.engineer(
-        f"• Gate: converged separation location within "
+    # The gate is the Chief Researcher's to set: she frames and rules, the
+    # engineer executes. Condensed to three short bullets, and "the real
+    # tunnel" went with the condensing: "real" is never a qualifier on a
+    # camera surface. Nothing measured or cited was dropped.
+    roster.set(CHIEF_RESEARCHER, "setting the gate", "working")
+    script.researcher(
+        f"• Gate: converged separation within "
         f"±{SEPARATION_GATE * 100:.0f}% of {GATE_SOURCE}. "
-        f"• Reattachment is reported against the same source on a wider, "
-        f"stated model-form band, because a linear eddy-viscosity closure is "
-        f"documented to over-predict this bubble's length. "
-        f"• Credible because the source is NASA's own maintained validation "
-        f"record for this exact case, both the real tunnel and NASA's own CFD.")
+        f"• Reattachment against the same source on a wider stated model-form "
+        f"band. "
+        f"• NASA maintains the validation record for this case, tunnel and "
+        f"CFD.")
+    roster.idle(CHIEF_RESEARCHER)
     script.numericist(
         f"• The mesh gates are the standard acceptance band, "
         f"{per('mesh-quality')}. "
