@@ -2397,6 +2397,132 @@
       "created_at": "2026-07-31T22:52:00Z",
       "decided_at": "2026-07-31T22:52:00Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w7-replay-the-grandfathered-monitor-rules",
+      "well": "W7",
+      "objective": "Replay the six monitor rules that were never measured against the archive",
+      "rationale": "Reviewing the monitor as a set rather than rule by rule shows seven of eleven have no replay behind them. Six of those shipped with the monitor before the reading program, so they never met the intake requirement that a detection rule states its fire count before adoption; they were grandfathered without anybody deciding to grandfather them. The one rule adopted on reasoning alone is the one that turned out to fire on two thirds of completed work. Replaying the older six costs no compute and may well return nothing, which is itself the answer.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; reading archived logs only, no solver runs",
+      "gate": "Each of the six carries a corpus, a fire count and a fatal count, or is recorded as unmeasurable and why",
+      "expected_knowledge_gain": "Either the older rules are defensible or the lab learns which of them it has been trusting on nothing",
+      "source_kind": "measurement",
+      "citations": [
+        "monitor standard section 3.1",
+        "goals charter disqualifier 10"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T23:20:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T23:20:00Z"
+    },
+    {
+      "id": "w7-cap-stopped-is-a-monitor-signature",
+      "well": "W7",
+      "objective": "Give the monitor a rung that stopped because it ran out of iterations",
+      "rationale": "A refinement rung asked for fifteen thousand iterations read one percent above the value it eventually settles at, with the coefficient still falling, and took thirty six thousand to settle. Accepted as settled it publishes the ladder as a divergence. Nothing in the monitor fires: the residual is fine, the field is fine, the run completes. The signature is the iteration counter reaching its configured cap while the monitored coefficient is still moving by more than the settle tolerance, and it is readable without new instrumentation.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; the criterion already exists in the verification workflow and this wires it into the monitor",
+      "gate": "A run stopped by its cap with its monitored quantity still moving is named at collection time, replayed against the archive before adoption",
+      "expected_knowledge_gain": "The monitor reads residuals and this failure lives in the coefficient history, so it is a whole class it cannot currently see",
+      "source_kind": "capability",
+      "citations": [
+        "monitor standard section 3.4",
+        "verification charter section 4"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T23:20:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T23:20:00Z"
+    },
+    {
+      "id": "w8-morning-report-frame-checker",
+      "well": "W8",
+      "objective": "Build the checker that validates a morning report against its own frozen frame",
+      "rationale": "The reporting charter named six sections and gave nobody a way to tell a report that skipped one from a report with nothing to say. The frame now fixes the heading strings, the order, a section count computed rather than typed, a source line under every section, and two reserved words for empty and unavailable. A checker over a report somebody wrote by hand this morning is the smaller half of the old generator proposal and the half that makes the frame real, because it needs no generator to exist first.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; reads one report and resolves the paths it cites, no compute",
+      "gate": "A hand written report is accepted or rejected against the frame, naming which rule failed",
+      "expected_knowledge_gain": "Turns an omitted section from a stylistic slip into a failed match",
+      "source_kind": "capability",
+      "citations": [
+        "reporting charter section 2",
+        "reporting charter section 12"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T23:20:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T23:20:00Z"
+    },
+    {
+      "id": "w8-a-guard-states-its-sample",
+      "well": "W8",
+      "objective": "Find every guard in the stack whose tolerance is measured over more than it guards",
+      "rationale": "Both refinement certifiers fitted the finest three rungs and then measured their fallback band and their extrapolation tolerance over every rung the caller passed, so extra rungs widened the range the guard is a fraction of without entering the fit. One fit had two verdicts, declined on three rungs and certified on four, decided by a rung the fit never used. That was one function and the shape is general: any tolerance expressed as a fraction of a spread can be handed a different spread than the one its quantity came from.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; a read of the guards already in the tree",
+      "gate": "Every guard states the sample it measured over, and that sample is the one its quantity was computed from",
+      "expected_knowledge_gain": "A verdict that depends on what the caller happened to pass is not a verdict about the measurement",
+      "source_kind": "report",
+      "citations": [
+        "verification charter section 3.3",
+        "commit 5675eb6b"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T23:20:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T23:20:00Z"
+    },
+    {
+      "id": "w8-a-label-is-fixed-where-it-is-emitted",
+      "well": "W8",
+      "objective": "Audit every place a surface renders an identifier as if it were a label",
+      "rationale": "Two defects this week were one string each and both reached five surfaces. A verdict reason carried a drag coefficient without the separator the typesetter keys on, so one variable was set as two plain letters while every other variable beside it was set properly. A trace named itself by its series key, where stripping the separator flattened the one variable that really was an index and opening it out set a word under a letter. Neither string was ever a label, and no wording at the consumers could have fixed either.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; a read of the emitters and the surfaces that render them",
+      "gate": "Every rendered label is emitted as a label by whatever produced it, and the identifier fallback is named as a fallback",
+      "expected_knowledge_gain": "When a rendering defect appears on several surfaces at once, the count of surfaces is evidence about where the fix goes",
+      "source_kind": "report",
+      "citations": [
+        "verification charter section 6",
+        "commit cfe4e383"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T23:20:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T23:20:00Z"
+    },
+    {
+      "id": "w6-charter-clauses-resolve-to-their-evidence",
+      "well": "W6",
+      "objective": "Check that every charter clause citing an incident resolves to a file or a commit that exists",
+      "rationale": "The charters now carry dozens of measured numbers, each attached to an artifact or a commit. An audit finding this week was attributed to a card nobody opened and travelled into a proposal and a briefing before anyone checked, which is the same failure one level up. A charter clause whose evidence cannot be resolved is a rule the lab is holding itself to on the strength of somebody's memory, and the whole basis of these documents is that a reader who was not there can check them.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; resolves references against the tree and the commit history",
+      "gate": "Every cited artifact resolves on disk and every cited commit resolves in history, with the unresolvable ones listed",
+      "expected_knowledge_gain": "A charter that cannot be checked by inspection is the thing these charters exist to prevent elsewhere",
+      "source_kind": "report",
+      "citations": [
+        "verification charter section 14",
+        "the weekly audit"
+      ],
+      "status": "approved",
+      "decided_at": "2026-07-31T23:20:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "created_at": "2026-07-31T23:20:00Z"
     }
   ]
 }
