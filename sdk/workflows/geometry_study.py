@@ -361,6 +361,62 @@ def pressure_slice_entry(path) -> dict:
             "url": f"/api/plot/geometry-study/{name}"}
 
 
+# The two clauses a verdict reason carries that are not measurements: a
+# restatement of the fidelity tier, and the trailing "but ..." that explains
+# why the tier is not higher. The chip already carries the tier, so on camera
+# both are noise, and the second reads as the result undercutting itself.
+# WITHHELD FROM DISPLAY ONLY, and deliberately: the tier is unchanged, the
+# measured comparison in front of the comma is kept word for word, and the
+# grid evidence behind the trailing clause is reported in full by the
+# numerical uncertainty channel.
+_TIER_RESTATEMENT = re.compile(
+    r"^\s*(a selected[\s-]solver result|produced by a stated research model)",
+    re.I)
+_TIER_EXPLANATION = re.compile(r",\s*but\b.*$", re.I | re.S)
+
+
+_SUBDOMAINS_RE = re.compile(r"numberOfSubdomains\s+(\d+)")
+
+
+def case_workers(engineer, fallback: int = 1) -> int:
+    """How many workers the mesh this act solved actually represents.
+
+    Read from the case's own decomposition, which is a property of the case
+    the mesh belongs to and is written when the case is built. The count used
+    to come from whatever the run itself happened to launch, so a run that
+    already had the mesh in hand reported one worker for a mesh that takes
+    six: the number described this run's path through the act rather than the
+    work the mesh stands for.
+    """
+    def _remote() -> str:
+        return engineer._wsl(
+            f"cat {engineer.remote_case}/system/decomposeParDict 2>/dev/null",
+            timeout=60).stdout
+
+    def _local() -> str:
+        return (Path(engineer.out_root) / "case" / "system"
+                / "decomposeParDict").read_text(encoding="utf-8")
+
+    for read in (_remote, _local):
+        try:
+            match = _SUBDOMAINS_RE.search(read() or "")
+        except Exception:
+            continue
+        if match:
+            return max(1, int(match.group(1)))
+    return max(1, int(fallback))
+
+
+def display_verdict(verdict: dict) -> dict:
+    """The verdict as it goes on camera: tier, and only what was measured."""
+    shown = dict(verdict or {})
+    reason = str(shown.get("reason", ""))
+    if _TIER_RESTATEMENT.match(reason):
+        reason = ""
+    shown["reason"] = _TIER_EXPLANATION.sub("", reason).strip()
+    return shown
+
+
 def mesh_validity(cells: int, non_ortho: float | None,
                   skew: float | None) -> dict:
     """The certificate's mesh-validity facts for this mission.
@@ -1025,8 +1081,9 @@ def main(request: str | None = None, params: dict | None = None,
                         table_id=f"body-{label}")
 
         script.engineer(
-            "• Selected: k-omega SST, steady RANS, standard closure for "
-            "attached external flow, solved on a quality-gated mesh.")
+            "• Solver of choice: OpenFOAM, steady RANS with k-omega SST. "
+            "• Standard closure for attached external flow, on a "
+            "quality-gated mesh.")
 
         # A previously snapped mesh is reused silently: the demo shows the
         # lab's capability, and the transcript never talks about storage.
@@ -1169,6 +1226,9 @@ def main(request: str | None = None, params: dict | None = None,
         solve_key = f"{label}-c{cells}-i{iterations}"
         warm_solve = engineer.restore_cached_solve(solve_key)
         ranks = engineer.solve_ranks()
+        # The worker count on screen is what this mesh takes, read from the
+        # case's own decomposition, not what this particular run launched.
+        workers = max(case_workers(engineer, fallback=ranks), ranks)
         parallel = (not warm_solve) and ranks > 1 and engineer.decompose_for_parallel(ranks)
         if parallel:
             script.engineer(
@@ -1216,7 +1276,7 @@ def main(request: str | None = None, params: dict | None = None,
             # streams point by point exactly as a marching solver reports it.
             note = f"steady solve, {iterations} iterations"
             roster.set(CHIEF_ENGINEER, note, "working")
-            roster.set_workers(max(1, ranks), note)
+            roster.set_workers(workers, note)
             started = time.time()
             raw = engineer._wsl(
                 f"cat {engineer.remote_case}/postProcessing/*/0/coefficient.dat "
@@ -1255,7 +1315,8 @@ def main(request: str | None = None, params: dict | None = None,
                         time.sleep(per_point)
             elapsed = max(1.0, time.time() - started)
             ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            stage_row("selected solver", elapsed, note)
+            # The solver is NAMED on camera, never described generically.
+            stage_row("OpenFOAM", elapsed, note)
             roster.set_workers(0)
         else:
             for step, base, note in (
@@ -1265,13 +1326,12 @@ def main(request: str | None = None, params: dict | None = None,
             ):
                 command = f"mpirun -np {ranks} {base} -parallel" if parallel else base
                 roster.set(CHIEF_ENGINEER, note, "working")
-                roster.set_workers(ranks if (parallel and step == "simpleFoam") else 1,
-                                   note)
+                roster.set_workers(workers if step == "simpleFoam" else 1, note)
                 result = engineer._run_step(
                     step, command, 7200,
                     line_hook=_cd_line_hook if step == "simpleFoam" else None)
                 ledger.spend(result.seconds, f"{step} ({result.seconds:.0f}s)")
-                stage_row(step, result.seconds, note)
+                stage_row("OpenFOAM", result.seconds, note)
             roster.set_workers(0)
             if parallel:
                 engineer.reconstruct_latest()
@@ -1474,6 +1534,8 @@ def main(request: str | None = None, params: dict | None = None,
         verdict = trust(relative_error=relative, converged=True,
                         in_validated_regime=gate_ok, calibrated=skew_ok, why=why)
 
+    verdict = display_verdict(verdict)
+
     # The result on the record, at reading pace: a short lead-in carrying the
     # verdict, then the coefficients as one compact table (Katie's format).
     script.engineer("• Forces settled; the window is flat.", verdict=verdict)
@@ -1565,7 +1627,9 @@ def main(request: str | None = None, params: dict | None = None,
             grid_conclusive=grid_conclusive,
             solved_reynolds=report.get("reference", {}).get("reynolds"))
         comparison = verdict.get("comparison")
-        if verdict.get("tier") != before:
+        moved = verdict.get("tier") != before
+        verdict = display_verdict(verdict)
+        if moved:
             script.numericist(
                 f"• The refinement study just measured settles the grade: the "
                 f"chip moves from {before} to {verdict['tier']} on this run's "
@@ -1597,11 +1661,13 @@ def main(request: str | None = None, params: dict | None = None,
         input_2sigma=2 * drag['sigma'], numerical_abs=numerical_val,
         model_abs=model_val)["combined_95"]
     if emit:
+        # No envelope subtitle on the headline: the band beside the value is
+        # the statement, and the averaging window is already a column of the
+        # coefficient table.
         emit("result.verdict", {"quantity": "Drag coefficient",
                                 "value": f"{drag['value']:.4g}",
                                 "ci": f"{(combined if combined else 2 * drag['sigma']):.2g}",
                                 "confidence": "95%",
-                                "envelope": f"over the final {drag['window']} iterations",
                                 **verdict})
         emit("uncertainty.channels", channels)
 
@@ -1718,13 +1784,15 @@ def main(request: str | None = None, params: dict | None = None,
         # Announcing "0 core-minutes" invites exactly the question the rest of
         # the transcript is careful not to raise, so below one core-minute the
         # sentence is dropped rather than rounded down to zero on screen.
+        # The mesh sensitivity is the numericist's finding, so the numericist
+        # states it; the spend stays with the Chief Engineer, whose ledger it is.
+        script.numericist(
+            "• Mesh sensitivity measured on three meshes of this case; the "
+            "band rides the numerical channel of the certificate.")
         spend = ledger.as_dict()['spent_core_minutes']
-        spend_line = (f" • Total spend {spend:.0f} core-minutes, refinement "
-                      f"rungs included." if spend >= 1 else "")
-        script.engineer(
-            f"• Mesh sensitivity measured on three meshes of this case; the "
-            f"band rides the numerical channel of the certificate."
-            f"{spend_line}")
+        if spend >= 1:
+            script.engineer(f"• Total spend {spend:.0f} core-minutes, "
+                            f"refinement rungs included.")
     else:
         script.engineer(
             f"• Mesh sensitivity is not separated on this run; the numerical "
@@ -1765,7 +1833,7 @@ def main(request: str | None = None, params: dict | None = None,
                       f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
         script.numericist(
             f"• Lessons entered to memory. "
-            f"• Next question about a body like {shown} answers from a real run.")
+            f"• Next question about a body like {shown} answers from a solve.")
 
     report_doc = lab_report(
         title=f"Geometry study: {shown}",
@@ -1775,7 +1843,13 @@ def main(request: str | None = None, params: dict | None = None,
             f"The mesh reached {cells:,} cells at max non-orthogonality {non_ortho_s} "
             f"and max skewness {skew_s}; drag settled at {drag['value']:.4g} "
             f"± {2 * drag['sigma']:.2g}.",
-            f"The result is reported as {verdict['tier'].lower()}: {verdict['reason']}.",
+            # The tier word stays out of the prose; the chip carries it.
+            (f"Rebased onto the published area basis that is "
+             f"{comparison['compared_cd']:.4g} against {comparison['reference_cd']:g} "
+             f"from {reference['source']}."
+             if comparison else
+             f"Solved with OpenFOAM, steady RANS with k-omega SST, on a mesh "
+             f"gated against the published acceptance band."),
         ],
         methods=[
             f"Surface intake and check on {shown}.",
@@ -1812,8 +1886,9 @@ def main(request: str | None = None, params: dict | None = None,
                          f"({'pass' if gate_ok else 'caveat'}), max skewness "
                          f"{skew_s} vs {MAX_SKEWNESS:.1f} guidance "
                          f"({'pass' if skew_ok else 'caveat'})"),
-            **trust(relative_error=0.0, in_validated_regime=gate_ok,
-                    calibrated=(skew or 0) <= MAX_SKEWNESS),
+            **display_verdict(trust(relative_error=0.0,
+                                    in_validated_regime=gate_ok,
+                                    calibrated=(skew or 0) <= MAX_SKEWNESS)),
         }],
         uncertainty=[
             "Reported band: settling spread of the coefficient over the "

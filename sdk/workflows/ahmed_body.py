@@ -557,7 +557,7 @@ def main(request: str | None = None, params: dict | None = None,
                   f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
     script.numericist(
         f"• Lessons entered to memory. "
-        f"• Next question about a body like {shown} answers from a real run.")
+        f"• Next question about a body like {shown} answers from a solve.")
 
     _AGENDA = [
         {"title": "The other slant angle",
