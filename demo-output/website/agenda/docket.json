@@ -2523,6 +2523,30 @@
       "decided_at": "2026-07-31T23:20:00Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "created_at": "2026-07-31T23:20:00Z"
+    },
+    {
+      "id": "c5-duct-velocity-scale-transfer",
+      "well": "C5",
+      "objective": "Give the duct correction a genuine Reynolds-transfer test by generating our own duct training data at a second Reynolds number",
+      "rationale": "Round 4 closed roughly a fifth of the duct deficit by removing an extrapolation the model was never trained through: Re_y reaches 1.85x and 2.07x its trained maximum on the two ducts we lose. The fix is validated for no-harm on every held-out set the rules permit, and none of those is a Reynolds-transfer test at a doubled velocity scale, because every duct the benchmark lets us fit on sits at Re_tau 164. That is the single missing piece of evidence in the whole duct line. Solving our own duct at a third Reynolds number -- not a test one -- would supply it, and would let us measure rather than argue whether the fix generalises. The leaders are still twice as good on both cases.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 2.0,
+      "cost_basis": "estimate",
+      "gate": "A duct at a Reynolds number in neither the benchmark's training nor its test set is solved and its DNS/LES counterpart obtained or the case is abandoned with the reason recorded; variant D is then scored on it as a true held-out Reynolds transfer",
+      "expected_knowledge_gain": "Whether the velocity-scale normalisation actually transfers across Reynolds number, or whether round 4's gain was specific to these two cases. Either answer is publishable and the negative one retires the approach.",
+      "risk": "No high-fidelity duct data may be obtainable at a fourth Reynolds number, in which case the gate fails honestly and the claim stays where it is -- motivated by mechanism, unproven in transfer."
+    },
+    {
+      "id": "c6-nasa-hump-the-only-last-place",
+      "well": "C6",
+      "objective": "Decide whether the NASA hump can be improved at all, given the benchmark ships no training data for it",
+      "rationale": "After round 4 the NASA wall-mounted hump is the only case we are last on the board on, 0.0632 against a best of 0.0364, and our correction there is a regression against the uncorrected floor of 0.0621. The benchmark's own train/validation table has no hump entry -- it is test-only -- so the current prediction borrows the periodic-hill model on a pre-registered physical argument. Nobody has established whether a better legal choice exists or whether the honest answer is that the hump is unimprovable without outside data. That question is worth settling before more effort goes into the ducts, where we are already third of five.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "cost_basis": "estimate",
+      "gate": "Either a legally-trained hump prediction beats 0.0621 on validation evidence alone, or the record states that no such route exists and why",
+      "expected_knowledge_gain": "Whether a benchmark case with no training data admits any principled treatment beyond declining to correct it. That generalises well past this benchmark.",
+      "risk": "The honest outcome may be to apply the decline gate to the hump and ship the uncorrected floor, which improves the score by 0.0001 and looks like giving up. It is not giving up, and the record must say why."
     }
   ]
 }
