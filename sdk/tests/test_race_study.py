@@ -434,7 +434,11 @@ class SymmetricSectionPrior(unittest.TestCase):
         self.assertEqual([g["name"] for g in flagged],
                          ["NACA 0012 finite wing"])
         self.assertTrue(flagged[0]["measured_symmetric"])
-        self.assertIn("cannot belong to this surface", _said(events))
+        # The full caveat is the record; the spoken line is the short form.
+        self.assertIn("cannot belong to this surface", flagged[0]["caveat"])
+        said = _said(events)
+        self.assertIn("named symmetric but lifts", said)
+        self.assertIn("The polar stays named NACA 4412 finite wing", said)
 
     def test_guard_stays_silent_when_no_name_claims_symmetry(self):
         # The raced section declares its camber, so the prior has no opinion

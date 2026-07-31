@@ -300,12 +300,14 @@ def _zero_lift_guard(emit, script, point: dict, *, wing: dict | None,
                                             "section", **report})
     flagged = [r for r in reports if not r["consistent"]]
     if flagged:
+        # The terse form is what is said; the full caveat rides in the event.
         script.numericist(
-            "• " + " • ".join(r["caveat"] for r in flagged))
+            "• " + " • ".join(r["headline"] for r in flagged)
+            + f" • The polar stays named {RACED_WING}.")
     elif reports:
         script.numericist(
-            f"• Zero lift check clear: no name on this polar claims a "
-            f"symmetric section at α = {point['alpha']:g}°.")
+            f"• Zero lift check clear: {reports[0]['name']} is symmetric and "
+            f"reads no lift at α = {point['alpha']:g}°.")
     return reports
 
 

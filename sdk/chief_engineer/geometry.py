@@ -623,16 +623,23 @@ def zero_lift_report(*, name: str, alpha_deg: float, cl: float,
         if measured_symmetric is False:
             cause = (f"the section measures {100 * abs(camber_frac_chord):.2f}% "
                      f"camber, so the body is cambered and the name is wrong")
+            short = (f"measures {100 * abs(camber_frac_chord):.2f}% camber, so "
+                     f"the name is wrong")
         elif offset:
             cause = (f"the section measures symmetric but the file carries "
                      f"{incidence_deg:+.2f}° of built-in incidence, so the "
                      f"angle is not measured from the chord line")
+            short = (f"carries {incidence_deg:+.2f}° of built-in incidence, so "
+                     f"α is not off the chord line")
         elif measured_symmetric:
             cause = ("the section measures symmetric and carries no built-in "
                      "incidence, so the lift cannot belong to this surface")
+            short = "measures symmetric at zero incidence, so this curve is "\
+                    "not its"
         else:
             cause = ("no section measurement accompanies the name, so either "
                      "the body is cambered or the angle reference is offset")
+            short = "is unmeasured, so either it is cambered or α is offset"
         report["caveat"] = (
             f"{name} is presented as a symmetric section, which carries no "
             f"lift at its own zero-angle reference, but the solved lift "
@@ -640,4 +647,8 @@ def zero_lift_report(*, name: str, alpha_deg: float, cl: float,
             f"{cause}. State the section that produced the curve, or state "
             f"the reference the angle is measured from; do not present this "
             f"curve under this name.")
+        # The same finding at camera length. The caveat above is the record;
+        # this is the sentence a narrator can actually say.
+        report["headline"] = (f"{name} is named symmetric but lifts "
+                              f"{abs(float(cl)):.3f} at α = 0°. It {short}.")
     return report
