@@ -191,6 +191,16 @@ or Reynolds numbers as `AR_1_Ret_360`/`AR_3_Ret_360`/`AR_14_Ret_180` — flagged
 as "same family, not confirmed same case" rather than asserted as a direct
 overlap.
 
+**Full text now read** (2026-07-31), Sandia accepted manuscript SAND2016-7345J:
+`demo-output/website/campaign/W2_TBNN_SPARTA_READING.md` section 1. That reading
+supersedes this metadata-tier entry and resolves the flag above: Ling's duct
+cases are **not** the benchmark's. He trains on a duct at `Re_b = 3500` and tests
+at `Re_b = 2000`, from a different DNS database, and **none of his nine flows is
+in this repo** — two of the six training flows have no public archive named in
+the paper, so his Table I is not reproducible here. The architecture is, and the
+proposal that does so on benchmark duct training data is
+`w2-tbnn-duct-reynolds-generalisation`.
+
 ---
 
 ## Class 3 — Symbolic and sparse-regression closures
@@ -243,6 +253,21 @@ rather than guessed at.
    hills (Re=10595), a converging–diverging channel, and a curved
    backward-facing step — **periodic hills is the exact case family (though
    not necessarily the exact geometry/Re) of our own 4 PH test cases.**
+
+   **Full text now read** (2026-07-31), published CC-BY version of record:
+   `demo-output/website/campaign/W2_TBNN_SPARTA_READING.md` section 2. Three
+   corrections to this metadata-tier entry. (i) The headline result is that the
+   **transport-equation correction `R` alone** is what improves the velocity
+   field; the stress-anisotropy correction `b^Δ` alone does not always improve it
+   and on CBFS13700 the pair is worse than `R` alone — so describing SpaRTA as a
+   stress-anisotropy method understates the `R` half that carries the result.
+   (ii) SpaRTA as published restricts itself to **two-dimensional flows**, using
+   three base tensors and two invariants, so the duct family is outside its
+   ansatz — this is the complement of TBNN's position, not a weaker version of
+   it. (iii) SpaRTA's PH10595 and CBFS13700 are the benchmark's own `PH_Breuer`
+   and `CBFS` case directories at identical mesh sizes (15,600 = 120×130 and
+   21,000 = 140×150), and both are benchmark **training** cases. Proposal:
+   `w2-sparta-frozen-rans-cbfs`.
 
 2. **Weatheritt, J., Sandberg, R. "A novel evolutionary algorithm applied to
    algebraic modifications of the RANS stress-strain relationship." *Journal
