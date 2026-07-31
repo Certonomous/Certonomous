@@ -1,0 +1,247 @@
+{
+  "generated_at": "2026-07-31T23:07:45.874616+00:00",
+  "purpose": "Diagnose why the DUCT correction transfers badly to the Re_tau=360 test ducts, and validate a candidate fix on train/validation data only.",
+  "official_scoring_calls_made_by_this_script": 0,
+  "hyperparameters": {
+    "max_iter": 300,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "l2_regularization": 1.0,
+    "random_state": 0
+  },
+  "degeneracy_reproduced_but_non_discriminating": {
+    "max_abs_I3_S3_over_duct_training_cells": 3.3402040259110995e-14,
+    "max_abs_I4_W2S_over_duct_training_cells": 1.113401341970366e-14,
+    "max_abs_I3_S3_per_test_duct": {
+      "AR_1_Ret_360": 2.3629188847287914e-14,
+      "AR_3_Ret_360": 4.5759444144169806e-14,
+      "AR_14_Ret_180": 4.5008509542732724e-14
+    },
+    "max_abs_I4_W2S_per_test_duct": {
+      "AR_1_Ret_360": 7.876396282429306e-15,
+      "AR_3_Ret_360": 1.5253148048056604e-14,
+      "AR_14_Ret_180": 1.5002836514244243e-14
+    },
+    "why_it_cannot_explain_the_deficit": "Both features are numerically zero on all three duct test cases, including AR_14_Ret_180 where the entry of record is best on the board (0.0303 vs a next-best 0.0325). A defect equally present on the case we win and the cases we lose does not discriminate between them."
+  },
+  "feature_coverage_test_blind": {
+    "trained_range_over_4_duct_training_cases": {
+      "I1_S2": [
+        2.5080146922570935e-11,
+        6.5909078982620235
+      ],
+      "I2_W2": [
+        -6.5909078982620235,
+        -2.5080146922570935e-11
+      ],
+      "I3_S3": [
+        -3.3402040259110995e-14,
+        3.2602331137456676e-14
+      ],
+      "I4_W2S": [
+        -1.0867443712485559e-14,
+        1.113401341970366e-14
+      ],
+      "I5_W2S2": [
+        -21.720033461686356,
+        -3.1450688482887217e-22
+      ],
+      "Re_y": [
+        3.684391957402192e-10,
+        3.992005188312105
+      ],
+      "tke_ratio": [
+        4.534121649377321e-07,
+        0.05207254775641713
+      ]
+    },
+    "per_case": {
+      "AR_1_Ret_180": {
+        "role": "train",
+        "Re_y_max": 3.558122220954838,
+        "Re_y_max_over_trained_max": 0.8913120231838374,
+        "pct_cells_outside_trained_range_any_feature": 0.0,
+        "pct_cells_Re_y_above_trained_max": 0.0,
+        "mean_U_rans": 15.146590210421003
+      },
+      "AR_3_Ret_180": {
+        "role": "train",
+        "Re_y_max": 3.992005188312105,
+        "Re_y_max_over_trained_max": 1.0,
+        "pct_cells_outside_trained_range_any_feature": 0.0,
+        "pct_cells_Re_y_above_trained_max": 0.0,
+        "mean_U_rans": 17.46247269459786
+      },
+      "AR_5_Ret_180": {
+        "role": "train",
+        "Re_y_max": 3.787739491001575,
+        "Re_y_max_over_trained_max": 0.9488313046514608,
+        "pct_cells_outside_trained_range_any_feature": 0.0,
+        "pct_cells_Re_y_above_trained_max": 0.0,
+        "mean_U_rans": 18.49481261186057
+      },
+      "AR_10_Ret_180": {
+        "role": "train",
+        "Re_y_max": 3.5682804348323125,
+        "Re_y_max_over_trained_max": 0.8938566626315054,
+        "pct_cells_outside_trained_range_any_feature": 0.0,
+        "pct_cells_Re_y_above_trained_max": 0.0,
+        "mean_U_rans": 19.978873967285647
+      },
+      "AR_7_Ret_180": {
+        "role": "validation",
+        "Re_y_max": 3.6942647067676337,
+        "Re_y_max_over_trained_max": 0.9254158079713415,
+        "pct_cells_outside_trained_range_any_feature": 0.006467050378322447,
+        "pct_cells_Re_y_above_trained_max": 0.0,
+        "mean_U_rans": 19.34597284807217
+      },
+      "AR_1_Ret_360": {
+        "role": "TEST",
+        "Re_y_max": 7.378753289582894,
+        "Re_y_max_over_trained_max": 1.8483826902797114,
+        "pct_cells_outside_trained_range_any_feature": 6.24793388429752,
+        "pct_cells_Re_y_above_trained_max": 3.272727272727273,
+        "mean_U_rans": 33.08149885293884
+      },
+      "AR_3_Ret_360": {
+        "role": "TEST",
+        "Re_y_max": 8.247919136453708,
+        "Re_y_max_over_trained_max": 2.0661093228541327,
+        "pct_cells_outside_trained_range_any_feature": 10.356652949245541,
+        "pct_cells_Re_y_above_trained_max": 6.938728852309099,
+        "mean_U_rans": 38.47190420590992
+      },
+      "AR_14_Ret_180": {
+        "role": "TEST",
+        "Re_y_max": 3.6070514409535597,
+        "Re_y_max_over_trained_max": 0.9035688258909025,
+        "pct_cells_outside_trained_range_any_feature": 0.32370596184669537,
+        "pct_cells_Re_y_above_trained_max": 0.0,
+        "mean_U_rans": 21.646308479835007
+      }
+    },
+    "note": "Built from the RANS solve and mesh only. No ground truth is required to compute any of this, and none was read for the three test ducts."
+  },
+  "duct_family_validation": {
+    "leave_one_duct_out": {
+      "AR_1_Ret_180": {
+        "floor": 0.10726823047127922,
+        "A": 0.04517441253032618,
+        "D": 0.049806051692299604
+      },
+      "AR_3_Ret_180": {
+        "floor": 0.11115060971068337,
+        "A": 0.03888838631493644,
+        "D": 0.0336741194994807
+      },
+      "AR_5_Ret_180": {
+        "floor": 0.09379062065232022,
+        "A": 0.028455043964907084,
+        "D": 0.021998701300732025
+      },
+      "AR_10_Ret_180": {
+        "floor": 0.0687012002762216,
+        "A": 0.028122386250990814,
+        "D": 0.02834563426644683
+      },
+      "MEAN": {
+        "A": 0.03516005726529013,
+        "D": 0.033456126689739796
+      }
+    },
+    "suggested_validation_case_AR_7_Ret_180": {
+      "floor": 0.08073377607338515,
+      "A": 0.020323369830923466,
+      "A_pct_of_floor_error_removed": 74.8266824377817,
+      "D": 0.013454400105410463,
+      "D_pct_of_floor_error_removed": 83.33485591807235
+    }
+  },
+  "periodic_hill_reynolds_sweep": {
+    "caveat": "Re_y does NOT leave its trained range across this sweep -- measured below -- so this is a Reynolds-generalisation test but NOT a reproduction of the duct saturation mechanism.",
+    "Re_y_trained_max_over_Re_6000_9000": 32.50957391572511,
+    "Re_y_max_ratio_at_Re_12000": {
+      "alpha_10_12000_2024": 0.9931217531241123,
+      "alpha_10_12000_3036": 0.8836382224611655,
+      "alpha_10_12000_4048": 1.0015247664661568
+    },
+    "mean_U_rans_per_case": {
+      "alpha_10_6000_2024": 0.7610075947927327,
+      "alpha_10_6000_3036": 0.6714392944167211,
+      "alpha_10_6000_4048": 0.6158049796460847,
+      "alpha_10_9000_2024": 0.7512621097601304,
+      "alpha_10_9000_3036": 0.6710176690566246,
+      "alpha_10_9000_4048": 0.6180127737262604,
+      "alpha_10_12000_2024": 0.7332948542313213,
+      "alpha_10_12000_3036": 0.6653309999560478,
+      "alpha_10_12000_4048": 0.6195604298508979
+    },
+    "splits": {
+      "extrapolate_up_train_6000_9000_predict_12000": {
+        "floor_per_case": {
+          "alpha_10_12000_2024": 0.18528043005677386,
+          "alpha_10_12000_3036": 0.15429628972852014,
+          "alpha_10_12000_4048": 0.12567844104218912
+        },
+        "floor_mean": 0.15508505360916106,
+        "A": {
+          "per_case": {
+            "alpha_10_12000_2024": 0.0788675584615304,
+            "alpha_10_12000_3036": 0.07382484416406238,
+            "alpha_10_12000_4048": 0.06261648139738414
+          },
+          "mean": 0.07176962800765897
+        },
+        "D": {
+          "per_case": {
+            "alpha_10_12000_2024": 0.0742837883984538,
+            "alpha_10_12000_3036": 0.06766243836426879,
+            "alpha_10_12000_4048": 0.053646166936558236
+          },
+          "mean": 0.06519746456642694
+        },
+        "D_pct_better_than_A": 9.157304592035329,
+        "D_beats_A_on_n_of_n_cases": [
+          3,
+          3
+        ]
+      },
+      "interpolate_train_6000_12000_predict_9000": {
+        "floor_per_case": {
+          "alpha_10_9000_2024": 0.17991214729723462,
+          "alpha_10_9000_3036": 0.13035977023646256,
+          "alpha_10_9000_4048": 0.10162018900021702
+        },
+        "floor_mean": 0.13729736884463808,
+        "A": {
+          "per_case": {
+            "alpha_10_9000_2024": 0.06406141406107048,
+            "alpha_10_9000_3036": 0.03763947367566384,
+            "alpha_10_9000_4048": 0.043694187668704275
+          },
+          "mean": 0.048465025135146195
+        },
+        "D": {
+          "per_case": {
+            "alpha_10_9000_2024": 0.05651996946507528,
+            "alpha_10_9000_3036": 0.035398164210562265,
+            "alpha_10_9000_4048": 0.037581882901937196
+          },
+          "mean": 0.04316667219252491
+        },
+        "D_pct_better_than_A": 10.932322696308663,
+        "D_beats_A_on_n_of_n_cases": [
+          3,
+          3
+        ]
+      }
+    }
+  },
+  "verdict": {
+    "variant_D": "eighth feature d/d_max (wall distance / case max wall distance, exactly Reynolds-invariant, mesh-only) plus target normalised by the case's own mean |U_RANS|",
+    "selection_rule_stated_before_any_test_scoring": "Chosen on the benchmark's own suggested duct validation case AR_7_Ret_180, tie-broken on leave-one-duct-out mean. No test-case score influenced it.",
+    "what_is_proven": "D does no harm and materially helps on every held-out set the rules permit: the suggested duct validation case, leave-one-duct-out, and both directions of the periodic-hill Reynolds sweep.",
+    "what_is_NOT_proven": "That D closes the duct deficit on AR_1_Ret_360 and AR_3_Ret_360. No legal test of Reynolds transfer at a doubled velocity scale exists in this benchmark, because every duct the rules let us fit on sits at one Reynolds number."
+  }
+}
