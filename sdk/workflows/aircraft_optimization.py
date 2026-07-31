@@ -2,9 +2,12 @@
 
 The request states what the aircraft must do — passengers, range, take-off and
 landing speeds — and the lab searches a wing design space (span, area, sweep)
-for the highest cruise L/D that still meets every requirement. Designs that miss
-a requirement are shown as infeasible, not hidden; the winner is the best L/D
-that clears them all.
+for the highest whole-aircraft L/D that still meets every requirement. Designs
+that miss a requirement are shown as infeasible, not hidden; the winner is the
+best whole-aircraft L/D that clears them all. The figure of merit is always
+whole-aircraft: the wing is what the search moves, but the drag it is divided
+by includes the fuselage, tail and nacelle share from Raymer's component
+buildup, so a bare "L/D" would overstate what was optimized.
 
 The search runs in two passes. A **research sizing screen** — a textbook drag
 polar, a Breguet range check, and stall-speed constraints — maps the whole
@@ -556,7 +559,7 @@ def sweep_trade_figure(out_png: str | Path, results, *,
             label="best feasible wing at each sweep")
     ax.scatter([top["sweep_deg"]], [top[value_key]], s=150, facecolor="none",
                edgecolor=t.VALID, linewidth=2.0, zorder=6)
-    ax.annotate(f"best screened $L/D$ {top[value_key]:.1f}\n"
+    ax.annotate(f"best screened whole-aircraft $L/D$ {top[value_key]:.1f}\n"
                 f"at {top['sweep_deg']:.0f}° sweep",
                 xy=(top["sweep_deg"], top[value_key]), xytext=(14, 12),
                 textcoords="offset points", ha="left", va="bottom",
@@ -566,8 +569,9 @@ def sweep_trade_figure(out_png: str | Path, results, *,
     ax.set_xlim(min(sweeps) - pad, max(sweeps) + pad * 1.9)
     ax.set_xticks(sweeps)
     t.style_axes(ax, r"quarter-chord sweep  $\Lambda$  [deg]",
-                 r"cruise $L/D$  [nondimensional]",
-                 "Cruise L/D against quarter-chord sweep, screened wings")
+                 r"whole-aircraft $L/D$  [nondimensional]",
+                 "Whole-aircraft L/D against quarter-chord sweep "
+                 f"{TIER_SCREEN}")
     return _finish(fig, ax, plt, t, out_png, loc="lower left")
 
 
@@ -626,14 +630,14 @@ def drag_polar_figure(out_png: str | Path, solved, best, *,
     if cl_w is not None:
         ax.scatter([cd_w], [cl_w], s=150, color=t.TREND, edgecolor=t.INK,
                    linewidth=1.4, zorder=6, label="cruise point on the winner")
-        ax.annotate(f"$L/D$ {ld_w:.1f} at $C_L$ {cl_w:.2f}",
+        ax.annotate(f"whole-aircraft $L/D$ {ld_w:.1f} at $C_L$ {cl_w:.2f}",
                     xy=(cd_w, cl_w), xytext=(14, -4),
                     textcoords="offset points", ha="left", fontsize=11.5,
                     color=t.TREND, weight="bold", fontfamily="monospace")
     t.style_axes(
         ax, r"whole-aircraft drag  $C_D$  [nondimensional]",
         r"lift  $C_L$  [nondimensional]",
-        "Solved drag polars for the finalist wings, VSPAERO")
+        f"Drag polars for the finalist wings {TIER_SOLVE}")
     return _finish(fig, ax, plt, t, out_png, loc="upper left")
 
 
@@ -1363,7 +1367,7 @@ def main(request: str | None = None, params: dict | None = None,
                         in_validated_regime=False, calibrated=False,
                         why="the mission requirements are mutually infeasible on this planform")
         if emit:
-            emit("result.verdict", {"quantity": "Best feasible L/D",
+            emit("result.verdict", {"quantity": "Best feasible whole-aircraft L/D",
                                     "value": "none", "envelope": "n/a", **verdict})
         # No certificate exists for a run with no feasible design; the
         # previous run's page is withdrawn so nothing out of date is served.
@@ -1406,12 +1410,11 @@ def main(request: str | None = None, params: dict | None = None,
         roster.set(CHIEF_ENGINEER, "solving the finalist wings", "working")
         n_par = min(granted, len(finalists))
         roster.set_workers(n_par, "VSPAERO solves on finalist wings")
+        # The tier label on the table below already names VSPAERO and the
+        # Raymer buildup, so this line says only what the plan committed to.
         script.engineer(
-            f"• Promoting the top {len(finalists)} feasible wings to the selected solver. "
-            f"• Solver of choice: VSPAERO. Launching {len(finalists)} parallel solves.")
-        script.engineer(
-            "• Each row below lands as its solve finishes; L/D is whole-aircraft "
-            "with Raymer's non-wing component buildup.")
+            f"• Solver of choice: VSPAERO. "
+            f"• Promoting the top {len(finalists)} feasible wings.")
         _emit_table(emit, script, title=_FINALIST_TABLE_TITLE,
                     headers=list(_FINALIST_HEADERS), rows=[],
                     table_id="finalist-solves")
@@ -1535,7 +1538,8 @@ def main(request: str | None = None, params: dict | None = None,
                 if surface:
                     emit("geometry.ready", {
                         "url": f"/api/surface/aircraft-optimization/{surface.name}",
-                        "label": f"solved finalist, span {f['span']:.0f} m, "
+                        "label": f"wing, whole-aircraft L/D via component "
+                                 f"buildup, span {f['span']:.0f} m, "
                                  f"area {f['area']:.0f} m²"})
             # The per-finalist numbers land as live rows in the "Finalist
             # solves" transcript table (emitted the moment each solve
@@ -1545,16 +1549,16 @@ def main(request: str | None = None, params: dict | None = None,
             best = max(solved_ok, key=lambda r: r["L_D_solved"])
             screen_agreed = best is max(feasible, key=lambda r: r["L_D"])
             script.engineer(
-                f"• Winner on solved numbers: span {best['span']:.0f} m, area "
-                f"{best['area']:.0f} m², L/D {best['L_D_solved']:.1f}."
+                f"• Winner: whole-aircraft L/D {best['L_D_solved']:.1f} "
+                f"{TIER_SOLVE}."
                 + (" • The screen ranked it first as well."
                    if screen_agreed else ""))
             winner_surface = out / f"wing-span{best['span']:g}-area{best['area']:g}.stl"
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
                     "url": f"/api/surface/aircraft-optimization/{winner_surface.name}",
-                    "label": f"winning wing, span {best['span']:.0f} m, "
-                             f"solved L/D {best['L_D_solved']:.1f}"})
+                    "label": f"wing, whole-aircraft L/D via component "
+                             f"buildup, winner, span {best['span']:.0f} m"})
         else:
             script.engineer(
                 "• No finalist returned a usable polar. "
@@ -1571,11 +1575,12 @@ def main(request: str | None = None, params: dict | None = None,
     for builder, name, title in (
             (lambda path: sweep_trade_figure(path, results),
              "sweep-trade.png",
-             "Cruise L/D against quarter-chord sweep, screened wings"),
+             f"Whole-aircraft L/D against quarter-chord sweep "
+             f"{TIER_SCREEN}"),
             ((lambda path: drag_polar_figure(path, solved_ok, best))
              if won_solved else (lambda path: None),
              "finalist-drag-polars.png",
-             "Solved drag polars for the finalist wings, VSPAERO")):
+             f"Drag polars for the finalist wings {TIER_SOLVE}")):
         try:
             path = builder(_plots_dir() / name)
         except Exception:   # a figure must never take down a good mission
@@ -1589,21 +1594,28 @@ def main(request: str | None = None, params: dict | None = None,
         # The screen and the solver are held side by side per wing. The mean
         # of this column is the model-channel evidence quoted below; the
         # column itself is what it was measured from.
+        # The one table where both tiers appear, so each column is headed by
+        # the tier it carries. No number here can be read as the other's.
         _emit_table(
-            emit, script, title="Screened L/D against solved L/D, per wing",
-            headers=["Span", "Area", "Sweep", "Screened L/D", "Solved L/D",
-                     "Change", "Cruise Point"],
+            emit, script, title="Whole-aircraft L/D, screened against solved",
+            headers=["Span", "Area", "Sweep", TIER_SCREEN, TIER_SOLVE,
+                     "Change"],
             rows=[[f"{f['span']:.0f} m",
                    f"{f['area']:.0f} m²",
                    f"{f['sweep_deg']:.0f}°",
                    f"{f['L_D']:.1f}",
                    f"{f['L_D_solved']:.1f}",
-                   f"{f['L_D_solved'] - f['L_D']:+.1f}",
-                   ("read past the end of the polar" if f.get("extrapolated")
-                    else "interpolated on the polar")]
+                   f"{f['L_D_solved'] - f['L_D']:+.1f}"]
                   for f in sorted(solved_ok, key=lambda r: r["L_D_solved"],
                                   reverse=True)],
             table_id="screen-against-solved")
+        # A cruise point read past the end of a polar is a caveat, so it is
+        # named when it happens and silent when it does not.
+        past_end = [f for f in solved_ok if f.get("extrapolated")]
+        if past_end:
+            script.numericist(
+                f"• {len(past_end)} of {len(solved_ok)} cruise points were "
+                f"read past the end of their polar.")
 
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).
@@ -1637,13 +1649,14 @@ def main(request: str | None = None, params: dict | None = None,
             f"±{(bracket['value'] or 0.0):.2f}. The cruise-point read on the "
             f"solved polar adds ±{readoff:.2f}.")
         model_note = (
-            f"Component buildup band on non-wing drag, propagated to L/D: "
+            f"Component buildup band on non-wing drag, propagated to "
+            f"whole-aircraft L/D: "
             f"±{u_model:.2f}. The band is the documented ±15% on the buildup "
             f"terms (Raymer, Aircraft Design: A Conceptual Approach, AIAA).")
         if gap is not None:
             model_note += (
                 f" The sizing screen's measured gap to the {len(solved_ok)} "
-                f"solved wings averages {gap:.2f} in L/D.")
+                f"solved wings averages {gap:.2f} in whole-aircraft L/D.")
         channels = uncertainty_channels(
             input_2sigma=round(ci95, 2), numerical=u_num, model=u_model,
             input_note=input_note, numerical_note=numerical_note,
@@ -1719,8 +1732,10 @@ def main(request: str | None = None, params: dict | None = None,
                 "added from Raymer's component buildup method")
     else:
         script.researcher(
-            "• Ranking trustworthy: aspect ratio buys L/D until landing speed stops it. "
-            f"• The magnitude {best['L_D']:.1f} ± {headline_ci:.1f} is a sizing-model estimate. "
+            "• Ranking trustworthy: aspect ratio buys whole-aircraft L/D "
+            "until landing speed stops it. "
+            f"• Magnitude {best['L_D']:.1f} ± {headline_ci:.1f} "
+            f"{TIER_SCREEN}. "
             f"• A solved flow and a comparison would set the magnitude.")
         verdict = trust(
             converged=True, solver_backed=False,
@@ -1728,21 +1743,22 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         # On a solved win the fidelity line is the verdict reason alone; a
         # duplicate envelope shorthand would only restate it less clearly.
-        emit("result.verdict", {"quantity": "Best feasible L/D",
+        emit("result.verdict", {"quantity": "Best feasible whole-aircraft L/D",
                                 "value": f"{best_ld:.1f}",
                                 "ci": f"{headline_ci:.1f}", "confidence": "95%",
                                 "envelope": ("" if won_solved else
                                              "sizing-model estimate"), **verdict})
     knowledge.add(
-        f"Airliner L/D for {reqs['passengers']} pax / {reqs['range_km']:.0f} km: "
-        f"best feasible L/D {best_ld:.1f} at span {best['span']:.0f} m, "
+        f"Airliner whole-aircraft L/D for {reqs['passengers']} pax / "
+        f"{reqs['range_km']:.0f} km: best feasible whole-aircraft L/D "
+        f"{best_ld:.1f} at span {best['span']:.0f} m, "
         f"aspect ratio {best['aspect_ratio']:.1f}"
         + (" (wing solved with VSPAERO)" if won_solved else " (screened)"))
 
     agenda = [
         {"title": "Cruise Mach trade",
          "scope": "sweep cruise Mach against the fixed requirements to find where "
-                  "the range-speed-L/D surface actually peaks",
+                  "the range, speed and whole-aircraft L/D surface actually peaks",
          "cost": "one more sweep dimension; solver already in place"},
         {"title": "Composite-span structural limits",
          "scope": "explore spans beyond today's structural cap with a composite "
@@ -1759,7 +1775,8 @@ def main(request: str | None = None, params: dict | None = None,
     methods = [
         "Weights from the passenger count via a payload fraction; MTOW carries a "
         "mild span-structural penalty.",
-        "Screening L/D from a drag polar (induced drag over aspect ratio and "
+        "Screening whole-aircraft L/D from a drag polar (induced drag over "
+        "aspect ratio and "
         "Oswald efficiency, parasite drag with sweep).",
         "Feasibility from stall-speed limits for take-off and landing and a "
         "Breguet range check.",
@@ -1775,9 +1792,10 @@ def main(request: str | None = None, params: dict | None = None,
             "(Raymer, Aircraft Design: A Conceptual Approach, AIAA).")
 
     abstract = [
-        f"We searched a {len(grid)}-wing design space for the highest cruise "
-        f"L/D meeting the stated mission requirements.",
-        f"The best feasible wing reaches L/D {best_ld:.1f} ± {headline_ci:.1f} (95%) "
+        f"We searched a {len(grid)}-wing design space for the highest "
+        f"whole-aircraft L/D meeting the stated mission requirements.",
+        f"The best feasible wing reaches whole-aircraft L/D {best_ld:.1f} "
+        f"± {headline_ci:.1f} (95%) "
         f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
         f"{n_infeasible} designs were infeasible on low-speed or range.",
         ("The winner stands on a wing polar solved with VSPAERO plus Raymer's "
@@ -1787,22 +1805,25 @@ def main(request: str | None = None, params: dict | None = None,
     ]
 
     uncertainty = [
-        "The trade is physical: L/D rises with aspect ratio until the landing "
+        "The trade is physical: whole-aircraft L/D rises with aspect ratio until "
+        "the landing "
         "speed caps it.",
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
          "comes from Raymer's component buildup method." if won_solved else
-         "The absolute L/D comes from a drag polar sizing model, not a solved "
+         "The absolute whole-aircraft L/D comes from a drag polar sizing model, "
+         "not a solved "
          "flow; the model channel carries that."),
         "The optimum sits between discrete grid points, so the reported design "
         "is the best sampled, not the continuous optimum.",
     ]
 
     report = lab_report(
-        title=f"Aircraft L/D optimization: {reqs['passengers']} pax, {reqs['range_km']:.0f} km",
+        title=f"Whole-aircraft L/D optimization: {reqs['passengers']} pax, "
+              f"{reqs['range_km']:.0f} km",
         abstract=abstract,
         methods=methods,
         results=[{
-            "quantity": "Best feasible L/D",
+            "quantity": "Best feasible whole-aircraft L/D",
             "value": f"{best_ld:.1f} ± {headline_ci:.1f} (95%)",
             "envelope": f"span {best['span']:.0f} m, AR {best['aspect_ratio']:.1f}, "
                         f"range {best['range_km']:.0f} km",
@@ -1840,7 +1861,7 @@ def main(request: str | None = None, params: dict | None = None,
 
         cert_doc = {
             "results": [
-                {"quantity": "Best feasible cruise L/D",
+                {"quantity": "Best feasible whole-aircraft L/D",
                  "value": f"{best_ld:.1f}",
                  "envelope": f"{headline_ci:.1f}", **verdict},
                 {"quantity": "Winning wing",
@@ -1854,7 +1875,7 @@ def main(request: str | None = None, params: dict | None = None,
                 ("MTOW", f"{best['mtow_kg'] / 1000:.0f} t"),
                 ("Range", f"{best['range_km']:.0f} km"),
                 ("Approach Speed", f"{best['approach_speed']:.0f} m/s"),
-                ("L/D", f"{best_ld:.1f}"),
+                ("Whole-aircraft L/D", f"{best_ld:.1f}"),
             ],
             "compute": ledger.as_dict(),
         }
