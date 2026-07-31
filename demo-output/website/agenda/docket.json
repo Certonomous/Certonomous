@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T12:40:55+00:00",
+ "generated_at": "2026-07-31T12:52:05+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -333,11 +333,12 @@
    "cost_basis": "measured: the prior graded solve of this body ran 3.1 minutes of wall time",
    "expected_knowledge_gain": "Either a validated credential for the Ahmed reference body, 35\u00b0 slant or a measured account of why the setup misses the reference",
    "source_kind": "gate",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-25T02:07:58+00:00",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T12:52:05+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W3"
+   "well": "W3",
+   "outcome": "Closed. The act was given the 35 degree surface and measured the slant off it at 35.0 degrees. C_d 0.2924 on the published frontal basis against 0.26, a 12 percent deviation on a plus or minus 15 percent band, from 21 percent before; 79,778 cells, both mesh gates cleared, settled to 0.025 percent of C_d. The credential stays at SOLVER-BACKED rather than VALIDATED, and not because of the reference: the case's own three-mesh ladder returns an observed order of 3.17, outside the theoretical range, so it is not grid-conclusive. The 25 degree body sits at 7 percent and is held by the same blocker. The router was also fixed so a prompt naming 35 degrees reaches the 35 degree body at all."
   },
   {
    "id": "agp-d392641d60f4",
