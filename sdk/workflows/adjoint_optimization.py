@@ -119,6 +119,29 @@ FD_PRIMAL_SOLVES = 211
 GATE_PASS_PCT = 5.0
 GATE_CONDITIONAL_PCT = 15.0
 
+# ITEM 3 (owner, 2026-07-31): how the derivative is taken, stated on screen,
+# because "is your turbulence frozen" is the first question an adjoint-literate
+# reviewer asks and the act should have answered it already.
+#
+# VERIFIED FROM THE RUN'S OWN CONFIGURATION, not assumed from the solver's
+# defaults. The run directory's SHA-256 over runScript_AeroOnly.py,
+# system/fvSolution and system/fvSchemes reproduces config_hash_sha256 in the
+# record byte for byte, and the configuration that configuration produced is
+# echoed in full by the solver at the top of the adjoint run:
+#
+#   useAD { mode reverse; }              reverse-mode AD, not a difference
+#   Adjoint States: 5 (U, nuTilda,       the turbulence variable is one of the
+#     phi, p, T), 349348 globally        five state fields the adjoint carries
+#   normalizeResiduals ... nuTildaRes    its residual is one of those
+#                                        differentiated, so NOT frozen
+#   forceMeshWaveFrozen 1                the wall distance that feeds the
+#                                        turbulence source term is the one
+#                                        thing not differentiated
+AD_MODE = "reverse"
+TURBULENCE_DIFFERENTIATED = True
+ADJOINT_STATE_FIELDS = 5
+ADJOINT_STATES = 349_348
+
 # The two rows of the verification table whose "100%" is a ratio of two
 # numbers that are both indistinguishable from zero, not a disagreement.
 _NOISE_FLOOR_ROWS = {"geometry.thickcon wrt twist"}
@@ -394,9 +417,38 @@ def main(request: str | None = None, params: dict | None = None,
     bullets(script.engineer,
             (f"Objective: cut drag by at least {target_pct:g}% at fixed lift."
              if target_pct else "Objective: cut drag at fixed lift."),
+            f"The gradient is taken by {AD_MODE}-mode automatic "
+            f"differentiation of the residuals, the turbulence model "
+            f"included.",
             f"Plan: take the adjoint gradient, then grade it against "
             f"{FD_SOLVES} primal solves.",
             f"Then optimize on the verified gradient.")
+    # ITEM 3 (owner, 2026-07-31): the one line above says it, and these rows
+    # say which residuals carry it, because "frozen turbulence" is the first
+    # objection an adjoint-literate reviewer raises and a general claim does
+    # not settle it. Every cell here was read off the run's own configuration.
+    emit_table(emit, script, role=_CE_ROLE,
+               title="How the derivative is taken",
+               headers=("Item", "Value"),
+               rows=[
+                   ["Differentiation",
+                    f"{AD_MODE.capitalize()} mode automatic differentiation "
+                    f"of the discretized residuals"],
+                   ["Turbulence",
+                    "The one-equation transport variable is one of the "
+                    "differentiated states. It is not frozen"
+                    if TURBULENCE_DIFFERENTIATED else
+                    "Frozen: the turbulence variable is not differentiated"],
+                   ["Adjoint states",
+                    f"{ADJOINT_STATES:,}, over {ADJOINT_STATE_FIELDS} state "
+                    f"fields"],
+                   ["Not differentiated",
+                    "The wall distance that feeds the turbulence source term"],
+                   ["Cost of the whole gradient",
+                    "One linear solve against the transpose of the flow "
+                    "Jacobian"],
+               ],
+               table_id="ad-adjoint-optimization")
 
     # ---------------- Evidence: the gradient check ----------------
     script.phase(EVIDENCE)
@@ -795,9 +847,14 @@ def main(request: str | None = None, params: dict | None = None,
             "Steady compressible RANS primal with a one-equation turbulence "
             "closure and wall functions, solved to its own residual "
             "tolerance.",
-            "Reverse-mode discrete adjoint for drag and for lift with "
-            "respect to surface control points, spanwise twist and the flow "
-            "state.",
+            f"Discrete adjoint for drag and for lift with respect to surface "
+            f"control points, spanwise twist and the flow state. The "
+            f"derivative is taken by {AD_MODE}-mode automatic differentiation "
+            f"of the discretized residuals, with the one-equation turbulence "
+            f"transport equation among the {ADJOINT_STATE_FIELDS} "
+            f"differentiated state fields rather than frozen; the wall "
+            f"distance feeding its source term is the one term not "
+            f"differentiated.",
             f"Verification by {fd_form} finite difference of the full primal "
             f"at a single absolute step of {fd_step:g}, {FD_SOLVES} "
             f"perturbation solves covering every one of the {N_DV} design "
