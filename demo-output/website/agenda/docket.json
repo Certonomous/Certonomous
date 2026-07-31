@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T10:18:18Z",
+  "generated_at": "2026-07-31T12:18:22Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -132,6 +132,25 @@
       "dismiss_reason": "Done and on the record. Every case the lab holds is placed in the building block validation hierarchy, 24 of them, each carrying the basis for its placement, what data can exist at that tier, the ceiling that puts on its fidelity chip, and the single thing that would unlock the next tier. The record is written to the credibility artifact and a test regenerates it and fails if it drifts from the module behind it. Two bodies the first pass had left unplaced, the MACH tutorial wing and the 52 m transport wing, are now placed. Nothing here changes what a chip means and the artifact deliberately carries no chip of its own, because a second copy of a grade is a second thing to drift and some records still hold vocabulary that has been retired. The tier field is named validation_tier and never tier, since tier already means the fidelity chip everywhere in this codebase. Three of the 24 have no entry in the ratified display name registry and the record declares which ones rather than inventing names beside it."
     },
     {
+      "id": "w2-mit-access-list",
+      "well": "W2",
+      "objective": "Open the paywalled-paper list for Katie MIT library access and work the open-access seed list down",
+      "rationale": "The standing permission covers open access and routes paywalled work to her library, but no list exists, so a paywalled paper currently stalls a reading instead of being handed over. Every reading must yield a proposal or a documented reason none is reproducible.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A list she can act on, and at least one filed proposal per open-access paper read",
+      "expected_knowledge_gain": "Removes the last excuse for a reading not happening",
+      "source_kind": "reading",
+      "citations": [
+        "Ling, Kurzawski & Templeton 2016",
+        "Schmelzer, Dwight & Cinnella 2020"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T10:18:18Z"
+    },
+    {
       "id": "w4-a1-warpderiv-upstream",
       "well": "W4",
       "objective": "Report the mesh.warpDeriv mis-linearization upstream to DAFoam with a minimal reproducer",
@@ -149,6 +168,25 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T08:18:16Z"
+    },
+    {
+      "id": "w4-idwarp-source-trace",
+      "well": "W4",
+      "objective": "Trace the warpDeriv mis-linearization to a line in the IDWarp source",
+      "rationale": "The defect is confirmed on two geometries and reproduces on stock tutorials from a fresh clone, but no source line is named. The report still calls a multi-point indexing bug the likely start, and A5 weakens that because its design variables are single-point. Without a line the upstream filing is a symptom report.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A named function and mechanism in IDWarp, or a documented statement of why the source cannot be reached",
+      "expected_knowledge_gain": "Turns a symptom report into a fix an upstream maintainer can act on",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
+        "dafoam/PROOF.md section 22"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T10:18:18Z"
     },
     {
       "id": "w7-weekly-claim-audit",
@@ -169,6 +207,24 @@
       ],
       "status": "proposed",
       "created_at": "2026-07-31T08:18:16Z"
+    },
+    {
+      "id": "w7-s7-withdraw-or-keep",
+      "well": "W7",
+      "objective": "Decide rule S7 on measurement: it fires on 68 of 106 archived logs and calls 65 fatal",
+      "rationale": "Ungated, the oscillatory-divergence rule condemns most completed runs whose results are on the record, and it cannot separate the two logs of the case it was written for. Four tightenings were measured and none rescued it. It is currently gated on reasoning that the archive cannot replay, which makes it the one monitor rule with no evidence behind it.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Either a gate demonstrated against the archive, or withdrawal recorded with the measurements that justify it",
+      "expected_knowledge_gain": "A monitor rule nobody can validate is worse than no rule, because it is trusted",
+      "source_kind": "report",
+      "citations": [
+        "docs/standards/MONITOR_STANDARD.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T10:18:18Z"
     },
     {
       "id": "w8-certificate-interval-lesson",
@@ -872,6 +928,25 @@
       "well": "W1"
     },
     {
+      "id": "w3-hump-fleet-honesty",
+      "well": "W3",
+      "objective": "Resolve what the hump act should show when its warm path runs no parallel work",
+      "rationale": "The act declares a worker fleet at a moment when nothing is running: on the warm path the mesh and the solve are both restored and the elapsed time computes to zero. Moving the declaration earlier to fix the timing would invent a fleet the run never used, and the standing rule forbids implying anything was prepared in advance.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.821,
+      "cost_basis": "estimate",
+      "gate": "Either the act performs the work it displays, or it displays no fleet, with the choice stated on the record",
+      "expected_knowledge_gain": "Closes the last place a filmed act narrates work that did not happen",
+      "source_kind": "capability",
+      "citations": [
+        "sdk/workflows/nasa_hump.py",
+        "demo-presentation-conventions"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T10:18:18Z"
+    },
+    {
       "id": "r4-m6-wall-treatment-plateau",
       "objective": "Test whether the ONERA M6 primal residual plateau at 1.02e-06 is caused by wall resolution sitting in the buffer layer, by re-running the case on a wall-resolved mesh (yPlus below 1) and on a clean wall-function mesh (yPlus above 30) and observing whether the plateau moves",
       "rationale": "The M6 act ships as a documented failure: the primal ran its full 3,000 iterations and missed its own 1e-08 gate at 1.02e-06. The turbulence equation alone is responsible - momentum, energy and pressure all satisfy the gate at 1e-07 to 1e-08. The residual reached 1e-06 inside the first quarter of the run and changed by a factor of 0.997 across the entire final third, so it is a fixed point rather than slow convergence and more iterations cannot help. The mesh has yPlus spanning 5.21 to 103.5 with mean 33.8, which straddles the buffer layer: too coarse to resolve the viscous sublayer, too fine for a clean wall function. A turbulence equation that cannot settle while every other equation does is consistent with the near-wall treatment being ambiguous across the surface. This is a hypothesis, not a conclusion, and the run that produced it does not test it. Two meshes settle it: if the plateau clears on either, wall treatment is the cause; if it survives both, the cause is elsewhere and we have narrowed it sharply.",
@@ -941,6 +1016,25 @@
       "created_at": "2026-07-25T15:14:47",
       "launch_prompt": "Run workflows.tmr_verification.run_naca_level for (medium, fine) x (10, 0, 15 degrees) sequentially with detach=True and collect_level, honoring the STOP file before every launch; then build the per-alpha summaries with build_naca_summary and persist_naca_ladder, and only then touch the card.",
       "well": "W5"
+    },
+    {
+      "id": "w1-f5b-pitching-naca0012",
+      "well": "W1",
+      "objective": "Complete the F5b pitching NACA 0012 dynamic-stall physics and gate rungs",
+      "rationale": "F5b has a feasibility rung only and its physics and gate rungs are marked to be completed. Dynamic stall is unsteady, separated and hysteretic, so it is HARD by the case-selection floor, and it is the only unsteady-statistics family the lab has started and not finished.",
+      "est_core_min": 120,
+      "predicted_memory_gb": 6.0,
+      "predicted_usd": 1.642,
+      "cost_basis": "estimate",
+      "gate": "Lift hysteresis loop against McAlister NASA TP-1100 at a stated tolerance",
+      "expected_knowledge_gain": "Completes an unsteady family and gives the UQ layer a hysteretic case to bound",
+      "source_kind": "gate",
+      "citations": [
+        "McAlister, Carr & McCroskey, NASA TP-1100",
+        "campaign/F5bc_unsteady_statistics.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T10:18:18Z"
     },
     {
       "id": "r4-coarse-adjoint-prolongation",
@@ -1055,6 +1149,25 @@
       "well": "W3"
     },
     {
+      "id": "fiml-adjoint-conditioning-unblock",
+      "objective": "Fix the discrete adjoint linear solve conditioning that blocks field inversion on every closure relevant case, starting from the two levers that already convert the catastrophic failure into honest stagnation",
+      "rationale": "Field inversion capability is now proven and finite difference verified on a five thousand cell tutorial case at about 1.7 core minutes per gradient, and the mesh warp defect that fails the airfoil and the U bend is measured absent from the beta chain, so the only thing between this lab and Stage 1 is one linear solve. Both closure relevant cases fail identically: the curved backward facing step at twenty one thousand cells and the NASA hump at fifty one thousand six hundred cells both return PETSc reason minus nine with zero iterations. Memory is measured not to be the cause on the hump, peak about eleven gigabytes with nineteen gigabytes still free and Jacobian colouring completing normally. Four mechanisms were tested on the hump: wall treatment and the velocity limiter are refuted, while switching off residual normalization and switching the Jacobian reordering from reverse Cuthill McKee to natural each remove the NaN and leave a flat residual. That is the same signature the transonic conditioning study reached on a completely different physics family, which points at one shared unfixed layer of ill conditioning rather than two case specific bugs. The untried threads that study named are a per region state normalization and a preconditioner family swap, the latter needing a rebuild because the type is hard coded after the options are read",
+      "citations": [
+        "Certonomous Roadmap 4A Stage 1 field inversion record, measured 2026-07-31",
+        "Certonomous transonic adjoint conditioning study R5, measured 2026-07-30",
+        "Certonomous Ladder B3 curved backward facing step adjoint blocker, measured 2026-07-28",
+        "Certonomous F6a NASA wall mounted hump baseline against NASA published validation data, measured 2026-07-28"
+      ],
+      "est_core_min": 240.0,
+      "cost_basis": "measured: one hump gradient attempt costs about 8 core minutes end to end including colouring, and the four mechanism tests already run cost about 32 core minutes total; budget covers roughly a dozen further single change attempts plus one preconditioner rebuild",
+      "expected_knowledge_gain": "Either the first closure relevant field inversion this lab can actually run, which unblocks Stage 1 and the error decomposition that depends on it, or a measured statement that this adjoint stack cannot invert on wall resolved separated cases at all, which would redirect the whole closure line",
+      "source_kind": "measurement",
+      "status": "proposed",
+      "created_at": "2026-07-31",
+      "launch_prompt": "The field inversion capability is proven and FD verified, and the target case is blocked by one thing: the adjoint linear solve. Read the Stage 1 field inversion record and the R5 conditioning study first. On the NASA hump case, four mechanisms are already tested: wall treatment REFUTED, velocity limiter REFUTED, residual normalization off and natural Jacobian reordering each REMOVE the NaN but leave the GMRES residual flat to eleven digits. Do not retest those. The two named untried threads are a per region or per cell state normalization targeting the high aspect ratio near wall band, and a preconditioner family swap which needs a library rebuild because the type is set after the options are read. Every claim cites a log path and a timestamp. A measured negative is a complete answer.",
+      "well": "W4"
+    },
+    {
       "id": "tmr-flatplate-finest-grids",
       "objective": "Extend the measured flat-plate ladder to the two finest TMR grids (273x193 and 545x385) so the extrapolation is anchored in the asymptotic range",
       "rationale": "Tonight's three rungs cost 139.1 core-minutes in total and reached about 1 percent of the finest-grid reference; the two finest rungs would close most of that gap and give the observed order room to approach 2",
@@ -1147,98 +1260,99 @@
       "well": "W5"
     },
     {
-      "id": "w4-idwarp-source-trace",
+      "id": "w4-rcm-reordering-across-blocked",
       "well": "W4",
-      "objective": "Trace the warpDeriv mis-linearization to a line in the IDWarp source",
-      "rationale": "The defect is confirmed on two geometries and reproduces on stock tutorials from a fresh clone, but no source line is named. The report still calls a multi-point indexing bug the likely start, and A5 weakens that because its design variables are single-point. Without a line the upstream filing is a symptom report.",
+      "objective": "Test the matrix reordering across every blocked adjoint, since it is implicated in producing the NaN",
+      "rationale": "The hump adjoint dies NANORINF at GMRES iteration zero; switching the reordering from rcm to natural removes the NaN, though it still does not converge. The failing scripts use rcm and the one working tutorial uses natural. A3, CBFS and the transonic case are all blocked with related signatures and none has had the reordering varied. One shared setting behind several independent blockers is the cheapest hypothesis left.",
+      "est_core_min": 120,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 1.642,
+      "cost_basis": "estimate",
+      "gate": "Each blocked case either changes signature under natural reordering or is shown not to, with its own log cited",
+      "expected_knowledge_gain": "One test either unblocks several cases at once or eliminates the last cheap explanation",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md",
+        "dafoam/R5_ADJOINT_CONDITIONING.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T12:18:22Z"
+    },
+    {
+      "id": "w3-find-an-invertible-closure-case",
+      "well": "W3",
+      "objective": "Find a closure-relevant case this lab can actually invert on",
+      "rationale": "Field inversion is proven and FD-verified on a 5,000-cell tutorial, but that case is synthetic. The stated target is blocked by conditioning, so there is currently no closure-relevant case the lab can invert on and C2 is blocked behind that. The search is for a case that converges its adjoint AND has a defensible experimental reference.",
+      "est_core_min": 90,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 1.232,
+      "cost_basis": "estimate",
+      "gate": "A named case with a converging field-inversion adjoint and a citable reference, or a documented statement that none exists within reach",
+      "expected_knowledge_gain": "Unblocks the entire closure line, which is the product",
+      "source_kind": "measurement",
+      "citations": [
+        "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md",
+        "roadmap 4A Stage 1 and C2"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T12:18:22Z"
+    },
+    {
+      "id": "w8-in-sample-inversion-clause",
+      "well": "W8",
+      "objective": "Write the in-sample inversion rule into the verification and literature charters",
+      "rationale": "NASA_2DWMH is a scored test case. Inverting on its experimental data is legitimate field inversion but in-sample by construction, and a benchmark score from it must never be reported as generalization. This is the same shape as the shortcut the lab already refused once, arriving from a direction nobody was watching, and it was caught by an aside in a report rather than by a rule.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A charter clause plus a check that flags any inversion whose training data intersects a scored case",
+      "expected_knowledge_gain": "Closes the leakage route that would invalidate a submission",
+      "source_kind": "report",
+      "citations": [
+        "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
+        "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T12:18:22Z"
+    },
+    {
+      "id": "w5-wall-only-validated-row",
+      "well": "W5",
+      "objective": "Rule on the credentials wall, whose only VALIDATED row would downgrade on a rebuild",
+      "rationale": "Re-derived through the builder own function, the Ahmed row goes VALIDATED to SOLVER-BACKED with its drag moving 0.3219 to 0.3041 and an envelope of plus or minus 0.02 from a refinement study that came back inconclusive. It is the wall only VALIDATED row. The wall and its generator currently disagree, so whichever is right, one of them is publishing something the other contradicts.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The wall and its generator agree, and every displayed tier is the one its evidence supports",
+      "expected_knowledge_gain": "The wall is the most public surface the lab has; a contradiction there costs more than a downgrade",
+      "source_kind": "report",
+      "citations": [
+        "scripts/self_audit.py",
+        "models/curriculum/uq-studies/ahmed_25.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T12:18:22Z"
+    },
+    {
+      "id": "w6-rebuild-the-laptop-bundle",
+      "well": "W6",
+      "objective": "Rebuild the shipped laptop bundle, which still carries the certificate that manufactures confidence intervals",
+      "rationale": "The tracked certificate was fixed so a statistical caption only sits on a value a statistical procedure produced. The bundle under dist was never regenerated, so the copy Katie would carry to a shoot still captions any envelope a 95 percent confidence interval. A fix that does not reach the artifact people actually run is not a fix.",
       "est_core_min": 0,
       "predicted_memory_gb": 1.0,
       "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "A named function and mechanism in IDWarp, or a documented statement of why the source cannot be reached",
-      "expected_knowledge_gain": "Turns a symptom report into a fix an upstream maintainer can act on",
+      "gate": "The bundle reproduces the tracked behaviour, verified by rendering a certificate from inside it",
+      "expected_knowledge_gain": "Stops the fallback demo contradicting the primary one",
       "source_kind": "capability",
       "citations": [
-        "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
-        "dafoam/PROOF.md section 22"
+        "dist/certonomous-demo",
+        "scripts/self_audit.py"
       ],
       "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
-    },
-    {
-      "id": "w3-hump-fleet-honesty",
-      "well": "W3",
-      "objective": "Resolve what the hump act should show when its warm path runs no parallel work",
-      "rationale": "The act declares a worker fleet at a moment when nothing is running: on the warm path the mesh and the solve are both restored and the elapsed time computes to zero. Moving the declaration earlier to fix the timing would invent a fleet the run never used, and the standing rule forbids implying anything was prepared in advance.",
-      "est_core_min": 60,
-      "predicted_memory_gb": 4.0,
-      "predicted_usd": 0.821,
-      "cost_basis": "estimate",
-      "gate": "Either the act performs the work it displays, or it displays no fleet, with the choice stated on the record",
-      "expected_knowledge_gain": "Closes the last place a filmed act narrates work that did not happen",
-      "source_kind": "capability",
-      "citations": [
-        "sdk/workflows/nasa_hump.py",
-        "demo-presentation-conventions"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
-    },
-    {
-      "id": "w7-s7-withdraw-or-keep",
-      "well": "W7",
-      "objective": "Decide rule S7 on measurement: it fires on 68 of 106 archived logs and calls 65 fatal",
-      "rationale": "Ungated, the oscillatory-divergence rule condemns most completed runs whose results are on the record, and it cannot separate the two logs of the case it was written for. Four tightenings were measured and none rescued it. It is currently gated on reasoning that the archive cannot replay, which makes it the one monitor rule with no evidence behind it.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Either a gate demonstrated against the archive, or withdrawal recorded with the measurements that justify it",
-      "expected_knowledge_gain": "A monitor rule nobody can validate is worse than no rule, because it is trusted",
-      "source_kind": "report",
-      "citations": [
-        "docs/standards/MONITOR_STANDARD.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
-    },
-    {
-      "id": "w1-f5b-pitching-naca0012",
-      "well": "W1",
-      "objective": "Complete the F5b pitching NACA 0012 dynamic-stall physics and gate rungs",
-      "rationale": "F5b has a feasibility rung only and its physics and gate rungs are marked to be completed. Dynamic stall is unsteady, separated and hysteretic, so it is HARD by the case-selection floor, and it is the only unsteady-statistics family the lab has started and not finished.",
-      "est_core_min": 120,
-      "predicted_memory_gb": 6.0,
-      "predicted_usd": 1.642,
-      "cost_basis": "estimate",
-      "gate": "Lift hysteresis loop against McAlister NASA TP-1100 at a stated tolerance",
-      "expected_knowledge_gain": "Completes an unsteady family and gives the UQ layer a hysteretic case to bound",
-      "source_kind": "gate",
-      "citations": [
-        "McAlister, Carr & McCroskey, NASA TP-1100",
-        "campaign/F5bc_unsteady_statistics.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
-    },
-    {
-      "id": "w2-mit-access-list",
-      "well": "W2",
-      "objective": "Open the paywalled-paper list for Katie MIT library access and work the open-access seed list down",
-      "rationale": "The standing permission covers open access and routes paywalled work to her library, but no list exists, so a paywalled paper currently stalls a reading instead of being handed over. Every reading must yield a proposal or a documented reason none is reproducible.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A list she can act on, and at least one filed proposal per open-access paper read",
-      "expected_knowledge_gain": "Removes the last excuse for a reading not happening",
-      "source_kind": "reading",
-      "citations": [
-        "Ling, Kurzawski & Templeton 2016",
-        "Schmelzer, Dwight & Cinnella 2020"
-      ],
-      "status": "proposed",
-      "created_at": "2026-07-31T10:18:18Z"
+      "created_at": "2026-07-31T12:18:22Z"
     }
   ]
 }
