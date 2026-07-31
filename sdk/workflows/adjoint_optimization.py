@@ -78,6 +78,7 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 SOLVER_BACKED, ComputeLedger, KnowledgeBase,
                                 Roster, lab_report, uncertainty_channels)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
+from chief_engineer.transcript import MONITOR as _MON_ROLE
 from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
 
 from . import _a2_shape
@@ -164,6 +165,34 @@ SIGN_BOUND_PCT = 0.58
 CUTBACKS = 4
 # How many trailing major iterations the "settled into a band" claim covers.
 TAIL_ITERS = 15
+
+# ITEM 6 (owner, 2026-07-31): a shape change worth a third of the section's
+# own thickness is large enough that a viewer is entitled to ask what it did
+# to the mesh, so the monitor reports the answer whenever the reference
+# displacement passes this fraction of local thickness. The trigger is a
+# threshold rather than a decision, so the report cannot be quietly dropped
+# on a run where the shape moved even further.
+MESH_REPORT_TRIGGER_PCT = 10.0
+
+# The run's own mesh quality checks, ON THE DEFORMED MESH, one per design
+# evaluation. Counted and read out of the optimizer's own output file: the
+# solver re-runs OpenFOAM's mesh quality checks after every deformation and
+# refuses to solve a design that fails them. Ranges are across all of them.
+MESH_DEFORM_CHECKS = 81
+MESH_DEFORM_CHECKS_PASSED = 81
+MESH_NON_ORTHO_RANGE = (66.84, 82.00)   # degrees, worst cell in each check
+MESH_SKEW_RANGE = (1.34, 3.45)
+MESH_ASPECT_RANGE = (376.0, 993.3)
+# The thresholds this case configured, which are the ones the solver judged
+# against. A face past the non-orthogonality mark is counted and reported;
+# OpenFOAM's own check only errors at 90 degrees, where a face has folded.
+MESH_NON_ORTHO_MARK = 70.0
+MESH_NON_ORTHO_ERROR = 90.0
+MESH_SKEW_GATE = 5.0
+MESH_ASPECT_GATE = 1000.0
+MESH_FACES = 119_524
+MESH_WORST_FLAGGED_FACES = 6
+MESH_CHECKS_OVER_MARK = 39
 
 _AGENDA = [
     {"title": "The gradient on a wing-body, not a wing",
@@ -693,6 +722,50 @@ def main(request: str | None = None, params: dict | None = None,
                    ],
                    table_id="shape-adjoint-optimization")
 
+        # ITEM 6 (owner, 2026-07-31): a surface that moves this far relative
+        # to its own thickness raises an obvious question about what happened
+        # to the mesh underneath it, and the run answered that question 81
+        # times. The trigger is a threshold, not a judgement call: if the
+        # reference displacement clears MESH_REPORT_TRIGGER_PCT of local
+        # thickness, the metrics go on screen. Nothing here is softened; the
+        # worst check pushed six faces past the non-orthogonality mark, and
+        # that is on the table alongside the checks that were clean.
+        thickness_pct = (reference_mm / 10.0 / shapes["thickness_root_m"])
+        if thickness_pct >= MESH_REPORT_TRIGGER_PCT:
+            nlo, nhi = MESH_NON_ORTHO_RANGE
+            slo, shi = MESH_SKEW_RANGE
+            alo, ahi = MESH_ASPECT_RANGE
+            gate.table(emit, script, role=_MON_ROLE,
+                       title="Mesh quality after deformation",
+                       headers=("Metric", "Across the pass", "Threshold"),
+                       rows=[
+                           ["Why this is reported",
+                            f"The shape moved {thickness_pct:.0f}% of local "
+                            f"thickness",
+                            f"Reported above {MESH_REPORT_TRIGGER_PCT:g}%"],
+                           ["Checks on the deformed mesh",
+                            f"{MESH_DEFORM_CHECKS}, one per design "
+                            f"evaluation",
+                            f"{MESH_DEFORM_CHECKS_PASSED} returned mesh OK"],
+                           ["Worst cell non-orthogonality",
+                            f"{nlo:.1f} to {nhi:.1f} deg",
+                            f"{MESH_NON_ORTHO_MARK:g} deg mark, "
+                            f"{MESH_NON_ORTHO_ERROR:g} deg error"],
+                           ["Faces past that mark at the worst check",
+                            f"{MESH_WORST_FLAGGED_FACES} of "
+                            f"{MESH_FACES:,}",
+                            f"{MESH_CHECKS_OVER_MARK} of "
+                            f"{MESH_DEFORM_CHECKS} checks had any"],
+                           ["Maximum skewness", f"{slo:.2f} to {shi:.2f}",
+                            f"{MESH_SKEW_GATE:g}"],
+                           ["Maximum aspect ratio",
+                            f"{alo:.0f} to {ahi:.0f}",
+                            f"{MESH_ASPECT_GATE:g}"],
+                           ["Designs refused on mesh quality", "None",
+                            "The solver refuses any that fail"],
+                       ],
+                       table_id="meshdeform-adjoint-optimization")
+
         # ---- second pass: the same 48 frames on a closer viewing convention
         # No coordinate is scaled: the viewing convention moves, the wing does
         # not. The measured amplification ceiling and the pixel arithmetic
@@ -950,6 +1023,17 @@ def main(request: str | None = None, params: dict | None = None,
             f"primal. Sign agreement was confirmed directly on "
             f"{SIGN_CHECKED} components and bounded below "
             f"{SIGN_BOUND_PCT:.2g}% of gradient magnitude on the rest.",
+            f"The mesh-validity block below reports the mesh as built. The "
+            f"deformed mesh was checked again at every one of the "
+            f"{MESH_DEFORM_CHECKS} design evaluations: worst cell "
+            f"non-orthogonality ranged to {MESH_NON_ORTHO_RANGE[1]:.1f} deg "
+            f"against a {MESH_NON_ORTHO_MARK:g} deg mark, with "
+            f"{MESH_WORST_FLAGGED_FACES} of {MESH_FACES:,} faces past it at "
+            f"the worst check, maximum skewness to "
+            f"{MESH_SKEW_RANGE[1]:.2f} against {MESH_SKEW_GATE:g} and "
+            f"maximum aspect ratio to {MESH_ASPECT_RANGE[1]:.0f} against "
+            f"{MESH_ASPECT_GATE:g}. Every check returned mesh OK and no "
+            f"design was refused on mesh quality.",
         ],
         next_investigations=[f"{e['title']}: {e['scope']}" for e in _AGENDA],
         compute=ledger.as_dict(),
