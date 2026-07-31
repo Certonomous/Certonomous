@@ -1076,26 +1076,47 @@ _FINALIST_HEADERS = ("Span", "Alpha", "CDi", "Wing Viscous",
 _FINALIST_TABLE_TITLE = f"Finalist solves {TIER_SOLVE}"
 
 
+def _record_rows(script, *, title: str, headers, rows, role: str = _SPEAKER,
+                 echo: bool = False) -> None:
+    """Write table rows to the saved transcript, in the order given.
+
+    Split out from ``_emit_table`` because the two audiences want different
+    orders. The control room wants rows the moment their solve finishes,
+    which is the order the box happened to finish them in and is therefore
+    different every run. The saved transcript is the record a replay is
+    checked against, so it takes the rows in a fixed order and the same run
+    reproduces line for line.
+    """
+    for row in rows:
+        line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
+        entry = Entry(role, f"[{title}] {line}")
+        script.entries.append(entry)
+        if echo and script.echo:
+            script.echo(entry.render())
+
+
 def _emit_table(emit, script, *, title: str, headers, rows, table_id: str,
-                append: bool = False, role: str = _SPEAKER) -> None:
+                append: bool = False, role: str = _SPEAKER,
+                record: bool = True) -> None:
     """Put a transcript table on the record.
 
     The control room renders it as a compact table in the same paced feed as
     transcript entries; ``append=True`` lands new rows into the existing table
     (rows arrive live as solves finish). Every row is also mirrored into the
-    saved transcript so the on-disk record keeps the numbers."""
+    saved transcript so the on-disk record keeps the numbers.
+
+    ``record=False`` sends the rows to the control room and leaves them out of
+    the saved transcript, for a caller that lands rows in completion order on
+    screen and writes them to the record in a fixed order afterwards."""
     if emit:
         emit("transcript.table", {
             "role": role, "title": title,
             "headers": [str(h) for h in headers],
             "rows": [[str(cell) for cell in row] for row in rows],
             "table_id": table_id, "append": bool(append), "at": time.time()})
-    for row in rows:
-        line = " | ".join(f"{h} {cell}" for h, cell in zip(headers, row))
-        entry = Entry(role, f"[{title}] {line}")
-        script.entries.append(entry)
-        if emit is None and script.echo:
-            script.echo(entry.render())
+    if record:
+        _record_rows(script, title=title, headers=headers, rows=rows,
+                     role=role, echo=emit is None)
 
 
 def evaluate_design(span: float, area: float, sweep_deg: float, reqs: dict) -> dict:
@@ -1618,6 +1639,12 @@ def main(request: str | None = None, params: dict | None = None,
                                else "queued for a free slot")})
         started = time.time()
 
+        # Rows land on screen the moment their solve finishes, which is the
+        # order this box happened to finish them in and is different every
+        # run. They go on the saved record afterwards in rank order, so the
+        # same run reproduces line for line and the live beat is kept.
+        solved_rows: dict[int, list[str]] = {}
+
         def _finalist_job(job):
             """Solve one finalist and land its table row the moment the polar
             arrives — rows appear live as solves finish, not after the batch."""
@@ -1630,15 +1657,16 @@ def main(request: str | None = None, params: dict | None = None,
                 try:
                     whole_ld = f["cl_cruise"] / (
                         _CD0_NONWING + matched["cdo_wing"] + matched["cdi"])
+                    row = [f"{f['span']:.0f} m",
+                           f"{matched['alpha']:.1f}°",
+                           f"{matched['cdi']:.4f}",
+                           f"{matched['cdo_wing']:.4f}",
+                           f"{whole_ld:.1f}"]
+                    solved_rows[index] = row
                     _emit_table(
                         emit, script, title=_FINALIST_TABLE_TITLE,
-                        headers=list(_FINALIST_HEADERS),
-                        rows=[[f"{f['span']:.0f} m",
-                               f"{matched['alpha']:.1f}°",
-                               f"{matched['cdi']:.4f}",
-                               f"{matched['cdo_wing']:.4f}",
-                               f"{whole_ld:.1f}"]],
-                        table_id="finalist-solves", append=True)
+                        headers=list(_FINALIST_HEADERS), rows=[row],
+                        table_id="finalist-solves", append=True, record=False)
                 except (KeyError, TypeError, ZeroDivisionError):
                     pass   # a malformed result stays out of the table
             return result
@@ -1650,6 +1678,12 @@ def main(request: str | None = None, params: dict | None = None,
         with ThreadPoolExecutor(max_workers=max(1, n_par)) as pool:
             batch = list(pool.map(_finalist_job, enumerate(designs)))
         elapsed = time.time() - started
+        # The record takes the rows in rank order, whatever order they landed
+        # in on screen.
+        _record_rows(script, title=_FINALIST_TABLE_TITLE,
+                     headers=list(_FINALIST_HEADERS),
+                     rows=[solved_rows[i] for i in sorted(solved_rows)],
+                     echo=emit is None)
         roster.set_workers(0)
         if emit:
             for slot, (f, result) in enumerate(zip(finalists, batch)):
