@@ -474,14 +474,23 @@ exactly — global maxima 2136801.242, 2192932.91, 2218683.129, and wall-band ma
 and 4,416.0 from `checkMesh -writeAllFields` against cell centres — so the rows above are
 the same quantity measured the same way.
 
-**Section 4's conclusion does not survive this for the bump.** "Max aspect ratio in the
-millions, worsening under refinement, is a normal property of a wall-resolved grid family
-with a fixed farfield extent" is true of NASA's NACA0012 C-grid, whose worst cells live
-271-476 chords out in a wake cut that runs to 569 chords. It is **not** true of the bump,
-where NASA's own reference grid — same case, same node count, same 25-units-each-way
-domain — has not one cell above 1e5.
+**Section 4's conclusion splits in two here, and only half of it survives.** It claimed
+that "max aspect ratio in the millions, worsening under refinement, is a normal property
+of a wall-resolved grid family with a fixed farfield extent". Separate the two halves:
 
-The mechanism is specific and it is ours:
+- **"Worsening under refinement" is normal, and NASA's bump grids confirm it a third
+  time.** Theirs go 4,844.5 → 5,210.2, up 7.6% across the rung. So that signature still
+  cannot, on its own, indicate a defect anywhere — the section-4 finding that mattered for
+  the pyHyp question stands untouched.
+- **"In the millions" is not normal, and does not transfer from the NACA0012 C-grid to the
+  bump.** The C-grid earns its 20-30 million honestly: its worst cells live 271-476 chords
+  out in a wake cut that runs to 569 chords. The bump has no wake cut and no 500-chord
+  farfield — it is 25 units each way — and NASA's own grid for it, at our exact node
+  count, has **not one cell above 1e5**. Ours has 68.
+
+So the roadmap note's instinct that the bump number is abnormal is right, and section 4
+was wrong to wave it through as a family property. The mechanism that produced it is
+specific, and it is ours:
 
 | | NASA 89x41 | ours, coarse |
 |---|---|---|
