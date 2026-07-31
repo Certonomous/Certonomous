@@ -2318,3 +2318,96 @@ Evidence: `ladder-a/A5_work/UBend_Channel_pressureloss/probeA5RealSeed.py`, `pro
 `probeA5NoiseFloor.py`, `probeA5DObjDXvReset.py`; logs `a5_realseed_np4_run1.log`,
 `a5_dobjdxv_np1_run1.log`, `a5_noisefloor_np1_run1.log`, `a5_dobjdxv_reset_np1_run1.log`; full write-up
 in `ladder-a/A5_ubend_internal.md` (addendum, 2026-07-31); standalone reproducer in `upstream_repro/`.
+
+## 23. Session 2026-07-31 (well W5): the defect is traced to a source line, and it turns out to be an open upstream bug from 2021
+
+Sections 15-22 established *that* `mesh.warpDeriv` mis-linearizes the warp, on two geometries, to 207%
+with sign flips. They could not say *which line*. This section names it, and the naming came with two
+corrections to how this lab had been describing its own result.
+
+**The line.** `getRotationMatrix3d` (`src/utils/vectorUtils.f90:31-103` in IDWarp 2.6.2) builds the
+rotation carrying each surface node's reference normal `n0` onto its current normal `n`, by
+normalizing the cross product and taking `acos` of the dot product. That parameterization has a
+removable coordinate singularity at `n = n0`, which the code guards at **line 58**:
+
+```fortran
+real(kind=realType), parameter :: tol = 1.4901161193847656e-08     ! line 44 (= sqrt(eps))
+if (axisMag < tol) then                                            ! line 58
+    angle = zero
+```
+
+Tapenade's reverse of that branch (`src/adjoint/outputReverse/vectorUtils_b.f90:123-128`) reads
+`IF (branch .EQ. 0) THEN ... magv2b = 0.0_8; axisb = 0.0_8; axismagb = 0.0_8`, which **zeroes the
+entire adjoint path back to the normals**. So `dMi/dnormals = 0`, exactly. The true derivative there
+is `dMi = [n0 x dn]_x` -- finite and non-zero; the map is smooth even though the parameterization is
+not.
+
+**Why it fires at every gradient evaluation.** At an undeformed baseline `normals == normals0`
+bit-for-bit, so `axisMag = sqrt(1e-30) = 1e-15 < 1.49e-08`. The guard fires with certainty. The
+finite difference, perturbing by `h`, tilts the adjacent faces well above threshold and sees the full
+first-order rotation term. That difference is the 11%-207% gap. The rotation acts on the lever arm
+`(r - Xu0_i)` from surface node to volume node, which is why it is not small.
+
+**The decisive test, designed to fail.** If the branch is dead, `warpDeriv`'s output cannot depend on
+`useRotations` at all. It does not:
+
+| | `useRotations=on` | `useRotations=off` |
+|---|---|---|
+| `AN(warpDeriv)` fingerprint, A5 pressure-loss | `\|\|dXs\|\|=1.495168856286067e+03` | `1.495168856286067e+03` (bit-identical) |
+| idx8 FD | `7.87898342e-01` | `-8.43372581e-01` |
+| idx8 rel. err | **207.0%, SIGN-FLIPPED** | **0.0000** |
+| idx17 rel. err | **121.6%, SIGN-FLIPPED** | **0.0000** |
+| stock objective, worst of 27 | **80.79%** | **0.0000, all 27** |
+
+The analytic answer does not move by a single bit while the function it claims to differentiate
+changes sign. That is the proof the rotation term was never in it.
+
+**Upstream already knows, and has for five years.** `https://github.com/mdolab/idwarp/issues/57`,
+"`inflate_cube` test appears to fail", opened 2021-07-14 by A-CGray, labelled `bug`, **open, zero
+comments**. It reports IDWarp's own `verifyWarpDeriv` printing 216% and 218% errors with sign flips
+on DOFs 0 and 3 while DOFs 1, 2, 4, 5 read ~4e-05%. We reproduced it exactly (210.16% / 212.62% on
+this build) using IDWarp alone -- no DAFoam, no OpenFOAM, no pyGeo, no CFD -- and `useRotations=False`
+drives both to **1.05e-05%** with the AD column bit-identical. The issue's author wondered whether the
+FD might be the wrong one; a step-size study (h = 1e-4 to 1e-7, FD stable to 6 significant figures)
+answers that: **the FD is right and the AD is wrong.**
+
+**Two corrections to our own framing, from diagnostics that pushed back.**
+
+1. *It is the degenerate branch, not "rotations".* Run across five IDWarp regression meshes, the three
+   with a genuine shear deformation -- where normals really do rotate and the guard does **not** fire
+   -- come out **clean at 1e-05% to 1e-06% with rotations ON**. `warpDeriv` is correct when the
+   rotation branch is live. The catastrophic failure is confined to `n ~ n0`. Our claim is narrowed
+   accordingly, and is stronger for it.
+2. *The predicted-clean control only half worked.* A rigid translation of the design surface was
+   predicted to come out clean with rotations on. In x it did (1.01e-11); in y and z it read 1.7% and
+   2.8%, because only the `ubend` patch is translated and elements straddling the patch junction still
+   tilt. Reported at its real strength rather than as a pass. The clean instance of that prediction
+   came instead from upstream's own data: the in-plane DOFs of `inflate_cube`, at 4e-05% with rotations on.
+
+**Competing hypotheses killed.** `evalMode="exact"` -- no KD-tree fast-sum truncation at all -- leaves
+the errors at 204.7% and 123.8%, refuting the truncation explanation. Adjoint matrix reordering
+(`rcm` vs `natural`, never previously varied) moves idx8 from 207.04% to 207.05%: not a factor, as a
+purely geometric defect requires. Forcing `Mi = I` through the *corner* path (`cornerAngle=0.001`)
+instead of `useRotations` gives the same collapse to 0.0000 through independent code.
+
+**Why upstream's CI cannot see it.** `tests/test_USMesh.py:86` calls `verifyWarpDeriv` and discards the
+result. The one thing it does assert on `warpDeriv` is `Sum of dxs` at `tol=1e-8` -- and across all
+five meshes the rotation term contributes **exactly zero to that sum** while changing `||dXs||` by
+factors of 5 to 34. The dot-product test is in `examples/`, not `tests/`, and could not catch this
+anyway. And `verifyWarpDeriv` defaults to `randomSeed=314` -- the one seed under which section 17
+already proved this defect hides.
+
+**Running tally, superseding section 22's row 16:**
+
+| # | link / mechanism | verdict |
+|---|---|---|
+| 16 | `mesh.warpDeriv` mis-linearization of the surface-to-volume warp | **CONFIRMED and now LOCALIZED: `getRotationMatrix3d`'s `axisMag < sqrt(eps)` guard, `src/utils/vectorUtils.f90:58`, whose Tapenade reverse zeroes the rotation adjoint. Confirmed on six geometries.** |
+| 17 | KD-tree fast-sum truncation differentiated inconsistently | **refuted (`evalMode=exact`, unchanged)** |
+| 18 | adjoint matrix reordering (`rcm` vs `natural`) | **refuted (207.04% vs 207.05%)** |
+
+A workaround exists and is real: **`useRotations: False` restores gradient consistency to roundoff.**
+Its price -- upstream documents rotation interpolation as what preserves boundary-layer orthogonality
+under large deformation -- has **not** been measured here, and it is docketed rather than recommended.
+
+Full write-up, source quotations, line numbers, all seven pre-stated falsifiers and every diagnostic:
+`ROOTCAUSE_getRotationMatrix3d.md`. Evidence: `rotation_branch/`.

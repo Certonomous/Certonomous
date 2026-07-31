@@ -5,6 +5,100 @@ has been posted.** This document is prepared to be filed against `mdolab/idwarp`
 to `mdolab/dafoam`), and as of 2026-07-31 it is submission-ready in the sense set out in
 "Submission readiness" immediately below. **Whether it is sent is Katie's call, not the lab's.**
 
+## Update, 2026-07-31 (later): ROOT CAUSE LOCALIZED TO A LINE, and this is an OPEN UPSTREAM BUG ALREADY
+
+**Read this before the rest of the report.** Two things below change how this should be filed, if it
+is ever filed.
+
+**1. There is already an open upstream issue for this, unanswered since 2021.**
+`https://github.com/mdolab/idwarp/issues/57` -- "`inflate_cube` test appears to fail", opened
+2021-07-14 by A-CGray, labelled `bug`, **open, zero comments, one timeline event (the label).** It
+reports IDWarp's own `verifyWarpDeriv` printing **216.1%** and **217.6%** errors with sign flips on
+DOFs 0 and 3 of IDWarp's own regression mesh, while DOFs 1, 2, 4 and 5 read ~4e-05%. That is this
+defect, reported by the MDO Lab against itself, five years ago. **Any filing should be a comment on
+#57, not a new issue.** Nothing has been sent.
+
+**2. The "Suggested starting point for maintainers" section below is superseded.** It proposed a
+multi-point indexing bug. That was already weakened by A5 (single-point variables), and it is now
+wrong. The actual cause:
+
+`getRotationMatrix3d`, `src/utils/vectorUtils.f90:31-103` (IDWarp 2.6.2), builds the rotation from
+each surface node's reference normal `n0` to its current normal `n` by normalizing the cross product
+and taking `acos` of the dot product. That parameterization has a **removable coordinate singularity**
+at `n = n0`, guarded at line 58:
+
+```fortran
+real(kind=realType), parameter :: tol = 1.4901161193847656e-08     ! line 44 (= sqrt(eps))
+...
+! When axisMag is less that sqrt(eps), the acos 'arg' value will be
+! exactly one which will give a nan in complex mode.
+if (axisMag < tol) then                                            ! line 58
+    angle = zero
+```
+
+Tapenade's reverse of that branch, `src/adjoint/outputReverse/vectorUtils_b.f90:123-128`:
+
+```fortran
+CALL POPCONTROL1B(branch)
+IF (branch .EQ. 0) THEN
+CALL POPREAL8ARRAY(axis, realtype*3/8)
+magv2b = 0.0_8
+axisb = 0.0_8
+axismagb = 0.0_8
+```
+
+**zeroes the entire adjoint path back to the normals.** So `dMi/dnormals = 0` exactly. The true
+derivative there is `dMi = [n0 x dn]_x`, finite and non-zero -- the map `Mi(n0, n)` is smooth at
+`n = n0` even though this parameterization is not. `Mi` multiplies the lever arm `(r - Xu0_i)` from
+surface node to volume node (`src/modules/kd_tree.F90:686`), so the discarded term is not small.
+
+`getMag` regularizes with `+1e-30`, so at an undeformed baseline -- where `normals == normals0`
+bit-for-bit -- `axisMag = 1e-15 < 1.49e-08` and **the guard fires with certainty.** That is the state
+at which every `check_totals` and every first design iteration is evaluated.
+
+**Proof the term was never in the analytic answer.** With `useRotations=False` the warp becomes
+exactly linear in `Xs`, and:
+
+| | `useRotations=on` | `useRotations=off` |
+|---|---|---|
+| `warpDeriv` output, U-bend pressure-loss | `\|\|dXs\|\|=1.495168856286067e+03` | `1.495168856286067e+03`, **bit-identical** |
+| idx8 | **207.0%, SIGN-FLIPPED** | **0.0000** |
+| idx17 | **121.6%, SIGN-FLIPPED** | **0.0000** |
+| stock objective, worst of 27 | **80.79%** | **0.0000, all 27** |
+| issue #57 `inflate_cube` DOF 0 | **210.16%** | **1.06e-05%** |
+
+The analytic answer does not move by one bit while the function it differentiates changes sign.
+
+**Scope, narrowed and stated honestly.** Across five IDWarp regression meshes, the cases with a
+genuine shear deformation -- where the normals really rotate and the guard does *not* fire -- are
+**clean at 1e-05% to 1e-06% with rotations ON**. The catastrophic failure is confined to `n ~ n0`.
+This is a defect in the **degenerate-rotation branch**, not in rotation interpolation generally.
+
+**Suggested fix.** The singularity-free form of "rotation taking `a` to `b`" needs neither `acos` nor
+the normalization: with `v = a x b` and `c = a.b`, `R = I + [v]_x + [v]_x^2 / (1 + c)`. It is a
+polynomial in `v` with a smooth coefficient, is correct and differentiable at `a = b` with no
+threshold, and cannot NaN except at `c = -1` (exact reversal), a genuine singularity of the problem
+rather than of the parameterization.
+
+**Why upstream CI never caught it.** `tests/test_USMesh.py:86` calls `verifyWarpDeriv` and discards
+the result. The only assertion made on `warpDeriv` is `Sum of dxs` at `tol=1e-8` -- and the rotation
+term contributes **exactly zero to that sum** on all five meshes tested, while changing `||dXs||` by
+factors of 5 to 34. `examples/structured/dotprod.py` is not in `tests/`, and a dot-product test
+proves only that forward and reverse AD are mutual transposes, not that either linearizes
+`warpMesh()`. And `verifyWarpDeriv` defaults to `randomSeed=314` -- the random seed under which this
+defect is already known to hide.
+
+**Not a documented approximation**, on the public record: no doc page, docstring, release note or
+source comment qualifies `warpDeriv` as anything but the exact transpose Jacobian. One disclosed gap:
+the primary IDWarp reference (Secco, Kenway, He, Mader & Martins, AIAA J. 59(4):1151-1168, 2021,
+doi 10.2514/1.J059491) could **not** be retrieved -- 403 on every attempted URL -- so no claim is made
+about what it says.
+
+Full evidence, all seven pre-stated falsifiers, the diagnostics that pushed back, and the two
+corrections they forced: `ROOTCAUSE_getRotationMatrix3d.md` and `rotation_branch/`.
+
+---
+
 ## Submission readiness, 2026-07-31
 
 | requirement | state |
