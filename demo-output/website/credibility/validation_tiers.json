@@ -1,0 +1,535 @@
+{
+  "artifact": "validation tiers and credibility scorecards",
+  "purpose": "Where every case the lab holds sits in the building-block validation hierarchy, and how well its inputs and its sensitivities are known. A tier states the ceiling on the trust a result may carry. A scorecard states the two things a fidelity chip does not encode. Neither changes what any chip means, and neither is a grade. This is the permanent record and it is complete: it holds every case the lab has placed, including the calibration bodies that never appear on a promotional surface.",
+  "generated_at": "2026-07-31T08:49:42+00:00",
+  "hierarchy": [
+    {
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "data": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocks": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics."
+    },
+    {
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "data": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocks": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "validation_tier": "SUBSYSTEM CASE",
+      "rank": 3,
+      "of": 4,
+      "data": "A real component in isolation. Measurements exist but are sparser, and the conditions are characterized less fully than in a benchmark experiment.",
+      "ceiling": "Held below the top chip while the reference data cannot pin the operating conditions we solved.",
+      "unlocks": "A component-level measurement with characterized inlet conditions would lift this case toward the top chip."
+    },
+    {
+      "validation_tier": "COMPLETE SYSTEM",
+      "rank": 4,
+      "of": 4,
+      "data": "The whole configuration. Experimental information is essentially always very limited and often carries no uncertainty analysis at all.",
+      "ceiling": "Structurally below the top chip however tight the envelope. The limit is the data that exists in the world, not the quality of the solve.",
+      "unlocks": "Only a characterized measurement of the complete configuration in its operating environment, which is the scarcest data in the hierarchy."
+    }
+  ],
+  "scorecard_scale": "0 to 4",
+  "scorecard_factors": [
+    {
+      "factor": "Input pedigree",
+      "levels": [
+        {
+          "level": 0,
+          "note": "Inputs are not traceable."
+        },
+        {
+          "level": 1,
+          "note": "Inputs are assumed, with the assumption stated on the record."
+        },
+        {
+          "level": 2,
+          "note": "Inputs come from a handbook, a correlation or a standard condition."
+        },
+        {
+          "level": 3,
+          "note": "Inputs are traced to the published configuration this result is graded against, with the solved operating point recorded."
+        },
+        {
+          "level": 4,
+          "note": "Inputs are measured on the system being simulated."
+        }
+      ]
+    },
+    {
+      "factor": "Results robustness",
+      "levels": [
+        {
+          "level": 0,
+          "note": "No sensitivity of the answer is known."
+        },
+        {
+          "level": 1,
+          "note": "Sensitivity was probed but the study did not settle."
+        },
+        {
+          "level": 2,
+          "note": "Grid sensitivity is measured on a settled ladder."
+        },
+        {
+          "level": 3,
+          "note": "Grid sensitivity is measured and the input spreads are propagated to a band."
+        },
+        {
+          "level": 4,
+          "note": "Output variance is apportioned across every known input spread."
+        }
+      ]
+    }
+  ],
+  "citations": [
+    "Verification And Validation In Computational Fluid Dynamics, Oberkampf And Trucano, Sandia Report SAND2002-0529",
+    "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024"
+  ],
+  "cases_without_a_registered_display_name": [
+    "crm_wingbody",
+    "nasa_hump",
+    "onera_m6"
+  ],
+  "cases": [
+    {
+      "case": "ahmed_25",
+      "display_name": "Ahmed reference body, 25° slant",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A reference body whose published measurements were taken to validate models.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "ahmed_35",
+      "display_name": "Ahmed reference body, 35° slant",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A reference body whose published measurements were taken to validate models.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "airliner",
+      "display_name": "300-passenger twin-aisle airliner, planform study",
+      "display_name_registered": true,
+      "validation_tier": "COMPLETE SYSTEM",
+      "rank": 4,
+      "of": 4,
+      "basis": "Recorded in the lab's reading of the hierarchy.",
+      "data_available": "The whole configuration. Experimental information is essentially always very limited and often carries no uncertainty analysis at all.",
+      "ceiling": "Structurally below the top chip however tight the envelope. The limit is the data that exists in the world, not the quality of the solve.",
+      "unlocked_by": "Only a characterized measurement of the complete configuration in its operating environment, which is the scarcest data in the hierarchy."
+    },
+    {
+      "case": "airliner_wing_span52",
+      "display_name": "Transport wing, 52 m span",
+      "display_name_registered": true,
+      "validation_tier": "SUBSYSTEM CASE",
+      "rank": 3,
+      "of": 4,
+      "basis": "A transport wing in isolation, one component of the complete configuration it belongs to.",
+      "data_available": "A real component in isolation. Measurements exist but are sparser, and the conditions are characterized less fully than in a benchmark experiment.",
+      "ceiling": "Held below the top chip while the reference data cannot pin the operating conditions we solved.",
+      "unlocked_by": "A component-level measurement with characterized inlet conditions would lift this case toward the top chip."
+    },
+    {
+      "case": "b52",
+      "display_name": "B-52 Stratofortress-class airframe",
+      "display_name_registered": true,
+      "validation_tier": "COMPLETE SYSTEM",
+      "rank": 4,
+      "of": 4,
+      "basis": "A whole airframe, where characterized measurements of the configuration are scarcest.",
+      "data_available": "The whole configuration. Experimental information is essentially always very limited and often carries no uncertainty analysis at all.",
+      "ceiling": "Structurally below the top chip however tight the envelope. The limit is the data that exists in the world, not the quality of the solve.",
+      "unlocked_by": "Only a characterized measurement of the complete configuration in its operating environment, which is the scarcest data in the hierarchy."
+    },
+    {
+      "case": "crm_wingbody",
+      "display_name": "Crm wingbody",
+      "display_name_registered": false,
+      "validation_tier": "COMPLETE SYSTEM",
+      "rank": 4,
+      "of": 4,
+      "basis": "A full transport configuration, graded against a published workshop campaign.",
+      "data_available": "The whole configuration. Experimental information is essentially always very limited and often carries no uncertainty analysis at all.",
+      "ceiling": "Structurally below the top chip however tight the envelope. The limit is the data that exists in the world, not the quality of the solve.",
+      "unlocked_by": "Only a characterized measurement of the complete configuration in its operating environment, which is the scarcest data in the hierarchy."
+    },
+    {
+      "case": "cube",
+      "display_name": "Canonical calibration body: cube",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Simple geometry with a single dominant physics, graded against a classical drag correlation.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "cylinder",
+      "display_name": "Canonical calibration body: cylinder",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Recorded in the lab's reading of the hierarchy.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "cylinder_shedding",
+      "display_name": "Circular cylinder, unsteady vortex shedding configuration",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Simple geometry, one unsteady mechanism, graded against the published shedding correlation.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics."
+    },
+    {
+      "case": "diamond_airfoil",
+      "display_name": "Symmetric diamond airfoil",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Graded against an analytic solution.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics."
+    },
+    {
+      "case": "flat_plate",
+      "display_name": "Canonical calibration body: plate",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "Recorded in the lab's reading of the hierarchy.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "hypersonic_cylinder",
+      "display_name": "Circular cylinder, blunt body leading edge",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Simple geometry with one dominant mechanism at the leading edge.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics."
+    },
+    {
+      "case": "mach_tutorial_wing",
+      "display_name": "MACH tutorial wing",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A canonical rectangular wing in isolation, carried as the reference configuration of a published tutorial.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "case": "motorbike",
+      "display_name": "Motorcycle with rider, highway configuration",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "Recorded in the lab's reading of the hierarchy.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "case": "naca0012_wing",
+      "display_name": "NACA 0012 finite wing",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A canonical section with dedicated published section data.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "naca0015_sail",
+      "display_name": "NACA 0015 sail",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A canonical section with dedicated published section data.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "case": "naca4412_wing",
+      "display_name": "NACA 4412 finite wing",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A canonical section with dedicated published section data.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 3,
+            "of": 4,
+            "note": "Inputs are traced to the published configuration this result is graded against, with the solved operating point recorded."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 1,
+            "of": 4,
+            "note": "Sensitivity was probed but the study did not settle."
+          }
+        ]
+      }
+    },
+    {
+      "case": "nasa_hump",
+      "display_name": "Nasa hump",
+      "display_name_registered": false,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A canonical separated-flow geometry with a dedicated published campaign.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "case": "onera_m6",
+      "display_name": "Onera m6",
+      "display_name_registered": false,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "A canonical wing with a dedicated published pressure campaign.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "case": "plate",
+      "display_name": "Canonical calibration body: plate",
+      "display_name_registered": true,
+      "validation_tier": "BENCHMARK CASE",
+      "rank": 2,
+      "of": 4,
+      "basis": "The verification program grades this body against published reference code ladders.",
+      "data_available": "A canonical geometry with dedicated published measurements, usually taken to validate models rather than to test a product.",
+      "ceiling": "Can reach the top chip where the published measurement matches the solved conditions and carries its own uncertainty.",
+      "unlocked_by": "A published measurement at our solved conditions, with stated measurement uncertainty, moves this case to the top chip."
+    },
+    {
+      "case": "sphere",
+      "display_name": "Canonical calibration body: sphere",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Simple geometry with a single dominant physics, graded against a classical drag correlation.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics.",
+      "credibility": {
+        "citation": "NASA-STD-7009B, Standard For Models And Simulations, NASA 2024",
+        "scale": "0 to 4",
+        "factors": [
+          {
+            "factor": "Input pedigree",
+            "level": 2,
+            "of": 4,
+            "note": "Inputs come from a handbook, a correlation or a standard condition."
+          },
+          {
+            "factor": "Results robustness",
+            "level": 0,
+            "of": 4,
+            "note": "No sensitivity of the answer is known."
+          }
+        ]
+      }
+    },
+    {
+      "case": "supersonic_cone",
+      "display_name": "Axisymmetric cone, 10 degree half angle",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Graded against an analytic solution.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics."
+    },
+    {
+      "case": "supersonic_wedge",
+      "display_name": "Compression wedge, 15 degree ramp",
+      "display_name_registered": true,
+      "validation_tier": "UNIT PROBLEM",
+      "rank": 1,
+      "of": 4,
+      "basis": "Graded against an analytic solution.",
+      "data_available": "Simple geometry and a single dominant physics, gradeable against an analytic or highly accurate solution.",
+      "ceiling": "The richest evidence available anywhere in the hierarchy. A result here can be graded tightly and can reach the top chip on its own merits.",
+      "unlocked_by": "Nothing further is needed from an experiment; what limits a unit problem is our own numerics."
+    },
+    {
+      "case": "valve",
+      "display_name": "Idealized trileaflet aortic valve, systolic configuration",
+      "display_name_registered": true,
+      "validation_tier": "SUBSYSTEM CASE",
+      "rank": 3,
+      "of": 4,
+      "basis": "Recorded in the lab's reading of the hierarchy.",
+      "data_available": "A real component in isolation. Measurements exist but are sparser, and the conditions are characterized less fully than in a benchmark experiment.",
+      "ceiling": "Held below the top chip while the reference data cannot pin the operating conditions we solved.",
+      "unlocked_by": "A component-level measurement with characterized inlet conditions would lift this case toward the top chip."
+    }
+  ]
+}

@@ -59,6 +59,14 @@ class ValidationTierTests(unittest.TestCase):
         self.assertIsNone(cred.validation_tier(None))
         self.assertIsNone(cred.tier_label("no_such_body"))
 
+    def test_the_two_bodies_the_first_pass_missed_are_placed(self):
+        # "Label every case in the lab" is the objective, and these two are
+        # named bodies the lab has solved that the first pass left unplaced.
+        self.assertEqual(cred.validation_tier("mach_tutorial_wing"),
+                         "BENCHMARK CASE")
+        self.assertEqual(cred.validation_tier("airliner_wing_span52"),
+                         "SUBSYSTEM CASE")
+
     def test_every_graded_case_on_disk_is_labelled(self):
         # "Label every case in the lab" is the objective; a graded record with
         # no tier is the failure this test exists to catch.
@@ -220,16 +228,76 @@ class RecordArtifactTests(unittest.TestCase):
     ARTIFACT = (SDK.parent / "demo-output" / "website" / "credibility"
                 / "validation_tiers.json")
 
+    @classmethod
+    def setUpClass(cls):
+        cls.data = json.loads(cls.ARTIFACT.read_text(encoding="utf-8")) \
+            if cls.ARTIFACT.exists() else None
+
     def test_the_artifact_exists_and_covers_every_labelled_case(self):
         self.assertTrue(self.ARTIFACT.exists(),
                         "the tier record has not been generated")
-        data = json.loads(self.ARTIFACT.read_text(encoding="utf-8"))
-        cases = {row["case"]: row for row in data["cases"]}
+        cases = {row["case"]: row for row in self.data["cases"]}
         self.assertEqual(sorted(cases), sorted(cred.labelled_cases()))
         for slug, row in cases.items():
             self.assertEqual(row["validation_tier"],
                              cred.validation_tier(slug))
             self.assertTrue(row["display_name"])
+
+    def test_the_record_matches_what_the_generator_produces_today(self):
+        # A record that drifts from the module it was generated from is worse
+        # than no record. Everything but the timestamp must still agree.
+        sys.path.insert(0, str(SDK / "scripts"))
+        from build_credibility_record import build
+
+        fresh = build()
+        fresh.pop("generated_at", None)
+        stored = dict(self.data)
+        stored.pop("generated_at", None)
+        self.assertEqual(fresh, stored)
+
+    def test_the_record_carries_no_chip_of_its_own(self):
+        # The chip lives on each case's own record and stays the one
+        # authority. A second copy here would be a second thing to drift, and
+        # some of those records still carry vocabulary that has been retired.
+        for row in self.data["cases"]:
+            self.assertNotIn("fidelity_chip", row, row["case"])
+            self.assertNotIn("tier", row, row["case"])
+
+    def test_every_graded_case_carries_a_scorecard_on_both_factors(self):
+        graded = [path.stem for path in sorted(RESULTS.glob("*.json"))]
+        self.assertTrue(graded)
+        scored = {row["case"]: row for row in self.data["cases"]
+                  if "credibility" in row}
+        self.assertEqual(sorted(scored), sorted(graded))
+        for slug, row in scored.items():
+            factors = row["credibility"]["factors"]
+            self.assertEqual([f["factor"] for f in factors],
+                             ["Input pedigree", "Results robustness"])
+            for factor in factors:
+                self.assertLessEqual(factor["level"], cred.MAX_LEVEL)
+                self.assertTrue(factor["note"].strip())
+
+    def test_an_unplaced_case_gets_a_tier_and_no_invented_scorecard(self):
+        # A case the lab has placed but never graded gets its tier and no
+        # scorecard, rather than a row of zeros that would read as a measured
+        # judgment on evidence nobody gathered.
+        graded = {path.stem for path in RESULTS.glob("*.json")}
+        ungraded = [row for row in self.data["cases"]
+                    if row["case"] not in graded]
+        self.assertTrue(ungraded)
+        for row in ungraded:
+            self.assertNotIn("credibility", row, row["case"])
+            self.assertTrue(row["validation_tier"])
+
+    def test_an_unregistered_display_name_is_declared_not_hidden(self):
+        # The display-name registry is the one ratified mapping and this
+        # record never writes a name of its own. Where the registry has no
+        # entry the fallback reads as a slug, so the record says which rows
+        # those are and a surface can decline to show them.
+        declared = set(self.data["cases_without_a_registered_display_name"])
+        flagged = {row["case"] for row in self.data["cases"]
+                   if not row["display_name_registered"]}
+        self.assertEqual(declared, flagged)
 
 
 if __name__ == "__main__":

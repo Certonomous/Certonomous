@@ -158,6 +158,13 @@ _CASE_TIERS: dict[str, tuple[str, str]] = {
     "naca0015_sail": (BENCHMARK_CASE,
                       "A canonical section with dedicated published section "
                       "data."),
+    "mach_tutorial_wing": (BENCHMARK_CASE,
+                           "A canonical rectangular wing in isolation, "
+                           "carried as the reference configuration of a "
+                           "published tutorial."),
+    "airliner_wing_span52": (SUBSYSTEM_CASE,
+                             "A transport wing in isolation, one component "
+                             "of the complete configuration it belongs to."),
     "ahmed_25": (BENCHMARK_CASE,
                  "A reference body whose published measurements were taken "
                  "to validate models."),

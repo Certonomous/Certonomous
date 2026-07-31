@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T08:45:24+00:00",
+ "generated_at": "2026-07-31T08:50:09+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -73,7 +73,8 @@
    "created_at": "2026-07-25",
    "decided_at": "2026-07-25T15:30:00Z",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W2"
+   "well": "W2",
+   "progress_note": "Machinery and record complete, surface wiring outstanding. The scorecard scores both of the standard factors the chips do not encode on the published 0 to 4 scale, computed from what each record actually carries so a case cannot score for evidence it does not have, with the placard helper for use outside a validated domain. Every graded case now carries its scorecard on the permanent record beside its chip, and an ungraded case gets no scorecard at all rather than a row of zeros that would read as a measured judgment. What is left is the certificate surface, which the proposal names as the destination and which this session was not permitted to edit. Written up for the owner to sequence; not marked done until the scorecard reaches a certificate."
   },
   {
    "id": "agp-237cc95c2498",
@@ -123,11 +124,12 @@
    "cost_basis": "estimate",
    "expected_knowledge_gain": "A tier label per case that explains the ceiling on its fidelity chip and tells the owner exactly which tier new experimental data would unlock",
    "source_kind": "reading",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-25",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T08:50:09+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W2"
+   "well": "W2",
+   "dismiss_reason": "Done and on the record. Every case the lab holds is placed in the building block validation hierarchy, 24 of them, each carrying the basis for its placement, what data can exist at that tier, the ceiling that puts on its fidelity chip, and the single thing that would unlock the next tier. The record is written to the credibility artifact and a test regenerates it and fails if it drifts from the module behind it. Two bodies the first pass had left unplaced, the MACH tutorial wing and the 52 m transport wing, are now placed. Nothing here changes what a chip means and the artifact deliberately carries no chip of its own, because a second copy of a grade is a second thing to drift and some records still hold vocabulary that has been retired. The tier field is named validation_tier and never tier, since tier already means the fidelity chip everywhere in this codebase. Three of the 24 have no entry in the ratified display name registry and the record declares which ones rather than inventing names beside it."
   },
   {
    "id": "w4-a1-warpderiv-upstream",
