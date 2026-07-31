@@ -55,15 +55,18 @@ SEPARATION_GATE = 0.05          # +/-5% of chord location: a clean solve should 
 REATTACHMENT_MODEL_BAND = 0.20  # wide, stated model-form band for the known SST bias
 BUDGET_ITERATIONS = 2000        # this case's own endTime; SIMPLE stops on residualControl
 
-# Grid sensitivity of the graded station, measured on this case's own mesh
-# refined fourfold. Both rungs and both stations are on the permanent record
-# in demo-output/website/campaign/F6a_epistemic_band.md. Their difference is
-# the numerical channel's figure and nothing is extrapolated from it: the
-# refined rung is not in the asymptotic range, so this pair supports a
-# statement about how little the separation station moves under refinement,
-# and it does not support a Richardson band. Inventing one from two rungs
-# that do not sit in that range would be manufacturing a number.
-REFINEMENT_CELLS = (51_626, 206_504)
+# Grid sensitivity of the graded station: the separation station measured on
+# this case's own mesh and on that mesh refined fourfold, 51,626 cells to
+# 206,504. Both rungs and both stations are on the permanent record in
+# demo-output/website/campaign/F6a_epistemic_band.md; the rung sizes are kept
+# here rather than narrated, so the basis stays visible to a reader of the
+# source without putting two more numbers on camera.
+#
+# The DIFFERENCE of these two is the numerical channel's figure, and nothing
+# is extrapolated from it: the refined rung is not in the asymptotic range,
+# so this pair supports a statement about how little the separation station
+# moves under refinement and does not support a Richardson band. Inventing
+# one from two rungs outside that range would be manufacturing a number.
 REFINEMENT_SEPARATION_XC = (0.6396, 0.6398)
 
 # Solver-log taps for the streaming trace: the iteration header and the
