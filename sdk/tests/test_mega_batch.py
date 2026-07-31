@@ -131,24 +131,24 @@ class LabStatsTests(unittest.TestCase):
         )
 
         closure = r["closure"]
-        self.assertEqual(closure["target_rank"], 4)
+        # The board is shown at its top entry, rank #1, never at whichever
+        # entry our own score sits nearest (owner, 2026-07-31).
+        self.assertEqual(closure["target_rank"], 1)
         self.assertEqual(len(closure["target_per_case"]), 8)
         self.assertIn("rmcconke/closure-challenge-benchmark", closure["repo"])
-        # our_score is not invented: it is a zero-training RANS-identity
-        # reference floor, measured through the benchmark's own unmodified
-        # scoring code (evidence: demo-output/website/
-        # closure_challenge_rans_floor.json, sdk/scripts/
-        # run_closure_challenge_evidence.py). No entry has been submitted and
-        # no model has been trained, and the entry text says so plainly every
-        # time this card is rendered.
-        self.assertEqual(closure["our_score"], 0.1036)
+        # our_score is not invented: it is the gated entry of record, scored
+        # through the benchmark's own unmodified code (evidence: demo-output/
+        # website/closure_challenge_trained_entry_round3_gated.json), and the
+        # zero-training RANS-identity floor it moved from stands beside it
+        # (closure_challenge_rans_floor.json). Nothing has been submitted, and
+        # the entry text says so plainly every time this card is rendered.
+        self.assertEqual(closure["our_score"], 0.0676)
+        self.assertEqual(closure["floor_overall"], 0.1036)
+        self.assertFalse(closure["submitted"])
         self.assertEqual(len(closure["our_per_case"]), 8)
-        self.assertEqual(
-            closure["our_entry"],
-            "No entry submitted. Measured a zero-training RANS reference floor of "
-            "0.1036 overall, scored by the benchmark's own unmodified code; worse "
-            "than every published entry, since it reflects no learned correction",
-        )
+        for stated in ("0.0676 overall", "five of the eight test cases",
+                       "Not yet submitted to the benchmark's steward."):
+            self.assertIn(stated, closure["our_entry"])
         for forbidden in ("trend", "indicative", "real solve"):
             self.assertNotIn(forbidden, closure["our_entry"].lower())
         self.assertNotIn("—", closure["our_entry"])  # no em dashes
