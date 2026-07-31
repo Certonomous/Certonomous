@@ -52,6 +52,13 @@ declare -A PROMPT=(
   [valve-study]="Find the valve opening angle that minimizes pressure loss over the cardiac cycle."
   [race-study]="Race a Monte Carlo uncertainty study against a reduced-order model."
   [geometry-study]="Solve the external aerodynamics of the supplied B-52 geometry."
+  # Registered but deliberately NOT in the default sweep below. The act is
+  # new, and a control room started before it existed holds the old router in
+  # memory: this prompt would route somewhere else and the act would report
+  # DIFFERS on a routing fault rather than on its physics. Add it to the
+  # default list once the control room has been restarted on the router that
+  # knows the route. Until then run it by name.
+  [sobol-sensitivity]="Apportion the output variance across the input spreads with a Sobol pick-and-freeze design and say which spread is worth buying down first."
 )
 
 # Acts filmed with a surface uploaded from the laptop. The prompt still names
