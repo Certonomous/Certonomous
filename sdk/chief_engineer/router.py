@@ -605,9 +605,15 @@ def classify(request: str) -> Route:
             "Reading this as an adjoint design optimisation. The gradient "
             "comes from a discrete adjoint of the flow solver, so it costs "
             "one linear solve no matter how many design variables there are. "
+            # This used to promise "with its stopping condition attached".
+            # The act no longer narrates how the optimization stopped, so the
+            # route panel was advertising a beat the act does not play. A
+            # rationale that promises more than the act delivers is a defect
+            # in the same family as a caption claiming an interval it does
+            # not have.
             "I will put the finite-difference verification of that gradient "
             "on screen first, and only then report the optimization it "
-            "gated, with its stopping condition attached."),
+            "gated."),
         SHAPE_OPTIMIZATION: (
             "Reading this as a design-space search: an objective to improve "
             "under constraints. I will audit compute, explore real designs, and "

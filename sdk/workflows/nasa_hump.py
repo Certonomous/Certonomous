@@ -576,9 +576,7 @@ def main(request: str | None = None, params: dict | None = None,
         warm_mesh = engineer.restore_cached_mesh(LABEL)
         if warm_mesh:
             roster.set(CHIEF_ENGINEER, "preparing the mesh", "working")
-            script.engineer(
-                "• Mesh in hand for this case; going straight to the "
-                "quality gates and the solve.")
+            script.engineer("• Mesh prepared; on to the quality gates.")
             engineer._wsl(f"rm -rf {engineer.remote_case}/constant/_shipped_polyMesh")
         else:
             roster.set(CHIEF_ENGINEER, "receiving the case mesh", "working")
