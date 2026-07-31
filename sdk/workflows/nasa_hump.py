@@ -406,9 +406,7 @@ def main(request: str | None = None, params: dict | None = None,
     began = time.monotonic()
 
     script.system(request or "Request: solve the NASA wall-mounted hump and "
-                             "grade the converged separation and "
-                             "reattachment against NASA's own published "
-                             "experiment.")
+                             "check separation.")
 
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
@@ -804,9 +802,8 @@ def main(request: str | None = None, params: dict | None = None,
         as_cp = painted_quantity == QUANTITY_CP
         announce_field(
             emit, out.name, painted,
-            f"{shown}, surface "
-            + ("pressure coefficient" if as_cp else "pressure")
-            + " from the solve")
+            f"{shown}, surface pressure coefficient (C_p)" if as_cp
+            else f"{shown}, surface pressure")
         script.engineer(
             "• Wall carrying its own solved surface field, "
             + ("as a pressure coefficient." if as_cp else "as pressure."))
@@ -905,10 +902,39 @@ def main(request: str | None = None, params: dict | None = None,
             + ("reattachment inside that band"
                if reattach_ok else
                "reattachment sits outside that band, stated not hidden")))
+    # The total, over the channels that carry a figure. The lab's own
+    # combination is the root sum of squares of the quantified channels
+    # (V&V-20 treats independent channels that way), and it is the same call
+    # every other act that reports a total goes through, so no act invents its
+    # own arithmetic. The input channel is not in the sum and is not counted
+    # as zero: it is stated as unquantified, on the table below and in the
+    # channel block, so the total is read for what it covers.
+    from chief_engineer import uq as uq_studies
+
+    model_band = REATTACHMENT_MODEL_BAND * EXP_REATTACH_XC
+    total = uq_studies.combine_expanded(
+        input_2sigma=None, numerical_abs=refinement_spread,
+        model_abs=model_band)
+    combined = total["combined_95"]
+    _emit_table(
+        emit, script, role=_CE_ROLE,
+        title="Total uncertainty on the separation station",
+        headers=("Channel", "Value in x/c", "In the total"),
+        rows=[
+            ["Input", "Not quantified", "No, and not counted as zero"],
+            ["Numerical", f"{refinement_spread:.4f}", "Yes"],
+            ["Model form", f"{model_band:.4f}", "Yes"],
+            ["Total", f"{combined:.4f}", "The two quantified channels"],
+        ],
+        table_id="uncertainty-act6-nasa_hump")
+    script.numericist(
+        f"• The total covers the numerical and model channels. "
+        f"• No input spread was assumed for this benchmark, so that channel "
+        f"is stated rather than set to zero.")
     if emit:
         emit("result.verdict", {"quantity": "Separation location (x/c)",
                                 "value": f"{separation_xc:.4f}",
-                                "ci": "n/a", "confidence": "n/a",
+                                "ci": f"{combined:.4f}", "confidence": "95%",
                                 "envelope": f"converged at iteration {converged_iterations:,}",
                                 **verdict})
         emit("uncertainty.channels", channels)
@@ -963,7 +989,7 @@ def main(request: str | None = None, params: dict | None = None,
     _AGENDA = [
         {"title": "The pressure comparison",
          "scope": "grade the wall pressure now on record against the "
-                  "published Cp curve point by point, and put a gate on the "
+                  "published C_p curve point by point, and put a gate on the "
                   "suction peak as well as on the two wall events",
          "cost": "no new solve, the converged state already carries it"},
         {"title": "Sweep the Reynolds number",
@@ -1011,11 +1037,17 @@ def main(request: str | None = None, params: dict | None = None,
         # One row per quantity: value, deviation against its reference, and
         # the tier. The verdict's reasoning is stated once, on the transcript
         # and in the model channel, never repeated onto every row.
+        #
+        # The HEADLINE row carries the total band and nothing else. The
+        # certificate prints the first result's envelope as the caption under
+        # a 24 point number, so a whole sentence there ran off the page and
+        # cut the reference in half. The deviation and the source it is
+        # measured against are rows of the result table below, where they
+        # read in full, and the headline states the band the number carries.
         results=[{
             "quantity": "Separation location (x/c)",
             "value": f"{separation_xc:.4f}",
-            "envelope": f"{sep_dev * 100:+.1f}% vs x/c "
-                        f"{EXP_SEPARATION_XC:.3f}, {GATE_SOURCE}",
+            "envelope": f"{combined:.4f}",
             "tier": verdict["tier"],
         }] + ([{
             "quantity": "Reattachment location (x/c)",
@@ -1059,20 +1091,34 @@ def main(request: str | None = None, params: dict | None = None,
         from chief_engineer.certificate import build_certificate_v2
 
         cert_doc = dict(report_doc)
+        # The reference this act is graded against gets a row of its own, at
+        # full length, rather than being crushed into the headline caption.
         cert_doc["result_fields"] = [
-            ("Body", shown),
-            ("Separation x/c", f"{separation_xc:.4f}"),
-        ] + ([("Reattachment x/c", f"{reattachment_xc:.4f}")]
+            ("Separation x/c", f"{separation_xc:.4f}, {sep_dev * 100:+.1f}% "
+                               f"of x/c {EXP_SEPARATION_XC:.3f}"),
+        ] + ([("Reattachment x/c",
+               f"{reattachment_xc:.4f}, {reattach_dev * 100:+.1f}% of x/c "
+               f"{EXP_REATTACH_XC:.3f}")]
              if reattachment_xc is not None else []) + [
-            ("Cells", f"{cells:,}"),
+            # The full source, on a row of its own and at full length. The
+            # cell count is not repeated here: the mesh-validity block below
+            # carries it with its gates.
+            ("Reference", GATE_SOURCE),
             ("Converged Iteration", f"{converged_iterations:,}"),
             ("Solve Time", f"{elapsed:.1f} min"),
         ]
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry=shown,
-            objective=(request or "NASA wall-mounted hump, graded against "
-                                  "NASA's own published experiment"),
+            # The objective is the request, verbatim and however short it was
+            # typed. What the run actually covered is the scope field's job,
+            # so a one-line prompt no longer costs the page its statement of
+            # what was graded and what it was graded against.
+            objective=(request or "Solve the NASA wall-mounted hump and check "
+                                  "separation"),
+            scope=(f"Separation on a ±{SEPARATION_GATE * 100:.0f}% gate, "
+                   f"reattachment on a "
+                   f"±{REATTACHMENT_MODEL_BAND * 100:.0f}% stated band."),
             mission_id=f"nasa-hump-{LABEL}",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels,

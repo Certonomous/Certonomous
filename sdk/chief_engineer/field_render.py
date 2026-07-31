@@ -249,8 +249,10 @@ QUANTITY_PRESSURE = "pressure"
 QUANTITY_CP = "cp"
 # The legend name carried when the coefficient is the one being drawn. The
 # control room prints this string verbatim, so it has to read as a
-# dimensionless coefficient and never as pressure in Pa.
-CP_FIELD_NAME = "pressure coefficient Cp"
+# dimensionless coefficient and never as pressure in Pa. It is written in the
+# same underscore form every table cell uses, so the symbol typesets with its
+# subscript wherever the label is rendered.
+CP_FIELD_NAME = "C_p"
 
 
 def load_field_surface(sources, *, field: str = "p",
