@@ -1590,7 +1590,15 @@ def main(request: str | None = None, params: dict | None = None,
     hold_back = bool(params.get("hold_workers_back"))
     time_budget_min = params.get("deadline_minutes")
     if hold_back:
-        granted = max(4, capacity.capacity // 2)
+        # HALF THE BOX, AND NEVER MORE THAN THE BOX HAS. The floor of four
+        # keeps the fan-out worth watching, but on a busy machine the audit
+        # can grant fewer slots than that: the old expression then took four
+        # of three and the headroom table printed "Held back -2", which is a
+        # negative count on camera and a broken promise in the same row. The
+        # grant is capped at one below capacity so a request to leave headroom
+        # always leaves some, and never falls below a single working slot.
+        granted = max(1, min(max(1, capacity.capacity - 1),
+                             max(4, capacity.capacity // 2)))
         # The compliance decision is a required output, not a nicety. The
         # request restricted a resource, so the run states in numbers what it
         # did about it, and the numbers land as a table rather than a sentence
@@ -1987,7 +1995,7 @@ def main(request: str | None = None, params: dict | None = None,
                    f"{f['L_D_solved'] - f['L_D']:+.1f}"]
                   for f in sorted(solved_ok, key=lambda r: r["L_D_solved"],
                                   reverse=True)],
-            table_id="screen-against-solved")
+            table_id="screen-against-solved", role=_NUMERICIST_SPEAKER)
         # A cruise point read past the end of a polar is a caveat, so it is
         # named when it happens and silent when it does not.
         past_end = [f for f in solved_ok if f.get("extrapolated")]
