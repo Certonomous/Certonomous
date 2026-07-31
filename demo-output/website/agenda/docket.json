@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T22:18:09Z",
+  "generated_at": "2026-07-31T22:19:05Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -2192,6 +2192,61 @@
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "created_at": "2026-07-31T22:18:09Z"
+    },
+    {
+      "id": "w3-refit-stored-studies-in-place",
+      "well": "W3",
+      "objective": "Refit the seven stored ladders from the series they already carry, at no compute",
+      "rationale": "The audit says eight studies lack the guard record and reports that clearing it means re-running them. It does not: each study stores its own rungs as cells and values, so the fit can be recomputed in place. One has already been done this way and carries the full field set. Six more can follow immediately and one cannot, because it stores no rungs at all.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every study with stored rungs carries the same field set the fit produces, and any verdict that moves is reported",
+      "expected_knowledge_gain": "Clears two standing audit failures at no cost, and any verdict that moves under the corrected fit is a finding",
+      "source_kind": "measurement",
+      "citations": [
+        "models/curriculum/uq-studies",
+        "scripts/self_audit.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T22:19:05Z"
+    },
+    {
+      "id": "w3-a-study-with-no-rungs",
+      "well": "W3",
+      "objective": "Decide what a stored uncertainty study means when it carries no rungs",
+      "rationale": "One study holds a numerical block with no levels behind it, so nothing can be refitted and nothing can be checked. It is the one case in the set where the record cannot be audited against its own evidence, which is the state every other rule in this lab exists to prevent.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The study either carries the rungs behind its numbers or is marked as unverifiable on its face",
+      "expected_knowledge_gain": "A record that cannot be checked against its evidence should not look like one that can",
+      "source_kind": "report",
+      "citations": [
+        "models/curriculum/uq-studies/aortic-valve.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T22:19:05Z"
+    },
+    {
+      "id": "w6-audit-should-price-its-own-remedy",
+      "well": "W6",
+      "objective": "Make the audit state what clearing a failure would cost, and check the claim",
+      "rationale": "The audit reported that eight studies could only be cleared by re-running them. Six can be refitted in place from rungs they already store, at no compute. A remedy priced wrongly by an order of magnitude is how work gets deferred that could have been done immediately, and this one was deferred for exactly that reason.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Each reported failure names its remedy and whether that remedy needs compute, with the basis stated",
+      "expected_knowledge_gain": "The audit already finds the right things; pricing them wrongly is what stops them being fixed",
+      "source_kind": "ledger",
+      "citations": [
+        "scripts/self_audit.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-07-31T22:19:05Z"
     }
   ]
 }
