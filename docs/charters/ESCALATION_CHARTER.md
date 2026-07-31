@@ -1,8 +1,13 @@
 # Certonomous Escalation Charter
 
-Version 1.0, dated 2026-07-30. Governs what the lab decides alone and what goes
+Version 1.1, dated 2026-07-31. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
+
+Version 1.1 adds section 8, on instructions, after three acts honoured a stated
+instruction without acknowledging it and a fourth found the artifact and the
+stated intent disagreeing. Section 3 gains the shared working tree. Nothing in
+1.0 was weakened.
 
 ## 1. The line
 
@@ -94,6 +99,34 @@ than a recollection.
 - Deleting or rewriting a record.
 - A history-rewriting git operation.
 - Anything that would cost more to undo than it cost to do.
+
+**The working tree is shared, and an uncommitted change is somebody's
+unfinished work.** Several agents run in one checkout at once. This is not a
+theory about the future: commit `5675eb6b` records that the file it changed
+"also carries another agent's in-flight dim preflight, edited in the same
+working tree at the same time", and commit `ba47307a` exists because two
+uncertainty studies were rewritten mid-session by concurrent work and left
+uncommitted in the tree, where they were verified by refit and then committed
+rather than discarded. Four consequences, and they are the standing rules:
+
+1. **Never `git reset --hard`, `git stash`, `git checkout --` or `git clean`.**
+   Each of them destroys uncommitted work that is not necessarily yours, and
+   none of them can tell your changes from the changes of an agent that is
+   still typing.
+2. **Never `git add -A` or `git add .`, and never `git add -A <path>`.** L-12:
+   the pathspec form looks targeted and is a directory sweep. One such command
+   staged 1,187 files and 25 million insertions, taking `.git` to 513 MB in a
+   repository that gets pushed. It happened twice, and two agents independently
+   misfiled it as a shared index race, which it was not. Stage explicit file
+   paths.
+3. **Commit per item.** A small commit that lands is worth more than a large one
+   that is still uncommitted when the next agent touches the file. Commit-per-item
+   is what survives a shared tree, and it is why every charter revision in this
+   set is its own commit.
+4. **An unexpected uncommitted change is inspected, never reverted.** Verify it
+   against its own evidence and commit it if it stands, which is what `ba47307a`
+   did. Discarding another agent's work is irreversible and lands squarely in
+   this section.
 
 ## 4. How much compute may be used freely
 
@@ -200,7 +233,61 @@ A docket item, not a conversation. It carries:
 **Escalate early and once.** An item raised before the compute is spent costs a
 sentence. The same item raised after costs the compute as well.
 
-## 8. Enforcement
+## 8. An instruction is answered, not only obeyed
+
+Section 6 covers the instruction the lab must not work around. This section
+covers the instruction the lab did exactly as asked and never mentioned again.
+It sits in this charter because acknowledging an instruction is the same act as
+escalating one: both are the lab reporting back up rather than deciding
+quietly.
+
+> **A stated instruction is repeated back, and the repetition carries the
+> number that shows it was honoured.**
+
+**Three acts honoured an instruction without saying so**, and each was found by
+a human reading a transcript rather than by any check. A coarse mesh was held
+to, a model was picked for a stated reason, and a stopping target was met. In
+all three the work was right and the record was silent. **The echo is the
+product's signature, so an unechoed instruction is a missed beat every time**,
+not merely an unpolished one. Docket `w7-instruction-echo-is-a-check`.
+
+The shape that works, from the three repairs:
+
+- **The echo waits for the measurement.** The coarse-mesh instruction is
+  repeated back only once the mesh has been counted, so what comes back is a
+  cell count and the channel that carries its price, rather than a promise to
+  comply. Commit `6880e4f3`.
+- **A number the instruction named is answered with the number that met it.** A
+  stated stopping target is answered with the iteration at which it was first
+  reached, not with the fact that it was reached. Commit `66bc8d9b`.
+- **A threshold that is a review mark and not a gate says which it is** rather
+  than being honoured silently as though it were a gate. Commit `ed4bb19d`.
+- **The echo survives the transcript.** An acknowledgement made once, out loud,
+  is gone when the transcript is. Where the decision matters it lands on the
+  sealed page too.
+
+**When the artifact and the stated intent disagree, both are stated and the
+artifact is not silently preferred.** A request named a 15 degree configuration
+and the body that arrived measures 25. The act solved what it was handed, which
+is almost always right, and said so once on camera; the sealed page now carries
+it as a row, "Configuration Solved: 25 degrees as measured, overriding stated
+15 degrees". Commit `6880e4f3`.
+
+The rule and its limit, and the limit is the point:
+
+1. **The artifact wins by default**, because it is the primary evidence and
+   L-16 is the standing reason to prefer it over anything derived.
+2. **The lab cannot know the user did not attach the wrong file.** That is the
+   one thing the artifact cannot tell it. So the disagreement is stated in the
+   record at the moment it is noticed, in both terms, and the run proceeds.
+   Proceeding is correct. Proceeding silently is not.
+3. **A disagreement that would change what the work is for escalates instead.**
+   Section 6: an instruction with two readings that differ in cost or
+   reversibility does not get the convenient reading. A slant angle changes the
+   answer and not the mission, so it is recorded. A body that is not the body
+   she asked about changes the mission, and that is a docket item.
+
+## 9. Enforcement
 
 - The agenda machinery enforces the veto structurally. Nothing in it launches
   compute, and status changes on the owner's action.
@@ -222,4 +309,4 @@ none of them has a check, which is the honest state of it.
   originates.
 - `docs/charters/REPORTING_CHARTER.md`. The waiting list section of the morning
   report.
-- `LESSONS.md` L-1, L-18, P1.
+- `LESSONS.md` L-1, L-12, L-16, L-18, P1.
