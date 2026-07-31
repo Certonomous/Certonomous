@@ -196,7 +196,16 @@ def scale_basis(surface: str, raw_length: float,
     dimensions of a recognized body (a B-52 is 48.5 m long, with the source
     stated on the record), then the generic 50 m fallback for an unnamed
     upload with implausible file units, then the file's own units when they
-    are dimensionally plausible."""
+    are dimensionally plausible.
+
+    The recognized-body branch narrates NOTHING (Katie, 2026-07-31). It used
+    to state the file's own units and then the published length it was
+    working to, and both sentences came off the screen. Nothing measured is
+    lost by that: the published length still governs the scale, it is named
+    with its source in ``PUBLISHED_DIMENSIONS`` above, and the length actually
+    solved is a row of the body table this act emits a moment later. WITHHELD
+    FROM DISPLAY ONLY.
+    """
     stated = params.get("reference_length")
     published = PUBLISHED_DIMENSIONS.get(
         Path(surface).stem.lower().replace("-", "_"))
@@ -205,13 +214,7 @@ def scale_basis(surface: str, raw_length: float,
             f"Scale basis: you stated a reference length of "
             f"{float(stated):.1f} m"]
     if published:
-        reference = float(published["length"])
-        return reference, [
-            f"Scale basis: the file's own units would make this body "
-            f"{raw_length:.0f} units long",
-            f"Published length of this {published.get('kind', 'body')}: "
-            f"{reference:g} m; working to that",
-        ]
+        return float(published["length"]), []
     if raw_length > 150:
         return 50.0, [
             f"Scale basis: the file's own units would make this body "
@@ -285,9 +288,9 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
          f"{geometry['planform_area'] * scale * scale:.3g} m²"],
     ]
     script.engineer(
-        " ".join(f"• {line}." for line in basis_lines)
-        + " • The Reynolds number and every force ride on this length, so it "
-          "goes on the record.")
+        "".join(f"• {line}. " for line in basis_lines)
+        + "• The Reynolds number and every force ride on the working length, "
+          "which is a row of the table below.")
     if velocity_line:
         script.engineer(velocity_line)
 
@@ -330,16 +333,13 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
 # research-agenda panel and to the report's "Next investigations".
 _AGENDA = [
     {"title": "Drag build-up under yaw",
-     "scope": "sweep the approach angle and map how the force builds as the "
-              "body meets the flow off-axis",
+     "scope": "sweep the approach angle and map the force off-axis",
      "cost": "one solve per angle on this mesh"},
     {"title": "Resolve the shedding",
-     "scope": "an unsteady solve of the wake the steady picture averages away, "
-              "the spectrum, not just the mean force",
+     "scope": "an unsteady solve for the spectrum, not just the mean force",
      "cost": "transient solve; ~1 order of magnitude over steady"},
     {"title": "Next body in the class",
-     "scope": "take the same gated chain to the nearest unsolved body in the "
-              "library and grow the validated set",
+     "scope": "take the same gated chain to the next unsolved body",
      "cost": "one full chain per body; meshing dominates"},
 ]
 
@@ -426,6 +426,25 @@ def mesh_validity(cells: int, non_ortho: float | None,
             "max_skewness": skew,
             "non_orthogonality_gate": MAX_NON_ORTHOGONALITY,
             "skewness_gate": MAX_SKEWNESS}
+
+
+def format_duration(seconds: float) -> str:
+    """A measured duration written the way a viewer reads it off a clock.
+
+    Under a minute it reads in seconds; from a minute up, in minutes.
+
+    The wall-clock field used to print minutes to one decimal whatever it had
+    measured, so a run of 27 seconds reported "0.5 min". The rounding step
+    there is half a minute wide, which on this act is most of the run: the
+    figure came out about a tenth high and the viewer was handed a number the
+    act never took. Callers also sample the clock where the figure is written
+    now, so it covers the run to that point instead of stopping at the top of
+    the closing phase.
+    """
+    seconds = max(0.0, float(seconds))
+    if seconds < 60:
+        return f"{seconds:.0f} s"
+    return f"{seconds / 60:.1f} min"
 
 
 def _emit_table(emit, script, *, role: str, title: str, headers, rows,
@@ -523,6 +542,30 @@ _RUNG_LABELS = {"coarse": "Coarse rung", "medium": "Middle rung",
                 "mid": "Middle rung", "fine": "Production mesh",
                 "production": "Production mesh"}
 
+# Rungs kept OFF the ladder table on camera (Katie, 2026-07-31). These two
+# reached the B-52 record from the standalone refinement runs and carry their
+# study identifiers as labels, which is the internal naming the discretion
+# charter keeps off the promotional surface.
+#
+# DISPLAY ONLY, and the distinction is the whole point. The study file keeps
+# every rung, the band is the one the full ladder measured and is passed
+# through here without being refitted, and the certificate's numerical channel
+# still names the meshes that band came from. A band the remaining rungs could
+# not support would be a misstated result, so no arithmetic reads this set.
+WITHHELD_RUNGS = frozenset({"fine-uq", "finer2"})
+
+
+def displayed_levels(levels: list[dict]) -> list[dict]:
+    """The ladder rungs that go on screen: every rung but the withheld ones.
+
+    Falls back to the whole ladder when the filter would leave nothing, so a
+    study made only of withheld tags still shows its meshes rather than an
+    empty table.
+    """
+    shown = [lv for lv in (levels or [])
+             if str(lv.get("tag", "")) not in WITHHELD_RUNGS]
+    return shown or list(levels or [])
+
 
 def _rung_label(tag: str) -> str:
     return _RUNG_LABELS.get(str(tag), str(tag).capitalize())
@@ -591,7 +634,7 @@ def _band_bullet(band: dict) -> str:
         return ""
     meshes = len(band.get("cells") or []) or 3
     note = (f"• Numerical uncertainty from {meshes} meshes: "
-            f"±{band['band_abs']:.2g} on Cd (Eca & Hoekstra 2014).")
+            f"±{band['band_abs']:.2g} on C_d (Eca & Hoekstra 2014).")
     if band.get("clamped"):
         note += " • Observed order limited to the theoretical range."
     elif band.get("observed_order") is not None:
@@ -679,7 +722,10 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             script.numericist(
                 "• Grid-refinement study: two cheaper meshes of this case "
                 "beside the production mesh.")
-            rows = _ladder_rows(levels)   # coarse, middle, production
+            # Cheapest mesh first, withheld rungs off the screen. ``levels``
+            # itself is untouched and goes on to _finish, so the band is
+            # measured across the full ladder either way.
+            rows = _ladder_rows(displayed_levels(levels))
             _emit_table(emit, script, role=_NUM_ROLE, title=title,
                         headers=headers, rows=rows[:1], table_id=table_id)
             for row in rows[1:]:
@@ -1249,7 +1295,7 @@ def main(request: str | None = None, params: dict | None = None,
                 "series": "Cd_history", "x": live_cd["iters"][-1],
                 "y": round(vals[-1], 5), "lo": round(mean - 2 * sd, 5),
                 "hi": round(mean + 2 * sd, 5), "x_label": "solver iteration",
-                "y_label": "Cd", "title": "Drag coefficient: solver iteration history",
+                "y_label": "C_d", "title": "Drag coefficient: solver iteration history",
                 "feasible": True})
 
         if warm_solve:
@@ -1289,7 +1335,7 @@ def main(request: str | None = None, params: dict | None = None,
                         "series": "Cd_history", "x": pts[i][0],
                         "y": round(pts[i][1], 5), "lo": round(mean - 2 * sd, 5),
                         "hi": round(mean + 2 * sd, 5),
-                        "x_label": "solver iteration", "y_label": "Cd",
+                        "x_label": "solver iteration", "y_label": "C_d",
                         "title": "Drag coefficient: solver iteration history",
                         "feasible": True})
                     if per_point > 0:
@@ -1356,13 +1402,19 @@ def main(request: str | None = None, params: dict | None = None,
                 "series": "Cd_history", "x": round(iters[i], 0),
                 "y": round(series[i], 5), "lo": round(m - 2 * s, 5),
                 "hi": round(m + 2 * s, 5), "x_label": "solver iteration",
-                "y_label": "Cd", "title": "Drag coefficient: solver iteration history",
+                "y_label": "C_d", "title": "Drag coefficient: solver iteration history",
                 "feasible": True})
 
-    # Paint the geometry with the solved pressure field: the money shot is the
-    # body shown carrying its own solution, not a bare wireframe.
-    roster.set(CHIEF_ENGINEER, "extracting the surface pressure field", "working")
-    from chief_engineer.field_render import extract_and_paint
+    # Paint the geometry with its own solved field: the money shot is the body
+    # carrying its solution, not a bare wireframe. The quantity is the pressure
+    # coefficient, formed on the freestream this case was solved at and against
+    # a zero gauge farfield, which is what the kinematic pressure the solver
+    # writes is measured from. The painter decides the outcome, not the
+    # request: without a positive dynamic pressure the coefficient is undefined
+    # and the pressure is painted instead, so what reached the screen is read
+    # back off the payload rather than assumed.
+    roster.set(CHIEF_ENGINEER, "extracting the surface field", "working")
+    from chief_engineer.field_render import QUANTITY_CP, extract_and_paint
 
     # Face-count sanity check reference: the painted body should carry a large
     # fraction of the input surface's triangles, not a couple of flat domain
@@ -1376,10 +1428,13 @@ def main(request: str | None = None, params: dict | None = None,
         except Exception:
             input_triangles = None
 
+    paint_velocity = (20.0 if familiar
+                      else float(params.get("velocity", 100.0)))
     painted = extract_and_paint(
         engineer.remote_case, engineer.out_root / f"{label}_field",
         RUN_PREFIX[:-1] if RUN_PREFIX[-1] == "openfoam2606" else RUN_PREFIX,
-        field="p", name=label, input_triangles=input_triangles)
+        field="p", name=label, input_triangles=input_triangles,
+        q_kinematic=0.5 * paint_velocity ** 2, p_inf=0.0, as_cp=True)
     if painted:
         # The field URL is /api/field/geometry-study/<file>, served from the
         # beat's output root — so the painted JSON has to live directly under
@@ -1391,9 +1446,23 @@ def main(request: str | None = None, params: dict | None = None,
             painted = str(served)
         except OSError:
             pass
-        announce_field(emit, "geometry-study", painted,
-                       f"{shown}, surface pressure from the solve")
-        script.engineer("• Body carrying its own solved surface field.")
+        painted_quantity = None
+        try:
+            import json as _json
+
+            painted_quantity = (
+                (_json.loads(Path(painted).read_text(encoding="utf-8"))
+                 .get("field") or {}).get("quantity"))
+        except (OSError, ValueError):
+            painted_quantity = None
+        as_cp = painted_quantity == QUANTITY_CP
+        announce_field(
+            emit, "geometry-study", painted,
+            f"{shown}, surface "
+            + ("pressure coefficient C_p" if as_cp else "pressure"))
+        script.engineer(
+            "• Body carrying its own solved surface field, "
+            + ("as a pressure coefficient." if as_cp else "as pressure."))
     plots: list[str] = []
     report_plots: list[dict] = []
     for name in ("Cd", "Cl"):
@@ -1477,9 +1546,9 @@ def main(request: str | None = None, params: dict | None = None,
         comparison = verdict.get("comparison")
         if comparison:
             script.researcher(
-                f"• Solve gives Cd {comparison['measured_cd']:.4g}; rebased "
+                f"• Solve gives C_d {comparison['measured_cd']:.4g}; rebased "
                 f"{comparison['compared_cd']:.4g} vs {reference['source']} "
-                f"Cd {comparison['reference_cd']:g}. "
+                f"C_d {comparison['reference_cd']:g}. "
                 + (f"• {comparison['relative_error'] * 100:.0f}% apart, "
                    if comparison['relative_error'] is not None else "• Not comparable, ")
                 + f"band ±{comparison['tolerance'] * 100:.0f}%.")
@@ -1497,7 +1566,7 @@ def main(request: str | None = None, params: dict | None = None,
             drag_area_cmp = verdict.get("comparison")
             script.researcher(
                 f"• Drag area {drag_area_cmp['drag_area_m2']:.2f} m² from the "
-                f"solve: Cd {drag['value']:.4g} on the case reference area "
+                f"solve: C_d {drag['value']:.4g} on the case reference area "
                 f"{aref:g} m². "
                 + (f"• Sits inside the {drag_area_cmp['band_label']}, "
                    f"{drag_area_cmp['band_lo']:g} to "
@@ -1561,18 +1630,23 @@ def main(request: str | None = None, params: dict | None = None,
         from chief_engineer.transcript import NUMERICIST as _NUM_TABLE_ROLE
 
         ladder_stats: list[list[str]] = []
+        # The rungs this table counts are the rungs on screen; the band under
+        # them is the one the full ladder measured, quoted as measured.
+        shown_levels = displayed_levels(refine.get("levels") or [])
         rung_cells = [int(lv.get("cells", 0))
-                      for lv in (refine.get("levels") or [])
-                      if lv.get("cells")]
+                      for lv in shown_levels if lv.get("cells")]
         band_cells = [int(c) for c in (refine.get("band_cells") or [])]
         if len(rung_cells) >= 2:
             ladder_stats.append(["Meshes on the ladder", f"{len(rung_cells)}"])
             ladder_stats.append(["Cell counts",
                                  f"{min(rung_cells):,} to {max(rung_cells):,}"])
-        if band_cells and len(band_cells) != len(rung_cells):
+        if (band_cells and len(band_cells) != len(rung_cells)
+                and set(band_cells) <= set(rung_cells)):
             # A long ladder carries more rungs than the band is measured on.
             # Say which meshes the band came from rather than let the row
-            # above be read as its basis.
+            # above be read as its basis. Left off when the band's meshes are
+            # not all on screen: a range naming a mesh the table does not show
+            # would raise the question the row exists to answer.
             ladder_stats.append(["Meshes behind the band",
                                  f"{min(band_cells):,} to {max(band_cells):,}"])
         if refine.get("band_abs") is not None:
@@ -1688,9 +1762,9 @@ def main(request: str | None = None, params: dict | None = None,
 
     # ---------------- Conclusion ----------------
     script.phase(CONCLUSION)
-    elapsed = (time.monotonic() - began) / 60
     script.engineer(
-        f"• From surface to converged force in {elapsed:.1f} minutes. "
+        f"• From surface to converged force in "
+        f"{format_duration(time.monotonic() - began)}. "
         "• The coefficient is flat across the averaging window.")
     # The skewness caveat, stated as a measurement when and only when
     # checkMesh actually showed it.
@@ -1794,7 +1868,10 @@ def main(request: str | None = None, params: dict | None = None,
     # measured, and a spend under a core-minute is left off rather than shown
     # as zero.
     closing_spend = ledger.as_dict()["spent_core_minutes"]
-    closing_rows = [["Wall clock", f"{elapsed:.1f} min"]]
+    # Sampled here, where the row is written, so the figure is the time the
+    # run has taken by the moment the viewer reads it.
+    closing_rows = [["Wall clock",
+                     format_duration(time.monotonic() - began)]]
     if closing_spend >= 1:
         closing_rows.append(["Compute spend",
                              f"{closing_spend:.0f} core-minutes"])
@@ -1819,32 +1896,26 @@ def main(request: str | None = None, params: dict | None = None,
 
     if not familiar:
         knowledge.add(f"{shown} meshed and solved: {cells:,} cells, "
-                      f"Cd {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
+                      f"C_d {drag['value']:.4g} ± {2 * drag['sigma']:.2g}")
         script.numericist("• Lessons entered to memory.")
 
     report_doc = lab_report(
         title=f"Geometry study: {shown}",
+        # Abstract, Methods and Uncertainty run to a few short bullets each,
+        # and every figure they used to carry in prose is a row of the results
+        # table below or of a table already on the wall. Nothing is dropped:
+        # the mesh, its gates, the comparison and the bands are all still on
+        # the page, in the place a reader can scan them.
         abstract=[
-            f"We took {shown} through surface check, meshing, and a steady "
-            f"solve to establish whether the chain yields a trustworthy force.",
-            f"The mesh reached {cells:,} cells at max non-orthogonality {non_ortho_s} "
-            f"and max skewness {skew_s}; drag settled at {drag['value']:.4g} "
-            f"± {2 * drag['sigma']:.2g}.",
-            # The tier word stays out of the prose; the chip carries it.
-            (f"Rebased onto the published area basis that is "
-             f"{comparison['compared_cd']:.4g} against {comparison['reference_cd']:g} "
-             f"from {reference['source']}."
-             if comparison else
-             f"Solved with OpenFOAM, steady RANS with k-omega SST, on a mesh "
-             f"gated against the published acceptance band."),
+            f"{shown} through surface check, meshing and a steady solve.",
+            "The question: does the chain settle a force on a mesh that "
+            "clears the published gates?",
         ],
         methods=[
-            f"Surface intake and check on {shown}.",
-            f"Meshed to {cells:,} cells; quality gated at "
-            f"{MAX_NON_ORTHOGONALITY:.0f}° non-orthogonality and {MAX_SKEWNESS:.0f} skewness.",
-            f"{iterations} steady iterations on the gated mesh.",
-            "Forces averaged over the final fifth of the iteration history; the band "
-            "is the spread of that window.",
+            "Surface intake and check, then a quality-gated mesh.",
+            f"{iterations} steady iterations, k-omega SST.",
+            "Forces averaged over the settled window; the band is the spread "
+            "of that window.",
         ],
         # The bare coefficient rows come off the headline. Their envelope
         # rendered as "0.0% of value", which reads as a claim of no
@@ -1853,7 +1924,8 @@ def main(request: str | None = None, params: dict | None = None,
         # carries a reference to be judged against instead of standing alone.
         results=([{
             "quantity": "Drag vs experiment",
-            "value": f"Cd {comparison['compared_cd']:.4g} vs {comparison['reference_cd']:g}",
+            "value": f"C_d {comparison['compared_cd']:.4g} vs "
+                     f"{comparison['reference_cd']:g}",
             "envelope": (f"{comparison['relative_error'] * 100:.0f}% apart, "
                          f"±{comparison['tolerance'] * 100:.0f}% band"
                          if comparison['relative_error'] is not None else "not comparable"),
@@ -1876,25 +1948,29 @@ def main(request: str | None = None, params: dict | None = None,
             **display_verdict(trust(relative_error=0.0,
                                     in_validated_regime=gate_ok,
                                     calibrated=(skew or 0) <= MAX_SKEWNESS)),
-        }],
+        }] + ([{
+            "quantity": "Mesh sensitivity on C_d",
+            "value": f"±{refine['band_abs']:.2g}",
+            "envelope": "measured across meshes of this case",
+            **verdict,
+        }] if refine and refine.get("band_abs") is not None else []),
+        # The band the ladder measured stays, verbatim, as a row of the table
+        # above. What came out is the clause explaining why that band is as
+        # wide as it is: that clause is the narration of a struggle and it is
+        # method twice over, and the discretion charter puts both on the
+        # permanent record rather than the report. The study file still holds
+        # the observed order, the conclusive flag and the reason in full.
         uncertainty=[
-            "Reported band: settling spread of the coefficient over the "
-            "averaging window, a floor, not a bound.",
-            (f"Numerical uncertainty from a 3-mesh refinement study: "
-             f"±{refine['band_abs']:.2g} on Cd; {refine['method']}."
+            "Reported band: settling spread over the averaging window, a "
+            "floor, not a bound.",
+            ("Mesh sensitivity: measured across meshes of this case."
              if refine and refine.get("band_abs") is not None else
-             "Numerical uncertainty not quantified on this run: no matching "
-             "refinement study on the record for this setup."),
-            (f"Compared against {reference['source']}: {verdict['reason']}."
+             "Mesh sensitivity: no matching refinement study for this setup."),
+            (f"Graded against {reference['source']}."
              if comparison else
-             (f"Compared against {drag_area_cmp['source']}: drag area "
-              f"{drag_area_cmp['drag_area_m2']:.2f} m² sits "
-              f"{drag_area_cmp['position']} the published "
-              f"{drag_area_cmp['band_lo']:g} to {drag_area_cmp['band_hi']:g} m² "
-              f"band."
+             (f"Graded against {drag_area_cmp['source']}."
               if drag_area_cmp else
-              "No published comparison exists for this body, so the magnitude "
-              "stands on the solve's own evidence.")),
+              "No published comparison exists for this body.")),
         ],
         next_investigations=[
             f"{entry['title']}: {entry['scope']}" for entry in _AGENDA],
@@ -1930,7 +2006,8 @@ def main(request: str | None = None, params: dict | None = None,
             + [("Band (95%)",
                 f"±{(combined if combined else 2 * drag['sigma']):.2g}"),
                ("Cells", f"{cells:,}"),
-               ("Solve Time", f"{elapsed:.1f} min")])
+               ("Wall Clock",
+                format_duration(time.monotonic() - began))])
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry=shown,

@@ -350,13 +350,18 @@ class CoefficientTableTests(unittest.TestCase):
 # --------------------------------------------------------------------------
 
 class ScaleBasisTests(unittest.TestCase):
-    def test_b52_uses_its_published_length_with_the_source_stated(self):
+    def test_b52_works_to_its_published_length_and_narrates_nothing(self):
+        # The published length still governs the scale. The two bullets that
+        # walked the viewer to it came off the screen (Katie, 2026-07-31), and
+        # the length solved reaches the record as a row of the body table.
         reference, lines = gs.scale_basis("b52.stl", 358.0, {})
         self.assertEqual(reference, 48.5)
-        blob = " ".join(lines)
-        self.assertIn("358 units long", blob)
-        self.assertIn("Published length of this aircraft: 48.5 m; "
-                      "working to that", blob)
+        self.assertEqual(lines, [])
+        source = (SDK / "workflows" / "geometry_study.py").read_text(
+            encoding="utf-8")
+        self.assertNotIn("units would make this body", source.split(
+            "if raw_length > 150")[0])
+        self.assertNotIn("working to that", source)
 
     def test_stated_reference_length_still_wins(self):
         reference, lines = gs.scale_basis("b52.stl", 358.0,
