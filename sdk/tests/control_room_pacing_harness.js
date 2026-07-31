@@ -297,7 +297,33 @@ check(order[0] === 1,
 // backend put on the wire, how long before that number is on screen. Katie's
 // complaint is a lag of tens of seconds, so the number only ever arrives once
 // the work it describes is over.
-const LAG_BUDGET_MS = 6000;   // the page's KPI_LAG_MS plus one reading beat
+//
+// THIRD COMPLAINT (2026-07-31, same day). "Reverify that the worker count is
+// exactly in sync with the meshing/solving." Not "within a few seconds": the
+// numeral has to be up while the mesh is being built and the solver is
+// running, and come down when the slots are released. A separate run of this
+// harness against the then-current page found the numeral first reading non
+// zero only at the very END of the hump and adjoint acts, which the six second
+// budget below did not catch because those two acts declare their fleet in a
+// single instant and the old time based catch up applied the rise and the
+// release in the same frame.
+//
+// So the replay now measures TWO things per stream, and prints both:
+//
+//   WIRE   the moment the mission first put meshing or solving on the wire,
+//          against the moment it first declared a non zero fleet. This is the
+//          backend's own honesty and no page change can move it.
+//   SCREEN the moment that meshing/solving beat is REVEALED to the viewer,
+//          against the moment the Workers numeral first leaves zero, plus how
+//          long the numeral holds its non zero value. A count that flashes for
+//          one frame is not "in sync with the solve" either.
+//
+// "Meshing or solving on screen" is deliberately read off the narration the
+// viewer is looking at (WORK_RE below), not off a private event name, and the
+// matched line is printed so the measurement can be audited.
+const RISE_BUDGET_MS = 500;   // wire to screen budget on the fleet GROWING
+const HELD_SHARE = 0.15;      // least share of a run the numeral must stand at a fleet size
+const WORK_RE = /\bmesh|solv|simplefoam|residual|iterat|rank|parallel/i;
 
 function replay(file) {
   const events = fs.readFileSync(file, 'utf8').split('\n')
@@ -313,12 +339,14 @@ function replay(file) {
   const at = e => (e.timestamp - t0) * 1000;   // ms on the virtual clock
 
   // What the backend put on the wire: the fleet size each roster update
-  // declared, keeping only the changes, with the time it was emitted. A value
-  // the backend supersedes in the same instant (a wave closing and the next
-  // one opening land on one timestamp) is not something the numeral owes the
-  // viewer, so it is dropped rather than demanded.
-  const SUPERSEDED_MS = 300;
-  let wire = [];
+  // declared, keeping only the changes, with the time it was emitted.
+  //
+  // Every declared size is demanded, including one the backend supersedes in
+  // the same instant. That used to be forgiven, and forgiving it is what let
+  // the hump and adjoint acts pass while showing nothing: both declare their
+  // fleet and stand it down on a single timestamp, so the only fleet size those
+  // missions ever put on the wire was the one being excused.
+  const wire = [];
   for (const e of events) {
     if ((e.event || e.type) !== 'roster.update') continue;
     const n = (e.payload || e).workers;
@@ -326,12 +354,47 @@ function replay(file) {
     if (wire.length && wire[wire.length - 1].v === String(n)) continue;
     wire.push({ t: at(e), v: String(n) });
   }
-  wire = wire.filter((w, i) => !(wire[i + 1] && wire[i + 1].t - w.t < SUPERSEDED_MS));
+
+  // The wire's own answer: when did the mission first say it was meshing or
+  // solving, and when did it first declare a fleet? These come off the recorded
+  // stream alone, with no page in the picture.
+  let wireWork = null, wireWorkLine = '', wireFleet = null;
+  for (const e of events) {
+    const kind = e.event || e.type, pay = e.payload || e;
+    if (wireWork == null) {
+      if (kind === 'mesh.stats' || kind === 'race.lane' || kind === 'race.init') {
+        wireWork = at(e); wireWorkLine = kind;
+      } else if (kind === 'transcript.entry' && WORK_RE.test(String(pay.message || ''))) {
+        wireWork = at(e); wireWorkLine = String(pay.message).slice(0, 76);
+      }
+    }
+    if (wireFleet == null && kind === 'roster.update' && Number(pay.workers || 0) > 0) {
+      wireFleet = at(e);
+    }
+  }
 
   const changes = { kAgents: [], kWorkers: [], kCycle: [] };
   const seen = { kAgents: null, kWorkers: null, kCycle: null };
   let finishedAt = null;
+  // When a queued beat is REVEALED. revealQ is drained one item per timer, and
+  // onBeat fires after every timer, so watching the head of the queue between
+  // beats stamps each item with the moment it went on screen.
+  let queued = [], screenWork = null, screenWorkLine = '';
+  const noteRevealed = (item, now) => {
+    if (screenWork != null || item.kind !== 'entry') return;
+    const msg = String((item.p && item.p.message) || '');
+    if (!WORK_RE.test(msg)) return;
+    screenWork = now; screenWorkLine = msg.slice(0, 76);
+  };
   const sample = now => {
+    const q = p.api.revealQ;
+    if (queued.length) {
+      // Anything that was in the queue last beat and is not in it now was
+      // revealed in between.
+      const still = new Set(q);
+      for (const item of queued) if (!still.has(item)) noteRevealed(item, now);
+    }
+    queued = q.slice();
     for (const id of Object.keys(changes)) {
       const v = g(id);
       if (v !== seen[id]) { seen[id] = v; changes[id].push({ t: now, v }); }
@@ -351,6 +414,11 @@ function replay(file) {
       if (marks[kind] == null) marks[kind] = p.clock.now;
       marks._last = p.clock.now;
       try { p.api.dispatch(e); } catch (err) { p.clock.errors.push(err); }
+      // The race lanes are rendered live and unpaced, so a lane IS the work
+      // going on screen the instant it arrives.
+      if (screenWork == null && (kind === 'race.lane' || kind === 'race.init')) {
+        screenWork = p.clock.now; screenWorkLine = kind;
+      }
     }, at(e));
   }
   p.drain();
@@ -371,12 +439,29 @@ function replay(file) {
     for (const st of steps) { if (st.t > t) break; v = st.v; }
     return v;
   };
+  // What the numeral read the instant BEFORE the wire spoke. A rise the page
+  // honours lands on the very same virtual millisecond, so `valueAt` would
+  // already be showing it and no rise would ever be seen.
+  const valueBefore = t => {
+    let v = steps[0].v;
+    for (const st of steps) { if (st.t >= t) break; v = st.v; }
+    return v;
+  };
   const matched = wire.map(w => {
-    if (valueAt(w.t) === w.v) return { wire: w, lag: 0 };
+    // A RISE is the wire declaring MORE than the numeral is showing at that
+    // moment: the viewer needs it while the work is happening, so it is owed
+    // immediately. A FALL is the fleet standing down, which belongs to the beat
+    // that reports the work finishing and is paced on purpose; it is still owed
+    // before the mission ends. Classifying against what is on screen rather
+    // than against the previous wire value is what makes a fleet the backend
+    // stood down and reopened inside one instant read as the stand down it is.
+    const rise = Number(w.v) > Number(valueBefore(w.t));
+    if (valueAt(w.t) === w.v) return { wire: w, rise, lag: 0 };
     const hit = steps.find(st => st.t > w.t && st.v === w.v);
-    return { wire: w, lag: hit ? hit.t - w.t : null };
+    return { wire: w, rise, lag: hit ? hit.t - w.t : null };
   });
-  const lags = matched.filter(m => m.lag != null).map(m => m.lag);
+  const lagsOf = f => matched.filter(m => m.lag != null && f(m)).map(m => m.lag);
+  const riseLags = lagsOf(m => m.rise), fallLags = lagsOf(m => !m.rise);
 
   const stat = id => {
     const cs = changes[id];
@@ -389,12 +474,25 @@ function replay(file) {
       timeline: cs,
     };
   };
+  // How long the numeral actually stood at a non zero value while the mission
+  // was on screen. A count that flashes for one frame is not in sync with a
+  // solve that runs for a minute.
+  const w = stat('kWorkers');
+  let heldMs = 0;
+  const wsteps = [{ t: 0, v: '0' }].concat(w.timeline);
+  for (let i = 0; i < wsteps.length; i++) {
+    if (wsteps[i].v === '0') continue;
+    const until = Math.min(wsteps[i + 1] ? wsteps[i + 1].t : runEnd, runEnd);
+    if (until > wsteps[i].t) heldMs += until - wsteps[i].t;
+  }
   return {
     file: path.basename(file), events: events.length, streamEnd, runEnd, finishedAt,
     marks, errors: p.clock.errors, wire, matched,
-    worstLag: lags.length ? Math.max(...lags) : null,
+    worstRiseLag: riseLags.length ? Math.max(...riseLags) : null,
+    worstFallLag: fallLags.length ? Math.max(...fallLags) : null,
     missed: matched.filter(m => m.lag == null).length,
-    kAgents: stat('kAgents'), kWorkers: stat('kWorkers'), kCycle: stat('kCycle'),
+    kAgents: stat('kAgents'), kWorkers: w, kCycle: stat('kCycle'),
+    wireWork, wireWorkLine, wireFleet, screenWork, screenWorkLine, heldMs,
     finished: p.api.state.finished,
     peakWorkers: p.api.state.peakWorkers, peakAgents: p.api.state.peakAgents,
   };
@@ -415,8 +513,24 @@ for (const file of replayFiles) {
     console.log(`           ${k.timeline.map(c => `${s(c.t)}=${c.v}`).join('  ') || '(no change)'}`);
   }
   console.log(`  fleet size wire to screen: ` +
-    r.matched.map(m => `${m.wire.v}@${s(m.wire.t)}${m.lag == null ? ' NEVER SHOWN' : ` after ${s(m.lag)}`}`).join(', '));
-  console.log(`  worst lag ${r.worstLag == null ? 'n/a' : s(r.worstLag)}, ${r.missed} wire value(s) never reached the numeral`);
+    r.matched.map(m => `${m.wire.v}${m.rise ? ' up' : ' down'}@${s(m.wire.t)}` +
+                       `${m.lag == null ? ' NEVER SHOWN' : ` after ${s(m.lag)}`}`).join(', '));
+  console.log(`  worst lag on a rise ${r.worstRiseLag == null ? 'n/a' : s(r.worstRiseLag)}, ` +
+    `on a stand down ${r.worstFallLag == null ? 'n/a' : s(r.worstFallLag)}, ` +
+    `${r.missed} wire value(s) never reached the numeral`);
+  // The two numbers Katie asked to be adjacent.
+  console.log(`  WIRE   meshing/solving declared at ` +
+    `${r.wireWork == null ? 'never' : s(r.wireWork)}, fleet declared non zero at ` +
+    `${r.wireFleet == null ? 'never' : s(r.wireFleet)}` +
+    (r.wireWork != null && r.wireFleet != null
+      ? `, gap ${s(r.wireFleet - r.wireWork)}` : '') +
+    `   [${r.wireWorkLine}]`);
+  console.log(`  SCREEN meshing/solving on screen at ` +
+    `${r.screenWork == null ? 'never' : s(r.screenWork)}, numeral first moves at ` +
+    `${r.kWorkers.firstNonZero == null ? 'never' : s(r.kWorkers.firstNonZero)}` +
+    (r.screenWork != null && r.kWorkers.firstNonZero != null
+      ? `, gap ${s(r.kWorkers.firstNonZero - r.screenWork)}` : '') +
+    `, held non zero ${s(r.heldMs)} of ${s(r.runEnd)}   [${r.screenWorkLine}]`);
   if (r.errors.length) console.log(`  ${r.errors.length} error(s) thrown, first: ${r.errors[0].message}`);
 
   // ---- the behavioural bar --------------------------------------------
@@ -434,15 +548,30 @@ for (const file of replayFiles) {
         `${label} kWorkers first reads non zero at ` +
         `${r.kWorkers.firstNonZero == null ? 'never' : s(r.kWorkers.firstNonZero)}, ` +
         `past the halfway mark of a ${s(r.runEnd)} run: the fleet count lands at the end`);
-  check(r.worstLag != null && r.worstLag <= LAG_BUDGET_MS,
-        `${label} the worst wire to screen lag on the fleet count is ` +
-        `${r.worstLag == null ? 'infinite' : s(r.worstLag)}, over the ${s(LAG_BUDGET_MS)} budget: ` +
-        `the numeral is not tracking the fleet it is meant to show`);
+  // A rise is owed immediately: the moment the backend says the fleet grew,
+  // the numeral says so, whatever the narration queue is doing.
+  check(r.worstRiseLag != null && r.worstRiseLag <= RISE_BUDGET_MS,
+        `${label} the worst wire to screen lag on a fleet RISE is ` +
+        `${r.worstRiseLag == null ? 'infinite' : s(r.worstRiseLag)}, over the ` +
+        `${s(RISE_BUDGET_MS)} budget: the numeral is not tracking the fleet as it grows`);
+  // A stand down is paced, but it still has to land before the mission ends.
+  check(r.worstFallLag == null || r.worstFallLag <= r.runEnd,
+        `${label} a fleet stand down took ${s(r.worstFallLag)} to reach the numeral ` +
+        `on a ${s(r.runEnd)} run`);
   // Every distinct fleet size the backend declared has to reach the numeral.
   // The last one is allowed to be swallowed by finish()'s peak restore.
   check(r.missed <= 1,
         `${label} ${r.missed} of ${r.wire.length} fleet sizes never reached the ` +
         `numeral at all, so the climb and fall was never on camera`);
+  // The count has to STAND at the fleet size while the fleet is working, not
+  // flash it. Before the guard in `rosterCounts` the B-52 act held its 6 for
+  // 0.4 s of a 64.5 s run and the Ahmed act held its 6 for 1.0 s of 57.3 s,
+  // because a stale idle roster queued ahead of the fleet roster wiped the rise
+  // one beat after it landed.
+  check(r.heldMs >= r.runEnd * HELD_SHARE,
+        `${label} the Workers numeral stood at a fleet size for only ${s(r.heldMs)} ` +
+        `of a ${s(r.runEnd)} run (${(r.heldMs / r.runEnd * 100).toFixed(0)}%), under the ` +
+        `${(HELD_SHARE * 100).toFixed(0)}% bar: the count flashes rather than tracking the solve`);
   check(r.kAgents.during >= 2,
         `${label} kAgents moved ${r.kAgents.during} time(s) during the run, ` +
         `expected the team to build up on camera`);
@@ -450,10 +579,20 @@ for (const file of replayFiles) {
         `${label} kCycle moved ${r.kCycle.during} time(s) during the run`);
   if (raceStart != null) {
     // Katie: "the workers should appear as soon as either reduced or mc start".
-    check(r.kWorkers.firstNonZero != null && r.kWorkers.firstNonZero <= raceStart + LAG_BUDGET_MS,
+    // AT OR BEFORE the moment the first lane appears, not "soon after".
+    check(r.kWorkers.firstNonZero != null && r.kWorkers.firstNonZero <= raceStart + RISE_BUDGET_MS,
           `${label} the race lanes start at ${s(raceStart)} but kWorkers first reads ` +
           `non zero at ${r.kWorkers.firstNonZero == null ? 'never' : s(r.kWorkers.firstNonZero)}, ` +
-          `more than ${s(LAG_BUDGET_MS)} later`);
+          `more than ${s(RISE_BUDGET_MS)} later`);
+  }
+  // And on any mission, the numeral must not be waiting on the narration queue:
+  // the fleet reaches the KPI row no later than the wire declared it.
+  if (r.wireFleet != null) {
+    check(r.kWorkers.firstNonZero != null &&
+          r.kWorkers.firstNonZero <= r.wireFleet + RISE_BUDGET_MS,
+          `${label} the backend declared its fleet at ${s(r.wireFleet)} but the numeral ` +
+          `first reads non zero at ` +
+          `${r.kWorkers.firstNonZero == null ? 'never' : s(r.kWorkers.firstNonZero)}`);
   }
   check(r.kWorkers.resting === String(r.peakWorkers) || r.peakWorkers === 0,
         `${label} the resting kWorkers is ${r.kWorkers.resting} but the peak was ` +

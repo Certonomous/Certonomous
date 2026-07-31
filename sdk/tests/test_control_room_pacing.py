@@ -50,6 +50,24 @@ long before that number is on screen. Measured against the pre-fix page:
     sweep  worst lag 19.6 s
 
 and against the fixed page: 2.9 s, 3.7 s, 3.7 s.
+
+2026-07-31, again. "Reverify that the worker count is exactly in sync with the
+meshing/solving." A few seconds is not in sync, and a separate run of the
+harness on four more acts found something worse than lag: on the NASA hump and
+the adjoint acts the Workers numeral never left zero at all until finish()
+restored the peak. Both acts declare their fleet and stand it down on ONE
+timestamp, and the time-based catch-up then applied the rise and the release in
+the same frame, so the numeral read 0 for the whole run.
+
+Measured on those four acts plus the original three, against the pre-fix page:
+
+    hump     numeral first moves at 64.4 s of a 64.4 s run, held non zero 0.0 s
+    adjoint  numeral first moves at 47.2 s of a 47.2 s run, held non zero 0.0 s
+    b52      worst rise lag 3.7 s, ahmed 2.6 s, race 2.9 s, act 3.7 s, sweep 3.7 s
+
+and against the fixed page: the worst wire-to-screen lag on a fleet RISE is
+0.0 s on all seven streams, and the numeral stands at a fleet size for 20% to
+97% of each run.
 """
 from __future__ import annotations
 
@@ -65,10 +83,18 @@ CONTROL_ROOM = SDK / "chief_engineer" / "control_room.html"
 NODE = shutil.which("node") or shutil.which("nodejs")
 
 # Recorded missions, kept whole so the replay carries the real burst shape.
+# The last four are the acts Katie films, added because the first three all
+# passed while the hump and the adjoint showed nothing: a stream whose whole
+# fleet lifetime is one timestamp fails differently from one that is merely
+# backed up, and only a real recording of it shows that.
 STREAMS = [
     FIXTURES / "control_room_race_stream.jsonl",    # Monte Carlo vs reduced order
     FIXTURES / "control_room_act_stream.jsonl",     # a narrated act, 137 s
     FIXTURES / "control_room_sweep_stream.jsonl",   # a short fan out sweep, 40 s
+    FIXTURES / "control_room_hump_stream.jsonl",    # NASA wall mounted hump
+    FIXTURES / "control_room_adjoint_stream.jsonl", # discrete adjoint on the wing
+    FIXTURES / "control_room_b52_stream.jsonl",     # B-52 external aerodynamics
+    FIXTURES / "control_room_ahmed_stream.jsonl",   # Ahmed body, 25 degree slant
 ]
 
 
@@ -95,12 +121,20 @@ class ControlRoomPacing(unittest.TestCase):
         """The numerals must climb while the work is on screen, not after it.
 
         Katie's whole objection is that a demo whose numbers arrive at the end
-        "looks hardcoded". The bar the harness enforces per stream: the fleet
-        numeral leaves zero in the first half of the run, every fleet size the
-        backend declared reaches the numeral within six seconds of being
-        declared, the race lanes and the worker count start together, the
-        Agents and Cycle numerals each move at least twice during the run, and
-        the resting count after the queue drains is still the mission's peak.
+        "looks hardcoded". The bar the harness enforces per stream:
+
+          * the fleet numeral leaves zero in the first half of the run;
+          * a fleet RISE reaches the numeral within 0.5 s of the backend
+            declaring it, whatever the narration queue is doing, so the
+            numeral is up while the mesh and the solve are on screen;
+          * a fleet stand down is paced, and still lands before the run ends;
+          * the numeral STANDS at a fleet size for at least 15% of the run
+            rather than flashing it (the failure that hid on the hump and the
+            adjoint, where it stood at a fleet size for 0.0 s);
+          * every fleet size declared reaches the numeral;
+          * the race lanes and the worker count start together;
+          * the Agents and Cycle numerals each move at least twice;
+          * the resting count after the queue drains is the mission's peak.
         """
         for stream in STREAMS:
             self.assertTrue(stream.exists(), f"missing replay fixture {stream}")

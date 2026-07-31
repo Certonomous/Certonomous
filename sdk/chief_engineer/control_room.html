@@ -692,7 +692,8 @@ function resetMission() {
   if (state.source) state.source.close();
   state.mission=null; state.workers=0; state.agents=0; state.finished=false; state.plots=[]; state.surface=null; state.mesh=null; state.report=null;
   state.landscape=[]; state.landMeta=null; state.certificate=null; state.digestPhase=null; state.touchpoints=0;
-  state.peakAgents=0; state.peakWorkers=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
+  state.peakAgents=0; state.peakWorkers=0; state.workersShown=0; state.fleetAhead=0;
+  state.fleetAheadToken=0; state.fleetSeq=0; state.agentsSeen=0; state.rolesSeen=new Set(); revealQ.length=0; revealing=false;
   state.dispatch={}; state.dispatchGrant=null; state.trace=null; state.instant=false;
   hideKillBanner();
   setMissionLabel('NO ACTIVE MISSION', null);
@@ -757,10 +758,10 @@ function dispatch(env) {
     // creates the table, append events land rows live as solves finish.
     case 'transcript.table': enqueue('table', p, ts); break;
     case 'audit.completed': renderAudit(p); break;
-    // Roster rides the SAME paced queue as the transcript so the live Agents /
-    // Workers KPI numerals stay in lockstep with the narration and dispatch they
-    // belong to (R1). Applied immediately they would race to the idle end-state
-    // and read 0/0 through the whole paced replay.
+    // Roster rides the SAME paced queue as the transcript so the panel and the
+    // Agents numeral stay in lockstep with the narration and dispatch they
+    // belong to (R1). Its fleet size is the one exception, and only upward:
+    // see the rise-on-arrival rule at `showFleetRise`.
     case 'roster.update': enqueue('roster', p, ts); break;
     case 'compute.update': renderCompute(p); break;
     case 'uncertainty.channels': renderChannels(p); break;
@@ -1193,7 +1194,7 @@ const APPLY = {
 // `roster.update`; `agent.started` / `worker.provisioned` / `worker.released`
 // are the fleet's own per-slot channel.
 const COUNT = {
-  roster:     p => rosterCounts(p),
+  roster:     (p, item) => rosterCounts(p, item),
   agentUp:    () => { state.agents++;
                       state.agentsSeen = Math.max(state.agentsSeen || 0, state.agents);
                       renderAgentCount(); },
@@ -1204,43 +1205,58 @@ const COUNT = {
 function applyCounts(item) {
   if (!item || item.counted || !COUNT[item.kind]) return;
   item.counted = true;
-  COUNT[item.kind](item.p);
+  COUNT[item.kind](item.p, item);
 }
-// KPI CATCH UP (Katie, 2026-07-31: "the workers should appear as soon as
-// either reduced or mc start", and "this only appeared at the end whereas it
-// should appear as the solve is happening").
+// THE FLEET NUMERAL TRACKS THE FLEET (Katie, 2026-07-31: "the worker count is
+// exactly in sync with the meshing/solving" — rise when workers go on the mesh,
+// hold while they solve, fall when they are released).
 //
-// The counters ride the paced queue so they can never run ahead of the
-// operation that earns them. What went wrong is the other direction. A mission
-// front loads its hypothesis and plan narration: a dozen entries land inside
-// the first fraction of a second, which is ~20 s of reading beats. The roster
-// update that announces the fleet is queued BEHIND them, while `race.init` and
-// the race lanes render live and unpaced, so the Monte Carlo and reduced order
-// lanes were already running with the Workers numeral still reading 0.
+// Everything narrated rides the paced queue so it can never run ahead of the
+// operation that earns it. A fleet size is not narration. `roster.update`
+// carries the absolute number of solver slots the backend has open at that
+// instant: a fact about the machine, not a beat in the story. Two things went
+// wrong while it rode the queue behind a mission's front loaded hypothesis and
+// plan narration, which is a dozen entries inside the first fraction of a
+// second and therefore ~20 s of reading beats:
 //
-// So the numerals get a lag budget. A queued count that has waited longer than
-// KPI_LAG_MS is applied now, in queue order; the roster panel it belongs to
-// still paints on its own beat. Under a queue that is keeping up nothing is
-// promoted and the counts stay in exact lockstep, which is the invariant the
-// earlier complaint bought. The budget is longer than one reading beat on
-// purpose: it fires only when the queue is genuinely backed up.
-const KPI_LAG_MS = 2500;
+//   * on the race, `race.init` and the lanes render live and unpaced, so both
+//     lanes were already running with the Workers numeral still reading 0;
+//   * on any act that emits its stream in a burst (the adjoint act puts its
+//     whole optimization on the wire inside 0.7 s), a time based catch up swept
+//     the queue and applied the fleet's rise AND its release in the same
+//     instant, so the numeral flashed once near the start and read 0 for the
+//     rest of the run. That is the "it only appears at the end" report: the
+//     resting value was restored by finish(), and nothing was on screen before.
+//
+// The rule that fixes both: A RISE IS APPLIED ON ARRIVAL, A FALL WAITS FOR ITS
+// BEAT. A fleet that has just grown is a fact the viewer needs while the work
+// is happening, and it cannot run ahead of anything because it describes
+// hardware rather than story. A release is the opposite: it belongs to the beat
+// that reports the work finishing, and applying it early is exactly what
+// collapsed the rise and fall into one frame. The roster panel and the Agents
+// tally are untouched by this and still paint on their own paced beat, as does
+// the fleet's own per slot channel (`worker.provisioned` / `worker.released`),
+// which is what keeps the counters in lockstep with the narration.
 const nowMs = () => (typeof performance !== 'undefined' && performance.now)
   ? performance.now() : Date.now();
-function catchUpCounts() {
-  const cutoff = nowMs() - KPI_LAG_MS;
-  // revealQ is in arrival order, so qAt is non decreasing: the first item
-  // inside the budget ends the sweep.
-  for (const item of revealQ) {
-    if (item.qAt > cutoff) break;
-    applyCounts(item);
-  }
+function showFleetRise(item) {
+  if (item.kind !== 'roster') return false;
+  const n = rosterFleetSize(item.p);
+  if (n <= (state.workersShown || 0)) return false;
+  renderWorkerCount(n);
+  // Held until this item reaches its own beat, so nothing queued behind it can
+  // undo it (see the guard in `rosterCounts`).
+  state.fleetAhead = n;
+  state.fleetAheadToken = item.fleetToken = (state.fleetSeq = (state.fleetSeq || 0) + 1);
+  return true;
 }
 // The worker-kill beat holds on screen: the LOST banner and lane must dwell long
 // enough to read (and to catch in a still) before the fresh worker takes over.
 const KILL_DWELL_MS = 2600;
 function enqueue(kind, p, ts) {
-  revealQ.push({ kind, p, ts, qAt: nowMs() });
+  const item = { kind, p, ts, qAt: nowMs() };
+  item.fleetShown = showFleetRise(item);
+  revealQ.push(item);
   if (!revealing) { revealing = true; drainReveal(); }
 }
 function drainReveal() {
@@ -1248,9 +1264,6 @@ function drainReveal() {
   if (!item) { revealing = false; return; }
   (APPLY[item.kind] || (() => {}))(item.p, item);
   if (state.instant) { drainReveal(); return; }   // still-capture: no pacing
-  // Every beat is also a chance for a starved KPI count to catch up, so the
-  // numerals keep reading live while the queue works through the narration.
-  catchUpCounts();
   const next = revealQ[0];
   let delay;
   // The LOST beat always dwells, in either pace, so the fresh-worker hand-off
@@ -1395,20 +1408,42 @@ function renderAgentCount() {
 function renderWorkerCount(live) {
   const n = live == null ? state.workers : live;
   $('kWorkers').textContent = n;
+  state.workersShown = n;
   state.peakWorkers = Math.max(state.peakWorkers || 0, n);
 }
-// The roster arrives as one event but carries two separable things: the panel
-// of who is on the job, and the KPI counts. They are split so the counts can
-// catch up on their own budget when a burst of narration backs the queue up
-// (see `catchUpCounts`) while the panel still paints on its own paced beat.
-function rosterCounts(p) {
-  // Workers is the live provisioned count (0 -> fan-out -> 0). Agents adds any
-  // roster member seen non-idle to the same seen-on-the-job set the transcript
-  // feeds, so the numeral matches whoever is on screen the moment they appear.
+// The roster arrives as one event but carries three separable things: the panel
+// of who is on the job, the Agents tally, and the fleet size. They are split so
+// a fleet that has just grown can reach the numeral straight away while the
+// panel and the Agents tally still paint on their own paced beat (see
+// `rosterFleetSize` and the arrival rule in `enqueue`).
+const rosterFleetSize = p => Number((p && p.workers) ?? 0) || 0;
+function rosterAgents(p) {
+  // Agents adds any roster member seen non-idle to the same seen-on-the-job set
+  // the transcript feeds, so the numeral matches whoever is on screen the
+  // moment they appear.
   (p.members || []).filter(m => (m.status || m.state) && (m.status || m.state) !== 'idle')
                    .forEach(m => noteAgentRole(m.name || m.role));
-  renderWorkerCount(p.workers ?? 0);
   renderAgentCount();
+}
+function rosterCounts(p, item) {
+  rosterAgents(p);
+  // Workers is the live provisioned count (0 -> fan-out -> 0).
+  //
+  // A rise put on screen the moment it arrived reaches this beat with nothing
+  // left to paint, and its arrival here is what ends the guard below.
+  if (item && item.fleetShown) {
+    if (item.fleetToken === state.fleetAheadToken) state.fleetAhead = 0;
+    return;
+  }
+  // THE GUARD. A mission emits its idle roster and its fleet roster in the same
+  // instant, and the idle one is often first in the queue. Without this, the
+  // numeral rose on arrival and was then wiped by a stale zero that was queued
+  // BEFORE it, and the rise never repainted because it had already been
+  // spent — the fleet showed for a fraction of a second and read 0 for the rest
+  // of the solve. A count still queued behind a fleet that is already on screen
+  // cannot take that fleet away; only a beat at or after the rise's own can.
+  if (state.fleetAhead && rosterFleetSize(p) < state.fleetAhead) return;
+  renderWorkerCount(rosterFleetSize(p));
 }
 function renderRoster(p) {
   setHidden('rosterSection', false);
