@@ -79,7 +79,7 @@ gate.
 | A1 | CL wrt shape | **1.67%** |
 | A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%** |
 
-| A4 | CD wrt rear-slant shape | **10.04%** — adjoint 0.21821, FD 0.24258. **PASS** within the calibrated band |
+| A4 | CD wrt rear-slant shape | **10.04%**, adjoint 0.21821, FD 0.24258. **CONDITIONAL** under the current standard. It was graded PASS against the calibrated band, which is retired; two other records already grade it CONDITIONAL and this row was the stale one |
 | A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** |
 
 ### A4 found a silent solver mismatch that affects the credentials wall
