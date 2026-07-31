@@ -17,6 +17,10 @@ routes exist today:
 ``uncertainty-reduction``
     The request is about confidence itself — how sure are we, tighten the
     error bars, how many samples.
+``sobol-sensitivity``
+    The request is about where the uncertainty comes from — which input owns
+    the output variance. The envelope is decomposed rather than propagated,
+    so a reduction campaign can be aimed before it is priced.
 ``geometry-study``
     A surface is named, or a body is to be taken through the whole chain:
     intake, surface check, meshing, solving, and a reported force with its
@@ -151,6 +155,25 @@ _RACE_FRAME = re.compile(
 _RACE_METHODS = re.compile(
     r"\b(monte[\s-]?carlo|reduced[\s-]?order|surrogate|"
     r"response\s+surface|brute[\s-]?force)\b", re.I)
+
+# The variance-apportionment act. Distinct from the uncertainty-reduction
+# route in the one way that matters: uncertainty reduction spends samples to
+# tighten an envelope, while this one splits the envelope already measured
+# into the share each input owns, so the reduction campaign can be aimed
+# before it is priced. The method word carries the trigger because it names
+# the decomposition and appears in no other prompt this control room routes;
+# the pick-and-freeze and main/total vocabulary reinforces it.
+SOBOL_SENSITIVITY = "sobol-sensitivity"
+_SOBOL_FRAME = re.compile(
+    r"\bsobol\b|\bvariance[\s-]?based\s+(?:decomposition|sensitivity)\b|"
+    r"\bvariance\s+(?:share|apportion\w*|decomposition)\b|"
+    r"\bapportion\w*\b[^.?!]{0,30}\bvariance\b|"
+    r"\bwhich\s+input\b[^.?!]{0,40}\b(?:variance|spread|envelope|uncertainty)\b|"
+    r"\bglobal\s+sensitivity\b", re.I)
+_SOBOL_METHOD = re.compile(
+    r"\bpick[\s-]?and[\s-]?freeze\b|\b(?:main|first[\s-]?order|total)[\s-]?"
+    r"effect\s+ind(?:ex|ices)\b|\bsensitivity\s+ind(?:ex|ices)\b|"
+    r"\bsaltelli\b|\bjansen\b", re.I)
 
 _OPTIMIZE = re.compile(
     r"\b(minimi[sz]e|maximi[sz]e|optimi[sz]e|reduce|lower|improve|increase|"
@@ -510,6 +533,17 @@ def classify(request: str) -> Route:
     # --- uncertainty ---
     if _UNCERTAINTY.search(text):
         add(UNCERTAINTY_REDUCTION, 0.8, "asks about confidence in the answer")
+    # --- variance apportionment: names the decomposition, so it outranks the
+    # act whose spreads it is decomposing (the valve screen, the airliner
+    # sizing chain) the same way a named body outranks a geometry study ---
+    if _SOBOL_FRAME.search(text):
+        add(SOBOL_SENSITIVITY, 2.2,
+            "asks which input owns the output variance, which is a "
+            "decomposition of the envelope rather than a run of it")
+        if _SOBOL_METHOD.search(text):
+            add(SOBOL_SENSITIVITY, 0.6,
+                "names the pick-and-freeze design and the main and "
+                "total-effect indices it produces")
 
     if not scores:
         return Route(
@@ -637,6 +671,13 @@ def classify(request: str) -> Route:
             "This is a question about confidence itself. I will quantify the "
             "current envelope, decide whether it is reducible, and spend "
             "samples until only irreducible uncertainty remains."),
+        SOBOL_SENSITIVITY: (
+            "Reading this as a variance apportionment. An envelope says how "
+            "wide the answer is and never says which input made it wide, so "
+            "I will split the variance into the share each input owns, "
+            "first-order and total effect, each with its bootstrap interval. "
+            "Two shares whose intervals overlap stand as unresolved and the "
+            "base sample rises until they separate."),
     }[intent]
 
     # The rationale stands alone on the interpretation panel; the raw evidence
@@ -693,6 +734,8 @@ WORKFLOWS: dict[str, dict[str, Any]] = {
                       "output": "unseen-geometry"},
     UNCERTAINTY_REDUCTION: {"module": "workflows.uncertainty_reduction",
                             "output": "uncertainty-reduction"},
+    SOBOL_SENSITIVITY: {"module": "workflows.sobol_sensitivity",
+                        "output": "sobol-sensitivity"},
     AHMED_BODY: {"module": "workflows.ahmed_body", "output": "ahmed-body"},
     NASA_HUMP: {"module": "workflows.nasa_hump", "output": "nasa-hump"},
     ONERA_M6: {"module": "workflows.onera_m6", "output": "onera-m6"},

@@ -54,3 +54,46 @@ mesh_quality:
   aspect_ratio_flag_with_non_ortho_deg: 60.0  # aspect ratio above advisory AND non-ortho above this is a flag
   aspect_ratio_flag_with_skewness: 2.0        # aspect ratio above advisory AND skew above this is a flag
   min_volume_ratio_warn: 0.01         # adjacent-cell volume ratio warning; snappy generation floor
+
+sobol:
+  # Admissibility gates for variance-based (Sobol) sensitivity, codified
+  # 2026-07-31 as Stage 3 of the Innovation Standard for the method whose
+  # Stage-2 offline evidence is recorded in
+  # docs/standards/INNOVATION_STANDARD.md. The primitive is
+  # sdk/chief_engineer/sensitivity.py; the mission that reads these numbers is
+  # sdk/workflows/sobol_sensitivity.py.
+  #
+  # Basis:
+  #  - Dakota Reference Manual, sampling with variance based decomposition,
+  #    and Dakota Theory Manual (Sandia National Laboratories): the
+  #    pick-and-freeze design and its n_base * (M + 2) cost.
+  #  - Saltelli et al. 2010 (first-order estimator), Jansen 1999
+  #    (total-effect estimator).
+  #
+  # The identities are exact in expectation: every index lies in [0, 1], each
+  # first-order index is at or below its own total-effect index, and the
+  # first-order indices sum to at most 1 (with equality only for a purely
+  # additive model). A finite sample violates them by estimator noise, so the
+  # gates below separate noise from a genuine violation.
+  #
+  #  - identity_slack: how far a POINT estimate may break an identity before
+  #    the run is treated as noise-dominated and the base sample is raised.
+  #    Set at 0.05 of the whole variance, which is the scale of the
+  #    run-to-run movement measured on the two lab models between base
+  #    samples of 800 and 12800 (mains summing to 1.014, 1.003, 0.991 on the
+  #    valve screen and 0.999, 1.015 on the airliner chain). A violation
+  #    wider than this is not sampling scatter.
+  #  - min_base_samples: the opening design, N of 200, as the approved
+  #    proposal r1-sobol-sensitivity-mission priced it.
+  #  - max_base_samples: the ceiling a mission may escalate to before it
+  #    reports the ranking unresolved rather than spending further. At 3200
+  #    base samples a two-input case costs 12800 evaluations, still under a
+  #    second on a reduced-order path.
+  #  - Two inputs whose bootstrap intervals overlap are UNRESOLVED at that
+  #    budget and are never force-ranked; the base sample doubles until they
+  #    separate or the ceiling is reached.
+  identity_slack: 0.05
+  min_base_samples: 200
+  max_base_samples: 3200
+  bootstrap_resamples: 200
+  confidence_level: 0.95

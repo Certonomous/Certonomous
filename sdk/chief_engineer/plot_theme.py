@@ -171,3 +171,92 @@ def envelope_trace_figure(out_png: str | Path, xs, ys, los, his, *,
     fig.savefig(out_png)
     plt.close(fig)
     return str(out_png)
+
+
+def variance_share_figure(out_png: str | Path, names, main, total,
+                          main_ci, total_ci, *, title: str,
+                          subtitle: str = "") -> str | None:
+    """One bar per input: the share of output variance that input owns.
+
+    The bar is the first-order (main) index with its bootstrap interval; the
+    ringed marker on the same row is the total-effect index with its own
+    interval, so the gap between them reads as interaction directly off the
+    figure. A dotted rule at the whole variance marks where the shares would
+    sum if the model were purely additive.
+
+    Self-explanatory by construction: every bar is annotated with its own
+    percentage, the axis is a share, and the legend names both estimators, so
+    the figure carries its meaning without the surrounding prose.
+    """
+    plt = _pyplot()
+    if plt is None:
+        return None
+
+    n = len(names)
+    ys = list(range(n))[::-1]        # first input on top
+    # Headroom above for the title and its subtitle, a legend row below the
+    # axes, and one row per input between them: nothing lands on a bar.
+    height = 3.2 + 0.8 * n
+    fig, ax = plt.subplots(figsize=(11.4, height), dpi=150)
+
+    for y, name, s_i, t_i, s_ci, t_ci in zip(ys, names, main, total,
+                                             main_ci, total_ci):
+        ax.barh([y], [s_i], height=0.46, color=LIVE, alpha=0.85,
+                edgecolor=INK, linewidth=0.8, zorder=3)
+        ax.errorbar([s_i], [y],
+                    xerr=[[max(0.0, s_i - s_ci[0])], [max(0.0, s_ci[1] - s_i)]],
+                    fmt="none", ecolor=INK, elinewidth=1.4, capsize=5,
+                    capthick=1.4, zorder=5)
+        ax.scatter([t_i], [y], s=110, facecolor="none", edgecolor=TREND,
+                   linewidth=2.0, zorder=6)
+        ax.errorbar([t_i], [y],
+                    xerr=[[max(0.0, t_i - t_ci[0])], [max(0.0, t_ci[1] - t_i)]],
+                    fmt="none", ecolor=TREND, elinewidth=1.2, capsize=4,
+                    capthick=1.2, alpha=0.85, zorder=4)
+        right = max(s_i, t_i, s_ci[1], t_ci[1])
+        ax.annotate(f"{s_i * 100:.0f}%", xy=(right, y), xytext=(16, 0),
+                    textcoords="offset points", va="center", ha="left",
+                    fontsize=12, color=INK, weight="bold", zorder=7)
+
+    ax.axvline(1.0, color=DIM, linewidth=1.0, linestyle=(0, (3, 3)))
+    ax.text(1.0, ys[0] + 0.46, "whole variance", ha="right", va="bottom",
+            fontsize=10, color=MUTED)
+
+    ax.set_yticks(ys)
+    ax.set_yticklabels([str(v) for v in names], fontsize=12, color=INK)
+    ax.set_xlim(0.0, 1.26)
+    ax.set_ylim(-0.6, ys[0] + 0.8)
+    ax.grid(axis="y", visible=False)
+    style_axes(ax, r"share of output variance   $S_i$,  $S_{T_i}$", "", title)
+    # The title carries extra pad so the subtitle can sit between it and the
+    # frame without either landing on the other.
+    ax.set_title(title, color=INK, fontsize=14, loc="left", pad=30,
+                 weight="bold")
+    if subtitle:
+        ax.annotate(subtitle, xy=(0.0, 1.0), xycoords="axes fraction",
+                    xytext=(0, 10), textcoords="offset points", ha="left",
+                    va="bottom", fontsize=10.5, color=MUTED)
+
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Patch
+    handles = [
+        Patch(facecolor=LIVE, edgecolor=INK,
+              label=r"main effect $S_i$ (this input alone)"),
+        Line2D([0], [0], marker="o", color="none", markerfacecolor="none",
+               markeredgecolor=TREND, markeredgewidth=2.0, markersize=11,
+               label=r"total effect $S_{T_i}$ (with every interaction)"),
+        Line2D([0], [0], color=INK, linewidth=1.4,
+               label="95% bootstrap interval"),
+    ]
+    # The legend sits BELOW the axes: inside the frame it would cover a bar
+    # on any case whose leading share is small.
+    leg = ax.legend(handles=handles, frameon=False, fontsize=10.5,
+                    labelcolor=INK, loc="upper center", ncol=3,
+                    bbox_to_anchor=(0.5, -0.32 / (0.8 * n / 2.0 + 0.6)),
+                    handletextpad=0.7, columnspacing=1.8)
+    for text in leg.get_texts():
+        text.set_color(INK)
+    fig.tight_layout()
+    fig.savefig(out_png, bbox_inches="tight")
+    plt.close(fig)
+    return str(out_png)

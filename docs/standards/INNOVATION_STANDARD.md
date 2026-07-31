@@ -81,7 +81,7 @@ not enter.
 
 ## Methods in the pipeline (status ledger)
 
-### Sobol sensitivity indices -- STATUS: offline evidence measured (2026-07-25)
+### Sobol sensitivity indices -- STATUS: adopted on a surface (2026-07-31)
 
 Proposal `r1-sobol-sensitivity-mission` (basis: Dakota theory manual;
 Saltelli 2010 main estimator, Jansen 1999 total estimator). Primitive:
@@ -113,6 +113,41 @@ Gate criteria for adoption on a surface:
 
 Named limitations: pick-and-freeze assumes independent inputs; correlated
 spreads need a different estimator before any such case is admitted.
+
+Stage 3 closed 2026-07-31: the gate criteria above are now numbers in
+`docs/physics_rules.yaml` under `sobol` rather than constants in workflow
+code. `identity_slack: 0.05` is how far a point estimate may break an
+identity before the run counts as noise-dominated; it is set from the
+run-to-run movement measured on the two lab models between base samples of
+800 and 12800 (first-order shares summing to 1.014, 1.003, 0.991 on the valve
+screen and 0.999, 1.015 on the airliner chain). `min_base_samples: 200` is
+the design the proposal priced and `max_base_samples: 3200` is where a
+mission stops escalating and reports the ranking unresolved.
+
+Stage 4 closed 2026-07-31: the method ships as a routed mission,
+`sdk/workflows/sobol_sensitivity.py`, reached from the control room by the
+vocabulary of the decomposition (`sobol-sensitivity` in the router). It wears
+its conditions on camera: the fidelity ceiling is RESEARCH MODEL because both
+paths it decomposes are reduced-order screens; the identity check and the
+overlapping-interval rule are read from the yaml and stated with the numbers
+they enforce; the marked upgrade point is the third agenda entry, the same
+decomposition carried through a meshed and solved case.
+
+What the mission measured on its first run (base sample 800 on both cases,
+11,200 evaluations, 0.44 s):
+
+| Case | Leading input | Main effect | Runner up | Main effect |
+|---|---|---|---|---|
+| Valve screen, cycle-weighted pressure loss | discharge coefficient | 0.584 [0.527, 0.648] | flow amplitude | 0.430 [0.370, 0.488] |
+| Airliner sizing chain, cruise lift to drag | non-wing drag | 0.664 [0.587, 0.741] | payload mass | 0.314 [0.258, 0.376] |
+
+The first finding is about the budget, not the physics: at the approved base
+sample of 200 NEITHER case cleared the gate. The valve's two intervals
+overlapped; the airliner's first-order shares summed to 1.202 of the whole
+variance with the leading input's main effect above its own total. Both
+cleared at 800. A pick-and-freeze design priced at N of 200 for a two-input
+model is under-sampled for these models, and the mission now says so on the
+record rather than ranking through it.
 
 ### Multifidelity Monte Carlo (MFMC) -- STATUS: offline evidence measured (2026-07-25)
 
