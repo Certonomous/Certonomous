@@ -128,6 +128,7 @@ Measured the same way, 2026-07-30.
 | B-52 (with `b52.stl` uploaded) | "Solve the external aerodynamics of the supplied B-52 geometry." | 26.9 s | 0.7 s |
 | Heart valve | "Find the valve opening angle that minimizes pressure loss over the cardiac cycle." | 7.5 s | 0.0 s |
 | Airliner | "Optimize the L/D of an airliner for 300 passengers, 6000 km range." | 11.7 s | 0.0 s |
+| Airliner, requirements typed out (attach `airliner_wing_span52.stl`) | "Optimize lift drag coefficient of the attached twin airliner. Constraints: 300 passengers, Range: 6000 km, take off speed: 80 m/s landing speed: 70 m/s. Don't use all of my workers" | 14 s | 1 s |
 | Monte Carlo vs reduced-order | "Race a Monte Carlo uncertainty study against a reduced-order model." | 172.1 s | 1.3 s |
 
 The race is the one act that is not a replay: it solves 93 wings live every
@@ -137,6 +138,16 @@ running the demo and nothing else. Its **physics** is fixed: the ensemble draws
 from a stated seed, so the peak, the band and the two-path agreement are the
 same on every take. Only the measured cost and the speedup move, by roughly
 half a turn in the last digit (17.0x, 17.5x across runs).
+
+The airliner's second prompt is the same act with the requirements typed out
+and a wing attached. It routes to the airliner at confidence 0.73, the surface
+rides in as the search's starting geometry, and the measured span re-centres
+the span ladder on it, so the search runs 96 wings from 37 m to 67 m rather
+than the standing prompt's 112 from 34 m to 68 m. Both prompts work; only this
+one exercises the upload path, the stated take-off and landing speeds, and the
+worker-headroom ask. Its figure above was taken on a box carrying other work,
+so treat it as an upper bound rather than the quiet-box time the rows above
+carry.
 
 ## The adjoint act — what you can and cannot say
 
