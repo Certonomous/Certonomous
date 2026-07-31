@@ -37,7 +37,6 @@ from chief_engineer.lab import (CHIEF_ENGINEER, CHIEF_RESEARCHER, CONCLUSION,
                                 UNCONVERGED, VALIDATED, ComputeLedger, KnowledgeBase,
                                 Roster, lab_report, per, uncertainty_channels)
 from chief_engineer.transcript import CHIEF_ENGINEER as _CE_ROLE
-from chief_engineer.transcript import CHIEF_RESEARCHER as _CR_ROLE
 from chief_engineer.transcript import NUMERICIST as _NUM_ROLE
 
 from .geometry_study import (INPUT_ASSUMED_NOTE, MAX_NON_ORTHOGONALITY,
@@ -923,8 +922,12 @@ def main(request: str | None = None, params: dict | None = None,
         input_2sigma=None, numerical_abs=refinement_spread,
         model_abs=model_band)
     combined = total["combined_95"]
+    # BEYOND KATIE'S LIST, same division: the uncertainty table is measurement,
+    # so the numericist presents it, and the ruling on what the total covers
+    # goes to the researcher. It used to be the engineer's table with the
+    # numericist explaining it, which had the two of them the wrong way round.
     _emit_table(
-        emit, script, role=_CE_ROLE,
+        emit, script, role=_NUM_ROLE,
         title="Total uncertainty on the separation station",
         headers=("Channel", "Value in x/c", "In the total"),
         rows=[
@@ -934,7 +937,7 @@ def main(request: str | None = None, params: dict | None = None,
             ["Total", f"{combined:.4f}", "The two quantified channels"],
         ],
         table_id="uncertainty-act6-nasa_hump")
-    script.numericist(
+    script.researcher(
         f"• The total covers the numerical and model channels. "
         f"• No input spread was assumed for this benchmark, so that channel "
         f"is stated rather than set to zero.")
@@ -975,7 +978,9 @@ def main(request: str | None = None, params: dict | None = None,
              f"{bubble_published:.3f}",
              "Not gated, the difference of the two stations"],
         ]
-    _emit_table(emit, script, role=_CE_ROLE,
+    # BEYOND KATIE'S LIST: same class of table as the gate table in item 2,
+    # measured stations against a published reference, so the same speaker.
+    _emit_table(emit, script, role=_NUM_ROLE,
                title=f"Measured wall events against {GATE_SOURCE}",
                headers=("Quantity", "Value", "Deviation", "Reference",
                         "Verdict"),
