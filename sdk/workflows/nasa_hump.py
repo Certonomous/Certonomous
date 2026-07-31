@@ -529,7 +529,8 @@ def main(request: str | None = None, params: dict | None = None,
              "Residuals never settle inside it"],
         ],
         table_id="plan-act6-nasa_hump")
-    script.engineer(
+    # The engineer commits the table; the researcher rules that it is closed.
+    script.researcher(
         "• Every falsifier is on the table before the solver starts. "
         "• Nothing on it moves once wall samples arrive.")
 
