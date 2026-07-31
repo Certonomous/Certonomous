@@ -81,23 +81,15 @@ def _credentials_from_disk() -> list[dict]:
         if not data.get("name"):
             continue
         shown = lab.displayed_credential(data)
-        cards.append({
-            "name": data["name"],
-            "tier": shown["tier"] or "NEEDS WORK",
-            # ONE number on the card: the coefficient on the reference's own
-            # area basis, the same one the reason text quotes a percentage of.
-            "measured": shown["on_reference_basis"],
-            "measured_raw": shown["measured"],
-            "area_basis": shown["area_basis"],
-            "cells": shown["cells"],
-            "envelope": shown["envelope"],
-            "reference_cd": shown["reference_cd"],
-            "source": shown["source"],
-            "reason": shown["reason"],
-            "wall_minutes": data.get("wall_minutes"),
-            "finest_rung": shown["superseded"],
-            "rung_provenance": shown["provenance"],
-        })
+        # The card is built by `lab.credential_card`, not by a key list typed
+        # here. The list this replaces had drifted from the live panel's copy
+        # of the same card and both were dropping the ladder verdict the tier
+        # is graded on. ONE number on the card stays the rule: `measured` is
+        # the coefficient on the reference's own area basis, the same one the
+        # reason text quotes a percentage of, and `credential_card` sets it.
+        card = lab.credential_card(data["name"], shown, data)
+        card["tier"] = shown["tier"] or "NEEDS WORK"
+        cards.append(card)
     cards.sort(key=lambda c: (_TIER_RANK.get(c["tier"], 9), c["name"]))
     return cards
 

@@ -114,21 +114,15 @@ def _credentials() -> list[dict]:
         shown = lab.displayed_credential(data)
         compared = shown.get("compared", data.get("cd_compared"))
         tier = shown["tier"] or "UNCONVERGED"
-        cards.append({
-            "name": name,
-            "tier": _LEGACY_TIERS.get(tier, tier),
-            "measured": compared if compared is not None else shown["measured"],
-            "measured_raw": shown["measured"],
-            "cells": shown["cells"],
-            "finest_rung": shown["superseded"],
-            "area_basis": shown["area_basis"],
-            "envelope": shown["envelope"],
-            "reference_cd": shown["reference_cd"],
-            "source": shown["source"],
-            "reason": shown["reason"],
-            "wall_minutes": data.get("wall_minutes"),
-            "finished_at": data.get("finished_at"),
-        })
+        # Built by `lab.credential_card`, the one place a credential card is
+        # assembled. This surface's two differences from the wall's card are
+        # applied here, where they are visible, instead of living as a second
+        # hand-typed key list that silently drifts from the first.
+        card = lab.credential_card(name, shown, data)
+        card["tier"] = _LEGACY_TIERS.get(tier, tier)
+        card["measured"] = (compared if compared is not None
+                            else shown["measured"])
+        cards.append(card)
     cards.sort(key=lambda card: (_TIER_RANK.get(card["tier"], 9), card["name"]))
     return cards
 

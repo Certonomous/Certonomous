@@ -642,10 +642,36 @@ def read_inbox() -> list[dict]:
         launch_prompt = _clean(data.get("launch_prompt") or "")
         if launch_prompt:
             item["launch_prompt"] = launch_prompt
+        # The decision fields. This reader used to copy the ten proposal keys
+        # above and nothing else, so a file arriving with a decision already
+        # on it lost the decision on ingest: the status survived, the reason
+        # for it did not. A dismissed proposal with no dismiss_reason and a
+        # done proposal with no outcome both read as complete records, which
+        # is the failure this whole module's `done` rule exists to prevent.
+        # These are the fields the docket schema (module docstring) declares
+        # optional; anything else in an inbox file is still not carried,
+        # deliberately, and _INBOX_NOT_CARRIED names why.
+        for key in ("decided_at", "dismiss_reason", "outcome", "mission_id"):
+            value = data.get(key)
+            if value in (None, ""):
+                continue
+            item[key] = (_clean(str(value)) if key != "decided_at"
+                         else str(value))
         if proposal_violations(item):
             continue
         out.append(item)
     return out
+
+
+# What an inbox file may carry that the docket deliberately does not keep, and
+# why. Named rather than dropped in silence: a filter nobody can see is a
+# filter nobody can question, and this one used to swallow every decision
+# field an agent wrote.
+_INBOX_NOT_CARRIED = {
+    "rank": "the docket ranks its own proposals; a filed rank is an opinion",
+    "score": "same, and a stale score outranks a fresh one",
+    "notes": "not a docket field; say it in rationale, which is displayed",
+}
 
 
 def draft_all() -> list[dict]:

@@ -1045,6 +1045,11 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
         if band_line:
             script.numericist(band_line)
         study = uq_studies.load_study(label) or {"body": label}
+        # `band_abs` on a declined ladder is the conservative fallback, not a
+        # measured uncertainty, so the flag travels beside it rather than
+        # buried inside the stored block: every surface downstream decides on
+        # `conclusive`, never on the number alone.
+        conclusive = bool(band.get("conclusive"))
         rel = (band["band_abs"] / abs(production_cd)) if production_cd else None
         # The fit is copied wholesale and `uq.STUDY_NUMERICAL_DROPS` names the
         # exclusions. The hand-typed list this replaces had to be edited every
@@ -1063,6 +1068,7 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
                                      for lv in ordered]})
         uq_studies.save_study(label, study)
         return {**numerical, "levels": ordered, "replay": replay,
+                "conclusive": conclusive,
                 "band_cells": band.get("cells") or []}
 
     existing = uq_studies.load_study(label) or {}

@@ -450,6 +450,70 @@ def evidence_hash(payload: dict) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+# The fields the seal covers, named. This IS a whitelist and it has to stay
+# one: a seal is a hash over an exact field set, and widening the set breaks
+# every certificate already issued. So the filter is deliberate and it is not
+# going to become a wholesale copy.
+#
+# What it must not be is silent. A seal that quietly stops covering a field
+# the report started carrying is a seal that certifies less than the
+# certificate shows, and nothing about the hash reveals it. So the exclusions
+# are named below and `unsealed_keys` reports anything the report carries that
+# appears in neither list. Adding a field to a report is then a decision about
+# whether the seal covers it, made once, out loud.
+SEALED_RESULT_FIELDS = ("quantity", "value", "envelope", "tier", "reason")
+SEALED_CHANNEL_FIELDS = ("name", "value", "quantified", "note")
+
+# Known, deliberate exclusions and the reason each one is out.
+UNSEALED_RESULT_FIELDS = {
+    "fields": "covered separately as result_fields when the caller passes it",
+}
+UNSEALED_CHANNEL_FIELDS: dict[str, str] = {}
+
+
+def unsealed_keys(results, channels=None) -> dict[str, list[str]]:
+    """Report fields the seal would not cover and has not been told to skip.
+
+    Empty means the seal covers everything the report carries. Non-empty is a
+    finding for `scripts/self_audit.py`, not a crash: a certificate must still
+    issue, and a human decides whether the new field belongs under the hash.
+    """
+    def extra(rows, sealed, known):
+        seen: set[str] = set()
+        for row in rows or []:
+            if not isinstance(row, dict):
+                continue
+            seen |= {k for k in row
+                     if k not in sealed and k not in known}
+        return sorted(seen)
+
+    return {"results": extra(results, SEALED_RESULT_FIELDS,
+                             UNSEALED_RESULT_FIELDS),
+            "channels": extra(channels, SEALED_CHANNEL_FIELDS,
+                              UNSEALED_CHANNEL_FIELDS)}
+
+
+def _warn_unsealed(mission_id: str, results, channels) -> None:
+    """Say so, on stderr, when a report carries a field the seal will not cover.
+
+    The certificate still issues: refusing to seal a mission because its
+    report grew a field would take a surface down over a bookkeeping question.
+    But the seal covering less than the certificate shows is exactly the kind
+    of quiet narrowing nothing else can see, so it is announced the moment it
+    happens rather than found later by reading two field lists side by side.
+    """
+    extra = unsealed_keys(results, channels)
+    named = [f"{where}: {', '.join(keys)}"
+             for where, keys in extra.items() if keys]
+    if not named:
+        return
+    import sys as _sys
+    print(f"[certificate] {mission_id}: the seal does not cover "
+          f"{'; '.join(named)}. Add each to the sealed field list or name it "
+          f"in the unsealed list with the reason it stays out.",
+          file=_sys.stderr)
+
+
 def _seal_payload(*, mission_id, geometry, objective, results, channels,
                   compute, issued_utc, mesh=None, result_fields=None,
                   scope=None, constraints=None, assumptions=None) -> dict:
@@ -459,6 +523,9 @@ def _seal_payload(*, mission_id, geometry, objective, results, channels,
     structured parameter/value pairs of the result block) join the payload only
     when the caller supplies them, so certificates without them keep their
     seals.
+
+    The field lists are `SEALED_RESULT_FIELDS` and `SEALED_CHANNEL_FIELDS`,
+    named there with the exclusions they imply; see `unsealed_keys`.
     """
     payload = {
         "mission_id": mission_id,
@@ -466,11 +533,11 @@ def _seal_payload(*, mission_id, geometry, objective, results, channels,
         "objective": objective,
         "issued_utc": issued_utc,
         "results": [
-            {k: r.get(k) for k in ("quantity", "value", "envelope", "tier", "reason")}
+            {k: r.get(k) for k in SEALED_RESULT_FIELDS}
             for r in results
         ],
         "channels": [
-            {k: c.get(k) for k in ("name", "value", "quantified", "note")}
+            {k: c.get(k) for k in SEALED_CHANNEL_FIELDS}
             for c in (channels or [])
         ],
         "compute": compute or {},
@@ -575,6 +642,7 @@ def build_certificate(report_doc: dict, *, out_path: str | Path,
     primary = results[0] if results else {}
     tier = (primary.get("tier") or "").upper()
 
+    _warn_unsealed(mission_id, results, channels)
     seal = evidence_hash(_seal_payload(
         mission_id=mission_id, geometry=geometry, objective=objective,
         results=results, channels=channels, compute=compute,
@@ -873,6 +941,7 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     chip = (fidelity or _infer_fidelity(tier, compute, results)).upper()
     subject = display_name_for(geometry, display_name)
 
+    _warn_unsealed(mission_id, results, channels)
     seal = evidence_hash(_seal_payload(
         mission_id=mission_id, geometry=geometry, objective=objective,
         results=results, channels=channels, compute=compute,

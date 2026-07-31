@@ -275,7 +275,11 @@ def research_programs() -> dict[str, Any]:
 
     closure = {
         "title": closure_raw.get("name", "Closure-challenge benchmark"),
-        "status": "ACTIVE RESEARCH",
+        # The generator's own status wins. This card used to hardcode
+        # "ACTIVE RESEARCH" over whatever benchmarks.json said, so the file
+        # could record a programme closed and the card would keep calling it
+        # open, with nothing anywhere saying the two disagreed.
+        "status": closure_raw.get("status", "ACTIVE RESEARCH"),
         "board": closure_raw.get("board", "public leaderboard"),
         # Which rank the board is shown against is a decision recorded in
         # benchmarks.json, not here. This fallback exists only so a missing
@@ -296,15 +300,23 @@ def research_programs() -> dict[str, Any]:
         # the movement (floor -> gated entry) rather than only the end point.
         # Both values come from benchmarks.json; neither is computed here.
         "floor_overall": closure_raw.get("rans_identity_floor_overall"),
+        # The per-case floor, carried for the same reason the overall floor is:
+        # the card shows a per-case row for the target and for our entry, and
+        # showing those two without the floor row they moved from is the
+        # movement stated with one of its two ends missing. It was dropped by
+        # nothing more than a key list that predated it.
+        "floor_per_case": closure_raw.get("rans_identity_floor_per_case", []),
         "submitted": False,
         "target": "top 4",
         "repo": "github.com/rmcconke/closure-challenge-benchmark",
     }
-    # No provenance string here: the benchmarks file cites an internal working
-    # note, and internal file references never reach a user-visible surface.
+    # DELIBERATELY NOT CARRIED: `source`. The benchmarks file cites an
+    # internal working note, and internal file references never reach a
+    # user-visible surface. Named here rather than left as an absence, so the
+    # exclusion can be argued with instead of rediscovered.
     speed = {
         "title": speed_raw.get("name", "Reduced-order speed program"),
-        "status": "measured",
+        "status": speed_raw.get("status", "measured"),
         "case": speed_raw.get("case", "NACA 4412"),
         "full_core_min": speed_raw.get("full_mc_core_min"),
         "reduced_core_min": speed_raw.get("reduced_core_min"),

@@ -1101,6 +1101,168 @@ def check_register_group_counts() -> Result:
                   f"agrees")
 
 
+def _uq_module():
+    sys.path.insert(0, str(REPO / "sdk"))
+    from chief_engineer import uq  # noqa: PLC0415
+    return uq
+
+
+# Two fixtures, chosen so the union of their keys covers every branch of the
+# fit a stored study can land in: one ladder that certifies and one that is
+# declined. Both are synthetic and neither is published anywhere; they exist
+# only to ask the fit what it currently emits.
+_FIT_FIXTURES = (
+    # phi = 0.42 + 0.05 h^2 on an 8x-per-rung 3D ladder: certifies at p = 2.
+    ([10000, 80000, 640000], [1.22, 0.62, 0.47], 3),
+    # The cylinder vortex-shedding rungs: declined, and by two guards at once.
+    ([2496, 5032, 8640], [0.1245, 0.1490, 0.1578], 3),
+)
+
+
+def check_studies_carry_what_the_fit_records() -> Result:
+    """A stored study must carry every field its own fit produces.
+
+    THE DEFECT. Both study writers built the `numerical` block from a
+    hand-typed list of keys. A hand-typed list keeps working when the fit
+    learns to record something new, and drops the new field on every study it
+    writes, in silence. When `eca_hoekstra_band` began recording the
+    dimensionality its band was fitted with, not one stored study picked it up
+    -- not because they predate the field, but because nothing was copying it.
+    A record that omits what it was not told to keep looks complete, which is
+    worse than one that never had the field: nothing on the file says a field
+    is missing rather than absent.
+
+    THE CHECK. Ask the fit what it emits today, subtract the exclusions the
+    writers name out loud (`uq.STUDY_NUMERICAL_DROPS`), and read every stored
+    study's `numerical` block for the remainder. A study written by an older
+    writer is reported, not repaired: whether to re-run a study is a decision
+    about compute, and this file never spends any.
+
+    This compares a published record against a re-derivation from the code
+    that produces it, which is a verification of the record, not a
+    surface-to-surface consistency check.
+    """
+    try:
+        uq = _uq_module()
+    except Exception as exc:  # noqa: BLE001
+        return Result("studies carry what the fit records", WARN,
+                      f"cannot import the fit: {type(exc).__name__}: {exc}")
+    expected: set[str] = set()
+    for cells, values, dim in _FIT_FIXTURES:
+        for fit in (uq.eca_hoekstra_band, uq.ladder_band):
+            try:
+                expected |= set(fit(cells, values, dim=dim))
+            except Exception as exc:  # noqa: BLE001
+                return Result("studies carry what the fit records", FAIL,
+                              f"{fit.__name__} raised on a fixture: "
+                              f"{type(exc).__name__}: {exc}")
+    expected -= set(uq.STUDY_NUMERICAL_DROPS)
+    expected -= {"band_abs_middle"}   # a runner-chosen alternative to band_abs
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    problems, checked = [], 0
+    for path in studies:
+        study = _load_json(path)
+        if not isinstance(study, dict):
+            problems.append(f"{path.name}: does not parse")
+            continue
+        numerical = study.get("numerical") or {}
+        # Only blocks that came out of a refinement fit are in scope. Every
+        # branch of both fits sets `observed_order`, even when it sets it to
+        # None, and no other producer does; the valve's phase-quadrature
+        # ladder is a different shape and is not measured against this one.
+        # Scoping on the method text instead would silently exempt exactly
+        # the declined ladders this check most needs to read, because a
+        # guard-failure method string does not mention a mesh.
+        if not numerical or "conclusive" not in numerical:
+            continue
+        if "observed_order" not in numerical:
+            continue
+        checked += 1
+        missing = sorted(expected - set(numerical))
+        if missing:
+            problems.append(
+                f"{path.stem}: numerical block is missing "
+                f"{', '.join(missing)}; the fit records "
+                f"{len(expected)} field(s) and this study carries "
+                f"{len(expected) - len(missing)}")
+    if problems:
+        return Result("studies carry what the fit records", FAIL,
+                      f"{len(problems)} stored study(s) omit a field their "
+                      f"own fit produces", problems)
+    return Result("studies carry what the fit records", PASS,
+                  f"all {checked} fitted study(s) carry every field the fit "
+                  f"records")
+
+
+def check_declined_ladders_name_their_guard() -> Result:
+    """A declined ladder must record WHICH guard held it, not only a sentence.
+
+    THE DEFECT. The cylinder vortex-shedding ladder was declined for an
+    observed order of 3.646, outside the credible window. Fitted on its own
+    two-dimensional mesh that order is 2.430, inside it. The act stayed
+    declined, because its extrapolated Strouhal number overshoots the range it
+    measured and that guard does not depend on dimensionality at all. So the
+    verdict never moved and the stated reason was wrong for a day, and nothing
+    on the record could show it: `uq.not_conclusive_reason` DERIVES the
+    sentence, so it silently reassigned itself when the arithmetic changed.
+
+    THE CHECK. Every declined ladder in a stored study must carry
+    `not_conclusive_guard` and a `guards` map, and the guard it names must be
+    one the map actually records as failing. A verdict resting on more than
+    one guard is reported as INFO, not a fault: it is the case where fixing
+    the stated reason would not move the verdict, and somebody should know.
+    """
+    try:
+        uq = _uq_module()
+    except Exception as exc:  # noqa: BLE001
+        return Result("declined ladders name their guard", WARN,
+                      f"cannot import the fit: {type(exc).__name__}: {exc}")
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    problems, notes, checked = [], [], 0
+    for path in studies:
+        study = _load_json(path)
+        if not isinstance(study, dict):
+            continue
+        numerical = study.get("numerical") or {}
+        if not numerical or numerical.get("conclusive") is not False:
+            continue
+        if "observed_order" not in numerical:
+            continue
+        checked += 1
+        guard = numerical.get("not_conclusive_guard")
+        guards = numerical.get("guards")
+        if not guard or not isinstance(guards, dict):
+            problems.append(
+                f"{path.stem}: declined, and the record does not say which "
+                f"guard held it; the reason on any surface showing this "
+                f"study is derived from the numbers as they stand today, not "
+                f"the guard that fired when the fit ran")
+            continue
+        if guards.get(guard) is not False:
+            problems.append(
+                f"{path.stem}: states guard {guard!r} but its own guard map "
+                f"records that guard as {guards.get(guard)!r}")
+            continue
+        held = [k for k, v in guards.items() if v is False]
+        if len(held) > 1:
+            notes.append(
+                f"{path.stem}: declined on {guard!r} and would stay declined "
+                f"on {', '.join(sorted(set(held) - {guard}))}")
+    if problems:
+        return Result("declined ladders name their guard", FAIL,
+                      f"{len(problems)} declined ladder(s) do not record the "
+                      f"guard that held them", problems + notes)
+    if notes:
+        return Result("declined ladders name their guard", INFO,
+                      f"all {checked} declined ladder(s) name their guard; "
+                      f"{len(notes)} rest on more than one", notes)
+    return Result("declined ladders name their guard", PASS,
+                  f"all {checked} declined ladder(s) name the guard that held "
+                  f"them")
+
+
 def check_campaign_json_citations() -> Result:
     """Machine-readable citations in the campaign records must resolve.
 
@@ -1170,6 +1332,8 @@ CHECKS = (
     check_restated_thresholds,
     check_register_group_counts,
     check_campaign_json_citations,
+    check_studies_carry_what_the_fit_records,
+    check_declined_ladders_name_their_guard,
 )
 
 

@@ -640,6 +640,51 @@ def displayed_credential(record: dict, *, reference: dict | None = None,
     return display
 
 
+# What a credential card does NOT carry out of `displayed_credential`, and why.
+# Everything else is copied.
+#
+# WHY THIS EXISTS. Two surfaces built a credential card by hand from this
+# function's return: `sdk/scripts/build_wall.py` for `wall.json` and
+# `chief_engineer/server.py` for the live panel. Both lists were typed from
+# what the function returned on the day they were written, and they had
+# already drifted from each other: the wall kept `rung_provenance` and dropped
+# `finished_at`, the panel did the reverse, and BOTH dropped
+# `grid_conclusive`, `relative_error` and `basis_note`. `grid_conclusive` is
+# the refinement ladder's verdict on the very mesh the card is showing, and it
+# is the field the tier itself is graded on, so a card that omits it is
+# showing the conclusion without the evidence.
+CREDENTIAL_NOT_ON_CARD = {
+    "superseded": "carried under its display name, finest_rung",
+    "provenance": "carried under its display name, rung_provenance",
+    "on_reference_basis": "carried under its display name, measured",
+}
+
+
+def credential_card(name: str, shown: dict[str, Any],
+                    record: dict[str, Any]) -> dict[str, Any]:
+    """One credential card, built in one place for every surface that shows one.
+
+    ``shown`` is a `displayed_credential` return; ``record`` the stored result
+    file it was derived from. A surface that needs a field spelled differently
+    overrides it after this call and is then visibly doing so.
+    """
+    card = {"name": name}
+    for key, value in shown.items():
+        if key in CREDENTIAL_NOT_ON_CARD:
+            continue
+        card[key] = value
+    card.update({
+        "measured": shown.get("on_reference_basis"),
+        "measured_raw": shown.get("measured"),
+        "finest_rung": shown.get("superseded"),
+        "rung_provenance": shown.get("provenance"),
+        "wall_minutes": record.get("wall_minutes"),
+        "finished_at": record.get("finished_at"),
+        "dropped_from_credential": sorted(CREDENTIAL_NOT_ON_CARD),
+    })
+    return card
+
+
 # --------------------------------------------------------------------------
 # Literature the Numericist reads
 # --------------------------------------------------------------------------
