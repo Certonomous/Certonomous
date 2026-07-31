@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-07-31T14:36:02+00:00",
+ "generated_at": "2026-07-31T14:38:33+00:00",
  "proposals": [
   {
    "id": "w3-total-uncertainty-convention",
@@ -578,11 +578,12 @@
    "cost_basis": "estimate; the finest rung holds 193,880 cells and the next roughly doubles it",
    "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
    "source_kind": "gate",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-25T02:07:58+00:00",
-   "decided_at": "2026-07-25T15:30:00Z",
+   "decided_at": "2026-07-31T14:38:33+00:00",
    "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-   "well": "W3"
+   "well": "W3",
+   "outcome": "The fourth rung was built (intermediate, 135,779 cells) and two more after it (fine-uq 255,358 and finer2 330,950), and it diagnosed rather than repaired: the observed order went from unfittable (non-monotone rungs, no order, conservative band 0.012938) to p = 2.253, monotone, inside the credible window 0.5 to 4 and still NOT conclusive, because the three successive increments grow monotonically in magnitude (0.001857, 0.002377, 0.002702) and the Richardson value 0.06484 lands 24% above the highest rung measured; the band halved to 0.006349 (13.451% of the working value) but reportable_band still returns None, and a rung-work by-product found the proposal's own three-rung ladder mixed two nearBody refinement recipes so it was never a valid ladder at all. Iterative error is ruled out as the cause: both finest rungs are stationary to a final-window 2-sigma of 1.07e-05 and 2.25e-06, three orders below the 2.702e-03 increment they would have to explain."
   },
   {
    "id": "agp-d0b3c7cb6a58",

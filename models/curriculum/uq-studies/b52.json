@@ -47,7 +47,7 @@
       "note": "background blockMesh divisions scaled up again (51x45x75); same recipe as fine-uq/production. Added specifically to get a second successive triple within the valid same-recipe family, per uq-b52-ladder-monotonicity lesson update."
     }
   ],
-  "updated_utc": "2026-07-31T00:27:40Z",
+  "updated_utc": "2026-07-31T14:38:33Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
     "band_abs": 0.006348739897916664,
@@ -55,6 +55,7 @@
     "observed_order": 2.253,
     "order_used": null,
     "clamped": false,
+    "monotone": true,
     "method": "successive Cd increments GROW with refinement instead of shrinking; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
     "conclusive": false,
     "value_working": 0.04719920575166667
@@ -81,5 +82,36 @@
     "b52-production",
     "b52-rung-fine-uq",
     "b52-rung-finer2-uq"
-  ]
+  ],
+  "iterative_audit": {
+    "question": "whether the valid family's GROWING Cd increments are a discretization property or an artifact of a fixed 300-iteration budget spent on progressively larger meshes",
+    "measured_utc": "2026-07-31T14:20:00Z",
+    "method": "force history read directly from each rung's own postProcessing/forceCoeffs1/0/coefficient.dat; window means and 2-sigma over the final 60 iterations, plus the drift between the 150-225 and 225-300 windows",
+    "rungs": {
+      "fine-uq": {
+        "cells": 255358,
+        "log": "/home/ubuntu/certonomous-runs/study-b52-fine-uq/postProcessing/forceCoeffs1/0/coefficient.dat",
+        "log_mtime_utc": "2026-07-27T03:48:11Z",
+        "cd_final_60": 0.049571,
+        "window_2sigma": 1.07e-05,
+        "halves_drift_150_225_vs_225_300": -3e-07,
+        "simple_converged_messages": 0
+      },
+      "finer2": {
+        "cells": 330950,
+        "log": "/home/ubuntu/certonomous-runs/study-b52-finer2-uq/postProcessing/forceCoeffs1/0/coefficient.dat",
+        "log_mtime_utc": "2026-07-27T04:29:53Z",
+        "cd_final_60": 0.052276,
+        "window_2sigma": 2.25e-06,
+        "halves_drift_150_225_vs_225_300": 1e-06,
+        "simple_converged_messages": 0
+      }
+    },
+    "grid_increments_valid_family": {
+      "135779_to_193880": -0.001857,
+      "193880_to_255358": 0.002377,
+      "255358_to_330950": 0.002702
+    },
+    "finding": "Iterative error is ruled out. Neither finest rung prints OpenFOAM's 'SIMPLE solution converged' message, so convergence was measured from the force history rather than assumed: both are stationary to a final-window 2-sigma of 1.07e-05 (fine-uq) and 2.25e-06 (finer2), with halves-drift below 1e-06. The finer rung is the MORE settled of the two, not the less. Those figures are two to three orders of magnitude below the 2.702e-03 grid increment they would have to explain. The increments grow because the discretization does, and the ladder is diverging for a reason more iterations cannot reach."
+  }
 }
