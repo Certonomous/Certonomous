@@ -271,6 +271,39 @@ def _requested_iteration_cap(request: str | None) -> int | None:
     return int(match.group(1)) if match else None
 
 
+# ITEM 1 (owner, 2026-07-31): a stated target is a stopping rule, and a
+# stopping rule the act does not account for reads as a stopping rule the act
+# ignored. So the act reads its own recorded history and says WHERE the target
+# was first reached, beside where the run ended.
+#
+# THE HONESTY BOUNDARY, and it is the whole point of this helper. The recorded
+# run was not driven by any stated target: this reports when the target was
+# reached and where the run ended, and NOTHING about why. No control loop, no
+# review cycle and no decision is described, because none of those is on the
+# record for this run. Everything below is read straight off the recorded
+# objective; nothing is interpolated between iterations.
+def _target_first_met(history, baseline_cd: float,
+                      target_pct: float) -> dict | None:
+    """Where the recorded history first reaches a stated reduction target.
+
+    Returns the first major iteration at or past the target, the reduction it
+    read there, and the first iteration from which every later one is also at
+    or past it. None when the recorded run never reaches the target.
+    """
+    def drop(point) -> float:
+        return (baseline_cd - point["CD"]) / baseline_cd * 100.0
+
+    met = [p for p in history if drop(p) >= target_pct]
+    if not met:
+        return None
+    stayed = met[-1]["iter"]
+    for point in reversed(history):
+        if drop(point) < target_pct:
+            break
+        stayed = point["iter"]
+    return {"iter": met[0]["iter"], "pct": drop(met[0]), "stayed_from": stayed}
+
+
 def _fmt(x: float) -> str:
     """Engineering-notation magnitude for the verification table."""
     return f"{x:.6e}"
@@ -533,6 +566,10 @@ def main(request: str | None = None, params: dict | None = None,
     majors = hist_doc["major_iterations_completed"]
     target_pct = _requested_target(request)
     iter_cap = _requested_iteration_cap(request)
+    # Where the stated target was first reached in the recorded objective, and
+    # where the run ended. Both measured; nothing is claimed about why (ITEM 1).
+    first_met = (_target_first_met(history, baseline["CD"], target_pct)
+                 if target_pct else None)
 
     # ---------------- Hypothesis ----------------
     _phase(script, HYPOTHESIS)
@@ -1042,30 +1079,45 @@ def main(request: str | None = None, params: dict | None = None,
     tail_steps = len(tail) - 1
     # Every headline number in one table, each against what it is graded on
     # (owner, 2026-07-31). Nothing here is repeated in prose afterwards.
+    result_rows = [
+        [f"Drag reduction below {BASELINE_NAME} at matched lift",
+         f"{reduction:.1f}%",
+         f"{target_pct:g}% asked" if target_pct
+         else "The two drags below are what it is measured from"],
+        ["Baseline C_d at C_L 0.5", f"{baseline['CD']:.6f}",
+         "The point the reduction is measured from"],
+        ["Final C_d at C_L 0.5", f"{final['CD']:.6f}",
+         f"C_L {final['CL']:.6f}, {cl_off:.3f}% off target"],
+        ["Worst gradient group against finite difference",
+         f"{worst:.3g}%", f"{GATE_PASS_PCT:g}% pass threshold"],
+        ["Major iterations", f"{majors}",
+         f"{iter_cap:g} asked, every one on the verified gradient"
+         if iter_cap else "Every one on the verified gradient"],
+    ]
+    # ITEM 1 (owner, 2026-07-31): a stated target is a stopping rule, so the
+    # act says where the recorded objective first reached it and where the run
+    # ended. Both read off the history. The row states no reason for the
+    # difference, because the run records none.
+    if first_met:
+        result_rows.append([
+            f"Where the {target_pct:g}% was first reached",
+            f"Major iteration {first_met['iter']}, at {first_met['pct']:.1f}%",
+            (f"At or past {target_pct:g}% from major iteration "
+             f"{first_met['stayed_from']} on. The run ran to {majors}")
+            if first_met["stayed_from"] != first_met["iter"] else
+            (f"At or past {target_pct:g}% every iteration after. The run ran "
+             f"to {majors}")])
+    result_rows += [
+        [f"Objective band over the last {TAIL_ITERS} iterations",
+         f"{tail_spread_pct:.2g}%", "Measured across the recorded objective"],
+        [f"Steps that took drag down, last {TAIL_ITERS} iterations",
+         f"{steps_down} of {tail_steps}",
+         "Still descending on the verified gradient"],
+    ]
     gate.table(emit, script, role=_CE_ROLE,
                title="Result",
                headers=("Quantity", "Value", "Reference or threshold"),
-               rows=[
-                   [f"Drag reduction below {BASELINE_NAME} at matched lift",
-                    f"{reduction:.1f}%",
-                    f"{target_pct:g}% asked" if target_pct
-                    else "The two drags below are what it is measured from"],
-                   ["Baseline C_d at C_L 0.5", f"{baseline['CD']:.6f}",
-                    "The point the reduction is measured from"],
-                   ["Final C_d at C_L 0.5", f"{final['CD']:.6f}",
-                    f"C_L {final['CL']:.6f}, {cl_off:.3f}% off target"],
-                   ["Worst gradient group against finite difference",
-                    f"{worst:.3g}%", f"{GATE_PASS_PCT:g}% pass threshold"],
-                   ["Major iterations", f"{majors}",
-                    f"{iter_cap:g} asked, every one on the verified gradient"
-                    if iter_cap else "Every one on the verified gradient"],
-                   ["Objective band over the last "
-                    f"{TAIL_ITERS} iterations", f"{tail_spread_pct:.2g}%",
-                    "Measured across the recorded objective"],
-                   [f"Steps that took drag down, last {TAIL_ITERS} iterations",
-                    f"{steps_down} of {tail_steps}",
-                    "Still descending on the verified gradient"],
-               ],
+               rows=result_rows,
                table_id="result-adjoint-optimization")
 
     # ITEM 7 (owner, 2026-07-31): the drag reduction was asked for as
@@ -1117,6 +1169,14 @@ def main(request: str | None = None, params: dict | None = None,
                    f"{iter_cap:g} asked.")
     else:
         against = ""
+    # ITEM 1 (owner, 2026-07-31): the verdict says where the stated target was
+    # first reached and where the run ended, in one line. It says nothing about
+    # why the two differ, and it never will unless a reason is on the record:
+    # asserting a mechanism this run did not have would be the one thing the
+    # line exists to avoid.
+    stopping = (f"The {target_pct:g}% was first reached at major iteration "
+                f"{first_met['iter']}, and the run ran to {majors}."
+                if first_met else "")
     # The tier is a ruling on fidelity, so the Chief Researcher gives it
     # (owner, 2026-07-31: the researcher frames and rules).
     roster.set(CHIEF_RESEARCHER, "ruling on the result", "working")
@@ -1124,6 +1184,7 @@ def main(request: str | None = None, params: dict | None = None,
             f"Verdict: drag {_headline(reduction)}, on a verified "
             f"gradient.",
             *([against] if against else []),
+            *([stopping] if stopping else []),
             verdict=verdict)
     roster.idle(CHIEF_RESEARCHER)
 
@@ -1218,7 +1279,12 @@ def main(request: str | None = None, params: dict | None = None,
              f"{majors} major iterations"
              + (f", against a {target_pct:g}% target" if target_pct else "")
              + (f" and the {iter_cap:g} major iterations asked for"
-                if iter_cap else "") + "."),
+                if iter_cap else "") + "."
+             # ITEM 1: when the target was reached, and where the run ended.
+             # Nothing about why, because nothing about why is on the record.
+             + (f" The {target_pct:g}% was first reached at major iteration "
+                f"{first_met['iter']}, and the run ran to {majors}."
+                if first_met else "")),
         ],
         methods=[
             "Steady compressible RANS primal with a one-equation turbulence "
@@ -1332,6 +1398,10 @@ def main(request: str | None = None, params: dict | None = None,
         if target_pct:
             cert_doc["result_fields"].insert(
                 2, ("Target asked", f"at least {target_pct:g}%"))
+        if first_met:
+            cert_doc["result_fields"].append(
+                ("Target first reached",
+                 f"major iteration {first_met['iter']}, run ran to {majors}"))
         if iter_cap:
             cert_doc["result_fields"].append(
                 ("Major iterations asked", f"no more than {iter_cap:g}"))
