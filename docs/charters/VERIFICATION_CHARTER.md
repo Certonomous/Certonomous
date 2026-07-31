@@ -617,6 +617,10 @@ on somebody choosing to write them is not a register.
 - `scripts/gate_table.py` regenerates the gate table from act transcripts.
 - `docs/standards/MONITOR_STANDARD.md` carries the log signatures, their
   severities and their prescribed actions.
+- `HeadEngineer.stage_case` and `DockerDAFoamEngineer.stage_case` enforce
+  section 13. Both scan the case as staged and refuse it if it carries
+  executable directives and its template is not named in
+  `chief_engineer.head_engineer.VETTED_SYSTEM_OPERATION_CASES`.
 
 **A live defect, recorded here rather than quietly fixed.** The consolidated FD
 table in `demo-output/website/ACTIVE_RESEARCH.md` still shows A4's 10.04 percent
@@ -624,6 +628,69 @@ as PASS within the calibrated band. That band is the retired one. Under the
 current standard in section 7 the same number grades CONDITIONAL, and two other
 records already say so. L-1 applies: report both and say which artifact each
 figure came from, then correct the stale one.
+
+## 13. A case from outside does not run with system operations enabled
+
+**The rule.** A case file the lab did not author must not be run on a host
+configured with `allowSystemOperations 1`. Either the switch is off for that
+run, or the solve is sandboxed, or the case does not run. This is standing, not
+a response to one incident.
+
+**Why it is a verification rule and not only a security one.** An OpenFOAM case
+is not inert data. With that switch on, four dictionary entries compile and
+execute C++ inside the solver process, with the running user's rights:
+`#codeStream`, `#calc`, any `coded*` boundary condition or function object, and
+the `systemCall` function object (`dynamicCode::checkSecurity`, called from
+`codeStream.C:268`, `calcEntry.C:75`, `codedBase.C:302`, `systemCall.C:131`).
+So "we read the case dictionaries and the setup is inspectable" — section 9's
+evidence record — is a claim about a program, not about a table of numbers. A
+case that can rewrite its own inputs at run time can also rewrite the evidence
+record that is supposed to check it.
+
+**Where the switch comes from here.** Nowhere in this repository. The
+`openfoam2606` Debian package ships
+`/usr/lib/openfoam/openfoam2606/etc/controlDict` line 75 as
+`allowSystemOperations 1`; OpenFOAM's own compiled default is `0`
+(`dynamicCode.C:44`), and `dpkg --verify openfoam2606-common` reports that file
+unmodified. The DAFoam container is on as well, and is not a sandbox for this
+purpose: it runs as root, `--network=host`, on a bind mount of the case
+directory.
+
+**How to turn it off, when a case does not need it.** Merge an override at the
+user tier, which wins over the package file (`etcFiles.C` returns
+user → group → project and `debug.C:161` merges in reverse):
+
+```
+~/.OpenFOAM/2606/controlDict
+    InfoSwitches { allowSystemOperations 0; }
+```
+
+Every OpenFOAM run then prints `allowSystemOperations : Disallowing
+user-supplied system call operations`, which is the receipt.
+
+**What is exempt, and it is a list of one.** Act 7, the NASA wall-mounted hump.
+Its case is the closure-challenge benchmark's own shipped `NASA_2DWMH`
+OpenFOAM case; `caseDef` derives `Uinf`, `nu`, `kRef` and `omegaRef` with
+`#calc`, and `system/convergenceProbes` plus the seven `system/singleGraph_*`
+dictionaries place their probes with `#calc`. Nine files in all. Measured
+2026-07-31: with the switch off, `foamDictionary caseDef -entry Uinf` exits 1
+at `dynamicCode.C:83`, so the act cannot run. The exemption is recorded in
+`VETTED_SYSTEM_OPERATION_CASES` with that reason, and note what it means — the
+one case that needs the capability is itself a case from outside. That is the
+argument for the rule, not against it.
+
+**An exemption is a debt, not a permission.** `#eval` is evaluated by the
+expression parser and is not gated by the switch, so the hump's `#calc` entries
+have a route out. Measured on `caseDef`, `#eval` reproduces six of the eight
+derived constants bit-for-bit and the other two (`nu`, `kRef`) to within four
+units in the last place — a floating-point association-order difference, about
+3e-16 relative. Adopting it needs one act-7 rerun to confirm the published
+separation and reattachment stations are unchanged, and that rerun is the price
+of closing the exemption.
+
+**No entry without a reason.** An entry in the vetted list names the act, the
+files, and what those files use the capability for. "It broke without it" is
+not a reason; it is the symptom that starts the review.
 
 ## Related
 

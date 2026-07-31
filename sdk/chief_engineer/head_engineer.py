@@ -844,7 +844,7 @@ class HeadEngineer:
             "OpenFOAM with allowSystemOperations enabled, so those directives "
             "would compile and run arbitrary code here. A case from an "
             "external source must not run with system operations enabled "
-            "(VERIFICATION CHARTER V9). Review the case and add it to "
+            "(Verification Charter section 13). Review the case and add it to "
             "chief_engineer.head_engineer.VETTED_SYSTEM_OPERATION_CASES with "
             "the reason, or rewrite the directives (#calc -> #eval is not "
             "gated by the switch).")

@@ -119,7 +119,7 @@ class DockerDAFoamEngineer:
         self._assert_case_code_vetted()
 
     def _assert_case_code_vetted(self) -> None:
-        """The same trust boundary HeadEngineer.stage_case enforces (V9).
+        """The same trust boundary HeadEngineer.stage_case enforces.
 
         The container is not a sandbox for this purpose. It runs as root on a
         bind mount of the case directory with ``--network=host``, and its
@@ -153,7 +153,7 @@ class DockerDAFoamEngineer:
             "OpenFOAM with allowSystemOperations enabled, as root, on a bind "
             "mount of this directory with --network=host. A case from an "
             "external source must not run with system operations enabled "
-            "(VERIFICATION CHARTER V9). Review it and add it to "
+            "(Verification Charter section 13). Review it and add it to "
             "chief_engineer.head_engineer.VETTED_SYSTEM_OPERATION_CASES with "
             "the reason.")
 

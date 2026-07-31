@@ -7,10 +7,16 @@ if str(SDK) not in sys.path:
     sys.path.insert(0, str(SDK))
 
 from chief_engineer.head_engineer import (
+    CASE_CODE_DIRECTIVES,
+    CASE_CODE_PATTERN,
+    HeadEngineer,
     LogMonitor,
+    VETTED_SYSTEM_OPERATION_CASES,
     envelope_statistics,
     parse_coefficient_history,
+    vetted_case_reason,
 )
+from chief_engineer.log_signatures import SEVERITY_CONFIGURATION_RISK
 
 
 class LogMonitorTests(unittest.TestCase):
@@ -329,6 +335,112 @@ class StatisticsTests(unittest.TestCase):
         self.assertEqual(stats["window"], 20)
         self.assertLessEqual(stats["lo"], stats["value"])
         self.assertGreaterEqual(stats["hi"], stats["value"])
+
+
+class SystemOperationsTests(unittest.TestCase):
+    """S11: allowSystemOperations is a configuration risk, and staging refuses
+    an unvetted case that could use it."""
+
+    # The exact text each build prints. v2606 on the host wraps it in a
+    # warning; the older OpenFOAM in the DAFoam container does not, which is
+    # why S11 cannot ride on the first-seen-warning rule.
+    HOST_LINE = ("--> FOAM Warning : allowSystemOperations : Allowing "
+                 "user-supplied system call operations.")
+    CONTAINER_LINE = ("allowSystemOperations : Allowing user-supplied system "
+                      "call operations")
+    OFF_LINE = ("allowSystemOperations : Disallowing user-supplied system "
+                "call operations")
+
+    def test_recorded_on_every_run_not_only_novel_mode(self):
+        for line in (self.HOST_LINE, self.CONTAINER_LINE):
+            with self.subTest(line=line):
+                monitor = LogMonitor(novel=False)
+                monitor.feed("simpleFoam", line)
+                risks = monitor.summary()["configuration_risk"]
+                self.assertEqual(len(risks), 1)
+                self.assertEqual(risks[0]["severity"],
+                                 SEVERITY_CONFIGURATION_RISK)
+
+    def test_switch_off_records_nothing(self):
+        monitor = LogMonitor(novel=True)
+        monitor.feed("simpleFoam", self.OFF_LINE)
+        self.assertEqual(monitor.summary()["configuration_risk"], [])
+
+    def test_never_fatal_and_never_an_anomaly(self):
+        monitor = LogMonitor(novel=False)
+        monitor.feed("simpleFoam", self.HOST_LINE)
+        summary = monitor.summary()
+        # The solve is untouched, so the anomaly count, the by-kind table and
+        # the fatal verdict must all be exactly what they were.
+        self.assertFalse(summary["fatal"])
+        self.assertEqual(summary["anomalies"], 0)
+        self.assertEqual(summary["by_kind"], {})
+
+    def test_novel_mode_bullet_is_unchanged_but_carries_the_severity(self):
+        seen = []
+        monitor = LogMonitor(novel=True, on_anomaly=seen.append)
+        monitor.feed("simpleFoam", self.HOST_LINE)
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(seen[0].kind, "novel-warning")   # transcript unchanged
+        self.assertEqual(seen[0].severity, SEVERITY_CONFIGURATION_RISK)
+
+    def test_repeated_lines_are_one_finding(self):
+        monitor = LogMonitor()
+        for _ in range(5):
+            monitor.feed("simpleFoam", self.CONTAINER_LINE)
+        self.assertEqual(len(monitor.summary()["configuration_risk"]), 1)
+
+    def test_case_code_patterns_agree(self):
+        """The grep spelling and the Python spelling are one rule."""
+        import re
+        import subprocess
+        corpus = {
+            'aref #calc "pow($a, 0.5)";': True,
+            "value #codeStream { code #{ os << 1; #};":  True,
+            "    type            codedFixedValue;": True,
+            "    type            codedMixedValue;": True,
+            "    type            codedFunctionObject;": True,
+            "    type coded;": True,
+            "    functions { sc { type systemCall; } }": True,
+            # #eval is parsed by the expression evaluator, never compiled, so
+            # it is not gated by the switch and must not be caught here.
+            'aref #eval "pow($a, 0.5)";': False,
+            "    type            fixedValue;": False,
+            "    #include \"../caseDef\"": False,
+            "// calculated variables": False,
+        }
+        for text, expected in corpus.items():
+            with self.subTest(text=text):
+                self.assertEqual(bool(CASE_CODE_PATTERN.search(text)), expected)
+                grep = subprocess.run(
+                    ["grep", "-qE", CASE_CODE_DIRECTIVES],
+                    input=text, text=True)
+                self.assertEqual(grep.returncode == 0, expected)
+
+    def test_unvetted_case_carrying_code_is_refused(self):
+        engineer = HeadEngineer.__new__(HeadEngineer)
+        with self.assertRaises(RuntimeError) as caught:
+            engineer.assert_case_code_vetted(
+                "/tmp/a-case-someone-emailed-us",
+                ["/tmp/a-case-someone-emailed-us/system/controlDict"])
+        self.assertIn("external source", str(caught.exception))
+
+    def test_case_without_code_passes_whatever_the_host_allows(self):
+        engineer = HeadEngineer.__new__(HeadEngineer)
+        engineer.assert_case_code_vetted("/tmp/a-case-someone-emailed-us", [])
+
+    def test_vetted_case_passes_and_records_its_reason(self):
+        engineer = HeadEngineer.__new__(HeadEngineer)
+        template = ("/home/ubuntu/Certonomous/demo-output/website/dafoam/"
+                    "f6a_nasa_hump/case_template")
+        engineer.assert_case_code_vetted(template, [f"{template}/caseDef"])
+        self.assertIn("act 7", vetted_case_reason(template))
+
+    def test_every_vetted_entry_states_a_reason(self):
+        self.assertTrue(VETTED_SYSTEM_OPERATION_CASES)
+        for case, reason in VETTED_SYSTEM_OPERATION_CASES.items():
+            with self.subTest(case=case):
+                self.assertGreater(len(reason.split()), 5, case)
 
 
 if __name__ == "__main__":

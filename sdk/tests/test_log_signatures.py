@@ -21,6 +21,9 @@ from chief_engineer.log_signatures import (
     FATAL_MULTIPLE,
     FLAG_MULTIPLE,
     RESIDUAL_NORM_ORDERS,
+    SEVERITY_CONFIGURATION_RISK,
+    SEVERITY_FATAL,
+    SEVERITY_FLAG,
     classify_bound_line,
     classify_wall_time,
     detect_ceiling_clip,
@@ -29,6 +32,7 @@ from chief_engineer.log_signatures import (
     detect_oscillatory_divergence,
     detect_residual_norm_contradiction,
     detect_residual_stall,
+    detect_system_operations,
     percentile,
     wall_time_percentiles,
     wall_time_record_field,
@@ -485,6 +489,50 @@ class ArchiveSweepTests(unittest.TestCase):
             named[self.WITHDRAWN],
             {"ceiling-clip", "normalisation-collapse",
              "residual-norm-contradiction"})
+
+
+class SystemOperationsDetectorTests(unittest.TestCase):
+    """S11. Both spellings OpenFOAM actually prints, taken verbatim from the
+    lab's own logs.
+
+    Host, v2606 (captured from `blockMesh` on the motorBike case, 2026-07-31);
+    container, the older build DAFoam ships (archived at
+    ``demo-output/website/dafoam/probe_baseline_run1.log`` line 33). The
+    container form has no "FOAM Warning" prefix at all.
+    """
+
+    HOST = ("--> FOAM Warning : allowSystemOperations : Allowing user-supplied "
+            "system call operations.")
+    CONTAINER = ("allowSystemOperations : Allowing user-supplied system call "
+                 "operations")
+    OFF = ("allowSystemOperations : Disallowing user-supplied system call "
+           "operations")
+
+    def test_both_spellings_are_detected(self):
+        for line in (self.HOST, self.CONTAINER):
+            with self.subTest(line=line):
+                finding = detect_system_operations(line)
+                self.assertIsNotNone(finding)
+                self.assertEqual(finding["kind"], "system-operations-allowed")
+                self.assertEqual(finding["severity"],
+                                 SEVERITY_CONFIGURATION_RISK)
+                self.assertIn("vetted", finding["action"])
+
+    def test_disallowing_is_not_a_finding(self):
+        self.assertIsNone(detect_system_operations(self.OFF))
+
+    def test_ordinary_lines_are_not_findings(self):
+        for line in ("Create time",
+                     "trapFpe: Floating point exception trapping enabled.",
+                     "Solving for Ux, Initial residual = 0.1"):
+            with self.subTest(line=line):
+                self.assertIsNone(detect_system_operations(line))
+
+    def test_severity_is_outside_the_numerical_ladder(self):
+        """It must never collide with flag or fatal: a run is not unsound
+        because the host was configured permissively."""
+        self.assertNotIn(SEVERITY_CONFIGURATION_RISK,
+                         {SEVERITY_FLAG, SEVERITY_FATAL})
 
 
 if __name__ == "__main__":

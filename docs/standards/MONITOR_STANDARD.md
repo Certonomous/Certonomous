@@ -14,6 +14,13 @@ Severities: FATAL (stop and investigate, the run is not evidence), FLAG
 (continue, mark the record, cap trust until resolved), WATCH (continue,
 count, report in the debrief).
 
+One severity sits outside that ladder: CONFIGURATION RISK (the numbers are
+untouched and stand; the machine they were computed on is the finding). It is
+never FATAL, because calling a sound solve unsound would be false, and it is
+never folded into "nothing fatal", because "nothing fatal" is a verdict on the
+arithmetic and this is a statement about the host. A run can be numerically
+spotless and carry one, and both facts are reported.
+
 ## 1. Signatures the monitor already catches
 
 ### S1. Floating point exception
@@ -55,6 +62,43 @@ count, report in the debrief).
 - Detection: any `FOAM Warning` pattern not seen before on a body the lab has
   not solved before (novel mode). Severity: WATCH. Action: capture as
   candidate knowledge for the debrief.
+
+### S11. System operations allowed (configuration risk)
+
+- Detection: `allowSystemOperations\s*:\s*Allowing`, on every run, in every
+  mode. `detect_system_operations` in `sdk/chief_engineer/log_signatures.py`.
+- Severity: **CONFIGURATION RISK**. Not FLAG, not FATAL, and specifically not
+  "nothing fatal".
+- Action: no number is in doubt; the host is. The run just executed with
+  `#codeStream`, `#calc`, `coded*` boundary conditions and the `systemCall`
+  function object enabled, which means a case file can compile and run
+  arbitrary code on the machine. Required for a named, vetted case; never for
+  one that arrived from outside. The standing rule is Verification Charter
+  section 13, enforced at staging.
+
+Three things about this rule are deliberate and are the reason it is not a
+special case of S5.
+
+1. **It is not banner text, so rule 3 below permits it.** `argList` prints the
+   line only inside `if (dynamicCode::allowSystemOperations)`
+   (`argList.C:2241`). The line exists because the switch is on. With the
+   switch off the same code prints `Disallowing` and the detector returns
+   nothing — the same distinction that separates the FPE *handler* from the
+   FPE *trapping banner* in S1.
+2. **It cannot ride on S5, because in the container it is not a warning.**
+   OpenFOAM v2606 on the host prints `--> FOAM Warning : allowSystemOperations
+   : Allowing user-supplied system call operations.`; the older build inside
+   the DAFoam container prints `allowSystemOperations : Allowing user-supplied
+   system call operations` bare, with no warning prefix
+   (`demo-output/website/dafoam/probe_baseline_run1.log` line 33). S5 matches
+   on `FOAM Warning` and would miss every containerized run — which is exactly
+   the run that executes as root on a bind mount.
+3. **It is recorded on every run, not only in novel mode.** A machine that
+   executes case-supplied code does so whether or not the body is new to the
+   lab. S5's novel-mode gate is about knowledge capture; this is about the
+   host, so it is unconditional. It is reported under its own
+   `configuration_risk` key next to `fatal`, and it never moves the anomaly
+   count, the by-kind table, or the fatal verdict.
 
 ## 2. Signatures the logs show the monitor misses
 
@@ -309,10 +353,15 @@ weakness. Both are written up in their own sections.
 2. Repeated conditions are one finding, not hundreds: report a few instances
    per step, count the rest silently (the suppression discipline already in
    `LogMonitor`).
-3. Banner text is never matched; only handlers and measured values are.
+3. Banner text is never matched; only handlers and measured values are. A line
+   the solver prints only when a condition holds is a measured value, not a
+   banner — that is the test S11 passes and the FPE trapping banner fails.
 4. New rules enter through the innovation path (see
    `docs/standards/INNOVATION_STANDARD.md`): proposal, offline evidence
    against archived logs, then adoption.
+5. A severity that is not about the numbers says so. It does not borrow FLAG
+   or FATAL to be noticed, and it is not allowed to disappear into "nothing
+   fatal" for being unable to. S11 is the first of these.
 
 ## Sources
 
@@ -322,6 +371,15 @@ weakness. Both are written up in their own sections.
   validated facts 3, 4, and 7.
 - LogMonitor implementation and tests, `sdk/chief_engineer/head_engineer.py`,
   `sdk/tests/test_head_engineer.py`.
+- S11 measured on this host 2026-07-31: `/usr/lib/openfoam/openfoam2606/etc/
+  controlDict` line 75 (`allowSystemOperations 1`, shipped by the Debian
+  package and reported unmodified by `dpkg --verify openfoam2606-common`),
+  against OpenFOAM's compiled default of `0` at
+  `src/OpenFOAM/db/dynamicLibrary/dynamicCode/dynamicCode.C` line 44. The four
+  gated entry points are `codeStream.C:268`, `calcEntry.C:75`,
+  `codedBase.C:302` and `systemCall.C:131`, all calling
+  `dynamicCode::checkSecurity`. The standing rule is
+  `docs/charters/VERIFICATION_CHARTER.md` section 13.
 - Signature detectors for S6, S7, and S9,
   `sdk/chief_engineer/log_signatures.py`, with tests in
   `sdk/tests/test_log_signatures.py` (including an integration test against
