@@ -273,11 +273,16 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
     params["velocity"] = velocity
 
     axes = "XYZ"
-    script.engineer(
-        f"• Surface measured: {geometry['triangles']:,} triangles, streamwise "
-        f"{axes[geometry['streamwise_axis']]}, span {axes[geometry['span_axis']]}. "
-        f"• Working scale: {geometry['length'] * scale:.1f} m long, "
-        f"{geometry['span'] * scale:.1f} m across.")
+    # What the intake read off the file, as table rows rather than two bullets
+    # of run-together numbers. They ride back on the report so the act emits
+    # ONE body table instead of restating the same length and span twice.
+    intake_rows = [
+        ["Triangles in the surface", f"{geometry['triangles']:,}"],
+        ["Streamwise axis", axes[geometry["streamwise_axis"]]],
+        ["Span axis", axes[geometry["span_axis"]]],
+        ["Working length", f"{geometry['length'] * scale:.1f} m"],
+        ["Working span", f"{geometry['span'] * scale:.1f} m"],
+    ]
     script.engineer(
         " ".join(f"• {line}." for line in basis_lines)
         + " • The Reynolds number and every force ride on this length, so it "
@@ -313,6 +318,7 @@ def _build_unfamiliar_case(engineer, script, roster, surface, params,
         f"mv constant/triSurface/_scaled.stl constant/triSurface/{surface}")
     return {"surface": surface, "closed": True, "issues": [],
             "reference": reference_values,
+            "intake_rows": intake_rows,
             "planform_area": geometry["planform_area"] * scale * scale,
             "frontal_area": geometry["frontal_area"] * scale * scale,
             # Body axes and the applied scale ride along so the pressure
@@ -992,10 +998,13 @@ def main(request: str | None = None, params: dict | None = None,
         # the surface file and the case the study just built around it, so a
         # field the intake did not produce simply leaves its row out.
         case_reference = report.get("reference") or {}
-        body_rows: list[list[str]] = []
-        if case_reference.get("length"):
+        # The intake rows lead: triangles, body axes, and the working scale the
+        # Reynolds number rides on. They already carry length and span, so
+        # those are not restated below.
+        body_rows: list[list[str]] = list(report.get("intake_rows") or [])
+        if not body_rows and case_reference.get("length"):
             body_rows.append(["Length", f"{case_reference['length']:.1f} m"])
-        if case_reference.get("span"):
+        if not report.get("intake_rows") and case_reference.get("span"):
             body_rows.append(["Span", f"{case_reference['span']:.1f} m"])
         if report.get("planform_area"):
             body_rows.append(["Planform area",

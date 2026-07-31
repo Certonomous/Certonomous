@@ -432,7 +432,7 @@ def main(request: str | None = None, params: dict | None = None,
         chord = shapes["chord_root_m"]
         twist_worst = min(last["twist_deg"])
         emit_table(emit, script, role=_CE_ROLE,
-                   title="What the gradient actually moved, at true scale",
+                   title="What the gradient moved",
                    headers=("Quantity", "Value"),
                    rows=[
                        ["Largest surface displacement",
@@ -448,73 +448,37 @@ def main(request: str | None = None, params: dict | None = None,
                         f"{shapes['refaxis_z_m'][last['twist_deg'].index(twist_worst) + 1]:.1f} m station"],
                        ["Twist at the tip station",
                         f"{last['twist_deg'][-1]:.2f} deg"],
-                       ["Colour range across the whole replay",
+                       ["Colour range across the whole pass",
                         f"{dlo:.0f} to {dhi:.0f} mm of normal displacement"],
-                       ["Display scaling on the pass just shown", "None. "
-                        "Every frame at true scale"],
-                       ["Display scaling anywhere in this act", "None. "
-                        "Both passes at true scale"],
-                       ["Where amplification would fail",
-                        f"x{_a2_shape.AMPLIFY_CEILING:.3f}, the thickness "
-                        f"constraint's own limit, where the wing would pass "
-                        f"through itself"],
+                       ["Display scaling", "None anywhere in this act"],
                    ],
                    table_id="shape-adjoint-optimization")
-        bullets(script.engineer,
-                f"Those are the true numbers, and they explain what the "
-                f"viewport can and cannot show: "
-                f"{last['max_disp_mm']:.0f} mm is a third of the section's "
-                f"own thickness, but only "
-                f"{last['max_disp_mm'] / 10.0 / chord:.1f}% of chord and a "
-                f"seventy-fifth of the span, so on a whole wing framed to the "
-                f"span it moves the outline by about "
-                f"{_a2_shape.TRUE_SCALE_PX:.0f} pixels.",
-                "That pass was at true scale, and the change was carried by "
-                "the colour on the surface rather than by the outline.",
-                "The sections figure in the report cuts those same two "
-                "surfaces and draws them to scale, and at section scale the "
-                "change is not subtle at all.")
 
-        # ---- second pass: the same 48 frames, zoomed, still true scale ----
-        # The whole wing is framed to 14 m of span, so a 186 mm change moves
-        # its outline about four pixels. The inboard span on its own camera is
-        # framed roughly four times tighter and the same untouched surfaces
-        # move about six times as far. This is a camera change, not a shape
-        # change: no coordinate is scaled, so there is no factor to disclose.
-        show("near0", f"Inboard span, true scale. Baseline, C_d "
+        # ---- second pass: the same 48 frames on a closer viewing convention
+        # No coordinate is scaled: the viewing convention moves, the wing does
+        # not. The measured amplification ceiling and the pixel arithmetic
+        # behind this choice are withheld from the narration (owner,
+        # 2026-07-31) and stay in _a2_shape where they are computed.
+        show("near0", f"Inboard span, at scale. Baseline, C_d "
                       f"{baseline['CD']:.6f}")
         bullets(script.engineer,
-                f"Same surfaces again, on a closer camera: the inboard "
-                f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span, framed about "
-                f"four times tighter. The outline now moves about "
-                f"{_a2_shape.CLOSEUP_PX:.0f} pixels instead of "
-                f"{_a2_shape.TRUE_SCALE_PX:.0f}.",
-                f"Still true scale. This is the camera moving, not the wing "
-                f"being stretched, so there is no factor to put on the screen "
-                f"and nothing to discount.",
-                f"An amplified view was measured as the alternative and left "
-                f"out. This optimizer drove its thickness constraint onto its "
-                f"floor, thinnest station 0.4988 of baseline against a limit "
-                f"of 0.5, so multiplying the displacement by "
-                f"{_a2_shape.AMPLIFY_CEILING:.3f} would take that thickness "
-                f"to zero and put the wing through itself. Even at that "
-                f"ceiling it would have bought about eight pixels. A shot "
-                f"that is honest without a caption beats one that needs it.")
+                f"Same surfaces on a closer viewing convention: the inboard "
+                f"{_a2_shape.CLOSEUP_SPAN_M:g} metres of span.",
+                f"Unscaled. The viewing convention moved, the wing did not.")
         for point in history:
             frame = frames.get(point["iter"])
             if frame is not None:
                 drop = (baseline["CD"] - frame["CD"]) / baseline["CD"] * 100
                 show(f"near{frame['iter']}",
-                     f"Inboard span, true scale. Major iteration "
+                     f"Inboard span, at scale. Major iteration "
                      f"{frame['iter']} of {majors}, C_d {frame['CD']:.6f}, "
                      f"{abs(drop):.1f}% "
                      f"{'below' if drop >= 0 else 'ABOVE'} baseline")
         show(f"near{last['iter']}",
-             f"Inboard span, true scale. Optimized, C_d {last['CD']:.6f}, "
+             f"Inboard span, at scale. Optimized, C_d {last['CD']:.6f}, "
              f"{reduction:.1f}% below baseline at matched lift")
         bullets(script.engineer,
-                f"That is the shape the gradient bought, at the size it "
-                f"really is.")
+                f"That is the shape the gradient bought, at the size it is.")
 
     cl_off = abs(final["CL"] - CL_TARGET) / CL_TARGET * 100
     # The settling claim, measured from the recorded history rather than eyeballed.

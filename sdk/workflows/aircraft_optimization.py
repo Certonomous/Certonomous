@@ -68,11 +68,14 @@ _GEOMETRY_DIR = Path(__file__).resolve().parents[1] / "geometry"
 # with the gap before it plans anything.
 _FULL_AIRCRAFT = re.compile(r"\b(airliner|aircraft|airplane|aeroplane|jet)\b",
                             re.I)
-# A lifting surface is thin: its smallest bounding-box extent is a small
-# fraction of its largest. A configuration carrying a fuselage or a tail is
-# not (a full airframe runs a quarter of its span deep or more). The bar sits
-# far from both, so dihedral and winglets never push a wing over it.
-_LIFTING_THICKNESS_RATIO = 0.15
+# A lifting surface is thin and spanwise: its vertical extent is a small
+# fraction of its span, and its streamwise extent is well under its span. A
+# configuration carrying a fuselage fails both (the CRM wing-body reads 0.15
+# deep and 0.86 long against its span; a wing on its own reads 0.01 and 0.22),
+# so the two bars sit clear of dihedral and winglets on one side and clear of
+# any body on the other.
+_LIFTING_THICKNESS_RATIO = 0.08
+_LIFTING_CHORD_RATIO = 0.5
 # Span ladder used to seed the search around an uploaded starting geometry:
 # the default six-rung ladder re-centred on the measured span, with the centre
 # and every rung clamped to sane airliner bounds.
@@ -583,6 +586,38 @@ def parse_requirements(text: str) -> dict:
     }
 
 
+def assumed_values(reqs: dict) -> list[tuple[str, str, str]]:
+    """The assumed-values ledger: every number the answer rests on that the
+    request did not state and no solver produced.
+
+    Built once and read everywhere. The requirements the prompt left out come
+    first, then the low-speed lift coefficients, then the non-wing drag share.
+    The lift coefficients matter most: take-off and landing feasibility turns
+    on them, and a vortex-lattice solver cannot produce a maximum lift
+    coefficient at all, so the ledger says where they came from instead.
+    """
+    rows: list[tuple[str, str, str]] = []
+    if not reqs.get("passengers_stated"):
+        rows.append(("Passengers", f"{reqs['passengers']:.0f}",
+                     "assumed, not stated"))
+    if not reqs.get("range_stated"):
+        rows.append(("Range requirement", f"{reqs['range_km']:.0f} km",
+                     "assumed, not stated"))
+    if not reqs.get("takeoff_stated"):
+        rows.append(("Take-off speed limit", f"{reqs['takeoff_speed']:.0f} m/s",
+                     "assumed, not stated"))
+    if not reqs.get("landing_stated"):
+        rows.append(("Landing speed limit", f"{reqs['landing_speed']:.0f} m/s",
+                     "assumed, not stated"))
+    rows.append(("CLmax, take-off", f"{_CLMAX_TAKEOFF:.1f}",
+                 "assumed, not solver-derived"))
+    rows.append(("CLmax, landing", f"{_CLMAX_LANDING:.1f}",
+                 "assumed, not solver-derived"))
+    rows.append(("Non-wing drag share", f"C_D0 {_CD0_NONWING:.3f}",
+                 "assumed, Raymer component buildup"))
+    return rows
+
+
 def measure_surface_span(path: str | Path) -> float | None:
     """Measure an uploaded STL/OBJ starting geometry: the largest horizontal
     extent of its bounding box (z up), taken as the approximate span.
@@ -607,6 +642,121 @@ def measure_surface_span(path: str | Path) -> float | None:
         extents.append(max(values) - min(values))
     span = max(extents)
     return round(span, 3) if span > 0 else None
+
+
+def surface_bodies(path: str | Path) -> dict | None:
+    """Read an uploaded surface and describe it as bodies and proportions.
+
+    Triangles that share a vertex position belong to the same body, so the
+    count of bodies is the count of separately connected pieces the file
+    holds: one for a wing on its own, more once a fuselage or a tail arrives
+    as its own shell. Positions are rounded before they are compared, because
+    a triangle mesh repeats each corner per facet and the repeats have to fall
+    together for the count to mean anything.
+
+    Returns ``{"bodies", "span", "chord", "thickness", "faces"}`` in the file's
+    own units, or None when the file cannot be read as a surface.
+    """
+    from chief_engineer.geometry import _read_obj, _read_stl
+
+    try:
+        path = Path(path)
+        if path.suffix.lower() == ".obj":
+            vertices, faces = _read_obj(path)
+        else:
+            vertices, faces = _read_stl(path)
+    except Exception:
+        return None
+    if not vertices or not faces:
+        return None
+
+    extents = [max(v[i] for v in vertices) - min(v[i] for v in vertices)
+               for i in range(3)]
+    scale = max(extents) or 1.0
+    quantum = scale * 1e-5
+
+    def key(index: int):
+        v = vertices[index]
+        return (round(v[0] / quantum), round(v[1] / quantum),
+                round(v[2] / quantum))
+
+    parent: dict = {}
+
+    def find(a):
+        root = a
+        while parent[root] != root:
+            root = parent[root]
+        while parent[a] != root:
+            parent[a], a = root, parent[a]
+        return root
+
+    def union(a, b):
+        parent.setdefault(a, a)
+        parent.setdefault(b, b)
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+
+    for face in faces:
+        if len(face) < 3:
+            continue
+        try:
+            corners = [key(i) for i in face[:3]]
+        except IndexError:
+            continue
+        union(corners[0], corners[1])
+        union(corners[1], corners[2])
+    bodies = len({find(k) for k in parent}) if parent else 0
+
+    # z is vertical, so the two horizontal extents are the planform: the
+    # larger is the span, the smaller the streamwise chord.
+    horizontal = sorted(extents[:2], reverse=True)
+    return {"bodies": bodies, "span": round(horizontal[0], 3),
+            "chord": round(horizontal[1], 3), "thickness": round(extents[2], 3),
+            "faces": len(faces)}
+
+
+def is_lifting_surface_only(shape: dict | None) -> bool:
+    """True when the uploaded surface is one lifting surface and nothing else.
+
+    One connected body, and thin against its own span. A configuration that
+    carries a fuselage or a tail fails one test or the other.
+    """
+    if not shape or shape.get("bodies") != 1:
+        return False
+    span = float(shape.get("span") or 0.0)
+    if span <= 0:
+        return False
+    return float(shape.get("thickness") or 0.0) / span <= _LIFTING_THICKNESS_RATIO
+
+
+def scope_mismatch(request: str, shape: dict | None) -> bool:
+    """The wing-for-an-aircraft gap: a lifting surface arrives on its own and
+    the objective names a whole aircraft. Both halves must hold."""
+    return bool(_FULL_AIRCRAFT.search(request or "")
+                and is_lifting_surface_only(shape))
+
+
+def interpretation_confidence(request: str) -> float | None:
+    """The same interpretation confidence the route panel reads out, taken
+    from the same classification rather than a second opinion of it."""
+    try:
+        from chief_engineer.router import classify
+
+        return float(classify(request or "").confidence)
+    except Exception:
+        return None
+
+
+# The scope statement, as the owner wrote it. It is the first thing the digest
+# shows on a triggered mission, before any plan content, so a recording of the
+# digest carries the scope without scrolling.
+SCOPE_STATEMENT = (
+    "Geometry received is a wing only. Treating this as wing design for the "
+    "stated aircraft.",
+    "Fuselage, tail, and nacelle drag are added from Raymer's component "
+    "buildup method.",
+    "All L/D figures quoted are whole-aircraft.")
 
 
 def seeded_spans(measured_span: float) -> tuple[float, ...]:
@@ -776,6 +926,27 @@ def main(request: str | None = None, params: dict | None = None,
     script.system(request or "Request: maximise the airliner's lift-to-drag ratio "
                              "subject to its mission requirements.")
 
+    # ---- scope statement, before anything else ------------------------------
+    # A lifting surface arrives on its own while the objective names a whole
+    # aircraft. The gap is real, the act resolves it one way, and it says so
+    # first: this is the opening line of the digest on a triggered mission,
+    # ahead of any plan content, so the scope is legible in one screenshot.
+    start_surface = str(params.get("surface") or "").strip()
+    shape = (surface_bodies(_GEOMETRY_DIR / start_surface)
+             if start_surface else None)
+    scoped = scope_mismatch(request or "", shape)
+    if scoped:
+        confidence = interpretation_confidence(request or "")
+        clause = ("Interpretation confidence "
+                  f"{confidence * 100:.0f}%, geometry and objective scope "
+                  f"mismatch resolved as above." if confidence is not None
+                  else "Geometry and objective scope mismatch resolved as "
+                       "above.")
+        script.engineer(
+            f"• {SCOPE_STATEMENT[0]} "
+            f"• {SCOPE_STATEMENT[1]} "
+            f"• {SCOPE_STATEMENT[2]} {clause}")
+
     # ---------------- Hypothesis ----------------
     script.phase(HYPOTHESIS)
     # Chief Researcher puts the method choice on the record before anything runs.
@@ -830,7 +1001,6 @@ def main(request: str | None = None, params: dict | None = None,
     # is acknowledged on the record under its display name, its span measured
     # from the file's bounding box, and the span ladder re-centred around that
     # measurement. The STL itself is never morphed and never pretended solved.
-    start_surface = str(params.get("surface") or "").strip()
     measured_span = None
     if start_surface:
         surface_name = display_name(start_surface)
