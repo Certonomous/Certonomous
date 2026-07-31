@@ -1,8 +1,13 @@
 # Certonomous Verification Charter
 
-Version 1.0, dated 2026-07-30. Defines what counts as done. It binds every
+Version 1.1, dated 2026-07-31. Defines what counts as done. It binds every
 solve, every gradient check, every ladder rung and every number that reaches a
 record, a certificate or a camera surface.
+
+Version 1.1 adds section 6, the display layer, after four defects were found in
+one day in the space between a correct number and the words printed next to it.
+It also adds the archive-replay requirement for detection rules to section 5
+and the restated-constant clause to section 8. Nothing in 1.0 was weakened.
 
 ## 1. The line
 
@@ -130,8 +135,8 @@ fix, it is the diverged velocity field feeding back.
 
 ## 5. Detectors, metrics and signs
 
-Three checks that cost nothing and have each already invalidated a published
-conclusion.
+Four checks that cost nothing and have each already invalidated a published
+conclusion or a rule the lab was trusting.
 
 **State the detector's resolution next to every number it produces. Never
 claim a difference below one increment.** L-28. F2's shock detector returns the
@@ -184,7 +189,108 @@ forcing or hand-assembled `fvOption` produces a result:
   record, it is a three-line eigenvalue check, and it would have caught this
   instantly.
 
-## 6. FD tables are required for every adjoint
+**Replay a new detection rule against the archive before adopting it, and
+publish its fire rate.** A rule is an instrument and it gets an instrument's
+scrutiny. S7, oscillatory divergence, was written from a knowledge base fact
+and adopted without replay. Measured afterwards across every steady solver log
+the lab has archived, 106 of them, it fires ungated on 68 and reaches FATAL on
+65, and every one of those runs completed with its results on the record. Four
+tightenings were measured and none rescued it: requiring the residual level to
+stop improving still fires on 68, requiring the finding to persist a full
+window 40, measuring growth against a 200 iteration baseline 59, raising the
+growth factor to four times 23. It also cannot separate the two logs of the
+case it was written for. **A rule that fires on two thirds of known-good work
+is measuring the population, not the defect.** Required before a rule is
+adopted: the replay, the fire count, the fatal count, and the rule's behaviour
+on the case that motivated it. A rule that cannot discriminate its own
+motivating case is withdrawn, not gated, and if it is kept on reasoning the
+archive cannot replay then it is filed as a decision and labelled the weakest
+rule in its standard, which is what `docs/standards/MONITOR_STANDARD.md` now
+does for S7.
+
+## 6. Labels are claims, and the display layer makes them
+
+A number reaches a reader through a caption, a field name and a template. Each
+of those is an assertion, and none of them is checked by the solve that
+produced the number. This section exists because four defects of exactly that
+shape were found in one day, every one of them by somebody looking at something
+else, and none of them touched a solver.
+
+**A statistical label may only sit on a value a statistical procedure
+produced.** The certificate template printed "95% confidence interval" under
+any non-empty envelope string. Acts legitimately put other things in that
+field: "converged at iteration 1,734", "5% pass threshold", "this case's own
+recipe", "at the design condition", "non-orthogonality 40.5 vs 70 gate". Every
+one of those was sealed into a PDF as a statistical claim the run never made.
+The worst was a headline rendering as "28.3% +- 0.029620 to 0.021245 at C_L
+0.5, 95% confidence interval", a range of drag coefficients printed as a
+confidence interval on a percentage: two different quantities, one of them
+fictional. **A caption is derived from the value's provenance or it is not
+printed.** A fixed caption over a free-form field is a defect at the moment it
+is written, not on the day it first lies.
+
+**The asymmetry sets the tuning, and it sets it the same way everywhere in this
+layer.** A false positive on the caption check costs a real interval its
+caption. A false negative seals a fabricated one. So the interval recogniser is
+deliberately conservative: one signed number with an optional unit, anchored
+end to end, and anything with prose in it prints as itself. Every check that
+guards a published label is tuned that way, including the audit script in
+section 11.
+
+**A grid refinement band is not a confidence interval.** An Eca and Hoekstra
+least-squares band with a safety factor is an uncertainty estimate produced by
+a fitting procedure and it carries no confidence level. Five acts, the
+supersonic wedge, the supersonic cone, the diamond airfoil, the cylinder wake
+and the hypersonic cylinder, each put a bare numerical-channel band into that
+envelope: the wedge 44.693 +- 6.880 deg off an observed order p = 0.05, the
+cone 27.309 +- 2.757 deg off a ladder that is not asymptotic, the diamond
+0.03624 +- 0.00000 off p = 9.44, the hypersonic cylinder 0.4181 +- 0.0431 off
+rungs that are not monotone, the wake 0.1578 +- 0.0193 off p = 3.65. All five
+ladders are non-conclusive by the uncertainty layer's own flag, and none of the
+five acts read the flag.
+
+**One channel presented as a total is a second defect riding on the first.**
+Those same five acts passed input and model as absent and never called
+`combine_expanded`, so the numerical channel alone stood as the result's
+uncertainty. `docs/UNCERTAINTY-DOCTRINE.md` names three channels. A channel
+that was not quantified is stated as not quantified and is explicitly not
+counted as zero, and where no channel is quantified there is no combined
+figure, so the envelope key is absent and the page prints a point estimate. The
+measured spread and the reason the ladder is not conclusive both stay on the
+page. Nothing gets quieter, only accurate.
+
+**A function that can be non-conclusive must not hand back a number under its
+plainest name.** `eca_hoekstra_band` returns `band_abs` whether or not it sets
+`conclusive`. On a failed ladder that number is a deliberately conservative
+fallback, not a measured uncertainty, and five independent authors each read it
+and printed it on a sealed page. **Five independent readers making the same
+mistake is a fact about the return shape, not about the readers.** The rule
+follows the shape of the fix: the short, obvious accessor returns the value
+only when the computation earned the right to state one, and a caller who wants
+the fallback reaches past it and names what it is. This binds every
+result-bearing function the lab writes, not the one that failed.
+
+That is L-16 in code. A status flag sitting beside a number is a derived signal
+that is further from hand than the number itself, and a flag that can be
+ignored will be.
+
+**A configuration a surface declares is a claim about the run.** The hump act
+called `roster.set_workers(ranks)` on its warm path, where the mesh and the
+solve are both restored from cache, nothing is dispatched, and the elapsed time
+is computed across a zero-length interval and clamped to one second before
+being spent to the ledger. The declaration is not decoration: it reaches the
+worker numeral, the roster and the spend line. **A surface may display a fleet
+the run used, or no fleet at all.** The repair is never to move the declaration
+earlier so the timing looks better, because that invents a fleet the run never
+used, and the standing rule forbids implying anything was prepared in advance.
+
+The general form, and it is the evidence test of section 9 pointed at the
+method rather than the result: **anything a surface states about how a number
+was produced is subject to the evidence record.** Ranks, wall time, cell count,
+solver name, iteration count. If the run did not do it, the surface does not
+say it.
+
+## 7. FD tables are required for every adjoint
 
 No gradient enters a record, a report or an optimisation without a
 finite-difference table beside it.
@@ -250,7 +356,7 @@ case where this was tested, and the FD aggregate error moved from 46.64 to
 46.21 percent, which is no material change. The next lever is mesh resolution
 or geometry smoothness.
 
-## 7. Failed gates ship as documented failures
+## 8. Failed gates ship as documented failures
 
 This is not a concession. It is the requirement.
 
@@ -297,6 +403,19 @@ in `docs/physics_rules.yaml` and never as constants in workflow code, precisely
 so that moving one is a visible edit to a governed file. Enforcement code is
 never edited to move a threshold silently.
 
+**A threshold that lives in two places is already wrong in one of them.** The
+S9 wall-time flag was corrected from 20 times a solver's running 99th
+percentile back to the 10 times the owner actually approved, and the correction
+landed on the shared constant. `LogMonitor.check_wall_time` kept its own
+literal 20.0 as a default argument, so for five days every caller taking the
+monitor default judged runs against a threshold nobody had approved, while the
+governed constant read correctly and anyone who checked the governed file would
+have been satisfied. **A restated constant is a defect at review whether or not
+it currently agrees with its source**, because on the day it stops agreeing
+nothing announces it. Read the constant, and pin the two together with a test
+that fails when they diverge. This is the same clause as the paragraph above,
+pointed at the case where nobody widened anything and the gate moved anyway.
+
 **None of this conflicts with the no-failures-on-camera rule.** The demo
 discretion charter is explicit that it governs the promotional surface only and
 has no authority anywhere else, and that the campaign records, `LESSONS.md` and
@@ -304,7 +423,7 @@ has no authority anywhere else, and that the campaign records, `LESSONS.md` and
 written up in full and is not filmed. Both rules hold at once, and anyone who
 reads them as being in tension has read the demo charter's scope clause wrong.
 
-## 8. The evidence record
+## 9. The evidence record
 
 **No result without one.** An evidence record is:
 
@@ -336,7 +455,7 @@ never filled in from a neighbouring run that happens to be close. Citing the
 campaign record for a row the viewer watched an act produce would make the
 provenance decorative.
 
-## 9. Before believing any of it, check the primary source
+## 10. Before believing any of it, check the primary source
 
 L-16 names the standing pattern behind L-14, L-15 and L-19: a derived,
 annotated or summarised signal sits closer to hand than the primary evidence,
@@ -360,7 +479,7 @@ a mild wobble.
 All three of L-16's instances confirmed something already believed, which is
 exactly why none of them got checked.
 
-## 10. Enforcement
+## 11. Enforcement
 
 - `scripts/case_preflight.sh` runs before any launch and refuses cases whose
   fields do not match the named model, whose decomposition is stale, or whose
@@ -379,7 +498,7 @@ exactly why none of them got checked.
 **A live defect, recorded here rather than quietly fixed.** The consolidated FD
 table in `demo-output/website/ACTIVE_RESEARCH.md` still shows A4's 10.04 percent
 as PASS within the calibrated band. That band is the retired one. Under the
-current standard in section 6 the same number grades CONDITIONAL, and two other
+current standard in section 7 the same number grades CONDITIONAL, and two other
 records already say so. L-1 applies: report both and say which artifact each
 figure came from, then correct the stale one.
 
