@@ -1,0 +1,15 @@
+{
+ "id": "w3-race-bracket-on-a-local-fit",
+ "objective": "Bracket the race act's angle grid on a fit local to the peak, and re run the act on the tightened band",
+ "rationale": "The act's numerical channel is taken from a quadratic fitted through anchors at 0, 3.3, 6.7 and 10 degrees, then evaluated within half a degree of the peak. Measured 2026-08-01 on 39 solves: that fit has curvature plus 0.0021771 at the peak where the resolved local fit measures minus 0.5591681, so it carries the wrong sign and is 257 times too small. The channel reads 0.419 and falls exactly linearly with the step, which is a slope reading; on the local fit it reads 0.140 and falls as the square of the step. The act's composed 95 percent band would go from plus or minus 0.4288 to plus or minus 0.1671 through the act's own combining call, with its other two channels untouched. The act also publishes the wrong cause, saying the peak sits on the zero degree edge of the range; the peak is interior at plus 0.124 degrees, measured, and the edge test only ever checked where the clamped angle landed",
+ "citations": [
+  "Race numerical channel results, measured 2026-08-01",
+  "Race pass two act record"
+ ],
+ "est_core_min": 6,
+ "cost_basis": "measured; one VSPAERO solve of this wing at one angle took 3.93 seconds on this box at 14:22:03 on 2026-08-01, and the 15 solve local grid measured 1.014 core minutes at 8 concurrent single processes, so the act re run is that plus its own 93 solves",
+ "expected_knowledge_gain": "The one act whose headline band is dominated by a term that is now measured, published on the number that term actually is, and a bracket that resolves under refinement instead of rescaling",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-08-01"
+}

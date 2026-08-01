@@ -1,0 +1,16 @@
+{
+ "id": "w3-every-guard-that-holds-a-ladder",
+ "objective": "Print every guard that holds a ladder back, not only the first one the precedence order reaches",
+ "rationale": "The supersonic wedge act says its ladder is not conclusive because the observed order 0.034 falls outside the credible range. Refitted 2026-08-01, that ladder fails two guards at both dimensionalities, and the one it does not name is the serious one: its increments barely shrink, minus 1.465 then minus 1.430 degrees, so the extrapolation step multiplies the finest increment by 40.7 and lands the shock angle at minus 13.73 degrees, which is not merely outside the measured range but impossible. A reader is told the order is wrong and would reasonably conclude that a better order would settle it. The uncertainty module already records every failing guard and already offers a call whose whole purpose is to say the verdict does not rest on the stated reason alone. Nothing on any surface reads it",
+ "citations": [
+  "Two dimensional ladder refit, measured 2026-08-01",
+  "Supersonic wedge act record",
+  "Verification charter, guard precedence"
+ ],
+ "est_core_min": 1,
+ "cost_basis": "measured; no compute, the guard record is already stored on every fitted ladder and the refit that found this one cost zero core minutes",
+ "expected_knowledge_gain": "Every declined ladder states the full reason it was declined, so nobody spends a rung correcting a guard that was never what held it",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-08-01"
+}
