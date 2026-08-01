@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T08:18:36Z",
+  "generated_at": "2026-08-01T08:23:04Z",
   "proposals": [
     {
       "id": "w5-decide-what-cannot-be-submitted",
@@ -3224,6 +3224,80 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T08:18:36Z"
+    },
+    {
+      "id": "w6-the-box-is-oversubscribed-now",
+      "well": "W6",
+      "objective": "Give the lab a concurrency limit, since it has gone from a tenth of its box to over it",
+      "rationale": "Two days ago the measured record showed the lab holding 1.4 of 14 usable cores and running everything serial, and a forecast concluded sequencing bound it rather than compute. Right now the load average is 18.5 on a 16 core machine with 19 solvers alive. Nothing arbitrates: each agent checks the box and decides for itself, so the sum can exceed it while every individual decision looks reasonable. Oversubscription does not fail loudly, it just makes every wall clock on the record longer than the work deserved.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A stated concurrency limit that every launch path respects, and a measurement of what oversubscription cost in wall time",
+      "expected_knowledge_gain": "Every duration this lab has measured under load is contaminated, including the ones narration is timed against",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
+    },
+    {
+      "id": "w6-the-ledger-understates-a-failed-cold-solve",
+      "well": "W6",
+      "objective": "Spend the cost of a cold solve that raises, which currently costs the ledger nothing",
+      "rationale": "The ONERA M6 primal-plateau path runs a genuine 498 second four rank solve and then raises before spending, so its own transcript reads solve stage 498 seconds followed by spend 0 core-minutes. That is roughly 33 core-minutes of real work the record does not carry. A warm path spending nothing is correct and was just ruled so; a cold path that ran and failed spending nothing is the opposite error, and it is the one that makes the lab look cheaper than it is.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A solve that ran and then raised is spent to the ledger with its failure recorded beside it",
+      "expected_knowledge_gain": "The lab has just tightened against overstating its work and this is the same defect pointing the other way",
+      "source_kind": "ledger",
+      "citations": [
+        "sdk/workflows/onera_m6.py",
+        "mission-output/onera-m6/transcript.txt"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
+    },
+    {
+      "id": "w7-the-m6-act-cannot-be-verified-at-all",
+      "well": "W7",
+      "objective": "Register the ONERA M6 act in the replay verification, which currently cannot drive it",
+      "rationale": "Every other act is checked for reproducibility by driving its own prompt through the control room and diffing the transcript. The M6 act has no prompt registered, so the script cannot run it and never has. It is also the act whose scoring was deliberately removed from routing, which is exactly why nobody noticed: it fell out of the filmed sequence and out of the verification in the same move.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The act is driven end to end by the verification script and reproduces, or the reason it cannot is recorded",
+      "expected_knowledge_gain": "An act nobody can verify is an act nobody can trust, and this one has been in that state since its routing changed",
+      "source_kind": "report",
+      "citations": [
+        "scripts/verify_warm_replay.sh",
+        "sdk/workflows/onera_m6.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
+    },
+    {
+      "id": "w8-a-ruling-states-its-stake-and-checks-it",
+      "well": "W8",
+      "objective": "Require a ruling to name the consequence it rests on, and to verify that consequence",
+      "rationale": "Ruling R10 argued that a warm path spending display pacing to a solver ledger mattered because that ledger produces the core-hours figure on the credentials wall. It does not: two ledgers exist and no act writes to the one the wall reads. The ruling was right on its own principle and the fact under it was never checked, which is the same failure this lab keeps finding in the records it audits.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every ruling names the consequence it turns on, and that consequence is verified before the ruling is acted on",
+      "expected_knowledge_gain": "A correct decision argued from a false stake survives review and teaches the wrong lesson",
+      "source_kind": "report",
+      "citations": [
+        "docs/charters/SUPERVISOR_RULINGS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
     }
   ]
 }
