@@ -25,6 +25,8 @@ if os.path.exists(MEAS):
 rows = []
 for path in sorted(glob.glob(f"{LOGS}/*_solve.log")):
     tag = os.path.basename(path)[:-len("_solve.log")]
+    if tag.startswith("KILLED_"):
+        continue        # stopped mid-flight, not a result -- see KILLED_README.txt
     txt = open(path, errors="replace").read()
     iters = len(re.findall(r"^Time = (\d+)", txt, re.M))
     last = re.findall(r"^Time = (\d+)", txt, re.M)

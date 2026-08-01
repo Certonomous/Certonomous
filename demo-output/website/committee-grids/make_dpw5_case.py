@@ -133,7 +133,25 @@ else:
     w("constant/transportProperties", "dictionary", "transportProperties",
       f"transportModel  Newtonian;\nnu              {NU};\n")
 
-w("constant/turbulenceProperties", "dictionary", "turbulenceProperties", """
+# Turbulence model. kOmegaSST is the HLPW6 baseline and therefore the default
+# here, so the grid-vs-grid comparison stays controlled. SpalartAllmaras is
+# offered as one of the diagnostic axes because it is the model DPW and HLPW
+# publish their own baseline results with, and because it carries no omega
+# equation and no omega wall function -- the two stiffest pieces of the k-omega
+# stack on cells with aspect ratio in the thousands.
+SA = VARIANT.endswith("_sa")
+if SA:
+    w("constant/turbulenceProperties", "dictionary", "turbulenceProperties", """
+simulationType  RAS;
+RAS { model SpalartAllmaras; turbulence on; printCoeffs on; }
+""")
+    nut_inf = 3.0 * NU          # standard SA freestream nuTilda/nu = 3
+    field("nuTilda", "volScalarField", "[0 2 -1 0 0 0 0]", f"{nut_inf:.6g}",
+          "type fixedValue; value uniform 0;", SYM,
+          f"type freestream; freestreamValue uniform {nut_inf:.6g}; "
+          f"value uniform {nut_inf:.6g};")
+else:
+    w("constant/turbulenceProperties", "dictionary", "turbulenceProperties", """
 simulationType  RAS;
 RAS { model kOmegaSST; turbulence on; printCoeffs on; }
 """)
@@ -157,8 +175,17 @@ V = {
     "linupV":    dict(divU="bounded Gauss linearUpwindV grad(U)"),
     # 4. pressure solver
     "pcg":       dict(psolver="PCG"),
-    # 5. relaxation
+    # 5. relaxation. This axis is different in kind from all the others and is
+    #    the one that matters most for whether a result is defensible:
+    #    relaxation changes the path to the answer, not the answer. A converged
+    #    second-order solve reached slowly is a second-order solve. A
+    #    first-order solve reached quickly is not.
     "slow":      dict(relaxP=0.1, relaxU=0.3),
+    "crawl":     dict(relaxP=0.05, relaxU=0.2),
+    "crawl2":    dict(relaxP=0.05, relaxU=0.2, nNonOrth=2),
+    "crawl3":    dict(relaxP=0.02, relaxU=0.1, nNonOrth=2,
+                      divU="bounded Gauss limitedLinear 1",
+                      psmooth="DICGaussSeidel", pmaxiter=200),
     # 6. the hardened first-order configuration, for reference only -- NOT a
     #    submission-quality result, carried so the 2nd-order runs have a
     #    known-survivable control on the same grid
@@ -167,7 +194,36 @@ V = {
     # 7. combinations, only tried after the single axes are measured
     "combo":     dict(nNonOrth=2, divU="bounded Gauss linearUpwindV grad(U)",
                       snlim="limited corrected 0.5", laplim="limited corrected 0.5"),
+    # 8. the configuration a production RANS setup would actually reach for on
+    #    a mesh like this: a TVD face-value limiter for convection (second
+    #    order in smooth regions, no gradient reconstruction over a nearly
+    #    tangential face-to-cell vector), the non-orthogonal correction limited
+    #    hard rather than switched off, two correctors, and slower relaxation.
+    "prod":      dict(divU="bounded Gauss limitedLinear 1", nNonOrth=2,
+                      snlim="limited corrected 0.25", laplim="limited corrected 0.25",
+                      relaxP=0.2, relaxU=0.4),
+    # 9. three axes added after the first ladder came back empty, each a
+    #    different hypothesis about what actually breaks first:
+    #    (a) the pressure solve is allowed to grind to 1000 iterations and
+    #        return a half-solved field; cap it instead, as the HLPW6 hardened
+    #        run did, so a bad solve is bounded rather than unbounded
+    "pcap":      dict(psmooth="DICGaussSeidel", pmaxiter=100),
+    #    (b) the wall-distance field, which both turbulence models depend on,
+    #        is computed by meshWave -- a marching method whose result on a mesh
+    #        with 90-degree faces is not obviously trustworthy, and the crash is
+    #        inside the turbulence model
+    "wdpois":    dict(walldist="Poisson"),
+    #    (c) the run starts from a uniform freestream everywhere, which on a
+    #        wing-body at incidence is a violent initial transient; start from a
+    #        divergence-free potential solution instead
+    "potinit":   dict(potential=True),
+    "potprod":   dict(potential=True, divU="bounded Gauss limitedLinear 1",
+                      nNonOrth=2, snlim="limited corrected 0.25",
+                      laplim="limited corrected 0.25", relaxP=0.2, relaxU=0.4),
 }
+# any variant may be suffixed "_sa" to swap kOmegaSST for SpalartAllmaras
+for _k in list(V):
+    V[_k + "_sa"] = dict(V[_k])
 assert VARIANT in V, f"unknown variant {VARIANT}; have {sorted(V)}"
 c = V[VARIANT]
 nNonOrth = c.get("nNonOrth", 0)
@@ -178,6 +234,10 @@ laplim = c.get("laplim", "limited corrected 0.33")
 psolver = c.get("psolver", "GAMG")
 relaxP = c.get("relaxP", 0.3)
 relaxU = c.get("relaxU", 0.5)
+psmooth = c.get("psmooth", "GaussSeidel")
+pmaxiter = c.get("pmaxiter", 0)
+walldist = c.get("walldist", "meshWave")
+potential = c.get("potential", False)
 
 app = "rhoSimpleFoam" if COMP else "simpleFoam"
 rhoinf = ("        rho         rho;\n        rhoInf      1.225;\n" if COMP else
@@ -227,25 +287,28 @@ divSchemes
     div(phi,U)          {divU};
     div(phi,k)          bounded Gauss upwind;
     div(phi,omega)      bounded Gauss upwind;
+    div(phi,nuTilda)    bounded Gauss upwind;
     div(phi,e)          bounded Gauss upwind;
     div(phi,h)          bounded Gauss upwind;
     div(phi,K)          bounded Gauss upwind;
     div(phi,Ekp)        bounded Gauss upwind;
     div(phid,p)         bounded Gauss upwind;
+    div(div(phi,U))     Gauss linear;
     div(((rho*nuEff)*dev2(T(grad(U))))) Gauss linear;
     div((nuEff*dev2(T(grad(U)))))       Gauss linear;
 }}
 laplacianSchemes {{ default Gauss linear {laplim}; }}
 interpolationSchemes {{ default linear; }}
 snGradSchemes   {{ default {snlim}; }}
-wallDist        {{ method meshWave; }}
+wallDist        {{ method {walldist}; }}
 """)
 
+cap = f"\n        maxIter         {pmaxiter};" if pmaxiter else ""
 if psolver == "GAMG":
-    pblock = """        solver          GAMG;
-        smoother        GaussSeidel;
-        tolerance       1e-7;
-        relTol          0.01;"""
+    pblock = (f"        solver          GAMG;\n"
+              f"        smoother        {psmooth};\n"
+              f"        tolerance       1e-7;\n"
+              f"        relTol          0.01;{cap}")
 else:
     pblock = """        solver          PCG;
         preconditioner  DIC;
@@ -257,9 +320,9 @@ extra = ('    "(e|h)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-8; '
          'relTol 0.01; }\n' if COMP else "")
 simple_extra = "    rhoMin 0.1; rhoMax 10.0; transonic no;\n" if COMP else ""
 relax = (f'    fields {{ p {relaxP}; rho 1.0; }}\n'
-         f'    equations {{ U {relaxU}; "(k|omega|e|h)" {relaxU}; }}\n' if COMP else
+         f'    equations {{ U {relaxU}; "(k|omega|nuTilda|e|h)" {relaxU}; }}\n' if COMP else
          f'    fields {{ p {relaxP}; }}\n'
-         f'    equations {{ U {relaxU}; "(k|omega)" {relaxU}; }}\n')
+         f'    equations {{ U {relaxU}; "(k|omega|nuTilda)" {relaxU}; }}\n')
 w("system/fvSolution", "dictionary", "fvSolution", f"""
 // variant: {VARIANT}
 solvers
@@ -268,7 +331,21 @@ solvers
     {{
 {pblock}
     }}
-{extra}    "(U|k|omega)"
+    Phi
+    {{
+        solver          GAMG;
+        smoother        DICGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.01;
+    }}
+    yPsi
+    {{
+        solver          GAMG;
+        smoother        DICGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.01;
+    }}
+{extra}    "(U|k|omega|nuTilda)"
     {{
         solver          PBiCGStab;
         preconditioner  DILU;
@@ -277,11 +354,16 @@ solvers
     }}
 }}
 
+potentialFlow
+{{
+    nNonOrthogonalCorrectors 10;
+}}
+
 SIMPLE
 {{
     nNonOrthogonalCorrectors {nNonOrth};
     consistent      yes;
-{simple_extra}    residualControl {{ p 1e-9; U 1e-9; "(k|omega)" 1e-9; }}
+{simple_extra}    residualControl {{ p 1e-9; U 1e-9; "(k|omega|nuTilda)" 1e-9; }}
 }}
 
 relaxationFactors
@@ -294,4 +376,9 @@ w("system/decomposeParDict", "dictionary", "decomposeParDict",
 
 print(f"case {CASE}  {MODE}  variant={VARIANT}  alpha={ALPHA}  U={Uv}  "
       f"nNonOrth={nNonOrth}  divU='{divU}'  grad='{gradU}'  snGrad='{snlim}'  "
-      f"p={psolver}  relax p={relaxP} U={relaxU}  iters={ITERS} ranks={NRANKS}")
+      f"p={psolver}/{psmooth}"
+      + (f" maxIter={pmaxiter}" if pmaxiter else "")
+      + f"  wallDist={walldist}  potentialInit={potential}"
+      + f"  relax p={relaxP} U={relaxU}  iters={ITERS} ranks={NRANKS}")
+if potential:
+    open(os.path.join(CASE, "POTENTIAL_INIT"), "w").write("yes\n")

@@ -18,6 +18,15 @@ python3 "$R/make_dpw5_case.py" "$C" "$M" "$A" "$V" "$IT" "$NP" || exit 1
 ( cd "$C" && decomposePar -force > "$R/logs/${TAG}_decompose.log" 2>&1 ) || {
     echo "decomposePar FAILED"; tail -20 "$R/logs/${TAG}_decompose.log"; exit 1; }
 APP=$(grep -oP '(?<=^application     )\w+' "$C/system/controlDict")
+# potential-flow initialisation, when the variant asked for it: replaces the
+# uniform-freestream initial field with a divergence-free one before the RANS
+# solver ever runs. Its own log is kept separately so a failure here is not
+# confused with a failure of the RANS solve.
+if [ -f "$C/POTENTIAL_INIT" ]; then
+  ( cd "$C" && mpirun -np "$NP" potentialFoam -parallel -writePhi -writep \
+      > "$R/logs/${TAG}_potentialFoam.log" 2>&1 )
+  echo "--- potentialFoam exit $? ; $(grep -c 'Continuity error' "$R/logs/${TAG}_potentialFoam.log") continuity reports"
+fi
 python3 "$R/memwatch.py" --tag "$TAG" --out "$R/measurements.jsonl" --cwd "$C" \
     --log "$R/logs/${TAG}_solve.log" --timeout 5400 -- \
     mpirun -np "$NP" "$APP" -parallel
