@@ -180,6 +180,20 @@ Fixing the fleet numeral there without deciding what that spend line should say
 would leave the smaller half of a two-part misstatement in place, which is why
 they are reported rather than edited.
 
+**A sixth site, found 2026-08-01 on a re-read and not previously named
+anywhere.** `geometry_study.py` has a second warm branch, in the refinement
+ladder rather than the production solve: the rung loop at line 1244 calls
+`rung.restore_cached_solve(solve_key)` and, on a hit, spends
+`max(1.0, time.time() - started)` across a zero-length interval to the ledger as
+`simpleFoam rung {tag}`. **It declares no fleet**, so it is not the defect this
+conflict is about and the table above stays at five acts. What it is, is the
+second half of the same two-part misstatement standing on its own: one second of
+solver cost per warm rung, labelled with a solver's name, for a rung that
+dispatched nothing. Every rung of a restored ladder contributes one. Recorded
+here rather than fixed, for the same reason as the last two rows of the table —
+whoever decides what a warm replay may spend should decide it once, for all six
+sites, rather than six times.
+
 Charter 4, section 6, and `w3-hump-fleet-honesty` in the docket. The item as it
 was put:
 
