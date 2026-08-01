@@ -5,8 +5,28 @@ All runs `dafoam/opt-packages:latest` (DAFoam v5.0.0, OpenFOAM v2506), 4 MPI ran
 campaign cap. Working copies under `/home/ubuntu/certonomous-runs/S1-fiml/`; logs and scripts
 retained under `S1_work/`.
 
-Stage 1 as written: "FIML field inversion (beta on SST omega-destruction) via DAFoam adjoint,
-FD-verified; first target NASA hump."
+Stage 1 as originally written: "FIML field inversion (beta on SST omega-destruction) via DAFoam
+adjoint, FD-verified; first target NASA hump."
+
+**Stage 1 as it now reads, restated 2026-08-01 under supervisor ruling R6:** *FIML field inversion
+of a per-cell beta field on the SST omega-equation PRODUCTION term, via DAFoam's discrete adjoint,
+FD-verified; first target NASA hump.*
+
+**Why the goal statement moved, and what it does not do.** DAFoam exposes
+`betaFIOmega_` on the omega equation's production term (`DAkOmegaSST.C:743`). The destruction
+term's `beta` is the F1-blended model constant and carries no field hook, so the original wording
+named something this stack cannot build. The restatement says what can actually be built. **It is
+NOT a claim that the two are equivalent** — section 2 below shows they are not, because the other
+omega terms do not scale with beta — and the production version therefore does not inherit the
+destruction version's goal, its literature match, or its expected result. The destruction-term
+variant is a separate item requiring a model patch and a rebuild, filed to the docket as
+`w3-beta-on-omega-destruction-model-patch`.
+
+**What this costs the Ladder B reproduction.** Wu, Zhang and Zhang invert on the destruction term.
+A production-term inversion is therefore no longer a like-for-like reproduction of that paper, and
+any score it produces must not be compared to theirs as though it were. That is a real reduction
+in what Stage 1 can claim, and it is the honest one: building the production version and calling
+it the roadmap item would have been the quieter and worse choice.
 
 ---
 
@@ -319,9 +339,11 @@ affordable substitute and it is what "FD-verified" has to mean at this design-va
 
 ## 6. Where Stage 1 stands, and what the cheapest affordable target is
 
-- **Stage 1's capability half is DONE and verified**: a per-cell beta field on DAFoam's own SST
-  model, driven through a converging discrete adjoint, FD-verified to 2.67% on the real objective
-  direction, with the warp defect proven absent from the chain.
+- **Stage 1's capability half is DONE and verified**: a per-cell beta field on the PRODUCTION term
+  of DAFoam's own SST model, driven through a converging discrete adjoint, FD-verified to 2.67% on
+  the real objective direction, with the warp defect proven absent from the chain. The term is
+  named here because it is the whole of what was verified: nothing in this record establishes
+  anything about a beta on the destruction term, which this install does not expose.
 - **Stage 1's stated target, the NASA hump, is NOT reachable today**, for a reason that is now
   measured rather than guessed: an adjoint linear-solve conditioning failure that is independent
   of memory, of mesh size in the range the lab feared, of wall treatment, and of the

@@ -363,6 +363,16 @@ padded: one leaderboard entry is gradient-free rather than field-inversion, two
 foundational papers have zero case-geometry overlap, and one paper's citation
 could not be pinned down and was reported as a gap instead of guessed.
 
+**What this lab can invert on is not that term, restated 2026-08-01 under
+ruling R6.** DAFoam's field hook multiplies the omega equation's PRODUCTION
+term; the destruction term's coefficient is the blended model constant and
+carries no field hook. Our own goal is therefore a production-term inversion,
+which is what can be built on this stack, and it does not inherit the
+destruction-term goal, the paper's result, or the like-for-like reproduction
+claim that would go with it. The destruction-term variant needs a patched and
+rebuilt turbulence model and is filed on its own as
+`w3-beta-on-omega-destruction-model-patch`.
+
 ### B2 — the duct baseline is reproduced, and the pipeline was validated before it was trusted
 
 The benchmark clone turned out to ship **the paper authors' own uncorrected

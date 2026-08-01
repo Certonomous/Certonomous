@@ -193,6 +193,24 @@ generalize to DUCT**, scoring 0.0455 / 0.0399 on exactly the two cases that are
 the literature reproduction (Ladder B) and the highest-value closure work
 (Ladder C), and it runs on the stack we already have verified through Ladder A.
 
+> **CORRECTION, 2026-08-01, under supervisor ruling R6. The term named above is
+> the paper's, and it is not the term this lab can invert on.** The description
+> of Wu, Zhang & Zhang stands as written, because it is accurate about them:
+> they do invert on the ω-destruction term. What does not follow is the
+> sentence after it. DAFoam exposes `betaFIOmega_` on the ω equation's
+> **production** term (`DAkOmegaSST.C:743`); the destruction term's `beta` is
+> the F1-blended model constant with no field hook, read directly from the
+> installed source in `dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md` section 2.
+> The two are not equivalent, because the other ω terms do not scale with β.
+>
+> **So what this lab can run today is a production-term inversion, and that is
+> not a like-for-like reproduction of this paper.** Any score it produces must
+> not be set beside theirs as though it were. Reproducing their result on their
+> term needs a patched and rebuilt turbulence model, filed separately as
+> `w3-beta-on-omega-destruction-model-patch`. Until that item lands, this
+> section names the highest-value target correctly and overstates how close the
+> lab is to reaching it, and saying so is cheaper than finding out after a run.
+
 ## Recommended next action
 
 Train a second, alpha_05-regime model on the alpha_05 *training* cases if such
