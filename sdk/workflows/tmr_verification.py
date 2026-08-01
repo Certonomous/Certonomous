@@ -2102,6 +2102,56 @@ def persist_bump_ladder(grids: list[dict[str, Any]], out_dir: Path,
 # Card text and agenda proposals
 # ---------------------------------------------------------------------------
 
+# A ladder whose observed order falls below this fraction of the scheme's
+# formal second order has not demonstrated the convergence its band would
+# imply. The bump sits at 0.5446, which is 27 percent of 2.
+_ORDER_FLOOR_FRACTION = 0.5
+_FORMAL_ORDER = 2.0
+
+
+def ladder_caveat(summary: dict[str, Any]) -> str | None:
+    """What a ladder does NOT support, derived from that ladder's own numbers.
+
+    WHY THIS EXISTS. ``card_update`` used to decide a ladder was quotable on
+    two conditions: three rungs and an observed order that is not None. Those
+    are conditions for the arithmetic to exist, not for it to mean anything.
+    The bump-in-channel passes both and is not conclusive, so the card printed
+    its number beside the flat plate's with nothing separating them, and the
+    pairing read as two results of equal standing. Ruling R5: a comparison
+    carries its status or comes off the surface.
+
+    Two facts are derivable from a summary and both are checked here:
+
+    1. **The observed order against the scheme's formal order.** An order far
+       below formal means the ladder is not showing the convergence a band
+       computed from it would imply.
+    2. **Monotonicity of the drag components.** A total that marches while one
+       of its components turns around is not converging, it is two errors
+       moving against each other. On the bump the pressure component increments
+       2.00e-05 down then 6.42e-06 up while the viscous component converges
+       monotonically at order 1.091.
+
+    Returns a phrase to be embedded in the card, or ``None`` when the ladder
+    gives no reason for one. It deliberately does NOT try to state whether the
+    solver printed its own convergence statement: that lives in the run logs,
+    not in the summary, and this function will not assert what it cannot read.
+    """
+    cd = summary.get("convergence", {}).get("cd", {})
+    order = cd.get("observed_order")
+    grids = summary.get("grids", ())
+    parts: list[str] = []
+    if order is not None and order < _ORDER_FLOOR_FRACTION * _FORMAL_ORDER:
+        parts.append(f"its observed order is {order:.2f}")
+    pressures = [g.get("cd_pressure") for g in grids]
+    if len(pressures) >= 3 and all(p is not None for p in pressures):
+        deltas = [b - a for a, b in zip(pressures, pressures[1:])]
+        if not (all(d > 0 for d in deltas) or all(d < 0 for d in deltas)):
+            parts.append("the pressure component is non-monotone")
+    if not parts:
+        return None
+    return " and ".join(parts)
+
+
 def card_update(flat_summary: dict[str, Any],
                 bump_summary: dict[str, Any] | None) -> dict[str, str] | None:
     """Status and entry text for the research-challenge card.
@@ -2110,6 +2160,11 @@ def card_update(flat_summary: dict[str, Any],
     banned words, nothing described as anything but the measured result.
     Returns None when even the flat plate is not defensible; falls back to
     the flat-plate-only wording when the bump is missing or not defensible.
+
+    A bump that is quotable but not conclusive carries its status in the text
+    (ruling R5). It is not silently dropped, because the comparison is worth
+    showing; it is not shown bare either, because beside a converged flat plate
+    a bare number claims a standing it does not have.
     """
     flat_ok = (len(flat_summary.get("grids", ())) >= 3 and
                flat_summary["convergence"]["cd"].get("observed_order")
@@ -2124,17 +2179,30 @@ def card_update(flat_summary: dict[str, Any],
         return {"status": "flat plate measured",
                 "entry": card_entry_text(flat_summary) or ""}
     bump_fine = bump_summary["grids"][-1]
+    caveat = ladder_caveat(bump_summary)
+    # The rung counts are COUNTED, not asserted. This sentence used to say
+    # "each run on a 3-grid ladder" as a literal while quoting grids[-1] of
+    # whatever ladder it was handed. The flat plate has since grown to five
+    # rungs, so the literal was describing one ladder and the number beside it
+    # came from another. Found 2026-08-01 while carrying out ruling R5.
     entry = (
-        f"flat plate and bump-in-channel each run on a 3-grid ladder "
+        f"flat plate on a {len(flat_summary['grids'])}-grid ladder and "
+        f"bump-in-channel on {len(bump_summary['grids'])}, "
         f"against the published CFL3D values: flat-plate Cd "
         f"{flat_fine['cd']:.6f} vs {CFL3D_SST_V[flat_fine['cells']]['cd']:.6f} "
         f"at matched grid size, bump Cd {bump_fine['cd']:.6f} vs "
-        f"{CFL3D_BUMP_SST[bump_fine['cells']]['cd']:.6f}; "
-        f"NACA 0012 airfoil next")
+        f"{CFL3D_BUMP_SST[bump_fine['cells']]['cd']:.6f}")
+    if caveat:
+        entry += (f". The two halves do not stand equally: the bump ladder is "
+                  f"not conclusive, {caveat}, so the bump number is a "
+                  f"comparison and not a converged result")
+    entry += "; NACA 0012 airfoil next"
+    status = ("flat plate measured, bump not conclusive" if caveat
+              else "flat plate and bump measured")
     lowered = entry.lower()
     if any(word in lowered for word in BANNED_CARD_WORDS) or "--" in entry:
         raise ValueError("card text violates product language rules")
-    return {"status": "flat plate and bump measured", "entry": entry}
+    return {"status": status, "entry": entry}
 
 
 def _ladder_core_minutes(summary: dict[str, Any]) -> float:

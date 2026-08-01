@@ -22,7 +22,8 @@ from workflows.tmr_verification import (
     build_summary, bump_edge_points, bump_profile, card_entry_text,
     card_update, cf_at, classify_naca_patches, final_coefficient,
     format_bump_summary_lines, format_summary_lines, geometric_first_cell,
-    grid_convergence_index, naca_fields_tmr, naca_thickness, observed_order,
+    grid_convergence_index, ladder_caveat, naca_fields_tmr, naca_thickness,
+    observed_order,
     parse_boundary_patches, parse_force_split, parse_wall_shear_raw,
     parse_yplus_dat, ratio_for_first_cell, richardson_extrapolate,
 )
@@ -364,6 +365,65 @@ class BumpSummaryAndCard(unittest.TestCase):
                        "k-omega", "upwind"):
             self.assertNotIn(banned, lowered, msg=banned)
         self.assertNotIn("--", card["entry"])
+
+    def test_card_counts_the_rungs_rather_than_asserting_three(self):
+        # The sentence used to read "each run on a 3-grid ladder" as a literal
+        # while quoting grids[-1] of whatever ladder it was handed. The flat
+        # plate has since grown past three rungs, so the literal described one
+        # ladder and the number beside it came from another.
+        flat = build_summary(_fake_grids())
+        bump = build_bump_summary(_fake_bump_grids())
+        card = card_update(flat, bump)
+        self.assertIn(f"flat plate on a {len(flat['grids'])}-grid ladder",
+                      card["entry"])
+        self.assertIn(f"bump-in-channel on {len(bump['grids'])}",
+                      card["entry"])
+
+    def test_a_healthy_ladder_earns_no_caveat(self):
+        self.assertIsNone(ladder_caveat(build_bump_summary(_fake_bump_grids())))
+
+    def test_an_order_far_below_formal_earns_a_caveat(self):
+        # The lab's own bump ladder sits at observed order 0.5446 against a
+        # formal 2. Ruling R5: it carries that status wherever it is shown.
+        grids = _fake_bump_grids()
+        for grid, cd in zip(grids, (0.003443, 0.003516, 0.003567)):
+            grid["cd"] = cd
+            grid["cd_viscous"] = cd - grid["cd_pressure"]
+        caveat = ladder_caveat(build_bump_summary(grids))
+        self.assertIsNotNone(caveat)
+        self.assertIn("observed order", caveat)
+
+    def test_a_non_monotone_pressure_component_earns_a_caveat(self):
+        # A total that marches while one of its components turns around is two
+        # errors moving against each other, not convergence. On the real bump
+        # the pressure increments go down 2.00e-05 then up 6.42e-06.
+        grids = _fake_bump_grids()
+        for grid, cdp in zip(grids, (0.00039688, 0.00037684, 0.00038325)):
+            grid["cd_pressure"] = cdp
+            grid["cd_viscous"] = grid["cd"] - cdp
+        caveat = ladder_caveat(build_bump_summary(grids))
+        self.assertIsNotNone(caveat)
+        self.assertIn("non-monotone", caveat)
+
+    def test_a_non_conclusive_bump_changes_the_card_status_and_text(self):
+        grids = _fake_bump_grids()
+        for grid, cd, cdp in zip(grids, (0.003443, 0.003516, 0.003567),
+                                 (0.00039688, 0.00037684, 0.00038325)):
+            grid["cd"], grid["cd_pressure"] = cd, cdp
+            grid["cd_viscous"] = cd - cdp
+        card = card_update(build_summary(_fake_grids()),
+                           build_bump_summary(grids))
+        self.assertEqual(card["status"],
+                         "flat plate measured, bump not conclusive")
+        self.assertIn("do not stand equally", card["entry"])
+        self.assertIn("not conclusive", card["entry"])
+        self.assertIn("non-monotone", card["entry"])
+        # The status text is still subject to every product language rule.
+        lowered = card["entry"].lower()
+        for banned in BANNED_CARD_WORDS:
+            self.assertNotIn(banned, lowered, msg=banned)
+        self.assertNotIn("--", card["entry"])
+        self.assertNotIn("—", card["entry"])
 
     def test_card_falls_back_to_flat_only_when_bump_missing(self):
         card = card_update(build_summary(_fake_grids()), None)

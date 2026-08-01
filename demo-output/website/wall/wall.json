@@ -187,8 +187,8 @@
           "host": "NASA Langley / Turbulence Model Benchmarking Working Group",
           "url": "tmbwg.github.io/turbmodels",
           "what": "the reference verification cases, including the 2D flat plate and bump-in-channel, that a RANS code must reproduce on refined grids",
-          "status": "flat plate and bump measured",
-          "entry": "flat plate and bump-in-channel each run on a 3-grid ladder against the published CFL3D values: flat-plate Cd 0.002834 vs 0.002826 at matched grid size, bump Cd 0.003567 vs 0.003607; NACA 0012 airfoil next",
+          "status": "flat plate measured, bump not conclusive",
+          "entry": "flat plate now on a 5-grid ladder to 208,896 cells and bump on 3, against the published CFL3D values: flat-plate Cd 0.0028636 vs 0.0028533 at matched grid size, bump Cd 0.003567 vs 0.003607. The flat plate's finest triple is the first ladder here to earn a reportable discretization band, 4.244e-6 or 0.148% of the value, at observed order 1.634; that order is still rising rung on rung, so the band is earned and the asymptotic range is not claimed. The two halves do not stand equally and the bump number carries its status: none of its three rungs prints the solver's own convergence statement, its observed order is 0.52 with the pressure component non-monotone, and the discretization certifier refuses the triplet, so that 1.1% agreement is a comparison and not a converged result. NACA 0012 airfoil next",
           "lead": true
         },
         {
@@ -380,7 +380,7 @@
       "measured_raw": "0.018262",
       "finest_rung": false,
       "rung_provenance": null,
-      "wall_minutes": 4.64,
+      "wall_minutes": 2.8,
       "finished_at": "2026-07-27T04:09:34+00:00",
       "dropped_from_credential": [
         "on_reference_basis",

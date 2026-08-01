@@ -73,7 +73,42 @@ _RESEARCH_CHALLENGES = (
         # entry is the standing campaign record, which is two rungs further
         # on, and the two are allowed to differ as long as neither claims the
         # other's ladder.
-        "status": "flat plate and bump measured",
+        #
+        # THE BUMP CARRIES ITS STATUS, added 2026-08-01 under ruling R5. The
+        # two halves of this card are NOT two results of equal standing, and
+        # until now the card let them read as though they were: the flat-plate
+        # half is the lab's best verification result and the bump half has a
+        # ladder that is not conclusive. Measured, from the bump's own record
+        # (demo-output/website/tmr/bump_sst.json and the entry in
+        # campaign/NOT_PASSING_REGISTER.md):
+        #
+        #   - None of the three bump rungs ever prints the solver's own
+        #     convergence statement. All three stop on a fixed iteration count
+        #     instead, and the rung the public number is quoted from exits with
+        #     initial residuals roughly 200 to 500 times over the case's own
+        #     residualControl.
+        #   - Observed order 0.5446 as published, 0.516 when matched at the
+        #     same iteration count. Either way it is far below the scheme's
+        #     formal order.
+        #   - The drag split is what holds it there. Viscous drag converges
+        #     monotonically at order 1.091; PRESSURE drag is non-monotone,
+        #     increments 2.00e-05 down then 6.42e-06 up, and has no observed
+        #     order at all. CFL3D's pressure drag on the same three grids
+        #     converges cleanly at 2.914.
+        #   - uq.eca_hoekstra_band refuses the triplet outright, conclusive
+        #     false and no reportable band, because the extrapolation diverges.
+        #
+        # The disclosure goes in "entry" rather than in "status" because
+        # control_room.html renders status as a short coloured tag and maps
+        # anything it does not recognise to the neutral class, so a caveat put
+        # there would be shortened into a label and lose its content. "entry"
+        # is rendered in full. The alternative the ruling allows is withdrawing
+        # the bump from this card altogether; it is disclosed instead, because
+        # the comparison is worth showing and only its standing was missing.
+        #
+        # LANGUAGE: this is a camera surface. No dashes, and none of the words
+        # in tmr_verification.BANNED_CARD_WORDS.
+        "status": "flat plate measured, bump not conclusive",
         "entry": "flat plate now on a 5-grid ladder to 208,896 cells and bump "
                  "on 3, against the published CFL3D values: flat-plate Cd "
                  "0.0028636 vs 0.0028533 at matched grid size, bump Cd "
@@ -81,8 +116,14 @@ _RESEARCH_CHALLENGES = (
                  "first ladder here to earn a reportable discretization band, "
                  "4.244e-6 or 0.148% of the value, at observed order 1.634; "
                  "that order is still rising rung on rung, so the band is "
-                 "earned and the asymptotic range is not claimed. NACA 0012 "
-                 "airfoil next",
+                 "earned and the asymptotic range is not claimed. The two "
+                 "halves do not stand equally and the bump number carries its "
+                 "status: none of its three rungs prints the solver's own "
+                 "convergence statement, its observed order is 0.52 with the "
+                 "pressure component non-monotone, and the discretization "
+                 "certifier refuses the triplet, so that 1.1% agreement is a "
+                 "comparison and not a converged result. NACA 0012 airfoil "
+                 "next",
         "lead": True,
     },
     {
