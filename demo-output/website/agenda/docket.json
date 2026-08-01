@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T06:57:04+00:00",
+ "generated_at": "2026-08-01T07:00:21+00:00",
  "proposals": [
   {
    "id": "w5-decide-what-cannot-be-submitted",
@@ -472,10 +472,11 @@
    "citations": [
     "scripts/self_audit.py"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T22:19:05Z",
-   "decided_at": "2026-08-01T00:18:12Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'"
+   "decided_at": "2026-08-01T07:00:21+00:00",
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'",
+   "outcome": "Every one of the 26 checks now states what clearing its findings costs and whether that needs a solver, with the basis for the price, printed under each WARN and FAIL and carried in the JSON as remedy, remedy_needs_compute and remedy_basis. A 27th check enforces it: a check that lands without a price fails the audit rather than shipping a finding nobody can weigh, and a price left behind by a deleted check fails too. The count is the answer to the item's own question: 25 of 26 clear at no compute, and the single exception is the measured-versus-predicted pair, which needs the run by definition while its fit does not and is already done. Every current failure is therefore clearable without a solve: the 6 wall counters, the 1 unresolved citation, the ungated 44,102-second pilot, the Ahmed gate row, the 2 channel totals, the 6 fleet declarations and the 46 drifted bundle files. What the new check enforces is that a price exists, not that it is right, and that boundary is stated on it, because the price that was wrong is the one this item was filed over."
   },
   {
    "id": "w2-mit-access-list",

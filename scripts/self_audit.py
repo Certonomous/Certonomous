@@ -1855,6 +1855,163 @@ def check_bundle_drift() -> Result:
                   f"match the tree byte for byte")
 
 
+# --------------------------------------------------------------------------
+# What clearing each finding costs
+# --------------------------------------------------------------------------
+#
+# THE DEFECT THIS EXISTS FOR. This audit reported that eight stored studies
+# could only be cleared by re-running them. Seven could be refitted in place
+# from rungs already on disk, for nothing. The work sat undone for two days
+# because the report priced it as eight solves. **A remedy priced an order of
+# magnitude too high is a reason not to do the work**, and a finding that does
+# not say what clearing it costs is asking the reader to guess.
+#
+# Two checks already carried their price per fault (`REMEDY_REFIT` and
+# `REMEDY_NO_RUNGS` above, which vary per record). Everything else carried
+# none. This table is the rest: one entry per check, `(remedy, needs_compute,
+# basis)`, printed under any WARN or FAIL and carried in the JSON output.
+#
+# `needs_compute` is the honest question, not the comfortable one. It is True
+# only when clearing the finding requires a solver to run. Re-deriving a
+# published number from an artifact already on disk is arithmetic, however
+# many rows it reads.
+REMEDIES: dict[str, tuple[str, bool, str]] = {
+    "check_ledger_integrity": (
+        "the torn row's bytes are gone and nothing re-derives them; record "
+        "the loss and keep the count on the report rather than closing it",
+        False, "an interrupted write; there is nothing to recompute"),
+    "check_wall_counters_vs_ledger": (
+        "republish the wall counters from the ledger through the builder that "
+        "reads it, sdk/scripts/build_wall.py",
+        False, "arithmetic over rows already on disk"),
+    "check_ledger_stalls": (
+        "publish the cleaned figure beside the gross one and mark the stall "
+        "rows in the ledger as host stalls",
+        False, "the rows are identified; the fix is a label and a subtraction"),
+    "check_closure_entry_of_record": (
+        "repoint the wall at the entry file of record",
+        False, "both numbers are on disk"),
+    "check_memory_scaling_law": (
+        "refit the law from its own stored measurements",
+        False, "three measurements, already recorded"),
+    "check_withdrawn_numbers": (
+        "restore the sentinel, or withdraw the number again and say why",
+        False, "an edit to a record"),
+    "check_evidence_paths_exist": (
+        "restore the cited file, or correct the citation to the file that "
+        "carries the evidence",
+        False, "deciding which of the two is right needs no run"),
+    "check_f2_reproduction": (
+        "re-derive the coefficients from the raw force file the record cites",
+        False, "the force file is retained; that was L-27's whole point"),
+    "check_cost_predictions": (
+        "price an unstarted item from the fitted laws in "
+        "demo-output/website/mega-batch/COST_SCALING.md, then check it against "
+        "the run",
+        True, "a measured-versus-predicted pair needs the run; the fit does "
+              "not, and is done"),
+    "check_ungated_completed_runs": (
+        "grade the completed run against its pre-stated expectation from the "
+        "statistics it already wrote",
+        False, "the run finished; the grading reads its output"),
+    "check_gate_table_vs_transcripts": (
+        "re-derive the verdict from the transcript, or correct the published "
+        "verdict to what the transcript supports",
+        False, "the transcript is on disk"),
+    "check_wall_credentials_vs_results": (
+        "rebuild each credential from its own result file through the "
+        "builder, and take the downgrades that fall out",
+        False, "re-derivation, not re-measurement"),
+    "check_benchmarks_vs_closure_record": (
+        "regenerate the published block from the scored entry of record",
+        False, "both files exist"),
+    "check_fd_grades_current_standard": (
+        "regrade from the stored FD tables against the current standard",
+        False, "the tables are retained"),
+    "check_statistical_labels": (
+        "correct the caption; no value moves",
+        False, "a display-layer edit"),
+    "check_nonconclusive_band_readers": (
+        "read the non-conclusive flag at the call site that reads the band",
+        False, "a code edit"),
+    "check_channel_totals_use_one_rule": (
+        "make the total match the channel table it is shown beside, either by "
+        "quantifying the input channel or by leaving it out of the total; "
+        "which way is Katie's call",
+        False, "making the two agree is arithmetic. Quantifying the input "
+               "channel properly is a sweep and is a separate item"),
+    "check_declared_fleet_vs_work": (
+        "show no fleet on a path that dispatches nothing, or make the path do "
+        "the work it displays; C-3 in PROPOSALS_OPEN.md puts both to Katie",
+        False, "the first option is a code edit. The second costs the demo "
+               "its warm replay time, which is wall clock on camera rather "
+               "than solver cost"),
+    "check_restated_thresholds": (
+        "read the governed constant instead of restating its value",
+        False, "a code edit"),
+    "check_register_group_counts": (
+        "recount the entries under each heading and correct the declared "
+        "totals",
+        False, "counting headings in one file"),
+    "check_campaign_json_citations": (
+        "restore the cited artifact or repoint the citation",
+        False, "a record edit"),
+    "check_studies_carry_what_the_fit_records": (
+        "per fault, and the per-fault price is already printed with it: refit "
+        "in place from the rungs the study stores, or, for a record with no "
+        "rungs, re-run the ladder or mark the record unverifiable",
+        False, "seven of the eight faults this check has ever raised were "
+               "refittable in place; only a record storing no rungs needs a "
+               "solve, and that case says so on its own line"),
+    "check_declined_ladders_name_their_guard": (
+        "recompute the guard map from the rungs the study stores, through "
+        "uq.study_numerical",
+        False, "same rungs, same arithmetic"),
+    "check_order_window_declines_state_their_dimensionality": (
+        "read the out-of-plane boundary types off the body's own archived "
+        "case and record them on the study",
+        False, "reading a boundary file and a checkMesh log"),
+    "check_bundle_drift": (
+        "rebuild the bundle from the tree and verify by rendering from inside "
+        "it rather than by diffing",
+        False, "a copy, and a render"),
+    "check_every_finding_prices_its_remedy": (
+        "add the missing check to REMEDIES with its remedy and whether that "
+        "remedy needs compute",
+        False, "writing down a price nobody had written down"),
+}
+
+
+def check_every_finding_prices_its_remedy() -> Result:
+    """Every check in this file states what clearing its findings costs.
+
+    A finding without a price is a finding the reader has to price, and the
+    reader guesses high. This audit has already lost two days that way. So the
+    table above is required to cover every check, and a new check that lands
+    without an entry fails here rather than shipping a finding nobody can
+    weigh.
+    """
+    missing = [check.__name__ for check in CHECKS
+               if check.__name__ not in REMEDIES]
+    stale = [name for name in REMEDIES
+             if name not in {check.__name__ for check in CHECKS}]
+    detail = [f"{name}: no remedy and no price" for name in missing]
+    detail += [f"{name}: priced here but is not a check any more"
+               for name in stale]
+    needs = sorted(name for name, (_, compute, _) in REMEDIES.items()
+                   if compute)
+    detail.append(f"{len(REMEDIES) - len(needs)} of {len(REMEDIES)} check(s) "
+                  f"clear at no compute; the {len(needs)} that need a solver: "
+                  f"{', '.join(needs) or 'none'}")
+    if missing or stale:
+        return Result("every finding prices its remedy", FAIL,
+                      f"{len(missing)} check(s) state no remedy and "
+                      f"{len(stale)} priced entry(s) name no check", detail)
+    return Result("every finding prices its remedy", PASS,
+                  f"all {len(CHECKS)} check(s) state what clearing their "
+                  f"findings costs", detail)
+
+
 CHECKS = (
     check_ledger_integrity,
     check_wall_counters_vs_ledger,
@@ -1881,6 +2038,7 @@ CHECKS = (
     check_declined_ladders_name_their_guard,
     check_order_window_declines_state_their_dimensionality,
     check_bundle_drift,
+    check_every_finding_prices_its_remedy,
 )
 
 
@@ -1900,18 +2058,35 @@ def main() -> int:
             results.append(Result(check.__name__, FAIL,
                                   f"check raised {type(exc).__name__}: {exc}"))
 
+    priced = []
+    for check, result in zip(CHECKS, results):
+        entry = REMEDIES.get(check.__name__)
+        row = asdict(result)
+        if entry:
+            remedy, needs_compute, basis = entry
+            row["remedy"] = remedy
+            row["remedy_needs_compute"] = needs_compute
+            row["remedy_basis"] = basis
+        priced.append(row)
+
     if args.json:
-        print(json.dumps([asdict(r) for r in results], indent=1))
+        print(json.dumps(priced, indent=1))
     else:
         width = max(len(r.name) for r in results)
         print(f"Certonomous self-audit  ({len(results)} checks)")
         print("=" * (width + 60))
-        for result in results:
+        for check, result in zip(CHECKS, results):
             if args.quiet and result.status in (PASS, INFO):
                 continue
             print(f"[{result.status:<4}] {result.name:<{width}}  {result.summary}")
             for line in result.detail:
                 print(f"         - {line}")
+            entry = REMEDIES.get(check.__name__)
+            if entry and result.status in (WARN, FAIL):
+                remedy, needs_compute, basis = entry
+                price = "NEEDS COMPUTE" if needs_compute else "NO COMPUTE"
+                print(f"         remedy ({price}): {remedy}")
+                print(f"         basis: {basis}")
         print("=" * (width + 60))
         tally = {s: sum(1 for r in results if r.status == s)
                  for s in (PASS, WARN, FAIL, INFO)}
