@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T14:52:24+00:00",
+ "generated_at": "2026-08-01T14:59:37+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -213,6 +213,22 @@
    "decided_at": "2026-08-01T04:46:37+00:00",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
    "outcome": "The act was already gated and the consumer was not. The Sobol act states its budget, checks the identities on the point estimates against the governed slack of 0.05, and doubles the base sample from 200 up to a 3200 ceiling until the run is admissible. What nobody had checked is the surface that reads the result: the credibility scorecard awarded its top robustness level, above a settled ladder with a propagated band, to any record merely carrying a shares key. No budget, no identity check, no numbers needed. The exact failure the act catches would have scored highest: first-order shares summing to 1.202 of the whole variance with the leading main effect above its own total now scores 3 rather than 4, and says why. The refusal reads the slack from the governed physics file instead of restating it. 0 of 18 credential and study records carry an apportionment today, so the level was reachable by writing one key and nothing else."
+  },
+  {
+   "id": "w3-every-guard-that-holds-a-ladder",
+   "objective": "Print every guard that holds a ladder back, not only the first one the precedence order reaches",
+   "rationale": "The supersonic wedge act says its ladder is not conclusive because the observed order 0.034 falls outside the credible range. Refitted 2026-08-01, that ladder fails two guards at both dimensionalities, and the one it does not name is the serious one: its increments barely shrink, minus 1.465 then minus 1.430 degrees, so the extrapolation step multiplies the finest increment by 40.7 and lands the shock angle at minus 13.73 degrees, which is not merely outside the measured range but impossible. A reader is told the order is wrong and would reasonably conclude that a better order would settle it. The uncertainty module already records every failing guard and already offers a call whose whole purpose is to say the verdict does not rest on the stated reason alone. Nothing on any surface reads it",
+   "citations": [
+    "Two dimensional ladder refit, measured 2026-08-01",
+    "Supersonic wedge act record",
+    "Verification charter, guard precedence"
+   ],
+   "est_core_min": 1.0,
+   "cost_basis": "measured; no compute, the guard record is already stored on every fitted ladder and the refit that found this one cost zero core minutes",
+   "expected_knowledge_gain": "Every declined ladder states the full reason it was declined, so nobody spends a rung correcting a guard that was never what held it",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-08-01"
   },
   {
    "id": "w3-refit-stored-studies-in-place",
@@ -1956,6 +1972,21 @@
    "outcome": "The code fix was already on the record (5675eb6b) and the two call-shape unit tests already pass; what nobody had done is the sweep the item was filed for, and the sweep found something the recalibration missed. Every stored ladder in this tree was re-verdicted under both guard scopes at every prefix call shape a caller could make: 15 call shapes over 12 ladders, 10 curriculum studies in models/curriculum/uq-studies plus the TMR flat plate and bump. Result one: no curriculum ladder was ever decided by the rung count of its call. The only curriculum record fitted from more than three rungs is b52, and it is declined either way, but not by the same margin - its Richardson value sits 247.43 percent of the fit triple's range above that range and 93.96 percent of all six handed rungs above theirs, a 2.6x difference in the excess a published record states. Result two, and this is the finding: the recalibration that set EXTRAPOLATION_TOL_FRAC to 0.15 was read off drag alone, and the same flat plate's skin friction at x/c 0.97 carries the identical flip at the identical call shape. cf_097 on 3264/13056/52224 handed as three rungs extrapolates to 0.00271594, which is 27.28 percent of its own range above the top of it and is declined; the same three rungs handed with the 816 rung in front read 11.38 percent and would have certified. Two functionals, one ladder, one call shape, two flips, and only one of them was on the record. Worse for the constant: the accepted cf_097 finest triple, 13056/52224/208896, sits at 13.67 percent, inside the 11.6 to 15 percent band the constant's own comment says needs re-deriving rather than nudging. It clears 0.15 by 1.10x, not the 1.30x measured on drag, so the honest good-case margin on this corpus is 1.10x and nobody should quote 1.30x. The constant is NOT moved - moving it now would be tuning the gate to the fixture that squeaked through. Both cf_097 readings are locked as regression tests (test_the_skin_friction_ladder_carries_the_same_flip, test_the_accepted_skin_friction_triple_is_the_thin_margin) and the sweep is written into the constant's calibration comment. Compute: 1 rank, post-processing only, 0.4 core-min measured against 5.0 estimated."
   },
   {
+   "id": "w3-race-bracket-on-a-local-fit",
+   "objective": "Bracket the race act's angle grid on a fit local to the peak, and re run the act on the tightened band",
+   "rationale": "The act's numerical channel is taken from a quadratic fitted through anchors at 0, 3.3, 6.7 and 10 degrees, then evaluated within half a degree of the peak. Measured 2026-08-01 on 39 solves: that fit has curvature plus 0.0021771 at the peak where the resolved local fit measures minus 0.5591681, so it carries the wrong sign and is 257 times too small. The channel reads 0.419 and falls exactly linearly with the step, which is a slope reading; on the local fit it reads 0.140 and falls as the square of the step. The act's composed 95 percent band would go from plus or minus 0.4288 to plus or minus 0.1671 through the act's own combining call, with its other two channels untouched. The act also publishes the wrong cause, saying the peak sits on the zero degree edge of the range; the peak is interior at plus 0.124 degrees, measured, and the edge test only ever checked where the clamped angle landed",
+   "citations": [
+    "Race numerical channel results, measured 2026-08-01",
+    "Race pass two act record"
+   ],
+   "est_core_min": 6.0,
+   "cost_basis": "measured; one VSPAERO solve of this wing at one angle took 3.93 seconds on this box at 14:22:03 on 2026-08-01, and the 15 solve local grid measured 1.014 core minutes at 8 concurrent single processes, so the act re run is that plus its own 93 solves",
+   "expected_knowledge_gain": "The one act whose headline band is dominated by a term that is now measured, published on the number that term actually is, and a bracket that resolves under refinement instead of rescaling",
+   "source_kind": "measurement",
+   "status": "proposed",
+   "created_at": "2026-08-01"
+  },
+  {
    "id": "r4-b3-nonfinite-primal-state",
    "objective": "Test whether B3's adjoint failure (PETSc DIVERGED_NANORINF at iteration 0) is caused by a non-finite value already present in the converged primal state, by scanning every primal field cell-by-cell for non-finite entries before the adjoint is launched",
    "rationale": "B3's discrete adjoint dies with DIVERGED_NANORINF at GMRES iteration 0, reproduced identically across four configurations: two primal convergence levels, two objective types, and two ILU fill levels. Mesh quality was checked and cleared. Failing at iteration zero, before any GMRES progress, means the non-finite value is present in the operator or the right-hand side at the moment they are assembled, not generated by the solve. The adjoint linearizes about the converged primal state, so a single cell holding an inf or NaN in any primal field would produce exactly this signature. A converged residual norm does not exclude it: the norm is a sum over cells, and a non-finite entry in a field the residual does not weight can sit there unnoticed. That the failure is invariant to convergence level, objective and preconditioner is the strongest evidence for it - all three are downstream of the state, and none of them would change a poisoned input.",
@@ -2758,6 +2789,22 @@
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
    "well": "W4",
    "progress_note": "SUPERSEDED by W5, 2026-07-31. This item rests on 'single-point variables never show it -- confirmed across three cases', which PROOF.md section 22 already retracted and section 23 explains: the defect is the degenerate-rotation branch, which fires for any design variable that tilts a surface normal, single-point or not. Re-expressing a combination mode as weighted single-point variables therefore cannot avoid it -- the error is upstream of the mode construction entirely. The real workaround is useRotations=False; see w5-rotations-off-mesh-quality-price. Kept on the docket as a record of a line of attack that the root cause closes."
+  },
+  {
+   "id": "r7-locate-the-strouhal-onset",
+   "objective": "Pair the middle rung of the cylinder ladder so the Strouhal sensitivity onset is located rather than bracketed",
+   "rationale": "The same 55.29 percent near wall spacing change moves Strouhal 35.1 percent at Reynolds 3900 and 0.120 percent at Reynolds 1000, measured 2026-08-01 on twins that differ in grading alone at fixed cell count. So the sensitivity has an onset and the lower gates stand, but nothing says where the onset sits or whether it is gradual or sharp, because the middle rung at Reynolds 2000 has no twin. The ladder reports a Strouhal trend across all three rungs and one third of that trend is still unquantified for the one parameter already shown to flip which side of the reference band a run lands on",
+   "citations": [
+    "Cylinder ladder Strouhal spacing twin at Reynolds 1000, measured 2026-08-01",
+    "Cylinder ladder matched pair at Reynolds 3900, measured 2026-07-30",
+    "Cylinder Reynolds ladder record"
+   ],
+   "est_core_min": 78.0,
+   "cost_basis": "measured; the Reynolds 2000 rung's own solve ran 3965.11 seconds at 1 rank on 27,360 cells, and the twin reproduces that mesh at a different grading. At 4 ranks that is 6,840 cells per rank, and the Reynolds 1000 twin at 5,600 cells per rank measured 3.41 times faster than serial while costing 17.4 percent more core minutes, so 4 ranks prices at about 78 core minutes and 19 minutes of wall against 66 core minutes and 66 minutes serial",
+   "expected_knowledge_gain": "Either an onset located between two rungs instead of across the whole ladder, or a middle rung that is already soft, which would move the onset below where the bracket currently puts it",
+   "source_kind": "gate",
+   "status": "proposed",
+   "created_at": "2026-08-01"
   },
   {
    "id": "r5-convergence-wall-not-memory",
