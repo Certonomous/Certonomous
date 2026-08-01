@@ -128,6 +128,16 @@ measured 0.355 core-min per iteration. The remaining uncertainty is no longer
 memory but the iteration count, which is still nobody's measurement — the same
 defect that overran the flat-plate rung.
 
+**And a second pass found that the core-minute figure is not the binding
+number either.** Submission is a pull request against the workshop's public
+repository, needing an account, a workshop-assigned participant identifier and
+a merge request — all three forbidden by this item's own ABSOLUTE list. The
+required deliverables are eight mandatory views rendered against a
+committee-supplied Tecplot layout, which is a pipeline this lab does not have
+and which is priced at zero. **The entry can be prepared and cannot be sent.**
+That decision costs nothing and should be taken before the 6,390 core-minutes
+are spent, not after. See `demo-output/website/hlpw6/SUBMISSION_GATE.md`.
+
 **The eight `agp-*` ladder rungs at 20 core-min each, 160 total.** Every one
 is priced "the finest rung holds N cells and the next roughly doubles it" —
 the exact reasoning the flat-plate rung proves incomplete, because the
