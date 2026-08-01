@@ -2170,12 +2170,21 @@ def main(request: str | None = None, params: dict | None = None,
                                     f"-sweep{best['sweep_deg']:g}.stl")
             if emit and winner_surface.exists():
                 emit("geometry.ready", {
-                    # The winner's caption is the scope statement and nothing
-                    # more: the span, the sweep and the aspect ratio all sit in
-                    # tables a few lines above, and repeating them under the
-                    # body only crowds the viewport.
+                    # THE LABEL THAT STAYS ON SCREEN IS THE ONE THAT MUST SAY
+                    # MOST. This caption was cut back to the bare scope
+                    # statement on the reasoning that the span, area and sweep
+                    # all sit in tables a few lines above. Every one of the
+                    # hundred-odd labels before it carried them, and this is
+                    # the body left in the viewport when the act ends: it lost
+                    # its identity at exactly the moment it stopped being
+                    # replaced. The wing on screen is the 20 degree member of
+                    # the winning family and the finalist table's first row is
+                    # the 25 degree one, so an unlabelled body reads as the
+                    # wrong wing. It says which wing it is.
                     "url": f"/api/surface/aircraft-optimization/{winner_surface.name}",
-                    "label": "Wing-only"})
+                    "label": f"Wing-only, span {best['span']:.0f} m, "
+                             f"area {best['area']:.0f} m², "
+                             f"sweep {best['sweep_deg']:.0f}°"})
         else:
             script.engineer(
                 "• No finalist returned a usable polar. "

@@ -1,6 +1,7 @@
 """Aircraft L/D optimization: requirement parsing, sizing, and routing (#1)."""
 
 import os
+import re
 import shutil
 import tempfile
 import unittest
@@ -1447,7 +1448,7 @@ class ShootRoundTests(unittest.TestCase):
             self.assertTrue(label.startswith("Wing-only"), label)
             self.assertNotIn("component buildup", label)
 
-    def test_the_winner_caption_is_the_scope_and_nothing_else(self):
+    def test_the_winner_caption_names_the_wing_it_leaves_on_screen(self):
         # The winner's surface has to land on disk for its caption to be
         # emitted at all, so this api writes one.
         stl = Path(tempfile.mkdtemp()) / "wing.stl"
@@ -1460,9 +1461,33 @@ class ShootRoundTests(unittest.TestCase):
                 return result
 
         events = self._run(api=_WithSurface)
-        labels = [p["label"] for e, p in events
-                  if e == "geometry.ready" and p.get("label")]
-        self.assertIn("Wing-only", labels)
+        geo = [p for e, p in events
+               if e == "geometry.ready" and p.get("label")]
+        self.assertTrue(geo)
+        final = geo[-1]
+        # THE BODY LEFT IN THE VIEWPORT IS THE ONE THAT MUST SAY MOST. This
+        # caption used to degrade to a bare "Wing-only" at exactly the moment
+        # it stopped being replaced, dropping the span, area and sweep that
+        # every one of the hundred-odd captions before it carried. The wing it
+        # leaves up is the 20 degree member of the winning family while the
+        # finalist table's first row is the 25 degree one, so an unlabelled
+        # body reads as the wrong wing.
+        self.assertTrue(final["label"].startswith("Wing-only, "),
+                        final["label"])
+        for token in ("span ", "area ", "sweep "):
+            self.assertIn(token, final["label"])
+        # And the caption describes the body actually being served: the design
+        # vector in the label matches the one in the surface filename, so the
+        # label cannot drift onto a different wing than the one on screen.
+        said = re.search(r"span ([\d.]+) m, area ([\d.]+) m², "
+                         r"sweep ([\d.]+)", final["label"])
+        served = re.search(r"span([\d.]+)-area([\d.]+)-sweep([\d.]+)",
+                           final["url"])
+        self.assertIsNotNone(said, final["label"])
+        self.assertIsNotNone(served, final["url"])
+        self.assertEqual([float(v) for v in said.groups()],
+                         [float(v) for v in served.groups()],
+                         (final["label"], final["url"]))
 
     # -- item 7: the researcher opens, the engineer answers ----------------
     def test_the_method_memo_opens_and_the_engineer_answers_with_the_limits(self):
