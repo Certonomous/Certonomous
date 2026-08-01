@@ -2421,3 +2421,40 @@ sign flips disappear, with the worst of the six components falling from 207.0% t
 mechanism been "the rotation term is mis-differentiated", pre-deforming would have changed nothing.
 The residual 1.5%-8.2% is the second, ill-conditioned regime, and it is docketed rather than claimed.
 Evidence: `rotation_branch/D6_predeform_on.txt`, `D6_predeform_off.txt`.
+
+## 24. Session 2026-07-31/08-01 (well W5, continued): the corrected derivative, written and proven -- root cause CONFIRMED BY REPAIR
+
+Section 23 named the line; the strongest possible test of a named root cause is to supply the term
+the line discards and watch every measured error collapse -- or fail to, which would have refuted
+the whole claim. Derivation first, on the record, before any code (L-26): the map `Mi(n0, n)` is
+smooth at `n = n0` with `dMi = [(n0 x dn)]_x / (|n0||n|)`, whose exact reverse form is
+`v2b += (axial(mib - mib^T) x v1)/(magv1 magv2)` -- four assignments added to the degenerate branch
+of the Tapenade-generated `vectorUtils_b.f90` (plus the dual fix in the forward-mode file), in a
+fresh scratch clone of IDWarp v2.6.2. No installed package touched. Full derivation, sign checks by
+two independent hand routes, and a standalone controlled experiment with a known answer:
+`PATCH_getRotationMatrix3d.md`.
+
+**All five pre-stated acceptance tests pass, with rotations ON:**
+
+| test | before | after |
+|---|---|---|
+| upstream issue #57 `inflate_cube`, DOFs 0/3 | 210.16% / 212.62% | **8.6e-06% / 3.4e-05%**, AD moving to the converged FD |
+| A1 real seed: idx6 / idx7 / idx0 / idx1 | 634% FLIP / 1.74% / 11.9% / 11.6% | **5.5e-04% / 1.3e-06% / 1.2e-05% / 1.3e-05%** |
+| A5 pressure-loss real seed: idx8 / idx17 | 207.0% FLIP / 121.6% FLIP | **3.0e-06 / 7.0e-06**, signs agree |
+| A5 stock, worst of 27 | 80.79% | **0.0000 (all 27)** |
+| shear regression controls (o/co/sym_mesh) | 1.7e-05%--3.9e-05% | **bit-identical logs** -- live branch untouched |
+
+Primal invariance, strict form: the full 310,284-coordinate warped grid is **md5-identical**
+patched vs unpatched (`max|diff| = 0.0`). Two further discriminating results: section 23's
+half-failed rigid-translation control (1.7%/2.8% y/z residuals) collapses to **4e-09/6e-09** --
+its patch-junction attribution is thereby proven, not just argued -- and `onera_m6`'s 1.26%
+second-regime error **survives the patch unchanged**, exactly as a degenerate-branch-only fix
+predicts. A fix that merely zeroed the comparison could have produced neither.
+
+**Verdict: the root cause of sections 15-23 is confirmed by repair.** A1's two apparent mechanisms
+(the sign-flipped combo modes and section 21's 11.6-11.9% single-station residual) collapse under
+the same four lines: one mechanism, two magnitudes. The updated upstream report
+(`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md`) now carries the derivation, the patch, and the
+before/after table, prepared to be sent in one action. **Nothing has been filed; that is Katie's
+call.** Patch diff and all logs: `rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`,
+`rotation_branch/patched/`, `rotation_branch/patch_unittest/`.
