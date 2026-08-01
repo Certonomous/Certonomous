@@ -71,8 +71,9 @@ benchmark. It is a fact about which two candidates somebody compared.
 The hump's high-fidelity fields **are** in the clone, at
 `closure-challenge-benchmark/data/NASA_2DWMH/0/{U_LES,k_LES,tauij_LES}`, 51,626
 cells each. `0/U_LES` is not merely test data, it is the answer key:
-`scripts/extract_test_data.py` lines 65 to 67 read exactly that file, subsample
-it to 1,000 points, and write it into `ground_truth_test.npz`, which is what
+the clone's own `extract_test_data.py` (`closure-challenge-benchmark/scripts/`)
+at lines 65 to 67 reads exactly that file, subsamples
+it to 1,000 points, and writes it into `ground_truth_test.npz`, which is what
 `score()` grades against. Fitting, feature selection, gate calibration or a
 hyperparameter choice touching it is fitting on the key.
 
