@@ -155,10 +155,15 @@ def check_wall_counters_vs_ledger() -> Result:
             continue
         seconds = float(row.get("wall_seconds") or 0.0)
         solver = row.get("solver") or "unknown"
-        entry = per_solver.setdefault(solver, [0, 0.0])
-        entry[0] += 1
-        entry[1] += seconds
         if row.get("ok"):
+            # The published per_solver block counts SUCCEEDED rows only —
+            # lab_stats.ledger_summary builds it from ok_rows — so the check
+            # must too. Until 2026-08-01 this accumulator ran over every row
+            # and the check failed on all 91 not-ok rows every time, on three
+            # solvers, while each published figure was in fact exact.
+            entry = per_solver.setdefault(solver, [0, 0.0])
+            entry[0] += 1
+            entry[1] += seconds
             ok_rows += 1
             ok_seconds += seconds
         else:
