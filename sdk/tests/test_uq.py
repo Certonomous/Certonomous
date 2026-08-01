@@ -73,6 +73,14 @@ class LadderAsymptoticGuards(unittest.TestCase):
     TMR_CD = [0.0026686916613, 0.0027811695632, 0.0028342538677,
               0.0028564381699, 0.0028635838023]
     TMR_DIM = 2
+    # The SAME ladder's skin friction at x/c = 0.97, same file,
+    # convergence_extended.cf_097_ladder. The corpus sweep of 2026-08-01
+    # found it carries the identical call-shape flip that Cd does, and the
+    # recalibration comment on EXTRAPOLATION_TOL_FRAC was read off Cd alone.
+    # It is the second accepted fixture, and it is the THIN one.
+    TMR_CF = [0.002529462373594013, 0.0026270458521110126,
+              0.0026747849116543518, 0.0026968874014089953,
+              0.0027045510419338643]
 
     def test_b52_increments_grow_and_are_rejected(self):
         # Increments (magnitudes) GROW: 0.00186 -> 0.00238 -> 0.00270, the
@@ -152,6 +160,40 @@ class LadderAsymptoticGuards(unittest.TestCase):
         self.assertEqual(uq.not_conclusive_reason(three),
                          uq.not_conclusive_reason(four))
         self.assertEqual(three["band_abs"], four["band_abs"])
+
+    def test_the_skin_friction_ladder_carries_the_same_flip(self):
+        # Found by the corpus sweep, 2026-08-01. The recalibration that set
+        # EXTRAPOLATION_TOL_FRAC was read off Cd; cf_097 on the same five
+        # rungs flips the same way at the same call shape and nobody had
+        # looked. Locked here so the second fixture cannot go missing again.
+        three = uq.ladder_band(self.TMR_CELLS[1:4], self.TMR_CF[1:4],
+                               dim=self.TMR_DIM)
+        four = uq.ladder_band(self.TMR_CELLS[0:4], self.TMR_CF[0:4],
+                              dim=self.TMR_DIM)
+        self.assertFalse(three["conclusive"])
+        self.assertFalse(four["conclusive"])
+        self.assertEqual(three["band_abs"], four["band_abs"])
+        lo, hi = min(self.TMR_CF[1:4]), max(self.TMR_CF[1:4])
+        excess = (three["richardson_extrapolated"] - hi) / (hi - lo)
+        self.assertAlmostEqual(excess, 0.2728, places=3)
+        # And the all-five-rungs range would have read 11.38%, under 0.15.
+        lo4, hi4 = min(self.TMR_CF[0:4]), max(self.TMR_CF[0:4])
+        old_excess = (three["richardson_extrapolated"] - hi4) / (hi4 - lo4)
+        self.assertLess(old_excess, uq.EXTRAPOLATION_TOL_FRAC)
+
+    def test_the_accepted_skin_friction_triple_is_the_thin_margin(self):
+        # The finest cf_097 triple must be certified -- it is a genuinely
+        # converging ladder -- but it clears the tolerance by only 1.10x,
+        # not the 1.30x the Cd fixture measures. That is the real margin of
+        # this corpus and it is asserted rather than left in a comment.
+        out = uq.ladder_band(self.TMR_CELLS[-3:], self.TMR_CF[-3:],
+                             dim=self.TMR_DIM)
+        self.assertTrue(out["conclusive"])
+        lo, hi = min(self.TMR_CF[-3:]), max(self.TMR_CF[-3:])
+        excess = (out["richardson_extrapolated"] - hi) / (hi - lo)
+        self.assertAlmostEqual(excess, 0.1367, places=3)
+        self.assertLess(excess, uq.EXTRAPOLATION_TOL_FRAC)
+        self.assertLess(uq.EXTRAPOLATION_TOL_FRAC / excess, 1.15)
 
 
 class DegenerateLadder(unittest.TestCase):

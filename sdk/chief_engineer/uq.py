@@ -352,6 +352,34 @@ DIVERGENT_EXTRAPOLATION_NOTE = (
 # tolerance to restore the old-looking margin would be tuning the gate to
 # the answer. If a future ladder lands between 11.6% and 15% this number
 # needs re-deriving from more than two fixtures, not nudging.
+#
+# SWEPT 2026-08-01, and the sweep found the thin case is not hypothetical.
+# Every stored ladder in this tree was re-verdicted under both guard scopes,
+# at every prefix call shape a caller could make: 15 call shapes over 12
+# ladders (10 curriculum studies in models/curriculum/uq-studies, plus the
+# TMR flat plate and bump). Two results, both worth having:
+#
+#   1. NO curriculum ladder's verdict was decided by the rung count. The
+#      only curriculum record fitted from a >3-rung call is b52, and it is
+#      declined either way -- though not by the same margin: 247.43% of the
+#      fit triple's range against 93.96% of all six handed rungs, a 2.6x
+#      difference in the stated excess on a record that is on the website.
+#      So the mechanism is live on real data even where the verdict holds.
+#   2. The recalibration above was read off Cd ONLY, and the same ladder's
+#      SKIN FRICTION carries the identical flip that Cd does, unmentioned
+#      until now. cf_097 at 3264/13056/52224, handed as three rungs:
+#      Richardson 0.00271594 sits 27.28% above the top of its fit-triple
+#      range -> DECLINED; the same three handed with 816 in front: 11.38%
+#      -> would have been CERTIFIED under the old scope. Two functionals,
+#      one ladder, one call shape, two flips.
+#
+# And the cf_097 finest triple (13056/52224/208896) sits at 13.67%, which is
+# INSIDE the 11.6%-to-15% band this comment says needs re-deriving. It
+# clears 0.15 by 1.10x, not the 1.30x measured on Cd. That is a second
+# accepted fixture and it is thinner than the first, so the honest reading
+# is that the good-case margin on this corpus is 1.10x. The constant is
+# still not moved -- moving it now would be tuning the gate to the fixture
+# that squeaked through -- but nobody should quote 1.30x as the margin.
 EXTRAPOLATION_TOL_FRAC = 0.15
 
 # ladder_band's own conservative-fallback convention is factor-3 on the
