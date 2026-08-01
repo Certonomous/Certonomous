@@ -1,0 +1,365 @@
+{
+  "cleaning": {
+    "rows_above_stall_threshold": 6,
+    "rows_not_ok": 91,
+    "stall_threshold_s": 3600.0,
+    "torn_lines": 1
+  },
+  "families": {
+    "openfoam-cylinder": {
+      "a_posteriori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": true,
+        "constant": 0.002432,
+        "exponents": {
+          "cell_count": 0.4271,
+          "solver_iterations": 0.6228
+        },
+        "holdout_longest_run_within_20pct": 17,
+        "holdout_median_abs_rel_error": 0.4742,
+        "holdout_p90_abs_rel_error": 0.6967,
+        "holdout_within_20pct": 1937,
+        "kind": "a posteriori",
+        "n_test": 13844,
+        "n_train": 55379,
+        "null_longest_run_within_20pct": 6,
+        "null_median_abs_rel_error": 0.5337,
+        "null_model_median_wall_s": 2.595,
+        "null_within_20pct": 2600,
+        "predictors": [
+          "cell_count",
+          "solver_iterations"
+        ],
+        "r2_log_space": 0.4247,
+        "skill_vs_null": 0.1115,
+        "usable_rows": 69223
+      },
+      "a_priori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": true,
+        "constant": 3.838972,
+        "exponents": {
+          "cylinder_diameter": -0.1697,
+          "inlet_velocity": -0.1689,
+          "kinematic_viscosity": 0.1671,
+          "mesh_refinement": 1.7812
+        },
+        "holdout_longest_run_within_20pct": 15,
+        "holdout_median_abs_rel_error": 0.4757,
+        "holdout_p90_abs_rel_error": 0.7026,
+        "holdout_within_20pct": 2076,
+        "kind": "a priori",
+        "n_test": 13844,
+        "n_train": 55379,
+        "null_longest_run_within_20pct": 6,
+        "null_median_abs_rel_error": 0.5337,
+        "null_model_median_wall_s": 2.595,
+        "null_within_20pct": 2600,
+        "predictors": [
+          "cylinder_diameter",
+          "inlet_velocity",
+          "kinematic_viscosity",
+          "mesh_refinement"
+        ],
+        "r2_log_space": 0.4229,
+        "skill_vs_null": 0.1086,
+        "usable_rows": 69223
+      },
+      "clean_rows": 69223,
+      "core_minutes_median": 0.0399,
+      "wall_seconds": {
+        "max": 52.644,
+        "mean": 3.092,
+        "median": 2.396
+      }
+    },
+    "openfoam-cylinder-unsteady": {
+      "a_posteriori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": true,
+        "constant": 0.030141,
+        "exponents": {
+          "cells": -0.0467,
+          "steps": 1.1555
+        },
+        "holdout_longest_run_within_20pct": 83,
+        "holdout_median_abs_rel_error": 0.0067,
+        "holdout_p90_abs_rel_error": 0.0129,
+        "holdout_within_20pct": 83,
+        "kind": "a posteriori",
+        "n_test": 83,
+        "n_train": 334,
+        "null_longest_run_within_20pct": 24,
+        "null_median_abs_rel_error": 0.0756,
+        "null_model_median_wall_s": 395.531,
+        "null_within_20pct": 70,
+        "predictors": [
+          "cells",
+          "steps"
+        ],
+        "r2_log_space": 0.992,
+        "skill_vs_null": 0.9112,
+        "usable_rows": 417
+      },
+      "a_priori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": true,
+        "constant": 99.963788,
+        "exponents": {
+          "reynolds": 0.2169
+        },
+        "holdout_longest_run_within_20pct": 83,
+        "holdout_median_abs_rel_error": 0.0189,
+        "holdout_p90_abs_rel_error": 0.031,
+        "holdout_within_20pct": 83,
+        "kind": "a priori",
+        "n_test": 83,
+        "n_train": 334,
+        "null_longest_run_within_20pct": 24,
+        "null_median_abs_rel_error": 0.0756,
+        "null_model_median_wall_s": 395.531,
+        "null_within_20pct": 70,
+        "predictors": [
+          "reynolds"
+        ],
+        "r2_log_space": 0.9722,
+        "skill_vs_null": 0.7501,
+        "usable_rows": 417
+      },
+      "clean_rows": 417,
+      "core_minutes_median": 6.5912,
+      "wall_seconds": {
+        "max": 453.543,
+        "mean": 382.586,
+        "median": 395.472
+      }
+    },
+    "reduced-order": {
+      "a_posteriori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": false,
+        "constant": 0.001217,
+        "exponents": {
+          "phase_points": 0.0448
+        },
+        "holdout_longest_run_within_20pct": 0,
+        "holdout_median_abs_rel_error": 0.3607,
+        "holdout_p90_abs_rel_error": 0.5738,
+        "holdout_within_20pct": 0,
+        "kind": "a posteriori",
+        "n_test": 2563,
+        "n_train": 10254,
+        "null_longest_run_within_20pct": 146,
+        "null_median_abs_rel_error": 0.5,
+        "null_model_median_wall_s": 0.001,
+        "null_within_20pct": 1041,
+        "predictors": [
+          "phase_points"
+        ],
+        "r2_log_space": 0.0,
+        "skill_vs_null": 0.2786,
+        "usable_rows": 12817
+      },
+      "a_priori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": false,
+        "constant": 0.001298,
+        "exponents": {
+          "opening_angle_deg": -0.0037
+        },
+        "holdout_longest_run_within_20pct": 0,
+        "holdout_median_abs_rel_error": 0.3602,
+        "holdout_p90_abs_rel_error": 0.5744,
+        "holdout_within_20pct": 0,
+        "kind": "a priori",
+        "n_test": 2563,
+        "n_train": 10254,
+        "null_longest_run_within_20pct": 146,
+        "null_median_abs_rel_error": 0.5,
+        "null_model_median_wall_s": 0.001,
+        "null_within_20pct": 1041,
+        "predictors": [
+          "opening_angle_deg"
+        ],
+        "r2_log_space": 0.0,
+        "skill_vs_null": 0.2795,
+        "usable_rows": 12817
+      },
+      "clean_rows": 69007,
+      "core_minutes_median": 0.0,
+      "wall_seconds": {
+        "max": 0.432,
+        "mean": 0.0,
+        "median": 0.0
+      }
+    },
+    "rhosimplefoam-naca0012-transonic": {
+      "a_posteriori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": true,
+        "constant": 0.188459,
+        "exponents": {
+          "cells": -0.3159,
+          "iterations_actual": 1.026
+        },
+        "holdout_longest_run_within_20pct": 5,
+        "holdout_median_abs_rel_error": 0.17,
+        "holdout_p90_abs_rel_error": 0.3427,
+        "holdout_within_20pct": 37,
+        "kind": "a posteriori",
+        "n_test": 56,
+        "n_train": 224,
+        "null_longest_run_within_20pct": 4,
+        "null_median_abs_rel_error": 0.3441,
+        "null_model_median_wall_s": 29.6795,
+        "null_within_20pct": 22,
+        "predictors": [
+          "cells",
+          "iterations_actual"
+        ],
+        "r2_log_space": 0.6228,
+        "skill_vs_null": 0.5059,
+        "usable_rows": 280
+      },
+      "a_priori": {
+        "beats_the_null_model": true,
+        "clears_three_consecutive_bar": true,
+        "constant": 175.392238,
+        "exponents": {
+          "alpha_deg": -0.0846,
+          "mach": 5.7626,
+          "reynolds": -0.0213
+        },
+        "holdout_longest_run_within_20pct": 9,
+        "holdout_median_abs_rel_error": 0.1223,
+        "holdout_p90_abs_rel_error": 0.2633,
+        "holdout_within_20pct": 43,
+        "kind": "a priori",
+        "n_test": 56,
+        "n_train": 224,
+        "null_longest_run_within_20pct": 4,
+        "null_median_abs_rel_error": 0.3441,
+        "null_model_median_wall_s": 29.6795,
+        "null_within_20pct": 22,
+        "predictors": [
+          "mach",
+          "alpha_deg",
+          "reynolds"
+        ],
+        "r2_log_space": 0.8181,
+        "skill_vs_null": 0.6446,
+        "usable_rows": 280
+      },
+      "clean_rows": 280,
+      "core_minutes_median": 0.4939,
+      "wall_seconds": {
+        "max": 76.305,
+        "mean": 31.02,
+        "median": 29.632
+      }
+    },
+    "simplefoam-ahmed-3d-viscous": {
+      "a_posteriori": {
+        "fit": null,
+        "kind": "a posteriori",
+        "predictors": [
+          "cells",
+          "solver_iterations"
+        ],
+        "usable_rows": 35,
+        "why": "the design matrix is singular on this family"
+      },
+      "a_priori": {
+        "beats_the_null_model": false,
+        "clears_three_consecutive_bar": true,
+        "constant": 23.920045,
+        "exponents": {
+          "reynolds": 0.0569,
+          "slant_deg": -0.1357
+        },
+        "holdout_longest_run_within_20pct": 17,
+        "holdout_median_abs_rel_error": 0.0232,
+        "holdout_p90_abs_rel_error": 0.038,
+        "holdout_within_20pct": 17,
+        "kind": "a priori",
+        "n_test": 17,
+        "n_train": 18,
+        "null_longest_run_within_20pct": 17,
+        "null_median_abs_rel_error": 0.0053,
+        "null_model_median_wall_s": 34.73,
+        "null_within_20pct": 17,
+        "predictors": [
+          "slant_deg",
+          "reynolds"
+        ],
+        "r2_log_space": 0.3356,
+        "skill_vs_null": -3.3817,
+        "usable_rows": 35
+      },
+      "clean_rows": 35,
+      "core_minutes_median": 0.5784,
+      "wall_seconds": {
+        "max": 40.88,
+        "mean": 34.908,
+        "median": 34.706
+      }
+    },
+    "vspaero-wing": {
+      "a_priori": {
+        "beats_the_null_model": false,
+        "clears_three_consecutive_bar": true,
+        "constant": 5.477613,
+        "exponents": {
+          "area": -0.0003,
+          "span": 0.003,
+          "sweep": 0.0011,
+          "taper": 0.0004
+        },
+        "holdout_longest_run_within_20pct": 6457,
+        "holdout_median_abs_rel_error": 0.0602,
+        "holdout_p90_abs_rel_error": 0.0628,
+        "holdout_within_20pct": 13797,
+        "kind": "a priori",
+        "n_test": 13825,
+        "n_train": 55301,
+        "null_longest_run_within_20pct": 6457,
+        "null_median_abs_rel_error": 0.0013,
+        "null_model_median_wall_s": 5.232,
+        "null_within_20pct": 13796,
+        "predictors": [
+          "span",
+          "area",
+          "sweep",
+          "taper"
+        ],
+        "r2_log_space": 0.0002,
+        "skill_vs_null": -43.9273,
+        "usable_rows": 69126
+      },
+      "clean_rows": 69134,
+      "core_minutes_median": 0.0872,
+      "wall_seconds": {
+        "max": 21.934,
+        "mean": 5.507,
+        "median": 5.23
+      }
+    }
+  },
+  "families_clearing_the_bar_a_priori": [
+    "openfoam-cylinder",
+    "openfoam-cylinder-unsteady",
+    "rhosimplefoam-naca0012-transonic",
+    "simplefoam-ahmed-3d-viscous",
+    "vspaero-wing"
+  ],
+  "families_whose_law_also_beats_predicting_the_median": [
+    "openfoam-cylinder",
+    "openfoam-cylinder-unsteady",
+    "rhosimplefoam-naca0012-transonic"
+  ],
+  "generated_at": "2026-08-01T06:53:49Z",
+  "ledger": "demo-output/website/mega-batch/ledger.jsonl",
+  "ranks_evidence": "the mega-batch runner invokes every OpenFOAM family through workflows/tmr_verification._foam, which runs [*_run_prefix(), *args] with no mpirun and no -parallel; the wing and reduced-order families are single-process by construction. core-minutes = wall_seconds / 60 on this ledger only.",
+  "ranks_per_row": 1,
+  "what_the_bar_does_not_test": "clearing three consecutive predictions within 20 percent says nothing on its own about a family whose cost barely varies: predicting that family's median clears the same bar. Each fit is therefore graded against the constant predictor on the same holdout, and the second list above is the one that means a law was learned."
+}

@@ -466,6 +466,19 @@ def check_cost_predictions() -> Result:
     predictions land within 20%. This check reports where each family stands.
     Pairs are recorded here as they are found in the records; each carries the
     citation for both halves so the table is auditable.
+
+    TWO THINGS THE BAR DOES NOT TEST, measured 2026-08-01 against the ledger
+    (`demo-output/website/mega-batch/COST_SCALING.md`) and now stated on the
+    report itself, so nobody reads a streak as more than it is.
+
+    1. **A streak measures the spread of the family, not the skill of the
+       forecast.** On a family whose cost barely varies, predicting its own
+       median clears the bar. `vspaero-wing` clears it 6,457 times in a row
+       with a fitted law of R2 0.0002 that is 45 times worse than that median.
+       A streak is necessary and it is not sufficient.
+    2. **A family that mixes rank counts is not one cost population.** The
+       third pair below is an 8-rank run sitting beside two serial ones, and a
+       streak counted across the mixture counts two different quantities.
     """
     # (family, rung, predicted seconds, measured seconds, evidence)
     pairs = [
@@ -499,6 +512,12 @@ def check_cost_predictions() -> Result:
     else:
         lines.append("AUTO-APPROVABLE: none; no family has three consecutive "
                      "predictions within 20%")
+    lines.append(
+        "the bar is necessary and not sufficient: on the ledger, vspaero-wing "
+        "clears three-in-a-row 6457 times with a law of R2 0.0002 that is 45x "
+        "worse than predicting its own median, and the 8-rank pair above sits "
+        "in a family with two serial ones (demo-output/website/mega-batch/"
+        "COST_SCALING.md)")
     return Result("cost predictions vs measured", INFO,
                   f"{len(pairs)} completed measured-versus-predicted pairs "
                   f"across {len(families)} family", lines)
