@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T00:18:12Z",
+  "generated_at": "2026-08-01T00:18:23Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -2532,7 +2532,7 @@
     },
     {
       "id": "c5-duct-velocity-scale-transfer",
-      "well": "C5",
+      "well": "W5",
       "objective": "Give the duct correction a genuine Reynolds-transfer test by generating our own duct training data at a second Reynolds number",
       "rationale": "Round 4 closed roughly a fifth of the duct deficit by removing an extrapolation the model was never trained through: Re_y reaches 1.85x and 2.07x its trained maximum on the two ducts we lose. The fix is validated for no-harm on every held-out set the rules permit, and none of those is a Reynolds-transfer test at a doubled velocity scale, because every duct the benchmark lets us fit on sits at Re_tau 164. That is the single missing piece of evidence in the whole duct line. Solving our own duct at a third Reynolds number -- not a test one -- would supply it, and would let us measure rather than argue whether the fix generalises. The leaders are still twice as good on both cases.",
       "est_core_min": 0,
@@ -2547,7 +2547,7 @@
     },
     {
       "id": "c6-nasa-hump-the-only-last-place",
-      "well": "C6",
+      "well": "W5",
       "objective": "Decide whether the NASA hump can be improved at all, given the benchmark ships no training data for it",
       "rationale": "After round 4 the NASA wall-mounted hump is the only case we are last on the board on, 0.0632 against a best of 0.0364, and our correction there is a regression against the uncorrected floor of 0.0621. The benchmark's own train/validation table has no hump entry -- it is test-only -- so the current prediction borrows the periodic-hill model on a pre-registered physical argument. Nobody has established whether a better legal choice exists or whether the honest answer is that the hump is unimprovable without outside data. That question is worth settling before more effort goes into the ducts, where we are already third of five.",
       "est_core_min": 0,
@@ -2601,6 +2601,63 @@
       "decided_at": "2026-08-01T00:18:12Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'",
       "created_at": "2026-08-01T00:18:12Z"
+    },
+    {
+      "id": "w3-valve-band-never-adjudicated",
+      "well": "W3",
+      "objective": "Correct the one stored band that reports itself conclusive without ever facing a guard",
+      "rationale": "The valve study is the only record in the corpus whose band reaches a live surface: the reportable band returns 76.5 for it and nothing for all eight genuine ladders. Its conclusive flag is a hardcoded literal that never passed through the fit. Its three levels are not meshes but time segments of a half-sine waveform, so the band measures how finely a waveform was chopped. Its certificate describes a three-level refinement with a band between levels. Its two channels also share a point exactly and are combined as independent.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The band no longer reaches a live surface unadjudicated, and the channel says what it measures",
+      "expected_knowledge_gain": "The single place where a number the lab did not earn is the one it publishes",
+      "source_kind": "measurement",
+      "citations": [
+        "models/curriculum/uq-studies/aortic-valve.json",
+        "sdk/workflows/valve_study.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T00:18:23Z"
+    },
+    {
+      "id": "w7-an-unauditable-record-is-invisible",
+      "well": "W7",
+      "objective": "Make the audit see the records it currently skips",
+      "rationale": "The one study that cannot be checked against its own evidence is the one both audit checks skip, because they key on a field it does not have. A check that passes over exactly the records least able to defend themselves reports health it has not measured.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every stored study is either checked or named as skipped, with the reason",
+      "expected_knowledge_gain": "The gap is shaped precisely like the thing the audit exists to find",
+      "source_kind": "report",
+      "citations": [
+        "scripts/self_audit.py",
+        "models/curriculum/uq-studies/aortic-valve.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T00:18:23Z"
+    },
+    {
+      "id": "w6-forecast-the-approved-backlog",
+      "well": "W6",
+      "objective": "Forecast the approved backlog against measured throughput before it is dispatched",
+      "rationale": "The approved queue jumped to 105 items and roughly 9,878 core-minutes, which is about 165 core-hours against a 16 core box. Nothing has costed that against what the lab actually achieves per hour, and several individual estimates in it are already known wrong: one priced a repair from the run it replaces, another priced a diagnosis as a rung, a third mispriced a refit as a re-run.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A forecast of the approved queue in wall time on this machine, with the estimates it distrusts named",
+      "expected_knowledge_gain": "Knowing which of 105 items are affordable is worth more than starting them in filed order",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/docket.json",
+        "mega-batch ledger"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T00:18:23Z"
     }
   ]
 }
