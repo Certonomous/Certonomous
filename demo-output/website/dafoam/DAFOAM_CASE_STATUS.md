@@ -115,7 +115,7 @@ A real mid-session mistake, caught and fixed: a cleanup command between probe ru
 - Primal: converged, residual 9.81e-09 vs 1e-8. CD=0.033031, CL=0.180995.
 - Adjoint: attempted, completed (GMRES 60–62 iterations, `PetscConvergedReason: 2`).
 - FD verification: CD/patchV 0.017%, CL/patchV 0.032%, CD/shape **4.52%**, CL/shape 0.53%, `geometry.volcon`/shape ≈7e-14 (machine precision). All 8 raw shape-derivative components checked by hand: adjoint and FD agree in sign on every one — **no flagged/sign-flipped components**.
-- **Verdict: PASS**, cleanly (≤5% aggregate, no flags) — better-behaved than the official NACA0012 tutorial (A1) on the same class of derivative.
+- **Verdict: PASS**, cleanly (≤5% aggregate, no flags). ~~better-behaved than the official NACA0012 tutorial (A1) on the same class of derivative.~~ **Comparison STRUCK 2026-08-01, on measurement.** Re-run stock and patched at np=3 (`dafoam/W5_GRADIENT_REGRADE.md` §4b): the stock run reproduces 4.5230% / 0.5303% / 0.0172% / 0.0316% exactly, and under the corrected `getRotationMatrix3d` derivative CD/shape reads **0.0246%** and CL/shape **0.0125%** — the 4.52% was **99.5% rotation defect**. A1 corrected reads 0.0374%. The two cases are the same to within a factor of 1.5: this one was never better-behaved, it was carrying less of the same upstream bug. The PASS itself holds against the shipped toolchain.
 
 ### naca0015_sail_medium
 - Same geometry/flow condition as sail_coarse (Re ≈6.0×10⁶, U0=75 m/s, AoA=5°, SA, steady, 3D). Solver `DASimpleFoam`, 3 ranks.
