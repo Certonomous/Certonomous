@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T06:45:46+00:00",
+ "generated_at": "2026-08-01T06:49:28+00:00",
  "proposals": [
   {
    "id": "w5-decide-what-cannot-be-submitted",
@@ -298,10 +298,11 @@
     "reporting charter section 2",
     "reporting charter section 12"
    ],
-   "status": "approved",
-   "decided_at": "2026-07-31T23:20:00Z",
+   "status": "done",
+   "decided_at": "2026-08-01T06:49:28+00:00",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-   "created_at": "2026-07-31T23:20:00Z"
+   "created_at": "2026-07-31T23:20:00Z",
+   "outcome": "Built and it rejects the failure the charter exists to name. scripts/morning_report.py --check reads a report somebody wrote by hand and validates the frame, naming the rule rather than the fact that something failed: a report that drops section 4 comes back with three findings, RULE 1 for the missing heading and RULE 3 twice because it still prints 6 of 6 and Missing none while carrying five headings. Exit 0 accepted, 1 malformed, 2 the frame holds and a cited artifact is not on disk. 17 cases in sdk/tests/test_morning_report.py, all passing, covering all eight frame rules plus the header block. Two readings the charter did not spell out are recorded rather than made silently: a nothing section still needs its Source line, because that line is the only evidence its source was read, and a PENDING section does not, because the token means the source could not be read. Section 12 of the charter said the frame was unchecked; that sentence is struck and the checker named in its place, and the boundary is stated too, that this reads the frame and not the content."
   },
   {
    "id": "w6-two-points-are-not-a-distribution",

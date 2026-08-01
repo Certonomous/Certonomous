@@ -459,20 +459,31 @@ section 4.5 carries the rule; this is the row that shows it.
 - The agenda's style rails reject a proposal whose visible fields carry a dash,
   a raw URL, an internal path or a banned word, so section 8 inherits clean
   text.
-- Sections 1, 2, 4 and 6 of the report are assembled by hand today, and **the
-  frame in section 2 is unchecked until the checker below exists.** Saying that
-  is more useful than implying a check that is not there.
+- Sections 1, 2, 4 and 6 of the report are assembled by hand today. ~~**The
+  frame in section 2 is unchecked until the checker below exists.**~~
+  **Superseded 2026-08-01: it exists.** `scripts/morning_report.py --check
+  <report>` reads a report somebody wrote by hand and validates it against
+  section 2, naming the rule that failed rather than the fact that something
+  did. Exit 0 accepted, 1 malformed, 2 the frame holds and a cited artifact is
+  not on disk. Seventeen cases in `sdk/tests/test_morning_report.py`, each one
+  a report a human could plausibly hand in.
 
-> **PROPOSAL. Nobody has ruled on this.** Split the old generator proposal in
-> two and build the smaller half first. A `scripts/morning_report.py --check`
-> that reads a report file and validates it against section 2 alone: the six
-> heading strings present, once each, in order; the computed section count
-> against the printed one; a `Source:` line under every section carrying
-> content; the two reserved words used where they belong; and every cited path
-> resolving on disk. It is the half that makes the frame real, because it runs
-> over a report a human wrote by hand this morning and needs no generator to
-> exist first. The emitter is the larger half and can follow, reading the
-> audit's JSON output for the parts that already exist rather than
+  Two readings the checker had to make, recorded here because a checker that
+  interprets the frame silently becomes a second unwritten rule:
+
+  - **A `nothing` section still needs its `Source:` line.** Rule 4 defines the
+    word to mean the section was assembled and its source was read, and the
+    only evidence for the reading is the line naming the source.
+  - **A `PENDING` section does not.** Rule 5 says the token prints nothing
+    else, and the point of the token is that the source could not be read, so
+    requiring a `Source:` line under it would require the thing that failed.
+
+  What the checker cannot do is notice a section that is present, well formed
+  and wrong about the lab. It reads the frame, not the content.
+
+> **PROPOSAL, half taken.** The old generator proposal was split in two and the
+> smaller half is built, above. The emitter is the larger half and can follow,
+> reading the audit's JSON output for the parts that already exist rather than
 > reimplementing them. P-8.1 in `PROPOSALS_OPEN.md`.
 
 ## Related

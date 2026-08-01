@@ -410,8 +410,12 @@ than typed, a `Source:` line under every section carrying content, and two
 reserved words, `nothing` for an empty section and `PENDING: <path>` for one
 whose artifact could not be read. That makes a **checker** possible
 independently of an emitter, because it runs over a report a human wrote by hand
-this morning. The checker is filed and approved as
-`w8-morning-report-frame-checker`.
+this morning. ~~The checker is filed and approved as
+`w8-morning-report-frame-checker`.~~ **Built 2026-08-01:**
+`scripts/morning_report.py --check <report>`, 17 cases in
+`sdk/tests/test_morning_report.py`, each finding naming the charter rule that
+failed. Exit 0 accepted, 1 malformed, 2 the frame holds and a cited artifact is
+not on disk.
 
 What is left for her is the emitter.
 
