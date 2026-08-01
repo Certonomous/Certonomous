@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T06:18:07Z",
+  "generated_at": "2026-08-01T06:18:24Z",
   "proposals": [
     {
       "id": "w5-decide-what-cannot-be-sent-before-it-is-run",
@@ -2936,6 +2936,62 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T06:18:07Z"
+    },
+    {
+      "id": "w6-estimates-enumerate-cost-not-prerequisites",
+      "well": "W6",
+      "objective": "Require an estimate to name what must exist before the work can start",
+      "rationale": "The largest approved item was believed blocked on memory. It is not: it runs at fifteen percent of the machine. What would actually have stopped it on day one was that no reader existed for the grid format at all, and no line of the estimate mentioned it. An estimate that prices hours while omitting a missing capability describes a job nobody can begin.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every estimate lists the tools, readers and data the work presumes, and an absent one blocks before hours are argued about",
+      "expected_knowledge_gain": "The one thing that would have stopped the work outright was the one thing nobody costed",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
+        "docs/charters/COMPUTE_BUDGET_CHARTER.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:18:24Z"
+    },
+    {
+      "id": "w6-a-measurement-that-raised-the-price",
+      "well": "W6",
+      "objective": "Add the first calibration point where measuring made an item more expensive, not less",
+      "rationale": "Every prior overrun ran one way: work cost more than filed. This probe measured a rate two times the filed one and raised the item from 3,600 core-minutes to 6,390, while also removing the memory objection entirely. Two of the three calibration points behind the planning multiplier are now overruns and one is a correction upward on a feasible item, which is a different kind of error and should not be pooled with them blindly.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The multiplier distinguishes an underpriced rate from a misattributed blocker, with each point labelled",
+      "expected_knowledge_gain": "A multiplier fitted to two overruns will mis-plan the case where the estimate was wrong about the obstacle rather than the hours",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:18:24Z"
+    },
+    {
+      "id": "w4-aflr3-pyramid-convention",
+      "well": "W4",
+      "objective": "Report the grid-format convention that the published documentation states incorrectly",
+      "rationale": "Writing the missing reader for the workshop grid turned up a documented pyramid node ordering that does not match the files themselves. Following the documentation produced 1,505,250 boundary triangles where the grid declares 145,614; measuring the true ordering matches exactly. The converter asserts against the file own declared boundary list, which is why the discrepancy surfaced at all rather than becoming a silently wrong mesh.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A minimal reproducer showing the declared count against the documented convention, ready to send",
+      "expected_knowledge_gain": "Anyone writing this reader from the documentation gets a wrong mesh that passes every check they would think to run",
+      "source_kind": "capability",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:18:24Z"
     }
   ]
 }
