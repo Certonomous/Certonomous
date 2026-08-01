@@ -487,20 +487,31 @@ not solve under any configuration tried. The committee did not publish a bad
 grid; it published grids for a different discretisation.
 
 **3. What is reachable today, with no new work beyond the importer:** the DPW5
-hex family at levels L1.T, L2.C and L3.M — 0.64M, 2.16M and 5.11M cells, all
-inside this box's memory. That is three levels, which is the minimum for a
-Richardson-extrapolated grid-convergence study, on a public workshop geometry
-with published committee results. Level L1.T is already done.
+hex family at levels L1.T, L2.C and L3.M — 0.64M, 2.16M and 5.11M cells. That is
+three levels, the minimum for a Richardson-extrapolated grid-convergence study,
+on a public workshop geometry. **L1.T is measured; L2.C and L3.M are predicted**
+by the HLPW6 probe's memory law at 4.3 and 9.0 GiB, and the law has now been
+checked against two real grids and come within 11% below and 5% above. Neither
+has been run, and neither should be quoted as done. Two further things are
+unverified and would need doing before this is a claim rather than a plan: that
+the hex family's numerics hold at 2.16M and 5.11M as they did at 0.64M, and what
+the workshop's own published results for these grids actually are — this probe
+fetched grids, not result databases.
 
 **4. What is not reachable, and would not be made reachable by more tuning:**
-every tet-dominant family. HLPW6's RANS grids, DPW5's hybrid and prism
-families, DPW4's cell-based tetrahedral grids, and — on memory grounds before
-numerics even arrives — all of DPW6, whose coarsest published unstructured
-level is 20.7 million cells. Reaching those needs a different discretisation,
-not different settings. The honest options are a node-centred or vertex-centred
-solver, a coupled rather than segregated pressure-velocity solve, or a
-non-orthogonal treatment that is implicit rather than deferred-corrected. None
-of those is a parameter in a dictionary.
+HLPW6's RANS grids and DPW5's hybrid and prism families, each of which was
+measured here. All of DPW6 is out on memory before numerics arrives — its
+coarsest published unstructured level is 20.7 million cells. DPW4's cell-based
+tetrahedral grids are **inferred, not measured**: they are all-tet by the
+committee's own description and would be expected to behave like DPW5 hybrid,
+but they ship in VGRID `cogsg` format which this importer does not read, and no
+run was attempted. That inference should be tested before it is relied on.
+
+Reaching the tet families needs a different discretisation, not different
+settings. The options worth pricing are a node-centred or vertex-centred solver,
+a coupled rather than segregated pressure-velocity solve, or a non-orthogonal
+treatment that is implicit rather than deferred-corrected. None of those is a
+parameter in a dictionary, and none of them was tested here.
 
 **5. One thing that looked like a committee-grid problem is not one.** The
 compressible `rhoSimpleFoam` abort recorded by the HLPW6 probe reproduces on the
@@ -527,12 +538,34 @@ family. So:
 
 * **The HLPW6 test case 1 entry cannot be produced at second order by this
   toolchain**, on the evidence of twenty configurations on a grid of the same
-  class. A first-order entry is possible and is not a defensible submission.
-  That is a reason to rescope the item, and it can be decided without spending
-  any of the 6,390 core-minutes.
-* **A DPW5 hex-family grid-convergence study is available now**, is second-order,
-  is three levels deep, and grades against a workshop with published results.
-  It is a smaller claim than a workshop entry and it is one this lab can
-  actually finish.
+  class, one of which was the HLPW6 hardened configuration itself. A first-order
+  entry is possible on the HLPW6 grid and is not a defensible submission. That
+  is a reason to rescope the item, and it can be decided without spending any of
+  the 6,390 core-minutes.
+* **A DPW5 hex-family grid-convergence study is the reachable target**, is
+  second-order, and is three levels deep. One level of it is done. It is a
+  smaller claim than a workshop entry and it is one this lab can finish.
 * **If tet families matter, the next step is a solver question, not a settings
   question** — and it is worth pricing before it is worth attempting.
+* **The compressible path needs fixing on its own account**, independently of
+  any of this. It fails on a grid that is demonstrably fine, so it is blocking
+  every transonic case this lab might want to run on an imported grid, not only
+  the committee ones.
+
+---
+
+### What was not done, and what would have to be
+
+* No result is graded against A6's converged coefficients, because the
+  compressible path does not reach A6's condition. That was the intended grade
+  and it did not happen.
+* The DPW5 hex solve at L1.T is stable and its forces settle to a few percent,
+  but it is not converged to engineering tolerance and no grid-convergence claim
+  is made from one level.
+* The incompressible runs are at 68 m/s on a boundary layer built for
+  Re = 5e6 at M = 0.85. That mismatch is identical across the three DPW5 grids,
+  so the comparison between them is clean, but it is not the grid's design
+  condition and the intended check at that condition was blocked by the
+  compressible failure above.
+* Only one angle of attack, one grid level per family, and one solver were
+  tested.

@@ -140,3 +140,27 @@ P14 The axis that has not been moved is **relaxation**, and it is the only one
     at second order. If it does, the answer to the gating question flips from
     "committee grids are out of reach" to "reachable, at a price in iteration
     count" -- and the price is then the thing to measure.
+
+## Final scorecard, 2026-08-01T09:45:21Z, all runs complete
+
+| # | prediction | outcome | evidence |
+|---|---|---|---|
+| P1 | hybrid diverges under the HLPW6 baseline, no later than HLPW6 did | **held** (iteration 11 vs 16) | hybrid_base_incompressible_a2.11_solve.log |
+| P2 | hex survives 200 iterations at second order | **held** (200, exit 0) | hex_base_incompressible_a2.11_solve.log |
+| P3 | non-orthogonal correctors are the highest-value fix | **falsified** (same iteration, 2.65x the cost) | hybrid_nonorth2_..._solve.log |
+| P4 | changing the convection scheme helps less than P3 | **falsified in direction** -- both help equally, i.e. not at all | hybrid_limlin_..., hybrid_linupV_... |
+| P5 | PCG does not prevent divergence | **held** (iteration 11) | hybrid_pcg_..._solve.log |
+| P6 | slower relaxation delays but does not prevent | **held** (13 iterations, then the same blow-up) | hybrid_slow_..._solve.log |
+| P7 | first order survives on every grid | **falsified** -- it does not survive on hybrid | hybrid_upwind1_..., hybrid_hardenedHLPW6_... |
+| P8 | SpalartAllmaras helps materially | **falsified** (16 iterations vs 11) | hybrid_base_sa_..._solve.log |
+| P9 | removing the non-orthogonal correction entirely survives | **falsified** (iteration 11) | hybrid_uncorr_..._solve.log |
+| P10 | the production-shaped combination survives | **falsified** (iteration 13) | hybrid_prod_..._solve.log |
+| P11 | a potential-flow initial field is the one that works | **falsified, and badly** -- it fails *sooner*, at iteration 7 | hybrid_potinit_..._solve.log |
+| P12 | capping the pressure solve helps | **falsified** (iteration 11) | hybrid_pcap_..._solve.log |
+| P13 | Poisson wall distance has no effect | **held** (iteration 11, identical) | hybrid_wdpois_..._solve.log |
+| P14 | the slowest relaxation survives and flips the verdict | **falsified** (crawl 16, crawl2 17, crawl3 29 -- all diverge) | hybrid_crawl*_..._solve.log |
+
+Four of fourteen held. The two that held hardest were the two that predicted
+failure (P5, P13) and the two mesh-metric predictions made before any solver ran
+(P1, P2). **Every prediction that a numerics change would rescue the grid was
+wrong**, which is the finding: it is not a settings problem.
