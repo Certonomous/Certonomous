@@ -1,0 +1,13 @@
+       layout: big-endian, Fortran unformatted
+[   0.1s] read: 660177 nodes, 638976 cells (tet 0, pyr 0, pri 0, hex 638976)
+[   0.4s] 4-node cell-face incidences: 3833856
+[   4.7s]   unique 4-faces 1937920 (boundary 41984)
+[   4.8s] boundary faces validated against file: 41984
+[   4.8s] internal 1895936, boundary 41984, total 1937920
+[   4.9s] patches: symmetry(symmetry,15360), wall(wall,13312), farfield(patch,13312)
+[   5.9s] wrote points
+[   8.9s] built internal face strings
+[   9.0s] built boundary face strings
+[   9.1s] wrote faces
+[   9.6s] wrote owner/neighbour
+[   9.6s] DONE -> /home/ubuntu/certonomous-runs/dpw5-committee-probe/case_hex/constant/polyMesh

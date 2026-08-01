@@ -1,0 +1,16 @@
+       layout: big-endian, raw C stream
+[   0.3s] read: 1156796 nodes, 2661338 cells (tet 436961, pyr 341341, pri 1883036, hex 0)
+[   1.7s] pyramid apex detection: local-index histogram [1602, 1532, 336700, 739, 768], median coplanarity margin (2nd/1st volume) 44.4
+[   1.9s] 3-node cell-face incidences: 6879280
+[  10.2s]   unique 3-faces 3512447 (boundary 145614)
+[  11.0s] 4-node cell-face incidences: 5990449
+[  18.2s]   unique 4-faces 2997312 (boundary 4175)
+[  18.9s] boundary faces validated against file: 149789
+[  18.9s] internal 6359970, boundary 149789, total 6509759
+[  19.7s] patches: WING_UPPER(wall,39685), SLAT(wall,31844), SLAT_BRACKETS(wall,16714), SLAT_UPPER(wall,12361), WING(wall,10971), FLAP(wall,9980), FLAP_UPPER(wall,8341), FLAP_COVE(wall,7010), POS(symmetry,5695), WING_TIP(wall,3934), WING_TE(wall,1449), SLAT_TE(wall,1184), FLAP_TE(wall,565), Box(patch,56)
+[  21.5s] wrote points
+[  32.5s] built internal face strings
+[  32.7s] built boundary face strings
+[  33.3s] wrote faces
+[  35.1s] wrote owner/neighbour
+[  35.1s] DONE -> /home/ubuntu/certonomous-runs/dpw5-committee-probe/regress_hlpw6/constant/polyMesh
