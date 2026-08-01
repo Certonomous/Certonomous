@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T16:18:15Z",
+  "generated_at": "2026-08-01T18:18:13Z",
   "proposals": [
     {
       "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -3742,6 +3742,63 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T16:18:15Z"
+    },
+    {
+      "id": "w8-refitting-a-printed-table-is-not-refitting",
+      "well": "W8",
+      "objective": "Write down that a refit must read the solved values, not the rounded ones a table shows",
+      "rationale": "The wedge extrapolation was reported twice from the same rungs: minus 13.73 degrees from the values as the ladder table prints them at three decimals, and minus 15.753 from what the act solved. Two degrees apart, from rounding alone. The reason is mechanical and worth stating: at an observed order near zero the extrapolation amplifies the finest increment by more than forty, so the error in a printed value is amplified with it. Every refit this week that started from a document rather than a record inherits that.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A refit states which source it read, and a check refuses a refit whose inputs came from a rendered table",
+      "expected_knowledge_gain": "The worse a ladder behaves the more its refit depends on precision nobody thinks about",
+      "source_kind": "report",
+      "citations": [
+        "campaign/W3_GUARD_SWEEP.md",
+        "campaign/W3_2D_LADDER_REFIT.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T18:18:13Z"
+    },
+    {
+      "id": "w3-narrate-the-strongest-signal-not-the-first",
+      "well": "W3",
+      "objective": "Order every declined verdict by how strong its evidence is, not by where it sits in a list",
+      "rationale": "Six ladders of twenty five named one guard while two or three held them. The fix put physically impossible extrapolations ahead of the order window, which is right, but the ordering is still a fixed precedence rather than a judgement about strength. A negative shock angle and an order of 0.034 are both decisive; a value outside its own measured range and an order of 2.43 are not equally so. The lab now records every guard that fires, so the ordering can rest on what each one measured.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A declined ladder leads with the guard whose evidence is strongest, and the basis for that ranking is stated",
+      "expected_knowledge_gain": "The narrated reason is what a viewer takes away, and it is currently chosen by list position",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/uq.py",
+        "campaign/W3_GUARD_SWEEP.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T18:18:13Z"
+    },
+    {
+      "id": "w7-two-studies-moved-with-no-value-change",
+      "well": "W7",
+      "objective": "Decide whether a record timestamp should move when nothing it records did",
+      "rationale": "Two curriculum studies had their update time rewritten by replay runs while no measured value or verdict in either changed. They were left uncommitted rather than swept into someone else work. A timestamp that moves for a read makes it impossible to tell, from the record alone, when a number last actually changed, which is the question the field exists to answer.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A study timestamp moves when a value or verdict moves, and a read leaves it alone",
+      "expected_knowledge_gain": "The record of when something changed is the first thing every audit this week has leaned on",
+      "source_kind": "report",
+      "citations": [
+        "models/curriculum/uq-studies/b52.json",
+        "models/curriculum/uq-studies/ahmed_25.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T18:18:13Z"
     }
   ]
 }
