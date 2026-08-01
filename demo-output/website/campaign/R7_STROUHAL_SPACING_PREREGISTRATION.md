@@ -1,6 +1,7 @@
 # R7 — is the cylinder ladder's Strouhal gate soft at every rung: pre-registration
 
-**Written 2026-08-01 14:40 UTC, before the twin was meshed or launched.** No
+**Written 2026-08-01 14:33 UTC, committed at 14:33 as 14eb8f11, and the twin
+was launched at 14:34 — after it, not before.** No
 cell of the twin mesh exists when this file is written. The baseline it is
 compared against was solved on 2026-07-2x and is already on the record, so
 every number that decides this test is either already published or still
