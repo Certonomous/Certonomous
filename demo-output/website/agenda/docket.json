@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T06:23:44+00:00",
+  "generated_at": "2026-08-01T06:39:28+00:00",
   "proposals": [
     {
       "id": "w5-decide-what-cannot-be-submitted",
@@ -412,21 +412,6 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T00:18:23Z"
-    },
-    {
-      "id": "c5-duct-velocity-scale-transfer",
-      "well": "W5",
-      "objective": "Give the duct correction a genuine Reynolds-transfer test by generating our own duct training data at a second Reynolds number",
-      "rationale": "Round 4 closed roughly a fifth of the duct deficit by removing an extrapolation the model was never trained through: Re_y reaches 1.85x and 2.07x its trained maximum on the two ducts we lose. The fix is validated for no-harm on every held-out set the rules permit, and none of those is a Reynolds-transfer test at a doubled velocity scale, because every duct the benchmark lets us fit on sits at Re_tau 164. That is the single missing piece of evidence in the whole duct line. Solving our own duct at a third Reynolds number -- not a test one -- would supply it, and would let us measure rather than argue whether the fix generalises. The leaders are still twice as good on both cases.",
-      "est_core_min": 12.0,
-      "predicted_memory_gb": 2.0,
-      "cost_basis": "REPRICED 2026-08-01 from zero, which was a misfiling: the objective is generating duct data at a second Reynolds number, and that is solver runs. Built from the lab own measured duct baselines in demo-output/website/dafoam/ladder-b/B2_duct_baseline.json, single rank, simpleFoam, wall-functioned quarter-duct: AR_1_Ret_360 converged at iteration 456 for 0.133 core-min on 3025 cells, AR_3_Ret_360 at iteration 1700 for 1.267 core-min on 8748 cells, so 1.40 core-min for the pair at Re_tau ~340. Components. (1) One pair at a new Reynolds number: geometry and mesh are unchanged, nu changes, so the cells are measured and only the iteration count is not. That is the exact defect the lab has been burned by twice, so the forecast own 3x planning multiplier applies and is labelled a guess, not a measurement: 4.2 core-min. (2) A second pair if the first lands inside the trained Re_y range and proves nothing: 4.2. (3) Feature extraction, variant D inference and one scoring call over 3025 + 8748 cells: post-processing on one core, priced at 3. Total 12. What this number does NOT cover, and what actually decides the item: the gate needs a DNS or LES counterpart at the new Reynolds number. The lab high-fidelity duct fields come from the benchmark clone, which ships U_LES only for the cases it uses (closure-challenge-benchmark/data/DUCT/{case}/0/U_LES), sourced from vinuesalab.com/duct. Obtaining a counterpart at a fourth Reynolds number costs no compute and may simply not be available; if it is not, the item ends at its own recorded risk and the 12 core-min are never spent. Price the data question before the solve.",
-      "gate": "A duct at a Reynolds number in neither the benchmark's training nor its test set is solved and its DNS/LES counterpart obtained or the case is abandoned with the reason recorded; variant D is then scored on it as a true held-out Reynolds transfer",
-      "expected_knowledge_gain": "Whether the velocity-scale normalisation actually transfers across Reynolds number, or whether round 4's gain was specific to these two cases. Either answer is publishable and the negative one retires the approach.",
-      "risk": "No high-fidelity duct data may be obtainable at a fourth Reynolds number, in which case the gate fails honestly and the claim stays where it is -- motivated by mechanism, unproven in transfer.",
-      "status": "approved",
-      "decided_at": "2026-08-01T00:18:12Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Status field was malformed and repaired at this pass."
     },
     {
       "id": "w7-cap-stopped-is-a-monitor-signature",
@@ -1372,10 +1357,11 @@
         "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
         "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T12:18:22Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "Already closed when this pass reached it, and verified by running the check rather than by reading that it exists. The clause is VERIFICATION_CHARTER.md section 11, In-sample is not generalization, which states the rule, names NASA_2DWMH as the live instance, draws the line at whether a scored case data reached anything fitted, selected, thresholded or stopped early, and requires the fitted list, the scored list and their disjointness in the artifact itself. The intake side is LITERATURE_CHARTER.md section 7, added in its version 1.1 on 2026-07-31 with the version note saying why it has to sit in both. The check is sdk/scripts/closure_in_sample_gate.py, cited from VERIFICATION_CHARTER section 12 and LITERATURE_CHARTER section 8. Run 2026-08-01: it derives the eight scored cases twice, once from the benchmark clone README split table and once from the repository round-1 case lists, refuses to proceed if the two disagree, and then reads every declared training, fitting, inversion and calibration set. Result: PASS, 0 declared sets contain a scored case, 0 structured declarations mention one in longer text, and 6 prose lines are surfaced for review with the file and line number on each, three of which are the honest records of the pre-registered hump choice and one of which is the S1 field-inversion note that caused the clause to be written. The remaining half of the proposal, the literature charter, was the part I expected to be open and it is not."
     },
     {
       "id": "w8-a-plausible-order-can-be-a-divergence",
@@ -1513,6 +1499,21 @@
       "well": "W3",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "c5-duct-velocity-scale-transfer",
+      "well": "W5",
+      "objective": "Give the duct correction a genuine Reynolds-transfer test by generating our own duct training data at a second Reynolds number",
+      "rationale": "Round 4 closed roughly a fifth of the duct deficit by removing an extrapolation the model was never trained through: Re_y reaches 1.85x and 2.07x its trained maximum on the two ducts we lose. The fix is validated for no-harm on every held-out set the rules permit, and none of those is a Reynolds-transfer test at a doubled velocity scale, because every duct the benchmark lets us fit on sits at Re_tau 164. That is the single missing piece of evidence in the whole duct line. Solving our own duct at a third Reynolds number -- not a test one -- would supply it, and would let us measure rather than argue whether the fix generalises. The leaders are still twice as good on both cases.",
+      "est_core_min": 12.0,
+      "predicted_memory_gb": 2.0,
+      "cost_basis": "REPRICED 2026-08-01 from zero, which was a misfiling: the objective is generating duct data at a second Reynolds number, and that is solver runs. Built from the lab own measured duct baselines in demo-output/website/dafoam/ladder-b/B2_duct_baseline.json, single rank, simpleFoam, wall-functioned quarter-duct: AR_1_Ret_360 converged at iteration 456 for 0.133 core-min on 3025 cells, AR_3_Ret_360 at iteration 1700 for 1.267 core-min on 8748 cells, so 1.40 core-min for the pair at Re_tau ~340. Components. (1) One pair at a new Reynolds number: geometry and mesh are unchanged, nu changes, so the cells are measured and only the iteration count is not. That is the exact defect the lab has been burned by twice, so the forecast own 3x planning multiplier applies and is labelled a guess, not a measurement: 4.2 core-min. (2) A second pair if the first lands inside the trained Re_y range and proves nothing: 4.2. (3) Feature extraction, variant D inference and one scoring call over 3025 + 8748 cells: post-processing on one core, priced at 3. Total 12. What this number does NOT cover, and what actually decides the item: the gate needs a DNS or LES counterpart at the new Reynolds number. The lab high-fidelity duct fields come from the benchmark clone, which ships U_LES only for the cases it uses (closure-challenge-benchmark/data/DUCT/{case}/0/U_LES), sourced from vinuesalab.com/duct. Obtaining a counterpart at a fourth Reynolds number costs no compute and may simply not be available; if it is not, the item ends at its own recorded risk and the 12 core-min are never spent. Price the data question before the solve.",
+      "gate": "A duct at a Reynolds number in neither the benchmark's training nor its test set is solved and its DNS/LES counterpart obtained or the case is abandoned with the reason recorded; variant D is then scored on it as a true held-out Reynolds transfer",
+      "expected_knowledge_gain": "Whether the velocity-scale normalisation actually transfers across Reynolds number, or whether round 4's gain was specific to these two cases. Either answer is publishable and the negative one retires the approach.",
+      "risk": "No high-fidelity duct data may be obtainable at a fourth Reynolds number, in which case the gate fails honestly and the claim stays where it is -- motivated by mechanism, unproven in transfer.",
+      "status": "approved",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Status field was malformed and repaired at this pass."
     },
     {
       "id": "agp-880b4f92bdc5",
