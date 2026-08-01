@@ -1748,24 +1748,45 @@ def main(request: str | None = None, params: dict | None = None,
         # can grant fewer slots than that: the old expression then took four
         # of three and the headroom table printed "Held back -2", which is a
         # negative count on camera and a broken promise in the same row. The
-        # grant is capped at one below capacity so a request to leave headroom
-        # always leaves some, and never falls below a single working slot.
+        # grant is capped at one below capacity, and never falls below a
+        # single working slot.
+        #
+        # THAT CAP DOES NOT MAKE THE PROMISE TRUE AT EVERY CAPACITY, and the
+        # comment here used to claim it did: "a request to leave headroom
+        # always leaves some". At capacity 1 the expression collapses to 1,
+        # because a slot floor and a headroom cap cannot both hold when the
+        # box has one slot. The narration went on promising headroom anyway
+        # and the table one line below read "Held back 0", contradicting it in
+        # the same frame. This is load-dependent, so it does not show on a
+        # quiet box: at capacity 12 the same code holds back 6, which is the
+        # beat the request exists to produce.
         granted = max(1, min(max(1, capacity.capacity - 1),
                              max(4, capacity.capacity // 2)))
+        held_back = capacity.capacity - granted
         # The compliance decision is a required output, not a nicety. The
         # request restricted a resource, so the run states in numbers what it
         # did about it, and the numbers land as a table rather than a sentence
-        # a viewer has to parse.
-        script.engineer(
-            "• You asked me to leave headroom, so I am not taking every "
-            "worker. "
-            "• Here is what I am holding back.")
+        # a viewer has to parse. WHAT THE SENTENCE SAYS IS READ OFF THE SAME
+        # COUNT THE TABLE PRINTS, so the two cannot disagree whatever the box
+        # is doing.
+        if held_back > 0:
+            script.engineer(
+                "• You asked me to leave headroom, so I am not taking every "
+                "worker. "
+                "• Here is what I am holding back.")
+        else:
+            script.engineer(
+                f"• You asked me to leave headroom, and the audit puts this "
+                f"box at capacity {capacity.capacity}. "
+                f"• Holding any of that back leaves nothing to work with, so "
+                f"there is no headroom to leave and I am not claiming any. "
+                f"• Here are the counts.")
         _emit_table(
             emit, script, title="Worker headroom",
             headers=["Slots", "Count"],
             rows=[["Available", f"{capacity.capacity}"],
                   ["Taken", f"{granted}"],
-                  ["Held back", f"{capacity.capacity - granted}"]],
+                  ["Held back", f"{held_back}"]],
             table_id="worker-headroom")
     if time_budget_min:
         script.engineer(

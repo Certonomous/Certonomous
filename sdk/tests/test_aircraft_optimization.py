@@ -233,7 +233,20 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(sorted(counts), ["Available", "Held back", "Taken"])
         self.assertEqual(counts["Taken"] + counts["Held back"],
                          counts["Available"])
-        self.assertGreater(counts["Held back"], 0)
+        self.assertGreaterEqual(counts["Held back"], 0)
+        # THE NARRATION MAY NOT CONTRADICT THE TABLE UNDER IT. How many slots
+        # this box has is a live host reading, so the count is not assertable
+        # and the AGREEMENT is: the act promises to hold workers back only
+        # when it is about to print a count that shows it did. This test used
+        # to assert Held back > 0 outright, and it failed on any box busy
+        # enough to audit at capacity 1 -- which is the same collapse that put
+        # "I am not taking every worker" one line above "Held back 0" on
+        # camera.
+        if counts["Held back"] > 0:
+            self.assertIn("not taking every worker", said)
+        else:
+            self.assertNotIn("not taking every worker", said)
+            self.assertIn("no headroom to leave", said)
 
 
 class ComputeLedgerAgreementTests(unittest.TestCase):
