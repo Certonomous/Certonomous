@@ -1560,6 +1560,113 @@ def check_declined_ladders_name_their_guard() -> Result:
                   f"them; {scope}", skipped)
 
 
+def check_order_window_declines_state_their_dimensionality() -> Result:
+    """VERIFICATION_CHARTER section 3.1 rule 3, which had no checker.
+
+    THE RULE. A ladder declined for an observed order outside the credible
+    window must have its dimensionality checked before the decline is
+    believed, because that is the one verdict the dimensionality assumption
+    can fabricate. Changing `dim` divides every observed order by exactly 1.5
+    and leaves a conclusive band and the extrapolated value untouched, so the
+    assumption cannot corrupt a number; it can only wrongly admit or wrongly
+    reject a ladder. Rules 1 and 2 of that section already have checkers
+    (`uq.ladder_band` raises on an unstated `dim`, and the field-set check
+    above reads `dim` off every stored study). Rule 3 had none.
+
+    THE CHECK, two parts, both zero compute.
+
+    1. A study declined with `order_window` among its failing guards must
+       carry a `dimensionality` block whose `dim` agrees with the one its fit
+       used, established from the case files rather than from the body's name,
+       with at least one piece of evidence named.
+    2. The same ladder is refit from its own stored rungs at the OTHER
+       dimensionality, and the report says whether `order_window` would flip
+       and whether the verdict would move with it. A flip that changes no
+       verdict is the ordinary case and is INFO; a flip that would make the
+       ladder conclusive is the case the charter exists to catch, and is a
+       fault, because a published decline would then rest on an assumption
+       rather than on the measurements.
+    """
+    try:
+        uq = _uq_module()
+    except Exception as exc:  # noqa: BLE001
+        return Result("order-window declines state their dimensionality", WARN,
+                      f"cannot import the fit: {type(exc).__name__}: {exc}")
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    problems, notes, checked = [], [], 0
+    for path in studies:
+        study = _load_json(path)
+        if not isinstance(study, dict):
+            continue
+        numerical = study.get("numerical") or {}
+        guards = numerical.get("guards")
+        if numerical.get("conclusive") is not False or not isinstance(
+                guards, dict) or guards.get("order_window") is not False:
+            continue
+        checked += 1
+        block = study.get("dimensionality")
+        if not isinstance(block, dict) or not block.get("evidence"):
+            problems.append(
+                f"{path.stem}: declined on order_window and states no "
+                f"dimensionality evidence, so the one verdict this "
+                f"assumption can fabricate rests on an unrecorded assumption; "
+                f"remedy: read the out-of-plane boundary types off this "
+                f"body's own archived case and record them; NO COMPUTE")
+            continue
+        if block.get("dim") != numerical.get("dim"):
+            problems.append(
+                f"{path.stem}: its dimensionality block says "
+                f"{block.get('dim')!r} and its fit used "
+                f"{numerical.get('dim')!r}")
+            continue
+        rungs = _study_rungs(study)
+        if rungs < 3:
+            notes.append(f"{path.stem}: stores {rungs} rungs, so the other "
+                         f"dimensionality cannot be read from this record")
+            continue
+        levels = study["levels"]
+        try:
+            cells = [float(level["cells"]) for level in levels]
+            values = [float(level["cd"]) for level in levels]
+        except (KeyError, TypeError, ValueError):
+            notes.append(f"{path.stem}: rungs are not readable as cells and "
+                         f"values")
+            continue
+        dim = int(numerical.get("dim") or 3)
+        other = 2 if dim == 3 else 3
+        try:
+            alt = uq.eca_hoekstra_band(cells, values, dim=other)
+        except Exception as exc:  # noqa: BLE001
+            notes.append(f"{path.stem}: refit at dim={other} raised "
+                         f"{type(exc).__name__}")
+            continue
+        flips = (alt.get("guards") or {}).get("order_window") is True
+        conclusive = bool(alt.get("conclusive"))
+        line = (f"{path.stem}: p = {numerical.get('observed_order')} at "
+                f"dim={dim}, {alt.get('observed_order')} at dim={other}; "
+                f"order_window {'would pass' if flips else 'still fails'} "
+                f"there, verdict "
+                f"{'would become conclusive' if conclusive else 'does not move'}")
+        if flips and conclusive:
+            problems.append(line + "; the decline rests on the "
+                            "dimensionality alone and the mesh has to settle "
+                            "it; NO COMPUTE")
+        else:
+            notes.append(line)
+    if problems:
+        return Result("order-window declines state their dimensionality", FAIL,
+                      f"{len(problems)} of {checked} order-window decline(s) "
+                      f"cannot be believed as they stand", problems + notes)
+    if not checked:
+        return Result("order-window declines state their dimensionality", PASS,
+                      "no stored ladder is declined on order_window")
+    return Result("order-window declines state their dimensionality", INFO,
+                  f"all {checked} order-window decline(s) name the "
+                  f"dimensionality their fit used and hold at the other one",
+                  notes)
+
+
 def check_campaign_json_citations() -> Result:
     """Machine-readable citations in the campaign records must resolve.
 
@@ -1632,6 +1739,7 @@ CHECKS = (
     check_campaign_json_citations,
     check_studies_carry_what_the_fit_records,
     check_declined_ladders_name_their_guard,
+    check_order_window_declines_state_their_dimensionality,
 )
 
 

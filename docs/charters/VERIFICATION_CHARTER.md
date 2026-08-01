@@ -156,6 +156,29 @@ Three rules follow, all of them checkable.
    dimensionality checked before the decline is believed.** That decline is
    the one verdict this assumption can fabricate, and it is the only one.
 
+**Rule 3 now has a checker, and it did not before.** Rules 1 and 2 were
+enforced from the day this section was written: the two fits raise on an
+unstated `dim`, and the stored study field check reads `dim` off every record.
+Rule 3 was the one written as checkable and left unchecked, which is how a
+rule becomes decoration. `check_order_window_declines_state_their_dimensionality`
+in `scripts/self_audit.py` requires every ladder declined on `order_window` to
+carry a dimensionality block established from its own case files, then refits
+that ladder from its own stored rungs at the other dimensionality and reports
+whether the guard would flip. A flip that would make the ladder conclusive is a
+fault, because the published decline would then rest on the assumption rather
+than on the measurements.
+
+**What it found, on the four stored ladders declined this way, 2026-08-01.**
+Two of the four would pass `order_window` if their meshes were two dimensional:
+ahmed_35 reads 3.169 at `dim=3` and 2.113 at `dim=2`, naca0012_wing 3.173 and
+2.115. Neither verdict moves, because each is held by a second guard that does
+not depend on dimensionality at all, and both meshes are established at three
+from their own `checkMesh` logs. The other two do not even flip:
+motorBike 7.298 and 4.865, naca4412_wing 10.467 and 6.978, outside the window
+read either way. So the assumption is currently deciding nothing on this
+corpus, which is the answer the check exists to produce and is worth exactly as
+much as the day it stops being true.
+
 **What this section does not license.** Refitting a ladder at a different
 dimensionality to move it across the window is falsification of the record
 unless the mesh itself says so. The justification is the blockMeshDict or the
@@ -933,6 +956,72 @@ label can no longer drift from the section that was solved.
    incidence, which costs nothing and is now an armed check on the alpha equal
    to zero anchor. P1 applies: run the cheapest control before publishing the
    attribution, not after.
+
+## 15. A tool-forensics line is closed by repair, not by correlation
+
+Sections 1 to 14 are about not believing a number. This one is about when to
+stop, which is the opposite failure and the more expensive one: a forensics
+line with no definition of done stops when the people on it get tired, and what
+is on the record then is a suspect rather than a cause.
+
+> **A root-cause claim about a tool is closed when the named line is changed,
+> every reproducer collapses, the controls that should not move do not move,
+> and something that should still be broken still is. Correlation, however
+> strong, closes nothing.**
+
+**Four conditions, and all four are load-bearing.**
+
+1. **The named line is repaired and the errors collapse.** Not improve.
+   Collapse, against pre-stated acceptance tests written before the patch ran.
+   A repair that halves an error is consistent with the named line being one of
+   several causes, which is not the claim being closed.
+2. **Invariance controls stay bit-identical.** The paths the fix does not
+   touch produce the same bytes they produced before. Without this a collapse
+   is indistinguishable from a change that quietly moved everything.
+3. **The primal is proven untouched, by checksum rather than by argument.**
+   A derivative fix that also moves the solution is not a derivative fix.
+4. **At least one thing that should NOT be fixed is checked and is still
+   broken.** This is the condition that separates a cause from a fix that
+   zeroes the comparison. A patch that repaired everything, including the
+   failures the diagnosis says have a different mechanism, would refute the
+   diagnosis while looking like the strongest possible confirmation of it.
+
+**The worked example: the mesh-warp derivative arc, sections 15 to 24 of
+`demo-output/website/dafoam/PROOF.md`.** Nine sessions narrowed a wrong adjoint
+gradient to one discarded term in one degenerate branch of a generated reverse
+routine. The derivation went on the record before any code was written, the
+patch is four assignments in a scratch clone with no installed package touched,
+and all four conditions were then met on the same day:
+
+* **Collapse, against five acceptance tests stated in advance.** Upstream
+  issue 57's `inflate_cube` went 210.16 percent and 212.62 percent to
+  **8.6e-06 and 3.4e-05 percent**. A1's real seed went 634 percent with a sign
+  flip, 1.74, 11.9 and 11.6 percent to **5.5e-04, 1.3e-06, 1.2e-05 and
+  1.3e-05 percent**. The A5 pressure-loss seed's two sign flips, 207.0 and
+  121.6 percent, came back at **3.0e-06 and 7.0e-06 with the signs agreeing**.
+  The worst of A5's 27 stock modes went 80.79 percent to **0.0000, all 27**.
+* **Controls bit-identical.** The shear regression set logs the same bytes
+  patched and unpatched; the live branch was never entered.
+* **Primal untouched, by checksum.** The full 310,284-coordinate warped grid is
+  md5-identical patched against unpatched, `max|diff| = 0.0`.
+* **Something still broken, on purpose.** The ONERA M6 second-regime error of
+  1.26 percent **survives the patch unchanged**, which is what a
+  degenerate-branch-only fix predicts and what a fix that merely zeroed the
+  comparison could not have produced. In the same pass the half-failed
+  rigid-translation control of section 23 collapsed from 1.7 and 2.8 percent to
+  **4e-09 and 6e-09**, which turns its patch-junction attribution from an
+  argument into a result.
+
+`demo-output/website/dafoam/PATCH_getRotationMatrix3d.md` carries the
+derivation, two independent hand sign checks and a standalone controlled
+experiment with a known answer.
+
+**What this clause does not license.** A repair proves a cause; it does not
+license reporting the repaired numbers as the lab's own results. The patch
+above lives in a scratch clone, nothing upstream has been filed, and every
+figure in this section is labelled as a patched-versus-unpatched comparison
+rather than as a validated gradient. Section 8 still governs what may be
+claimed from any of it.
 
 ## Related
 
