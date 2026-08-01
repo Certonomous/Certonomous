@@ -1,0 +1,130 @@
+{
+ "rung": "w2-sparta-frozen-rans-cbfs",
+ "date_utc": "2026-08-01",
+ "paper": "Schmelzer, Dwight & Cinnella, Flow Turb. Combust. 104:579-603 (2020), DOI 10.1007/s10494-019-00089-x",
+ "preregistration": "W2_SPARTA_PREREGISTRATION.md (committed before any solve)",
+ "convention_primary": "unweighted cell mean, whole internal field; eps(U) 3-component; eps(tau) Frobenius, off-diagonals twice",
+ "published_table1": {
+  "CBFS": {
+   "ratio_U": 0.22703,
+   "ratio_tau": 0.4949
+  },
+  "PH": {
+   "ratio_U": 0.00165,
+   "ratio_tau": 0.1495
+  }
+ },
+ "measured": {
+  "CBFS": {
+   "graded_checkpoint": 15000,
+   "primary": {
+    "eps_U_baseline": 0.0018476273812599124,
+    "eps_U_recon": 0.0007344798969831792,
+    "ratio_U": 0.3975259862637082,
+    "eps_tau_baseline_frobenius": 2.3089574286081992e-05,
+    "eps_tau_recon_frobenius": 6.042459973834787e-07,
+    "ratio_tau_frobenius": 0.026169646520841573,
+    "eps_tau_baseline_6comp": 2.1915576343816875e-05,
+    "eps_tau_recon_6comp": 5.494247650727165e-07,
+    "ratio_tau_6comp": 0.02507005777321151
+   },
+   "secondary_volume_weighted": {
+    "eps_U_baseline": 0.0007297174475597785,
+    "eps_U_recon": 0.00020165050184042373,
+    "ratio_U": 0.27634052401344633,
+    "eps_tau_baseline_frobenius": 9.960536035843316e-06,
+    "eps_tau_recon_frobenius": 2.2612006372242763e-07,
+    "ratio_tau_frobenius": 0.022701595868809384,
+    "eps_tau_baseline_6comp": 9.404897611880691e-06,
+    "eps_tau_recon_6comp": 2.047469115322765e-07,
+    "ratio_tau_6comp": 0.021770243545621484
+   },
+   "tau_no_bDelta_diagnostic": {
+    "unweighted": 0.51574,
+    "volume_weighted": 0.4785
+   }
+  },
+  "PH": {
+   "graded_checkpoint": 10000,
+   "primary": {
+    "eps_U_baseline": 0.01144803432067769,
+    "eps_U_recon": 3.813684538494705e-05,
+    "ratio_U": 0.003331300755804291,
+    "eps_tau_baseline_frobenius": 0.0007907517854299278,
+    "eps_tau_recon_frobenius": 2.6683904504328667e-07,
+    "ratio_tau_frobenius": 0.0003374498166933731,
+    "eps_tau_baseline_6comp": 0.0007564957785716011,
+    "eps_tau_recon_6comp": 2.4283539336568603e-07,
+    "ratio_tau_6comp": 0.0003210003284145254
+   },
+   "secondary_volume_weighted": {
+    "eps_U_baseline": 0.009869696602463925,
+    "eps_U_recon": 1.237133246427445e-05,
+    "ratio_U": 0.00125346633869029,
+    "eps_tau_baseline_frobenius": 0.0008137321748699021,
+    "eps_tau_recon_frobenius": 2.580660311153594e-07,
+    "ratio_tau_frobenius": 0.00031713878237224486,
+    "eps_tau_baseline_6comp": 0.000771091776202407,
+    "eps_tau_recon_6comp": 2.3216165419182284e-07,
+    "ratio_tau_6comp": 0.0003010817406654351
+   },
+   "tau_no_bDelta_diagnostic": {
+    "unweighted": 0.41802,
+    "volume_weighted": 0.3756
+   }
+  }
+ },
+ "grades": {
+  "CBFS_U": {
+   "docket_gate_factor2": "PASS",
+   "tightened_pm25": "NEAR MISS",
+   "value": 0.3975259862637082
+  },
+  "CBFS_tau": {
+   "tightened_pm25": "outside band, 19x better than published; convention finding in record"
+  },
+  "PH_U": {
+   "preregistered_band_lt_0.005": "HIT",
+   "value": 0.003331
+  },
+  "PH_tau": {
+   "tightened_pm25": "outside band, 440x better than published; convention finding in record"
+  }
+ },
+ "frozen_convergence": {
+  "CBFS": {
+   "iterations": 295,
+   "cpu_s": 6.2
+  },
+  "PH": {
+   "iterations": 1243,
+   "cpu_s": 12.0
+  }
+ },
+ "sign_experiments": {
+  "E1_k_equation": {
+   "CBFS": {
+    "plus": 2.14e-05,
+    "minus": 507.1
+   },
+   "PH": {
+    "plus": 0.0658,
+    "minus": 0.999
+   }
+  },
+  "E2_propagation_500it": {
+   "correct": {
+    "ratio_U": 0.448
+   },
+   "RScale_-1": {
+    "ratio_U": 16.6
+   },
+   "bScale_-1": {
+    "ratio_U": 0.889
+   }
+  }
+ },
+ "in_sample_gate": "PASS before (00:04 UTC) and after (00:52 UTC)",
+ "cost_core_min_measured": 27.7,
+ "cost_core_min_approved": 60
+}
