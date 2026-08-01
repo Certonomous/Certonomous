@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T07:00:21+00:00",
+ "generated_at": "2026-08-01T07:05:07+00:00",
  "proposals": [
   {
    "id": "w5-decide-what-cannot-be-submitted",
@@ -516,10 +516,11 @@
     "demo-output/website/tmr/flatplate_sst.json",
     "docs/charters/COMPUTE_BUDGET_CHARTER.md"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T20:18:26Z",
-   "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decided_at": "2026-08-01T07:05:07+00:00",
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "outcome": "Measured the gap before writing the rule: 32 of 37 rung-shaped compute proposals on the docket name a cell count and no iteration count, and 26 of those are still unstarted, the largest at 400 core-minutes. The drafter that emitted most of them wrote 'the finest rung holds N cells and the next roughly doubles it' and stopped there, because a stored ladder records cells per rung and no iterations at all, so it could only price the grid. It now says that out loud in every cost basis it writes. The compute charter gains the clause, backed by the ledger fit rather than by caution: wall time carries an exponent of essentially 1 on iterations in both families that record them, 1.156 on time steps and 1.026 on SIMPLE iterations, while within-family cell exponents are small because cells barely vary inside a family, so the term that overruns is the term nobody was writing down. The flat plate is the worked case at 483.6 core-minutes against 327, a factor of 1.48, all of it settling: asked for 15,000 iterations, settled at 36,000, and 202.7 core-minutes went on a first pass the module then refused. A weekly audit check now counts the gap and clears at no compute, because the settling curves are already in the logs those rungs wrote."
   },
   {
    "id": "w2-tbnn-sparta-readings",

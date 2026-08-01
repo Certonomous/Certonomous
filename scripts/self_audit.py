@@ -1855,6 +1855,71 @@ def check_bundle_drift() -> Result:
                   f"match the tree byte for byte")
 
 
+_RUNG_SHAPED = re.compile(
+    r"\brung\b|\bladder\b|refinement|grid[\s-]convergence|finest grid", re.I)
+_ITERATION_TERM = re.compile(
+    r"\biterat|\bsteps?\b|\bsweeps?\b|endTime|time step", re.I)
+
+
+def check_rung_estimates_state_their_iterations() -> Result:
+    """A refinement rung priced by its cells alone is priced by half.
+
+    THE DEFECT. The flat plate's finest rung came in at 1.48x its estimate and
+    the entire overrun was settling: it was asked for 15,000 iterations, read
+    1.05 percent above its settled value with the coefficient still falling,
+    and took 36,000. Its cells were estimated correctly. Nothing in the
+    estimate asked how long that grid takes to settle.
+
+    WHY THE OMISSION IS THE EXPENSIVE HALF, measured rather than asserted. On
+    this lab's own ledger (`demo-output/website/mega-batch/COST_SCALING.md`),
+    wall time carries an exponent of essentially one on iterations in both
+    families that record them, 1.156 on time steps and 1.026 on SIMPLE
+    iterations, while the within-family cell exponents are small because cells
+    barely vary inside a family. The term that overruns is the term nobody
+    writes down.
+
+    THE CHECK. Every compute proposal on the docket whose objective or
+    rationale is rung-shaped must have a `cost_basis` that names an iteration,
+    step or sweep count. This never blocks a proposal: it counts them, so the
+    gap is a number on a report rather than a surprise on a run.
+    """
+    docket = _load_json(REPO / "demo-output" / "website" / "agenda"
+                        / "docket.json")
+    proposals = (docket.get("proposals") if isinstance(docket, dict)
+                 else docket) or []
+    if not isinstance(proposals, list):
+        return Result("rung estimates state their iterations", WARN,
+                      "the docket did not parse as a list of proposals")
+    rung, silent = [], []
+    for proposal in proposals:
+        if not isinstance(proposal, dict) or not proposal.get("est_core_min"):
+            continue
+        text = f"{proposal.get('objective', '')} {proposal.get('rationale', '')}"
+        if not _RUNG_SHAPED.search(text):
+            continue
+        rung.append(proposal)
+        if not _ITERATION_TERM.search(str(proposal.get("cost_basis") or "")):
+            silent.append(proposal)
+    if not rung:
+        return Result("rung estimates state their iterations", PASS,
+                      "no rung-shaped compute proposal is on the docket")
+    live = [p for p in silent if p.get("status") in ("proposed", "approved")]
+    detail = [f"{p.get('id')}: {p.get('status')}, {p.get('est_core_min')} "
+              f"core-min, basis prices the grid only"
+              for p in sorted(live, key=lambda p: -float(
+                  p.get("est_core_min") or 0))[:12]]
+    detail.append(
+        f"{len(silent)} of {len(rung)} rung-shaped compute proposal(s) name no "
+        f"iteration count; {len(live)} of those are still proposed or approved")
+    if live:
+        return Result("rung estimates state their iterations", WARN,
+                      f"{len(live)} unstarted rung estimate(s) price the grid "
+                      f"and not the settling", detail)
+    return Result("rung estimates state their iterations", PASS,
+                  f"every unstarted rung estimate names an iteration count; "
+                  f"{len(rung)} rung-shaped proposal(s) read", detail)
+
+
 # --------------------------------------------------------------------------
 # What clearing each finding costs
 # --------------------------------------------------------------------------
@@ -1971,6 +2036,12 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "read the out-of-plane boundary types off the body's own archived "
         "case and record them on the study",
         False, "reading a boundary file and a checkMesh log"),
+    "check_rung_estimates_state_their_iterations": (
+        "state the iteration count each rung estimate assumes and the evidence "
+        "for it, or record that the ladder stores no iterations so the figure "
+        "prices the grid alone",
+        False, "the settling curves are in the logs those rungs already "
+               "wrote; reading them is not a solve"),
     "check_bundle_drift": (
         "rebuild the bundle from the tree and verify by rendering from inside "
         "it rather than by diffing",
@@ -2038,6 +2109,7 @@ CHECKS = (
     check_declined_ladders_name_their_guard,
     check_order_window_declines_state_their_dimensionality,
     check_bundle_drift,
+    check_rung_estimates_state_their_iterations,
     check_every_finding_prices_its_remedy,
 )
 

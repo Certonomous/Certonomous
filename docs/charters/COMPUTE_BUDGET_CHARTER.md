@@ -111,6 +111,40 @@ which `cost_basis` must label as defaults:
 | One ladder rung | 20 |
 | A benchmark-resource bump | 30 |
 
+**A rung estimate states the iteration count it assumes, and the evidence for
+it.** The default above prices one rung. It does not say how long that rung
+takes to settle, and settling is the half that overruns.
+
+The flat plate's finest rung came in at **483.6 core-minutes against 327, a
+factor of 1.48**, and the whole overrun was iterations: it was asked for 15,000,
+read 1.05 percent above its settled value with the coefficient still falling by
+1.04e-5 per thousand, and took 36,000 to settle. Its cells were estimated
+correctly. Nothing in the estimate asked about the settling, and 202.7 of those
+483.6 core-minutes went on a first pass the module then refused.
+
+**This is measured, not a caution.** Fitted from the mega-batch ledger,
+`demo-output/website/mega-batch/COST_SCALING.md`: wall time carries an exponent
+of essentially one on iterations in both families that record them, 1.156 on
+time steps and 1.026 on SIMPLE iterations, while the within-family cell
+exponents are small because cells barely vary inside a family. **The term that
+overruns is the term nobody was writing down.**
+
+Three consequences, all checkable before compute is spent:
+
+1. **A rung estimate names its assumed iteration count and where the number
+   comes from**: the settling curve of the rung below, the solver's own
+   `residualControl` history, or the configured cap, and which of the three.
+2. **A ladder that stores no iterations per rung says so in its cost basis.**
+   The docket drafter for a refinement rung writes that sentence itself, because
+   a stored study records cells per rung and no iterations at all, so the
+   drafter can price the grid and nothing else. An omission stated is a question
+   somebody can answer before the rung is queued.
+3. **`scripts/self_audit.py` counts the gap weekly**
+   (`check_rung_estimates_state_their_iterations`). At this clause's writing,
+   **32 of 37 rung-shaped compute proposals on the docket name no iteration
+   count and 26 of those are still unstarted**, the largest at 400
+   core-minutes.
+
 **Session budgets are stated as three numbers, not one.** Core-minutes, cores,
 and memory. The real form, from the record: a 40 core-minute budget at 3 cores
 and 4 GB. Container-enforced where the work runs in one, with explicit `--cpus`

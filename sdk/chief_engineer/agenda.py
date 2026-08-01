@@ -573,6 +573,23 @@ def draft_gate_proposals() -> list[dict]:
             cells_note = (f"the finest rung holds {int(top_cells):,} cells "
                           f"and the next roughly doubles it"
                           if top_cells else "the next rung refines further")
+            # THE HALF THIS DRAFTER CANNOT PRICE, AND NOW SAYS SO. Every
+            # proposal it has ever emitted priced the grid, because a stored
+            # ladder records cells per rung and records no iterations at all.
+            # The flat plate's finest rung came in at 1.48x its estimate and
+            # the whole overrun was settling: it was asked for 15,000
+            # iterations and took 36,000. Measured on this lab's own ledger,
+            # cost carries an exponent of essentially one on iterations, in
+            # both families that record them, while cells barely vary within a
+            # family. So the term that overruns is exactly the term nobody was
+            # writing down, and an omission stated is a question somebody can
+            # answer before the rung is queued.
+            iteration_note = (
+                "the iteration count is NOT priced here: this ladder stores "
+                "cells per rung and no iterations, and measured cost rises "
+                "about linearly with iterations while cells barely move within "
+                "a family, so this figure prices the grid alone and the "
+                "settling is the term that can overrun")
             proposal = _proposal(
                 objective=f"Add a {next_rung} refinement rung to the {body} "
                           f"grid ladder",
@@ -582,7 +599,7 @@ def draft_gate_proposals() -> list[dict]:
                            f"settle the observed order."),
                 citations=[f"{body} grid-refinement study"],
                 est_core_min=_EST_LADDER_RUNG_CORE_MIN,
-                cost_basis=f"estimate; {cells_note}",
+                cost_basis=f"estimate; {cells_note}. {iteration_note}",
                 expected_knowledge_gain=(
                     f"A conclusive observed order and a tighter numerical "
                     f"band for the {body} drag"),
