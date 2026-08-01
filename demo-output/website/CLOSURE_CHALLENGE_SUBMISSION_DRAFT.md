@@ -488,7 +488,7 @@ steward's own scoring differs from ours, the steward's number is the number.
 ### 5.4 Draft cover email — DRAFT, NOT SENT
 
 > **To:** rmcconke@mit.edu
-> **Subject:** Closure Challenge submission — Certonomous (overall 0.0676)
+> **Subject:** Closure Challenge submission — Certonomous (overall 0.0654)
 >
 > Dear Dr McConkey,
 >
@@ -499,8 +499,9 @@ steward's own scoring differs from ours, the steward's number is the number.
 > Reference: [repository or write-up URL — Katie to fill].
 >
 > Our overall score under the benchmark's unmodified scorer (package commit
-> `1c4e22c8`, benchmark commit `deb91557`) is **0.0676**, against a RANS-identity
-> floor of 0.1036 reproduced on the same harness.
+> `1c4e22c8`, benchmark commit `deb91557`) is **0.0654**, against a baseline of
+> 0.1036 obtained by submitting the supplied RANS fields unchanged, computed by us
+> on the same harness — this figure is ours, not one the benchmark publishes.
 >
 > Three things we would rather state up front than have found:
 >
@@ -508,10 +509,14 @@ steward's own scoring differs from ours, the steward's number is the number.
 >    converged RANS solution. It does not modify the turbulence model and nothing is
 >    re-solved with the correction folded in.
 > 2. On `alpha_05_4071_4048` and `alpha_05_4071_2024`, our submitted field **is the
->    unmodified baseline RANS solve.** A decline gate — fitted on 21 training cases,
->    validated on 4 held-out validation cases, never on a test case — determined that
->    correcting those cases would make them worse, and withheld the correction. Where
->    those entries score well, the credit belongs to the baseline, not to our model.
+>    unmodified baseline RANS solve** — byte-equivalent to it, which we verified rather
+>    than assert. A decline gate — fitted on 21 training cases, validated on 4 held-out
+>    validation cases, never on a test case — determined that correcting those cases
+>    would make them worse, and withheld the correction. **Where those entries score
+>    well, the credit belongs to the baseline, not to our model**, and we ask that they
+>    not be read as our result. We note in passing that those are also the only two test
+>    cases on which the uncorrected baseline is better than every entry currently on the
+>    leaderboard, which may be of more interest to you than our own score is.
 > 3. The attached description document sets out our full disclosure, including the
 >    fact that the *motivation* for building that gate came from observing our own
 >    per-case preview scores in an earlier round, and that we identified and declined a
@@ -635,6 +640,148 @@ round-3 CSVs remain 1000×3, finite, header-free, and SHA-256-matched to their m
 All four accepted submissions re-score to their published leaderboard values exactly on
 this harness, per-case and overall, which is the strongest available evidence the
 harness is being driven correctly.
+
+---
+
+## 8. ADDENDUM 2026-08-01 — the duct claim re-derived, the declining rows re-described, and a third refusal
+
+Three tasks were carried this session: verify the duct-input claim against the data
+rather than inherit it; establish what the decline gate actually does on the two cases
+we "win" by declining and whether our description of them survives scrutiny; and improve
+the score honestly if it could be done. **Zero official scoring calls were made. The
+entry of record is unchanged at 0.0654 and no number in it moved.**
+
+### 8.1 The duct-input claim: VERIFIED, and worse than we published
+
+Record: `closure_challenge_duct_feature_degeneracy.json`, produced by
+`sdk/scripts/closure_duct_feature_degeneracy.py`. Measured on all eight duct cases (4
+training, 1 validation, 3 test), from the RANS field and mesh only; ground truth read
+for the four suggested training ducts alone, asserted in code.
+
+**The zeros reproduce.** `I3_S3` and `I4_W2S` are zero on every duct, expressed as
+*relative* residuals so the verdict does not rest on a raw magnitude — worst case
+2.8×10⁻¹⁵ against `I1^1.5`.
+
+**Two identities we had never recorded also hold.** `I2_W2 = −I1_S2` **bit-exactly**
+(residual 0.0 on all eight cases) and `I5_W2S2 = −I1_S2²/2` to 3.5×10⁻¹⁶.
+**Five of the seven features carry one independent degree of freedom on a duct, not
+five.** The effective input dimension is 3, or 4 once round 4's `d/d_max` is added.
+Disclosure item 6 of §5.3 — already replaced once by §7.1 — understates the defect and
+must be restated at this size.
+
+**The mechanism, which we had not identified.** The baseline k-ω SST duct solve is
+*exactly unidirectional*: maximum transverse |U| is ~10⁻¹⁵ against O(10) streamwise,
+because a linear eddy-viscosity closure generates no secondary flow in a straight duct.
+`gradU` is then a rank-one pure-shear tensor and every invariant of it reduces to a
+function of one shear magnitude. **The degeneracy is a property of the baseline we are
+correcting, not of duct geometry** — the DNS duct field does carry secondary flow.
+Control: on the four periodic-hill test cases the same four residuals run from
+2.5×10⁻³ to 9.1×10⁻¹, so nothing is degenerate there and the test is not vacuous.
+
+**The causal half stays refuted, now independently.** The identities hold in identical
+measure on `AR_14_Ret_180`, the duct the entry scores best on the board on. This
+reconfirms §7.1 rather than inheriting it.
+
+**A hypothesis of our own, tested and killed.** Every feature is an O(3) invariant of
+`gradU`, or a wall distance — all invariant under the y↔z swap that maps the square
+duct's evaluation quadrant onto itself. Any `f(features)` must therefore emit the same
+vector at a point and its mirror while the truth swaps two components, which looked like
+a hard error floor built in by construction. Measured on `AR_1_Ret_180`: the unreachable
+component is **0.012% of the correction's energy** (0.0012 in scaled-MAE units against a
+0.107 floor), because the true field respects the same symmetry the features do.
+**Refuted, and shipped refuted.**
+
+**What binds instead is transfer, and the feature set is not the constraint in-family.**
+A k-NN conditional-variance bound on the four training ducts puts the reachable error at
+0.011–0.027 against floors of 0.069–0.107. Inside the trained Reynolds number these
+features retain ample information. The binding constraint remains the one §7.1 found:
+`Re_y` reaches 1.85× and 2.07× its trained maximum on the two ducts we trail and 0.90×
+on the one we do not, and no legal test of Reynolds transfer at a doubled velocity scale
+exists inside this benchmark.
+
+### 8.2 The two declining rows: what the gate does, and why "best on board" had to go
+
+Record: `closure_challenge_decline_gate_audit.json`, produced by
+`sdk/scripts/closure_decline_gate_audit.py`. Zero scoring calls; no test ground truth
+read; all scores carried across from the round-4 record rather than recomputed.
+
+**What the gate does: it emits no prediction at all.** The submitted field on both
+declined cases was re-derived independently from the benchmark's own supplied k-ω SST
+field and mesh, interpolated to the 1000 evaluation points, and diffed against the
+shipped CSV: **maximum deviation 5.0×10⁻¹⁰, which is the CSV's own `%.10g` write
+precision.** The same test on the two periodic-hill cases the gate *applied* to returns a
+deviation of 12% of the local velocity scale, so the test discriminates and is not
+vacuously true.
+
+**"Best on board" is not defensible as a headline, and the count of five was worse.**
+0.0461 and 0.0719 are properties of a file the organisers hand every entrant. Anyone
+submitting it unchanged scores identically. Those values rank *the baseline* above the
+field; they do not rank *us* above anyone. The honest count of the eight cases is:
+
+| Attribution | Count | Cases |
+| --- | --- | --- |
+| Our model, clear lead | **2** | `alpha_15_13929_4048`, `alpha_15_13929_2024` |
+| Our model, nominal lead only (0.00003) | 1 | `AR_14_Ret_180` |
+| **The baseline led; the gate withheld our model** | **2** | `alpha_05_4071_4048`, `alpha_05_4071_2024` |
+| Behind | 3 | `AR_1_Ret_360`, `AR_3_Ret_360`, `NASA_2DWMH` |
+
+**What *is* defensible, and it is a better finding than the one it replaces.** Crossing
+the recorded per-case floor against the published per-case leaderboard: **on exactly two
+of the eight test cases the uncorrected baseline beats all four published entries — and
+they are exactly the two the gate declined.** The gate chose them from 21 training cases,
+validated on 4 non-test cases, having never seen a test case. **The claim is about the
+selection, not the score:** a train-only rule identified, blind, the two flows on which
+every published method in the field damages the answer. That is also a finding about the
+benchmark that the steward may value more than our own number, and §5.4's cover email now
+says so.
+
+**Action taken.** `closure.html`'s headline KPI ("5 of 8 test cases where we lead"), its
+per-case table and its tags were rewritten; the two rows are now marked "BASELINE, NOT
+OUR MODEL", an uncorrected column was added so a reader can check the attribution
+themselves, and the page states in its own voice that the previous wording was true
+arithmetic and misleading attribution. **§4.7 called this the highest-priority disclosure
+item; it is now stated in the body of the page rather than in a note beneath it.**
+
+**One further false sentence found and fixed.** The page's scoring-call KPI read *"the
+benchmark's answers were never used to tune"*, which contradicts our own disclosed record
+that round 2's per-case scores motivated building the gate (§4.3). It now states that no
+parameter was ever fitted to a test score but that one score did change what we built
+next. The footer's `v0.2.1` was also replaced by the commit hash, closing §5.6 item 3 on
+the public page as well as in the manifest.
+
+### 8.3 Improving the score: one improvement was available and is refused
+
+On `NASA_2DWMH` our correction is **worse than not correcting**: 0.0632 against a floor
+of 0.0621. Submitting the untouched solve there is one file copy and breaks no benchmark
+rule. **It is worth about 0.00014 overall** — 0.06543 → 0.06529, arithmetic on our own
+recorded per-case values, *not* a new scoring call, and not enough to change our position
+against any entrant.
+
+**We are not taking it.** The only reason to single out that one case is that the
+benchmark told us its score. Choosing what to submit case by case from the answer key is
+precisely what the one strict rule exists to prevent, and it is the same objection that
+left the 0.0066 of §4.2 and the `AR_14_Ret_180` regression of §7.1 standing.
+**This is the third such refusal on the record and the smallest of the three.** It is
+stated on `closure.html` in the lab's own voice rather than left in this file.
+
+No other honest improvement was attempted. The remaining gap lives in the ducts —
+matching the best published entry on the two aspect ratios we trail is worth about 0.011,
+more than the entire gap to rank 1 — and every move now visible there is either
+contaminated by knowledge of per-case test outcomes or needs evidence this benchmark
+cannot supply. A follow-on has been filed to the docket instead
+(`closure-duct-tensor-basis-carrier`): the scalar-invariant feature set is provably
+three-dimensional on a duct, whereas the tensor basis is not — measured on two duct
+training cases, the second basis tensor carries 1.87–2.36× the norm of the first, with
+71% of its magnitude and 91% of the third tensor's in the transverse block that generates
+secondary flow. That is a specific structural argument for the duct family belonging to a
+tensor-basis ansatz, and the machinery to build one was measured working on this hardware
+earlier the same day.
+
+### 8.4 What this does not change
+
+The entry of record, its score, its CSVs and its hashes are untouched. The in-sample gate
+passes (0 failures; 6 benign review lines, all read). Nothing was submitted, no account
+created, no one contacted. Items 4 and 5 of §5.6 remain Katie's and remain outstanding.
 
 ---
 

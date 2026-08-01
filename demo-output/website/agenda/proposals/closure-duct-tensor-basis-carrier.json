@@ -1,0 +1,18 @@
+{
+ "id": "closure-duct-tensor-basis-carrier",
+ "objective": "Replace the duct correction's scalar-invariant inputs with a tensor-basis carrier, because the invariants are provably three-dimensional on a duct while the basis tensors are not, and grade it on the suggested duct validation case before any test score exists",
+ "rationale": "Re-derived this session on all eight duct cases: the third scalar invariant and the fourth are zero to machine precision, the second is the exact negative of the first to the last bit, and the fifth is minus half the first squared to three parts in ten thousand million million. Five of the seven inputs therefore carry one independent number on a duct, because the baseline solve is exactly unidirectional and its velocity-gradient tensor is pure shear. The current duct model predicts three Cartesian correction components from those scalars, so it has no carrier of direction at all. The tensor basis does: measured on two duct training cases, the second basis tensor has 1.87 to 2.36 times the norm of the first, and 71 percent of its magnitude and 91 percent of the third tensor's sits in the transverse block, which is the block that generates the secondary flow a linear eddy-viscosity model omits. That is the specific structural reason the duct family belongs to the tensor-basis ansatz rather than to a scalar regression, and the sparse regression machinery to build one was measured working on this hardware earlier today. The duct deficit is where the remaining gap to first place lives: matching the best published entry on the two aspect ratios we trail would move the overall score by about 0.011, which is more than the whole gap.",
+ "citations": [
+  "Closure challenge duct feature degeneracy audit, this lab, 2026-08-01",
+  "Closure challenge duct Reynolds transfer record, this lab, 2026-07-31",
+  "Schmelzer, Dwight and Cinnella, Flow Turbulence and Combustion 2020",
+  "W2 SpaRTA regression campaign record, this lab, 2026-08-01"
+ ],
+ "est_core_min": 120,
+ "predicted_memory_gb": 2.0,
+ "cost_basis": "estimate anchored to measured runs on this hardware: the SpaRTA regression rung measured 137 core-minutes for two frozen cases plus nine propagations, and the duct meshes are far smaller than the cases it timed, at 2,209 to 31,819 cells against the curved step and periodic hill it settled",
+ "expected_knowledge_gain": "Whether the duct deficit is a limitation of the scalar-invariant input set or of Reynolds transfer, which the current record cannot separate because every duct the rules permit fitting on sits at one Reynolds number",
+ "source_kind": "gate",
+ "status": "proposed",
+ "created_at": "2026-08-01T07:20:00+00:00"
+}

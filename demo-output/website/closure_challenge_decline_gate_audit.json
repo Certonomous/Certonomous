@@ -1,0 +1,159 @@
+{
+  "generated_at": "2026-08-01T06:56:42.408272+00:00",
+  "official_scoring_calls_made_by_this_script": 0,
+  "test_case_ground_truth_read": false,
+  "scores_are_carried_across_not_recomputed": true,
+  "source_of_scores": "closure_challenge_trained_entry_round4_duct.json (harness call #5)",
+  "leaderboard_source": "closure-challenge-benchmark README at commit deb91557",
+  "leaderboard_dated": "2026-08-01",
+  "ar_14_precision_note": "AR_14_Ret_180 taken at the full precision recorded in closure_challenge_trained_entry_round4_duct.json (leaderboard_comparison_dated_2026_07_31.duct_rank_change), 0.0324698, because the 4-dp rounding is coarser than the 0.00003 margin itself.",
+  "what_the_gate_actually_submits": {
+    "per_case": {
+      "alpha_05_4071_4048": {
+        "gate_decision": "DECLINE",
+        "max_abs_deviation_from_rans_identity": 4.990901034020407e-10,
+        "mean_deviation_as_fraction_of_local_velocity_scale": 1.2304757777024486e-10,
+        "is_the_untouched_baseline": true
+      },
+      "alpha_05_4071_2024": {
+        "gate_decision": "DECLINE",
+        "max_abs_deviation_from_rans_identity": 4.992748738575579e-10,
+        "mean_deviation_as_fraction_of_local_velocity_scale": 1.6021546988434218e-10,
+        "is_the_untouched_baseline": true
+      },
+      "alpha_15_13929_4048": {
+        "gate_decision": "APPLY",
+        "max_abs_deviation_from_rans_identity": 0.35407496035231856,
+        "mean_deviation_as_fraction_of_local_velocity_scale": 0.12479243676057532,
+        "is_the_untouched_baseline": false
+      },
+      "alpha_15_13929_2024": {
+        "gate_decision": "APPLY",
+        "max_abs_deviation_from_rans_identity": 0.2682644329527686,
+        "mean_deviation_as_fraction_of_local_velocity_scale": 0.12742765242563478,
+        "is_the_untouched_baseline": false
+      }
+    },
+    "csv_write_precision": "%.10g",
+    "finding": "On both declined cases the shipped CSV is the benchmark's own supplied k-omega SST field, nearest-neighbour interpolated to the 1000 evaluation points; the residual is ~5e-10, which is the CSV's own write precision and not a model output. On the two periodic-hill cases the gate applied to, the same test returns a deviation of ~12% of the local velocity scale, so the test discriminates."
+  },
+  "baseline_versus_the_published_field": {
+    "per_case": {
+      "alpha_15_13929_4048": {
+        "ours": 0.0501,
+        "rans_identity_floor": 0.132,
+        "best_published": 0.0592,
+        "best_published_by": "Reissmann, Fang, and Sandberg",
+        "floor_beats_every_published_entry": false,
+        "our_submission_is_the_untouched_baseline": false,
+        "attribution": "our model, clear lead",
+        "margin_vs_best_published": 0.0091
+      },
+      "alpha_15_13929_2024": {
+        "ours": 0.1011,
+        "rans_identity_floor": 0.2049,
+        "best_published": 0.1195,
+        "best_published_by": "Wu and Zhang",
+        "floor_beats_every_published_entry": false,
+        "our_submission_is_the_untouched_baseline": false,
+        "attribution": "our model, clear lead",
+        "margin_vs_best_published": 0.0184
+      },
+      "alpha_05_4071_4048": {
+        "ours": 0.0461,
+        "rans_identity_floor": 0.0461,
+        "best_published": 0.0569,
+        "best_published_by": "Wu and Zhang",
+        "floor_beats_every_published_entry": true,
+        "our_submission_is_the_untouched_baseline": true,
+        "attribution": "baseline"
+      },
+      "alpha_05_4071_2024": {
+        "ours": 0.0719,
+        "rans_identity_floor": 0.0719,
+        "best_published": 0.076,
+        "best_published_by": "Reissmann, Fang, and Sandberg",
+        "floor_beats_every_published_entry": true,
+        "our_submission_is_the_untouched_baseline": true,
+        "attribution": "baseline"
+      },
+      "AR_1_Ret_360": {
+        "ours": 0.0811,
+        "rans_identity_floor": 0.1288,
+        "best_published": 0.0387,
+        "best_published_by": "Reissmann, Fang, and Sandberg",
+        "floor_beats_every_published_entry": false,
+        "our_submission_is_the_untouched_baseline": false,
+        "attribution": "behind"
+      },
+      "AR_3_Ret_360": {
+        "ours": 0.0775,
+        "rans_identity_floor": 0.1243,
+        "best_published": 0.0341,
+        "best_published_by": "Reissmann, Fang, and Sandberg",
+        "floor_beats_every_published_entry": false,
+        "our_submission_is_the_untouched_baseline": false,
+        "attribution": "behind"
+      },
+      "AR_14_Ret_180": {
+        "ours": 0.0324698,
+        "rans_identity_floor": 0.059,
+        "best_published": 0.0325,
+        "best_published_by": "Reissmann, Fang, and Sandberg",
+        "floor_beats_every_published_entry": false,
+        "our_submission_is_the_untouched_baseline": false,
+        "attribution": "our model, nominal lead only",
+        "margin_vs_best_published": 3e-05
+      },
+      "NASA_2DWMH": {
+        "ours": 0.0632,
+        "rans_identity_floor": 0.0621,
+        "best_published": 0.0364,
+        "best_published_by": "Wu and Zhang",
+        "floor_beats_every_published_entry": false,
+        "our_submission_is_the_untouched_baseline": false,
+        "attribution": "behind"
+      }
+    },
+    "cases_where_the_untouched_baseline_beats_all_four_published_entries": [
+      "alpha_05_4071_4048",
+      "alpha_05_4071_2024"
+    ],
+    "count": 2,
+    "these_are_exactly_the_cases_the_gate_declined": true,
+    "reading": "On two of the eight test cases every published method in the field makes the answer worse than doing nothing. This is a finding about the benchmark, not a win for us -- the value is available free to any entrant who submits the file the organisers ship. What is ours is that a gate fitted on 21 training cases and validated on 4 non-test cases identified exactly those two, blind."
+  },
+  "how_the_eight_cases_must_be_counted": {
+    "tally": {
+      "our model, clear lead": 2,
+      "our model, nominal lead only": 1,
+      "baseline": 2,
+      "behind": 3
+    },
+    "cases": {
+      "our model, clear lead": [
+        "alpha_15_13929_2024",
+        "alpha_15_13929_4048"
+      ],
+      "our model, nominal lead only": [
+        "AR_14_Ret_180"
+      ],
+      "baseline": [
+        "alpha_05_4071_2024",
+        "alpha_05_4071_4048"
+      ],
+      "behind": [
+        "AR_1_Ret_360",
+        "AR_3_Ret_360",
+        "NASA_2DWMH"
+      ]
+    },
+    "superseded_wording": "'5 of 8 test cases where we lead -- better than every published entry on those five.' True arithmetic, misleading attribution: two of the five are the organisers' own baseline and a third is a lead of 0.00003 against a four-decimal published value.",
+    "replacement_wording": "Two clear model leads, one nominal tie, two cases won by the baseline after the gate withheld our model, and three behind."
+  },
+  "verdict": {
+    "what_the_gate_does_on_the_declined_cases": "It emits no prediction. The submitted field is the benchmark's own uncorrected k-omega SST solve, verified byte-equivalent to a re-derived RANS identity.",
+    "is_best_on_board_defensible": "Not as a headline and not as a count of cases we lead. The value belongs to a baseline every entrant is handed. Defensible only as a statement about selection: a train-only gate found, blind, the two cases on which the whole published field is worse than the baseline.",
+    "action_taken": "closure.html's headline count and its per-case table were rewritten to attribute these two rows to the baseline rather than to us."
+  }
+}

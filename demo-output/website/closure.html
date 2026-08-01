@@ -98,10 +98,12 @@
     <div class="f">the industry-standard turbulence model, uncorrected — the number to beat</div></div>
   <div class="kpi hero"><div class="n g">0.0654</div><div class="l">our entry of record</div>
     <div class="f">36.9% closer to reality than the standard solve — was 0.0676 until the duct fix below</div></div>
-  <div class="kpi"><div class="n">5 of 8</div><div class="l">test cases where we lead</div>
-    <div class="f">better than every published entry on those five — and behind on the other three</div></div>
+  <div class="kpi"><div class="n">2 of 8</div><div class="l">cases our model clearly leads</div>
+    <div class="f">plus one lead of 0.00003, two led by the untouched baseline after our gate
+    withheld the model, and three we are behind on — the arithmetic is in §3</div></div>
   <div class="kpi"><div class="n">5</div><div class="l">scoring attempts, ever</div>
-    <div class="f">each a single pre-registered call; the benchmark's answers were never used to tune</div></div>
+    <div class="f">a discipline we set ourselves, not a benchmark limit — the benchmark has none.
+    No parameter was ever fitted to a test score; what one did change is what we built next, §2</div></div>
 </div>
 
 <div class="note"><b>What the score is, in one line.</b> Every test case is a real flow measured by
@@ -190,25 +192,39 @@ nowhere at all.</p>
 </tbody></table></div>
 
 <p class="lede" style="margin-top:34px">Case by case, against the best score any published entry has
-achieved on that case. <b>We lead on five and trail on three.</b></p>
+achieved on that case — and, in the fourth column, against the untouched standard simulation the
+organisers hand to every entrant. <b>Two clear leads, one lead of 0.00003, two rows where the leader is
+the baseline and not us, and three we are behind on.</b></p>
 <div class="scroll"><table>
-<thead><tr><th>Test flow</th><th class="n">Best published</th><th class="n">Certonomous</th><th></th></tr></thead>
+<thead><tr><th>Test flow</th><th class="n">Best published</th><th class="n">Certonomous</th><th class="n">Uncorrected</th><th></th></tr></thead>
 <tbody>
-<tr class="us"><td>Periodic hill, steep, coarse</td><td class="n">0.0592</td><td class="n win">0.0501</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
-<tr class="us"><td>Periodic hill, steep, fine</td><td class="n">0.1195</td><td class="n win">0.1011</td><td><span class="tag t-gold">BEST ON BOARD</span></td></tr>
-<tr class="us"><td>Periodic hill, shallow, coarse</td><td class="n">0.0569</td><td class="n win">0.0461</td><td><span class="tag t-gold">BEST — no correction applied</span></td></tr>
-<tr class="us"><td>Periodic hill, shallow, fine</td><td class="n">0.0760</td><td class="n win">0.0719</td><td><span class="tag t-gold">BEST — no correction applied</span></td></tr>
-<tr class="us"><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n win">0.0325</td><td><span class="tag t-gold">BEST — by 0.00003</span></td></tr>
-<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n lose">0.0811</td><td><span class="tag t-open">3rd of 5 — was last</span></td></tr>
-<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n lose">0.0775</td><td><span class="tag t-open">3rd of 5 — was 4th</span></td></tr>
-<tr><td>NASA wall-mounted hump</td><td class="n">0.0364</td><td class="n lose">0.0632</td><td><span class="tag t-open">LAST ON BOARD</span></td></tr>
+<tr class="us"><td>Periodic hill, steep, coarse</td><td class="n">0.0592</td><td class="n win">0.0501</td><td class="n">0.1320</td><td><span class="tag t-gold">OUR MODEL LEADS</span></td></tr>
+<tr class="us"><td>Periodic hill, steep, fine</td><td class="n">0.1195</td><td class="n win">0.1011</td><td class="n">0.2049</td><td><span class="tag t-gold">OUR MODEL LEADS</span></td></tr>
+<tr><td>Periodic hill, shallow, coarse</td><td class="n">0.0569</td><td class="n">0.0461</td><td class="n">0.0461</td><td><span class="tag t-flat">BASELINE, NOT OUR MODEL</span></td></tr>
+<tr><td>Periodic hill, shallow, fine</td><td class="n">0.0760</td><td class="n">0.0719</td><td class="n">0.0719</td><td><span class="tag t-flat">BASELINE, NOT OUR MODEL</span></td></tr>
+<tr class="us"><td>Square duct, aspect ratio 14</td><td class="n">0.0325</td><td class="n">0.0325</td><td class="n">0.0590</td><td><span class="tag t-open">AHEAD BY 0.00003 — a tie</span></td></tr>
+<tr><td>Square duct, aspect ratio 1</td><td class="n">0.0387</td><td class="n lose">0.0811</td><td class="n">0.1288</td><td><span class="tag t-open">3rd of 5 — was last</span></td></tr>
+<tr><td>Square duct, aspect ratio 3</td><td class="n">0.0341</td><td class="n lose">0.0775</td><td class="n">0.1243</td><td><span class="tag t-open">3rd of 5 — was 4th</span></td></tr>
+<tr><td>NASA wall-mounted hump</td><td class="n">0.0364</td><td class="n lose">0.0632</td><td class="n">0.0621</td><td><span class="tag t-open">LAST — and worse than not correcting</span></td></tr>
 </tbody></table></div>
 
-<div class="note gold"><b>Read the two "no correction applied" rows honestly.</b> On those two flows our
-best result is the <em>uncorrected</em> standard simulation — the gate withheld our model and reported the
-plain physics solve, which happens to beat every published machine-learning entry there. That is a real
-result and it is the gate working exactly as intended. It is not our model outperforming anyone. Two of
-our five leads are cases we won by declining to break what already worked.</div>
+<div class="note warn"><b>The two rows marked "baseline, not our model" — and why we stopped calling them
+wins.</b> On those two flows our submitted file <em>is</em> the untouched standard simulation. We checked
+this rather than asserting it: the shipped prediction was re-derived from the organisers' own supplied
+field and matches our submitted file to 5&times;10<sup>&minus;10</sup>, which is the file's own write
+precision. The gate withheld our model and passed the plain physics solve straight through.
+<b>0.0461 and 0.0719 are therefore not our numbers.</b> They are properties of a file every entrant is
+handed for free, and anyone submitting it unchanged scores exactly the same. This page used to count them
+toward "five cases where we lead." That was true arithmetic and misleading attribution, and it is now
+corrected in both directions — the headline count above and this table.</div>
+
+<div class="note gold"><b>What is genuinely ours there, stated at its real size.</b> Cross the uncorrected
+column against the full published leaderboard and something sharp falls out: on <b>exactly two of the eight
+test cases, every published entry is worse than doing nothing</b> — and they are exactly the two our gate
+declined. The gate was fitted on 21 training cases, validated on 4 held-out cases, and had never seen a
+test case when it made those two calls. <b>The claim we can defend is about the selection, not the
+score:</b> a train-only rule found, blind, the two flows on which the entire field of published methods
+damages the answer. Knowing when not to act is the contribution. The two numbers it produced are not.</div>
 
 <!-- ===================== 4 ===================== -->
 <h2>4 · What is not solved</h2>
@@ -223,6 +239,28 @@ algebra — but it <b>cannot</b> be the explanation, for a reason that is pure a
 <b>those same two inputs are equally zero on the duct we score best on the board on.</b> A flaw present in
 identical measure on the case we win and the cases we lose does not distinguish between them. We had
 published a true fact as a cause, and it was not the cause.</div>
+
+<div class="note"><b>Re-derived from scratch, and the degeneracy is worse than we said.</b> Rather than
+inherit our own correction we re-measured it on all eight duct cases. Two further identities hold that we
+had never written down: a third input is the exact negative of the first, to the last bit, and a fourth is
+minus half the first squared, to 3&times;10<sup>&minus;16</sup>. <b>Five of the seven inputs carry one
+independent number between them on a duct, not five.</b> The reason is that the standard solve produces no
+swirl at all in a straight duct — the sideways velocity is 10<sup>&minus;15</sup> against a forward speed of
+order 10 — so its velocity-gradient tensor is pure shear and everything built from it collapses to a single
+shear magnitude. That makes the blind spot a property of <em>the baseline we are correcting</em>, not of duct
+geometry: the real flow has swirl, which is precisely what the standard model misses. On the periodic hills
+the same four identities are violated by factors between 10<sup>&minus;3</sup> and 2, so nothing there is
+degenerate and the test is not vacuous. <b>None of this changes the verdict.</b> The identities hold in the
+same measure on the duct we win, so they still do not explain the deficit — and a k-nearest-neighbour bound
+says that inside the Reynolds number we are allowed to train on, these inputs retain enough information to
+reach 0.011–0.027 against floors of 0.069–0.107. The inputs are not what binds. Transfer is.</div>
+
+<div class="note"><b>One hypothesis we tested and killed.</b> Every input the model sees is a rotation-blind
+scalar, so on a square duct it must return the identical correction at a point and at its mirror image
+across the diagonal — while the truth swaps two velocity components between them. That looked like a hard
+error floor we had built in by construction. It is not: the unreachable part is <b>0.012%</b> of the
+correction's energy, because the real duct flow obeys the same mirror symmetry the inputs do. A clean
+prediction, measured, refuted, and reported rather than dropped.</div>
 
 <div class="grid">
   <div class="kpi"><div class="n sm">1.85&times;</div><div class="l">how far past its training range we pushed the model</div>
@@ -267,6 +305,17 @@ is what the two hard ducts actually demand, because every duct we may legally fi
 number. The fix is motivated by a measured mechanism and proven to do no harm; it was not proven in advance
 to close the gap. It closed it partly. We are still well behind the leaders on both.</div>
 
+<div class="note warn"><b>And the improvement we are refusing this time.</b> On the NASA hump our correction
+makes the answer <em>worse</em> than leaving it alone — 0.0632 against 0.0621. Submitting the untouched
+solve there is one file copy, breaks no rule, and is worth about <b>0.00014</b> off the overall score
+(0.06543 → 0.06529, arithmetic on our own recorded per-case numbers, not a new scoring call). We are not
+taking it. The only reason to single out that one case is that the benchmark told us its score, and choosing
+what to submit case by case from the answer key is the exact thing the one rule exists to stop —
+the same reason the 0.0066 in §2 and the aspect-ratio-14 regression above were both left standing.
+<b>This is the third time this lab has declined a free improvement on these grounds, and it is the smallest
+of the three.</b> An improvement that comes from leakage is worth less than no improvement, so the honest
+number stays on the board and this paragraph stays with it.</div>
+
 <div class="note"><b>And the honest bottom line.</b> The correction is applied to an already-finished
 simulation as a post-processing step; it does not change the underlying physics equations. It has been
 measured on eight flows from one public benchmark. It has not been submitted, has not been reviewed by
@@ -275,11 +324,13 @@ this repository, scored by code we did not write.</div>
 
 <footer>
   Sources: <code>closure-challenge-benchmark</code> public leaderboard and rules (repo
-  <code>deb91557</code>) · benchmark scoring package <code>closure_challenge</code> v0.2.1
-  (<code>1c4e22c8</code>), used unmodified · the gated entry of record, the RANS reference
-  floor, the decline gate, the C1 error-estimator audit, the C2 error-decomposition audit
-  and the duct anisotropy expressivity audit, each held complete and unredacted in the
-  lab's permanent record.
+  <code>deb91557</code>) · benchmark scoring package <code>closure_challenge</code> at commit
+  <code>1c4e22c8</code>, used unmodified — the commit, not the <code>0.2.1</code> string the
+  package reports itself as, which names an older metric revision than the code we ran ·
+  the gated entry of record, the RANS reference floor, the decline gate and its audit,
+  the C1 error-estimator audit, the C2 error-decomposition audit, and the duct
+  feature-degeneracy and Reynolds-transfer audits, each held complete and unredacted in
+  the lab's permanent record.
 </footer>
 
 </div>
