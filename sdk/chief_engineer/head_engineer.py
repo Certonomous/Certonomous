@@ -46,6 +46,8 @@ from .log_signatures import (
     SEVERITY_CONFIGURATION_RISK,
     classify_bound_line,
     classify_wall_time,
+    grade_bounding_episode,
+    normalise_log_key,
     detect_ceiling_clip,
     detect_courant_excursion,
     detect_normalisation_collapse,
@@ -183,6 +185,19 @@ class LogMonitor:
     FPE = re.compile(r"Foam::sigFpe::sigHandler|^Floating point exception", re.MULTILINE)
     BOUNDING = re.compile(r"^bounding (\w+),", re.MULTILINE)
     WARNING = re.compile(r"--> FOAM Warning|FOAM Warning :")
+    # OpenFOAM's ordinary warning is a BLOCK, not a line: the banner carries no
+    # text and the message follows on indented continuation lines.
+    #     --> FOAM Warning :
+    #         From Foam::fileName Foam::cwd_L()
+    #         in file POSIX.C at line 554
+    #         PWD is not the cwd() - reverting to physical description
+    # S5 used to key on the single line it was fed, so every one of these
+    # collapsed onto the contentless key "--> FOAM Warning :" -- 146 archived
+    # logs sharing one key that says nothing about the warning. The banner is
+    # split from its body here so the key is the message.
+    WARNING_BANNER = re.compile(r"^\s*-->\s*FOAM Warning\s*:\s*(.*)$")
+    WARNING_CONTINUATION = re.compile(r"^\s{4,}\S")
+    WARNING_BLOCK_LIMIT = 6
     # Transient runs only; a steady solver never prints these.
     COURANT = re.compile(
         r"Courant Number mean: ([0-9.eE+-]+) max: ([0-9.eE+-]+)")
@@ -228,6 +243,19 @@ class LogMonitor:
         self._history: dict[str, list[float]] = {}
         self._reported: dict[tuple[str, str], int] = {}
         self._seen_warnings: set[str] = set()
+        # S5. The warning block being assembled, if the last banner was bare.
+        self._warning_block: list[str] | None = None
+        self._warning_step: str = ""
+        # S4. Where each field's floor clipping sits in the run. The severity
+        # the standard describes is a property of the EPISODE -- "first ten
+        # percent of iterations" is meaningless against a run whose length is
+        # not yet known -- so the events are collected here and graded once,
+        # by ``bounding_verdict``, when the log ends. That is the whole reason
+        # the documented ladder was never implemented: there was nowhere in a
+        # streaming pass to put it.
+        self._bound_events: dict[str, list[int]] = {}
+        self._bound_anomalies: dict[str, list[Anomaly]] = {}
+        self._bounding_verdict: list[dict[str, Any]] | None = None
         self._series: dict[str, list[float]] = {}   # long history for S6
         self._iterations: dict[str, int] = {}
         self._stalled: set[str] = set()
@@ -247,10 +275,27 @@ class LogMonitor:
 
     def feed(self, step: str, line: str) -> None:
         if self.FPE.search(line):
+            self._close_warning_block()
             self._raise(Anomaly("fpe", step, line.strip(), "floating point exception"))
             return
         if self.NAN.search(line) and ("Solving for" in line or "= nan" in line.lower()):
+            self._close_warning_block()
             self._raise(Anomaly("nan", step, line.strip(), "NaN in solver output"))
+            return
+        # S5. A bare warning banner opens a block; its indented continuation
+        # lines are the message and are absorbed into the key rather than
+        # dispatched. Anything else closes the block and is then processed
+        # normally, so a line that ends a warning is never swallowed.
+        if self._warning_block is not None:
+            if (len(self._warning_block) <= self.WARNING_BLOCK_LIMIT
+                    and self.WARNING_CONTINUATION.match(line.rstrip("\n"))):
+                self._warning_block.append(line.strip())
+                return
+            self._close_warning_block()
+        banner = self.WARNING_BANNER.match(line)
+        if banner is not None and not banner.group(1).strip():
+            self._warning_block = [line.strip()]
+            self._warning_step = step
             return
         match = self.COURANT.search(line)
         if match:
@@ -283,12 +328,43 @@ class LogMonitor:
         if risk is not None:
             self._configuration_risk(step, risk)
         if self.novel and self.WARNING.search(line):
-            key = re.sub(r"[0-9.eE+-]+", "#", line.strip())[:120]
-            if key not in self._seen_warnings:
-                self._seen_warnings.add(key)
-                self.novel_observations.append(line.strip())
-                self._raise(Anomaly(
-                    "novel-warning", step, line.strip(),
+            self._novel_warning(step, line.strip(), risk)
+
+    def _close_warning_block(self) -> None:
+        """Emit the warning block assembled since the last bare banner (S5)."""
+        block, self._warning_block = self._warning_block, None
+        if not block:
+            return
+        # The banner itself carries no information; the message does. Where
+        # there is no message -- a bare banner followed immediately by
+        # unindented output -- the banner is all there is, and the finding
+        # says so rather than pretending to content it does not have.
+        body = " | ".join(part for part in block[1:] if part)
+        text = body or block[0]
+        if self.novel:
+            self._novel_warning(self._warning_step, text,
+                                detect_system_operations(text))
+
+    def _novel_warning(self, step: str, text: str,
+                       risk: dict[str, Any] | None) -> None:
+        """Raise a first-seen warning once per distinct message (S5).
+
+        The key is ``normalise_log_key``, which strips magnitudes and keeps
+        words. The old key was ``re.sub(r"[0-9.eE+-]+", "#", ...)``, which had
+        no digit requirement and so ate the letters e and E, the dot and the
+        hyphen wherever they appeared: it rewrote ``allowSystemOperations`` to
+        ``allowSyst#mOp#rations`` and merged any two warnings differing only in
+        those characters. Between that and the unsplit banner, S5's entire
+        vocabulary over 449 archived logs was two keys, both of them defects of
+        the key rather than facts about the logs.
+        """
+        key = normalise_log_key(text)
+        if key in self._seen_warnings:
+            return
+        self._seen_warnings.add(key)
+        self.novel_observations.append(text)
+        self._raise(Anomaly(
+                    "novel-warning", step, text,
                     "first occurrence on an unfamiliar case",
                     # A first-seen warning that happens to BE the system-
                     # operations report carries S11's severity rather than the
@@ -296,6 +372,49 @@ class LogMonitor:
                     # finding is no longer classified as merely "nothing fatal".
                     severity=(SEVERITY_CONFIGURATION_RISK
                               if risk is not None else "")))
+
+    def _iteration_high_water(self) -> int:
+        """How far the run has got, in iterations, across all fields."""
+        return max(self._iterations.values(), default=0)
+
+    def bounding_verdict(self) -> list[dict[str, Any]]:
+        """Grade every floor-clipping episode in the run (Monitor Standard S4).
+
+        Call when the log ends; ``summary`` calls it. One finding per field,
+        each carrying the span of the clipping, its severity and its action —
+        rather than the undifferentiated per-line stream, which over the
+        archive is 38923 findings with a blank severity on every one of them.
+
+        The grade is persistence: a field still being clipped in the final
+        decile of the run was clipped at the iterations the reported quantity
+        is read from, and that is a FLAG. Clipping that stopped earlier is the
+        startup transient the standard always said it was, and is a WATCH.
+
+        THE LADDER THE STANDARD DOCUMENTED UNTIL NOW IS NOT THIS ONE, and it
+        was replaced on a measurement rather than a preference. "WATCH in the
+        first ten percent of iterations, FLAG past it" was replayed over the
+        158 archived logs that carry a floor bound: 82 have no iteration axis
+        and cannot be graded at all, and of the 76 that can, it calls 74 FLAG.
+        A rule that flags 97 percent of completed work is measuring the
+        population, not the defect — the test S7 was withdrawn on. The window
+        in force separates 48 from 28 on the same corpus, and it is the
+        discriminator the S10a printInterval audit reached independently.
+        """
+        if self._bounding_verdict is not None:
+            return self._bounding_verdict
+        iterations = self._iteration_high_water()
+        verdict: list[dict[str, Any]] = []
+        for field, events in sorted(self._bound_events.items()):
+            finding = grade_bounding_episode(field, events, iterations)
+            verdict.append(finding)
+            # Back-stamp the episode's severity onto the lines that made it.
+            # A per-line severity was never knowable while streaming; it is
+            # knowable now, and a reader grading a finding by a severity the
+            # finding never carried is the defect this repairs.
+            for anomaly in self._bound_anomalies.get(field, ()):
+                anomaly.severity = finding["severity"]
+        self._bounding_verdict = verdict
+        return verdict
 
     def _configuration_risk(self, step: str, finding: dict[str, Any]) -> None:
         """Record an S11 finding once per distinct line per run."""
@@ -314,8 +433,18 @@ class LogMonitor:
         integrated from the field afterwards inherits that.
         """
         if bound["direction"] != CEILING:
-            self._raise(Anomaly("bounding", step, line.strip(),
-                                "a variable was clipped to stay physical"))
+            # S4. The finding is raised per line, because the suppression
+            # discipline (standing rule 2) already caps what surfaces. What is
+            # recorded here is WHERE in the run it happened, which is the part
+            # the severity depends on and the part nothing used to keep.
+            field = bound["field"]
+            self._bound_events.setdefault(field, []).append(
+                self._iteration_high_water())
+            anomaly = Anomaly("bounding", step, line.strip(),
+                              "a variable was clipped to stay physical")
+            self._bound_anomalies.setdefault(field, []).append(anomaly)
+            self._bounding_verdict = None
+            self._raise(anomaly)
             return
         finding = detect_ceiling_clip(line)
         field = bound["field"]
@@ -551,10 +680,18 @@ class LogMonitor:
             self.on_anomaly(anomaly)
 
     def summary(self) -> dict[str, Any]:
+        # Both of these are end-of-log operations. A warning block still open
+        # when the log ends is still a warning, and S4's severity is not
+        # knowable until the run's length is.
+        self._close_warning_block()
+        bounding = self.bounding_verdict()
         by_kind: dict[str, int] = {}
         for item in self.anomalies:
             by_kind[item.kind] = by_kind.get(item.kind, 0) + 1
         return {
+            # S4, graded once per field per run. The per-line anomalies are
+            # still counted in ``by_kind``; this is the part a reader acts on.
+            "bounding": bounding,
             "anomalies": len(self.anomalies),
             "by_kind": by_kind,
             "reported": sum(min(v, self.REPORT_LIMIT) for v in self._reported.values()),

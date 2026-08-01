@@ -20,6 +20,17 @@ WHAT IT MEASURES. Two passes over every archived solver log.
   warning shapes the archive holds, which bounds how much a novel run can be
   asked to read. That number is reported and labelled as what it is.
 
+  Added 2026-08-01, after the first run of this script found that two of the
+  six rules could not be described accurately: S4 and S5 are now measured on
+  what a reader would act on rather than on a raw fire count.
+
+  S4 is reported per EPISODE -- one per field per log, with the span of the
+  clipping and a severity -- and the retired "first ten percent of iterations"
+  ladder is replayed alongside the one in force, so the two are comparable in
+  the same artifact. S5's whole vocabulary is listed, not just counted: the
+  first run of this script found it was two keys over 449 logs and that both
+  were artefacts of the key rather than facts about the logs.
+
   Pass B, gated. S6 (residual stall) stays off without the `residualControl`
   target the solve was aiming for. The standard records that the archived logs
   do not carry that target. They do not, but a large minority of them sit
@@ -53,6 +64,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "sdk"))
 
 from chief_engineer.head_engineer import LogMonitor  # noqa: E402
+from chief_engineer.log_signatures import normalise_log_key  # noqa: E402
 
 # The same root the S10 archive sweep uses (sdk/tests/test_log_signatures.py,
 # ArchiveSweepTests), so the corpora of the two measurements are comparable.
@@ -124,12 +136,15 @@ def replay(log: Path, *, residual_target: float | None = None) -> dict:
     with open(log, encoding="utf-8", errors="replace") as handle:
         for line in handle:
             monitor.feed(step, line)
+    summary = monitor.summary()
     kinds = Counter(a.kind for a in monitor.anomalies)
     fatal = Counter(a.kind for a in monitor.anomalies
                     if a.kind in ("nan", "fpe") or a.severity == "fatal")
-    warnings = {re.sub(r"[0-9.eE+-]+", "#", obs.strip())[:120]
-                for obs in monitor.novel_observations}
-    return {"kinds": kinds, "fatal": fatal, "warning_shapes": warnings}
+    # S5's vocabulary. The key is the monitor's own, so the replay measures
+    # what the rule actually does rather than a re-implementation of it.
+    warnings = {normalise_log_key(obs) for obs in monitor.novel_observations}
+    return {"kinds": kinds, "fatal": fatal, "warning_shapes": warnings,
+            "bounding": summary["bounding"]}
 
 
 def main() -> int:
@@ -149,8 +164,13 @@ def main() -> int:
     fires: dict[str, set[str]] = {kind: set() for kind in RULE_KINDS.values()}
     fatals: dict[str, set[str]] = {kind: set() for kind in RULE_KINDS.values()}
     hits: dict[str, Counter] = {kind: Counter() for kind in RULE_KINDS.values()}
-    warning_shapes: set[str] = set()
+    warning_shapes: Counter = Counter()
     steady_logs: list[Path] = []
+    # S4, graded per episode rather than counted per line.
+    s4_logs: Counter = Counter()
+    s4_episodes: Counter = Counter()
+    s4_documented_window: Counter = Counter()
+    s4_examples: dict[str, list[dict]] = {"flag": [], "watch": [], "ungraded": []}
 
     for index, log in enumerate(logs, 1):
         corpus["all"] += 1
@@ -163,7 +183,25 @@ def main() -> int:
             if not transient:
                 steady_logs.append(log)
         result = replay(log)
-        warning_shapes |= result["warning_shapes"]
+        warning_shapes.update(result["warning_shapes"])
+        rel_log = str(log.relative_to(REPO))
+        if result["bounding"]:
+            # A log's grade is its worst episode: one field still clipped at
+            # the end is enough, and a log with nothing gradeable is ungraded
+            # rather than quietly counted as clean.
+            grades = {ep["severity"] or "ungraded" for ep in result["bounding"]}
+            worst = ("flag" if "flag" in grades
+                     else "watch" if "watch" in grades else "ungraded")
+            s4_logs[worst] += 1
+            for episode in result["bounding"]:
+                grade = episode["severity"] or "ungraded"
+                s4_episodes[grade] += 1
+                if episode["graded"]:
+                    s4_documented_window[
+                        "flag" if episode["past_documented_startup_window"]
+                        else "watch"] += 1
+                if len(s4_examples[grade]) < 5:
+                    s4_examples[grade].append({"log": rel_log, **episode})
         for kind, count in result["kinds"].items():
             if kind not in fires:
                 continue
@@ -201,6 +239,21 @@ def main() -> int:
         "elapsed_s": round(time.time() - started, 1),
         "rules": {},
         "distinct_warning_shapes": len(warning_shapes),
+        # S5's whole vocabulary, listed rather than counted. Before the repair
+        # this was two keys over 449 logs and both were defects of the key: the
+        # unsplit multi-line banner, and a normaliser with no digit requirement
+        # that rewrote allowSystemOperations to allowSyst#mOp#rations.
+        "s5_vocabulary": [{"key": key, "logs": count}
+                          for key, count in warning_shapes.most_common()],
+        # S4 graded per episode. ``documented_window`` replays the ladder the
+        # standard carried until this run -- WATCH inside the first ten percent
+        # of iterations, FLAG past it -- so the two can be compared directly.
+        "s4": {
+            "logs_by_grade": dict(s4_logs),
+            "episodes_by_grade": dict(s4_episodes),
+            "documented_window_episodes": dict(s4_documented_window),
+            "examples": s4_examples,
+        },
         "gated_s6": {k: v for k, v in gated.items() if k != "targets"},
         "s6_target_sources": gated["targets"],
     }

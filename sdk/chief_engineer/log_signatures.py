@@ -45,6 +45,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 # Severity vocabulary, matching docs/standards/MONITOR_STANDARD.md.
+SEVERITY_WATCH = "watch"
 SEVERITY_FLAG = "flag"
 SEVERITY_FATAL = "fatal"
 # S11. Not a numerical severity at all: the run is arithmetically fine and the
@@ -705,3 +706,139 @@ def detect_system_operations(line: str) -> dict[str, Any] | None:
         "action": SYSTEM_OPERATIONS_ACTION,
         "line": line.strip(),
     }
+
+
+# --------------------------------------------------------------------------
+# S4 bounding warnings: the severity ladder, and the key normaliser S5 shares
+# --------------------------------------------------------------------------
+
+# The startup window the Monitor Standard documented for S4 from version 1.1
+# onward: WATCH inside it, FLAG past it. It is kept as a named constant because
+# it was replayed and RETIRED on the measurement, and a retired threshold that
+# leaves no trace gets reinvented. Over the 158 archived logs that carry a
+# floor-bound message, 76 have an iteration axis to grade against, and this
+# window calls 74 of those 76 FLAG. A rule that flags 97 percent of the lab's
+# completed work is measuring the population, not the defect
+# (VERIFICATION_CHARTER section 5, and the test S7 was withdrawn on).
+BOUNDING_DOCUMENTED_STARTUP_FRACTION = 0.10
+
+# The window actually in force. A bound is graded by whether it is still active
+# in the final decile of the run -- the iterations the reported answer is read
+# from. This is not a new threshold: it is the same ten percent, applied at the
+# end of the run instead of the start, and it is the discriminator the S10a
+# printInterval audit arrived at independently ("persistence to the final
+# iterate is the discriminator this rule does not yet implement"). Replayed
+# over the same 76 gradeable logs it separates 48 FLAG from 28 WATCH.
+BOUNDING_FINAL_FRACTION = 0.90
+
+BOUNDING_WATCH_ACTION = (
+    "no action beyond the debrief count; the clipping had stopped well before "
+    "the iterations the answer is read from, so the reported state is not a "
+    "clipped state"
+)
+BOUNDING_FLAG_ACTION = (
+    "mark the record and cap trust until resolved; the field was still being "
+    "held physical by force at the iterations the reported quantity is read "
+    "from, so the answer was read off a clipped state. Check the "
+    "discretization and the turbulence initialization before trusting it"
+)
+BOUNDING_UNGRADED_ACTION = (
+    "not graded, and deliberately not defaulted to either severity: this log "
+    "prints no residual block, so it carries no iteration axis to place the "
+    "clipping on. Re-run with residual printing on, or grade it by hand"
+)
+
+
+def grade_bounding_episode(field: str, event_iterations: Sequence[int],
+                           iterations: int) -> dict[str, Any]:
+    """Grade one field's floor-clipping episode in one log (Monitor Standard S4).
+
+    ``event_iterations`` are the run's iteration numbers at which the solver
+    printed a bounding message for ``field``; ``iterations`` is the total the
+    run reached. Returns the episode as a finding -- one per field per log,
+    rather than one per printed line -- carrying the span, the severity and
+    the action.
+
+    THE SEVERITY IS AN EPISODE PROPERTY AND CANNOT BE KNOWN WHILE STREAMING.
+    Where a bound sits in a run is only meaningful against the length of the
+    run, and a monitor reading line by line does not know that until the log
+    ends. This is why the documented ladder was never implemented: there was
+    nowhere in a streaming pass to put it. It is graded here, once, at the end.
+
+    Two numbers from the archive replay are worth carrying next to this code:
+    the documented "first ten percent" window flags 74 of the 76 gradeable
+    logs, and the final-decile window in force flags 48. Both are measured over
+    the same corpus by ``sdk/scripts/replay_monitor_rules.py``.
+
+    A log with no iteration axis is returned UNGRADED rather than assigned a
+    severity by default. 82 of the 158 archived bounding logs are in that state
+    -- DAFoam runs that print ``Bounding nuTilda>...`` with no residual block --
+    and guessing a severity for them would be inventing a finding.
+    """
+    events = list(event_iterations)
+    count = len(events)
+    first = min(events) if events else 0
+    last = max(events) if events else 0
+    finding: dict[str, Any] = {
+        "kind": "bounding",
+        "field": field,
+        "events": count,
+        "first_iteration": first,
+        "last_iteration": last,
+        "iterations": iterations,
+    }
+    if iterations <= 0:
+        finding.update({
+            "severity": "",
+            "graded": False,
+            "last_fraction": None,
+            "persists_to_final_iterate": None,
+            "action": BOUNDING_UNGRADED_ACTION,
+        })
+        return finding
+    fraction = last / iterations
+    persists = fraction >= BOUNDING_FINAL_FRACTION
+    finding.update({
+        "severity": SEVERITY_FLAG if persists else SEVERITY_WATCH,
+        "graded": True,
+        "last_fraction": fraction,
+        "persists_to_final_iterate": persists,
+        "action": BOUNDING_FLAG_ACTION if persists else BOUNDING_WATCH_ACTION,
+        # Reported alongside, never used to grade. It is what the standard
+        # documented before the replay retired it, and a reader comparing this
+        # finding against version 1.1 of the standard needs to see both.
+        "past_documented_startup_window": (
+            last > BOUNDING_DOCUMENTED_STARTUP_FRACTION * iterations),
+    })
+    return finding
+
+
+# The key normaliser S5 uses to decide whether it has seen a warning before.
+#
+# THE OLD PATTERN WAS ``[0-9.eE+-]+``, which is not a number pattern: it treats
+# the letters e and E, the dot and the hyphen as number characters wherever
+# they appear, with no digit required anywhere in the match. It rewrote
+# ``allowSystemOperations`` to ``allowSyst#mOp#rations``, and any two warnings
+# differing only in those characters keyed the same, so the second was
+# suppressed as already seen. Measured over the lab's 449 archived logs, the
+# whole vocabulary S5 could express was two keys.
+#
+# This pattern requires at least one digit, and refuses to match inside a word,
+# so an identifier survives and a magnitude does not: ``at line 189`` and ``at
+# line 185`` key the same, ``1e+16`` and ``2.4e-07`` key the same, and
+# ``naca0012``, ``allowSystemOperations`` and ``fixA_kbounds`` are left alone.
+_LOG_KEY_NUMBER = re.compile(
+    r"(?<![A-Za-z0-9_])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
+    r"(?![A-Za-z0-9_])")
+
+
+def normalise_log_key(text: str, limit: int = 200) -> str:
+    """Collapse the varying magnitudes out of a log line, keeping the words.
+
+    Used by S5 to tell one warning from another. Numbers are the part of a
+    warning that changes between runs of the same warning; words are the part
+    that identifies it. The old normaliser destroyed words too, which is why
+    S5's vocabulary over the whole archive was two keys and both were defects
+    of the key rather than facts about the logs.
+    """
+    return _LOG_KEY_NUMBER.sub("#", " ".join(text.split()))[:limit]
