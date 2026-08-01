@@ -1,0 +1,16 @@
+{
+ "id": "r7-locate-the-strouhal-onset",
+ "objective": "Pair the middle rung of the cylinder ladder so the Strouhal sensitivity onset is located rather than bracketed",
+ "rationale": "The same 55.29 percent near wall spacing change moves Strouhal 35.1 percent at Reynolds 3900 and 0.120 percent at Reynolds 1000, measured 2026-08-01 on twins that differ in grading alone at fixed cell count. So the sensitivity has an onset and the lower gates stand, but nothing says where the onset sits or whether it is gradual or sharp, because the middle rung at Reynolds 2000 has no twin. The ladder reports a Strouhal trend across all three rungs and one third of that trend is still unquantified for the one parameter already shown to flip which side of the reference band a run lands on",
+ "citations": [
+  "Cylinder ladder Strouhal spacing twin at Reynolds 1000, measured 2026-08-01",
+  "Cylinder ladder matched pair at Reynolds 3900, measured 2026-07-30",
+  "Cylinder Reynolds ladder record"
+ ],
+ "est_core_min": 78,
+ "cost_basis": "measured; the Reynolds 2000 rung's own solve ran 3965.11 seconds at 1 rank on 27,360 cells, and the twin reproduces that mesh at a different grading. At 4 ranks that is 6,840 cells per rank, and the Reynolds 1000 twin at 5,600 cells per rank measured 3.41 times faster than serial while costing 17.4 percent more core minutes, so 4 ranks prices at about 78 core minutes and 19 minutes of wall against 66 core minutes and 66 minutes serial",
+ "expected_knowledge_gain": "Either an onset located between two rungs instead of across the whole ladder, or a middle rung that is already soft, which would move the onset below where the bracket currently puts it",
+ "source_kind": "gate",
+ "status": "proposed",
+ "created_at": "2026-08-01"
+}

@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T14:30:45+00:00",
+ "generated_at": "2026-08-01T14:48:38+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -2544,11 +2544,12 @@
    "cost_basis": "measured, from the low rung's own 2,417-second single-core solve, which a twin reproduces at the same cost",
    "expected_knowledge_gain": "Tells us whether one of this ladder's four gated quantities can be trusted at all. A gate that moves 35 percent under a mesh parameter nobody varied is not a gate, and we currently cannot say whether that applies to one rung or to every rung. It also tests the chaotic-regime explanation on a prediction it makes rather than on the observation that motivated it.",
    "source_kind": "measurement",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-30T03:40:00Z",
-   "decided_at": "2026-07-31T22:18:09Z",
+   "decided_at": "2026-08-01T14:48:38+00:00",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-   "well": "W3"
+   "well": "W3",
+   "outcome": "The low rung is robust and it is not close, so the chaotic regime reading survives a prediction it made rather than the observation that motivated it. A matched twin at Reynolds 1000, 22,400 cells in both members, first cell 0.00447 against 0.0069416 for an achieved ratio of 1.5529306 against the Reynolds 3900 pair 1.5529226, moved Strouhal by 0.120 percent, from 0.2343330 to 0.2346138. The same perturbation moved it 35.1 percent at Reynolds 3900, a factor of 293. Every other gated quantity moved one to two orders less: drag 0.653 percent against 11.0, lift peak to peak 0.412 against 6.3, base suction 0.576 against 6.9, recirculation length 0.196 percent. Strouhal is the LEAST sensitive quantity at this rung where it was by far the most sensitive at the top. The lower Strouhal gates stand and the onset is bracketed between Reynolds 1000 and 3900, not located, because Reynolds 2000 has no twin. Wall stayed resolved in both, y plus max 0.665 and 1.048; stationarity drift 0.853 and 0.898 percent against a 10 percent gate. Cost: 709.6 seconds at 4 MPI ranks, 47.31 core minutes, against the docket 45.0 which was 4.9 percent under and against my own pre-registered 34.2 which was 38 percent under. At 5,600 cells per rank four ranks ran 3.41 times faster than the serial baseline while costing 17.4 percent MORE core minutes, 47.31 against 40.31, which inverts the standing four rank rule and shows a four rank estimate needs its cells per rank stated and not only its rank count."
   },
   {
    "id": "w3-beta-on-omega-destruction-model-patch",
