@@ -172,9 +172,18 @@ All typed into the control room prompt box.
 
 ### Airliner — unchanged, reshoot as-is
 
-Upload `airliner_wing_span52.stl` (optional; the act runs without it).
+Upload `airliner_wing_span52.stl` **with the button, before typing.** Not
+optional: "the attached twin airliner" is that upload, and a run without it
+searches a different span ladder and lands on a different wing.
 
-> Optimize the L/D of an airliner for 300 passengers, 6000 km range.
+> Optimize lift drag coefficient of the attached twin airliner. Constraints:
+> 300 passengers, Range: 6000 km, take off speed: 80 m/s landing speed: 70 m/s.
+> Don't use all of my workers
+
+The two speeds are what make the act derive a wing-area floor instead of
+assuming one, and the worker clause is what makes it state its headroom in
+numbers. This is the prompt `scripts/verify_warm_replay.sh` registers for
+`aircraft-optimization`, verbatim, so what is verified is what is filmed.
 
 **~12 s measured** (the old 17 s figure was stale). The compute numbers it shows
 are **read live** — no rebuild needed, it will pick up the current figures on
