@@ -178,8 +178,17 @@ Upload `airliner_wing_span52.stl` (optional; the act runs without it).
 
 **~12 s measured** (the old 17 s figure was stale). The compute numbers it shows
 are **read live** — no rebuild needed, it will pick up the current figures on
-the day. As of now the lab ledger stands at **208,102 solver evaluations** and
+the day. As of now the lab ledger stands at **208,102 evaluations** and
 **239.3 core-hours**.
+
+If asked on camera what the 208,102 is: it is 139,095 real solves plus 69,007
+reduced-order evaluations, each labelled as one or the other on its own ledger
+row (measured 2026-08-01 from `demo-output/website/mega-batch/ledger.jsonl`).
+Do not call the whole number "solver evaluations". 56,190 of the reduced-order
+rows record a wall time of exactly 0.0 because the field is stored as
+`round(seconds, 3)` and that model costs about 0.32 ms a call; the rows ran and
+reproduce their results, so the count is sound, but the core-hours figure is a
+floor for that third of the ledger. Full working: COST_SCALING.md section 6a.
 
 ### Monte Carlo race vs reduced-order — unchanged
 
