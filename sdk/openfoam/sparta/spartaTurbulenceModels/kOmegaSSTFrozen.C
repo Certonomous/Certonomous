@@ -137,6 +137,11 @@ void kOmegaSSTFrozen<BasicTurbulenceModel>::correct()
     tmp<volTensorField> tgradU = fvc::grad(U);
     const volScalarField S2(this->S2(tgradU()));
 
+    // Register G under GName() before the omega wall functions run: they
+    // look it up and stamp wall-adjacent cell values (stock pattern).
+    volScalarField::Internal GbyNu0(this->GbyNu0(tgradU(), S2));
+    volScalarField::Internal G(this->GName(), this->nut_*GbyNu0);
+
     // Update omega wall values (stock pattern: updateCoeffs early, then
     // push wall-function-modified cell values to coupled neighbours)
     omega.boundaryFieldRef().updateCoeffs();
