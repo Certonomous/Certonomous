@@ -48,6 +48,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import textwrap
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -2059,14 +2060,38 @@ def _bump_figures(grids: list[dict[str, Any]], summary: dict[str, Any],
         ax.plot([math.sqrt(1.0 / n) for n in cells],
                 [data[n]["cd"] for n in cells], color=color, linewidth=1.6,
                 marker="s", markersize=5, linestyle=(0, (4, 3)), label=source)
+    # THE FIGURE CARRIES THE STATUS TOO (ruling R5, extended 2026-08-01). The
+    # card and the credentials wall were made to say that the bump ladder is
+    # not conclusive; this figure was still printing its h=0 extrapolate as a
+    # bold labelled point with nothing beside it, and that point is the single
+    # most confident-looking number on the surface. It is also the one the
+    # certifier refuses: 0.00368 sits ABOVE the coarsest rung, so it is outside
+    # the range the ladder measured, which is exactly the extrapolation_sanity
+    # failure that makes uq.eca_hoekstra_band return conclusive false here.
+    # Everything printed below is derived from this summary, so a ladder that
+    # later earns its extrapolate loses the caveat without anyone editing text.
     rich = summary["convergence"]["cd"].get("richardson")
     if rich is not None:
+        cds = [g["cd"] for g in grids]
+        lo, hi = min(cds), max(cds)
+        outside = rich > hi or rich < lo
         ax.scatter([0.0], [rich], s=120, color=_t.LIVE, marker="D",
                    edgecolor=_t.INK, linewidth=1.2, zorder=5,
-                   label="Richardson extrapolate (ours)")
-        ax.annotate(f"h=0 extrapolate {rich:.5f}", xy=(0.0, rich),
+                   label=("Richardson extrapolate (ours, not certified)"
+                          if outside else "Richardson extrapolate (ours)"))
+        lines = [f"h=0 extrapolate {rich:.5f}"]
+        if outside:
+            lines.append(f"outside the measured range "
+                         f"{lo:.5f} to {hi:.5f}")
+        caveat = ladder_caveat(summary)
+        if caveat:
+            lines.append(f"ladder not conclusive: {caveat}")
+        # Wrapped, because the caveat is a sentence and an unwrapped sentence
+        # runs across the data it is a caveat about.
+        note = "\n".join(textwrap.fill(line, 44) for line in lines)
+        ax.annotate(note, xy=(0.0, rich),
                     xytext=(10, 14), textcoords="offset points",
-                    fontsize=11, color=_t.INK, weight="bold")
+                    fontsize=10.5, color=_t.INK, weight="bold")
     _t.style_axes(ax, r"$h = \sqrt{1/N}$", r"$C_D$ (wall, Aref = 1.5)",
                   "TMR bump-in-channel: drag-coefficient grid convergence "
                   "vs published CFL3D and FUN3D ladders")
