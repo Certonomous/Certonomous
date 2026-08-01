@@ -266,6 +266,17 @@ efficiency is about 45%, which is unsurprising for a memory-bandwidth-bound
 segregated solver on 16 vCPU. So the core-minute price of this item is not a
 property of the item; it is a property of how it is scheduled.
 
+> **Superseded 2026-08-01 05:07Z by a sweep on the real grid — see
+> `RANK_SWEEP.md` in this directory.** The two rows above are the *structured
+> proxy*, and its scaling does not transfer. Measured on the workshop grid at
+> 1, 4, 8 and 14 ranks, parallel efficiency at 14 ranks is **76%, not 45%**,
+> and **four ranks is 15% cheaper in core-minutes than serial while running
+> 4.71x faster in wall time** — so the serial recommendation below would have
+> cost more core-minutes and 79 hours to save nothing. The core-minute optimum
+> is 4 ranks at **4,032 core-min** for the six angles, against 6,257 at 14.
+> The last sentence above survives, and harder than it was written: the price
+> of this item spans 1.58x on rank count alone.
+
 Carrying the docket's own assumption of 3,000 iterations per angle across the
 six specified angles, 18,000 iterations:
 
