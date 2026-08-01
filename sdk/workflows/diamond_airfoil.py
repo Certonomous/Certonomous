@@ -59,11 +59,30 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     this act without anyone remembering to edit it. Only the no-usable-rungs
     case is answered locally: the layer has no phrase that names the missing
     rungs.
+
+    EVERY GUARD THAT HOLDS THIS LADDER IS NAMED, IMPOSSIBLE VALUE FIRST. A
+    ladder can fail more than one guard, and naming only the earliest one
+    tells a viewer something true and unimportant in place of something true
+    and decisive. Where this act knows the physics of its own functional it
+    says so ahead of every other guard: a section in a supersonic stream with
+    no power source cannot make thrust, so an extrapolated wave drag below
+    zero is not a wide band, it is a value the flow cannot produce. This
+    ladder extrapolates to 0.03624, so the clause is silent here and the rail
+    is in place if that ever stops being so.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
-    return (uq_studies.not_conclusive_reason(band)
+    return (uq_studies.not_conclusive_reason(
+                band, impossible=_ladder_impossible(band))
             or "it did not meet the conclusive test")
+
+
+def _ladder_impossible(band: dict[str, Any] | None) -> str | None:
+    """The clause for an extrapolated wave drag the section cannot have."""
+    return uq_studies.impossible_extrapolation(
+        band, quantity="the wave drag coefficient",
+        why="which is a thrust the section has no way to make",
+        floor=0.0, places=5)
 
 
 _AGENDA = [
@@ -228,6 +247,10 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     # conservative fallback band cannot reach the certificate's interval.
     numerical_abs = uq_studies.reportable_band(band)
     ladder_reason = _ladder_reason(band)
+    # Silent while one guard holds this ladder, which is the case today; it
+    # speaks the moment more than one does, so the first-named guard can never
+    # read as the whole reason on this surface.
+    ladder_holding = uq_studies.guards_holding_note(band)
     ladder_spread = max(cd_series) - min(cd_series)
     # The total is the root sum of squares over the channels that carry a
     # figure, through the same call every other act uses. Input and model are
@@ -240,11 +263,14 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
            "Grid sensitivity study: three meshes of the same diamond "
            "section, one knob moved, the wave drag tracked at each.",
            (f"The wave drag coefficient moved {ladder_spread:.5f} across the "
-            f"three rungs, and the ladder is not conclusive because "
-            f"{ladder_reason}, so no band is read from that spread."
+            f"three rungs, and no band is read from that spread."
             if numerical_abs is None else
             f"The ladder is conclusive, so the numerical channel carries "
             f"{numerical_abs:.5f}."),
+           (f"The ladder is not conclusive: {ladder_reason}."
+            if numerical_abs is None else ""),
+           (f"{ladder_holding}."
+            if numerical_abs is None and ladder_holding else ""),
            citations=[per("shock-expansion")])
     roster.idle(NUMERICIST)
 
@@ -282,7 +308,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
             f"• The wave drag coefficient moved {ladder_spread:.5f} across "
             f"the three rungs of this mesh ladder. "
             f"• The ladder is not conclusive: {ladder_reason}. "
-            f"• No band is read from that spread, so this channel is not "
+            + (f"• {ladder_holding}. " if ladder_holding else "")
+            + f"• No band is read from that spread, so this channel is not "
             f"quantified."),
         model_note=("The solved case shares the reference theory's inviscid "
                     "assumption, so no closure model form gap applies here."))

@@ -378,25 +378,52 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     this act without anyone remembering to edit it. Only the no-usable-rungs
     case is answered locally: the layer has no phrase that names the missing
     rungs.
+
+    EVERY GUARD THAT HOLDS THIS LADDER IS NAMED, IMPOSSIBLE VALUE FIRST. A
+    ladder can fail more than one guard, and naming only the earliest one
+    tells a viewer something true and unimportant in place of something true
+    and decisive. This is the ladder that made the point: read as three
+    dimensional it was declined for an observed order of 3.654, outside the
+    credible window, and fitted on the two-dimensional mesh it actually is
+    that order is 2.436 and inside it. The verdict never moved, because the
+    guard that owes nothing to dimensionality, the extrapolation check, holds
+    it either way. Where this act knows the physics of its own functional it
+    says so ahead of every other guard: a shedding frequency is positive, so
+    an extrapolated Strouhal number below zero is a value this wake cannot
+    produce. It extrapolates to 0.1672, so the clause is silent here.
     """
     from chief_engineer import uq as uq_studies
 
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
-    return (uq_studies.not_conclusive_reason(band)
+    return (uq_studies.not_conclusive_reason(
+                band, impossible=_ladder_impossible(band))
             or "it did not meet the conclusive test")
 
 
+def _ladder_impossible(band: dict[str, Any] | None) -> str | None:
+    """The clause for an extrapolated Strouhal number this wake cannot have."""
+    from chief_engineer import uq as uq_studies
+
+    return uq_studies.impossible_extrapolation(
+        band, quantity="the Strouhal number",
+        why="which is not a shedding frequency this wake can have",
+        floor=0.0, places=4)
+
+
 def _ladder_bullet(numerical_abs: float | None, spread: float | None,
-                   reason: str) -> str:
+                   reason: str, holding: str | None = None) -> str:
     """What the numericist says about the ladder, on camera."""
     if numerical_abs is not None:
         return (f"The ladder is conclusive, so the numerical channel carries "
                 f"{numerical_abs:.4f} on the Strouhal number.")
     moved = (f"The Strouhal number moved {spread:.4f} across the three "
              f"rungs. " if spread is not None else "")
+    # `holding` speaks only when more than one guard binds, so the reason
+    # above can never read as the whole reason when it is not.
+    tail = f" {holding}." if holding else ""
     return (f"{moved}The ladder is not conclusive because {reason}, so no "
-            f"band is read from it.")
+            f"band is read from it.{tail}")
 
 
 _AGENDA = [
@@ -630,6 +657,10 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     # conservative fallback band cannot reach the certificate's interval.
     numerical_abs = uq_studies.reportable_band(band)
     ladder_reason = _ladder_reason(band)
+    # Silent while one guard holds this ladder, which is the case on the two
+    # dimensional fit; it speaks the moment more than one does, so the
+    # first-named guard can never read as the whole reason on this surface.
+    ladder_holding = uq_studies.guards_holding_note(band)
     # The total is the root sum of squares over the channels that carry a
     # figure, through the same call every other act uses. Input and model are
     # passed as absent, so they are stated as unquantified rather than
@@ -643,7 +674,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
            f"Stationarity drift on the production mesh: "
            f"{production['cd_relative_drift'] * 100:.1f}%, inside the 10% "
            f"stationarity gate.",
-           _ladder_bullet(numerical_abs, ladder_spread, ladder_reason))
+           _ladder_bullet(numerical_abs, ladder_spread, ladder_reason,
+                          ladder_holding))
     roster.idle(NUMERICIST)
 
     st_computed = production["strouhal"]
@@ -688,7 +720,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
              f"three rungs of this mesh ladder. "
              if ladder_spread is not None else "")
             + f"• The ladder is not conclusive: {ladder_reason}. "
-              f"• No band is read from the ladder, so this channel is not "
+            + (f"• {ladder_holding}. " if ladder_holding else "")
+            + f"• No band is read from the ladder, so this channel is not "
               f"quantified."),
         model_note=("Two dimensional laminar Navier Stokes assumption; no "
                     "turbulence closure is invoked at this Reynolds number, "

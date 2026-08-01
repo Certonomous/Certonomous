@@ -60,23 +60,44 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     this act without anyone remembering to edit it. Only the no-usable-rungs
     case is answered locally: the layer has no phrase that names the missing
     rungs.
+
+    EVERY GUARD THAT HOLDS THIS LADDER IS NAMED, IMPOSSIBLE VALUE FIRST. A
+    ladder can fail more than one guard, and naming only the earliest one
+    tells a viewer something true and unimportant in place of something true
+    and decisive. Where this act knows the physics of its own functional it
+    says so ahead of every other guard: the bow shock stands OFF the body, so
+    an extrapolated standoff below zero would put the shock inside the
+    cylinder. This ladder's rungs are not monotone so it fits no order and
+    extrapolates to nothing at all, which is why the clause is silent here.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
-    return (uq_studies.not_conclusive_reason(band)
+    return (uq_studies.not_conclusive_reason(
+                band, impossible=_ladder_impossible(band))
             or "it did not meet the conclusive test")
 
 
+def _ladder_impossible(band: dict[str, Any] | None) -> str | None:
+    """The clause for an extrapolated standoff that puts the shock inside."""
+    return uq_studies.impossible_extrapolation(
+        band, quantity="the shock standoff",
+        why="which would stand the bow shock inside the cylinder",
+        floor=0.0, places=4)
+
+
 def _ladder_bullet(numerical_abs: float | None, spread: float | None,
-                   reason: str) -> str:
+                   reason: str, holding: str | None = None) -> str:
     """What the numericist says about the ladder, on camera."""
     if numerical_abs is not None:
         return (f"The ladder is conclusive, so the numerical channel carries "
                 f"{numerical_abs:.4f} in delta/R.")
     moved = (f"The shock standoff moved {spread:.4f} in delta/R across the "
              f"three rungs. " if spread is not None else "")
+    # `holding` speaks only when more than one guard binds, so the reason
+    # above can never read as the whole reason when it is not.
+    tail = f" {holding}." if holding else ""
     return (f"{moved}The ladder is not conclusive because {reason}, so no "
-            f"band is read from it.")
+            f"band is read from it.{tail}")
 
 
 _AGENDA = [
@@ -302,6 +323,10 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     # conservative fallback band cannot reach the certificate's interval.
     numerical_abs = uq_studies.reportable_band(band)
     ladder_reason = _ladder_reason(band)
+    # Silent while one guard holds this ladder, which is the case today; it
+    # speaks the moment more than one does, so the first-named guard can never
+    # read as the whole reason on this surface.
+    ladder_holding = uq_studies.guards_holding_note(band)
     # The total is the root sum of squares over the channels that carry a
     # figure, through the same call every other act uses. Input and model are
     # passed as absent, so they are stated as unquantified rather than
@@ -313,7 +338,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
            "Grid sensitivity study: three meshes of the same cylinder, one "
            "knob moved, the shock standoff tracked at each, averaged over "
            "several late time snapshots at every mesh.",
-           _ladder_bullet(numerical_abs, ladder_spread, ladder_reason),
+           _ladder_bullet(numerical_abs, ladder_spread, ladder_reason,
+                          ladder_holding),
            citations=[per("billig")])
     roster.idle(NUMERICIST)
 
@@ -357,7 +383,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
              f"across the three rungs of this mesh ladder. "
              if ladder_spread is not None else "")
             + f"• The ladder is not conclusive: {ladder_reason}. "
-              f"• No band is read from the ladder, so this channel is not "
+            + (f"• {ladder_holding}. " if ladder_holding else "")
+            + f"• No band is read from the ladder, so this channel is not "
               f"quantified."),
         model_note=("The solved case shares the reference theory's inviscid "
                     "assumption, so no closure model form gap applies here."))

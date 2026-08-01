@@ -58,11 +58,30 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     this act without anyone remembering to edit it. Only the no-usable-rungs
     case is answered locally: the layer has no phrase that names the missing
     rungs.
+
+    EVERY GUARD THAT HOLDS THIS LADDER IS NAMED, IMPOSSIBLE VALUE FIRST. A
+    ladder can fail more than one guard, and naming only the earliest one
+    tells a viewer something true and unimportant in place of something true
+    and decisive. Where this act knows the physics of its own functional it
+    says so ahead of every other guard: a conical shock stands ahead of the
+    cone at a positive angle, so an extrapolated angle below zero is not a
+    wide band, it is a value the flow cannot produce. This ladder extrapolates
+    to 26.226 deg, which is an angle a flow can have, so the clause is silent
+    here and the rail is in place if that ever stops being so.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
-    return (uq_studies.not_conclusive_reason(band)
+    return (uq_studies.not_conclusive_reason(
+                band, impossible=_ladder_impossible(band))
             or "it did not meet the conclusive test")
+
+
+def _ladder_impossible(band: dict[str, Any] | None) -> str | None:
+    """The clause for an extrapolated cone shock angle no flow can have."""
+    return uq_studies.impossible_extrapolation(
+        band, quantity="the conical shock angle",
+        why="which is not a shock angle any flow can have",
+        floor=0.0, unit="deg")
 
 
 _AGENDA = [
@@ -255,6 +274,10 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     # conservative fallback band cannot reach the certificate's interval.
     numerical_abs = uq_studies.reportable_band(band)
     ladder_reason = _ladder_reason(band)
+    # Silent while one guard holds this ladder, which is the case today; it
+    # speaks the moment more than one does, so the first-named guard can never
+    # read as the whole reason on this surface.
+    ladder_holding = uq_studies.guards_holding_note(band)
     ladder_spread = max(beta_series) - min(beta_series)
     # The total is the root sum of squares over the channels that carry a
     # figure, through the same call every other act uses. Input and model are
@@ -270,11 +293,14 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
            f"{production['fit_r2']:.4f}." if production.get("fit_r2") else
            "Fit quality reported on the production mesh.",
            (f"The conical shock angle moved {ladder_spread:.3f} deg across "
-            f"the three rungs, and the ladder is not conclusive because "
-            f"{ladder_reason}, so no band is read from that spread."
+            f"the three rungs, and no band is read from that spread."
             if numerical_abs is None else
             f"The ladder is conclusive, so the numerical channel carries "
             f"{numerical_abs:.3f} deg."),
+           (f"The ladder is not conclusive: {ladder_reason}."
+            if numerical_abs is None else ""),
+           (f"{ladder_holding}."
+            if numerical_abs is None and ladder_holding else ""),
            citations=[per("taylor-maccoll")])
     roster.idle(NUMERICIST)
 
@@ -316,7 +342,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
             f"• The conical shock angle moved {ladder_spread:.3f} deg across "
             f"the three rungs of this mesh ladder. "
             f"• The ladder is not conclusive: {ladder_reason}. "
-            f"• No band is read from that spread, so this channel is not "
+            + (f"• {ladder_holding}. " if ladder_holding else "")
+            + f"• No band is read from that spread, so this channel is not "
             f"quantified."),
         model_note=("The solved case shares the reference theory's inviscid "
                     "assumption, so no closure model form gap applies here."))

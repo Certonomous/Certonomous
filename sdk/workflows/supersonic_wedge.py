@@ -45,6 +45,21 @@ RES_CELLS = {"coarse": 1800, "medium": 7200, "fine": 28800}
 INPUT_ASSUMED_NOTE = "No input uncertainty was assumed for this problem."
 
 
+# The shock angle's physical domain, and the sentence that states it. A shock
+# stands ahead of the wedge at a positive angle to the oncoming flow; the weak
+# solution at this Mach number and half-angle sits near 45 degrees and the Mach
+# angle is the floor a real shock cannot go under. Zero is used as the bound
+# because it is the one nobody can argue with: a negative shock angle is not a
+# loose extrapolation, it is a value the flow cannot produce.
+#
+# The act supplies this because the uncertainty layer cannot. That layer's
+# extrapolation guard asks a statistical question -- did the extrapolated value
+# land near the range the rungs measured -- and it has no way to know that this
+# particular functional is an angle.
+BETA_FLOOR_DEG = 0.0
+BETA_IMPOSSIBLE_WHY = "which is not a shock angle any flow can have"
+
+
 def _ladder_reason(band: dict[str, Any] | None) -> str:
     """Why the uncertainty layer did not call this refinement ladder conclusive.
 
@@ -58,11 +73,29 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     this act without anyone remembering to edit it. Only the no-usable-rungs
     case is answered locally: the layer has no phrase that names the missing
     rungs.
+
+    EVERY GUARD THAT HOLDS THIS LADDER IS NAMED, IMPOSSIBLE VALUE FIRST. This
+    act used to say the ladder failed because its observed order fell outside
+    the credible window, which is true and is not what decides it. The same
+    ladder also fails the extrapolation guard, and it fails it at a shock angle
+    of minus 13.733 degrees: its increments are minus 1.465 then minus 1.430
+    degrees, so the fit returns p = 0.035 and the extrapolation step multiplies
+    the finest increment by 40.7. A viewer told only about the order would
+    reasonably conclude that a better order settles the case. It does not.
+    ``uq.guards_holding_note`` carries the companion sentence.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
-    return (uq_studies.not_conclusive_reason(band)
+    return (uq_studies.not_conclusive_reason(
+                band, impossible=_ladder_impossible(band))
             or "it did not meet the conclusive test")
+
+
+def _ladder_impossible(band: dict[str, Any] | None) -> str | None:
+    """The clause for an extrapolated shock angle no flow can have."""
+    return uq_studies.impossible_extrapolation(
+        band, quantity="the shock angle", why=BETA_IMPOSSIBLE_WHY,
+        floor=BETA_FLOOR_DEG, unit="deg")
 
 
 _AGENDA = [
@@ -263,6 +296,9 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
     # conservative fallback band cannot reach the certificate's interval.
     numerical_abs = uq_studies.reportable_band(band)
     ladder_reason = _ladder_reason(band)
+    # More than one guard holds this ladder, so the act says so rather than
+    # letting the first-named one read as the whole reason.
+    ladder_holding = uq_studies.guards_holding_note(band)
     ladder_spread = max(beta_series) - min(beta_series)
     # The total is the root sum of squares over the channels that carry a
     # figure, through the same call every other act uses. Input and model are
@@ -278,11 +314,14 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
            f"{production['fit_r2']:.4f}." if production.get("fit_r2") else
            "Fit quality reported on the production mesh.",
            (f"The shock angle moved {ladder_spread:.3f} deg across the three "
-            f"rungs, and the ladder is not conclusive because "
-            f"{ladder_reason}, so no band is read from that spread."
+            f"rungs, and no band is read from that spread."
             if numerical_abs is None else
             f"The ladder is conclusive, so the numerical channel carries "
             f"{numerical_abs:.3f} deg."),
+           (f"The ladder is not conclusive: {ladder_reason}."
+            if numerical_abs is None else ""),
+           (f"{ladder_holding}."
+            if numerical_abs is None and ladder_holding else ""),
            citations=[per("oblique-shock")])
     roster.idle(NUMERICIST)
 
@@ -324,7 +363,8 @@ def main(request: str | None = None, params: dict | None = None, emit=None) -> i
             f"• The shock angle moved {ladder_spread:.3f} deg across the "
             f"three rungs of this mesh ladder. "
             f"• The ladder is not conclusive: {ladder_reason}. "
-            f"• No band is read from that spread, so this channel is not "
+            + (f"• {ladder_holding}. " if ladder_holding else "")
+            + f"• No band is read from that spread, so this channel is not "
             f"quantified."),
         model_note=("The solved case shares the reference theory's inviscid "
                     "assumption, so no closure model form gap applies here."))

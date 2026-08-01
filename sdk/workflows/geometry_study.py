@@ -1339,9 +1339,32 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
             parts.append(f"Spread ±{num['band_abs']:.2g} on the drag "
                          f"coefficient, the conservative estimate this "
                          f"ladder supports and not an extrapolated band")
+            #
+            # EVERY GUARD THAT HOLDS IT, NOT ONLY THE FIRST. Four of the stored
+            # ladders this act reads fail more than one guard, and the reason
+            # used to name whichever one the precedence order reached first.
+            # The NACA 0012 wing fails three; its narration said only that the
+            # observed order was outside the window, which invites a reader to
+            # conclude a better order would settle it. It would not.
+            #
+            # And an extrapolated drag coefficient below zero is named as the
+            # impossibility it is, ahead of any other guard. A body held in a
+            # uniform stream with no power source cannot make thrust, so a
+            # negative extrapolated C_d is not a wide band, it is a value the
+            # flow cannot produce. The stored ladders in this act do not
+            # currently reach one; the ladder measured for the Ahmed body on a
+            # constant refinement ratio does, at minus 0.0845.
+            impossible = uq_studies.impossible_extrapolation(
+                num, quantity="the drag coefficient",
+                why="which is a thrust this body has no way to make",
+                floor=0.0, places=4)
             parts.append("Ladder outside the asymptotic range: "
-                         + (uq_studies.not_conclusive_reason(num)
+                         + (uq_studies.not_conclusive_reason(
+                                num, impossible=impossible)
                             or "the ladder is not in the asymptotic range"))
+            holding = uq_studies.guards_holding_note(num)
+            if holding:
+                parts.append(holding)
         else:
             order = num.get("observed_order")
             if order is not None:
