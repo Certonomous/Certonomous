@@ -2,8 +2,102 @@
 
 **Status: NOT FILED ANYWHERE. No issue has been opened, no maintainer has been contacted, nothing
 has been posted.** This document is prepared to be filed against `mdolab/idwarp` (and cross-linked
-to `mdolab/dafoam`), and as of 2026-07-31 it is submission-ready in the sense set out in
-"Submission readiness" immediately below. **Whether it is sent is Katie's call, not the lab's.**
+to `mdolab/dafoam`), and as of 2026-08-01 it is submission-ready in the sense set out in
+"Submission readiness" below -- now including a verified four-line fix with a before/after table
+(see the 2026-08-01 update immediately following). Any filing should be a comment on open issue
+`mdolab/idwarp#57`, whose five-year-old numbers it reproduces, explains, and repairs. **Whether it
+is sent is Katie's call, not the lab's.**
+
+## Update, 2026-08-01: THE FIX IS WRITTEN AND VERIFIED -- four lines collapse every measured error, with rotations ON
+
+**Read this first; it supersedes nothing below but completes it.** The root-cause claim of the
+2026-07-31 update has now passed the strongest available test: supplying the derivative term the
+degenerate branch discards makes every error this report documents collapse to finite-difference
+truncation level, on both tutorials and on IDWarp's own five-year-old failing verification, while
+leaving the primal warp bit-identical and the non-degenerate code path untouched to the printed
+digit.
+
+### The corrected derivative
+
+The map `Mi(v1, v2)` (rotation carrying reference normal `v1` onto current normal `v2`) is smooth
+at `v2 = v1` even though the shipped parameterization is not. Since
+`sin(theta)[k]_x = [u1 x u2]_x` exactly (unit vectors `u_i = v_i/|v_i|`) and the `(1-cos)` term is
+`O(theta^2)`, the derivative at the degenerate point is
+
+```
+dMi = [ (v1 x dv2) ]_x / (|v1| |v2|)
+```
+
+whose exact reverse-mode form, with `a = axial(mib - mib^T)`, i.e.
+`a = (mib(3,2)-mib(2,3), mib(1,3)-mib(3,1), mib(2,1)-mib(1,2))`, is
+
+```
+v2b += ( a x v1 ) / (magv1 * magv2)
+```
+
+Sign conventions were verified two independent ways by hand (`v1 = z`, `mib = e_13` gives
+`v2b = (1,0,0)` both by the formula and by explicit small-angle geometry) and by a standalone
+Fortran driver: the hand case to machine precision, 20 random draws against a
+Richardson-extrapolated FD of the singularity-free reference form to **2.8e-10**, forward-vs-
+reverse consistency to **4.3e-15**, and the live branch (tilt 0.1 rad) FD-clean and untouched.
+
+### The patch (proof of concept, against v2.6.2)
+
+Hand-fix of the two Tapenade-generated files -- the right *upstream* fix is to reparameterize the
+primal (`R = I + [v]_x + [v]_x^2/(1+c)`, see "Suggested fix" below) and regenerate, which would
+also cure the ~1% ill-conditioned near-threshold regime that this minimal patch deliberately does
+not touch:
+
+```diff
+--- a/src/adjoint/outputReverse/vectorUtils_b.f90
++++ b/src/adjoint/outputReverse/vectorUtils_b.f90
+@@ -26,6 +26,7 @@
+    REAL(kind=realtype), DIMENSION(3) :: v1b
++   REAL(kind=realtype), DIMENSION(3) :: axialmib
+    INTEGER :: branch
+@@ -126,6 +127,13 @@   IF (branch .EQ. 0) THEN   ! the axisMag < tol branch
+    magv2b = 0.0_8
+    axisb = 0.0_8
+    axismagb = 0.0_8
++   ! true derivative of the removable singularity: dMi = [(v1 x dv2)]_x/(|v1||v2|)
++   axialmib(1) = mib(3, 2) - mib(2, 3)
++   axialmib(2) = mib(1, 3) - mib(3, 1)
++   axialmib(3) = mib(2, 1) - mib(1, 2)
++   v2b(1) = v2b(1) + (axialmib(2)*v1(3)-axialmib(3)*v1(2))/(magv1*magv2)
++   v2b(2) = v2b(2) + (axialmib(3)*v1(1)-axialmib(1)*v1(3))/(magv1*magv2)
++   v2b(3) = v2b(3) + (axialmib(1)*v1(2)-axialmib(2)*v1(1))/(magv1*magv2)
+    ELSE
+```
+
+plus the dual six-entry fix in `outputForward/vectorUtils_d.f90` (`GETROTATIONMATRIX3D_D`),
+verified at unit level. Full diff: `rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`.
+
+### Before/after, all with `useRotations=True`, patched build vs stock 2.6.2
+
+| test | quantity | before | after |
+|---|---|---|---|
+| **issue #57** `inflate_cube`, IDWarp's own `verifyWarpDeriv` | DOF 0 | AD 2.8706 vs FD −115.8758, **210.16%** | AD **−115.875779**, **8.6e-06%** |
+| | DOF 3 | AD 2.8862 vs FD −94.3796, **212.62%** | AD **−94.3795530**, **3.4e-05%** |
+| | DOFs 1,2,4,5 (in-plane, correctly zero-rotation) | −4e-05% | **identical to every printed digit** |
+| A1 NACA0012, real `dCD/dXv` seed | idx6 (LE combo) | **634%, SIGN-FLIPPED** | **5.5e-04%**, sign agrees |
+| | idx7 / idx4 / idx0 / idx1 | 1.74% / 2.65% / 11.9% / 11.6% | 1.3e-06% / 1.5e-04% / 1.2e-05% / 1.3e-05% |
+| A5 UBend, pressure-loss, real seed | idx8 | **207.0%, SIGN-FLIPPED** | **3.0e-06**, sign agrees |
+| | idx17 | **121.6%, SIGN-FLIPPED** | **7.0e-06**, sign agrees |
+| A5 UBend, stock objective | worst of 27 | 80.79% | **0.0000, all 27** |
+| regression control: `o_mesh`/`co_mesh`/`sym_mesh` shear | worst err | 1.7e-05%--3.9e-05% | **log lines bit-identical** (live branch untouched) |
+| `onera_m6` shear (the separate near-threshold regime) | worst err | 1.258% | 1.258%, **unchanged** -- as predicted for a degenerate-branch-only fix |
+| primal invariance | full 310,284-coord warped grid | -- | **md5-identical, max diff 0.0** |
+
+Notes for reviewers: (1) the AD moved to the already step-converged FD in every case, never the
+reverse; (2) the FD columns are unchanged from the stock runs; (3) `sum(dXs)` on `inflate_cube` is
+*unchanged* at `3.229531100101105e+04` while `||dXs||` moves from 4.572e+02 to 1.101e+03 -- direct
+confirmation that the existing `Sum of dxs` regression assertion cannot see either the bug or the
+fix, and should be supplemented by asserting on `verifyWarpDeriv`'s error itself (with a
+non-random or captured-real seed; see "a random-seed dot-product test does not clear this
+function" below).
+
+Derivation, controlled unit experiment, and raw logs:
+`PATCH_getRotationMatrix3d.md`, `rotation_branch/patched/`, `rotation_branch/patch_unittest/`.
 
 ## Update, 2026-07-31 (later): ROOT CAUSE LOCALIZED TO A LINE, and this is an OPEN UPSTREAM BUG ALREADY
 
