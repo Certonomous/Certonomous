@@ -62,7 +62,12 @@ declare -A PROMPT=(
   [crm-wingbody]="Solve the CRM wing-body and check the drag."
   # -- the headline acts -----------------------------------------------------
   [adjoint-optimization]="Cut the drag on the wing with the discrete adjoint and verify the gradient against finite differences."
-  [aircraft-optimization]="Optimize the L/D of an airliner for 300 passengers, 6000 km range."
+  # The airliner prompt is the one Katie types on camera, verbatim, and it
+  # arrives with a surface: "the attached twin airliner" is an upload, and the
+  # worker clause is what makes the act state its headroom in numbers. Verified
+  # here with the surface threaded in, because a run without it searches a
+  # different span ladder and lands on a different wing.
+  [aircraft-optimization]="Optimize lift drag coefficient of the attached twin airliner. Constraints: 300 passengers, Range: 6000 km, take off speed: 80 m/s landing speed: 70 m/s. Don't use all of my workers"
   [valve-study]="Find the valve opening angle that minimizes pressure loss over the cardiac cycle."
   [race-study]="Race a Monte Carlo uncertainty study against a reduced-order model."
   [geometry-study]="Solve the external aerodynamics of the supplied B-52 geometry."
@@ -80,6 +85,7 @@ declare -A PROMPT=(
 # it, so this verifies the upload path the camera will use, not a shortcut.
 declare -A SURFACE=(
   [geometry-study]="b52.stl"
+  [aircraft-optimization]="airliner_wing_span52.stl"
 )
 
 ACTS=("$@")
