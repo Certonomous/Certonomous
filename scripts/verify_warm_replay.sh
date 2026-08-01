@@ -104,7 +104,15 @@ ACTS=("$@")
 # and Held back are read off the free-core count at the moment the act runs, so
 # a busy box moves them while the physics does not. Left out, a filming-day
 # check reports DIFFERS on an act that did not change.
-NOISE='Compute audit|cores free|GB available|other job|granted slots|Worker headroom|Available|Taken|Held back'
+#
+# So does the SENTENCE that introduces those rows, and it is anchored on its
+# opening clause rather than on any one of its wordings. The act says one thing
+# on a box with slots to spare and another on a box already at capacity one,
+# where there is no headroom to leave and it says so rather than claiming some.
+# Which branch runs is the free-core count at that instant, so the two are the
+# same host reading in prose. Matching only the first wording is what made this
+# act report DIFFERS while every solved coefficient matched to the digit.
+NOISE='Compute audit|cores free|GB available|other job|granted slots|Worker headroom|Available|Taken|Held back|asked me to leave headroom|no headroom to leave'
 
 # An act that fails the same way twice diffs clean. That is how a broken
 # cylinder vortex-shedding act -- the control room had been restarted without
