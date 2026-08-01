@@ -265,3 +265,42 @@ The measured L1.T peak, 1,986 MiB against 1,884 predicted, is 5% above the law
 rather than below it — the opposite sign to HLPW6's 11% shortfall, and
 consistent with a pure hex mesh carrying 3.0 internal faces per cell where the
 HLPW6 grid carries 2.44.
+
+## 4. Diagnosis: what actually breaks, and in what order
+
+### The instability is present from the first pressure solve
+
+Two runs, identical in every respect except the grid. Column 3 is the
+`time step continuity errors : sum local` printed by the solver itself.
+
+| iteration | DPW5 hex, GAMG p iterations | hex continuity | DPW5 hybrid, GAMG p iterations | hybrid continuity |
+|---:|---:|---:|---:|---:|
+| 1 | 29 | 5.0e-08 | **339** | 5.1e-08 |
+| 2 | — | 2.0e-06 | 115 | 2.0e-06 |
+| 5 | — | 1.3e-06 | 252 | 6.7e-06 |
+| 6 | — | 1.5e-06 | 171 | **4.7e-04** |
+| 7 | — | 1.4e-06 | 389 | 1.6e-02 |
+| 8 | — | 1.4e-06 | 269 | 1.40 |
+| 9 | — | 1.2e-06 | **1000** | 4.5e+04 |
+| 10 | — | 1.3e-06 | **1000** | 5.6e+09 |
+| 11 | — | 1.2e-06 | — | dies |
+| 200 | 28 | **3.6e-08** | — | — |
+
+Two things are visible here that no summary statistic shows.
+
+**The pressure matrix is already ill-conditioned before anything has gone
+wrong.** On the very first iteration, with both runs at an identical continuity
+error of 5e-8 and an identical uniform initial field, GAMG needs 29 iterations
+on the hex mesh and **339** on the hybrid one. Nothing has diverged yet; the
+discretisation of the same physical domain is simply an order of magnitude
+harder to invert when the cells are tets.
+
+**The divergence is geometric, not sudden.** The hybrid continuity error
+multiplies by roughly 30 to 100 every iteration from iteration 5 onward:
+6.7e-6, 4.7e-4, 1.6e-2, 1.40, 4.5e4, 5.6e9. There is no single event to catch
+and no iteration at which a limiter could intervene. The hex run, on identical
+physics and boundary conditions, holds flat at 1.3e-6 for two hundred
+iterations and then falls to 3.6e-8.
+
+So the failure is not a blow-up that better limiting would contain. It is an
+amplification factor greater than one in the outer SIMPLE loop.
