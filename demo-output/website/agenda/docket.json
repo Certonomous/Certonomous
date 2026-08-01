@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-31T22:52:00Z",
+  "generated_at": "2026-08-01T00:18:12Z",
   "proposals": [
     {
       "id": "w3-total-uncertainty-convention",
@@ -2214,8 +2214,10 @@
         "models/curriculum/uq-studies",
         "scripts/self_audit.py"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T22:19:05Z"
+      "status": "approved",
+      "created_at": "2026-07-31T22:19:05Z",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'"
     },
     {
       "id": "w3-a-study-with-no-rungs",
@@ -2232,8 +2234,10 @@
       "citations": [
         "models/curriculum/uq-studies/aortic-valve.json"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T22:19:05Z"
+      "status": "approved",
+      "created_at": "2026-07-31T22:19:05Z",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'"
     },
     {
       "id": "w6-audit-should-price-its-own-remedy",
@@ -2250,8 +2254,10 @@
       "citations": [
         "scripts/self_audit.py"
       ],
-      "status": "proposed",
-      "created_at": "2026-07-31T22:19:05Z"
+      "status": "approved",
+      "created_at": "2026-07-31T22:19:05Z",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'"
     },
     {
       "id": "w5-idwarp-singularity-free-rotation-patch",
@@ -2534,7 +2540,10 @@
       "cost_basis": "estimate",
       "gate": "A duct at a Reynolds number in neither the benchmark's training nor its test set is solved and its DNS/LES counterpart obtained or the case is abandoned with the reason recorded; variant D is then scored on it as a true held-out Reynolds transfer",
       "expected_knowledge_gain": "Whether the velocity-scale normalisation actually transfers across Reynolds number, or whether round 4's gain was specific to these two cases. Either answer is publishable and the negative one retires the approach.",
-      "risk": "No high-fidelity duct data may be obtainable at a fourth Reynolds number, in which case the gate fails honestly and the claim stays where it is -- motivated by mechanism, unproven in transfer."
+      "risk": "No high-fidelity duct data may be obtainable at a fourth Reynolds number, in which case the gate fails honestly and the claim stays where it is -- motivated by mechanism, unproven in transfer.",
+      "status": "approved",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Status field was malformed and repaired at this pass."
     },
     {
       "id": "c6-nasa-hump-the-only-last-place",
@@ -2546,7 +2555,52 @@
       "cost_basis": "estimate",
       "gate": "Either a legally-trained hump prediction beats 0.0621 on validation evidence alone, or the record states that no such route exists and why",
       "expected_knowledge_gain": "Whether a benchmark case with no training data admits any principled treatment beyond declining to correct it. That generalises well past this benchmark.",
-      "risk": "The honest outcome may be to apply the decline gate to the hump and ship the uncorrected floor, which improves the score by 0.0001 and looks like giving up. It is not giving up, and the record must say why."
+      "risk": "The honest outcome may be to apply the decline gate to the hump and ship the uncorrected floor, which improves the score by 0.0001 and looks like giving up. It is not giving up, and the record must say why.",
+      "status": "approved",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Status field was malformed and repaired at this pass."
+    },
+    {
+      "id": "w3-race-shrink-the-dominant-term",
+      "well": "W3",
+      "objective": "Refine the race angle grid near the peak so the dominant uncertainty term shrinks",
+      "rationale": "The race headline now composes to plus or minus 0.43, and the numerical channel owns 0.419 of it because the peak sits on the alpha equals zero edge of a coarse angle grid, where a half-step bracket reads slope rather than curvature. The largest-term rule says work here and nowhere else: halving the grid step near the peak is a handful of cheap solves and attacks the only term that matters. The input and model channels are already an order smaller.",
+      "est_core_min": 30,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.411,
+      "cost_basis": "estimate",
+      "gate": "The numerical channel on the peak location after refinement, against the current 0.419",
+      "expected_knowledge_gain": "The one act whose band is dominated by a term a few solves can shrink",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output website race records",
+        "the composed band commit"
+      ],
+      "status": "approved",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'",
+      "created_at": "2026-08-01T00:18:12Z"
+    },
+    {
+      "id": "w8-diagnosis-confirmed-by-repair",
+      "well": "W8",
+      "objective": "Write proof-by-repair into the verification charter as the closing standard for tool defects",
+      "rationale": "The warp investigation ended the strongest way a tool-forensics line can: the named line was patched, every reproducer collapsed to roundoff, controls stayed bit-identical, and the primal was proven untouched by checksum. That is a repeatable pattern, not a one-off: a root-cause claim about a tool is closed by repair plus invariance controls, not by correlation. The charter currently has no clause saying when a forensics line may be declared closed.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A charter clause stating the closing standard, citing the warp arc as the worked example",
+      "expected_knowledge_gain": "Forensics lines get a definition of done, so they stop when proven rather than when tired",
+      "source_kind": "report",
+      "citations": [
+        "dafoam PROOF section 24",
+        "PATCH_getRotationMatrix3d record"
+      ],
+      "status": "approved",
+      "decided_at": "2026-08-01T00:18:12Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.'",
+      "created_at": "2026-08-01T00:18:12Z"
     }
   ]
 }
