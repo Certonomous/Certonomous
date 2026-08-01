@@ -77,4 +77,49 @@ are inside what the corrected-Laplacian numerics handle.
 
 ## 3. Per-rung solves
 
-(filled in as each rung settles — see sections below)
+Same solver, numerics, BCs, tolerances as the published `bump_sst.json` runs
+(`tmr_verification.py`: simpleFoam incompressible, kOmegaSST strain-production,
+linearUpwind momentum / upwind turbulence advection, Aref = lRef = 1.5).
+Every rung is driven by the settle criterion — `settle_verdict`'s peak-to-peak
+<= 3e-7 over the trailing `settle_window` — with `iteration_backstop(cells)`
+as the initial cap and documented restarts to chase settle past it. A rung is
+only quoted at a settled state.
+
+| rung | start | settled at iteration | window | peak-to-peak at stop | Cd | Cd pressure | Cd viscous | y+ max (bump) | Cf(0.75) |
+|---|---|---|---|---|---|---|---|---|---|
+| 89x41 | impulsive | **5,288** | 1,322 | 1.50e-7 | 0.0042264331 | 1.18634e-3 | 3.04009e-3 | 0.758 | 5.35498e-3 |
+| 177x81 | impulsive | **16,000** | 2,000 | 6.81e-8 | 0.0035977232 | 4.61383e-4 | 3.13634e-3 | 0.429 | 5.71841e-3 |
+| 353x161 | seeded from settled 177x81 (mapFields) | *running* | | | | | | | |
+
+Evidence: `W1_runs/{coarse,medium}/collected.json`, full Cd histories under
+`W1_runs/*/postProcessing/forceCoeffs1/`, solver logs gzipped beside them.
+
+Incidents, recorded rather than smoothed:
+
+- The coarse and medium backstops (3,000 / 5,000 from `iteration_backstop`)
+  both stopped their rungs unsettled (spreads 9.6e-7 / 1.8e-6); both rungs
+  were continued by restart to settle. The backstop formula is calibrated on
+  the flat plate at 0.147 iterations/cell; the bump needs 1.5 (coarse) to
+  1.14 (medium) iterations/cell — 8-10x the flat plate — so for this case the
+  formula's caps are floors, not generous bounds.
+- One medium continuation was killed by an external SIGTERM at ~100 s
+  (log ends mid-iteration, no error, no OOM, `journalctl` empty) — the same
+  unexplained termination signature 4G section 10.3 recorded on its fine
+  re-run at iteration 10,098. Detaching the driver with setsid avoided it;
+  cause still unidentified.
+- OpenFOAM renames a restart's force-coefficient output to
+  `coefficient_<time>.dat` when the file exists, so a watcher reading only
+  `coefficient.dat` goes blind after a restart-over-restart. The medium rung
+  consequently overran its settle point by ~2,500 iterations (~2 core-min,
+  charged to the budget). The driver now stitches histories keyed by
+  iteration number (`W1_runs/stitch.py`).
+- The medium rung's 10,001-12,000 range was solved twice (restart replay
+  after the SIGTERM kill); the two trajectories agree row-for-row where they
+  overlap, so the replay changed nothing downstream.
+- The 353x161 rung is seeded from the medium's settled fields via
+  `mapFields -consistent` (established lab practice, cf. the seeded NACA
+  t-a10 rung). Budget arithmetic forced it: measured settle costs on the
+  first two rungs extrapolate an impulsive fine rung to ~34,000 iterations
+  (~360 core-min), double the whole item budget. Seeding changes only the
+  initial transient; the settle criterion certifies the endpoint state
+  regardless of path.
