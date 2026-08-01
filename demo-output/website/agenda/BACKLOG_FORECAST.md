@@ -46,6 +46,13 @@ lab historically uses **10% of its own box**. It is not a solver figure; it
 includes every real-world gap — restarts, retries, agent turnaround, and the
 box powering itself off, which it did on 2026-07-30 at 10:40 mid-campaign.
 
+> **The word "sustained" in that line is wrong, and §8 replaces it (2026-08-01).**
+> Resolved to one-minute bins the same ledger is not a trickle: **47.5% of its
+> minutes hold no work at all**, and the other 52.5% average **3.02 cores**.
+> 1.583 = 3.02 x 0.525. The mean is the product of a rate and a duty cycle and
+> is equal to neither of them. Everything below that divides the backlog by 1.40
+> is answering a question nobody asked.
+
 "Cleaned" removes 6 stall rows worth 26.98 core-hours (11.3% of the gross
 headline), clustered in two wall-clock windows across two independent solver
 families, i.e. host stalls rather than solver cost.
@@ -78,7 +85,15 @@ direction — **under**.
 | `agp-e5136061890b` TMR bump fourth rung | 30 | 406.5 solve, ~410 total | **13.6x under** |
 | `tmr-flatplate-finest-grids` | 327 | 483.6 | **1.48x under** |
 | `naca0012-derive-reference-then-relayer` (superseded pricing) | 3.04 | 180–240 | **~15x under** |
+| `w4-the-grid-not-the-box-was-the-limit` (added 2026-08-01) | 120 | **1,175.0** | **9.8x under** |
 | refit of stored studies priced as a re-run | 8 studies "need compute" | 7 refittable in place | over; 6 needed no compute |
+
+The fourth row is new and is the mechanism of §4.1.1 again, in its purest form:
+an item scoped as "run a second grid" was priced as one solve at 120 core-min
+and was actually a diagnosis — 40 runs, twenty of them configurations on the
+hostile grid, 1,175.0 core-min measured
+(`demo-output/website/committee-grids/measurements.jsonl`). Three of the four
+under-misses are now the same defect: **a question priced as a run.**
 
 The two mechanisms behind the under-misses are both still live in the docket:
 
@@ -232,3 +247,127 @@ even at 3x it is 62 of 67 items. What decides the week is:
    a solve queue they do not need.
 3. **The box stays up.** The lab's measured occupancy is 1.40 of 14 cores.
    The gap is not solver speed; it is time the box spends not solving.
+
+---
+
+## 8. The duty cycle, measured — and what it does to §6
+
+`w6-bursts-not-averages`, `w6-measure-the-throughput-that-just-changed`.
+Added 2026-08-01. **This section supersedes the 1.40-core basis of §2 and the
+affordable set of §6.**
+
+### 8.1 The mean was a product of two numbers, and equals neither
+
+The 1.40-core figure was a total divided by a span. Re-reading the same file
+(`demo-output/website/mega-batch/ledger.jsonl`, 208,193 rows, 208,193 carrying
+both a timestamp and a wall time) and binning every row's occupancy into
+one-minute buckets over its own 151.39-hour span, 9,084 bins:
+
+| | measured |
+|---|---|
+| gross compute | 239.69 core-hours |
+| span | 151.39 h |
+| **gross mean** | **1.583 cores** (1.40 after §2's stall cleaning) |
+| **bins holding no work at all** | **4,316 of 9,084 = 47.5%** |
+| **mean occupancy while any work is in flight** | **3.02 cores** |
+| median busy bin | 1.99 cores |
+| p90 / p99 / max | 4.00 / 4.02 / 6.03 cores |
+
+> **1.583 = 3.02 x 0.525.** The lab was never running at 1.4 cores. It ran at
+> about 3 cores for half the wall clock and at zero for the other half.
+
+The ceiling in that whole era is 6.03 cores and it is above 4 for only 8.5% of
+the span, which is the signature of a four-worker serial pool, not of a machine
+being asked for what it has.
+
+### 8.2 The burst is a third rate, and it is the interesting one
+
+The 2026-08-01 window is not more of the same. From
+`demo-output/website/committee-grids/measurements.jsonl`, 40 instrumented runs,
+07:56:35Z to 09:42:50Z:
+
+| | measured |
+|---|---|
+| compute | **1,175.0 core-min = 19.58 core-hours** |
+| span | 1.77 h |
+| **occupancy** | **11.06 cores sustained** |
+| peak concurrency | 14 MPI ranks, one `mpirun`, load 14.93 at 08:17 |
+| usable cores (`compute_audit` reserves 2 of 16) | 14 |
+
+The difference is not that the lab worked harder. It is that this study used
+`mpirun -np 14` where the mega-batch families are serial. **11.06 cores is 7.9x
+the 1.40 the affordable set was cut against, and 3.7x the 3.02 the ledger era
+managed while busy.**
+
+### 8.3 Three states, and the two questions a mean cannot answer
+
+| state | cores | share of wall clock | evidence |
+|---|---:|---|---|
+| idle | 0 | 47.5% of the ledger span | ledger, 1-min bins |
+| serial pool busy | 3.02 | 52.5% of the ledger span | ledger, 1-min bins |
+| **14-rank MPI burst** | **11.06** | 1.77 h of the 6.07 h since 04:14Z today | committee-grids |
+
+**How long the queue takes.** The approved backlog is 9,929.4 core-min stated,
+**12,719.4 with the HLPW6 reprice of §4.2** carried in:
+
+| worked at | drain time |
+|---|---|
+| 1.40 cores (the old basis) | 151.4 h = **6.3 days** |
+| 3.02 cores (serial pool, when busy) | 70.2 h = **2.9 days** |
+| **11.06 cores (demonstrated burst)** | **19.2 h** |
+
+**How much of the box sits unused.** Just under half of it, and that is a
+dispatch number rather than a capacity number. 11.06 cores is what this machine
+did for 106 consecutive minutes today with 21.6 GiB of memory still free at the
+worst moment. Nothing about the hardware produced the 1.40.
+
+### 8.4 The affordable set, restated
+
+§6 cut a 7-day budget of 14,132 core-min at 1.40 cores, divided by the 3x
+planning multiplier of §4.3 to 4,710 core-min of stated cost, and ruled five
+items out. Holding that same 3x multiplier and changing only the rate:
+
+| basis | cores | 7-day budget | after the 3x multiplier |
+|---|---:|---:|---:|
+| §6, mean | 1.40 | 14,112 | 4,704 |
+| burst rate at today's duty (1.77 h of 6.07) | 3.23 | 32,554 | **10,851** |
+| burst rate at the ledger's duty (52.5%) | 5.81 | 58,530 | **19,510** |
+
+The 62 items §6 called affordable are 4,606.4 core-min stated. The four
+non-HLPW6 items it excluded are 603 + 420 + 400 + 300 = **1,723 core-min
+between them**.
+
+> **Four of the five rulings do not survive.** `agp-4369c99cdd7f`,
+> `closure-duct-field-inversion`, `r4-asymptotic-range-ladders` and
+> `w5-regrade-every-published-gradient-claim` total 1,723 core-min — 15.9% of a
+> single week's budget at even the *lower* of the two restated rates. They were
+> ruled unaffordable by a rate that was wrong by 2.3x to 7.9x. The correct
+> statement is that they are cheap and were ranked last, which is a sequencing
+> judgement and should be argued as one.
+
+`hlpw6-testcase1-coarse-grid-entry` at 6,390 is the only one where the rate
+still decides anything: it fits at the ledger's duty cycle with 13,180 core-min
+to spare, and falls 1,868 core-min short at today's. That question is now moot
+in the useful direction — §4.2 already records that its submission route is
+closed, and
+`demo-output/website/committee-grids/COMMITTEE_GRID_NUMERICS.md` §5 measures
+that a second-order entry cannot be produced on that grid family by this
+toolchain at all. **It should be rescoped on those grounds, not on price.**
+
+### 8.5 What this does and does not license
+
+It does **not** say the lab can plan on 11.06 cores. That is a demonstrated
+*capacity*, held for 1.77 hours, by one study that happened to be MPI. The
+arrival of work is what is bursty, and 47.5% idle is the measurement of it.
+
+What it does say is that §7's conclusion was right for a sharper reason than
+it gave. **Compute is not the binding constraint and the gap is not close.**
+The backlog is 19.2 hours of the machine actually being asked. Everything
+between that and 6.3 days is time the box spends not being asked, and no
+estimate on this page — right or wrong — moves that number by a minute.
+
+*Not measured here, and left open:* `w6-the-box-went-from-a-tenth-to-full`
+asks for per-solver wall times compared at matched work under the two loads.
+The burst has six repeated tags but every repeat is a re-run after a
+configuration change with its log overwritten, so there is no matched pair in
+it and no contamination factor is claimed. That item stays open.
