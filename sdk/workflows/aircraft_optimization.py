@@ -1942,6 +1942,10 @@ def main(request: str | None = None, params: dict | None = None,
     solved_ok: list[dict] = []
     # The winner's unresolved siblings, filled once the finalists are solved.
     family: list[dict] = []
+    # How many finalists actually ran at once. Defined out here because the
+    # Report's methods paragraph describes the execution and must not read a
+    # name that only exists on the solved path.
+    n_par = 0
     if solver_live:
         finalists = sorted(feasible, key=lambda r: r["L_D"],
                            reverse=True)[:_N_FINALISTS]
@@ -2012,7 +2016,9 @@ def main(request: str | None = None, params: dict | None = None,
 
         # Each finalist rides a kill-checkable worker slot: scripts/kill_worker.sh
         # can strike one mid-batch, and the slot reports the loss, reprovisions,
-        # and re-solves — the same polar lands. Solved in parallel, order preserved.
+        # and re-solves — the same polar lands. Order is preserved either way,
+        # but the pool is only as parallel as the granted slot count: at one
+        # slot this is strictly sequential, and the Report says which it was.
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(max_workers=max(1, n_par)) as pool:
             batch = list(pool.map(_finalist_job, enumerate(designs)))
@@ -2518,10 +2524,17 @@ def main(request: str | None = None, params: dict | None = None,
         "Breguet range check.",
     ]
     if won_solved:
+        # HOW THEY RAN IS A FACT ABOUT THE BOX, NOT A HOUSE STYLE. This
+        # sentence hardcoded "in parallel", and the executor is strictly
+        # sequential at one granted slot: it read as a claim about the run
+        # while the transcript on the same record said "1 granted slots". The
+        # clause is now the granted count's to make.
+        how_run = (f"in parallel across {n_par} slots" if n_par > 1
+                   else "one after another on the single granted slot")
         methods.append(
             f"The top {len(solved_ok)} feasible finalists were built as parametric "
-            f"geometry and solved with VSPAERO, a vortex-lattice method, in "
-            f"parallel; the cruise point was interpolated on each solved polar, "
+            f"geometry and solved with VSPAERO, a vortex-lattice method, "
+            f"{how_run}; the cruise point was interpolated on each solved polar, "
             f"and the winner was picked on solved numbers.")
         methods.append(
             "Non-wing parasite drag from Raymer's component buildup method "
