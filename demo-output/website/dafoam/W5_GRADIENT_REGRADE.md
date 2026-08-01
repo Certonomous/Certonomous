@@ -356,7 +356,44 @@ perturbations, deliberately, to give its four cores back to the A2 run**, and
 produced no table. Recorded so the log's existence is not later mistaken for a
 result.
 
-## 5. What the proposal assumed, and what is actually true
+## 5. Cost, against the estimate — and it went over
+
+`est_core_min` was **300.0**. Measured, every figure from a run record, rank
+count stated:
+
+| run | ranks | wall | core-min |
+| --- | --- | --- | --- |
+| A1 stock + patched | 2 | 65 s + 53 s | **4.0** |
+| A4 stock + patched | 4 | 47 s + 58 s | **7.0** |
+| A5 pressure-loss stock + patched | 4 | 235 s + 250 s | **32.4** |
+| A5 stock-objective stock | 4 | 420 s | 28.0 |
+| A5 stock-objective patched, **stopped at 139/324** | 4 | 1 420 s | **94.7 — spent, no table** |
+| A2 preserved case, **failed at 132/211** | 4 | 3 576 s | **238.4 — spent, no table** |
+| A2 mesh rebuild + `run_model` | 4 | 75 s | 5.0 |
+| A2 twist stock + patched | 4 | 700 s + 700 s | **93.4** |
+| **subtotal** | | | **≈503 core-min against 300** |
+
+**Two-thirds of that — 333 core-minutes — bought no derivative table.** The A2
+failure (238) and the deliberately stopped A5 stock-objective run (95) are the
+whole overrun and then some; the six runs that produced numbers cost 141
+core-minutes between them, well inside the estimate.
+
+Neither loss is a surprise in hindsight and both are worth stating as
+estimator lessons rather than as excuses:
+
+* **`check_totals` is an all-or-nothing bet.** It buffers its table until every
+  perturbation finishes, so a failure at 132 of 211 loses everything —
+  `A2_mach_tutorial_wing.md:108` already recorded this after an OOM cost 207
+  core-minutes on the same case, and it cost 238 again today. **Any future wide-DV
+  FD sweep on this stack should be split into `of`/`wrt` subsets by default**,
+  which is exactly what §3b did for 93 core-minutes instead of 210.
+* **The estimate was for re-running verifications, not for discovering that a
+  case cannot be re-run.** 238 core-minutes went to finding out that A2's
+  preserved state is unusable. That is a real result (B-7 in
+  `agenda/BLOCKERS.md`) and it was not free, but no cost basis would have priced
+  it, because nobody knew it was there to find.
+
+## 6. What the proposal assumed, and what is actually true
 
 The item's rationale states that *"every adjoint shape gradient this lab has
 computed was evaluated at a state where the degenerate-rotation guard fires, so
