@@ -107,6 +107,27 @@ class Roster:
 # Compute stewardship
 # --------------------------------------------------------------------------
 
+# ONE QUANTITY, ONE PRECISION. The compute panel shows the ledger twice: the
+# KPI totals `spent_core_minutes`, which `as_dict` rounds to two decimals, and
+# the note under it quotes the individual spend. The note used to print one
+# decimal, so a measured spend of 1.8 core-seconds appeared as "Core-min spent
+# 0.03" beside "spent 0.0 core-min · 9 VSPAERO wing solves" — the same
+# measurement, one of the two rounded into a claim that nine solver runs cost
+# nothing. Nine runs happened, and the figure that survives is the one with
+# the precision to show them.
+#
+# So a spend too small to register at one decimal is quoted at the two the
+# totals already carry, and everything larger reads exactly as it always did.
+# A ledger that is genuinely at zero still prints 0.0: nothing measured is not
+# the same as something too small to see.
+def _core_min(core_seconds: float) -> str:
+    """Core-minutes at the precision that keeps a measured spend visible."""
+    minutes = core_seconds / 60.0
+    if minutes and abs(minutes) < 0.095:
+        return f"{minutes:.2f}"
+    return f"{minutes:.1f}"
+
+
 @dataclass
 class ComputeLedger:
     """Core-seconds actually burned, and core-seconds the lab avoided burning.
@@ -124,12 +145,12 @@ class ComputeLedger:
     def spend(self, core_seconds: float, what: str = "") -> None:
         self.spent += max(0.0, float(core_seconds))
         if what:
-            self.notes.append(f"spent {core_seconds / 60:.1f} core-min · {what}")
+            self.notes.append(f"spent {_core_min(core_seconds)} core-min · {what}")
         self._publish()
 
     def save(self, core_seconds: float, why: str) -> None:
         self.saved += max(0.0, float(core_seconds))
-        self.notes.append(f"avoided {core_seconds / 60:.1f} core-min · {why}")
+        self.notes.append(f"avoided {_core_min(core_seconds)} core-min · {why}")
         self._publish()
 
     @property

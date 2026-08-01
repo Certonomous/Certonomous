@@ -236,6 +236,41 @@ class WorkflowTests(unittest.TestCase):
         self.assertGreater(counts["Held back"], 0)
 
 
+class ComputeLedgerAgreementTests(unittest.TestCase):
+    """The compute panel shows one measurement twice; it must read the same.
+
+    Filmed 2026-08-01: the KPI read "Core-min spent 0.03" and the note under
+    it read "spent 0.0 core-min - 9 VSPAERO wing solves", on the same screen.
+    Nine solver runs happened, so the 0.0 was the wrong one: the note carried
+    one decimal where the totals carry two.
+    """
+
+    def test_a_spend_reads_the_same_in_the_note_and_the_total(self):
+        from chief_engineer.lab import ComputeLedger
+
+        ledger = ComputeLedger()
+        ledger.spend(1.8, "9 VSPAERO wing solves")
+        total = ledger.as_dict()["spent_core_minutes"]
+        self.assertEqual(total, 0.03)
+        self.assertIn(f"spent {total} core-min", ledger.notes[-1])
+        self.assertNotIn("spent 0.0 core-min", ledger.notes[-1])
+
+    def test_a_larger_spend_still_reads_at_one_decimal(self):
+        from chief_engineer.lab import ComputeLedger
+
+        ledger = ComputeLedger()
+        ledger.spend(750.0, "a long solve")
+        self.assertIn("spent 12.5 core-min", ledger.notes[-1])
+
+    def test_nothing_measured_still_reads_zero(self):
+        # Too small to see is not the same as nothing spent.
+        from chief_engineer.lab import ComputeLedger
+
+        ledger = ComputeLedger()
+        ledger.spend(0.0, "no solves")
+        self.assertIn("spent 0.0 core-min", ledger.notes[-1])
+
+
 class GateCodeAdvisoryTests(unittest.TestCase):
     """ICAO Annex 14 Volume I, aerodrome reference code, code element 2.
 
@@ -911,13 +946,10 @@ class SolvedRunDoctrineTests(unittest.TestCase):
         self.assertNotIn("Monte-Carlo", channels[0]["note"])
         self.assertIn("Ensemble run", channels[0]["note"])
 
-    def test_certificate_names_the_solver_and_carries_no_unquantified_row(self):
+    def test_certificate_carries_the_result_and_no_unquantified_row(self):
         events = self._run_solved()
         cert = [p for e, p in events if e == "certificate.ready"][0]
         text = Path(cert["path"]).read_bytes().decode("latin-1")
-        self.assertIn("VSPAERO vortex lattice", text)
-        self.assertIn("research sizing screen", text)
-        self.assertNotIn("Research drag-polar sizing model", text)
         self.assertNotIn("not quantified", text)
         # Objective is this run's verbatim request.
         self.assertIn("300 passengers,", text)
@@ -926,32 +958,37 @@ class SolvedRunDoctrineTests(unittest.TestCase):
                       "Approach Speed", "L/D"):
             self.assertIn(token, text)
 
-    def test_certificate_states_its_scope_constraints_and_assumed_values(self):
+    def test_certificate_is_the_result_and_its_uncertainty_alone(self):
+        # THE RULE, not the instance. The page states what was concluded and
+        # how far it is trusted: subject, this run's objective, the headline
+        # with its interval, the parameter table, the three channels, and the
+        # issuance and seal that cover them. The conditions the result rests
+        # on -- scope, constraints, assumed values, and the solver-and-model
+        # line -- are on the record in the digest and the transcript, and are
+        # deliberately off the certificate: carrying them made it a two-leaf
+        # page whose headline arrived on the second leaf.
         events = self._run_solved()
         cert = [p for e, p in events if e == "certificate.ready"][0]
         text = Path(cert["path"]).read_bytes().decode("latin-1")
-        # The scope is a labelled field, read with the objective it qualifies.
-        self.assertIn("(Scope)", text)
-        self.assertIn("Result is whole-aircraft L/D.", text)
-        # Every constraint says where it came from.
-        self.assertIn("(Constraints)", text)
-        self.assertIn("user-stated", text)
-        self.assertIn("Structural span limit", text)
-        # The assumed-values ledger carries the lift coefficients the low
-        # speed verdicts turn on, marked as no solver's work.
-        self.assertIn("(Assumed Values)", text)
-        # The maximum lift coefficient is TYPESET on the sealed page, so no
-        # underscore form reaches the stream: the symbol is drawn at the row's
-        # own size and its chained index smaller, comma separated and dropped
-        # below the baseline. This asserts the two runs and the absence of
-        # either raw spelling.
-        self.assertIn("(C) Tj", text)
-        self.assertIn("(L,max) Tj", text)
-        self.assertNotIn("C_L_max", text)
-        self.assertNotIn("C_L,max", text)
-        self.assertIn("assumed, not solver-derived", text)
+        for absent in ("(Scope)", "(Constraints)", "(Assumed Values)",
+                       "(Solver & Model)", "(Solver &", "user-stated",
+                       "Structural span limit", "assumed, not solver-derived",
+                       "VSPAERO vortex lattice", "research sizing screen",
+                       "Research drag-polar sizing model"):
+            self.assertNotIn(absent, text, absent)
+        for present in ("(Result)", "(Parameter)", "(Uncertainty)",
+                        "(Objective)", "(Subject)"):
+            self.assertIn(present, text, present)
         # Issuance and the seal sit together at the foot.
         self.assertLess(text.index("(Result)"), text.index("(Issued"))
+
+    def test_the_certificate_is_one_page(self):
+        # What prompted the strip: the page ran to two leaves and the
+        # headline landed on the second.
+        events = self._run_solved()
+        cert = [p for e, p in events if e == "certificate.ready"][0]
+        raw = Path(cert["path"]).read_bytes()
+        self.assertIn(b"/Type /Pages /Kids [3 0 R] /Count 1 >>", raw)
 
     def test_wording_is_the_cleared_capability_statement(self):
         events = self._run_solved()
