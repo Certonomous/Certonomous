@@ -1241,11 +1241,16 @@ def _run_refinement_ladder(*, engineer, label: str, familiar: bool,
             if not cells:
                 raise RuntimeError(f"rung {tag}: checkMesh reported no cells")
             solve_key = f"{label}-{tag}-c{cells}-i{rung_iters}"
-            if rung.restore_cached_solve(solve_key):
-                started = time.time()
-                ledger.spend(max(1.0, time.time() - started),
-                             f"simpleFoam rung {tag}")
-            else:
+            if not rung.restore_cached_solve(solve_key):
+                # THE WARM RUNG SPENDS NOTHING. Ruling R10. What used to sit
+                # on the other side of this branch was
+                # `ledger.spend(max(1.0, time.time() - started), ...)` across
+                # a zero-length window, one core-second per warm rung, booked
+                # as `simpleFoam rung <tag>`. No solver runs on a warm rung,
+                # so there is no compute to record. Nothing leaves the screen
+                # with it: the rung still prints its own ladder row below,
+                # carrying the cell count and the drag it was run for, and
+                # that row never carried a time.
                 for step, command in (
                         ("potentialFoam", "potentialFoam -writephi"),
                         ("simpleFoam", "simpleFoam")):
@@ -1570,11 +1575,16 @@ def main(request: str | None = None, params: dict | None = None,
 
     stage_table = {"created": False}
 
-    def stage_row(step: str, seconds: float, note: str) -> None:
+    def stage_row(step: str, seconds: float | None, note: str,
+                  time_text: str | None = None) -> None:
+        # `time_text` exists for the one case where a stage has no solver time
+        # to report: a warm path, which runs no solver at all. Ruling R10. The
+        # stage still prints, and the Time cell says what it is rather than
+        # carrying a number nothing paid for.
         _emit_table(emit, script, role=_CE_ROLE,
                     title="Pipeline stages, as run",
                     headers=("Stage", "Time", "What ran"),
-                    rows=[[step, f"{seconds:.0f} s",
+                    rows=[[step, time_text or f"{seconds:.0f} s",
                            note[:1].upper() + note[1:]]],
                     table_id=f"stages-{label}", append=stage_table["created"])
         stage_table["created"] = True
@@ -1888,8 +1898,11 @@ def main(request: str | None = None, params: dict | None = None,
             # streams point by point exactly as a marching solver reports it.
             note = f"steady solve, {iterations} iterations"
             roster.set(CHIEF_ENGINEER, note, "working")
-            roster.set_workers(workers, note)
-            started = time.time()
+            # NO FLEET ON THIS PATH. Rulings R2 and R10.
+            # `roster.set_workers(workers, note)` used to sit here and put the
+            # case's decomposition on camera as if it were dispatched. A
+            # worker count is a claim about the run, and no solver runs here.
+            roster.set_workers(0)
             raw = engineer._wsl(
                 f"cat {engineer.remote_case}/postProcessing/*/0/coefficient.dat "
                 f"2>/dev/null", timeout=120).stdout
@@ -1925,11 +1938,18 @@ def main(request: str | None = None, params: dict | None = None,
                         "feasible": True})
                     if per_point > 0:
                         time.sleep(per_point)
-            elapsed = max(1.0, time.time() - started)
-            ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            # The solver is NAMED on camera, never described generically.
-            stage_row("OpenFOAM", elapsed, note)
-            roster.set_workers(0)
+            # NOTHING IS SPENT TO THE LEDGER ON THIS PATH. Ruling R10. What
+            # used to sit here was `elapsed = max(1.0, time.time() - started)`,
+            # spent as `simpleFoam (14s)`. That interval is genuine wall time
+            # and it is paced by CERTONOMOUS_SOLVE_REPLAY_S, which is the tell:
+            # an interval an environment variable can lengthen is buying screen
+            # time, not compute. The ledger records compute this lab performed.
+            #
+            # The solver is NAMED on camera, never described generically, and
+            # the stage still prints. It just stops naming a cost.
+            stage_row("OpenFOAM", None,
+                      f"{note}, replayed from the run that solved it",
+                      time_text="none this pass")
         else:
             for step, base, note in (
                 ("potentialFoam", "potentialFoam -writephi",

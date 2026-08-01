@@ -307,11 +307,16 @@ def main(request: str | None = None, params: dict | None = None,
 
     stage_table = {"created": False}
 
-    def stage_row(step: str, seconds: float, note: str) -> None:
+    def stage_row(step: str, seconds: float | None, note: str,
+                  time_text: str | None = None) -> None:
+        # `time_text` exists for the one case where a stage has no solver time
+        # to report: a warm path, which runs no solver at all. Ruling R10. The
+        # stage still prints, and the Time cell says what it is rather than
+        # carrying a number nothing paid for.
         _emit_table(emit, script, role=_CE_ROLE,
                     title="Pipeline stages, as run",
                     headers=("Stage", "Time", "What ran"),
-                    rows=[[step, f"{seconds:.0f} s",
+                    rows=[[step, time_text or f"{seconds:.0f} s",
                            note[:1].upper() + note[1:]]],
                     table_id=f"stages-act7-{label}", append=stage_table["created"])
         stage_table["created"] = True
@@ -549,10 +554,17 @@ def main(request: str | None = None, params: dict | None = None,
                 "feasible": True})
 
         if warm_solve:
+            # Present the drag trace at a watchable pace, point by point as a
+            # marching solver reports it. The pacing below is genuine wall
+            # time, about fourteen seconds of it, and it buys a readable
+            # screen: nothing is solved while it runs. Ruling R10.
             note = f"steady solve, {iterations} iterations"
             roster.set(CHIEF_ENGINEER, note, "working")
-            roster.set_workers(workers, note)
-            started = time.time()
+            # NO FLEET ON THIS PATH. Rulings R2 and R10.
+            # `roster.set_workers(workers, note)` used to sit here and put the
+            # case's decomposition on camera as if it were dispatched. A
+            # worker count is a claim about the run, and no solver runs here.
+            roster.set_workers(0)
             raw = engineer._wsl(
                 f"cat {engineer.remote_case}/postProcessing/*/0/coefficient.dat "
                 f"2>/dev/null", timeout=120).stdout
@@ -585,11 +597,18 @@ def main(request: str | None = None, params: dict | None = None,
                         "feasible": True})
                     if per_point > 0:
                         time.sleep(per_point)
-            elapsed = max(1.0, time.time() - started)
-            ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            # The solver is NAMED on camera, never described generically.
-            stage_row("OpenFOAM", elapsed, note)
-            roster.set_workers(0)
+            # NOTHING IS SPENT TO THE LEDGER ON THIS PATH. Ruling R10. What
+            # used to sit here was `elapsed = max(1.0, time.time() - started)`,
+            # spent as `simpleFoam (14s)`. That fourteen seconds was measured
+            # honestly, and measuring it honestly is not the test: it is the
+            # cost of pacing a trace for the viewer, not of solving anything.
+            # The ledger records compute this lab performed.
+            #
+            # The solver is NAMED on camera, never described generically, and
+            # the stage still prints. It just stops naming a cost.
+            stage_row("OpenFOAM", None,
+                      f"{note}, replayed from the run that solved it",
+                      time_text="none this pass")
         else:
             for step, base, note in (
                 ("potentialFoam", "potentialFoam -writephi",

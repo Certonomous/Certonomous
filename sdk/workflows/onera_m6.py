@@ -401,11 +401,16 @@ def main(request: str | None = None, params: dict | None = None,
 
     stage_table = {"created": False}
 
-    def stage_row(step: str, seconds: float, note: str) -> None:
+    def stage_row(step: str, seconds: float | None, note: str,
+                  time_text: str | None = None) -> None:
+        # `time_text` exists for the one case where a stage has no solver time
+        # to report: a warm path, which runs no solver at all. Ruling R10. The
+        # stage still prints, and the Time cell says what it is rather than
+        # carrying a number nothing paid for.
         _emit_table(emit, script, role=_CE_ROLE,
                     title="Pipeline stages, as run",
                     headers=("Stage", "Time", "What ran"),
-                    rows=[[step, f"{seconds:.0f} s",
+                    rows=[[step, time_text or f"{seconds:.0f} s",
                            note[:1].upper() + note[1:]]],
                     table_id="stages-act8-onera_m6", append=stage_table["created"])
         stage_table["created"] = True
@@ -482,12 +487,18 @@ def main(request: str | None = None, params: dict | None = None,
         if warm_hit:
             note = f"steady compressible solve, {BUDGET_ITERATIONS} iterations"
             roster.set(CHIEF_ENGINEER, note, "working")
-            roster.set_workers(RANKS, note)
-            started = time.time()
-            elapsed = max(1.0, time.time() - started)
-            ledger.spend(elapsed, f"DARhoSimpleCFoam ({elapsed:.0f}s)")
-            stage_row("selected solver", elapsed, note)
+            # NO FLEET AND NO SPEND ON THIS PATH. Rulings R2 and R10.
+            # `roster.set_workers(RANKS, note)` used to sit here and put four
+            # workers on camera for a solve that is not running; the numeral
+            # is a claim about the run, and there is no run to claim. The
+            # spend that used to follow it was
+            # `elapsed = max(1.0, time.time() - started)` across a zero-length
+            # window, booked as `DARhoSimpleCFoam (1s)`. The ledger records
+            # compute this lab performed, and this path performs none.
             roster.set_workers(0)
+            stage_row("selected solver", None,
+                      f"{note}, replayed from the run that solved it",
+                      time_text="none this pass")
             log_text = cached_log
         else:
             available = wait_for_headroom(narrate=script.engineer)

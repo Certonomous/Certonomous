@@ -551,11 +551,16 @@ def main(request: str | None = None, params: dict | None = None,
 
     stage_table = {"created": False}
 
-    def stage_row(step: str, seconds: float, note: str) -> None:
+    def stage_row(step: str, seconds: float | None, note: str,
+                  time_text: str | None = None) -> None:
+        # `time_text` exists for the one case where a stage has no solver time
+        # to report: a warm path, which runs no solver at all. Ruling R10. The
+        # stage still prints, and the Time cell says what it is rather than
+        # carrying a number nothing paid for.
         _emit_table(emit, script, role=_CE_ROLE,
                     title="Pipeline stages, as run",
                     headers=("Stage", "Time", "What ran"),
-                    rows=[[step, f"{seconds:.0f} s",
+                    rows=[[step, time_text or f"{seconds:.0f} s",
                            note[:1].upper() + note[1:]]],
                     table_id="stages-act6-nasa_hump", append=stage_table["created"])
         stage_table["created"] = True
@@ -682,10 +687,19 @@ def main(request: str | None = None, params: dict | None = None,
             # when nothing is running. The cold branch below genuinely
             # dispatches `ranks` and keeps its declaration.
             roster.set_workers(0)
-            started = time.time()
-            elapsed = max(1.0, time.time() - started)
-            ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
-            stage_row("selected solver", elapsed, note)
+            # NOTHING IS SPENT TO THE LEDGER ON THIS PATH. Ruling R10. The
+            # ledger records compute this lab performed, and no solver runs
+            # here. What used to sit on these lines was
+            # `elapsed = max(1.0, time.time() - started)` across a zero-length
+            # window, spent as `simpleFoam (1s)`: one core-second per warm run
+            # credited to a solver that never started. The clamp was not the
+            # defect and a longer measurement would not have been better; what
+            # the interval paid for is the test, and it paid for nothing.
+            #
+            # The stage stays on camera. It just stops naming a cost.
+            stage_row("selected solver", None,
+                      f"{note}, replayed from the run that solved it",
+                      time_text="none this pass")
         else:
             note = "steady solve, run to its own residual convergence"
             roster.set(CHIEF_ENGINEER, note, "working")
