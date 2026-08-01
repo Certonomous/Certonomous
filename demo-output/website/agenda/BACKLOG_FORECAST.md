@@ -95,15 +95,38 @@ The two mechanisms behind the under-misses are both still live in the docket:
 ### 4.2 Items whose estimates carry the same defect today
 
 **`hlpw6-testcase1-coarse-grid-entry`, 3,600 core-min — 36% of the entire
-backlog.** Its own `cost_basis` says the memory is "the genuine risk and is
-not established": rung A6 held 30 GB free at 579,072 cells, this grid is
-2,661,338 cells, 4.6x larger, on a 30 GiB box. The scaling is linear-in-cells
-from an *incompressible* run applied to a compressible one. Independent
-evidence that this is optimistic: `ADJOINT_MEMORY_ENVELOPE.json` records
-DAFoam succeeding at 63,920 cells and failing at 99,840, and A3 at 399,360
-cells censored at its 20 GB cap. This item is not merely mispriced; it may be
-infeasible on this machine, and its own text says so. **Do not queue it until
-the single-angle memory probe it names has run.**
+backlog.** ~~Its own `cost_basis` says the memory is "the genuine risk and is
+not established" ... it may be infeasible on this machine.~~ **Superseded
+2026-08-01 by measurement. This paragraph was wrong in three ways and they are
+left visible rather than deleted.** See `demo-output/website/hlpw6/`.
+
+1. **It is feasible, comfortably.** The real grid was downloaded, imported,
+   decomposed and solved on this box. **Peak memory 4,548 MiB against 31,380
+   MiB — 14.5% of the machine, a headroom factor of 6.7.** The same measured
+   slope puts this box's ceiling near 15M cells, not near 2.7M.
+2. **"Linear-in-cells from an *incompressible* run applied to a compressible
+   one" has the compressibility backwards.** A6 ran `DARhoSimpleCFoam`, the
+   compressible transonic solver, at M=0.850
+   (`demo-output/website/dafoam/ladder-a/A6_crm_wingbody.md` §1–2). The
+   workshop case is the low-speed one, M=0.20.
+3. **`ADJOINT_MEMORY_ENVELOPE.json` is not evidence about this item at all.**
+   That envelope is about the *adjoint*, and its own stated cause is OpenMDAO
+   building a mesh-sized `d[residuals]/d[vol_coords]` Jacobian block. **Test
+   case 1 runs no adjoint** — it is a primal-only sweep at fixed angles. A
+   primal stores fields and one matrix, not a mesh-sized Jacobian. Citing the
+   envelope here is what made a routine 2.7M-cell primal look infeasible.
+
+What the estimate *did* miss, and no line of it mentions: **there was no way to
+read the grid.** The committee ships AFLR3 `b8.ugrid`; OpenFOAM v2606 here has
+no AFLR3 reader and no CGNS reader. A converter had to be written. And the real
+risk after that is numerics, not memory — `checkMesh` reports **1,256,565
+severely non-orthogonal faces** and the default configuration diverged at
+iteration 15. A hardened one ran 120 iterations clean.
+
+**Corrected price: 6,390 core-min at 14 ranks, 1.78x the filed 3,600**, from a
+measured 0.355 core-min per iteration. The remaining uncertainty is no longer
+memory but the iteration count, which is still nobody's measurement — the same
+defect that overran the flat-plate rung.
 
 **The eight `agp-*` ladder rungs at 20 core-min each, 160 total.** Every one
 is priced "the finest rung holds N cells and the next roughly doubles it" —
@@ -174,7 +197,7 @@ budget.
 
 | core-min | item | why it is last |
 |---|---|---|
-| 3,600 | `hlpw6-testcase1-coarse-grid-entry` | rank 67 of 67 on value per core-minute; memory feasibility unestablished by its own text |
+| ~~3,600~~ **6,390** | `hlpw6-testcase1-coarse-grid-entry` | rank 67 of 67 on value per core-minute. **Feasibility now established by measurement, 2026-08-01: it runs here at 14.5% of the box.** Repriced 1.78x on a measured rate. Still last, and now for a real reason rather than an unanswered one |
 | 603 | `agp-4369c99cdd7f` | rank 66; scaled from the bump ladder "with headroom", no headroom stated |
 | 420 | `closure-duct-field-inversion` | rank 65; its own basis asks for a timed pilot first |
 | 400 | `r4-asymptotic-range-ladders` | rank 63; measured basis, but three constant-ratio rungs on two bodies is an iteration count nobody has estimated |
@@ -190,8 +213,11 @@ workshop entry whose value is not captured by "challenge = 4 points".
 Compute does not. At the measured rate the stated backlog is 4.9 days and
 even at 3x it is 62 of 67 items. What decides the week is:
 
-1. **`hlpw6` gets probed before it gets queued**, or it eats 36% of the
-   backlog and may not fit in memory at all.
+1. ~~**`hlpw6` gets probed before it gets queued**, or it eats 36% of the
+   backlog and may not fit in memory at all.~~ **Done, 2026-08-01. It fits, at
+   14.5% of the box; the five items ranked behind it were waiting on a question
+   that is now answered, and nothing about them depended on the answer being
+   yes.**
 2. **The 45 zero-compute items start immediately** rather than waiting behind
    a solve queue they do not need.
 3. **The box stays up.** The lab's measured occupancy is 1.40 of 14 cores.

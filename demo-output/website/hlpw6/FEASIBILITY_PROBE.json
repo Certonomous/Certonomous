@@ -1,0 +1,188 @@
+{
+  "item": "hlpw6-testcase1-coarse-grid-entry",
+  "probe_date_utc": "2026-08-01",
+  "probe_window_utc": ["2026-08-01T04:28:32Z", "2026-08-01T04:50:45Z"],
+  "host": {
+    "vcpu": 16,
+    "mem_total_mib": 31379.5,
+    "openfoam": "v2606 (ESI), build _481094f-20260618"
+  },
+  "verdict": {
+    "can_it_run_here": "YES",
+    "peak_memory_mib": 4548,
+    "peak_memory_fraction_of_host": 0.145,
+    "headroom_factor": 6.7,
+    "binding_limit": "not memory -- (a) no import path existed for the published grid format, now written; (b) numerical robustness of a cell-centred FVM on a grid with 1256565 severely non-orthogonal faces",
+    "caveat": "the configuration measured as stable uses first-order upwind convection, which is not a defensible workshop submission; no second-order configuration has been shown to survive this grid"
+  },
+  "grid": {
+    "name": "H6C1_RANS_3a",
+    "family": "R.1.TC1.01, HeldenMesh, Helden Series 03, fixed grid methodology",
+    "levels_published": ["3a", "3b", "3c", "3d", "3e", "3f", "3g"],
+    "level_rank": "coarsest",
+    "format": "AFLR3 b8.ugrid (big-endian binary) plus mapbc",
+    "acquired_utc": "2026-08-01T04:34:57Z",
+    "acquisition": "anonymous public HTTPS GET; no account, registration or participant identifier created or required",
+    "archive_bytes": 51011399,
+    "archive_sha256": "2fbce6cae220e592e098f34e0c62fb54e96e1fd2cf03d458862a7ef1454fd9cd",
+    "unpacked_bytes": 89187516,
+    "header_length_crosscheck": "predicted 89187516 from header counts, actual 89187516, exact",
+    "nodes": 1156796,
+    "cells": 2661338,
+    "cells_match_docket_citation": true,
+    "elements": {"tet": 436961, "pyramid": 341341, "prism": 1883036, "hex": 0},
+    "boundary_faces": {"tri": 145614, "quad": 4175, "total": 149789},
+    "internal_faces": 6359970,
+    "total_faces": 6509759,
+    "faces_per_cell": 2.446,
+    "mapbc_tags": 73,
+    "units": "inches; domain a 6000 inch cube, symmetry plane at y=0",
+    "adjoint_involved": false
+  },
+  "import_path": {
+    "problem": "OpenFOAM v2606 ships no AFLR3 UGRID reader and no CGNS reader; verified against $FOAM_APPBIN. There was no path from the workshop grid store into this lab's solver.",
+    "solution": "ugrid_to_foam.py, written from the format layout",
+    "validation": "face orientation decided geometrically from owner-cell centroids, not from an assumed node-ordering convention; every computed boundary face asserted present in the file's own declared boundary list, with exact count match (145614 tri + 4175 quad = 149789)",
+    "convention_correction": {
+      "documented_assumption": "AFLR3 pyramid apex at local node 5, base (1,2,3,4)",
+      "first_attempt_result": "1505250 boundary triangles against 145614 declared; assertion refused the mesh",
+      "measured_truth": "apex is local node 2 for 336700 of 341341 pyramids, median coplanarity margin 44x; base winds (0,3,4,1)"
+    },
+    "cost": {"wall_s": 30.8, "peak_rss_mib": 2058}
+  },
+  "checkmesh": {
+    "utc": "2026-08-01T04:43:23Z",
+    "topology": "all checks pass -- boundary definition, cell to face addressing, point usage, upper triangular ordering, face vertices, single region",
+    "min_cell_volume": 2.9688178e-12,
+    "min_volume_positive": true,
+    "quality_failures": 2,
+    "max_aspect_ratio": 2286.2364,
+    "max_aspect_ratio_cells": 23,
+    "max_skewness": 9.9716069,
+    "skew_faces": 68,
+    "max_non_orthogonality_deg": 89.983501,
+    "mean_non_orthogonality_deg": 42.240756,
+    "severely_non_orthogonal_faces": 1256565,
+    "comparison_a6": "A6's mesh ran max non-orthogonality 70.4, average 18.9"
+  },
+  "memory": {
+    "method": "process-tree sampler at 0.2 s, reporting peak of summed RSS, sum of per-process VmHWM, and minimum host MemAvailable",
+    "real_grid_stages": [
+      {"stage": "ugrid_to_foam", "utc": "2026-08-01T04:41:51Z", "wall_s": 30.8, "peak_sum_rss_mib": 1938.1, "sum_vmhwm_mib": 2058.3, "min_memavailable_mib": 23777.5, "exit_code": 0},
+      {"stage": "checkMesh", "utc": "2026-08-01T04:43:23Z", "wall_s": 15.3, "peak_sum_rss_mib": 1357.3, "sum_vmhwm_mib": 1388.9, "min_memavailable_mib": 23293.1, "exit_code": 0},
+      {"stage": "decomposePar_np14", "utc": "2026-08-01T04:44:03Z", "wall_s": 12.9, "peak_sum_rss_mib": 1285.1, "sum_vmhwm_mib": 1290.0, "min_memavailable_mib": 23562.9, "exit_code": 0},
+      {"stage": "simpleFoam_np14_120it_hardened", "utc": "2026-08-01T04:50:45Z", "wall_s": 182.63, "peak_sum_rss_mib": 4420.6, "sum_vmhwm_mib": 4547.9, "min_memavailable_mib": 25319.0, "exit_code": 0}
+    ],
+    "peak_across_all_stages_mib": 4547.9,
+    "scaling_law": {
+      "basis": "four-rung structured ladder at 334647 / 673920 / 1320300 / 2664180 cells, same solver stack, same 14 ranks -- a measured slope, not a single-point extrapolation",
+      "incompressible_np14": {"mib_per_cell": 1.585e-3, "fixed_mib": 872},
+      "compressible_np14": {"mib_per_cell": 1.678e-3, "fixed_mib": 1033},
+      "predicted_at_2661338": 5091,
+      "measured_at_2661338": 4548,
+      "ratio": 0.89,
+      "why_the_ladder_over-predicts": "a structured hex mesh carries 3.0 internal faces per cell, the most of any element type; this grid carries 2.446, so the ladder is a conservative upper bound at equal cell count, and behaved like one",
+      "largest_grid_this_box_holds": "roughly 15M cells structured, about 17M at this grid's face ratio, at 14 ranks, holding 6 GiB back"
+    }
+  },
+  "failures_observed": [
+    {
+      "what": "compressible path aborts in the thermophysical model",
+      "solver": "rhoSimpleFoam, 14 ranks, alpha 10",
+      "utc": "2026-08-01T04:45:04Z",
+      "exit_code": 136,
+      "evidence": "floating point exception raised in libfluidThermophysicalModels.so during iteration 3, after two clean SIMPLE iterations; logs/HLPW6_solve_np14.log",
+      "peak_rss_mib_at_death": 4973.1,
+      "is_resource_failure": false,
+      "untested_mitigation": "temperature limiter"
+    },
+    {
+      "what": "incompressible path diverges under default numerics",
+      "solver": "simpleFoam, 14 ranks, alpha 10",
+      "utc": "2026-08-01T04:46:32Z",
+      "exit_code": 136,
+      "evidence": "14 iterations at falling residuals; iteration 15 GAMG pressure solve hit its 1000-iteration ceiling without converging (initial residual 0.017841335, final 0.009329799), continuity error to 3.6044204e+09, force coefficients to order 1e20; iteration 16 died with a floating point exception in Foam::divide(Field<double>&, const double&, const UList<double>&), a division by zero in the turbulence model; logs/HLPW6_solve_np14_incomp.log",
+      "peak_rss_mib_at_death": 4887.2,
+      "is_resource_failure": false,
+      "cause": "1256565 severely non-orthogonal faces against a cell-centred finite volume discretisation"
+    }
+  ],
+  "stable_configuration": {
+    "utc": "2026-08-01T04:50:45Z",
+    "exit_code": 0,
+    "iterations": 120,
+    "settings": "nNonOrthogonalCorrectors 2; bounded Gauss upwind for div(phi,U); GAMG with DICGaussSeidel smoothing capped at 100 iterations; relaxation p 0.2, U 0.3, k and omega 0.3; limitVelocity 300",
+    "residual_ux_initial": {"iter_1": 0.99998093, "iter_101": 1.2336953e-06},
+    "force_coeffs_at_120": {"Cl": 1.4227984, "Cd": 0.3137924, "note": "reference area left at 1 m2, so magnitudes are not yet meaningful; they are finite and evolving smoothly"},
+    "not_submittable_because": "first-order upwind convection; a second-order entry is both dearer and less robust than what was measured"
+  },
+  "corrected_estimate": {
+    "measured_rate": {
+      "utc": "2026-08-01T04:50:45Z",
+      "iterations": 120,
+      "wall_s": 182.63,
+      "ranks": 14,
+      "core_min": 42.61,
+      "core_min_per_iteration": 0.355,
+      "core_min_per_cell_per_1000_iter": 1.334e-4
+    },
+    "filed_rate_core_min_per_cell_per_1000_iter": 6.6e-5,
+    "rate_ratio": 2.02,
+    "why_the_filed_rate_missed": "not cell count -- rank count and grid type. A6 ran 4 ranks on a structured extruded mesh; this runs 14 ranks on an unstructured one, and parallel efficiency on this box is about 45%.",
+    "rank_sensitivity_at_2664180_cells": [
+      {"ranks": 1, "s_per_iteration": 13.37, "core_min_per_iteration": 0.223, "relative": 1.0},
+      {"ranks": 14, "s_per_iteration": 2.13, "core_min_per_iteration": 0.498, "relative": 2.23}
+    ],
+    "rank_sensitivity_note": "14 ranks buys 6.3x the wall speed for 2.23x the core-minutes; the core-minute price of this item is a property of how it is scheduled, not of the item",
+    "at_docket_assumption_3000_iter_per_angle_6_angles": {
+      "iterations_total": 18000,
+      "np14_core_min": 6390,
+      "np14_wall_h": 7.6,
+      "serial_core_min": 4014,
+      "serial_wall_h": 67
+    },
+    "filed_est_core_min": 3600,
+    "corrected_est_core_min": 6390,
+    "correction_factor": 1.78,
+    "residual_uncertainty": "the iteration count is still nobody's measurement. 3000 per angle is the docket's assumption carried forward unchanged. This is the defect that overran tmr-flatplate-finest-grids by 1.48x: the grid was priced and the iterations were not. At the upper angles steady RANS commonly refuses to settle and limit-cycles instead. The item is not bounded until one angle is run to its own convergence."
+  },
+  "errors_found_in_the_filed_analysis": [
+    {
+      "where": "BACKLOG_FORECAST.md section 4.2",
+      "claim": "the scaling is linear-in-cells from an incompressible run applied to a compressible one",
+      "correction": "A6 ran DARhoSimpleCFoam, the compressible transonic solver, at M=0.850, per demo-output/website/dafoam/ladder-a/A6_crm_wingbody.md sections 1 and 2. The workshop case is the low-speed one at M=0.20. The stated mechanism for distrusting the number does not exist."
+    },
+    {
+      "where": "docket cost_basis and BACKLOG_FORECAST.md section 4.2",
+      "claim": "ADJOINT_MEMORY_ENVELOPE.json (DAFoam succeeding at 63920 cells, failing at 99840) is independent evidence that the memory estimate is optimistic",
+      "correction": "that envelope is entirely about the adjoint, and its own stated structural cause is OpenMDAO's reverse-mode sweep building a mesh-sized d[residuals]/d[vol_coords] Jacobian block. Test case 1 runs no adjoint. A primal RANS solve stores fields and one matrix, not a mesh-sized Jacobian. The envelope has no bearing on this item, and treating it as a bound is what made a routine 2.7M-cell primal look possibly infeasible."
+    },
+    {
+      "where": "the estimate as a whole",
+      "claim": "memory is the genuine risk",
+      "correction": "the genuine risk was that no import path existed for the published grid format, and after that, numerical robustness on a grid built for node-centred codes. Neither appears anywhere in the filed basis."
+    }
+  ],
+  "consequences": {
+    "for_this_item": "feasible on this machine; no new hardware needed and none ever was; still underpriced, by 1.78x rather than by an unknown factor; residual uncertainty moved from memory to iteration count",
+    "for_the_five_behind_it": "unblocked. They were sequenced behind an unresolved feasibility question on 36% of the backlog and that question is resolved.",
+    "reusable_asset": "ugrid_to_foam.py. Every published HLPW, DPW and AEPW committee grid ships in this format or CGNS and this lab could read none of them before. Validated against a 2.66M-cell production grid to an exact boundary-face match."
+  },
+  "still_open": [
+    "compressible thermo abort untested against a temperature limiter",
+    "no second-order configuration shown to survive this grid's non-orthogonality",
+    "no angle run to convergence, so the iteration count remains an assumption",
+    "nothing here says the result would place well; this probe establishes that the case can run and what it costs, not that it is worth approving an approach to the organisers"
+  ],
+  "artefacts": {
+    "measurements": "demo-output/website/hlpw6/measurements.jsonl",
+    "converter": "demo-output/website/hlpw6/ugrid_to_foam.py",
+    "case_generator": "demo-output/website/hlpw6/make_hlpw6_case.py",
+    "memory_sampler": "demo-output/website/hlpw6/memwatch.py",
+    "ladder_harness": "demo-output/website/hlpw6/make_case.py, demo-output/website/hlpw6/run_ladder.sh",
+    "raw_logs_uncommitted": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/logs/",
+    "working_case": "/home/ubuntu/certonomous-runs/hlpw6-memory-probe/case_HLPW6/"
+  },
+  "compute_spent_core_min": 112.7,
+  "compute_spent_basis": "measured, not estimated: sum over every run recorded in measurements.jsonl of wall seconds times ranks over 60, counting parallel stages at 14 ranks and everything else at 1"
+}
