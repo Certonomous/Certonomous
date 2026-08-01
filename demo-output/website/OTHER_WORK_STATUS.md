@@ -120,15 +120,25 @@ Single-instance lock (`acquire_runner_lock`, commit `f198cf4`): guards against d
 **Cl non-monotonicity survives:** Better coverage closes only ~26.5% of the Cl gap to fine rung; ladder remains non-asymptotic
 
 **Why the verdict is NOT VALIDATED:** The grading method anchors the reference on the solve's own Cl. That means:
-- Solve that over-predicts Cl (25.0% over on finer_ngrow0: 0.23940 vs fine 0.20955)
-- Raises induced-drag term by 56.2%
+- Solve that over-predicts Cl (25.1% over on **finer_relayered**, the 4.36%-coverage rung: Cl 0.261922 vs fine's 0.209318)
+- Raises induced-drag term by 56.6%, since Cd_i goes as Cl²
 - Lifts the reference band upward
 - Makes an unconverged solve appear "in band" — a self-referential artifact
 
 Result: finest rung (4.36% coverage) **passes**, two rungs with best coverage (94%+) **fail**. **"In band" can be bought by getting Cl wrong.**
 
+> **Correction, 2026-08-01.** The 25.0%/56.2% pair above was attributed to
+> `finer_ngrow0`, which is the wrong rung. Read from each case's own
+> `postProcessing/forceCoeffs1/0/coefficient.dat` last row: `finer_ngrow0`
+> carries Cl 0.239606, which is 14.5% over the fine rung, not 25%. The rung
+> that is 25.1% over is `finer_relayered`, Cl 0.261922 — which is also the
+> 4.36%-coverage rung named two lines down as the one that passes, so the
+> arithmetic and the conclusion were always about the same rung and only the
+> label was wrong. The numbers 25.0 and 56.2 were right and are now attached to
+> the rung that produced them.
+
 **What this credential needs:**
-1. Anchor reference on independent Cl (design target or experimental value), not the solve's own lift
+1. ~~Anchor reference on independent Cl (design target or experimental value), not the solve's own lift~~ — **done 2026-08-01**: `sdk/scripts/derive_naca4412_reference.py --independent` anchors Cl on thin-airfoil theory plus lifting-line, and `reference.yaml` now carries Cd 0.015696 ±9.56%. Every rung re-grades OUT, and the four finest, whose drag agrees to 0.45%, span 0.52 percentage points instead of 26.70.
 2. Converge Cl across the ladder (it is not asymptotic; driver unidentified; suspects: pressure/induced split, wake/tip treatment at AR 3)
 3. Add layer-coverage gate per §2 knowledge (Cd agreement cannot substitute for resolved boundary layer)
 

@@ -1,8 +1,9 @@
 # Experimental reference for the NACA 4412 finite wing at zero incidence.
 name: naca4412_wing
 title: NACA 4412 wing, zero incidence
-cd: 0.013570             # derived, see notes and sdk/scripts/derive_naca4412_reference.py
-cd_range: [0.009822, 0.017318]
+cd: 0.015696             # derived, see notes and sdk/scripts/derive_naca4412_reference.py
+                         # --independent. Fixed: it does NOT move with the solve being graded.
+cd_range: [0.014195, 0.017197]
 area_basis: planform         # chord*span = 1 x 3 = 3 m^2
 reynolds: 1.0e6
 reynolds_basis: chord
@@ -10,14 +11,16 @@ regime:
   label: attached, cambered section carrying lift at zero incidence
   reynolds_valid: [3.0e5, 6.0e6]
   reynolds_independent: false
-tolerance: 0.2762            # derived, not picked to pass or fail: RSS of the section-drag
-                             # citation range, the induced-drag e-bracket, and the wing's own
-                             # 3-rung grid-study spread in Cd and Cl (see notes below and
-                             # sdk/scripts/derive_naca4412_reference.py). Wide because the grid
-                             # component dominates: the ladder behind this body is not converged.
+tolerance: 0.0956            # derived, not picked to pass or fail: RSS of the section-drag
+                             # citation half-width (0.0015) and the induced-drag e-bracket
+                             # (5.78e-05). Both are properties of the REFERENCE. The wing's own
+                             # grid spread is no longer in here: that is the measurement's
+                             # uncertainty, taken from the ladder being graded, and folding it in
+                             # widened the band of any solve whose ladder got worse. It is
+                             # reported beside the comparison instead (see notes, 2026-08-01).
 confidence: low              # kept low: the grid study behind the graded solve is NOT conclusive
-reference_type: "derived (section drag + induced drag), not a published wind-tunnel measurement of this exact wing"
-source: "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed."
+reference_type: "derived (section drag + induced drag at a theory-anchored lift), not a published wind-tunnel measurement of this exact wing"
+source: "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR off this wing's own STL, Cl from thin-airfoil theory and lifting-line rather than from the solve."
 conditions: "alpha = 0, chord-Reynolds ~ 1e6, aspect ratio 2.9991 (measured off the STL), extruded straight"
 solve:
   streamwise_axis: 0         # chord along X; face the flow chord-first
@@ -82,3 +85,50 @@ notes: >
   wind-tunnel section data (the Abbott & von Doenhoff figure this reference
   is anchored to) -- a plausible, but unconfirmed, contributor to the gap
   that is noted here for the next investigation, not assumed as the answer.
+
+  2026-08-01: THE ANCHOR IS REPLACED, AND THE OLD ONE COULD BE BOUGHT.
+  Everything above stands as the record of how this reference was built; what
+  changes is the lift the induced-drag term is evaluated at. It used to be the
+  lift of the solve being graded, so the reference rose with Cl^2 and a solve
+  that over-predicted lift was handed a larger reference and a smaller apparent
+  error. Measured on five solved rungs of this same wing, each read from its own
+  postProcessing/forceCoeffs1/0/coefficient.dat last row:
+
+    rung                     coverage   Cl         Cd          own-anchor error
+    medium      263,359       94.2%     0.251941   0.0244788   +50.41%  OUT
+    fine        645,251       94.5%     0.209318   0.0182536   +34.64%  OUT
+    finer     1,849,113       58.3%     0.250262   0.0183291   +13.43%  IN
+    relayered 1,849,113        4.36%    0.261922   0.0183329    +7.94%  IN
+    ngrow0    2,091,678       77.0%     0.239606   0.0183349   +18.77%  IN
+
+  The four finest rungs agree on drag to 0.45% and their grades span 26.70
+  percentage points, ordered by how wrong their lift is. The rung that graded
+  BEST resolved 4.36% of its target boundary-layer thickness; the only two that
+  failed are the two above 94% coverage. That is not a verdict, it is an
+  artifact of the anchor.
+
+  The lift is now taken from geometry and classical theory, which the solve
+  cannot move: thin-airfoil theory on the NACA 4412 camber line (m = 0.04 at
+  p = 0.40, from the section's own designation) gives a zero-lift angle of
+  -4.1545 deg by quadrature -- against the -4.1 deg standard texts report for
+  this section, which is the check that the quadrature does what it claims --
+  and Prandtl lifting-line carries it to finite span at AR 2.9991. The SAME e
+  is used for the lift slope and for the induced drag, because a wing with more
+  downwash makes less lift and also pays more per unit of it; carried
+  coherently the two nearly cancel, and the e = 0.70-0.85 bracket that used to
+  be the second-widest band term collapses to 5.78e-05. Cl comes out bracketed
+  0.23332 to 0.25530.
+
+  Reference: Cd = 0.0075 + 0.008196 = 0.015696, band +/-0.0015011 (9.56%),
+  0.014195 to 0.017197. Re-graded against that fixed anchor, all five rungs
+  read +55.96, +16.29, +16.78, +16.80 and +16.81 percent: every one OUT, and
+  the four finest now span 0.52 percentage points instead of 26.70.
+
+  Verdict: NOT VALIDATED, the same verdict as before and reached differently.
+  The graded rung's error moved 34.64% -> 16.29% and the band moved 27.62% ->
+  9.56%, so it is out by more of the band than it used to be, and three rungs
+  that used to read IN now read OUT. Nothing here was moved in the flattering
+  direction. The remaining +16.29% gap is real and unexplained; the
+  fully-turbulent-RANS-versus-natural-transition suspicion recorded above is
+  still the leading candidate and is still unconfirmed. Derivation:
+  sdk/scripts/derive_naca4412_reference.py --independent.

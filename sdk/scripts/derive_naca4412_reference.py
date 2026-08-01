@@ -205,10 +205,174 @@ def derive(cl: float, ar: float, *, cl_grid_range=None, cd_grid_range=None,
     }
 
 
+# --------------------------------------------------------------------------
+# The independent anchor: a lift coefficient the solve cannot move
+# --------------------------------------------------------------------------
+#
+# WHY `derive()` ABOVE CANNOT PRODUCE A TRUSTWORTHY VERDICT, MEASURED.
+# It evaluates the induced-drag term at the lift the graded solve reports, so
+# the reference rises with Cl^2 and a solve that over-predicts lift is handed a
+# larger reference and a smaller apparent error. That is not a theoretical
+# worry. Graded each against its own anchor, from each case's own
+# postProcessing/forceCoeffs1/0/coefficient.dat last row (2026-08-01):
+#
+#   rung              coverage   Cl         Cd          error vs its own ref
+#   medium   263,359    94.2%    0.251941   0.0244788   +50.41%   OUT
+#   fine     645,251    94.5%    0.209318   0.0182536   +34.64%   OUT
+#   finer  1,849,113    58.3%    0.250262   0.0183291   +13.43%   IN
+#   relayered 1,849,113  4.36%   0.261922   0.0183329    +7.94%   IN
+#   ngrow0   2,091,678   77.0%   0.239606   0.0183349   +18.77%   IN
+#
+# The four finest rungs agree on drag to 0.45 percent and receive grades
+# spanning 26.7 percentage points, ordered by how wrong their lift is. The rung
+# that grades BEST is the one with 4.36 percent boundary-layer coverage, which
+# resolved essentially no boundary layer at all, and the two rungs above 94
+# percent coverage are the only two that fail. The grade is bought with lift.
+#
+# THE ANCHOR BELOW USES NO SOLVED QUANTITY. Two classical results and the
+# section's own definition:
+#
+#   1. Thin-airfoil theory gives the zero-lift angle from the camber line
+#      alone. NACA 4412 is m = 0.04 at p = 0.40 by definition of its name, so
+#      dz/dx is known in closed form and alpha_L0 is one integral. Computed
+#      here by quadrature rather than quoted, so the number carries its own
+#      derivation: it comes out at -4.1545 deg, against the -4.1 deg standard
+#      texts report for this section, which is the check that the quadrature is
+#      doing what it claims.
+#   2. Prandtl lifting-line gives the finite-wing lift slope from the 2D slope
+#      and the aspect ratio: a = a0 / (1 + a0 / (pi e AR)).
+#
+# ONE e, CARRIED COHERENTLY. e appears in both the lift slope and the induced
+# drag, and it must be the same e in both: a wing with more downwash makes less
+# lift AND pays more induced drag per unit lift. Carrying it coherently is what
+# makes this anchor stable -- the two effects very nearly cancel, so the
+# induced term barely moves across the whole e = 0.70 to 0.85 bracket, where in
+# `derive()` above that bracket was the second-widest band term.
+#
+# WHAT IS NOT IN THE BAND ANY MORE, AND WHY. `derive()` folded the ladder's own
+# Cd spread into the acceptance tolerance. That is the same defect one term
+# over: it is the measurement's uncertainty, taken from the very ladder being
+# graded, so a less converged ladder buys a wider band and an easier pass. It
+# is reported beside the comparison instead of inside it. The result is a
+# tolerance that is smaller and a verdict that is harder to pass, not easier.
+
+NACA4412_M = 0.04     # maximum camber, from the section's designation
+NACA4412_P = 0.40     # its chordwise position, likewise
+CL_ALPHA_2D = 2.0 * math.pi          # thin-airfoil 2D lift slope, per radian
+ANCHOR_SOURCE = (
+    "thin-airfoil theory on the NACA 4412 camber line (m = 0.04 at p = 0.40, "
+    "from the section designation) for the zero-lift angle, and Prandtl "
+    "lifting-line for the finite-wing lift slope at this wing's measured "
+    "aspect ratio; no solved quantity enters")
+
+
+def naca4_camber_slope(x: float, m: float, p: float) -> float:
+    """dz/dx of a 4-digit NACA camber line at chord fraction ``x``."""
+    if x <= p:
+        return (2.0 * m / p ** 2) * (p - x)
+    return (2.0 * m / (1.0 - p) ** 2) * (p - x)
+
+
+def zero_lift_angle(m: float = NACA4412_M, p: float = NACA4412_P,
+                    panels: int = 200000) -> float:
+    """Thin-airfoil zero-lift angle in radians, by midpoint quadrature.
+
+    alpha_L0 = -(1/pi) * integral_0^pi (dz/dx)(cos(theta) - 1) d(theta),
+    with x = (1 - cos(theta)) / 2. Geometry only: no solve, no table.
+    """
+    step = math.pi / panels
+    total = 0.0
+    for i in range(panels):
+        theta = (i + 0.5) * step
+        x = (1.0 - math.cos(theta)) / 2.0
+        total += naca4_camber_slope(x, m, p) * (math.cos(theta) - 1.0) * step
+    return -total / math.pi
+
+
+def finite_wing_lift_slope(ar: float, e: float) -> float:
+    """Prandtl lifting-line finite-wing lift slope, per radian."""
+    return CL_ALPHA_2D / (1.0 + CL_ALPHA_2D / (math.pi * e * ar))
+
+
+def independent_lift(ar: float, e: float, alpha_deg: float = 0.0) -> float:
+    """The wing's lift coefficient from geometry and theory alone."""
+    alpha = math.radians(alpha_deg)
+    return finite_wing_lift_slope(ar, e) * (alpha - zero_lift_angle())
+
+
+def derive_independent(ar: float, *, alpha_deg: float = 0.0,
+                       cd_grid_range=None,
+                       grid_conclusive: bool | None = None) -> dict:
+    """The reference and its band, with no solved quantity anywhere in them.
+
+    ``cd_grid_range`` is accepted and REPORTED, never folded into the band:
+    it is the measurement's own numerical spread and belongs beside the
+    comparison, not inside the tolerance the comparison is judged against.
+    """
+    alpha_l0 = zero_lift_angle()
+    members = {}
+    for label, e in (("e_low", E_LOW), ("e_high", E_HIGH)):
+        cl = independent_lift(ar, e, alpha_deg)
+        members[label] = {"e": e, "cl": cl,
+                          "lift_slope_per_rad": finite_wing_lift_slope(ar, e),
+                          "cd_induced": induced_drag(cl, ar, e)}
+    cdi_values = [m["cd_induced"] for m in members.values()]
+    cdi_mid = (max(cdi_values) + min(cdi_values)) / 2
+    cdi_half_width = (max(cdi_values) - min(cdi_values)) / 2
+    cd_ref = CD_SECTION_MID + cdi_mid
+    abs_half_width = math.sqrt(CD_SECTION_HALF_WIDTH ** 2
+                               + cdi_half_width ** 2)
+    cl_values = [m["cl"] for m in members.values()]
+    return {
+        "anchor": {
+            "kind": "independent",
+            "source": ANCHOR_SOURCE,
+            "zero_lift_angle_rad": alpha_l0,
+            "zero_lift_angle_deg": math.degrees(alpha_l0),
+            "alpha_deg": alpha_deg,
+            "aspect_ratio": ar,
+            "cl_bracket": [min(cl_values), max(cl_values)],
+            "cl_mid": (max(cl_values) + min(cl_values)) / 2,
+            "members": members,
+        },
+        "terms": {
+            "cd_section_mid": CD_SECTION_MID,
+            "cd_section_half_width": CD_SECTION_HALF_WIDTH,
+            "cd_induced_mid": cdi_mid,
+            "cd_induced_half_width": cdi_half_width,
+        },
+        "measurement_side_not_in_the_band": {
+            "cd_grid_range": list(cd_grid_range) if cd_grid_range else None,
+            "cd_grid_half_width": ((max(cd_grid_range) - min(cd_grid_range)) / 2
+                                   if cd_grid_range else None),
+            "grid_conclusive": grid_conclusive,
+            "note": ("the ladder's own Cd spread is the measurement's "
+                     "uncertainty and is reported here rather than added to "
+                     "the acceptance band; folding it in would widen the band "
+                     "of any solve whose ladder got worse"),
+        },
+        "reference": {
+            "cd_reference": cd_ref,
+            "band_abs": abs_half_width,
+            "band_rel": abs_half_width / cd_ref,
+            "cd_low": cd_ref - abs_half_width,
+            "cd_high": cd_ref + abs_half_width,
+            "band_components_abs": {
+                "section_citation": CD_SECTION_HALF_WIDTH,
+                "induced_drag_e_bracket": cdi_half_width,
+            },
+        },
+    }
+
+
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--cl", type=float, required=True,
+    p.add_argument("--cl", type=float, default=None,
                   help="Solved lift coefficient (from the boundary-layer-resolved case)")
+    p.add_argument("--independent", action="store_true",
+                  help="Anchor the reference on theory rather than on the "
+                       "solve's own lift (the trustworthy mode; see the "
+                       "measured table above derive_independent)")
     p.add_argument("--ar", type=float, default=None,
                   help="Aspect ratio; default measures it off the STL directly")
     p.add_argument("--out", type=Path, default=None,
@@ -235,9 +399,16 @@ def main(argv: list[str]) -> int:
 
     grid_conclusive = ({"true": True, "false": False}.get(args.grid_conclusive)
                        if args.grid_conclusive else None)
-    result = derive(args.cl, ar, cl_grid_range=args.cl_grid_range,
-                    cd_grid_range=args.cd_grid_range,
-                    grid_conclusive=grid_conclusive)
+    if args.independent:
+        result = derive_independent(ar, cd_grid_range=args.cd_grid_range,
+                                    grid_conclusive=grid_conclusive)
+    elif args.cl is not None:
+        result = derive(args.cl, ar, cl_grid_range=args.cl_grid_range,
+                        cd_grid_range=args.cd_grid_range,
+                        grid_conclusive=grid_conclusive)
+    else:
+        p.error("give --independent, or --cl for the superseded "
+                "solve-anchored derivation")
     print(json.dumps(result, indent=2))
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
