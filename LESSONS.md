@@ -1354,3 +1354,81 @@ representable value falls *outside* the stated 0.35–0.60 band — say so, and
 grade the result "not contradicted" rather than "demonstrated." If the
 deviation genuinely matters, the fix is a sub-cell fit to the peak or a finer
 discretisation, not a more confident sentence.
+
+---
+
+## L-29. A guard that replaces a removable singularity with a constant differentiates to a hard zero — at exactly the point every gradient evaluation uses
+
+**What happened.** IDWarp's `getRotationMatrix3d`
+(`src/utils/vectorUtils.f90:31–103`, v2.6.2) builds the rotation carrying each
+surface node's reference normal onto its current normal by normalising a cross
+product and taking `acos` of a dot product. The map itself is smooth at
+`n = n0` — derivative `[n0 × dn]_×`, finite and non-zero — but that
+*parameterisation* has a removable singularity there (a 0/0 axis, an infinite
+`acos` slope), so the code guards it: `if (axisMag < tol) angle = zero`
+(line 58, `tol = sqrt(eps)`; the comment says the guard exists to prevent a NaN
+in complex mode). For the primal the guard is harmless. Under AD it is not:
+Tapenade correctly differentiated the branch that was taken, and the branch
+that was taken is a **constant** — `dMi/dn = 0`, exactly, where the true
+first-order term multiplies the full lever arm from surface node to volume
+node. That zero was A1's 634% sign-flipped `dCD/dShape` component and its
+11.6–11.9% station residuals, A5's 207%/122% sign flips, and upstream's own
+five-year-open `mdolab/idwarp#57` (210%/213%).
+
+**The trap has three teeth, each general.**
+
+1. **The guard fires with certainty at the baseline.** At any undeformed state
+   `normals == normals0` bit-for-bit, so `axisMag = sqrt(1e-30) < tol`. The
+   degenerate point of the parameterisation is not a rare corner — it is the
+   exact state at which every `check_totals`, every first design iteration, and
+   every gradient probe evaluates. The FD side perturbs by `h`, tilts the
+   normals far above the threshold, and sees the term the AD lost; that gap
+   *is* the disagreement.
+2. **The primal is bit-perfect throughout**, so no forward-solve check can ever
+   surface it: the warped grid is md5-identical whether the branch carries the
+   right derivative or none.
+3. **The zero hides from generic tests.** The discarded term sums to exactly
+   zero over the surface on all five meshes measured (`sum(dXs)` identical to
+   0–1 ulp while `‖dXs‖` changes by factors of 5–34), so an assertion on the
+   sum is blind by construction; and a random-seed dot-product test contracts
+   the error against a direction it barely overlaps (0.32–1.30% where the real
+   objective seed reads 207%, flipped).
+
+**Proof it was the cause, not a story:** supplying the four-line true
+derivative of the degenerate branch
+(`v2b += (axial(mib − mibᵀ) × v1)/(|v1||v2|)`, derivation on the record before
+the code, per L-26) collapsed every measured error to FD-truncation level with
+rotations ON — #57's 210.16%/212.62% → 8.6e-06%/3.4e-05%, A1's 634% flip →
+5.5e-04%, A5's 207%/122% flips → 3.0e-06/7.0e-06 — with the primal
+md5-identical and the non-degenerate branch bit-identical. Root cause confirmed
+by repair.
+
+**The rule.** When derivative code — AD-generated or hand-written — crosses a
+branch that replaces a removable singularity with a constant (`if (small)
+return safe_value` around a normalisation, an `acos`/`atan2` near its edge, any
+guarded 0/0 limit), that branch carries derivative *zero*, while the true
+derivative at the limit is usually finite and often dominant. Audit every such
+guard on a differentiated path and require the guarded branch to carry the
+analytic limit derivative — or reparameterise so no guard is needed (here
+`R = I + [v]_× + [v]_×²/(1+c)` removes both this regime and the ill-conditioned
+near-threshold one). And when *testing* derivative code, evaluate at the
+degenerate/baseline point deliberately and seed with the real objective
+direction: the singular point of the parameterisation and the evaluation point
+of the workflow are the same point far more often than randomly-chosen test
+states will show.
+
+**Why this is not L-26 again.** L-26 is about establishing a sign by a
+controlled experiment; that discipline is what made this patch trustworthy.
+The lesson here sits upstream of any sign: a guard that is *correct for the
+primal* can silently define a *wrong derivative*, and it does so precisely
+where everyone evaluates. (The adjacent observation from the same arc —
+upstream's `tests/test_USMesh.py:86` ran the right verification for five years
+and discarded its result, asserting only the sum the defect cannot move — is
+the L-2/L-21 family appearing in someone else's CI, recorded in
+`ROOTCAUSE_getRotationMatrix3d.md` §2.2 rather than as a second lesson.)
+
+Files: `demo-output/website/dafoam/ROOTCAUSE_getRotationMatrix3d.md` (§1, §2,
+§4), `demo-output/website/dafoam/PATCH_getRotationMatrix3d.md`,
+`demo-output/website/dafoam/PROOF.md` §23–24,
+`demo-output/website/dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md`,
+`demo-output/website/dafoam/rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`.
