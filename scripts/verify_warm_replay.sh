@@ -18,6 +18,20 @@
 #     "IDENTICAL apart from measured wall clocks" -- and it prints those lines
 #     so nothing is hidden behind the softer verdict.
 #
+#     The race's own lane clocks were named in that paragraph before they were
+#     handled. The reduced-order and Monte Carlo tables print a "Solve seconds"
+#     column (race_study._ROM_HEADERS, _MC_HEADERS) and no rule below matched
+#     it, so those rows differed on the clock alone while their L/D matched to
+#     the digit: 18.14, 15.73, 12.47, 10.15 and the confirmation at 18.14, with
+#     3.93 against 3.88 seconds between them. The rule added below is anchored
+#     to the literal column name and the lines still print.
+#
+#     THAT RULE DOES NOT MAKE race-study REPORT IDENTICAL, and saying so here
+#     is the point: the anchor rows also arrive in a DIFFERENT ORDER between
+#     runs, which is a real difference and not a clock, so it is left to fail.
+#     Masking it would be masking a quantity. Whoever settles the ordering
+#     should settle it in the act, not in this file.
+#
 #   scripts/verify_warm_replay.sh [act ...]
 #   REPEATS=2 scripts/verify_warm_replay.sh nasa-hump    # timing variance
 #
@@ -105,6 +119,7 @@ normalise() {
         -e 's/converged force in [0-9]+(\.[0-9]+)? (s|min)/converged force in <clock>/g' \
         -e 's/Wall clock \| Measured [0-9]+(\.[0-9]+)? (s|min)/Wall clock | Measured <clock>/g' \
         -e 's/solve stage [0-9]+(\.[0-9]+)? seconds/solve stage <clock> seconds/g' \
+        -e 's/Solve seconds [0-9]+(\.[0-9]+)?/Solve seconds <clock>/g' \
         -e 's/: [0-9]+(\.[0-9]+)? s,/: <clock> s,/g' \
         -e 's/[0-9]+(\.[0-9]+)? core-min/<clock> core-min/g' \
         -e 's/Core-minutes [0-9]+(\.[0-9]+)?/Core-minutes <clock>/g' \
