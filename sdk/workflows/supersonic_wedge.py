@@ -78,11 +78,24 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     act used to say the ladder failed because its observed order fell outside
     the credible window, which is true and is not what decides it. The same
     ladder also fails the extrapolation guard, and it fails it at a shock angle
-    of minus 13.733 degrees: its increments are minus 1.465 then minus 1.430
-    degrees, so the fit returns p = 0.035 and the extrapolation step multiplies
-    the finest increment by 40.7. A viewer told only about the order would
-    reasonably conclude that a better order settles the case. It does not.
-    ``uq.guards_holding_note`` carries the companion sentence.
+    no flow can have. On this act's own rungs, measured 2026-08-01 through the
+    act's own fit at 1800 / 7200 / 28800 cells and 47.58767882153372 /
+    46.12330850878531 / 44.692792746510406 degrees: the increments are
+    minus 1.46437 then minus 1.43052 degrees, so they barely shrink at all,
+    the fit returns p = 0.034, and the extrapolation step multiplies the
+    finest increment by 42.25 and lands at minus 15.753 degrees. A viewer told
+    only about the order would reasonably conclude that a better order settles
+    the case. It does not. ``uq.guards_holding_note`` carries the companion
+    sentence.
+
+    THE TWO PUBLISHED FIGURES FOR THIS LADDER DISAGREE, AND BOTH ARE HERE.
+    The two-dimensional ladder refit reports minus 13.733 degrees at p = 0.035
+    and an amplification of 40.86. It fitted the rungs AS THE LADDER TABLE
+    PRINTS THEM, rounded at the third decimal, and this ladder is sensitive
+    enough at p near zero that rounding the rungs moves the extrapolated angle
+    by 2.02 degrees. The verdict is the same either way and the two failing
+    guards are the same either way; what moves is the digit. This act quotes
+    its own full precision fit, which is the one that ran.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"

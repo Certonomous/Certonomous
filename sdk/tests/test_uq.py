@@ -796,13 +796,30 @@ class WhichGuardHeldTheVerdict(unittest.TestCase):
 class EveryGuardThatHoldsALadderIsNamed(unittest.TestCase):
     """The supersonic wedge rungs: 1800/7200/28800 cells, shock angle in deg.
 
-    Measured 2026-08-01 by refitting the act's own stored rungs; the values are
-    the ones the act solves and are recorded in the two-dimensional ladder
-    refit alongside them.
+    ``BETA`` is the ladder AS THE ACT PRINTS IT, rounded at the third decimal,
+    which is what the two-dimensional ladder refit fitted. ``BETA_SOLVED`` is
+    what the act actually fits, carried at full precision out of its own solve
+    and captured 2026-08-01. Both are here because they do not agree on the
+    digit: at an observed order this close to zero the extrapolation amplifies
+    the finest increment by more than forty, so rounding the rungs moves the
+    extrapolated shock angle by 2.02 degrees. They agree on everything that
+    decides anything: the same two guards fail and the verdict is the same.
     """
 
     CELLS = [1800, 7200, 28800]
     BETA = [47.588, 46.123, 44.693]
+    BETA_SOLVED = [47.58767882153372, 46.12330850878531, 44.692792746510406]
+
+    def test_rounding_the_rungs_moves_the_digit_and_not_the_verdict(self):
+        rounded = uq.eca_hoekstra_band(self.CELLS, self.BETA, dim=2)
+        solved = uq.eca_hoekstra_band(self.CELLS, self.BETA_SOLVED, dim=2)
+        self.assertAlmostEqual(rounded["richardson_extrapolated"],
+                               -13.732714, places=5)
+        self.assertAlmostEqual(solved["richardson_extrapolated"],
+                               -15.753301, places=5)
+        self.assertEqual(rounded["guards_failed"], solved["guards_failed"])
+        self.assertEqual(rounded["conclusive"], solved["conclusive"])
+        self.assertIsNone(uq.reportable_band(solved))
 
     def _band(self):
         return uq.eca_hoekstra_band(self.CELLS, self.BETA, dim=2)

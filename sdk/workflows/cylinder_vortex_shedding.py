@@ -383,14 +383,16 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     ladder can fail more than one guard, and naming only the earliest one
     tells a viewer something true and unimportant in place of something true
     and decisive. This is the ladder that made the point: read as three
-    dimensional it was declined for an observed order of 3.654, outside the
+    dimensional it was declined for an observed order of 3.645, outside the
     credible window, and fitted on the two-dimensional mesh it actually is
-    that order is 2.436 and inside it. The verdict never moved, because the
+    that order is 2.43 and inside it. The verdict never moved, because the
     guard that owes nothing to dimensionality, the extrapolation check, holds
     it either way. Where this act knows the physics of its own functional it
     says so ahead of every other guard: a shedding frequency is positive, so
     an extrapolated Strouhal number below zero is a value this wake cannot
-    produce. It extrapolates to 0.1672, so the clause is silent here.
+    produce. It extrapolates to 0.16721, so the clause is silent here.
+    Measured 2026-08-01 through the act's own fit at 2496 / 5032 / 8640
+    cells, p = 2.43 on the two dimensional mesh.
     """
     from chief_engineer import uq as uq_studies
 

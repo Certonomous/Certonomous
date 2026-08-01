@@ -67,8 +67,10 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     and decisive. Where this act knows the physics of its own functional it
     says so ahead of every other guard: the bow shock stands OFF the body, so
     an extrapolated standoff below zero would put the shock inside the
-    cylinder. This ladder's rungs are not monotone so it fits no order and
-    extrapolates to nothing at all, which is why the clause is silent here.
+    cylinder. This ladder's rungs are 0.4427 / 0.4082 / 0.4181 in delta/R at
+    1000 / 4000 / 16000 cells, measured 2026-08-01 through the act's own
+    ladder: they are not monotone, so it fits no order and extrapolates to
+    nothing at all, which is why the clause is silent here.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"

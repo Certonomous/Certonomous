@@ -66,8 +66,9 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     says so ahead of every other guard: a conical shock stands ahead of the
     cone at a positive angle, so an extrapolated angle below zero is not a
     wide band, it is a value the flow cannot produce. This ladder extrapolates
-    to 26.226 deg, which is an angle a flow can have, so the clause is silent
-    here and the rail is in place if that ever stops being so.
+    to 26.223 deg, which is an angle a flow can have, so the clause is silent
+    here and the rail is in place if that ever stops being so. Measured
+    2026-08-01 through the act's own fit at 1800 / 7200 / 28800 cells.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"

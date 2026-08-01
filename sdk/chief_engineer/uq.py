@@ -631,10 +631,13 @@ def impossible_extrapolation(band: dict[str, Any] | None, *, quantity: str,
     the Richardson value land near the range the rungs measured? It cannot ask
     the physical one, because this module does not know what any functional
     means. The supersonic wedge ladder extrapolates its shock angle to
-    minus 13.733 degrees. That is not a wide band or a soft convergence signal,
-    it is a value no flow can produce, and it is a strictly stronger statement
-    than "the observed order is outside the credible window" -- an order can be
-    argued about, a negative shock angle cannot. So it leads the sentence
+    minus 15.753 degrees (the act's own fit on its own rungs, 2026-08-01; the
+    two-dimensional ladder refit reads minus 13.733 from the same rungs rounded
+    to three decimals, and the act quotes the one that ran). That is not a wide
+    band or a soft convergence signal, it is a value no flow can produce, and
+    it is a strictly stronger statement than "the observed order is outside the
+    credible window" -- an order can be argued about, a negative shock angle
+    cannot. So it leads the sentence
     (see ``not_conclusive_reason``), and the act that knows the physics is the
     one that supplies it.
 
@@ -731,10 +734,10 @@ def not_conclusive_reason(band: dict[str, Any] | None, *,
     NAMING ONLY THE FIRST ONE WAS ITS OWN DEFECT. This used to return
     ``not_conclusive_guard`` alone, which is the earliest failure in
     ``GUARD_PRECEDENCE`` and not necessarily the decisive one. The supersonic
-    wedge act said its ladder failed on an observed order of 0.035, so a
+    wedge act said its ladder failed on an observed order of 0.034, so a
     reader would reasonably conclude a better order would settle it; the same
     ladder also fails ``extrapolation_sanity``, at a shock angle of
-    minus 13.733 degrees, and no order would have rescued that. A sentence
+    minus 15.753 degrees, and no order would have rescued that. A sentence
     that states one true unimportant reason in place of a true decisive one is
     worse than a sentence that states both. Six ladders in this corpus fail
     more than one guard.

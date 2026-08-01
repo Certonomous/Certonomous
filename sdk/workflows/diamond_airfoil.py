@@ -67,8 +67,9 @@ def _ladder_reason(band: dict[str, Any] | None) -> str:
     says so ahead of every other guard: a section in a supersonic stream with
     no power source cannot make thrust, so an extrapolated wave drag below
     zero is not a wide band, it is a value the flow cannot produce. This
-    ladder extrapolates to 0.03624, so the clause is silent here and the rail
-    is in place if that ever stops being so.
+    ladder extrapolates to 0.036237, so the clause is silent here and the rail
+    is in place if that ever stops being so. Measured 2026-08-01 through the
+    act's own fit at 2000 / 8000 / 32000 cells, p = 6.296.
     """
     if band is None or band.get("band_abs") is None:
         return "it did not produce three usable rungs"
