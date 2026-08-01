@@ -366,32 +366,35 @@ work that was fine.
 
 | Rule | Replayed against | Fires on | Status |
 | --- | --- | --- | --- |
-| S1 FPE | not replayed | not counted | **hypothesis.** Derived from motorcycle benchmark logs and knowledge base fact 7. The handler-versus-banner distinction is reasoned from the source, not from a sweep. |
-| S2 NaN | not replayed | not counted | **hypothesis.** Almost certainly sound and still uncounted. |
-| S3 residual spike | not replayed | not counted | **hypothesis.** The rolling-median design is reasoned from the failure a minimum-based rule would produce, and that reasoning has never been run over the archive. |
-| S4 bounding | not replayed | not counted | **hypothesis.** The startup scoping, WATCH in the first ten percent and FLAG after, is a judgement about transients with no measured startup fraction behind it. |
-| S5 first-seen warning | not replayed | not counted | **hypothesis by construction.** It fires on novelty, so a fire rate over an archive of things the lab has already seen would measure the wrong thing. |
-| S6 residual stall | partly | not counted | **partly measured.** Its gate on the residual target is the same gate S7 needed, and the 106-log measurement records that S6 does not false-positive on that corpus. No independent fire count exists. |
+| S1 FPE | **449 archived logs** | **10, FATAL on 10** | **validated 2026-08-01.** Every one of the ten carries a `Foam::sigFpe::sigHandler` stack frame, so every fire is a run that actually died. No completed run is named. See 3.5. |
+| S2 NaN | **449 archived logs** | **0** | **replayed 2026-08-01, and it fires on nothing.** No false positive and no true positive: the archive holds no NaN on a line this rule reads. Three logs carry one on a line it does not. See 3.5. |
+| S3 residual spike | **449 archived logs** | **14, 298 findings, 0 fatal** | **validated 2026-08-01, with a weakness.** 6 of the 14 also carry the FPE stack trace, so the rule agrees with a run that died. 221 of the 298 findings sit on one completed run. See 3.5. |
+| S4 bounding | **449 archived logs** | **158, 38923 findings, 0 fatal** | **measured 2026-08-01, and the documented rule is not the implemented rule.** The startup scoping this standard states for S4 exists nowhere in the code. See 3.5. |
+| S5 first-seen warning | **449 archived logs**, read as if every run were novel | **225 logs, 237 findings, 2 distinct keys** | **replayed 2026-08-01, and the finding is the key, not the count.** Both distinct keys are artefacts of the normaliser rather than facts about the logs. See 3.5. |
+| S6 residual stall | **attempted 2026-08-01 against 123 steady logs; 46 carry a recoverable target and all 46 are one family** | **not counted, and now for a specific reason** | **still unmeasurable.** The one family that archives its own `fvSolution` declares `p 1e-15`, which no run reaches, so the gate that makes S6 mean anything is vacuous exactly where it can be read. See 3.5. |
 | S7 oscillatory divergence | **106 archived steady logs** | **68, FATAL on 65** | **measured and failing.** See 3.2. |
 | S8 Courant excursion | **4 archived transient logs, 13308 time steps, 417 ledger rows** | 0 healthy runs | **validated.** Tolerance measured, not assumed: largest healthy overshoot 0.403 percent against a 2 percent tolerance, longest healthy monotone run 17 steps against a window of 20. |
 | S9 wall time | **208193 ledger rows** | 19 FLAG, 11 FATAL | **validated**, with a recorded weakness. The six ~16300 s runs land at 1070x and 2214x their own p99 and were all recorded ok at the time. |
 | S10 divergence behind a converged residual | **383 archived solver logs**, and 157 for the norm branch | **exactly 1**, the withdrawn run | **validated, and the strongest rule here.** A test sweeps the whole archive and fails if a second log is ever named. |
 | S11 system operations | every run, by design | **every run** | **outside the ladder, and correctly so.** See 3.3. |
 
-**Seven of eleven rules have never been replayed against the archive.** Six of
-those seven are the rules the monitor already shipped with before the reading
+~~**Seven of eleven rules have never been replayed against the archive.**~~
+**Superseded 2026-08-01: six of the seven have now been replayed, and the
+sentence is left visible because the review that wrote it was right.** Six of
+those seven were the rules the monitor already shipped with before the reading
 program, which is exactly why nobody thought to measure them: they were
 inherited rather than proposed, so they never met the intake requirement that
 `GOALS_AND_PROPOSALS_CHARTER.md` disqualifier 10 now imposes on new ones. **The
 disqualifier binds new rules and the old ones were grandfathered in without
-anybody deciding to grandfather them.** That is the finding of this review, and
-it is a decision for the owner rather than a defect to fix quietly, because
-replaying S1 through S5 costs a zero-compute afternoon and could plausibly
-return nothing.
+anybody deciding to grandfather them.** That was the finding of this review, and
+the review priced the remedy correctly: replaying S1 through S6 cost a
+zero-compute afternoon. It did not return nothing. See 3.5.
 
-The honest reading of the table: the three rules the lab measured before
-adopting are the three it can defend. The one it adopted on reasoning alone is
-the one that failed. That is a small sample and it points the same way as D12.
+The honest reading of the table as it stood: the three rules the lab measured
+before adopting were the three it could defend. The one it adopted on reasoning
+alone is the one that failed. That is a small sample and it points the same way
+as D12. The replay adds two more rules the lab can defend, S1 and S3, and two
+it cannot describe accurately, S4 and S5.
 
 ### 3.2 The one rule that fires too often
 
@@ -474,6 +477,98 @@ Four, and they are listed with what each would take.
    Recording the boundary matters because a lab with a good monitor can come to
    believe the monitor is the check, and this week the monitor was not where the
    defects were.
+
+### 3.5 Replaying the six grandfathered rules, 2026-08-01
+
+Run by `sdk/scripts/replay_monitor_rules.py`, which writes
+`demo-output/website/monitor/replay_s1_s6.json`. No compute: every number below
+comes from a file already on disk, and the whole sweep took 156 seconds.
+
+**The corpus.** Every `*.log` under `demo-output`, which is the same root the
+S10 archive sweep uses, so the two measurements are comparable. **449 logs**
+today, against the 383 S10 was measured on. 144 of them carry residual lines,
+123 steady and 21 transient; 305 carry none, which is a fact about the archive
+worth knowing on its own, since most of what the lab keeps is not a solve.
+
+**S1, validated.** Ten logs, ten fatal, and every one of the ten carries a
+`Foam::sigFpe::sigHandler` stack frame. Not one completed run is named. This is
+the cleanest result of the six and it retires the concern the review recorded:
+the handler-versus-banner distinction was reasoned from the source, and the
+sweep confirms the reasoning caught only handlers.
+
+**S2, zero fires and one boundary.** No archived log carries a NaN on a line
+this rule reads, so the rule has no false positives and no true positives here.
+Three logs carry a NaN on a line it does not read: the adjoint gradient
+comparison prints `Relative Error (Jan - Jfd) / Jan : nan`, which is a reported
+quantity rather than a residual. That is outside S2's scope as written and it
+is the same boundary 3.4 item 3 names, so it is recorded rather than fixed by
+widening a rule whose purpose is the residual block.
+
+**S3, validated, with a weakness.** 14 of 449 logs, 298 findings, none fatal.
+Six of the 14 also carry the FPE stack frame, so on those the rule is agreeing
+with a run that died. Seven of the remaining eight end with OpenFOAM's `End`.
+The weakness is distribution rather than rate: **221 of the 298 findings sit on
+one completed run**, `f6a_diff_LRR_v4`. The suppression discipline in standing
+rule 2 caps reports per step, and a run with thousands of steps still
+accumulates.
+
+**S4, and the documented rule is not the implemented rule.** 158 of 449 logs,
+38923 findings, none fatal, and 100 of the 158 end with `End`. Section 1 states
+S4's severity as "WATCH during the first ten percent of iterations, FLAG when
+persistent past startup". **No part of that exists in the code.**
+`LogMonitor._bound` raises one undifferentiated `bounding` anomaly with a blank
+severity; there is no iteration fraction, no WATCH, and no escalation. The only
+startup notion anywhere in the stack is a sentence in
+`head_engineer.diagnostics()` reading "normal in startup, suspect if persisting
+past ~100 iterations", which is a different threshold and is prose on a report
+rather than a severity on a finding. A rule documented with a ladder it does not
+have is worse than one documented plainly, because the reader grades the finding
+by a severity the finding never carried.
+
+**S5, and the finding is the key rather than the count.** Read as if every
+archived run were novel, S5 raises on 225 of 449 logs, 237 findings. That number
+is not a false-positive rate, because none of those runs was novel; it is an
+upper bound on how often the rule can speak. What the sweep does settle is the
+rule's vocabulary, and it is **two distinct keys over the whole archive**, both
+of them artefacts of the normaliser:
+
+1. OpenFOAM's ordinary multi-line spelling puts `--> FOAM Warning :` on one
+   line and the message on the lines after it. S5 keys on the single line it is
+   fed, so **146 logs collapse to one key that carries no information about the
+   warning at all.** Every distinct warning in those runs is indistinguishable
+   from every other, which is why S5's knowledge capture has never produced
+   anything to capture.
+2. The key normaliser is `re.sub(r"[0-9.eE+-]+", "#", ...)`, which treats the
+   letters `e` and `E`, the dot and the hyphen as number characters wherever
+   they appear. `allowSystemOperations` keys as `allowSyst#mOp#rations`. Two
+   genuinely different warnings differing only in those characters key the same
+   and the second is suppressed as already seen.
+
+Neither is fixed here. S5's detection is being changed, not its documentation,
+and standing rule 4 sends that through the innovation path with the measurement
+attached, which is what this section provides.
+
+**S6, still unmeasurable, and now for a specific reason.** The review recorded
+that the archived logs do not carry the `residualControl` target S6 needs. They
+do not, but 46 of the 123 steady logs sit beside the case that produced them and
+that case's `system/fvSolution` does, so the corpus is not empty. **All 46 are
+one family**, `demo-output/website/dafoam/ladder-b/B3_work`, and its declared
+target is a single entry, `p 1e-15`, which no run reaches. The gate that makes
+S6 mean anything is therefore vacuous exactly where it can be read: every field
+is above target forever, so any plateau fires. Under it S6 names 37 of the 46,
+and that number is a property of the degenerate target rather than a fire rate
+for S6. Reporting it as a fire rate would be the same error S7 was caught in.
+**What S6 needs is not a cleverer sweep, it is one archived case outside this
+family that declares a target it actually reaches.**
+
+**Found on the way, and not fixed here.** The S10 archive sweep test
+(`sdk/tests/test_log_signatures.py`, `ArchiveSweepTests`) asserts that exactly
+one archived log carries a ceiling clip and it now fails: five do. Four are
+finite-difference probe points under `ladder-b/S1_work/logs/fd_points`, each
+printing `Bounding U<1000`, and they entered the archive after the test was
+written. S10a is FATAL by this standard. The test is left failing and the
+question of what rests on those four points is escalated rather than answered
+here.
 
 ## 4. Standing rules for any monitor rule
 
