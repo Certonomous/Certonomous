@@ -236,6 +236,11 @@ idx6's AN was `+5.6907e-03` against FD `−1.0656e-03`; it is now `−1.06563264
 11.6–11.9% single-station residual of PROOF §21 — collapse under the same four lines**, confirming
 they were one mechanism at two magnitudes.
 
+The original random-seed reproducer (`probeWarpDeriv.py`, seed 2026, np=4, h=1e-4;
+`rotation_branch/patched/A1P_randomseed.log`) closes the report's original numbers as well:
+idx6 111.88% FLIPPED → **1.32e-05** (AN now 1.313393e+01 vs FD 1.313376e+01), idx7 114.25%
+FLIPPED → **1.29e-05**, idx4 control 2.37% → **3.53e-06**.
+
 ### 9.3 A5 UBend, real seed (`rotation_branch/patched/A5P_pl_real_rotON.log`, `A5P_stock_real_rotON.log`)
 
 Pressure-loss objective, rotations ON:
