@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T18:34:09+00:00",
+ "generated_at": "2026-08-01T18:37:55+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -1883,10 +1883,11 @@
     "scripts/self_audit.py",
     "models/curriculum/uq-studies/ahmed_25.json"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T12:18:22Z",
-   "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decided_at": "2026-08-01T18:37:55+00:00",
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "outcome": "Ruled, and the ruling had already gone the item's way on the tier: the Ahmed 25 deg row is SOLVER-BACKED at 0.3041 with the reason naming its inconclusive ladder, and there is no VALIDATED row left on the wall (commit e2e2d983). Verified 2026-08-01 that the wall and its generator agree exactly: build_wall._credentials_from_disk re-derived all 8 cards and every field matched the published wall.json, and self_audit's wall check reports PASS. The gate's second half did not hold. The card publishes measured on the reference's frontal-area basis (0.3041 from the production rung's 0.08481, ratio 3.586) but took its envelope straight off the study's band_abs, which fits on the rungs' planform basis, so it printed +/-0.02 beside 0.3041. A reader divides those and gets 6.65% where the study's own band_rel is 23.85%. displayed_credential now rebases the band on the same ratio as the value: the row reads +/-0.073 and the two bases agree. The other two banded rows sit at ratio 1.0 and did not move (cube +/-0.0078 against band_rel 0.709%, NACA 0012 wing +/-0.015 against 125.45%). Why no check caught it: self_audit compares the wall against a re-derivation through the same function, so an error inside that function is identical on both sides and reads as agreement; test_uq's rebasing test asserted the rebased value and not the envelope, and now asserts both. No compute; 59 tests pass and the wall was rebuilt."
   },
   {
    "id": "w7-bundle-drift-check",
