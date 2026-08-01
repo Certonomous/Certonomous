@@ -22,7 +22,16 @@ history (`head_engineer.envelope_statistics`).
 | c3 | (98 21 59) | 254 911 | 220 | **0.073992743** | 7.6e-05 |
 | c4 | (122 26 74) | 454 691 | 623 | **0.074882228** | 1.5e-05 |
 | c4b *(replicate control, §4)* | (123 27 73) | 468 509 | 1668 | **0.074979080** | 2.1e-05 |
-| c5 | (152 32 92) | 834 351 | *(still solving at the time of writing — §7)* | | |
+| ~~c5~~ | (152 32 92) | 834 351 | **did not converge in 4 000** | ~~0.082466071~~ | **5.2e-03** |
+
+**c5 is refused as ladder evidence, by the lab's own rule and not by
+preference.** It ran to `endTime` 4 000 without `residualControl` firing, and
+its final-window 2σ is **5.16e-03 — 6.26% of its own value**, against the
+5% ceiling `run_uq_studies.b52_fourth_rung` applies verbatim: *"an unconverged
+rung is not ladder evidence; refuse to store it."* Its 2σ is also **6× the
+ladder increments themselves**, so quoting its mean would be quoting noise
+larger than the signal. It is listed struck through rather than deleted because
+**the failure is a result** — see §6.
 
 Refinement ratios in h: **1.2200, 1.2090, 1.2128** — the widest pair 0.90%
 apart, against the existing Ahmed ladder's 7.85%. Every mesh reports `Mesh OK`
@@ -138,7 +147,45 @@ r = 1.09 amplifies its finest increment 4.65× into the extrapolation against
 2σ, so there is real signal being amplified, not noise. **The premise was
 corrected rather than built on.**
 
-## 6. The consequence nobody asked for: the experimental agreement passes *through* the experiment
+## 6. Why the ladder cannot be pushed further: the steady solve stops being steady
+
+c5 was launched to separate "the ladder turned" from "the ladder oscillates". It
+answered a different question instead, and the answer constrains everything
+above.
+
+| rung | cells | iters | final-window 2σ | 2σ / Cd |
+| --- | --- | --- | --- | --- |
+| c1 | 79 439 | 158 | 9.9e-06 | 0.012% |
+| c2 | 144 240 | 212 | 5.5e-05 | 0.069% |
+| c3 | 254 911 | 220 | 7.6e-05 | 0.103% |
+| c4 | 454 691 | 623 | 1.5e-05 | 0.020% |
+| c4b | 468 509 | 1668 | 2.1e-05 | 0.028% |
+| **c5** | **834 351** | **4 000 (endTime, never converged)** | **5.2e-03** | **6.26%** |
+
+Iterations to convergence go 158, 212, 220, 623, 1668 — and then the sixth rung
+does not converge at all in 4 000, at 4 010.9 s of solver time on 4 ranks. Its
+force history is still swinging by 5.2e-03 at the stopping point, **six times
+the ladder increments this whole study is made of**, and its drift between the
+last two 60-iteration windows is −2.7e-04, an order of magnitude above any other
+rung's.
+
+**A steady RANS solve that will not settle is the expected behaviour of the
+Ahmed 25° slant, and it is the most likely mechanism for §3.** The 25° slant
+sits on the drag crisis where the C-pillar vortices and the slant separation
+bubble trade places; the flow is marginally steady, and finer meshes resolve
+more of the unsteadiness the steady formulation is not allowed to have. On that
+reading, the ladder is not converging to a wrong answer — **it is converging
+towards a solution the steady equations do not possess**, which is why the
+increments never shrink and why the sign turns.
+
+That is a hypothesis, stated as one. What is *measured* is the convergence
+behaviour in the table above, and it is enough to say this: **refining this
+ladder further is not the way to settle the Ahmed body.** The next rung costs
+more and converges less. The question is a formulation question — steady versus
+unsteady — not a grid question, and no amount of the item's remaining budget
+would have answered it.
+
+## 7. The consequence nobody asked for: the experimental agreement passes *through* the experiment
 
 The item was scoped to grid convergence. Rebasing the same rungs onto the
 frontal-area basis the Ahmed record compares on — the ratio the whole record
@@ -193,7 +240,7 @@ started, and a tier is a judgement about what a lab is willing to stand behind,
 not an arithmetic result. The numbers are on the record; the decision is not
 this item's to take.
 
-## 7. Cost, against the estimate
+## 8. Cost, against the estimate
 
 `est_core_min` for this item was **400.0**, and it was ruled unaffordable.
 
@@ -206,7 +253,7 @@ this item's to take.
 | c3 solve | 4 | 50.8 s, **3.39 core-min** |
 | c4 solve | 4 | 251.1 s, **16.74 core-min** |
 | c4b solve (replicate control) | 4 | 1054.4 s, **70.30 core-min** |
-| c5 solve (834 351 cells) | 4 | still running; **its wall clock is not comparable** — it shared the box with the W5 gradient runs and the load average sat near 20 on 16 cores |
+| c5 solve (834 351 cells) | 4 | 4 010.9 s, **267.4 core-min** — spent on a rung that did not converge and is refused (§6). Reported, not netted out: the budget was spent and the spend bought the finding in §6. Its wall clock is also not comparable with the others; it shared the box with the W5 gradient runs at a load average near 20 on 16 cores |
 
 Through c4 the item cost **under 27 core-minutes against an estimate of 400** —
 a factor of 15. With the two unplanned extras (c4b's replicate control and c5)
