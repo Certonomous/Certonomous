@@ -1,6 +1,24 @@
 {
-  "generated_at": "2026-08-01T06:16:56Z",
+  "generated_at": "2026-08-01T06:18:07Z",
   "proposals": [
+    {
+      "id": "w5-decide-what-cannot-be-sent-before-it-is-run",
+      "well": "W5",
+      "objective": "Rule on entries whose submission route is closed before their compute is committed",
+      "rationale": "The largest approved item can be prepared and cannot be sent: submission needs an account, a participant identifier and a merge request, and all three sit on that item own forbidden list. Its rendered deliverable is priced at zero on top of a corrected 6,390 core-minutes. The decision costs nothing and it was going to be taken after the compute rather than before it.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every challenge entry states its submission route and whether that route is open, before any compute is approved",
+      "expected_knowledge_gain": "Four thousand core-minutes of work that cannot be delivered is the most expensive kind of avoidable",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:16:56Z"
+    },
     {
       "id": "w3-valve-band-never-adjudicated",
       "well": "W3",
@@ -19,6 +37,25 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T00:18:23Z"
+    },
+    {
+      "id": "w3-where-settling-scatter-belongs",
+      "well": "W3",
+      "objective": "Decide which channel carries settled-state scatter, and make the two filmed acts agree with it",
+      "rationale": "The geometry study and the Ahmed act fold the scatter of a settled coefficient into their combined band while their channel table reports the input channel unquantified. On the filmed B-52 the displayed channels combine to 0.006353 against a printed 0.0064, so the undisclosed term is at most 0.0011. The number is not wrong; the rule is unstated, and two acts on camera are the only ones doing it.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Settling scatter is named as one channel in one place, and every act that reports it agrees",
+      "expected_knowledge_gain": "Two filmed acts currently combine a term their own table says they do not have",
+      "source_kind": "measurement",
+      "citations": [
+        "scripts/self_audit.py",
+        "sdk/workflows/geometry_study.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:51:43Z"
     },
     {
       "id": "w3-total-uncertainty-convention",
@@ -626,6 +663,25 @@
       "outcome": "Reproducer bundle done and verified outside the repo (dafoam/upstream_repro/); report submission-ready as a comment on mdolab/idwarp#57 with derivation, patch and before/after table (dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md, 2026-08-01 update; dafoam/rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch). NOT FILED: whether it is sent is Katie's call, per the report's own header. Shipped DAFoam/IDWarp still carries the bug; A1/A5 stock verdicts unchanged."
     },
     {
+      "id": "w6-a-cost-without-a-rank-count-is-not-a-cost",
+      "well": "W6",
+      "objective": "Require every compute estimate to state the rank count it assumes",
+      "rationale": "The high-lift probe measured the same case spanning 1.58 times on rank count alone, and found four ranks 15 percent cheaper in core-minutes than serial while running 4.71 times faster. Fifty-nine of the sixty-six compute estimates now approved state no rank count at all, so the backlog total is under-specified by up to that factor. The earlier advice to run that case serially would have cost more core-minutes and 79 more hours to save nothing, because its scaling was measured on a structured proxy that does not transfer.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "No compute estimate is accepted at intake without a rank count, and the backlog total is restated with them",
+      "expected_knowledge_gain": "The forecast that decides what gets started is built from numbers that do not say what they assume",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
+        "demo-output/website/agenda/BACKLOG_FORECAST.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:16:56Z"
+    },
+    {
       "id": "w5-closure-strategy-prior-art",
       "well": "W5",
       "objective": "Search the literature for anyone who has already run our closure strategy",
@@ -690,6 +746,24 @@
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "progress_note": "W5, 2026-07-31. Line named. getRotationMatrix3d guards its acos/normalize parameterization with a sqrt(eps) threshold on |n0 x n| at src/utils/vectorUtils.f90:58; at an undeformed baseline the normals coincide bit-for-bit so the guard always fires, and Tapenade's reverse of that branch (src/adjoint/outputReverse/vectorUtils_b.f90:123-128) zeroes the entire adjoint path, giving dMi/dnormals = 0 where the true value is [n0 x dn]_x. Proof the term was never in the analytic answer: useRotations=False leaves warpDeriv's output bit-identical (||dXs||=1.495168856286067e+03 both ways) while the FD changes sign and the error falls from 207.0% to 0.0000.",
       "outcome": "ROOTCAUSE_getRotationMatrix3d.md; PROOF.md section 23; evidence in dafoam/rotation_branch/"
+    },
+    {
+      "id": "w7-a-top-score-reachable-by-writing-one-key",
+      "well": "W7",
+      "objective": "Audit every graded level for one that can be reached without the evidence it claims",
+      "rationale": "The robustness score awarded its highest level, above a settled ladder with a propagated band, to any record merely carrying a shares key. It read no budget and checked no identity, so the exact failure the sensitivity act exists to catch would have scored top. No record carries an apportionment today, which means that level was reachable by writing one key and nothing more.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every level in every graded scale names the evidence it requires, and a record lacking it cannot reach that level",
+      "expected_knowledge_gain": "A scale whose top is free is worse than no scale, because it is quoted",
+      "source_kind": "report",
+      "citations": [
+        "sdk/chief_engineer/credibility.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:51:43Z"
     },
     {
       "id": "w8-a-label-is-fixed-where-it-is-emitted",
@@ -1126,6 +1200,25 @@
       "created_at": "2026-07-31T14:18:26Z",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w8-a-builder-that-infers-its-contents",
+      "well": "W8",
+      "objective": "Write down that a packager which infers its contents will miss anything built at run time",
+      "rationale": "Every laptop bundle ever produced shipped zero certificates. The builder decides what to package by scanning recordings for interface paths, and the control room composes the certificate path in the browser from an event, so the scan matched nothing. Four acts, every build, and the sealed evidence page the demo ends on answered that no certificate existed. The bundle was tested by comparing files it had chosen against the tree, which is a check that cannot see an absence.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A packager states what it expects to include and fails when the count is zero, rather than shipping quietly",
+      "expected_knowledge_gain": "The failure is invisible to every check that compares what was packaged against what was packaged",
+      "source_kind": "report",
+      "citations": [
+        "scripts/laptop_bundle",
+        "dist/certonomous-demo"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:51:43Z"
     },
     {
       "id": "w8-diagnosis-confirmed-by-repair",
@@ -2445,6 +2538,25 @@
       "well": "W5"
     },
     {
+      "id": "w4-the-grid-not-the-box-was-the-limit",
+      "well": "W4",
+      "objective": "Establish whether committee grids generally defeat this lab cell-centred numerics",
+      "rationale": "The high-lift grid carries 1.26 million faces above seventy degrees non-orthogonality against a house maximum of 70.4 elsewhere, and the default numerics diverged at iteration sixteen while memory sat at a quarter of the box. A hardened configuration completed only at first-order convection, which is not submittable. Every workshop grid this lab now intends to read arrives in the same family, so the question is whether the numerics or the grids need to change.",
+      "est_core_min": 120,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 1.642,
+      "cost_basis": "estimate",
+      "gate": "A second committee grid either solves at second order or fails the same way, with its mesh metrics beside the first",
+      "expected_knowledge_gain": "The lab just gained the ability to read these grids and has one measurement suggesting it cannot solve on them",
+      "source_kind": "capability",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
+        "scripts/ugrid_to_foam.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:16:56Z"
+    },
+    {
       "id": "w1-bump-on-nasa-own-grids",
       "well": "W1",
       "objective": "Rebuild the bump family on the reference grids NASA publishes and solves on",
@@ -2770,116 +2882,60 @@
       "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
     },
     {
-      "id": "w8-a-builder-that-infers-its-contents",
-      "well": "W8",
-      "objective": "Write down that a packager which infers its contents will miss anything built at run time",
-      "rationale": "Every laptop bundle ever produced shipped zero certificates. The builder decides what to package by scanning recordings for interface paths, and the control room composes the certificate path in the browser from an event, so the scan matched nothing. Four acts, every build, and the sealed evidence page the demo ends on answered that no certificate existed. The bundle was tested by comparing files it had chosen against the tree, which is a check that cannot see an absence.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A packager states what it expects to include and fails when the count is zero, rather than shipping quietly",
-      "expected_knowledge_gain": "The failure is invisible to every check that compares what was packaged against what was packaged",
-      "source_kind": "report",
-      "citations": [
-        "scripts/laptop_bundle",
-        "dist/certonomous-demo"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T04:51:43Z"
-    },
-    {
-      "id": "w7-a-top-score-reachable-by-writing-one-key",
-      "well": "W7",
-      "objective": "Audit every graded level for one that can be reached without the evidence it claims",
-      "rationale": "The robustness score awarded its highest level, above a settled ladder with a propagated band, to any record merely carrying a shares key. It read no budget and checked no identity, so the exact failure the sensitivity act exists to catch would have scored top. No record carries an apportionment today, which means that level was reachable by writing one key and nothing more.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Every level in every graded scale names the evidence it requires, and a record lacking it cannot reach that level",
-      "expected_knowledge_gain": "A scale whose top is free is worse than no scale, because it is quoted",
-      "source_kind": "report",
-      "citations": [
-        "sdk/chief_engineer/credibility.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T04:51:43Z"
-    },
-    {
-      "id": "w3-where-settling-scatter-belongs",
-      "well": "W3",
-      "objective": "Decide which channel carries settled-state scatter, and make the two filmed acts agree with it",
-      "rationale": "The geometry study and the Ahmed act fold the scatter of a settled coefficient into their combined band while their channel table reports the input channel unquantified. On the filmed B-52 the displayed channels combine to 0.006353 against a printed 0.0064, so the undisclosed term is at most 0.0011. The number is not wrong; the rule is unstated, and two acts on camera are the only ones doing it.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Settling scatter is named as one channel in one place, and every act that reports it agrees",
-      "expected_knowledge_gain": "Two filmed acts currently combine a term their own table says they do not have",
-      "source_kind": "measurement",
-      "citations": [
-        "scripts/self_audit.py",
-        "sdk/workflows/geometry_study.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T04:51:43Z"
-    },
-    {
-      "id": "w6-a-cost-without-a-rank-count-is-not-a-cost",
+      "id": "w6-an-estimate-without-a-rank-count",
       "well": "W6",
-      "objective": "Require every compute estimate to state the rank count it assumes",
-      "rationale": "The high-lift probe measured the same case spanning 1.58 times on rank count alone, and found four ranks 15 percent cheaper in core-minutes than serial while running 4.71 times faster. Fifty-nine of the sixty-six compute estimates now approved state no rank count at all, so the backlog total is under-specified by up to that factor. The earlier advice to run that case serially would have cost more core-minutes and 79 more hours to save nothing, because its scaling was measured on a structured proxy that does not transfer.",
+      "objective": "Refuse a compute estimate that does not state the rank count it was measured at",
+      "rationale": "The high-lift probe measured the same case spanning 1.58 times on rank count alone, and found four ranks fifteen percent cheaper in core-minutes than serial while running 4.71 times faster. So every estimate on this docket that names no rank count is under-specified by up to that factor. The advice this replaces was worse than vague: it recommended running serially, which would have cost more core-minutes and 79 hours to save nothing, because its scaling came from a structured proxy that does not transfer.",
       "est_core_min": 0,
       "predicted_memory_gb": 0.5,
       "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "No compute estimate is accepted at intake without a rank count, and the backlog total is restated with them",
-      "expected_knowledge_gain": "The forecast that decides what gets started is built from numbers that do not say what they assume",
+      "gate": "A cost estimate carries the rank count it was measured at, and a scaling claim names the case it was measured on",
+      "expected_knowledge_gain": "The docket total is the number that decides what gets started, and it is currently the sum of under-specified figures",
       "source_kind": "ledger",
       "citations": [
         "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
         "demo-output/website/agenda/BACKLOG_FORECAST.md"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T06:16:56Z"
+      "created_at": "2026-08-01T06:18:07Z"
     },
     {
-      "id": "w5-decide-what-cannot-be-sent-before-it-is-run",
+      "id": "w5-decide-what-cannot-be-submitted",
       "well": "W5",
-      "objective": "Rule on entries whose submission route is closed before their compute is committed",
-      "rationale": "The largest approved item can be prepared and cannot be sent: submission needs an account, a participant identifier and a merge request, and all three sit on that item own forbidden list. Its rendered deliverable is priced at zero on top of a corrected 6,390 core-minutes. The decision costs nothing and it was going to be taken after the compute rather than before it.",
+      "objective": "Rule on entries the lab can prepare and cannot send, before their compute is spent",
+      "rationale": "The largest approved item can be built and cannot be submitted: its workshop takes entries as a pull request needing an account, a participant identifier and a merge request, and all three sit on that item own forbidden list. Its deliverable of eight mandatory rendered views is also priced at zero. The work would be real and the entry would sit on a shelf. The scouting well has more challenges behind it and the same question will arrive again.",
       "est_core_min": 0,
       "predicted_memory_gb": 0.5,
       "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "Every challenge entry states its submission route and whether that route is open, before any compute is approved",
-      "expected_knowledge_gain": "Four thousand core-minutes of work that cannot be delivered is the most expensive kind of avoidable",
+      "gate": "Every challenge on the board states whether the lab can actually submit to it, and what would be needed",
+      "expected_knowledge_gain": "A credential that cannot be delivered is a case study, and the difference should be decided before the compute not after",
       "source_kind": "challenge",
       "citations": [
         "demo-output/website/hlpw6/FEASIBILITY_PROBE.md"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T06:16:56Z"
+      "created_at": "2026-08-01T06:18:07Z"
     },
     {
-      "id": "w4-the-grid-not-the-box-was-the-limit",
-      "well": "W4",
-      "objective": "Establish whether committee grids generally defeat this lab cell-centred numerics",
-      "rationale": "The high-lift grid carries 1.26 million faces above seventy degrees non-orthogonality against a house maximum of 70.4 elsewhere, and the default numerics diverged at iteration sixteen while memory sat at a quarter of the box. A hardened configuration completed only at first-order convection, which is not submittable. Every workshop grid this lab now intends to read arrives in the same family, so the question is whether the numerics or the grids need to change.",
-      "est_core_min": 120,
-      "predicted_memory_gb": 8.0,
-      "predicted_usd": 1.642,
+      "id": "w7-two-agents-one-question",
+      "well": "W7",
+      "objective": "Make concurrent work on one docket item visible before it is duplicated",
+      "rationale": "Two agents probed the same feasibility question at the same time from the same run directory, and one overwrote the other reprice before restoring it. Nothing was lost and the answer was right, but the effort was spent twice on the item that is a third of the backlog. With 106 approved items and several agents working, the docket has no claim mechanism at all.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "A second committee grid either solves at second order or fails the same way, with its mesh metrics beside the first",
-      "expected_knowledge_gain": "The lab just gained the ability to read these grids and has one measurement suggesting it cannot solve on them",
-      "source_kind": "capability",
+      "gate": "An item being worked is visible on the docket, and a second agent taking it is refused or warned",
+      "expected_knowledge_gain": "The queue is now large enough that collisions cost more than the coordination would",
+      "source_kind": "report",
       "citations": [
-        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
-        "scripts/ugrid_to_foam.py"
+        "demo-output/website/agenda/docket.json",
+        "sdk/chief_engineer/agenda.py"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T06:16:56Z"
+      "created_at": "2026-08-01T06:18:07Z"
     }
   ]
 }
