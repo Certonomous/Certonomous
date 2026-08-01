@@ -1,6 +1,24 @@
 {
-  "generated_at": "2026-08-01T08:23:04Z",
+  "generated_at": "2026-08-01T10:12:18Z",
   "proposals": [
+    {
+      "id": "w5-audit-every-citation-in-the-submission-draft",
+      "well": "W5",
+      "objective": "Check every quotation in the submission draft against a source on disk before it is sent",
+      "rationale": "Two sentences in the draft are attributed to the preprint and appear nowhere on this machine, and the one that matters is a permission the compliance argument leans on. It was found by an agent reading for another purpose. The draft is the single document written to be read by someone outside this lab, and nothing has ever checked its quotations as a set.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every quotation in the draft resolves to a file on disk with a line reference, or is marked unverified",
+      "expected_knowledge_gain": "The zero fabricated citations standard is worth most exactly where an outside reader will check it",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:22Z"
+    },
     {
       "id": "w5-decide-what-cannot-be-submitted",
       "well": "W5",
@@ -422,6 +440,24 @@
       "created_at": "2026-08-01T00:18:23Z"
     },
     {
+      "id": "w6-the-box-is-oversubscribed-now",
+      "well": "W6",
+      "objective": "Give the lab a concurrency limit, since it has gone from a tenth of its box to over it",
+      "rationale": "Two days ago the measured record showed the lab holding 1.4 of 14 usable cores and running everything serial, and a forecast concluded sequencing bound it rather than compute. Right now the load average is 18.5 on a 16 core machine with 19 solvers alive. Nothing arbitrates: each agent checks the box and decides for itself, so the sum can exceed it while every individual decision looks reasonable. Oversubscription does not fail loudly, it just makes every wall clock on the record longer than the work deserved.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A stated concurrency limit that every launch path respects, and a measurement of what oversubscription cost in wall time",
+      "expected_knowledge_gain": "Every duration this lab has measured under load is contaminated, including the ones narration is timed against",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
+    },
+    {
       "id": "w7-cap-stopped-is-a-monitor-signature",
       "well": "W7",
       "objective": "Give the monitor a rung that stopped because it ran out of iterations",
@@ -483,6 +519,25 @@
       "outcome": "Every one of the 26 checks now states what clearing its findings costs and whether that needs a solver, with the basis for the price, printed under each WARN and FAIL and carried in the JSON as remedy, remedy_needs_compute and remedy_basis. A 27th check enforces it: a check that lands without a price fails the audit rather than shipping a finding nobody can weigh, and a price left behind by a deleted check fails too. The count is the answer to the item's own question: 25 of 26 clear at no compute, and the single exception is the measured-versus-predicted pair, which needs the run by definition while its fit does not and is already done. Every current failure is therefore clearable without a solve: the 6 wall counters, the 1 unresolved citation, the ungated 44,102-second pilot, the Ahmed gate row, the 2 channel totals, the 6 fleet declarations and the 46 drifted bundle files. What the new check enforces is that a price exists, not that it is right, and that boundary is stated on it, because the price that was wrong is the one this item was filed over."
     },
     {
+      "id": "w6-the-box-went-from-a-tenth-to-full",
+      "well": "W6",
+      "objective": "Measure what changed when utilisation went from 1.4 cores to saturation, and whether the throughput followed",
+      "rationale": "The cost forecast was built on a measured 1.40 cores busy sustained, and concluded the lab was sequencing-bound rather than compute-bound. The box is now running eighteen solvers at a load of 15.8 on sixteen cores. If throughput rose proportionally the forecast horizon collapses by an order of magnitude; if it did not, the box is oversubscribed and every wall clock measured under it is inflated, including the ones feeding the cost laws.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Measured evaluations per wall hour before and after, with the per-solver wall times compared at matched work",
+      "expected_knowledge_gain": "Every duration this lab has measured today was taken under a load its own forecast never contemplated",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "mega-batch ledger"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:36Z"
+    },
+    {
       "id": "w2-mit-access-list",
       "well": "W2",
       "objective": "Open the paywalled-paper list for Katie MIT library access and work the open-access seed list down",
@@ -525,6 +580,25 @@
       "decided_at": "2026-08-01T07:05:07+00:00",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "outcome": "Measured the gap before writing the rule: 32 of 37 rung-shaped compute proposals on the docket name a cell count and no iteration count, and 26 of those are still unstarted, the largest at 400 core-minutes. The drafter that emitted most of them wrote 'the finest rung holds N cells and the next roughly doubles it' and stopped there, because a stored ladder records cells per rung and no iterations at all, so it could only price the grid. It now says that out loud in every cost basis it writes. The compute charter gains the clause, backed by the ledger fit rather than by caution: wall time carries an exponent of essentially 1 on iterations in both families that record them, 1.156 on time steps and 1.026 on SIMPLE iterations, while within-family cell exponents are small because cells barely vary inside a family, so the term that overruns is the term nobody was writing down. The flat plate is the worked case at 483.6 core-minutes against 327, a factor of 1.48, all of it settling: asked for 15,000 iterations, settled at 36,000, and 202.7 core-minutes went on a first pass the module then refused. A weekly audit check now counts the gap and clears at no compute, because the settling curves are already in the logs those rungs wrote."
+    },
+    {
+      "id": "w6-measure-the-throughput-that-just-changed",
+      "well": "W6",
+      "objective": "Re-measure throughput now that the box runs saturated, and refit the forecast on it",
+      "rationale": "The backlog forecast rested on a measured 1.40 cores held busy over a 151 hour span, and concluded the whole queue was 118 wall hours. The machine is now running eighteen solvers at a load of fifteen. If that holds, the forecast that decides what gets started is wrong by roughly an order of magnitude in the affordable direction, and the five items it ruled out this week may not be ruled out at all.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Throughput re-measured over the saturated period, and the affordable set restated against it",
+      "expected_knowledge_gain": "The forecast is the instrument that decides sequencing, and the quantity it rests on has just moved",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "mega-batch ledger"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:22Z"
     },
     {
       "id": "w2-tbnn-sparta-readings",
@@ -816,6 +890,25 @@
       "decided_at": "2026-08-01T04:42:57+00:00",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "outcome": "Measured the asymmetry first: the control room's own port answered every artifact endpoint it has, and none of them hands over a body. Geometry came back only as a decimated viewport payload, while the 5 files the operator actually uploads were reachable solely through the static site on the second port. The control room now serves that copy set on its own port, an index with sizes and digests plus the bytes, and all 5 download identical to the tracked originals with directory traversal and non-surface names refused on 5 of 5 probes. It serves the tracked copy set rather than the staging area an upload overwrites, and its listing names the 17 staged surfaces it does not carry so a missing body is read rather than discovered on camera. Verified against a second instance on a spare port, off loopback on the private address; genuine off-box reachability could not be decided from the box, since the public address answers 000 to itself, and that is the separate item's job. The route reaches the operator at the next control room start; the running one was not touched."
+    },
+    {
+      "id": "w6-the-ledger-understates-a-failed-cold-solve",
+      "well": "W6",
+      "objective": "Spend the cost of a cold solve that raises, which currently costs the ledger nothing",
+      "rationale": "The ONERA M6 primal-plateau path runs a genuine 498 second four rank solve and then raises before spending, so its own transcript reads solve stage 498 seconds followed by spend 0 core-minutes. That is roughly 33 core-minutes of real work the record does not carry. A warm path spending nothing is correct and was just ruled so; a cold path that ran and failed spending nothing is the opposite error, and it is the one that makes the lab look cheaper than it is.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A solve that ran and then raised is spent to the ledger with its failure recorded beside it",
+      "expected_knowledge_gain": "The lab has just tightened against overstating its work and this is the same defect pointing the other way",
+      "source_kind": "ledger",
+      "citations": [
+        "sdk/workflows/onera_m6.py",
+        "mission-output/onera-m6/transcript.txt"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
     },
     {
       "id": "w4-idwarp-source-trace",
@@ -1151,6 +1244,25 @@
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
+      "id": "w7-claim-an-item-before-working-it",
+      "well": "W7",
+      "objective": "Give the docket a claim, because three collisions have now happened",
+      "rationale": "Two agents probed one feasibility question simultaneously. Then a commit staged and committed another agent working tree under its own message, so that commit text and its content disagreed about a mesh rung. Each time the record was repaired and each time the repair cost more than a claim would have. With ninety-two approved items and several sessions live, the docket still has no way to say an item is being worked.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "An item under work is visible on the docket, and a second claim on it is refused or warned",
+      "expected_knowledge_gain": "The collisions are no longer hypothetical and the queue is large enough that they will continue",
+      "source_kind": "report",
+      "citations": [
+        "sdk/chief_engineer/agenda.py",
+        "demo-output/website/agenda/docket.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:22Z"
+    },
+    {
       "id": "w7-two-agents-one-question",
       "well": "W7",
       "objective": "Make concurrent work on one docket item visible before it is duplicated",
@@ -1228,6 +1340,80 @@
       "created_at": "2026-07-31T20:18:31Z",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w7-the-m6-act-cannot-be-verified-at-all",
+      "well": "W7",
+      "objective": "Register the ONERA M6 act in the replay verification, which currently cannot drive it",
+      "rationale": "Every other act is checked for reproducibility by driving its own prompt through the control room and diffing the transcript. The M6 act has no prompt registered, so the script cannot run it and never has. It is also the act whose scoring was deliberately removed from routing, which is exactly why nobody noticed: it fell out of the filmed sequence and out of the verification in the same move.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The act is driven end to end by the verification script and reproduces, or the reason it cannot is recorded",
+      "expected_knowledge_gain": "An act nobody can verify is an act nobody can trust, and this one has been in that state since its routing changed",
+      "source_kind": "report",
+      "citations": [
+        "scripts/verify_warm_replay.sh",
+        "sdk/workflows/onera_m6.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
+    },
+    {
+      "id": "w7-s4-and-s5-are-not-watching",
+      "well": "W7",
+      "objective": "Repair or withdraw the two monitor rules the archive replay showed are not working",
+      "rationale": "S4 fires on 158 logs and 38,923 findings, and the severity ladder the standard describes for it exists nowhere in the code. S5 entire vocabulary across 449 archived logs is two keys, and both are defects of the key rather than findings: the normaliser mangles an option name, and a multi-line warning collapses 146 logs onto one contentless key. One rule reports tens of thousands of undifferentiated findings and the other reports almost nothing, and both look like coverage.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Each rule either produces findings a reader can act on, or is withdrawn with the replay behind it",
+      "expected_knowledge_gain": "A monitor that appears to watch and does not is the failure the whole standard exists to prevent",
+      "source_kind": "report",
+      "citations": [
+        "scripts/replay_monitor_rules.py",
+        "docs/standards/MONITOR_STANDARD.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:36Z"
+    },
+    {
+      "id": "w8-a-ruling-cites-what-it-protects",
+      "well": "W8",
+      "objective": "Require a ruling to name the artifact it claims to protect, and check that it does",
+      "rationale": "A supervisor ruling argued that a fix mattered because a per-mission ledger fed the core-hours figure on the credentials wall. It does not: there are two ledgers, the wall reads only the batch one, and no act writes to it. The ruling may still stand on its own terms but its stated stake was false, and it was written by the supervisor rather than caught by one. A justification nobody checks is the part of a decision most likely to be wrong and least likely to be noticed.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every ruling names the artifact it protects, and a check confirms that artifact is actually downstream of the change",
+      "expected_knowledge_gain": "The reasoning behind a decision outlives the decision, and gets quoted",
+      "source_kind": "report",
+      "citations": [
+        "docs/charters/SUPERVISOR_RULINGS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:36Z"
+    },
+    {
+      "id": "w8-a-ruling-states-its-stake-and-checks-it",
+      "well": "W8",
+      "objective": "Require a ruling to name the consequence it rests on, and to verify that consequence",
+      "rationale": "Ruling R10 argued that a warm path spending display pacing to a solver ledger mattered because that ledger produces the core-hours figure on the credentials wall. It does not: two ledgers exist and no act writes to the one the wall reads. The ruling was right on its own principle and the fact under it was never checked, which is the same failure this lab keeps finding in the records it audits.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every ruling names the consequence it turns on, and that consequence is verified before the ruling is acted on",
+      "expected_knowledge_gain": "A correct decision argued from a false stake survives review and teaches the wrong lesson",
+      "source_kind": "report",
+      "citations": [
+        "docs/charters/SUPERVISOR_RULINGS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:23:04Z"
     },
     {
       "id": "w8-an-audit-attribution-is-a-claim",
@@ -3114,190 +3300,61 @@
       "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
     },
     {
-      "id": "w6-measure-the-throughput-that-just-changed",
-      "well": "W6",
-      "objective": "Re-measure throughput now that the box runs saturated, and refit the forecast on it",
-      "rationale": "The backlog forecast rested on a measured 1.40 cores held busy over a 151 hour span, and concluded the whole queue was 118 wall hours. The machine is now running eighteen solvers at a load of fifteen. If that holds, the forecast that decides what gets started is wrong by roughly an order of magnitude in the affordable direction, and the five items it ruled out this week may not be ruled out at all.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
+      "id": "w1-dpw5-hex-three-level-ladder",
+      "well": "W1",
+      "objective": "Run the two upper DPW5 hex levels and build the first committee-grid convergence ladder",
+      "rationale": "The lowest hex level solves at second order, two hundred iterations, exit zero, residual falling four orders. The two levels above it are predicted to fit by a memory law now checked against two real grids at eleven percent below and five percent above. Three levels is the minimum for a grid-convergence study and neither upper level has been run, so the lab has one committee-grid solve and no ladder. HARD: three-dimensional transonic wing-body on a workshop grid.",
+      "est_core_min": 400,
+      "predicted_memory_gb": 20.0,
+      "predicted_usd": 5.474,
       "cost_basis": "estimate",
-      "gate": "Throughput re-measured over the saturated period, and the affordable set restated against it",
-      "expected_knowledge_gain": "The forecast is the instrument that decides sequencing, and the quantity it rests on has just moved",
-      "source_kind": "ledger",
+      "gate": "An observed order on the drag coefficient across three committee grid levels, with the conclusive flag recorded",
+      "expected_knowledge_gain": "The first grid-convergence ladder this lab could build on a grid it did not generate itself",
+      "source_kind": "gate",
       "citations": [
-        "demo-output/website/agenda/BACKLOG_FORECAST.md",
-        "mega-batch ledger"
+        "demo-output/website/committee-grids",
+        "AIAA Drag Prediction Workshop grid family"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T08:18:22Z"
+      "created_at": "2026-08-01T10:12:18Z"
     },
     {
-      "id": "w5-audit-every-citation-in-the-submission-draft",
-      "well": "W5",
-      "objective": "Check every quotation in the submission draft against a source on disk before it is sent",
-      "rationale": "Two sentences in the draft are attributed to the preprint and appear nowhere on this machine, and the one that matters is a permission the compliance argument leans on. It was found by an agent reading for another purpose. The draft is the single document written to be read by someone outside this lab, and nothing has ever checked its quotations as a set.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
+      "id": "w4-the-compressible-abort-is-ours",
+      "well": "W4",
+      "objective": "Diagnose the compressible solver abort, which is not a grid problem and was filed as one",
+      "rationale": "The compressible solver aborts on the hex grid that runs two hundred clean incompressible iterations, so the fault travelled with the solver and not the mesh. It had been recorded beside the non-orthogonality divergence as though the grids caused it. It is also the reason the committee-grid work could not be graded against this lab own transonic wing result: that comparison needs a Mach number the toolchain cannot presently reach.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 0.821,
       "cost_basis": "estimate",
-      "gate": "Every quotation in the draft resolves to a file on disk with a line reference, or is marked unverified",
-      "expected_knowledge_gain": "The zero fabricated citations standard is worth most exactly where an outside reader will check it",
-      "source_kind": "challenge",
+      "gate": "The abort is attributed to a named cause, or the candidates are eliminated by measurement and recorded",
+      "expected_knowledge_gain": "It blocks every transonic comparison the lab can otherwise now make on committee grids",
+      "source_kind": "capability",
       "citations": [
-        "demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md"
+        "demo-output/website/committee-grids",
+        "dafoam/ladder-a/A6_crm_wingbody.md"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T08:18:22Z"
+      "created_at": "2026-08-01T10:12:18Z"
     },
     {
-      "id": "w7-claim-an-item-before-working-it",
+      "id": "w7-exit-zero-is-not-a-solve",
       "well": "W7",
-      "objective": "Give the docket a claim, because three collisions have now happened",
-      "rationale": "Two agents probed one feasibility question simultaneously. Then a commit staged and committed another agent working tree under its own message, so that commit text and its content disagreed about a mesh rung. Each time the record was repaired and each time the repair cost more than a claim would have. With ninety-two approved items and several sessions live, the docket still has no way to say an item is being worked.",
+      "objective": "Refuse to read a solver exit status as evidence that a case converged",
+      "rationale": "One committee grid completed one hundred and twenty iterations and exited zero while its residual climbed back two orders and its forces wandered to ten to the fifth. Judged on exit status alone it would have entered the record as a success. The lab already has a rule for a residual that reads converged while a field diverges; this is the same defect one level up, at the process rather than the residual.",
       "est_core_min": 0,
       "predicted_memory_gb": 0.5,
       "predicted_usd": 0.0,
       "cost_basis": "estimate",
-      "gate": "An item under work is visible on the docket, and a second claim on it is refused or warned",
-      "expected_knowledge_gain": "The collisions are no longer hypothetical and the queue is large enough that they will continue",
+      "gate": "No record treats a zero exit as convergence, and every completed run states what settled and to what",
+      "expected_knowledge_gain": "The lab has been caught twice by a run that looked finished; this is the check that would have caught both",
       "source_kind": "report",
       "citations": [
-        "sdk/chief_engineer/agenda.py",
-        "demo-output/website/agenda/docket.json"
+        "demo-output/website/committee-grids",
+        "LESSONS.md"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T08:18:22Z"
-    },
-    {
-      "id": "w8-a-ruling-cites-what-it-protects",
-      "well": "W8",
-      "objective": "Require a ruling to name the artifact it claims to protect, and check that it does",
-      "rationale": "A supervisor ruling argued that a fix mattered because a per-mission ledger fed the core-hours figure on the credentials wall. It does not: there are two ledgers, the wall reads only the batch one, and no act writes to it. The ruling may still stand on its own terms but its stated stake was false, and it was written by the supervisor rather than caught by one. A justification nobody checks is the part of a decision most likely to be wrong and least likely to be noticed.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Every ruling names the artifact it protects, and a check confirms that artifact is actually downstream of the change",
-      "expected_knowledge_gain": "The reasoning behind a decision outlives the decision, and gets quoted",
-      "source_kind": "report",
-      "citations": [
-        "docs/charters/SUPERVISOR_RULINGS.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:18:36Z"
-    },
-    {
-      "id": "w7-s4-and-s5-are-not-watching",
-      "well": "W7",
-      "objective": "Repair or withdraw the two monitor rules the archive replay showed are not working",
-      "rationale": "S4 fires on 158 logs and 38,923 findings, and the severity ladder the standard describes for it exists nowhere in the code. S5 entire vocabulary across 449 archived logs is two keys, and both are defects of the key rather than findings: the normaliser mangles an option name, and a multi-line warning collapses 146 logs onto one contentless key. One rule reports tens of thousands of undifferentiated findings and the other reports almost nothing, and both look like coverage.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Each rule either produces findings a reader can act on, or is withdrawn with the replay behind it",
-      "expected_knowledge_gain": "A monitor that appears to watch and does not is the failure the whole standard exists to prevent",
-      "source_kind": "report",
-      "citations": [
-        "scripts/replay_monitor_rules.py",
-        "docs/standards/MONITOR_STANDARD.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:18:36Z"
-    },
-    {
-      "id": "w6-the-box-went-from-a-tenth-to-full",
-      "well": "W6",
-      "objective": "Measure what changed when utilisation went from 1.4 cores to saturation, and whether the throughput followed",
-      "rationale": "The cost forecast was built on a measured 1.40 cores busy sustained, and concluded the lab was sequencing-bound rather than compute-bound. The box is now running eighteen solvers at a load of 15.8 on sixteen cores. If throughput rose proportionally the forecast horizon collapses by an order of magnitude; if it did not, the box is oversubscribed and every wall clock measured under it is inflated, including the ones feeding the cost laws.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 1.0,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Measured evaluations per wall hour before and after, with the per-solver wall times compared at matched work",
-      "expected_knowledge_gain": "Every duration this lab has measured today was taken under a load its own forecast never contemplated",
-      "source_kind": "ledger",
-      "citations": [
-        "demo-output/website/agenda/BACKLOG_FORECAST.md",
-        "mega-batch ledger"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:18:36Z"
-    },
-    {
-      "id": "w6-the-box-is-oversubscribed-now",
-      "well": "W6",
-      "objective": "Give the lab a concurrency limit, since it has gone from a tenth of its box to over it",
-      "rationale": "Two days ago the measured record showed the lab holding 1.4 of 14 usable cores and running everything serial, and a forecast concluded sequencing bound it rather than compute. Right now the load average is 18.5 on a 16 core machine with 19 solvers alive. Nothing arbitrates: each agent checks the box and decides for itself, so the sum can exceed it while every individual decision looks reasonable. Oversubscription does not fail loudly, it just makes every wall clock on the record longer than the work deserved.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A stated concurrency limit that every launch path respects, and a measurement of what oversubscription cost in wall time",
-      "expected_knowledge_gain": "Every duration this lab has measured under load is contaminated, including the ones narration is timed against",
-      "source_kind": "ledger",
-      "citations": [
-        "demo-output/website/agenda/BACKLOG_FORECAST.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:23:04Z"
-    },
-    {
-      "id": "w6-the-ledger-understates-a-failed-cold-solve",
-      "well": "W6",
-      "objective": "Spend the cost of a cold solve that raises, which currently costs the ledger nothing",
-      "rationale": "The ONERA M6 primal-plateau path runs a genuine 498 second four rank solve and then raises before spending, so its own transcript reads solve stage 498 seconds followed by spend 0 core-minutes. That is roughly 33 core-minutes of real work the record does not carry. A warm path spending nothing is correct and was just ruled so; a cold path that ran and failed spending nothing is the opposite error, and it is the one that makes the lab look cheaper than it is.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A solve that ran and then raised is spent to the ledger with its failure recorded beside it",
-      "expected_knowledge_gain": "The lab has just tightened against overstating its work and this is the same defect pointing the other way",
-      "source_kind": "ledger",
-      "citations": [
-        "sdk/workflows/onera_m6.py",
-        "mission-output/onera-m6/transcript.txt"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:23:04Z"
-    },
-    {
-      "id": "w7-the-m6-act-cannot-be-verified-at-all",
-      "well": "W7",
-      "objective": "Register the ONERA M6 act in the replay verification, which currently cannot drive it",
-      "rationale": "Every other act is checked for reproducibility by driving its own prompt through the control room and diffing the transcript. The M6 act has no prompt registered, so the script cannot run it and never has. It is also the act whose scoring was deliberately removed from routing, which is exactly why nobody noticed: it fell out of the filmed sequence and out of the verification in the same move.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "The act is driven end to end by the verification script and reproduces, or the reason it cannot is recorded",
-      "expected_knowledge_gain": "An act nobody can verify is an act nobody can trust, and this one has been in that state since its routing changed",
-      "source_kind": "report",
-      "citations": [
-        "scripts/verify_warm_replay.sh",
-        "sdk/workflows/onera_m6.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:23:04Z"
-    },
-    {
-      "id": "w8-a-ruling-states-its-stake-and-checks-it",
-      "well": "W8",
-      "objective": "Require a ruling to name the consequence it rests on, and to verify that consequence",
-      "rationale": "Ruling R10 argued that a warm path spending display pacing to a solver ledger mattered because that ledger produces the core-hours figure on the credentials wall. It does not: two ledgers exist and no act writes to the one the wall reads. The ruling was right on its own principle and the fact under it was never checked, which is the same failure this lab keeps finding in the records it audits.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "Every ruling names the consequence it turns on, and that consequence is verified before the ruling is acted on",
-      "expected_knowledge_gain": "A correct decision argued from a false stake survives review and teaches the wrong lesson",
-      "source_kind": "report",
-      "citations": [
-        "docs/charters/SUPERVISOR_RULINGS.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T08:23:04Z"
+      "created_at": "2026-08-01T10:12:18Z"
     }
   ]
 }
