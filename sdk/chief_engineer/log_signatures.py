@@ -6,8 +6,14 @@ agenda (``docs/standards/MONITOR_STANDARD.md``):
 - S6 residual stall: a residual plateau without convergence progress while
   the iteration cap approaches. The run exits looking calm; it is not
   converged.
-- S7 oscillatory divergence: alternating-sign residual changes with a
-  growing envelope. Flag on growth, fatal when the envelope doubles.
+- S7 oscillatory divergence: WITHDRAWN 2026-08-01 and removed from this
+  module. It fired on 68 of the lab's 106 archived steady solver logs and
+  reached fatal on 65, all completed runs; four measured tightenings gave 68,
+  40, 59 and 23; and it could not separate the two logs of the case it was
+  written for, 22 firings on the sick one against 20 on the healthy one. The
+  measurements are kept beside the entry in the Monitor Standard. There is
+  deliberately no gated, disabled or dead-code version of it here: a detector
+  left in the module gets rewired.
 - S8 Courant excursion: a transient run whose reported maximum Courant
   number exceeds its case limit by more than the tolerance an adaptive
   time step explains, or which grows monotonically at a fixed time step.
@@ -50,10 +56,6 @@ SEVERITY_CONFIGURATION_RISK = "configuration risk"
 STALL_ACTION = (
     "treat the result as unconverged; run the regime check "
     "(steady versus unsteady) before buying more iterations"
-)
-OSCILLATION_ACTION = (
-    "stop the steady solve; the prescribed fix is the unsteady track, "
-    "not more iterations"
 )
 COURANT_ACTION = (
     "reduce the time step or enable adaptive stepping; a transient result "
@@ -175,55 +177,42 @@ def detect_residual_stall(
 
 
 # --------------------------------------------------------------------------
-# S7: oscillatory divergence
+# S7: oscillatory divergence — WITHDRAWN 2026-08-01, detector removed
+#
+# `detect_oscillatory_divergence` used to live here. It fired when, over the
+# last 50 residuals, consecutive changes alternated in sign at least 60 percent
+# of the time and the peak-to-trough envelope of the later half exceeded the
+# earlier half by 1.25x, escalating to fatal at 2x.
+#
+# WHY IT IS GONE, and why this comment is not a disabled function. Replayed
+# ungated over every steady solver log the lab has archived, 106 of them, it
+# fires on 68 and reaches fatal on 65, and every one of those runs completed
+# with its results on the record. Four tightenings were measured and none
+# rescued it: requiring the residual level to stop improving still fires on 68,
+# full-window persistence 40, a 200 iteration growth baseline 59, a fourfold
+# growth factor 23. On the case it was written for it fires 22 times on the
+# sick log and 20 times on the healthy one, so it does not separate them.
+#
+# The cause is structural rather than a bad threshold: a converged field sits
+# flat with small noise, and the ratio of one noise envelope to the next is
+# close to a coin toss, which a run of thousands of iterations wins somewhere.
+# The fire rate is therefore a function of run length, not of run health.
+#
+# It shipped behind a gate requiring a `residual_target`, and that gate was
+# never measured: the archived logs do not record the target each run aimed
+# for, so the corpus cannot be replayed with the gate in place. A detection
+# rule nobody can validate is worse than no rule, because it is trusted.
+#
+# Withdrawn by supervisor ruling R1, answering conflict C-2 in
+# `docs/charters/PROPOSALS_OPEN.md` with option B. Full record and all five
+# measurements: `docs/standards/MONITOR_STANDARD.md`, the S7 entry and 3.2.
+#
+# WHAT IS NOW UNCOVERED: the growing-oscillation half of graceful degradation
+# in a steady solve past its regime. S6 still covers the stalled-residual half.
+# A replacement must be replayed against the archive first and must be shown to
+# separate the two logs of its own motivating case; that last test is the one
+# S7 failed and the one nobody applied before adopting it.
 # --------------------------------------------------------------------------
-
-def detect_oscillatory_divergence(
-    residuals: Sequence[float],
-    *,
-    window: int = 50,
-    min_alternation: float = 0.6,
-    growth_factor: float = 1.25,
-    fatal_growth: float = 2.0,
-) -> dict[str, Any] | None:
-    """Growing oscillation envelope in a residual series (Monitor Standard S7).
-
-    Fires when, over the last ``window`` residuals, consecutive changes
-    alternate in sign at least ``min_alternation`` of the time and the
-    peak-to-trough envelope of the later half exceeds the earlier half by
-    ``growth_factor``. Severity escalates to fatal when the envelope has at
-    least doubled (``fatal_growth``).
-
-    Returns a finding dict (kind, severity, action, envelopes, growth,
-    alternation) or ``None``. Pure function: no I/O, no state.
-    """
-    if window < 8 or len(residuals) < window:
-        return None
-    recent = list(residuals[-window:])
-    deltas = [b - a for a, b in zip(recent, recent[1:]) if b != a]
-    if len(deltas) < window // 2:
-        return None  # too flat to oscillate
-    flips = sum(1 for a, b in zip(deltas, deltas[1:]) if (a > 0) != (b > 0))
-    alternation = flips / (len(deltas) - 1)
-    half = window // 2
-    envelope_early = max(recent[:half]) - min(recent[:half])
-    envelope_late = max(recent[half:]) - min(recent[half:])
-    if envelope_early <= 0:
-        return None
-    growth = envelope_late / envelope_early
-    if alternation < min_alternation or growth < growth_factor:
-        return None
-    severity = SEVERITY_FATAL if growth >= fatal_growth else SEVERITY_FLAG
-    return {
-        "kind": "oscillatory-divergence",
-        "severity": severity,
-        "action": OSCILLATION_ACTION,
-        "window": window,
-        "envelope_early": envelope_early,
-        "envelope_late": envelope_late,
-        "growth": growth,
-        "alternation": alternation,
-    }
 
 
 # --------------------------------------------------------------------------

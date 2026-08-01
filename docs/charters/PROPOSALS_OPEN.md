@@ -68,7 +68,24 @@ numbers the lab has.
 **The charters take no position.** Both readings trace to her, and picking one
 would be inventing policy on the surface she cares most about.
 
-### C-2. Rule S7 fires on two thirds of the lab's completed work
+### C-2. Rule S7 fires on two thirds of the lab's completed work. RULED: B
+
+**Ruled 2026-08-01, option B, by supervisor ruling R1 in
+`SUPERVISOR_RULINGS.md`. S7 is withdrawn.** Not the lab's recommendation, which
+was C. The reason B was taken over C: option C buys a measurement of the
+*gate*, and the gate was never the problem. The problem is that the rule fires
+22 times on the sick log of the case it was written for and 20 times on the
+healthy one, and no amount of future logging changes that. A month of keeping a
+rule in force to learn something the existing corpus already answers is a month
+of trusting it.
+
+The item is left in place with its measurements rather than deleted, because
+the four tightenings are the evidence any replacement rule has to beat. Carried
+out in `docs/standards/MONITOR_STANDARD.md` (the S7 entry, the 3.1 table and
+3.2), `sdk/chief_engineer/log_signatures.py` and
+`sdk/chief_engineer/head_engineer.py`. A test asserts the detector stays gone.
+
+The item as it was put:
 
 Charter 4, section 5, and `docs/standards/MONITOR_STANDARD.md`. New, and it is
 a decision rather than a proposal because the rule is already in force.

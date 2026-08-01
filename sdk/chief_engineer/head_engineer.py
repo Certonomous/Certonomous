@@ -49,7 +49,6 @@ from .log_signatures import (
     detect_ceiling_clip,
     detect_courant_excursion,
     detect_normalisation_collapse,
-    detect_oscillatory_divergence,
     detect_residual_norm_contradiction,
     detect_residual_stall,
     detect_system_operations,
@@ -146,9 +145,11 @@ def vetted_case_reason(template_path: str) -> str:
 @dataclass
 class Anomaly:
     # kind: nan | fpe | residual-spike | bounding | novel-warning
-    #       | residual-stall | oscillatory-divergence | courant-excursion
+    #       | residual-stall | courant-excursion
     #       | wall-time-excursion | ceiling-clip | normalisation-collapse
     #       | residual-norm-contradiction
+    # "oscillatory-divergence" was a value here until 2026-08-01. Monitor
+    # Standard S7 is withdrawn and this monitor can no longer raise it.
     kind: str
     step: str
     line: str
@@ -194,7 +195,6 @@ class LogMonitor:
     WINDOW = 25
     REPORT_LIMIT = 3
     STALL_WINDOW = 200       # Monitor Standard S6
-    OSCILLATION_WINDOW = 50  # Monitor Standard S7
     COURANT_WINDOW = COURANT_GROWTH_WINDOW  # Monitor Standard S8
     COLLAPSE_WINDOW = DEAD_FIELD_WINDOW     # Monitor Standard S10b
 
@@ -228,10 +228,9 @@ class LogMonitor:
         self._history: dict[str, list[float]] = {}
         self._reported: dict[tuple[str, str], int] = {}
         self._seen_warnings: set[str] = set()
-        self._series: dict[str, list[float]] = {}   # long history for S6/S7
+        self._series: dict[str, list[float]] = {}   # long history for S6
         self._iterations: dict[str, int] = {}
         self._stalled: set[str] = set()
-        self._oscillating: dict[str, str] = {}
         self._courant: list[float] = []             # S8 max-Courant history
         self._time_steps: set[float] = set()
         self._courant_severity: str | None = None
@@ -241,8 +240,8 @@ class LogMonitor:
         self._collapsed: dict[str, str] = {}
         self._residual_norms: dict[str, float] = {}
         self._norm_contradiction = False
-        # A Courant line is a transient solver's signature. S6 and S7 are
-        # steady-solve rules and are scoped off once one appears; see
+        # A Courant line is a transient solver's signature. S6 is a
+        # steady-solve rule and is scoped off once one appears; see
         # _check_series for the measurement behind that.
         self._transient = False
 
@@ -401,41 +400,17 @@ class LogMonitor:
                 f"recent median {median:.3g} and still climbing"))
             history.clear()
 
-    def _oscillation_applies(self, field: str) -> bool:
-        """Whether S7 is entitled to speak about this field yet.
-
-        MEASURED 2026-07-31, and the reason this gate exists. S7 as written
-        fires on 68 of the lab's 106 archived steady solver logs and reaches
-        fatal on 65 of them. Every one of those runs completed and its results
-        are on the record. Four tightenings were measured and none rescued it:
-        requiring the residual level to stop improving (68 logs), requiring the
-        finding to persist a full window (40), measuring growth against a 200
-        iteration baseline (59), and raising the growth factor to 4x (23).
-
-        The cause is that a converged field sits flat with small noise, and the
-        ratio of one noise envelope to the next is a coin toss that a run of
-        thousands of iterations will win somewhere. The proposal's own words
-        say the rule is about oscillation "around a stalled residual", and that
-        is the gate: the field must still be above the target the solve is
-        aiming for. S6 has always been gated this way and does not
-        false-positive. So S7 now needs the same ``residual_target``, and it
-        stays silent on any field that has reached it.
-
-        RECORDED WEAKNESS: this gate is reasoning from the proposal's wording
-        plus S6's measured behaviour, not a measurement of its own. The
-        archived logs do not record the residual target each run was aiming
-        for, so the corpus cannot be replayed with the gate in place. S7 is the
-        weakest rule in the set and is filed to the owner as such.
-        """
-        if self.residual_target is None:
-            return False
-        latest = self._latest.get(field)
-        return latest is not None and latest > self.residual_target
+    # `_oscillation_applies` used to sit here: the residual_target gate that
+    # decided whether S7 was entitled to speak about a field. S7 is withdrawn
+    # (Monitor Standard S7, supervisor ruling R1) and the gate went with it,
+    # because a gate with no rule behind it is an invitation to re-add the
+    # rule. `residual_target` is still taken by __init__ and is still used, by
+    # S6 alone.
 
     def _check_collapse(self, step: str, field: str, line: str) -> None:
         """Normalisation collapse S10b, raised once per field per episode.
 
-        Unlike S6 and S7 this rule is NOT scoped to steady solves. It was
+        Unlike S6 this rule is NOT scoped to steady solves. It was
         measured over every archived log the lab holds, transient runs
         included, and fires on exactly one of them. A residual that reads
         converged because its own field diverged is a hazard in either regime,
@@ -465,39 +440,24 @@ class LogMonitor:
             severity=finding["severity"]))
 
     def _check_series(self, step: str, field: str, line: str) -> None:
-        """Series-level rules S6 and S7 over the long residual history.
+        """Series-level rule S6 over the long residual history.
 
-        A stall or a divergence is a state, not an event: each is raised once
-        per field per episode, with oscillatory divergence raised again only
-        when it escalates from flag to fatal.
+        A stall is a state, not an event, so it is raised once per field per
+        episode.
 
-        Both rules are scoped to steady solves, which is the regime their
-        evidence comes from. In a transient run the residual series restarts
-        at every time step and the outer correctors drive it high and low in
-        turn, which is alternation with a moving envelope by construction.
-        Measured on the lab's four archived transient runs: S7 fired 5, 5, 6
-        and 9 times on runs that all completed healthily, every one of them a
-        false positive. The transient equivalent of these rules is S8.
+        S6 is scoped to steady solves, which is the regime its evidence comes
+        from. In a transient run the residual series restarts at every time
+        step and the outer correctors drive it high and low in turn. The
+        transient equivalent is S8.
+
+        This method used to run S7, oscillatory divergence, alongside S6. S7 is
+        withdrawn (Monitor Standard, ruling R1): it fired on 68 of 106 archived
+        steady logs, reached fatal on 65 completed runs, and could not separate
+        the two logs of its own motivating case. Nothing replaces it here.
         """
         if self._transient:
             return
         series = self._series[field]
-        if self._oscillation_applies(field):
-            oscillation = detect_oscillatory_divergence(
-                series, window=self.OSCILLATION_WINDOW)
-            if oscillation is None:
-                self._oscillating.pop(field, None)
-            elif self._oscillating.get(field) != oscillation["severity"]:
-                previous = self._oscillating.get(field)
-                self._oscillating[field] = oscillation["severity"]
-                if previous != "fatal":  # never downgrade an already fatal episode
-                    self._raise(Anomaly(
-                        "oscillatory-divergence", step, line.strip(),
-                        f"{field} residual oscillation envelope grew "
-                        f"{oscillation['growth']:.2f}x over the last "
-                        f"{oscillation['window']} iterations; "
-                        f"{oscillation['action']}",
-                        severity=oscillation["severity"]))
         if self.residual_target is None or field in self._stalled:
             return
         stall = detect_residual_stall(

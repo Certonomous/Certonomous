@@ -91,7 +91,11 @@ class LogMonitorTests(unittest.TestCase):
 
 
 class MonitorStandardRuleTests(unittest.TestCase):
-    """Monitor Standard S6/S7/S9 wired into the LogMonitor hooks."""
+    """Monitor Standard S6/S8/S9 wired into the LogMonitor hooks.
+
+    S7 was wired in here too until 2026-08-01, when it was withdrawn. What
+    remains of it is one test asserting the monitor can no longer raise it.
+    """
 
     LEDGER_SLICE = Path(__file__).resolve().parent / "fixtures" / "ledger_slice.jsonl"
 
@@ -115,44 +119,22 @@ class MonitorStandardRuleTests(unittest.TestCase):
         self._residuals(monitor, [1e-3] * 220)
         self.assertNotIn("residual-stall", [a.kind for a in monitor.anomalies])
 
-    def test_growing_oscillation_is_flagged(self):
-        monitor = LogMonitor(residual_target=1e-6)
-        series = [1e-2 + 1e-4 * (1.02 ** i) * (-1) ** i for i in range(60)]
-        self._residuals(monitor, series)
-        oscillation = [a for a in monitor.anomalies
-                       if a.kind == "oscillatory-divergence"]
-        self.assertTrue(oscillation)
-        self.assertFalse(monitor.summary()["fatal"])
-
-    def test_doubling_oscillation_envelope_is_fatal(self):
-        monitor = LogMonitor(residual_target=1e-6)
-        series = [1e-2 + 1e-4 * (1.05 ** i) * (-1) ** i for i in range(60)]
-        self._residuals(monitor, series)
-        severities = {a.severity for a in monitor.anomalies
-                      if a.kind == "oscillatory-divergence"}
-        self.assertIn("fatal", severities)
-        self.assertTrue(monitor.summary()["fatal"])
-
-    def test_oscillation_needs_a_residual_target(self):
-        # Measured 2026-07-31: ungated, S7 fires on 68 of the lab's 106
-        # archived steady logs and reaches fatal on 65, every one of them a
-        # completed run whose results are on the record.
-        monitor = LogMonitor()
-        series = [1e-2 + 1e-4 * (1.05 ** i) * (-1) ** i for i in range(60)]
-        self._residuals(monitor, series)
-        self.assertNotIn("oscillatory-divergence",
-                         [a.kind for a in monitor.anomalies])
-
-    def test_oscillation_is_silent_on_a_field_that_reached_its_target(self):
-        # A converged field sits flat with small noise, and the ratio of one
-        # noise envelope to the next is a coin toss. The proposal's rule is
-        # about oscillation around a STALLED residual, so a field below target
-        # is out of scope however its noise happens to fall.
-        monitor = LogMonitor(residual_target=1e-6)
-        series = [1e-9 + 1e-11 * (1.05 ** i) * (-1) ** i for i in range(60)]
-        self._residuals(monitor, series)
-        self.assertNotIn("oscillatory-divergence",
-                         [a.kind for a in monitor.anomalies])
+    def test_withdrawn_s7_raises_nothing_however_the_residual_oscillates(self):
+        # S7 is WITHDRAWN (ruling R1, conflict C-2 option B). These are the
+        # exact series that used to make it flag and then go fatal: a residual
+        # plateau at 1e-2 with an alternating deviation growing 2 percent and
+        # then 5 percent per iteration. The monitor must now raise nothing of
+        # that kind on either, with or without a residual target.
+        for rate in (1.02, 1.05):
+            for target in (1e-6, None):
+                with self.subTest(rate=rate, residual_target=target):
+                    monitor = LogMonitor(residual_target=target)
+                    series = [1e-2 + 1e-4 * (rate ** i) * (-1) ** i
+                              for i in range(60)]
+                    self._residuals(monitor, series)
+                    self.assertNotIn("oscillatory-divergence",
+                                     [a.kind for a in monitor.anomalies])
+                    self.assertFalse(monitor.summary()["fatal"])
 
     def _courant(self, monitor, values, *, delta_t=None):
         for index, value in enumerate(values):
@@ -188,7 +170,8 @@ class MonitorStandardRuleTests(unittest.TestCase):
         self.assertNotIn("courant-excursion",
                          [a.kind for a in monitor.anomalies])
         # The steady-solve rules must stay silent here too: this run is
-        # healthy and finished, and S7 used to call it divergent five times.
+        # healthy and finished, and S7 called it divergent five times before
+        # it was withdrawn.
         self.assertEqual(monitor.summary()["by_kind"], {})
 
     def test_steady_rules_are_scoped_off_once_a_run_is_transient(self):

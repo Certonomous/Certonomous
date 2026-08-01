@@ -1,5 +1,12 @@
 # Certonomous Monitor Standard
 
+Version 1.2, dated 2026-08-01. **Version 1.2 withdraws exactly one rule, S7
+oscillatory divergence, and adds nothing.** It is the first version of this
+standard to remove a rule rather than add one. The entry stays in place, marked
+withdrawn, with the five measurements that justify removing it kept beside it,
+because the reason a rule failed is what a replacement needs. S10 stands. The
+rest of 1.1 is unchanged and is described below as it was written.
+
 Version 1.1, dated 2026-07-31. Produced by the overnight reading program (R1).
 Names every solver-log signature the lab's monitor recognizes or should
 recognize, with a detection rule, a severity, and a prescribed action. Derived
@@ -117,6 +124,12 @@ S7, and S9 are implemented as pure detection functions in
 `sdk/chief_engineer/head_engineer.py` (series hooks for S6/S7, a
 `check_wall_time` hook for S9). Each signature below carries a Status line.
 
+Withdrawal note, 2026-08-01: **S7 is withdrawn** and is no longer implemented.
+Its entry below is kept, marked, and carries the measurements that justify
+removing it. Every adoption note above it that mentions S7 is left as written,
+because an adoption note is a record of what was decided on a date and editing
+it would erase the fact that the rule was once in force.
+
 Adoption note, 2026-07-30: S8 is now implemented too, so the whole of both
 approved monitor proposals is in force. Three things changed with it, each on
 measured evidence and each recorded in the relevant section below: S8 carries a
@@ -147,58 +160,109 @@ weakness. Both are written up in their own sections.
 - Severity: FLAG. Action: the result is UNCONVERGED regardless of how smooth
   the tail looks; prescribe the regime check (steady versus unsteady) before
   any rerun buys more iterations.
-- Scope: steady solves only. See the scoping note under S7.
+- Scope: steady solves only. The scoping note is kept under the withdrawn S7
+  entry, where it was written; it now binds S6 alone.
 - Status: implemented (`detect_residual_stall` in
   `sdk/chief_engineer/log_signatures.py`; raised once per field per episode
   by `LogMonitor` when constructed with `residual_target`, and gated on the
   iteration cap approaching when `iteration_cap` is given).
 
-### S7. Oscillatory divergence (same proposal)
+### S7. Oscillatory divergence — **WITHDRAWN 2026-08-01**
 
-- Evidence: the same past-regime family, oscillation amplitude growing rather
-  than decaying around a stalled residual.
+**Withdrawn by supervisor ruling R1** (`docs/charters/SUPERVISOR_RULINGS.md`),
+answering conflict C-2 in `docs/charters/PROPOSALS_OPEN.md` with option B. The
+rule is gone from the standard and gone from the monitor: there is no
+`oscillatory-divergence` detector and no `oscillatory-divergence` anomaly kind.
+Nothing replaces it, and the failure family it aimed at is left uncovered and
+named as uncovered in 3.2.
+
+**The measurements that justify the withdrawal are kept below rather than
+deleted with the rule**, because the reason a rule was withdrawn is the part a
+future proposal needs, and a rule that leaves no trace gets reinvented.
+
+**Why, in one line: it fires on two thirds of the lab's completed steady work,
+and it cannot separate the two logs of the case it was written for.** The
+second fact is the decisive one. A detector that cannot tell the sick run from
+the healthy run in the one case it was designed around has not been shown to
+detect anything, and everything else is a question of where to put a threshold.
+
+The rule as it stood when it was withdrawn, recorded so the measurements below
+have something to attach to:
+
+- Evidence it was written from: the same past-regime family as S6, oscillation
+  amplitude growing rather than decaying around a stalled residual. A knowledge
+  base fact, not a run.
 - Detection rule: alternating-sign residual changes with growing envelope
   over the last 50 iterations.
 - Severity: FLAG, escalating to FATAL when the envelope doubles. Action: stop
   the steady solve; the prescribed fix is the unsteady track, not more
   iterations.
-- Scope, added 2026-07-30 on measured evidence: S6 and S7 are steady-solve
-  rules and are switched off for the rest of a run as soon as the monitor sees
-  a `Courant Number` line, which is a transient solver's signature. In a
+
+**Measurement 1, the fire rate. Over every steady solver log the lab has
+archived, 106 of them: ungated, S7 fires on 68 and reaches FATAL on 65.** Every
+one of those runs completed and its results are on the record, so on this
+corpus the rule was calling roughly two thirds of the lab's healthy work
+divergent.
+
+**Measurement 2, four tightenings, none of which rescued it.** Requiring the
+residual level to stop improving: still 68 logs. Requiring the finding to
+persist a full window: 40. Measuring growth against a 200 iteration baseline:
+59. Raising the growth factor to four times: 23.
+
+**Measurement 3, and the one that decided it: it cannot discriminate its own
+motivating case.** 22 firings on the sick log, 20 on the healthy one. The two
+counts are the same number to within the noise of the rule.
+
+**Measurement 4, why no threshold saves it.** A converged field sits flat with
+small noise, and the ratio of one noise envelope to the next is close to a coin
+toss. A run of thousands of iterations wins that toss somewhere, so the fire
+rate is a function of run length rather than of run health.
+
+**Measurement 5, transient runs, taken 2026-07-30.** On the lab's four archived
+transient runs S7 fired 5, 5, 6 and 9 times on runs that all completed
+healthily, every one a false positive. This was the reason for the steady-solve
+scoping described below; it is now the reason for nothing, and is kept because
+it is a measurement.
+
+**What the withdrawn gate was, and why it was not enough.** The shipped rule
+required a `residual_target` and stayed silent on any field that had already
+reached it, reasoning from the proposal's own words that the rule is about
+oscillation "around a stalled residual". That gate was never a measurement: the
+archived logs do not record the residual target each run was aiming for, so the
+corpus could not be replayed with the gate in place, and its false-positive
+rate was unmeasured and unmeasurable with the data the lab holds. **A detection
+rule nobody can validate is worse than no rule, because it is trusted.**
+
+S10, which names exactly one log out of 383, stands, and is the shape a
+detection rule in this standard is expected to have.
+
+The scoping note the withdrawn rule carried, kept because S6 still depends on
+it and refers to it:
+
+  rule and is switched off for the rest of a run as soon as the monitor sees a
+  `Courant Number` line, which is a transient solver's signature. In a
   transient run the residual series restarts at every time step and the outer
   correctors drive it high and low in turn, so alternation with a moving
-  envelope is the time stepping itself, not divergence. Measured on the lab's
-  four archived transient runs: S7 fired 5, 5, 6 and 9 times on runs that all
-  completed healthily, every one of them a false positive. The transient
-  equivalent of these rules is S8, and it now exists.
-- Scope, added 2026-07-31 on measured evidence: S7 needs a `residual_target`
-  and stays silent on any field that has already reached it. **Measured over
-  every steady solver log the lab has archived, 106 of them: ungated, S7 fires
-  on 68 and reaches FATAL on 65.** Every one of those runs completed and its
-  results are on the record, so on this corpus the rule is calling roughly two
-  thirds of the lab's healthy work divergent. Four tightenings were measured
-  and none rescued it: requiring the residual level to stop improving (68 logs
-  still fire), requiring the finding to persist a full window (40), measuring
-  growth against a 200 iteration baseline (59), and raising the growth factor
-  to four times (23). The cause is that a converged field sits flat with small
-  noise, and the ratio of one noise envelope to the next is a coin toss that a
-  run of thousands of iterations wins somewhere. The gate comes from the
-  proposal's own words, which say the rule is about oscillation "around a
-  stalled residual": a field below its target has converged, and its noise is
-  not the subject. S6 has always been gated this way and does not
-  false-positive.
-- **Recorded weakness, not hidden.** The gate is reasoning from the proposal's
-  wording plus S6's measured behaviour; it is not a measurement of its own,
-  because the archived logs do not record the residual target each run was
-  aiming for and the corpus cannot be replayed with the gate in place. S7 is
-  the weakest rule in this standard. It is filed for the owner as a decision
-  rather than quietly kept: the alternative is to withdraw the branch outright,
-  and the evidence for keeping it is a knowledge base fact rather than a run.
-- Status: implemented (`detect_oscillatory_divergence` in
-  `sdk/chief_engineer/log_signatures.py`; runs on every residual line of a
-  steady run in `LogMonitor` once a `residual_target` is given and while the
-  field is above it, raised once per episode and again only on escalation to
-  FATAL).
+  envelope is the time stepping itself, not divergence. The transient
+  equivalent is S8, and it now exists. This scoping was written for S6 and S7
+  together; with S7 withdrawn it binds S6 alone, and S6's own evidence for it
+  is under S6.
+- Status: **withdrawn, and absent from the code.**
+  `detect_oscillatory_divergence` is removed from
+  `sdk/chief_engineer/log_signatures.py`, its wiring and its
+  `residual_target` gate are removed from `LogMonitor` in
+  `sdk/chief_engineer/head_engineer.py`, and `oscillatory-divergence` is no
+  longer a value the `Anomaly.kind` field can take. A test asserts the monitor
+  raises no anomaly of that kind on a series that used to trigger it, so the
+  withdrawal cannot be undone by accident.
+- **What is now uncovered.** Graceful degradation of a steady solve applied
+  past its regime loses its dedicated detector. S6, residual stall, still
+  covers the stalled-residual half of that family, and S6 is gated the same way
+  S7 was but does not false-positive. The growing-oscillation half has no rule.
+  A replacement is welcome and starts from the standing rules in section 4:
+  replay it against the archive first, publish the fire count and the fatal
+  count, and show it separating the two logs of the case it is written for.
+  Measurement 3 above is the bar.
 
 ### S8. Courant excursion (same proposal)
 
@@ -372,7 +436,7 @@ work that was fine.
 | S4 bounding | **449 archived logs** | **158, 38923 findings, 0 fatal** | **measured 2026-08-01, and the documented rule is not the implemented rule.** The startup scoping this standard states for S4 exists nowhere in the code. See 3.5. |
 | S5 first-seen warning | **449 archived logs**, read as if every run were novel | **225 logs, 237 findings, 2 distinct keys** | **replayed 2026-08-01, and the finding is the key, not the count.** Both distinct keys are artefacts of the normaliser rather than facts about the logs. See 3.5. |
 | S6 residual stall | **attempted 2026-08-01 against 123 steady logs; 46 carry a recoverable target and all 46 are one family** | **not counted, and now for a specific reason** | **still unmeasurable.** The one family that archives its own `fvSolution` declares `p 1e-15`, which no run reaches, so the gate that makes S6 mean anything is vacuous exactly where it can be read. See 3.5. |
-| S7 oscillatory divergence | **106 archived steady logs** | **68, FATAL on 65** | **measured and failing.** See 3.2. |
+| ~~S7 oscillatory divergence~~ | **106 archived steady logs** | **68, FATAL on 65** | **WITHDRAWN 2026-08-01**, on these measurements. It is the only rule this standard has ever removed. See 3.2 and the S7 entry. |
 | S8 Courant excursion | **4 archived transient logs, 13308 time steps, 417 ledger rows** | 0 healthy runs | **validated.** Tolerance measured, not assumed: largest healthy overshoot 0.403 percent against a 2 percent tolerance, longest healthy monotone run 17 steps against a window of 20. |
 | S9 wall time | **208193 ledger rows** | 19 FLAG, 11 FATAL | **validated**, with a recorded weakness. The six ~16300 s runs land at 1070x and 2214x their own p99 and were all recorded ok at the time. |
 | S10 divergence behind a converged residual | **383 archived solver logs**, and 157 for the norm branch | **exactly 1**, the withdrawn run | **validated, and the strongest rule here.** A test sweeps the whole archive and fails if a second log is ever named. |
@@ -396,20 +460,29 @@ alone is the one that failed. That is a small sample and it points the same way
 as D12. The replay adds two more rules the lab can defend, S1 and S3, and two
 it cannot describe accurately, S4 and S5.
 
-### 3.2 The one rule that fires too often
+### 3.2 The one rule that fired too often, and is now withdrawn
 
-S7 is the whole of this category. Ungated it fires on 68 of 106 archived steady
-logs and reaches FATAL on 65, every one of them a completed run whose results
-are on the record. Four tightenings were measured and none rescued it: 68, 40,
-59 and 23 respectively. It also cannot separate the two logs of the case it was
-written for, which is the sharpest statement available about a detector.
+**Resolved 2026-08-01: S7 is withdrawn**, by supervisor ruling R1 taking option
+B on conflict C-2. This section is kept in the past tense rather than deleted,
+because the finding is the durable part.
 
-Its shipped gate is not a measurement. The archived logs do not record the
+S7 was the whole of this category. Ungated it fires on 68 of 106 archived
+steady logs and reaches FATAL on 65, every one of them a completed run whose
+results are on the record. Four tightenings were measured and none rescued it:
+68, 40, 59 and 23 respectively. It also cannot separate the two logs of the
+case it was written for — 22 firings on the sick one, 20 on the healthy one —
+which is the sharpest statement available about a detector.
+
+Its shipped gate was not a measurement. The archived logs do not record the
 residual target each run was aiming for, so the corpus cannot be replayed with
-the gate in place, and the gate is reasoning from the proposal's own wording
-plus S6's measured behaviour. **S7 is the only rule in this standard whose
-current form has no evidence behind it**, and it is filed as C-2 in
-`PROPOSALS_OPEN.md` rather than quietly kept.
+the gate in place, and the gate was reasoning from the proposal's own wording
+plus S6's measured behaviour. **S7 was the only rule in this standard whose
+form had no evidence behind it.** It was filed as C-2 in `PROPOSALS_OPEN.md`
+rather than quietly kept, and the ruling on C-2 removed it: a detection rule
+nobody can validate is worse than no rule, because it is trusted.
+
+**This category is now empty**, and the standard would rather it stayed empty
+than filled by a rule that survives on the fact that nobody measured it.
 
 Nothing else in the set is in this category on the evidence available. S11
 fires on every run and is not a false positive, for the reason in 3.3. The
@@ -424,7 +497,8 @@ fires on one hundred percent of runs on this host and is correct.
 
 The test has a scope that was never written down, and this is the place to
 write it: **it applies to a rule that returns a verdict on the numbers.** S7
-claims a run diverged, so its firing on 68 completed runs is 68 false claims.
+claimed a run diverged, so its firing on 68 completed runs was 68 false claims,
+and it is withdrawn.
 S11 claims the host allows case files to compile and execute code, which is
 true on every run because the switch is on for every run. Its fire rate is a
 property of the machine, not a discrimination failure, and the day it stops
@@ -557,7 +631,8 @@ target is a single entry, `p 1e-15`, which no run reaches. The gate that makes
 S6 mean anything is therefore vacuous exactly where it can be read: every field
 is above target forever, so any plateau fires. Under it S6 names 37 of the 46,
 and that number is a property of the degenerate target rather than a fire rate
-for S6. Reporting it as a fire rate would be the same error S7 was caught in.
+for S6. Reporting it as a fire rate would be the same error S7 was withdrawn
+for.
 **What S6 needs is not a cleverer sweep, it is one archived case outside this
 family that declares a target it actually reaches.**
 
@@ -617,7 +692,7 @@ here.
   `codedBase.C:302` and `systemCall.C:131`, all calling
   `dynamicCode::checkSecurity`. The standing rule is
   `docs/charters/VERIFICATION_CHARTER.md` section 13.
-- Signature detectors for S6, S7, and S9,
+- Signature detectors for S6 and S9 (S7's was removed on withdrawal),
   `sdk/chief_engineer/log_signatures.py`, with tests in
   `sdk/tests/test_log_signatures.py` (including an integration test against
   a fixture slice of real ledger rows,

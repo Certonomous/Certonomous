@@ -1,4 +1,9 @@
-"""Tests for the pure log-signature detectors (Monitor Standard S6, S7, S9).
+"""Tests for the pure log-signature detectors (Monitor Standard S6, S9, S10).
+
+Monitor Standard S7, oscillatory divergence, is WITHDRAWN as of 2026-08-01 and
+its detector is gone from the module. The tests that exercised it are gone with
+it; what remains is one test asserting the symbol is absent, so that re-adding
+the detector without re-arguing the withdrawal fails the suite.
 
 The wall-time envelope tests run against a fixture slice of the real
 mega-batch ledger (``tests/fixtures/ledger_slice.jsonl``): 400 rows per
@@ -29,7 +34,6 @@ from chief_engineer.log_signatures import (
     detect_ceiling_clip,
     detect_courant_excursion,
     detect_normalisation_collapse,
-    detect_oscillatory_divergence,
     detect_residual_norm_contradiction,
     detect_residual_stall,
     detect_system_operations,
@@ -64,8 +68,33 @@ def archived_max_courant(path: Path) -> list[float]:
 
 def oscillating_series(count: int, base: float, seed_amp: float, rate: float):
     """Residual plateau at ``base`` with alternating-sign deviation growing
-    geometrically at ``rate`` per iteration."""
+    geometrically at ``rate`` per iteration.
+
+    Kept after S7's withdrawal because the withdrawal test needs a series that
+    the removed detector would have called fatal.
+    """
     return [base + seed_amp * (rate ** i) * (-1) ** i for i in range(count)]
+
+
+class WithdrawnS7Tests(unittest.TestCase):
+    """S7 oscillatory divergence is withdrawn; the detector must stay gone.
+
+    Withdrawn 2026-08-01 by supervisor ruling R1, answering conflict C-2 with
+    option B. Measured: 68 of 106 archived steady logs fire, 65 reach fatal,
+    all completed runs; four tightenings gave 68, 40, 59 and 23; and on its own
+    motivating case it fires 22 times on the sick log against 20 on the healthy
+    one. This test exists so that re-adding the detector fails the suite rather
+    than passing quietly.
+    """
+
+    def test_detector_is_absent_from_the_module(self):
+        import chief_engineer.log_signatures as sig
+        self.assertFalse(
+            hasattr(sig, "detect_oscillatory_divergence"),
+            "Monitor Standard S7 is withdrawn. Re-adding the detector needs "
+            "the withdrawal re-argued and the standard changed first; see "
+            "docs/standards/MONITOR_STANDARD.md, entry S7 and section 3.2.")
+        self.assertFalse(hasattr(sig, "OSCILLATION_ACTION"))
 
 
 class PercentileTests(unittest.TestCase):
@@ -109,38 +138,6 @@ class ResidualStallTests(unittest.TestCase):
         finding = detect_residual_stall(
             [1e-3] * 200, target=1e-6, iteration_cap=250, iterations_done=210)
         self.assertIsNotNone(finding)
-
-
-class OscillatoryDivergenceTests(unittest.TestCase):
-    def test_growing_envelope_is_flagged(self):
-        series = oscillating_series(60, 1e-2, 1e-4, 1.02)
-        finding = detect_oscillatory_divergence(series)
-        self.assertIsNotNone(finding)
-        self.assertEqual(finding["kind"], "oscillatory-divergence")
-        self.assertEqual(finding["severity"], "flag")
-        self.assertGreaterEqual(finding["growth"], 1.25)
-
-    def test_doubled_envelope_is_fatal(self):
-        series = oscillating_series(60, 1e-2, 1e-4, 1.05)
-        finding = detect_oscillatory_divergence(series)
-        self.assertIsNotNone(finding)
-        self.assertEqual(finding["severity"], "fatal")
-        self.assertGreaterEqual(finding["growth"], 2.0)
-
-    def test_decaying_oscillation_is_healthy(self):
-        series = oscillating_series(60, 1e-2, 1e-3, 0.98)
-        self.assertIsNone(detect_oscillatory_divergence(series))
-
-    def test_monotone_convergence_is_healthy(self):
-        series = [1e-2 * 0.97 ** i for i in range(60)]
-        self.assertIsNone(detect_oscillatory_divergence(series))
-
-    def test_flat_series_gives_no_judgment(self):
-        self.assertIsNone(detect_oscillatory_divergence([1e-3] * 60))
-
-    def test_short_series_gives_no_judgment(self):
-        series = oscillating_series(30, 1e-2, 1e-4, 1.05)
-        self.assertIsNone(detect_oscillatory_divergence(series))
 
 
 class CourantExcursionTests(unittest.TestCase):

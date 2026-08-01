@@ -468,8 +468,17 @@ adopted: the replay, the fire count, the fatal count, and the rule's behaviour
 on the case that motivated it. A rule that cannot discriminate its own
 motivating case is withdrawn, not gated, and if it is kept on reasoning the
 archive cannot replay then it is filed as a decision and labelled the weakest
-rule in its standard, which is what `docs/standards/MONITOR_STANDARD.md` now
-does for S7.
+rule in its standard.
+
+**Closed 2026-08-01: S7 was withdrawn**, by supervisor ruling R1 taking option
+B on conflict C-2. It was filed as a decision and labelled the weakest rule in
+its standard, which is what this section prescribed for the interim, and the
+decision went the way the first half of the sentence points: it could not
+discriminate its own motivating case, 22 firings on the sick log against 20 on
+the healthy one, so it is withdrawn rather than gated. The measurements are
+kept beside the entry in `docs/standards/MONITOR_STANDARD.md` because they are
+what a replacement rule has to beat. **The first clause of this requirement has
+now been exercised once, and the cost of exercising it was one rule.**
 
 ## 6. Labels are claims, and the display layer makes them
 
