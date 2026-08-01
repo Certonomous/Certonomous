@@ -555,7 +555,14 @@ def _seal_payload(*, mission_id, geometry, objective, results, channels,
     if mesh:
         payload["mesh"] = dict(mesh)
     if result_fields:
-        payload["result_fields"] = [[label, value] for label, value in result_fields]
+        # A row with no basis seals as the pair it always sealed as, so every
+        # certificate already issued from a pair-passing act keeps its hash to
+        # the byte. A row that states a basis seals the basis too: it is a
+        # factual claim about where the number came from, and an unsealed one
+        # could be edited without the seal noticing.
+        payload["result_fields"] = [
+            [label, value, basis] if basis else [label, value]
+            for label, value, basis in result_fields]
     if scope:
         payload["scope"] = scope
     if constraints:
@@ -590,25 +597,40 @@ def _normalized_triples(raw) -> list[tuple[str, str, str]]:
     return rows
 
 
-def _normalized_result_fields(raw) -> list[tuple[str, str]]:
-    """Ordered (label, value) pairs from whatever shape the caller holds.
+def _normalized_result_fields(raw) -> list[tuple[str, str, str]]:
+    """Ordered (label, value, basis) rows from whatever shape the caller holds.
 
-    Accepts pairs/lists or {"label", "value"} dicts. Labels and values render
-    verbatim — a label like "AR" or "L/D" is never re-cased, and no value is
-    ever reformatted.
+    Accepts pairs, triples, or {"label", "value", "basis"} dicts. Labels and
+    values render verbatim — a label like "AR" or "L/D" is never re-cased, and
+    no value is ever reformatted.
+
+    THE THIRD COLUMN IS OPTIONAL AND EMPTY BY DEFAULT. A result table can mix
+    bases in silence: a weight that is a sizing output and a lift-to-drag that
+    is solved read as one set of numbers with one provenance, and a reader
+    holding the page against a screened table meets a gap with nothing to
+    explain it. An act that knows where each of its numbers came from says so
+    per row. An act that passes plain pairs renders and seals exactly as it
+    did before.
     """
-    fields: list[tuple[str, str]] = []
+    fields: list[tuple[str, str, str]] = []
     for item in raw or ():
+        basis = None
         if isinstance(item, dict):
             label, value = item.get("label"), item.get("value")
+            basis = item.get("basis")
         else:
             try:
                 label, value = item[0], item[1]
             except (TypeError, IndexError, KeyError):
                 continue
+            try:
+                basis = item[2]
+            except (TypeError, IndexError, KeyError):
+                basis = None
         if label is None or value is None:
             continue
-        fields.append((str(label), str(value)))
+        fields.append((str(label), str(value),
+                       "" if basis is None else str(basis)))
     return fields
 
 
@@ -971,10 +993,23 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
 
         Level 0 is the exact spacing the signed-off redesign shipped with;
         level 1 is the tightened rhythm the mesh-validity certificates already
-        use; level 2 additionally compacts the note leading and table rows.
-        A dense run tightens its rhythm rather than spilling over the
-        provenance box — wording, numbers, and order never change between
-        levels.
+        use; level 2 additionally compacts the note leading and table rows;
+        level 3 is the last rung before pagination and tightens the caption
+        leading with them. A dense run tightens its rhythm rather than
+        spilling over the provenance box — wording, numbers, and order never
+        change between levels.
+
+        WHY THERE IS A THIRD RUNG. The ladder stopped at level 2, and the
+        airliner certificate came to rest 16 points below the provenance box
+        at that rhythm once the result block gained its fidelity line and the
+        validation rank gained the sentence that says which way it runs. Two
+        leaves for sixteen points is the wrong trade: a reader loses the
+        channel table off the bottom of the page to save half a line of
+        leading. Every rung keeps the type legible and the fallback to a
+        second leaf is still behind it, so nothing is ever cut for room.
+
+        Levels 0 to 2 are untouched by this rung, so every certificate that
+        already fitted renders byte for byte as it did.
 
         ``paginate`` is the last resort, used only when even the densest
         rhythm cannot hold the body on one leaf: the constraint list and the
@@ -984,10 +1019,20 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         """
         compact = level >= 1
         dense = level >= 2
-        note_size = 8.0 if dense else 8.5
-        note_lead = 9.0 if dense else (10.0 if compact else 11.0)
-        row_lead = 11.5 if dense else (12.0 if compact else 13.0)
-        field_lead = 11.5 if dense else (12.0 if compact else 14.0)
+        tighter = level >= 3
+        note_size = 7.5 if tighter else (8.0 if dense else 8.5)
+        note_lead = (8.2 if tighter else
+                     (9.0 if dense else (10.0 if compact else 11.0)))
+        row_lead = (10.5 if tighter else
+                    (11.5 if dense else (12.0 if compact else 13.0)))
+        field_lead = (10.5 if tighter else
+                      (11.5 if dense else (12.0 if compact else 14.0)))
+        # The credibility captions are prose under the headline, and at the
+        # last rung they carry the same tightening as the notes they sit
+        # above. Reserved and drawn from this one value so the two can never
+        # disagree.
+        cap_lead = 10.0 if tighter else (11.0 if compact else 12.0)
+        cap_size = 8.0 if tighter else 8.5
 
         def gap(normal: float, tight: float) -> float:
             return tight if compact else normal
@@ -1130,9 +1175,9 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # Captions are prose and prose wraps. Drawn unwrapped they run off the
         # text column and off the leaf, taking their own basis with them.
         cred_lines = [part for line in cred_lines
-                      for part in _wrap(line, 8.5, width)]
+                      for part in _wrap(line, cap_size, width)]
         head_h = (gap(30, 26)
-                  + (gap(12, 11) * len(cred_lines) + gap(6, 5) if cred_lines else 0.0)
+                  + (cap_lead * len(cred_lines) + gap(6, 5) if cred_lines else 0.0)
                   + gap(26, 24) + gap(34, 30))
         fields_h = (gap(4, 2) + gap(15, 13) + gap(6, 5) + gap(15, 13)
                     + field_lead * len(result_fields)) if result_fields else 0.0
@@ -1156,8 +1201,8 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # record scores nothing rather than a row of zeros, because a zero
         # reads as "measured and poor" where the truth is "never assessed".
         for line in cred_lines:
-            c.text(left, y, line, size=8.5, color=_MUTED)
-            y -= gap(12, 11)
+            c.text(left, y, line, size=cap_size, color=_MUTED)
+            y -= cap_lead
         if cred_lines:
             y -= gap(6, 5)
         quantity = str(primary.get("quantity", "Result"))
@@ -1220,12 +1265,20 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
             y -= gap(15, 13)
             c.text(left, y, "Parameter", size=7.5, bold=True, color=_MUTED)
             c.text(left + val_x, y, "Value", size=7.5, bold=True, color=_MUTED)
+            # The Basis column is drawn only when a row actually carries one,
+            # so an act still passing pairs gets the two-column table it has
+            # always had rather than an empty heading over blank space.
+            if any(basis for _, _, basis in result_fields):
+                c.text(left + state_x, y, "Basis", size=7.5, bold=True,
+                       color=_MUTED)
             y -= gap(6, 5)
             c.rule(left, y, right, width=0.5)
             y -= gap(15, 13)
-            for label, value in result_fields:
+            for label, value, basis in result_fields:
                 c.text(left, y, label, size=9.5, bold=True, color=_INK)
                 c.text(left + val_x, y, value, size=9.5, color=_INK)
+                if basis:
+                    c.text(left + state_x, y, basis, size=9, color=_MUTED)
                 y -= field_lead
         else:
             # secondary results; a "Mesh" line is skipped when the dedicated
@@ -1317,11 +1370,11 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
     # dropped for want of room.
     density = 1 if mesh else 0
     c, body_bottom = render(density)
-    while body_bottom < page_floor and density < 2:
+    while body_bottom < page_floor and density < _DENSEST:
         density += 1
         c, body_bottom = render(density)
     if body_bottom < page_floor:
-        c, body_bottom = render(2, paginate=True)
+        c, body_bottom = render(_DENSEST, paginate=True)
 
     # -- provenance footer -------------------------------------------------
     # Issuance and the seal that covers it sit together at the foot of the

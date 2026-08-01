@@ -90,6 +90,13 @@ _LIFTING_CHORD_RATIO = 0.5
 TIER_SCREEN = "[screen: reduced-order sizing]"
 TIER_SOLVE = "[solve: VSPAERO + Raymer buildup]"
 
+# The same two tags for a table that already has a Basis COLUMN, where the
+# brackets are chrome rather than a marker. Sliced off the tags above so the
+# wording a viewer matches between the certificate and the transcript cannot
+# drift; retyping them is how two surfaces start describing one basis two ways.
+_BASIS_SCREEN = TIER_SCREEN.strip("[]")
+_BASIS_SOLVE = TIER_SOLVE.strip("[]")
+
 # ---------------------------------------------------------------------------
 # Gate-code advisory.
 #
@@ -2158,6 +2165,7 @@ def main(request: str | None = None, params: dict | None = None,
     # lists span, aspect ratio and weight and simply omits sweep reads as
     # though sweep were settled.
     sweep_field = f"{best['sweep_deg']:.0f}°"
+    sweep_basis = "design variable"
     if len(family) > 1:
         angles = [f"{f['sweep_deg']:.0f}" for f in family]
         sweep_note = (
@@ -2165,8 +2173,12 @@ def main(request: str | None = None, params: dict | None = None,
             f"{best['area']:.0f} m² wings at "
             f"{', '.join(angles[:-1])} and {angles[-1]} degrees all fall "
             f"inside the reported interval, so the family is the result.")
-        sweep_field = (f"{angles[0]} to {angles[-1]}°, not resolved at this "
-                       f"fidelity")
+        # The value cell carries the angles; "not resolved at this fidelity"
+        # is a statement about WHERE THE NUMBER COMES FROM, so it belongs in
+        # the basis column beside them and not inside the value. It also has
+        # to FIT that column: the two together overrun the text block.
+        sweep_field = f"{angles[0]} to {angles[-1]}°"
+        sweep_basis = "not resolved at this fidelity"
 
     # The conclusion opens on figures, both drawn from this run's own numbers:
     # the sweep axis the landscape canvas has no room for, and, when the
@@ -2614,15 +2626,37 @@ def main(request: str | None = None, params: dict | None = None,
                  "envelope": (sweep_unresolved if sweep_note
                               else f"range {quoted_range_km:.0f} km")},
             ],
-            # Structured result block: Title Case labels, verbatim numbers.
+            # Structured result block: Title Case labels, verbatim numbers,
+            # and the basis of each one beside it.
+            #
+            # WHY THE THIRD COLUMN EXISTS. This table used to carry seven
+            # numbers off three different bases and say so about none of them.
+            # A viewer holding the sealed page against the screened optimum
+            # table read "Range 9447 km [screen: reduced-order sizing]" there
+            # and "Range 10276 km" here, and had nothing to tell them the two
+            # are the same wing at two fidelities: 9447 at the screen's L/D
+            # 17.8, 10276 at the solved 19.3. The solved figure is the right
+            # one for this page, and the page now says on what basis. Inside
+            # the table the mixing was silent too: MTOW and the approach speed
+            # are sizing outputs, the L/D is solved, and span and sweep are
+            # neither, being the grid point itself.
+            #
+            # The two tier tags are sliced off the transcript's own constants
+            # rather than retyped, so the words a viewer matches across the
+            # two surfaces cannot drift apart.
             "result_fields": [
-                ("Span", f"{best['span']:.0f} m"),
-                ("AR", f"{best['aspect_ratio']:.1f}"),
-                ("Sweep", sweep_field),
-                ("MTOW", f"{best['mtow_kg'] / 1000:.0f} t"),
-                ("Range", f"{quoted_range_km:.0f} km"),
-                ("Approach Speed", f"{best['approach_speed']:.0f} m/s"),
-                ("Whole-aircraft L/D", f"{best_ld:.1f}"),
+                ("Span", f"{best['span']:.0f} m", "design variable"),
+                ("AR", f"{best['aspect_ratio']:.1f}",
+                 "from span and area"),
+                ("Sweep", sweep_field, sweep_basis),
+                ("MTOW", f"{best['mtow_kg'] / 1000:.0f} t", _BASIS_SCREEN),
+                ("Range", f"{quoted_range_km:.0f} km",
+                 "Breguet range on the solved L/D" if won_solved
+                 else _BASIS_SCREEN),
+                ("Approach Speed", f"{best['approach_speed']:.0f} m/s",
+                 _BASIS_SCREEN),
+                ("Whole-aircraft L/D", f"{best_ld:.1f}",
+                 _BASIS_SOLVE if won_solved else _BASIS_SCREEN),
             ],
             "compute": ledger.as_dict(),
         }
