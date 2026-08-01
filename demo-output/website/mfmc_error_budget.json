@@ -160,6 +160,13 @@
   },
   "missing": [
    "model"
-  ]
+  ],
+  "largest": {
+   "term": "input",
+   "value": 0.21937707698304945,
+   "share_of_quantified_total": 0.99997,
+   "ranks_only_what_was_measured": true
+  },
+  "largest_derived_in_place": "added 2026-08-01 by re-running uq.combine_expanded on this record's own contributions, which reproduces combined_95 to the last digit (0.2193838645571713) and the missing list unchanged. No measurement was repeated and no number moved; the field names what the stored numbers already said. Read it beside `missing`, not instead of it: the largest QUANTIFIED term is the input spread at 0.21938, and the term with no number in it is the high-fidelity model form, which error_budget records as null. The estimator, the thing this whole exercise improved by a factor of 33 from 0.02832 to 0.00086, is 0.79 percent of the combined figure and is the smallest term here."
  }
 }

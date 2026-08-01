@@ -215,6 +215,19 @@ Two clauses ride with it, and they are the ones that make it bite.
 **Violated when** a proposal tightens a term while a larger or unmeasured term
 sits in the same budget and the proposal does not say so.
 
+**Where it is enforced, 2026-08-01.** `uq.combine_expanded` is the one function
+every budget in this lab routes through, and it now returns `largest` beside
+`contributions` and `missing`: the largest term it was given, its value, and
+its share of the total that was actually computed. The field is named
+`share_of_quantified_total` and carries `ranks_only_what_was_measured`, because
+a share of a total taken over the quantified channels alone is not a share of
+the uncertainty. No caller has to eyeball the map, and a budget that ranks
+nothing can no longer be written by accident. The race budget was re-derived
+in place from its own stored contributions to carry the field:
+`input` at 0.21938, **99.997 percent** of the combined figure, with the
+estimator at 0.00173, **0.79 percent**, and the high-fidelity model form still
+`null`.
+
 0. **Admissibility, before any rank.** A band whose producing procedure marks
    itself non-conclusive is not a band and does not enter the ordering at any
    rank. Coverage cannot be assessed on an interval that does not exist, and a

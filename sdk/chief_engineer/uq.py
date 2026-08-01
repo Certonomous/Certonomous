@@ -741,14 +741,39 @@ def combine_expanded(*, input_2sigma: float | None,
     Channels that are not quantified simply do not contribute; the caller must
     still show the breakdown (the combined band is never presented without the
     channel table one level down).
+
+    EVERY BUDGET NAMES ITS LARGEST TERM, and this returns it rather than
+    leaving each caller to eyeball the map. Multifidelity fusion cut the race
+    estimator's standard error by a factor of 33, from 0.02832 to 0.00086 L/D,
+    and the budget that came out of it showed the estimator was by then not the
+    largest contributor by two orders of magnitude. Any further work on the
+    estimator would have been effort spent on the term that had already stopped
+    mattering, and a budget that does not rank its own terms invites exactly
+    that. `largest` is None when nothing is quantified.
+
+    A MISSING TERM IS NOT A SMALL TERM. `largest` ranks only what was measured,
+    so it is reported next to `missing` and never instead of it: a budget whose
+    largest quantified term is 0.0017 and whose model-form term was never
+    measured has not established that 0.0017 is its largest term at all. The
+    share is a share of the total that was computed, which is a total over the
+    quantified channels alone.
     """
     parts = {
         "input": input_2sigma, "numerical": numerical_abs, "model": model_abs,
     }
     quantified = {k: float(v) for k, v in parts.items() if v is not None}
     combined = math.sqrt(sum(v * v for v in quantified.values())) if quantified else None
+    largest = None
+    if quantified:
+        term = max(quantified, key=lambda k: abs(quantified[k]))
+        largest = {"term": term, "value": quantified[term],
+                   "share_of_quantified_total": (
+                       round(abs(quantified[term]) / combined, 5)
+                       if combined else None),
+                   "ranks_only_what_was_measured": True}
     return {"combined_95": combined, "contributions": quantified,
-            "missing": [k for k, v in parts.items() if v is None]}
+            "missing": [k for k, v in parts.items() if v is None],
+            "largest": largest}
 
 
 # --------------------------------------------------------------------------
