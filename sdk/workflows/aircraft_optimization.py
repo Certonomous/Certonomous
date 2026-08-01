@@ -51,8 +51,13 @@ _CLMAX_LANDING = 2.6     # full flaps + slats
 _CLMAX_TAKEOFF = 2.1     # take-off flap setting
 _SFC = 1.7e-5            # thrust-specific fuel consumption, kg/(N·s) (~0.6 lb/lbf/hr)
 _FUEL_FRACTION = 0.32    # usable fuel as a fraction of MTOW
-_PAYLOAD_FRACTION = 0.22 # payload as a fraction of MTOW (sets MTOW from pax)
 _KG_PER_PAX = 100.0      # passenger + baggage
+# _PAYLOAD_FRACTION -- payload as a fraction of MTOW, which is what turns a
+# passenger count into a weight -- is NOT a constant typed here. It is measured
+# off the same published analogue aircraft this act already holds the winner
+# against, and it is defined next to that table (see `_analogue_payload_
+# fraction`). It carried 0.22 until 2026-08-01, and the act's own analogue rows
+# said that was wrong.
 _SPAN_STRUCTURAL_LIMIT = 68.0   # m — beyond this the wing box is impractical
 _MU_CRUISE = 1.43e-5     # dynamic viscosity at ~11 km, Pa·s
 # Parasite drag of everything that is NOT the wing (fuselage, tail, nacelles,
@@ -615,6 +620,41 @@ _ANALOGUES: tuple[dict, ...] = (
 )
 
 
+def _analogue_payload_fraction() -> float:
+    """Payload as a fraction of MTOW, measured on the analogues above.
+
+    THE CALIBRATION THIS ACT ALREADY HAD THE DATA FOR. Every weight in the
+    sizing model comes from one number: payload divided by MTOW turns a
+    passenger count into a maximum take-off weight, and that weight sets the
+    wing area the low-speed limits demand, the cruise lift coefficient, and
+    through it the L/D that is the answer. It carried 0.22, which no aircraft
+    in the table below reaches except the narrowbody, and the act was holding
+    its winner against those same rows while sizing it with a figure they
+    contradict. The published seating and MTOW give:
+
+        Boeing 737 MAX 8   0.215      Boeing 767-400ER  0.145
+        Airbus A300-600R   0.156      Boeing 777-200    0.155
+        Boeing 767-300     0.167      Airbus A330-300   0.124
+
+    so the mean is 0.160 and the old 0.22 sat above every widebody in the set.
+    That is a calibration error against cited data, not a modelling
+    preference, and it is why MTOW read low against the analogue envelope.
+
+    The mean over the whole cited set is what is used, not the two rows a
+    given mission happens to match: the fraction is a property of the aircraft
+    class the model sizes, and a constant that moved with the request would
+    make two runs of the same act size the same aeroplane differently. Each
+    fraction is computed with the act's own `_KG_PER_PAX`, so the sizing
+    reproduces these aircraft's published MTOW on average rather than
+    approximately agreeing with a number from somewhere else.
+    """
+    return sum(a["pax"] * _KG_PER_PAX / a["mtow_kg"]
+               for a in _ANALOGUES) / len(_ANALOGUES)
+
+
+_PAYLOAD_FRACTION = _analogue_payload_fraction()
+
+
 def analogues_for(reqs: dict) -> list[dict]:
     """The real aircraft flying a mission comparable to the stated one.
 
@@ -645,8 +685,17 @@ def analogue_rows(best: dict, matches: list[dict]) -> list[list[str]]:
         "aspect_ratio": float(best["aspect_ratio"]),
         "mtow_kg": float(best["mtow_kg"]),
     }
+    # The span row points at the gate-code line the conclusion raises, and it
+    # names the one that is actually said: a Code F winner gets an advisory, a
+    # winner inside Code E gets the finding that nothing needs to change. The
+    # pointer used to say "advisory" whichever it was, so a winner that had
+    # come inside the gate band sent the reader looking for an advisory the
+    # run never raised.
+    gate_pointer = ("gate code advisory"
+                    if icao_code_letter(winner["span_m"]) == "F"
+                    else "gate code finding")
     spec = (
-        ("Span", "span_m", "{:.1f} m", 1.0, "gate code advisory"),
+        ("Span", "span_m", "{:.1f} m", 1.0, gate_pointer),
         ("Wing area", "area_m2", "{:.0f} m²", 1.0, None),
         ("Aspect ratio", "aspect_ratio", "{:.1f}", 1.0, None),
         ("MTOW", "mtow_kg", "{:.0f} t", 0.001, None),
@@ -1007,6 +1056,12 @@ def assumed_values(reqs: dict) -> list[tuple[str, str, str]]:
                  "assumed, not solver-derived"))
     rows.append(("Non-wing drag share", f"C_D0 {_CD0_NONWING:.3f}",
                  "assumed, Raymer component buildup"))
+    # Every weight in the model comes off this one number, so it is a ledger
+    # row and it names where it was measured rather than reading as a house
+    # constant. It is not assumed: it is the mean of the published seating and
+    # MTOW of the analogue aircraft the winner is held against below.
+    rows.append(("Payload fraction", f"{_PAYLOAD_FRACTION:.3f}",
+                 "measured on the analogue aircraft, not assumed"))
     return rows
 
 
@@ -2206,18 +2261,15 @@ def main(request: str | None = None, params: dict | None = None,
             f"• Existing gates serve it, so no gate change is asked for "
             f"(ICAO Annex 14).")
 
-    # ---- what the winner is sitting on --------------------------------------
-    # Said whether or not the analogue check ran, and said plainly. Cruise L/D
-    # rises with aspect ratio and does not turn over, so the search ends on the
-    # limits rather than at a peak. A reader who takes the winner for an
-    # interior optimum has been misled by silence, so the silence is filled.
+    # WHAT THE WINNER IS SITTING ON is said with the result, not before it and
+    # not only in the memo's limitations list. It used to be raised here, a
+    # hundred lines and four beats ahead of the number it qualifies, and a
+    # viewer who meets the L/D first has already read it as an interior
+    # optimum by the time the caveat arrives. Cruise L/D rises with aspect
+    # ratio for a parabolic polar and does not turn over, so a bounded search
+    # ends where the box ends; that is a fact about the box, and it belongs in
+    # the same breath as the answer. See the block below `result.verdict`.
     limits = active_limits(best, results)
-    if limits:
-        script.engineer(
-            "• The winner sits on " + " and on ".join(limits) + ". "
-            "• Cruise L/D rises with aspect ratio without turning over, so "
-            "these limits set it. "
-            "• Move a limit and the winner moves with it.")
 
     # Headline CI: stated input uncertainties propagated through the real
     # evaluation chain (the solved polar when one exists).
@@ -2333,8 +2385,10 @@ def main(request: str | None = None, params: dict | None = None,
                 "added from Raymer's component buildup method")
     else:
         script.researcher(
+            # The limits this points at are now stated below, with the result,
+            # rather than four beats earlier; the pointer moves with them.
             "• Ranking trustworthy: aspect ratio buys whole-aircraft L/D up "
-            "to the limits above. "
+            "to the bounds named below. "
             f"• Magnitude {best['L_D']:.1f} ± {headline_ci:.1f} "
             f"{TIER_SCREEN}. "
             f"• A solved flow and a comparison would set the magnitude.")
@@ -2349,6 +2403,39 @@ def main(request: str | None = None, params: dict | None = None,
                                 "ci": f"{headline_ci:.1f}", "confidence": "95%",
                                 "envelope": ("" if won_solved else
                                              "sizing-model estimate"), **verdict})
+    # THE BOUND, BESIDE THE NUMBER. Whatever the search returns is the best
+    # point on a bounded grid, and for this model class the bound is what
+    # picks it: maximum L/D on a parabolic polar goes as the square root of
+    # aspect ratio and never turns over, so there is no interior peak in span
+    # or area to find. Real airliners sit at aspect ratio 9 to 11 because they
+    # optimise fuel burn and operating cost under gate, flutter and wing-box
+    # limits; the aircraft that do optimise L/D, gliders and the U-2, sit at
+    # 20 to 25. So the honest statement is where the box ends, said here.
+    if limits:
+        script.engineer(
+            "• That design is the best point on a bounded grid, sitting on "
+            + " and on ".join(limits) + ". "
+            "• Whole-aircraft L/D climbs with aspect ratio without turning "
+            "over, so the bound picks the winner and not an interior peak. "
+            "• Move the bound and the answer moves with it.")
+    # THE RANGE OVERSHOOT, ANSWERED BEFORE IT IS ASKED. Range is a feasibility
+    # floor in the search and never an objective, and Breguet range here is
+    # proportional to whole-aircraft L/D with the fuel fraction fixed, so the
+    # quantity being maximised drags range up with it and the floor cannot
+    # bind at the optimum. An engineer watching a 300 passenger aeroplane
+    # report far more range than it was asked for will want that said.
+    overshoot = quoted_range_km - float(reqs["range_km"])
+    if overshoot > 0.05 * float(reqs["range_km"]):
+        script.researcher(
+            f"• Range {quoted_range_km:.0f} km against the "
+            f"{reqs['range_km']:.0f} km asked for. "
+            f"• Range is a floor the search must clear, never a target: fuel "
+            f"is fixed at {_FUEL_FRACTION * 100:.0f}% of MTOW, so range is "
+            f"proportional to whole-aircraft L/D and rises with the "
+            f"objective. "
+            f"• The excess is what the objective gives, not tankage bought "
+            f"for it; sizing fuel to the requirement is a trade this model "
+            f"does not make.")
     knowledge.add(
         f"Airliner whole-aircraft L/D for {reqs['passengers']} pax / "
         f"{reqs['range_km']:.0f} km: best feasible whole-aircraft L/D "
@@ -2398,7 +2485,13 @@ def main(request: str | None = None, params: dict | None = None,
         f"The best feasible {'family' if sweep_note else 'wing'} reaches "
         f"whole-aircraft L/D {best_ld:.1f} ± {headline_ci:.1f} (95%) "
         f"at span {best['span']:.0f} m and aspect ratio {best['aspect_ratio']:.1f}; "
-        f"{n_infeasible} designs were infeasible on low-speed or range.",
+        f"{n_infeasible} designs were infeasible on low-speed or range."
+        # The bound belongs in the sentence that states the result, in the
+        # memo as much as on camera: a reader who meets the number without it
+        # reads a bounded search as an interior optimum.
+        + (" That design is the best point on a bounded grid, sitting on "
+           + " and on ".join(limits) + "; move the bound and it moves."
+           if limits else ""),
         ("The winner stands on a wing polar solved with VSPAERO plus Raymer's "
          "component buildup for the non-wing drag." if won_solved else
          "The result comes from the stated sizing model with its input "
@@ -2414,9 +2507,16 @@ def main(request: str | None = None, params: dict | None = None,
     # which. The section carries its own title so the two never collide.
     limitations = [
         sweep_note,
-        "Whole-aircraft L/D rises with aspect ratio and does not turn over, so "
-        "the reported design is set by the structural span limit and the "
-        "landing-speed area floor, not by an interior optimum.",
+        # The bounds NAMED ARE THE ONES THE WINNER ACTUALLY SITS ON. This line
+        # used to name the span limit and the area floor whichever of them was
+        # active, so a run whose winner had come off the span cap still told
+        # the reader the cap had set it.
+        ("Whole-aircraft L/D rises with aspect ratio and does not turn over, "
+         "so the reported design is set by " + " and by ".join(limits)
+         + ", not by an interior optimum." if limits else
+         "Whole-aircraft L/D rises with aspect ratio and does not turn over, "
+         "so the reported design is the best point on a bounded grid rather "
+         "than an interior optimum."),
         ("Wing induced and viscous drag are solved; the non-wing parasite share "
          "comes from Raymer's component buildup method." if won_solved else
          "The absolute whole-aircraft L/D comes from a drag polar sizing model, "

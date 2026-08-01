@@ -300,11 +300,20 @@ class GateCodeAdvisoryTests(unittest.TestCase):
         self.assertEqual(spans_over_code_e([52, 64, 65, 68]), [65.0, 68.0])
 
     def test_the_advisory_never_rules_a_design_infeasible(self):
-        from workflows.aircraft_optimization import (evaluate_design,
+        # A span past Code E is still a buildable, feasible wing: the gate code
+        # is advisory and never enters the violation list. The area is found
+        # rather than typed, because the smallest wing that clears the stated
+        # low-speed limits moves with the payload calibration and a literal
+        # here would make this read as a gate failure the next time it does.
+        from workflows.aircraft_optimization import (_ICAO_CODE_E_MAX_SPAN,
+                                                     evaluate_design,
                                                      parse_requirements)
         reqs = parse_requirements("300 passengers, 6000 km range")
-        wide = evaluate_design(68.0, 300.0, 25.0, reqs)
-        self.assertTrue(wide["feasible"])
+        self.assertGreater(68.0, _ICAO_CODE_E_MAX_SPAN)
+        wide = next((d for d in (evaluate_design(68.0, float(a), 25.0, reqs)
+                                 for a in range(240, 801, 5)) if d["feasible"]),
+                    None)
+        self.assertIsNotNone(wide, "no feasible wing at a Code F span")
         self.assertFalse([v for v in wide["violations"] if "gate" in v.lower()])
 
     def test_the_advisory_and_its_offer_reach_the_digest(self):
@@ -399,6 +408,50 @@ class AnalogueCheckTests(unittest.TestCase):
         self.assertIn("outlier, above", table["Span"][3])
         self.assertIn("gate code advisory", table["Span"][3])
         self.assertIn("outlier, below", table["MTOW"][3])
+
+    def test_a_winner_inside_code_e_points_at_the_finding_not_an_advisory(self):
+        # The conclusion raises an ADVISORY only for a Code F span; a winner
+        # inside Code E gets the finding that nothing needs to change. The
+        # span row used to point at "gate code advisory" either way, so a
+        # winner that had come inside the band sent the reader looking for an
+        # advisory the run never raised.
+        from workflows.aircraft_optimization import (analogue_rows,
+                                                     analogues_for,
+                                                     parse_requirements)
+        reqs = parse_requirements("300 passengers, 6000 km range")
+        rows = analogue_rows(
+            {"span": 61.0, "area": 360.0, "aspect_ratio": 10.3,
+             "mtow_kg": 199000.0},
+            analogues_for(reqs))
+        span = {row[0]: row for row in rows}["Span"][3]
+        self.assertIn("gate code finding", span)
+        self.assertNotIn("advisory", span)
+
+    def test_the_payload_fraction_is_measured_on_the_analogues(self):
+        # THE CALIBRATION, NOT A HOUSE CONSTANT. Every weight in the sizing
+        # model comes off this number, it carried 0.22, and the act's own
+        # analogue rows put the widebodies between 0.124 and 0.167. A figure
+        # above every widebody in the table the winner is held against is a
+        # calibration error with the evidence in the same file.
+        from workflows.aircraft_optimization import (_ANALOGUES, _KG_PER_PAX,
+                                                     _PAYLOAD_FRACTION)
+        measured = [a["pax"] * _KG_PER_PAX / a["mtow_kg"] for a in _ANALOGUES]
+        self.assertAlmostEqual(_PAYLOAD_FRACTION,
+                               sum(measured) / len(measured), places=12)
+        self.assertLessEqual(_PAYLOAD_FRACTION, max(measured))
+        self.assertGreaterEqual(_PAYLOAD_FRACTION, min(measured))
+        self.assertLess(_PAYLOAD_FRACTION, 0.22)
+
+    def test_the_ledger_says_where_the_payload_fraction_was_measured(self):
+        from workflows.aircraft_optimization import (_PAYLOAD_FRACTION,
+                                                     assumed_values,
+                                                     parse_requirements)
+        reqs = parse_requirements("300 passengers, 6000 km range")
+        ledger = {label: (value, basis)
+                  for label, value, basis in assumed_values(reqs)}
+        value, basis = ledger["Payload fraction"]
+        self.assertEqual(value, f"{_PAYLOAD_FRACTION:.3f}")
+        self.assertIn("measured on the analogue aircraft", basis)
 
     def test_every_analogue_figure_is_a_number_with_a_seat_and_range_figure(self):
         from workflows.aircraft_optimization import _ANALOGUES
@@ -946,6 +999,46 @@ class SolvedRunDoctrineTests(unittest.TestCase):
         self.assertNotIn("Monte-Carlo", channels[0]["note"])
         self.assertIn("Ensemble run", channels[0]["note"])
 
+    def test_the_bound_is_stated_with_the_result_not_ahead_of_it(self):
+        # Whatever the search returns is the best point on a bounded grid, and
+        # for a parabolic polar maximum L/D goes as the square root of aspect
+        # ratio and never turns over, so the bound picks the winner. That used
+        # to be said four beats before the number it qualifies; a viewer who
+        # meets the L/D first has already read it as an interior optimum.
+        events = self._run_solved()
+        said = self._messages(events)
+        bound = [i for i, m in enumerate(said)
+                 if "best point on a bounded grid" in m]
+        self.assertTrue(bound, said)
+        blob = said[bound[0]]
+        self.assertIn("without turning over", blob)
+        self.assertIn("Move the bound and the answer moves with it", blob)
+        # Adjacent to the result, not stranded in the middle of the analogue
+        # and gate-code beats: the fidelity line that carries the verdict is
+        # the one just before it.
+        verdict_lines = [i for i, m in enumerate(said)
+                         if "Wing solved with VSPAERO" in m]
+        self.assertTrue(verdict_lines)
+        self.assertLess(bound[0] - verdict_lines[-1], 2)
+
+    def test_a_range_overshoot_says_why_it_is_free_to_the_objective(self):
+        # Range is a feasibility floor and Breguet range here is proportional
+        # to L/D at a fixed fuel fraction, so maximising the objective drags
+        # range up and the floor cannot bind at the optimum. An engineer
+        # watching the aircraft report far more range than it was asked for
+        # will ask, so the act answers first.
+        events = self._run_solved()
+        said = " ".join(self._messages(events))
+        verdict = [p for e, p in events if e == "result.verdict"][0]
+        from workflows.aircraft_optimization import range_for_ld
+        quoted = range_for_ld(float(verdict["value"]))
+        self.assertGreater(quoted, 6000.0 * 1.05)
+        self.assertIn("Range is a floor the search must clear, never a target",
+                      said)
+        self.assertIn("proportional to whole-aircraft L/D", said)
+        self.assertIn("sizing fuel to the requirement is a trade this model "
+                      "does not make", said)
+
     def test_certificate_carries_the_result_and_no_unquantified_row(self):
         events = self._run_solved()
         cert = [p for e, p in events if e == "certificate.ready"][0]
@@ -1257,7 +1350,14 @@ class ShootRoundTests(unittest.TestCase):
         self.assertTrue(rows["Wing area"][1].startswith("derived"))
         # And it is a floor at ONE weight, so the row names that weight and
         # says the screen holds each wing to the floor its own weight sets.
-        self.assertIn("at reference MTOW 136 t", rows["Wing area"][0])
+        # The weight is read off the act's own floor calculation rather than
+        # typed here: it moves with the payload fraction, which is measured on
+        # the analogue table, and a literal would go stale the next time a
+        # published MTOW is corrected.
+        from workflows.aircraft_optimization import low_speed_area_floor
+        _area, reference_mtow = low_speed_area_floor(reqs)
+        self.assertIn(f"at reference MTOW {reference_mtow / 1000:.0f} t",
+                      rows["Wing area"][0])
         self.assertIn("applied per-design at each wing's weight",
                       rows["Wing area"][1])
 
@@ -1273,21 +1373,39 @@ class ShootRoundTests(unittest.TestCase):
         self.assertNotIn("Landing speed limit", ledger)
 
     def test_the_screen_applies_the_area_floor_at_each_wings_own_weight(self):
-        # PROOF, not inference. 250 m² clears the approach limit on a short
+        # PROOF, not inference. ONE area clears the approach limit on a short
         # span and misses it on a long one, because the long wing's own MTOW
         # carries the span-structural penalty and asks for more area. One
         # fixed floor could not produce both verdicts.
+        #
+        # The area is searched for rather than typed. Both wings' floors scale
+        # with the payload calibration, so a literal that split them at one
+        # calibration lands under both at another and the test then fails for
+        # a reason that has nothing to do with the claim it makes.
         reqs = parse_requirements(self.DIRECTIVE)
-        light = evaluate_design(37.0, 250.0, 25.0, reqs)
-        heavy = evaluate_design(67.0, 250.0, 25.0, reqs)
+
+        def misses_approach(design):
+            return any(v.startswith("approach speed")
+                       for v in design["violations"])
+
+        split = next((a for a in range(200, 900)
+                      if not misses_approach(
+                          evaluate_design(37.0, float(a), 25.0, reqs))
+                      and misses_approach(
+                          evaluate_design(67.0, float(a), 25.0, reqs))), None)
+        self.assertIsNotNone(split, "no area separates the two spans")
+        light = evaluate_design(37.0, float(split), 25.0, reqs)
+        heavy = evaluate_design(67.0, float(split), 25.0, reqs)
         self.assertGreater(heavy["mtow_kg"], light["mtow_kg"])
-        self.assertFalse(any(v.startswith("approach speed")
-                             for v in light["violations"]), light)
-        self.assertTrue(any(v.startswith("approach speed")
-                            for v in heavy["violations"]), heavy)
+        self.assertFalse(misses_approach(light), light)
+        self.assertTrue(misses_approach(heavy), heavy)
         # The heavy wing clears once it is given the area its own weight asks
         # for, which is above the reference floor quoted on the table.
-        self.assertTrue(evaluate_design(67.0, 266.0, 25.0, reqs)["feasible"])
+        cleared = next((d for d in (evaluate_design(67.0, float(a), 25.0, reqs)
+                                    for a in range(split, split + 400, 5))
+                        if d["feasible"]), None)
+        self.assertIsNotNone(cleared)
+        self.assertGreater(cleared["area"], light["area"])
 
     # -- item 1: the viewport caption --------------------------------------
     def test_every_viewport_caption_is_scoped_wing_only(self):
