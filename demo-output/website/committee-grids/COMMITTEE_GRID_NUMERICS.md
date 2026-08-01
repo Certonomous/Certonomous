@@ -235,3 +235,33 @@ correlate of one. **The threshold on this configuration sits between an average
 of 23.7 degrees and 33.6 degrees**, which places every unstructured committee
 grid measured so far on the wrong side of it, and both of this lab's own
 self-generated meshes comfortably on the right side.
+
+### What that already implies about reach, before any fix
+
+DPW5 publishes each of its six levels in all three topologies, so the finding
+above is directly actionable: it says *which family* to take, not merely that
+committee grids are hard. Cell counts below are from each file's own header,
+read by HTTP range request without downloading the files
+(`logs/DPW5_size_survey.log`, 08:31Z); the predicted peak applies the HLPW6
+probe's measured memory law, 1.585e-3 MiB per cell plus 872 MiB at 14 ranks.
+
+| level | hex cells | predicted peak | prism cells | hybrid (tet) cells |
+|---|---:|---:|---:|---:|
+| L1.T | 638,976 | 1,884 MiB (**1,986 measured**) | 1,277,952 | 2,981,888 |
+| L2.C | 2,156,544 | 4,290 MiB | 4,313,088 | 10,063,872 |
+| L3.M | 5,111,808 | 8,974 MiB | 10,223,616 | 24,068,096 |
+| L4.F | 17,252,352 | 28,216 MiB | 34,504,704 | 80,990,208 |
+| L5.X | 40,894,464 | 65,689 MiB | 81,788,928 | 192,544,768 |
+| L6.S | 138,018,816 | 219,631 MiB | — | — |
+
+**Three consecutive levels of the DPW5 hex family — L1.T, L2.C and L3.M, at
+0.64M, 2.16M and 5.11M cells — fit on this box with room to spare, and the
+first of them has now been solved at second order here.** Three levels is the
+minimum for a Richardson-extrapolated grid-convergence study, which is the
+thing DPW asks for. That is a materially different sentence from anything this
+lab has been able to say about committee grids before today.
+
+The measured L1.T peak, 1,986 MiB against 1,884 predicted, is 5% above the law
+rather than below it — the opposite sign to HLPW6's 11% shortfall, and
+consistent with a pure hex mesh carrying 3.0 internal faces per cell where the
+HLPW6 grid carries 2.44.

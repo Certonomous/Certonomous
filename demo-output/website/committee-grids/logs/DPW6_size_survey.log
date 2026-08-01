@@ -1,0 +1,17 @@
+# DPW6 unstructured grid sizes, read from each file's own 7-integer header
+# via HTTP range request (bytes 0-27). No file was downloaded in full.
+# 2026-08-01T08:16:17Z
+Boeing_cell-centred T  nodes=7957700    tet=7428157    pyr=9138     prism=13220320   hex=0   CELLS=20657615
+Boeing_cell-centred C  nodes=10235358   tet=9100265    pyr=10648    prism=17160906   hex=0   CELLS=26271819
+Boeing_cell-centred M  nodes=13197852   tet=11435973   pyr=12471    prism=22234762   hex=0   CELLS=33683206
+Boeing_cell-centred F  nodes=17104710   tet=14013570   pyr=16298    prism=29096880   hex=0   CELLS=43126748
+Boeing_cell-centred X  nodes=22539900   tet=17828460   pyr=20108    prism=38564760   hex=0   CELLS=56413328
+Boeing_cell-centred U  nodes=28746828   tet=21553362   pyr=23145    prism=49593181   hex=0   CELLS=71169688
+# NASA GeoLab VGRID node-centred, from the committee's own published
+# V2-NASA.GEOLAB.WB-ae2.75-GRID-SIZES file (post-merge counts):
+GeoLab_node-centred TINY     CELLS=83598506
+GeoLab_node-centred COARSE   CELLS=122878088
+GeoLab_node-centred MEDIUM   CELLS=182037523
+GeoLab_node-centred FINE     CELLS=271307485
+GeoLab_node-centred X-FINE   CELLS=404287952
+GeoLab_node-centred U-FINE   CELLS=606647005

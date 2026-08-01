@@ -1,0 +1,22 @@
+# DPW5 unstructured grid sizes, from each file's own header via HTTP range.
+# 2026-08-01T08:31:20Z
+L1.T   hex     nodes=660177    tet=0         prism=0         hex=638976    CELLS=638976     predPeakMiB=1884
+L1.T   prism   nodes=660177    tet=0         prism=1277952   hex=0         CELLS=1277952    predPeakMiB=2897
+L1.T   hybrid  nodes=660177    tet=2555904   prism=425984    hex=0         CELLS=2981888    predPeakMiB=5598
+L2.C   hex     nodes=2204089   tet=0         prism=0         hex=2156544   CELLS=2156544    predPeakMiB=4290
+L2.C   prism   nodes=2204089   tet=0         prism=4313088   hex=0         CELLS=4313088    predPeakMiB=7708
+L2.C   hybrid  nodes=2204089   tet=8626176   prism=1437696   hex=0         CELLS=10063872   predPeakMiB=16823
+L3.M   hex     nodes=5196193   tet=0         prism=0         hex=5111808   CELLS=5111808    predPeakMiB=8974
+L3.M   prism   nodes=5196193   tet=0         prism=10223616  hex=0         CELLS=10223616   predPeakMiB=17076
+L3.M   hybrid  nodes=5196193   tet=20766720  prism=3301376   hex=0         CELLS=24068096   predPeakMiB=39019
+L4.F   hex     nodes=17441905  tet=0         prism=0         hex=17252352  CELLS=17252352   predPeakMiB=28216
+L4.F   prism   nodes=17441905  tet=0         prism=34504704  hex=0         CELLS=34504704   predPeakMiB=55561
+L4.F   hybrid  nodes=17441905  tet=69728256  prism=11261952  hex=0         CELLS=80990208   predPeakMiB=129241
+L5.X   hex     nodes=41231169  tet=0         prism=0         hex=40894464  CELLS=40894464   predPeakMiB=65689
+L5.X   prism   nodes=41231169  tet=0         prism=81788928  hex=0         CELLS=81788928   predPeakMiB=130507
+L5.X   hybrid  nodes=41231169  tet=166133760 prism=26411008  hex=0         CELLS=192544768  predPeakMiB=306055
+L6.S   hex     nodes=138775777 tet=0         prism=0         hex=138018816 CELLS=138018816  predPeakMiB=219631
+# Note: L6.S publishes a hex file only -- the directory listing carries no
+# L6.S prism or hybrid file, and a range request against those names returns an
+# error page rather than a grid header. Those two rows have been removed rather
+# than reported as data.
