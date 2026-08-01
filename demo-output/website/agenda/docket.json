@@ -361,10 +361,12 @@
         "dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md",
         "dafoam/PROOF.md sections 15 to 21"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T08:18:16Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "progress_note": "W5, 2026-08-01. Gate met on 2026-07-31: upstream_repro/run_repro.sh runs from a fresh git clone of the official tutorials in a scratch directory OUTSIDE this repo, on stock DAFoam 5.0.0 / IDWarp 2.6.2 (executed end-to-end 08:50:03Z-08:52:11Z, ~2 minutes), and demonstrates the sign flips: UBend_Channel idx8 207.0% FLIPPED and idx17 121.6% FLIPPED under the real seed with a pure pressure-loss objective, and 80.8% worst error (13 of 27 components above 30%) on the tutorial with not one character changed. The report itself grew past the objective: root cause named to a line (vectorUtils.f90:58 degenerate branch), a verified four-line fix with before/after (issue #57's 210.16%/212.62% -> 8.6e-06%/3.4e-05%; A1's 634% flip -> 5.5e-04%; A5's 207%/122% flips -> 3.0e-06/7.0e-06; primal md5-identical), and the finding that this is upstream's own five-year-open mdolab/idwarp#57.",
+      "outcome": "Reproducer bundle done and verified outside the repo (dafoam/upstream_repro/); report submission-ready as a comment on mdolab/idwarp#57 with derivation, patch and before/after table (dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md, 2026-08-01 update; dafoam/rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch). NOT FILED: whether it is sent is Katie's call, per the report's own header. Shipped DAFoam/IDWarp still carries the bug; A1/A5 stock verdicts unchanged."
     },
     {
       "id": "w7-one-way-in-for-operator-artifacts",
@@ -2658,6 +2660,29 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T00:18:23Z"
+    },
+    {
+      "id": "w5-a1-a5-full-fd-tables-under-patched-warp",
+      "well": "W5",
+      "objective": "Re-verify the full A1 and A5 FD tables end to end through the patched IDWarp toolchain",
+      "rationale": "The patch acceptance tests covered the flagged components (A1 idx0/1/4/6/7 under real and random seeds; A5 all 27 via the warp identity), not the framework's own full check_totals tables. A full-table pass through the patched toolchain is what would let the ladder claim A1 and A5 clean under a fixed warp; the stock-toolchain FAIL verdicts stand regardless, because shipped DAFoam/IDWarp 2.6.2 does not contain the patch. Cost is taken from the measured stock-toolchain runs of the identical computations, not estimated: A1 compute_totals 1.30 + check_totals 1.80 core-min (DAFOAM_CASE_STATUS.md, A1); A5 compute_totals 3.6 + check_totals 15.13 core-min (A5_ubend_internal.md stage table). The patched build itself adds no per-run cost: the patched reproducers measured 8.7 s (A1, np=4, A1P_realseed.log) and 12.7-16.7 s (A5, np=4, A5P_*.log).",
+      "est_core_min": 21.8,
+      "predicted_memory_gb": 3.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured (sum of the four measured stock runs of the same computations; see rationale)",
+      "gate": "check_totals through the patched build reproduces A1's full table (CD and CL wrt shape and patchV, geometric constraints) and A5's full 27-component table; every previously flagged component sits at the clean-control level with no sign flips under the current grading standard, and the stock verdicts are left unchanged in every record",
+      "expected_knowledge_gain": "Upgrades 'the flagged components collapse' to 'the cases' full published FD tables pass under a fixed warp' - the exact statement the ladder needs before any regrade of A1/A5 conditioned on an upstream fix",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/PATCH_getRotationMatrix3d.md",
+        "dafoam/PROOF.md section 24",
+        "dafoam/DAFOAM_CASE_STATUS.md sections A1 and A5",
+        "dafoam/ladder-a/A5_ubend_internal.md stage cost table"
+      ],
+      "status": "approved",
+      "created_at": "2026-08-01T00:25:00Z",
+      "decided_at": "2026-08-01T00:25:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     }
   ]
 }
