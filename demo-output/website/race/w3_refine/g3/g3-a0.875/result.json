@@ -1,0 +1,1 @@
+{"built": {"span": 3.0, "area": 3.0, "root_chord": 1.0, "tip_chord": 1.0}, "polar": {"Alpha": [0.875], "CLtot": [0.300766987569], "CDi": [0.009178112288], "CDo": [0.007598525159], "CDtot": [0.016776637447], "L_D": [17.927727681495], "E": [1.045769396113]}, "matched": null, "stl": "wing.stl", "solver": "VSPAERO", "solver_version": "OpenVSP 3.51.1", "elapsed_s": 4.11}
