@@ -2481,10 +2481,11 @@
         "sdk/workflows/nasa_hump.py",
         "demo-presentation-conventions"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T10:18:18Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "Ruled 2026-08-01 by supervisor ruling R2, answering conflict C-3 with option B, which was the lab's own recommendation: the act displays no fleet on a path that dispatches nothing. roster.set_workers(ranks, note) is removed from the warm branch of sdk/workflows/nasa_hump.py and the numeral reads zero there; the cold branch, which genuinely dispatches ranks, keeps its declaration. Moving the declaration earlier so the timing computes to something non-zero was refused in the ruling and is refused in a comment at the site, because it would invent a fleet the run never used. Spent 0 core-minutes against a 60 core-minute estimate: the question was a reading of the branch, not a run. NOT CLOSED FOR THE OTHER FOUR ACTS, and they are not one defect. crm_wingbody.py and onera_m6.py carry the identical shape, with nothing between 'started' and 'elapsed' so the interval is the 1.0 s clamp. ahmed_body.py and geometry_study.py do not: their warm branches read the cached coefficient history and stream it at a watchable pace, so 'elapsed' there is a real measurement of a replay of about 14 s rather than a clamped zero. The fleet numeral is wrong on all four, but those last two also spend a trace-replay interval to the ledger labelled as solver time, and deciding the numeral without deciding that spend would leave half a misstatement in place. Reported rather than edited; see C-3 in docs/charters/PROPOSALS_OPEN.md."
     },
     {
       "id": "r4-m6-wall-treatment-plateau",

@@ -117,9 +117,48 @@ Cost of B: the graceful-degradation failure family loses a detector, and the
 knowledge base fact it was built on is real. Cost of C: a month of the current
 state plus a small change to what the harness records. *Lab recommends C.*
 
-### C-3. Five acts declare a worker fleet on a path that dispatches nothing
+### C-3. Five acts declare a worker fleet on a path that dispatches nothing. RULED: B, for the hump
 
-Charter 4, section 6, and `w3-hump-fleet-honesty` in the docket. New.
+**Ruled 2026-08-01, option B, by supervisor ruling R2 in
+`SUPERVISOR_RULINGS.md`, which is the lab's own recommendation.** The hump
+shows no fleet on its warm path: `roster.set_workers(ranks, note)` is gone from
+the warm branch of `sdk/workflows/nasa_hump.py` and the numeral reads zero there
+now. The cold branch, which genuinely dispatches `ranks`, keeps its
+declaration. Moving the declaration earlier to make the timing look right was
+refused in the ruling and is refused in a comment at the site, because it would
+invent a fleet the run never used.
+
+**Carried out for one act of the five, and the other four are still open**,
+because the ruling named the hump and because they are not all the same defect.
+Measured 2026-08-01 by reading each warm branch:
+
+| Act | Warm branch declares | Interval between `started` and `elapsed` | Same defect? |
+| --- | --- | --- | --- |
+| `nasa_hump.py` | `ranks` | nothing at all; `elapsed` is the 1.0 s clamp | yes — **fixed** |
+| `crm_wingbody.py` | `RANKS` | nothing at all; `elapsed` is the 1.0 s clamp | yes, identically |
+| `onera_m6.py` | `RANKS` | nothing at all; `elapsed` is the 1.0 s clamp | yes, identically |
+| `ahmed_body.py` | `workers` | a `cat` of the cached coefficient file plus a paced trace replay, about 14 s | **partly** |
+| `geometry_study.py` | `workers` | the same, paced by `CERTONOMOUS_SOLVE_REPLAY_S` | **partly** |
+
+**The last two are worth separating from the first three**, because the premise
+"the elapsed time computes to zero" is true of the first three and false of the
+last two. In `ahmed_body.py` and `geometry_study.py` the warm branch really
+does occupy a measured interval: it reads the cached coefficient history and
+streams it point by point at a watchable pace. `elapsed` there is a real
+measurement of a replay, not a clamped zero.
+
+**That does not make the declaration correct.** What those two spend is a
+replay interval, and what they declare is a worker fleet for a solve. No solver
+ranks are dispatched on either path, so the numeral is still a claim about a
+run that did not happen — the defect this conflict is about — and it is joined
+by a second one the conflict did not name: the interval spent to the ledger as
+`simpleFoam (14s)` is the cost of pacing a trace, not the cost of a solve.
+Fixing the fleet numeral there without deciding what that spend line should say
+would leave the smaller half of a two-part misstatement in place, which is why
+they are reported rather than edited.
+
+Charter 4, section 6, and `w3-hump-fleet-honesty` in the docket. The item as it
+was put:
 
 The hump act calls `roster.set_workers(ranks)` inside its warm-solve branch,
 where the mesh and the solve are both restored from cache, nothing is

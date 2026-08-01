@@ -666,12 +666,26 @@ def main(request: str | None = None, params: dict | None = None,
         if warm_solve:
             note = "steady solve, run to its own residual convergence"
             roster.set(CHIEF_ENGINEER, note, "working")
-            roster.set_workers(ranks, note)
+            # NO FLEET ON THIS PATH, and this is deliberate. Ruling R2,
+            # answering conflict C-3 with option B. On the warm path the mesh
+            # and the solve are both restored, nothing is dispatched, and the
+            # `elapsed` below is a clamped zero-length interval rather than a
+            # measurement of anything. `roster.set_workers(ranks, note)` used
+            # to sit here, and it reached the worker numeral on camera, the
+            # roster and the spend line. A worker count is a claim about the
+            # run, and a claim about a run that did not happen is the same
+            # defect as a band that was never adjudicated.
+            #
+            # Moving the declaration earlier so the timing computes to
+            # something non-zero is NOT the fix and is explicitly refused: it
+            # would invent a fleet the run never used. The numeral reads zero
+            # when nothing is running. The cold branch below genuinely
+            # dispatches `ranks` and keeps its declaration.
+            roster.set_workers(0)
             started = time.time()
             elapsed = max(1.0, time.time() - started)
             ledger.spend(elapsed, f"simpleFoam ({elapsed:.0f}s)")
             stage_row("selected solver", elapsed, note)
-            roster.set_workers(0)
         else:
             note = "steady solve, run to its own residual convergence"
             roster.set(CHIEF_ENGINEER, note, "working")
