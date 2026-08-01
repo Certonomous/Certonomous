@@ -13,4 +13,7 @@ makeRASModel(kOmegaSSTFrozen);
 #include "kOmegaSSTCorrected.H"
 makeRASModel(kOmegaSSTCorrected);
 
+#include "kOmegaSSTSparta.H"
+makeRASModel(kOmegaSSTSparta);
+
 // ************************************************************************* //
