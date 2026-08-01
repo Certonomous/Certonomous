@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T10:12:18Z",
+  "generated_at": "2026-08-01T10:18:25Z",
   "proposals": [
     {
       "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -3355,6 +3355,63 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T10:12:18Z"
+    },
+    {
+      "id": "w6-bursts-not-averages",
+      "well": "W6",
+      "objective": "Forecast against the duty cycle rather than the mean, because the box alternates saturation and idle",
+      "rationale": "Two hours ago the machine held eighteen solvers at load fifteen. It is now at zero with two. The forecast averaged 1.40 cores over 151 hours and read that as the rate work arrives at, but the record is not a steady trickle: it is bursts against long idle stretches. A mean over a bursty series answers neither question that matters, which are how long a given queue takes and how much of the box sits unused between bursts.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The duty cycle is measured, and the forecast states both the burst rate and the idle fraction",
+      "expected_knowledge_gain": "The affordable set was computed from a mean that describes neither state the machine is actually in",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "mega-batch ledger"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T10:18:25Z"
+    },
+    {
+      "id": "w7-nothing-closed-while-the-box-was-full",
+      "well": "W7",
+      "objective": "Find out why a saturated compute window closed no docket items",
+      "rationale": "Between two passes the machine went from idle to eighteen solvers and back to idle, and the done count did not move: forty before, forty after. Either the work in that window belonged to no docket item, or items were completed and never marked. Both are worth knowing, and the second would mean the done count understates what the lab has actually finished.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every solver run in that window is attributed to a docket item or named as unattributed work",
+      "expected_knowledge_gain": "A queue whose completions are invisible cannot be forecast or sequenced",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/agenda/docket.json",
+        "demo-output/website/solve_registry"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T10:18:25Z"
+    },
+    {
+      "id": "w3-what-the-burst-was-solving",
+      "well": "W3",
+      "objective": "Attribute the eighteen concurrent solvers to their study, and record what they measured",
+      "rationale": "Eighteen solvers ran to completion in a two hour window and nothing on the docket or in the campaign records says what they were for. The lab has a standing rule that a result without an evidence record does not exist; a large block of compute with no record attached is the same failure seen from the cost side rather than the claim side.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The window compute is traced to its case and its measurement, or recorded as spent without a result",
+      "expected_knowledge_gain": "The largest single block of compute this week is currently unaccounted for",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output/website/solve_registry",
+        "demo-output/website/campaign"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T10:18:25Z"
     }
   ]
 }
