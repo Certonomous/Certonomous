@@ -69,6 +69,43 @@ problem.").
    (stage_two_lhs) and proposal r2-closure-coefficient-uncertainty for the
    full evidence.
 
+## Combination: the one rule, stated once
+
+A viewer who is shown three channels and no total cannot say how uncertain
+the answer is. So an act that quantifies more than one channel reports a
+total, and every act computes it the same way.
+
+**The rule.** The combined expanded uncertainty at 95 percent is the root sum
+of squares over the channels that carry a figure. It lives in exactly one
+function, `combine_expanded` in `sdk/chief_engineer/uq.py`, and no act
+implements its own arithmetic. V&V 20 treats independent channels that way,
+which is also where the rule's two limits come from.
+
+**Limit 1: unquantified is not zero.** A channel with no figure contributes
+nothing to the sum and is displayed as unquantified, never as `0`. The total
+therefore covers less than the whole, and the act says which channels it
+covers. The NASA hump is the worked example: separation 0.6544 x/c with
+numerical 0.0002, model form 0.220, input unquantified, total 0.2200 over the
+two quantified channels.
+
+**Limit 2: RSS assumes independence, so a shared evaluation is withheld.**
+Two channels that share a point are not independent and squaring both
+double-counts that point, reporting a total wider than either channel earned.
+The valve study is the worked case: the correlation family's cd = 0.62 member
+and the cycle study's coarsest level are the same arithmetic on the same
+waveform and both read 1252.8 Pa, so the numerical channel is withheld from
+the combination rather than quietly squared into it. Stored studies record
+`independent_of_numerical` for this reason.
+
+**A term may not be in the total that the breakdown does not show.** This is
+`combine_expanded`'s own contract: the combined band is never presented
+without the channel table one level down. A total wider than the channels
+displayed is a difference the viewer cannot account for.
+
+`scripts/self_audit.py` enforces both halves: that an act quantifying two or
+more channels routes its total through the one call, and that no term enters
+the total which the act's own channel table reports unquantified.
+
 ## Standing product rules that bind these
 - Never a fake number; every displayed value traces to a computation.
 - Channel text carries no tool names, no internal study IDs, no method

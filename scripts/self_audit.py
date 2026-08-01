@@ -939,6 +939,129 @@ def check_nonconclusive_band_readers() -> Result:
                   f"all {checked} band_abs readers also read the flag")
 
 
+# The channel a `combine_expanded` keyword contributes, and the keyword the
+# display record uses for the same channel. Two names for one thing is exactly
+# how a term ends up in a total that the table beside it does not show.
+_COMBINE_TO_CHANNEL = {"input_2sigma": "input", "numerical_abs": "numerical",
+                       "model_abs": "model"}
+_DISPLAY_KEYWORD = {"input": "input_2sigma", "numerical": "numerical",
+                    "model": "model"}
+# The shared channel builder, and the module that owns it. An act calling it
+# displays whatever that builder declares, so the declaration is read from
+# there rather than treated as unknown.
+_SHARED_BUILDER = ("certificate_channels", "sdk/workflows/geometry_study.py")
+
+
+def _declared_channels(text: str) -> dict[str, bool] | None:
+    """Which channels an `uncertainty_channels` call in this source shows as
+    quantified. None when the source makes no such call."""
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return None
+    shown: dict[str, bool] = {}
+    seen = False
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if getattr(node.func, "id", getattr(node.func, "attr", "")) != \
+                "uncertainty_channels":
+            continue
+        seen = True
+        for keyword in node.keywords:
+            for channel, display in _DISPLAY_KEYWORD.items():
+                if keyword.arg != display:
+                    continue
+                quantified = not (isinstance(keyword.value, ast.Constant)
+                                  and keyword.value.value is None)
+                # Any call that quantifies the channel counts: an act with
+                # two call sites shows the channel if either one carries a
+                # figure.
+                shown[channel] = shown.get(channel, False) or quantified
+    return shown if seen else None
+
+
+def check_channel_totals_use_one_rule() -> Result:
+    """A reported total is the one combination rule, over the channels shown.
+
+    Two halves, and the doctrine states both.
+
+    (a) An act that quantifies two or more V&V-20 channels reports a total,
+        and computes it through `combine_expanded` rather than inventing its
+        own arithmetic. Eleven acts route through that call today; the check
+        is here so the twelfth does too.
+
+    (b) A term may not be in the total that the channel table reports
+        unquantified. That is `combine_expanded`'s own contract, in its own
+        docstring: the combined band is never presented without the channel
+        table one level down. A total wider than the channels displayed is a
+        difference the viewer has no way to account for, and unquantified
+        means nobody measured it, not zero.
+
+    This is a consistency check between two surfaces of the same act, not a
+    re-derivation from primary evidence, and it is named that way.
+    """
+    problems, checked = [], 0
+    shared_text = (REPO / _SHARED_BUILDER[1]).read_text(
+        encoding="utf-8", errors="replace") \
+        if (REPO / _SHARED_BUILDER[1]).exists() else ""
+    shared_declared = _declared_channels(shared_text) or {}
+    for source in _py_sources():
+        if source.name == "uq.py" or "workflows" not in source.parts:
+            continue
+        text = source.read_text(encoding="utf-8", errors="replace")
+        if "uncertainty_channels(" not in text and \
+                f"{_SHARED_BUILDER[0]}(" not in text:
+            continue
+        declared = _declared_channels(text)
+        if declared is None:
+            # The act uses the shared builder, so it displays what the
+            # builder declares.
+            if f"{_SHARED_BUILDER[0]}(" not in text:
+                continue
+            declared = dict(shared_declared)
+        checked += 1
+        rel = source.relative_to(REPO)
+        quantified = sorted(k for k, v in declared.items() if v)
+        combines = "combine_expanded" in text
+        if len(quantified) >= 2 and not combines:
+            problems.append(
+                f"{rel} quantifies {len(quantified)} channels "
+                f"({', '.join(quantified)}) and reports no combined band "
+                f"through the one rule")
+        if not combines:
+            continue
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            if getattr(node.func, "id",
+                       getattr(node.func, "attr", "")) != "combine_expanded":
+                continue
+            for keyword in node.keywords:
+                channel = _COMBINE_TO_CHANNEL.get(keyword.arg or "")
+                if channel is None:
+                    continue
+                contributes = not (isinstance(keyword.value, ast.Constant)
+                                   and keyword.value.value is None)
+                if contributes and not declared.get(channel, False):
+                    problems.append(
+                        f"{rel}:{node.lineno} puts the {channel} channel in "
+                        f"the total while the act's own channel table reports "
+                        f"it unquantified; the total is wider than the "
+                        f"breakdown it is shown beside")
+    if problems:
+        return Result("channel totals vs the one rule", FAIL,
+                      f"{len(problems)} total(s) do not match the channels "
+                      f"they are shown with", problems)
+    return Result("channel totals vs the one rule", PASS,
+                  f"all {checked} channel-reporting act(s) combine through "
+                  f"the one rule over the channels they display")
+
+
 def check_declared_fleet_vs_work() -> Result:
     """A fleet declared on a restored path is a fleet the run never used.
 
@@ -1502,6 +1625,7 @@ CHECKS = (
     check_fd_grades_current_standard,
     check_statistical_labels,
     check_nonconclusive_band_readers,
+    check_channel_totals_use_one_rule,
     check_declared_fleet_vs_work,
     check_restated_thresholds,
     check_register_group_counts,

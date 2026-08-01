@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:31:06+00:00",
+  "generated_at": "2026-08-01T04:35:02+00:00",
   "proposals": [
     {
       "id": "w3-valve-band-never-adjudicated",
@@ -36,10 +36,11 @@
         "ASME V&V 20-2009",
         "campaign/F6a_epistemic_band.md"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T08:18:16Z",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decided_at": "2026-08-01T04:35:02+00:00",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "The convention already existed and the rationale's own example was stale: the hump has printed a Total row since 31 July, 0.2200 in x/c over numerical 0.0002 and model form 0.220 with input stated unquantified. Root sum of squares over the quantified channels at 95 percent lives in one function, 11 acts route through it, and all 6 acts that quantify two or more channels already display a combined band, so the gate as written was met before this started. What was missing was the rule written down and anything checking it. Both now exist, and the check fails on 2 acts: the B-52 geometry study and the Ahmed body each put the settled-state scatter into the total while their own channel table reports input unquantified. On the filmed B-52 recording the two displayed channels combine to 0.006353 and the published band prints 0.0064, so the undisclosed term is at most 0.0011 and does not move the printed figure. It is a rule discrepancy, not a wrong number, and which way to close it is a decision for Katie: show the scatter as a channel, or move it to the numerical channel where settling noise belongs."
     },
     {
       "id": "w3-variance-budget-is-a-gate",
