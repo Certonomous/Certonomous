@@ -65,6 +65,21 @@ who may enter at all.
 > submission will be automatically withdrawn, and a note will be made on the
 > leaderboard."
 
+> **UNVERIFIED QUOTATION, DO NOT SEND AS IT STANDS.** The two sentences below
+> are attributed to the preprint's Section 2. Neither appears anywhere on this
+> machine: not in the benchmark clone, not in the evaluation package, not in
+> this repository. They were searched for verbatim and by fragment.
+>
+> The second one matters more than the first, because it is a **permission**
+> and the entry's compliance argument leans on it. If it does not exist in the
+> preprint, we would be citing a licence to train on neighbouring flows that
+> nobody granted, in the document we hand to the steward.
+>
+> The rule itself is not in doubt. The README states it on disk, and that
+> wording is quoted below and is what should be relied on. Either verify these
+> two against the actual preprint and cite the version and page, or delete them
+> and let the README carry the point alone.
+
 The preprint states the same rule more tersely (Section 2, *Challenge task and
 rules*): *"The only strict rule with this challenge is: it is forbidden to train or
 validate on any of the test cases."* It adds the permission: *"You can train on
