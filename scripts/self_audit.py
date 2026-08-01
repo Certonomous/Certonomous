@@ -48,6 +48,13 @@ numbers as hard-coded constants, an FD grade against a retired band, a
 statistical caption on a value no statistical procedure produced, a caller
 trusting a band its own flag calls non-conclusive, a worker fleet declared on
 a path that dispatches nothing, and a governed threshold restated as a literal.
+
+One check here does NOT compare a published number to its evidence, and says
+so rather than pretending otherwise: `check_bundle_drift` compares the shipped
+laptop bundle to the tree it was built from. It is a consistency check between
+two copies of the same code, in the sense the paragraph above defines, and it
+earns its place because the bundle is the only copy of this code that leaves
+the box and it went 32 commits behind with nothing noticing.
 """
 
 from __future__ import annotations
@@ -1715,6 +1722,120 @@ def check_campaign_json_citations() -> Result:
                   f"all {total} machine-readable campaign citations resolve")
 
 
+# The three sets of files the laptop bundle copies VERBATIM out of this tree,
+# each as (label, source directory, bundle directory, glob). Everything else in
+# the bundle is derived at build time -- the recorded missions, the artifacts
+# those recordings point at, and the credentials and lab-stats snapshot, which
+# are deliberately computed with the whole repo present because copying their
+# small inputs gets them wrong in the direction that CLAIMS MORE. Comparing a
+# derived file against the tree would report drift on every build, so this
+# check compares only what is supposed to be a copy.
+_BUNDLE_VERBATIM = (
+    ("control room", Path("sdk/chief_engineer"), Path("sdk/chief_engineer"),
+     "**/*"),
+    ("launcher", Path("scripts/laptop_bundle"), Path("."), "*"),
+)
+# The static pages, which move from demo-output/website into site/ and are the
+# one set whose bundle path is not its repo path.
+_BUNDLE_PAGES = (
+    ("closure.html", Path("demo-output/website/closure.html"),
+     Path("site/closure.html")),
+    ("benchmarks.html", Path("demo-output/website/benchmarks.html"),
+     Path("site/benchmarks.html")),
+    ("wall.html", Path("demo-output/website/wall/wall.html"),
+     Path("site/wall/wall.html")),
+)
+_BUNDLE_SKIP = ("__pycache__", ".pyc")
+
+
+def _bundle_pairs() -> list[tuple[str, Path, Path]]:
+    """(label, source, bundle) for every file the builder copies verbatim."""
+    pairs: list[tuple[str, Path, Path]] = []
+    for label, src_dir, dst_dir, pattern in _BUNDLE_VERBATIM:
+        root = REPO / src_dir
+        if not root.is_dir():
+            continue
+        for src in sorted(root.glob(pattern)):
+            if not src.is_file():
+                continue
+            rel = src.relative_to(root)
+            if any(part in str(rel) for part in _BUNDLE_SKIP):
+                continue
+            pairs.append((label, src, REPO / "dist" / "certonomous-demo"
+                          / dst_dir / rel))
+    for label, src, dst in _BUNDLE_PAGES:
+        if (REPO / src).is_file():
+            pairs.append((f"page {label}", REPO / src,
+                          REPO / "dist" / "certonomous-demo" / dst))
+    return pairs
+
+
+def check_bundle_drift() -> Result:
+    """The shipped bundle must not fall behind the tree it was built from.
+
+    WHY THIS EXISTS. The laptop bundle is the artifact people actually run: it
+    is the backup console for the shoot, and it is the only copy of this code
+    that leaves the box. It went 32 commits behind without anything noticing.
+    Twenty-one modules and the control room had drifted, one module was absent
+    from the bundle entirely, and it shipped a certificate that captioned any
+    envelope a 95 percent confidence interval long after that was fixed here.
+    None of it was detected. The one bug that did surface was found by hand, by
+    somebody on a different errand.
+
+    This compares bytes, not dates. A module whose mtime moved but whose
+    content did not is not drift, and a module edited in place on the same
+    second is. Only the files the builder copies VERBATIM are compared; the
+    recorded missions and the credentials snapshot are derived at build time
+    and would report drift on every build if they were included.
+
+    A file missing from the bundle FAILs on its own, per this check's gate: an
+    absent module is worse than a stale one, because a stale module still
+    answers and an absent one takes a page down with an import error.
+    """
+    bundle = REPO / "dist" / "certonomous-demo"
+    if not bundle.is_dir():
+        return Result("bundle drift vs tree", WARN,
+                      "no bundle at dist/certonomous-demo to compare",
+                      ["build it with scripts/build_laptop_bundle.py, or "
+                       "record that the lab no longer ships one"])
+    pairs = _bundle_pairs()
+    if not pairs:
+        return Result("bundle drift vs tree", WARN,
+                      "found no files the builder copies verbatim; the "
+                      "builder's copy list and this check have diverged")
+    missing, differs = [], []
+    for label, src, dst in pairs:
+        rel = src.relative_to(REPO)
+        if not dst.is_file():
+            missing.append(f"{label}: {rel} is ABSENT from the bundle")
+            continue
+        if src.read_bytes() != dst.read_bytes():
+            differs.append(f"{label}: {rel} differs from the shipped copy")
+    stale = [p for _, _, p in pairs]
+    extra = []
+    for shipped in sorted((bundle / "sdk" / "chief_engineer").rglob("*")):
+        if not shipped.is_file() or any(
+                part in str(shipped) for part in _BUNDLE_SKIP):
+            continue
+        if shipped not in stale:
+            extra.append(f"control room: {shipped.relative_to(bundle)} is "
+                         f"shipped and is not in the tree")
+    detail = missing + differs + extra
+    if missing or differs:
+        return Result("bundle drift vs tree", FAIL,
+                      f"{len(missing)} file(s) missing from the bundle and "
+                      f"{len(differs)} behind the tree, of {len(pairs)} "
+                      f"copied verbatim", detail[:30])
+    if extra:
+        return Result("bundle drift vs tree", WARN,
+                      f"all {len(pairs)} copied file(s) match, and "
+                      f"{len(extra)} shipped file(s) no longer exist in the "
+                      f"tree", extra[:15])
+    return Result("bundle drift vs tree", PASS,
+                  f"all {len(pairs)} file(s) the builder copies verbatim "
+                  f"match the tree byte for byte")
+
+
 CHECKS = (
     check_ledger_integrity,
     check_wall_counters_vs_ledger,
@@ -1740,6 +1861,7 @@ CHECKS = (
     check_studies_carry_what_the_fit_records,
     check_declined_ladders_name_their_guard,
     check_order_window_declines_state_their_dimensionality,
+    check_bundle_drift,
 )
 
 

@@ -1298,10 +1298,11 @@
         "scripts/self_audit.py",
         "dist/certonomous-demo"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T14:18:26Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "check_bundle_drift is in scripts/self_audit.py and in the CHECKS list, and it caught drift on its first run. It compares BYTES, not dates, over the 51 files the builder copies verbatim: the 47 control-room modules under sdk/chief_engineer, the four launcher files under scripts/laptop_bundle, and the three static pages that move into site/. It compares nothing else on purpose, and the reason is written into the check: the recorded missions, the artifacts those recordings point at, and the credentials and lab-stats snapshot are DERIVED at build time, and the snapshot is derived deliberately because copying its small inputs re-grades three bodies upward and makes the bundle claim more than the box does. A derived file would report drift on every build and the check would be ignored inside a week. A file absent from the bundle FAILs on its own, per the gate: a stale module still answers and an absent one takes a page down with an import error. A file shipped that no longer exists in the tree is a WARN and is named. First run, 2026-08-01: 0 missing, 51 compared, 4 behind the tree, named individually as sdk/chief_engineer/agenda.py, credibility.py, lab_stats.py and server.py. The bundle was built 2026-07-31 20:34 UTC and three of those four modules changed after it. The check reports and does not repair, which is this file standing rule; rebuilding the bundle is a separate decision and is not taken here."
     },
     {
       "id": "w8-a-builder-that-infers-its-contents",
