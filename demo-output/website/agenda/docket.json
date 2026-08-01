@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:46:37+00:00",
+  "generated_at": "2026-08-01T04:51:43Z",
   "proposals": [
     {
       "id": "w3-valve-band-never-adjudicated",
@@ -2764,6 +2764,62 @@
       "well": "W5",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "w8-a-builder-that-infers-its-contents",
+      "well": "W8",
+      "objective": "Write down that a packager which infers its contents will miss anything built at run time",
+      "rationale": "Every laptop bundle ever produced shipped zero certificates. The builder decides what to package by scanning recordings for interface paths, and the control room composes the certificate path in the browser from an event, so the scan matched nothing. Four acts, every build, and the sealed evidence page the demo ends on answered that no certificate existed. The bundle was tested by comparing files it had chosen against the tree, which is a check that cannot see an absence.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A packager states what it expects to include and fails when the count is zero, rather than shipping quietly",
+      "expected_knowledge_gain": "The failure is invisible to every check that compares what was packaged against what was packaged",
+      "source_kind": "report",
+      "citations": [
+        "scripts/laptop_bundle",
+        "dist/certonomous-demo"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:51:43Z"
+    },
+    {
+      "id": "w7-a-top-score-reachable-by-writing-one-key",
+      "well": "W7",
+      "objective": "Audit every graded level for one that can be reached without the evidence it claims",
+      "rationale": "The robustness score awarded its highest level, above a settled ladder with a propagated band, to any record merely carrying a shares key. It read no budget and checked no identity, so the exact failure the sensitivity act exists to catch would have scored top. No record carries an apportionment today, which means that level was reachable by writing one key and nothing more.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every level in every graded scale names the evidence it requires, and a record lacking it cannot reach that level",
+      "expected_knowledge_gain": "A scale whose top is free is worse than no scale, because it is quoted",
+      "source_kind": "report",
+      "citations": [
+        "sdk/chief_engineer/credibility.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:51:43Z"
+    },
+    {
+      "id": "w3-where-settling-scatter-belongs",
+      "well": "W3",
+      "objective": "Decide which channel carries settled-state scatter, and make the two filmed acts agree with it",
+      "rationale": "The geometry study and the Ahmed act fold the scatter of a settled coefficient into their combined band while their channel table reports the input channel unquantified. On the filmed B-52 the displayed channels combine to 0.006353 against a printed 0.0064, so the undisclosed term is at most 0.0011. The number is not wrong; the rule is unstated, and two acts on camera are the only ones doing it.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Settling scatter is named as one channel in one place, and every act that reports it agrees",
+      "expected_knowledge_gain": "Two filmed acts currently combine a term their own table says they do not have",
+      "source_kind": "measurement",
+      "citations": [
+        "scripts/self_audit.py",
+        "sdk/workflows/geometry_study.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:51:43Z"
     }
   ]
 }
