@@ -1,0 +1,26 @@
+{
+  "label": "cbfs_m2pub @15000",
+  "n_cells": 21000,
+  "primary_unweighted": {
+    "eps_U_baseline": 0.0018476273812599124,
+    "eps_U_recon": 0.0013639903682484689,
+    "ratio_U": 0.7382388798104694,
+    "eps_tau_baseline_frobenius": 2.3089574286081992e-05,
+    "eps_tau_recon_frobenius": 5.015843125099517e-05,
+    "ratio_tau_frobenius": 2.172341102071762,
+    "eps_tau_baseline_6comp": 2.1915576343816875e-05,
+    "eps_tau_recon_6comp": 4.8579074786763144e-05,
+    "ratio_tau_6comp": 2.2166460066868807
+  },
+  "secondary_volume_weighted": {
+    "eps_U_baseline": 0.0007297174475597785,
+    "eps_U_recon": 0.0005771636955152188,
+    "ratio_U": 0.790941339617534,
+    "eps_tau_baseline_frobenius": 9.960536035843316e-06,
+    "eps_tau_recon_frobenius": 2.1443866121990712e-05,
+    "ratio_tau_frobenius": 2.1528827409312363,
+    "eps_tau_baseline_6comp": 9.404897611880691e-06,
+    "eps_tau_recon_6comp": 2.0704743314439392e-05,
+    "ratio_tau_6comp": 2.2014852440588215
+  }
+}

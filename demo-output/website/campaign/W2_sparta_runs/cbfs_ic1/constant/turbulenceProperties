@@ -1,0 +1,24 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      turbulenceProperties;
+}
+
+simulationType RAS;
+
+RAS
+{
+    RASModel        kOmegaSSTSparta;
+    turbulence      on;
+    printCoeffs     on;
+
+    kOmegaSSTSpartaCoeffs
+    {
+        RTerms          ( (1 1 0 0.3) (2 0 1 0.2) (3 2 1 0.1) );
+        bDeltaTerms     ( (1 0 0 0.1) (2 0 0 4.09) (3 1 2 0.5) );
+        writeInitialCorrections true;
+    }
+}
