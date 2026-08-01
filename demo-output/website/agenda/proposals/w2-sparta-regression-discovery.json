@@ -1,0 +1,18 @@
+{
+ "id": "w2-sparta-regression-discovery",
+ "objective": "Reproduce SpaRTA's sparse regression step: build the paper's 48-candidate library on the frozen corrections, discover the symbolic models by elastic net and Ridge inference, and validate the discovered models in velocity only against the published cross-validation table",
+ "rationale": "The frozen rung put both correction fields on disk settle-verified, so the regression the paper prices at a laptop-minute became the next unblocked rung. Gates were preregistered before any library evaluation: recovering the published model forms and coefficients within declared bands, then propagating the discovered symbolic model, not the frozen fields, through the same harness and grading the velocity ratio against the published table. Velocity-only gating deliberately sidesteps the unresolved tau norm finding of the frozen rung.",
+ "citations": [
+  "Schmelzer, Dwight and Cinnella, Flow Turbulence and Combustion 2020",
+  "W2 SpaRTA frozen RANS campaign record"
+ ],
+ "est_core_min": 180,
+ "predicted_memory_gb": 2.0,
+ "cost_basis": "measured on this hardware by the frozen rung: a CBFS propagation settles by 15000 iterations for about 17 core-minutes and a PH one for about 9; the graded set is two propagations plus a triggered contingency and reported extras, bounded at nine runs, with the regression itself measured in seconds per case",
+ "expected_knowledge_gain": "Whether the published symbolic models and coefficients are recoverable from the same data by the paper's own pipeline, the cleanest reproduction gate on the ladder",
+ "source_kind": "gate",
+ "status": "done",
+ "created_at": "2026-08-01T01:14:00+00:00",
+ "decided_at": "2026-08-01T01:50:00+00:00",
+ "outcome": "Model form reproduced exactly, pure T1 for the R correction on both training cases; the PH coefficient 1.3992 matches the published 1.39 to 0.66 percent and the published models propagated as written reproduce the PH column of the published velocity table to within 3.4 percent. The CBFS coefficient comes out 0.545 against the published 0.93, which is unreachable from our fields at any admissible regularisation; 0.93 as written gives velocity ratio 0.471 against the published 0.321 while our 0.545 gives 0.361, a hit of the preregistered band, so the coherent CBFS-side discrepancy ships as the finding; 137 of 180 core-minutes"
+}
