@@ -328,3 +328,28 @@ its own convergence.
    convergence; and nothing here says the result would place well. This probe
    establishes that the case can run on this machine and what it costs. It does
    not establish that it is worth Katie approving an approach.
+
+> **Two of those open items were closed on 2026-08-01 at 09:45Z, and not in this
+> item's favour. See `demo-output/website/committee-grids/COMMITTEE_GRID_NUMERICS.md`.**
+>
+> * *"No second-order configuration has been shown to survive this grid's
+>   non-orthogonality"* — twenty configurations were tried on an independent
+>   committee grid of the same class (DPW5 L1.T hybrid, a different workshop,
+>   generator and geometry, and **worse** than this one: 29.12% severely
+>   non-orthogonal faces against 19.30% here). All twenty diverged inside 29
+>   iterations, including the hardened first-order configuration from section 5
+>   of this document, copied across byte for byte. **The finding is that this is
+>   not a settings problem**, and section 5's claim that the gap is "a numerics
+>   problem, not a hardware problem" should be read as understating it: it is a
+>   discretisation problem, and closing it is a solver decision.
+> * *"The compressible thermo abort is untested against a temperature limiter"* —
+>   still untested against a limiter, but the abort now reproduces on a committee
+>   grid with 0.59% severely non-orthogonal faces that runs 200 clean
+>   incompressible iterations. **It is not caused by mesh quality**, so section 5
+>   grouping it with the non-orthogonality divergence as a property of committee
+>   grids was wrong. `transonic yes` with pressure limits does not fix it either.
+>
+> What survives unchanged: the memory measurement, the import path, the rank
+> sweep and the corrected cost basis. What changes is the target — the same
+> document shows the DPW5 **hex** family solving here at second order, 200
+> iterations, exit 0, no tuning.
