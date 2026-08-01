@@ -412,13 +412,34 @@ def main(request: str | None = None, params: dict | None = None,
     # Channel notes stay on the generic register (owner rule, 2026-07-24):
     # the certificate and the channel table never state a method by name.
     # Every value is the stored study's measured number, unchanged.
-    numerical_val = (lookup["numerical"]["band_abs"]
-                     if lookup["numerical"] else None)
+    #
+    # READ THE BAND THROUGH THE ADJUDICATOR, NOT PAST IT. This line used to
+    # take `band_abs` straight off the stored block, which is the exact read
+    # `uq.reportable_band` exists to prevent -- and this act was the only one
+    # in the lab still doing it. Combined with a hardcoded `conclusive: True`
+    # in the study writer, it made the valve the ONLY body whose numerical band
+    # reached a sealed certificate: 76.5 Pa here, None on all eight genuine
+    # ladders, because those eight were adjudicated and declined and this one
+    # was never adjudicated at all. The stored levels are segments of the
+    # ejection window on a closed-form model, not meshes, so the record now
+    # declines itself and this channel reports not-quantified with the reason.
+    numerical_band = lookup["numerical"]
+    numerical_val = uq_studies.reportable_band(numerical_band)
     numerical_note = ("the cycle is sampled at three phase points; "
                       "between-phase structure is not resolved")
-    if lookup["numerical"]:
-        numerical_note = ("Three-level refinement of the cycle evaluation; "
-                          "the band is the spread between levels.")
+    if numerical_val is not None:
+        numerical_note = ("Refinement of the cycle evaluation; the band is "
+                          "the spread between levels.")
+    elif numerical_band:
+        # Declined, and the record says which guard declined it.
+        numerical_note = (
+            "not quantified: the stored study of the cycle evaluation is not "
+            "conclusive, because "
+            + (uq_studies.not_conclusive_reason(numerical_band)
+               or "the study did not earn the right to state a band")
+            + ". What it does measure is how finely the cycle is sampled on a "
+              "reduced-order model, which is not a discretization error and "
+              "is not reported as one")
     elif lookup["pending"]:
         numerical_note = ("study pending: no matching refinement study of "
                           "the cycle evaluation")
@@ -439,6 +460,17 @@ def main(request: str | None = None, params: dict | None = None,
                    f"opening is above the {BETA_CALIBRATED_MAX:.2f} ceiling "
                    f"the correlation is calibrated to, so this band does not "
                    f"bound the magnitude")
+    # The two stored channels are not independent: one member of the model
+    # family is bit-for-bit the same evaluation as the first level of the
+    # numerical channel. The study records the overlap, and the overlap is
+    # stated here rather than left implicit, because a reader who sees two
+    # channels assumes two measurements.
+    shared_points = list((lookup["model"] or {}).get(
+        "shares_points_with_numerical") or [])
+    if shared_points:
+        model_note += ("; this family shares an evaluation with the stored "
+                       "study of the cycle, so the two are not independent "
+                       "and are not combined into one figure")
     channels = uncertainty_channels(
         input_2sigma=best["band"], numerical=numerical_val, model=model_val,
         input_note="Ensemble run over the stated spread in phase flow-rate "
@@ -448,8 +480,17 @@ def main(request: str | None = None, params: dict | None = None,
                    "envelope.",
         numerical_note=numerical_note,
         model_note=model_note)
+    # RSS assumes independence. It does not hold between these two stored
+    # channels -- the correlation family's cd = 0.62 member and the cycle
+    # study's coarsest level are the same arithmetic on the same waveform and
+    # both read 1252.8 Pa -- so a channel that shares a point with another is
+    # withheld from the combination rather than quietly squared into it. Today
+    # the numerical channel is not reportable anyway, so this changes no
+    # number; it is here so that the day it becomes reportable it still does
+    # not get double-counted.
+    combinable_numerical = None if shared_points else numerical_val
     combined = uq_studies.combine_expanded(
-        input_2sigma=best["band"], numerical_abs=numerical_val,
+        input_2sigma=best["band"], numerical_abs=combinable_numerical,
         model_abs=model_val)["combined_95"]
     if emit:
         emit("uncertainty.channels", channels)

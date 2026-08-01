@@ -245,17 +245,68 @@ class WorkflowTests(unittest.TestCase):
                       by_name["input"]["note"])
         # numbers untouched by the wording
         self.assertAlmostEqual(by_name["input"]["value"], 397.639, places=3)
-        self.assertAlmostEqual(by_name["numerical"]["value"], 76.5, places=4)
         self.assertAlmostEqual(by_name["model"]["value"], 98.9, places=4)
+        # The numerical channel is NOT a number here, and this is the pin that
+        # says so. It used to read 76.5, taken straight off a stored study
+        # whose `conclusive` was a hardcoded True -- the only band in the lab
+        # that reached a sealed page without ever facing a guard. 76.5 Pa is
+        # still exactly what the stored levels spread by; it is not a
+        # discretization band, so it is not reported as one.
+        self.assertIsNone(by_name["numerical"]["value"])
+        self.assertFalse(by_name["numerical"]["quantified"])
+
+    def test_numerical_channel_is_declined_and_says_why(self):
+        rc, stream = _run_valve()
+        self.assertEqual(rc, 0)
+        by_name = {c["name"]: c for c in
+                   _of(stream, "uncertainty.channels")[0]["channels"]}
+        note = by_name["numerical"]["note"]
+        self.assertIn("not conclusive", note)
+        self.assertIn("the levels are not meshes", note)
+        # The stored record must be the thing declining itself, not this act.
+        from chief_engineer import uq
+        study = uq.load_study("aortic-valve")
+        self.assertIs(study["numerical"]["conclusive"], False)
+        self.assertEqual(study["numerical"]["not_conclusive_guard"],
+                         uq.GUARD_NOT_A_DISCRETIZATION_LADDER)
+        self.assertIsNone(uq.reportable_band(study["numerical"]))
+        # and the nine published numbers are unchanged by the relabelling
+        self.assertAlmostEqual(study["numerical"]["band_abs"], 76.5, places=4)
+        self.assertEqual(study["numerical"]["values"],
+                         {"3": 1252.8, "5": 1311.9, "9": 1329.3})
+        self.assertAlmostEqual(study["model"]["band_abs"], 98.9, places=4)
+
+    def test_the_two_channels_share_a_point_and_are_not_combined(self):
+        # One member of the correlation family is bit-for-bit the coarsest
+        # level of the cycle study: both are 1252.8 Pa. RSS assumes
+        # independence, so the overlap is recorded and the combination
+        # withholds the channel instead of squaring it in twice.
+        from chief_engineer import uq
+        study = uq.load_study("aortic-valve")
+        shared = study["model"]["shares_points_with_numerical"]
+        self.assertEqual(shared, ["classic sharp-edge orifice (0.62)"])
+        self.assertIs(study["model"]["independent_of_numerical"], False)
+        self.assertEqual(study["model"]["members"][shared[0]],
+                         study["numerical"]["values"]["3"])
+        rc, stream = _run_valve()
+        self.assertEqual(rc, 0)
+        by_name = {c["name"]: c for c in
+                   _of(stream, "uncertainty.channels")[0]["channels"]}
+        self.assertIn("not independent", by_name["model"]["note"])
+        # The reported total is now input and model only: 409.75 Pa, not the
+        # 416.83 Pa that came of squaring the shared point in twice.
+        verdict = _of(stream, "result.verdict")[0]
+        self.assertEqual(verdict["ci"], "410 Pa")
 
     def test_channel_notes_stay_on_the_generic_register(self):
         rc, stream = _run_valve()
         self.assertEqual(rc, 0)
         channels = _of(stream, "uncertainty.channels")[0]["channels"]
         by_name = {c["name"]: c for c in channels}
-        self.assertEqual(by_name["numerical"]["note"],
-                         "Three-level refinement of the cycle evaluation; "
-                         "the band is the spread between levels.")
+        self.assertTrue(by_name["numerical"]["note"].startswith(
+            "not quantified: the stored study of the cycle evaluation is not "
+            "conclusive, because the levels are not meshes, so this is not a "
+            "discretization band"), by_name["numerical"]["note"])
         self.assertIn("Spread across published discharge-coefficient "
                       "correlations (screening estimate)",
                       by_name["model"]["note"])
@@ -266,9 +317,13 @@ class WorkflowTests(unittest.TestCase):
             self.assertNotIn(banned, blob)
 
     def test_certificate_renders_the_result_table_with_unchanged_numbers(self):
-        # The sealed page: structured result table, all three channel values
-        # (397.6 / 76.5 / 98.9), generic notes, and no mesh block, because
-        # the reduced-order act solves no mesh.
+        # The sealed page: structured result table, the two channel values it
+        # has earned (397.6 / 98.9), the third stated as not quantified,
+        # generic notes, and no mesh block, because the reduced-order act
+        # solves no mesh. The page used to print 76.5 in the numerical row and
+        # a 417 Pa total; the row is now "Not quantified" and the total is
+        # 410 Pa, because the withdrawn channel shared its coarsest point with
+        # the model family and was being squared in twice.
         stream = []
 
         def emit(e, p):
@@ -284,9 +339,10 @@ class WorkflowTests(unittest.TestCase):
         text = Path(cert["path"]).read_bytes().decode("latin-1")
         for token in ("Opening Angle", "87.5 deg", "Cycle Loss", "1253 Pa",
                       "Band \\(95%\\)", "Orifice Area", "Parameter",
-                      "397.63", "76.5", "98.9",
+                      "397.63", "98.9", "Not quantified", "410 Pa",
                       "minimise valve pressure loss over the cardiac cycle"):
             self.assertIn(token, text)
+        self.assertNotIn("76.5", text)
         # No mesh block on a meshless act; no method names on the sealed page.
         self.assertNotIn("Mesh Validity", text)
         for banned in ("Monte-Carlo", "quadrature", "Eca", "Hoekstra",

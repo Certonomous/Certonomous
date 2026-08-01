@@ -730,8 +730,21 @@ def valve_studies() -> None:
             total += weights[i] * 0.5 * RHO_BLOOD * v * v
         return total
 
-    # Quadrature ladder: the numerical channel of the screen is the cycle
-    # quadrature, refined k = 3 / 5 / 9 on the same waveform and model.
+    # Quadrature convergence, NOT a discretization ladder. k = 3 / 5 / 9 are
+    # segment counts the half-sine ejection window is chopped into; each level
+    # is closed-form arithmetic on the same reduced-order orifice model. There
+    # is no mesh, no solver and no fit anywhere in this block.
+    #
+    # WHAT THIS BLOCK USED TO SAY, AND WHY IT WAS WRONG. `conclusive` was the
+    # literal True, typed here. It never passed through a fit and never faced a
+    # guard, and it made this the ONLY stored study whose band reached a live
+    # surface: `uq.reportable_band` returned 76.5 Pa for the valve and None for
+    # all eight genuine ladders, because those eight were adjudicated and
+    # declined and this one was never adjudicated at all. The nine published
+    # numbers are not in dispute -- every one of them reproduces from the
+    # formula above. The fault is the slot they sat in. So the record now
+    # declines itself, names the guard that excludes it, and says in its method
+    # string what the number actually measures.
     k_levels = (3, 5, 9)
     values = [cycle_loss(k, 0.62) for k in k_levels]
     spread = max(values) - min(values)
@@ -739,9 +752,15 @@ def valve_studies() -> None:
     numerical = {
         "band_abs": round(abs(values[-1] - values[0]), 1),
         "band_rel": round(abs(values[-1] - values[0]) / fine, 5),
-        "method": f"phase-quadrature ladder k = {'/'.join(map(str, k_levels))}",
+        "method": (f"quadrature convergence of a reduced-order orifice model, "
+                   f"k = {'/'.join(map(str, k_levels))} segments of the "
+                   f"ejection window; not a mesh refinement"),
         "values": {str(k): round(v, 1) for k, v in zip(k_levels, values)},
-        "conclusive": True,
+        "conclusive": False,
+        "not_conclusive_guard": uq.GUARD_NOT_A_DISCRETIZATION_LADDER,
+        "guards": {uq.GUARD_NOT_A_DISCRETIZATION_LADDER: False},
+        "guards_failed": [uq.GUARD_NOT_A_DISCRETIZATION_LADDER],
+        "channel_kind": "quadrature-convergence",
     }
     # Correlation family: recognized sharp-orifice discharge coefficients.
     family_cd = {
@@ -752,6 +771,18 @@ def valve_studies() -> None:
     }
     family_dp = {name: cycle_loss(3, cd) for name, cd in family_cd.items()}
     model = uq.spread_estimate(family_dp, label="correlation-family spread")
+    # THE TWO CHANNELS SHARE A POINT, EXACTLY. Both are cycle_loss() on the
+    # same waveform and the same reduced-order model; the family member at
+    # cd = 0.62 is evaluated at k = 3, which is bit-for-bit the numerical
+    # channel's first level. Both read 1252.8 Pa and neither rounding nor
+    # coincidence is doing it. Two channels sharing an evaluation are not
+    # independent, so combining them in quadrature -- which is what
+    # `combine_expanded` does -- double-counts that point and reports a total
+    # wider than either channel earned. The overlap is recorded here so the
+    # surfaces can refuse the combination instead of rediscovering it.
+    shared = sorted(
+        name for name, dp in family_dp.items()
+        if any(abs(dp - v) < 1e-9 for v in values))
     fingerprint = uq.setup_fingerprint(
         body=body, solver="reduced-order-orifice", closure="orifice-correlation",
         velocity=None, refinement=3, iterations=None)
@@ -762,13 +793,17 @@ def valve_studies() -> None:
                "method": model["method"],
                "members": {k: round(v, 1) for k, v in model["members"].items()},
                "screening_estimate": True,
+               "shares_points_with_numerical": shared,
+               "independent_of_numerical": not shared,
                "unmodeled": ["phase-interaction neglected",
                              "leaflet motion not modeled",
                              "Newtonian blood"]},
         provenance=["valve-quadrature-ladder", "orifice-correlation-family"])
-    _log(f"valve DONE: quadrature band {numerical['band_abs']} Pa, "
+    _log(f"valve DONE: quadrature convergence {numerical['band_abs']} Pa "
+         f"(NOT conclusive: {uq.guard_clause(uq.GUARD_NOT_A_DISCRETIZATION_LADDER)}), "
          f"family spread {model['band_abs']:.0f} Pa "
-         f"(k=3 loss {values[0]:.0f} Pa)")
+         f"(k=3 loss {values[0]:.0f} Pa); "
+         f"{len(shared)} shared point(s) with the numerical channel")
 
 
 # --------------------------------------------------------------------------

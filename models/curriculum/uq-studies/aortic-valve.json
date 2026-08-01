@@ -4,13 +4,21 @@
   "numerical": {
     "band_abs": 76.5,
     "band_rel": 0.05757,
-    "method": "phase-quadrature ladder k = 3/5/9",
+    "method": "quadrature convergence of a reduced-order orifice model, k = 3/5/9 segments of the ejection window; not a mesh refinement",
     "values": {
       "3": 1252.8,
       "5": 1311.9,
       "9": 1329.3
     },
-    "conclusive": true
+    "conclusive": false,
+    "not_conclusive_guard": "not_a_discretization_ladder",
+    "guards": {
+      "not_a_discretization_ladder": false
+    },
+    "guards_failed": [
+      "not_a_discretization_ladder"
+    ],
+    "channel_kind": "quadrature-convergence"
   },
   "model": {
     "band_abs": 98.9,
@@ -22,6 +30,10 @@
       "upper sharp-orifice literature value (0.65)": 1139.8
     },
     "screening_estimate": true,
+    "shares_points_with_numerical": [
+      "classic sharp-edge orifice (0.62)"
+    ],
+    "independent_of_numerical": false,
     "unmodeled": [
       "phase-interaction neglected",
       "leaflet motion not modeled",
@@ -32,5 +44,5 @@
     "valve-quadrature-ladder",
     "orifice-correlation-family"
   ],
-  "updated_utc": "2026-07-25T20:51:28Z"
+  "updated_utc": "2026-08-01T00:22:46Z"
 }

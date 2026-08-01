@@ -84,11 +84,25 @@ GUARD_MONOTONE = "monotone"
 GUARD_ORDER_WINDOW = "order_window"
 GUARD_INCREMENT_TREND = "increment_trend"
 GUARD_EXTRAPOLATION = "extrapolation_sanity"
+# The structural guard: the levels are not meshes at all, so no fit on them is
+# a discretization band and nothing here may be read as one.
+#
+# WHY IT EXISTS. The aortic-valve study stored `conclusive: True` as a
+# hardcoded literal, and it was the only stored study whose band reached a live
+# surface: `reportable_band` returned 76.5 Pa for it and None for all eight
+# genuine ladders. Its three "levels" are k = 3/5/9 segments of a half-sine
+# ejection waveform evaluated in closed form on a reduced-order orifice model.
+# No mesh, no solver, no fit, no guard. The number measures how finely a
+# waveform was chopped, and it sat in the slot a grid-convergence band sits in.
+# A record that cannot pass a guard must still be able to NAME the one that
+# excludes it, otherwise the only way to decline it is to say nothing.
+GUARD_NOT_A_DISCRETIZATION_LADDER = "not_a_discretization_ladder"
 
 # Precedence: the order in which a failing guard is chosen as THE stated
 # reason. Cheapest and most structural first, so the sentence names the
 # earliest thing that is wrong with the ladder.
-GUARD_PRECEDENCE = (GUARD_DISTINCT_RUNGS, GUARD_MONOTONE, GUARD_ORDER_WINDOW,
+GUARD_PRECEDENCE = (GUARD_NOT_A_DISCRETIZATION_LADDER, GUARD_DISTINCT_RUNGS,
+                    GUARD_MONOTONE, GUARD_ORDER_WINDOW,
                     GUARD_INCREMENT_TREND, GUARD_EXTRAPOLATION)
 
 
@@ -572,6 +586,9 @@ def reportable_band(band: dict[str, Any] | None) -> float | None:
 def guard_clause(guard: str, band: dict[str, Any] | None = None) -> str:
     """The one clause that names a guard, on camera."""
     band = band or {}
+    if guard == GUARD_NOT_A_DISCRETIZATION_LADDER:
+        return ("the levels are not meshes, so this is not a discretization "
+                "band")
     if guard == GUARD_DISTINCT_RUNGS:
         return "the refinement knob did not give three different meshes"
     if guard == GUARD_MONOTONE:
