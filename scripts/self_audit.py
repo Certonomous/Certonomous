@@ -1180,6 +1180,35 @@ def _study_rungs(study) -> int:
     return len(levels) if isinstance(levels, list) else 0
 
 
+# Why a study is out of scope for the two study checks below, in the study's
+# own terms. THE DEFECT THIS REPLACES: both checks narrowed to refinement fits
+# with a bare `continue`, so a record they could not read simply was not in the
+# report -- not as a pass, not as a fault, not at all. Two of the ten stored
+# studies were invisible that way, and one of them was aortic-valve, whose
+# `conclusive: True` was a hardcoded literal and whose band was the only one in
+# the corpus reaching a live certificate. The record that cannot be checked
+# against its own evidence was the record the checks could not see, and an
+# unauditable record is indistinguishable from a clean one. So every stored
+# study is now either checked or named here with the reason, and the count of
+# each rides on every verdict line.
+def _out_of_scope(study) -> str | None:
+    """The reason this study is not a refinement fit, or None if it is one."""
+    numerical = study.get("numerical") or {}
+    if not numerical:
+        return "no numerical block at all; nothing here states a fitted band"
+    if "conclusive" not in numerical:
+        return ("its numerical block records no `conclusive` verdict, so no "
+                "fit ever adjudicated it")
+    if "observed_order" not in numerical:
+        kind = numerical.get("channel_kind")
+        method = str(numerical.get("method") or "").split(";")[0].strip()
+        what = f"{kind}" if kind else "not produced by a refinement fit"
+        return (f"its numerical block records no `observed_order`, so it did "
+                f"not come out of a refinement fit: {what}"
+                + (f" ({method})" if method else ""))
+    return None
+
+
 def check_studies_carry_what_the_fit_records() -> Result:
     """A stored study must carry every field its own fit produces.
 
@@ -1233,7 +1262,7 @@ def check_studies_carry_what_the_fit_records() -> Result:
     expected -= {"band_abs_middle"}   # a runner-chosen alternative to band_abs
     studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
                      .glob("*.json"))
-    problems, notes, checked = [], [], 0
+    problems, notes, skipped, checked = [], [], [], 0
     for path in studies:
         study = _load_json(path)
         if not isinstance(study, dict):
@@ -1242,14 +1271,18 @@ def check_studies_carry_what_the_fit_records() -> Result:
         numerical = study.get("numerical") or {}
         # Only blocks that came out of a refinement fit are in scope. Every
         # branch of both fits sets `observed_order`, even when it sets it to
-        # None, and no other producer does; the valve's phase-quadrature
-        # ladder is a different shape and is not measured against this one.
-        # Scoping on the method text instead would silently exempt exactly
-        # the declined ladders this check most needs to read, because a
-        # guard-failure method string does not mention a mesh.
-        if not numerical or "conclusive" not in numerical:
-            continue
-        if "observed_order" not in numerical:
+        # None, and no other producer does; the valve's quadrature convergence
+        # of a reduced-order model is a different shape and is not measured
+        # against this one. Scoping on the method text instead would silently
+        # exempt exactly the declined ladders this check most needs to read,
+        # because a guard-failure method string does not mention a mesh.
+        #
+        # OUT OF SCOPE IS NOT INVISIBLE. Anything this check cannot read is
+        # named, with the reason, on the same report.
+        reason = _out_of_scope(study)
+        if reason:
+            skipped.append(f"{path.stem}: SKIPPED, not in scope for this "
+                           f"check -- {reason}")
             continue
         checked += 1
         rungs = _study_rungs(study)
@@ -1280,21 +1313,23 @@ def check_studies_carry_what_the_fit_records() -> Result:
                 f"{', '.join(missing)}; its own fit records "
                 f"{len(want)} field(s) and this study carries "
                 f"{len(want) - len(missing)}. {remedy}")
+    scope = (f"{checked} of {checked + len(skipped)} stored study(s) in "
+             f"scope, {len(skipped)} named as skipped")
     if problems:
         needs_compute = sum(1 for p in problems if "NEEDS COMPUTE" in p)
         return Result("studies carry what the fit records", FAIL,
                       f"{len(problems)} stored study(s) omit a field their "
                       f"own fit produces; {len(problems) - needs_compute} are "
                       f"refittable in place at no compute, {needs_compute} "
-                      f"need a solve", problems + notes)
+                      f"need a solve; {scope}", problems + notes + skipped)
     if notes:
         return Result("studies carry what the fit records", INFO,
                       f"all {checked} fitted study(s) carry every field their "
-                      f"own fit records; {len(notes)} could not be refitted",
-                      notes)
+                      f"own fit records; {len(notes)} could not be refitted; "
+                      f"{scope}", notes + skipped)
     return Result("studies carry what the fit records", PASS,
                   f"all {checked} fitted study(s) carry every field their own "
-                  f"fit records")
+                  f"fit records; {scope}", skipped)
 
 
 def check_declined_ladders_name_their_guard() -> Result:
@@ -1328,15 +1363,36 @@ def check_declined_ladders_name_their_guard() -> Result:
                       f"cannot import the fit: {type(exc).__name__}: {exc}")
     studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
                      .glob("*.json"))
-    problems, notes, checked = [], [], 0
+    problems, notes, skipped, checked = [], [], [], 0
     for path in studies:
         study = _load_json(path)
         if not isinstance(study, dict):
+            problems.append(f"{path.name}: does not parse")
             continue
         numerical = study.get("numerical") or {}
-        if not numerical or numerical.get("conclusive") is not False:
+        # SCOPE. A record that declines itself must name the guard that
+        # declined it. That requirement does not depend on the record having
+        # come out of a mesh fit, so the `observed_order` gate that used to sit
+        # here is gone: it excluded the aortic-valve study, which is exactly
+        # the record that most needed reading, since its verdict was a typed
+        # literal rather than anything a guard produced. Everything out of
+        # scope is named below with its reason instead of vanishing.
+        if not numerical:
+            skipped.append(f"{path.stem}: SKIPPED, not in scope for this "
+                           f"check -- no numerical block at all, so there is "
+                           f"no verdict here to decline")
             continue
-        if "observed_order" not in numerical:
+        if "conclusive" not in numerical:
+            skipped.append(f"{path.stem}: SKIPPED, not in scope for this "
+                           f"check -- its numerical block records no "
+                           f"`conclusive` verdict, so nothing adjudicated it "
+                           f"either way")
+            continue
+        if numerical.get("conclusive") is not False:
+            skipped.append(f"{path.stem}: SKIPPED, not in scope for this "
+                           f"check -- conclusive is "
+                           f"{numerical.get('conclusive')!r}, not a decline, "
+                           f"so no guard is holding it")
             continue
         checked += 1
         rungs = _study_rungs(study)
@@ -1361,21 +1417,24 @@ def check_declined_ladders_name_their_guard() -> Result:
             notes.append(
                 f"{path.stem}: declined on {guard!r} and would stay declined "
                 f"on {', '.join(sorted(set(held) - {guard}))}")
+    scope = (f"{checked} of {checked + len(skipped)} stored study(s) in "
+             f"scope, {len(skipped)} named as skipped")
     if problems:
         needs_compute = sum(1 for p in problems if "NEEDS COMPUTE" in p)
         return Result("declined ladders name their guard", FAIL,
                       f"{len(problems)} declined ladder(s) do not record the "
                       f"guard that held them; "
                       f"{len(problems) - needs_compute} are refittable in "
-                      f"place at no compute, {needs_compute} need a solve",
-                      problems + notes)
+                      f"place at no compute, {needs_compute} need a solve; "
+                      f"{scope}", problems + notes + skipped)
     if notes:
         return Result("declined ladders name their guard", INFO,
                       f"all {checked} declined ladder(s) name their guard; "
-                      f"{len(notes)} rest on more than one", notes)
+                      f"{len(notes)} rest on more than one; {scope}",
+                      notes + skipped)
     return Result("declined ladders name their guard", PASS,
                   f"all {checked} declined ladder(s) name the guard that held "
-                  f"them")
+                  f"them; {scope}", skipped)
 
 
 def check_campaign_json_citations() -> Result:
