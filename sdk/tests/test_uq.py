@@ -650,6 +650,12 @@ class RealNaca4412Ladder(unittest.TestCase):
         # 0.08 carried onto frontal area by the record's own 3.5x ratio.
         self.assertAlmostEqual(shown["compared"], 0.28, places=2)
         self.assertEqual(shown["tier"], VALIDATED)
+        # AND SO IS THE BAND. The envelope is published beside a frontal-area
+        # value, so it has to be a frontal-area envelope: 0.001 on the rungs'
+        # planform basis is 0.0035 on the card's. Printing the study's raw
+        # 0.001 there understates it by the whole area ratio.
+        self.assertEqual(shown["envelope"],
+                         "±0.0035 across the 3-mesh refinement study")
 
 
 class HonestyRails(unittest.TestCase):

@@ -624,8 +624,21 @@ def displayed_credential(record: dict, *, reference: dict | None = None,
         })
         band = numerical.get("band_abs")
         rungs = len((study or {}).get("levels") or [])
+        # THE ENVELOPE IS REBASED TOO, on the same ratio as the value it sits
+        # beside. The card publishes `measured` on the reference's own area
+        # basis; the band comes off the study, which fits on the rungs' basis.
+        # When those differ the card prints a value and an envelope measured on
+        # two different areas, which is the same defect as the value and its
+        # percentage disagreeing -- fixed a dozen lines below -- one field
+        # along. Measured on the published wall, 2026-08-01: the Ahmed 25 deg
+        # row is the only rebased row on it, ratio 3.586 planform to frontal.
+        # It printed ±0.02 beside 0.3041, which a reader divides to 6.65%,
+        # where the study's own band_rel is 23.85%. Rebased the band reads
+        # ±0.073 and the two agree. The other two banded rows, the cube and the
+        # NACA 0012 wing, sit at ratio 1.0 and do not move.
         display["envelope"] = (
-            f"±{float(band):.2g} across the {rungs}-mesh refinement study"
+            f"±{float(band) * ratio:.2g} across the {rungs}-mesh "
+            f"refinement study"
             if band else f"finest mesh on record, {rung['cells']:,} cells")
     else:
         # Nothing finer on record: a ladder that is not anchored to this

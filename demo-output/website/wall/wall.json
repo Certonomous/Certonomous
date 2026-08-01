@@ -216,7 +216,7 @@
     {
       "name": "ahmed_25",
       "measured": "0.3041",
-      "envelope": "\u00b10.02 across the 3-mesh refinement study",
+      "envelope": "\u00b10.073 across the 3-mesh refinement study",
       "cells": 79439,
       "tier": "SOLVER-BACKED",
       "reason": "within 7% of Ahmed, Ramm & Faltin 1984, SAE 840300, C_d 0.285 (band \u00b115%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated",
