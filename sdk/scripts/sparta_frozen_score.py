@@ -27,7 +27,7 @@ import sys
 
 import numpy as np
 
-NCOMP = {"scalar": 1, "vector": 3, "symmTensor": 6}
+NCOMP = {"scalar": 1, "vector": 3, "symmTensor": 6, "tensor": 9}
 
 
 def read_of_field(path):
@@ -35,7 +35,7 @@ def read_of_field(path):
     with open(path) as fh:
         text = fh.read()
     m = re.search(
-        r"internalField\s+nonuniform\s+List<(scalar|vector|symmTensor)>\s*"
+        r"internalField\s+nonuniform\s+List<(scalar|vector|symmTensor|tensor)>\s*"
         r"\n?\s*(\d+)\s*\n\(", text)
     if m is None:
         mu = re.search(
