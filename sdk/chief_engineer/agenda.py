@@ -618,10 +618,13 @@ def draft_gate_proposals() -> list[dict]:
             # both ways: the NACA 0012 gap went out at 3.04 core-minutes
             # from this field against 180 to 240 measured on the NACA 4412
             # precedent that repaired the same layerless mesh, 15x under;
-            # and the 4412 record's own 4.64 belongs to a superseded
+            # and the 4412 record's own 4.64 belonged to a superseded
             # refinement-2 act, while one rung of the ladder that produced
             # its graded drag measured 1,574.2 s of meshing plus 278.6 s of
-            # solve at 4 ranks. The prior wall time is a floor on the repair
+            # solve at 4 ranks. That field was corrected at the record on
+            # 2026-08-01 and now reads 2.8, the graded rung's own span, so
+            # the sentence below is true of the graded solve where it used
+            # to be true of nothing. The prior wall time is a floor on the repair
             # and is reported as one. The price is the charter default,
             # labelled an estimate, which is an empty number honestly
             # labelled rather than a false one.

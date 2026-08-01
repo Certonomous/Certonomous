@@ -2,7 +2,8 @@
   "name": "naca4412_wing",
   "returncode": 0,
   "ok": true,
-  "wall_minutes": 4.64,
+  "wall_minutes": 2.8,
+  "wall_minutes_basis": "the graded rung's own run: 169.3 s from the first to the last log write in /home/ubuntu/certonomous-runs/credential-repair-naca4412-fine, of which snappyHexMesh reports 'Finished meshing in = 76.97 s' and simpleFoam reports 'ExecutionTime = 68.57 s  ClockTime = 69 s' on 4 ranks (processor0..3). Corrected 2026-08-01; see history.wall_minutes_superseded.",
   "cd_measured": "0.018262",
   "cl_measured": "0.209547",
   "cd_compared": 0.0183,
@@ -17,6 +18,19 @@
   "reference_source": "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed.",
   "finished_at": "2026-07-27T04:09:34+00:00",
   "history": {
+    "wall_minutes_superseded": {
+      "value_then": 4.64,
+      "why_superseded": "4.64 belonged to the superseded 67,826-cell refinement-2 run, the same defective solve the previous_credential entry below records. Every other number on this record was re-derived from the repair ladder on 2026-07-27 and this field was not, so the credentials surface captioned the graded drag with the wall time of the run that drag replaced. It was caught on 2026-08-01 while re-pricing a proposal that had been costed from it; the proposal was corrected first and the record second.",
+      "why_it_matters": "the cheap number came from the defective solve, and it was cheap BECAUSE the solve was defective: 67,826 cells with addLayers false at Re 1e6, against 645,251 cells with resolved layers on the rung that replaced it. A repair priced from the wall time of the run it repairs is understated by construction, which is now a charter clause."
+    },
+    "ladder_cost_measured": {
+      "note": "wall spans read from the first to the last log write in each rung's own run directory under /home/ubuntu/certonomous-runs/credential-repair-naca4412-*; meshing is serial and the solve runs on 4 ranks",
+      "medium_263359_cells_s": 95.8,
+      "fine_645251_cells_s": 169.3,
+      "finer_1849113_cells_s": 1865.4,
+      "three_rung_ladder_wall_min": 36.8,
+      "reading": "the finer rung is 11 times the fine rung's wall time and it is the rung that failed the non-orthogonality gate and reached 58.3% of its target layer thickness. The most expensive rung on this ladder is the one the record does not grade."
+    },
     "previous_credential": {
       "cd_measured": 0.02892, "reference_cd_then": 0.03, "tolerance_then": 0.4,
       "tier_then": "VALIDATED",
