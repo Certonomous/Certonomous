@@ -1,0 +1,3 @@
+spartaTurbulenceModels.C
+
+LIB = $(FOAM_USER_LIBBIN)/libspartaTurbulenceModels
