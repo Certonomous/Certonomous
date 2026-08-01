@@ -611,6 +611,83 @@ def reportable_band(band: dict[str, Any] | None) -> float | None:
     return band.get("band_abs")
 
 
+def _spoken(x: float, places: int = 3) -> str:
+    """A number for a camera surface, with a negative sign spelled out.
+
+    A leading "-" is a dash on a surface that is read aloud, and the house rule
+    keeps dashes off those. "minus 13.733" is also what a person says.
+    """
+    return (f"minus {abs(x):.{places}f}" if x < 0 else f"{x:.{places}f}")
+
+
+def impossible_extrapolation(band: dict[str, Any] | None, *, quantity: str,
+                             why: str, floor: float | None = None,
+                             ceiling: float | None = None,
+                             unit: str | None = None,
+                             places: int = 3) -> str | None:
+    """The clause for a ladder extrapolating outside what the quantity can be.
+
+    WHY THIS EXISTS. ``extrapolation_sanity`` asks a statistical question: did
+    the Richardson value land near the range the rungs measured? It cannot ask
+    the physical one, because this module does not know what any functional
+    means. The supersonic wedge ladder extrapolates its shock angle to
+    minus 13.733 degrees. That is not a wide band or a soft convergence signal,
+    it is a value no flow can produce, and it is a strictly stronger statement
+    than "the observed order is outside the credible window" -- an order can be
+    argued about, a negative shock angle cannot. So it leads the sentence
+    (see ``not_conclusive_reason``), and the act that knows the physics is the
+    one that supplies it.
+
+    ``quantity`` names the functional ("the shock angle"). ``why`` is the
+    clause that lands straight after the value and states the physics in the
+    act's own words ("which is not a shock angle any flow can have"); it is a
+    continuation, not a sentence, so the whole reason still reads as one
+    sentence when other guards are named beside it. ``floor`` / ``ceiling``
+    are the domain bounds. Returns None when the extrapolated value is inside
+    the domain, when there is no extrapolated value, or when no bound was
+    given: silence is the default, so a caller that knows nothing about its
+    quantity's domain says nothing about it.
+    """
+    if not band:
+        return None
+    phi0 = band.get("richardson_extrapolated")
+    if phi0 is None:
+        return None
+    phi0 = float(phi0)
+    if not ((floor is not None and phi0 < float(floor))
+            or (ceiling is not None and phi0 > float(ceiling))):
+        return None
+    unit_txt = f" {unit}" if unit else ""
+    return (f"{quantity} the ladder extrapolates to is "
+            f"{_spoken(phi0, places)}{unit_txt}, {why}")
+
+
+# How many guards hold a ladder, said in words rather than digits.
+_COUNT_WORD = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
+
+
+def _join_clauses(clauses: Sequence[str]) -> str:
+    """Join reason clauses so the sentence reads as one sentence."""
+    if len(clauses) == 1:
+        return clauses[0]
+    return ", ".join(clauses[:-1]) + ", and " + clauses[-1]
+
+
+def guards_holding_note(band: dict[str, Any] | None) -> str | None:
+    """One sentence when more than one guard independently holds a ladder.
+
+    None when a single guard holds it, which is the case the stated reason
+    already covers completely.
+    """
+    failed = guards_holding(band)
+    if len(failed) < 2:
+        return None
+    word = _COUNT_WORD.get(len(failed), str(len(failed)))
+    each = ("either one" if len(failed) == 2 else "any one of them")
+    return (f"{word.capitalize()} guards hold this ladder back independently, "
+            f"so correcting {each} alone would not move the verdict")
+
+
 def guard_clause(guard: str, band: dict[str, Any] | None = None) -> str:
     """The one clause that names a guard, on camera."""
     band = band or {}
@@ -634,47 +711,79 @@ def guard_clause(guard: str, band: dict[str, Any] | None = None) -> str:
     return "the ladder is not in the asymptotic range"
 
 
-def not_conclusive_reason(band: dict[str, Any] | None) -> str | None:
-    """Why this ladder cannot state a band, in one clause. None if it can.
+def not_conclusive_reason(band: dict[str, Any] | None, *,
+                          impossible: str | None = None) -> str | None:
+    """Why this ladder cannot state a band. None if it can.
 
     The ``method`` string is not usable for this: on a clamped ladder it ends
     "(band uses p = 0.5)", which contradicts an act that is declining to
     report a band at all.
 
-    THE GUARD THE FIT RECORDED WINS. When the band carries
-    ``not_conclusive_guard`` the clause names that guard, because that is the
-    guard that held the verdict at the time the fit ran. Re-deriving the
-    reason from the stored numbers looks equivalent and is not: it silently
-    reassigns the sentence whenever the arithmetic moves underneath it, which
-    is exactly how the cylinder vortex-shedding ladder spent a day declined
-    for an order outside the window when the guard actually holding it was the
-    extrapolation check. ``guards_holding`` shows whether the stated guard is
-    the only one.
+    THE GUARDS THE FIT RECORDED WIN, AND ALL OF THEM ARE NAMED. When the band
+    carries a guard record the clause names the guards that guard record says
+    failed, because those are the guards that held the verdict at the time the
+    fit ran. Re-deriving the reason from the stored numbers looks equivalent
+    and is not: it silently reassigns the sentence whenever the arithmetic
+    moves underneath it, which is exactly how the cylinder vortex-shedding
+    ladder spent a day declined for an order outside the window when the guard
+    actually holding it was the extrapolation check.
 
-    The derivation below stays only for records written before the field
+    NAMING ONLY THE FIRST ONE WAS ITS OWN DEFECT. This used to return
+    ``not_conclusive_guard`` alone, which is the earliest failure in
+    ``GUARD_PRECEDENCE`` and not necessarily the decisive one. The supersonic
+    wedge act said its ladder failed on an observed order of 0.035, so a
+    reader would reasonably conclude a better order would settle it; the same
+    ladder also fails ``extrapolation_sanity``, at a shock angle of
+    minus 13.733 degrees, and no order would have rescued that. A sentence
+    that states one true unimportant reason in place of a true decisive one is
+    worse than a sentence that states both. Six ladders in this corpus fail
+    more than one guard.
+
+    ``impossible`` is the clause from :func:`impossible_extrapolation`, when
+    the caller knows its quantity's physical domain. It LEADS the sentence and
+    it replaces the generic extrapolation clause, because "this value cannot
+    exist" outranks every other guard here: an order outside a window is a
+    judgement about a fit, an impossible extrapolated value is a fact about the
+    world. :func:`guards_holding_note` is the companion sentence that says the
+    verdict does not rest on any one of these alone.
+
+    The derivation below stays only for records written before the guard record
     existed, and for those it is a best effort, not a fact.
     """
     if not band or band.get("conclusive"):
         return None
+    failed = guards_holding(band)
+    if failed:
+        clauses = [impossible] if impossible else []
+        clauses += [guard_clause(g, band) for g in failed
+                    if not (impossible and g == GUARD_EXTRAPOLATION)]
+        return _join_clauses(clauses)
     guard = band.get("not_conclusive_guard")
     if guard:
-        return guard_clause(guard, band)
-    if band.get("monotone") is False:
-        return "the three rungs do not move one way under refinement"
-    p = band.get("observed_order")
-    if band.get("clamped") and p is not None:
-        return (f"the observed order p = {p} falls outside the credible "
-                f"range 0.5 to 2.5")
-    note = band.get("asymptotic_note") or band.get("method") or ""
-    if "increment" in note:
-        return "successive increments grow with refinement"
-    if "extrapolat" in note:
-        return ("the value the ladder extrapolates to falls outside the range "
-                "it measured")
-    if p is not None:
-        return (f"the observed order p = {p} falls outside the credible "
-                f"range 0.5 to 2.5")
-    return "the ladder is not in the asymptotic range"
+        return _join_clauses(([impossible] if impossible else [])
+                             + [guard_clause(guard, band)])
+
+    def _legacy() -> str:
+        if band.get("monotone") is False:
+            return "the three rungs do not move one way under refinement"
+        p = band.get("observed_order")
+        if band.get("clamped") and p is not None:
+            return (f"the observed order p = {p} falls outside the credible "
+                    f"range 0.5 to 2.5")
+        note = band.get("asymptotic_note") or band.get("method") or ""
+        if "increment" in note:
+            return "successive increments grow with refinement"
+        if "extrapolat" in note:
+            return ("the value the ladder extrapolates to falls outside the "
+                    "range it measured")
+        if p is not None:
+            return (f"the observed order p = {p} falls outside the credible "
+                    f"range 0.5 to 2.5")
+        return "the ladder is not in the asymptotic range"
+
+    if impossible:
+        return _join_clauses([impossible, _legacy()])
+    return _legacy()
 
 
 # --------------------------------------------------------------------------

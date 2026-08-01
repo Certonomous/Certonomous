@@ -793,6 +793,90 @@ class WhichGuardHeldTheVerdict(unittest.TestCase):
         self.assertIsNone(uq.not_conclusive_reason(out))
 
 
+class EveryGuardThatHoldsALadderIsNamed(unittest.TestCase):
+    """The supersonic wedge rungs: 1800/7200/28800 cells, shock angle in deg.
+
+    Measured 2026-08-01 by refitting the act's own stored rungs; the values are
+    the ones the act solves and are recorded in the two-dimensional ladder
+    refit alongside them.
+    """
+
+    CELLS = [1800, 7200, 28800]
+    BETA = [47.588, 46.123, 44.693]
+
+    def _band(self):
+        return uq.eca_hoekstra_band(self.CELLS, self.BETA, dim=2)
+
+    def test_two_guards_hold_the_wedge_and_the_reason_names_both(self):
+        band = self._band()
+        self.assertEqual(uq.guards_holding(band),
+                         [uq.GUARD_ORDER_WINDOW, uq.GUARD_EXTRAPOLATION])
+        reason = uq.not_conclusive_reason(band)
+        self.assertIn("outside the credible range", reason)
+        self.assertIn("outside the range it measured", reason)
+
+    def test_one_failing_guard_reads_exactly_as_it_did_before(self):
+        # The single-guard sentence is the common case and it does not change:
+        # naming every guard must not reword a ladder that only has one.
+        band = uq.eca_hoekstra_band(self.CELLS, self.BETA, dim=2)
+        band = dict(band, guards_failed=[uq.GUARD_MONOTONE],
+                    not_conclusive_guard=uq.GUARD_MONOTONE)
+        self.assertEqual(uq.not_conclusive_reason(band),
+                         "the three rungs do not move one way under refinement")
+
+    def test_an_impossible_extrapolation_leads_and_replaces_its_guard(self):
+        band = self._band()
+        impossible = uq.impossible_extrapolation(
+            band, quantity="the shock angle",
+            why="which is not a shock angle any flow can have",
+            floor=0.0, unit="deg")
+        self.assertIn("minus 13.733 deg", impossible)
+        reason = uq.not_conclusive_reason(band, impossible=impossible)
+        self.assertTrue(reason.startswith("the shock angle the ladder "
+                                          "extrapolates to is minus 13.733"))
+        # The generic extrapolation clause is gone: the sharper statement of
+        # the same failure replaced it rather than being said twice.
+        self.assertNotIn("outside the range it measured", reason)
+        self.assertIn("outside the credible range", reason)
+
+    def test_a_value_inside_its_domain_says_nothing(self):
+        # The supersonic cone extrapolates to 26.226 deg, which is a shock
+        # angle a flow can have. The clause is silence, not a hedge.
+        band = uq.eca_hoekstra_band([1800, 7200, 28800],
+                                    [29.514, 28.113, 27.309], dim=2)
+        self.assertIsNone(uq.impossible_extrapolation(
+            band, quantity="the shock angle", why="which cannot be negative",
+            floor=0.0, unit="deg"))
+
+    def test_no_bound_given_means_no_opinion(self):
+        band = self._band()
+        self.assertIsNone(uq.impossible_extrapolation(
+            band, quantity="the shock angle", why="which cannot be negative"))
+
+    def test_the_holding_note_appears_only_when_more_than_one_guard_binds(self):
+        two = self._band()
+        self.assertIn("Two guards", uq.guards_holding_note(two))
+        one = dict(two, guards_failed=[uq.GUARD_MONOTONE])
+        self.assertIsNone(uq.guards_holding_note(one))
+        three = dict(two, guards_failed=[uq.GUARD_ORDER_WINDOW,
+                                         uq.GUARD_INCREMENT_TREND,
+                                         uq.GUARD_EXTRAPOLATION])
+        self.assertIn("Three guards", uq.guards_holding_note(three))
+
+    def test_naming_every_guard_never_moves_a_verdict(self):
+        # The whole change is about which reason is stated. Nothing it touches
+        # may reach `conclusive` or the band the ladder is allowed to report.
+        for cells, values, dim in (
+                (self.CELLS, self.BETA, 2),
+                ([2496, 5032, 8640], [0.1245, 0.1490, 0.1578], 3),
+                ([10000, 80000, 640000],
+                 DimensionalityDecidesOneThing._values(
+                     [10000, 80000, 640000], 2.0), 3)):
+            band = uq.eca_hoekstra_band(cells, values, dim=dim)
+            self.assertEqual(uq.reportable_band(band),
+                             band["band_abs"] if band["conclusive"] else None)
+
+
 class StudyWritersCopyWhatTheyAreGiven(unittest.TestCase):
     def test_a_new_fit_field_reaches_the_stored_block_unaided(self):
         band = uq.eca_hoekstra_band([2496, 5032, 8640],
