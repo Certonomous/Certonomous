@@ -144,3 +144,29 @@ from outside is unverified and cannot be verified from the instance.
 
 Until one of those exists, any readiness line that asserts external
 reachability is asserting something nobody measured.
+
+---
+
+## B-5. Five papers this box cannot open, and one it can
+
+**`w2-mit-access-list`, `w5-close-the-secco-2021-citation-gap`. Opened
+2026-08-01. Waiting on Katie's library, not on this box.**
+
+The full list, with what each item unblocks and the one section needed, is
+`demo-output/website/agenda/LIBRARY_ACCESS_LIST.md`. It is ordered by
+consequence and it is short enough to work in one sitting.
+
+The first entry is the only one that can overturn something already published:
+**Secco, Kenway, He, Mader and Martins, AIAA J. 59(4) 1151 to 1168, 2021, doi
+10.2514/1.J059491**, which returned 403 on every URL tried and has no
+open-access copy. The lab's root-cause document states that nothing qualifies
+`warpDeriv` as approximate, and an undocumented defect and a documented
+approximation are different things to report upstream. One paragraph of that
+paper either upholds the claim or withdraws it.
+
+Item 6 on the list needs no library at all and is the one to do first anyway:
+the closure challenge preprint, arXiv `2603.28884`. The submission draft quotes
+a permission from it that is nowhere on this machine.
+
+**Unblock:** open the list, work the entries top down, and paste back the
+section named beside each. Nothing else in the reading program waits on this.
