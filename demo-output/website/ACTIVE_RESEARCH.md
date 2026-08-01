@@ -14,6 +14,12 @@ defects since cleared — the eight submission CSVs now exist and the false
 docstring is corrected**. Ladder W5 — external challenge scouting sweep filed to
 the docket).
 
+Update 2026-08-01 UTC: Ladder A — the A1/A5 gradient defect is root-caused to a
+source line and repaired in a **local** IDWarp patch, confirmed by repair; the
+A1/A5 rows and the consolidated FD table below now carry the patched numbers
+beside the stock ones. **The shipped toolchain still carries the bug; no stock
+verdict changes.**
+
 ---
 
 ## Headline result: the uncertainty machinery predicted a NASA model error before the run
@@ -62,11 +68,11 @@ gate.
 
 | Rung | Case | Status | Headline measured result |
 | --- | --- | --- | --- |
-| A1 | NACA0012 incompressible, official tutorial | **COMPLETE, FD-verified** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min |
+| A1 | NACA0012 incompressible, official tutorial | **COMPLETE; ~~FD-verified~~ CD/shape FAIL against the shipped toolchain under the current standard (sign-flipped idx6); cause found and fixed in a local patch, 2026-08-01 — see note below the FD table** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min. CD/CL wrt patchV, CL/shape and constraints pass; CD/shape carries a real sign-flipped component (idx6, 634% under the real seed) traced to IDWarp `vectorUtils.f90:58`. Patched-warp results, recorded beside the stock FAIL: idx6 → 5.54e-04% sign agreeing, idx0/idx1 11.92%/11.58% → 1.2e-05%, primal md5-identical. **Stock DAFoam/IDWarp 2.6.2 as shipped still carries the bug** |
 | A2 | MACH tutorial wing (3D) | **COMPLETE, FD-verified, optimization run** | CD 0.02772949, CL 0.47759, 38,304 cells; **28.28% drag reduction** at matched CL, time-boxed; 692.5 core-min |
 | A3 | ONERA M6 transonic | **primal UNCONVERGED; adjoint blocked at every mesh size** | The primal plateaus at 1.02e-06 against its own 1e-08 tolerance and raises an explicit error, so CD 0.02299556 and CL 0.31311589 are uncertified. The Cp comparison was never evaluable -- the solver raises before writing a field. Adjoint returns a linear-solver breakdown at 21,840, 42,120, 79,560 and 99,840 cells, so mesh size is not the constraint; 127.5 core-min |
 | A4 | Ahmed body 25 deg | **gradient verified; primal drag WITHDRAWN** | Gradient checked at 10.04% on a 2,777-cell mesh, and that mesh's own solve is healthy, so the gradient claim stands. The 45,760-cell primal that produced CD 0.06998 is withdrawn: its turbulence field diverged while its normalised residual read as converged, and the drag was computed from that state. Needs a re-run before any drag number is quoted; 10.9 core-min |
-| A5 | U-bend internal flow | running | — |
+| A5 | U-bend internal flow | ~~running~~ *(stale cell, superseded)* **COMPLETE; FD verdict FAIL against the shipped toolchain; cause found and fixed in a local patch, 2026-08-01 — see note below the FD table** | 4,800 cells, ~26.0 core-min. FD aggregate 46.6%, 2 of 27 components sign-flipped (idx8 207.0%, idx17 121.6%) — root cause shared with A1: IDWarp `vectorUtils.f90:58` degenerate-rotation branch, real-seed solve-free reproduction component by component. Patched-warp results, recorded beside the stock FAIL: idx8/idx17 → 3.0e-06/7.0e-06 signs agreeing; all 27 stock-objective components rel_err 0.0000 (before-worst 80.79%); primal md5-identical. **Stock DAFoam/IDWarp 2.6.2 as shipped still carries the bug** |
 | A6 | CRM wing (wing-alone; DPW4 wing-body rejected on time-box grounds), transonic | **COMPLETE, converged primal, matches published tutorial baseline** | CD 0.0209014, CL 0.5000146, 579,072 cells, matches DAFoam's own published tutorial CD=0.02090 to 0.0067%; a raw temperature-residual figure at the same checkpoint is anomalously large and has not been cleared, so this row is provisional pending that check; adjoint not attempted (known-infeasible per A3, mesh 1.45x A3's OOM point); 38.4 core-min |
 
 ### Consolidated FD verification table (every adjoint rung)
@@ -77,10 +83,30 @@ gate.
 | A1 | CD wrt flow parameter | **0.232%** |
 | A1 | CL wrt flow parameter | **0.232%** |
 | A1 | CL wrt shape | **1.67%** |
-| A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%** |
+| A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%**. **FAIL against the shipped toolchain** (sign-flipped idx6; 634% under the real seed). *Patched local IDWarp (2026-08-01), rotations ON, real seed: idx6 → 5.54e-04% sign agreeing; idx0/idx1 11.92%/11.58% → 1.23e-05%/1.26e-05%; idx7 1.31e-06%; idx4 1.47e-04%. Stock still fails* |
 
 | A4 | CD wrt rear-slant shape | **10.04%**, adjoint 0.21821, FD 0.24258. **CONDITIONAL** under the current standard. It was graded PASS against the calibrated band, which is retired; two other records already grade it CONDITIONAL and this row was the stale one |
-| A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** |
+| A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** — **FAIL against the shipped toolchain**. *Patched local IDWarp (2026-08-01), rotations ON, real seed: idx8 207.0% flip → 3.0e-06, idx17 121.6% flip → 7.0e-06, signs agree; all 27 stock-objective components rel_err 0.0000 (before-worst 80.79%). Stock still fails* |
+
+### 2026-08-01 note on the A1/A5 patched numbers: what changed and what did not
+
+The A1/A5 gradient defect is one mechanism, named to a source line: IDWarp
+2.6.2's `getRotationMatrix3d` degenerate-rotation branch
+(`src/utils/vectorUtils.f90:58`), whose AD reverse returns a derivative of
+exactly zero at the undeformed baseline — the state every gradient evaluation
+uses — where the true value is a cross-product term. A four-line corrected
+derivative, applied in a **scratch clone only**, collapses every measured error
+to FD-truncation level with rotations ON, leaves the primal warp md5-identical,
+and also answers upstream's five-year-open `mdolab/idwarp#57` (210%/213% →
+8.6e-06%/3.4e-05%). Root cause confirmed by repair:
+`dafoam/ROOTCAUSE_getRotationMatrix3d.md`, `dafoam/PATCH_getRotationMatrix3d.md`,
+`dafoam/PROOF.md` §23–24.
+
+**What did not change: no installed package was modified, nothing has been filed
+upstream (Katie's call), and every verdict on this board is graded against the
+SHIPPED stock toolchain, which still carries the bug. A reader must not take the
+italicised patched numbers as the state of shipped DAFoam — they are the proof
+of the diagnosis, recorded beside the stock FAILs.**
 
 ### A4 found a silent solver mismatch that affects the credentials wall
 
