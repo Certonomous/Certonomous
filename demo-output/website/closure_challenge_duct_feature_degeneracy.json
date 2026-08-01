@@ -1,0 +1,206 @@
+{
+  "generated_at": "2026-08-01T06:54:07.809620+00:00",
+  "official_scoring_calls_made_by_this_script": 0,
+  "ground_truth_read_for": [
+    "AR_10_Ret_180",
+    "AR_1_Ret_180",
+    "AR_3_Ret_180",
+    "AR_5_Ret_180"
+  ],
+  "ground_truth_never_read_for": [
+    "AR_14_Ret_180",
+    "AR_1_Ret_360",
+    "AR_3_Ret_360",
+    "NASA_2DWMH",
+    "alpha_05_4071_2024",
+    "alpha_05_4071_4048",
+    "alpha_15_13929_2024",
+    "alpha_15_13929_4048"
+  ],
+  "claim_under_test": "Two of the seven model inputs (I3_S3, I4_W2S) are mathematically zero on every duct, so the model learned nothing about them -- and that is why the duct predictions are weak.",
+  "duct_family": {
+    "per_case": {
+      "AR_1_Ret_180": {
+        "rel_I3_over_I1_pow1p5": 1.1591838164780245e-15,
+        "rel_I4_over_I1_pow1p5": 3.863946054926748e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 2.4535277662445174e-16,
+        "role": "train",
+        "n_cells": 2209,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 9.10805e-16,
+        "max_abs_streamwise_U": 50.0962
+      },
+      "AR_3_Ret_180": {
+        "rel_I3_over_I1_pow1p5": 1.5919601426100496e-15,
+        "rel_I4_over_I1_pow1p5": 5.306533808700163e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 3.3079033246755744e-16,
+        "role": "train",
+        "n_cells": 6627,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 8.06599e-16,
+        "max_abs_streamwise_U": 50.5756
+      },
+      "AR_5_Ret_180": {
+        "rel_I3_over_I1_pow1p5": 1.919279705957898e-15,
+        "rel_I4_over_I1_pow1p5": 6.397599019859662e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 3.294114450265765e-16,
+        "role": "train",
+        "n_cells": 11045,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 4.2937e-15,
+        "max_abs_streamwise_U": 49.1462
+      },
+      "AR_10_Ret_180": {
+        "rel_I3_over_I1_pow1p5": 1.9817003495257165e-15,
+        "rel_I4_over_I1_pow1p5": 6.605667831752386e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 3.2883158103084263e-16,
+        "role": "train",
+        "n_cells": 22090,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 2.29535e-15,
+        "max_abs_streamwise_U": 46.9043
+      },
+      "AR_7_Ret_180": {
+        "rel_I3_over_I1_pow1p5": 1.7209628926240134e-15,
+        "rel_I4_over_I1_pow1p5": 5.736542975413378e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 3.2902583070801455e-16,
+        "role": "validation",
+        "n_cells": 15463,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 3.68415e-15,
+        "max_abs_streamwise_U": 48.2553
+      },
+      "AR_1_Ret_360": {
+        "rel_I3_over_I1_pow1p5": 1.453451207725452e-15,
+        "rel_I4_over_I1_pow1p5": 4.844837359084841e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 2.587916868085414e-16,
+        "role": "TEST",
+        "n_cells": 3025,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 2.66953e-15,
+        "max_abs_streamwise_U": 108.215
+      },
+      "AR_3_Ret_360": {
+        "rel_I3_over_I1_pow1p5": 2.8194581394501563e-15,
+        "rel_I4_over_I1_pow1p5": 9.398193798167189e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 3.4583325083186423e-16,
+        "role": "TEST",
+        "n_cells": 8748,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 1.20202e-14,
+        "max_abs_streamwise_U": 109.393
+      },
+      "AR_14_Ret_180": {
+        "rel_I3_over_I1_pow1p5": 2.6803378312307383e-15,
+        "rel_I4_over_I1_pow1p5": 8.934459437435796e-16,
+        "rel_I2_plus_I1_over_I1": 0.0,
+        "rel_I5_plus_half_I1sq_over_I1sq": 3.30481184861148e-16,
+        "role": "TEST",
+        "n_cells": 31819,
+        "streamwise_axis": 0,
+        "max_abs_transverse_U": 8.66984e-15,
+        "max_abs_streamwise_U": 47.7111
+      }
+    },
+    "worst_relative_residual_over_all_eight_ducts": {
+      "rel_I3_over_I1_pow1p5": 2.8194581394501563e-15,
+      "rel_I4_over_I1_pow1p5": 9.398193798167189e-16,
+      "rel_I2_plus_I1_over_I1": 0.0,
+      "rel_I5_plus_half_I1sq_over_I1sq": 3.4583325083186423e-16
+    },
+    "all_four_identities_hold_to_machine_precision": true,
+    "independent_degrees_of_freedom_among_I1_to_I5": 1,
+    "effective_feature_dimension_of_the_8_feature_vector": 4,
+    "effective_feature_dimension_of_the_7_feature_vector": 3,
+    "mechanism": "The baseline k-omega SST duct solve is exactly unidirectional (max transverse |U| ~1e-15 against O(10) streamwise), because a linear eddy-viscosity closure generates no secondary flow in a straight duct. gradU is then a rank-one pure shear tensor and all five invariants reduce to functions of one shear magnitude. This is a property of the BASELINE SOLVE, not of duct geometry: the DNS duct field does carry secondary flow."
+  },
+  "non_degenerate_contrast_periodic_hill_test_cases": {
+    "alpha_15_13929_4048": {
+      "rel_I3_over_I1_pow1p5": 0.0030457084727339547,
+      "rel_I4_over_I1_pow1p5": 0.0007426994251109472,
+      "rel_I2_plus_I1_over_I1": 0.8431163324058598,
+      "rel_I5_plus_half_I1sq_over_I1sq": 0.4191351022501912
+    },
+    "alpha_15_13929_2024": {
+      "rel_I3_over_I1_pow1p5": 0.0045181812480999,
+      "rel_I4_over_I1_pow1p5": 0.0003959539232715558,
+      "rel_I2_plus_I1_over_I1": 0.9089048473840247,
+      "rel_I5_plus_half_I1sq_over_I1sq": 0.45424842073478
+    },
+    "alpha_05_4071_4048": {
+      "rel_I3_over_I1_pow1p5": 0.0037859764804452855,
+      "rel_I4_over_I1_pow1p5": 0.0016321825425876983,
+      "rel_I2_plus_I1_over_I1": 0.7793311715174799,
+      "rel_I5_plus_half_I1sq_over_I1sq": 0.3864465624394356
+    },
+    "alpha_05_4071_2024": {
+      "rel_I3_over_I1_pow1p5": 0.002462921540453767,
+      "rel_I4_over_I1_pow1p5": 0.0011169080239081444,
+      "rel_I2_plus_I1_over_I1": 0.8341215494275429,
+      "rel_I5_plus_half_I1sq_over_I1sq": 0.41391456659340875
+    }
+  },
+  "exact_symmetry_reachability_test": {
+    "case": "AR_1_Ret_180",
+    "role": "train",
+    "argument": "Every feature is invariant under the y<->z swap that maps this square duct's quadrant onto itself, so any f(features) must emit the same vector at p and Pp while the truth obeys dU(Pp)=P dU(p). The swap-antisymmetric part of dU is an exact error floor for the whole model class.",
+    "max_relative_feature_change_under_swap": {
+      "I1_S2": 1.0713271290709338e-13,
+      "I2_W2": 1.0713271290709338e-13,
+      "I3_S3": 1.987711822965281,
+      "I4_W2S": 1.9877118229652808,
+      "I5_W2S2": 1.8581383616358485e-13,
+      "Re_y": 5.148412215418273e-16,
+      "tke_ratio": 0.0,
+      "d_over_dmax": 6.817463260588852e-16
+    },
+    "note_on_I3_I4_entries": "I3_S3 and I4_W2S show a relative change of ~2 only because both are ~1e-14 numerical noise; that entry re-confirms they are zero rather than contradicting the invariance argument.",
+    "unreachable_energy_fraction": 0.0001197903194266949,
+    "floor_scaled_mae_no_correction": 0.10726823047127922,
+    "best_achievable_scaled_mae_by_any_function_of_these_features": 0.0011894536812946533,
+    "verdict": "HYPOTHESIS REFUTED. The unreachable component is ~0.01% of the correction's energy (0.0012 in scaled-MAE units against a 0.107 floor), because the true duct field respects the same symmetry the features do. Feature invariance imposes no meaningful error floor here, and this negative result is shipped."
+  },
+  "knn_conditional_variance_floor_training_ducts": {
+    "k": 9,
+    "per_case": {
+      "AR_1_Ret_180": {
+        "n_cells": 2209,
+        "irreducible_energy_fraction_estimate": 0.07820469946045552,
+        "floor_scaled_mae": 0.10726823047127922,
+        "knn_residual_scaled_mae": 0.02739484190804326
+      },
+      "AR_3_Ret_180": {
+        "n_cells": 6627,
+        "irreducible_energy_fraction_estimate": 0.03527167682966074,
+        "floor_scaled_mae": 0.11115060971068337,
+        "knn_residual_scaled_mae": 0.01991543759213864
+      },
+      "AR_5_Ret_180": {
+        "n_cells": 11045,
+        "irreducible_energy_fraction_estimate": 0.02687996788684086,
+        "floor_scaled_mae": 0.09379062065232022,
+        "knn_residual_scaled_mae": 0.014181729798512191
+      },
+      "AR_10_Ret_180": {
+        "n_cells": 22090,
+        "irreducible_energy_fraction_estimate": 0.024177078446484025,
+        "floor_scaled_mae": 0.0687012002762216,
+        "knn_residual_scaled_mae": 0.010697713227116157
+      }
+    },
+    "reading": "Inside the trained Reynolds number these 8 features retain enough information to reach 0.011-0.027 scaled MAE against floors of 0.069-0.107. The feature set is therefore NOT the binding constraint in-family. It is an in-family estimate and says nothing about transfer, which is the constraint that does bind."
+  },
+  "verdict": {
+    "degeneracy_claim": "VERIFIED and STRONGER THAN PUBLISHED. I3_S3 and I4_W2S are zero on all eight ducts, and two further identities (I2 = -I1 bit-exact, I5 = -I1^2/2 to 3e-16) were not previously recorded. Five of seven features carry one degree of freedom, not five.",
+    "causal_claim": "REFUTED, independently re-derived. The degeneracy is identical on AR_14_Ret_180, the duct the entry scores best on the board on, so it cannot discriminate the ducts we lose from the one we win. This confirms the 2026-07-31 finding rather than inheriting it.",
+    "what_binds_instead": "Transfer. Re_y reaches 1.85x and 2.07x its trained maximum on AR_1_Ret_360 and AR_3_Ret_360 and 0.90x on AR_14_Ret_180 (closure_challenge_duct_reynolds_transfer.json), and a gradient-boosted tree returns a constant past the edge of its training data.",
+    "concrete_modelling_target": "Every duct the rules permit fitting on sits at one Reynolds number, so no legal test of Reynolds transfer at a doubled velocity scale exists inside this benchmark. Closing the duct deficit needs either an ansatz that is Reynolds- invariant by construction rather than by feature engineering, or duct data at a second Reynolds number from outside the benchmark."
+  }
+}
