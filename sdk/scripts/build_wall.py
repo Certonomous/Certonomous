@@ -139,6 +139,38 @@ def _counter_html(counters: dict) -> str:
     return f'    <div class="cred-counters">\n{cells}\n    </div>'
 
 
+def _basis_foot_html() -> str:
+    """The measured basis of the two headline counters, stated on the page.
+
+    Added 2026-08-01 after escalation #2 asked what the 208,102 counter is
+    entitled to claim, given that 56,190 reduced-order rows record a
+    ``wall_seconds`` of exactly 0.0. Every figure below was measured from
+    ``demo-output/website/mega-batch/ledger.jsonl`` on 2026-08-01, not copied.
+    The finding: those rows are real evaluations recorded below the stored
+    precision, so the evaluation count stands and the core-hours figure is a
+    floor. Working is in COST_SCALING.md section 6.
+    """
+    return (
+        '  <p class="cred-foot"><strong>The basis of these two counters.</strong> '
+        '208,102 is every row of the mega-batch ledger recorded ok '
+        '(208,193 rows parsed, 91 failed, 1 torn line), run between '
+        '2026-07-23T03:53:37Z and 2026-07-29T11:17:07Z: 139,095 real solves and '
+        '69,007 reduced-order evaluations, each labelled as one or the other on '
+        'its own row. 239.259 solver core-hours is those rows&rsquo; wall seconds '
+        'summed and divided by 3600, every family serial. '
+        '56,190 of the reduced-order rows carry a wall time of exactly 0.0. That is '
+        'the stored precision, not a missing measurement: wall time is written as '
+        'round(seconds, 3), the model costs about 0.32 ms per evaluation, and '
+        'anything under 0.5 ms therefore stores as 0.0 &mdash; which is also why the '
+        'smallest non-zero wall time anywhere in the ledger is exactly 0.001 s and '
+        '96 percent of the reduced-order non-zeros are 0.003 s or less. The rows ran: '
+        '400 of 400 sampled reproduce their recorded metrics exactly when the model is '
+        're-run on that row&rsquo;s own design. So the evaluation count stands as measured, '
+        'and the core-hours figure is a floor &mdash; it understates true time by at most '
+        '56,190 &times; 0.0005 s = 28.1 s = 0.008 core-hours, 0.003 percent.</p>'
+    )
+
+
 def _cal_row_html(cards: list[dict]) -> str:
     validated = sum(1 for c in cards if c["tier"] == "VALIDATED")
     rows = []
@@ -279,6 +311,7 @@ def build_html(counters: dict, cards: list[dict]) -> str:
   <p class="cred-foot">Every credential is a real evaluation on this machine, graded against a
     published experimental value within a stated band. Tiers are honest: a body earns VALIDATED
     only against an experimental anchor in-regime; otherwise it carries the tier its evidence supports.</p>
+{_basis_foot_html()}
 </section>"""
 
 
