@@ -57,7 +57,44 @@ SST's, as H required of it. SA is the visible outlier (lowest stress, but
 mid-pack bubble). Spearman rho over these five: −0.600. Scoring waits for
 the full set per the pre-registration.
 
+## T1, first arm: a1 = 0.40 — CONVERGED, bubble shortens, stress rises
+
+`solve_registry/f6a_diff_SST_a1_040_20260801T001014Z.log`: checker verdict
+`CONVERGED: solver printed 'SIMPLE solution converged in 1702 iterations'`.
+The solver's own printCoeffs banner confirms `a1 0.4` with every other
+coefficient stock. Single clean bubble.
+
+| quantity | a1=0.31 (control) | a1=0.40 | shift |
+| --- | --- | --- | --- |
+| separation x/c | 0.6544 | 0.6562 | +0.0018 |
+| reattachment x/c | 1.2534 | **1.1873** | **−0.0661** |
+| peak\|R_xz\|/Uinf² (0.8/0.9/1.0c mean) | 0.013153 | **0.015107** (0.012223, 0.015520, 0.017579) | +15% |
+
+Raising the limiter cap raised the shear-layer stress AND shortened the
+bubble by 0.066 — 6.6x the pre-registered 0.01 significance bar, in the
+direction H predicts, with separation nearly unmoved (the documented
+onset-easy/recovery-hard pattern again). **Disclosed again: this is a
+sensitivity result. 1.1873 is not a better model; a1=0.40 was not chosen for
+where it lands.**
+
+## T1, second arm: a1 = 0.25 — interim (2026-08-01T00:25Z, run live)
+
+`solve_registry/f6a_diff_SST_a1_025_20260801T001506Z.log`. Through 5,000
+iterations: Ux Initial residual oscillates 1.6e-3–2.6e-3 with no decaying
+trend (0.0018 at ~500 → 0.0025 at ~5000), p 0.015–0.05 — the residual-floor
+signature this record knows from the r4 moderation sweep, not a slow
+transient. The wall trace is FRAGMENTED at every checkpoint (6–10 Cf sign
+crossings; a short bubble near x/c 0.61–0.68 plus a long downstream
+separation whose final closure wanders 1.378–1.404 across t=1000..5000
+checkpoints). Weaker shear-layer diffusion pushes the flow toward a longer,
+multi-cell, apparently unsteady separation with no steady fixed point —
+directionally consistent with H, but NOT a gate-met scalar, and per the
+standing rule it will not be placed on any curve as one. Run continues; a
+floor verdict needs the standard evidence window (≥2000 further iterations)
+before ruling.
+
 ## Run ledger (appended as runs settle)
 
 - 2026-08-01T00:04Z `f6a_diff_SST_control` — CONVERGED 1795 iter, 0.6544 / 1.2534. Template gate passed.
-- 2026-08-01T00:10Z `f6a_diff_SST_a1_040` — launched (a1=0.40 confirmed in solver's own printCoeffs banner).
+- 2026-08-01T00:10Z `f6a_diff_SST_a1_040` — CONVERGED 1702 iter, 0.6562 / 1.1873. Metric extracted.
+- 2026-08-01T00:15Z `f6a_diff_SST_a1_025` — live; residual floor + fragmented bubble through 5,000 iterations (see above).
