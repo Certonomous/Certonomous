@@ -37,7 +37,30 @@ preference, and says so rather than inventing one.
 
 ## Conflicts. These are not proposals, and they need a ruling
 
-### C-1. The camera rule names shapes; two rehearsed acts are cylinders
+### C-1. The camera rule names shapes; two rehearsed acts are cylinders. RULED: A
+
+**Ruled 2026-08-01, option A, by supervisor ruling R3 in
+`SUPERVISOR_RULINGS.md`. Hardness is read as the regime.** The shape list stays
+in force as guidance for what usually indicates a toy case; it is not the test.
+The two cylinder acts stay in the filmed sequence. No act is replaced.
+
+The lab had no recommendation here and said so, correctly: both readings traced
+to her. What decided it is that the two acts are graded against external
+references the lab did not choose, at 0.77 and 0.70 percent, and a von Karman
+street and a Mach 8 bow shock are not what the rule was written to keep off
+camera. Reading A also collapses two definitions of hardness into one, since
+charter 3 section 2 has always judged the regime.
+
+Cost of A accepted with it: the ban is a judgement, so somebody applies it, and
+a cylinder at Re 40 is refused on regime grounds by a person. There is no
+automated shape check in the lab today and, after this, there should not be —
+a word match on "cylinder" would refuse the two acts the ruling keeps.
+
+Carried out in `CASE_SELECTION_CHARTER.md`, now version 1.1: section 8 is
+rewritten from the conflict to the ruling with the conflict kept beneath it as
+8.1, section 3's camera bullet and section 9's enforcement note follow.
+
+The item as it was put:
 
 Charter 3, section 8. Unresolved since it was raised, and nothing in this
 revision moves it.

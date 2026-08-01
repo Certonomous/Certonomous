@@ -1,8 +1,16 @@
 # Certonomous Case Selection Charter
 
-Version 1.0, dated 2026-07-30. Governs which cases the lab starts. It binds
+Version 1.1, dated 2026-08-01. Governs which cases the lab starts. It binds
 overnight work, unattended work and anything an agent picks up on its own
 initiative, which is the whole point of writing it down.
+
+**What changed in 1.1.** Section 8 was an unresolved conflict and is now a
+ruling: the camera rule reads as a regime, and its shape list is guidance for
+what usually indicates a toy case rather than the test. That makes section 8
+agree with section 2, which has always judged the regime, so the lab now has
+one definition of hardness instead of two. Nothing else moved, and nothing got
+easier: a bare cylinder in creeping flow is refused on both surfaces exactly as
+it was.
 
 ## 1. The line
 
@@ -84,7 +92,9 @@ They are permitted, and they are permitted for exactly one purpose.
   neither. Charter 1 scores it zero on both axes by construction.
 - Filmed. This is the owner's standing demo rule and it predates this charter:
   no toy cases on any camera surface, industry geometries only. Nothing here
-  loosens it.
+  loosens it. Read "toy" as the regime, per section 8: a cylinder-class body in
+  a trivial regime is refused from camera exactly as before, and the shape it
+  is refused for is not the reason it is refused.
 - Used to fill a night. If the queue is empty the answer is escalation, not a
   cylinder.
 
@@ -187,10 +197,44 @@ depth-integrated front metric. Meeting the hardness floor buys the family a
 start. It buys nothing about the result, which is the verification charter's
 problem.
 
-## 8. An unresolved conflict, flagged not settled
+## 8. The camera rule reads as a regime, and the shape list is guidance
 
-> **CONFLICT. Two rules the owner has set point different ways, and this
-> charter does not resolve it.**
+> **RULED 2026-08-01. Hardness is a property of the regime, not the shape.**
+> The shape list stays in force as guidance for what usually indicates a toy
+> case. It is not the test.
+
+Supervisor ruling R3 (`SUPERVISOR_RULINGS.md`), answering conflict **C-1** in
+`PROPOSALS_OPEN.md` with option A. The section is rewritten from "flagged not
+settled" to the ruling, and the conflict it recorded is kept below it, because
+the two readings were both defensible and the record should say which one was
+chosen rather than reading as though the question never arose.
+
+**What the rule now is, in one sentence: a case is refused from a camera
+surface when its REGIME is trivial, and the shape list is the first thing to
+look at when deciding that, not the last word on it.**
+
+This is the same test section 2 already applies to the research program, now
+applied to the camera as well, so the lab has one definition of hardness rather
+than two. A bare cylinder in creeping flow is still refused. So is a sphere at
+Re 1, a cube in Stokes flow, and a flat plate at a Reynolds number where the
+answer is a closed-form line. None of those became acceptable.
+
+**How to apply it, since it is now a judgement rather than a word match.** Ask
+what the case is being asked to resolve. If the answer is something the regime
+produces — an unsteady wake with a shedding frequency, a shock with a standoff
+distance, a separation with a reattachment point, a transition — the shape it
+happens on does not disqualify it. If the answer is a number that a correlation
+or a closed form gives directly and the solve is only reproducing arithmetic,
+it is a toy case whatever it is shaped like. **The shape list is a prompt to
+ask the question, and asking it is the whole of the rule.**
+
+The cost is stated plainly and was accepted with the ruling: the ban is now a
+judgement, so somebody has to apply it, and a cylinder at Re 40 has to be
+refused on regime grounds by a person rather than by a word match. There is no
+automated shape check today (see section 9), and this ruling means one would be
+the wrong instrument if there were.
+
+### 8.1 The conflict this replaced, and the two acts it was about
 
 The camera rule names shapes. "No toy cases (sphere, cube, plate, cylinder) on
 any camera surface, industry geometries only." Round 7, the same week, restates
@@ -205,14 +249,17 @@ graded PASS against the Billig correlation at 0.70 percent. Both are in
 Section 2 of this charter would call both HARD, because it judges the regime
 rather than the shape: act 1 is unsteady statistics, act 5 is a shock case.
 That reading makes the shoot consistent. The camera rule as literally written
-makes it a violation twice over.
+made it a violation twice over.
 
-Somebody has to choose. Either the camera rule means "toy regime" and its
-wording should say so, or it means "toy shape" and two rehearsed acts need
-replacing. This charter takes no position, because both readings trace to the
-owner and picking one would be inventing policy. It goes to her, as **C-1** in
-`PROPOSALS_OPEN.md`, with the two options and the cost of each stated so the
-answer is one word.
+**Both acts stay in the filmed sequence.** A cylinder at Re 100 shedding a von
+Karman street, and a cylinder at Mach 8 carrying a bow shock, are not toy
+problems, and both are graded against external references the lab did not
+choose. The intent of the rule was to keep trivial cases off camera, and
+neither of these is one.
+
+The charter took no position for as long as the question was open, because both
+readings traced to the owner and picking one would have been inventing policy.
+It is not inventing policy now; it is recording a ruling that was made.
 
 ## 9. Enforcement
 
@@ -224,7 +271,10 @@ answer is one word.
 - `scripts/audit_transcripts.sh` and `scripts/audit_camera_discretion.sh` cover
   the camera half of the toy-geometry rule. Neither of them can see the
   research program, which is why this charter exists as text rather than as a
-  test.
+  test. Neither carries a shape word list either, and after the section 8
+  ruling neither should: a word match on "cylinder" would refuse the two acts
+  the ruling keeps. The camera half of this rule is not mechanizable and is
+  applied by a person.
 
 **PROPOSAL.** Nobody has ruled on this. The cleanest mechanical enforcement
 would be a required `hard_criterion` field on the proposal JSON schema, refused
