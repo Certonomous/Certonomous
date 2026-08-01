@@ -117,6 +117,54 @@ also needed rescue here, and D5 already scored "at least one RSM will need
 relaxation tuning or fail outright" as CORRECT on the duct. Per the standing
 three-treatments rule, no fourth attempt; the failure is the result.
 
+## T2, corrected in-flight: every RSM failure above traced to ONE root cause — the R initial field was non-realizable
+
+Chronology kept honest: after LRR's three failures were recorded above, SSG
+and EBRSM were attempted and failed the same way — and two of those failures
+exposed a **new trap for this project's own settle standard**, worth its own
+paragraph before the root cause.
+
+**SSG "converged" twice, and both are false gates.**
+`f6a_diff_SSG_20260801T004155Z.log` printed `SIMPLE solution converged in 381
+iterations`; `f6a_diff_SSG_v2_20260801T004417Z.log` (epsilonWallFunction
+lowReCorrection added) printed it at 239. In both, the final iterations show
+epsilon bounding with averages of 1e33–1e34 (v1) and 1e24 (v2) — a fully
+diverged epsilon field — while Ux/Uz/p Initial residuals sit at machine zero
+(1e-16–1e-18, `No Iterations 0`): the momentum update had frozen, and
+`residualControl` sampled a quiet iteration of an oscillating, unphysical
+state. The wall trace at the "converged" state is 22+ Cf sign crossings
+including spurious ones at x/c −2.0 and −0.49. **The `SIMPLE solution
+converged` string and the string-based checker verdict are both satisfied by
+this state; only the physical read (`hump_gate_analysis.py`, bounding lines)
+catches it.** This is a third distinct gate-trap signature for the estate
+(after Final-vs-Initial L-14 and wrong-field D5): *converged-string on a
+diverged state*. Neither SSG "result" is a result.
+
+**EBRSM attempt 1** (`f6a_diff_EBRSM_20260801T004539Z.log`, low-Re wall BCs
+per the v2606 planeChannel tutorial): epsilon → 9.1e49, dead at iteration 12.
+
+**The root cause, then.** Checked the R field all these runs were initialized
+from (built by `postProcess -func R` on kEpsilon's converged t=2000 state):
+**it is non-realizable.** Negative normal stresses in 12.39% of cells (Rxx
+min −20.5 m²/s²), 4.88% (Rzz), 1.36% (Ryy), and on 18 of 83 inlet faces of
+the fixedValue inlet profile — the documented over-strain defect of linear
+EVM stress reconstruction, R = (2/3)k·I − 2·nut·S. Every "LRR/SSG/EBRSM
+failure" above was therefore feeding the stress-transport equations a
+Reynolds stress no velocity field can have — the same pathology class the
+L-26 sign-error audit measured, arrived at by a different door. **None of the
+six attempts above was actually testing the turbulence model**, exactly the
+shape of the L-26 lesson ("the three attempts §8 counted were never running
+the method"), which is why the three-treatments rule is correctly reopened
+here rather than violated.
+
+**Fix (blind to the answer):** `0/R` rebuilt as the strictly realizable
+isotropic state (2/3)k·I from the same converged k field (floor 1e-8),
+inlet profile likewise; anisotropy left to regenerate from each model's own
+transport. Documented in each case's `0/R` header. First clean run (LRR v4,
+`f6a_diff_LRR_v4_20260801T004731Z.log`): no epsilon bounding at all through
+500+ iterations, all residuals decaying — the instability is gone with the
+IC defect, on the numerics that had already failed twice without it.
+
 ## Run ledger (appended as runs settle)
 
 - 2026-08-01T00:04Z `f6a_diff_SST_control` — CONVERGED 1795 iter, 0.6544 / 1.2534. Template gate passed.
