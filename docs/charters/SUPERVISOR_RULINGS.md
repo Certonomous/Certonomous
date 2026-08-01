@@ -149,3 +149,40 @@ counts what ran.
 The fleet numeral on those paths goes for the same reason R2 gave. A worker
 count is a claim about the run, and a claim about work that did not happen is
 the defect, not the clock that measured it.
+
+### R10 correction, same day: the stake I gave it was false
+
+R10 argued the fix mattered because "that ledger produces the core-hours figure
+on the credentials wall." **It does not, and I should have checked before
+writing it.**
+
+There are two ledgers. `ComputeLedger` in `lab.py` is per-mission and in
+memory, and is what these six sites spend to. The wall's core-hours come only
+from `mega-batch/ledger.jsonl`, written in exactly one place, and **no workflow
+act writes to it.** The wall's 239.259 core-hours never contained a second of
+display pacing, and no published number needed restating.
+
+Measured, the whole effect was **33 to 35 core-seconds per fully warm sweep**,
+0.0093 core-hours, and **zero across the record, because no record accumulates
+it.** The narration that printed the spend rounded both one second and fourteen
+to `0` regardless.
+
+So the ruling stands on its own principle and only that: a warm path spends
+nothing to a solver ledger because pacing a display is not compute. It was
+tidiness, not an overstatement anyone could have read, and the agent was right
+to refuse to imply otherwise.
+
+**Recorded because a ruling argued from a false stake is worth more as a
+correction than as a quiet edit.** The reasoning was sound and the fact under
+it was not checked, which is the same failure this lab keeps finding in its own
+records.
+
+### The opposite defect, found while applying it
+
+`onera_m6.py:504`, the primal-plateau path. A genuine 498-second four-rank cold
+solve raises before spending, so the transcript reads `solve stage 498 seconds`
+and then `Spend 0 core-minutes`. The ledger **understates** roughly 33
+core-minutes that actually ran.
+
+R10 covers warm paths and deliberately leaves this alone. It is the more
+serious direction of the two and it is now filed rather than fixed in passing.
