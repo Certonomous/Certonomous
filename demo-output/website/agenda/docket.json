@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T10:18:25Z",
+  "generated_at": "2026-08-01T10:18:53Z",
   "proposals": [
     {
       "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -3412,6 +3412,62 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T10:18:25Z"
+    },
+    {
+      "id": "w3-non-orthogonality-belongs-in-the-numerical-channel",
+      "well": "W3",
+      "objective": "Make mesh non-orthogonality a stated input to the numerical uncertainty, since it now predicts divergence",
+      "rationale": "Five grids ordered by severe non-orthogonality reproduce a clean dose response: 0.59 percent solves two hundred iterations clean, 6.70 dies at 143, 19.30 at 16, 29.12 at 11. Aspect ratio and skewness do not order them at all, and the grid with the worst maximum of both is the one that solves. The lab reports non-orthogonality as a mesh quality gate and never carries it into the uncertainty a result quotes, so a mesh that nearly failed and one that passed comfortably produce numbers wearing identical bands.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The numerical channel states the mesh non-orthogonality behind it, and a near-gate mesh is visibly distinguished from a clean one",
+      "expected_knowledge_gain": "The lab now has a measured predictor of solver failure and does not use it anywhere a result is judged",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output/website/committee-grids"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T10:18:53Z"
+    },
+    {
+      "id": "w5-what-else-does-the-importer-unlock",
+      "well": "W5",
+      "objective": "Survey which public workshop entries are now reachable, given topology decides and not the workshop",
+      "rationale": "The importer reads all four packagings in circulation and the topology finding says hex families are reachable while tet dominant ones are not by tuning. Nobody has crossed those two facts against the public workshop catalogue to say which entries this lab could actually attempt. The high lift entry was carried for a week at thirty six percent of the approved backlog before it was found to be undeliverable, and the same question has never been asked of the others.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Each public workshop case is named reachable or not, with its grid topology and its submission route stated",
+      "expected_knowledge_gain": "The lab can now read grids it could not read, and does not know which of them it can use",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/committee-grids",
+        "scripts/ugrid_to_foam.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T10:18:53Z"
+    },
+    {
+      "id": "w8-a-category-can-be-the-error",
+      "well": "W8",
+      "objective": "Record that the unit of analysis is itself a hypothesis, from the committee-grid result",
+      "rationale": "The question asked was whether committee grids defeat this toolchain. The answer is that the category does not exist: the line is element topology, and the same workshop publishes grids on both sides of it. The controlled experiment was only possible because one workshop ships the identical geometry and point set as hexes, prisms and tets, so topology could be varied alone. A question phrased around the wrong grouping cannot be answered correctly however carefully it is measured.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A charter clause requiring a stated unit of analysis, and one worked example of a grouping that dissolved under measurement",
+      "expected_knowledge_gain": "The most expensive error available is a well-measured answer to a badly grouped question",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/committee-grids",
+        "docs/charters/VERIFICATION_CHARTER.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T10:18:53Z"
     }
   ]
 }
