@@ -165,6 +165,74 @@ gradients that looked right under a random seed; that failure mode is directly t
 | 4504 | 2.8187e-12 | unresolvable | unresolvable |
 | 3752 | 0.0 exactly | unresolvable | unresolvable |
 
+### The velocity-bound clips, audited 2026-08-01 — and the audit inverted the question
+
+A monitor replay found four of these 34 logs printing `Bounding U<1000`
+(`comp1254_p_0.001`, `comp1254_m_0.01`, `comp1660_p_0.001`, `comp4504_p_0.001`; 13 events, all at
+the single printed iteration `Time = 100`). Monitor Standard S10a calls a ceiling clip FATAL. The
+escalation asked which four points to exclude and whether 2.674% survives without them. **Both
+questions turned out to be the wrong ones, and the reason is worth more than the answer.**
+
+**DAFoam gates its bound message on `printInterval`.** The campaign ran at the default
+`printInterval 100` (`logs/fd_points/base_a.log:474`), so each log reports clipping from **1% of
+its iterations**. The four were never the four runs that clipped. They were the four whose clip
+happened to land on a printed iteration.
+
+**Measured, not reasoned.** Twelve points were re-run 2026-08-01 in a private case copy
+(`/home/ubuntu/certonomous-runs/S1-fiml/ramp_kw_clipcheck/`) under the campaign protocol
+byte-for-byte — same `runScript_S1.py`, same `rm -rf c1/processor*` cold reset, same 4 ranks — with
+`printInterval: 1` as the only change:
+
+| point | objective, archived | objective, re-run | iters | clips logged then | clips actually | clip window |
+|---|---|---|---|---|---|---|
+| base_a | 1.3816040076915038e-02 | **bit-identical** | 1833 | 0 | **20** | 40–56 |
+| base_b | 1.3816040076915038e-02 | **bit-identical** | 1833 | 0 | **20** | 40–56 |
+| dirg_p_0.001 | 1.3823467297330421e-02 | **bit-identical** | 3291 | 0 | **144** | 36–142 |
+| dirg_m_0.001 | 1.3808613803551745e-02 | **bit-identical** | 1815 | 0 | **203** | 31–90 |
+| dirg_p_0.0001 | 1.3816783010325821e-02 | **bit-identical** | 1910 | 0 | **27** | 37–55 |
+| dirg_m_0.0001 | 1.3815297529667142e-02 | **bit-identical** | 1879 | 0 | **13** | 34–43 |
+| dirr_p_0.001 | 1.3815972955104720e-02 | **bit-identical** | 2164 | 0 | **43** | 35–54 |
+| dirr_m_0.001 | 1.3816107739599284e-02 | **bit-identical** | 2066 | 0 | **26** | 27–54 |
+| comp1290_p_0.001 | 1.3817932976973112e-02 | **bit-identical** | 1977 | 0 | **3** | 38–43 |
+| comp1290_m_0.001 | 1.3814146956982194e-02 | **bit-identical** | 2040 | 0 | **97** | 41–93 |
+| comp1254_p_0.001 | 1.3814171027823122e-02 | **bit-identical** | 2625 | 3 | **93** | 69–102 |
+| comp1254_m_0.001 | 1.3817913025369282e-02 | **bit-identical** | 2001 | 0 | **0** | — |
+
+Three findings, in the order that matters.
+
+1. **Eleven of the twelve clip — including the unperturbed baseline, and including both runs the
+   2.674% headline is computed from.** 689 clip events against the 3 the archive recorded for the
+   same twelve runs: a 230x undercount. The exclusion the escalation contemplated is therefore not
+   available. There is no clip-free subset to retreat to; only `comp1254_m_0.001` is clean, and one
+   leg of one component is not a verification.
+2. **The clip provably does not touch the answer.** All twelve objectives return bit-identical to
+   sixteen significant figures, and every iteration count matches the archive exactly (1833, 3291,
+   2625, 2040, 2001 …). `printInterval` changed what was printed and nothing else. **`2.674%` and
+   `2.683%` stand unchanged — and for a stronger reason than before: the very solves that produced
+   them are now known to have clipped, and they reproduce the same numbers.**
+3. **The clip is a startup transient, not a corrupted solution.** All 689 events fall in iterations
+   **27 to 142** of runs 1815 to 3291 iterations long; every run is clip-free over its final **95%
+   or more**. The bound is `UMax 1000`, DAFoam's own default — `runScript_S1.py` overrides only
+   `omegaMin` — against a 10 m/s inlet. It is inactive at the fixed point the objective is read
+   from, so the converged state satisfies the unbounded discrete equations and the finite difference
+   is a difference of the same function. That is exactly what separates these from the withdrawn A4
+   run, whose ceiling clip (`omega<1e+16`) is present at **every** printed iteration including its
+   last (`logs_A4/A4_fine_primal_par4.log`, iterations 100/200/300/400/500 of 500).
+
+**Both hypotheses in the escalation are refuted by the data.** The clip is *not* a symptom of the
+perturbation being too large: three of the four originally-flagged points clip at the **smaller**
+step `h=1e-3` while the same cell and direction at `h=1e-2` does not, and the baseline — zero
+perturbation — clips 20 times. And the step-study plateau is *not* measuring the limiter: the
+limiter is active in both plateau steps and in the baseline alike, so it cannot be what
+distinguishes them. The residual ~2.7% remains unexplained, and this audit does not explain it.
+
+**What the audit did cost, and this is the real defect it found.** `scripts/analyze_fd.py` reads
+only the `OBJ` line and never inspects the log it came from. Had a clip mattered, nothing in this
+protocol would have caught it — and the campaign's own `printInterval` meant the evidence was 99%
+discarded before the analyzer ever ran. Any future FD campaign on this stack should run at
+`printInterval 1` and have its analyzer refuse a point whose log clips outside the startup window.
+That is a protocol defect, not a result defect, and it is recorded here rather than closed.
+
 **Reading, stated at the precision the evidence supports.** The disagreement is ~2.7% and it is
 **step-independent**: a factor of 10 in step moves it by 0.009 percentage points, where genuine
 central-difference truncation error would fall by ~100x. By this lab's own doctrine that makes it
@@ -185,6 +253,15 @@ like. They are reported as **unverified**, not as passed and not as failed.
 objective direction, all under the 5% bar, zero sign flips among components the finite difference
 can actually resolve. With the caveat, recorded rather than buried, that the residual ~2.7% is
 real, step-independent, convergence-independent, and unexplained.
+
+**Verdict re-affirmed 2026-08-01 after the clip audit, and the basis restated.** The numbers above
+did not move; what moved is what is known about the solves behind them. They are not clip-free
+solves — eleven of twelve re-audited points trip DAFoam's default velocity bound during the SIMPLE
+startup, the baseline included. They are solves in which the bound is confined to the first ~5% of
+iterations and inactive at the converged state, re-run under the identical protocol to bit-identical
+objectives. **The finite-difference verification stands.** It stands on a narrower and better-stated
+claim than before: not "no clip occurred", which was never true and was never measured, but "the
+clip is a transient the iteration discards, and the objective is provably unchanged by it".
 
 ## 4. The NASA hump: scoped, stood up, blocked
 
@@ -343,7 +420,10 @@ affordable substitute and it is what "FD-verified" has to mean at this design-va
   of DAFoam's own SST model, driven through a converging discrete adjoint, FD-verified to 2.67% on
   the real objective direction, with the warp defect proven absent from the chain. The term is
   named here because it is the whole of what was verified: nothing in this record establishes
-  anything about a beta on the destruction term, which this install does not expose.
+  anything about a beta on the destruction term, which this install does not expose. The 2.67%
+  survived a clip audit on 2026-08-01 (section 3): the FD solves do trip DAFoam's default velocity
+  bound in their startup transient, the baseline included, and re-running them with full logging
+  returns bit-identical objectives.
 - **Stage 1's stated target, the NASA hump, is NOT reachable today**, for a reason that is now
   measured rather than guessed: an adjoint linear-solve conditioning failure that is independent
   of memory, of mesh size in the range the lab feared, of wall treatment, and of the
@@ -374,7 +454,8 @@ Logs and scripts: `S1_work/logs/` and `S1_work/scripts/`.
 
 | file | what it holds |
 |---|---|
-| `logs/fd_sweep_run1.log`, `logs/fd_points/` | 34 fresh-process FD evaluations |
+| `logs/fd_sweep_run1.log`, `logs/fd_points/` | 34 fresh-process FD evaluations, at `printInterval 100` |
+| `logs/fd_clip_audit_run1.log` | **the 2026-08-01 clip audit**: 12 points re-run at `printInterval 1`, every one of the 689 clip events with its iteration, and the bit-identical objective and iteration count against the archived run |
 | `logs/fd_plan.json` | FD design, adjoint component values, directions |
 | `logs/s1_e1_kw.json`, `s1_e2_sst.json`, `s1_e2_tight.json` | gradients, timings, warp probe |
 | `logs/hump_adjoint_run1.log` | hump `-9` blocker, primary evidence |
@@ -383,4 +464,5 @@ Logs and scripts: `S1_work/logs/` and `S1_work/scripts/`.
 | `scripts/` | run scripts, FD generator and analyzer, reference-field builder |
 
 Case working directories are not committed (OpenFOAM binary and processor state, regenerable):
-`/home/ubuntu/certonomous-runs/S1-fiml/{ramp_kw,hump,hump_wf,hump_nrn,hump_nofvopt,hump_nat}`.
+`/home/ubuntu/certonomous-runs/S1-fiml/{ramp_kw,hump,hump_wf,hump_nrn,hump_nofvopt,hump_nat}`, and
+`ramp_kw_clipcheck` holding the 21 MB of full `printInterval 1` logs the clip audit distilled.
