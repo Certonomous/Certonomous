@@ -1,0 +1,12 @@
+IDWARP_IMPORTED_FROM: /patch/idwarp/idwarp/__init__.py
+--- baseline primal convergence (FIRST 'Minimal residual' line: the run_model solve, before any FD perturbation) ---
+--- final Total Derivatives table ---
+Total Derivatives
+-----------------
+
+'<output>'                     wrt '<variable>'                   | calc mag.  | check mag. | a(cal-chk) | r(cal-chk)
+---------------------------------------------------------------------------------------------------------------------
+
+'scenario1.aero_post.functionals.CD' wrt 'dvs.shape'                    | 2.2086e-01 | 2.4258e-01 | 2.1718e-02 | 8.9531e-02 >ABS_TOL >REL_TOL
+Finalising parallel run
+Finalising parallel run

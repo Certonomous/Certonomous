@@ -1,0 +1,12 @@
+IDWARP_IMPORTED_FROM: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/idwarp/__init__.py
+--- baseline primal convergence (FIRST 'Minimal residual' line: the run_model solve, before any FD perturbation) ---
+--- final Total Derivatives table ---
+Total Derivatives
+-----------------
+
+'<output>'                     wrt '<variable>'                   | calc mag.  | check mag. | a(cal-chk) | r(cal-chk)
+---------------------------------------------------------------------------------------------------------------------
+
+'scenario1.aero_post.functionals.CD' wrt 'dvs.shape'                    | 2.1821e-01 | 2.4258e-01 | 2.4365e-02 | 1.0044e-01 >ABS_TOL >REL_TOL
+Finalising parallel run
+Finalising parallel run
