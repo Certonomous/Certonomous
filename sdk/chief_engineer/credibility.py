@@ -53,6 +53,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Mapping
 
+_HERE = Path(__file__).resolve().parent
+
 # --------------------------------------------------------------------------
 # The validation hierarchy (Oberkampf and Trucano, SAND2002-0529)
 # --------------------------------------------------------------------------
@@ -299,17 +301,109 @@ def _pedigree_level(record: Mapping[str, Any]) -> tuple[int, str]:
     return 0, PEDIGREE_LEVELS[0]
 
 
+def _identity_slack() -> float:
+    """The governed slack a point-estimate Sobol identity may break by.
+
+    Read from the physics file rather than restated here: the number is
+    justified there, measured on this lab's two models between base samples
+    of 800 and 12800, and a threshold restated in a second place is a
+    threshold that drifts. The literal is a fallback for when the file cannot
+    be read, and it is the file's own value.
+    """
+    try:
+        import yaml
+
+        data = yaml.safe_load(
+            (_HERE.parents[1] / "docs" / "physics_rules.yaml")
+            .read_text(encoding="utf-8")) or {}
+        return float((data.get("sobol") or {}).get("identity_slack", 0.05))
+    except Exception:
+        return 0.05
+
+
+def apportionment_admissible(record: Mapping[str, Any]) -> tuple[bool, str]:
+    """Does this record's variance apportionment state a budget and hold?
+
+    Two failures, and the lab has met the second one. A decomposition scores
+    the top robustness level, above a settled ladder with a propagated band,
+    on the strength of a key being present. It used to score it on nothing
+    else at all.
+
+    * A ranking with no budget behind it cannot be read. Sobol indices are
+      estimates, and how many samples produced them decides whether the order
+      is a measurement or an ordering of noise.
+    * A ranking whose own identities break is under-sampled and says so. At
+      the approved design neither Sobol demonstration cleared: first-order
+      shares summed to 1.202 of the whole variance with the leading main
+      effect above its own total. A share above the whole variance is not a
+      share. The act caught that and bought more samples; nothing forced it
+      to look, and nothing checked the number once it was written down.
+
+    Returns the verdict and the reason, so a refusal is stated rather than
+    silently scoring one level lower.
+    """
+    shares = record.get("sobol_indices") or record.get("variance_shares")
+    if not shares:
+        return False, "no apportionment"
+    budget = record.get("n_base") or record.get("n_evaluations")
+    if isinstance(shares, Mapping):
+        budget = budget or shares.get("n_base") or shares.get("n_evaluations")
+        main = shares.get("main")
+        total = shares.get("total")
+        if main is None:
+            # A bare mapping of input to share is the main-effect vector.
+            numeric = [v for v in shares.values()
+                       if isinstance(v, (int, float))]
+            main = numeric or None
+    else:
+        main, total = list(shares), None
+    try:
+        budget = int(budget) if budget else 0
+    except (TypeError, ValueError):
+        budget = 0
+    if budget <= 0:
+        return False, ("the apportionment states no sample budget, so the "
+                       "ranking cannot be told from noise")
+    if not main:
+        return False, "the apportionment carries no first-order shares"
+    slack = _identity_slack()
+    try:
+        mains = [float(v) for v in main]
+    except (TypeError, ValueError):
+        return False, "the first-order shares are not numbers"
+    if sum(mains) > 1.0 + slack:
+        return False, (f"first-order shares sum to {sum(mains):.3f} of the "
+                       f"whole variance, past the governed slack of {slack:g}; "
+                       f"the run is under-sampled")
+    if total:
+        try:
+            totals = [float(v) for v in total]
+        except (TypeError, ValueError):
+            totals = []
+        if len(totals) == len(mains) and any(
+                m > t + slack for m, t in zip(mains, totals)):
+            return False, ("a main effect exceeds its own total effect past "
+                           "the governed slack; the run is under-sampled")
+    return True, f"apportioned on a stated budget of {budget}"
+
+
 def _robustness_level(record: Mapping[str, Any]) -> tuple[int, str]:
     """Results robustness, read off what the record actually carries."""
     study = record.get("grid_study") or {}
     rungs = study.get("rungs") or []
     settled = bool(study.get("grid_conclusive"))
     has_band = record.get("envelope") is not None
-    apportioned = bool(record.get("sobol_indices")
-                       or record.get("variance_shares"))
+    apportioned, why = apportionment_admissible(record)
 
     if apportioned:
-        return 4, ROBUSTNESS_LEVELS[4]
+        return 4, f"{ROBUSTNESS_LEVELS[4]} ({why})."
+    if why not in ("no apportionment",):
+        # The apportionment is present and refused. Say so at whatever level
+        # the rest of the evidence earns, rather than scoring it silently.
+        level = (3 if settled and has_band else
+                 2 if settled else 1 if rungs else 0)
+        return level, (f"{ROBUSTNESS_LEVELS[level]} The apportionment does "
+                       f"not count: {why}.")
     if settled and has_band:
         return 3, ROBUSTNESS_LEVELS[3]
     if settled:

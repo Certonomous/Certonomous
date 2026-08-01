@@ -7,6 +7,7 @@ ADDITIONS beside a fidelity chip and neither changes what a chip means.
 
 import json
 import sys
+import pathlib
 import unittest
 from pathlib import Path
 
@@ -130,16 +131,47 @@ class ScorecardTests(unittest.TestCase):
             cred.scorecard({"grid_study": {"rungs": [1, 2, 3],
                                            "grid_conclusive": True},
                             "envelope": 0.002})["factors"][1]["level"],
-            cred.scorecard({"sobol_indices": {"a": 0.6}}
+            cred.scorecard({"n_base": 800,
+                            "sobol_indices": {"a": 0.6}}
                            )["factors"][1]["level"],
         ]
         self.assertEqual(levels, [0, 1, 2, 3, 4])
 
     def test_apportioned_variance_is_the_top_level(self):
         # This is the link to the sensitivity mission: apportioning variance
-        # is what moves a result to the top of the robustness scale.
-        card = cred.scorecard({"sobol_indices": {"flow": 0.39, "cd": 0.61}})
+        # is what moves a result to the top of the robustness scale. It takes
+        # a stated budget to get there, because an apportionment with no
+        # sample count behind it cannot be told from an ordering of noise.
+        card = cred.scorecard({"n_base": 800,
+                               "sobol_indices": {"flow": 0.39, "cd": 0.61}})
         self.assertEqual(card["factors"][1]["level"], 4)
+
+    def test_an_apportionment_with_no_budget_does_not_score_at_all(self):
+        card = cred.scorecard({"sobol_indices": {"flow": 0.39, "cd": 0.61}})
+        self.assertEqual(card["factors"][1]["level"], 0)
+        self.assertIn("no sample budget", card["factors"][1]["note"])
+
+    def test_an_under_sampled_apportionment_is_refused_with_its_sum(self):
+        # The measured failure: at the approved design the first-order shares
+        # summed past the whole variance and the leading main effect sat
+        # above its own total. A share above the whole variance is not a
+        # share, and the record must not score the top level on one.
+        card = cred.scorecard({
+            "grid_study": {"rungs": [1, 2, 3], "grid_conclusive": True},
+            "envelope": 0.002,
+            "sobol_indices": {"n_base": 200, "main": [0.720, 0.482],
+                              "total": [0.700, 0.550]}})
+        self.assertEqual(card["factors"][1]["level"], 3)
+        self.assertIn("1.202", card["factors"][1]["note"])
+        self.assertIn("under-sampled", card["factors"][1]["note"])
+
+    def test_the_refusal_slack_is_the_governed_one_not_a_restated_literal(self):
+        import yaml
+        rules = yaml.safe_load(
+            (pathlib.Path(cred.__file__).resolve().parents[2]
+             / "docs" / "physics_rules.yaml").read_text(encoding="utf-8"))
+        self.assertEqual(cred._identity_slack(),
+                         float(rules["sobol"]["identity_slack"]))
 
     def test_a_placard_needs_all_three_parts(self):
         with self.assertRaises(ValueError):

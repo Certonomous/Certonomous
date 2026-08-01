@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:42:57+00:00",
+  "generated_at": "2026-08-01T04:46:37+00:00",
   "proposals": [
     {
       "id": "w3-valve-band-never-adjudicated",
@@ -58,10 +58,11 @@
         "Dakota method definitions",
         "sdk/workflows/sobol_sensitivity.py"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T14:18:26Z",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decided_at": "2026-08-01T04:46:37+00:00",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "The act was already gated and the consumer was not. The Sobol act states its budget, checks the identities on the point estimates against the governed slack of 0.05, and doubles the base sample from 200 up to a 3200 ceiling until the run is admissible. What nobody had checked is the surface that reads the result: the credibility scorecard awarded its top robustness level, above a settled ladder with a propagated band, to any record merely carrying a shares key. No budget, no identity check, no numbers needed. The exact failure the act catches would have scored highest: first-order shares summing to 1.202 of the whole variance with the leading main effect above its own total now scores 3 rather than 4, and says why. The refusal reads the slack from the governed physics file instead of restating it. 0 of 18 credential and study records carry an apportionment today, so the level was reachable by writing one key and nothing else."
     },
     {
       "id": "w3-refit-stored-studies-in-place",
