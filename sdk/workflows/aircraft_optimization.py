@@ -2365,10 +2365,16 @@ def main(request: str | None = None, params: dict | None = None,
             f"brackets the half-step variation on each grid axis, "
             f"±{(bracket['value'] or 0.0):.2f}. The cruise-point read on the "
             f"solved polar adds ±{readoff:.2f}.")
+        # ONE QUANTITY, ONE RENDERING. The channel's Value cell prints
+        # `u_model` at the three decimals it is rounded to, and this note
+        # restates the SAME number: at two decimals it read "1.451" and
+        # "±1.45" in adjacent cells of one row, which reads as two
+        # measurements that disagree. No number changed; the note quotes the
+        # value cell's own rendering.
         model_note = (
             f"Component buildup band on non-wing drag, propagated to "
             f"whole-aircraft L/D: "
-            f"±{u_model:.2f}. The band is the documented ±15% on the buildup "
+            f"±{u_model:.3f}. The band is the documented ±15% on the buildup "
             f"terms (Raymer, Aircraft Design: A Conceptual Approach, AIAA).")
         if gap is not None:
             model_note += (
