@@ -165,6 +165,34 @@ transport. Documented in each case's `0/R` header. First clean run (LRR v4,
 500+ iterations, all residuals decaying — the instability is gone with the
 IC defect, on the numerics that had already failed twice without it.
 
+## T2: LRR on the realizable IC — a characterized limit cycle, not a gate-met value
+
+`f6a_diff_LRR_v4_20260801T004731Z.log` (conservative-ladder numerics: SIMPLE,
+p 0.3, U 0.5, R/eps 0.2, first-order R/eps convection). With the realizable
+IC the epsilon catastrophe is gone: clean monotone decay for ~3,900
+iterations, Ux Initial reaching 1.10e-6 (2.2x over gate) with a single clean
+bubble. Then, as the model's own anisotropy finished developing, recurring
+epsilon-bounding bursts set in (~every 100–500 iterations from iter ~3,894
+onward, 700+ events by 12,354) and the run entered a stable limit cycle
+rather than a fixed point: reattachment at t=6000..12000 checkpoints reads
+1.2668, 1.2724, 1.2682, 1.2620, 1.2587, 1.2611, 1.2636 — oscillating about
+**mean 1.2647, envelope ±0.007 (±0.55%)**, single bubble at 6 of 7
+checkpoints, transiently double-crossed mid-burst. Stopped gracefully with
+`stopAt writeNow` at 12,354; checker verdict NOT_CONVERGED, reported exactly
+so. This exceeds the SA plateau precedent's 0.3% stability bar, so **1.2647
+is a starred, characterized oscillation mean — not a converged prediction,
+and it enters no gate-met claim.** Physically it echoes the record's standing
+reading: a stress state this far off the eddy-viscosity manifold has no
+steady fixed point on this mesh — but here the cycle is tight enough to
+characterize instead of fragmenting into noise.
+
+Shear metric across the last four written states (10000, 11000, 12000,
+12354): peak|R_xz|/Uinf² = **0.013801 ± 0.0001** — essentially stationary
+across the cycle even as reattachment wobbles, between kOmegaSST's 0.0132
+and kEpsilon's 0.0159. Note the pairing (starred): slightly MORE stress
+than SST, slightly LONGER mean bubble — a mild inversion against H's
+cross-model monotonicity, carried into T2 scoring as such.
+
 ## Run ledger (appended as runs settle)
 
 - 2026-08-01T00:04Z `f6a_diff_SST_control` — CONVERGED 1795 iter, 0.6544 / 1.2534. Template gate passed.
