@@ -54,6 +54,18 @@ Confirm the staged set before you start:
 ls -lh /home/ubuntu/Certonomous/sdk/geometry/*.stl
 ```
 
+The copy set is also served by the control room itself, on the port you are
+already using, so a shut static site cannot leave an act asking for a body it
+cannot be given:
+
+```bash
+curl http://127.0.0.1:8765/api/surfaces             # names, sizes, digests
+curl -O http://127.0.0.1:8765/api/surfaces/b52.stl  # the bytes
+```
+
+It serves `demo-surfaces/` for the reason above, and its listing names every
+staged surface it does not carry.
+
 **One surface, one launch.** An attached surface is consumed by the launch it
 was attached to; the panel resets to "Load a surface (STL / OBJ)" afterwards.
 If you want a second act on the same body, attach it again. This matters

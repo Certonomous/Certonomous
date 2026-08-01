@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:35:02+00:00",
+  "generated_at": "2026-08-01T04:42:57+00:00",
   "proposals": [
     {
       "id": "w3-valve-band-never-adjudicated",
@@ -661,10 +661,11 @@
         "sdk/chief_engineer/server.py",
         "demo-output/website/surfaces"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T18:18:00Z",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decided_at": "2026-08-01T04:42:57+00:00",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "Measured the asymmetry first: the control room's own port answered every artifact endpoint it has, and none of them hands over a body. Geometry came back only as a decimated viewport payload, while the 5 files the operator actually uploads were reachable solely through the static site on the second port. The control room now serves that copy set on its own port, an index with sizes and digests plus the bytes, and all 5 download identical to the tracked originals with directory traversal and non-surface names refused on 5 of 5 probes. It serves the tracked copy set rather than the staging area an upload overwrites, and its listing names the 17 staged surfaces it does not carry so a missing body is read rather than discovered on camera. Verified against a second instance on a spare port, off loopback on the private address; genuine off-box reachability could not be decided from the box, since the public address answers 000 to itself, and that is the separate item's job. The route reaches the operator at the next control room start; the running one was not touched."
     },
     {
       "id": "w4-idwarp-source-trace",

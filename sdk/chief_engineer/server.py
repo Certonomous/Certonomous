@@ -18,6 +18,7 @@ import sys
 import threading
 import time
 from dataclasses import dataclass, field
+from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -40,6 +41,25 @@ MAX_MISSIONS = 24
 def _output_root() -> Path:
     return Path(os.environ.get(
         "CERTONOMOUS_OUTPUT", HERE.parents[1] / "mission-output")).resolve()
+
+
+def _copy_set_root() -> Path:
+    """The operator's surface copy set.
+
+    Deliberately NOT the staging directory this server reads. An upload named
+    `b52.stl` overwrites the staged `b52.stl`, so the staging area is not a
+    stable source and the filming notes already say to copy from here. This
+    one is tracked and changes only by commit.
+    """
+    return Path(os.environ.get(
+        "CERTONOMOUS_SURFACES", HERE.parents[1] / "demo-surfaces")).resolve()
+
+
+def _staging_root() -> Path:
+    """Where the control room resolves a body by name, and where an upload
+    lands. Read here only to say which staged surfaces the copy set omits."""
+    return Path(os.environ.get(
+        "CERTONOMOUS_STAGING", HERE.parent / "geometry")).resolve()
 
 
 def _credentials_root() -> Path:
@@ -223,11 +243,14 @@ class Handler(BaseHTTPRequestHandler):
         return
 
     # -- response primitives --
-    def _write(self, code: int, body: bytes, content_type: str) -> None:
+    def _write(self, code: int, body: bytes, content_type: str,
+               extra_headers: dict[str, str] | None = None) -> None:
         self.send_response(code)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        for name, value in (extra_headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -266,6 +289,7 @@ class Handler(BaseHTTPRequestHandler):
             "/api/compute-audit": self._serve_compute_audit,
             "/api/missions": self._serve_mission_list,
             "/api/agenda": self._serve_agenda,
+            "/api/surfaces": self._serve_surface_index,
         }
         if path in exact:
             exact[path](query)
@@ -275,6 +299,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path.startswith("/api/field/"):
             self._serve_artifact(path, ".json", "application/json", "unknown field surface")
+            return
+        if path.startswith("/api/surfaces/"):
+            self._serve_copy_set_file(path)
             return
         if path.startswith("/api/surface/"):
             self._serve_surface_artifact(path)
@@ -377,6 +404,67 @@ class Handler(BaseHTTPRequestHandler):
             self._write_json(200, load_surface(target))
         except Exception as exc:
             self._fail(400, f"{type(exc).__name__}: {exc}")
+
+    # Surfaces the operator downloads, served on the control room's own port.
+    #
+    # WHY THIS IS HERE. The bodies were reachable only through the static site
+    # on a second port. During filming that port was shut while this one was
+    # open, so an act that wanted an attached body could not get one, and
+    # nothing said which of the two doors had closed. Two doors is one more
+    # thing that can be shut than anyone checks. Everything the operator needs
+    # now comes through the door that is already proven reachable.
+    #
+    # These are bytes, not the decimated viewport payload /api/geometry
+    # returns: an upload has to be the file itself.
+    _COPY_SET_SUFFIXES = (".stl", ".obj")
+
+    def _serve_surface_index(self, _query) -> None:
+        """What can be downloaded here, and what the copy set does not carry.
+
+        The omissions are listed rather than left silent. A surface that is
+        staged on this box but absent from the copy set is one the operator
+        cannot fetch through this port, and finding that out on camera is the
+        failure this endpoint exists to prevent.
+        """
+        root = _copy_set_root()
+        available = []
+        for item in sorted(root.glob("*")) if root.exists() else []:
+            if not item.is_file() or item.suffix.lower() not in \
+                    self._COPY_SET_SUFFIXES:
+                continue
+            digest = sha256(item.read_bytes()).hexdigest()
+            available.append({"name": item.name, "bytes": item.stat().st_size,
+                              "sha256": digest,
+                              "url": f"/api/surfaces/{item.name}"})
+        staged = _staging_root()
+        names = {entry["name"] for entry in available}
+        absent = sorted(
+            item.name for item in (staged.glob("*") if staged.exists() else [])
+            if item.is_file() and item.suffix.lower() in
+            self._COPY_SET_SUFFIXES and item.name not in names)
+        self._write_json(200, {
+            "surfaces": available,
+            "staged_but_not_downloadable": absent,
+            "note": ("The copy set is tracked and changes only by commit. "
+                     "The staging area is overwritten by uploads, so it is "
+                     "not served."),
+        })
+
+    def _serve_copy_set_file(self, path: str) -> None:
+        parts = path.strip("/").split("/")
+        if len(parts) != 3 or not parts[2].lower().endswith(
+                self._COPY_SET_SUFFIXES):
+            self._fail(404, "not found")
+            return
+        root = _copy_set_root()
+        target = (root / parts[2]).resolve()
+        if root not in target.parents or not target.exists():
+            self._fail(404, "unknown surface")
+            return
+        self._write(200, target.read_bytes(), "application/octet-stream",
+                    extra_headers={
+                        "Content-Disposition":
+                            f'attachment; filename="{target.name}"'})
 
     def _serve_certificate(self, path: str) -> None:
         parts = path.strip("/").split("/")

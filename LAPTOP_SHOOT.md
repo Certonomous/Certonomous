@@ -148,6 +148,22 @@ The larger surfaces (CRM wing-body, ONERA M6, airliner wing) live in
 `/home/ubuntu/Certonomous/sdk/geometry/` — same `scp`, different directory, if
 you want those too.
 
+**If `scp` is not available, the control room serves the same five files on its
+own port.** This matters because it is the port you already have open: the
+static site answers on 8080 and the control room on 8765, and on the shoot
+where the control room was reachable the static site was not, which left an act
+asking for a body it could not be given. One door, already proven open:
+
+```bash
+curl http://16.58.201.228:8765/api/surfaces            # what is there, with sizes and digests
+curl -O http://16.58.201.228:8765/api/surfaces/b52.stl # the file itself
+```
+
+The listing also names every surface staged on the box that this door does
+*not* carry, so a missing body is something you read rather than discover.
+These bytes come from `demo-surfaces/`, which is tracked and changes only by
+commit — not from the staging directory, which an upload overwrites.
+
 ---
 
 ## 3. The acts you asked for
