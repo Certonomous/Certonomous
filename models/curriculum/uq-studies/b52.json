@@ -47,7 +47,7 @@
       "note": "background blockMesh divisions scaled up again (51x45x75); same recipe as fine-uq/production. Added specifically to get a second successive triple within the valid same-recipe family, per uq-b52-ladder-monotonicity lesson update."
     }
   ],
-  "updated_utc": "2026-07-31T22:24:09Z",
+  "updated_utc": "2026-08-01T06:23:19Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
     "dim": 3,
@@ -136,5 +136,36 @@
       "255358_to_330950": 0.002702
     },
     "finding": "Iterative error is ruled out. Neither finest rung prints OpenFOAM's 'SIMPLE solution converged' message, so convergence was measured from the force history rather than assumed: both are stationary to a final-window 2-sigma of 1.07e-05 (fine-uq) and 2.25e-06 (finer2), with halves-drift below 1e-06. The finer rung is the MORE settled of the two, not the less. Those figures are two to three orders of magnitude below the 2.702e-03 grid increment they would have to explain. The increments grow because the discretization does, and the ladder is diverging for a reason more iterations cannot reach."
+  },
+  "dimensionality": {
+    "dim": 3,
+    "established_from": "this body's own archived case files, not its name",
+    "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
+    "evidence": [
+      "five of the six rungs' own log.checkMesh state 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)' and 'Mesh has 3 solution (non-empty) directions (1 1 1)', each at the recorded cell count: mission-output/geometry-study/study-b52-coarse (40656), study-b52-medium (107489), study-b52 (193880), /home/ubuntu/certonomous-runs/study-b52-fine-uq (255358), /home/ubuntu/certonomous-runs/study-b52-finer2-uq (330950)",
+      "the intermediate rung's mesh (135779 cells) was not retained; no directory under /home/ubuntu/certonomous-runs carries that nCells. It is covered by construction instead: every rung of this ladder is background-blockMesh plus snappyHexMesh from one builder (sdk/chief_engineer/external_aero.py, _block_mesh), which emits a single farfield entry of type patch and no other boundary type -- the strings empty and wedge do not occur in it. A rung of this ladder cannot be 2D. Recorded as inference from the builder, not as a reading of that rung's own mesh."
+    ],
+    "checked_utc": "2026-08-01T00:00:00Z"
+  },
+  "refit_in_place": {
+    "method": "recomputed in place on 2026-08-01 from this study's own levels[] through the current fit (chief_engineer.uq.eca_hoekstra_band), compared field by field against the block already on the record. No solve was run and no measured number changed: the refit reproduces every field of the stored numerical block, including observed_order, band_abs, the method string, the guard map and the Richardson-extrapolated value, bit for bit.",
+    "fit_scope": "fitted on the four same-recipe rungs named in recipe_audit.valid_family_cells (135779, 193880, 255358, 330950); coarse and medium use a different refinement recipe and are excluded, as they were when the stored block was written",
+    "compute_spent": "none",
+    "fields_added": [],
+    "fields_added_note": "none: this record already carried the full field set when it was committed on 2026-07-31 (ba47307a). What was missing was the dimensionality block the other six carry, and that is what this pass adds.",
+    "reproduced_exactly": {
+      "observed_order": 2.253,
+      "band_abs": 0.006348739897916664,
+      "method": "successive Cd increments GROW with refinement instead of shrinking; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+      "guards": {
+        "distinct_rungs": true,
+        "monotone": true,
+        "order_window": true,
+        "increment_trend": false,
+        "extrapolation_sanity": false
+      },
+      "richardson_extrapolated": 0.06484210401663687
+    },
+    "verdict_moved": false
   }
 }

@@ -59,5 +59,36 @@
     "ahmed_25-rung-medium",
     "ahmed_25-production"
   ],
-  "updated_utc": "2026-07-31T22:23:28Z"
+  "updated_utc": "2026-08-01T06:22:49Z",
+  "dimensionality": {
+    "dim": 3,
+    "established_from": "this body's own archived case files, not its name",
+    "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
+    "evidence": [
+      "constant/polyMesh/boundary of all three rungs carries exactly two patches, of type patch and wall; no empty, no wedge (/home/ubuntu/certonomous-runs/study-ahmed_25-coarse-40aacb nCells 20621, /home/ubuntu/certonomous-runs/study-ahmed_25-medium-b37e86 nCells 45753, /home/ubuntu/certonomous-runs/act7-ahmed_25-04261b nCells 79439 -- each matching its recorded rung)",
+      "mission-output/geometry-study/study-ahmed_25/log.checkMesh (cells 45753, the medium rung): 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)' and 'Mesh has 3 solution (non-empty) directions (1 1 1)'"
+    ],
+    "checked_utc": "2026-08-01T00:00:00Z"
+  },
+  "refit_in_place": {
+    "method": "recomputed in place on 2026-08-01 from this study's own levels[] through the current fit (chief_engineer.uq.eca_hoekstra_band), compared field by field against the block already on the record. No solve was run and no measured number changed: the refit reproduces every field of the stored numerical block, including observed_order, band_abs, the method string, the guard map and the Richardson-extrapolated value, bit for bit.",
+    "fit_scope": "fitted on all three stored rungs",
+    "compute_spent": "none",
+    "fields_added": [],
+    "fields_added_note": "none: this record already carried the full field set when it was committed on 2026-07-31 (ba47307a). What was missing was the dimensionality block the other six carry, and that is what this pass adds.",
+    "reproduced_exactly": {
+      "observed_order": 1.95,
+      "band_abs": 0.020223634207885317,
+      "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+      "guards": {
+        "distinct_rungs": true,
+        "monotone": true,
+        "order_window": true,
+        "increment_trend": true,
+        "extrapolation_sanity": false
+      },
+      "richardson_extrapolated": 0.07327589152491365
+    },
+    "verdict_moved": false
+  }
 }
