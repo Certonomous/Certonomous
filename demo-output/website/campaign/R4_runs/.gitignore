@@ -1,0 +1,9 @@
+# Rung working state: meshes, decomposed fields and time directories are
+# regenerable from system/ + constant/triSurface + the two scripts. Only the
+# dictionaries, the logs and the force histories are evidence.
+processor*/
+constant/polyMesh/
+constant/extendedFeatureEdgeMesh/
+0/
+0.orig/
+[1-9]*/
