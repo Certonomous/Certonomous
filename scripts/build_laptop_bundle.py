@@ -40,6 +40,16 @@ WANTED_INTENTS = ("aircraft-optimization", "nasa-hump",
 ARTIFACT_RE = re.compile(r"/api/(plot|field|surface|certificate)/([A-Za-z0-9._-]+)"
                          r"(?:/([A-Za-z0-9._-]+))?")
 
+# The certificate is the one artifact whose URL is never written down. Plots,
+# fields and surfaces arrive in the recording as "/api/plot/..." strings, so
+# scanning the text finds them. The certificate arrives as a `certificate.ready`
+# event carrying a directory, and the browser builds "/api/certificate/<dir>"
+# at render time -- so the scan matched nothing and every bundle ever built
+# shipped zero certificates. The link on the laptop answered "no certificate
+# for this mission" on all four acts, which is the sealed evidence page the
+# whole demo ends on.
+CERTIFICATE_EVENT = "certificate.ready"
+
 SITE_PAGES = ("closure.html", "benchmarks.html")
 
 
@@ -86,6 +96,19 @@ def referenced_artifacts(events_path: Path) -> set[tuple[str, str]]:
             found.add((first, "certificate.pdf"))
         elif second:
             found.add((first, second))
+    # The certificate, which no URL in the text names. Read the event instead
+    # and take the directory it states, which is the same value the control
+    # room puts in the link it builds.
+    for line in text.splitlines():
+        if CERTIFICATE_EVENT not in line:
+            continue
+        try:
+            payload = json.loads(line).get("payload") or {}
+        except ValueError:
+            continue
+        directory = str(payload.get("dir") or "").strip()
+        if directory and "/" not in directory and directory not in (".", ".."):
+            found.add((directory, "certificate.pdf"))
     return found
 
 
@@ -158,15 +181,20 @@ def main() -> int:
 
     # ---- 3. only the artifacts those recordings point at ------------------
     copied = skipped = 0
+    absent: list[str] = []
     for directory, filename in sorted(artifacts):
         src = args.output_root / directory / filename
         if not src.exists():
             skipped += 1
+            absent.append(f"{directory}/{filename}")
             continue
         dst = out / "mission-output" / directory / filename
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dst)
         copied += 1
+    certs = sorted(d for d, f in artifacts if f == "certificate.pdf")
+    print(f"  certificates {len(certs)} of {len(picked)} acts: "
+          f"{', '.join(certs) if certs else 'NONE'}")
 
     # ---- 4. the standing panels, as a build-time snapshot -----------------
     # These two panels are DERIVED, not stored: the credentials wall re-grades
@@ -213,6 +241,8 @@ def main() -> int:
     print(f"\nBundle: {out}")
     print(f"  artifacts copied {copied}, referenced-but-absent {skipped}")
     print(f"  size {total / 1024 / 1024:.1f} MB")
+    if absent:
+        print(f"  WARNING: referenced but absent: {', '.join(absent)}")
     if missing:
         print(f"  WARNING: no complete recording found for: {', '.join(missing)}")
 
