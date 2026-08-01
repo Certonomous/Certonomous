@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T08:18:22Z",
+  "generated_at": "2026-08-01T08:18:36Z",
   "proposals": [
     {
       "id": "w5-decide-what-cannot-be-submitted",
@@ -3168,6 +3168,62 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T08:18:22Z"
+    },
+    {
+      "id": "w8-a-ruling-cites-what-it-protects",
+      "well": "W8",
+      "objective": "Require a ruling to name the artifact it claims to protect, and check that it does",
+      "rationale": "A supervisor ruling argued that a fix mattered because a per-mission ledger fed the core-hours figure on the credentials wall. It does not: there are two ledgers, the wall reads only the batch one, and no act writes to it. The ruling may still stand on its own terms but its stated stake was false, and it was written by the supervisor rather than caught by one. A justification nobody checks is the part of a decision most likely to be wrong and least likely to be noticed.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every ruling names the artifact it protects, and a check confirms that artifact is actually downstream of the change",
+      "expected_knowledge_gain": "The reasoning behind a decision outlives the decision, and gets quoted",
+      "source_kind": "report",
+      "citations": [
+        "docs/charters/SUPERVISOR_RULINGS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:36Z"
+    },
+    {
+      "id": "w7-s4-and-s5-are-not-watching",
+      "well": "W7",
+      "objective": "Repair or withdraw the two monitor rules the archive replay showed are not working",
+      "rationale": "S4 fires on 158 logs and 38,923 findings, and the severity ladder the standard describes for it exists nowhere in the code. S5 entire vocabulary across 449 archived logs is two keys, and both are defects of the key rather than findings: the normaliser mangles an option name, and a multi-line warning collapses 146 logs onto one contentless key. One rule reports tens of thousands of undifferentiated findings and the other reports almost nothing, and both look like coverage.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Each rule either produces findings a reader can act on, or is withdrawn with the replay behind it",
+      "expected_knowledge_gain": "A monitor that appears to watch and does not is the failure the whole standard exists to prevent",
+      "source_kind": "report",
+      "citations": [
+        "scripts/replay_monitor_rules.py",
+        "docs/standards/MONITOR_STANDARD.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:36Z"
+    },
+    {
+      "id": "w6-the-box-went-from-a-tenth-to-full",
+      "well": "W6",
+      "objective": "Measure what changed when utilisation went from 1.4 cores to saturation, and whether the throughput followed",
+      "rationale": "The cost forecast was built on a measured 1.40 cores busy sustained, and concluded the lab was sequencing-bound rather than compute-bound. The box is now running eighteen solvers at a load of 15.8 on sixteen cores. If throughput rose proportionally the forecast horizon collapses by an order of magnitude; if it did not, the box is oversubscribed and every wall clock measured under it is inflated, including the ones feeding the cost laws.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Measured evaluations per wall hour before and after, with the per-solver wall times compared at matched work",
+      "expected_knowledge_gain": "Every duration this lab has measured today was taken under a load its own forecast never contemplated",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "mega-batch ledger"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T08:18:36Z"
     }
   ]
 }
