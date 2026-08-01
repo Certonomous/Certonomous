@@ -1,0 +1,22 @@
+# verify_rotderiv.py
+# run 2026-08-01T06:51:12Z on ip-172-31-43-247
+# python Python 3.12.3, numpy 2.5.1
+
+--- A. reference forms agree away from degeneracy (sanity) ---
+   max|shipped-singfree| = 1.734723475976807e-18
+   max|shipped-singfree| = 2.220446049250313e-16
+   max|shipped-singfree| = 2.220446049250313e-15
+
+--- B. shipped primal Jacobian at v2=v1 via central FD (the TRUE derivative) ---
+--- vs claimed (R), contracted with 20 random mib and random direction d ---
+   worst relative error over 20 draws: 1.9216727388746237e-12
+
+--- C. is the shipped primal's OWN FD the same thing? (guard vs live) ---
+   hand case v1=z, mib=e_13 -> claimed v2b = [1. 0. 0.]
+   shipped-primal FD along x, h=1e-02: 0.999950003748
+   shipped-primal FD along x, h=1e-03: 0.999999500037
+   shipped-primal FD along x, h=1e-04: 0.999999995711
+
+--- D. what the SHIPPED reverse returns at the degenerate point ---
+   branch 0 zeroes magv2b, axisb, axismagb and never increments v2b
+   -> dMi/dv2 = [0. 0. 0.]  (structural, read off vectorUtils_b.f90:123-128)

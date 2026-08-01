@@ -520,10 +520,72 @@ item `w5-rotations-off-mesh-quality-price`.
 ### 5.2 What is still open
 
 - The AIAA paper (§2.3) is unread. The "undocumented" claim rests on code, docs and release notes only.
-- §1.6's second regime (ill-conditioned, just above threshold) is measured on ONERA M6 at ~1%
-  but not isolated to a line the way the first regime is.
+- ~~§1.6's second regime (ill-conditioned, just above threshold) is measured on ONERA M6 at ~1%
+  but not isolated to a line the way the first regime is.~~ **CLOSED 2026-08-01, see §6.** It is
+  `vectorUtils_b.f90:133`, with the error-vs-angle curve measured.
 - Whether `mdolab/dafoam` #905 / #914 are this defect is **unverified**. They have not been run here.
 - PROOF.md §22's carried-forward `getdFScaling` anomaly is untouched by this session and remains open.
+
+---
+
+## 6. Independent re-verification, 2026-08-01
+
+A second pass re-checked this document from the `v2.6.2` source without reusing any of the lab's own
+tooling -- no Fortran driver, no IDWarp build, no DAFoam. Scripts and timestamped logs:
+`rotation_branch/independent_check/` (run 2026-08-01T06:51Z).
+
+**6.1 Source citations.** All verified line for line: `vectorUtils.f90:44,58,69-70`;
+`vectorUtils_b.f90:124-128` (and confirmed that `v2b` is never incremented anywhere in branch 0, so
+the trailing `GETMAG_B`/`CROSS_PRODUCT_3D_B` at `:150-153` propagate exactly zero);
+`kd_tree.F90:1630,1633-1636,1640,1643-1646,1648`.
+
+**6.2 The corrected derivative, confirmed without the patch.** An independent transcription checked
+`v2b += (axial(mib - mib^T) x v1)/(|v1||v2|)` against a Richardson-extrapolated FD of the
+singularity-free reference over 20 random `(v1, mib, direction)` draws at `v2 = v1`: worst relative
+error **1.9e-12**; hand case `v1 = z`, `mib = e_13` -> `(1,0,0)` exactly.
+Log: `independent_check/verify_rotderiv.log`.
+
+**6.3 Lowering `tol` cannot fix it.** `tol` is exactly `sqrt(eps) = 1.4901e-08`, but the
+`acos(min(1, v1.v2))` construction is numerically flat on its own out to `sqrt(2*eps) = 2.1073e-08`
+rad: `1 - v1.v2 = theta^2/2` drops below `eps`, `arg` rounds to bit-exact `1.0`, and `acos(1.0) = 0`
+exactly, guard or no guard. Measured at `theta = 1e-08`: `arg` is bit-exactly `1.0`, `1 - arg` is
+bit-exactly `0.0`. **There is no threshold that both avoids the NaN and preserves the derivative**,
+so the retune-the-tolerance fix -- the first thing a maintainer will reach for -- is foreclosed. Only
+§1.7's reparameterization or an explicit derivative correction works.
+Log: `independent_check/flatspot_width.log`.
+
+**6.4 The second regime, isolated and measured.** A faithful transcription of
+`GETROTATIONMATRIX3D_B` versus the true derivative, as a function of tilt angle:
+
+| `theta` | 1e-01..1e-04 | 1e-05 | 1e-06 | 1e-07 | 5e-08 | 3e-08 | 2e-08 | <=1.49e-08 |
+|---|---|---|---|---|---|---|---|---|
+| rel. err | 2e-12..2e-09 | 4.1e-08 | 6.7e-05 | 4.0e-04 | **1.2e-02** | **6.6e-03** | **5.3e-02** | **1.0 (guard)** |
+
+The band is `vectorUtils_b.f90:133`, `argb = -(angleb/SQRT(1.0-arg**2))`, where `1 - arg^2 ~ theta^2`
+is formed by cancellation from an `arg` carrying `eps` of roundoff. ONERA M6's 1.26% -- which
+survives the patch, as §6 of `PATCH_getRotationMatrix3d.md` predicted -- sits in this band.
+Log: `independent_check/regime2_vs_angle.log`.
+
+**6.5 Scoping: no siblings.** `src/adjoint/Makefile_tapenade` differentiates exactly one head,
+`kd_tree%computeNodalProperties(XsPtr, tp%Mi, tp%Bi)`. The entire generated surface is
+`outputReverse/vectorUtils_b.f90`, `outputReverse/getElementProps_b.f90`, their `_d` duals, and the
+Tapenade output pasted inline at `kd_tree.F90:1057-1360`. Every branch was inspected:
+`getElementProps_b.f90:48` is element wraparound (both sides cross products, correct) and its
+`.EQ. 0.0_8` guards are unreachable given the primal's `+1e-15`; `COMPUTENODALPROPERTIES_B`'s corner
+branch zeroes `Mib` where the primal genuinely assigns `Mi = I` at every state
+(`kd_tree.F90:1643-1646`), so that zero is correct -- which is exactly why P4 (§4.5) drove all errors
+to 0.0000. **`vectorUtils_b.f90:124-128` is the only branch in IDWarp's differentiated source where
+the primal substitutes a constant for a locally smooth function purely to dodge a numerical
+singularity.** A negative result, and it bounds the claim: there are no siblings to find.
+
+**6.6 The limit of the claim, stated against ourselves.** The AD's zero *is* the exact derivative of
+the implemented function at the baseline point. The guard makes `warpMesh` genuinely flat in a ball
+of angular radius ~1.5e-08 rad, and an FD taken entirely inside that ball returns exactly `0.0`,
+agreeing with the AD to every digit (measured, `flatspot_width.log`). Tapenade is correct about the
+code as written. The defect is precisely that **`warpDeriv` returns the derivative of a flat spot
+that no optimizer can traverse and no finite difference can resolve** -- reaching it needs
+`h < 1.5e-08 * L`, and §4.1's step study already shows roundoff destroying the FD at `h = 1e-08`.
+Any filing should pre-empt the response "the code is differentiable and your step is too coarse."
 
 ### 5.3 Evidence index
 
@@ -540,6 +602,9 @@ item `w5-rotations-off-mesh-quality-price`.
 | `rotation_branch/D3` | §4.6 evalMode=exact |
 | `rotation_branch/D5a,D5b` | §4.7 rcm reordering |
 | `rotation_branch/D6_predeform_{on,off}` | §4.9 capstone, pre-deformed baseline |
+| `rotation_branch/independent_check/verify_rotderiv.{py,log}` | §6.2 corrected derivative, re-derived independently (1.9e-12) |
+| `rotation_branch/independent_check/flatspot_width.{py,log}` | §6.3 `tol` retune foreclosed; §6.6 flat-spot reachability |
+| `rotation_branch/independent_check/regime2_vs_angle.{py,log}` | §6.4 second regime isolated to `vectorUtils_b.f90:133` |
 
 Working tree (outside the repo, not version-controlled):
 `/home/ubuntu/certonomous-runs/W5-idwarp-source/` (source clone at `v2.6.2`, upstream input files,

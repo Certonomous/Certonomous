@@ -99,6 +99,97 @@ function" below).
 Derivation, controlled unit experiment, and raw logs:
 `PATCH_getRotationMatrix3d.md`, `rotation_branch/patched/`, `rotation_branch/patch_unittest/`.
 
+## Update, 2026-08-01 (later): INDEPENDENT RE-VERIFICATION, and two findings that change what to recommend
+
+The root cause and patch above were re-checked from the source by a second pass that deliberately did
+not reuse any of the lab's own tooling -- no Fortran driver, no IDWarp build, no DAFoam. Every source
+citation was read back out of the `v2.6.2` tag; the corrected derivative was re-derived and tested in
+an independent transcription. Scripts and timestamped logs:
+`rotation_branch/independent_check/` (run 2026-08-01T06:51Z).
+
+**1. Every source citation verifies, line for line.** `src/utils/vectorUtils.f90:44` (`tol =
+1.4901161193847656e-08`), `:58` (`if (axisMag < tol)`), `:69-70` (`arg = min(one, ...)`, `angle =
+acos(arg)`); `src/adjoint/outputReverse/vectorUtils_b.f90:124-128` (branch 0 zeroes `magv2b`,
+`axisb`, `axismagb`) with `v2b` never incremented anywhere in that branch, so the trailing
+`GETMAG_B`/`CROSS_PRODUCT_3D_B` calls at `:150-153` propagate exactly zero;
+`src/modules/kd_tree.F90:1630` (`normals` recomputed every call), `:1633-1636` (`normals0` and `Ai`
+frozen inside `#ifndef USE_TAPENADE`), `:1640` (the `getRotationMatrix3d` call), `:1648`
+(`Bi = Xu - Mi*Xu0`, which is what makes `Mi` act on the lever arm).
+
+**2. The corrected derivative is confirmed independently.** A from-scratch transcription of the
+shipped primal, checked against a Richardson-extrapolated finite difference of the independent
+singularity-free form over 20 random `(v1, mib, direction)` draws at `v2 = v1`, reproduces
+`v2b += (axial(mib - mib^T) x v1)/(|v1||v2|)` to a worst relative error of **1.9e-12**, and returns
+the hand case `v1 = z`, `mib = e_13` -> `v2b = (1,0,0)` exactly. This is an independent confirmation
+of the patch's formula, obtained without running the patch.
+
+**3. NEW -- the obvious fix does not work: lowering `tol` cannot recover the derivative.** The
+guard's threshold is exactly `sqrt(eps) = 1.4901e-08`. But the `acos(min(1, v1.v2))` construction is
+numerically flat on its own out to `theta = sqrt(2*eps) = 2.1073e-08 rad`, because `1 - v1.v2 =
+theta^2/2` falls below double-precision `eps` there and `arg` rounds to exactly `1.0`, giving
+`acos(1.0) = 0` *exactly* -- with or without the guard. Measured: at `theta = 1e-08` the dot product
+is bit-exactly `1.0` and `1 - arg` is bit-exactly `0.0` (`rotation_branch/independent_check/flatspot_width.log`).
+The threshold sits at `1/1.4` of the width of a flat spot the parameterization has anyway, so there
+is **no threshold that both avoids the NaN and preserves the derivative.** A maintainer's first
+instinct -- retune `tol` -- is foreclosed. Only reparameterization (the `R = I + [v]_x + [v]_x^2/(1+c)`
+form recommended below) or an explicit derivative correction (the patch above) fixes it.
+
+**4. NEW -- the second regime is now isolated to a line too, closing an open item.** A faithful
+transcription of `GETROTATIONMATRIX3D_B` was measured against the true derivative as a function of
+tilt angle, with everything else held fixed (`rotation_branch/independent_check/regime2_vs_angle.log`):
+
+| tilt `theta` | branch | rel. error of shipped `GETROTATIONMATRIX3D_B` |
+|---|---|---|
+| 1e-01 ... 1e-04 | live | 2.1e-12 ... 2.3e-09 (correct) |
+| 1e-05 | live | 4.1e-08 |
+| 1e-06 | live | 6.7e-05 |
+| 1e-07 | live | 4.0e-04 |
+| 5e-08 | live | **1.2e-02** |
+| 3e-08 | live | **6.6e-03** |
+| 2e-08 | live | **5.3e-02** |
+| <= 1.49e-08 | **guard** | **1.0 (100%, returns exactly zero)** |
+
+The near-threshold band is `vectorUtils_b.f90:133`, `argb = -(angleb/SQRT(1.0-arg**2))`, where
+`1 - arg^2 ~ theta^2` is formed by catastrophic cancellation from an `arg` that carries `eps` of
+absolute roundoff. The `onera_m6` 1.26% (which survives the patch, as predicted) sits squarely in
+this band. Both regimes are now named to a line: `:58`/`:124-128` for the exact-zero regime,
+`:133` for the ill-conditioned one.
+
+**5. NEW -- scoping: this is the only defect of its kind in IDWarp's differentiated source.** The
+whole AD surface of the package is small and was enumerated. `src/adjoint/Makefile_tapenade`
+differentiates a **single head**, `kd_tree%computeNodalProperties(XsPtr, tp%Mi, tp%Bi)`, and the
+generated code amounts to two files (`outputReverse/vectorUtils_b.f90`,
+`outputReverse/getElementProps_b.f90`, plus their `_d` duals) and the Tapenade output pasted inline
+into `kd_tree.F90:1057-1360`. Every branch in that set was inspected:
+
+- `getElementProps_b.f90:48` -- `i < nPts` element wraparound; both sides are cross products, correctly
+  differentiated. Its `.EQ. 0.0_8` guards are unreachable because the primal regularizes with `+1e-15`.
+- `COMPUTENODALPROPERTIES_B` (`kd_tree.F90`) -- the `useRotations .and. .not. isCorner` branch zeroes
+  `Mib` on the corner path, but there the **primal genuinely assigns `Mi = I` at every state**
+  (`kd_tree.F90:1643-1646`), so the derivative really is zero. A deliberate modeling choice, not a
+  numerical workaround. (This is why forcing every node to be a corner drove all errors to 0.0000 in
+  the P4 test -- the warp becomes exactly linear.)
+- `vectorUtils_b.f90:124-128` -- the only branch in which the primal substitutes a **constant for a
+  locally smooth function purely to dodge a numerical singularity.**
+
+So the defect is not one instance of a pattern that might recur elsewhere in IDWarp; within the
+differentiated source it is unique, and the fix above is complete for reverse mode. **This is a
+bound on the claim, and it is stated as a negative result: we looked for siblings and there are none.**
+
+**6. What this does NOT let us say.** The AD's zero *is* the exact derivative of the implemented
+function at the exact baseline point -- the guard makes `warpMesh` genuinely flat in a ball of
+angular radius ~1.5e-08 rad, and a finite difference taken entirely inside that ball returns exactly
+`0.0` and agrees with the AD to every digit (measured, `flatspot_width.log`). Tapenade is correct
+about the code as written. The defect is therefore precisely this: **`warpDeriv` returns the
+derivative of a flat spot that no optimizer can traverse and no finite difference can resolve.** To
+sample inside it the FD step would have to satisfy `h < 1.5e-08 * L`, and the step study above
+already shows subtractive roundoff destroying the FD at `h = 1e-08`. The gradient an optimizer needs
+is the gradient of the function its line search actually walks along, which is the one outside the
+ball. Anyone filing this should expect, and pre-empt, the response "the code is differentiable and
+your step is too coarse."
+
+---
+
 ## Update, 2026-07-31 (later): ROOT CAUSE LOCALIZED TO A LINE, and this is an OPEN UPSTREAM BUG ALREADY
 
 **Read this before the rest of the report.** Two things below change how this should be filed, if it
@@ -300,11 +391,17 @@ symmetry-plane configurations. The shared factor is `mesh.warpDeriv`.
 
 ### What is still not known
 
-No IDWarp source has been traced. This report establishes that the function's output disagrees with
-a finite difference of the function it differentiates; it does not identify the line responsible,
-and the "suggested starting point" further down (an indexing/sign-accumulation bug specific to
-multi-point DVs) was reasoned from the combination-mode evidence alone and **is now weakened** by
-the U-bend result, where the affected DVs are single-point.
+**SUPERSEDED 2026-07-31/08-01 -- kept for the record, not current.** The paragraph below was written
+before the source was traced. The line *is* now identified (`vectorUtils.f90:58` /
+`vectorUtils_b.f90:124-128`), the mechanism is confirmed by repair, and the "indexing/sign-accumulation
+bug specific to multi-point DVs" guess it refers to is **wrong**, not merely weakened. See the two
+updates at the top of this document.
+
+> ~~No IDWarp source has been traced. This report establishes that the function's output disagrees with
+> a finite difference of the function it differentiates; it does not identify the line responsible,
+> and the "suggested starting point" further down (an indexing/sign-accumulation bug specific to
+> multi-point DVs) was reasoned from the combination-mode evidence alone and **is now weakened** by
+> the U-bend result, where the affected DVs are single-point.~~
 
 ## Update, 2026-07-30: the "single-point DVs are unaffected" claim below is corrected, not merely
 qualified
@@ -617,13 +714,19 @@ this report's own evidence, without requiring the bug to behave differently at t
 
 ## Suggested starting point for maintainers
 
-The measured pattern — correct for a DV that perturbs one FFD point along one axis, wrong (sign-flipped,
+**WITHDRAWN 2026-07-31. This section is wrong and is retained only so the record shows what was
+guessed before the source was read.** The defect is not an indexing/aliasing/sign-accumulation bug
+and has nothing to do with multi-point design variables; it is a degenerate-branch derivative loss in
+`getRotationMatrix3d`, which affects single- and multi-point DVs alike. See the updates at the top.
+The text below is struck.
+
+> ~~The measured pattern — correct for a DV that perturbs one FFD point along one axis, wrong (sign-flipped,
 not just numerically imprecise) for a DV that perturbs two or more FFD points with different/opposing
 sign conventions within the same design variable — is consistent with an indexing, aliasing, or
 sign-accumulation bug specific to the reverse-mode accumulation path for multi-point design variables in
 `mesh.warpDeriv`/`mesh.getdXs()`, as opposed to a general accuracy or conditioning problem (a
 conditioning problem would not produce a clean, step-independent, bit-reproducible sign flip). We have
-not traced this into IDWarp's own source in this investigation and cannot point to a specific line.
+not traced this into IDWarp's own source in this investigation and cannot point to a specific line.~~
 
 ## Files behind this report (this lab's internal paths, not part of the reproducer)
 
