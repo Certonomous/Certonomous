@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T07:08:57+00:00",
+  "generated_at": "2026-08-01T07:44:03Z",
   "proposals": [
     {
       "id": "w5-decide-what-cannot-be-submitted",
@@ -2045,6 +2045,27 @@
       "well": "W3"
     },
     {
+      "id": "w3-beta-on-omega-destruction-model-patch",
+      "well": "W3",
+      "objective": "Expose a per-cell beta on the SST omega DESTRUCTION term, so the roadmap's original Stage 1 target and the Wu, Zhang and Zhang reproduction become buildable",
+      "rationale": "Roadmap 4A Stage 1 was written as beta on the SST omega-destruction term. DAFoam does not expose that. Read directly from the installed source, DAkOmegaSST.C line 743: betaFIOmega_ multiplies the omega equation's PRODUCTION term, and the destruction term's beta is the F1-blended model constant with no field hook. The two are not equivalent, because the other omega terms do not scale with beta, so scaling production by beta and scaling destruction by 1/beta give different equations. Ruling R6 restated Stage 1 to the production-term inversion, which is what can be built, and refused to let it inherit the destruction-term goal. This is that goal, filed on its own with the work it actually needs. It matters beyond wording: Wu, Zhang and Zhang invert on the destruction term, so until this lands the lab has no like-for-like reproduction of its own top-pick paper and no score it produces may be set beside theirs.",
+      "est_core_min": 30,
+      "predicted_memory_gb": 12.0,
+      "predicted_usd": 0.411,
+      "cost_basis": "Estimate, and the solver time is the small and well-anchored half. Measured on this host in the S1 field-inversion record: one gradient on the 5,000-cell tutorial case, primal plus adjoint at 4 ranks, costs about 25 s wall or 1.7 core-min, and peak memory left 18.99 GB free. Verifying a patched destruction-term hook is the same cycle on the same case: a directional finite-difference check against the adjoint, of the same shape as the 34 fresh-process FD evaluations S1 already ran, which bounds the compute at roughly 30 core-min including reruns. WHAT IS NOT PRICED HERE, and it is the part that decides the item: patching DAkOmegaSST to carry a second READ_IF_PRESENT volScalarField on the destruction term, registering it through DAInputField, and rebuilding the model inside the DAFoam container. That is a build the lab has never done for DAFoam, it costs no solver time, and it may not be doable inside the shipped image at all. Price the build question before the solve, the same way the duct-Reynolds item was repriced.",
+      "gate": "A per-cell beta on the omega destruction term, driven through DAFoam's discrete adjoint on the 5,000-cell tutorial case, with a finite-difference agreement of the same order S1 achieved for the production hook, 2.67 percent on the real objective direction. A documented statement that the patch cannot be built or registered inside the shipped image closes the item just as well, and closes it cheaply.",
+      "expected_knowledge_gain": "Turns the roadmap's original Stage 1 from a goal nothing in the stack can express into a buildable one, and is the precondition for any like-for-like reproduction of the top-pick closure paper",
+      "source_kind": "capability",
+      "citations": [
+        "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md",
+        "demo-output/website/closure_challenge_C2_error_decomposition.md",
+        "docs/charters/SUPERVISOR_RULINGS.md",
+        "roadmap 4A Stage 1"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T07:20:00Z"
+    },
+    {
       "id": "w5-near-threshold-ill-conditioned-regime",
       "well": "W5",
       "objective": "Isolate the second failure regime -- rotations just above the guard threshold -- to a line the way the first one was",
@@ -2620,7 +2641,8 @@
       "expected_knowledge_gain": "Whether the duct deficit is a limitation of the scalar-invariant input set or of Reynolds transfer, which the current record cannot separate because every duct the rules permit fitting on sits at one Reynolds number",
       "source_kind": "gate",
       "status": "proposed",
-      "created_at": "2026-08-01T07:20:00+00:00"
+      "created_at": "2026-08-01T07:20:00+00:00",
+      "well": "W1"
     },
     {
       "id": "w4-a5-second-defect",
@@ -3028,25 +3050,60 @@
       "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
     },
     {
-      "id": "w3-beta-on-omega-destruction-model-patch",
-      "well": "W3",
-      "objective": "Expose a per-cell beta on the SST omega DESTRUCTION term, so the roadmap's original Stage 1 target and the Wu, Zhang and Zhang reproduction become buildable",
-      "rationale": "Roadmap 4A Stage 1 was written as beta on the SST omega-destruction term. DAFoam does not expose that. Read directly from the installed source, DAkOmegaSST.C line 743: betaFIOmega_ multiplies the omega equation's PRODUCTION term, and the destruction term's beta is the F1-blended model constant with no field hook. The two are not equivalent, because the other omega terms do not scale with beta, so scaling production by beta and scaling destruction by 1/beta give different equations. Ruling R6 restated Stage 1 to the production-term inversion, which is what can be built, and refused to let it inherit the destruction-term goal. This is that goal, filed on its own with the work it actually needs. It matters beyond wording: Wu, Zhang and Zhang invert on the destruction term, so until this lands the lab has no like-for-like reproduction of its own top-pick paper and no score it produces may be set beside theirs.",
-      "est_core_min": 30,
-      "predicted_memory_gb": 12.0,
-      "predicted_usd": 0.411,
-      "cost_basis": "Estimate, and the solver time is the small and well-anchored half. Measured on this host in the S1 field-inversion record: one gradient on the 5,000-cell tutorial case, primal plus adjoint at 4 ranks, costs about 25 s wall or 1.7 core-min, and peak memory left 18.99 GB free. Verifying a patched destruction-term hook is the same cycle on the same case: a directional finite-difference check against the adjoint, of the same shape as the 34 fresh-process FD evaluations S1 already ran, which bounds the compute at roughly 30 core-min including reruns. WHAT IS NOT PRICED HERE, and it is the part that decides the item: patching DAkOmegaSST to carry a second READ_IF_PRESENT volScalarField on the destruction term, registering it through DAInputField, and rebuilding the model inside the DAFoam container. That is a build the lab has never done for DAFoam, it costs no solver time, and it may not be doable inside the shipped image at all. Price the build question before the solve, the same way the duct-Reynolds item was repriced.",
-      "gate": "A per-cell beta on the omega destruction term, driven through DAFoam's discrete adjoint on the 5,000-cell tutorial case, with a finite-difference agreement of the same order S1 achieved for the production hook, 2.67 percent on the real objective direction. A documented statement that the patch cannot be built or registered inside the shipped image closes the item just as well, and closes it cheaply.",
-      "expected_knowledge_gain": "Turns the roadmap's original Stage 1 from a goal nothing in the stack can express into a buildable one, and is the precondition for any like-for-like reproduction of the top-pick closure paper",
+      "id": "w4-carry-the-warp-patch-to-the-blocked-rungs",
+      "well": "W4",
+      "objective": "Re-run every rung the warp defect blocked, now that a local repair exists",
+      "rationale": "The rotation branch is root-caused to one line and repaired locally, confirmed by repair: the airfoil sign-flipped component goes from 634 percent to 5.5e-04, the U-bend two flips to 3e-06 and 7e-06, and all twenty-seven components of the U-bend objective reach zero relative error against a stock worst of 80.79. Those verdicts were recorded against the shipped toolchain and stand. What has never been asked is which other blocked rungs the same repair unblocks.",
+      "est_core_min": 180,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 2.463,
+      "cost_basis": "estimate",
+      "gate": "Each previously failing rung is re-graded under the patched warp, with the stock verdict kept beside it",
+      "expected_knowledge_gain": "The lab has a repair and has only measured it on the two cases that produced it",
       "source_kind": "capability",
       "citations": [
-        "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md",
-        "demo-output/website/closure_challenge_C2_error_decomposition.md",
-        "docs/charters/SUPERVISOR_RULINGS.md",
-        "roadmap 4A Stage 1"
+        "dafoam/ROOTCAUSE_getRotationMatrix3d.md",
+        "dafoam/PROOF.md"
       ],
       "status": "proposed",
-      "created_at": "2026-08-01T07:20:00Z"
+      "created_at": "2026-08-01T07:44:03Z"
+    },
+    {
+      "id": "w3-explain-the-residual-2-7-percent",
+      "well": "W3",
+      "objective": "Explain the field-inversion gradient residual, now that clipping and convergence are both eliminated",
+      "rationale": "The beta gradient agrees with central differences to 2.674 percent at one step and 2.683 at another. Step independence is established, primal under-convergence is refuted by tightening a thousandfold, and the velocity limiter is eliminated because it fires in the unperturbed baseline too and every run is clean over its final ninety-five percent. The number is real, reproducible and unexplained, and it is the last thing standing between this gradient and a clean verification.",
+      "est_core_min": 90,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 1.232,
+      "cost_basis": "estimate",
+      "gate": "The residual is attributed to a named mechanism, or the candidates are eliminated by measurement and recorded",
+      "expected_knowledge_gain": "A verified gradient with an unexplained residual is the state that precedes finding something",
+      "source_kind": "measurement",
+      "citations": [
+        "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T07:44:03Z"
+    },
+    {
+      "id": "w7-a-print-interval-is-a-measurement-instrument",
+      "well": "W7",
+      "objective": "Audit every archive claim that rests on what a solver printed rather than what it did",
+      "rationale": "The archive recorded three clipping events where re-running at full print resolution finds six hundred and eighty-nine, a two hundred and thirty fold undercount, because the solver gates that message on a print interval of one hundred. The unperturbed baseline clips twenty times and its archived log shows none. Any rule or census keyed on printed text inherits that sampling, and the monitor standard was calibrated on exactly this archive.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every archive-derived claim states whether it counts events or printed events, and the ones that cannot tell are named",
+      "expected_knowledge_gain": "A census of what solvers printed was being read as a census of what they did",
+      "source_kind": "report",
+      "citations": [
+        "docs/standards/MONITOR_STANDARD.md",
+        "dafoam/ladder-b/S1_work/logs/fd_clip_audit_run1.log"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T07:44:03Z"
     }
   ]
 }
