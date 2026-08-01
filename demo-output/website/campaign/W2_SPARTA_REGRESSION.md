@@ -189,6 +189,14 @@ scale-invariant, both weightings were computed, IC1 is exact, and the harness re
 the PH column. **Shipped as this rung's finding, alongside the internal tension between
 the paper's Eq. 24 and its own Table 2 CBFS entry in our harness.**
 
+*Addendum 2026-08-01, zero-compute follow-up (grades above untouched):*
+`W2_SPARTA_CBFS_DATA_FORENSICS.md` diffed the benchmark's CBFS packaging against the
+archived NASA/Bentaleb LES (identical to 1e-6 — the "benchmark packaging" clause above
+is retired) and located the mechanism: the LES's under-resolved top-wall strip carries
+34% of the candidate's least-squares weight at local slope 0.20. Excluding it moves the
+coefficient to 0.70-0.87 and eps(R) to ~1.1-1.3e-5; 0.93 remains unreachable under
+every transformation tested, so the mutual-inconsistency finding stands, sharpened.
+
 ## 9. In-sample gate and cost
 
 `closure_in_sample_gate.py`: **PASS** at 01:11 UTC (before) and re-run after all data
