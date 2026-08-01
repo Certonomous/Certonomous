@@ -132,6 +132,13 @@ _CHANNEL_NO_VALUE = "Not quantified"
 _CHANNEL_NO_STATE = "stated, not set to zero"
 _CHANNEL_IN_STATE = "quantified"
 
+# The last rung of the density ladder in `build_certificate_v2.render`. Named
+# once so the fit loop and the fallback to a second leaf can never disagree
+# about which rhythm is the densest: they used to carry the number twice, and
+# a rung added to one without the other either never runs or paginates at a
+# rhythm that was not the one measured.
+_DENSEST = 3
+
 
 def _channel_rails(text: str) -> str:
     """Strip internal identifiers, tool jargon, and named UQ methods from one

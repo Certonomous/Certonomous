@@ -590,5 +590,74 @@ class ScopeConstraintsAndLedgerTests(unittest.TestCase):
         self.assertIn(out["hash"][:32], text)
 
 
+class DensityLadderTests(unittest.TestCase):
+    """Tightening is tried to the last rung before a second leaf is taken.
+
+    The airliner certificate came to rest 16 points below the provenance box
+    at the old densest rhythm, once the result block gained its fidelity line
+    and the validation rank gained the sentence that says which way it runs.
+    It paginated for those 16 points: the reader lost the model channel off
+    the bottom of the page to save half a line of leading.
+    """
+
+    CHANNELS = [
+        {"name": "input", "value": 0.74, "quantified": True,
+         "note": "Ensemble run over the stated payload-mass and non-wing-drag "
+                 "spreads. Requirements are held as exact specification, and "
+                 "the remaining sizing constants (SFC, fuel fraction, cruise "
+                 "altitude) are fixed"},
+        {"name": "numerical", "value": 1.124, "quantified": True,
+         "note": "The design grid is discrete, so the true optimum lies "
+                 "between grid points. Default numerical consistency method: "
+                 "the winner brackets the half-step variation on each grid "
+                 "axis, ±1.12. The cruise-point read on the solved polar "
+                 "adds ±0.06."},
+        {"name": "model", "value": 1.451, "quantified": True,
+         "note": "Component buildup band on non-wing drag, propagated to "
+                 "whole-aircraft L/D: ±1.45. The band is the documented ±15% "
+                 "on the buildup terms (Raymer, Aircraft Design: A Conceptual "
+                 "Approach, AIAA). The sizing screen's measured gap to the 9 "
+                 "solved wings averages 1.79 in whole-aircraft L/D."},
+    ]
+    FIELDS = [("Span", "61 m"), ("AR", "10.3"),
+              ("Sweep", "20 to 35°, not resolved at this fidelity"),
+              ("MTOW", "199 t"), ("Range", "10276 km"),
+              ("Approach Speed", "70 m/s"), ("Whole-aircraft L/D", "19.3")]
+    OBJECTIVE = ("Optimize lift drag coefficient of the attached twin "
+                 "airliner. Constraints: 300 passengers, Range: 6000 km, "
+                 "take off speed: 80 m/s landing speed: 70 m/s. Don't use "
+                 "all of my workers")
+
+    def _airliner(self):
+        doc = {"results": [{"quantity": "Best feasible whole-aircraft L/D",
+                            "value": "19.3", "envelope": "2.0",
+                            "tier": "SOLVER-BACKED",
+                            "reason": "wing solved with VSPAERO; fuselage, "
+                                      "tail and nacelle drag added from "
+                                      "Raymer's component buildup method"}],
+               "result_fields": self.FIELDS, "compute": {}}
+        with tempfile.TemporaryDirectory() as d:
+            out = build_certificate_v2(
+                doc, out_path=Path(d) / "c.pdf", geometry="airliner",
+                objective=self.OBJECTIVE, mission_id="aircraft-optimization",
+                issued_utc="2026-08-01T09:25:57Z", channels=self.CHANNELS,
+                display_name="300-passenger twin-aisle airliner")
+            return out, Path(out["path"]).read_bytes().decode("latin-1")
+
+    def test_the_airliner_certificate_holds_one_leaf(self):
+        _out, text = self._airliner()
+        self.assertEqual(text.count("/Type /Page "), 1)
+
+    def test_the_densest_rhythm_loses_no_content_to_the_squeeze(self):
+        # Tightening changes leading, never wording, numbers or order.
+        out, text = self._airliner()
+        for token in ("19.3", "Span", "61 m", "Whole-aircraft L/D",
+                      "Uncertainty", "input", "numerical", "model",
+                      "1.451", "Raymer", "Issued"):
+            self.assertIn(token, text, token)
+        self.assertIn(out["hash"][:32], text)
+        self.assertLess(text.index("(Result)"), text.index("(Uncertainty)"))
+
+
 if __name__ == "__main__":
     unittest.main()
