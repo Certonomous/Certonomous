@@ -44,5 +44,53 @@
     "valve-quadrature-ladder",
     "orifice-correlation-family"
   ],
-  "updated_utc": "2026-08-01T00:22:46Z"
+  "updated_utc": "2026-08-01T18:23:48Z",
+  "levels": [
+    {
+      "k": 3,
+      "kind": "quadrature-segment-count",
+      "segments_of": "half-sine ejection window",
+      "delta_p_pa": 1252.8,
+      "delta_p_pa_full": 1252.782290802396,
+      "cd": null,
+      "cells": null
+    },
+    {
+      "k": 5,
+      "kind": "quadrature-segment-count",
+      "segments_of": "half-sine ejection window",
+      "delta_p_pa": 1311.9,
+      "delta_p_pa_full": 1311.9306471298512,
+      "cd": null,
+      "cells": null
+    },
+    {
+      "k": 9,
+      "kind": "quadrature-segment-count",
+      "segments_of": "half-sine ejection window",
+      "delta_p_pa": 1329.3,
+      "delta_p_pa_full": 1329.3040595138848,
+      "cd": null,
+      "cells": null
+    }
+  ],
+  "recompute": {
+    "method": "closed-form arithmetic; no mesh, no solver, no fit. Each rung is cycle_loss(k, cd) evaluated on the reduced-order orifice model at the angle the act reports.",
+    "source": "sdk/scripts/run_uq_studies.py :: valve_studies, inner function cycle_loss",
+    "inputs": {
+      "angle_deg": 87.5,
+      "effective_orifice_area_m2": 0.0004146851233363874,
+      "Q_PEAK_m3_s": 0.0005,
+      "T_CYCLE_s": 0.9,
+      "RHO_BLOOD_kg_m3": 1060.0,
+      "systole_s": 0.3,
+      "discharge_coefficient": 0.62
+    },
+    "inputs_from": [
+      "models/curriculum/aortic_valve/waveform.py (Q_PEAK, T_CYCLE, RHO_BLOOD)",
+      "models/curriculum/aortic_valve/generate_valve.py (effective_orifice_area)"
+    ],
+    "reproduces": "all three numerical levels and all four correlation members, to the precision stored",
+    "not_refittable_by": "chief_engineer.uq.eca_hoekstra_band and ladder_band, by construction: they fit a discretization order against cell counts and this record has no cells"
+  }
 }

@@ -70,6 +70,7 @@ from hashlib import sha1
 from pathlib import Path
 from typing import Any, Iterable
 
+from . import uq
 from .display_names import display_name
 
 _HERE = Path(__file__).resolve()
@@ -557,6 +558,30 @@ def draft_gate_proposals() -> list[dict]:
             numerical = data.get("numerical") or {}
             levels = data.get("levels") or []
             if numerical.get("conclusive") is not False or len(levels) < 3:
+                continue
+            # A RUNG IS NOT A RUNG UNLESS IT IS A MESH. This branch drafts one
+            # thing only -- "add another refinement rung" -- and that sentence
+            # is nonsense for a channel that has no meshes to refine. The test
+            # is the study's own structural guard plus the rungs themselves:
+            # a mesh rung records a cell count and a functional, and a level
+            # that records neither cannot be the finest of anything.
+            #
+            # THIS WAS LATENT, AND ONE COINCIDENCE DEEP. The aortic valve
+            # declines on `not_a_discretization_ladder` -- its levels are
+            # k = 3/5/9 segments of a half-sine waveform, closed-form, no mesh
+            # anywhere -- and the only reason this drafter never proposed a
+            # fourth grid rung for it is that it stored no `levels` at all.
+            # Give that record the rungs it owes its reader (2026-08-01) and
+            # the drafter reaches it. Measured then: the proposal is still not
+            # emitted, but only because the method string it quotes contains
+            # the literal "3/5/9", which the style rails read as a file path
+            # and drop. Reword the method and the proposal ships. A guard that
+            # holds on a slash in someone else's sentence is not a guard.
+            guards_failed = numerical.get("guards_failed") or []
+            if uq.GUARD_NOT_A_DISCRETIZATION_LADDER in guards_failed:
+                continue
+            if not all(lv.get("cells") and lv.get("cd") is not None
+                       for lv in levels):
                 continue
             body = display_name(data.get("body") or path.stem)
             cds = ", ".join(f"{float(lv.get('cd')):.4f}" for lv in levels

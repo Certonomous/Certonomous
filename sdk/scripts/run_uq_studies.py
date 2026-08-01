@@ -745,8 +745,21 @@ def valve_studies() -> None:
     # formula above. The fault is the slot they sat in. So the record now
     # declines itself, names the guard that excludes it, and says in its method
     # string what the number actually measures.
+    #
+    # AND WHAT IT STILL DID NOT SAY. The block published three level values
+    # keyed by k and nothing behind them: no rung records, and none of the
+    # five constants the arithmetic runs on. Every other stored study carries
+    # `levels`, so the valve was the one record in the corpus that could not
+    # be read against its own evidence -- not because the evidence is weak
+    # (all nine numbers reproduce to the stored precision from the closed form
+    # above) but because the record never carried it. `levels` below is that
+    # evidence, and it deliberately does NOT use the `cells`/`cd` key names:
+    # this ladder has no meshes, and a consumer that reads rungs by those
+    # names must find nothing here rather than find a segment count and treat
+    # it as a grid.
     k_levels = (3, 5, 9)
-    values = [cycle_loss(k, 0.62) for k in k_levels]
+    cd_nominal = 0.62
+    values = [cycle_loss(k, cd_nominal) for k in k_levels]
     spread = max(values) - min(values)
     fine = values[-1]
     numerical = {
@@ -761,6 +774,42 @@ def valve_studies() -> None:
         "guards": {uq.GUARD_NOT_A_DISCRETIZATION_LADDER: False},
         "guards_failed": [uq.GUARD_NOT_A_DISCRETIZATION_LADDER],
         "channel_kind": "quadrature-convergence",
+    }
+    levels = [{"k": k,
+               "kind": "quadrature-segment-count",
+               "segments_of": "half-sine ejection window",
+               "delta_p_pa": round(v, 1),
+               "delta_p_pa_full": v,
+               "cd": None,
+               "cells": None}
+              for k, v in zip(k_levels, values)]
+    recompute = {
+        "method": ("closed-form arithmetic; no mesh, no solver, no fit. Each "
+                   "rung is cycle_loss(k, cd) evaluated on the reduced-order "
+                   "orifice model at the angle the act reports."),
+        "source": ("sdk/scripts/run_uq_studies.py :: valve_studies, "
+                   "inner function cycle_loss"),
+        "inputs": {
+            "angle_deg": angle,
+            "effective_orifice_area_m2": area,
+            "Q_PEAK_m3_s": Q_PEAK,
+            "T_CYCLE_s": T_CYCLE,
+            "RHO_BLOOD_kg_m3": RHO_BLOOD,
+            "systole_s": systole,
+            "discharge_coefficient": cd_nominal,
+        },
+        "inputs_from": [
+            "models/curriculum/aortic_valve/waveform.py (Q_PEAK, T_CYCLE, "
+            "RHO_BLOOD)",
+            "models/curriculum/aortic_valve/generate_valve.py "
+            "(effective_orifice_area)",
+        ],
+        "reproduces": ("all three numerical levels and all four correlation "
+                       "members, to the precision stored"),
+        "not_refittable_by": ("chief_engineer.uq.eca_hoekstra_band and "
+                              "ladder_band, by construction: they fit a "
+                              "discretization order against cell counts and "
+                              "this record has no cells"),
     }
     # Correlation family: recognized sharp-orifice discharge coefficients.
     family_cd = {
@@ -788,6 +837,8 @@ def valve_studies() -> None:
         velocity=None, refinement=3, iterations=None)
     _checkpoint(
         body, fingerprint=fingerprint,
+        levels=levels,
+        recompute=recompute,
         numerical=numerical,
         model={"band_abs": round(model["band_abs"], 1),
                "method": model["method"],
