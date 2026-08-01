@@ -114,3 +114,38 @@ it could read none of them before.
 - **The result-priority ordering.** Drafted to v1.0 for her to react to, with
   the open questions named. A declared priority over which numbers matter most
   is a statement about what the company is for.
+
+---
+
+## R10. A warm path spends nothing to the solver ledger
+
+Added 2026-08-01, after R2 turned out to have a false premise on two of the
+six sites it touched.
+
+R2 assumed every warm branch clamps a zero-length interval to 1.0 s. On the
+hump, the CRM and the M6 that is exactly what happens. On the Ahmed body and
+the geometry study it is not: `elapsed` there is a genuine measured interval of
+about 14 seconds. But that interval is the cost of **pacing a trace for the
+viewer**, and it is spent to the ledger as `simpleFoam (14s)`.
+
+A sixth site, never previously named, does the same thing one second at a time:
+the refinement-ladder rung loop spends `max(1.0, ...)` across a zero-length
+interval as `simpleFoam rung <tag>` for every warm rung.
+
+So the defect is not six defects. It is one question asked six times, and it
+wants one ruling.
+
+**The ledger records compute this lab performed. Pacing a display is not
+compute.** A warm path spends nothing to it, whether the interval it would
+have spent is clamped, zero, or honestly measured at fourteen seconds. A
+measured interval is not the test; what the interval paid for is.
+
+This matters beyond tidiness. That ledger produces the core-hours figure on the
+credentials wall, and a number that counts display pacing as solver time is
+overstating the lab's own work in the one place it is most public. The
+evaluation count survived its audit yesterday on exactly this principle: it
+counts what ran.
+
+The fleet numeral on those paths goes for the same reason R2 gave. A worker
+count is a claim about the run, and a claim about work that did not happen is
+the defect, not the clock that measured it.
