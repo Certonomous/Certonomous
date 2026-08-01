@@ -324,15 +324,27 @@ hinge on it are provisional.
 verifying at machine precision proves the harness, the deformation chain and the
 check itself are sound — so the 11.43% cannot be waved away as a broken rig.
 And because the gradient *magnitudes* agree to 0.451% while the difference norm
-is 11.43%, the disagreement is **directional, per-component noise, not a scale
-error**. A shape-derivative gap of order 1 to 12 percent against central
-differences is normal for this class.
+is 11.43%, the disagreement is ~~directional, per-component noise, not a scale
+error~~ *(superseded, see below)*. ~~A shape-derivative gap of order 1 to 12
+percent against central differences is normal for this class.~~ *(That grading
+band is retired; the current standard is pass at 5% or better with no flagged
+component.)*
 
-This also settles a stale docket entry: the "3 of 8 components at 11.9 and 11.6
-percent with one sign-reversed" describes the **tutorial's own** known failure
-signature, not our sail case, which was separately recorded as differing from it
-at 0.7 to 8.2 percent with no sign flips. **Our adjoint behaves better than the
-official tutorial's.**
+~~This also settles a stale docket entry: the "3 of 8 components at 11.9 and
+11.6 percent with one sign-reversed" describes the **tutorial's own** known
+failure signature, not our sail case, which was separately recorded as
+differing from it at 0.7 to 8.2 percent with no sign flips. **Our adjoint
+behaves better than the official tutorial's.**~~
+
+> **Superseded, 2026-08-01.** Both struck claims predate the root cause. The
+> disagreement was never noise: it is one defect at a named source line, the
+> IDWarp degenerate-rotation branch, whose reverse derivative is exactly zero
+> where the truth is a cross-product term. The 11.9 and 11.6 percent signature
+> this paragraph attributed to the tutorial alone was the same defect in our
+> own chain, and it collapses to 1.2e-05 percent under the local patch. No
+> adjoint here "behaves better" than another; they share the bug. Stock
+> toolchain verdicts stand as graded. See the 2026-08-01 note under the FD
+> table above.
 
 ## Ladder B — closure literature with adjoints
 
