@@ -1,0 +1,256 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam -parallel
+Date   : Aug 01 2026
+Time   : 08:29:29
+Host   : ip-172-31-43-247
+PID    : 3389719
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hybrid_limlin_incompressible_a2.11
+nProcs : 4
+Hosts  :
+(
+    (ip-172-31-43-247 4)
+)
+Pstream initialized with:
+    node communication : off [type=host] (4 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-09
+    field U	 tolerance 1e-09
+    field "(k|omega|nuTilda)"	 tolerance 1e-09
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    model           kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.55555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+forceCoeffs forceCoeffs:
+    rho: rhoInf
+    Freestream density (rhoInf) set to 1.225
+    Not including porosity effects
+    magUInf: 68.06
+    lRef   : 7.00532
+    Aref   : 1
+    rhoInf : 1.225
+    Selecting all coefficients
+    - Drag force: Cd
+    - Drag force front: Cd(f)
+    - Drag force rear: Cd(r)
+    - Lift force: Cl
+    - Lift force front: Cl(f)
+    - Lift force rear: Cl(r)
+    - Pitch moment: CmPitch
+    - Roll moment: CmRoll
+    - Yaw moment: CmYaw
+    - Side force: Cs
+    - Side force front: Cs(f)
+    - Side force rear: Cs(r)
+
+
+Time = 1
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.99882104, Final residual = 0.0027778362, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 1, Final residual = 0.0012993379, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.99955901, Final residual = 0.0026374027, No Iterations 1
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.0098348524, No Iterations 343
+time step continuity errors : sum local = 5.1082786e-08, global = 4.0447057e-08, cumulative = 4.0447057e-08
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.62840101, Final residual = 9.9739663e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 1, Final residual = 3.0694146e-05, No Iterations 1
+ExecutionTime = 45.58 s  ClockTime = 50 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	559.64323	547.8089	11.834333	0
+    Cd(f):	1334.2058	1328.264	5.9417543	0
+    Cd(r):	-774.56256	-780.45514	5.8925791	0
+    Cl:	898.22168	898.20821	0.013469524	0
+    Cl(f):	-3349.5839	-3356.1179	6.5339982	0
+    Cl(r):	4247.8056	4254.3261	-6.5205287	0
+    CmPitch:	-3798.6948	-3805.222	6.5272634	0
+    CmRoll:	1054.3842	1054.3596	0.024587611	0
+    CmYaw:	1085.5534	1096.8242	-11.27081	0
+    Cs:	-199.42489	-199.41512	-0.0097683347	0
+    Cs(f):	985.84098	997.11668	-11.275694	0
+    Cs(r):	-1185.2659	-1196.5318	11.265925	0
+
+    writing force and moment coefficient files.
+
+Time = 2
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0010789569, Final residual = 5.3816917e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0045156694, Final residual = 1.8270915e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0031128536, Final residual = 1.3551191e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.064539495, Final residual = 0.00063984709, No Iterations 59
+time step continuity errors : sum local = 3.805454e-06, global = 2.9037796e-06, cumulative = 2.9442266e-06
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.32553979, Final residual = 1.1021565e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.50305942, Final residual = 3.4651125e-05, No Iterations 1
+ExecutionTime = 56.58 s  ClockTime = 62 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	552.27263	547.08889	5.1837417	0
+    Cd(f):	1393.4795	1392.1231	1.3564575	0
+    Cd(r):	-841.2069	-845.03418	3.8272843	0
+    Cl:	1004.4335	1004.9707	-0.53721819	0
+    Cl(f):	-3791.1669	-3796.3651	5.1981286	0
+    Cl(r):	4795.6004	4801.3358	-5.7353467	0
+    CmPitch:	-4293.3837	-4298.8504	5.4667376	0
+    CmRoll:	1117.3432	1118.5786	-1.2354134	0
+    CmYaw:	1389.3137	1393.8793	-4.5655843	0
+    Cs:	-149.17548	-150.09493	0.91945336	0
+    Cs(f):	1314.726	1318.8318	-4.1058576	0
+    Cs(r):	-1463.9015	-1468.9268	5.025311	0
+
+    writing force and moment coefficient files.
+
+Time = 3
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 7.4484633e-05, Final residual = 3.3989558e-07, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.00029484684, Final residual = 1.1028861e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.00034086825, Final residual = 1.3401822e-06, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.05607052, Final residual = 0.00056031348, No Iterations 114
+time step continuity errors : sum local = 3.9357329e-06, global = 3.4970275e-06, cumulative = 6.4412541e-06
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.046708785, Final residual = 3.5847907e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.12515931, Final residual = 2.0875073e-05, No Iterations 1
+ExecutionTime = 74.37 s  ClockTime = 82 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	305.46096	302.67469	2.7862715	0
+    Cd(f):	929.40066	929.79053	-0.38986738	0
+    Cd(r):	-623.9397	-627.11584	3.1761389	0
+    Cl:	886.93496	887.81579	-0.88082625	0
+    Cl(f):	-3364.1709	-3369.3735	5.2026232	0
+    Cl(r):	4251.1059	4257.1893	-6.0834495	0
+    CmPitch:	-3807.6384	-3813.2814	5.6430363	0
+    CmRoll:	776.67018	778.45318	-1.7830031	0
+    CmYaw:	1600.6497	1604.5333	-3.8835253	0
+    Cs:	75.081878	73.992525	1.0893528	0
+    Cs(f):	1638.1907	1641.5295	-3.3388489	0
+    Cs(r):	-1563.1088	-1567.537	4.4282018	0
+
+    writing force and moment coefficient files.
+
+Time = 4
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 6.0084571e-05, Final residual = 2.6019401e-07, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.00043124299, Final residual = 1.5527537e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.00022299543, Final residual = 8.2188913e-07, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.048925033, Final residual = 0.00047830185, No Iterations 121
+time step continuity errors : sum local = 3.6153017e-06, global = -3.0279257e-06, cumulative = 3.4133284e-06
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.030488174, Final residual = 5.7336242e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.019243717, Final residual = 8.3351634e-06, No Iterations 1
+ExecutionTime = 95.91 s  ClockTime = 105 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	68.25914	66.270109	1.989031	0
+    Cd(f):	391.08256	391.49097	-0.40841357	0
+    Cd(r):	-322.82342	-325.22086	2.3974446	0
+    Cl:	620.03686	620.91192	-0.87505992	0
+    Cl(f):	-2431.8161	-2435.976	4.1599434	0
+    Cl(r):	3051.8529	3056.8879	-5.0350033	0
+    CmPitch:	-2741.8345	-2746.432	4.5974734	0
+    CmRoll:	356.95299	358.35592	-1.4029291	0
+    CmYaw:	1681.0665	1684.4138	-3.3473116	0
+    Cs:	235.73482	234.98048	0.75434148	0
+    Cs(f):	1798.9339	1801.904	-2.9701408	0
+    Cs(r):	-1563.1991	-1566.9235	3.7244823	0
+
+    writing force and moment coefficient files.
+
+Time = 5
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 6.8458697e-05, Final residual = 2.9411761e-07, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.00085120198, Final residual = 3.1490325e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.00016732643, Final residual = 6.4919072e-07, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.064708729, Final residual = 0.0006431681, No Iterations 202
+time step continuity errors : sum local = 4.6501694e-06, global = 2.7282794e-06, cumulative = 6.1416078e-06
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.017604439, Final residual = 8.6885533e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0031922486, Final residual = 3.7085263e-06, No Iterations 1
+ExecutionTime = 125.35 s  ClockTime = 141 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-63.215253	-65.535079	2.319826	0
+    Cd(f):	-3.9820026	-4.621575	0.63957237	0
+    Cd(r):	-59.233251	-60.913504	1.6802536	0
+    Cl:	309.80972	310.75309	-0.9433628	0
+    Cl(f):	-1369.6009	-1373.1455	3.5446077	0
+    Cl(r):	1679.4106	1683.8986	-4.4879705	0
+    CmPitch:	-1524.5058	-1528.5221	4.0162891	0
+    CmRoll:	27.625624	28.145965	-0.52034063	0
+    CmYaw:	1575.2556	1578.4002	-3.144548	0
+    Cs:	262.4366	262.51796	-0.081357229	0
+    Cs(f):	1706.4739	1709.6592	-3.1852267	0
+    Cs(r):	-1444.0373	-1447.1412	3.1038694	0
+
+    writing force and moment coefficient files.
+
+Time = 6
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.0035434472, Final residual = 3.3630108e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.032625786, Final residual = 3.3151068e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.11513385, Final residual = 8.8595249e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.51688841, Final residual = 0.0051670009, No Iterations 277
+time step continuity errors : sum local = 6.8056283e-05, global = 4.8931442e-05, cumulative = 5.5073049e-05

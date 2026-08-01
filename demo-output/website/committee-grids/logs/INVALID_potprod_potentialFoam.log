@@ -1,0 +1,261 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : potentialFoam -parallel -writePhi -writep
+Date   : Aug 01 2026
+Time   : 08:44:44
+Host   : ip-172-31-43-247
+PID    : 3426171
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hybrid_potprod_incompressible_a2.11
+nProcs : 14
+Hosts  :
+(
+    (ip-172-31-43-247 14)
+)
+Pstream initialized with:
+    node communication : off [type=host] (14 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+potentialFlow: Operating solver in PISO mode
+
+Reading velocity field U
+
+Constructing pressure field p
+
+Constructing velocity potential field Phi
+
+No MRF models present
+
+
+Calculating potential flow
+GAMG:  Solving for Phi, Initial residual = 1, Final residual = 0.0088003222, No Iterations 20
+GAMG:  Solving for Phi, Initial residual = 0.60802034, Final residual = 0.0056535873, No Iterations 1
+GAMG:  Solving for Phi, Initial residual = 0.093511252, Final residual = 0.00092439397, No Iterations 15
+GAMG:  Solving for Phi, Initial residual = 0.040929069, Final residual = 0.00040659879, No Iterations 30
+GAMG:  Solving for Phi, Initial residual = 0.024493282, Final residual = 0.00023548706, No Iterations 22
+GAMG:  Solving for Phi, Initial residual = 0.01139173, Final residual = 0.00010998249, No Iterations 36
+GAMG:  Solving for Phi, Initial residual = 0.0077584105, Final residual = 7.7392856e-05, No Iterations 16
+GAMG:  Solving for Phi, Initial residual = 0.0028732702, Final residual = 2.8333782e-05, No Iterations 58
+GAMG:  Solving for Phi, Initial residual = 0.0028557918, Final residual = 2.7138363e-05, No Iterations 6
+GAMG:  Solving for Phi, Initial residual = 0.00080374812, Final residual = 7.9741793e-06, No Iterations 78
+GAMG:  Solving for Phi, Initial residual = 0.00091152929, Final residual = 9.0896424e-06, No Iterations 4
+Continuity error = 6.9580877e-06
+Interpolated velocity error = 2.2410225e-08
+
+Calculating approximate pressure field
+[0] 
+[0] 
+[0] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[0] Entry 'div(div(phi,U))' not found in dictionary "system/fvSchemes/divSchemes"
+[0] 
+[0] 
+[0] file: system/fvSchemes/divSchemes at line 14 to 25.
+[0] 
+[0]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[0]     in file db/dictionary/dictionary.C at line 363.
+[0] 
+FOAM parallel run exiting
+[0] 
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode 1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+[5] 
+[5] 
+[5] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[5] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[5] 
+[5] 
+[5] file: stream/divSchemes at line 0.
+[5] 
+[5]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[5]     in file db/dictionary/dictionary.C at line 363.
+[5] 
+FOAM parallel run exiting
+[5] 
+[6] 
+[6] 
+[6] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[6] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[6] 
+[6] 
+[6] file: stream/divSchemes at line 0.
+[6] 
+[6]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[6]     in file db/dictionary/dictionary.C at line 363.
+[6] 
+FOAM parallel run exiting
+[6] 
+[7] 
+[7] 
+[7] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[7] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[7] 
+[7] 
+[7] file: stream/divSchemes at line 0.
+[7] 
+[7]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[7]     in file db/dictionary/dictionary.C at line 363.
+[7] 
+FOAM parallel run exiting
+[7] 
+[8] 
+[8] 
+[8] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[8] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[8] 
+[8] 
+[8] file: stream/divSchemes at line 0.
+[8] 
+[8]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[8]     in file db/dictionary/dictionary.C at line 363.
+[8] 
+FOAM parallel run exiting
+[8] 
+[9] 
+[9] 
+[9] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[9] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[9] 
+[9] 
+[9] file: stream/divSchemes at line 0.
+[9] 
+[9]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[9]     in file db/dictionary/dictionary.C at line 363.
+[9] 
+FOAM parallel run exiting
+[9] 
+[10] 
+[10] 
+[10] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[10] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[10] 
+[10] 
+[10] file: stream/divSchemes at line 0.
+[10] 
+[10]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[10]     in file db/dictionary/dictionary.C at line 363.
+[10] 
+FOAM parallel run exiting
+[10] 
+[11] 
+[11] 
+[11] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[11] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[11] 
+[11] 
+[11] file: stream/divSchemes at line 0.
+[11] 
+[11]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[11]     in file db/dictionary/dictionary.C at line 363.
+[11] 
+FOAM parallel run exiting
+[11] 
+[12] 
+[12] 
+[12] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[12] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[12] 
+[12] 
+[12] file: stream/divSchemes at line 0.
+[12] 
+[12]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[12]     in file db/dictionary/dictionary.C at line 363.
+[12] 
+FOAM parallel run exiting
+[12] 
+[13] 
+[13] 
+[13] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[13] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[13] 
+[13] 
+[13] file: stream/divSchemes at line 0.
+[13] 
+[13]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[13]     in file db/dictionary/dictionary.C at line 363.
+[13] 
+FOAM parallel run exiting
+[13] 
+[1] 
+[1] 
+[1] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[1] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[1] 
+[1] 
+[1] file: stream/divSchemes at line 0.
+[1] 
+[1]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[1]     in file db/dictionary/dictionary.C at line 363.
+[1] 
+FOAM parallel run exiting
+[1] 
+[2] 
+[2] 
+[2] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[2] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[2] 
+[2] 
+[2] file: stream/divSchemes at line 0.
+[2] 
+[2]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[2]     in file db/dictionary/dictionary.C at line 363.
+[2] 
+FOAM parallel run exiting
+[2] 
+[3] 
+[3] 
+[3] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[3] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[3] 
+[3] 
+[3] file: stream/divSchemes at line 0.
+[3] 
+[3]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[3]     in file db/dictionary/dictionary.C at line 363.
+[3] 
+FOAM parallel run exiting
+[3] 
+[4] 
+[4] 
+[4] --> FOAM FATAL IO ERROR: (openfoam-2606)
+[4] Entry 'div(div(phi,U))' not found in dictionary "stream/divSchemes"
+[4] 
+[4] 
+[4] file: stream/divSchemes at line 0.
+[4] 
+[4]     From const Foam::entry& Foam::dictionary::lookupEntry(const Foam::word&, Foam::keyType::option) const
+[4]     in file db/dictionary/dictionary.C at line 363.
+[4] 
+FOAM parallel run exiting
+[4] 
+[ip-172-31-43-247:3426168] 13 more processes have sent help message help-mpi-api.txt / mpi-abort
+[ip-172-31-43-247:3426168] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages

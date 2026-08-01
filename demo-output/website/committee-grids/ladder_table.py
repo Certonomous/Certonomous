@@ -32,6 +32,8 @@ DESC = {
     "crawl2": ("much slower relaxation + 2 correctors", "p 0.05, U 0.2, nNonOrth 2"),
     "crawl3": ("slowest, everything stabilising at once", "p 0.02, U 0.1, limitedLinear, capped p"),
     "upwind1": ("FIRST ORDER -- control, not a submission", "div(phi,U) -> upwind"),
+    "hardenedHLPW6": ("the exact HLPW6 hardened dictionaries, FIRST ORDER",
+                      "verbatim HLPW6 fvSchemes+fvSolution, md5-matched"),
 }
 
 mem = {}
@@ -58,7 +60,7 @@ for path in sorted(glob.glob(f"{LOGS}/hybrid_*_incompressible_a2.11_solve.log"))
 
 order = ["base", "nonorth2", "nonorth6", "uncorr", "limlin", "linupV", "combo",
          "prod", "pcg", "pcap", "wdpois", "potinit", "potprod", "base_sa",
-         "slow", "crawl", "crawl2", "crawl3", "upwind1"]
+         "slow", "crawl", "crawl2", "crawl3", "upwind1", "hardenedHLPW6"]
 rows.sort(key=lambda r: order.index(r[0]) if r[0] in order else 99)
 
 print("| variant | what was changed | iterations of 120 | exit | outcome |")
@@ -71,5 +73,5 @@ for v, last, rc, wall, survived, died in rows:
         out = "diverged, signal 8"
     else:
         out = f"stopped (rc {rc})"
-    star = " **(first order)**" if v == "upwind1" else ""
+    star = " **(first order)**" if v in ("upwind1", "hardenedHLPW6") else ""
     print(f"| `{v}`{star} | {what} | {last} | {rc} | {out} |")

@@ -199,6 +199,15 @@ V = {
     #    order in smooth regions, no gradient reconstruction over a nearly
     #    tangential face-to-cell vector), the non-orthogonal correction limited
     #    hard rather than switched off, two correctors, and slower relaxation.
+    # 10. compressible-only: rhoSimpleFoam at M = 0.85 aborts inside
+    #     libfluidThermophysicalModels.so on iteration 2-3 -- and it does so on
+    #     the hex grid, which runs 200 clean incompressible iterations, so the
+    #     abort is not caused by mesh quality. The baseline runs `transonic no`
+    #     at M = 0.850, which is the wrong pressure-equation form at that Mach,
+    #     and it bounds neither p nor T.
+    "trans":     dict(transonic="yes", pminmax=True, relaxP=0.2, relaxU=0.3),
+    "transu1":   dict(transonic="yes", pminmax=True, relaxP=0.2, relaxU=0.3,
+                      divU="bounded Gauss upwind"),
     "prod":      dict(divU="bounded Gauss limitedLinear 1", nNonOrth=2,
                       snlim="limited corrected 0.25", laplim="limited corrected 0.25",
                       relaxP=0.2, relaxU=0.4),
@@ -238,6 +247,8 @@ psmooth = c.get("psmooth", "GaussSeidel")
 pmaxiter = c.get("pmaxiter", 0)
 walldist = c.get("walldist", "meshWave")
 potential = c.get("potential", False)
+transonic = c.get("transonic", "no")
+pminmax = c.get("pminmax", False)
 
 app = "rhoSimpleFoam" if COMP else "simpleFoam"
 rhoinf = ("        rho         rho;\n        rhoInf      1.225;\n" if COMP else
@@ -318,7 +329,9 @@ else:
 
 extra = ('    "(e|h)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-8; '
          'relTol 0.01; }\n' if COMP else "")
-simple_extra = "    rhoMin 0.1; rhoMax 10.0; transonic no;\n" if COMP else ""
+simple_extra = ((f"    rhoMin 0.1; rhoMax 10.0; transonic {transonic};\n"
+                 + ("    pMinFactor 0.1; pMaxFactor 2.0;\n" if pminmax else ""))
+                if COMP else "")
 relax = (f'    fields {{ p {relaxP}; rho 1.0; }}\n'
          f'    equations {{ U {relaxU}; "(k|omega|nuTilda|e|h)" {relaxU}; }}\n' if COMP else
          f'    fields {{ p {relaxP}; }}\n'
@@ -378,7 +391,7 @@ print(f"case {CASE}  {MODE}  variant={VARIANT}  alpha={ALPHA}  U={Uv}  "
       f"nNonOrth={nNonOrth}  divU='{divU}'  grad='{gradU}'  snGrad='{snlim}'  "
       f"p={psolver}/{psmooth}"
       + (f" maxIter={pmaxiter}" if pmaxiter else "")
-      + f"  wallDist={walldist}  potentialInit={potential}"
+      + f"  wallDist={walldist}  potentialInit={potential}  transonic={transonic}"
       + f"  relax p={relaxP} U={relaxU}  iters={ITERS} ranks={NRANKS}")
 if potential:
     open(os.path.join(CASE, "POTENTIAL_INIT"), "w").write("yes\n")

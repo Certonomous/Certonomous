@@ -1,0 +1,337 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : rhoSimpleFoam -parallel
+Date   : Aug 01 2026
+Time   : 09:42:15
+Host   : ip-172-31-43-247
+PID    : 3487098
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hex_transu1_compressible_a2.11
+nProcs : 14
+Hosts  :
+(
+    (ip-172-31-43-247 14)
+)
+Pstream initialized with:
+    node communication : off [type=host] (14 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-09
+    field U	 tolerance 1e-09
+    field "(k|omega|nuTilda)"	 tolerance 1e-09
+
+Reading thermophysical properties
+
+Selecting thermodynamics package 
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       sutherland;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+pressureControl
+    pMax 202650
+    pMin 10132.5
+
+Creating turbulence model
+
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    model           kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.55555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+forceCoeffs forceCoeffs:
+    rho: rho
+    Not including porosity effects
+    magUInf: 295
+    lRef   : 7.00532
+    Aref   : 1
+    rhoInf : 1.225
+    Selecting all coefficients
+    - Drag force: Cd
+    - Drag force front: Cd(f)
+    - Drag force rear: Cd(r)
+    - Lift force: Cl
+    - Lift force front: Cl(f)
+    - Lift force rear: Cl(r)
+    - Pitch moment: CmPitch
+    - Roll moment: CmRoll
+    - Yaw moment: CmYaw
+    - Side force: Cs
+    - Side force front: Cs(f)
+    - Side force rear: Cs(r)
+
+
+Time = 1
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.99993996, Final residual = 1.4213052e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 1, Final residual = 8.2317261e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.99999007, Final residual = 0.0044354234, No Iterations 1
+DILUPBiCGStab:  Solving for e, Initial residual = 0.99999718, Final residual = 0.0012933551, No Iterations 1
+[1] [stack trace]
+=============
+[3] [stack trace]
+=============
+[5] [stack trace]
+=============
+[7] [stack trace]
+=============
+[7] #1  [5] #1  Foam::sigFpe::sigHandler(int)Foam::sigFpe::sigHandler(int)[1] #1  [3] #1  Foam::sigFpe::sigHandler(int)Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[5] #2   in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #2  ?? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[1] #2  ? in /lib/x86_64-linux-gnu/libc.so.6
+[3] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[5] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[1] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[7] #3  ? in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so
+[5] #4  ompi_coll_base_allreduce_intra_recursivedoubling in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so
+[3] #4  ompi_coll_base_allreduce_intra_recursivedoubling in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so
+[7] #4  ompi_coll_base_allreduce_intra_recursivedoubling in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so
+[1] #4  ompi_coll_base_allreduce_intra_recursivedoubling in /lib/x86_64-linux-gnu/libmpi.so.40
+[3] #5  ompi_coll_tuned_allreduce_intra_dec_fixed in /lib/x86_64-linux-gnu/libmpi.so.40
+[5] #5  ompi_coll_tuned_allreduce_intra_dec_fixed in /lib/x86_64-linux-gnu/libmpi.so.40
+[7] #5  ompi_coll_tuned_allreduce_intra_dec_fixed in /lib/x86_64-linux-gnu/libmpi.so.40
+[1] #5  ompi_coll_tuned_allreduce_intra_dec_fixed in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so
+[3] #6  PMPI_Allreduce in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so
+[7] #6  PMPI_Allreduce in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so
+[5] #6  PMPI_Allreduce in /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so
+[1] #6  PMPI_Allreduce in /lib/x86_64-linux-gnu/libmpi.so.40
+[3] #7  ? in /lib/x86_64-linux-gnu/libmpi.so.40
+[7] #7  ? in /lib/x86_64-linux-gnu/libmpi.so.40
+[1] #7  ? in /lib/x86_64-linux-gnu/libmpi.so.40
+[5] #7  ? in <platforms>/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so
+[3] #8  ? in <platforms>/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so
+[7] #8  ? in <platforms>/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so
+[5] #8  ? in <platforms>/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so
+[1] #8  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #9  Foam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #9  Foam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[5] #9  Foam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[1] #9  Foam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #10  Foam::GAMGSolver::solveCoarsestLevel(Foam::Field<double>&, Foam::Field<double> const&) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #10  Foam::GAMGSolver::solveCoarsestLevel(Foam::Field<double>&, Foam::Field<double> const&) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[5] #10  Foam::GAMGSolver::solveCoarsestLevel(Foam::Field<double>&, Foam::Field<double> const&) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[1] #10  Foam::GAMGSolver::solveCoarsestLevel(Foam::Field<double>&, Foam::Field<double> const&) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #11  Foam::GAMGSolver::Vcycle(Foam::PtrList<Foam::lduMatrix::smoother> const&, Foam::Field<double>&, Foam::Field<double> const&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::PtrList<Foam::Field<double>>&, Foam::PtrList<Foam::Field<double>>&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #11  Foam::GAMGSolver::Vcycle(Foam::PtrList<Foam::lduMatrix::smoother> const&, Foam::Field<double>&, Foam::Field<double> const&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::PtrList<Foam::Field<double>>&, Foam::PtrList<Foam::Field<double>>&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[5] #11  Foam::GAMGSolver::Vcycle(Foam::PtrList<Foam::lduMatrix::smoother> const&, Foam::Field<double>&, Foam::Field<double> const&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::PtrList<Foam::Field<double>>&, Foam::PtrList<Foam::Field<double>>&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[1] #11  Foam::GAMGSolver::Vcycle(Foam::PtrList<Foam::lduMatrix::smoother> const&, Foam::Field<double>&, Foam::Field<double> const&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::Field<double>&, Foam::PtrList<Foam::Field<double>>&, Foam::PtrList<Foam::Field<double>>&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #12  Foam::GAMGSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #12  Foam::GAMGSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[5] #12  Foam::GAMGSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #13  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[1] #12  Foam::GAMGSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #13  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[5] #13  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[1] #13  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[3] #14  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[7] #14  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[3] #15  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[1] #14  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[5] #14  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[3] #16  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[7] #15  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[5] #15  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[1] #15  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[7] #16  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[5] #16  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[1] #16  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[3] #17  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[7] #17  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[1] #17  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[5] #17  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[1] #18  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[3] #18  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[5] #18  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[7] #18  ? in /lib/x86_64-linux-gnu/libc.so.6
+[5] #19  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[3] #19  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[7] #19  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[1] #19  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[5] #20  ? in /lib/x86_64-linux-gnu/libc.so.6
+[3] #20  ? in  in /lib/x86_64-linux-gnu/libc.so.6
+[7] #20/lib/x86_64-linux-gnu/libc.so.6
+[1] #20  ?  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[5] =============
+[ip-172-31-43-247:3487103] *** Process received signal ***
+[ip-172-31-43-247:3487103] Signal: Floating point exception (8)
+[ip-172-31-43-247:3487103] Signal code:  (-6)
+[ip-172-31-43-247:3487103] Failing at address: 0x3e80035357f
+[ip-172-31-43-247:3487103] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7c67f4845330]
+[ip-172-31-43-247:3487103] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7c67f489ec0c]
+[ip-172-31-43-247:3487103] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7c67f484527e]
+[ip-172-31-43-247:3487103] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7c67f4845330]
+[ip-172-31-43-247:3487103] [ 4] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so(+0x1965d)[0x7c67f153365d]
+[ip-172-31-43-247:3487103] [ 5] /lib/x86_64-linux-gnu/libmpi.so.40(ompi_coll_base_allreduce_intra_recursivedoubling+0x44a)[0x7c67f35d5cda]
+[ip-172-31-43-247:3487103] [ 6] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so(ompi_coll_tuned_allreduce_intra_dec_fixed+0x4e)[0x7c67f004f27e]
+[ip-172-31-43-247:3487103] [ 7] /lib/x86_64-linux-gnu/libmpi.so.40(PMPI_Allreduce+0x10f)[0x7c67f358e64f]
+[ip-172-31-43-247:3487103] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so(+0x1582d)[0x7c67f73ec82d]
+[ip-172-31-43-247:3487103] [ 9] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(+0x4aa40b)[0x7c67f54aa40b]
+[ip-172-31-43-247:3487103] [10] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0x477)[0x7c67f54ae5d7]
+[ip-172-31-43-247:3487103] [11] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver18solveCoarsestLevelERNS_5FieldIdEERKS2_+0x23a)[0x7c67f54c6d7a]
+[ip-172-31-43-247:3487103] [12]  in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[3] =============
+[ip-172-31-43-247:3487101] *** Process received signal ***
+[ip-172-31-43-247:3487101] Signal: Floating point exception (8)
+[ip-172-31-43-247:3487101] Signal code:  (-6)
+[ip-172-31-43-247:3487101] Failing at address: 0x3e80035357d
+[ip-172-31-43-247:3487101] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x70c37ba45330]
+[ip-172-31-43-247:3487101] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x70c37ba9ec0c]
+[ip-172-31-43-247:3487101] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x70c37ba4527e]
+[ip-172-31-43-247:3487101] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x70c37ba45330]
+[ip-172-31-43-247:3487101] [ 4] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so(+0x1965d)[0x70c379cb065d]
+[ip-172-31-43-247:3487101] [ 5] /lib/x86_64-linux-gnu/libmpi.so.40(ompi_coll_base_allreduce_intra_recursivedoubling+0x48a)[0x70c37a983d1a]
+[ip-172-31-43-247:3487101] [ 6] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so(ompi_coll_tuned_allreduce_intra_dec_fixed+0x4e)[0x70c37801427e]
+[ip-172-31-43-247:3487101] [ 7] /lib/x86_64-linux-gnu/libmpi.so.40(PMPI_Allreduce+0x10f)[0x70c37a93c64f]
+[ip-172-31-43-247:3487101] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so(+0x1582d)[0x70c37e5ec82d]
+[ip-172-31-43-247:3487101] [ 9] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(+0x4aa40b)[0x70c37c6aa40b]
+[ip-172-31-43-247:3487101] [10] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0x477)[0x70c37c6ae5d7]
+[ip-172-31-43-247:3487101] [11] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver18solveCoarsestLevelERNS_5FieldIdEERKS2_+0x23a)[0x70c37c6c6d7a]
+[ip-172-31-43-247:3487101] [12] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver6VcycleERKNS_7PtrListINS_9lduMatrix8smootherEEERNS_5FieldIdEERKS8_S9_S9_S9_S9_S9_RNS1_IS8_EESD_h+0x3ee)[0x70c37c6c75ce]
+[ip-172-31-43-247:3487101] [13] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver5solveERNS_5FieldIdEERKS2_h+0x43c)[0x70c37c6c864c]
+[ip-172-31-43-247:3487101] [14] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZN4Foam8fvMatrixIdE15solveSegregatedERKNS_10dictionaryE+0x43a)[0x70c37f9e01ba]
+[ip-172-31-43-247:3487101] [15] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x535892)[0x70c37f535892]
+[ip-172-31-43-247:3487101] [16] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixIdEERKNS_10dictionaryE+0x2a)[0x70c37f523baa]
+[ip-172-31-43-247:3487101] [17] rhoSimpleFoam(+0x26496)[0x577ec0f66496]
+[ip-172-31-43-247:3487101] [18] rhoSimpleFoam(+0x1d35c)[0x577ec0f5d35c]
+[ip-172-31-43-247:3487101] [19] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x70c37ba2a1ca]
+[ip-172-31-43-247:3487101] [20] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x70c37ba2a28b]
+[ip-172-31-43-247:3487101] [21] rhoSimpleFoam(+0x20d15)[0x577ec0f60d15]
+[ip-172-31-43-247:3487101] *** End of error message ***
+/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver6VcycleERKNS_7PtrListINS_9lduMatrix8smootherEEERNS_5FieldIdEERKS8_S9_S9_S9_S9_S9_RNS1_IS8_EESD_h+0x3ee)[0x7c67f54c75ce]
+ in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[7] =============
+[ip-172-31-43-247:3487105] *** Process received signal ***
+[ip-172-31-43-247:3487105] Signal: Floating point exception (8)
+[ip-172-31-43-247:3487105] Signal code:  (-6)
+[ip-172-31-43-247:3487105] Failing at address: 0x3e800353581
+[ip-172-31-43-247:3487105] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7fceb1245330]
+[ip-172-31-43-247:3487105] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7fceb129ec0c]
+[ip-172-31-43-247:3487105] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7fceb124527e]
+[ip-172-31-43-247:3487105] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7fceb1245330]
+[ip-172-31-43-247:3487105] [ 4] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so(+0x1965d)[0x7fcead1e265d]
+[ip-172-31-43-247:3487105] [ 5] /lib/x86_64-linux-gnu/libmpi.so.40(ompi_coll_base_allreduce_intra_recursivedoubling+0x44a)[0x7fceb0d7acda]
+[ip-172-31-43-247:3487105] [ 6] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so(ompi_coll_tuned_allreduce_intra_dec_fixed+0x4e)[0x7fceacb3c27e]
+[ip-172-31-43-247:3487105] [ 7] /lib/x86_64-linux-gnu/libmpi.so.40(PMPI_Allreduce+0x10f)[0x7fceb0d3364f]
+[ip-172-31-43-247:3487105] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so(+0x1582d)[0x7fceb3dec82d]
+[ip-172-31-43-247:3487105] [ 9] [ip-172-31-43-247:3487103] [13] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver5solveERNS_5FieldIdEERKS2_h+0x43c)[0x7c67f54c864c]
+[ip-172-31-43-247:3487103] [14] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZN4Foam8fvMatrixIdE15solveSegregatedERKNS_10dictionaryE+0x43a)[0x7c67f87e01ba]
+[ip-172-31-43-247:3487103] [15] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x535892)[0x7c67f8335892]
+[ip-172-31-43-247:3487103] [16] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixIdEERKNS_10dictionaryE+0x2a)[0x7c67f8323baa]
+[ip-172-31-43-247:3487103] [17] rhoSimpleFoam(+0x26496)[0x61f911fb6496]
+[ip-172-31-43-247:3487103] [18] rhoSimpleFoam(+0x1d35c)[0x61f911fad35c]
+[ip-172-31-43-247:3487103] [19] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7c67f482a1ca]
+[ip-172-31-43-247:3487103] [20] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7c67f482a28b]
+[ip-172-31-43-247:3487103] [21] rhoSimpleFoam(+0x20d15)[0x61f911fb0d15]
+[ip-172-31-43-247:3487103] *** End of error message ***
+/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(+0x4aa40b)[0x7fceb1eaa40b]
+[ip-172-31-43-247:3487105] [10] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0x477)[0x7fceb1eae5d7]
+[ip-172-31-43-247:3487105] [11] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver18solveCoarsestLevelERNS_5FieldIdEERKS2_+0x23a)[0x7fceb1ec6d7a]
+[ip-172-31-43-247:3487105] [12] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver6VcycleERKNS_7PtrListINS_9lduMatrix8smootherEEERNS_5FieldIdEERKS8_S9_S9_S9_S9_S9_RNS1_IS8_EESD_h+0x3ee)[0x7fceb1ec75ce]
+[ip-172-31-43-247:3487105] [13] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver5solveERNS_5FieldIdEERKS2_h+0x43c)[0x7fceb1ec864c]
+[ip-172-31-43-247:3487105] [14] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZN4Foam8fvMatrixIdE15solveSegregatedERKNS_10dictionaryE+0x43a)[0x7fceb51e01ba]
+[ip-172-31-43-247:3487105] [15] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x535892)[0x7fceb4d35892]
+[ip-172-31-43-247:3487105] [16] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixIdEERKNS_10dictionaryE+0x2a)[0x7fceb4d23baa]
+[ip-172-31-43-247:3487105] [17] rhoSimpleFoam(+0x26496)[0x5bcf92183496]
+[ip-172-31-43-247:3487105] [18] rhoSimpleFoam(+0x1d35c)[0x5bcf9217a35c]
+[ip-172-31-43-247:3487105] [19] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7fceb122a1ca]
+[ip-172-31-43-247:3487105] [20] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7fceb122a28b]
+[ip-172-31-43-247:3487105] [21] rhoSimpleFoam(+0x20d15)[0x5bcf9217dd15]
+[ip-172-31-43-247:3487105] *** End of error message ***
+ in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[1] =============
+[ip-172-31-43-247:3487099] *** Process received signal ***
+[ip-172-31-43-247:3487099] Signal: Floating point exception (8)
+[ip-172-31-43-247:3487099] Signal code:  (-6)
+[ip-172-31-43-247:3487099] Failing at address: 0x3e80035357b
+[ip-172-31-43-247:3487099] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7a5c1ae45330]
+[ip-172-31-43-247:3487099] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7a5c1ae9ec0c]
+[ip-172-31-43-247:3487099] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7a5c1ae4527e]
+[ip-172-31-43-247:3487099] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7a5c1ae45330]
+[ip-172-31-43-247:3487099] [ 4] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_op_avx.so(+0x1965d)[0x7a5c16db065d]
+[ip-172-31-43-247:3487099] [ 5] /lib/x86_64-linux-gnu/libmpi.so.40(ompi_coll_base_allreduce_intra_recursivedoubling+0x48a)[0x7a5c1a97ad1a]
+[ip-172-31-43-247:3487099] [ 6] /usr/lib/x86_64-linux-gnu/openmpi/lib/openmpi3/mca_coll_tuned.so(ompi_coll_tuned_allreduce_intra_dec_fixed+0x4e)[0x7a5c149bc27e]
+[ip-172-31-43-247:3487099] [ 7] /lib/x86_64-linux-gnu/libmpi.so.40(PMPI_Allreduce+0x10f)[0x7a5c1a93364f]
+[ip-172-31-43-247:3487099] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so(+0x1582d)[0x7a5c1d9ec82d]
+[ip-172-31-43-247:3487099] [ 9] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(+0x4aa40b)[0x7a5c1baaa40b]
+[ip-172-31-43-247:3487099] [10] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0x477)[0x7a5c1baae5d7]
+[ip-172-31-43-247:3487099] [11] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver18solveCoarsestLevelERNS_5FieldIdEERKS2_+0x23a)[0x7a5c1bac6d7a]
+[ip-172-31-43-247:3487099] [12] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver6VcycleERKNS_7PtrListINS_9lduMatrix8smootherEEERNS_5FieldIdEERKS8_S9_S9_S9_S9_S9_RNS1_IS8_EESD_h+0x3ee)[0x7a5c1bac75ce]
+[ip-172-31-43-247:3487099] [13] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam10GAMGSolver5solveERNS_5FieldIdEERKS2_h+0x43c)[0x7a5c1bac864c]
+[ip-172-31-43-247:3487099] [14] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZN4Foam8fvMatrixIdE15solveSegregatedERKNS_10dictionaryE+0x43a)[0x7a5c1ede01ba]
+[ip-172-31-43-247:3487099] [15] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x535892)[0x7a5c1e935892]
+[ip-172-31-43-247:3487099] [16] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixIdEERKNS_10dictionaryE+0x2a)[0x7a5c1e923baa]
+[ip-172-31-43-247:3487099] [17] rhoSimpleFoam(+0x26496)[0x606e9e0df496]
+[ip-172-31-43-247:3487099] [18] rhoSimpleFoam(+0x1d35c)[0x606e9e0d635c]
+[ip-172-31-43-247:3487099] [19] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7a5c1ae2a1ca]
+[ip-172-31-43-247:3487099] [20] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7a5c1ae2a28b]
+[ip-172-31-43-247:3487099] [21] rhoSimpleFoam(+0x20d15)[0x606e9e0d9d15]
+[ip-172-31-43-247:3487099] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 1 with PID 0 on node ip-172-31-43-247 exited on signal 8 (Floating point exception).
+--------------------------------------------------------------------------

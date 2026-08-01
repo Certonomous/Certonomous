@@ -1,0 +1,512 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam -parallel
+Date   : Aug 01 2026
+Time   : 09:01:14
+Host   : ip-172-31-43-247
+PID    : 3432200
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hybrid_pcg_incompressible_a2.11
+nProcs : 14
+Hosts  :
+(
+    (ip-172-31-43-247 14)
+)
+Pstream initialized with:
+    node communication : off [type=host] (14 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-09
+    field U	 tolerance 1e-09
+    field "(k|omega|nuTilda)"	 tolerance 1e-09
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    model           kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.55555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+forceCoeffs forceCoeffs:
+    rho: rhoInf
+    Freestream density (rhoInf) set to 1.225
+    Not including porosity effects
+    magUInf: 68.06
+    lRef   : 7.00532
+    Aref   : 1
+    rhoInf : 1.225
+    Selecting all coefficients
+    - Drag force: Cd
+    - Drag force front: Cd(f)
+    - Drag force rear: Cd(r)
+    - Lift force: Cl
+    - Lift force front: Cl(f)
+    - Lift force rear: Cl(r)
+    - Pitch moment: CmPitch
+    - Roll moment: CmRoll
+    - Yaw moment: CmYaw
+    - Side force: Cs
+    - Side force front: Cs(f)
+    - Side force rear: Cs(r)
+
+
+Time = 1
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.9998167, Final residual = 0.0001445455, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 1, Final residual = 0.00018636064, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.99982329, Final residual = 0.0069303503, No Iterations 1
+DICPCG:  Solving for p, Initial residual = 1, Final residual = 0.0099412817, No Iterations 572
+time step continuity errors : sum local = 5.1236878e-08, global = 1.3162043e-08, cumulative = 1.3162043e-08
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.62840101, Final residual = 1.4304707e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 1, Final residual = 4.2985805e-05, No Iterations 1
+ExecutionTime = 7.19 s  ClockTime = 8 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	281.79575	271.47193	10.323824	0
+    Cd(f):	664.67479	659.47496	5.1998353	0
+    Cd(r):	-382.87904	-388.00303	5.123989	0
+    Cl:	448.79584	448.78985	0.0059923473	0
+    Cl(f):	-1671.9143	-1677.6355	5.7211709	0
+    Cl(r):	2120.7102	2126.4254	-5.7151785	0
+    CmPitch:	-1896.3123	-1902.0304	5.7181747	0
+    CmRoll:	523.77691	523.73899	0.037923148	0
+    CmYaw:	563.26465	573.27812	-10.013464	0
+    Cs:	-93.700137	-93.628765	-0.071372379	0
+    Cs(f):	516.41458	526.46373	-10.049151	0
+    Cs(r):	-610.11472	-620.0925	9.9777782	0
+
+    writing force and moment coefficient files.
+
+Time = 2
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.00047898126, Final residual = 5.0690044e-07, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0031274019, Final residual = 2.9350394e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0019705908, Final residual = 2.0360264e-06, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.067211106, Final residual = 0.00066705526, No Iterations 220
+time step continuity errors : sum local = 2.0261606e-06, global = 4.3388325e-07, cumulative = 4.4704529e-07
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.30225322, Final residual = 1.4259891e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.48099992, Final residual = 4.4348467e-05, No Iterations 1
+ExecutionTime = 10.01 s  ClockTime = 10 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	330.32548	325.42249	4.902993	0
+    Cd(f):	832.68756	831.14875	1.5388133	0
+    Cd(r):	-502.36208	-505.72626	3.3641797	0
+    Cl:	634.51316	634.8121	-0.29894626	0
+    Cl(f):	-2400.2653	-2404.3954	4.1300795	0
+    Cl(r):	3034.7785	3039.2075	-4.4290258	0
+    CmPitch:	-2717.5219	-2721.8014	4.2795526	0
+    CmRoll:	667.52482	668.4375	-0.91268318	0
+    CmYaw:	963.80052	966.13467	-2.3341477	0
+    Cs:	-66.756519	-67.823608	1.0670887	0
+    Cs(f):	930.42226	932.22287	-1.8006034	0
+    Cs(r):	-997.17878	-1000.0465	2.8676921	0
+
+    writing force and moment coefficient files.
+
+Time = 3
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.00010249891, Final residual = 9.9706064e-07, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.00068539765, Final residual = 6.5399933e-06, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.00043189284, Final residual = 4.2921403e-07, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.056611793, Final residual = 0.0005631214, No Iterations 90
+time step continuity errors : sum local = 2.8479408e-06, global = 1.5795799e-07, cumulative = 6.0500328e-07
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.068923149, Final residual = 7.0272218e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.12227433, Final residual = 2.5670218e-05, No Iterations 1
+ExecutionTime = 11.83 s  ClockTime = 12 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	280.33467	277.56274	2.7719324	0
+    Cd(f):	709.90981	709.82202	0.087790711	0
+    Cd(r):	-429.57513	-432.25928	2.6841417	0
+    Cl:	621.23957	621.79831	-0.55873986	0
+    Cl(f):	-2360.2874	-2364.0755	3.7881257	0
+    Cl(r):	2981.527	2985.8738	-4.3468655	0
+    CmPitch:	-2670.9072	-2674.9747	4.0674956	0
+    CmRoll:	569.74247	571.04065	-1.2981755	0
+    CmYaw:	1122.59	1122.963	-0.37304641	0
+    Cs:	-10.121873	-11.462535	1.3406622	0
+    Cs(f):	1117.529	1117.2317	0.29728469	0
+    Cs(r):	-1127.6509	-1128.6943	1.0433775	0
+
+    writing force and moment coefficient files.
+
+Time = 4
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 7.3397415e-05, Final residual = 6.8101314e-08, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.00064973282, Final residual = 7.1689028e-07, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.00027010089, Final residual = 2.9681564e-07, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.04509559, Final residual = 0.00044577383, No Iterations 89
+time step continuity errors : sum local = 2.5331264e-06, global = 1.9182988e-07, cumulative = 7.9683316e-07
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.039806225, Final residual = 9.3377955e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.018401055, Final residual = 9.4050105e-06, No Iterations 1
+ExecutionTime = 13.69 s  ClockTime = 14 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	178.29129	176.21486	2.0764291	0
+    Cd(f):	464.64486	464.69783	-0.052967294	0
+    Cd(r):	-286.35357	-288.48297	2.1293964	0
+    Cl:	512.68585	513.25512	-0.56926925	0
+    Cl(f):	-1968.0612	-1971.3545	3.2932252	0
+    Cl(r):	2480.7471	2484.6096	-3.8624944	0
+    CmPitch:	-2224.4042	-2227.982	3.5778598	0
+    CmRoll:	375.49922	376.5904	-1.0911819	0
+    CmYaw:	1176.4881	1177.3322	-0.84408923	0
+    Cs:	61.113962	60.129307	0.98465491	0
+    Cs(f):	1207.0451	1207.3969	-0.35176177	0
+    Cs(r):	-1145.9312	-1147.2676	1.3364167	0
+
+    writing force and moment coefficient files.
+
+Time = 5
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 8.3510079e-05, Final residual = 3.4806795e-07, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0098400098, Final residual = 4.4860968e-05, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.0002698059, Final residual = 1.1532955e-06, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.040290731, Final residual = 0.00040049621, No Iterations 156
+time step continuity errors : sum local = 2.3004443e-06, global = 6.1915472e-08, cumulative = 8.5874863e-07
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.02135762, Final residual = 1.2331121e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.0035414247, Final residual = 4.600931e-06, No Iterations 1
+ExecutionTime = 16.03 s  ClockTime = 16 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	12.885037	11.133266	1.7517716	0
+    Cd(f):	138.6416	138.56062	0.080987717	0
+    Cd(r):	-125.75657	-127.42735	1.6707838	0
+    Cl:	303.46291	303.87527	-0.41236315	0
+    Cl(f):	-1387.3598	-1389.8724	2.5125939	0
+    Cl(r):	1690.8228	1693.7477	-2.9249571	0
+    CmPitch:	-1539.0913	-1541.8101	2.7187755	0
+    CmRoll:	132.19908	132.99398	-0.79489806	0
+    CmYaw:	1148.9003	1149.9156	-1.0153139	0
+    Cs:	146.54995	145.83407	0.71588182	0
+    Cs(f):	1222.1753	1222.8327	-0.65737301	0
+    Cs(r):	-1075.6253	-1076.9986	1.3732548	0
+
+    writing force and moment coefficient files.
+
+Time = 6
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.00057456084, Final residual = 6.3303142e-07, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.18814313, Final residual = 0.001059039, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.032562893, Final residual = 0.00032335543, No Iterations 1
+DICPCG:  Solving for p, Initial residual = 0.40136149, Final residual = 0.0038767679, No Iterations 266
+time step continuity errors : sum local = 3.5329505e-05, global = 2.4581545e-06, cumulative = 3.3169031e-06
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.011955404, Final residual = 1.777816e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.00091425566, Final residual = 3.0122288e-06, No Iterations 1
+ExecutionTime = 19.16 s  ClockTime = 19 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-513.17676	-514.8342	1.6574378	0
+    Cd(f):	-437.94084	-438.28709	0.34624949	0
+    Cd(r):	-75.235922	-76.54711	1.3111883	0
+    Cl:	-209.04002	-208.75721	-0.28281247	0
+    Cl(f):	-1091.983	-1093.7972	1.8141972	0
+    Cl(r):	882.94296	885.03997	-2.0970096	0
+    CmPitch:	-987.46297	-989.41858	1.9556034	0
+    CmRoll:	-181.35246	-180.86999	-0.48246942	0
+    CmYaw:	1070.2615	1071.4482	-1.1866545	0
+    Cs:	372.93775	372.47929	0.45846325	0
+    Cs(f):	1256.7304	1257.6878	-0.95742291	0
+    Cs(r):	-883.79266	-885.20855	1.4158862	0
+
+    writing force and moment coefficient files.
+
+Time = 7
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.35485311, Final residual = 0.00078961072, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.3448871, Final residual = 0.0011820823, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.37459397, Final residual = 0.00083317094, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.61454074, Final residual = 0.0059625796, No Iterations 243
+time step continuity errors : sum local = 0.0026477061, global = -0.00019221715, cumulative = -0.00018890025
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0068564955, Final residual = 5.6941451e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.00034853427, Final residual = 4.0288331e-07, No Iterations 1
+ExecutionTime = 22.16 s  ClockTime = 22 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-537.22994	-538.88996	1.6600181	0
+    Cd(f):	-539.16576	-539.75943	0.59367143	0
+    Cd(r):	1.9358172	0.86947047	1.0663467	0
+    Cl:	-323.7433	-323.63503	-0.10826909	0
+    Cl(f):	-596.68779	-598.01232	1.3245318	0
+    Cl(r):	272.94449	274.37729	-1.4328008	0
+    CmPitch:	-434.81614	-436.19481	1.3786663	0
+    CmRoll:	-270.55079	-270.31445	-0.23633764	0
+    CmYaw:	832.14877	833.47312	-1.3243509	0
+    Cs:	359.71739	359.47605	0.24133656	0
+    Cs(f):	1012.0075	1013.2111	-1.2036826	0
+    Cs(r):	-652.29008	-653.7351	1.4450191	0
+
+    writing force and moment coefficient files.
+
+Time = 8
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.37453943, Final residual = 0.0033908775, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.38014349, Final residual = 0.0024788287, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.37455864, Final residual = 0.0033926684, No Iterations 1
+DICPCG:  Solving for p, Initial residual = 0.015556305, Final residual = 0.00015394666, No Iterations 264
+time step continuity errors : sum local = 0.35702194, global = 0.040732682, cumulative = 0.040543782
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0072803652, Final residual = 6.115128e-05, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 0.000621484, Final residual = 5.3623153e-06, No Iterations 1
+ExecutionTime = 25.31 s  ClockTime = 26 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-331.38938	-332.68983	1.300453	0
+    Cd(f):	-101.33438	-102.15201	0.81762261	0
+    Cd(r):	-230.055	-230.53783	0.4828304	0
+    Cl:	181.11002	180.81787	0.29214579	0
+    Cl(f):	-2501.0445	-2500.3466	-0.69790856	0
+    Cl(r):	2682.1545	2681.1645	0.99005435	0
+    CmPitch:	-2591.5995	-2590.7555	-0.84398146	0
+    CmRoll:	64.360308	64.192912	0.16739611	0
+    CmYaw:	1167.2698	1167.4777	-0.207865	0
+    Cs:	352.8802	352.74524	0.1349611	0
+    Cs(f):	1343.7099	1343.8503	-0.14038445	0
+    Cs(r):	-990.8297	-991.10504	0.27534555	0
+
+    writing force and moment coefficient files.
+
+Time = 9
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.47041861, Final residual = 0.001544179, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.42696935, Final residual = 0.0015479996, No Iterations 2
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.47039624, Final residual = 0.0015434566, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.00028640687, Final residual = 2.8494271e-06, No Iterations 756
+time step continuity errors : sum local = 27.376962, global = 0.62642416, cumulative = 0.66696794
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.0062989542, Final residual = 1.5036814e-05, No Iterations 2
+DILUPBiCGStab:  Solving for k, Initial residual = 0.00048972289, Final residual = 4.8866436e-06, No Iterations 1
+ExecutionTime = 32.09 s  ClockTime = 32 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	33161301	33166095	-4794.6529	0
+    Cd(f):	4.332717e+08	4.3327912e+08	-7420.3151	0
+    Cd(r):	-4.0011039e+08	-4.0011302e+08	2625.6622	0
+    Cl:	3.0449385e+08	3.0449596e+08	-2107.1817	0
+    Cl(f):	-1.3361295e+09	-1.3361363e+09	6847.1691	0
+    Cl(r):	1.6406233e+09	1.6406323e+09	-8954.3509	0
+    CmPitch:	-1.4883764e+09	-1.4883843e+09	7900.76	0
+    CmRoll:	4.1669105e+08	4.1669607e+08	-5022.9887	0
+    CmYaw:	-1.6968068e+08	-1.6971228e+08	31608.179	0
+    Cs:	-26850660	-26855742	5081.8343	0
+    Cs(f):	-1.8310601e+08	-1.8314015e+08	34149.096	0
+    Cs(r):	1.5625535e+08	1.5628441e+08	-29067.262	0
+
+    writing force and moment coefficient files.
+
+Time = 10
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.4032177, Final residual = 0.0035046323, No Iterations 3
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.38942499, Final residual = 0.00081596908, No Iterations 3
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.40312067, Final residual = 0.0020742742, No Iterations 2
+DICPCG:  Solving for p, Initial residual = 0.91773035, Final residual = 0.14930555, No Iterations 2000
+time step continuity errors : sum local = 9.2294145e+10, global = 5.4094897e+09, cumulative = 5.4094897e+09
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.00026582592, Final residual = 1.8514496e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 1.9768976e-05, Final residual = 1.5714943e-07, No Iterations 1
+ExecutionTime = 48.09 s  ClockTime = 48 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	-2.2089094e+18	-2.2089368e+18	2.7456025e+13	0
+    Cd(f):	-1.9289329e+19	-1.928935e+19	2.0983294e+13	0
+    Cd(r):	1.708042e+19	1.7080413e+19	6.4727305e+12	0
+    Cl:	-1.5015811e+19	-1.5015814e+19	3.2071519e+12	0
+    Cl(f):	6.7931081e+19	6.7931072e+19	8.8072681e+12	0
+    Cl(r):	-8.2946892e+19	-8.2946887e+19	-5.6001162e+12	0
+    CmPitch:	7.5438987e+19	7.543898e+19	7.2036921e+12	0
+    CmRoll:	-1.8184874e+19	-1.8184881e+19	7.2552819e+12	0
+    CmYaw:	4.0704627e+18	4.0705097e+18	-4.6997756e+13	0
+    Cs:	2.7690837e+17	2.7691423e+17	-5.8537741e+12	0
+    Cs(f):	4.2089168e+18	4.2089668e+18	-4.9924643e+13	0
+    Cs(r):	-3.9320085e+18	-3.9320525e+18	4.4070869e+13	0
+
+    writing force and moment coefficient files.
+
+Time = 11
+
+[3] [stack trace]
+=============
+[4] [stack trace]
+=============
+[8] [stack trace]
+=============
+[4] #1  [3] #1  Foam::sigFpe::sigHandler(int)Foam::sigFpe::sigHandler(int)[8] #1  Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+ in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so[4] #2  
+[3] #2  ?? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #2  ? in /lib/x86_64-linux-gnu/libc.so.6
+[3] #3   in /lib/x86_64-linux-gnu/libc.so.6
+[4] #3  Foam::DILUPreconditioner::calcReciprocalD(Foam::Field<double>&, Foam::lduMatrix const&)Foam::DILUPreconditioner::calcReciprocalD(Foam::Field<double>&, Foam::lduMatrix const&) in /lib/x86_64-linux-gnu/libc.so.6
+[8] #3  Foam::DILUPreconditioner::calcReciprocalD(Foam::Field<double>&, Foam::lduMatrix const&) in  in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #4  <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+Foam::DILUPreconditioner::DILUPreconditioner(Foam::lduMatrix::solver const&, Foam::dictionary const&)[4] #4  Foam::DILUPreconditioner::DILUPreconditioner(Foam::lduMatrix::solver const&, Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #4  Foam::DILUPreconditioner::DILUPreconditioner(Foam::lduMatrix::solver const&, Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so in 
+[3] #5  Foam::lduMatrix::preconditioner::addasymMatrixConstructorToTable<Foam::DILUPreconditioner>::New(Foam::lduMatrix::solver const&, Foam::dictionary const&)<platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[4] #5  Foam::lduMatrix::preconditioner::addasymMatrixConstructorToTable<Foam::DILUPreconditioner>::New(Foam::lduMatrix::solver const&, Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #5  Foam::lduMatrix::preconditioner::addasymMatrixConstructorToTable<Foam::DILUPreconditioner>::New(Foam::lduMatrix::solver const&, Foam::dictionary const&) in  in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[4] #6  <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #6  Foam::lduMatrix::preconditioner::New(Foam::lduMatrix::solver const&, Foam::dictionary const&)Foam::lduMatrix::preconditioner::New(Foam::lduMatrix::solver const&, Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #6  Foam::lduMatrix::preconditioner::New(Foam::lduMatrix::solver const&, Foam::dictionary const&) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #7   in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[4] #7  Foam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) constFoam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #7  Foam::PBiCGStab::scalarSolve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in  in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #8  <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[4] Foam::PBiCGStab::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const#8  Foam::PBiCGStab::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #8  Foam::PBiCGStab::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #9   in ?<platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[4] #9  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[8] #9  ? in  in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[4] #10  <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+Foam::fvMesh::solve(Foam::fvMatrix<Foam::Vector<double>>&, Foam::dictionary const&) const[3] #10  Foam::fvMesh::solve(Foam::fvMatrix<Foam::Vector<double>>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[8] #10  Foam::fvMesh::solve(Foam::fvMatrix<Foam::Vector<double>>&, Foam::dictionary const&) const in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[4] #11  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[3] #11  ? in <platforms>/linux64GccDPInt32Opt/lib/libfiniteVolume.so
+[8] #11  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+[4] #12  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+[3] #12  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+[8] #12  ? in /lib/x86_64-linux-gnu/libc.so.6
+[4] #13  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[8] #13  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[3] #13  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[4] #14  ? in /lib/x86_64-linux-gnu/libc.so.6
+[8] #14  ? in /lib/x86_64-linux-gnu/libc.so.6
+[3] #14  ? in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+[4] =============
+[ip-172-31-43-247:3432204] *** Process received signal ***
+[ip-172-31-43-247:3432204] Signal: Floating point exception (8)
+[ip-172-31-43-247:3432204] Signal code:  (-6)
+[ip-172-31-43-247:3432204] Failing at address: 0x3e800345f0c
+[ip-172-31-43-247:3432204] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x75ad2ee45330]
+[ip-172-31-43-247:3432204] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x75ad2ee9ec0c]
+[ip-172-31-43-247:3432204] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x75ad2ee4527e]
+[ip-172-31-43-247:3432204] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x75ad2ee45330]
+[ip-172-31-43-247:3432204] [ 4] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam18DILUPreconditioner15calcReciprocalDERNS_5FieldIdEERKNS_9lduMatrixE+0xec)[0x75ad2fab261c]
+[ip-172-31-43-247:3432204] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam18DILUPreconditionerC2ERKNS_9lduMatrix6solverERKNS_10dictionaryE+0x72)[0x75ad2fab33f2]
+[ip-172-31-43-247:3432204] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam9lduMatrix14preconditioner31addasymMatrixConstructorToTableINS_18DILUPreconditionerEE3NewERKNS0_6solverERKNS_10dictionaryE+0x33)[0x75ad2fab3453]
+[ip-172-31-43-247:3432204] [ 7] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam9lduMatrix14preconditioner3NewERKNS0_6solverERKNS_10dictionaryE+0x18e)[0x75ad2faaadbe]
+[ip-172-31-43-247:3432204] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0xda6)[0x75ad2faaef06]
+[ip-172-31-43-247:3432204] [ 9] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab5solveERNS_5FieldIdEERKS2_h+0x6e)[0x75ad2faac6ee]
+[ip-172-31-43-247:3432204] [10] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x53b7fe)[0x75ad31d3b7fe]
+[ip-172-31-43-247:3432204] [11] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixINS_6VectorIdEEEERKNS_10dictionaryE+0x2a)[0x75ad31d23bfa]
+[ip-172-31-43-247:3432204] [12] simpleFoam(+0x1a167)[0x57f68a762167]
+[ip-172-31-43-247:3432204] [13] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x75ad2ee2a1ca]
+[ip-172-31-43-247:3432204] [14] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x75ad2ee2a28b]
+[ip-172-31-43-247:3432204] [15] simpleFoam(+0x1c6e5)[0x57f68a7646e5]
+[ip-172-31-43-247:3432204] *** End of error message ***
+ in <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+[8] =============
+[ip-172-31-43-247:3432208] *** Process received signal ***
+[ip-172-31-43-247:3432208] Signal: Floating point exception (8)
+[ip-172-31-43-247:3432208] Signal code:  (-6)
+[ip-172-31-43-247:3432208] Failing at address: 0x3e800345f10
+[ip-172-31-43-247:3432208] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x72c793445330]
+[ip-172-31-43-247:3432208] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x72c79349ec0c]
+[ip-172-31-43-247:3432208] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x72c79344527e]
+[ip-172-31-43-247:3432208] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x72c793445330]
+[ip-172-31-43-247:3432208] [ 4] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam18DILUPreconditioner15calcReciprocalDERNS_5FieldIdEERKNS_9lduMatrixE+0xec)[0x72c7940b261c]
+[ip-172-31-43-247:3432208] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam18DILUPreconditionerC2ERKNS_9lduMatrix6solverERKNS_10dictionaryE+0x72)[0x72c7940b33f2]
+[ip-172-31-43-247:3432208] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam9lduMatrix14preconditioner31addasymMatrixConstructorToTableINS_18DILUPreconditionerEE3NewERKNS0_6solverERKNS_10dictionaryE+0x33)[0x72c7940b3453]
+[ip-172-31-43-247:3432208] [ 7] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam9lduMatrix14preconditioner3NewERKNS0_6solverERKNS_10dictionaryE+0x18e)[0x72c7940aadbe]
+[ip-172-31-43-247:3432208] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0xda6)[0x72c7940aef06]
+[ip-172-31-43-247:3432208] [ 9]  in /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab5solveERNS_5FieldIdEERKS2_h+0x6e)[0x72c7940ac6ee]
+[ip-172-31-43-247:3432208] [10] <platforms>/linux64GccDPInt32Opt/bin/simpleFoam
+/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x53b7fe)[0x72c79633b7fe]
+[ip-172-31-43-247:3432208] [11] [3] =============/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixINS_6VectorIdEEEERKNS_10dictionaryE+0x2a)[0x72c796323bfa]
+
+[ip-172-31-43-247:3432203] *** Process received signal ***
+[ip-172-31-43-247:3432203] Signal: Floating point exception (8)
+[ip-172-31-43-247:3432203] Signal code:  (-6)
+[ip-172-31-43-247:3432203] Failing at address: 0x3e800345f0b
+[ip-172-31-43-247:3432203] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x72ea5bc45330]
+[ip-172-31-43-247:3432203] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x72ea5bc9ec0c]
+[ip-172-31-43-247:3432203] [ 2] [ip-172-31-43-247:3432208] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x72ea5bc4527e]
+[ip-172-31-43-247:3432203] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x72ea5bc45330]
+[ip-172-31-43-247:3432203] [ 4] [12] simpleFoam(+0x1a167)[0x5a07faf10167]
+[ip-172-31-43-247:3432208] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam18DILUPreconditioner15calcReciprocalDERNS_5FieldIdEERKNS_9lduMatrixE+0xec)[0x72ea5c8b261c]
+[ip-172-31-43-247:3432203] [ 5] [13] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x72c79342a1ca]
+/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam18DILUPreconditionerC2ERKNS_9lduMatrix6solverERKNS_10dictionaryE+0x72)[0x72ea5c8b33f2]
+[ip-172-31-43-247:3432203] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam9lduMatrix14preconditioner31addasymMatrixConstructorToTableINS_18DILUPreconditionerEE3NewERKNS0_6solverERKNS_10dictionaryE+0x33)[0x72ea5c8b3453]
+[ip-172-31-43-247:3432203] [ 7] [ip-172-31-43-247:3432208] [14] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x72c79342a28b]
+[ip-172-31-43-247:3432208] [15] simpleFoam(+0x1c6e5)[0x5a07faf126e5]
+[ip-172-31-43-247:3432208] *** End of error message ***
+/usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZN4Foam9lduMatrix14preconditioner3NewERKNS0_6solverERKNS_10dictionaryE+0x18e)[0x72ea5c8aadbe]
+[ip-172-31-43-247:3432203] [ 8] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab11scalarSolveERNS_5FieldIdEERKS2_h+0xda6)[0x72ea5c8aef06]
+[ip-172-31-43-247:3432203] [ 9] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so(_ZNK4Foam9PBiCGStab5solveERNS_5FieldIdEERKS2_h+0x6e)[0x72ea5c8ac6ee]
+[ip-172-31-43-247:3432203] [10] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(+0x53b7fe)[0x72ea5eb3b7fe]
+[ip-172-31-43-247:3432203] [11] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so(_ZNK4Foam6fvMesh5solveERNS_8fvMatrixINS_6VectorIdEEEERKNS_10dictionaryE+0x2a)[0x72ea5eb23bfa]
+[ip-172-31-43-247:3432203] [12] simpleFoam(+0x1a167)[0x60b2b6531167]
+[ip-172-31-43-247:3432203] [13] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x72ea5bc2a1ca]
+[ip-172-31-43-247:3432203] [14] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x72ea5bc2a28b]
+[ip-172-31-43-247:3432203] [15] simpleFoam(+0x1c6e5)[0x60b2b65336e5]
+[ip-172-31-43-247:3432203] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 4 with PID 0 on node ip-172-31-43-247 exited on signal 8 (Floating point exception).
+--------------------------------------------------------------------------

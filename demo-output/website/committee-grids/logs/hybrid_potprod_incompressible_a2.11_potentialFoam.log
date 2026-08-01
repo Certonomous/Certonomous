@@ -1,0 +1,85 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : potentialFoam -parallel -writePhi -writep
+Date   : Aug 01 2026
+Time   : 09:14:39
+Host   : ip-172-31-43-247
+PID    : 3437479
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hybrid_potprod_incompressible_a2.11
+nProcs : 14
+Hosts  :
+(
+    (ip-172-31-43-247 14)
+)
+Pstream initialized with:
+    node communication : off [type=host] (14 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+potentialFlow: Operating solver in PISO mode
+
+Reading velocity field U
+
+Constructing pressure field p
+
+Constructing velocity potential field Phi
+
+No MRF models present
+
+
+Calculating potential flow
+GAMG:  Solving for Phi, Initial residual = 1, Final residual = 0.0093904164, No Iterations 18
+GAMG:  Solving for Phi, Initial residual = 0.60548841, Final residual = 0.0057611632, No Iterations 1
+GAMG:  Solving for Phi, Initial residual = 0.093766368, Final residual = 0.00092142415, No Iterations 17
+GAMG:  Solving for Phi, Initial residual = 0.043759586, Final residual = 0.00042353977, No Iterations 30
+GAMG:  Solving for Phi, Initial residual = 0.026070895, Final residual = 0.00025155358, No Iterations 22
+GAMG:  Solving for Phi, Initial residual = 0.012227497, Final residual = 0.00011887316, No Iterations 38
+GAMG:  Solving for Phi, Initial residual = 0.0084087159, Final residual = 8.3421275e-05, No Iterations 18
+GAMG:  Solving for Phi, Initial residual = 0.00315509, Final residual = 3.1138083e-05, No Iterations 70
+GAMG:  Solving for Phi, Initial residual = 0.0030617167, Final residual = 2.7869544e-05, No Iterations 8
+GAMG:  Solving for Phi, Initial residual = 0.00088003383, Final residual = 8.6850128e-06, No Iterations 110
+GAMG:  Solving for Phi, Initial residual = 0.00088913839, Final residual = 8.3457481e-06, No Iterations 6
+Continuity error = 6.3890862e-06
+Interpolated velocity error = 2.5941026e-08
+
+Calculating approximate pressure field
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.0098256518, No Iterations 6
+GAMG:  Solving for p, Initial residual = 0.11263127, Final residual = 0.0011209122, No Iterations 31
+GAMG:  Solving for p, Initial residual = 0.07076523, Final residual = 0.00070205357, No Iterations 16
+GAMG:  Solving for p, Initial residual = 0.022334357, Final residual = 0.00022005644, No Iterations 90
+GAMG:  Solving for p, Initial residual = 0.019616032, Final residual = 0.00019600788, No Iterations 12
+GAMG:  Solving for p, Initial residual = 0.0057713258, Final residual = 5.7158483e-05, No Iterations 168
+GAMG:  Solving for p, Initial residual = 0.0082259197, Final residual = 7.1982698e-05, No Iterations 8
+GAMG:  Solving for p, Initial residual = 0.0025304094, Final residual = 2.5237747e-05, No Iterations 156
+GAMG:  Solving for p, Initial residual = 0.0020740379, Final residual = 2.0648801e-05, No Iterations 52
+GAMG:  Solving for p, Initial residual = 0.00083031565, Final residual = 8.2725841e-06, No Iterations 344
+GAMG:  Solving for p, Initial residual = 0.00069962061, Final residual = 6.9858425e-06, No Iterations 88
+ExecutionTime = 44.3 s  ClockTime = 44 s
+
+End
+
+Finalising parallel run

@@ -1,0 +1,348 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : rhoSimpleFoam -parallel
+Date   : Aug 01 2026
+Time   : 09:37:46
+Host   : ip-172-31-43-247
+PID    : 3470769
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/dpw5-committee-probe/run_hybrid_base_compressible_a2.11
+nProcs : 14
+Hosts  :
+(
+    (ip-172-31-43-247 14)
+)
+Pstream initialized with:
+    node communication : off [type=host] (14 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 1e-09
+    field U	 tolerance 1e-09
+    field "(k|omega|nuTilda)"	 tolerance 1e-09
+
+Reading thermophysical properties
+
+Selecting thermodynamics package 
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       sutherland;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+--> FOAM Warning : 
+    From Foam::pressureControl::pressureControl(const Foam::volScalarField&, const Foam::volScalarField&, const Foam::dictionary&, bool)
+    in file cfdTools/general/pressureControl/pressureControl.C at line 123
+    Reading "system/fvSolution/SIMPLE" at line 50 to 53
+    'rhoMax' specified rather than 'pMax' or 'pMaxFactor'
+    This is supported for backward-compatibility but 'pMax' or 'pMaxFactor' are more reliable.
+--> FOAM Warning : 
+    From Foam::pressureControl::pressureControl(const Foam::volScalarField&, const Foam::volScalarField&, const Foam::dictionary&, bool)
+    in file cfdTools/general/pressureControl/pressureControl.C at line 178
+    Reading "system/fvSolution/SIMPLE" at line 50 to 53
+    'rhoMin' specified rather than 'pMin' or 'pMinFactor'
+    This is supported for backward-compatibility but 'pMin' or 'pMinFactor' are more reliable.
+pressureControl
+    pMax 861305.6
+    pMin 8613.056
+
+Creating turbulence model
+
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    model           kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.55555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+forceCoeffs forceCoeffs:
+    rho: rho
+    Not including porosity effects
+    magUInf: 295
+    lRef   : 7.00532
+    Aref   : 1
+    rhoInf : 1.225
+    Selecting all coefficients
+    - Drag force: Cd
+    - Drag force front: Cd(f)
+    - Drag force rear: Cd(r)
+    - Lift force: Cl
+    - Lift force front: Cl(f)
+    - Lift force rear: Cl(r)
+    - Pitch moment: CmPitch
+    - Roll moment: CmRoll
+    - Yaw moment: CmYaw
+    - Side force: Cs
+    - Side force front: Cs(f)
+    - Side force rear: Cs(r)
+
+
+Time = 1
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.99988434, Final residual = 0.00033834162, No Iterations 1
+DILUPBiCGStab:  Solving for Uy, Initial residual = 1, Final residual = 0.00030304805, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.99951933, Final residual = 0.00019074014, No Iterations 1
+DILUPBiCGStab:  Solving for e, Initial residual = 0.99994802, Final residual = 0.0062782631, No Iterations 1
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.0099369686, No Iterations 375
+time step continuity errors : sum local = 2.6121822e-07, global = 1.3532127e-07, cumulative = 1.3532127e-07
+pressureControl: p max 1105858.7
+pressureControl: p min -355805.34
+DILUPBiCGStab:  Solving for omega, Initial residual = 0.89951287, Final residual = 5.4753893e-06, No Iterations 1
+DILUPBiCGStab:  Solving for k, Initial residual = 1, Final residual = 1.1205811e-05, No Iterations 1
+ExecutionTime = 16.11 s  ClockTime = 18 s
+
+forceCoeffs forceCoeffs write:
+    Coefficient	Total	Pressure	Viscous	Internal
+    Cd:	235.0836	229.07931	6.0042938	0
+    Cd(f):	882.86609	879.80523	3.0608581	0
+    Cd(r):	-647.78249	-650.72592	2.9434357	0
+    Cl:	339.93421	339.91399	0.020210712	0
+    Cl(f):	-1208.2617	-1211.4465	3.1848574	0
+    Cl(r):	1548.1959	1551.3605	-3.1646467	0
+    CmPitch:	-1378.2288	-1381.4035	3.174752	0
+    CmRoll:	765.32429	765.26558	0.058711197	0
+    CmYaw:	-2569.7674	-2564.0942	-5.6731727	0
+    Cs:	-748.55214	-748.48149	-0.070651568	0
+    Cs(f):	-2944.0434	-2938.3349	-5.7084985	0
+    Cs(r):	2195.4913	2189.8534	5.637847	0
+
+    writing force and moment coefficient files.
+
+Time = 2
+
+DILUPBiCGStab:  Solving for Ux, Initial residual = 0.00045754003, Final residual = 5.0569145e-07, No Iterations 2
+DILUPBiCGStab:  Solving for Uy, Initial residual = 0.0030242024, Final residual = 2.8483852e-05, No Iterations 1
+DILUPBiCGStab:  Solving for Uz, Initial residual = 0.001883518, Final residual = 1.9726408e-06, No Iterations 2
+DILUPBiCGStab:  Solving for e, Initial residual = 0.001259427, Final residual = 8.9175302e-06, No Iterations 1
+[7] [stack trace]
+=============
+[11] [7] #1  [stack trace]
+=============
+Foam::sigFpe::sigHandler(int)[6] [9] [stack trace]
+=============
+[2] [11] #1  Foam::sigFpe::sigHandler(int)[3] [stack trace]
+=============
+[stack trace]
+=============
+[stack trace]
+=============
+[9] #1  Foam::sigFpe::sigHandler(int)[6] [3] #1  #1  Foam::sigFpe::sigHandler(int)Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[7] #2  ?[2] #1  Foam::sigFpe::sigHandler(int) in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[11] #2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[6] #2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+ in [2] <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[9] #2  ?#2  ? in <platforms>/linux64GccDPInt32Opt/lib/libOpenFOAM.so
+[3] #2  ? in /lib/x86_64-linux-gnu/libc.so.6
+[11] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[7] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[2] #3  ? in /lib/x86_64-linux-gnu/libc.so.6
+[6] #3  ? in /lib/x86_64-linux-gnu/libm.so.6
+[7] #4  ? in /lib/x86_64-linux-gnu/libc.so.6
+[3] #3  ? in /lib/x86_64-linux-gnu/libm.so.6
+[11] #4  ? in /lib/x86_64-linux-gnu/libc.so.6
+[9] #3  ? in /lib/x86_64-linux-gnu/libm.so.6
+[2] #4  ? in /lib/x86_64-linux-gnu/libm.so.6
+[6] #4  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[7] #5  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[11] #5  ? in /lib/x86_64-linux-gnu/libm.so.6
+[3] #4   in ?<platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[2] #5  ? in /lib/x86_64-linux-gnu/libm.so.6
+[9] #4  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[6] #5  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[7] #6  ? in  in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[2] #6  ?<platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[11] #6  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[9] #5  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[3] #5  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[6] #6  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[9] #6  ? in <platforms>/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so
+[3] #6  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[11] #7  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[7] #7  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[6] #7  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[2] #7  ? in /lib/x86_64-linux-gnu/libc.so.6
+[7] #8  __libc_start_main in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[3] #7  ? in /lib/x86_64-linux-gnu/libc.so.6
+[11] #8   in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[9] #7  ?__libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[6] #8  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[7] #9  ? in /lib/x86_64-linux-gnu/libc.so.6
+[2] #8  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[9] #8   in /lib/x86_64-linux-gnu/libc.so.6
+[11] #9  ?__libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[3] #8  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+[6] #9  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[7]  in /lib/x86_64-linux-gnu/libc.so.6
+[2] #9  ?=============
+[ip-172-31-43-247:3470776] *** Process received signal ***
+[ip-172-31-43-247:3470776] Signal: Floating point exception (8)
+[ip-172-31-43-247:3470776] Signal code:  (-6)
+[ip-172-31-43-247:3470776] Failing at address: 0x3e80034f5b8
+[ip-172-31-43-247:3470776] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x71520b445330]
+[ip-172-31-43-247:3470776] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x71520b49ec0c]
+[ip-172-31-43-247:3470776] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x71520b44527e]
+[ip-172-31-43-247:3470776] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x71520b445330]
+[ip-172-31-43-247:3470776] [ 4] /lib/x86_64-linux-gnu/libm.so.6(+0x153a4)[0x71520d32c3a4]
+[ip-172-31-43-247:3470776] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x2078b9)[0x71520d6078b9]
+[ip-172-31-43-247:3470776] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x21e162)[0x71520d61e162]
+[ip-172-31-43-247:3470776] [ 7] rhoSimpleFoam(+0x1cc58)[0x5b31d7c7fc58]
+[ip-172-31-43-247:3470776] [ 8] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x71520b42a1ca]
+[ip-172-31-43-247:3470776] [ 9] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x71520b42a28b]
+[ip-172-31-43-247:3470776] [10] rhoSimpleFoam(+0x20d15)[0x5b31d7c83d15]
+[ip-172-31-43-247:3470776] *** End of error message ***
+ in /lib/x86_64-linux-gnu/libc.so.6
+[3] #9  ? in /lib/x86_64-linux-gnu/libc.so.6
+[9] #9  ? in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[11] =============
+[ip-172-31-43-247:3470780] *** Process received signal ***
+[ip-172-31-43-247:3470780] Signal: Floating point exception (8)
+[ip-172-31-43-247:3470780] Signal code:  (-6)
+[ip-172-31-43-247:3470780] Failing at address: 0x3e80034f5bc
+[ip-172-31-43-247:3470780] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7f7988a45330]
+[ip-172-31-43-247:3470780] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7f7988a9ec0c]
+[ip-172-31-43-247:3470780] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7f7988a4527e]
+[ip-172-31-43-247:3470780] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7f7988a45330]
+[ip-172-31-43-247:3470780] [ 4] /lib/x86_64-linux-gnu/libm.so.6(+0x153a4)[0x7f798a92c3a4]
+[ip-172-31-43-247:3470780] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x2078b9)[0x7f798ac078b9]
+[ip-172-31-43-247:3470780] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x21e162)[0x7f798ac1e162]
+[ip-172-31-43-247:3470780] [ 7] rhoSimpleFoam(+0x1cc58)[0x5c36b67a2c58]
+[ip-172-31-43-247:3470780] [ 8] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7f7988a2a1ca]
+[ip-172-31-43-247:3470780] [ 9] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7f7988a2a28b]
+[ip-172-31-43-247:3470780] [10] rhoSimpleFoam(+0x20d15)[0x5c36b67a6d15]
+[ip-172-31-43-247:3470780] *** End of error message ***
+ in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[6] =============
+[ip-172-31-43-247:3470775] *** Process received signal ***
+[ip-172-31-43-247:3470775] Signal: Floating point exception (8)
+[ip-172-31-43-247:3470775] Signal code:  (-6)
+[ip-172-31-43-247:3470775] Failing at address: 0x3e80034f5b7
+[ip-172-31-43-247:3470775] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7fcd86a45330]
+[ip-172-31-43-247:3470775] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7fcd86a9ec0c]
+[ip-172-31-43-247:3470775] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7fcd86a4527e]
+[ip-172-31-43-247:3470775] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7fcd86a45330]
+[ip-172-31-43-247:3470775] [ 4] /lib/x86_64-linux-gnu/libm.so.6(+0x153a4)[0x7fcd8892c3a4]
+[ip-172-31-43-247:3470775] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x2078b9)[0x7fcd88c078b9]
+[ip-172-31-43-247:3470775] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x21e162)[0x7fcd88c1e162]
+[ip-172-31-43-247:3470775] [ 7] rhoSimpleFoam(+0x1cc58)[0x634703ed2c58]
+[ip-172-31-43-247:3470775] [ 8] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7fcd86a2a1ca]
+[ip-172-31-43-247:3470775] [ 9] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7fcd86a2a28b]
+[ip-172-31-43-247:3470775] [10] rhoSimpleFoam(+0x20d15)[0x634703ed6d15]
+[ip-172-31-43-247:3470775] *** End of error message ***
+ in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[2] =============
+[ip-172-31-43-247:3470771] *** Process received signal ***
+[ip-172-31-43-247:3470771] Signal: Floating point exception (8)
+[ip-172-31-43-247:3470771] Signal code:  (-6)
+[ip-172-31-43-247:3470771] Failing at address: 0x3e80034f5b3
+[ip-172-31-43-247:3470771] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7579f5a45330]
+[ip-172-31-43-247:3470771] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7579f5a9ec0c]
+[ip-172-31-43-247:3470771] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7579f5a4527e]
+[ip-172-31-43-247:3470771] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7579f5a45330]
+[ip-172-31-43-247:3470771] [ 4] /lib/x86_64-linux-gnu/libm.so.6(+0x153a4)[0x7579f792c3a4]
+[ip-172-31-43-247:3470771] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x2078b9)[0x7579f7c078b9]
+[ip-172-31-43-247:3470771] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x21e162)[0x7579f7c1e162]
+[ip-172-31-43-247:3470771] [ 7] rhoSimpleFoam(+0x1cc58)[0x62d57f23ec58]
+[ip-172-31-43-247:3470771] [ 8] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7579f5a2a1ca]
+[ip-172-31-43-247:3470771] [ 9] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7579f5a2a28b]
+[ip-172-31-43-247:3470771] [10] rhoSimpleFoam(+0x20d15)[0x62d57f242d15]
+[ip-172-31-43-247:3470771] *** End of error message ***
+ in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[3] =============
+[ip-172-31-43-247:3470772] *** Process received signal ***
+[ip-172-31-43-247:3470772] Signal: Floating point exception (8)
+[ip-172-31-43-247:3470772] Signal code:  (-6)
+[ip-172-31-43-247:3470772] Failing at address: 0x3e80034f5b4
+[ip-172-31-43-247:3470772] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7826d7a45330]
+[ip-172-31-43-247:3470772] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7826d7a9ec0c]
+[ip-172-31-43-247:3470772] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7826d7a4527e]
+[ip-172-31-43-247:3470772] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7826d7a45330]
+[ip-172-31-43-247:3470772] [ 4] /lib/x86_64-linux-gnu/libm.so.6(+0x153a4)[0x7826d992c3a4]
+[ip-172-31-43-247:3470772] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x2078b9)[0x7826d9c078b9]
+[ip-172-31-43-247:3470772] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x21e162)[0x7826d9c1e162]
+[ip-172-31-43-247:3470772] [ 7] rhoSimpleFoam(+0x1cc58)[0x57b79ab26c58]
+[ip-172-31-43-247:3470772] [ 8] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7826d7a2a1ca]
+[ip-172-31-43-247:3470772] [ 9] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7826d7a2a28b]
+[ip-172-31-43-247:3470772] [10] rhoSimpleFoam(+0x20d15)[0x57b79ab2ad15]
+[ip-172-31-43-247:3470772] *** End of error message ***
+ in <platforms>/linux64GccDPInt32Opt/bin/rhoSimpleFoam
+[9] =============
+[ip-172-31-43-247:3470778] *** Process received signal ***
+[ip-172-31-43-247:3470778] Signal: Floating point exception (8)
+[ip-172-31-43-247:3470778] Signal code:  (-6)
+[ip-172-31-43-247:3470778] Failing at address: 0x3e80034f5ba
+[ip-172-31-43-247:3470778] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7a2511445330]
+[ip-172-31-43-247:3470778] [ 1] /lib/x86_64-linux-gnu/libc.so.6(pthread_kill+0x11c)[0x7a251149ec0c]
+[ip-172-31-43-247:3470778] [ 2] /lib/x86_64-linux-gnu/libc.so.6(gsignal+0x1e)[0x7a251144527e]
+[ip-172-31-43-247:3470778] [ 3] /lib/x86_64-linux-gnu/libc.so.6(+0x45330)[0x7a2511445330]
+[ip-172-31-43-247:3470778] [ 4] /lib/x86_64-linux-gnu/libm.so.6(+0x153a4)[0x7a251332c3a4]
+[ip-172-31-43-247:3470778] [ 5] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x2078b9)[0x7a25136078b9]
+[ip-172-31-43-247:3470778] [ 6] /usr/lib/openfoam/openfoam2606/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so(+0x21e162)[0x7a251361e162]
+[ip-172-31-43-247:3470778] [ 7] rhoSimpleFoam(+0x1cc58)[0x5d23123e6c58]
+[ip-172-31-43-247:3470778] [ 8] /lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7a251142a1ca]
+[ip-172-31-43-247:3470778] [ 9] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7a251142a28b]
+[ip-172-31-43-247:3470778] [10] rhoSimpleFoam(+0x20d15)[0x5d23123ead15]
+[ip-172-31-43-247:3470778] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 7 with PID 0 on node ip-172-31-43-247 exited on signal 8 (Floating point exception).
+--------------------------------------------------------------------------

@@ -1,0 +1,106 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -constant
+Date   : Aug 01 2026
+Time   : 08:00:08
+Host   : ip-172-31-43-247
+PID    : 3198607
+I/O    : uncollated
+Case   : /home/ubuntu/certonomous-runs/A6-crm-wing
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Overriding DebugSwitches according to controlDict
+    SolverPerformance 0;
+
+Create mesh for time = constant
+
+Check mesh...
+
+Time = constant
+
+Mesh stats 
+    points:           593865
+    faces:            1751888
+    internal faces:   1722544
+    cells:            579072
+    faces per cell:   6
+    boundary patches: 3
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     579072
+    prisms:        0
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    0
+    polyhedra:     0
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+    Patch               Faces    Points     Surface topology
+    wing                11136    11205    ok (non-closed singly connected)  
+    inout               11136    11205    ok (non-closed singly connected)  
+    sym                 7072     7208     ok (non-closed singly connected)  
+    ".*"                29344    29346    ok (closed singly connected)      
+
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+
+Checking basic cellZone addressing...
+    No cellZones found.
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-81.59281351740501 0 -86.170004659725) (87.461904285215 86.799746290374 86.865333416729)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Boundary openness (1.135430720793495e-17 1.959698665665353e-15 1.244126393457886e-16) OK.
+    Max cell openness = 1.129241538127708e-14 OK.
+    Max aspect ratio = 309.123608595752 OK.
+    Minimum face area = 1.734309440212486e-08. Maximum face area = 100.2302651555852.  Face area magnitudes OK.
+    Min volume = 6.335299968941252e-12. Max volume = 155.2591161981914.  Total volume = 1318339.42313302.  Cell volumes OK.
+    Mesh non-orthogonality Max: 70.44640458682032 average: 18.93314240677182
+   *Number of severely non-orthogonal (> 70 degrees) faces: 1.
+    Non-orthogonality check OK.
+  <<Writing 1 non-orthogonal faces to set nonOrthoFaces
+
+
+--> FOAM FATAL ERROR: (openfoam-2606)
+The parent directory does not allow write permission to the process,
+ or one of the directories in "/home/ubuntu/certonomous-runs/A6-crm-wing/constant/polyMesh/sets" did not allow search (execute) permission.
+
+    From bool Foam::mkDir(const fileName&, mode_t)
+    in file POSIX.C at line 649.
+
+FOAM exiting
+
