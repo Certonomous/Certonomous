@@ -93,6 +93,30 @@ standing rule it will not be placed on any curve as one. Run continues; a
 floor verdict needs the standard evidence window (≥2000 further iterations)
 before ruling.
 
+## T2: LRR does not converge on this mesh — recorded as a failure (L-22), three attempts
+
+All three attempts initialized from kEpsilon's converged t=2000 field (the
+documented multi-stage restart), R built isotropically-consistently from that
+same field via `postProcess -func R`, wall functions matching the channel-1
+family (kqRWallFunction on R, epsilonWallFunction, nutUSpalding; mesh y+ avg
+2.0). Ladder, most aggressive to most conservative:
+
+| attempt | numerics | outcome | log |
+| --- | --- | --- | --- |
+| 1 | SIMPLEC (`consistent yes`), U 0.9, R/eps relax 0.3, turbulence convection `bounded Gauss linearUpwind limited` (= channel-1 standard) | epsilon bounding negative from iteration 1, max → 4.1e13 by iter ~11, SIGFPE in DILU preconditioner at iter 12 | `f6a_diff_LRR_20260801T003703Z.log` |
+| 2 | plain SIMPLE, p 0.3, U 0.7, R/eps 0.3, same schemes | epsilon → 3.7e72 by iter ~19, Ux Initial residual ~1, killed by FPE | `f6a_diff_LRR_v2_20260801T003919Z.log` |
+| 3 | plain SIMPLE, p 0.3, U 0.5, R/eps 0.2, R/eps convection first-order `bounded Gauss upwind` | epsilon → 9.9e18, died by iter ~139 | `f6a_diff_LRR_v3b_20260801T004053Z.log` (the `_v3_` log preceding it is an environment-sourcing misfire, `nohup: failed to run command 'simpleFoam'`, no solver ran) |
+
+Divergence is in the epsilon/R system itself (epsilon goes negative
+immediately and explodes), not the pressure coupling — it survived the move
+off SIMPLEC unchanged. Consistent with LRR's wall-reflection formulation
+meeting first-cell strain at y+≈2, where epsilonWallFunction is outside its
+validity; the EVMs' calmer production forms coped on this same mesh,
+realizableKE (the closest EVM analogue with a strain-sensitive coefficient)
+also needed rescue here, and D5 already scored "at least one RSM will need
+relaxation tuning or fail outright" as CORRECT on the duct. Per the standing
+three-treatments rule, no fourth attempt; the failure is the result.
+
 ## Run ledger (appended as runs settle)
 
 - 2026-08-01T00:04Z `f6a_diff_SST_control` — CONVERGED 1795 iter, 0.6544 / 1.2534. Template gate passed.
