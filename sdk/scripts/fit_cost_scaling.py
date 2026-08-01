@@ -105,6 +105,30 @@ FAMILIES: dict[str, dict[str, list[str]]] = {
 WITHIN = 0.20        # the charter's 20 percent
 RUN_NEEDED = 3       # three consecutive
 
+# THE HOLE IN THIS BAR, recorded 2026-08-01 and deliberately NOT patched here:
+# the threshold and the streak logic are left exactly as the charter set them.
+# A relative-error streak gate is a test of the family's variance, not of the
+# law's skill. Both quantities it compares are divided by the same measured
+# wall time, so on a family whose cost is nearly constant the gate is cleared
+# by any predictor that lands near that constant, including one that carries no
+# explanatory power at all -- and it is then cleared indefinitely, because every
+# further row of the same tight family is another hit. Streak length therefore
+# grows with the size of the holdout, not with the quality of the law. The
+# demonstrated instance is `vspaero-wing`, re-fitted from
+# demo-output/website/mega-batch/ledger.jsonl by this script and recorded in
+# demo-output/website/mega-batch/cost_scaling.json: holdout_longest_run_
+# within_20pct = 6457 with r2_log_space = 0.0002 and skill_vs_null = -43.9273,
+# i.e. the fitted law's median holdout error (0.0602) is about 45x the error of
+# simply predicting the family's training median (0.0013), and the constant
+# predictor scores the identical 6,457-long run (null_longest_run_within_20pct
+# = 6457). The four exponents are 0.003, -0.0003, 0.0011 and 0.0004 on a family
+# whose wall time runs 5.23 s median against a 5.51 s mean, so the "law" is a
+# constant in disguise and the bar cannot see the difference. RECOMMENDATION
+# ONLY, for whoever owns the charter: auto-approval should require the streak
+# AND `beats_the_null_model` on the same holdout (the constant-predictor
+# comparison this script already computes below), because a gate that a
+# constant passes is not evidence that a law was learned.
+
 
 def _num(value) -> float | None:
     try:
