@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T10:24:30+00:00",
+ "generated_at": "2026-08-01T10:25:24+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -90,8 +90,10 @@
     "demo-output/website/solve_registry",
     "demo-output/website/campaign"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-01T10:18:25Z"
+   "status": "done",
+   "created_at": "2026-08-01T10:18:25Z",
+   "decided_at": "2026-08-01T10:25:24+00:00",
+   "outcome": "Traced, and this item's premise is false in the way worth recording. The burst is the DPW5 committee-grid probe at /home/ubuntu/certonomous-runs/dpw5-committee-probe/: 40 instrumented runs from 2026-08-01T07:56:35Z to 09:42:50Z, 1,175.0 core-minutes or 19.58 core-hours, 36 of the 40 exiting 136 (SIGFPE). The eighteen processes seen at 08:17 are one 14-rank mpirun of simpleFoam on the DPW5 prism grid, which ran 705.3 s and died at 08:22:27Z, plus the background solvers already on the box; load 14.93 is 14 MPI ranks against the 14 usable cores the compute audit leaves. It did produce a record, and the record existed before this item was filed at 10:18:25Z: demo-output/website/committee-grids/COMMITTEE_GRID_NUMERICS.md (09:46:32Z), PREDICTIONS.md and measurements.jsonl beside it, and 22 solve logs. The real defect is narrower and survives the correction: not one of those 40 runs wrote anything to demo-output/website/solve_registry/, whose newest entry is f6a_diff_EBRSM_v2_20260801T020424Z.done at 04:14:18Z, three and a half hours before the burst started. This item cited the registry and the campaign directory, looked in both, and found nothing, because the study wrote to a third place. A fully documented result can still be unaccounted for when the accounting reads one directory and the record is written to another, and that is a registry-coverage failure rather than a missing-evidence failure."
   },
   {
    "id": "w3-valve-band-never-adjudicated",
@@ -1334,8 +1336,10 @@
     "demo-output/website/agenda/docket.json",
     "demo-output/website/solve_registry"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-01T10:18:25Z"
+   "status": "done",
+   "created_at": "2026-08-01T10:18:25Z",
+   "decided_at": "2026-08-01T10:25:24+00:00",
+   "outcome": "The second explanation holds, which is the serious one. All 40 solver runs in the window attribute to a single docket item, w4-the-grid-not-the-box-was-the-limit, whose gate reads 'A second committee grid either solves at second order or fails the same way, with its mesh metrics beside the first'. That gate was met: COMMITTEE_GRID_NUMERICS.md was written at 09:46:32Z and committed at 09:46:48Z as ab132a17, and at 09:47:20Z commit 6d72b13c closed two of the HLPW6 feasibility probe's four open unknowns against it. The item was still at status proposed at 10:18, and had never been approved either: 1,175.0 core-minutes ran against its 120 core-minute estimate on an item nobody had decided. So the done count of 40 understates finished work by at least this one item, and the cause is mechanical rather than mysterious. demo-output/website/agenda/docket.json was not written at all between 08:23:04Z (commit 224110cc) and 10:12:18Z (commit 90c3b162), a 109-minute gap that contains the entire burst, while eight non-docket commits landed inside it. Filing and solving are done by the same agents, and closing is the step that gets dropped: between 10:12 and 10:19 the docket gained nine new proposals from this result and closed none of the item that produced it. Two of those nine, w1-dpw5-hex-three-level-ladder and w4-the-compressible-abort-is-ours, are follow-ups the closed item's own section 5 names. Closed here, with the outcome above."
   },
   {
    "id": "w7-claim-an-item-before-working-it",
@@ -3104,8 +3108,10 @@
     "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
     "scripts/ugrid_to_foam.py"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-01T06:16:56Z"
+   "status": "done",
+   "created_at": "2026-08-01T06:16:56Z",
+   "decided_at": "2026-08-01T10:25:24+00:00",
+   "outcome": "Executed 2026-08-01 07:56-09:43Z, and the record was written and committed while this item still sat at proposed: it was never approved and never marked, which is the finding w7-nothing-closed-while-the-box-was-full was filed to chase. The second committee grid is DPW5 unstructured_grids.REV01 level L1.T, published by the committee as hex, prism and hybrid over one shared 660,177-node distribution, so element topology varies and nothing else does. checkMesh on this box gives average non-orthogonality 23.71 / 33.57 / 51.85 and severe-face fractions 0.59% / 6.70% / 29.12%, against HLPW6 3a at 42.24 and 19.30% and this lab's own A6 CRM mesh at 18.93 and 0.00006%, one severe face in 1,751,888. Under the identical numerics that diverged on HLPW6, the hex grid ran 200 of 200 iterations at exit 0 with the Ux residual falling 1.0 to 1.4e-5; prism died at iteration 143, HLPW6 at 16, hybrid at 11, all exit 136 SIGFPE in the same Foam::divide symbol with 21.6 GiB of host memory free at the crash, so none of them is a resource failure. The answer is therefore neither yes nor no. Committee grids in tet-dominant families do generally defeat this cell-centred configuration and HLPW6 was mid-range rather than an outlier, but the hex family solves at second order with no tuning, and the ordering that predicts the outcome is non-orthogonality alone: aspect ratio and skewness both rank DPW5 hex worst of the five and it is the one that solves. Twenty configurations were tried on the hybrid grid, including HLPW6's own hardened configuration copied byte for byte, and all twenty diverged inside 29 iterations, so this is a discretisation problem and not a settings problem. Cost: 1,175.0 core-minutes over 40 instrumented runs against a 120 core-minute estimate, 9.8x under, which is the largest calibration miss now on the lab's record. Evidence: demo-output/website/committee-grids/COMMITTEE_GRID_NUMERICS.md sections 2 to 5, demo-output/website/committee-grids/measurements.jsonl, and the logs under /home/ubuntu/certonomous-runs/dpw5-committee-probe/logs/."
   },
   {
    "id": "w1-bump-on-nasa-own-grids",
