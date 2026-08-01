@@ -645,6 +645,57 @@ written. S10a is FATAL by this standard. The test is left failing and the
 question of what rests on those four points is escalated rather than answered
 here.
 
+### S10a: the escalation answered, 2026-08-01, and the rule is worse off than it looked
+
+The four points were audited against their own primal evidence
+(`demo-output/website/dafoam/ladder-b/S1_work/logs/fd_clip_audit_run1.log`;
+reading in section 3 of `S1_FIML_FIELD_INVERSION.md`). The finding is not about
+those four points. It is about this rule's calibration.
+
+**DAFoam gates its `Bounding` message on `printInterval`.** The S1 campaign ran
+at the default `printInterval 100`, so each of its logs reports clipping from
+**1% of its iterations**. Twelve points were re-run under the identical protocol
+with `printInterval: 1` as the only change. Eleven of the twelve clip. The count
+is **689 clip events where the archive recorded 3**, and the runs that clip
+include the **unperturbed baseline** — whose archived log shows none — and both
+runs the campaign's headline FD number is computed from (144 and 203 events).
+Every re-run returned a **bit-identical objective and an identical iteration
+count**, which is what establishes that `printInterval` changed only printing.
+
+Three consequences, in order of how much they cost.
+
+1. **"A ceiling clip appears in exactly one of the lab's archived logs" was
+   never a measurement of solves.** It is a measurement of what solvers printed,
+   and the printing is configurable. Section 2's false-positive sweep — "all
+   three branches were run over every solver log the lab has archived, 383 of
+   them, and together they name exactly one" — inherits that. The sweep is a
+   floor, not a rate, and this standard should stop quoting it as a rate.
+2. **S10a's severity is doing work its detection cannot support.** The rule's
+   stated basis is that a clipped field "has left the physical range" and
+   "every quantity integrated from it afterwards inherits that". That is true of
+   the withdrawn A4 run, whose `omega<1e+16` clip is present at **every** printed
+   iteration including its last, so its reported state *is* the clipped state.
+   It is not true of a steady solver's startup transient: all 689 S1 events fall
+   in iterations **27 to 142** of runs **1815 to 3291** iterations long, every
+   run is clip-free over its final **95%+**, and the bound is inactive at the
+   converged state the objective is read from. S10a fires identically on both
+   and cannot tell them apart.
+3. **The discriminator is persistence to the final iterate, and it is cheap.**
+   A clip in the last N iterations of a run, or a clip co-occurring with S10b or
+   S10c, is the fatal case; a clip confined to a startup window is not. In the
+   archive as it stands that separation is exact: the withdrawn run is the only
+   log tripping more than one branch, and `ArchiveSweepTests` now asserts that
+   directly.
+
+**Not changed here, and deliberately.** S10a stays FATAL and its detection is
+untouched. Standing rule 4 sends a detection change through the innovation path
+with the measurement attached, and this section is that measurement. What did
+change is the test, which now **names** the four probe points and their
+signature rather than counting them, so a sixth log cannot join them unnoticed;
+and `classify_bound_line`'s docstring, which carried the 379-log calibration
+claim. **The S1 FD verification itself stands** — see its own record; the clip
+was audited, not waved away, and the objectives are bit-identical.
+
 ## 4. Standing rules for any monitor rule
 
 1. A rule states its detection pattern, severity, and action before it ships;

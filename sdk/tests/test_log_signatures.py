@@ -430,12 +430,56 @@ class ArchiveSweepTests(unittest.TestCase):
     """S10 against every solver log the lab has archived.
 
     A rule that names a healthy run is worse than no rule, so the whole
-    corpus is swept rather than a chosen sample. All three branches together
-    name exactly one log, and it is the run whose drag was withdrawn.
+    corpus is swept rather than a chosen sample.
+
+    AMENDED 2026-08-01. This used to assert that the sweep names exactly one
+    log. It names five, and the four newcomers are named INDIVIDUALLY below
+    rather than absorbed into a count, because the reason they are here is not
+    the reason the withdrawn run is here and a count would hide that.
+
+    The four are S1 FIML finite-difference probe points. They were audited
+    against their own primal evidence before this assertion was relaxed
+    (``demo-output/website/dafoam/ladder-b/S1_work/logs/fd_clip_audit_run1.log``,
+    and section 3 of ``S1_FIML_FIELD_INVERSION.md``). Three things came out of
+    that audit and all three bear on what this test can honestly assert:
+
+    1. **The four are not four clipping runs among thirty clean ones.** DAFoam
+       gates its bound message on ``printInterval``; the campaign ran at the
+       default 100, so each archived log reports clipping from 1% of its
+       iterations. Re-running twelve points at ``printInterval: 1`` found 689
+       clip events where the archive recorded 3 — including 20 in the
+       UNPERTURBED baseline, whose archived log shows none. These four are the
+       four whose clip happened to land on a printed iteration.
+    2. **The clip does not reach the result.** All twelve re-runs returned
+       bit-identical objectives and identical iteration counts.
+    3. **The clip is a startup transient.** All 689 events fall in iterations
+       27..142 of runs 1815..3291 long; every run is clip-free over its final
+       95%+. The withdrawn run is the opposite case: its ``omega<1e+16`` clip
+       is present at every printed iteration INCLUDING ITS LAST, so its final
+       state is the clipped one.
+
+    Point 3 is the discriminator, and S10a cannot currently see it - it fires
+    on any ceiling clip anywhere in a log. That is a real gap in the rule and
+    it is left open deliberately rather than patched here: changing a FATAL
+    rule's severity is a standards decision, not a test fix. What this test now
+    locks is the structural fact the sweep CAN see - that the withdrawn run is
+    the only log tripping all three branches, and that nothing else has joined
+    the ceiling-clip-only set unnoticed.
     """
 
     ROOT = Path(__file__).resolve().parents[2] / "demo-output"
     WITHDRAWN = "A4_fine_primal_par4.log"
+
+    # Ceiling clip only, and only in the SIMPLE startup transient. Each is one
+    # FD probe point of the S1 field-inversion verification; the clip is
+    # DAFoam's default UMax=1000 against a 10 m/s inlet, inactive at the
+    # converged state the objective is read from.
+    TRANSIENT_CLIPS = (
+        "comp1254_m_0.01.log",
+        "comp1254_p_0.001.log",
+        "comp1660_p_0.001.log",
+        "comp4504_p_0.001.log",
+    )
 
     _RESIDUAL = re.compile(
         r"Solving for (\w+),.*Initial residual = ([0-9.eE+-]+)")
@@ -473,7 +517,7 @@ class ArchiveSweepTests(unittest.TestCase):
             found.add("residual-norm-contradiction")
         return found
 
-    def test_exactly_one_archived_log_is_named_and_it_is_the_withdrawn_one(self):
+    def test_the_sweep_names_only_the_withdrawn_run_and_the_audited_probe_points(self):
         logs = sorted(self.ROOT.rglob("*.log"))
         self.assertGreater(len(logs), 300, "the log archive did not resolve")
         named = {}
@@ -481,11 +525,30 @@ class ArchiveSweepTests(unittest.TestCase):
             found = self._sweep(path)
             if found:
                 named[path.name] = found
-        self.assertEqual(sorted(named), [self.WITHDRAWN])
-        self.assertEqual(
-            named[self.WITHDRAWN],
-            {"ceiling-clip", "normalisation-collapse",
-             "residual-norm-contradiction"})
+
+        expected = {name: {"ceiling-clip"} for name in self.TRANSIENT_CLIPS}
+        expected[self.WITHDRAWN] = {
+            "ceiling-clip", "normalisation-collapse",
+            "residual-norm-contradiction"}
+        # Named individually, not counted. A sixth log appearing here is a new
+        # finding and must be audited against its own primal evidence the way
+        # the four were, not added to this tuple.
+        self.assertEqual(named, expected)
+
+    def test_only_the_withdrawn_run_trips_more_than_the_clip_branch(self):
+        """The discriminator, asserted rather than left implicit.
+
+        A ceiling clip on its own is what a startup transient looks like. A
+        ceiling clip arriving with a collapsed normalisation AND a residual
+        norm ten orders above momentum is what a diverged solve looks like.
+        The archive contains exactly one of the latter.
+        """
+        multi = {}
+        for path in sorted(self.ROOT.rglob("*.log")):
+            found = self._sweep(path)
+            if len(found) > 1:
+                multi[path.name] = found
+        self.assertEqual(sorted(multi), [self.WITHDRAWN])
 
 
 class SystemOperationsDetectorTests(unittest.TestCase):

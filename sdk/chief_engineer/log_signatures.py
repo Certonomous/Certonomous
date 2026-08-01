@@ -499,9 +499,35 @@ def classify_bound_line(line: str) -> dict[str, Any] | None:
     almost every healthy run, and S4 already watches that. Being clipped at
     the top of the range is different in kind: an eddy frequency at 1e+16 is
     not a small numerical difference, it is a field that has diverged and is
-    being stopped from taking the run down with it. Measured over the lab's
-    379 archived logs, a ceiling clip appears in exactly one of them, and it
-    is the run whose drag was withdrawn.
+    being stopped from taking the run down with it.
+
+    CALIBRATION CORRECTED 2026-08-01, and the correction matters more than the
+    number. This docstring used to say "measured over the lab's 379 archived
+    logs, a ceiling clip appears in exactly one of them". Over the archive as
+    it now stands (452 logs) it appears in five. The four new ones are S1 FIML
+    finite-difference probe points under
+    ``demo-output/website/dafoam/ladder-b/S1_work/logs/fd_points``.
+
+    That census was never a census of solves. It is a census of what solvers
+    PRINTED. DAFoam gates its bound message on ``printInterval``, so a log
+    written at the default ``printInterval 100`` reports clipping from 1% of
+    its iterations. Re-running the S1 baseline point unchanged except for
+    ``printInterval: 1`` (2026-08-01, logs under
+    ``/home/ubuntu/certonomous-runs/S1-fiml/ramp_kw_clipcheck/fdlogs/``)
+    returns a BIT-IDENTICAL objective, 1.3816040076915038e-02, and prints 20
+    ceiling clips where the archived log prints none. The archived count is a
+    sampling floor, not a measurement, and so is this one.
+
+    What survived the correction is the direction test. What did not survive is
+    the assumption that any ceiling clip anywhere in a log condemns the run.
+    The withdrawn A4 run clips at every printed iteration INCLUDING ITS LAST
+    (``omega<1e+16`` at 100/200/300/400/500 of 500), so its final state is the
+    clipped one. The S1 points clip only across iterations 35 to 137 of runs
+    1774 to 2307 iterations long, and the bound is inactive for the last ~93%
+    and at the converged state the objective is read from. Persistence to the
+    final iterate is the discriminator this rule does not yet implement; see
+    ``docs/standards/MONITOR_STANDARD.md`` section 3. Severity is deliberately
+    left FATAL pending that change.
     """
     match = _BOUND_CEILING.match(line)
     if match:
