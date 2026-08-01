@@ -1,0 +1,16 @@
+{
+ "id": "w3-a-declined-ladder-still-publishes-an-envelope",
+ "objective": "Rule on whether a credential may print an envelope taken from a ladder the certifier declined",
+ "rationale": "Every one of the nine stored ladders returns nothing from the reportable-band adjudicator, and three wall rows still publish an envelope read straight off the stored band: the Ahmed 25 degree row at plus or minus 0.073, the cube at 0.0078, and the NACA 0012 wing at 0.015, which is 125.45 percent of the value it sits beside. The standing rule is that a band is read through the adjudicator and never off the stored field, and it was written after the valve reached a sealed certificate exactly that way. These rows do say across the refinement study and their reason text does name the ladder inconclusive, so this is a ruling rather than a defect on its face, and it should be made once for the whole wall instead of row by row.",
+ "citations": [
+  "The published credentials wall",
+  "The credential display re-derivation used by the wall builder",
+  "The lab's reportable-band adjudicator"
+ ],
+ "est_core_min": 0,
+ "cost_basis": "estimate; a ruling and at most a wording change, no solver",
+ "expected_knowledge_gain": "One decision covering every credential that shows a spread from a ladder that earned no band",
+ "source_kind": "measurement",
+ "status": "proposed",
+ "created_at": "2026-08-01"
+}

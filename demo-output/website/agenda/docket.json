@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T18:46:08+00:00",
+ "generated_at": "2026-08-01T18:47:10+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -1115,10 +1115,11 @@
     "CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md",
     "demo-output/website/closure.html"
    ],
-   "status": "approved",
-   "decided_at": "2026-07-31T22:18:09Z",
+   "status": "done",
+   "decided_at": "2026-08-01T18:47:10+00:00",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-   "created_at": "2026-07-31T22:18:09Z"
+   "created_at": "2026-07-31T22:18:09Z",
+   "outcome": "Already carried out and verified rather than repeated. CLOSURE_CHALLENGE_PRIOR_ART.md, prepared 2026-07-31, runs the search and records its terms and its limits, and its verdict is that the strategy is a recombination and not an invention: a classifier reading only the uncorrected solve and controlling where a data-driven correction may act is published prior art in Ling and Templeton 2015, Wu, Wang, Xiao and Ling 2017, Steiner, Dwight and Vire 2022, and Buchanan, Lacatus, West and Dwight 2025, two of whose authors co-wrote the Closure Challenge paper itself. What survives as ours is narrow and stated as such: the gate decides for a whole case rather than cell by cell, it is trained on the baseline's error rather than on distribution shift, and its off state means submitting the uncorrected field. Checked today that the finding reached the surfaces: the submission draft carries it as section 7.4 with a mandatory action on section 5.3, and closure.html states it in full and says in terms that this is a recombination with a modification and not a new method class. A fresh sweep of closure.html for novelty language finds one match and it is that disclaimer. The review names its own limits, including two paywalled items read from metadata only and one candidate deliberately not cited because its author list could not be retrieved. Closed on verification, no compute, no change needed."
   },
   {
    "id": "w7-one-way-in-for-operator-artifacts",

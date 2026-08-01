@@ -1,0 +1,15 @@
+{
+ "id": "w8-a-check-that-shares-its-error-with-what-it-checks",
+ "objective": "Find every audit that verifies a surface by re-deriving it through the same function that wrote it",
+ "rationale": "The wall credential check re-derives each card through the same display function that wrote the published card, so an error inside that function is identical on both sides and reads as agreement. Measured 2026-08-01: the Ahmed 25 degree row published its value on frontal area and its band on planform area, understating the band by the whole 3.586 area ratio, and the check reported PASS before the fix and PASS after it. What the check measures is drift between the surface and the code, which is worth measuring and is not the same thing as the surface being right. Other checks in the audit are likely built the same way, and each one should say which of the two it is testing.",
+ "citations": [
+  "The self audit's wall credentials check",
+  "The credential display re-derivation used by the wall builder"
+ ],
+ "est_core_min": 0,
+ "cost_basis": "estimate; reading the audit's own checks, no solver",
+ "expected_knowledge_gain": "Each audit states whether it tests a surface against its generator or against evidence, so a check nobody can fail is visible as one",
+ "source_kind": "report",
+ "status": "proposed",
+ "created_at": "2026-08-01"
+}

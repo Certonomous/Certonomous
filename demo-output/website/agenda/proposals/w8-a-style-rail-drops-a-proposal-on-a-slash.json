@@ -1,0 +1,15 @@
+{
+ "id": "w8-a-style-rail-drops-a-proposal-on-a-slash",
+ "objective": "Stop the proposal style rails reading a quoted numeric ratio as a file path and dropping the proposal",
+ "rationale": "The drafter's own rails silently return no proposal when the rationale quotes a number written with slashes in it. Measured 2026-08-01: the aortic valve's stored method string names its three segment counts that way, the file-path rail matches the phrase, and the violation check answers that the rationale is a file path, so the whole proposal is dropped. Spell the same three counts out as words and the identical proposal emits with no violations at all. That rail was the only thing standing between the gate drafter and a mesh-refinement proposal for a case that has no mesh, which is a guard holding on a coincidence in somebody else's sentence. A rail that drops a whole proposal instead of naming the phrase it objected to will do this again, and nothing anywhere reports the drop.",
+ "citations": [
+  "The lab's agenda drafter and its proposal style rails",
+  "The stored aortic-valve uncertainty study"
+ ],
+ "est_core_min": 0,
+ "cost_basis": "estimate; a rail change and its test, no solver",
+ "expected_knowledge_gain": "Every proposal the drafters build either ships or is reported as refused with the phrase that refused it",
+ "source_kind": "report",
+ "status": "proposed",
+ "created_at": "2026-08-01"
+}
