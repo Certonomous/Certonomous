@@ -8,7 +8,7 @@ Kept as a separate file on purpose: `agenda.save_docket()` rewrites
 `docket.json`'s proposal list wholesale, so a blocker parked as a top-level key
 there would be silently destroyed by the next `refresh_docket()`.
 
-Last updated: 2026-07-28 00:0x UTC.
+Last updated: 2026-08-01 06:3x UTC.
 
 ---
 
@@ -81,3 +81,66 @@ commitment on a misread of one ambiguous sentence is not a defensible default.
 
 **Unblock:** confirm the spend cap (B-1), or say "yes, run the 480 core-min TMR
 closure".
+
+---
+
+## B-4. External reachability cannot be settled from this box
+
+**`w7-verify-reachability-from-outside`. BLOCKED on the half that matters.
+Measured 2026-08-01 06:3x UTC.**
+
+The gate asks readiness to name which surfaces are reachable from outside and
+which are loopback only, **and to say how it knows**. Two different questions
+hide in that sentence, and only one of them can be answered here.
+
+**Answerable here, and now answered: the bind address.** `ss -ltnp` on this
+instance:
+
+| Port | Bind | Process |
+| --- | --- | --- |
+| 8080 | `0.0.0.0` | `python3 -m http.server 8080 --directory demo-output/website` (pid 1396) |
+| 8765 | `0.0.0.0` | `python3 -m chief_engineer.server` (pid 2872620) |
+| 22 | `0.0.0.0` and `[::]` | sshd |
+| 53 | `127.0.0.53`, `127.0.0.54` | systemd-resolved |
+| 35257 | `127.0.0.1` | ephemeral |
+
+**Neither demo surface is loopback only.** That is a fact about this box and a
+readiness check can assert it without leaving the instance. It is also not the
+claim the shoot needed.
+
+**Not answerable here: whether an outside client can open the socket.**
+
+| Probe | Result |
+| --- | --- |
+| `http://127.0.0.1:8080/` | **200** |
+| `http://172.31.43.247:8080/` (private address) | **200** |
+| `http://16.58.201.228:8080/` (public address, from this box) | **000** |
+
+The 000 is the trap, and it is worth naming precisely: **it is not evidence
+that the port is closed.** An EC2 instance reaching its own elastic address
+normally has no hairpin path back to itself, so 000 is the expected answer
+whether the security group admits the world or blocks it. The check that looks
+most like an outside test is the one check that can never distinguish the two
+cases. It is a false negative by construction, in the same way the old
+loopback test was a false positive by construction.
+
+The security group is `launch-wizard-2`. Its inbound rules would settle the
+question, and they cannot be read from here: there is no instance role
+(`/latest/meta-data/iam/security-credentials/` returns 404), no `~/.aws`, no
+`AWS_*` variables and no `aws` CLI, exactly as recorded in B-1.
+
+**What readiness may claim today, and it should claim only this:** the bind
+address of every listening socket, and a plain statement that reachability
+from outside is unverified and cannot be verified from the instance.
+
+**Unblock, cheapest first.**
+
+1. From the operator laptop, off any Certonomous network:
+   `curl -sS -o /dev/null -w '%{http_code}\n' --max-time 8 http://16.58.201.228:8080/`
+   and the same for `:8765`. Two lines of output settle it permanently, and a
+   200 or a 000 both go on the record with the vantage point named.
+2. Or attach a read-only instance role with `ec2:DescribeSecurityGroups`, which
+   turns this into a check the box can run for itself every week.
+
+Until one of those exists, any readiness line that asserts external
+reachability is asserting something nobody measured.
