@@ -488,6 +488,14 @@ assertion on `warpDeriv` remains blind.
 
 ## 5. Verdict
 
+**Sequel, 2026-08-01: the root cause below is now CONFIRMED BY REPAIR.** The corrected
+degenerate-branch derivative (`v2b += (axial(mib - mib^T) x v1)/(magv1 magv2)`, four lines in the
+generated reverse file) collapses every error in this document to FD-truncation level with
+rotations ON — issue #57's 210%/213% to 8.6e-06%/3.4e-05%, A5's 207%/122% flips to 3e-06/7e-06,
+A1's 634% flip to 5.5e-04% — with the primal bit-identical and the live branch untouched.
+Derivation, patch, unit experiment, and all acceptance runs: `PATCH_getRotationMatrix3d.md`,
+`rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`, `rotation_branch/patched/`.
+
 `mesh.warpDeriv` returns a derivative from which the surface-normal-rotation term is **exactly
 absent** whenever the current surface normals coincide with the reference normals — which is
 precisely the state at which every adjoint gradient is evaluated. The term is discarded at
