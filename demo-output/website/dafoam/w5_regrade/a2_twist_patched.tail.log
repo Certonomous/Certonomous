@@ -1,0 +1,46 @@
+IDWARP_IMPORTED_FROM: /patch/idwarp/idwarp/__init__.py
+--- baseline primal, converged, before the first FD perturbation ---
+CD: 0.03162405532
+CL: 0.5216398962
+  (NOT the published baseline -- see W5_GRADIENT_REGRADE.md section 3a)
+--- final Total Derivatives table ---
+Total Derivatives
+-----------------
+
+  Full Model: 'scenario1.aero_post.functionals.CD' wrt 'twist'
+    Analytic Magnitude: 2.020405e-03
+          Fd Magnitude: 2.017324e-03 (fd:central)
+    Absolute Error (Jan - Jfd) : 3.711966e-06 *
+
+    Relative Error (Jan - Jfd) / Jfd : 1.840045e-03 *
+
+    MPI Rank 0
+
+    Raw Analytic Derivative (Jfor)
+[[0.00128778 0.00101086 0.00083125 0.00062905 0.00044291 0.00031968
+  0.00012963]]
+
+    Raw FD Derivative (Jfd)
+[[0.00128677 0.00100969 0.00082968 0.00062729 0.00044121 0.0003181
+  0.00012894]]
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  Full Model: 'scenario1.aero_post.functionals.CL' wrt 'twist'
+    Analytic Magnitude: 2.266683e-02
+          Fd Magnitude: 2.264033e-02 (fd:central)
+    Absolute Error (Jan - Jfd) : 3.756595e-05 *
+
+    Relative Error (Jan - Jfd) / Jfd : 1.659249e-03 *
+
+    MPI Rank 0
+
+    Raw Analytic Derivative (Jfor)
+[[0.01437398 0.01116711 0.00941186 0.00735728 0.00514002 0.00344082
+  0.00122395]]
+
+    Raw FD Derivative (Jfd)
+[[0.01436692 0.01115969 0.00940076 0.00733977 0.00511935 0.00342128
+  0.00121575]]
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Transfer scheme [0]: freeing MELD data...
+Finalising parallel run
+Finalising parallel run

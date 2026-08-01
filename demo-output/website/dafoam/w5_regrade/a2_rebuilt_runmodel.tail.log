@@ -1,0 +1,4 @@
+CL: 0.4999507339 final: 0.4999507339
+CD: 0.02964132667 final: 0.02964132667
+CL: 0.4999507339 final: 0.4999507339
+(gate: published run_model is CD 0.02772949388 / CL 0.4775877833 -- this does NOT match; see W5_GRADIENT_REGRADE.md section 3a)

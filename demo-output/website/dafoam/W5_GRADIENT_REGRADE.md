@@ -44,6 +44,8 @@ identically placed.
 | --- | --- | --- | --- | --- |
 | A1 NACA0012 (4 032 cells, 10 DVs) | **2** — the count the published number was measured at | `W5-regrade/a1_unpatched_stock.log` | `W5-regrade/a1_patched_patched.log` | 65 s + 53 s wall at 2 ranks = **3.9 core-min** |
 | A4 Ahmed coarse (2 777 cells, 1 scalar shape DV) | **4** | `W5-regrade/a4_stock_checktotals.log` | `W5-regrade/a4_patched_checktotals.log` | 47 s + 58 s wall at 4 ranks = **7.0 core-min** |
+| A5 U-bend, pressure-loss (4 800 cells, 27 shape DVs) | **4** | `W5-regrade/a5pl_stock_checktotals.log` | `W5-regrade/a5pl_patched_checktotals.log` | 235 s + 250 s wall at 4 ranks (contended) = **32.3 core-min** |
+| A2 MACH wing (38 304 cells, 105 DVs) | **4** | published `check_totals` attempt 2 (`A2_mach_tutorial_wing.md:40`) | `W5-regrade/a2_patched_checktotals.log` | patched run only, see §3a |
 
 **One case that is NOT in that table, and why.** The U-bend case sitting in the
 patch tree (`W5-patch/a5_case`) is **not** the case the published A5 number came
@@ -54,8 +56,8 @@ replaced it with a **pure pressure-loss** objective `TP1 − TP2`
 FFD DV groups where the published run restricted `check_totals` to
 `of=["OBJ.val"], wrt=["shapexUpper"]` (`:321-331`). The objectives are not even
 the same magnitude — baseline TP1 reads 88.1 in one and 2869.5 in the other. So
-that pair is reported in §4 as what it is, a stock-objective measurement, and
-the published 46.6% is regraded in §5 from the pressure-loss case itself.
+that pair is reported in §4a as what it is, a stock-objective measurement, and
+the published 46.6% is regraded in §4 from the pressure-loss case itself.
 
 ---
 
@@ -180,6 +182,119 @@ real-seed `warpDeriv` protocol that overturned A5's clearance
 (`A5_ubend_internal.md:976-1044`).
 
 ---
+
+### 3a. A2 could not be regraded, because its published verification is no longer reproducible on this box
+
+This was attempted properly and it failed, and the failure is the most important
+thing this document has to say about A2.
+
+**Attempt 1 — the case as preserved.** `check_totals` was launched against a copy
+of `/home/ubuntu/certonomous-runs/A2-mach-wing` with the patched IDWarp, np=4,
+at 12:45:22Z. It ran for **59.6 minutes (238 core-minutes at 4 ranks)** and died
+at **perturbation 132 of 211** with
+`openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.aero.solver'
+<class DAFoamSolver>: Error calling solve_nonlinear(), Mesh quality error!`
+(`W5-regrade/a2_patched_checktotals.log`, `rc=1` at 13:44:58Z). No table.
+
+The reason is visible in that log's own first lines. Its baseline primal
+converges to **CD 0.03142017502, CL 0.4967099218**. The published A2 primal is
+**CD 0.02772949388, CL 0.4775877833** (`A2_mach_tutorial_wing.md:23-24`).
+**The preserved case is not at its published baseline** — the 47-iteration
+IPOPT optimisation ran in that directory (`OptView.hst`, `opt_IPOPT.txt`,
+`opt_run_driver.log` are all in it) and left the mesh deformed. Perturbing an
+already-deformed mesh by another FD step is what eventually produced the
+mesh-quality failure.
+
+**Attempt 2 — rebuild the mesh, with a gate fixed before the run.** The gate:
+*the rebuilt baseline must return the published CD 0.02772949388, or the case is
+not restored and no gradient number from it means anything.* `preProcessing.sh`
+was re-run in the container (the surface CGNS was already on disk, no download)
+and the primal solved at np=4.
+
+**Gate FAILED.** The rebuilt case returns **CD 0.02964132667, CL 0.4999507339**
+(`W5-regrade/a2_rebuilt_runmodel.log`) — **6.9% from the published `run_model`
+figure.** It lands instead within **0.07%** of the *optimisation's* iter-0
+baseline, 0.029619634 (`A2_mach_tutorial_wing.md:77`), at the trimmed CL ≈ 0.5.
+So `runScript.py` as preserved carries the CL-trimmed angle of attack, not the
+tutorial default the published `run_model` used, and rebuilding the mesh does
+not undo that.
+
+**And it is worse than a one-off offset: A2's primal does not reproduce.** Four
+solves of nominally the same case, from states preserved in this tree, converge
+to four different answers:
+
+| source | CD | CL |
+| --- | --- | --- |
+| published `run_model` (`A2_mach_tutorial_wing.md:23`) | 0.02772949388 | 0.4775877833 |
+| the preserved case (`a2_patched_checktotals.log`) | 0.03142017502 | 0.4967099218 |
+| after `preProcessing.sh` rebuild (`a2_rebuilt_runmodel.log`) | 0.02964132667 | 0.4999507339 |
+| the two twist copies, both identical (§3b) | 0.03162405532 | 0.5216398962 |
+
+**A 14% spread in CD.** Compare A1, where the same exercise reproduced
+`Minimal residual 9.646409714038222e-09` and the whole derivative table to every
+printed digit. The CL climbing monotonically down that column — 0.4776, 0.4967,
+0.4999, 0.5216 — points at the angle-of-attack state in `0/U` being carried
+forward and re-written by each run rather than reset, so every copy inherits the
+last one's trim. That is the likely mechanism and it is not proven here.
+
+**Verdict on S7–S11 — A2's four VERIFIED gradient rows and the 28.3% drag
+reduction: NOT REGRADED, and the reason is a provenance failure, not a gradient
+result.** Two things follow and neither is comfortable:
+
+1. **The most prominently published gradient claim this lab has cannot currently
+   be re-verified.** `benchmarks.html:115` states *"Every gradient below was
+   verified against finite differences before any optimisation result was
+   allowed to stand"* and `:141` that this *"is why the 28.3% drag reduction that
+   followed is trustworthy rather than merely large."* That verification ran
+   once, on 2026-07-2x, at a state this box no longer holds. **Nobody can
+   re-do it from what is preserved** — not this session, and not a reader.
+2. **§3's argument therefore stands unrebutted rather than confirmed.** A1's
+   1.67% CL/shape — the exact figure `A2_mach_tutorial_wing.md:44` names as the
+   calibration for calling A2's 1.71% normal — is now measured to have been
+   ~99% rotation defect. That does not prove A2's rows are defective. It removes
+   the only evidence that was offered for them being sound.
+
+**What was measured instead** is in §3b: a stock-versus-patched pair on the
+rebuilt A2 geometry, restricted to the twist design variables, which answers the
+transferable question — *how much of this case's gradient error is the rotation
+defect?* — at a fourteenth of the cost of the full sweep, while being explicit
+that it is not at the published state.
+
+### 3b. On A2's own geometry, the correction is a **no-op** for twist — and that narrows the exposure
+
+The full 105-DV sweep is 210 primal solves. The twist subset is 7 DVs, 14
+solves, and it goes through the same `DVGeo → IDWarp warpDeriv` chain. Both runs
+used the rebuilt A2 geometry of §3a, np=4, `step=1e-3 central abs` (the
+published step), with `check_totals` restricted to
+`of=[CD, CL], wrt=[twist]` — the only edit made to `runScript.py`, and it is
+recorded in the file as a comment. Stock and patched ran concurrently, same
+state, same step.
+
+| derivative | stock analytic | patched analytic | FD (both) | stock rel | patched rel |
+| --- | --- | --- | --- | --- | --- |
+| CD wrt twist (7) | 2.020405e-03 | **2.020405e-03** | 2.017324e-03 | 0.1840% | **0.1840%** |
+| CL wrt twist (7) | 2.266683e-02 | **2.266683e-02** | 2.264033e-02 | 0.1659% | **0.1659%** |
+
+**The analytic magnitudes are bit-identical between stock and patched.** The
+corrected derivative changes nothing at all for twist on this case. That is
+consistent with `PROOF.md` §23's five-mesh finding that the rotation term
+contributes exactly zero to `Sum of dxs` while changing `‖dXs‖` by factors of
+5–34: the twist mode appears to sit in that null space. No mechanism is claimed
+here beyond the measurement.
+
+**Verdicts.**
+
+* **S9 (A2 `CD wrt twist` 0.389%) and S10 (`CL wrt twist` 1.12%): HOLD.** The
+  defect does not reach them. The rows read 0.184% and 0.166% at the rebuilt
+  state rather than 0.389% and 1.12% at the published one — the state differs,
+  the conclusion does not.
+* **S7, S8 (A2 CD/CL wrt *shape*, 96 FFD DVs) and S11 (28.3% drag reduction):
+  still NOT REGRADED.** Twist is a global rotation about a reference axis; the
+  shape DVs are local FFD point displacements, and A1 shows *those* are affected
+  — comprehensively. **The twist result must not be read across to them.** What
+  it does do is halve the exposure: two of A2's four VERIFIED rows are now
+  measured clear, and the remaining two are the ones the optimisation actually
+  drove on.
 
 ## 4. A5 U-bend — the published 46.6% closes to 2.24%, and that is a claim moving *up*
 

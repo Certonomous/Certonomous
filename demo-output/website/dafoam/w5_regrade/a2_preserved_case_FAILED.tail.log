@@ -1,0 +1,7 @@
+A2 patched check_totals on the PRESERVED (post-optimisation) case: FAILED
+CD: 0.2740385961 final: 0.2740385961
+CL: -0.01598016137 final: -0.01598016137
+--- failure ---
+openmdao.core.analysis_error.AnalysisError: 'scenario1.coupling.aero.solver' <class DAFoamSolver>: Error calling solve_nonlinear(), Mesh quality error!
+--- perturbations completed before the failure ---
+132
