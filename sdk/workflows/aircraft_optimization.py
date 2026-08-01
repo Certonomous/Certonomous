@@ -2005,19 +2005,34 @@ def main(request: str | None = None, params: dict | None = None,
                     "detail": "solved" if result else "no polar"})
         ledger.spend(elapsed * len(finalists),
                      f"{len(finalists)} VSPAERO wing solves")
-        # The reported finalist-solve time is always a measurement: the batch
-        # wall clock when any wing was solved fresh this run, otherwise the
-        # parallel wall estimate max(per-wing elapsed_s) each prior carries
-        # from its own measured first run. A prior without the stamp gets no
-        # time clause; a zero-length clock is never shown.
-        per_wing = [r["elapsed_s"] for r in batch
-                    if isinstance(r, dict)
-                    and isinstance(r.get("elapsed_s"), (int, float))
-                    and not isinstance(r.get("elapsed_s"), bool)]
+        # THE WALL CLOCK IS THIS RUN'S OR THERE IS NO WALL CLOCK. `elapsed` is
+        # the batch clock this run measured, and it is the only wall time this
+        # act may print.
+        #
+        # It used to fall back to max(per-wing elapsed_s) whenever no wing was
+        # solved fresh, and every one of those seconds was false here. Three
+        # ways over:
+        #
+        #   * The seconds are not this run's. Each elapsed_s is stamped into a
+        #     result by the run that first produced it, so the figure came off
+        #     an earlier run's clock. On the audited mission the nine polars
+        #     landed inside 6.2 ms, the whole mission took 12.94 s with the
+        #     screening sweep alone reporting 11.63 s, and the line still
+        #     claimed 5.5 s of finalist solving.
+        #   * max() is a PARALLEL estimate, valid only at as many slots as
+        #     there are wings. The same sentence said one granted slot, where
+        #     the sequential figure for those nine is 48.6 s.
+        #   * The screen said "spent 0.00 core-min" in the same frame, off the
+        #     same measured `elapsed`. Both could not be true.
+        #
+        # So there is no fallback. When this run measured no solving time it
+        # prints no time clause, and the wing count and slot count stand
+        # alone. The physics is unaffected either way: every prior is
+        # re-validated against this design's own cruise target to 1e-6 before
+        # it is usable at all (vspaero._usable_prior).
         solved_fresh = any(isinstance(r, dict) and not r.get("reused_prior")
                            for r in batch)
-        reported_s = (elapsed if solved_fresh
-                      else (max(per_wing) if per_wing else None))
+        reported_s = elapsed if solved_fresh else None
         if reported_s is not None and reported_s >= 0.05:
             script.engineer(
                 f"• Finalist solves: {reported_s:.1f} s wall, "

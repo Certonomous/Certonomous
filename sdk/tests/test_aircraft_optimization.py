@@ -818,7 +818,7 @@ class TranscriptTableTests(unittest.TestCase):
         self.assertIn("Finalist solves:", said)
         self.assertNotIn("0.0 s", said)
 
-    def test_warm_reuse_reports_the_stamped_parallel_wall_estimate(self):
+    def test_warm_reuse_never_reports_another_runs_wall_clock(self):
         calls = []
 
         class WarmApi(_SolvedApi):
@@ -834,8 +834,16 @@ class TranscriptTableTests(unittest.TestCase):
                 return result
 
         said = self._said(self._run(api=WarmApi))
-        # max(per-wing elapsed_s) is the parallel wall estimate.
-        self.assertIn("Finalist solves: 84.0 s wall", said)
+        # Every stamp here was written by the run that first produced the
+        # result, so none of these seconds belong to THIS run. The act used to
+        # print max(per-wing elapsed_s) and call it a wall clock, which is both
+        # another run's measurement and a PARALLEL estimate valid only at as
+        # many slots as there are wings. It states the wings and the slots and
+        # no time at all.
+        self.assertIn("Finalist solves:", said)
+        self.assertNotIn("s wall", said)
+        self.assertNotIn("84.0", said)
+        self.assertNotIn("12.3", said)
 
     def test_warm_reuse_without_stamps_omits_the_time_clause(self):
         class LegacyWarmApi(_SolvedApi):
