@@ -49,6 +49,28 @@ Real `cost_basis` strings, both kinds, so the difference is visible:
 The last one is the model. An estimate that names what would upgrade it is
 worth more than a confident number.
 
+**A cost basis may not cite a run the lab has since superseded, withdrawn or
+graded out of band.** This clause exists because the clause above had a hole
+in it and the lab fell through twice. "A prior graded solve of the same body"
+is measured history right up until the proposal exists to *replace* that
+solve, and then it is not history, it is the defect. A repair is a different
+job from the run it repairs, and a run that stopped being right early is
+cheap partly because it stopped being right early, so the error has no known
+direction to be conservative in.
+
+Both instances are on the record and both were under:
+
+| priced at | from | the measured job | factor |
+| --- | --- | --- | --- |
+| 3.04 core-min | the NACA 0012 graded solve's own wall time, the solve the repair replaces | 180 to 240, measured on the NACA 4412 precedent that repaired the same layerless mesh | ~15x |
+| 4.64 core-min | the NACA 4412 credential record's `wall_minutes`, which belongs to a superseded refinement-2 act and not to the ladder that produced the graded drag | one rung of that ladder alone measured 1,574.2 s of meshing plus 278.6 s of solve at 4 ranks | not yet re-priced |
+
+Naming a superseded run in order to disclose it is the opposite of pricing
+from it and stays allowed. `cost_basis_violations` in
+`sdk/chief_engineer/agenda.py` refuses the priced form at intake and names the
+run; the drafter that emitted the first instance now reports the prior wall
+time as a floor on the repair and prices at the labelled default instead.
+
 **A measured total that includes infrastructure stalls is not measured solver
 cost.** Measured is not the same as clean. The published `solver_core_hours`
 counter on the credentials wall re-derives exactly from the ledger, which is

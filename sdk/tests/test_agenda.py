@@ -209,7 +209,51 @@ class DraftingFromRecords(_EnvMixin, unittest.TestCase):
         naca = by_objective[
             "Close the validation gap on the NACA 0012 finite wing"]
         self.assertIn("NACA 0012", naca["launch_prompt"])
-        self.assertTrue(naca["cost_basis"].startswith("measured"))
+
+    def test_a_repair_is_not_priced_from_the_run_it_repairs(self):
+        """The fixture body is out of band and its record carries a 3.0
+        minute wall time. That is the run this proposal exists to replace,
+        so it is a floor and never the price."""
+        by_objective = {p["objective"]: p for p in agenda.draft_all()}
+        naca = by_objective[
+            "Close the validation gap on the NACA 0012 finite wing"]
+        basis = naca["cost_basis"]
+        self.assertFalse(basis.startswith("measured"), basis)
+        self.assertIn("estimate", basis)
+        self.assertIn("3.0 minutes of wall time", basis)
+        self.assertIn("floor", basis)
+        self.assertNotEqual(naca["est_core_min"], 3.0)
+        # And the basis it replaced would not survive intake today.
+        self.assertEqual(agenda.cost_basis_violations(naca), [])
+        self.assertTrue(agenda.cost_basis_violations({
+            "id": "x", "objective": "y",
+            "cost_basis": "measured: the prior graded solve of this body "
+                          "ran 3.0 minutes of wall time"}))
+
+    def test_a_superseded_run_is_refused_at_intake_and_named(self):
+        refused = agenda.cost_basis_violations({
+            "id": "x", "objective": "y",
+            "cost_basis": "measured: the 67,826-cell run took 1.8 minutes"})
+        self.assertEqual(len(refused), 1)
+        self.assertIn("NACA 4412", refused[0])
+        self.assertIn("cost_basis", refused[0])
+        # The refusal is visible, not a silent drop.
+        self.assertTrue(any(entry["id"] == "x"
+                            for entry in agenda.refused_cost_bases()))
+        # A basis that names the run in order to disclose it is not pricing
+        # from it and is allowed.
+        self.assertEqual(agenda.cost_basis_violations({
+            "cost_basis": "measured on the 4412 precedent; the superseded "
+                          "67,826-cell run is not what this is priced from"}),
+            [])
+
+    def test_a_defective_cost_basis_never_reaches_a_proposal(self):
+        bad = {"objective": "o", "rationale": "r", "citations": ["c"],
+               "est_core_min": 3.04, "expected_knowledge_gain": "g",
+               "cost_basis": "measured: the prior graded solve of this body "
+                             "ran 3.0 minutes of wall time",
+               "source_kind": "gate"}
+        self.assertTrue(agenda.proposal_violations(bad))
 
     def test_dedupe_by_objective(self):
         proposals = agenda.draft_all()

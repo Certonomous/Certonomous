@@ -33,6 +33,17 @@ of the same body) with the derivation quoted in ``cost_basis``, or it is a
 default that ``cost_basis`` plainly labels an estimate. No cost is ever
 presented as measured unless a record backs it.
 
+One exception, and it is not a small one. A prior graded solve of the same
+body stops being measured history the moment the proposal exists to replace
+that solve. A repair is not the same job as the run it repairs, and a run
+that is out of band or withdrawn is often cheap BECAUSE it stopped being
+right early, so its wall time is not conservative in any known direction.
+The NACA 0012 gap was priced at 3.04 core-minutes from exactly that field
+against 180 to 240 measured on the NACA 4412 precedent that repaired the
+same defect, a factor of 15 under. ``cost_basis_violations`` refuses such a
+basis at intake and names the run; ``refused_cost_bases`` keeps the refusals
+visible so a refusal is never a silent drop.
+
 Ranking heuristic (deterministic, the whole of it):
 
 * Each proposal earns gain points by source kind — closing a failed or
@@ -207,6 +218,76 @@ def proposal_violations(proposal: dict) -> list[str]:
     for citation in proposal.get("citations") or []:
         for label in text_violations(str(citation)):
             found.append(f"citation: {label}")
+    found.extend(cost_basis_violations(proposal))
+    return found
+
+
+# --------------------------------------------------------------------------
+# Cost rail — a price may not be drawn from a run the record has since
+# superseded, withdrawn or graded out of band
+# --------------------------------------------------------------------------
+
+# Runs the record itself has superseded, withdrawn or replaced. Each entry is
+# (pattern, run as the record names it, where the record says so). Nothing is
+# listed here on an agent's opinion: every entry quotes a field or a row that
+# already exists in the tree.
+_SUPERSEDED_RUNS: tuple[tuple[re.Pattern, str, str], ...] = (
+    (re.compile(r"prior graded solve of (?:this|the same) body", re.I),
+     "the graded solve the proposal exists to replace",
+     "the graded body is outside its validation band, which is the whole "
+     "reason the proposal was drafted"),
+    (re.compile(r"\b67,?826[\s-]cell\b", re.I),
+     "the 67,826-cell NACA 4412 credential solve",
+     "the credential record's own previous_credential entry supersedes it: "
+     "layer addition was off at chord Reynolds 1e6, so there are no "
+     "boundary-layer cells, and no mesh was archived"),
+    (re.compile(r"\b45,?760[\s-]cell\b", re.I),
+     "the 45,760-cell Ahmed adjoint primal",
+     "the research board withdraws it: the turbulence field diverged while "
+     "the normalised residual read as converged"),
+)
+
+# Words that turn naming a superseded run from a price into a disclosure. A
+# basis that says the run was superseded is not pricing from it, it is saying
+# why it did not. This is a weaker test than reading the sentence and it is
+# stated as one: the rail distinguishes the two cases by these words alone.
+_SUPERSESSION_DISCLOSED = re.compile(
+    r"supersed|withdraw|defect|not priced from|is a floor", re.I)
+
+# Bases refused at intake, kept so a refusal is visible rather than a silent
+# drop. Same reasoning as _UNSCORED_KINDS below: a filter nobody can see is a
+# filter nobody can question.
+_REFUSED_COST_BASES: list[dict] = []
+
+
+def refused_cost_bases() -> list[dict]:
+    """Every cost basis this process refused, with the run each one named."""
+    return [dict(entry) for entry in _REFUSED_COST_BASES]
+
+
+def cost_basis_violations(proposal: dict) -> list[str]:
+    """Refuse a price taken from a run the lab has since superseded.
+
+    The charter's measured-history clause allows a prior graded solve of the
+    same body. That clause has one hole, and the lab has already fallen
+    through it: when the proposal exists to REPLACE that solve, the solve is
+    not history, it is the defect. A repair is a different job, and a
+    defective run is cheap partly because it stopped being right early, so
+    the error has no known direction. Naming the run in order to disclose it
+    is the opposite of pricing from it and is allowed.
+    """
+    basis = str(proposal.get("cost_basis") or "")
+    if not basis or _SUPERSESSION_DISCLOSED.search(basis):
+        return []
+    found = []
+    for pattern, run, why in _SUPERSEDED_RUNS:
+        if pattern.search(basis):
+            found.append(f"cost_basis: priced from {run}, which the record "
+                         f"has superseded ({why})")
+            _REFUSED_COST_BASES.append({
+                "id": str(proposal.get("id") or ""),
+                "objective": str(proposal.get("objective") or ""),
+                "run": run, "why": why, "cost_basis": basis})
     return found
 
 
@@ -529,13 +610,32 @@ def draft_gate_proposals() -> list[dict]:
                 continue
             pct = abs(float(compared) - float(reference)) / abs(
                 float(reference)) * 100.0
+            # This record is OUT OF BAND, which is the entire reason the
+            # proposal is being drafted. Its own wall time is therefore the
+            # wall time of the run the proposal exists to replace, and this
+            # drafter used to hand that straight over as "measured". It is
+            # not history, it is the defect, and the lab has the receipts
+            # both ways: the NACA 0012 gap went out at 3.04 core-minutes
+            # from this field against 180 to 240 measured on the NACA 4412
+            # precedent that repaired the same layerless mesh, 15x under;
+            # and the 4412 record's own 4.64 belongs to a superseded
+            # refinement-2 act, while one rung of the ladder that produced
+            # its graded drag measured 1,574.2 s of meshing plus 278.6 s of
+            # solve at 4 ranks. The prior wall time is a floor on the repair
+            # and is reported as one. The price is the charter default,
+            # labelled an estimate, which is an empty number honestly
+            # labelled rather than a false one.
+            est = _EST_REPORT_CORE_MIN
             wall_minutes = data.get("wall_minutes")
             if wall_minutes:
-                est, basis = float(wall_minutes), (
-                    f"measured: the prior graded solve of this body ran "
-                    f"{float(wall_minutes):.1f} minutes of wall time")
+                basis = (f"estimate; not priced from the graded solve of "
+                         f"this body, which is the run this proposal exists "
+                         f"to replace. That solve ran "
+                         f"{float(wall_minutes):.1f} minutes of wall time, "
+                         f"which is a floor on the repair and not a price "
+                         f"for it")
             else:
-                est, basis = _EST_REPORT_CORE_MIN, "estimate"
+                basis = "estimate"
             proposal = _proposal(
                 objective=f"Close the validation gap on the {body}",
                 rationale=(f"The graded record stands at Cd "

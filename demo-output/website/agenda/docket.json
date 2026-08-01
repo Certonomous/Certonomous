@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:18:18Z",
+  "generated_at": "2026-08-01T04:26:32+00:00",
   "proposals": [
     {
       "id": "w3-valve-band-never-adjudicated",
@@ -224,6 +224,25 @@
       "created_at": "2026-07-31T23:20:00Z"
     },
     {
+      "id": "w6-two-points-are-not-a-distribution",
+      "well": "W6",
+      "objective": "Build the estimate-versus-measured record into enough points to replace the guessed multiplier",
+      "rationale": "The backlog forecast applied a threefold planning multiplier and labelled it a guess, correctly: the only calibration points are one overrun of 13.6 times and one of 1.48. Every completed proposal now carries an outcome, so the pairs can be collected as work lands rather than reconstructed later.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A recorded pair of estimated and measured cost for every completed item, and the multiplier derived from them",
+      "expected_knowledge_gain": "The forecast that decides what gets started rests on two numbers; this makes it rest on the record",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "sdk/chief_engineer/agenda.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:18:18Z"
+    },
+    {
       "id": "c6-nasa-hump-the-only-last-place",
       "well": "W5",
       "objective": "Decide whether the NASA hump can be improved at all, given the benchmark ships no training data for it",
@@ -256,6 +275,25 @@
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
       "well": "W6",
       "outcome": "The sweep now runs 13 opening angles to 87.5 degrees, past the old 80 degree cap. The winner moved off the cap to 87.5 degrees at 1253 plus or minus 398 Pa; the 85 degree evaluation reproduces the ledger's 1267 Pa. The upper bound is 87.5 rather than the model's 90 degree clamp because at 90 the leaflets lie flat on the wall with no tilt left."
+    },
+    {
+      "id": "w6-the-lab-uses-a-tenth-of-its-box",
+      "well": "W6",
+      "objective": "Find out why the lab sustains 1.4 of 14 usable cores and decide whether that is a choice",
+      "rationale": "Measured across 208,102 evaluations over a 151 hour span, the lab held 1.40 cores busy on average and ran everything serial. The backlog was forecast as 118 wall hours at that rate. If the work is parallelisable the same queue finishes in a fraction of that, and if it is not, the reason is worth knowing before more capacity is bought or more items are queued behind it.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The serial fraction is measured per solver family, and any family that could run wide is named with what stops it",
+      "expected_knowledge_gain": "The forecast says sequencing binds this lab, not compute; this is the measurement that would confirm or refute it",
+      "source_kind": "ledger",
+      "citations": [
+        "mega-batch ledger",
+        "demo-output/website/agenda/BACKLOG_FORECAST.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:18:18Z"
     },
     {
       "id": "w6-scaling-law-refit",
@@ -555,10 +593,11 @@
         "agenda cost_basis contract",
         "the NACA 0012 finite wing repair estimate"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T14:18:26Z",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decided_at": "2026-08-01T04:26:32+00:00",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "Refused at intake, and it caught three entries the docket was already carrying. All three priced a repair from the very run the repair replaces: the NACA 0012 gap at 3.04 core-minutes, the Ahmed 35 degree gap at 3.06, and the NACA 4412 gap at 4.64, which was still approved and unstarted. The 4412 number is the worst of them: it belongs to a superseded refinement-2 act and not to the ladder that produced the graded drag, one rung of which measured 1574.2 seconds of meshing plus 278.6 seconds of solve at 4 ranks. That item is re-priced to the charter default of 20 core-minutes, labelled an estimate. The drafter that emitted all three now reports the prior wall time as a floor on the repair, 1.5, 3.0 and 4.6 minutes on the three bodies, and prices at the labelled default instead, and the charter clause that allowed a prior graded solve to count as measured history now carries the exception with both misses tabulated."
     },
     {
       "id": "w4-a1-warpderiv-upstream",
@@ -1187,25 +1226,6 @@
       "outcome": "Closed. The act was given the 35 degree surface and measured the slant off it at 35.0 degrees. C_d 0.2924 on the published frontal basis against 0.26, a 12 percent deviation on a plus or minus 15 percent band, from 21 percent before; 79,778 cells, both mesh gates cleared, settled to 0.025 percent of C_d. The credential stays at SOLVER-BACKED rather than VALIDATED, and not because of the reference: the case's own three-mesh ladder returns an observed order of 3.17, outside the theoretical range, so it is not grid-conclusive. The 25 degree body sits at 7 percent and is held by the same blocker. The router was also fixed so a prompt naming 35 degrees reaches the 35 degree body at all."
     },
     {
-      "id": "agp-d392641d60f4",
-      "objective": "Close the validation gap on the NACA 4412 finite wing",
-      "rationale": "The graded record stands at Cd 0.0183 against the reference 0.0136, 35 percent off and outside the validation band; a refined near-wall setup can close the gap or explain it on the record.",
-      "citations": [
-        "Graded curriculum record, NACA 4412 finite wing",
-        "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed."
-      ],
-      "est_core_min": 4.64,
-      "cost_basis": "measured: the prior graded solve of this body ran 4.6 minutes of wall time",
-      "expected_knowledge_gain": "Either a validated credential for the NACA 4412 finite wing or a measured account of why the setup misses the reference",
-      "source_kind": "gate",
-      "status": "approved",
-      "created_at": "2026-07-29T04:12:40+00:00",
-      "launch_prompt": "Mesh and solve the NACA 4412 wing and report the drag with its envelope.",
-      "well": "W3",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
-    },
-    {
       "id": "w5-ladder-band-guard-counts-rungs-it-did-not-fit",
       "objective": "Make the ladder band's extrapolation guard measure its tolerance against the three rungs it actually fitted, not against every rung the caller happened to pass",
       "rationale": "The guard rejects a fit whose Richardson value lands more than 15 percent of the measured range width outside that range. It fits the last three rungs but takes the range from all values handed in, so the same fit is conclusive or not conclusive depending on how many rungs the caller passes. The flat plate is the fixture the 15 percent was calibrated on and it sits on both sides of the line: handed the four rungs 816, 3264, 13056 and 52224 its extrapolate sits 8.48 percent above the top of the range and the ladder is certified with a band of 1.99e-5, which is 0.70 percent of the drag; handed only the three rungs the fit uses it sits 21.16 percent above and the same ladder is declined with the sentence that its extrapolate falls outside the range it measured. The tolerance comment records the 8.48 percent figure, so the calibration was done on a four rung call and the three rung call was never checked. Every other act calls this with exactly three rungs. Nothing here says which reading is correct, only that a certifier must not answer two ways to one fit.",
@@ -1487,6 +1507,25 @@
       "source_kind": "gate",
       "status": "approved",
       "created_at": "2026-07-25T18:10:48+00:00",
+      "well": "W3",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+    },
+    {
+      "id": "agp-d392641d60f4",
+      "objective": "Close the validation gap on the NACA 4412 finite wing",
+      "rationale": "The graded record stands at Cd 0.0183 against the reference 0.0136, 35 percent off and outside the validation band; a refined near-wall setup can close the gap or explain it on the record.",
+      "citations": [
+        "Graded curriculum record, NACA 4412 finite wing",
+        "Cd_section: Abbott & von Doenhoff, Theory of Wing Sections (1959), NACA 4412 section polar (0.006-0.009). Cd_induced: Cd_i = Cl^2/(pi*e*AR), e = 0.70-0.85 (Anderson, Fundamentals of Aerodynamics), AR and Cl measured/solved for this exact wing, not assumed."
+      ],
+      "est_core_min": 20.0,
+      "cost_basis": "estimate; not priced from the graded solve of this body, which is the run this proposal exists to replace. The record's 4.6 minutes belongs to a superseded refinement-2 act, not to the ladder that produced the graded drag: one rung of that ladder alone measured 1574.2 s of meshing plus 278.6 s of solve at 4 ranks. The 4.6 is a floor on the repair and not a price for it",
+      "expected_knowledge_gain": "Either a validated credential for the NACA 4412 finite wing or a measured account of why the setup misses the reference",
+      "source_kind": "gate",
+      "status": "approved",
+      "created_at": "2026-07-29T04:12:40+00:00",
+      "launch_prompt": "Mesh and solve the NACA 4412 wing and report the drag with its envelope.",
       "well": "W3",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
@@ -1986,6 +2025,25 @@
       "dismiss_reason": "Approved to run. The owner directed tonight that research directions be proposed, assessed and FOLLOWED continuously rather than queued, which is the authorisation this needed. It is also now the highest-leverage open question in the lab: the memory half of the envelope is settled and well fitted, and it does not matter, because the transonic family's adjoint diverges at every mesh size measured. A cheap reproducer exists at 21,840 cells and seven minutes per attempt, so conditioning experiments that were previously assumed to need a large mesh can now be iterated quickly.",
       "well": "W4",
       "outcome": "Answered. The failure is a linear-solver breakdown, not a memory ceiling. The ONERA M6 adjoint returns the same breakdown at 21,840, 42,120, 79,560 and 99,840 cells, so mesh size is not the constraint and coarsening was never going to help. The NASA hump reproduces it independently: DIVERGED_NANORINF at GMRES iteration 0 with Jacobian colouring completing normally and available memory bottoming at 18.99 GB of 30. Two levers remove the NaN and neither converges, and the matrix reordering is implicated in producing it since the failing scripts use rcm where the one working tutorial uses natural. The family that does converge, field inversion, differs in that its warping component is never constructed at all."
+    },
+    {
+      "id": "w5-probe-the-item-that-is-a-third-of-the-backlog",
+      "well": "W5",
+      "objective": "Establish whether the largest approved item is feasible before its cost is committed",
+      "rationale": "One approved entry is 3,600 core-minutes, thirty-six percent of everything approved. Its own cost basis says memory is not established: 2.66 million cells on a thirty gigabyte box, scaled linearly in cells from an incompressible run. The adjoint envelope on this machine records success at 63,920 cells and failure at 99,840. The question is not whether it is mispriced but whether it can run at all, and one probe answers it.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 16.0,
+      "predicted_usd": 0.821,
+      "cost_basis": "estimate",
+      "gate": "A single coarse attempt establishes peak memory and whether the case can be built on this machine",
+      "expected_knowledge_gain": "Either the largest item in the backlog is real work or it is a wall, and five more sit behind it",
+      "source_kind": "capability",
+      "citations": [
+        "demo-output/website/agenda/BACKLOG_FORECAST.md",
+        "dafoam/ladder-a/A3_onera_m6.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T04:18:18Z"
     },
     {
       "id": "w3-find-an-invertible-closure-case",
@@ -2702,63 +2760,6 @@
       "well": "W5",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
-    },
-    {
-      "id": "w6-the-lab-uses-a-tenth-of-its-box",
-      "well": "W6",
-      "objective": "Find out why the lab sustains 1.4 of 14 usable cores and decide whether that is a choice",
-      "rationale": "Measured across 208,102 evaluations over a 151 hour span, the lab held 1.40 cores busy on average and ran everything serial. The backlog was forecast as 118 wall hours at that rate. If the work is parallelisable the same queue finishes in a fraction of that, and if it is not, the reason is worth knowing before more capacity is bought or more items are queued behind it.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "The serial fraction is measured per solver family, and any family that could run wide is named with what stops it",
-      "expected_knowledge_gain": "The forecast says sequencing binds this lab, not compute; this is the measurement that would confirm or refute it",
-      "source_kind": "ledger",
-      "citations": [
-        "mega-batch ledger",
-        "demo-output/website/agenda/BACKLOG_FORECAST.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T04:18:18Z"
-    },
-    {
-      "id": "w6-two-points-are-not-a-distribution",
-      "well": "W6",
-      "objective": "Build the estimate-versus-measured record into enough points to replace the guessed multiplier",
-      "rationale": "The backlog forecast applied a threefold planning multiplier and labelled it a guess, correctly: the only calibration points are one overrun of 13.6 times and one of 1.48. Every completed proposal now carries an outcome, so the pairs can be collected as work lands rather than reconstructed later.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "A recorded pair of estimated and measured cost for every completed item, and the multiplier derived from them",
-      "expected_knowledge_gain": "The forecast that decides what gets started rests on two numbers; this makes it rest on the record",
-      "source_kind": "ledger",
-      "citations": [
-        "demo-output/website/agenda/BACKLOG_FORECAST.md",
-        "sdk/chief_engineer/agenda.py"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T04:18:18Z"
-    },
-    {
-      "id": "w5-probe-the-item-that-is-a-third-of-the-backlog",
-      "well": "W5",
-      "objective": "Establish whether the largest approved item is feasible before its cost is committed",
-      "rationale": "One approved entry is 3,600 core-minutes, thirty-six percent of everything approved. Its own cost basis says memory is not established: 2.66 million cells on a thirty gigabyte box, scaled linearly in cells from an incompressible run. The adjoint envelope on this machine records success at 63,920 cells and failure at 99,840. The question is not whether it is mispriced but whether it can run at all, and one probe answers it.",
-      "est_core_min": 60,
-      "predicted_memory_gb": 16.0,
-      "predicted_usd": 0.821,
-      "cost_basis": "estimate",
-      "gate": "A single coarse attempt establishes peak memory and whether the case can be built on this machine",
-      "expected_knowledge_gain": "Either the largest item in the backlog is real work or it is a wall, and five more sit behind it",
-      "source_kind": "capability",
-      "citations": [
-        "demo-output/website/agenda/BACKLOG_FORECAST.md",
-        "dafoam/ladder-a/A3_onera_m6.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-01T04:18:18Z"
     }
   ]
 }
