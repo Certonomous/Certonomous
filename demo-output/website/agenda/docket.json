@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T10:25:24+00:00",
+ "generated_at": "2026-08-01T10:29:16+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -494,8 +494,10 @@
     "demo-output/website/agenda/BACKLOG_FORECAST.md",
     "mega-batch ledger"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-01T10:18:25Z"
+   "status": "done",
+   "created_at": "2026-08-01T10:18:25Z",
+   "decided_at": "2026-08-01T10:27:59+00:00",
+   "outcome": "Measured, and the mean decomposes exactly. Binning every row of demo-output/website/mega-batch/ledger.jsonl (208,193 rows) into one-minute buckets over its own 151.39-hour span, 9,084 bins: 4,316 of them (47.5%) hold no work at all, and the remaining 52.5% average 3.02 cores. 1.583 = 3.02 x 0.525, so the 1.583 gross mean (1.40 after the page's stall cleaning) is a rate multiplied by a duty cycle and is equal to neither. The ceiling across that entire era is 6.03 cores and it exceeds 4 for only 8.5% of the span, which is a four-worker serial pool rather than a machine being asked for what it has. This morning's window is a third rate again: from demo-output/website/committee-grids/measurements.jsonl, 40 runs from 07:56:35Z to 09:42:50Z, 1,175.0 core-min in 1.77 h = 11.06 cores sustained, one mpirun -np 14 with 21.6 GiB of host memory still free at the worst moment. That is 7.9x the 1.40 the affordable set was cut against and 3.7x the 3.02 the ledger era managed while busy, and the difference is MPI rather than effort. The two questions the mean could not answer: the approved backlog, 12,719.4 core-min with the HLPW6 reprice carried in, drains in 151.4 h at 1.40 cores, 70.2 h at 3.02, and 19.2 h at 11.06; and just under half the box sits unused, which is a dispatch property and not a capacity one. Recorded as BACKLOG_FORECAST.md section 8, with section 2's 'sustained' and section 6's affordable set both marked superseded rather than deleted."
   },
   {
    "id": "w6-forecast-the-approved-backlog",
@@ -674,8 +676,10 @@
     "demo-output/website/agenda/BACKLOG_FORECAST.md",
     "mega-batch ledger"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-01T08:18:22Z"
+   "status": "done",
+   "created_at": "2026-08-01T08:18:22Z",
+   "decided_at": "2026-08-01T10:27:59+00:00",
+   "outcome": "Re-measured and the affordable set is restated, in BACKLOG_FORECAST.md section 8.4. The saturated period ran at 11.06 cores over 1.77 h (1,175.0 core-min, committee-grids/measurements.jsonl), against the 1.40-core mean the forecast used. Holding the forecast's own 3x planning multiplier and changing only the rate, a 7-day budget goes from 4,704 core-min of stated cost to 10,851 at the burst rate scaled by today's duty cycle (1.77 h busy in the 6.07 h since 04:14Z) or 19,510 at the burst rate scaled by the ledger's own 52.5% duty. The 62 items called affordable are 4,606.4 core-min; the four non-HLPW6 items ruled out total 603 + 420 + 400 + 300 = 1,723 between them, which is 15.9% of one week at the lower of the two restated budgets. Four of the five rulings do not survive: agp-4369c99cdd7f, closure-duct-field-inversion, r4-asymptotic-range-ladders and w5-regrade-every-published-gradient-claim are cheap and were ranked last, which is a sequencing judgement and has to be argued as one rather than as a price. HLPW6 at 6,390 is the only item the rate still decides, fitting with 13,180 core-min to spare at the ledger duty and falling 1,868 short at today's, and that question is moot in the useful direction: its submission route is closed and committee-grids/COMMITTEE_GRID_NUMERICS.md section 5 measures that a second-order entry is unreachable on that grid family by this toolchain. It should be rescoped on those grounds and not on price. What this does not license: 11.06 cores is demonstrated capacity held for 106 minutes by one MPI study, not an arrival rate. The forecast's conclusion that compute is not the binding constraint survives, by a wider margin than it claimed and for a sharper reason."
   },
   {
    "id": "w2-tbnn-sparta-readings",
@@ -1399,6 +1403,25 @@
    "created_at": "2026-08-01T00:18:23Z"
   },
   {
+   "id": "w7-every-run-writes-to-the-registry",
+   "well": "W7",
+   "objective": "Make the solve registry cover every solver run, or state plainly what it does not cover",
+   "rationale": "The DPW5 committee probe ran 40 solver runs and 1,175.0 core-minutes between 07:56 and 09:43 UTC on 2026-08-01 and wrote nothing to the solve registry, whose newest entry is the F6a EBRSM diffusion rung timestamped 04:14 that morning. The study is fully documented elsewhere, in the committee-grid probe's own instrumentation file and 22 solve logs, so no evidence is missing. What is missing is coverage. The item asking what the burst was solving cited the registry, looked there, found the largest block of compute this week absent, and concluded it was unaccounted for. Two independent places record runs and the accounting reads only one of them.",
+   "est_core_min": 0,
+   "predicted_memory_gb": 0.5,
+   "predicted_usd": 0.0,
+   "cost_basis": "estimate",
+   "gate": "Either every solver launch path writes a registry entry, or the registry states which launch paths it does not cover and where those runs are recorded instead",
+   "expected_knowledge_gain": "A result can carry a complete evidence record and still be invisible to the lab's compute accounting, and that is a different failure from a missing record",
+   "source_kind": "report",
+   "citations": [
+    "the solve registry under the site root",
+    "the committee-grid probe instrumentation, 40 runs on 2026-08-01"
+   ],
+   "status": "proposed",
+   "created_at": "2026-08-01T10:29:16+00:00"
+  },
+  {
    "id": "w5-figures-must-show-every-rung",
    "well": "W5",
    "objective": "Publish the flat-plate figures with all five rungs instead of the three the palette allows",
@@ -1550,6 +1573,25 @@
    ],
    "status": "proposed",
    "created_at": "2026-08-01T08:23:04Z"
+  },
+  {
+   "id": "w7-a-record-written-names-the-item-it-closes",
+   "well": "W7",
+   "objective": "Require a study record to name the docket item it closes, or say that it closes none",
+   "rationale": "The committee-grid item was executed, written up and committed while still at status proposed, and 1,175.0 core-minutes ran against its 120 core-minute estimate on an item nobody had approved. Eight commits landed between 08:23 and 10:12 UTC on 2026-08-01 and none of them touched the docket; the next three docket writes filed nine new proposals from that result and closed nothing. Filing and solving are done by the same agents and closing is the step that gets dropped, so the done count understates finished work and every forecast built on it is wrong in the same direction.",
+   "est_core_min": 0,
+   "predicted_memory_gb": 0.5,
+   "predicted_usd": 0.0,
+   "cost_basis": "estimate",
+   "gate": "A check that fails when a study record is added under the site root without either naming the docket item it closes or stating that it closes none",
+   "expected_knowledge_gain": "The docket is the instrument that decides sequencing, and its done count is currently a lower bound with slack of unknown size",
+   "source_kind": "report",
+   "citations": [
+    "the docket",
+    "the committee-grid numerics record of 2026-08-01"
+   ],
+   "status": "proposed",
+   "created_at": "2026-08-01T10:29:16+00:00"
   },
   {
    "id": "w8-an-audit-attribution-is-a-claim",

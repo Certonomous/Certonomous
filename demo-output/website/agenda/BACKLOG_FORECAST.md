@@ -88,7 +88,7 @@ direction — **under**.
 | `w4-the-grid-not-the-box-was-the-limit` (added 2026-08-01) | 120 | **1,175.0** | **9.8x under** |
 | refit of stored studies priced as a re-run | 8 studies "need compute" | 7 refittable in place | over; 6 needed no compute |
 
-The fourth row is new and is the mechanism of §4.1.1 again, in its purest form:
+The fourth row is new and is mechanism 1 below again, in its purest form:
 an item scoped as "run a second grid" was priced as one solve at 120 core-min
 and was actually a diagnosis — 40 runs, twenty of them configurations on the
 hostile grid, 1,175.0 core-min measured
@@ -208,6 +208,11 @@ time: the refit case is on the record — 6 studies were priced as needing
 compute and needed none, and the price is what stopped the work.
 
 ## 6. Affordable this week
+
+> **Superseded by §8 (2026-08-01).** The budget below is cut against 1.40
+> cores, which §8.1 shows is a mean over a bursty series and describes neither
+> state the machine is in. Four of the five exclusions do not survive the
+> restatement. The table is left visible rather than deleted.
 
 Budget: 14,132 core-min at the measured 1.40 cores over 7 days, divided by
 the 3x planning multiplier of §4.3 = **4,710 core-min of stated cost**,
