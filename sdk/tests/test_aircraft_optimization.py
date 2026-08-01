@@ -805,9 +805,18 @@ class TranscriptTableTests(unittest.TestCase):
         headers = [p for p in finalist if not p["append"]]
         rows = [row for p in finalist if p["append"] for row in p["rows"]]
         self.assertEqual(len(headers), 1)
+        # SPAN, AREA AND SWEEP: the whole design vector, so no two rows can
+        # be indistinguishable. Two rows of the filmed run read "61 m, 25°"
+        # with L/D 19.3 and 17.5, and the areas that told them apart, 360 and
+        # 420 m², were on no column.
         self.assertEqual(headers[0]["headers"],
-                         ["Span", "Sweep", "α", "C_Di", "C_D0, wing",
+                         ["Span", "Area", "Sweep", "α", "C_Di", "C_D0, wing",
                           "Whole-aircraft L/D"])
+        self.assertTrue(all(len(row) == len(headers[0]["headers"])
+                            for row in rows), rows)
+        # Every row identifies exactly one wing.
+        keys = [tuple(row[:3]) for row in rows]
+        self.assertEqual(len(keys), len(set(keys)), keys)
         # The finalist table is solve tier only, and says so.
         self.assertIn("[solve: VSPAERO + Raymer buildup]", headers[0]["title"])
         self.assertEqual(len(rows), 9)   # one row per finalist solve

@@ -1305,7 +1305,15 @@ def seeded_spans(measured_span: float) -> tuple[float, ...]:
 # solve, not a design variable. Sweep is the design variable that separates
 # them, and it is the one the screened-against-solved table below already
 # carries, so the two tables now name the same wing the same way.
-_FINALIST_HEADERS = ("Span", "Sweep", "α", "C_Di", "C_D0, wing",
+#
+# AREA IS IN IT FOR EXACTLY THE SAME REASON, and span and sweep together were
+# not enough. Two rows of the audited run both read "61 m, 25°" and carried
+# whole-aircraft L/D 19.3 and 17.5: different wings, 360 m² and 420 m², told
+# apart by nothing on screen. A 1.8 gap between two rows a viewer cannot
+# distinguish reads as the solver disagreeing with itself. Area is the third
+# design variable and the screened-against-solved table already carries it, so
+# the full design vector is now on both.
+_FINALIST_HEADERS = ("Span", "Area", "Sweep", "α", "C_Di", "C_D0, wing",
                      "Whole-aircraft L/D")
 _FINALIST_TABLE_TITLE = f"Finalist solves {TIER_SOLVE}"
 
@@ -2000,6 +2008,7 @@ def main(request: str | None = None, params: dict | None = None,
                     whole_ld = f["cl_cruise"] / (
                         _CD0_NONWING + matched["cdo_wing"] + matched["cdi"])
                     row = [f"{f['span']:.0f} m",
+                           f"{f['area']:.0f} m²",
                            f"{f['sweep_deg']:.0f}°",
                            f"{matched['alpha']:.1f}°",
                            f"{matched['cdi']:.4f}",
