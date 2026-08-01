@@ -1,0 +1,38 @@
+{
+  "case": "medium",
+  "ranks": 1,
+  "wall_seconds": 532.2,
+  "core_minutes": 8.87,
+  "exit_code": 0,
+  "iterations": 13012,
+  "cd_last": 0.0035980611623,
+  "settle": {
+    "settled": false,
+    "iterations": 13012,
+    "window": 2000,
+    "spread": 3.0377480000030876e-07,
+    "tol": 3e-07,
+    "reason": "peak-to-peak 3.04e-07 over the last 2000 iterations is above the settle tolerance 3e-07"
+  },
+  "extended_to": 16000,
+  "previous": {
+    "case": "medium",
+    "ranks": 1,
+    "wall_seconds": 540.5,
+    "core_minutes": 9.01,
+    "exit_code": 0,
+    "iterations": 5000,
+    "cd_last": 0.0036010372444,
+    "settle": {
+      "settled": false,
+      "iterations": 5000,
+      "window": 1250,
+      "spread": 1.8174378999999928e-06,
+      "tol": 3e-07,
+      "reason": "peak-to-peak 1.82e-06 over the last 1250 iterations is above the settle tolerance 3e-07"
+    },
+    "extended_to": null,
+    "core_minutes_cumulative": 9.01
+  },
+  "core_minutes_cumulative": 17.88
+}

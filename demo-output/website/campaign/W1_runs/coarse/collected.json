@@ -1,0 +1,28 @@
+{
+  "case": "coarse",
+  "iterations": 5288,
+  "cd": 0.0042264330811,
+  "settle": {
+    "settled": true,
+    "iterations": 5288,
+    "window": 1322,
+    "spread": 1.4979230000041616e-07,
+    "tol": 3e-07,
+    "reason": "peak-to-peak 1.5e-07 over the last 1322 iterations is at or under the settle tolerance 3e-07"
+  },
+  "cd_split_last_log_block": {
+    "total": 0.004226433081,
+    "pressure": 0.00118634078,
+    "viscous": 0.003040092301
+  },
+  "yplus_bump": {
+    "min": 0.30022798842,
+    "max": 0.75769573346,
+    "average": 0.47187364731
+  },
+  "cf_at_0p75": 0.005354981408,
+  "logs": [
+    "log.simpleFoam",
+    "log.simpleFoam.extend12000"
+  ]
+}

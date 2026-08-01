@@ -1,0 +1,38 @@
+{
+  "case": "coarse",
+  "ranks": 1,
+  "wall_seconds": 20.1,
+  "core_minutes": 0.33,
+  "exit_code": 0,
+  "iterations": 5288,
+  "cd_last": 0.0042264330811,
+  "settle": {
+    "settled": true,
+    "iterations": 5288,
+    "window": 1322,
+    "spread": 1.4979230000041616e-07,
+    "tol": 3e-07,
+    "reason": "peak-to-peak 1.5e-07 over the last 1322 iterations is at or under the settle tolerance 3e-07"
+  },
+  "extended_to": 12000,
+  "previous": {
+    "case": "coarse",
+    "ranks": 1,
+    "wall_seconds": 60.0,
+    "core_minutes": 1.0,
+    "exit_code": 0,
+    "iterations": 3000,
+    "cd_last": 0.0042270421706,
+    "settle": {
+      "settled": false,
+      "iterations": 3000,
+      "window": 750,
+      "spread": 9.598456000006403e-07,
+      "tol": 3e-07,
+      "reason": "peak-to-peak 9.6e-07 over the last 750 iterations is above the settle tolerance 3e-07"
+    },
+    "extended_to": null,
+    "core_minutes_cumulative": 1.0
+  },
+  "core_minutes_cumulative": 1.33
+}
