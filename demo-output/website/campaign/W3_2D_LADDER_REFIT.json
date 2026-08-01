@@ -1,0 +1,224 @@
+[
+ {
+  "ladder": "supersonic wedge (shock angle, deg)",
+  "cells": [
+   1800,
+   7200,
+   28800
+  ],
+  "values": [
+   47.588,
+   46.123,
+   44.693
+  ],
+  "dim2": {
+   "observed_order": 0.035,
+   "conclusive": false,
+   "richardson_extrapolated": -13.73271428570817,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": false,
+    "increment_trend": true,
+    "extrapolation_sanity": false
+   },
+   "guards_failed": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "not_conclusive_guard": "order_window"
+  },
+  "dim3": {
+   "observed_order": 0.052,
+   "conclusive": false,
+   "richardson_extrapolated": -13.73271428570817,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": false,
+    "increment_trend": true,
+    "extrapolation_sanity": false
+   },
+   "guards_failed": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "not_conclusive_guard": "order_window"
+  }
+ },
+ {
+  "ladder": "supersonic cone (shock angle, deg)",
+  "cells": [
+   1800,
+   7200,
+   28800
+  ],
+  "values": [
+   29.514,
+   28.113,
+   27.309
+  ],
+  "dim2": {
+   "observed_order": 0.801,
+   "conclusive": false,
+   "richardson_extrapolated": 26.226226130653274,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": true,
+    "increment_trend": true,
+    "extrapolation_sanity": false
+   },
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "not_conclusive_guard": "extrapolation_sanity"
+  },
+  "dim3": {
+   "observed_order": 1.202,
+   "conclusive": false,
+   "richardson_extrapolated": 26.226226130653274,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": true,
+    "increment_trend": true,
+    "extrapolation_sanity": false
+   },
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "not_conclusive_guard": "extrapolation_sanity"
+  }
+ },
+ {
+  "ladder": "diamond airfoil (wave drag Cd)",
+  "cells": [
+   2000,
+   8000,
+   32000
+  ],
+  "values": [
+   0.036131656,
+   0.036236041,
+   0.036237429
+  ],
+  "dim2": {
+   "observed_order": 6.233,
+   "conclusive": false,
+   "richardson_extrapolated": 0.036237447704855485,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": false,
+    "increment_trend": true,
+    "extrapolation_sanity": true
+   },
+   "guards_failed": [
+    "order_window"
+   ],
+   "not_conclusive_guard": "order_window"
+  },
+  "dim3": {
+   "observed_order": 9.349,
+   "conclusive": false,
+   "richardson_extrapolated": 0.036237447704855485,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": false,
+    "increment_trend": true,
+    "extrapolation_sanity": true
+   },
+   "guards_failed": [
+    "order_window"
+   ],
+   "not_conclusive_guard": "order_window"
+  }
+ },
+ {
+  "ladder": "hypersonic cylinder (standoff delta/R)",
+  "cells": [
+   1000,
+   4000,
+   16000
+  ],
+  "values": [
+   0.4427,
+   0.4082,
+   0.4181
+  ],
+  "dim2": {
+   "observed_order": null,
+   "conclusive": false,
+   "richardson_extrapolated": null,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": false
+   },
+   "guards_failed": [
+    "monotone"
+   ],
+   "not_conclusive_guard": "monotone"
+  },
+  "dim3": {
+   "observed_order": null,
+   "conclusive": false,
+   "richardson_extrapolated": null,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": false
+   },
+   "guards_failed": [
+    "monotone"
+   ],
+   "not_conclusive_guard": "monotone"
+  }
+ },
+ {
+  "ladder": "cylinder vortex shedding (Strouhal)",
+  "cells": [
+   2496,
+   5032,
+   8640
+  ],
+  "values": [
+   0.1245,
+   0.149,
+   0.15776
+  ],
+  "dim2": {
+   "observed_order": 2.436,
+   "conclusive": false,
+   "richardson_extrapolated": 0.16716103667825088,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": true,
+    "increment_trend": true,
+    "extrapolation_sanity": false
+   },
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "not_conclusive_guard": "extrapolation_sanity"
+  },
+  "dim3": {
+   "observed_order": 3.654,
+   "conclusive": false,
+   "richardson_extrapolated": 0.16716103667815863,
+   "guards": {
+    "distinct_rungs": true,
+    "monotone": true,
+    "order_window": false,
+    "increment_trend": true,
+    "extrapolation_sanity": false
+   },
+   "guards_failed": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "not_conclusive_guard": "order_window"
+  }
+ }
+]
