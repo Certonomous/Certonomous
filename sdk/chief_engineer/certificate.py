@@ -131,8 +131,6 @@ _INPUT_ASSUMED_HINTS = ("as specified exactly", "no input spread")
 _CHANNEL_NO_VALUE = "Not quantified"
 _CHANNEL_NO_STATE = "stated, not set to zero"
 _CHANNEL_IN_STATE = "quantified"
-# A field with nothing behind it says so rather than printing a rule.
-_NOT_STATED = "Not stated"
 
 
 def _channel_rails(text: str) -> str:
@@ -1036,10 +1034,17 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # Objective first and verbatim, then what the run actually covered,
         # then what solved it. Scope sits between them because it qualifies
         # the objective and is read with it, never as a footnote.
+        #
+        # Each of the three is drawn only when the caller supplies it. The
+        # solver line used to draw "Not stated" instead, which is a field
+        # asserting an absence rather than a field left off; an act that
+        # deliberately carries no solver-and-model line then had one anyway.
+        # Every act that names a solver still renders exactly as before.
         fields = [("Objective", objective)]
         if scope:
             fields.append(("Scope", scope))
-        fields.append(("Solver & Model", solver or _NOT_STATED))
+        if solver:
+            fields.append(("Solver & Model", solver))
         for label, value in fields:
             c.text(left, y, label, size=8, bold=True, color=_MUTED)
             for line in _wrap(str(value), 10.5, width - 120):

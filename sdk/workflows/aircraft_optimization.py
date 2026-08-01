@@ -1219,13 +1219,6 @@ SCOPE_STATEMENT = (
     "buildup method.",
     "All L/D figures quoted are whole-aircraft.")
 
-# The same scope, in one line, for the certificate's own labelled Scope field.
-# The certificate is read on its own, away from the digest, so it carries the
-# statement itself rather than assuming the reader saw the run.
-CERTIFICATE_SCOPE = (
-    "Wing-optimized; fuselage, tail, and nacelle drag from Raymer's component "
-    "buildup. Result is whole-aircraft L/D.")
-
 
 def seeded_spans(measured_span: float) -> tuple[float, ...]:
     """Centre the span ladder on a measured starting-geometry span.
@@ -1647,17 +1640,6 @@ def main(request: str | None = None, params: dict | None = None,
     roster.set(CHIEF_RESEARCHER, "setting the search bounds", "working")
     script.researcher(plan_line)
     roster.idle(CHIEF_RESEARCHER)
-
-    # ---- gate-code advisory, raised where a span is known -------------------
-    # A constraint the request never mentioned. It used to be raised here, off
-    # the spans the grid was about to sweep, which put a 65 m figure on camera
-    # before a single wing had been sized. The advisory is about the aircraft
-    # that comes out, not the range that goes in, so the Chief Researcher
-    # raises it in the conclusion against the winner's own span. Only the
-    # certificate flag is set here, and it records that the search could reach
-    # Code F spans at all.
-    over_code_e = spans_over_code_e(span for span, _area, _sweep in grid)
-    gate_advisory = bool(over_code_e)
 
     if solver_live:
         script.numericist(
@@ -2472,10 +2454,22 @@ def main(request: str | None = None, params: dict | None = None,
     if emit:
         emit("report.ready", report)
 
-    # The Certonomous certificate for the airliner act: the best feasible L/D
-    # with its 95% CI, the solver named whenever the finalists were actually
-    # solved, the structured result table, and the full three-channel
-    # uncertainty table — every channel a computed number on a solved run.
+    # The Certonomous certificate for the airliner act: the subject and this
+    # run's verbatim objective, the best feasible L/D with its 95% CI, the
+    # structured result table, and the full three-channel uncertainty table —
+    # every channel a computed number on a solved run.
+    #
+    # WHAT THE PAGE DELIBERATELY DOES NOT CARRY, and why it is not an
+    # oversight: the scope line, the constraint list, the assumed-values
+    # ledger and the solver-and-model line. Each of those is a conditional on
+    # the result rather than the result, each is on the record in the digest
+    # and the transcript where it is read in context, and together they made
+    # the certificate a two-leaf log dump whose headline arrived on the second
+    # page. A certificate is read for what was concluded and how far it is
+    # trusted; the conditions are one click away. Removing them changes the
+    # evidence seal's payload, which is correct — the seal covers what the
+    # certificate states, and it now states less.
+    #
     # The previous run's page is withdrawn FIRST and the new page lands by
     # atomic replacement, so a page from an earlier mission can never be
     # served after this one completes; if generation fails the act says so
@@ -2517,31 +2511,16 @@ def main(request: str | None = None, params: dict | None = None,
             ],
             "compute": ledger.as_dict(),
         }
-        solver = ("VSPAERO vortex lattice; research sizing screen"
-                  if won_solved else "Research drag-polar sizing model")
         certificate = build_certificate_v2(
             cert_doc, out_path=cert_path,
             geometry="airliner",
             # The objective is always THIS run's verbatim request.
             objective=(request or "Maximise the airliner cruise lift-to-drag "
                        "ratio subject to its mission requirements."),
-            # What the search moved, and what the reported number covers. A
-            # labelled field directly under the objective, because a reader
-            # who takes the headline for a wing-only figure has misread the
-            # certificate, and that is the certificate's fault, not theirs.
-            scope=CERTIFICATE_SCOPE,
-            # Every limit the run applied, tagged by where it came from, with
-            # the gate-code advisory carrying its own disposition.
-            constraints=constraint_list(reqs, advisory=gate_advisory,
-                                        winner_span=best["span"]),
-            # Every number the answer rests on that neither the request stated
-            # nor a solver produced, the two lift coefficients included.
-            assumptions=ledger_rows,
             mission_id="aircraft-optimization",
             issued_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             channels=channels,
-            display_name=f"{reqs['passengers']}-passenger twin-aisle airliner",
-            solver=solver)
+            display_name=f"{reqs['passengers']}-passenger twin-aisle airliner")
         if emit:
             emit("certificate.ready", {**certificate, "dir": out.name})
     except Exception:  # a certificate must never take down a good mission

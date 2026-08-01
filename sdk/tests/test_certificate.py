@@ -514,9 +514,19 @@ class ScopeConstraintsAndLedgerTests(unittest.TestCase):
         self.assertIn("Result is whole-aircraft L/D.", text)
 
     def test_scope_sits_between_the_objective_and_the_solver(self):
-        _, text = self._render(scope=self.SCOPE)
+        _, text = self._render(scope=self.SCOPE, solver="simpleFoam")
         self.assertLess(text.index("(Objective)"), text.index("(Scope)"))
         self.assertLess(text.index("(Scope)"), text.index("(Solver & Model)"))
+
+    def test_a_caller_that_names_no_solver_gets_no_solver_line(self):
+        # The field used to draw "Not stated", which asserts an absence
+        # instead of leaving the line off. An act that deliberately carries
+        # no solver-and-model line then carried one anyway.
+        _, text = self._render(scope=self.SCOPE)
+        self.assertNotIn("Solver & Model", text)
+        self.assertNotIn("Not stated", text)
+        named, text = self._render(scope=self.SCOPE, solver="simpleFoam")
+        self.assertIn("Solver & Model", text)
 
     def test_every_constraint_carries_the_tag_it_came_with(self):
         _, text = self._render(constraints=self.CONSTRAINTS)
