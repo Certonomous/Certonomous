@@ -111,9 +111,35 @@ if [ -f "$FVS" ] && [ -n "$MODEL" ]; then
         EBRSM)                             transported="R epsilon f" ;;
         *)                                 transported="" ;;
     esac
+    # The key may sit alone on its line with the brace beneath it (the
+    # tutorial layout) or share the line with the whole entry (the compact
+    # layout this project's own generated cases use):
+    #
+    #     "(U|k|omega|epsilon|nuTilda)" { solver smoothSolver; ... }
+    #
+    # The original pattern anchored the key to end-of-line, so it saw only the
+    # first layout and called the second MISSING. That is a false REFUSAL, not
+    # a missed failure, and it fired on 2026-08-01 against the Ahmed case in
+    # demo-output/website/campaign/W3_runs/kOmegaSST -- a case that had already
+    # solved cleanly three times in this tree. A preflight that refuses a case
+    # the machine has demonstrably run is worse than no preflight, because the
+    # next person reaches for --force.
+    #
+    # The key must still be a KEY and not any old occurrence of the field name:
+    # the search is scoped to the solvers{} block (so relaxationFactors and
+    # SIMPLE cannot answer for it), and the key must be followed by end-of-line
+    # or an opening brace. residualControl's own
+    # `"(k|omega|epsilon|nuTilda)" 1e-4;` is followed by a tolerance, so it
+    # cannot satisfy this check even if the scoping were removed.
+    solvers_block=$(awk '
+        /^[[:space:]]*solvers[[:space:]]*$/ {f=1; next}
+        f && /^[[:space:]]*\{/ && d==0 {d=1; next}
+        f && d {print; n=gsub(/\{/,"{"); m=gsub(/\}/,"}"); d+=n-m; if(d<=0) exit}
+    ' "$FVS")
     for fld in $transported; do
         # match a bare entry or one inside a "(a|b|c)" regex group
-        if grep -qaE "^[[:space:]]*(\"?\(?[A-Za-z|]*\<$fld\>[A-Za-z|]*\)?\"?)[[:space:]]*$" "$FVS"; then
+        if printf '%s\n' "$solvers_block" | grep -qaE \
+             "^[[:space:]]*(\"?\(?[A-Za-z|]*\<$fld\>[A-Za-z|]*\)?\"?)[[:space:]]*(\{.*)?$"; then
             ok "fvSolution has a solver entry covering '$fld'"
         else
             bad "model $MODEL transports '$fld' but fvSolution/solvers has NO entry covering it"
