@@ -215,3 +215,45 @@ item cannot spend its budget no matter how affordable the budget is. It is left
 `approved` rather than dismissed because the objective — 62.9% of the deficit to
 the rank-two entry sits in the two duct cases — is unchanged and worth doing the
 moment the adjoint runs.
+
+---
+
+## B-7. The A2 wing's published gradient verification cannot be re-run from anything on this box
+
+**Found 2026-08-01 while working `w5-regrade-every-published-gradient-claim`.
+This blocks the regrade of the lab's most prominently published gradient claim.**
+
+`benchmarks.html:115` states *"Every gradient below was verified against finite
+differences before any optimisation result was allowed to stand"* over six
+VERIFIED rows, and `:141` that this is *"why the 28.3% drag reduction that
+followed is trustworthy rather than merely large."* **That verification ran once
+and cannot currently be repeated.**
+
+| A2 primal, nominally the same case | CD | CL |
+| --- | --- | --- |
+| published `run_model` (`ladder-a/A2_mach_tutorial_wing.md:23`) | 0.02772949388 | 0.4775877833 |
+| the preserved case `/home/ubuntu/certonomous-runs/A2-mach-wing` | 0.03142017502 | 0.4967099218 |
+| after re-running its own `preProcessing.sh` | 0.02964132667 | 0.4999507339 |
+| two further copies of that, both identical | 0.03162405532 | 0.5216398962 |
+
+**14% spread in CD**, and CL climbing monotonically as copies chain — consistent
+with the angle-of-attack state in `0/U` being re-written by each run rather than
+reset, so each copy inherits the last one's trim. The 47-iteration IPOPT
+optimisation also ran in that directory (`OptView.hst`, `opt_IPOPT.txt`,
+`opt_run_driver.log` are all still in it) and left the mesh deformed; a patched
+`check_totals` launched against it died at **perturbation 132 of 211** with
+`AnalysisError: ... Mesh quality error!` after **59.6 min at 4 ranks = 238
+core-minutes** (`W5-regrade/a2_patched_checktotals.log`).
+
+For contrast, A1's regrade the same afternoon reproduced its
+`Minimal residual 9.646409714038222e-09` and every printed digit of its
+derivative table. This is specific to A2's preserved state, not a general
+property of the stack.
+
+**Unblock:** restore A2 to the state its published `run_model` describes — a
+pristine `0/` at the tutorial's default angle of attack plus a freshly generated
+mesh — and confirm it by reproducing **CD 0.02772949388 / CL 0.4775877833**
+before any gradient is computed. That check is ~2 core-minutes; the
+`check_totals` that follows is ~210 core-minutes at 4 ranks (measured, published
+run). Until the baseline reproduces, no number computed on that case regrades
+anything.
