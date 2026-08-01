@@ -385,8 +385,20 @@ def _credibility_captions(case_key: str | None) -> list[str]:
     name = tier.get("validation_tier")
     if name:
         rank, of = tier.get("rank"), tier.get("of")
+        # THE RANK CARRIES ITS BASIS OR IT DOES NOT PRINT. The hierarchy is
+        # ordered by increasing configuration complexity and DECREASING data
+        # quality, so the top rank is the tier with the least validation
+        # evidence in it. A bare "4 of 4" on a sealed page reads on camera as
+        # a top score and states the opposite of what it means. The ordering
+        # is named in the same breath as the number, and the direction is
+        # spelled out on the line beneath it, so the rank cannot be misread.
         lines.append(f"Validation tier: {name}"
-                     + (f", {rank} of {of}" if rank and of else ""))
+                     + (f", {rank} of {of} by configuration complexity"
+                        if rank and of else ""))
+        if rank and of:
+            lines.append(
+                "The hierarchy runs from the most validation data to the "
+                "least, so a higher rank carries less evidence, not more.")
     cred = (block or {}).get("credibility") or {}
     scored = [f for f in cred.get("factors", []) if f.get("level")]
     for f in scored:
@@ -1099,7 +1111,26 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         # happened to be right only for a case carrying exactly ONE credibility
         # caption; a case with none was over-reserved by that caption's height
         # and broke the page early for room it was never going to use.
-        cred_lines = _credibility_captions(geometry)
+        # THE SEALED TIER GOES ON THE PAGE. `tier` is a sealed result field,
+        # and SOLVER-BACKED is the unlabeled default for this simulation
+        # platform, so on a solved run no badge draws and the grade the seal
+        # covers appeared nowhere at all — while an UNSEALED validation-tier
+        # caption sat in the same block reading like a score. The chip policy
+        # is untouched: the badge still draws for every chip that is not the
+        # default. When it does not draw, the sealed tier is stated in words
+        # here instead, so exactly one tier statement is on the page and it is
+        # the one under the hash.
+        shown_chip = _resolved_tier(chip)
+        badge_drawn = bool(shown_chip) and shown_chip != "SOLVER-BACKED"
+        sealed_tier = _resolved_tier(tier) if tier else ""
+        cred_lines = ([f"Fidelity: {sealed_tier or shown_chip}"]
+                      if (sealed_tier or shown_chip) and not badge_drawn
+                      else [])
+        cred_lines += _credibility_captions(geometry)
+        # Captions are prose and prose wraps. Drawn unwrapped they run off the
+        # text column and off the leaf, taking their own basis with them.
+        cred_lines = [part for line in cred_lines
+                      for part in _wrap(line, 8.5, width)]
         head_h = (gap(30, 26)
                   + (gap(12, 11) * len(cred_lines) + gap(6, 5) if cred_lines else 0.0)
                   + gap(26, 24) + gap(34, 30))
@@ -1108,9 +1139,9 @@ def build_certificate_v2(report_doc: dict, *, out_path: str | Path,
         y = room(head_h + fields_h, y)
         c.text(left, y, "Result", size=8, bold=True, color=_MUTED)
         # SOLVER-BACKED is the unlabeled default for this simulation platform:
-        # a real solve with no further chip renders no badge at all.
-        shown_chip = _resolved_tier(chip)
-        if shown_chip and shown_chip != "SOLVER-BACKED":
+        # a solve with no further chip renders no badge at all. That case now
+        # states its tier as the caption line built above instead.
+        if badge_drawn:
             chip_color = _FIDELITY_COLOR.get(shown_chip, _DEFAULT_FIDELITY_COLOR)
             chip_w = max(96.0, len(shown_chip) * 6.4 + 22)
             c.rect(right - chip_w, y - 5, chip_w, 21, fill=chip_color)
