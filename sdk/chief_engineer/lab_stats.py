@@ -58,11 +58,31 @@ _RESEARCH_CHALLENGES = (
         # Measured 2026-07-24/25 by workflows/tmr_verification.py; full
         # numbers, deviations, and figures in demo-output/website/tmr/
         # (flatplate_sst.json, bump_sst.json, card_update.json).
+        #
+        # The entry said "3-grid ladder" after the flat plate had grown to
+        # five rungs, and said nothing about what the extra two bought. Both
+        # halves are now stated, and they are two claims rather than one:
+        # VERIFICATION_CHARTER section 3.4. The band is certified. The order
+        # behind it is still rising at every rung (1.0833, 1.2587, 1.6344), so
+        # this ladder has not been shown to be in the asymptotic range, and
+        # the entry must not let the first claim carry the second.
+        #
+        # tmr_verification.card_entry_text still writes a 3-rung sentence when
+        # the act runs, because 816 to 13056 is what the act itself solves on
+        # camera. That is accurate for the act and is not edited here. This
+        # entry is the standing campaign record, which is two rungs further
+        # on, and the two are allowed to differ as long as neither claims the
+        # other's ladder.
         "status": "flat plate and bump measured",
-        "entry": "flat plate and bump-in-channel each run on a 3-grid ladder "
-                 "against the published CFL3D values: flat-plate Cd 0.002834 "
-                 "vs 0.002826 at matched grid size, bump Cd 0.003567 vs "
-                 "0.003607; NACA 0012 airfoil next",
+        "entry": "flat plate now on a 5-grid ladder to 208,896 cells and bump "
+                 "on 3, against the published CFL3D values: flat-plate Cd "
+                 "0.0028636 vs 0.0028533 at matched grid size, bump Cd "
+                 "0.003567 vs 0.003607. The flat plate's finest triple is the "
+                 "first ladder here to earn a reportable discretization band, "
+                 "4.244e-6 or 0.148% of the value, at observed order 1.634; "
+                 "that order is still rising rung on rung, so the band is "
+                 "earned and the asymptotic range is not claimed. NACA 0012 "
+                 "airfoil next",
         "lead": True,
     },
     {

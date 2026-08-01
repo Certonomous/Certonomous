@@ -271,6 +271,53 @@ constant keeps its value and loses its stated justification, which is recorded
 rather than repaired: moving it to restore the old-looking margin would be
 tuning the gate to the answer, which section 8 forbids.
 
+### 3.4 A reportable band is not a demonstrated asymptotic order
+
+Sections 3.2 and 3.3 are about orders that are wrong or verdicts that are
+unstable. This one is about a ladder where nothing is wrong and the record can
+still be read as claiming more than it holds.
+
+> **A conclusive ladder has earned a quotable band. It has not thereby shown
+> that it is in the asymptotic range, and the two are separate claims with
+> separate evidence.** The band is what the guards certify. The asymptotic
+> range is a statement about the ORDER, and the only evidence for it is that
+> the order stops moving as rungs are added.
+
+**The worked case is the lab's best verification result, which is why it is
+here.** The 2D flat plate is the first family in this corpus the Eca-Hoekstra
+certifier declares conclusive, on the finest triple, on both functionals: Cd at
+observed order 1.634 with a reportable band of 4.244e-6, 0.148 percent of the
+value. That band is earned and quotable. **The observed order behind it is
+still rising at every rung added: 1.0833, then 1.2587, then 1.6344 for Cd, and
+1.0315, 1.1110, 1.5281 for Cf.** A settled ladder shows a settled order, and
+this one has not settled.
+
+Two independent causes are on the record, and neither is a defect in the
+result:
+
+1. The grid family is not exactly self similar. The wall normal total expansion
+   ratio is held fixed while ny doubles, so successive first cell heights ratio
+   1.815, 1.905, 1.952, 1.976, approaching 2 from below. An order fitted at a
+   constant refinement ratio of 2 is therefore biased low on the coarse rungs
+   and less so on the fine ones, which drifts the order upward with refinement
+   on its own.
+2. The reference codes drift the same way on NASA's own grids with NASA's own
+   published values: CFL3D 0.9468, 1.0611, 1.3383 and FUN3D 0.8172, 0.9784,
+   1.0703, neither conclusive on any triple under the same certifier. The drift
+   is the behaviour of this case, not of this lab's meshes.
+
+**The rule.** A record that states a conclusive band states, on the same
+surface, whether the observed order has settled, and it says which of the two
+claims it is making. "Conclusive", "certified" and "reportable band" are
+verdicts about the band. "Asymptotic" is a verdict about the order and is not
+implied by any of them. Where the order is still moving, the record says so and
+quotes the sequence, because the sequence is already on disk and costs nothing
+to print.
+
+**What this does not do.** It does not withdraw or weaken the band. The flat
+plate's 0.148 percent stands exactly as certified. The claim being fenced off
+is the one nobody made and every reader is one sentence away from making.
+
 ## 4. Convergence. What may be read, and what may not
 
 This section is almost entirely lessons, because almost every one of them was
