@@ -170,3 +170,48 @@ a permission from it that is nowhere on this machine.
 
 **Unblock:** open the list, work the entries top down, and paste back the
 section named beside each. Nothing else in the reading program waits on this.
+
+---
+
+## B-6. `closure-duct-field-inversion` is blocked on this box, and restating its cost does not change that
+
+**Docket rank 178 of 180, `est_core_min` 420.0, approved 2026-07-31. Recorded
+2026-08-01 while working the "these four are affordable" batch.**
+
+The item was one of four ruled unaffordable by a forecast that used a mean over
+a bursty series. The forecast was wrong and the item is cheap, but **cheap is
+not the binding constraint here and the docket record does not say so.**
+
+Its rationale states that the method "runs on the adjoint stack already verified
+this session against the official airfoil tutorial." **The lab has already
+tested that and it is false on the case this item needs.** Ladder B3 stood the
+DAFoam primal up on CBFS successfully — it matches the independently-run
+plain-OpenFOAM baseline to 0.087% (U), 0.23% (p), 1.41% (k), 1.20% (omega)
+scaled MAE — and then the discrete-adjoint GMRES solve **diverged with PETSc
+`KSPConvergedReason = -9` (`DIVERGED_NANORINF`) at iteration 0**, reproduced
+identically across two primal convergence levels (1e-4, 1e-6), two objective
+types (a custom field-variance loss and a force objective known to work in this
+lab's NACA0012 case), and two ILU preconditioner fill levels (1 and 4). Primary
+evidence: `dafoam/ladder-b/B3_duct_field_inversion.md`, `B3_supervisor_debug.md`,
+`campaign/NOT_PASSING_REGISTER.md:374-379`, case directories
+`dafoam/ladder-b/B3_work/{CBFS,fixA_kbounds,fixB_SA,fixC_empty}`.
+
+Two consequences the docket entry should carry and does not:
+
+1. **The 420 core-minute estimate is unsupported, in both directions.** Its own
+   `cost_basis` says it is "flagged as needing a timed pilot before it is
+   trusted." The pilot ran. It measured the primal cost and the adjoint's fixed
+   setup cost (colouring, Jacobian partials) and **could not measure the GMRES
+   iteration cost — the dominant, scaling-critical unknown — because no run
+   completed a single GMRES iteration.** So the number that was ranked on is not
+   a measurement of this item.
+2. **This is not the same defect as W5's.** The B3 design variable is the inlet
+   `patchVelocity`; that adjoint does no mesh warping at all
+   (`B3_supervisor_debug.md:101-103`). The `getRotationMatrix3d` patch does not
+   touch it, and nobody should expect the W5 repair to unblock this.
+
+**Unblock:** root-cause the CBFS adjoint's iteration-0 NaN/Inf. Until then the
+item cannot spend its budget no matter how affordable the budget is. It is left
+`approved` rather than dismissed because the objective — 62.9% of the deficit to
+the rank-two entry sits in the two duct cases — is unchanged and worth doing the
+moment the adjoint runs.
