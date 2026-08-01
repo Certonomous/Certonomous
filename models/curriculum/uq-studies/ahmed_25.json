@@ -66,9 +66,9 @@
     "rule": "an OpenFOAM case that is 2D or axisymmetric must type its out-of-plane boundaries empty or wedge; checkMesh counts solution directions by excluding exactly those two types",
     "evidence": [
       "constant/polyMesh/boundary of all three rungs carries exactly two patches, of type patch and wall; no empty, no wedge (/home/ubuntu/certonomous-runs/study-ahmed_25-coarse-40aacb nCells 20621, /home/ubuntu/certonomous-runs/study-ahmed_25-medium-b37e86 nCells 45753, /home/ubuntu/certonomous-runs/act7-ahmed_25-04261b nCells 79439 -- each matching its recorded rung)",
-      "mission-output/geometry-study/study-ahmed_25/log.checkMesh (cells 45753, the medium rung): 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)' and 'Mesh has 3 solution (non-empty) directions (1 1 1)'"
+      "two of the three rungs also carry their own log.checkMesh, both reading 'Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)' and 'Mesh has 3 solution (non-empty) directions (1 1 1)': mission-output/geometry-study/study-ahmed_25 (45753, the medium rung) and mission-output/ahmed-body/act7-ahmed_25 (79439, the production rung). The coarse rung at 20621 has no checkMesh log anywhere on this box; its dimensionality rests on its retained mesh, read directly above."
     ],
-    "checked_utc": "2026-08-01T00:00:00Z"
+    "checked_utc": "2026-08-01T06:30:00Z"
   },
   "refit_in_place": {
     "method": "recomputed in place on 2026-08-01 from this study's own levels[] through the current fit (chief_engineer.uq.eca_hoekstra_band), compared field by field against the block already on the record. No solve was run and no measured number changed: the refit reproduces every field of the stored numerical block, including observed_order, band_abs, the method string, the guard map and the Richardson-extrapolated value, bit for bit.",
