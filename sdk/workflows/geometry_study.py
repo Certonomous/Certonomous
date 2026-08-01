@@ -1298,7 +1298,7 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
     """
     from chief_engineer import uq as uq_studies
 
-    del settle_2sigma, window, velocity, cells, non_ortho_s, skew_s  # mesh-validity block owns these
+    del velocity, cells, non_ortho_s, skew_s  # mesh-validity block owns these
     input_note = INPUT_ASSUMED_NOTE
     numerical_val = model_val = None
     if lookup.get("numerical"):
@@ -1387,6 +1387,46 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         model_note += ("; that gap is outside what the figure above measures, "
                        "which is closure spread, so this channel is a floor "
                        "on model form and not a bound")
+    # SETTLING SCATTER IS NUMERICAL, ruling R7, 2026-08-01.
+    #
+    # The spread of the monitored coefficient across its settled window is
+    # ITERATIVE CONVERGENCE NOISE: it is how far the solver's own answer still
+    # moves once it has stopped moving systematically. That is a numerical
+    # quantity in the V&V-20 sense, and it sits in the same channel as the
+    # discretization band, which is the other numerical error source.
+    #
+    # It was being passed to `combine_expanded` as `input_2sigma` by both acts
+    # that call this builder, while this table reported the input channel
+    # unquantified. Two things were wrong with that at once. The total came out
+    # wider than the breakdown shown beside it, which a reader has no way to
+    # account for. And the label claimed an INPUT spread: that the velocity,
+    # the density or the geometry had been varied over an assumed distribution.
+    # Nobody assumed one. The inlet is taken as specified, which is what
+    # INPUT_ASSUMED_NOTE says a few lines up, and inventing a spread for it
+    # would be a claim about the case rather than about the solve.
+    #
+    # So it moves here, and the two numerical error sources combine in
+    # quadrature, which is the same rule `combine_expanded` applies across
+    # channels. The note names both contributions so the figure is never a
+    # bare number whose composition has to be guessed.
+    #
+    # The input channel stays unquantified and stays visible as unquantified.
+    # An unmeasured channel reads as unmeasured; it does not read as zero, and
+    # it does not get filled with the nearest number to hand.
+    if settle_2sigma:
+        settle_note = (f"• Iterative convergence: ±{settle_2sigma:.2g} on the "
+                       f"drag coefficient, the spread of the coefficient over "
+                       f"its settled window of {window} iterations.")
+        if numerical_val is None:
+            numerical_val = float(settle_2sigma)
+            numerical_note = numerical_note + " " + settle_note
+        else:
+            numerical_note = (
+                numerical_note + " " + settle_note
+                + f" • This channel combines the two numerical contributions "
+                  f"in quadrature.")
+            numerical_val = math.sqrt(
+                float(numerical_val) ** 2 + float(settle_2sigma) ** 2)
     return uncertainty_channels(
         input_2sigma=None, numerical=numerical_val, model=model_val,
         input_note=input_note,
@@ -2325,11 +2365,15 @@ def main(request: str | None = None, params: dict | None = None,
         wall_inside=(bool(wall["inside"]) if wall else None))
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
-    # The combined 95% band still carries the settled-state scatter of the
-    # result alongside the study bands; the input CHANNEL, being the freestream
-    # envelope, is honestly unquantified above.
+    # The settled-state scatter is already inside `numerical_val`, folded in by
+    # `certificate_channels`, because it is iterative convergence noise and
+    # belongs to the numerical channel (ruling R7). It used to be passed here
+    # as `input_2sigma`, which both widened the total past the channel table
+    # shown beside it and labelled the solve's own residual wobble as an input
+    # spread nobody assumed. The input channel is unquantified above and is
+    # unquantified here.
     combined = uq_studies.combine_expanded(
-        input_2sigma=2 * drag['sigma'], numerical_abs=numerical_val,
+        input_2sigma=None, numerical_abs=numerical_val,
         model_abs=model_val)["combined_95"]
     if emit:
         # No envelope subtitle on the headline: the band beside the value is

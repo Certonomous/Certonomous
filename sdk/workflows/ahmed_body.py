@@ -879,9 +879,33 @@ def main(request: str | None = None, params: dict | None = None,
         wall_inside=(bool(wall["inside"]) if wall else None))
     numerical_val = channels["channels"][1]["value"]
     model_val = channels["channels"][2]["value"]
-    combined = uq_studies.combine_expanded(
-        input_2sigma=2 * drag['sigma'], numerical_abs=numerical_val,
-        model_abs=model_val)["combined_95"]
+    # The settled-state scatter is already inside `numerical_val`, folded in by
+    # `certificate_channels`, because it is iterative convergence noise and
+    # belongs to the numerical channel (ruling R7). It used to be passed here
+    # as `input_2sigma`, which both widened the total past the channel table
+    # shown beside it and labelled the solve's own residual wobble as an input
+    # spread nobody assumed. The input channel is unquantified above and is
+    # unquantified here.
+    budget = uq_studies.combine_expanded(
+        input_2sigma=None, numerical_abs=numerical_val,
+        model_abs=model_val)
+    combined = budget["combined_95"]
+    # The Reference column of the combined-band row NAMES THE CHANNELS THAT ARE
+    # IN THE TOTAL, and it names them by asking the total which ones those
+    # were. It used to be the literal "Input, numerical and model channels",
+    # which was already generous and became wrong the moment the input channel
+    # stopped contributing: a row cannot cite a channel the number does not
+    # contain. A missing channel is not a small channel.
+    contributed = [name for name in ("input", "numerical", "model")
+                   if name in budget["contributions"]]
+    if len(contributed) > 1:
+        combined_basis = (", ".join(contributed[:-1]) + " and "
+                          + contributed[-1] + " channels")
+    elif contributed:
+        combined_basis = contributed[0] + " channel"
+    else:
+        combined_basis = "no quantified channel"
+    combined_basis = combined_basis[0].upper() + combined_basis[1:]
     if emit:
         emit("result.verdict", {"quantity": "Drag coefficient",
                                 "value": f"{drag['value']:.4g}",
@@ -950,7 +974,7 @@ def main(request: str | None = None, params: dict | None = None,
     verdict_rows.append(
         ["Band (95%) on C_d, all channels combined",
          f"±{(combined if combined else 2 * drag['sigma']):.2g}",
-         "Input, numerical and model channels", "Measured"])
+         combined_basis, "Measured"])
     # BEYOND KATIE'S LIST: the verdict is a ruling, and she made the hump's
     # verdict line the researcher's (her item 4). Same speaker here.
     _emit_table(emit, script, role=_CR_ROLE, title="Verdict",
