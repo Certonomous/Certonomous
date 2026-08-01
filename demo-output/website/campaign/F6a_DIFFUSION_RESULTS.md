@@ -235,6 +235,34 @@ and kEpsilon's 0.0159. Note the pairing (starred): slightly MORE stress
 than SST, slightly LONGER mean bubble — a mild inversion against H's
 cross-model monotonicity, carried into T2 scoring as such.
 
+## T2: SSG genuinely converges on the realizable IC — the first settled Reynolds-stress closure on the hump
+
+`f6a_diff_SSG_v3_20260801T011637Z.log`: `CONVERGED: solver printed 'SIMPLE
+solution converged in 22559 iterations'` — a real gate this time, checked
+against the same standard that exposed its two earlier false gates: zero
+`bounding epsilon` events in the entire log, every field's Initial residual
+under its control (R components decayed monotonically at ~x0.85/1000
+iterations for 20k+ iterations; endTime was proactively extended 30000→60000
+at iter ~14,000 when extrapolation showed the cap would truncate — extension
+of the same kind as kOmega's, no other change), and a single clean bubble.
+BCs at the channel-1 family standard (the v2 lowReCorrection was reverted —
+the blowups were the IC's fault, not the wall treatment's).
+
+| quantity | SSG | context |
+| --- | --- | --- |
+| separation x/c | 0.6664 | experiment 0.6650: −0.2%, closest separation of any model in the study |
+| reattachment x/c | **1.1630** | **+5.72%** vs experiment; between kEpsilon (+3.97%) and SA (+9.65%) |
+| peak\|R_xz\|/Uinf² | 0.011122 (0.007852, 0.011439, 0.014076) | below SST's 0.013153 |
+
+kEpsilon (1.1437, +3.97%) remains the closest single check —
+`D9_TALKING_POINTS.md` unaffected.
+
+Interim T2 with SSG (n=6 gate-met+SA set): Spearman rho = **−0.600**;
+including the a1=0.40 variant as the labeled secondary set (n=7): **−0.679**.
+SSG itself is a rank inversion against H (less stress than SST, much shorter
+bubble) — its stress-anisotropy transport evidently does work its scalar
+peak-stress metric does not capture. Final scoring waits on EBRSM.
+
 ## Run ledger (appended as runs settle)
 
 - 2026-08-01T00:04Z `f6a_diff_SST_control` — CONVERGED 1795 iter, 0.6544 / 1.2534. Template gate passed.
