@@ -45,7 +45,8 @@ identically placed.
 | A1 NACA0012 (4 032 cells, 10 DVs) | **2** — the count the published number was measured at | `W5-regrade/a1_unpatched_stock.log` | `W5-regrade/a1_patched_patched.log` | 65 s + 53 s wall at 2 ranks = **3.9 core-min** |
 | A4 Ahmed coarse (2 777 cells, 1 scalar shape DV) | **4** | `W5-regrade/a4_stock_checktotals.log` | `W5-regrade/a4_patched_checktotals.log` | 47 s + 58 s wall at 4 ranks = **7.0 core-min** |
 | A5 U-bend, pressure-loss (4 800 cells, 27 shape DVs) | **4** | `W5-regrade/a5pl_stock_checktotals.log` | `W5-regrade/a5pl_patched_checktotals.log` | 235 s + 250 s wall at 4 ranks (contended) = **32.3 core-min** |
-| A2 MACH wing (38 304 cells, 105 DVs) | **4** | published `check_totals` attempt 2 (`A2_mach_tutorial_wing.md:40`) | `W5-regrade/a2_patched_checktotals.log` | patched run only, see §3a |
+| A2 MACH wing (38 304 cells) | **4** | `W5-regrade/a2_twist_stock_checktotals.log` | `W5-regrade/a2_twist_patched_checktotals.log` | twist subset only — see §3a for why the published configuration could not be run |
+| naca0015 sail coarse (63 920 cells, 8 shape DVs) | **3** — the count the published number was measured at | `W5-regrade/sail_stock_checktotals.log` | `W5-regrade/sail_patched_checktotals.log` | ≈1 170 s each at 3 ranks (contended) = **117.0 core-min** |
 
 **One case that is NOT in that table, and why.** The U-bend case sitting in the
 patch tree (`W5-patch/a5_case`) is **not** the case the published A5 number came
@@ -356,6 +357,47 @@ perturbations, deliberately, to give its four cores back to the A2 run**, and
 produced no table. Recorded so the log's existence is not later mistaken for a
 result.
 
+## 4b. naca0015 sail — a published **PASS** that was also 99.5% defect
+
+The one remaining regradeable shape-gradient claim. `naca0015_sail_coarse`
+(63 920 cells, 8 shape DVs), np=3 — the rank count the published run used —
+`step=1e-3 central abs`, stock then patched, concurrently. Published source:
+`DAFOAM_CASE_STATUS.md:117-118`.
+
+| derivative | published | **stock re-run** | **patched** | FD moved? |
+| --- | --- | --- | --- | --- |
+| CD wrt patchV | 0.017% | **0.0172%** | **0.0172%** | no |
+| **CD wrt shape (8)** | **4.52%** | **4.5230%** | **0.0246%** | no |
+| CL wrt patchV | 0.032% | **0.0316%** | **0.0316%** | no |
+| **CL wrt shape (8)** | **0.53%** | **0.5303%** | **0.0125%** | no |
+| `volcon`/`thickcon`/`rcon` wrt shape | ≈7e-14 | **0.0000%** | **0.0000%** | no |
+
+Analytic magnitudes: CD/shape `1.984503e-01 → 2.042422e-01` against an FD of
+`2.024437e-01` identical in both. Every FD identical; every non-shape row
+identical to four significant figures; the geometric constraints unmoved.
+
+**Verdicts.**
+
+* **S19 (`naca0015_sail_coarse` CD wrt shape = 4.52%, graded PASS): HOLDS as
+  published, and closes to 0.0246%.** The error was **99.5% rotation defect**.
+* **S20 (CL wrt shape 0.53%): HOLDS, closes to 0.0125%** — 97.6% defect.
+* **The comparative claim attached to them does NOT survive.**
+  `DAFOAM_CASE_STATUS.md:118` grades this case *"PASS, cleanly (≤5% aggregate, no
+  flags) — better-behaved than the official NACA0012 tutorial (A1) on the same
+  class of derivative."* Under the corrected derivative the sail reads **0.0246%**
+  and A1 reads **0.0374%**. They are the same case to within a factor of 1.5.
+  **The sail was never better-behaved than A1; it was carrying less of the same
+  defect.** `ACTIVE_RESEARCH.md:333-347` already struck a comparison of this
+  shape for A1; this is the same error made in the other direction, and it is
+  struck on measurement.
+
+**And this is the third independent case, on a third geometry, where the four
+lines collapse a shape-derivative error to FD-truncation level** — A1 (0.037%),
+A5 (2.24%), the sail (0.025%). Against A4, which does not close. The pattern is
+now four cases wide and it says the "1–12% normal band for this problem class"
+that `A2_mach_tutorial_wing.md:44` was graded against **was not a property of the
+problem class at all.** It was one upstream bug, measured four times.
+
 ## 5. Cost, against the estimate — and it went over
 
 `est_core_min` was **300.0**. Measured, every figure from a run record, rank
@@ -371,9 +413,10 @@ count stated:
 | A2 preserved case, **failed at 132/211** | 4 | 3 576 s | **238.4 — spent, no table** |
 | A2 mesh rebuild + `run_model` | 4 | 75 s | 5.0 |
 | A2 twist stock + patched | 4 | 700 s + 700 s | **93.4** |
-| **subtotal** | | | **≈503 core-min against 300** |
+| naca0015 sail stock + patched | 3 | ≈1 170 s each | **117.0** |
+| **total** | | | **≈620 core-min against 300** |
 
-**Two-thirds of that — 333 core-minutes — bought no derivative table.** The A2
+**333 core-minutes of that — over half — bought no derivative table.** The A2
 failure (238) and the deliberately stopped A5 stock-objective run (95) are the
 whole overrun and then some; the six runs that produced numbers cost 141
 core-minutes between them, well inside the estimate.
