@@ -1,0 +1,80 @@
+diff --git a/src/adjoint/outputForward/vectorUtils_d.f90 b/src/adjoint/outputForward/vectorUtils_d.f90
+index 1569c87..82b6fa2 100644
+--- a/src/adjoint/outputForward/vectorUtils_d.f90
++++ b/src/adjoint/outputForward/vectorUtils_d.f90
+@@ -28,6 +28,8 @@
+    REAL(kind=realtype), DIMENSION(3) :: v1b
+    REAL(kind=realtype) :: temp
+    REAL(kind=realtype) :: temp0
++   ! HAND FIX 2026-07-31: tangent of the degenerate branch (see end of routine).
++   REAL(kind=realtype), DIMENSION(3) :: wfix
+    CALL GETMAG(v1, magv1)
+    CALL GETMAG_D(v2, v2b, magv2, magv2b)
+    ! Start by determining the rotation axis by getting the
+@@ -126,6 +128,26 @@
+    temp0 = one - COS(angle)
+    mib = (a*COS(angle)+c*SIN(angle))*angleb + temp*ab + temp0*cb
+    mi = mi + temp*a + temp0*c
++   ! === HAND FIX 2026-07-31 (proof of concept; not from Tapenade) ==========
++   ! In the degenerate branch (axismag < tol) the code above sets
++   ! axisb = 0 and angleb = 0, so mib comes out exactly zero -- but the true
++   ! map Mi(v1, v2) is smooth at v2 = v1 with the finite tangent
++   !     dMi = [ (v1 x v2d) ]_x / (magv1 magv2)
++   ! (v2b is Tapenade's name for the incoming tangent v2d).  Derivation:
++   ! PATCH_getRotationMatrix3d.md sections 2 and 4.  Skew convention matches
++   ! the primal's A matrix.  axismag is still in scope from GETMAG_D above.
++   IF (axismag .LT. tol) THEN
++   wfix(1) = (v1(2)*v2b(3)-v1(3)*v2b(2))/(magv1*magv2)
++   wfix(2) = (v1(3)*v2b(1)-v1(1)*v2b(3))/(magv1*magv2)
++   wfix(3) = (v1(1)*v2b(2)-v1(2)*v2b(1))/(magv1*magv2)
++   mib(1, 2) = mib(1, 2) - wfix(3)
++   mib(1, 3) = mib(1, 3) + wfix(2)
++   mib(2, 1) = mib(2, 1) + wfix(3)
++   mib(2, 3) = mib(2, 3) - wfix(1)
++   mib(3, 1) = mib(3, 1) - wfix(2)
++   mib(3, 2) = mib(3, 2) + wfix(1)
++   END IF
++   ! === END HAND FIX =======================================================
+    END SUBROUTINE GETROTATIONMATRIX3D_D
+       !  Differentiation of cross_product_3d in forward (tangent) mode (with options noISIZE i4 dr8 r8):
+    !   variations   of useful results: cross
+diff --git a/src/adjoint/outputReverse/vectorUtils_b.f90 b/src/adjoint/outputReverse/vectorUtils_b.f90
+index 1ff503a..822b01e 100644
+--- a/src/adjoint/outputReverse/vectorUtils_b.f90
++++ b/src/adjoint/outputReverse/vectorUtils_b.f90
+@@ -26,6 +26,9 @@
+    INTRINSIC SIN
+    INTRINSIC COS
+    REAL(kind=realtype), DIMENSION(3) :: v1b
++   ! HAND FIX 2026-07-31: axial vector of (mib - mib^T), used by the
++   ! corrected degenerate-branch derivative below.
++   REAL(kind=realtype), DIMENSION(3) :: axialmib
+    INTEGER :: branch
+    CALL GETMAG(v1, magv1)
+    CALL GETMAG(v2, magv2)
+@@ -126,6 +129,25 @@
+    magv2b = 0.0_8
+    axisb = 0.0_8
+    axismagb = 0.0_8
++   ! === HAND FIX 2026-07-31 (proof of concept; not from Tapenade) ==========
++   ! The primal's axisMag < tol branch replaces the removable coordinate
++   ! singularity of the (normalize-cross-product + acos) parameterisation at
++   ! v2 = v1 with the constant angle = 0.  Tapenade correctly differentiates
++   ! that constant to zero, but the true map Mi(v1, v2) is smooth there with
++   !     dMi = [ (v1 x dv2) ]_x / (|v1| |v2|)
++   ! ([.]_x = the same skew convention as the primal's A matrix).  Its exact
++   ! reverse form, derived in PATCH_getRotationMatrix3d.md sections 2-3, is
++   !     v2b += ( axial(mib - mib^T) x v1 ) / (magv1 magv2)
++   ! magv1/magv2 were recomputed by the forward sweep at the top of this
++   ! routine.  The three zeroed intermediates above stay zeroed: the dummy-
++   ! axis path really does carry zero; this adds the term that path lost.
++   axialmib(1) = mib(3, 2) - mib(2, 3)
++   axialmib(2) = mib(1, 3) - mib(3, 1)
++   axialmib(3) = mib(2, 1) - mib(1, 2)
++   v2b(1) = v2b(1) + (axialmib(2)*v1(3)-axialmib(3)*v1(2))/(magv1*magv2)
++   v2b(2) = v2b(2) + (axialmib(3)*v1(1)-axialmib(1)*v1(3))/(magv1*magv2)
++   v2b(3) = v2b(3) + (axialmib(1)*v1(2)-axialmib(2)*v1(1))/(magv1*magv2)
++   ! === END HAND FIX =======================================================
+    ELSE
+    IF (arg .EQ. 1.0 .OR. arg .EQ. (-1.0)) THEN
+    argb = 0.0_8

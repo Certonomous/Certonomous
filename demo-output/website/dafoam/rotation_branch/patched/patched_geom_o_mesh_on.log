@@ -1,0 +1,62 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+IDWARP_IMPORTED_FROM: /mnt/idwarp/idwarp/__init__.py
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+GEOM === case=o_mesh useRotations=True grid=input_files/o_mesh.cgns disp=shear ===
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'CGNS',
+ 'gridFile': 'input_files/o_mesh.cgns',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': None,
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+  -> Reading CGNS File: input_files/o_mesh.cgns
+    -> Number of Zones:          79
+#------------------------------#
+ Total Volume Nodes :     37615 
+#------------------------------#
+/mnt/idwarp/idwarp/UnstructuredMesh.py:155: UserWarning: Using internally generated IDWarp surfaces. If this mesh object is to be used with an external solver, ensure the mesh object is passed to the solver immediatedly after it is created. The external solver must then call 'setExternalMeshIndices()' and 'setSurfaceDefinition()' routines.
+  self._setInternalSurface()
+#--------------------------------#
+ Unique Surface Nodes :      1239 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000  -0.000  -0.000)    ( -0.000   0.000   1.000) |
++--------------------------------------------------------+
+GEOM_ANFINGERPRINT case=o_mesh useRotations=True sum(dXs)=5.272661691684423e+04 ||dXs||=6.419739133765995e+03
+GEOM_VERIFY case=o_mesh useRotations=True ===
+ Welcome to verifyWarpDeriv
+ Checking           11  degrees of freedom
+ Doing centered differnce with h:   9.9999999999999995E-007
+ Running AD Version
+DOF:    0 OrigVal:  0.277372517670E-01 AD:  37.7709446404     FD:  37.7709447220     Err(%): 0.2159922338E-06
+DOF:    1 OrigVal: -0.466645120007E-01 AD:  15.0230079541     FD:  15.0230079183     Err(%):-0.2380707462E-06
+DOF:    2 OrigVal:   0.00000000000     AD: -18.3406672297     FD: -18.3406671365     Err(%):-0.5082127202E-06
+DOF:    3 OrigVal:  0.810425014665E-02 AD:  29.5917781041     FD:  29.5917781266     Err(%): 0.7611227482E-07
+DOF:    4 OrigVal: -0.262209872942E-01 AD: -18.8825073304     FD: -18.8825070877     Err(%):-0.1285740522E-05
+DOF:    5 OrigVal:   0.00000000000     AD: -18.1866527158     FD: -18.1866527694     Err(%): 0.2949229826E-06
+DOF:    6 OrigVal: -0.177722915490E-02 AD:  16.1514235117     FD:  16.1514237115     Err(%): 0.1236717656E-05
+DOF:    7 OrigVal: -0.377172052364E-04 AD: -35.9697684047     FD: -35.9697686444     Err(%): 0.6663602142E-06
+DOF:    8 OrigVal:   0.00000000000     AD: -5.40707490868     FD: -5.40707511639     Err(%): 0.3841624099E-05
+DOF:    9 OrigVal:  0.798930445007E-02 AD: 0.505950131449     FD: 0.505950046191     Err(%):-0.1685122212E-04
+DOF:   10 OrigVal:  0.261649698049E-01 AD: -28.1989660670     FD: -28.1989660817     Err(%): 0.5213100512E-07
+DOF:   11 OrigVal:   0.00000000000     AD:  8.18635367008     FD:  8.18635383022     Err(%): 0.1956159966E-05
+GEOM_DONE case=o_mesh useRotations=True

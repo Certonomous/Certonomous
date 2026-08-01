@@ -1,0 +1,7 @@
+PRIMAL_BITCHECK idwarp from: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/idwarp/__init__.py
+PRIMAL_BITCHECK saved Xv_unpatched.npy shape (310284,) norm 4.41842900691837804e+03
+PRIMAL_BITCHECK idwarp from: /mnt/idwarp/idwarp/__init__.py
+PRIMAL_BITCHECK saved Xv_patched.npy shape (310284,) norm 4.41842900691837804e+03
+PRIMAL_BITCHECK md5 unpatched: 8fafe12f848af490a5041c865112b5fb
+PRIMAL_BITCHECK md5 patched:   8fafe12f848af490a5041c865112b5fb
+PRIMAL_BITCHECK BIT-IDENTICAL: True  max|diff| = 0.0

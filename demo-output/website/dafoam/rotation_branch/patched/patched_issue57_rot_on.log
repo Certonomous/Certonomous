@@ -1,0 +1,61 @@
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+IDWARP_IMPORTED_FROM: /mnt/idwarp/idwarp/__init__.py
+WARNING 7: VSPAERO Viewer Not Found. 
+	Expected here: /home/dafoamuser/dafoam/packages/miniconda3/lib/python3.10/site-packages/openvsp/vspviewer
+==============================================================================
+ISSUE57 inflate_cube  useRotations=True
+==============================================================================
++----------------------------------------+
+|          All IDWarp Options:           |
++----------------------------------------+
+{'LdefFact': 1.0,
+ 'aExp': 3.0,
+ 'alpha': 0.25,
+ 'bExp': 5.0,
+ 'bucketSize': 8,
+ 'cornerAngle': 30.0,
+ 'errTol': 0.0005,
+ 'evalMode': 'fast',
+ 'fileType': 'CGNS',
+ 'gridFile': 'input_files/symm_block.cgns',
+ 'restartFile': None,
+ 'specifiedSurfaces': None,
+ 'symmTol': 1e-06,
+ 'symmetryPlanes': None,
+ 'symmetrySurfaces': None,
+ 'useRotations': True,
+ 'zeroCornerRotations': True}
+  -> Reading CGNS File: input_files/symm_block.cgns
+    -> Number of Zones:           3
+#------------------------------#
+ Total Volume Nodes :    103428 
+#------------------------------#
+/mnt/idwarp/idwarp/UnstructuredMesh.py:155: UserWarning: Using internally generated IDWarp surfaces. If this mesh object is to be used with an external solver, ensure the mesh object is passed to the solver immediatedly after it is created. The external solver must then call 'setExternalMeshIndices()' and 'setSurfaceDefinition()' routines.
+  self._setInternalSurface()
+#--------------------------------#
+ Unique Surface Nodes :      1951 
+#--------------------------------#
+ Computing Denominator Estimate...
+ Load Balancing...
+ Finished Mesh Initialization.
++-------------------- Symmetry Planes -------------------+
+|           Point                        Normal          |
+| (  0.000   0.000   0.000)    (  0.000   1.000   0.000) |
+| (  0.000   0.000   0.000)    (  0.000   0.000  -1.000) |
+| (  0.000   0.000   0.000)    ( -1.000   0.000   0.000) |
++--------------------------------------------------------+
+ISSUE57 Sum of vCoords Warped: 1.784392128944467e+06
+ISSUE57_ANFINGERPRINT useRotations=True sum(dXs)=3.229531100101105e+04 ||dXs||=1.100755884774263e+03
+ISSUE57_VERIFY === verifyWarpDeriv(dofStart=0, dofEnd=5) h=1e-06 ===
+ Welcome to verifyWarpDeriv
+ Checking            5  degrees of freedom
+ Doing centered differnce with h:   9.9999999999999995E-007
+ Running AD Version
+DOF:    0 OrigVal:   1.10000000000     AD: -115.875779229     FD: -115.875789153     Err(%): 0.8563971860E-05
+DOF:    1 OrigVal:   0.00000000000     AD:  1.88269575176     FD:  1.88269497594     Err(%):-0.4120795059E-04
+DOF:    2 OrigVal:   0.00000000000     AD:  2.61198372778     FD:  2.61198227780     Err(%):-0.5551261066E-04
+DOF:    3 OrigVal:   1.10000000000     AD: -94.3795529610     FD: -94.3795845788     Err(%): 0.3350068772E-04
+DOF:    4 OrigVal:  0.480000000000E-01 AD:  1.89116899242     FD:  1.89116821661     Err(%):-0.4102264356E-04
+DOF:    5 OrigVal:   0.00000000000     AD:  2.61332356901     FD:  2.61332211902     Err(%):-0.5548451576E-04
+ISSUE57_VERIFY === done useRotations=True ===

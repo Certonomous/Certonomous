@@ -170,3 +170,115 @@ unpatched code there, proving the patch touches only the degenerate branch.
 
 Test 4 and the §5 non-degenerate bit-identity check are the adversarial half: a patch that
 "fixed" things by zeroing or smearing the comparison would fail them.
+
+---
+
+# Results (written after the runs; sections 1-7 above were committed before any code existed)
+
+## 8. The controlled unit experiment (§5): PASS, with two instructive failures on the way
+
+Driver: `rotation_branch/patch_unittest/test_rotderiv.f90`, compiled against the patched clone
+inside the pinned image. Logs: `patch_unittest/unittest_run{1,2}.log` (the failures),
+`unittest_final.log` (the pass).
+
+| check | result |
+|---|---|
+| T1 hand answer (`v1=z`, `mib=e_13` → `v2b=(1,0,0)`) | **exact to machine precision** (`1.000000000000000E+00 0.0 0.0`) |
+| T2 reverse vs FD of shipped primal, `v2 == v1`, 20 random draws | worst 6.6e-07 (FD-truncation-limited) |
+| T2r reverse vs Richardson-FD of the independent singularity-free form | **worst 2.8e-10** |
+| T3/T3r inside the guard, tilt 1e-9 rad | 7.1e-07 / 6.6e-08 (the expected O(guard width) linearisation offset) |
+| T4 live branch, tilt 0.1 rad | 6.8e-07 (FD-limited; patch inert there) |
+| T5 forward-mode vs reverse-mode | **worst 4.3e-15** |
+
+The two intermediate failures are kept on the record because both were reference defects, not
+patch defects, and both are the investigation's own phenomena appearing in miniature. Run 1 used
+`h = 1e-6`: the FD reference then samples the shipped primal at tilt ~1e-6 rad, where the
+`acos`-near-1 conditioning error is ~eps/h² ≈ 2e-4 — **the report's "second regime", showing up in
+the reference itself** — measured 2.0e-3/3.9e-3. Run 2 (`h = 1e-4`) left ~7e-7 on all FD checks
+including the live-branch T4, identifying it as central-difference truncation; Richardson
+extrapolation of the independent reference removed it (T2r 2.8e-10).
+
+## 9. Acceptance results: all five pass
+
+### 9.1 Upstream's own `inflate_cube` verification (issue #57), rotations ON
+
+`rotation_branch/patched/patched_issue57_rot_on.log` vs `rotation_branch/issue57_rot_on.txt`:
+
+| DOF | AD before | AD after | FD (unchanged) | err before | err after |
+|---|---|---|---|---|---|
+| **0** | 2.87055669475 | **−115.875779229** | −115.875789153 | **210.16%** | **8.56e-06%** |
+| 1 | 1.88269575176 | 1.88269575176 | 1.88269497594 | −4.12e-05% | −4.12e-05% |
+| 2 | 2.61198372778 | 2.61198372778 | 2.61198227780 | −5.55e-05% | −5.55e-05% |
+| **3** | 2.88621881905 | **−94.3795529610** | −94.3795845788 | **212.62%** | **3.35e-05%** |
+| 4 | 1.89116899242 | 1.89116899242 | 1.89116821661 | −4.10e-05% | −4.10e-05% |
+| 5 | 2.61332356901 | 2.61332356901 | 2.61332211902 | −5.55e-05% | −5.55e-05% |
+
+The **AD moved to the already-converged FD**, not the reverse — the direction a genuine fix must
+move and a comparison-zeroing artifact could not. The in-plane DOFs 1, 2, 4, 5 (the guard's
+correct-zero directions) are untouched to every printed digit. `sum(dXs)` is unchanged at
+`3.229531100101105e+04` (§4.2(b)'s blindness result, reconfirmed from the other side) while
+`||dXs||` goes `4.572421801411781e+02 → 1.100755884774263e+03` — the rotation term is now *in*
+the derivative. **The five-year-old open bug's numbers are answered by a four-line derivative
+correction.**
+
+### 9.2 A1 NACA0012, real `dCD/dXv` seed (`rotation_branch/patched/A1P_realseed.log`)
+
+| idx | before (realseed record) | after, h=1e-4 | sign |
+|---|---|---|---|
+| 0 | 11.92% (`realseed_idx01_out.log`) | **1.23e-05%** | agree |
+| 1 | 11.58% (`realseed_idx01_out.log`) | **1.26e-05%** | agree |
+| 4 (control) | 2.65% | **1.47e-04%** | agree |
+| **6 (LE combo)** | **634.0%, FLIPPED** | **5.54e-04%** | **agree** |
+| 7 (TE combo) | 1.74% | **1.31e-06%** | agree |
+
+idx6's AN was `+5.6907e-03` against FD `−1.0656e-03`; it is now `−1.065632643e-03` against FD
+`−1.065638548e-03`. **Both of A1's distinct-looking defects — the sign-flipped combo mode and the
+11.6–11.9% single-station residual of PROOF §21 — collapse under the same four lines**, confirming
+they were one mechanism at two magnitudes.
+
+### 9.3 A5 UBend, real seed (`rotation_branch/patched/A5P_pl_real_rotON.log`, `A5P_stock_real_rotON.log`)
+
+Pressure-loss objective, rotations ON:
+
+| idx | before | after | AN after / FD (unchanged) |
+|---|---|---|---|
+| 2 | 2.65% | 2.6e-06 | −4.06881224e-01 / −4.06880154e-01 |
+| 3 | 177.8% | 3.4e-06 | 7.08625443e-01 / 7.08623060e-01 |
+| **8** | **207.0% FLIP** | **3.0e-06** | 7.87900742e-01 / 7.87898342e-01 |
+| 15 | 42.9% | 6e-08 | −2.42564280e+01 / −2.42564294e+01 |
+| **17** | **121.6% FLIP** | **7.0e-06** | 2.91313528e+00 / 2.91315567e+00 |
+| 26 | 3.02% | 2.3e-06 | −1.89917091e+00 / −1.89917527e+00 |
+
+Stock objective: all 27 components print rel_err 0.0000 (worst residual at idx24, ~5e-06),
+against a before-worst of 80.79%. The framework's own `dOBJ/dDV` column now equals the FD of the
+warp — **the end-to-end gradient is fixed, not just the isolated function.**
+
+And §4.8's honest partial result is retroactively resolved: the rigid-translation control's
+unexplained 1.7%/2.8% y/z residuals — attributed to patch-junction elements tilting — are now
+**3.8e-09 and 6.2e-09** with rotations ON. That attribution is thereby *proven*: the residual was
+exactly the discarded junction-rotation term, and supplying the term removes it.
+
+### 9.4 Regression control: the live branch is untouched
+
+`repro_geometries.py`, rotations ON, patched vs unpatched: the `verifyWarpDeriv` DOF lines are
+**bit-identical** (every printed digit of AD, FD, and Err) for `o_mesh`, `co_mesh`, `sym_mesh` —
+worst errors 1.685e-05% / 3.856e-05% / 6.919e-06%, unchanged — **and for `onera_m6`, whose 1.258%
+second-regime error is unchanged**, exactly as §6 predicted for a patch that only touches the
+degenerate branch. Logs: `rotation_branch/patched/patched_geom_*_on.log`.
+
+### 9.5 Primal invariance, strict form
+
+`rotation_branch/patched/primal_bitcheck.log`: the full 310,284-coordinate warped grid of the
+deformed `inflate_cube` case, dumped patched and unpatched: **md5-identical
+(`8fafe12f848af490a5041c865112b5fb`), max|diff| = 0.0.** A5's `||Xv0||` fingerprint
+(`5.180082220691975e+01`) and inflate_cube's `Sum of vCoords Warped`
+(`1.784392128944467e+06`) also match every digit. The patch touches only derivative code.
+
+## 10. What remains true after the fix
+
+- The **second regime is real and untouched**: onera_m6's ~1.26% (§9.4) survives the patch, as
+  predicted. The full upstream fix is the reparameterisation in §6, which subsumes both regimes.
+- The patch is a **proof of concept on the generated file**; upstream should fix the primal's
+  parameterisation and regenerate, not merge a hand-edit of Tapenade output.
+- Diff: `rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch` (2 files, +44 lines, all in
+  `src/adjoint/output{Reverse,Forward}/vectorUtils_{b,d}.f90`).
