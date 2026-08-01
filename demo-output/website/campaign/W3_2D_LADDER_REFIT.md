@@ -99,6 +99,33 @@ stated reason alone", and it returns two entries here. Nothing in the act
 surfaces it. Correcting the order alone would not have moved the wedge, and a
 reader of the transcript has no way to know that. A follow-on is filed.
 
+### 4a. Correction, 2026-08-01: this section's digits came from rounded rungs
+
+`w3-every-guard-that-holds-a-ladder` re-read the wedge through the act's own
+fit rather than through this file's, and the two do not agree on the number.
+**This section fitted the rungs as the act's ladder table PRINTS them**, at
+three decimals: 47.588 / 46.123 / 44.693. The act fits what it solved:
+47.58767882153372 / 46.12330850878531 / 44.692792746510406.
+
+| | p | increments (deg) | amplification | extrapolated shock angle (deg) |
+| --- | --- | --- | --- | --- |
+| rungs as printed (this file, §4) | 0.035 | −1.465, −1.430 | 40.86 | **−13.733** |
+| rungs as solved (the act's own fit) | 0.034 | −1.46437, −1.43052 | 42.25 | **−15.753** |
+
+Both readings are on the record and neither is withdrawn. At an observed order
+this close to zero the extrapolation amplifies the finest increment by more
+than forty, so rounding the rungs at the third decimal moves the extrapolated
+angle by **2.02 degrees**. Nothing that decides anything moves: `guards_failed`
+is `['order_window', 'extrapolation_sanity']` on both, `conclusive` is False on
+both, `reportable_band` is `None` on both, and the angle is impossible on both.
+The act quotes the fit that ran; `sdk/tests/test_uq.py`
+(`test_rounding_the_rungs_moves_the_digit_and_not_the_verdict`) pins the pair.
+
+The same caution applies to §2's other observed orders, which were all fitted
+from rungs as displayed: the act's own fits read 0.801 → 0.800 (cone), 6.233 →
+6.296 (diamond) and 2.436 → 2.430 (vortex shedding). None of those changes a
+guard or a verdict either.
+
 ## 5. Cost
 
 `est_core_min` 20.0 on the docket. **Measured: no compute at all**, 0.0

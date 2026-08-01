@@ -1,0 +1,600 @@
+{
+ "id": "W3_GUARD_SWEEP",
+ "item": "w3-every-guard-that-holds-a-ladder",
+ "measured_utc": "2026-08-01",
+ "method": "every ladder in this tree refitted through chief_engineer.uq.eca_hoekstra_band and read through uq.guards_holding and uq.reportable_band. No solve was run and no measured value was changed. Every curriculum record reproduced its own guards_failed and conclusive exactly, which is asserted in the writer.",
+ "ladders": [
+  {
+   "ladder": "ahmed_25",
+   "cells": [
+    20621,
+    45753,
+    79439
+   ],
+   "dim": 3,
+   "observed_order": 1.95,
+   "richardson_extrapolated": 0.07327589152491365,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/ahmed_25.json"
+  },
+  {
+   "ladder": "ahmed_35",
+   "cells": [
+    20425,
+    45813,
+    79778
+   ],
+   "dim": 3,
+   "observed_order": 3.169,
+   "richardson_extrapolated": 0.07392914303370804,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "agreed_before": false,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/ahmed_35.json"
+  },
+  {
+   "ladder": "airliner-wing",
+   "cells": [],
+   "dim": null,
+   "observed_order": null,
+   "richardson_extrapolated": null,
+   "conclusive": null,
+   "reportable_band": null,
+   "guards_failed": [],
+   "guard_narrated_before": null,
+   "guards_narrated_now": [],
+   "agreed_before": true,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/airliner-wing.json",
+   "note": "no numerical channel on this record"
+  },
+  {
+   "ladder": "aortic-valve",
+   "cells": [],
+   "dim": null,
+   "observed_order": null,
+   "richardson_extrapolated": null,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "not_a_discretization_ladder"
+   ],
+   "guard_narrated_before": "not_a_discretization_ladder",
+   "guards_narrated_now": [
+    "not_a_discretization_ladder"
+   ],
+   "agreed_before": true,
+   "narrated_by": "valve act",
+   "source": "models/curriculum/uq-studies/aortic-valve.json",
+   "note": "not a mesh ladder; excluded by the structural guard"
+  },
+  {
+   "ladder": "b52",
+   "cells": [
+    40656,
+    107489,
+    135779,
+    193880,
+    255358,
+    330950
+   ],
+   "dim": 3,
+   "observed_order": 2.253,
+   "richardson_extrapolated": 0.06484210401663687,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "increment_trend",
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "increment_trend",
+   "guards_narrated_now": [
+    "increment_trend",
+    "extrapolation_sanity"
+   ],
+   "agreed_before": false,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/b52.json"
+  },
+  {
+   "ladder": "cube",
+   "cells": [
+    53861,
+    103934,
+    299493
+   ],
+   "dim": 3,
+   "observed_order": null,
+   "richardson_extrapolated": null,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "monotone"
+   ],
+   "guard_narrated_before": "monotone",
+   "guards_narrated_now": [
+    "monotone"
+   ],
+   "agreed_before": true,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/cube.json"
+  },
+  {
+   "ladder": "motorBike",
+   "cells": [
+    14714,
+    66302,
+    353688
+   ],
+   "dim": 3,
+   "observed_order": 7.298,
+   "richardson_extrapolated": 0.42009076129119516,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window"
+   ],
+   "agreed_before": true,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/motorBike.json"
+  },
+  {
+   "ladder": "naca0012_wing",
+   "cells": [
+    27265,
+    67356,
+    140580
+   ],
+   "dim": 3,
+   "observed_order": 3.173,
+   "richardson_extrapolated": 0.003359066201011906,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window",
+    "increment_trend",
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window",
+    "increment_trend",
+    "extrapolation_sanity"
+   ],
+   "agreed_before": false,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/naca0012_wing.json"
+  },
+  {
+   "ladder": "naca0015_sail",
+   "cells": [
+    63920,
+    156089,
+    243929
+   ],
+   "dim": 3,
+   "observed_order": 1.696,
+   "richardson_extrapolated": 0.005059071051593566,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/naca0015_sail.json"
+  },
+  {
+   "ladder": "naca4412_wing",
+   "cells": [
+    27237,
+    67826,
+    137569
+   ],
+   "dim": 3,
+   "observed_order": 10.467,
+   "richardson_extrapolated": 0.02100015393187187,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window",
+    "increment_trend"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window",
+    "increment_trend"
+   ],
+   "agreed_before": false,
+   "narrated_by": "geometry study act",
+   "source": "models/curriculum/uq-studies/naca4412_wing.json"
+  },
+  {
+   "ladder": "supersonic wedge, shock angle (deg)",
+   "cells": [
+    1800,
+    7200,
+    28800
+   ],
+   "dim": 2,
+   "observed_order": 0.034,
+   "richardson_extrapolated": -15.753301426795012,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "agreed_before": false,
+   "narrated_by": "supersonic wedge act",
+   "source": "the act's own fit, captured 2026-08-01"
+  },
+  {
+   "ladder": "supersonic cone, conical shock angle (deg)",
+   "cells": [
+    1800,
+    7200,
+    28800
+   ],
+   "dim": 2,
+   "observed_order": 0.8,
+   "richardson_extrapolated": 26.222999887277304,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "supersonic cone act",
+   "source": "the act's own fit, captured 2026-08-01"
+  },
+  {
+   "ladder": "diamond airfoil, wave drag Cd",
+   "cells": [
+    2000,
+    8000,
+    32000
+   ],
+   "dim": 2,
+   "observed_order": 6.296,
+   "richardson_extrapolated": 0.03623738419145985,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window"
+   ],
+   "agreed_before": true,
+   "narrated_by": "diamond airfoil act",
+   "source": "the act's own fit, captured 2026-08-01"
+  },
+  {
+   "ladder": "hypersonic cylinder, standoff delta/R",
+   "cells": [
+    1000,
+    4000,
+    16000
+   ],
+   "dim": 2,
+   "observed_order": null,
+   "richardson_extrapolated": null,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "monotone"
+   ],
+   "guard_narrated_before": "monotone",
+   "guards_narrated_now": [
+    "monotone"
+   ],
+   "agreed_before": true,
+   "narrated_by": "hypersonic cylinder act",
+   "source": "the act's own fit, captured 2026-08-01"
+  },
+  {
+   "ladder": "cylinder vortex shedding, Strouhal",
+   "cells": [
+    2496,
+    5032,
+    8640
+   ],
+   "dim": 2,
+   "observed_order": 2.43,
+   "richardson_extrapolated": 0.16721463141229342,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "cylinder vortex shedding act",
+   "source": "the act's own fit, captured 2026-08-01"
+  },
+  {
+   "ladder": "TMR flat plate cd 816/3264/13056",
+   "cells": [
+    816,
+    3264,
+    13056
+   ],
+   "dim": 2,
+   "observed_order": 1.083,
+   "richardson_extrapolated": 0.0028816991060355503,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/flatplate_sst.json"
+  },
+  {
+   "ladder": "TMR flat plate cd 3264/13056/52224",
+   "cells": [
+    3264,
+    13056,
+    52224
+   ],
+   "dim": 2,
+   "observed_order": 1.259,
+   "richardson_extrapolated": 0.002872365135190256,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/flatplate_sst.json"
+  },
+  {
+   "ladder": "TMR flat plate cd 13056/52224/208896",
+   "cells": [
+    13056,
+    52224,
+    208896
+   ],
+   "dim": 2,
+   "observed_order": 1.634,
+   "richardson_extrapolated": 0.0028669790535472833,
+   "conclusive": true,
+   "reportable_band": 4.244064059104043e-06,
+   "guards_failed": [],
+   "guard_narrated_before": null,
+   "guards_narrated_now": [],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/flatplate_sst.json"
+  },
+  {
+   "ladder": "TMR flat plate cf_097 816/3264/13056",
+   "cells": [
+    816,
+    3264,
+    13056
+   ],
+   "dim": 2,
+   "observed_order": 1.031,
+   "richardson_extrapolated": 0.002720507539242544,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/flatplate_sst.json"
+  },
+  {
+   "ladder": "TMR flat plate cf_097 3264/13056/52224",
+   "cells": [
+    3264,
+    13056,
+    52224
+   ],
+   "dim": 2,
+   "observed_order": 1.111,
+   "richardson_extrapolated": 0.002715942994937328,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/flatplate_sst.json"
+  },
+  {
+   "ladder": "TMR flat plate cf_097 13056/52224/208896",
+   "cells": [
+    13056,
+    52224,
+    208896
+   ],
+   "dim": 2,
+   "observed_order": 1.528,
+   "richardson_extrapolated": 0.0027086186365987705,
+   "conclusive": true,
+   "reportable_band": 5.084493331132672e-06,
+   "guards_failed": [],
+   "guard_narrated_before": null,
+   "guards_narrated_now": [],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/flatplate_sst.json"
+  },
+  {
+   "ladder": "TMR bump cd 3520/14080/56320",
+   "cells": [
+    3520,
+    14080,
+    56320
+   ],
+   "dim": 2,
+   "observed_order": 0.545,
+   "richardson_extrapolated": 0.003676064951854538,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/bump_sst.json"
+  },
+  {
+   "ladder": "TMR bump cf_station 3520/14080/56320",
+   "cells": [
+    3520,
+    14080,
+    56320
+   ],
+   "dim": 2,
+   "observed_order": 0.963,
+   "richardson_extrapolated": 0.006023778286526637,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "extrapolation_sanity",
+   "guards_narrated_now": [
+    "extrapolation_sanity"
+   ],
+   "agreed_before": true,
+   "narrated_by": "no act narrates a guard for this ladder",
+   "source": "demo-output/website/tmr/bump_sst.json"
+  },
+  {
+   "ladder": "Ahmed constant-ratio ladder c1/c2/c3",
+   "cells": [
+    79439,
+    144240,
+    254911
+   ],
+   "dim": 3,
+   "observed_order": 0.175,
+   "richardson_extrapolated": -0.08447937182447135,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "guard_narrated_before": "order_window",
+   "guards_narrated_now": [
+    "order_window",
+    "extrapolation_sanity"
+   ],
+   "agreed_before": false,
+   "narrated_by": "campaign record",
+   "source": "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md"
+  },
+  {
+   "ladder": "Ahmed constant-ratio ladder c2/c3/c4",
+   "cells": [
+    144240,
+    254911,
+    454691
+   ],
+   "dim": 3,
+   "observed_order": null,
+   "richardson_extrapolated": null,
+   "conclusive": false,
+   "reportable_band": null,
+   "guards_failed": [
+    "monotone"
+   ],
+   "guard_narrated_before": "monotone",
+   "guards_narrated_now": [
+    "monotone"
+   ],
+   "agreed_before": true,
+   "narrated_by": "campaign record",
+   "source": "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md"
+  }
+ ],
+ "multi_guard": [
+  "ahmed_35",
+  "b52",
+  "naca0012_wing",
+  "naca4412_wing",
+  "supersonic wedge, shock angle (deg)",
+  "Ahmed constant-ratio ladder c1/c2/c3"
+ ],
+ "impossible_extrapolation": [
+  {
+   "ladder": "supersonic wedge, shock angle (deg)",
+   "richardson_extrapolated": -15.753301426795012
+  },
+  {
+   "ladder": "Ahmed constant-ratio ladder c1/c2/c3",
+   "richardson_extrapolated": -0.08447937182447135
+  }
+ ]
+}
