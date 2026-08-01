@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T04:51:43Z",
+  "generated_at": "2026-08-01T06:16:56Z",
   "proposals": [
     {
       "id": "w3-valve-band-never-adjudicated",
@@ -2824,6 +2824,62 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-01T04:51:43Z"
+    },
+    {
+      "id": "w6-a-cost-without-a-rank-count-is-not-a-cost",
+      "well": "W6",
+      "objective": "Require every compute estimate to state the rank count it assumes",
+      "rationale": "The high-lift probe measured the same case spanning 1.58 times on rank count alone, and found four ranks 15 percent cheaper in core-minutes than serial while running 4.71 times faster. Fifty-nine of the sixty-six compute estimates now approved state no rank count at all, so the backlog total is under-specified by up to that factor. The earlier advice to run that case serially would have cost more core-minutes and 79 more hours to save nothing, because its scaling was measured on a structured proxy that does not transfer.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "No compute estimate is accepted at intake without a rank count, and the backlog total is restated with them",
+      "expected_knowledge_gain": "The forecast that decides what gets started is built from numbers that do not say what they assume",
+      "source_kind": "ledger",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
+        "demo-output/website/agenda/BACKLOG_FORECAST.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:16:56Z"
+    },
+    {
+      "id": "w5-decide-what-cannot-be-sent-before-it-is-run",
+      "well": "W5",
+      "objective": "Rule on entries whose submission route is closed before their compute is committed",
+      "rationale": "The largest approved item can be prepared and cannot be sent: submission needs an account, a participant identifier and a merge request, and all three sit on that item own forbidden list. Its rendered deliverable is priced at zero on top of a corrected 6,390 core-minutes. The decision costs nothing and it was going to be taken after the compute rather than before it.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "Every challenge entry states its submission route and whether that route is open, before any compute is approved",
+      "expected_knowledge_gain": "Four thousand core-minutes of work that cannot be delivered is the most expensive kind of avoidable",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:16:56Z"
+    },
+    {
+      "id": "w4-the-grid-not-the-box-was-the-limit",
+      "well": "W4",
+      "objective": "Establish whether committee grids generally defeat this lab cell-centred numerics",
+      "rationale": "The high-lift grid carries 1.26 million faces above seventy degrees non-orthogonality against a house maximum of 70.4 elsewhere, and the default numerics diverged at iteration sixteen while memory sat at a quarter of the box. A hardened configuration completed only at first-order convection, which is not submittable. Every workshop grid this lab now intends to read arrives in the same family, so the question is whether the numerics or the grids need to change.",
+      "est_core_min": 120,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 1.642,
+      "cost_basis": "estimate",
+      "gate": "A second committee grid either solves at second order or fails the same way, with its mesh metrics beside the first",
+      "expected_knowledge_gain": "The lab just gained the ability to read these grids and has one measurement suggesting it cannot solve on them",
+      "source_kind": "capability",
+      "citations": [
+        "demo-output/website/hlpw6/FEASIBILITY_PROBE.md",
+        "scripts/ugrid_to_foam.py"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-01T06:16:56Z"
     }
   ]
 }
