@@ -117,6 +117,48 @@ also needed rescue here, and D5 already scored "at least one RSM will need
 relaxation tuning or fail outright" as CORRECT on the duct. Per the standing
 three-treatments rule, no fourth attempt; the failure is the result.
 
+## T1 second arm completed, and T1 is scored: NOT FALSIFIED
+
+The a1=0.25 run was extended to 10,324 iterations (2.7x the r4 sweep's cap)
+before ruling: Ux Initial residual floor 1.6e-3–2.6e-3 across the entire run
+with no decaying trend, fragmented wall trace at every one of ten
+checkpoints, outermost closure wandering 1.375–1.412 (±1.3% — fails the SA
+plateau bar), interior structure reorganizing between checkpoints. Stopped
+gracefully (`stopAt writeNow`, final write t=10324); checker verdict
+NOT_CONVERGED (`f6a_diff_SST_a1_025_20260801T001506Z.log/.done`). **No
+gate-met scalar exists at a1=0.25.** Descriptive extraction from its final
+written state (starred, unconverged, excluded from all correlations): peak
+|R_xz|/Uinf² = 0.007838 — 40% below baseline.
+
+Scoring T1 against the pre-registered falsifier:
+
+| a1 | peak\|R_xz\|/Uinf² | reattachment x/c | status |
+| --- | --- | --- | --- |
+| 0.25 | 0.007838* | no steady value; outermost closure 1.375–1.412*, always ABOVE baseline's 1.2534 | NOT converged (floor + fragmentation) |
+| 0.31 | 0.013153 | 1.2534 | gate-met |
+| 0.40 | 0.015107 | 1.1873 | gate-met (1702 iter) |
+
+- Wrong-direction? **No** — a1 up moved reattachment down (−0.0661), a1 down
+  moved every observable state up (>+0.12 at every checkpoint).
+- Swing < 0.005? **No** — the converged pair alone spans 0.0661, 6.6x the
+  significance bar; the fragmented low arm only widens it.
+- Non-monotonic? **No**, on the evidence available — with the honest caveat
+  that the a1=0.25 point contributes a bound ("longer than baseline, by a
+  lot"), not a number.
+
+**T1 verdict: H survives its within-SST causal probe decisively.** The
+shear-stress limiter coefficient moves the hump bubble exactly the way the
+diffusion hypothesis says it must, in both directions, with the stress
+metric moving in lockstep (0.0078* → 0.0132 → 0.0151). And the low arm adds
+an unplanned, physically interesting echo of the r4 finding: suppressing
+shear-layer transport far enough doesn't just lengthen the steady bubble, it
+destroys the steady solution altogether — weakened turbulent diffusion is
+destabilizing for this flow's steady-state representation regardless of
+which direction the experiment lies in.
+
+Standing disclosure, repeated: neither a1 variant is a model recommendation;
+0.25/0.40 were fixed in the pre-registration before any result was read.
+
 ## T2, corrected in-flight: every RSM failure above traced to ONE root cause — the R initial field was non-realizable
 
 Chronology kept honest: after LRR's three failures were recorded above, SSG
