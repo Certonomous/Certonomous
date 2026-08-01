@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-01T18:27:36+00:00",
+ "generated_at": "2026-08-01T18:34:09+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -1447,10 +1447,11 @@
     "demo-output/website/tmr/bump_sst.json",
     "campaign/4G_tmr_mesh_aspect_ratio.md"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T18:18:27Z",
-   "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decided_at": "2026-08-01T18:34:09+00:00",
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "outcome": "Disclosed, not withdrawn, and on one more surface than the item named. Verified 2026-08-01 that both cited surfaces already carry the status from commit 9690a813: the credentials wall (demo-output/website/wall/wall.json and lab_stats._RESEARCH_CHALLENGES) and the verification card (demo-output/website/tmr/card_update.json). The card text is derived, not typed: re-running tmr_verification.card_update on the stored flatplate_sst.json and bump_sst.json reproduces the published entry exactly, and ladder_caveat reads 'its observed order is 0.54 and the pressure component is non-monotone' straight off the bump's own numbers. The gap the sweep found was a third surface: demo-output/website/tmr/bump_cd_convergence.png printed 'h=0 extrapolate 0.00368' as a bold labelled diamond with no status, and that extrapolate is precisely the one uq.eca_hoekstra_band refuses, sitting above the coarsest rung and so outside the 0.003443 to 0.003567 the ladder measured. The marker now reads 'not certified' and the annotation states the measured range it falls outside plus the derived caveat; both bump figures were regenerated from the stored record and the Cf figure reproduces unchanged. No compute; 102 tests pass."
   },
   {
    "id": "w8-certificate-interval-lesson",
@@ -1626,10 +1627,11 @@
    "citations": [
     "demo-output/website/tmr/flatplate_sst.json"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T20:18:26Z",
-   "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decided_at": "2026-08-01T18:34:09+00:00",
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "outcome": "Already satisfied when checked, and confirmed rather than assumed. The published demo-output/website/tmr/flatplate_cf_profiles.png shows all five rungs the record holds (35x25/816, 69x49/3264, 137x97/13056, 273x193/52224, 545x385/208896), each with its own shade and its own legend line; flatplate_sst.json lists exactly those five. The three-colour zip was replaced by rung_shades(len(grids)) in commit ec7ca9d5, and a sweep of the figure code finds no fixed palette left anywhere: both plotting sites in tmr_verification.py (lines 1524 and 2022) call rung_shades on the ladder's own length, and test_tmr_verification.py checks the returned length matches the count for varying counts including five. Closed on verification, with no code change needed. No compute."
   },
   {
    "id": "w8-a-premise-can-be-false-and-still-worth-filing",
