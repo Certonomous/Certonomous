@@ -2510,11 +2510,12 @@
       "cost_basis": "estimate; the finest rung holds 79,778 cells and the next roughly doubles it",
       "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the Ahmed reference body, 35\u00b0 slant drag",
       "source_kind": "gate",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-31T17:08:49+00:00",
       "well": "W3",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decided_at": "2026-08-02T06:07:00Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "outcome": "Withdrawn on the audit, at zero compute, and handed to the item already building the right experiment. The item asks for a fourth rung on ahmed_35's stored three. Those three are two mesh recipes, read tonight from their own dictionaries: coarse (20,425 cells, /home/ubuntu/certonomous-runs/study-ahmed_35-coarse-186b41) is background (42 9 25) at body level (2 3), eMesh 2, region 1; medium (45,813, study-ahmed_35-medium-d198f3) is background (60 13 36) at the SAME levels; production (79,778, act7-ahmed_35-02688b) is the SAME background (60 13 36) at levels (3 4), eMesh 3, region 2, with every count read from that rung's own constant/polyMesh/owner. So the first step refines the background only and the second refines the near-body levels only, and the stored p = 3.169 is fitted across a step that is not a uniform refinement. A fourth rung on that sequence returns a fourth number to fit across the same broken step. What the body needs is a single-knob family above the production mesh, and a W1 agent is building exactly that: w1-ahmed-family-asymptotic-ladder was re-scoped to the 35 degree slant in commit 5ec3a831, citing this audit, and re-priced from R4's measured rungs at about 27 core-minutes against its original 240. Running a second one here would be spending compute to duplicate it. The withdrawal is on the premise and not on the merits, and the evidence from the two bodies where the same construction was carried out tonight says what to expect: the NACA 0012's valid family returned an observed order of 24.048 and the NACA 4412's returned none, and BOTH verdicts then failed a replicate-mesh control whose scatter was 408 and 109 percent of the increment being fitted. Whoever builds the ahmed_35 family should build the replicate control with it. Record: demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md and W3_WING_VALID_FAMILY_RESULTS.md."
     },
     {
       "id": "agp-d889fd00f6ae",
