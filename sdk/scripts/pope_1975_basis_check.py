@@ -262,6 +262,28 @@ def main() -> int:
            f"max |a - 2b| = {np.abs(a - 2.0 * b).max():.3e}; a G^lambda fitted "
            "against b is half the G^lambda of Pope (3.6) for the same flow")
 
+    # ---- 6b. a missing 1/2 is not one factor, it is ten --------------------
+    # Ling et al. (2016) say only that S and R are "non-dimensionalized using
+    # the turbulent kinetic energy k and the turbulent dissipation rate eps as
+    # suggested by Pope"; the manuscript never prints the formula, so the 1/2
+    # in Pope (3.2)/(3.3) has to be assumed. Pope's tensors are of mixed
+    # degree, so getting it wrong is not a global constant a coefficient can
+    # absorb.
+    g = random_grad_3d(rng)
+    s1, w1 = s_omega(g, tau=1.0)
+    t_pope, t_omit = basis_3d(s1, w1), basis_3d(2 * s1, 2 * w1)
+    ratios = [np.abs(b).max() / np.abs(a).max() for a, b in zip(t_pope, t_omit)]
+    inv_ratios = [b / a for a, b in zip(invariants_3d(s1, w1),
+                                        invariants_3d(2 * s1, 2 * w1))]
+    expected = [2, 4, 4, 4, 8, 8, 16, 16, 16, 32]
+    record("omitting Pope's 1/2 scales the ten tensors by ten different factors",
+           all(abs(r - e) < 1e-9 for r, e in zip(ratios, expected)),
+           f"T1..T10 scale by {[int(round(r)) for r in ratios]} and the five "
+           f"invariants by {[int(round(r)) for r in inv_ratios]}. The tensors are "
+           "of degree 1 to 5 in (s, w), so a convention error is not one constant "
+           "a coefficient absorbs: it is a different factor per tensor AND a "
+           "rescaling of every input the model reads")
+
     # ---- 7. the duct baseline, where this stops being an abstraction --------
     # A linear-eddy-viscosity RANS solve on a straight duct produces exactly
     # zero secondary flow -- measured, not assumed, in

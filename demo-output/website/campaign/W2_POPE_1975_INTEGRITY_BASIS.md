@@ -121,18 +121,77 @@ honest by construction, at the price of not representing a duct at all. This
 table is why those two positions are not substitutes, expressed as algebra
 rather than as a preference.
 
-### 2.3 A factor of two between Pope's normalisation and the methods papers'
+### 2.3 The conventions, read off both sources rather than one
 
-Pope (3.1): `a_ij = <u_i u_j>/k - (2/3) delta_ij`.
-Ling et al. (2016), and our own `CLOSURE_METHODS.md`: `b_ij = <u_i u_j>/(2k) - (1/3) delta_ij`.
+Both sides of this are now READ IN FULL, so nothing here is a hop through our
+own extraction.
 
-**`a = 2b`, exactly.** Any `G^lambda` fitted against `b` is half the
-`G^lambda` of Pope's (3.6) for the same flow. This is the specific "subtle
-misuse of the basis" the docket item was worried about: assembling Pope's
-`T^lambda` from p. 334 and regressing them onto Ling's `b` is not wrong, but
-the resulting coefficients are not Pope's `G^lambda` and must not be compared
-to (4.3)'s `G0, G1, G2` without the factor. Recorded before either rung is
-built, which is the whole point of reading the basis first.
+**The ten tensors are identical between the two papers.** Ling's Eq. 2 lists
+`T(1) = S`, `T(2) = SR - RS`, `T(3) = S^2 - I·Tr(S^2)/3`, `T(4) = R^2 -
+I·Tr(R^2)/3`, `T(5) = RS^2 - S^2R`, `T(6) = R^2S + SR^2 - (2/3)I·Tr(SR^2)`,
+`T(7) = RSR^2 - R^2SR`, `T(8) = SRS^2 - S^2RS`, `T(9) = R^2S^2 + S^2R^2 -
+(2/3)I·Tr(S^2R^2)`, `T(10) = RS^2R^2 - R^2S^2R`, and the five invariants
+`Tr(S^2), Tr(R^2), Tr(S^3), Tr(R^2S), Tr(R^2S^2)`. Term for term, that is
+Pope's p. 334 with `S` for `s` and `R` for `omega`. Our transcription is
+therefore checked against two independent printings, not one.
+
+**The object they multiply is not identical, and the difference is a factor of
+two.** Pope (3.1) is `a_ij = <u_i u_j>/k - (2/3) delta_ij` and his (3.6) is
+`a = sum G^lambda T^lambda`. Ling's own text, p. 6 of the manuscript, prints
+`b_ij = u'_i u'_j / 2k - (1/3) delta_ij` and his Eq. 1 is `b = sum g^(n) T^(n)`
+over the same ten tensors. **`a = 2b` exactly**, so `g^(n)` is half Pope's
+`G^lambda` for the same flow. Assembling Pope's tensors and regressing them
+onto `b` is not wrong, but the resulting coefficients are not Pope's and must
+never be compared to (4.3)'s `G0, G1, G2` without the factor.
+
+**And the strain-rate convention is not printed at all — an omission, which
+section 3 of the charter says is a finding.** Ling states only that `S` and `R`
+were *"non-dimensionalized using the turbulent kinetic energy k and the
+turbulent dissipation rate ε as suggested by Pope [5]"*. There is no equation
+defining either tensor anywhere in the manuscript, and no explicit factor, so
+Pope's `1/2` in (3.2) and (3.3) has to be assumed rather than read.
+
+That assumption is not a small one, because **Pope's tensors are of mixed
+degree**. Dropping the `1/2` sends `s -> 2s` and `omega -> 2omega`, and the ten
+tensors then scale by
+
+`[2, 4, 4, 4, 8, 8, 16, 16, 16, 32]`
+
+for `T1` through `T10`, while the five invariants — which are the network's
+*input* features — scale by `[4, 4, 8, 8, 16]`. Verified in the checker.
+**A convention error here is not one constant that a fitted coefficient
+absorbs.** It is a different factor on each of the ten coefficients and a
+simultaneous rescaling of every input the model reads, and a model trained
+under one convention and evaluated under the other is wrong in a way no single
+number repairs. Recorded before either rung is built, which is the whole point
+of reading the basis first.
+
+### 2.4b One published sentence that our record inherited, and that the primary source contradicts
+
+Ling, manuscript p. 6, immediately before Eq. 2:
+
+> "Pope [5] **gave a detailed derivation** of these 10 tensors, T(1), ...,
+> T(10) and 5 invariants λ1, ..., λ5, which are listed below"
+
+and, just above it, *"Pope [5] has previously derived the relevant integrity
+basis."*
+
+Pope, appendix A, p. 339, in full:
+
+> "The procedure used in two dimensions is also applicable to three dimensions.
+> The procedure is **reported by Spencer & Rivlin (1959, 1960)** and the results
+> for this situation are **quoted in the text**."
+
+Pope derives the two-dimensional case himself and quotes the three-dimensional
+one. The detailed derivation Ling attributes to him is in Spencer & Rivlin.
+
+This is not a defect in Ling's method and it changes none of his numbers. It is
+recorded because our own `CLOSURE_METHODS.md` inherited the attribution from
+this sentence, which is the literature charter's section 4 hazard verbatim —
+*"another paper's characterisation of a third paper. The last one is the most
+tempting and the most common way a wrong number propagates."* Here it
+propagated an attribution rather than a number, and it was caught by the cheapest
+possible means: reading the cited paper's own appendix.
 
 ### 2.4 Two results that were only assumed, now proved
 
