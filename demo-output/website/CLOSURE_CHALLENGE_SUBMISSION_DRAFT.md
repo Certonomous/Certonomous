@@ -19,7 +19,7 @@ modelling.** Steward: Ryley McConkey (MIT).
 | Rules + leaderboard (authoritative) | `https://github.com/rmcconke/closure-challenge-benchmark` | Live README fetched 2026-07-30; **identical** to our local clone at commit `deb9155` |
 | Evaluation source | `https://github.com/rmcconke/closure-challenge` | local clone `1c4e22c8` |
 | PyPI package | `closure-challenge` | `pip install closure-challenge` |
-| Preprint | `https://arxiv.org/abs/2603.28884`, DOI `10.48550/arXiv.2603.28884` | submitted 2026-03-30, CC BY 4.0 |
+| Preprint | `https://arxiv.org/abs/2603.28884`, DOI `10.48550/arXiv.2603.28884` | submitted 2026-03-30, CC BY 4.0. **Full text retrieved and read 2026-08-02** (`arxiv.org/html/2603.28884v1`, HTTP 200) — see §2.2 and §9 |
 
 The README states it, not the paper, is authoritative: *"We now have an arXiv
 preprint for the challenge. However, **this page is the main source of up-to-date
@@ -65,26 +65,48 @@ who may enter at all.
 > submission will be automatically withdrawn, and a note will be made on the
 > leaderboard."
 
-> **UNVERIFIED QUOTATION, DO NOT SEND AS IT STANDS.** The two sentences below
-> are attributed to the preprint's Section 2. Neither appears anywhere on this
-> machine: not in the benchmark clone, not in the evaluation package, not in
-> this repository. They were searched for verbatim and by fragment.
+> **VERIFIED 2026-08-02. The flag below is cleared and the quotation stands.**
+> Both sentences were retrieved from the preprint itself and matched verbatim,
+> character for character. They are in **Section 2.1, *Test cases***, a
+> subsection of Section 2 *Challenge task and rules* — the earlier attribution
+> to "Section 2" was correct but coarser than it needed to be.
 >
-> The second one matters more than the first, because it is a **permission**
-> and the entry's compliance argument leans on it. If it does not exist in the
-> preprint, we would be citing a licence to train on neighbouring flows that
-> nobody granted, in the document we hand to the steward.
+> **Source:** `https://arxiv.org/html/2603.28884v1`, HTTP 200, retrieved
+> 2026-08-02 05:14 UTC, full text held at
+> `/tmp/.../scratchpad/arxiv_2603.28884.{html,txt}` for the length of that
+> session. In the paper's own order the two sentences are adjacent and run:
+> *"The test cases cannot be used in any way at training time. You can train on
+> similar flows to the test cases (for example, different parametric variations
+> of the periodic hills case). More details of the provided datasets are given
+> in Section 3."*
 >
-> The rule itself is not in doubt. The README states it on disk, and that
-> wording is quoted below and is what should be relied on. Either verify these
-> two against the actual preprint and cite the version and page, or delete them
-> and let the README carry the point alone.
+> The permission the compliance argument leans on **exists and is granted in
+> the words we attributed to it.** The earlier finding — that neither sentence
+> is anywhere in the benchmark clone, the evaluation package or this repository
+> — was correct and remains correct; the sentences are in the preprint, and no
+> copy of the preprint was on this machine until now. The flag was raised for
+> the right reason and is retired on evidence rather than on patience.
 
-The preprint states the same rule more tersely (Section 2, *Challenge task and
-rules*): *"The only strict rule with this challenge is: it is forbidden to train or
-validate on any of the test cases."* It adds the permission: *"You can train on
-similar flows to the test cases (for example, different parametric variations of the
-periodic hills case)."*
+The preprint states the same rule more tersely (Section 2.1, *Test cases*, under
+Section 2 *Challenge task and rules*): *"The only strict rule with this challenge
+is: it is forbidden to train or validate on any of the test cases."* It adds the
+permission: *"You can train on similar flows to the test cases (for example,
+different parametric variations of the periodic hills case)."*
+
+> **A discrepancy in the preprint, found while verifying the above, and it cuts
+> the other way.** The preprint's own Section 2.1 list of the four periodic-hill
+> test cases gives **α = 1.5 for all four** — its LaTeX source carries
+> `\alpha=1.5` four times. The benchmark's authoritative case names give
+> **α = 0.5** for two of them: `alpha_05_4071_4048` and `alpha_05_4071_2024`,
+> consistent with the README's own suggested-validation names
+> `alpha_05_10071_*` and `alpha_15_7929_*`, which fix the naming convention
+> beyond doubt. **The preprint misstates α on two of the four PH test cases.**
+>
+> Nothing in our entry depends on it — the eight CSVs are keyed by
+> `closure_challenge.case_names()`, not by the preprint's geometry table — but
+> it is a concrete instance of the README's own warning that *"this page is the
+> main source of up-to-date information"*, and it is the reason no rule in this
+> document is sourced to the preprint where the README states the same thing.
 
 The evaluation package README repeats it as a closing reminder:
 
@@ -397,7 +419,12 @@ recorded; re-deriving them buys nothing.
 
 `closure.html` and the round-3 JSON both record the evaluation package as **v0.2.1**.
 At the pinned commit `1c4e22c8`, `pyproject.toml` declares `version = "0.3.1"` and the
-commit message reads *"v0.3.1: vector magnitude metric, mean over cases."* Upstream
+commit message reads *"v0.3.1: vector magnitude metric, mean over cases"* — no trailing
+period; an earlier revision of this document put one inside the quotation marks, which
+is corrected here. Verified 2026-08-02 against the local clone: commit
+`1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162`, dated Thu 26 Mar 2026 14:19:03 -0400, and
+it is the only commit in that repository's history mentioning the metric change.
+Upstream
 simply never bumped `__version__` in `__init__.py`; our record faithfully reports what
 the package reports itself as. **Nothing is wrong with the score** — but "v0.2.1"
 names an older metric revision than the code actually used. **Cite the commit hash
@@ -410,8 +437,20 @@ prediction *is the unmodified RANS solve* — the gate declined, correctly, and 
 the baseline. Those two values beat every published ML entry on those cases.
 
 **Not a rule violation.** Submitting an uncorrected field is a legitimate prediction,
-and the gate deciding to withhold is the method working. `closure.html` already states
-this without hedging ("It is not our model outperforming anyone").
+and the gate deciding to withhold is the method working.
+
+> **STALE CITATION, CORRECTED 2026-08-02.** This paragraph used to say that
+> `closure.html` states the point without hedging, and quoted it as *"It is not our
+> model outperforming anyone"*. **That sentence is no longer on the page.** §8.2
+> rewrote the section on 2026-08-01 and the quotation went stale with it; searched
+> 2026-08-02 and it returns nothing. The page now says it harder, and this is its
+> current wording, read off `closure.html` today: *"0.0461 and 0.0719 are therefore
+> not our numbers. They are properties of a file every entrant is handed for free,
+> and anyone submitting it unchanged scores exactly the same."* The two rows carry
+> the tag `BASELINE, NOT OUR MODEL`. **Nothing about the substance changed; a
+> citation to our own live surface went stale when we improved the surface**, which
+> is the failure mode this audit exists to catch, found inside the document that
+> raises it.
 
 **But the exposure is real and it is asymmetric.** If a leaderboard row credits
 Certonomous with the best score on two cases and a reader later works out those are the
@@ -570,11 +609,20 @@ steward's own scoring differs from ours, the steward's number is the number.
    commit `deb91557` and records why the `0.2.1` string is not the metric revision.
    *Note for Katie:* if the description document or `closure.html` is to quote a
    version at all, quote the commit hash.
-4. **Katie fills the author names and the reference URL.** — OUTSTANDING
-5. **Katie proofreads and approves.** Nothing moves before this. — OUTSTANDING
+4. ~~Verify or delete the two preprint sentences flagged in §2.2, which were
+   attributed to a source no copy of which was on this machine.~~ **DONE
+   2026-08-02. Verified verbatim, quotation upheld, section reference sharpened
+   to §2.1** — §2.2 and §9.
+5. ~~Audit *every* quotation in this document, not only the flagged one.~~ **DONE
+   2026-08-02. 28 quotations, all resolved or classified; two defects found and
+   fixed** (a stale citation to our own page in §4.7, a punctuation mark added
+   inside a quoted commit message in §4.6) — §9.
+6. **Katie fills the author names and the reference URL.** — OUTSTANDING
+7. **Katie proofreads and approves.** Nothing moves before this. — OUTSTANDING
 
-**Items 1–3 were the lab's to clear and are cleared. Items 4 and 5 are Katie's, and
-nothing about this package moves without them.**
+**Items 1–5 were the lab's to clear and are cleared. Items 6 and 7 are Katie's, and
+nothing about this package moves without them.** As of 2026-08-02 the only thing
+between this package and the steward is Katie.
 
 ---
 
@@ -806,3 +854,101 @@ Nothing was submitted. No account was created. No one was contacted — not the 
 not by email, not via a GitHub issue. No score or claim was altered. Where public
 sources do not establish a rule (commercial data-use rights, company author lines),
 this document says so rather than inferring a convenient answer.
+
+---
+
+## 9. ADDENDUM 2026-08-02 — every quotation in this document, checked as a set
+
+`w5-audit-every-citation-in-the-submission-draft`. **Zero compute. Zero scoring
+calls. No number in the entry moved.** This is the document written to be read by
+someone outside this lab, and until today nothing had checked its quotations as a
+set — only the one an agent happened to trip over while reading for another purpose.
+
+**Method, so the result can be re-run rather than believed.** Every blockquote run
+and every inline `"…"` of 25 characters or more was extracted mechanically from this
+file, each normalised for Unicode form, curly quotes, dashes, markdown emphasis and
+punctuation, then matched as a substring against the normalised text of every
+candidate source on disk: the benchmark clone README at `deb91557`, the evaluation
+package README and `pyproject.toml` at `1c4e22c8`,
+`sdk/scripts/apply_closure_ph_gate.py`, the round-3 JSON, `closure.html`, and — for
+the first time — the full text of the preprint. Anything that failed the automatic
+match was resolved by hand and is accounted for below. The script is at
+`/tmp/.../scratchpad/audit_quotes.py` for the length of that session; it is
+twenty lines of matching and is described here in enough detail to rebuild.
+
+### 9.1 Result
+
+The audit was run twice: once on the document as found (**28 quotations, 15 matched
+automatically, 13 to be resolved by hand**), and again after the corrections below
+(**30 quotations, 17 matched automatically**, the two added being the preprint
+sentences now quoted in their own right). The second run's automatic matches break
+down as: **benchmark README 14, preprint 3, evaluation package README 1,
+`apply_closure_ph_gate.py` 1.**
+
+The 13 that no machine match could settle are all accounted for, and none of them is
+an unsourced claim:
+
+| Class | Count | Verdict |
+| --- | --- | --- |
+| Our own editorial blockquotes — flags, resolution notes, the draft cover email | 6 | Not citations of anything |
+| Quotations of a defect we then fixed, correctly failing to match the fixed file | 3 | **Correct as written** — §9.2 |
+| Quotations of our own pages or of git metadata, needing a source the matcher was not given | 3 | **2 defects found, both fixed** |
+| Web-only source with no on-disk copy | 1 | **Marked as such** — §9.3 |
+
+**Two defects found, both in citations of sources the lab controls, and neither in a
+citation of the benchmark.** That is worth stating in that direction: the quotations
+most likely to be wrong were not the organisers' rules, which were transcribed
+carefully because they were known to matter. They were our own surfaces, quoted from
+memory of what they used to say.
+
+1. **§4.7 quoted `closure.html` as saying *"It is not our model outperforming
+   anyone"*. The page has not said that since 2026-08-01**, when §8.2 rewrote the
+   section and said it harder. Corrected in place, with the current wording read off
+   the page today and quoted instead. **A citation to a live surface goes stale the
+   moment the surface improves, and nothing in this lab was watching for that.**
+2. **§4.6 quoted the evaluation package's commit message with a full stop the commit
+   does not have.** Corrected, and the commit is now cited by its full hash
+   `1c4e22c8ac6b2e5f978ba6918f4f44b2db66d162` and its date rather than by its
+   abbreviation. A trailing period is a trivial thing to get wrong and a trivial
+   thing for a reader to check, which is exactly what makes it worth fixing in a
+   document whose credibility rests on precise self-accounting.
+
+The replacement quotation in §4.7 was itself checked the same way rather than pasted
+on trust: the sentence now quoted there matches `closure.html` exactly after tag
+stripping and entity decoding. Neither defect changed a number, a rule, a score or a
+verdict; both changed a sentence describing one, which is the whole of the point.
+
+### 9.2 The two that correctly do not resolve
+
+§4.4 quotes the old `apply_closure_ph_gate.py` docstring — *"Exactly ONE
+`closure_challenge.score()`/`evaluate_by_case()` call is made, on the final 8-case
+predictions dict"* — as the defect it reports. That sentence is **gone** from the
+file, which is the point; the audit confirmed both that it is gone and that the
+replacement says what §4.4's resolution note claims it says, at line 37 onward:
+*"Exactly ONE \*new\* prediction set is scored"*, followed by the explicit statement
+that the run makes four `closure_challenge` invocations and by the note that the
+benchmark imposes no scoring-call limit. §8.2 likewise quotes `closure.html`'s
+retired KPI *"5 of 8 test cases where we lead"*, verified absent from the page today.
+**A quotation that no longer resolves is a defect only when the document claims it
+still stands.**
+
+### 9.3 The one that cannot be resolved on this box, said so rather than dropped
+
+§2.7's ERCOFTAC Knowledge Base line — *"Content is available under CC BY 4.0
+(AI/ML-training & TDM reserved)"* — was read off a web page on 2026-07-30 and no
+copy of that page is on disk. It is left standing, sourced to the page fetch, and
+labelled here as web-only. It is also the one line in §2.7 that does not bear on our
+compliance: §2.7 already establishes that no ERCOFTAC-derived data enters our model.
+
+### 9.4 What this closes and what it does not
+
+**Closes:** the flagged permission in §2.2 is verified verbatim and the flag is
+retired on evidence. Every remaining quotation in this document either resolves to a
+file this box holds, or is our own words, or is labelled web-only. **No sentence in
+this document is now attributed to a source nobody here has read.**
+
+**Does not close:** an audit run once is a snapshot. Two of the 28 quotations went
+stale between 2026-07-30 and 2026-08-02 because the lab improved the pages they cite,
+and both were ours. **Any further edit to `closure.html` can restale a citation in
+here, and nothing checks that automatically.** Re-run this audit at the moment Katie
+approves, not before — the value of the check is in being the last thing done.

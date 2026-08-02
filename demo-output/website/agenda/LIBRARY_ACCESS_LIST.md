@@ -26,6 +26,30 @@ found. Recorded at `demo-output/website/dafoam/ROOTCAUSE_getRotationMatrix3d.md`
 line 220 and `demo-output/website/dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md`
 line 188, in both cases as a disclosed gap rather than a silent one.
 
+**Re-attempted 2026-08-02, harder, and the failure is now established rather
+than merely repeated.** Four new routes were tried and the entry is upgraded
+from "none found" to "none exists, per two independent indexes":
+
+* **The authors' own lab hosts a PDF link and the link is dead.** The MDO Lab
+  bibliography page `https://mdolab.engin.umich.edu/bibliography/Secco2021a`
+  returns HTTP 200 and offers `http://www.umich.edu/~mdolaboratory/pdf/Secco2021a.pdf`.
+  That URL returns **HTTP 403 and redirects to `websites.umich.edu/errors/404.html`**.
+  The same 403 is returned for the `websites.umich.edu/~mdolaboratory/pdf/` form.
+  This is the fourth and fifth umich URL to fail, and it is the one the authors
+  themselves point at.
+* **OpenAlex**, on the DOI: `"is_oa": false`, `"oa_status": "closed"`,
+  `"oa_url": null`, `"any_repository_has_fulltext": false`, and exactly one
+  location, the AIAA landing page.
+* **Semantic Scholar**, on the DOI: `openAccessPdf.url` is the empty string.
+* **A search of every OpenAlex work by an author named Secco with "mesh" in the
+  title** returns one open-access hit, and it is a different paper
+  (*Component-based Geometry Manipulation…*, 2017 conference version, on Deep
+  Blue). Secco's 2018 dissertation is indexed and is **not** open access, and it
+  is a different work in any case.
+
+**Verdict: this is genuinely paywalled, and no further unpaid route is worth
+trying from this box.** The entry stays on this list, and it stays first.
+
 **The one section needed:** whatever the paper says about the mesh-deformation
 **derivative**, `warpDeriv`, and specifically whether it describes that
 derivative as exact or as an approximation.
@@ -120,24 +144,43 @@ claim.
 
 ---
 
-## 6. The closure challenge preprint. Not paywalled, and not on this box.
+## 6. ~~The closure challenge preprint.~~ **CLOSED 2026-08-02. Read.**
 
-**McConkey, Buchanan, Smidt, Bodner, Dwight, Cinnella**, arXiv `2603.28884`.
+**McConkey, Buchanan, Smidt, Bodner, Dwight, Cinnella**, arXiv `2603.28884`,
+*The Closure Challenge: a benchmark task for machine learning in turbulence
+modelling*, submitted 2026-03-30.
 
-This is an arXiv identifier, so it needs no library. It is on the list because
-of what it is holding up.
-`demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` lines 69 to 73
-quote it as permitting a submitter to *"train on similar flows to the test
-cases"*, and **that sentence appears nowhere in the benchmark clone, nowhere in
-the eval package, nowhere in this repository, and no copy of the preprint is on
-this machine.** The permission it grants is real and is also available in the
-benchmark README in wording that IS on disk, so the argument does not fall
-over. The quotation does.
+It needed no library, as this entry said, and it is off the list. Retrieved
+2026-08-02 05:14 UTC from `https://arxiv.org/html/2603.28884v1`, HTTP 200, full
+text read end to end.
 
-**What changes:** either the sentence is confirmed and the citation stands, or
-it is replaced by the README lines. Either way an unverified quotation stops
-sitting inside a submission draft. See
-`demo-output/website/closure_challenge_C6_hump_decision.md` section 6.
+**The quotation is upheld, verbatim.** *"You can train on similar flows to the
+test cases (for example, different parametric variations of the periodic hills
+case)"* is in **Section 2.1, *Test cases***, directly after *"The test cases
+cannot be used in any way at training time."* Both sentences match the
+submission draft character for character. The permission the compliance
+argument leans on exists and is granted in the words attributed to it.
+
+**Three things came back that nobody had asked for, and one of them is a
+correction to the preprint:**
+
+1. **The preprint misstates α on two of the four periodic-hill test cases.**
+   Its §2.1 list gives `\alpha=1.5` four times; the benchmark's own case names
+   are `alpha_05_4071_4048` and `alpha_05_4071_2024`, i.e. α = 0.5, and the
+   README's suggested-validation names `alpha_05_10071_*` / `alpha_15_7929_*`
+   fix the convention beyond doubt. Nothing of ours depends on it, and it is a
+   concrete instance of the README's own *"this page is the main source of
+   up-to-date information"*.
+2. **§2.2 confirms the submission route independently:** *"As of March 2026,
+   submissions are via email."* A second source for the fact that this entry
+   cannot be sent by anything on this box.
+3. **§2.3 states the metric's interpretation in the authors' words** — *"a score
+   of 0.05 indicates that predictions are off by approximately 5% of the mean
+   velocity magnitude on average"* — which is now citable wherever the lab
+   explains what 0.0654 means.
+
+Full audit: `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §9. See also
+`closure_challenge_C6_hump_decision.md` section 6.
 
 ---
 

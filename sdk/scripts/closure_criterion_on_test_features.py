@@ -221,11 +221,28 @@ def main() -> None:
             f"already-known actual outcome (legitimate round-2 official call) is a MILD +0.0011 "
             f"regression, not the 3.9x-10.4x catastrophic breakdown the proven mechanism produced "
             f"in every one of its 6 confirmed instances. Reading this flag as equivalent evidence "
-            f"would overclaim what was proven. No action is available for NASA_2DWMH regardless: "
-            f"no alternative training-family model exists for it, its correction choice was "
-            f"pre-registered in round 2 before its test score was ever seen, and revisiting that "
-            f"choice now -- having already seen its outcome -- would itself be the exact "
-            f"test-truth-informed model selection the leakage rule forbids. "
+            f"would overclaim what was proven. "
+            # --- CORRECTED 2026-08-02 (c6-nasa-hump-the-only-last-place). This clause used to
+            # read "No action is available for NASA_2DWMH regardless: no alternative
+            # training-family model exists for it, ...". The first half was FALSE and is
+            # withdrawn. CBFS13700 -- the curved backward-facing step, a 2D smooth-wall
+            # separating-and-reattaching flow, i.e. the nearest flow in the benchmark to a
+            # wall-mounted hump -- ships as TRAINING data with its 0/U_LES, 0/k_LES, 0/p_LES
+            # and 0/tauij_LES fields, and is legal to fit on. The pre-registered argument
+            # (train_closure_extended_correction.py lines 27-40) compared periodic hills
+            # against DUCT only; CBFS is not named, not rejected, not mentioned. The second
+            # half stands and is the only thing keeping the case shut. Record:
+            # demo-output/website/closure_challenge_C6_hump_decision.md.
+            f"What constrains NASA_2DWMH is WHO may choose and WHEN, not the absence of a "
+            f"candidate: an alternative legal training family does exist (CBFS13700, shipped "
+            f"as training data and physically nearer the hump than the periodic hills the "
+            f"applied model was fitted on), but its correction choice was pre-registered in "
+            f"round 2 before its test score was ever seen, and revisiting that choice now -- "
+            f"having already seen its outcome -- would itself be the exact test-truth-informed "
+            f"model selection the leakage rule forbids. Taking the CBFS route therefore "
+            f"requires a pre-registration written and frozen before anything is scored; it is "
+            f"not available as an unplanned action, which is a different and weaker statement "
+            f"than 'no action is available'. "
             f"BOTTOM LINE: the criterion, applied strictly within the domain it was proven for, "
             f"changes nothing about the current entry, and there is no case for which it "
             f"identifies an available, leakage-clean action. Zero cases warrant a 5th official "

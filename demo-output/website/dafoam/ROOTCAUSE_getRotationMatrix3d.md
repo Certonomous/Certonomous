@@ -221,6 +221,18 @@ doi 10.2514/1.J059491 — could **not** be retrieved (HTTP 403 on three umich UR
 copy). **No claim is made about what that paper says.** Anyone with AIAA access should read its mesh-
 deformation-derivative section before the "undocumented" characterisation is relied on.
 
+*Re-attempted 2026-08-02. The gap stands, and it now rests on more than a count of failed URLs.
+The MDO Lab's own bibliography page for this paper
+(`https://mdolab.engin.umich.edu/bibliography/Secco2021a`, HTTP 200) offers a full-text link,
+`http://www.umich.edu/~mdolaboratory/pdf/Secco2021a.pdf`; **that link returns HTTP 403 and redirects
+to `websites.umich.edu/errors/404.html`** — as does the `websites.umich.edu/~mdolaboratory/pdf/` form,
+making five umich URLs. OpenAlex on the DOI returns `is_oa: false`, `oa_status: "closed"`,
+`oa_url: null`, `any_repository_has_fulltext: false`, with the AIAA landing page as its only
+location; Semantic Scholar returns an empty `openAccessPdf.url`. **Two independent indexes and the
+authors' own dead link agree: no open copy exists.** This will not close from this box. Tracked at
+`agenda/BLOCKERS.md` B-5 and `agenda/LIBRARY_ACCESS_LIST.md` item 1, and the claim in this section
+remains explicitly conditional on it.*
+
 ### 2.4 No fix exists
 
 No PR in IDWarp's history modifies `warpDeriv` mathematics. The nearest candidates were checked and

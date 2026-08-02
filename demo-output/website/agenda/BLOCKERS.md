@@ -147,7 +147,7 @@ reachability is asserting something nobody measured.
 
 ---
 
-## B-5. Five papers this box cannot open, and one it can
+## B-5. ~~Five papers this box cannot open, and one it can~~ Four papers this box cannot open. The one it could, it has read.
 
 **`w2-mit-access-list`, `w5-close-the-secco-2021-citation-gap`. Opened
 2026-08-01. Waiting on Katie's library, not on this box.**
@@ -164,12 +164,27 @@ open-access copy. The lab's root-cause document states that nothing qualifies
 approximation are different things to report upstream. One paragraph of that
 paper either upholds the claim or withdraws it.
 
-Item 6 on the list needs no library at all and is the one to do first anyway:
-the closure challenge preprint, arXiv `2603.28884`. The submission draft quotes
-a permission from it that is nowhere on this machine.
+**Re-attempted 2026-08-02 and the block is confirmed, not merely restated.**
+Five umich URLs now, including the PDF link the authors' own MDO Lab
+bibliography page offers, which returns 403 and redirects to a 404 page.
+OpenAlex returns `oa_status: closed` and `any_repository_has_fulltext: false`
+on the DOI; Semantic Scholar returns an empty `openAccessPdf.url`. Two
+independent indexes say no open copy exists. **This one is genuinely Katie's
+library or nothing,** and no further unpaid route is worth spending on it.
 
-**Unblock:** open the list, work the entries top down, and paste back the
-section named beside each. Nothing else in the reading program waits on this.
+~~Item 6 on the list needs no library at all and is the one to do first anyway:
+the closure challenge preprint, arXiv `2603.28884`.~~ **DONE 2026-08-02.** It
+did need no library. Retrieved from `arxiv.org/html/2603.28884v1` at 05:14 UTC,
+HTTP 200, read end to end, and **the quotation is upheld verbatim** — Section
+2.1, *Test cases*. The submission draft no longer contains an unverified
+quotation. Full audit of all 30 of its quotations:
+`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §9, which found and fixed two further
+defects, both in citations of the lab's own surfaces rather than of the
+benchmark's rules.
+
+**Unblock:** open the list, work the four remaining entries top down, and paste
+back the section named beside each. Nothing else in the reading program waits on
+this.
 
 ---
 

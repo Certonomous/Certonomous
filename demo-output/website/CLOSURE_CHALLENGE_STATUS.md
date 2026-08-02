@@ -280,12 +280,45 @@ specifically, and in its 6 confirmed instances it predicted 3.9×–10.4×
 catastrophic breakdown every time. NASA_2DWMH's global covariate-shift flag
 does not fit that pattern: its already-known actual outcome (round 2's
 single legitimate official call) is a **mild** +0.0011 regression, not
-catastrophic. **No action is available for NASA_2DWMH regardless of this
-flag**: no alternative training-family model exists for it, its correction
+catastrophic. ~~**No action is available for NASA_2DWMH regardless of this
+flag**: no alternative training-family model exists for it,~~ its correction
 choice was pre-registered before its test score was ever seen (round 2),
 and revisiting that choice now — having already seen the outcome — would
 itself be exactly the test-truth-informed model selection the leakage rule
 forbids.
+
+> **PARTIAL WITHDRAWAL, 2026-08-02** (`c6-nasa-hump-the-only-last-place`).
+> **"No alternative training-family model exists for it" is false and is
+> withdrawn.** `CBFS13700` — the curved backward-facing step, a
+> two-dimensional smooth-wall flow that separates and reattaches, which is the
+> nearest flow in this benchmark to a wall-mounted hump — is shipped by the
+> benchmark as **training** data, with `0/U_LES`, `0/k_LES`, `0/p_LES` and
+> `0/tauij_LES`, and it is legal to fit on
+> (`closure-challenge-benchmark/README.md` lines 63 to 77; and the challenge
+> preprint, §2.1, verified verbatim on 2026-08-02: *"You can train on similar
+> flows to the test cases"*). The pre-registered argument that picked the
+> periodic-hill model
+> (`sdk/scripts/train_closure_extended_correction.py` lines 27 to 40) is a
+> **two-way** comparison of periodic hills against ducts. **CBFS is not named,
+> not rejected and not mentioned.** The choice was defended against the worse
+> of two candidates while the better third sat in the training set unused.
+>
+> **The rest of the sentence stands, and it is the only thing keeping the case
+> shut.** What is constrained is *who* may choose between the two routes and
+> *when* — anyone choosing today has seen round 2's 0.0632 — not whether a
+> candidate exists. Taking the CBFS route legally requires a pre-registration
+> written and frozen before anything is scored.
+>
+> **Nothing about the entry of record changes and no scoring call was made.**
+> The verdict below — that the criterion identifies no available leakage-clean
+> action *without a pre-registration first*, and that zero cases warrant a 5th
+> scoring call on this evidence — survives intact. Full reasoning, both routes
+> priced, neither taken: `closure_challenge_C6_hump_decision.md`. The same
+> withdrawal is applied at
+> `closure_challenge_criterion_test_case_table.json` (`verdict.
+> statement_correction_2026_08_02`) and in the generator
+> `sdk/scripts/closure_criterion_on_test_features.py`, so that the sentence is
+> not left standing on a surface this one does not reach.
 
 **Answer to the bounded question asked**: the criterion changes nothing
 about the current entry. There is no case for which it identifies an

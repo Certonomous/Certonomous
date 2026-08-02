@@ -147,7 +147,7 @@ a pre-registration written and frozen before anything is scored, stating the
 model, the features, the selection rule and the commitment to ship whatever
 comes out. Without that, it is selection by somebody who has seen the score.
 
-## 6. A citation in the entry that nobody on this box can check
+## 6. A citation in the entry that nobody on this box could check — now checked
 
 While settling the above, one sentence in the lab's own draft failed to
 resolve. `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` lines 69 to 73 attribute a
@@ -164,6 +164,30 @@ where it stands, and the whole physical argument for borrowing the periodic
 hills model leans on it. It should be checked against the preprint or replaced
 with the README lines quoted in section 2, which are on disk and can be read.
 
+> **RESOLVED 2026-08-02. The quotation is verified verbatim and it stands.**
+> The preprint was retrieved from `https://arxiv.org/html/2603.28884v1` (HTTP
+> 200, 05:14 UTC) — an arXiv identifier needing no library, which is why this
+> was the item on the reading list to do first. The sentence is in **Section
+> 2.1, *Test cases***, immediately after *"The test cases cannot be used in any
+> way at training time."* Both sentences match the draft character for
+> character.
+>
+> **This section's own diagnosis was right and its inference was wrong.** The
+> sentence genuinely is nowhere on this machine, and that was correctly
+> reported; what did not follow, and was never asserted here, is that it does
+> not exist. The permission the compliance argument leans on was granted in the
+> exact words attributed to it.
+>
+> **Route B is therefore permitted by the preprint as well as by the README.**
+> Section 5's Route B — train on `CBFS13700`, a training-side flow, and predict
+> the hump — is now backed by the challenge authors' own explicit statement that
+> training on flows similar to the test cases is allowed, and not only by the
+> README's more general "you are free to use your own training/validation data".
+> Nothing about the cost or the pre-registration requirement in Route B changes.
+>
+> Full audit of every other quotation in the draft:
+> `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §9.
+
 ## 7. The decision
 
 1. **The hump is not unimprovable, and it is not unimprovable "without outside
@@ -175,9 +199,10 @@ with the README lines quoted in section 2, which are on disk and can be read.
 3. **Neither is taken here.** Route A costs nothing and rests on a criterion
    firing for a mechanism it was not proven on. Route B costs compute and is
    worthless without a pre-registration written before it runs.
-4. **The unverified quotation in the submission draft is the one item on this
-   page that should not wait.** A novelty claim resting on an unread source is
-   the defect this lab already has a proposal open about.
+4. ~~**The unverified quotation in the submission draft is the one item on this
+   page that should not wait.**~~ **CLOSED 2026-08-02: verified verbatim, in
+   Section 2.1 of the preprint.** It did not wait, and it came back upheld. See
+   section 6.
 
 ## 8. Evidence
 
@@ -192,4 +217,6 @@ with the README lines quoted in section 2, which are on disk and can be read.
 | tau degeneracy algebraic; 20.0 percent of hump cells; 0 of 32 non-test cases | `demo-output/website/closure_challenge_tau_normalization_audit.json` |
 | Round 4 per-case scores and the floor | `demo-output/website/closure_challenge_trained_entry_round4_duct.json` |
 | Standing "no action available" position | `demo-output/website/CLOSURE_CHALLENGE_STATUS.md` lines 283 to 288 |
-| Unverified preprint quotation | `demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` lines 69 to 73 |
+| ~~Unverified~~ **verified** preprint quotation, §2.1 *Test cases* | `arxiv.org/html/2603.28884v1`, retrieved 2026-08-02; audit at `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §9 |
+| Preprint misstates α on two of the four PH test cases (says 1.5, benchmark names say 0.5) | same, §2.1, against `closure-challenge-benchmark/README.md` test column |
+| Submission route is email, confirmed by a second independent source | `arxiv.org/html/2603.28884v1` §2.2: *"As of March 2026, submissions are via email."* |
