@@ -1912,10 +1912,12 @@
         "docs/charters/CASE_SELECTION_CHARTER.md",
         "demo-output/website/mfmc_error_budget.json"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T19:11:01Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "closed_at": "2026-08-02T05:40:00Z",
+      "outcome": "Ruled 2026-08-02 at 0 core-minutes against a 0 core-minute estimate, no solver launched; full ruling in demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md. Of the nine, THREE clear the floor and SIX are dismissed, and none is relabelled a regression test. The three that clear -- agp-527efc1cbb44 harmonic-balance, agp-a3cc843ce473 resolve-the-shedding, agp-37da30f972b3 unsteady FSI -- all clear on criterion 3, unsteady statistics, and every one of the three had the same defect the six had: a 60 core-minute estimate that is the drafter's default rather than an estimate. Two of the three are blocked on capabilities this box does not have (no meshed valve, no moving-boundary transient solver) and the third is blocked on a re-scope, because the parent solve's freestream is uniform (15 -0 -0) with no cross-flow component and there is no shedding at that condition to resolve. All three re-priced to unknown. None of the six can be relabelled a regression test, and that is the finding: the charter defines a regression test as a run whose expected value is written down beforehand, and every one of the six sweeps a NEW design point -- a span beyond today's cap, a cruise Mach not yet flown, a yaw angle not yet run, a body not yet chosen -- so there is no prior number to regress against. They are neither HARD nor regression tests; they are new easy results, which is the category the floor exists to prevent. Three of the item's own premises were corrected. The queue is 19 approved W1 items and 1,843 core-minutes, not twelve and ~1,400; it grew by seven items and 443 core-minutes in the two days the ruling sat unmade. The nine come from THREE parent studies, not two: the airliner (VSPAERO vortex-lattice), the valve (an algebraic orifice correlation that solves nothing), and the NACA 4412 finite wing (steady RANS in simpleFoam, not a panel method), three follow-ons each. And the airliner's model-form error is not the largest term in its budget, it is the term with NO number in it: mfmc_error_budget.json carries high_fidelity_model_form null and combined.missing [model], with the largest QUANTIFIED term the input spread at 0.21938, 99.997 percent of the quantified total, and the record already self-flags ranks_only_what_was_measured true. The item's conclusion survives all three corrections and two of them sharpen it. Net: approved W1 drops from 19 items to 12 and from 1,843 declared core-minutes to 1,463. That 380 comes off in two ways and the second is the larger: 200 core-minutes withdrawn by the six dismissals, and 180 withdrawn by RE-PRICING the three items that clear the floor, each of which carried the same default 60 and is now est_core_min 0 with cost_basis unknown -- not because they are cheaper but because nobody had estimated them at all. That is the return: 'approved, 60 core-min' read identically on the three items that clear the floor and the six that do not, and no reader of the queue could have told them apart."
     },
     {
       "id": "w5-wall-only-validated-row",
@@ -2878,51 +2880,57 @@
       "objective": "Composite-span structural limits",
       "rationale": "Filed under next investigations by the mission report \"Aircraft L/D optimization: 300 pax, 6000 km\": Composite-span structural limits: explore spans beyond today's structural cap with a composite wing-box weight model driving MTOW.",
       "citations": [
-        "Aircraft L/D optimization: 300 pax, 6000 km"
+        "Aircraft L/D optimization: 300 pax, 6000 km",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
       "est_core_min": 20.0,
       "cost_basis": "estimate",
       "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
       "source_kind": "report",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Below the hardness floor and not relabellable. Steady attached subsonic vortex-lattice: criteria 1 and 2 are unavailable to VSPAERO by construction, 3, 4 and 5 do not arise, and the airliner produces no scored column, so 6 does not either. It is also a structures question, a composite wing-box weight model driving MTOW, wearing an aerodynamics estimate. Not a regression test: it sweeps spans beyond today's cap, so there is no number it gave before to reproduce. Ruled in W1_HARDNESS_FLOOR_RULING.md section 3."
     },
     {
       "id": "agp-f6354ae61613",
       "objective": "Cruise Mach trade",
       "rationale": "Filed under next investigations by the mission report \"Aircraft L/D optimization: 300 pax, 6000 km\": Cruise Mach trade: sweep cruise Mach against the fixed requirements to find where the range-speed-L/D surface actually peaks.",
       "citations": [
-        "Aircraft L/D optimization: 300 pax, 6000 km"
+        "Aircraft L/D optimization: 300 pax, 6000 km",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
       "est_core_min": 20.0,
       "cost_basis": "estimate",
       "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
       "source_kind": "report",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Below the floor as proposed, and the reason is the sharpest of the six: the criterion it would meet is the one its instrument cannot express. A cruise Mach sweep on a transport wing runs transonic, which is criterion 2, but it would be flown on VSPAERO, a vortex-lattice method with no discontinuity in its solution space. The case selection charter section 4 step 4 checks the detector before the physics and calls that a zero-compute check that kills a family before it starts. A shock-free method sweeping for the shock-limited peak of a range, speed and L/D surface returns a smooth peak in the wrong place and no gate fires. The transonic question is real and the lab already owns HARD instruments for it in the ONERA M6 and DPW5 lines, so nothing is lost by refusing the panel-method version. Ruled in W1_HARDNESS_FLOOR_RULING.md section 3."
     },
     {
       "id": "agp-8991d74e789f",
       "objective": "Drag build-up under yaw",
       "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Drag build-up under yaw: sweep the approach angle and map how the force builds as the body meets the flow off-axis.",
       "citations": [
-        "Geometry study: NACA 4412 finite wing"
+        "Geometry study: NACA 4412 finite wing",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
       "est_core_min": 20.0,
       "cost_basis": "estimate",
       "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
       "source_kind": "report",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Below the floor as stated, and blocked behind a mesh defect either way. A yaw sweep reaching large enough angles would carry criterion 1, but the proposal names no angles and so does not claim it. It inherits a ladder that is layerless at chord Reynolds 1.0e6, addLayers false in all three run directories, and whose coarse and medium rungs never converged, running to the 180-iteration cap with no convergence statement, both recorded in this body's own fifth_rung_preflight block. A yaw sweep on that mesh measures the absence of a wall treatment, not yaw. The credential repair on that body is upstream of any re-filing. Ruled in W1_HARDNESS_FLOOR_RULING.md section 3."
     },
     {
       "id": "r5-a5-second-gradient-defect",
@@ -2947,17 +2955,19 @@
       "objective": "Next body in the class",
       "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Next body in the class: take the same gated chain to the nearest unsolved body in the library and grow the validated set.",
       "citations": [
-        "Geometry study: NACA 4412 finite wing"
+        "Geometry study: NACA 4412 finite wing",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
       "est_core_min": 20.0,
       "cost_basis": "estimate",
       "expected_knowledge_gain": "Answers a follow-on question the mission report filed on the record",
       "source_kind": "report",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Dismissed as unrulable rather than as uninteresting. It names no body and no regime, and hardness is a property of the regime, so this proposal cannot be ruled either way. Case selection charter section 4 step 1 makes naming the HARD criterion a required field of any proposal that spends compute on a family, and a proposal that cannot name its criterion cannot clear a floor that requires it. A successor naming a body and a regime is welcome. Ruled in W1_HARDNESS_FLOOR_RULING.md section 3."
     },
     {
       "id": "w1-hump-challenge-conditions",
@@ -3119,17 +3129,19 @@
       "objective": "Full-configuration solve",
       "rationale": "Filed under next investigations by the mission report \"Aircraft L/D optimization: 300 pax, 6000 km\": Full-configuration solve: put the fuselage and tail in the solved model and trim the winner for static margin.",
       "citations": [
-        "Aircraft L/D optimization: 300 pax, 6000 km"
+        "Aircraft L/D optimization: 300 pax, 6000 km",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
       "est_core_min": 60.0,
       "cost_basis": "estimate",
       "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
       "source_kind": "capability",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Below the floor and not relabellable. Fuselage and tail added to the solved model and trimmed for static margin: steady, attached, subsonic vortex-lattice, with the same unavailability of criteria 1 and 2 as its two airliner siblings. Trim for static margin is a stability and control task whose answer is a moment balance, not a flow-physics result. Ruled in W1_HARDNESS_FLOOR_RULING.md section 3."
     },
     {
       "id": "r2-closure-coefficient-uncertainty",
@@ -3155,17 +3167,21 @@
       "objective": "Harmonic-balance cycle solve",
       "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Harmonic-balance cycle solve: resolve phase-interaction the multi-point screen drops, solving the coupled harmonics of one cycle instead of independent phase points.",
       "citations": [
-        "Valve opening-angle screen: cycle-weighted pressure loss"
+        "Valve opening-angle screen: cycle-weighted pressure loss",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
-      "est_core_min": 60.0,
-      "cost_basis": "estimate",
+      "est_core_min": 0.0,
+      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
       "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
       "source_kind": "capability",
       "status": "approved",
       "created_at": "2026-07-25T02:07:58+00:00",
       "decided_at": "2026-07-25T15:30:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3, unsteady statistics: the reported quantity is a phase-resolved cycle loss, a phase-aligned waveform by construction. BLOCKED, and re-priced. There is no meshed valve: the curriculum record's own method line reads 'quadrature convergence of a reduced-order orifice model, k = 3/5/9 segments of the ejection window; not a mesh refinement'. The parent study named both blockers before this follow-on was filed, requiring a transient pulsatile solve with a moving-boundary incompressible solver on a meshed valve geometry. The 60 core-minute estimate priced a solve of a case with no mesh and no solver path; it is the drafter's default, not an estimate, and is withdrawn. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
+      "hard_criterion": 3,
+      "blocked_on": "no meshed valve geometry, and no moving-boundary transient solver path on this box"
     },
     {
       "id": "w5-degenerate-point-derivative-check",
@@ -3193,17 +3209,19 @@
       "objective": "Non-Newtonian blood rheology",
       "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Non-Newtonian blood rheology: replace the Newtonian viscosity with a shear-thinning model in the orifice jet and wake.",
       "citations": [
-        "Valve opening-angle screen: cycle-weighted pressure loss"
+        "Valve opening-angle screen: cycle-weighted pressure loss",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
       "est_core_min": 60.0,
       "cost_basis": "estimate",
       "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
       "source_kind": "capability",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Dismissed, and the family's live defect is somewhere else entirely. It names no HARD criterion and proposes to replace the Newtonian viscosity in the orifice jet and wake of a model that has neither: the valve screen is an algebraic orifice correlation, and its own transcript says each phase is a reduced-order orifice model, not a solved flow. Meanwhile the parent study's conclusion records the winning candidate at orifice ratio 1.00 against a correlation calibrated to a 0.75 ceiling, above which the magnitude is not bounded by the reported band. That is L-23 exactly, and refining the rheology inside an extrapolated correlation refines a term already dominated by the extrapolation. Ruled in W1_HARDNESS_FLOOR_RULING.md section 3."
     },
     {
       "id": "w3-vspaero-model-form-band",
@@ -3283,17 +3301,21 @@
       "objective": "Resolve the shedding",
       "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Resolve the shedding: an unsteady solve of the wake the steady picture averages away, the spectrum, not just the mean force.",
       "citations": [
-        "Geometry study: NACA 4412 finite wing"
+        "Geometry study: NACA 4412 finite wing",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
-      "est_core_min": 60.0,
-      "cost_basis": "estimate",
+      "est_core_min": 0.0,
+      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
       "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
       "source_kind": "capability",
       "status": "approved",
       "created_at": "2026-07-25T02:07:58+00:00",
       "decided_at": "2026-07-25T15:30:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3 only if re-scoped, and is below it at the regime it would inherit. The parent solve's freestream is uniform (15 -0 -0), purely streamwise with no cross-flow component, reporting Cl 0.2516 and Cd 0.02167 in steady attached flow. There is no shedding at that condition for an unsteady solve to resolve, and the charter's own worked failure is a wing at low incidence in attached flow. Re-scoped to a post-stall incidence where the wake is genuinely three-dimensional and separated it carries criteria 1 and 3 together and becomes a good item. The re-scope is a condition of this item, not an aspiration. The 60 core-minute estimate does not survive either way. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
+      "hard_criterion": 3,
+      "blocked_on": "re-scope to a post-stall incidence; at the inherited zero-cross-flow condition there is no shedding to resolve"
     },
     {
       "id": "w3-hump-fleet-honesty",
@@ -3342,17 +3364,21 @@
       "objective": "Unsteady fluid-structure interaction",
       "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Unsteady fluid-structure interaction: move the leaflets, coupling the flow to leaflet dynamics so opening is solved, not prescribed.",
       "citations": [
-        "Valve opening-angle screen: cycle-weighted pressure loss"
+        "Valve opening-angle screen: cycle-weighted pressure loss",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
       ],
-      "est_core_min": 60.0,
-      "cost_basis": "estimate",
+      "est_core_min": 0.0,
+      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
       "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
       "source_kind": "capability",
       "status": "approved",
       "created_at": "2026-07-25T02:07:58+00:00",
       "decided_at": "2026-07-25T15:30:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3, unsteady statistics: coupling leaflet dynamics to the flow makes opening solved rather than prescribed, and every reportable quantity is a cycle-to-cycle statistic. BLOCKED, and re-priced. The lab has no fluid-structure coupling and no meshed valve, the same two blockers as agp-527efc1cbb44. 60 core-minutes for an FSI campaign is the drafter's default, not an estimate, and is withdrawn. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
+      "hard_criterion": 3,
+      "blocked_on": "no meshed valve geometry, and no moving-boundary transient solver path on this box"
     },
     {
       "id": "r6-cylinder-wake-topology-onset",
@@ -3904,6 +3930,44 @@
       "cost_basis_previous": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
       "repriced_at": "2026-08-01T05:00:00Z",
       "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
+    },
+    {
+      "id": "w5-hlpw6-ai-ml-focus-group-is-the-cheap-way-in",
+      "well": "W5",
+      "objective": "Establish whether HLPW-6's AI/ML technology focus group is a route into the workshop that needs no CFD, and what an entry to it would consist of",
+      "rationale": "The docket carries the high-lift entry only in its expensive form: 6390 core-minutes on the 2.66M-cell coarse grid plus an unpriced rendering deliverable. The 2026-08-02 scouting sweep found the same workshop runs an AI/ML focus group whose key question 6 asks whether data-driven turbulence models can improve lower-fidelity solvers, trained on the open HiLiftAeroML dataset (1800 samples, 180 geometry variants at 10 angles of attack, CC-BY-4.0). That is the lab's actual competence and it needs no mesh and no solve. The focus group page currently reads 'More coming soon', so there is nothing to enter and no deadline to miss, which is why it costs nothing to establish the shape of it now. The submission gate is unchanged and still forbidden (GitHub account, participant identifier, pull request), so this decides what could be prepared, not what could be sent.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The HiLiftAeroML dataset's licence, size and contents are read off its own source and recorded, and the record states either what an AI/ML focus group entry would consist of or that the focus group has published too little to say",
+      "expected_knowledge_gain": "Whether the workshop the lab priced at 6390 core-minutes has a door into it that costs no solve at all",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 4",
+        "demo-output/website/hlpw6/SUBMISSION_GATE.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:40:00Z"
+    },
+    {
+      "id": "w5-autocfd5-scouted-and-declined",
+      "well": "W5",
+      "objective": "Record AutoCFD5 as scouted and declined on physical grounds, so its deadline does not pull compute toward it",
+      "rationale": "AutoCFD5 is the only live challenge found on 2026-08-02 with a near deadline: 21 August 2026 for results data, re-verified from autocfd.org/dates/. It fails before the forbidden list is reached. The stated minimum entry is the baseline g2 grid at 37 million cells; against this lab's own measured memory law that extrapolates to roughly 58 GiB on a 30.6 GiB host, and the coarse g1 at 6.3M cells would fit but does not meet the stated minimum. The deliverable also requires force and base-pressure time histories and PIV RMS fluctuations, which is an eddy-resolving unsteady run rather than the steady RANS the lab has. Nineteen days would not be enough if the memory fitted. An item with a live deadline and no verdict beside it is the kind that gets picked up later at cost.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.1,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The decline is on the record with the grid size, the memory extrapolation and the deliverable that decides it, and the three submission gates are named separately so the physical reason is not confused with the procedural one",
+      "expected_knowledge_gain": "A live deadline that is already ruled out costs nothing only if the ruling is written down",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 1",
+        "https://autocfd.org/dates/"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:40:00Z"
     }
   ]
 }
