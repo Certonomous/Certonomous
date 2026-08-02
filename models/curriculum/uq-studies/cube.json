@@ -54,7 +54,7 @@
     "cube-rung-medium",
     "cube-production"
   ],
-  "updated_utc": "2026-08-02T06:21:19Z",
+  "updated_utc": "2026-08-02T06:45:21Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -142,6 +142,35 @@
       "answers_agp_d0b3c7cb6a58": "The item asks for a fourth rung on this ladder. A fourth rung cannot help a body whose third rung has not converged. The three stored Cd values 1.102982 / 1.109239 / 1.104172 span 6.26e-03 across a 5.6x change in cells -- SMALLER than the finest rung's own iterative 2-sigma and smaller than what changing the rank count does. The ladder is reading its own noise.",
       "same_defect_as": "w3-run-uq-studies-still-caps-every-rung-at-300. run_uq_studies.ITERATIONS is the constant 300 for this body's 53,861-cell coarse rung and its 299,493-cell production rung alike, and nothing checks whether either settled. tmr_verification fixed exactly this on 2026-07-31 with iteration_backstop(cells); the curriculum runner never got it.",
       "recommendation": "Re-solve under a settle criterion and recompute the envelope from rungs that stopped because they were done -- about 6 core-minutes at 4 ranks per attempt on tonight's measurement. Do not quietly retighten or widen the row tonight; the decision belongs with the open ruling w3-a-declined-ladder-still-publishes-an-envelope."
+    },
+    "settle_run": {
+      "measured_utc": "2026-08-02T06:42:50Z",
+      "case": "/home/ubuntu/certonomous-runs/w3-cube-settle",
+      "pre_registration": "demo-output/website/campaign/W3_CUBE_SETTLE_PREREGISTRATION.md (commit ee30a7c3, before any iteration was read)",
+      "record": "demo-output/website/campaign/W3_CUBE_SETTLE_RESULTS.md",
+      "method": "the production mesh (299,493 cells, reproduced exactly) at endTime 3000 instead of 300; no other file changed. 4 ranks scotch, 74,873 cells/rank.",
+      "converged_on_residualControl": false,
+      "iterations": 3000,
+      "settled_cd": 1.097819606,
+      "cd_at_the_300_cap": 1.104100119,
+      "distance_from_cap_to_settled": 0.0062805,
+      "distance_as_percent_of_published_band": 81,
+      "trailing_p2p_floor": 0.0011472,
+      "stationary_from_iteration": 900,
+      "stationary_to": 2e-05,
+      "finding": "The residual criterion and the force criterion disagree. OpenFOAM never prints 'SIMPLE solution converged' in 3000 iterations and shows no sign of doing so, yet the trailing mean is stable to 2e-05 from iteration 900 through 3000 while the trailing peak-to-peak stops falling at 1.14e-03. A settle criterion reading the FORCE would have stopped this run at about 900; the residual criterion the curriculum runner relies on would never stop it. That is independent evidence for the design tmr_verification adopted on 2026-07-31, arriving from a different module and a different body.",
+      "mechanism_named_not_claimed": "A spread that stops falling and then holds a constant amplitude is what a steady solver does on a limit cycle rather than a fixed point, which is what a bluff body with a separated wake would be expected to produce. Confirming it needs a frequency analysis of the force history, which was not run. IF that reading is right the consequence is structural: this body's published Cd is a mean over an oscillation, not a converged steady value, and neither the +/- 0.0078 envelope nor the three-mesh ladder describes that.",
+      "predictions_scored": {
+        "P1 settles between 600 and 3000": "FALSE -- never converges on residualControl, though the FORCE is stationary from 900",
+        "P2 settled value lands outside the published envelope": "FALSE -- 1.097819606 is inside [1.0946, 1.1102], 59 percent of the envelope out from the credential's value",
+        "P3 distance to travel exceeds the window 2-sigma at the cap": "FALSE by 2.34x -- distance 6.2805e-03 against a cap 2-sigma of 1.4686e-02, so the wobble OVER-reports. The opposite of the flat plate, where a tail spread read as a plateau while the value was 1.05 percent from home",
+        "score": "zero of three; all were written to be falsifiable and all three were falsified"
+      },
+      "the_ladder_inherits_it": "All three stored cube values 1.102982 / 1.109239 / 1.104172 were taken at the same 300 cap. Their spread of 6.26e-03 across a 5.6x change in cells is essentially the size of the transient measured here at ONE rung, so the stored 'rungs not monotone' verdict is a reading of leftover transient rather than of discretization.",
+      "why_the_fix_cannot_be_a_bigger_constant": "iteration_backstop() is sized at 0.147 iterations per cell from the flat plate; at 299,493 cells that budgets 88,000 iterations for a body whose force is stationary by 900 and whose residuals will not converge at 3,000,000. One tolerance cannot serve two bodies that fail in opposite directions.",
+      "cost_core_min": 68.5,
+      "cost_estimated_core_min": 126,
+      "cost_note": "46 percent under, because the first 300 iterations are the expensive ones: cost per iteration falls sharply once the transient clears, so scaling a long run linearly from a short one's cost OVER-prices it. Same shape of error as scaling from a contended run's wall clock, which over-priced the B-52 rung earlier the same night."
     }
   }
 }
