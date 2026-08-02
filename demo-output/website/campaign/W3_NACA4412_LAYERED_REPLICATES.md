@@ -149,10 +149,35 @@ genuinely below both. So `max non-orthogonality` on these meshes reports *which
 constraint branch snappyHexMesh ended on*, not how good the mesh is — and a
 70° gate applied to it is a coin whose two faces are 65 and 75.
 
-Stated at its own limit: this is measured on **one body's family plus that body's
-three-rung ladder**, seven meshes. Whether the whole credentials wall is pinned
-the same way is a check, not a claim, and it is worth running before any further
-mesh-quality gate is written.
+### 6.1 The check, run rather than left as a claim
+
+Every `log.checkMesh` under `/home/ubuntu/certonomous-runs`, 70 meshes. The
+pinning is real, it reaches beyond this body, and it is **not universal** —
+which is what makes it a usable rule rather than a scare:
+
+| band | meshes | which |
+| --- | --- | --- |
+| **pinned to the strict 65** (64.64–64.99) | **8** | NACA 4412 fine + replicates A, B, E; `finer_relayered_ngrow0`; motorBike; `mb-iterfix/medium`; **B-52 `finer2-uq` 64.646803 and `rung7-uq` 64.640997** |
+| **pinned to the relaxed 75** (74.31–74.96) | **3** | NACA 4412 `finer` 74.962218, `finer_relayered` 74.312074, replicate C 74.962443 |
+| genuinely below both | ~53 | everything ≤58.4: NACA 4412 medium 58.374, B-52 `fine-uq` 57.716, the whole W3 0012/4412 unlayered families 29–49, the supersonic and cone ladders 7–15 |
+| above the relaxed ceiling | 6 | `rae2822-meshcheck/og-*` 80.2–160.9, `tmr-naca-a0-coarse` 85.7 — **externally supplied grids, no `log.snappyHexMesh`, so no dictionary applies**, which is the control that confirms the reading |
+
+**Eleven meshes across three unrelated bodies — the NACA 4412, the motorBike and
+the B-52 — sit within 0.7° of one of two dictionary numbers.** The B-52 pair is
+the strongest evidence that this is not a 4412 quirk: `finer2-uq` and `rung7-uq`
+land at 64.646803 and 64.640997, 6 × 10⁻³ degrees apart, on a different body from
+a different study, under the same `meshQualityDict`.
+
+**And the lab's 70° gate sits between the two ceilings.** For any mesh hard
+enough to press against the constraint — which is exactly the meshes a gate is
+for — the gate has no resolution: it returns "pass at ≈65" or "fail at ≈75"
+according to which branch `snappyHexMesh` ended on, and nothing in between. A
+mesh that is genuinely below 65 was never in question.
+
+What this does **not** say: that any of these meshes is bad. A mesh sitting on
+its constraint is a mesh the constraint held, which is the constraint working.
+The defect is in *reading the reported maximum as a measurement of quality* and
+then attributing its movement to refinement.
 
 ## 7. Cost, measured on CPU
 
