@@ -2814,3 +2814,99 @@ candidates, not an identification, and it is recorded as such.
 
 Evidence: `/home/ubuntu/certonomous-runs/W4-a4-stepsweep/` (`sweep.out`, `sweep_ext.out`,
 `a4_h*_{stock,patched}.log`, `stage_and_run.sh`, and the probe in `a4_dxsprobe/runScript.py`).
+
+### 25.5 A4's 89% is IDENTIFIED, and it is not a gradient defect: the adjoint depends on the mesh decomposition
+
+§25.4 refuted the two cheapest explanations for A4's unattributed residual and left it "confined to
+`dCD/dXv` or to the physics." It is neither. It is the mesh decomposition, and A4's gradient is
+correct to **5.4e-06** once the decomposition is changed.
+
+**The last unprobed link, first, because it is what led here.** `dCD/dXv` was tested against a true
+re-solve finite difference of itself — PROOF §20's construction, which cleared this link on A1, and
+§22's on A5 — via `DASolver.setVolCoords`, DVGeo and IDWarp bypassed on the FD side, the real
+`dCD/dXv` seed captured verbatim from the framework's own reverse call on `DAFoamWarper`, patched
+IDWarp, np=1 (2,777 cells per rank; `setVolCoords` takes an undecomposed array by construction):
+
+| `h` | AN `⟨dCD/dXv, dXv/dshape⟩` | FD (full re-solve) | rel. err | vs `compute_totals` |
+|---|---|---|---|---|
+| 1e-3 | 2.414994844096e-01 | 2.428021932044e-01 | **0.54%** | 5.70e-09 |
+| 3e-4 | 2.414994859914e-01 | 2.426491350183e-01 | **0.47%** | 8.51e-10 |
+
+Baseline control: the directly-set `Xv0` re-solve returns CD 1.529747399110284e-01 against
+OpenMDAO's own 1.529738469354696e-01, a difference of 8.9e-07. **`dCD/dXv` is clean** — as tight as
+A1's 0.4-1.4% and A5's 0.17-2.49% at this link — and the hand composition equals `compute_totals` to
+5.7e-09, so the assembly is exact.
+
+**But the framework's own `dCD/dshape` in that np=1 run came back 2.414994857859927e-01, against
+W5's np=4 value of 2.2086e-01.** A 9.4% difference in the *analytic* column from the rank count
+alone. That is not a probe artifact; it is the thing itself.
+
+**Run head-on.** `check_totals`, patched unless noted, same case, same FD step, only the
+decomposition varied:
+
+| configuration | cells/rank | analytic | FD | rel. err |
+|---|---|---|---|---|
+| np=1, **stock** | 2,777 | 2.3965e-01 | 2.4232e-01 | **1.10%** |
+| np=1 | 2,777 | 2.4150e-01 | 2.4232e-01 | **0.34%** |
+| np=2 | 1,389 | 2.4118e-01 | 2.4182e-01 | **0.26%** |
+| np=3 | 926 | 2.5641e-01 | 2.4178e-01 | **6.05%** (analytic *high*) |
+| **np=4, `scotch` (the published configuration)** | 694 | **2.2086e-01** | 2.4258e-01 | **8.95%** (analytic *low*) |
+| np=4, `scotch`, `gmresRelTol` 1e-6 → **1e-10** | 694 | 2.2086e-01 | 2.4258e-01 | **8.95%** |
+| np=4, **`simple` 4x1x1** | 694 | **2.4220e-01** | 2.4220e-01 | **0.00054%** |
+| np=4, **`simple` 1x4x1** | 694 | 2.4379e-01 | 2.4265e-01 | **0.47%** |
+
+**Three controls say the primal and the finite difference are not what is moving.** The converged
+baseline CD is 0.15296979–0.15297237 across all six configurations — invariant to five significant
+figures, a spread of 1.7e-06 relative. The FD column spans 2.4178e-01–2.4265e-01, **0.36%**. The
+analytic column spans 2.2086e-01–2.4379e-01, **10%**. Only the adjoint moves.
+
+**And it is a converged wrong answer, not a loose solve.** Tightening `gmresRelTol` by four orders
+of magnitude at np=4 takes GMRES from 719 to 811 iterations, still `PetscConvergedReason: 2`, and
+leaves the analytic gradient **unchanged to all five printed digits**. This is A5's own
+discriminator, and it gives A5's own answer.
+
+**Two confounds eliminated before the claim.** (1) The np=4 arms in §25.4 inherited a *cached*
+`dRdWColoring_4.bin` while the np=1/np=2 arms regenerated theirs. Re-run at np=4 with a freshly
+computed colouring: **2.2086e-01 / 8.9531e-02, identical to every digit.** Not the colouring cache.
+(2) Editing `system/decomposeParDict` is **inert** — `pyDAFoam` regenerates that file from the
+`decomposeParDict` daOption (`pyDAFoam.py:597`, `_writeDecomposeParDict` at `:2210`), so a first
+attempt that changed the file silently ran `scotch` anyway and returned a suspiciously identical
+number. Caught by reading the log's own `Decomposition method scotch [4]` line back. **That trap is
+worth recording on its own: a decomposition change made the obvious way has no effect and leaves no
+warning.**
+
+**The control that says this is not a property of the stack.** A1 — the lab's most-verified case,
+and one whose `polyMesh` carries no `cellLevel`/`pointLevel` — was run at np=1 and np=4 under the
+identical harness: analytic 6.490496e-02 vs 6.490495e-02, relative error **3.795529e-04 vs
+3.807681e-04**. Identical to six digits. **A1 is decomposition-invariant; A4 is not.**
+
+**What this changes.**
+
+* **A4's `CD wrt shape` is not defective.** At np=4 with a `simple` 4x1x1 decomposition and the
+  corrected IDWarp derivative it agrees with its own finite difference to **5.4e-06 relative** —
+  tighter than any other gradient in either ladder. The published 10.04%, W5's 8.953%, and this
+  session's §25.4 conclusion that "the other 89% has no identified cause" are all measurements of
+  DAFoam's default `scotch` decomposition on this mesh, not of A4's gradient.
+* **The verdict moves, and it moves up.** A4 was graded CONDITIONAL on a single component at 10.04%.
+  That number is an artifact. Against the shipped toolchain at np=1 the same case reads **1.10%**;
+  patched, **0.34%**; patched at np=4 under `simple`, **0.00054%**. Under this lab's own standard
+  (PASS at ≤5% with no flagged component) **A4 is a PASS**, and it is a PASS against the shipped
+  toolchain too. This is the first verdict in this investigation to move in the favourable
+  direction, and it does so because the defect was in the harness, not the solver.
+* **It is a second, independent defect class.** Everything from §15 to §24 collapsed into one
+  upstream IDWarp bug. This one is not that: it survives the patch, it lives in DAFoam's parallel
+  adjoint, and it is the only finding in this investigation that a rank count can turn on and off.
+
+**Leading hypothesis, explicitly not established.** A4 is the only case in either ladder whose
+`constant/polyMesh` carries `cellLevel`, `pointLevel`, `level0Edge` and `surfaceIndex` — the
+snappyHexMesh non-conformal hanging-node refinement metadata — and it is the only case showing the
+effect. `scotch` cuts irregularly and can place processor boundaries along those refinement
+interfaces; `simple` 4x1x1 cuts in flat slabs. That is a correlation on **n = 1 case** and a
+plausible mechanism, not a demonstration; the 1x4x1 arm reading 0.47% rather than 5.4e-06 shows even
+flat cuts are not all equivalent. Naming the mechanism needs a case with hanging nodes and a case
+without, both decomposed both ways, and that has not been run.
+
+Evidence: `/home/ubuntu/certonomous-runs/W4-a4-stepsweep/` — `a4_np{1,2,3,4}_*.log`,
+`a4_np4_tol1.0e-10.log`, `a4_np4_simple4x1x1.log`, `a4_np4_simple1x4x1.log`, `a4_dcddxv.log`,
+`run_np.sh`, `run_tol.sh`, `run_decomp2.sh`; and `/home/ubuntu/certonomous-runs/W4-a1-rank/`
+(`a1_np1.log`, `a1_np4.log`, `run_np.sh`).
