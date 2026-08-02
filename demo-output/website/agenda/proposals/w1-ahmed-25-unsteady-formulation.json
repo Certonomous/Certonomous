@@ -1,0 +1,22 @@
+{
+ "id": "w1-ahmed-25-unsteady-formulation",
+ "well": "W1",
+ "objective": "Ask the Ahmed 25 degree slant the question R4 ended on: whether the ladder fails because the steady equations do not possess the solution it is converging towards, by running the same body unsteady and comparing the time-mean drag against the steady rungs",
+ "rationale": "R4 measured a uniformly refined five-rung constant-ratio ladder on this body and it is non-monotone: increments minus 5.442e-03, minus 5.367e-03, then plus 8.895e-04, a fit of p equal to 0.175 outside the credible window, and a Richardson extrapolation of minus 0.0845, a negative drag coefficient. Its sixth rung at 834,351 cells did not converge in 4,000 iterations, with a final-window 2 sigma of 6.26 percent of its own value, six times the ladder increments the whole study is made of, and iterations to convergence had run 158, 212, 220, 623, 1668 before it. R4 section 6 states the conclusion in its own words: refining this ladder further is not the way to settle the Ahmed body, the next rung costs more and converges less, and the question is a formulation question, steady versus unsteady, not a grid question. It also states the mechanism as a hypothesis: the 25 degree slant sits on the drag crisis where the C-pillar vortices and the slant separation bubble trade places, so finer meshes resolve more of an unsteadiness the steady formulation is not allowed to have. That hypothesis has never been tested, and no item anywhere in the docket asks it. A closed item whose named next question was never filed is an unfinished item, and this is the successor R4 earned. HARD on criterion 1, three-dimensional separated flow with a documented bistable wake, and on criterion 3, because the reported quantity is a statistic of an unsteady field.",
+ "gate": "A time-mean drag from an unsteady solve on the c3 mesh, with its own statistical convergence stated as a mean and a band over a declared averaging window, reported beside the steady c3 value of 0.073992743 and the steady c4 value of 0.074882228. The hypothesis is supported if the unsteady solve carries a resolved fluctuation whose amplitude is at or above the ladder increment scale of 5e-03, and refuted if the field settles to the steady answer within the steady rungs' own noise floor of 1e-05 to 8e-05",
+ "hard_criterion": "1 and 3",
+ "est_core_min": 120.0,
+ "predicted_memory_gb": 6.0,
+ "predicted_usd": 0.0,
+ "cost_basis": "measured, not defaulted. R4 solved the c3 mesh (254,911 cells) steady in 3.39 core-minutes on 4 ranks at 63,728 cells per rank, and c4 (454,691 cells) in 16.74. An unsteady solve on c3 is priced at roughly 30 times its steady cost, for a startup transient plus an averaging window long enough to state a band, giving about 100 core-minutes, plus meshing at about 1 core-minute and margin. Four ranks stays: 63,728 cells per rank is an order of magnitude above the 5,600 cells per rank inversion point. If the transient will not settle into a statistically stationary state the item stops and reports that, which is itself the answer to the question asked",
+ "expected_knowledge_gain": "Either the Ahmed body's non-monotone ladder gets a named physical cause rather than a hypothesis, or the cause is eliminated and the defect is somewhere else. Both slants' validation credentials are blocked behind this ladder, and no amount of refinement will move it",
+ "source_kind": "gate",
+ "citations": [
+  "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md sections 3 and 6",
+  "demo-output/website/campaign/W1_AHMED_LADDER_DISPOSITION.md",
+  "Ahmed, Ramm & Faltin 1984, SAE 840300"
+ ],
+ "in_sample_verdict": "Not applicable. Nothing is fitted, inverted or calibrated: this is a forward solve of a published experimental configuration, and the Ahmed body is not a scored case of the closure challenge.",
+ "status": "proposed",
+ "created_at": "2026-08-02"
+}

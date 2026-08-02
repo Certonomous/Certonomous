@@ -3720,12 +3720,12 @@
     {
       "id": "w1-ahmed-family-asymptotic-ladder",
       "well": "W1",
-      "objective": "Build one asymptotic refinement ladder for the Ahmed family, which currently blocks both slants",
+      "objective": "Build one asymptotic refinement ladder for the Ahmed family on the 35 degree slant, the half of this item that is still open; the 25 degree half is answered in the negative by R4 and is out of scope",
       "rationale": "Both configurations sit inside their experimental band, 7 percent at 25 degrees and 12 percent at 35, and neither can be graded VALIDATED because its ladder is not conclusive: observed order 3.17 at 35 degrees, outside the theoretical range. The blocker is the same on both bodies, so one ladder done properly lifts two credentials rather than one. HARD: 3D separated flow with a documented bistable wake.",
-      "est_core_min": 240,
+      "est_core_min": 27.0,
       "predicted_memory_gb": 8.0,
       "predicted_usd": 3.284,
-      "cost_basis": "estimate",
+      "cost_basis": "measured, not estimated. R4 solved the identical four-rung experiment on the identical body at the identical rank count: meshing 1.21 plus about 2.6 core-minutes, then c1 0.84, c2 2.00, c3 3.39 and c4 16.74 core-minutes, all on 4 ranks at 19,860 to 113,673 cells per rank. About 27 core-minutes, not 240. The original 240 shares the defect R4 recorded in its own 400: it was priced on mesh generation for a different body, the B-52's 1,267-second and motorBike's 1,022-second rebuilds, and the Ahmed body meshes in about 15 seconds a rung",
       "gate": "An observed order inside the theoretical range on a mesh family refined uniformly, for at least one slant",
       "expected_knowledge_gain": "Converts the lab most complete experimental comparison from solver-backed into validated",
       "source_kind": "gate",
@@ -3736,7 +3736,9 @@
       "status": "approved",
       "created_at": "2026-07-31T14:18:26Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "rescoped_at": "2026-08-02T05:52:00Z",
+      "rescope_note": "Re-scoped to the 35 degree slant and re-priced from 240 core-minutes to 27, on evidence, in demo-output/website/campaign/W1_AHMED_LADDER_DISPOSITION.md. THE 25 DEGREE HALF IS ANSWERED AND OUT OF SCOPE: r4-asymptotic-range-ladders already ran this item's experiment there, five rungs on one recipe with the background blockMesh division triple the only knob, which is a uniform refinement, at 4 ranks throughout. It is non-monotone. Increments minus 5.442e-03, minus 5.367e-03, then plus 8.895e-04; the first two equal to 1.4 percent, which is the signature of p near zero; the fit on the first three rungs returns p = 0.175, outside [0.5, 2.5], with a Richardson extrapolation of minus 0.0845, a negative drag coefficient; and on the last three uq.eca_hoekstra_band refuses an order at all with not_conclusive_reason 'the three rungs do not move one way under refinement'. The sixth rung at 834,351 cells did not converge in 4,000 iterations, final-window 2 sigma 6.26 percent of its own value and six times the ladder increments, at a measured 267.4 core-minutes on 4 ranks. R4 section 6 rules that refining further is not the way and that the question is formulation, steady versus unsteady, not grid. Spending this item's budget at 25 degrees would re-run a pre-registered experiment already on the record. THE 35 DEGREE HALF IS GENUINELY OPEN, and for a reason recorded only today: the stored three-rung 35 degree ladder's observed_order of 3.169 is a fit over a family whose top step is NOT a refinement. W3's recipe audit, commit cb7025c6, read each rung's own snappyHexMeshDict and blockMeshDict and found medium to production refines the near-body levels while holding the background blockMesh identical, so no single r exists for that step. There is a physical reason to expect the 35 degree slant may behave where the 25 does not: 25 sits ON the drag crisis where the C-pillar vortices and the slant bubble trade places, while 35 is past it with the flow fully separated off the slant. That is written down before anything runs, as a reason to try and not a prediction. COLLISION NAMED, NOT RESOLVED: agp-11fa38e9a055 (W3, approved, 20 core-minutes) adds a fourth rung to the stored 35 degree ladder and would extend the family whose top step W3 itself just invalidated. W3 holds that item and nothing here touches it. Successor filed for the 25 degree half: w1-ahmed-25-unsteady-formulation."
     },
     {
       "id": "fiml-adjoint-conditioning-unblock",
@@ -3983,6 +3985,66 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-02T05:40:00Z"
+    },
+    {
+      "id": "w3-refinement-rungs-varies-two-knobs",
+      "well": "W3",
+      "objective": "Make a generated refinement ladder vary one knob, and make the guard check comparability rather than distinctness",
+      "rationale": "geometry_study.refinement_rungs() is asked for three rungs at refinement 3, which is every act on the generated-case path. base-1 and base-2 both floor to level 2, so only one level step actually happens, and the coarse rung is manufactured with a second knob instead: block_scale 0.7 on the background mesh. The resulting ladder refines the background on its first step and the near-body levels on its second, and no knob moves twice. A background change scales h everywhere with one ratio; a level change refines only at the surface, the feature edges and inside nearBody and leaves the farfield untouched, so it has no single r and a Richardson expansion has nothing to expand in. Confirmed from primary dictionaries on four bodies: ahmed_25, ahmed_35, naca0012_wing, naca4412_wing. It shows in the fits -- the NACA 4412's level step has the smaller cell ratio, 1.2658 against 1.3554, and moves Cd 5.5 times further, and the fitted p is 10.467. The docstring states the intent plainly: the second knob exists 'so the cell budgets stay distinct', and the guard that was added checks distinctness. Distinctness is not comparability. Two fixes are wanted: produce rungs that vary the background alone at a stated constant ratio, and add a comparability guard that refuses a ladder whose rungs do not share one refinement recipe, the way b52.json's recipe_audit does by hand.",
+      "est_core_min": 30.0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; a builder change plus one generated ladder re-meshed end to end to prove the rungs come out single-knob. Meshing four rungs of a wing measured 14 core-minutes tonight including four discarded attempts, so the proving run is priced from that and not from a solve",
+      "gate": "A ladder produced by the builder varies exactly one knob, and a mixed-recipe ladder is refused with its reason named",
+      "expected_knowledge_gain": "The upstream cause of four of the nine stored ladders' anomalous orders, fixed once rather than audited body by body, and a guard that stops the next one being built",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/workflows/geometry_study.py refinement_rungs()",
+        "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
+        "models/curriculum/uq-studies/b52.json recipe_audit"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:50:00Z"
+    },
+    {
+      "id": "w3-locationinmesh-lands-on-a-symmetry-plane",
+      "well": "W3",
+      "objective": "Move the generated case's mesh seed off the symmetry planes it currently sits exactly on",
+      "rationale": "external_aero._snappy() sets locationInMesh by stepping the geometry centre downstream along the streamwise axis and leaving the other two components at the centre. On a body whose generated domain is exactly symmetric that puts the seed exactly on both remaining symmetry planes, and whether refinementParameters::findCells finds a cell there turns on the floating-point parity of the background division counts. It is not hypothetical: meshing the NACA 0012 at (42 77 26) on 2026-08-02 died with 'Point (6.5 0 0) is not inside the mesh or on a face or edge' against a bounding box of (-3 -9 -3) to (7 9 3) that plainly contains it, while (33 60 20), (54 98 33) and (64 116 39) on the same case survived. The NACA 4412 is immune only by accident: its STL is slightly asymmetric so its domain runs z from -2.96598 to 3.03582 and its seed lands at z = 0.0349165, off-plane. So a symmetric body is one division count away from a hard mesh failure, and the failure looks like a geometry problem rather than a seed placement one. The fix is to offset the seed by a fraction of a background cell in the two non-streamwise directions. The offset is not free and its cost is measured: nudging the NACA 0012's seed to (6.5 0.1 0.1) and changing nothing else moved the r1 mesh from 140,580 cells to 140,545 and the r3 mesh from 358,486 to 358,430, 0.025 and 0.016 percent, so any body whose stored cell count came from the unnudged seed will not reproduce it to the cell after the fix.",
+      "est_core_min": 10.0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; the two re-meshes that quantified the offset cost about 2 core-minutes at 1 core, and the fix needs one re-mesh per affected body to record the new count",
+      "gate": "A generated case seeds its mesh off every symmetry plane, and each affected stored cell count is re-read rather than assumed unchanged",
+      "expected_knowledge_gain": "A mesh failure mode that reads as a geometry defect, removed, with the cost of removing it measured rather than assumed zero",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/external_aero.py _snappy()",
+        "/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/r2 log.snappyHexMesh, 2026-08-02",
+        "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md section 3"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:50:00Z"
+    },
+    {
+      "id": "w3-valid-family-for-ahmed-35-cube-and-sail",
+      "well": "W3",
+      "objective": "Build a single-knob production-recipe ladder for the three bodies that still have none",
+      "rationale": "After tonight, five of the corpus's bodies have or are getting a valid single-knob family: the B-52 (five rungs, turns), the Ahmed 25 degree (four rungs from R4, turns), and the two wings (four rungs each, running). Three do not: ahmed_35, cube and naca0015_sail. ahmed_35's stored ladder is confirmed two-recipe from its own dictionaries and reports p = 3.169, outside the window. cube and naca0015_sail cannot be audited from primary evidence because only their production cases survive on this box, so the split there is predicted from the builder path and not asserted -- which is itself a reason to build them a family, since a family built now is primary evidence about the recipe as well as about the flow. The construction is proven and cheap: four rungs above the production mesh varying only the background blockMesh triple at a constant ratio.",
+      "est_core_min": 160.0,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; priced from the two wing families run 2026-08-02 at 4 ranks, scaled by each body's production cell count -- 79,778 for ahmed_35, 299,493 for cube, 243,929 for naca0015_sail against the wings' 137,569 and 140,580. The cube and sail rungs are the expensive ones and the estimate is dominated by their finest rungs",
+      "gate": "Each body carries a four-rung family at one recipe with a stated constant ratio, and its verdict is read through uq.reportable_band",
+      "expected_knowledge_gain": "Whether every body in this corpus turns under genuine refinement, which is what the three measured so far do, or whether the turn is a property of some flows and not others",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
+        "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md",
+        "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:50:00Z"
     }
   ]
 }
