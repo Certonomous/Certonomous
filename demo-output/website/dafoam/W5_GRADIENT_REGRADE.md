@@ -124,6 +124,25 @@ is the rotation defect; the other 89% has no identified cause.** This is the
 opposite of A1 and A5, where the same four lines collapsed the error to
 FD-truncation level, and it was not predictable from them.
 
+> **UPDATE 2026-08-02 (well W4): the other 89% IS identified, and it is the mesh
+> decomposition — not a gradient defect (`PROOF.md` §25.5).** Every number in this
+> section was measured at np=4 with DAFoam's default `scotch`. At the same rank
+> count, changing only the decomposition to `simple` 4×1×1 gives **2.4037e-01 /
+> 0.76% stock** and **2.4220e-01 / 0.00054% patched**, against an FD that stays at
+> 2.4220e-01. So the two defects factor: the rotation patch closes 11% of the
+> published error, the decomposition closes **92%**, and together they close
+> essentially all of it. The converged baseline CD is invariant to five
+> significant figures across every configuration tried and the FD column spans
+> 0.36% — only the adjoint moves — and it is converged and wrong rather than
+> under-solved (`gmresRelTol` 1e-6→1e-10 leaves it unchanged to five printed
+> digits at 811 iterations, `PetscConvergedReason: 2`). A1 and A5 are
+> decomposition-invariant, so this is not a property of the stack. **A4's
+> CONDITIONAL is withdrawn: it is a PASS, at 0.76% against the shipped toolchain
+> once the decomposition is chosen.** The verdict below is superseded. The
+> mechanism is *not* identified — the obvious hanging-node hypothesis was tested
+> with `decomposePar -cellDist` and refuted backwards (`scotch` cuts 4 refinement
+> interfaces, `simple` cuts 68).
+
 **Verdicts.**
 
 * **A4 `CD wrt shape` = 10.04%, CONDITIONAL — HOLDS, at 8.953%.** Still inside
