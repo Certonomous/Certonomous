@@ -55,6 +55,24 @@ laptop bundle to the tree it was built from. It is a consistency check between
 two copies of the same code, in the sense the paragraph above defines, and it
 earns its place because the bundle is the only copy of this code that leaves
 the box and it went 32 commits behind with nothing noticing.
+
+WHAT EACH CHECK IS ACTUALLY TESTING, and why the distinction is not pedantry.
+`check_wall_credentials_vs_results` re-derives every credential through
+`lab.displayed_credential`, which is the same function `sdk/scripts/
+build_wall.py` calls to write the card in the first place. A defect inside
+that function is therefore identical on both sides of the comparison and reads
+as agreement. That is not hypothetical: on 2026-08-01 the Ahmed 25 degree row
+published its value on frontal area and its envelope on planform, understating
+the band by the whole 3.586 area ratio, and this check reported PASS before the
+fix and PASS after it. The check is worth having -- it measures drift between a
+surface and the code that writes it, and the wall is rebuilt by hand -- but
+drift is not correctness, and a check nobody can fail should be visible as one.
+
+So every check now declares, in `BASIS` below, what it tests, what it catches
+and what it is blind to, and `check_every_check_states_its_basis` enforces the
+declaration: a GENERATOR check must name the function it shares with the
+producer, and that function must actually appear in both files. The basis rides
+on every report line and in the JSON, so a PASS says which kind of PASS it is.
 """
 
 from __future__ import annotations
@@ -1486,6 +1504,96 @@ def check_studies_carry_what_the_fit_records() -> Result:
                   f"fit records; {scope}", skipped)
 
 
+def check_stored_fits_reproduce_their_values() -> Result:
+    """A stored study's numbers must equal what its own rungs still produce.
+
+    THE GAP THIS CLOSES. `check_studies_carry_what_the_fit_records` compares
+    KEY SETS: it asks whether a study carries every field the fit emits, and
+    never asks whether the values under those keys are the values the fit
+    emits. A writer that stored a stale band, a hand-typed verdict, or a number
+    from a rung it later replaced passes that check with a full field set. The
+    aortic-valve study is the standing example: its `conclusive: True` was a
+    typed literal, not anything a guard produced, and no field-presence check
+    can see the difference between a literal and a computed value.
+
+    THE CHECK. Refit each study from the rungs it stores under `levels[]`,
+    through the same fit whose method string it records, and compare value by
+    value. Zero compute: `levels` already holds every cell count and functional
+    the fit reads.
+
+    WHAT IT CATCHES AND WHAT IT DOES NOT. It catches the record writer -- a
+    stored number that the fit would not produce from the study's own rungs
+    today. It shares `chief_engineer.uq` with the code that wrote those
+    numbers, so it is blind to a defect inside the fit itself: a wrong band
+    computed one way and stored, then recomputed the same wrong way, agrees.
+    That limit is declared in BASIS and is the whole point of declaring it.
+    """
+    try:
+        uq = _uq_module()
+    except Exception as exc:  # noqa: BLE001
+        return Result("stored fits reproduce their values", WARN,
+                      f"cannot import the fit: {type(exc).__name__}: {exc}")
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    problems, notes, checked, compared = [], [], 0, 0
+    for path in studies:
+        study = _load_json(path)
+        if not isinstance(study, dict):
+            problems.append(f"{path.name}: does not parse")
+            continue
+        numerical = study.get("numerical") or {}
+        if not numerical:
+            continue
+        rungs = _study_rungs(study)
+        own = _own_fit(uq, study)
+        if own is None:
+            # Named, not skipped in silence: a record whose stored numbers no
+            # current fit reproduces is the record this check most wants to
+            # read, and it is exactly the one it cannot.
+            notes.append(
+                f"{path.stem}: stores {rungs} rung(s) and NO CURRENT FIT "
+                f"reproduces its stored method string "
+                f"{str(numerical.get('method') or '')[:60]!r}, so none of its "
+                f"values can be checked against its own evidence; remedy: "
+                f"establish which producer wrote this block, and whether that "
+                f"producer still exists, before any number here is believed "
+                f"or rewritten; NO COMPUTE to find out"
+                + ("" if rungs >= 3 else ", and it stores no usable rungs"))
+            continue
+        checked += 1
+        drops = set(uq.STUDY_NUMERICAL_DROPS)
+        for key in sorted(set(own) & set(numerical)):
+            if key in drops:
+                continue
+            stored, fresh = numerical[key], own[key]
+            compared += 1
+            if isinstance(stored, (int, float)) and isinstance(
+                    fresh, (int, float)) and not isinstance(stored, bool) \
+                    and not isinstance(fresh, bool):
+                scale = max(1.0, abs(float(fresh)))
+                if abs(float(stored) - float(fresh)) <= 1e-9 * scale:
+                    continue
+            elif stored == fresh:
+                continue
+            problems.append(
+                f"{path.stem}: numerical[{key}] is stored as {stored!r}; "
+                f"refitting this study's own {rungs} rungs through "
+                f"{own.get('method', '')[:40]!r} produces {fresh!r}. "
+                + REMEDY_REFIT.format(n=rungs))
+    if problems:
+        return Result("stored fits reproduce their values", FAIL,
+                      f"{len(problems)} stored value(s) are not what this "
+                      f"study's own rungs produce", problems + notes)
+    if notes:
+        return Result("stored fits reproduce their values", WARN,
+                      f"all {compared} value(s) across {checked} refittable "
+                      f"study(s) reproduce; {len(notes)} study(s) cannot be "
+                      f"refitted at all and are unchecked", notes)
+    return Result("stored fits reproduce their values", PASS,
+                  f"all {compared} stored value(s) across {checked} study(s) "
+                  f"reproduce from the study's own rungs")
+
+
 def check_declined_ladders_name_their_guard() -> Result:
     """A declined ladder must record WHICH guard held it, not only a sentence.
 
@@ -1926,6 +2034,332 @@ def check_rung_estimates_state_their_iterations() -> Result:
 
 
 # --------------------------------------------------------------------------
+# What each check is actually testing
+# --------------------------------------------------------------------------
+#
+# THE DEFECT THIS EXISTS FOR. A check that re-derives a published number
+# through the same function that published it cannot fail on a defect inside
+# that function: the error is identical on both sides and reads as agreement.
+# `check_wall_credentials_vs_results` is built that way, and it reported PASS
+# on both sides of a real defect (the Ahmed 25 degree row's value on frontal
+# area and its envelope on planform, a factor of 3.586 apart, 2026-08-01).
+# Such a check is still worth running -- it measures whether a hand-rebuilt
+# surface has fallen behind its generator -- but it answers a different
+# question from the one its PASS line appears to answer, and the reader has no
+# way to tell which without reading the source.
+#
+# So every check declares which of the five it is, what it catches, and what
+# it is blind to. The declaration is not a comment: for a GENERATOR check it
+# names the symbol shared with the producer and the producer's file, and
+# `check_every_check_states_its_basis` verifies that the symbol really does
+# appear in both. A coupling that is removed, or one that is added and not
+# declared, is then a finding rather than a comment nobody reread.
+
+EVIDENCE = "EVIDENCE"
+GENERATOR = "GENERATOR"
+PROPERTY = "PROPERTY"
+SURFACE = "SURFACE"
+TRANSCRIBED = "TRANSCRIBED"
+META = "META"
+
+BASIS_MEANING = {
+    EVIDENCE: ("re-derives a published number from a primary artifact, by "
+               "arithmetic this file performs itself; a defect in the "
+               "producing code shows up as a disagreement"),
+    GENERATOR: ("compares a published surface against the code that wrote it; "
+                "catches drift between the two and is BLIND to any defect "
+                "inside the shared code, which both sides carry equally"),
+    PROPERTY: ("asserts a property of a record, a surface or a source file; "
+               "nothing is re-derived, so there is no shared derivation to "
+               "hide in, and equally no number is confirmed"),
+    SURFACE: ("compares two published surfaces, or two copies of one file, to "
+              "each other; neither is primary evidence for the other"),
+    TRANSCRIBED: ("the evidence is typed into this file as a constant; the "
+                  "check cannot fail on a wrong value, only on arithmetic "
+                  "over its own constants"),
+    META: "a check on this file rather than on the lab's records",
+}
+
+# name -> (basis, catches, blind_to, shared)
+# `shared` is (symbol, file that also uses it) for a GENERATOR check, else None.
+BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
+    "check_ledger_integrity": (
+        PROPERTY, "an interrupted write that left a line unparseable",
+        "a row that parses and is wrong; nothing here reads the values", None),
+    "check_wall_counters_vs_ledger": (
+        EVIDENCE,
+        "a published counter that no longer sums out of the ledger; the sums "
+        "are accumulated in this function, row by row, not obtained from "
+        "lab_stats.ledger_summary which built the published block",
+        "the DEFINITION of what counts, which was copied here from the "
+        "generator by hand (succeeded rows only). If that convention is the "
+        "wrong one, both sides are wrong together and this agrees", None),
+    "check_ledger_stalls": (
+        EVIDENCE,
+        "rows whose wall time no per-solver cost mechanism explains, read "
+        "straight off the ledger and reported with their timestamps",
+        "whether STALL_SECONDS is the right cut; the threshold is declared "
+        "here and is not derived from anything", None),
+    "check_closure_entry_of_record": (
+        EVIDENCE,
+        "a wall score that disagrees with the entry file of record, which "
+        "this check opens and searches itself",
+        "whether the file it opens is the entry of record; that name is "
+        "hard-coded here", None),
+    "check_memory_scaling_law": (
+        EVIDENCE,
+        "a published power law that does not refit from its own tabulated "
+        "measurements; the ordinary least squares is done in this function",
+        "the measurements themselves, which are read from the SAME document "
+        "that states the law. A mistyped MiB figure refits to the mistyped "
+        "law and passes. Nothing here reaches the solver logs those three "
+        "numbers came from", None),
+    "check_withdrawn_numbers": (
+        PROPERTY, "a withdrawn value still present verbatim on a promotional "
+                  "surface",
+        "the same value written any other way: 0.251 for 0.2510, or a "
+        "recomputed near-neighbour", None),
+    "check_evidence_paths_exist": (
+        PROPERTY, "a repo-rooted citation with no file behind it",
+        "a path that exists and holds something other than the evidence "
+        "claimed for it", None),
+    "check_f2_reproduction": (
+        EVIDENCE,
+        "a published coefficient that does not match the raw force file, "
+        "which this check parses itself; this is the shape the others are "
+        "measured against",
+        "whether that raw file is the run the record names", None),
+    "check_cost_predictions": (
+        TRANSCRIBED,
+        "nothing. Every pair below is a constant in this file. The arithmetic "
+        "on those constants is right and the constants are unverified",
+        "a mistyped or superseded pair, a pair whose run was later withdrawn, "
+        "and every completed proposal on the docket that carries a measured "
+        "cost in its outcome and is not in this list", None),
+    "check_ungated_completed_runs": (
+        PROPERTY,
+        "a completed run whose record still carries the not-yet-graded marker",
+        "an ungated run whose record does not carry that marker; the check "
+        "knows one string on one file", None),
+    "check_gate_table_vs_transcripts": (
+        GENERATOR,
+        "a published row the generator would no longer write: hand-edited, "
+        "or resting on a transcript that has stopped supporting it",
+        "a misparse inside gate_table.py. The published table is that "
+        "generator's own output pasted into markdown, so a transcript read "
+        "wrongly is read wrongly on both sides and agrees",
+        ("gate_table", "scripts/gate_table.py")),
+    "check_wall_credentials_vs_results": (
+        GENERATOR,
+        "wall.json having fallen behind the builder: a card that would change "
+        "if the wall were rebuilt right now. One arm IS independent -- "
+        "relative_error is recomputed here from the result file's own "
+        "cd_compared and reference_cd",
+        "any defect inside displayed_credential, which is the function that "
+        "wrote the card. This is the check the finding was filed on: it "
+        "reported PASS on both sides of the Ahmed 25 degree area-basis "
+        "defect, before the fix and after it",
+        ("displayed_credential", "sdk/scripts/build_wall.py")),
+    "check_benchmarks_vs_closure_record": (
+        EVIDENCE,
+        "two things: the published block regressing on the next build (that "
+        "half is GENERATOR, against the generator's own _CLOSURE constant), "
+        "and our_score disagreeing with the round-3 entry's own harness "
+        "result, which this check reads from the scored artifact",
+        "a closure field that is not our_score and is wrong in the artifact "
+        "and in the constant alike", None),
+    "check_fd_grades_current_standard": (
+        PROPERTY,
+        "a published FD row whose grade word is not the one the current "
+        "standard gives for the percentage printed beside it",
+        "the percentage itself, which is read off the published row and never "
+        "recomputed from FD data. A wrong percentage carrying its own correct "
+        "grade passes. And `_fd_grade` restates verification charter section "
+        "7 as literals in this file, which is the very shape "
+        "check_restated_thresholds calls a defect elsewhere", None),
+    "check_statistical_labels": (
+        PROPERTY,
+        "a caption-printing site with no interval test in it, and a "
+        "transcript line claiming an interval with no interval on it",
+        "an interval that is present, well-formed and fabricated", None),
+    "check_nonconclusive_band_readers": (
+        PROPERTY,
+        "a function that fits a ladder, reads band_abs and never reads the "
+        "conclusiveness flag, by parsing the source",
+        "a caller that mentions the flag and ignores it; the test is textual "
+        "presence, not use", None),
+    "check_channel_totals_use_one_rule": (
+        SURFACE,
+        "a combined band containing a channel the same act's own table "
+        "reports unquantified",
+        "whether either the total or the table is right; it only makes them "
+        "agree with each other. Already self-declared in its docstring", None),
+    "check_declared_fleet_vs_work": (
+        PROPERTY,
+        "a non-zero worker declaration inside a branch whose condition is a "
+        "cache restore",
+        "a fleet overstated on a cold path, where the declaration is inside "
+        "no branch this check recognises", None),
+    "check_restated_thresholds": (
+        PROPERTY,
+        "a governed threshold restated as a literal default, whether or not "
+        "it currently agrees with its source",
+        "everything outside sdk/workflows and sdk/chief_engineer. `scripts/` "
+        "is not in _py_sources(), so this file's own restatements -- "
+        "_fd_grade and STALL_SECONDS -- are out of its reach. The audit does "
+        "not audit itself", None),
+    "check_register_group_counts": (
+        SURFACE,
+        "a register group whose declared count disagrees with the headings "
+        "under it, in the same file",
+        "an entry that is missing from the register altogether; both numbers "
+        "come from the register", None),
+    "check_campaign_json_citations": (
+        PROPERTY, "a machine-readable citation with no file behind it",
+        "a citation pointing at a file that exists and is not the evidence",
+        None),
+    "check_studies_carry_what_the_fit_records": (
+        EVIDENCE,
+        "a record writer that whitelists keys and has dropped a field the fit "
+        "learned to emit; the writer and the fit are different code paths, so "
+        "the comparison is real",
+        "every VALUE. It compares key sets only. A stale or hand-typed number "
+        "under a present key passes -- which is what "
+        "check_stored_fits_reproduce_their_values now reads",
+        None),
+    "check_stored_fits_reproduce_their_values": (
+        EVIDENCE,
+        "a stored value the study's own rungs no longer produce: a stale "
+        "band, a hand-typed verdict, a number from a rung later replaced. The "
+        "record writer and the fit are different code paths",
+        "a defect inside the fit itself. The same uq module computed the "
+        "stored numbers and recomputes them here, so a band computed wrongly "
+        "and recomputed the same way agrees. It is also blind to any study "
+        "whose method string no current fit reproduces, and those are named "
+        "on the report rather than skipped",
+        ("eca_hoekstra_band", "sdk/chief_engineer/uq.py")),
+    "check_declined_ladders_name_their_guard": (
+        SURFACE,
+        "a record whose named guard disagrees with its own guard map, and a "
+        "decline that records no guard at all",
+        "whether the guard map is right. Both fields were written by the same "
+        "writer from the same fit, so this asks only that the record agrees "
+        "with itself; it never refits to confirm the map", None),
+    "check_order_window_declines_state_their_dimensionality": (
+        EVIDENCE,
+        "a decline that rests on the dimensionality assumption alone, by "
+        "refitting the ladder from its own stored rungs at the other dim",
+        "a defect inside eca_hoekstra_band, shared with the code that wrote "
+        "the stored order. It also prints the STORED order beside a REFIT "
+        "one, so the two columns do not come from the same place",
+        ("eca_hoekstra_band", "sdk/chief_engineer/uq.py")),
+    "check_bundle_drift": (
+        SURFACE,
+        "a shipped file that is absent from the bundle or behind the tree, by "
+        "byte comparison",
+        "whether the tree is right; a defect copied faithfully into the "
+        "bundle is a match. Already self-declared in the module docstring",
+        None),
+    "check_rung_estimates_state_their_iterations": (
+        PROPERTY,
+        "a rung-shaped compute proposal whose cost_basis names no iteration, "
+        "step or sweep count",
+        "whether a stated iteration count is the right one, and whether the "
+        "estimate built on it is any good", None),
+    "check_every_finding_prices_its_remedy": (
+        META, "a check that ships without a stated remedy and price",
+        "whether a stated price is correct", None),
+    "check_every_check_states_its_basis": (
+        META,
+        "a check that ships without declaring what it tests, and a GENERATOR "
+        "declaration naming a coupling that is no longer there",
+        "a check that declares EVIDENCE and is in fact coupled through a "
+        "symbol it does not name; the declaration is enforced where it is "
+        "made, not discovered from scratch", None),
+}
+
+
+def check_every_check_states_its_basis() -> Result:
+    """Every check declares what it tests, and a declared coupling is real.
+
+    THE DEFECT. `check_wall_credentials_vs_results` re-derives each credential
+    through `lab.displayed_credential`, the same function `build_wall.py` calls
+    to write the card. Its PASS means the wall has not drifted from its
+    builder. It does not mean the card is right, and it read PASS on both
+    sides of the Ahmed 25 degree area-basis defect. Nothing on the report said
+    which kind of PASS it was.
+
+    THE CHECK, three parts. Every check in CHECKS carries a BASIS entry and
+    every BASIS entry names a live check. Every GENERATOR entry names the
+    symbol it shares with the producer, and that symbol must actually appear
+    both in this file and in the producer's file -- so a coupling that is
+    removed, or a declaration that was never true, is a finding rather than a
+    stale comment. And the tally of how many checks are blind to a defect in
+    the code they check rides on the verdict line, because that number is the
+    honest summary of what this audit can and cannot see.
+    """
+    names = {check.__name__ for check in CHECKS}
+    missing = sorted(n for n in names if n not in BASIS)
+    stale = sorted(n for n in BASIS if n not in names)
+    problems = [f"{n}: does not declare what it tests" for n in missing]
+    problems += [f"{n}: declares a basis and is not a check any more"
+                 for n in stale]
+
+    own_text = Path(__file__).read_text(encoding="utf-8", errors="replace")
+    for name in sorted(set(BASIS) & names):
+        basis, catches, blind, shared = BASIS[name]
+        if basis not in BASIS_MEANING:
+            problems.append(f"{name}: declares unknown basis {basis!r}")
+        if not catches or not blind:
+            problems.append(f"{name}: names no catch or no blind spot; a "
+                            f"check with no stated blind spot has not been "
+                            f"read for one")
+        if basis == GENERATOR and not shared:
+            problems.append(
+                f"{name}: declares GENERATOR and names no shared symbol; the "
+                f"whole content of that declaration is which function both "
+                f"sides go through")
+        if not shared:
+            continue
+        symbol, producer = shared
+        if symbol not in own_text:
+            problems.append(
+                f"{name}: declares it shares {symbol!r} with {producer}, and "
+                f"{symbol!r} does not appear in this file")
+        path = REPO / producer
+        if not path.exists():
+            problems.append(f"{name}: names producer {producer}, which is not "
+                            f"on disk")
+        elif symbol not in path.read_text(encoding="utf-8", errors="replace"):
+            problems.append(
+                f"{name}: declares it shares {symbol!r} with {producer}, and "
+                f"{producer} no longer mentions it; either the coupling is "
+                f"gone and this check is now independent, or it moved")
+
+    counted: dict[str, list[str]] = {}
+    for name in sorted(set(BASIS) & names):
+        counted.setdefault(BASIS[name][0], []).append(name)
+    detail = [f"{basis}: {len(rows)} check(s) -- {BASIS_MEANING[basis]}"
+              for basis, rows in sorted(counted.items())
+              if basis in BASIS_MEANING]
+    coupled = sorted(counted.get(GENERATOR, []) + counted.get(TRANSCRIBED, []))
+    detail.append(
+        f"{len(coupled)} of {len(names)} check(s) cannot fail on a defect "
+        f"inside the code or the constants they check: "
+        f"{', '.join(coupled) or 'none'}")
+    detail.append(
+        f"{len(counted.get(EVIDENCE, []))} check(s) re-derive a published "
+        f"number from a primary artifact by arithmetic performed here")
+    if problems:
+        return Result("every check states its basis", FAIL,
+                      f"{len(problems)} declaration(s) are missing or no "
+                      f"longer true", problems + detail)
+    return Result("every check states its basis", PASS,
+                  f"all {len(names)} check(s) declare what they test and "
+                  f"every declared coupling is still real", detail)
+
+
+# --------------------------------------------------------------------------
 # What clearing each finding costs
 # --------------------------------------------------------------------------
 #
@@ -2051,6 +2485,17 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "rebuild the bundle from the tree and verify by rendering from inside "
         "it rather than by diffing",
         False, "a copy, and a render"),
+    "check_stored_fits_reproduce_their_values": (
+        "refit the study in place from the rungs it already stores under "
+        "levels[], through uq.study_numerical, and write back what the fit "
+        "produces; for a record no current fit reproduces, establish which "
+        "producer wrote it before touching a number",
+        False, "the rungs are on disk; the fit is arithmetic on them"),
+    "check_every_check_states_its_basis": (
+        "declare in BASIS what the new check tests, what it catches and what "
+        "it is blind to; for a GENERATOR check, name the symbol it shares "
+        "with the producer",
+        False, "reading the check that was just written"),
     "check_every_finding_prices_its_remedy": (
         "add the missing check to REMEDIES with its remedy and whether that "
         "remedy needs compute",
@@ -2111,11 +2556,13 @@ CHECKS = (
     check_register_group_counts,
     check_campaign_json_citations,
     check_studies_carry_what_the_fit_records,
+    check_stored_fits_reproduce_their_values,
     check_declined_ladders_name_their_guard,
     check_order_window_declines_state_their_dimensionality,
     check_bundle_drift,
     check_rung_estimates_state_their_iterations,
     check_every_finding_prices_its_remedy,
+    check_every_check_states_its_basis,
 )
 
 
@@ -2144,6 +2591,14 @@ def main() -> int:
             row["remedy"] = remedy
             row["remedy_needs_compute"] = needs_compute
             row["remedy_basis"] = basis
+        declared = BASIS.get(check.__name__)
+        if declared:
+            tests, catches, blind, shared = declared
+            row["tests"] = tests
+            row["catches"] = catches
+            row["blind_to"] = blind
+            row["shares_with_producer"] = (
+                f"{shared[0]} in {shared[1]}" if shared else None)
         priced.append(row)
 
     if args.json:
@@ -2155,19 +2610,40 @@ def main() -> int:
         for check, result in zip(CHECKS, results):
             if args.quiet and result.status in (PASS, INFO):
                 continue
-            print(f"[{result.status:<4}] {result.name:<{width}}  {result.summary}")
+            declared = BASIS.get(check.__name__)
+            tests = declared[0] if declared else "UNDECLARED"
+            print(f"[{result.status:<4}] {result.name:<{width}}  "
+                  f"{result.summary}")
+            print(f"         tests: {tests}")
             for line in result.detail:
                 print(f"         - {line}")
+            # A GENERATOR or TRANSCRIBED verdict states its blind spot on
+            # EVERY status, not only on a failure. The point of the
+            # declaration is that a PASS from a check nobody can fail should
+            # read as one.
+            if declared and (declared[0] in (GENERATOR, TRANSCRIBED)
+                             or declared[3]):
+                print(f"         BLIND TO: {declared[2]}")
+                if declared[3]:
+                    print(f"         shares {declared[3][0]} with "
+                          f"{declared[3][1]}")
             entry = REMEDIES.get(check.__name__)
             if entry and result.status in (WARN, FAIL):
                 remedy, needs_compute, basis = entry
                 price = "NEEDS COMPUTE" if needs_compute else "NO COMPUTE"
                 print(f"         remedy ({price}): {remedy}")
-                print(f"         basis: {basis}")
+                print(f"         remedy basis: {basis}")
         print("=" * (width + 60))
         tally = {s: sum(1 for r in results if r.status == s)
                  for s in (PASS, WARN, FAIL, INFO)}
         print("  ".join(f"{k}: {v}" for k, v in tally.items() if v))
+        kinds: dict[str, int] = {}
+        for check in CHECKS:
+            declared = BASIS.get(check.__name__)
+            kinds[declared[0] if declared else "UNDECLARED"] = \
+                kinds.get(declared[0] if declared else "UNDECLARED", 0) + 1
+        print("what these checks test:  "
+              + "  ".join(f"{k}: {v}" for k, v in sorted(kinds.items())))
 
     return 1 if any(r.status == FAIL for r in results) else 0
 
