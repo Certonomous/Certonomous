@@ -4217,8 +4217,32 @@
         "dafoam/W5_GRADIENT_REGRADE.md section 2",
         "dafoam/PROOF.md section 20"
       ],
+      "status": "done",
+      "created_at": "2026-08-02T06:36:00Z",
+      "completed_at": "2026-08-02T07:03:00Z",
+      "measured_core_min": 46,
+      "measured_basis": "Container wall time x rank count: the dCD/dXv probe 122 s x 2 = 4.1 core-min, eight check_totals arms (np 1/2/3/4, tightened tolerance, two simple decompositions, one stock) at 31-95 s each x their own rank counts = ~28, and the A1 rank control 2 arms x ~40 s = ~5. Against a 25 core-min estimate: 84% over, because the item scoped one probe and the probe's first number forced seven more runs.",
+      "outcome": "Answered, and the answer is not the link the item named. dCD/dXv is CLEAN: against a true re-solve finite difference of itself via DASolver.setVolCoords, DVGeo and IDWarp bypassed on the FD side, real captured seed, np=1 (2,777 cells per rank), it agrees at 0.54% (h=1e-3) and 0.47% (h=3e-4) -- as tight as A1's 0.4-1.4% and A5's 0.17-2.49% at this link -- and the hand composition equals compute_totals to 5.70e-09, so the assembly is exact. Baseline control: the directly-set Xv0 re-solve returns CD 1.529747399110284e-01 against OpenMDAO's 1.529738469354696e-01, difference 8.9e-07. But that np=1 run's framework dCD/dshape came back 2.414994857859927e-01, against W5's np=4 value of 2.2086e-01 -- 9.4% from the rank count alone. Run head-on, varying only the decomposition, patched unless noted: np=1 stock 1.10%, np=1 0.34%, np=2 0.26%, np=3 6.05% (analytic HIGH at 2.5641e-01), np=4 scotch 8.95% (analytic LOW at 2.2086e-01), np=4 simple 4x1x1 0.00054% (analytic 2.4220e-01 against FD 2.4220e-01), np=4 simple 1x4x1 0.47%. The converged baseline CD is 0.15296979 to 0.15297237 across all six, invariant to five significant figures; the FD column spans 0.36%; the analytic column spans 10%. Only the adjoint moves. Converged wrong answer, not a loose solve: gmresRelTol tightened 1e-6 to 1e-10 at np=4 takes GMRES from 719 to 811 iterations, still PetscConvergedReason 2, analytic unchanged to all five printed digits -- A5's own discriminator giving A5's own answer. Two confounds eliminated before the claim: a freshly computed dRdWColoring at np=4 reproduces 2.2086e-01 to every digit, so it is not the colouring cache; and editing system/decomposeParDict is INERT because pyDAFoam regenerates it from the decomposeParDict daOption (pyDAFoam.py:597, _writeDecomposeParDict at :2210), a silent no-op that returned a suspiciously identical number and was caught only by reading the log's own 'Decomposition method scotch [4]' line back. Control that this is not a property of the stack: A1, run at np=1 and np=4 under the identical harness, gives relative error 3.795529e-04 vs 3.807681e-04, analytic identical to six digits -- decomposition-invariant. Consequence: A4's published 10.04% CONDITIONAL is an artifact of DAFoam's default scotch decomposition on this mesh, not a gradient defect. A4 reads 1.10% against the SHIPPED toolchain at np=1 and 0.00054% patched at np=4 under simple 4x1x1 -- PASS under this lab's own standard, and PASS against the shipped toolchain. First verdict in this investigation to move upward, and the first defect found here that is not the IDWarp rotation bug: it survives the patch and lives in DAFoam's parallel adjoint. Leading hypothesis, explicitly NOT established: A4 is the only case in either ladder whose polyMesh carries cellLevel, pointLevel, level0Edge and surfaceIndex -- snappyHexMesh non-conformal hanging-node refinement -- and the only one showing the effect; scotch cuts irregularly and can place processor boundaries along those interfaces while simple 4x1x1 cuts in flat slabs. That is a correlation on n=1 case, and the 1x4x1 arm at 0.47% rather than 5.4e-06 shows even flat cuts are not equivalent. Naming it needs a hanging-node case and a conformal case, both decomposed both ways, which has not been run. Full record: dafoam/PROOF.md section 25.5, DAFOAM_CASE_STATUS.md A4."
+    },
+    {
+      "id": "w4-does-the-decomposition-defect-reach-other-cases",
+      "well": "W4",
+      "objective": "Find out how far the decomposition-dependent adjoint reaches, and whether hanging-node refinement is the discriminator",
+      "rationale": "A4's whole unattributed gradient error turned out to be its mesh decomposition: at fixed rank count 4 the analytic gradient moves from 2.2086e-01 under DAFoam's default scotch to 2.4220e-01 under simple 4x1x1, agreeing with its own finite difference to 5.4e-06, while the converged baseline CD is invariant to five significant figures and the FD spans 0.36%. It is converged and wrong, not under-solved. A1 is decomposition-invariant to six digits. The one structural difference is that A4 is the only case in either ladder whose polyMesh carries cellLevel, pointLevel and level0Edge -- snappyHexMesh non-conformal hanging-node refinement -- but that is a correlation on one case, and the simple 1x4x1 arm at 0.47% shows even flat cuts are not equivalent. Every multi-rank gradient this lab has published was computed under the default scotch, so the reach of this matters beyond A4: the sail cases, A2 and A5 were all run on multiple ranks.",
+      "est_core_min": 180.0,
+      "predicted_memory_gb": 12.0,
+      "predicted_usd": 2.463,
+      "cost_basis": "measured: an A4 check_totals arm costs 2-6 core-min and A1's 3, so a 2x2 of scotch against simple on four cases is under 60; the rest is one snappyHexMesh case rebuilt without refinement levels, which is the only way to test the hanging-node hypothesis directly",
+      "gate": "Each case tested is either decomposition-invariant or is not, with its own analytic and FD columns cited at both decompositions; and the hanging-node hypothesis is either supported by a conformal-versus-refined pair on the same geometry or reported as untested",
+      "expected_knowledge_gain": "Either the defect is confined to hanging-node meshes and every other published gradient is safe, or it is not and the lab finds out which of its multi-rank results were computed on a decomposition that changes the answer",
+      "source_kind": "ledger",
+      "citations": [
+        "dafoam/PROOF.md section 25.5",
+        "dafoam/DAFOAM_CASE_STATUS.md A4",
+        "dafoam/R5_ADJOINT_CONDITIONING.md section 4"
+      ],
       "status": "proposed",
-      "created_at": "2026-08-02T06:36:00Z"
+      "created_at": "2026-08-02T07:04:00Z"
     }
   ]
 }
