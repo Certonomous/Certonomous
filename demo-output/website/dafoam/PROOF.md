@@ -2855,6 +2855,18 @@ decomposition varied:
 | np=4, **`simple` 4x1x1** | 694 | **2.4220e-01** | 2.4220e-01 | **0.00054%** |
 | np=4, **`simple` 1x4x1** | 694 | 2.4379e-01 | 2.4265e-01 | **0.47%** |
 
+**The two defects factor cleanly.** Completing the 2x2 at np=4 — toolchain against decomposition:
+
+| | `scotch` (default) | `simple` 4x1x1 |
+|---|---|---|
+| **stock** IDWarp | 2.1821e-01, **10.04%** (the published number) | 2.4037e-01, **0.76%** |
+| **patched** IDWarp | 2.2086e-01, **8.95%** | 2.4220e-01, **0.00054%** |
+
+The rotation patch alone closes 11% of the published error; the decomposition alone closes **92%**;
+together they close essentially all of it. They are independent defects and they compose. Note the
+top-right cell: **against the shipped, unmodified toolchain, changing only the decomposition takes
+A4 from 10.04% to 0.76%.**
+
 **Three controls say the primal and the finite difference are not what is moving.** The converged
 baseline CD is 0.15296979–0.15297237 across all six configurations — invariant to five significant
 figures, a spread of 1.7e-06 relative. The FD column spans 2.4178e-01–2.4265e-01, **0.36%**. The
