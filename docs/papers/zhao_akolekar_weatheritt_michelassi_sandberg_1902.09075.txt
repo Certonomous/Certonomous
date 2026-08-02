@@ -1,0 +1,947 @@
+                                                                                                     Journal of Computational Physics (2020)
+
+
+                                                                                                    Contents lists available at ScienceDirect
+
+
+                                                                                           Journal of Computational Physics
+                                                                                                journal homepage: www.elsevier.com/locate/jcp
+arXiv:1902.09075v2 [physics.flu-dyn] 24 Mar 2020
+
+
+
+
+                                                   RANS Turbulence Model Development using CFD-Driven Machine Learning
+
+                                                   Yaomin Zhaoa,∗, Harshal D. Akolekara , Jack Weatheritta , Vittorio Michelassib , Richard D. Sandberga
+                                                   a Department of Mechanical Engineering, University of Melbourne, VIC 3010, Australia
+                                                   b Baker Hughes, a GE Company, Via Felice Matteucci 2, Firenze 50127, Italy
+
+
+
+
+                                                   ARTICLE INFO                                   ABSTRACT
+
+                                                   Article history:                               This paper presents a novel CFD-driven machine learning framework to de-
+                                                                                                  velop Reynolds-averaged Navier-Stokes (RANS) models. The CFD-driven
+                                                                                                  training is an extension of the gene expression programming method (Weatheritt
+                                                   Machine learning                               & Sandberg, J. Comput. Phys., 325, 22-37 (2016)), but crucially the fitness
+                                                   Turbulence modelling                           of candidate models is now evaluated by running RANS calculations in an
+                                                   Wake mixing                                    integrated way, rather than using an algebraic function. Unlike other data-
+                                                                                                  driven methods that fit the Reynolds stresses of trained models to high-fidelity
+                                                                                                  data, the cost function for the CFD-driven training can be defined based on
+                                                                                                  any flow feature from the CFD results. This extends the applicability of the
+                                                                                                  method especially when the training data is limited. Furthermore, the resulting
+                                                                                                  model, which is the one providing the most accurate CFD results at the end
+                                                                                                  of the training, inherently shows good performance in RANS calculations.
+                                                                                                  To demonstrate the potential of this new method, the CFD-driven machine
+                                                                                                  learning approach is applied to model development for wake mixing in tur-
+                                                                                                  bomachines. A new model is trained based on a high-pressure turbine case
+                                                                                                  and then tested for three additional cases, all representative of modern turbine
+                                                                                                  nozzles. Despite the geometric configurations and operating conditions being
+                                                                                                  different among the cases, the predicted wake mixing profiles are significantly
+                                                                                                  improved in all of these a posteriori tests. Moreover, the model equation is
+                                                                                                  explicitly given and available for analysis, thus it could be deduced that the
+                                                                                                  enhanced wake prediction is predominantly due to the extra diffusion intro-
+                                                                                                  duced by the CFD-driven model.
+                                                                                                                                         c 2020 Elsevier Inc. All rights reserved.
+
+
+
+
+                                                   1. Introduction
+
+                                                       Reynolds-averaged Navier-Stokes (RANS) remains the primary tool in most industrial applications due to its
+                                                   low computational cost compared to high-fidelity (Hi-Fi) simulations such as direct numerical simulation (DNS)
+
+
+                                                      ∗ Corresponding author: yaomin.zhao@unimelb.edu.au
+
+
+                                                   Preprint submitted to Journal of Computational Physics                                                       March 25, 2020
+2                                                / Journal of Computational Physics (2020)
+
+and large-eddy simulation (LES). However, RANS suffers from low-fidelity in prediction especially for complex
+geometries and flow fields [1], which is mainly due to the limiting assumptions used to model the Reynolds stress
+tensor τi j . Therefore, there has been continuous interest in both academia and industry to improve the predictive
+accuracy of RANS models routinely applied to aerodynamic and aerothermal design verifications, especially in the
+aerospace field.
+    Recently, machine learning has gained popularity in turbulence modelling [2]. Various machine-learning tech-
+niques have been applied to modify traditional RANS models to enhance the flow prediction, including modifying
+model parameters with Bayesian methods [3], introducing a correction factor for the turbulence production term using
+neural networks [4], and adding a spatially distributed correction field via field inversion and Gaussian Process [5],
+etc. However, the various types of corrections trained for traditional RANS models are usually not physically inter-
+pretable.
+    Other than simply adding corrections to existing model parameters, more comprehensive efforts have been made
+to construct new Reynolds stress closures via physics-informed machine learning. In particular, many studies have
+focused on improving the Boussinesq hypothesis
+
+                                                                 2
+                                                        τi j =     ρkδi j − 2µt S i0 j ,                                     (1)
+                                                                 3
+which assumes a linear relation between the anisotropy of the Reynolds stress ai j = τi j − 32 ρkδi j and the deviatoric
+strain-rate tensor S i0 j . Such linear relation only holds valid in limited portions of the flow field, while it is questionable
+in complex flow topologies. Here, ρ denotes density, k denotes turbulence kinetic energy, and µt represents turbulence
+viscosity. A random forest method was used in Wang et al. [6] to train Reynolds stress discrepancy functions based on
+the ai j tensor eigenvalues. The trained discrepancy functions were applied in test cases to show improved prediction
+of τi j , but the performance of mean quantities needs to be further validated. With basis tensors and scalar invariants
+decomposed from ai j , Ling et al. [7] used a deep neural network to train the Reynolds stress tensor conserving
+Galilean invariance. Nevertheless, the resulting neural network from the training is not straightforward to implement
+into RANS solvers.
+    In a series of studies, the gene-expression programming (GEP) method has been introduced [8] to develop explicit
+algebraic (Reynolds) stress models (EASM) based on the stress tensor decomposition proposed by Pope [9]. EASM-
+like turbulence closures are represented in the form
+                                                     X
+                                              ai j =   f (k) (I1 , I2 , ..., In )Vikj ,                                      (2)
+                                                            k
+
+which can be taken as a solution to the shortcomings of the Boussinesq hypothesis. This implies the non-dimensionalized
+anisotropic stress tensor ai j is represented by a combination of tensor bases Vikj and scalar invariants I j . Models fol-
+lowing Eqn. (2) can be explicitly provided through symbolic regression by GEP, which is used to determine the
+coefficients f (k) based on training data. Applied in RANS solvers, these GEP-trained models have shown improved
+predictive accuracy in several a posteriori tests such as rectangular ducts [10] and turbomachinery flows [11, 12].
+    Although machine learning for turbulence model development is becoming a growing trend, obstacles still exist
+                                                 / Journal of Computational Physics (2020)                             3
+
+in training and implementing the models to engineering applications. One of the major concerns is that most of the
+training methods aim at accurately modelling the Reynolds stress tensor from Hi-Fi data, while the inherent inconsis-
+tency between RANS modelling and high-fidelity data has been neglected [2]. As shown in previous studies [13, 14],
+RANS prediction can remain unsatisfactory even if Reynolds stresses from DNS are used in the CFD calculation.
+Such difficulty was also documented by Parneix et al. [15, 16], who tuned a full Reynolds stress model with the aid
+of the DNS of a backward facing step, but the application of the tuned model to RANS did not confirm the expected
+improvements. Therefore, it is questionable whether existing model development methods targeting only the accurate
+modelling of τi j from Hi-Fi data can provide accurate mean flow fields. Rather than training models exclusively
+based on high-fidelity data, model development strategies more adaptive to RANS calculations are needed to provide
+models applicable for pragmatic CFD.
+    In order to train models adaptive to RANS environments, a novel model development framework named CFD-
+driven training is introduced in the present work. By integrating RANS calculations in the GEP model training method
+introduced by Weatheritt and Sandberg [8], the objective is to develop Reynolds stress closures of the form given in
+Eqn. (2), which are i) straightforward to be implemented in RANS solvers; ii) robust in a sense of providing stable
+solutions in RANS calculations; and iii) showing improved predictive accuracy in different a posteriori tests.
+    The present paper is structured as follows. The CFD-driven training frameworks along with the basics for symbolic
+regression via the GEP method are introduced in Sec. 2. Then the CFD-driven training is applied to turbine wake
+mixing cases in Sec. 3, which includes a brief description of the case setups and training data, the details of the model
+development process, and the analysis of the predictive results of the trained model. Furthermore, the trained model
+is validated for several other cases, and the generalizability of the CFD-dirven model development is discussed in
+Sec. 4.2. Finally, conclusions are provided in Sec. 5.
+
+2. Methodology
+2.1. Baseline model
+    The model development in the present study is based on the widely applied k − ω SST model [17], in which the
+equations for the turbulent kinetic energy k and the specific dissipation rate ω are written as
+                                 ∂ui             ∂                   ∂k
+                                                     "                    #
+                     Dρk
+                          = τi j      − β ρωk +
+                                         ∗
+                                                       (µ + σ k µt )        ,
+                      Dt         ∂x j           ∂x j                 ∂x j
+                                                                                                                     (3)
+                    Dρω α ∂ui                      ∂                  ∂ω                          1 ∂k ∂ω
+                                                       "                     #
+                          = τi j        − βρω +
+                                              2
+                                                        (µ + σω µt )           + 2 (1 − F1 ) ρσω2             ,
+                      Dt     νt ∂x j             ∂x j                 ∂x j                        ω ∂x j ∂x j
+where ui is the velocity component. Other relations to close the transport equations are
+                                                   √                        4 
+                                                    k   500v        4σ ω2 k
+                       F1 = tanh min max  ∗ , 2  ,                   ,
+                                              
+                                                    
+                                                                      
+                                                                                 
+                                                       β ωy y ω CDkω y2 
+                                             √            2                                                    (4)
+                                                                                             1 ∂k ∂ω
+                                                                                                              !
+                                        2 k 500v  
+                       F2 = tanh max  ∗ , 2   , CDkω = max 2σω2                          , 10−10 .
+                                                  β ωy y ω                                   ω ∂xi ∂xi
+The eddy viscosity is given as
+                                                                    a1 k
+                                                       νt =                    .                                     (5)
+                                                              max (a1 ω, ΩF2 )
+4                                                 / Journal of Computational Physics (2020)
+
+    Furthermore, the model coefficients (say ψ) are obtained by blending the coefficients of the k −  and k − ω models
+as ψ = ψ2 + F1 (ψ1 − ψ2 ), and the whole set of the coefficients are
+
+                                     α1 = 0.553,          α2 = 0.44,      β1 = 0.075,     β2 = 0.0828
+
+                                     σk1 = 0.85,          σk2 = 1.0,      σω1 = 0.5,     σω2 = 0.856,                             (6)
+
+                                     β∗ = 0.09,       κ = 0.41,        a1 = 0.31.
+
+    To simulate the laminar-turbulent transition in the boundary layer, the well-established γ-Reθ transition model [18]
+is used in the RANS calculations. The transport equations for the intermittency factor γ and the transition momentum
+thickness Reynolds number R̃eθt read:
+                       
+     ∂(ργ) ∂ ρU j γ                                                                                       ∂        µt ∂γ
+                                                                                                              "       !     #
+            +             = Flength ca1 ρS γFonset         (1 − ce1 γ) − ca2 ρΩγFturb (ce2 γ − 1) +             µ+            ,
+                                                     0.5
+       ∂t          ∂x j                                                                                  ∂x j      σ f ∂x j
+                                                                                                                              (7)
+     ∂ ρR̃eθt      ∂ ρU j R̃eθt         ρ2 U 2                               ∂
+                                                                                   "
+                                                                                                   ∂R̃eθt
+                                                                                                          #
+                +                 = cθt          Reθt − R̃eθt (1.0 − Fθt ) +         σθt (µ + µt )          .
+         ∂t             ∂x j            500µ                                  ∂x j                  ∂x j
+
+A brief list of the parameters related to the transition models is given below. We remark that for details on the selection
+of these parameters used in this correlation-based model the reader is referred to Langtry and Menter [18].
+
+                           ρy2 S                         Rev                                                  
+                    ReV =           , Fonsetl =                    , Fonset 2 = min max Fonset 1 , Fonset
+                                                                                                    4
+                                                                                                            , 2.0
+                             µ                     2.193 · Reθc
+                          ρk                                  R 3 !
+                                                                 T
+                    RT =      , Fonset 3 = max 1 −                  , 0 , Fonset = max (Fonset 2 − Fonset 3 , 0) ,
+                          µω                                   2.5
+                    ce1 = 1.0, ca1 = 2, ce2 = 50, ca2 = 0.06, σ f = 1.0,                                                          (8)
+                                                                              !2        
+                                                      y 4            γ − 1/ce2 
+                    Fθt = min max Fwake · e−( δ ) , 1.0 −                     ,
+                                                                                       
+                                                                                      1.0  
+                                                                    1.0 − 1/ce2
+                            ρωy2                      
+                                                          Reω
+                                                                2
+                    Reω =        ,     Fwake = e− 1E+ξ ,             cθt = 0.03,    σθt = 2.0.
+                             µ
+    Furthermore, the transition model interacts with the orginal SST model in Eqn. (3) as:
+
+                                ∂         ∂                        ∂                ∂k
+                                                                                         !
+                                  (ρk) +      ρu j k = P̃k − D̃k +      (µ + σk µt )        ;
+                               ∂t        ∂x j                      ∂x j              ∂x j
+                                   P̃k = γeff Pk ,        D̃k = min (max (γeff , 0.1) , 1.0) Dk ,                                 (9)
+                                             √
+                                         ρy k                      Ry 8                        
+                                   Ry =           ,       F3 = e− 120 , F1 = max Florig , F3 .
+                                            µ
+                    ∂ui
+Note that Pk = τi j ∂x j
+                         and Dk = β∗ ρωk are the original production and dissipation terms in Eqn. (3). Also, it is worth
+pointing out that the transition model is switched off outside the boundary layer, especially in the wake region which
+the model training in the present study focuses on.
+    We want to stress here that the baseline model applied in the present study is based on the Boussinesq approxima-
+tion as in Eqn. (1), which assumes a linear relation between the anisotropy of the Reynolds stress and the deviatoric
+strain-rate tensor. In the current study, extra anisotropic terms will be added via data-driven methods, to improve the
+predictive accuracy as shown in the following section.
+                                           / Journal of Computational Physics (2020)                                     5
+
+2.2. GEP for model development
+
+   GEP, first introduced for turbulence model development by Weatheritt and Sandberg [8], is applied in the present
+study to train an EASM-like Reynolds stress relation by adding an extra anisotropic stress aixj as
+
+                                                         2
+                                                τi j =     ρkδi j − 2µt S i0 j + aixj .                               (10)
+                                                         3
+
+The aixj is represented as a linear combination of tensor bases Vikj and scalar invariants Ik as in Eqn. (2). To focus on
+statistically two-dimensional flows which are representative of the mid-span section of turbine blades, the invariants
+and basis tensors considered in the present work are
+
+                                             Vi1j = si j , Vi2j = sik ωk j − ωik sk j ,
+                                                                 1
+                                             Vi3j = sik sk j − δi j smn snm ,                                         (11)
+                                                                 3
+                                             I1 = smn snm , I2 = ωmn ωnm .
+
+Here, Vikj and Ik are functions of the non-dimensionalized strain rate tensor si j = tI S i0 j and the rotation rate tensor
+ωi j = tI Ωi j . The turbulence time scale is computed as tI = ω1 , with ω denoting the specific dissipation rate. It is
+noted that while the dissipation rate can be resolved in high-fidelity simulations, a separate scalar equation, e.g. the ω
+equation, is usually needed to provide the turbulence scales for RANS calculations.
+   The GEP model training starts from an initial population consisting of many candidate EASMs aGEP
+                                                                                                i j , in which
+
+the tensor bases Vikj are fixed while the functional forms for the coefficents f (k) in Eqn. (2) depend on Ik and need
+to be explored. These inital model functions are randomly generated and therefore have distinct functional forms
+and random constants. Each individual candidate model consist of three genes that represent separate coefficients for
+Vikj , and the length of the expression of the coefficient function is dominated by the head length in the gene and the
+truncation size of the expression tree. In the present study, the head length is set as 5 while the maximum size of
+the expression tree is set as 23. For more details about the setting of the GEP parameters, the reader is referred to
+Weatheritt and Sandberg [8]. As presented in Weatheritt and Sandberg [8], the final models derived from 100 different
+training runs with varying initial populations share syntactically similar functions. Therefore, the model training with
+GEP is not significantly dependent on the initial condition, as long as the population size is sufficiently large. In the
+present study, the population size is set as 1000, and three training runs with different initial populations eventually
+converge to functionally similar expressions.
+   The population of models evolves in the GEP iterations by genetic operations such as mutations and combinations
+until the best model in the generation provides an acceptable approximation to pre-set target functions. Through
+this non-deterministic evolution by GEP, symbolic regression is achieved to find an optimal model that best fits the
+training data [19]. While more details about the GEP method are given in [8], we want to stress here that the model
+development characteristics are mainly determined by the selection process. The fitness of every generated model
+is evaluated by its cost function J(aGEP
+                                     i j ), which describes the deviation between the model and training data. The
+
+general principal for the definition of the cost function is that candidate models that better fit training data should
+have lower cost values, which result in better chances to be selected for the next generation. We note that the specific
+6                                          / Journal of Computational Physics (2020)
+
+form of the cost function usually depends on the training framework and the cases, which will be discussed in detail
+in Sec. 2.3 and Sec. 3.1.
+
+2.3. Training frameworks
+
+    The training framework, in particular how to evaluate candidate models during evolution, is critical to the quality
+of the final model. Previous GEP studies [8, 11, 12], along with other existing machine-learning driven model de-
+velopment work [e.g. 7, 5], typically evaluate the models depending on time-averaged Hi-Fi data. This is denoted as
+‘frozen’ training in the present study, with the ‘frozen’ here meaning the pre-processed Hi-Fi data remains unchanged
+in the training. It is noted that the inherent inconsistency between Hi-Fi data and RANS environment, such as discrep-
+ancies of the turbulent dissipation rate providing turbulence scales for non-dimensionalization, limits the applicability
+of the models trained with frozen training [2]. Therefore, a novel framework that includes CFD calculations in model
+training iterations is proposed in the present study. The CFD-driven training, aiming to train models well adapted to
+the RANS mean velocity and turbulence scales, is introduced following a brief description of the frozen training in
+this section.
+
+2.3.1. Frozen training
+    For frozen training, candidate models generated by GEP are evaluated based on Hi-Fi data. With the tensor
+bases Vikj and scalar invariants Ik processed from a Hi-Fi flow field, the aGEP
+                                                                            ij  can be calculated using the candidate
+model equations from GEP. On the other hand, the aiHiFi
+                                                    j   directly obtained from Hi-Fi data is considered as ‘accurate’
+Reynolds stress anisotropy. The cost functions J f ro are defined by the deviation between aGEP
+                                                                                            ij  and aiHiFi
+                                                                                                       j . An example
+
+used in the present study is
+                                                         N       HiFi      GEP
+                                                      1 X X |ai j − ai j |
+                                           J f ro =                            ,                                    (12)
+                                                      N n=1 i, j   |aiHiFi
+                                                                       j |
+
+where N denotes the number of training data points. We can infer from Eqn. (12) that candidate models which better
+fit Hi-Fi data will have a lower cost. The cost functions are then used to direct the selection and reproduction of the
+models. Through a series of iterations, the final model with minimized cost functions will be obtained.
+    We can see that the models are trained exclusively based on Hi-Fi data. The frozen-trained model generally
+provides accurate ai j predictions as long as Hi-Fi basis tensors and scalar invariants are available as input. However,
+once the model is implemented into RANS, good performance is not guaranteed. In fact RANS will predict a flow
+field that may deviate from the Hi-Fi flow field. The impact of such variations on the GEP trained model is non-linear
+and difficult to forecast.
+
+2.3.2. CFD-driven training
+    As shown by the schematic for the CFD-driven training in Fig. 1, the candidate models are evaluated by running
+RANS calculations that will provide feedback in the GEP training loop. For every generation of candidate models,
+the model equations are read into the RANS solver, and then a series of real-time CFD calculations are performed to
+test different models in parallel. This process is fully automatic, and the procedure of each of these CFD calculations
+can be summarized as follows:
+                                              / Journal of Computational Physics (2020)                                          7
+
+
+
+
+Fig. 1. Schematic for CFD-driven training. The CFD calculations represented by red symbols are integrated in the GEP training loop,
+taking turbulence stress model equations as input and providing cost functions of candidate models for the evolution algorithm.
+
+
+
+
+   1. The string of the candidate model equation is written to a file, and this file is then read by the RANS solver;
+   2. The RANS solver takes the GEP equation as the turbulence model and begins iteration;
+   3. The CFD iteration ends if
+
+          • convergence is reached: cost function can be evaluated based on the comparison between the RANS
+             results and the Hi-Fi data;
+
+          • or the model is not converging: cost function is set to be infinity or an extremely large value.
+
+    Therefore, the cost functions of the candidate models can be quantified after each RANS calculation is finished,
+and the Hi-Fi data is only used to be compared to the converged RANS results. Based on the cost functions of the
+model functions, a new generation of models is formed through GEP evolution, and then the updated models need
+to be evaluated again through the integrated CFD calculations. This training process iterates and the population of
+models evolves, until the best model in the generation provides an acceptable cost value.
+    We remark that although the idea of integrating CFD calculations in an optimization process is well accepted in
+the context of uncertainty quantification analysis applied to RANS modeling [20], the present study is novel in that it
+combines the CFD calculations with machine learning methods to train RANS models, rather than calibrating existing
+models. The CFD-driven training is executable with the GEP method because the model equations are explicitly
+given and can be instantly implemented into RANS solvers during training. With RANS calculations performed in
+the training loop, the resulting CFD-driven models thus are also ready to be implemented into industrial design tools.
+Another advantage of the CFD-driven training is that the definition of the cost function is more flexible compared to
+the frozen training. Rather than being restricted to quantities that are part of the closure terms in frozen training, the
+CFD-driven cost functions can be defined based on any important flow feature of interest to designers. As an example,
+the case setup and the cost function for enhanced wake mixing predictions will be shown in Sec. 3.2.
+8                                              / Journal of Computational Physics (2020)
+
+
+
+
+Fig. 2. Setup for cases: (a) LPT blade geometry; (b) HPT blade geometry and the wake region indicated by contour of turbulent kinetic
+energy, with the blade leading edge at x = 0.
+
+
+
+
+3. Numerical Setup and Results
+
+3.1. Case setup for turbine wake mixing
+
+    As key components of turbomachines, high-pressure turbine (HPT) and low-pressure turbine (LPT) flows are
+challenging for RANS calculations due to their extremely complex flow features. In particular, wakes in turbine
+nozzles are important due to their contribution to unsteady losses, both in the boundary layer and the freestream flow,
+for aeromechanics, and because of their possible perturbations to film cooling in HPT. An incorrect prediction of the
+wake decay may be responsible for important design weaknesses [21].
+    Four different turbine cases which are representative of low and high pressure turbine nozzles for modern aircraft
+engines, including the VKI LS89 HPT [22] and the T106A LPT [23] at different Reynolds numbers, are selected
+to test the CFD-driven training framework. The geometries of the HPT and LPT blades are shown in Fig. 2, with
+periodic boundary conditions implemented in the pitchwise direction denoted by y, and inflow and outflow conditions
+applied at the boundaries in the axial direction by x. The blade geometries and the inflow angles indicated by the
+black dashed arrows in Fig. 2 show the considerable differences between the cases. Furthermore, as listed in table 1,
+the flows in these cases are at different Reynolds and Mach numbers, and the flow features of the boundary layers on
+the blade surface also deviate significantly. We use the Re = 0.57 × 106 HPT case, denoted as case A, as the training
+case, while the other three cases are used as testing cases for cross-validation, to assess whether the model trained in
+case A is suitable for a broad parameter space.
+    The Hi-Fi data for these cases is provided from previous DNS and high-resolution LES using code HiPSTAR [24,
+25, 26], and RANS calculations are conducted with the RANS solver TRAF [27]. In the RANS calculations required
+for model development and testing, the k − ω SST with γ − Reθ transitional correlation [18] is applied as the baseline
+model. The meshes used in the RANS calculations include an O-type grid around the blade and an H-type grid
+downstream for the wake region. A thorough grid independence study has been conducted for the RANS calculations
+                                              / Journal of Computational Physics (2020)                                       9
+
+          Cases           Re        Maexit               Flow features                         O-H Mesh          ∆n+wall
+          HPT A      0.57 × 106        0.9            transition & shocks                 705 × 65 + 101 × 161   < 2.0
+          HPT B      1.1 × 106         0.9            transition & shocks                 705 × 65 + 101 × 161   < 2.0
+          LPT C      0.6 × 105         0.4       transition & open separation             711 × 101 + 81 × 141   < 1.0
+          LPT D      1.0 × 105         0.4      transition & closed separation            711 × 101 + 81 × 141   < 1.0
+
+                                         Table 1. Parameters for turbine flow test cases.
+
+
+
+to ensure results are grid-independent [28], and this information is provided in appendix A. The mesh details used in
+the training and testing cases are presented in table 1. It is shown by the distance of the first grid point from the wall
+∆n+wall that the LPT meshes are further refined to accurately predict the separation on the blade.
+
+3.2. Model development by CFD-driven training
+
+    As traditional RANS models applied in turbine flows share a common weakness in correctly capturing wake
+mixing [21], the wake profile prediction, which is of critical interest for aerodynamic performance and characteristics
+of downstream blade boundary layers, is set as the optimisation target. Accordingly, the GEP cost function for the
+CFD-driven training is defined as
+
+                                                  pit − pt (y)
+                                         ω(y) =                ,
+                                                   pit − po
+                                                              ωHiFi (y) − ωRANS (y) 2
+                                                      Z Ly
+                                                  1                                                                        (13)
+                                             ∆x =           (                      ) dy,
+                                                  Ly 0           maxy (ωHiFi )
+                                        JCFD = ∆ x1 + ∆ x2 .
+
+Here, ω(y) represents the kinetic loss profile along the pitchwise axis y as represented by the red dashed lines down-
+stream of the blade in Fig. 2, with pit , pot , and po denoting inlet total pressure, outlet total pressure, and outlet static
+pressure, respectively. Moreover, ∆ x stands for normalised deviation between the wake loss profiles from Hi-Fi and
+RANS results. In order to train models for the whole wake region rather than just a profile at one x location, the final
+cost function is defined as a summation of ∆ x at two axial locations x1 = 1.15Cax and x2 = 1.25Cax , as these two
+axial locations represent the range of most probable downstream blade leading edge position. Note that the Hi-Fi
+data needed for the computation of the CFD-driven cost function JCFD only needs to include the kinetic loss profiles
+ωHiFi (y) at these two locations.
+    To focus on improving model accuracy in wake mixing, training data is extracted from the turbine wake. As
+indicated by the turbulence kinetic energy (TKE) contour in Fig. 2(b), the wake region is masked by the criterion
+k > 5%kmax . Moreover, another constraint x > 1.05 is implemented to avoid the boundary layer and near trailing edge
+interference [11, 12]. Note that the trained Reynolds stress closure is only implemented in the masked wake region for
+both model development and testing, while the k − ω SST model with γ − Reθ transitional correlation [18] is applied
+in the rest of the flow domain.
+    The CFD-driven training framework is applied in the HPT case A to develop a new Reynolds stress closure for
+turbine wake mixing. In order to reduce the steps to get a converged solution for the models in the training loop, the
+CFD calculations required to evaluate the candidate models are initialized from a flow field obtained from the baseline
+10                                                   / Journal of Computational Physics (2020)
+
+
+                                          0.05
+
+                                          0.04
+
+                                          0.03
+
+
+
+
+                                 J CF D
+                                          0.02
+
+                                          0.01
+
+                                          0.00
+                                                 0          50        100        150        200     250
+                                                                      Generation
+
+                                      Fig. 3. Example of the cost function evolution in training.
+
+
+
+
+RANS model. In the present study, each CFD calculation runs for 200 steps, and the residual for subiterations are
+monitored to make sure that the solution is converged with a root-mean-square residual of the continuity equation
+below 10−7 . For each generation, the cost functions of the candidate models are thus evaluated based on the con-
+verged flow fields from the corresponding CFD calculations, according to the definition presented in Eqn. (12). Then
+the model equations evolve to the next generation through genetic operations, until the model is converged or a satis-
+factory cost function level is achieved. The evolution of JCFD from the best model in the population is presented in
+Fig.3, showing that the training gradually converges after approximately one hundred generations. Due to the RANS
+calculations required in the training loop, the CFD-driven training in the present study typically requires O(103 ) CPU
+hours which is more computationally expensive than the frozen training. Nevertheless, this is still acceptable as it is
+only associated with the model development process. As the trained model only introduces algebraic extensions to
+existing equations and no extra equations are solved, the overheads caused by applying the trained model functions in
+RANS calculations, compared to the baseline linear-model calculations, are around 5% for the present cases.
+                                                                                                                   f ro
+     The resulting model from the CFD-driven training is presented as τCFD
+                                                                       i j . In addition, a frozen-trained model τi j ,
+
+which was trained in previous work [10] based on the same high-fidelity data of HPT case A, is shown for comparison
+                              2
+                   τCFD
+                    ij  =       ρkδi j − 2µt S i0 j + 2ρk[
+                              3
+                           (−2.57 + I1 )Vi1j + 4.0Vi2j + (−0.11 + 0.09I1 I2 + I1 I22 )Vi3j ],
+                              2
+                     τifjro = ρkδi j − 2µt S i0 j + 2ρk[
+                              3                                                                                   (14)
+                           (−1.334 + 0.438I1 + 2.653I2 + 0.0102I12 − 1.021I22 + 12.280I1 I2 )Vi1j
+
+                         + (0.573 − 1.096I1 + 8.985I2 − 0.1102I12 + 2.876I22 + 90.633I1 I2 )Vi2j
+
+                         + (12.861 − 25.094I1 + 6.449I2 + 1.020I12 − 304.979I1 I2 − 184.519I22 )Vi3j ].
+
+It is noted that the CFD-driven model exhibits a much simpler form compared to the frozen model as the coefficient
+functions contain less high-order invariants, even though the training of the frozen model is also based on the data
+                                                   / Journal of Computational Physics (2020)                                                 11
+
+
+    (a) 1.0                                                               (b) 1.0
+                                                                                                                suction-side
+         0.8                                                                    0.8
+
+         0.6                                                                    0.6                             pressure-side
+     y
+
+
+
+
+                                                                            y
+                                     High Fidelity
+         0.4                                                                    0.4
+                                     Baseline
+         0.2                         Frozen                                     0.2
+                                     CFD-Driven
+         0.0                                                                    0.0
+               0.0       0.1         0.2        0.3         0.4                  −0.04            0.00              0.04          0.08
+                                    ω                                                                    τxy /U02
+
+      Fig. 4. Profiles at 20% axial chord downstream of blade trailing edge for HPT case A, (a) kinetic loss; (b) shear stress term τ xy .
+
+
+
+extracted from the wake region, as shown in Fig. 2(b). This is because the higher-order terms in the frozen model, like
+90.633I1 I2 , usually result in very high-amplitude values on some points in RANS calculations, reducing numerical
+stability. Therefore, such terms fail to survive in the CFD-driven evolution, and the training via running RANS
+calculations in the loop tends to produce a more robust model. As non-linear turbulence model closures are known
+to come with stability issues, the capability of the CFD driven training to filter out numerically stiff models is very
+important.
+
+3.3. Predictive results
+
+    The GEP models in Eqn. (14) are first tested a posteriori for the training HPT case A. The trained model equations
+are implemented into the RANS solver, and the wake mixing profiles from RANS calculations with these models are
+shown in Fig. 4(a). In addition, profiles from Hi-Fi data and baseline models without any additional stress tensors are
+presented for comparison. We can see that the baseline model relying on a linear stress-strain relationship significantly
+over-predicts the wake peak and under-predicts the wake width. While the frozen model reduces the wake peak, the
+CFD-driven model provides an even better agreement with the reference Hi-Fi data, in terms of both the peak value
+and the profile width.
+    The wake prediction improvement from the trained models can be analysed by considering the leading-order
+terms in Eqn. (14) because the amplitudes of the scalar invariants I1 and I2 are smaller than the constants [12]. With
+µt S i0 j = ρkVi1j , we have
+                                                2
+                                               τCFD−L
+                                                ij    =
+                                                  ρkδi j − 2µt (1.0 + 2.57)S i0 j ,
+                                                3                                                          (15)
+                                                2
+                                      τifjro−L = ρkδi j − 2µt (1.0 + 1.334)S i0 j .
+                                                3
+Compared to the baseline model, the frozen model increases diffusion by roughly 133%, while the increase of the
+CFD-driven training is even larger at 257%. With the additional diffusion and extra anisotropic terms from Vi2j and
+Vi3j , the CFD-driven model allows for a stronger mixing and thus a better prediction of the wake profile spreading as
+seen in Fig. 4(a).
+12                                              / Journal of Computational Physics (2020)
+
+
+     (a) 0.6                                                          (b) 0.05
+                                                                                            Baseline
+                                                                            0.04            Frozen
+            0.4                                                                             CFD-Driven
+                                                                            0.03
+
+
+
+
+                                                                       ∆x
+       Eω
+
+
+
+
+                                                                            0.02
+            0.2
+                                                                            0.01
+
+            0.0                                                             0.00
+              1.1        1.2            1.3           1.4                      1.1           1.2           1.3           1.4
+                                x/Cax                                                              x/Cax
+
+Fig. 5. Characterization of the wake profile evolution at different streamwise locations downstream the blade trailing edge: (a) the peak
+loss error Eω ; (b) the normalised deviation between the wake loss profiles from Hi-Fi and RANS results ∆ x .
+
+
+      To further investigate the development of the wake mixing, the errors of the peak wake loss
+                                                                Hi−Fi
+                                                              |ωmax   − ωRANS
+                                                                          max |
+                                                      Eω =                                                                          (16)
+                                                                   ωmax
+                                                                     Hi−Fi
+
+
+from the different models are ploted against the streamwise coordinate x in Fig. 5(a). The CFD-driven model, com-
+pared to the baseline and frozen models, siginificantly improves the predictions of peak wake loss at different down-
+stream locations. Only in the region very close to the traling edge does the error not improve significantly. This is
+related to vortex shedding exhibiting high-levels of coherence in this region, in which the deterministic unsteadiness
+inherently violates the RANS assumption and was shown to require a different type of model development [29]. In
+addition, the evolution of the normalised deviation between the wake loss profiles from Hi-Fi and RANS ∆ x , as de-
+fined by Eqn. (12), is presented in Fig. 5(b). The deviations from the Hi-Fi data obtained from the CFD-driven model
+are remarkably smaller than those obtained from the baseline and frozen training models, showing that the trained
+model can provide a better prediction for the mixing in the entire wake region.
+      It is noted that improving predictions for mean flow quantities like kinetic loss in the wake is of critical interest for
+turbine designers, which is inherently guaranteed by the CFD-driven training as the fittest models are the ones with the
+smallest cost values. Improvement in Reynolds stress prediction, however, is also important for capturing the correct
+physics. As shown in Fig. 4(b), the CFD-driven model enhances the prediction of the shear stress profile, especially
+in terms of the suction-side peak value. Nevertheless, discrepancies exist on the pressure-side, which is presumably
+because steady RANS has limitations in modelling the coherent vortex shedding under the strong pressure-gradient
+near the blade trailing edge [30].
+      Moreover, an overview of the flow field obtained by applying the CFD-driven model is shown by the contour of
+the total pressure in Fig. 6(a). While the trained model is only applied in the masked region as indicated in Fig. 2(b),
+the switch from the trained model to the baseline model at the boundaries of the wake region works smoothly. In
+addition, the wall heat flux around the blade from RANS calculations with both the baseline model and the CFD-
+trained model are plotted in Fig. 6(b), showing that applying the trained model in the wake region does not affect the
+                                                / Journal of Computational Physics (2020)                                               13
+
+
+
+
+    Fig. 6. (a)The contour of the total pressure Pt with the CFD-driven model applied in case A. (b) Wall heat flux around the blade.
+
+
+
+
+boundary layer flow around the blade. It is also noted that the RANS predictions of the blade heat flux deviate from
+the high-fidelity results in the aft section of the suction-side boundary layer, which is because the transition is not very
+accurately captured by the RANS models.
+
+3.4. Realizability of the trained model
+
+    One common concern with model development by machine learning might be the realizability of the trained
+model. Nevertheless, as the polynomials are based on the invariant tensor basis Vikj , the models trained in the present
+study are all Galilean invariant [9], which can be considered as one advantage of the symbolic regression via GEP.
+To further investigate the realizability of the trained models, tensor analysis for the Reynolds stress anisotropy, like
+Lumley triangle [31], is usually applied. In the present study, the barycentric map developed by Banerjee et al. [32]
+is used to examine the trained model, to provide a nondistorted visual representation of the turbulence anisotropy [6].
+    To get the barycentric map, the eigenvalues of the anisotropy tensor ai j are first obtained as {λ1 , λ2 , λ3 }, with
+λ1 ≥ λ2 ≥ λ3 . Then the barycentric coordinates (C1c , C2c , C3c ) can be calculated as
+
+                                                          C1c = λ1 − λ2 ,
+
+                                                          C2c = 2(λ2 − λ3 ),                                                        (17)
+
+                                                          C3c = 3λ3 + 1.
+
+With (ξ1c , η1c ), (ξ2c , η2c ), and (ξ3c , η3c ) representing the coordinates of the vertices of the triangle as shown in figure 7,
+the coordinates of the data point (ξ, η) in the barycentric map can be given as
+
+                                                   ξ = C1c ξ1c + C2c ξ2c + C3c ξ3c ,
+
+                                                   η = C1c η1c + C2c η2c + C3c η3c .                                                (18)
+14                                               / Journal of Computational Physics (2020)
+
+
+
+
+Fig. 7. Barycentric map for the Reynolds stress anisotropy in the wake mixing region, from the high-fidelity simulations (Hi-Fi), the k − ω
+SST as baseline model (RANS baseline), and the model trained using the CFD-driven method (CFD-driven).
+
+
+
+
+It is noted that the three vertices in the map represent special states of the anisotropy tensor, including the three-
+components isotropic (3C-I), the two-components isotropic (2C-I), and the one-component (1C) state.
+     For the CFD-driven model applied in the HPT case A, the Reynolds stress anisotropy is extracted in the wake
+mixing region as shown in figure 4. The barycentric map of the CFD-driven model, along with the baseline k − ω
+SST model and the Hi-Fi data, is presented in figure 7 for comparison. Moving away from the blade trailing edge, the
+Reynolds stress anisotropy in the wake region approaches the three-components limit for all cases. This is because
+the turbulence gradually develops to be isotropic after the strong anisotropic state near the trailing edge. It is also
+noted that the RANS stresses show significant difference compared to the Hi-Fi results. The reason is that while the
+Hi-Fi simulation is capable of resolving the complex flow physics including the vortex shedding, the steady RANS
+calculations fail to model such low-frequency deterministic unsteadiness. The RANS flow fields in the wake are
+dominated by the strong shear layer, and thus the Reynolds stress anisotrpy in the barycentric map is close to the
+plane-strain limit with λ2 = 0 [32], which is represented by the black dashed line in figure 7.
+     Moreover, due to the extra terms in Eqn. (14), the CFD-driven model introduces stronger anisotropy and thus has
+larger-amplitude eigenvalues, which means
+                                                           λCFD
+                                                            1   > λ1Baseline ,
+                                                                                                                                      (19)
+                                                           λCFD
+                                                            3   < λ3Baseline .
+With λ2 ≈ 0 for both RANS calculations, it is straightforward to deduce that the coordinates for the CFD-driven
+model are relatively further from the three-components isotropic limit in the barycentric map, compared to the same
+points from the baseline model.
+                                                  / Journal of Computational Physics (2020)                                             15
+
+
+     (a) 1.0                                      (c) 1.0                                      (e) 1.0
+
+          0.8                                          0.8                                          0.8
+
+          0.6                                          0.6                                          0.6
+      y
+
+
+
+
+                                                   y
+
+
+
+
+                                                                                                y
+          0.4                                          0.4                                          0.4
+                                High Fidelity
+          0.2                   Baseline               0.2                                          0.2
+                                CFD-Driven
+          0.0                                          0.0                                          0.0
+                0.0   0.1   0.2      0.3    0.4              0.0   0.1   0.2     0.3     0.4              0.0   0.1   0.2   0.3   0.4
+                            ω                                            ω                                            ω
+
+     (b) 1.0                                      (d) 1.0                                      (f) 1.0
+
+          0.8                                          0.8                                          0.8
+
+          0.6                                          0.6                                          0.6
+      y
+
+
+
+
+                                                   y
+
+
+
+
+                                                                                                y
+          0.4                                          0.4                                          0.4
+
+          0.2                                          0.2                                          0.2
+
+          0.0                                          0.0                                          0.0
+                0.0   0.1   0.2      0.3    0.4              0.0   0.1   0.2     0.3     0.4              0.0   0.1   0.2   0.3   0.4
+                            ω                                            ω                                            ω
+
+Fig. 8. Kinetic loss profiles in the wake from test cases in table 1, (a) HPT case B, 20%Cax downstream; (b) HPT case B, 30%Cax down-
+stream; (c) LPT case C, 20%C downstream; (d) LPT case C, 30%C downstream; (e) LPT case D, 20%C downstream; (f) LPT case D, 30%C
+downstream.
+
+
+4. Discussion
+
+4.1. Cross-validation of trained model
+
+    It has been presented in Sec. 3 that the model trained with the CFD-driven method shows much improved predic-
+tive accuracy in wake mixing in the a posteriori test, and the analysis also demonstrates that the model is physically
+realizable. The next step, therefore, is to investigate whether similar accuracy improvements can be achieved for cases
+with a broad parameter space. In the present section, the CFD-driven model in Eqn. (14) is now applied to the three
+test cases listed in table 1, including the HPT case B featuring a higher Reynolds number, and the LPT cases with
+very different geometries, inflow angles, Reynolds numbers, Mach numbers, and thus flow physics.
+    The kinetic loss profiles from different downstream locations from all of the three cases are presented in Fig. 8,
+with the Hi-Fi data and baseline RANS available for comparison. As expected, the baseline RANS calculations based
+on the Boussinesq hypothesis result in over-prediction of the wake peak and under-prediction of the wake width across
+the different cases. In contrast, the CFD-driven model presents encouragingly accurate prediction of the wake profiles
+in all test cases due to the additional diffusion and anisotropy added in the Reynolds stress. Considering the test
+cases cover a reasonably wide parameter space, this cross-validation underscores the applicability and generality of
+the CFD-driven trained model in wake mixing flows with diverse flow parameters, geometries and key flow features.
+16                                          / Journal of Computational Physics (2020)
+
+4.2. Generalizability of the CFD-driven training
+     As discussed in Sec. 3.2, the trained model focuses on the wake mixing problems so that it is only applied in the
+masked wake region, while the baseline k − ω SST model is applied in the rest of the flow domain. This is called
+zonal treatment which has a long history in RANS modelling [33]. The idea is that we should not expect a model
+with a unified set of parameters to show good performance for different kinds of flow phenomena, including laminar
+boundary layer, separation, transition, wake mixing, etc. A more realizable way is to tune model parameters for
+specific flow regions, which has already been widely accepted by industrial designers.
+     While we do not expect the model in the present study to show universally good performance for the whole
+domain, the trained model has been extensively validated in wake mixing cases at different Reynolds and Mach
+numbers, which are representative of the modern turbine nozzles in industrial applications. Therefore, the trained
+model promises to be applicable in wake regions in turbomachinery flows.
+     Although the model presented here is limited to a specific class of flows, the CFD-driven training framework
+shows its potential to be applied for general model development efforts. As discussed in Duraisamy et al. [2], one
+major obstacle for model developement in complex flows is the lack of appropriate training data, especially the high-
+order statistics like Reynolds stresses which are usually unavailable from experiments. Compared to the traditional
+training which mainly focuses on fitting the Reynolds stresses from Hi-Fi data, the CFD-driven training evaluates
+and optimises models based on integrated CFD calculations. By comparing the RANS results to Hi-Fi data, the cost
+function in CFD-driven training is flexible as it can be defined based on any important flow feature of interest to
+designers. In particular, mean flow quantities at limited location of the flow domain, like the wake profiles in the
+present study, can now be used to train models. Therefore, the CFD-driven training can be applied in more complex
+flows due to the flexibility of defining the cost function.
+     The computational cost introduced by the integrated CFD calculations in the training process, however, so far
+limits the applicability of CFD-driven training. Typically, the candidate models in GEP need to iterate through hun-
+dreds or thousands of generations to get the desired models, and for each generation the CFD claculations have to be
+performed. Therefore, it is essential that the integrated CFD solver is highly efficient, so that the computational cost
+is acceptable.
+
+5. Conclusions
+
+     A novel machine learning framework named CFD-driven training, based on the GEP method, is introduced to
+develop turbulence models. As the candidate EASM-like models are explicitly given via symbolic regression in GEP,
+the model equations can be implemented into a RANS solver, and the cost functions of the models are evaluated by
+running CFD in the training loop. By integrating the RANS calculations, the CFD-driven training is able to develop
+models adapted to the RANS environment and straightforward to be implemented into existing RANS solvers.
+     The CFD-driven framework was applied to one HPT case to train an EASM-like model for wake mixing in
+turbomachines. Compared to the traditional model training, the CFD-driven training produces a model that is in
+a relatively simple form without numerically stiff terms, and thus shows reliable applicability to practical RANS
+                                           / Journal of Computational Physics (2020)                                 17
+
+
+                                   Table 2. RANS grid convergence parameters for case A.
+
+
+
+                                  Grids      O-Grid           H-Grid          Total Points
+                                  Coarse     565 × 57         81 × 101        40,386
+                                   Mid       705 × 65         101 × 161       62,086
+                                   Fine      1081 × 113       161 × 320       173,673
+
+
+
+calculations. Furthermore, the generated model is tested a posteriori for the training case and three other cases
+covering different flow configurations. Due to the extra diffusion introduced by the CFD-driven model, the results
+show overall very good agreement with the kinetic loss profiles obtained from Hi-Fi data in all cases.
+   While the model trained in the present study is limited to wake mixing, the CFD-driven machine learning is shown
+to be a promising framework for general turbulence model development. Nevertheless, introducing RANS calcula-
+tions in the model development iterations increases the computational cost of training over the frozen approach. The
+relatively high computational cost might limit the applicability of the CFD-driven machine learning to more complex
+cases such as fully three-dimensional flows. However, this could be offset by efforts in reducing the computational
+cost in future studies, and possible directions include analyzing the population size, optimizing the convergence of the
+evolutionary algorithm, and improving the efficiency of the CFD solver through introducing advanced technologies
+like GPU acceleration.
+
+
+Acknowledgments
+
+   This research used resources of the Oak Ridge Leadership Computing Facility, which is a DOE Office of Science
+User Facility supported under Contract DE-AC05-00OR22725. This work was supported by a grant from the Swiss
+National Supercomputing Centre (CSCS) under project ID s884. This work was also supported by the resources
+provided by the Pawsey Supercomputing Centre with funding from the Australian Government and the Government
+of Western Australia.
+
+
+Appendix A. Grid convergence study
+
+   The mesh used for the model development in the present study was selected on the basis of a grid-refinement
+analysis. The dimensions for the three different grids to establish grid independence are listed in Tab. 2. The pressure
+coefficients C p obtained from RANS calculations applying the CFD-driven trained model are plotted versus fraction
+of axial chord and compared against the LES data in Fig. 9(a). The results show good agreement between the RANS
+calculations with different grid resolutions. Furthermore, Fig. 9(b) shows the kinetic wake loss profiles at 20%Cax
+downstream of the blade trailing edge. We can see that both the pressure distribution around the blade and the kinetic
+wake profiles from the RANS calculations are grid-independent.
+18                                                / Journal of Computational Physics (2020)
+
+
+
+
+Fig. 9. Grid convergence study of the HPT case A using the trained RANS model: (a) pressure coefficient distribution around the blade;
+(b) kinetic wake loss profile at 20%Cax downstream of the trailing edge.
+
+
+
+
+Fig. 10. Kinetic wake loss profiles at 20%Cax downstream of the trailing edge: (a) the CFD-driven model applied in wake region masked
+by different levels of k; (b) the CFD-driven model applied in wake region masked by different x locations.
+
+
+Appendix B. Sensitivity of the wake region selection
+
+     It is noted that the trained models are only applied in the wake region, which is extracted based on the criteria
+k > 5%kmax and x > 1.05 as shown in Fig. 2(b). To further investigate the sensitivity of the selection of this wake
+region, we have varied the level of TKE threshold and the x location, and the results are presented in Fig. 10. It is
+shown that changing the TKE level from k0 = 5%kmax to 4k0 does not significantly affect the wake profiles, which
+is because the TKE is concentrated in the wake region and varying the threshold does not significantly change the
+extracted region. Furthermore, moving the wake region downstream from x > 1.05 to x > 1.1 does not significantly
+affect the wake profile at x = 1.2, while a training region with x > 1.15 is simply not large enough so that the wake
+prediction is affected by upstream effects.
+
+
+References
+ [1] J. C. R. Hunt, A. M. Savill, Guidelines and criteria for the use of turbulence models in complex flows, in: Prediction of Turbulent Flows,
+     Cambridge University Press, 2005, pp. 291–343.
+ [2] K. Duraisamy, G. Iaccarino, H. Xiao, Turbulence modeling in the age of data, Annu. Rev. Fluid Mech. 51 (2019) 357–377.
+                                                    / Journal of Computational Physics (2020)                                                  19
+
+ [3] W. N. Edeling, P. Cinnella, R. P. Dwight, H. Bijl, Bayesian estimates of parameter variability in the k–ε turbulence model, J. Comput. Phys.
+     258 (2014) 73–94.
+ [4] Z. J. Zhang, K. Duraisamy, Machine learning methods for data-driven turbulence modeling, in: AIAA Computational Fluid Dynamics Conf.,
+     2015, pp. 2015–2460.
+ [5] E. J. Parish, K. Duraisamy, A paradigm for data-driven predictive modeling using field inversion and machine learning, J. Comput. Phys.
+     305 (2016) 758–774.
+ [6] J.-X. Wang, J.-L. Wu, H. Xiao, Physics-informed machine learning approach for reconstructing reynolds stress modeling discrepancies based
+     on DNS data, Phys. Rev. Fluids 2 (2017) 034603.
+ [7] J. Ling, A. Kurzawski, J. Templeton, Reynolds averaged turbulence modelling using deep neural networks with embedded invariance, J.
+     Fluid Mech. 807 (2016) 155–166.
+ [8] J. Weatheritt, R. D. Sandberg, A novel evolutionary algorithm applied to algebraic modifications of the rans stress–strain relationship, J.
+     Comput. Phys. 325 (2016) 22–37.
+ [9] S. B. Pope, A more general effective-viscosity hypothesis, J. Fluid Mech. 72 (1975) 331–340.
+[10] J. Weatheritt, R. Pichler, R. D. Sandberg, G. Laskowski, V. Michelassi, Machine learning for turbulence model development using a high-
+     fidelity HPT cascade simulation, ASME Paper GT2017-63497 (2017).
+[11] J. Weatheritt, R. D. Sandberg, The development of algebraic stress models using a novel evolutionary algorithm, Int. J. Heat Fluid Fl. 68
+     (2017) 298–318.
+[12] H. D. Akolekar, J. Weatheritt, N. Hutchins, R. D. Sandberg, G. Laskowski, V. Michelassi, Development and use of machine-learnt algebraic
+     Reynolds stress models for enhanced prediction of wake mixing in LPTs, J. Turbomach. 141 (2019) 041010.
+[13] R. L. Thompson, L. E. B. Sampaio, F. A. V. de Bragança Alves, L. Thais, G. Mompean, A methodology to evaluate statistical errors in DNS
+     data of plane channel flows, Comput. Fluids 130 (2016) 1–7.
+[14] S. V. Poroseva, J. D. Colmenares, S. M. Murman, On the accuracy of RANS simulations with DNS data, Phys. Fluids 28 (2016) 115102.
+[15] S. Parneix, D. Laurence, P. Durbin, Second moment closure analysis of the backstep flow database, in: Proceedings of the Summer Program,
+     Center for Turbulence Research, Stanford University, 1996, pp. 47–62.
+[16] S. Parneix, D. Laurence, P. A. Durbin, A procedure for using DNS databases, J. Fluids Eng. 120 (1998) 40–47.
+[17] F. R. Menter, Two-equation eddy-viscosity turbulence models for engineering applications, AIAA I. 32 (1994) 1598–1605.
+[18] R. B. Langtry, F. R. Menter, Correlation-based transition modeling for unstructured parallelized computational fluid dynamics codes, AIAA
+     J. 47 (2009) 2894–2906.
+[19] C. Ferreira, Algorithm for solving gene expression programming: a new adaptive problems, Complex Syst. 13 (2001) 87–129.
+[20] H. Xiao, P. Cinnella, Quantification of model uncertainty in RANS simulations: A review, Prog. Aerosp. Sci. 108 (2019) 1–31.
+[21] R. Pichler, R. D. Sandberg, V. Michelassi, R. Bhaskaran, Investigation of the accuracy of RANS models to predict the flow through a
+     low-pressure turbine, J. Turbomach. 138 (2016) 121009.
+[22] T. Arts, M. Lambertderouvroit, A. W. Rutherford, Aero-thermal investigation of a highly loaded transonic linear turbine guide vane cascade.
+     A test case for inviscid and viscous flow computations, NASA STI/Recon Technical Report N 91 (1990).
+[23] P. Stadtmüller, L. Fottner, A test case for the numerical investigation of wake passing effects on a highly loaded LP turbine cascade blade,
+     ASME Paper 2001-GT-0311 (2001).
+[24] R. D. Sandberg, V. Michelassi, R. Pichler, L. Chen, R. Johnstone, Compressible direct numerical simulation of low-pressure turbinesPart I:
+     Methodology, Journal of Turbomachinery 137 (2015) 051011.
+[25] V. Michelassi, L. Chen, R. Pichler, R. D. Sandberg, Compressible direct numerical simulation of low-pressure turbines–Part II: Effect of
+     inflow disturbances, J. Turbomach. 137 (2015) 071005.
+[26] R. Pichler, R. D. Sandberg, G. Laskowski, V. Michelassi, High-fidelity simulations of a linear HPT vane cascade subject to varying inlet
+     turbulence, ASME Paper GT2017-63079 (2017).
+[27] A. Arnone, A. Pacciani, R.and Sestini, Multigrid computations of unsteady rotor-stator interaction using the Navier-Stokes equations, J.
+     Fluids Eng. 117 (1995) 647–652.
+[28] Y. Zhao, R. D. Sandberg, Using a new entropy loss analysis to assess the accuracy of RANS prediction of an HPT vane, ASME Paper
+     GT2019-90126, accepted manuscript (2019).
+[29] C. Lav, R. D. Sandberg, J. Philip, A framework to develop data-driven turbulence models for flows with organised unsteadiness 383 (2019)
+     148–165.
+[30] A. P. S. Wheeler, N. D. Sandberg, R. D.and Sandham, R. Pichler, V. Michelassi, Direct Numerical Simulations of a High-Pressure Turbine
+     Vane, J. Turbomach. 138 (2016) 071003.
+[31] J. L. Lumley, G. R. Newman, The return to isotropy of homogeneous turbulence, J. Fluid Mech. 82 (1977) 161–178.
+[32] S. Banerjee, R. Krahl, F. Durst, C. Zenger, Presentation of anisotropy properties of turbulence, invariants versus eigenvalue approaches,
+     J.Turbul. (2007) N32.
+[33] R. Matai, P. A. Durbin, Zonal eddy viscosity models based on machine learning, Flow Turbul. Combust. (2019) 1–17.
+
