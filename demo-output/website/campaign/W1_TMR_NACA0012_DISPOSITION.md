@@ -1,9 +1,17 @@
 # W1 — the TMR NACA 0012 item, and a repair path that does not exist
 
 Approved item `agp-4369c99cdd7f`, **603 core-minutes** — the largest single
-item in the approved W1 queue, 41% of its 1,463 core-minutes. Ruled 2026-08-02
-at **0 core-minutes** of solver time; the two measurements below are array
-arithmetic on a grid file and took seconds.
+item in the approved W1 queue, **48.2% of its 1,250 core-minutes** at the
+moment of this ruling. Ruled 2026-08-02 at **0 core-minutes** of solver time;
+the two measurements below are array arithmetic on a grid file and took
+seconds.
+
+*(An earlier draft of this line said "41% of its 1,463 core-minutes". 1,463 was
+the queue before `w1-ahmed-family-asymptotic-ladder` was re-priced from 240 to
+27 two commits earlier, so the denominator was stale by the time it was used.
+Corrected here rather than left, and recorded rather than silently overwritten:
+the arithmetic was right and the number it was applied to was two commits
+old.)*
 
 The item: *"Run the TMR 2D NACA 0012 airfoil case on the three coarsest
 reference grid sizes at 0, 10, and 15 degrees and compare lift, drag, and
