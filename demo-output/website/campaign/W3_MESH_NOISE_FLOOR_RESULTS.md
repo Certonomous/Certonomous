@@ -75,7 +75,28 @@ and it is not close.** Multiply each scatter by N²:
 | 358 430 | 4.064 × 10⁻⁴ | 0.052 |
 | 525 692 | 1.799 × 10⁻⁴ | 0.050 |
 
-Constant to ±6% over a 3.74× range. The fitted exponent is **2.024**. Four
+Constant to ±6% over a 3.74× range. The fitted exponent is **2.024**.
+
+> **CORRECTED 2026-08-02 07:18, by four meshes per resolution instead of
+> two.** Every scatter in the table above is **a single pairwise difference**
+> — one replicate against one original at each resolution. Running four meshes
+> at each of two resolutions on this same body
+> (`W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md` §6) gives a different answer:
+>
+> | statistic, r1 → r3 | ratio | implied exponent |
+> | --- | --- | --- |
+> | the single pair used above | 6.40 | **1.98** |
+> | 4-mesh range | 3.93 | **1.46** |
+> | 4-mesh standard deviation | 3.77 | **1.42** |
+>
+> A range over n = 4 and a single pairwise difference are different statistics
+> and are not directly comparable, so 2.024 is not wrong on its own terms. But
+> **the exponent is not pinned down, and "scatter × N² constant to ±6%" was
+> four single draws flattering themselves into a law.** The robust claim is
+> that scatter falls with refinement on this body somewhere around N⁻¹·⁴ to
+> N⁻², and the tidy inverse square should not be carried forward as
+> established. The direction — falling, not rising — is unaffected, and that
+> was the part that mattered. Four
 points is four points and this is one geometry, so it is a description and not
 a law — but it is a very clean description, and it says something concrete:
 **mesh-construction scatter on this body is a coarse-mesh problem that

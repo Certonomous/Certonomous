@@ -126,21 +126,97 @@ arbitrarily chosen meshes is not a converged answer either — it is four
 readings of a quantity this family cannot pin down. What it licenses is
 removing a verdict, not replacing it with a better one.
 
-**What would be worth running next, and was not:** the same four-mesh spread at
-the 358 430-cell resolution, where the measured mesh scatter is 4.064 × 10⁻⁴
-rather than 2.599 × 10⁻³ — a sixth of the size. If the spread there is small
-enough to place the body cleanly inside or outside the ±30% band, the
-credential has a resolution at which it can honestly be stated, and the
-question becomes which mesh to publish rather than whether to publish a verdict
-at all. About 20 core-minutes at 4 ranks on tonight's measurement.
+**What would be worth running next** — the same four-mesh spread at the finer
+358 430-cell resolution, to ask whether this body has a rung at which a verdict
+*can* be stated. **It was run, 16.7 core-minutes. §6.**
 
-## 6. Provenance
+## 6. The same four-mesh test at the finer rung — and there the verdict holds
 
-* r1: `/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/r1`
-* r1b: `/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/r1b`
-* Both `postProcessing/forceCoeffs1/0/coefficient.dat`, Cd as the mean over
-  the final 20% of each run's own history.
+Four meshes at the r3 resolution, same recipe, background triple the only
+difference. **All four converged on `residualControl`.**
+
+| | divisions | cells | Cd | 2σ | vs reference 0.009 | verdict |
+| --- | --- | --- | --- | --- | --- | --- |
+| r3 | (54 98 33) | 358 430 | 0.008479216 | 8.90 × 10⁻⁷ | −5.79% | INSIDE |
+| r3b | (55 97 34) | 362 032 | 0.008072766 | 4.25 × 10⁻⁷ | −10.30% | INSIDE |
+| r3c | (53 99 34) | 355 897 | 0.008658746 | 2.86 × 10⁻⁷ | −3.79% | INSIDE |
+| r3d | (56 96 33) | 352 872 | 0.007998209 | 7.25 × 10⁻⁷ | −11.13% | INSIDE |
+
+**Four of four inside the band, and all four on the same side of it.** Mean
+0.008302234, range 6.6054 × 10⁻⁴ = **8.0% of the value**, against **21.6%** at
+the published rung. **At 358 000 cells this body's verdict is reproducible.**
+
+### And the ladder crosses the reference
+
+| rung | cells | Cd | vs 0.009 |
+| --- | --- | --- | --- |
+| r1 | 140 545 | 0.012052229 | **+33.91%** above |
+| r2 | 224 431 | 0.010405872 | +15.62% above |
+| r3 | 358 430 | 0.008479216 | **−5.79%** below |
+| r4 | 525 692 | 0.008435098 | −6.28% below |
+
+**The solution passes through the reference between 224 431 and 358 430
+cells**, and the crossing is not a mesh artefact: all four r1 meshes read
+*above* the reference (+5.04% to +33.91%) and all four r3 meshes read *below*
+it (−3.79% to −11.13%).
+
+**This is the pattern R4 recorded on the Ahmed 25°** — "the solution passes
+through the experiment near 144 000 cells rather than converging to it" — and
+it had never been checked on this body. Two of two bodies checked now do it.
+
+### What that means for the row, stated against my own interest
+
+It would be easy to read §6 as "the credential passes at the right rung", and
+that reading is available: 4 of 4 inside, at a spread 2.7× tighter. **It is not
+the reading I take, for three reasons.**
+
+1. **Passing through is not converging to.** The ladder is above the reference
+   at 140k and below it at 358k. Landing inside the band at r3 is where the
+   sweep happened to be, not evidence the flow agrees with the data.
+2. **The r3 value is a better-resolved *unvalidated* value.** The r3→r4
+   increment is −4.4 × 10⁻⁵, below this rung's own mesh scatter, so the ladder
+   is unresolved above r3; and every rung is `addLayers false` at chord
+   Re 1.0 × 10⁶, the defect that superseded the previous 4412 credential.
+3. **n = 4 at each of two resolutions is not a distribution.**
+
+**What §6 does establish is narrower and still worth having: the wall's verdict
+is determined by a resolution choice nobody has defended.** Grade 140 580 cells
+and you get an irreproducible fail; grade 358 430 and you get a reproducible
+pass. That choice currently sits in the record implicitly. It should be made
+explicitly and argued, which is a question for the ruling, not a licence to
+move the row.
+
+### A correction to my own earlier number
+
+`W3_MESH_NOISE_FLOOR_RESULTS.md` reports the scatter falling as **N⁻²**
+(exponent 2.024, "constant to ±6%"). **That came from a single pairwise
+difference at each of four resolutions.** With four meshes at each of two
+resolutions the same body gives:
+
+| statistic | r1 → r3 ratio | implied exponent |
+| --- | --- | --- |
+| the single pair I published | 6.40 | **1.98** |
+| 4-mesh range | 3.93 | **1.46** |
+| 4-mesh standard deviation | 3.77 | **1.42** |
+
+A range over n = 4 and a single pairwise difference are different statistics
+and are not directly comparable, so this does not make 2.024 wrong on its own
+terms — but it does mean **the exponent is not pinned down, and the tidy
+"scatter × N² constant to ±6%" was one draw per resolution flattering itself.**
+The robust claim is that scatter falls with refinement on this body somewhere
+around N⁻¹·⁴ to N⁻²; the precise power is not established, and I should not
+have presented four pairwise differences as a law.
+
+## 7. Provenance
+
+* r1, r1b, r1c, r1d and r3, r3b, r3c, r3d under
+  `/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/`
+* Each `postProcessing/forceCoeffs1/0/coefficient.dat`, Cd as the mean over the
+  final 20% of that run's own history; cell counts from each `log.checkMesh`.
 * Pre-registrations: `W3_WING_VALID_FAMILY_PREREGISTRATION.md` (83e28569) and
-  `W3_MESH_NOISE_FLOOR_PREREGISTRATION.md` (438de17c). Neither predicted this;
-  it is a consequence of measurements made for other reasons, and it is
-  labelled as such rather than presented as a hypothesis that was tested.
+  `W3_MESH_NOISE_FLOOR_PREREGISTRATION.md` (438de17c). **Neither predicted any
+  of this.** It is a consequence of measurements made for other reasons, and it
+  is labelled as such rather than presented as a hypothesis that was tested.
+* Cost of the four extra replicates: **16.7 core-minutes** at 4 ranks (8.67
+  solve from `ExecutionTime`, ≈8 meshing), against the ≈20 estimated in the
+  version of §5 that proposed them.

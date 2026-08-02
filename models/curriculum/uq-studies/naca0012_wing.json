@@ -61,7 +61,7 @@
     "naca0012_wing-rung-medium",
     "naca0012_wing-production"
   ],
-  "updated_utc": "2026-08-02T06:41:47Z",
+  "updated_utc": "2026-08-02T07:19:47Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -403,6 +403,89 @@
       "what_it_sharpens": "It is now not merely that the verdict is irreproducible: the mesh the credential was built on is the LEAST representative of the four, and it is the one whose reading produced the failing verdict on the wall.",
       "still_not_an_upgrade": "n = 4 is four; the sample standard deviation of 1.1979e-03 is 11.5 percent of the mean; and a mean of four arbitrarily chosen meshes is not a converged answer either -- it is four readings of a quantity this family cannot pin down. This licenses REMOVING a verdict, not replacing it with a better one.",
       "next_experiment_named_not_run": "The same four-mesh spread at the 358,430-cell resolution, where the measured scatter is 4.064e-04 rather than 2.599e-03, a sixth the size. If the spread there places the body cleanly inside or outside the band, the credential has a resolution at which it can honestly be stated. About 20 core-minutes at 4 ranks on tonight's measurement."
+    },
+    "same_test_at_the_finer_rung": {
+      "measured_utc": "2026-08-02T07:17:16Z",
+      "why": "to ask whether this body has a rung at which a verdict CAN be stated",
+      "runs": [
+        {
+          "tag": "r3",
+          "divisions": "54 98 33",
+          "cells": 358430,
+          "cd": 0.008479216,
+          "window_2sigma": 8.901e-07,
+          "rel_vs_reference": -0.0579,
+          "verdict": "INSIDE"
+        },
+        {
+          "tag": "r3b",
+          "divisions": "55 97 34",
+          "cells": 362032,
+          "cd": 0.008072766,
+          "window_2sigma": 4.248e-07,
+          "rel_vs_reference": -0.103,
+          "verdict": "INSIDE"
+        },
+        {
+          "tag": "r3c",
+          "divisions": "53 99 34",
+          "cells": 355897,
+          "cd": 0.008658746,
+          "window_2sigma": 2.861e-07,
+          "rel_vs_reference": -0.0379,
+          "verdict": "INSIDE"
+        },
+        {
+          "tag": "r3d",
+          "divisions": "56 96 33",
+          "cells": 352872,
+          "cd": 0.007998209,
+          "window_2sigma": 7.25e-07,
+          "rel_vs_reference": -0.1113,
+          "verdict": "INSIDE"
+        }
+      ],
+      "all_four_converged_on_residualControl": true,
+      "mean": 0.008302234,
+      "range": 0.000660537,
+      "sample_stdev": 0.000318072,
+      "range_as_percent_of_value": 8.0,
+      "compare_published_rung": "21.6 percent at ~140k cells; 8.0 percent here -- 2.7 times tighter",
+      "verdicts": "4 of 4 INSIDE the +/-30 percent band, and all four on the same side of it",
+      "the_ladder_crosses_the_reference": {
+        "sequence": [
+          [
+            140545,
+            0.012052229,
+            0.3391
+          ],
+          [
+            224431,
+            0.010405872,
+            0.1562
+          ],
+          [
+            358430,
+            0.008479216,
+            -0.0579
+          ],
+          [
+            525692,
+            0.008435098,
+            -0.0628
+          ]
+        ],
+        "crossing_between_cells": [
+          224431,
+          358430
+        ],
+        "not_a_mesh_artefact": "all four r1 meshes read ABOVE the reference, +5.04 to +33.91 percent, and all four r3 meshes read BELOW it, -3.79 to -11.13 percent",
+        "prior_art": "R4 recorded this pattern on the Ahmed 25 degree -- 'the solution passes through the experiment near 144,000 cells rather than converging to it' -- and it had never been checked on this body. Two of two bodies checked now do it."
+      },
+      "stated_against_my_own_interest": "It would be easy to read this as 'the credential passes at the right rung', and that reading is available: 4 of 4 inside at a spread 2.7 times tighter. It is NOT the reading taken, for three reasons. (1) Passing through is not converging to -- the ladder is above the reference at 140k and below it at 358k, so landing inside the band at r3 is where the sweep happened to be. (2) The r3 value is a better-resolved UNVALIDATED value: the r3->r4 increment of -4.4e-05 is below this rung's own mesh scatter, so the ladder is unresolved above r3, and every rung is addLayers false at chord Reynolds 1.0e6. (3) n = 4 at each of two resolutions is not a distribution.",
+      "what_it_does_establish": "The wall's verdict is determined by a resolution choice nobody has defended. Grade 140,580 cells and you get an irreproducible fail; grade 358,430 and you get a reproducible pass. That choice sits in the record implicitly and should be made explicitly and argued -- a question for the open ruling, not a licence to move the row.",
+      "corrects_an_earlier_number": "W3_MESH_NOISE_FLOOR_RESULTS.md reports the scatter falling as N^-2, exponent 2.024, 'constant to plus or minus 6 percent'. That came from a SINGLE pairwise difference at each of four resolutions. With four meshes at each of two resolutions the same body gives an implied exponent of 1.46 from the range and 1.42 from the standard deviation, against 1.98 from the single pair. Those are different statistics and not directly comparable, so 2.024 is not wrong on its own terms -- but the exponent is not pinned down and the tidy inverse square should not be carried forward as established. The direction, falling rather than rising, is unaffected and was the part that mattered.",
+      "cost_core_min": 16.7
     }
   }
 }
