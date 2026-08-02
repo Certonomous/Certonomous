@@ -533,8 +533,11 @@ item `w5-rotations-off-mesh-quality-price`.
 
 - The AIAA paper (§2.3) is unread. The "undocumented" claim rests on code, docs and release notes only.
 - ~~§1.6's second regime (ill-conditioned, just above threshold) is measured on ONERA M6 at ~1%
-  but not isolated to a line the way the first regime is.~~ **CLOSED 2026-08-01, see §6.** It is
-  `vectorUtils_b.f90:133`, with the error-vs-angle curve measured.
+  but not isolated to a line the way the first regime is.~~ **CLOSED 2026-08-02, see §7.** The
+  error-vs-angle curve was measured 2026-08-01 (§6.4); the cause was *tested* 2026-08-02 and is
+  **not** the single line §6.4 named. It is `vectorUtils.f90:69-70`'s `acos` **and**
+  `vectorUtils_b.f90:133`'s cancellation together -- each alone buys 1.0x-1.6x, the pair buys
+  3.7e+07x. Unlike regime 1, a regime-2 fix cannot be primal-bit-identical.
 - Whether `mdolab/dafoam` #905 / #914 are this defect is **unverified**. They have not been run here.
 - PROOF.md §22's carried-forward `getdFScaling` anomaly is untouched by this session and remains open.
 
@@ -573,10 +576,13 @@ Log: `independent_check/flatspot_width.log`.
 |---|---|---|---|---|---|---|---|---|
 | rel. err | 2e-12..2e-09 | 4.1e-08 | 6.7e-05 | 4.0e-04 | **1.2e-02** | **6.6e-03** | **5.3e-02** | **1.0 (guard)** |
 
-The band is `vectorUtils_b.f90:133`, `argb = -(angleb/SQRT(1.0-arg**2))`, where `1 - arg^2 ~ theta^2`
-is formed by cancellation from an `arg` carrying `eps` of roundoff. ONERA M6's 1.26% -- which
-survives the patch, as §6 of `PATCH_getRotationMatrix3d.md` predicted -- sits in this band.
-Log: `independent_check/regime2_vs_angle.log`.
+~~The band is `vectorUtils_b.f90:133`, `argb = -(angleb/SQRT(1.0-arg**2))`, where `1 - arg^2 ~ theta^2`
+is formed by cancellation from an `arg` carrying `eps` of roundoff.~~ **The curve above stands; the
+sentence attributing it to line 133 is SUPERSEDED IN PLACE by §6.7 (2026-08-02), which tested that
+attribution instead of asserting it. Repairing line 133 alone removes 1.0x-1.6x of a defect that a
+two-line repair removes by 3.7e+07x. The cancellation is real and is not the carrier.** ONERA M6's
+1.26% -- which survives the patch, as §6 of `PATCH_getRotationMatrix3d.md` predicted -- sits in this
+band. Log: `independent_check/regime2_vs_angle.log`.
 
 **6.5 Scoping: no siblings.** `src/adjoint/Makefile_tapenade` differentiates exactly one head,
 `kd_tree%computeNodalProperties(XsPtr, tp%Mi, tp%Bi)`. The entire generated surface is
@@ -599,6 +605,69 @@ that no optimizer can traverse and no finite difference can resolve** -- reachin
 `h < 1.5e-08 * L`, and §4.1's step study already shows roundoff destroying the FD at `h = 1e-08`.
 Any filing should pre-empt the response "the code is differentiable and your step is too coarse."
 
+## 7. The second regime's cause, tested rather than asserted, 2026-08-02
+
+§6.4 measured an error-vs-angle curve and named `vectorUtils_b.f90:133`,
+`argb = -(angleb/SQRT(1.0-arg**2))`, as the carrier, on the reasoning that `1 - arg^2 ~ theta^2` is
+formed by catastrophic cancellation. **That was a location plus an asserted mechanism.** This
+section repairs each candidate line in isolation and measures what each repair buys. Script and
+log: `independent_check/regime2_mechanism.{py,log}`, run 2026-08-02T08:27:46Z. Zero compute --
+numpy only, no IDWarp, no DAFoam, no solver.
+
+**7.1 The discriminator is free.** `sqrt(1 - arg^2)` is `sin(angle)`, and `sin(angle)` is
+`axisMag/(magv1*magv2)` -- and `axisMag` is *already computed two lines earlier in the primal*,
+because it is what normalises `axis`. So the substitute costs nothing and, measured against exact
+`sin(theta)`, is accurate to **0 to 5.0e-15 relative across the whole range** (Part C), while the
+shipped `1 - arg^2` is wrong by **11.0% at `theta = 2e-08`** and by 2.3% at 5e-08 (Part B). The
+cancellation §6.4 named is real, severe, and exactly where it was said to be.
+
+**7.2 And repairing it does almost nothing.** Four variants of the reverse routine, differing only
+in the marked lines, against the true derivative of the smooth map:
+
+| `theta` | V0 shipped | V1 denominator only | V1b angle only | V2 both | V3 §1.7 singularity-free |
+|---|---|---|---|---|---|
+| 1e-06 | 6.658e-05 | 5.561e-05 | 3.661e-05 | **1.974e-10** | 1.538e-12 |
+| 1e-07 | 3.998e-04 | 3.339e-04 | 2.199e-04 | **7.221e-10** | 1.710e-12 |
+| 5e-08 | **1.161e-02** | 9.663e-03 | 6.436e-03 | **3.083e-09** | 2.229e-12 |
+| 3e-08 | 6.603e-03 | 5.504e-03 | 3.647e-03 | **1.077e-09** | 1.041e-12 |
+| 2e-08 | **5.286e-02** | 4.483e-02 | 2.801e-02 | **4.844e-09** | 1.068e-12 |
+| <=1.49e-08 (guard) | 1.0 | 1.0 | 1.0 | 1.0 | **9.3e-13** |
+
+V1 is the one-line fix §6.4's attribution points at. It buys **1.0x to 1.6x**. Over 200 random
+`(v1, mib, tilt-axis)` draws per angle it buys 1.0x to 1.6x again, while **V2 buys 2.1e+03x to
+3.7e+07x** (Part D). Fixing only the denominator is indistinguishable from doing nothing.
+
+**7.3 So the carrier is the angle, in the PRIMAL, and the cause spans two lines not one.** The
+dominant term is `angle = acos(arg)` at `vectorUtils.f90:69-70`: `arg = 1 - theta^2/2` loses the
+information at `theta ~ sqrt(eps)` before `acos` is ever called, so `angle` itself carries relative
+error `~eps/theta^2` and the reverse inherits it through `sin(angle)`, `cos(angle)` and `angleb`.
+Line 133's cancellation is a second, comparable term. **Neither is sufficient alone and the two do
+not add** -- repairing either leaves the other at nearly full size, which is why each single-line
+repair reads as a null result. Only `angle = atan2(axisMag/(magv1*magv2), arg)` *together with*
+`sqrt(1-arg^2) -> axisMag/(magv1*magv2)` removes the regime.
+
+**7.4 Which answers the item's actual question: two regimes, and they need different fixes.** The
+shipped patch (`idwarp_v2.6.2_degenerate_branch_fix.patch`) is deliberately **primal-bit-identical**
+-- that is one of its acceptance criteria and it is why it is safe. A regime-2 repair *cannot* be:
+it changes `angle` in the forward warp. Measured (Part E), `Mi` moves by **1 ulp at `theta = 1`,
+2.7e-15 at 1e-01, and 2.0e-08 at `theta = 2e-08`** -- and at that angle the whole rotation
+contribution is itself only O(2e-08), so the forward warp's rotation term is 100% uncertain there.
+The primal is not being perturbed by the fix; it was already wrong and the fix is what makes it
+right. But it does mean **a full fix cannot claim primal-invariance, and any regime-2 patch must be
+re-graded on the primal as well as the gradient.**
+
+**7.5 What this does to `w5-idwarp-singularity-free-rotation-patch`.** §1.7's reparameterisation
+(V3) is now measured, independently and in double precision, at **6.3e-13 to 2.2e-12 across every
+angle tested including inside the guard ball**, where every acos-based variant reads exactly 1.0.
+It is the only single change that covers both regimes, and it needs no threshold. That item's
+premise is strengthened, not weakened, by this section.
+
+**7.6 Stated against ourselves.** This is a numerical study of a faithful transcription, not a run
+of IDWarp. It says which lines carry the error in the algorithm as written; it does **not** measure
+what tilt angles a real deformed mesh actually visits. ONERA M6's 1.02%-1.26% is consistent with
+`theta ~ 5e-08` off this curve, but that inversion is an inference, and no direct measurement of
+normal-tilt-angle distributions on a real case exists here.
+
 ### 5.3 Evidence index
 
 | file | what |
@@ -616,7 +685,8 @@ Any filing should pre-empt the response "the code is differentiable and your ste
 | `rotation_branch/D6_predeform_{on,off}` | §4.9 capstone, pre-deformed baseline |
 | `rotation_branch/independent_check/verify_rotderiv.{py,log}` | §6.2 corrected derivative, re-derived independently (1.9e-12) |
 | `rotation_branch/independent_check/flatspot_width.{py,log}` | §6.3 `tol` retune foreclosed; §6.6 flat-spot reachability |
-| `rotation_branch/independent_check/regime2_vs_angle.{py,log}` | §6.4 second regime isolated to `vectorUtils_b.f90:133` |
+| `rotation_branch/independent_check/regime2_vs_angle.{py,log}` | §6.4 second regime's error-vs-angle curve (its line attribution is superseded by §7) |
+| `rotation_branch/independent_check/regime2_mechanism.{py,log}` | §7 cause tested by isolated repair: the denominator buys 1.0-1.6x, the pair buys 3.7e+07x |
 
 Working tree (outside the repo, not version-controlled):
 `/home/ubuntu/certonomous-runs/W5-idwarp-source/` (source clone at `v2.6.2`, upstream input files,

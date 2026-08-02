@@ -524,3 +524,104 @@ was missing there too, and supplying it recovered only 11% of the gap. The term
 is shared; the consequence is not. A regrade that assumed a common magnitude
 would have moved A4 to PASS on A1's evidence, which the measurement says is
 wrong.
+
+---
+
+## 7. The full per-component tables under the patched warp — 2026-08-02, at zero additional compute
+
+Docket item `w5-a1-a5-full-fd-tables-under-patched-warp` was filed on the
+premise that the patch acceptance tests covered only the *flagged* components
+(A1 idx0/1/4/6/7 under real and random seeds; A5's two flips via the warp
+identity) and never the framework's own full `check_totals` tables, and it
+priced 21.8 measured core-minutes to run them.
+
+**They had already been run.** §1's seven-row A1 table and §4's A5 aggregate were
+extracted from `check_totals` logs of 2026-08-01 that also carry OpenMDAO's
+`Raw Analytic Derivative (Jfor)` and `Raw FD Derivative (Jfd)` rows — the full
+per-component Jacobians, printed because `compact_print` is off. Only the
+aggregate norms were ever read off them. Extractor:
+`sdk/scripts/extract_a5_fd_table.py`. Logs:
+`/home/ubuntu/certonomous-runs/W5-regrade/{a1_unpatched_stock,a1_patched_patched,a5pl_stock_checktotals,a5pl_patched_checktotals}.log`
+(2026-08-01 12:39–13:28 UTC). **Measured cost of closing this item: 0.0 core-minutes
+of solve against an estimate of 21.8.**
+
+### 7.1 A1 NACA0012 — every `of`/`wrt` pair, per component
+
+Band is the ±12% this lab calibrated on this very case. `n` is the number of
+Jacobian entries in the pair.
+
+| pair | n | stock: in band / flips / worst | patched: in band / flips / worst |
+|---|---|---|---|
+| `CD` wrt `dvs.shape` | 8 | **7/8, 1 flip, idx6 640.2586%** | **8/8, 0 flips, idx6 1.1649%** |
+| `CL` wrt `dvs.shape` | 8 | 7/8, 0 flips, idx6 19.7772% | **8/8, 0 flips, idx6 0.1093%** |
+| `CD` wrt `dvs.patchV` | 2 | 2/2, 0 flips, idx1 0.2689% | 2/2, 0 flips, idx1 **0.2689%** |
+| `CL` wrt `dvs.patchV` | 2 | 2/2, 0 flips, idx0 0.2647% | 2/2, 0 flips, idx0 **0.2647%** |
+| `geometry.volcon` wrt `dvs.shape` | 8 | 8/8, agg 4.366597e-14 | 8/8, agg **4.366597e-14** |
+| `geometry.thickcon` wrt `dvs.shape` | 160 | 160/160, agg 1.265004e-13 | 160/160, agg **1.265004e-13** |
+| `geometry.rcon` wrt `dvs.shape` | 16 | 16/16, agg 1.363491e-10 | 16/16, agg **1.363491e-10** |
+
+**196 of the 204 entries are bit-identical between the two runs.** The eight that
+move are the eight `dvs.shape` columns of `CD` and `CL`, which are the only
+entries whose chain crosses `warpDeriv`. The four pairs that bypass the volume
+warp agree to every digit printed, which is the patch's own §6 prediction
+holding on 188 entries rather than on an argument.
+
+`idx6` — the single sign-flipped component of the whole A1 record, and the one
+the FAIL verdict was written on — goes from **640.2586% with the wrong sign** to
+**1.1649% with the right one**. The other seven `CD`/shape components were
+already in band stock and stay in band patched.
+
+### 7.2 A5 U-bend pressure loss — all 27 components
+
+`OBJ.val` wrt `shapexUpper`, `step=1e-4`, central, np=4, the published
+configuration.
+
+| | in band (±12%) | sign flips | aggregate |
+|---|---|---|---|
+| published (`ladder-a/A5_ubend_internal.md:159`) | 5/27 | 2 (idx8, idx17) | 46.6377% |
+| **stock re-run, 2026-08-01** | **5/27** | **2 (idx8, idx17)** | **46.6377%** |
+| **patched** | **26/27** | **0** | **2.2372%** |
+
+The stock re-run reproduces the published 27-row table to every printed digit —
+idx0 115.2785 against a published 115.3, idx8 207.5853 against 207.6, idx17
+121.6436 against 121.6 — so the extractor is validated against a table this lab
+published before it existed.
+
+Both sign flips are gone: idx8 goes from **−0.84337 against an FD of +0.78391**
+to **+0.78790**, and idx17 from **−0.62881 against +2.90530** to **+2.91314**.
+
+### 7.3 The one component that gets worse, which is the point of running the full table
+
+**idx16 is the only entry in either case that the patch moves in the wrong
+direction, and it is the only patched A5 component outside the band:**
+
+| | analytic | FD | rel. err |
+|---|---|---|---|
+| stock | −3.77483865 | −4.30296296 | 12.2735% |
+| **patched** | **−5.04787848** | −4.30296296 | **17.3117%** |
+
+The FD is identical in both runs, so this is the analytic side moving away from
+a fixed target. Stock, idx16 sat 0.27 percentage points *outside* the ±12% band
+and was unremarkable among 22 failing components; patched, it is the only one
+left and it is 5.0 points worse than it was. **Had only the flagged components
+been re-run — which is exactly what the acceptance tests did, and exactly the gap
+this item was filed to close — idx16 would not have been looked at.** That is the
+item earning its keep, at zero compute.
+
+No cause is offered for idx16 here. What can be said is what it is not: it is
+not the degenerate branch (the patch supplies that term and 26 of 27 components
+collapse), and it is not the FD (unchanged to every digit between the runs).
+
+### 7.4 Verdicts, and what does not change
+
+* **A1's full table passes under the patched warp**: `CD`/shape 8/8 and
+  `CL`/shape 8/8 in band with no sign flips, on the framework's own
+  `check_totals` rather than on the warp identity alone.
+* **A5's full table passes with one exception**, idx16 at 17.31%, named above.
+  The gate's wording — *"every previously flagged component sits at the clean-control
+  level with no sign flips"* — is **met**: idx8 and idx17 were the flagged ones and
+  both are clean. idx16 was never flagged; it is a new finding, and it is
+  reported rather than folded into the aggregate.
+* **The stock verdicts are unchanged in every record.** Shipped DAFoam/IDWarp
+  2.6.2 does not contain the patch, 11.43% and 46.64% stand as published, and
+  `NOT_PASSING_REGISTER.md` is untouched by this section.
