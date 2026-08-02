@@ -2527,6 +2527,32 @@ IPOPT-deformed mesh, which is a sufficient explanation for the mesh-quality abor
 about A2 as published. It buys back the ability to regrade the lab's most prominently published
 gradient claim, which `benchmarks.html:115` and `:141` rest on. B-7 is closed.
 
+**And the verification itself, not just the baseline, was then re-run and reproduces exactly.**
+`runScript_AeroOnly.py -task check_totals` on the rebuilt case, **stock** toolchain (the log's own
+`IDWARP_IMPORTED_FROM:` line confirms IDWarp loaded from `site-packages`, not the patch mount),
+np=4, 2026-08-02T05:18:43Z–06:32:44Z, 105 design variables x 2 central-difference perturbations plus
+the analytic pass, zero mesh-quality errors and zero `AnalysisError`s in the whole run. Comparing
+every row block against the published `A2-mach-wing/check_totals_run1.log` — analytic magnitude, FD
+magnitude, OpenMDAO's own absolute-error norm and its own relative-error norm:
+
+**18 of 18 rows identical to every printed digit. 0 rows differ.**
+
+Including the headline row verbatim in both logs:
+
+```
+  Full Model: 'scenario1.aero_post.functionals.CD' wrt 'dvs.shape'
+    Analytic Magnitude: 4.801625e-02
+          Fd Magnitude: 4.858158e-02 (fd:central)
+    Absolute Error (Jan - Jfd) : 8.325869e-04 *
+    Relative Error (Jan - Jfd) / Jfd : 1.713791e-02 *
+```
+
+— i.e. the published **1.71%**, recovered from scratch. So `benchmarks.html`'s claim that every
+gradient was FD-verified is not merely re-runnable in principle; it has been re-run, and it stands
+against the shipped toolchain. Cost **296 core-minutes** (4441 s wall x 4 ranks, against the
+published run's 210; this one shared the box with the CBFS, A4 and M6 work). Evidence:
+`W4-a2-provenance/a2_ao_stock_checktotals.log`, `run_ct.sh`, `extract_table.py`.
+
 ### 25.2 The matrix reordering: it generalises to exactly one of the three cases named, and cannot apply to the other two
 
 The brief states: *"Failing scripts use `rcm`, the one working tutorial uses `natural`. A3, CBFS and
