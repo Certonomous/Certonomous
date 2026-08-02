@@ -2952,6 +2952,27 @@ the highest count belongs to a clean one. Colour count does not separate them �
 reached on a different question. GMRES iteration counts (542, 561, 753, 719, 671, 598) do not
 separate them either.
 
+**Localized to a link, though, and it is not the geometry stack.** The reverse chain was
+instrumented at the one point where all three links meet — a hook on
+`DAFoamWarper.compute_jacvec_product` recording **partition-invariant global L2 norms** (sum of
+squares across ranks, then `allreduce`, then root) of the seed going in and the result coming out —
+and run at np=4 under both decompositions, patched IDWarp:
+
+| quantity | `scotch` | `simple` 4x1x1 | relative difference |
+|---|---|---|---|
+| CD (primal) | 1.529749170343834e-01 | 1.529732324097687e-01 | **1.1e-05** |
+| `‖dCD/dXv‖` — DAFoam's adjoint output, **before** IDWarp | 7.847729220970715e-01 | 7.620730911275929e-01 | **2.98%** |
+| `‖dCD/dx_aero‖` — after `mesh.warpDeriv` | 6.522793998409145e-01 | 6.954500388256902e-01 | **6.21%** |
+| `dCD/dshape` — after DVGeo | 2.208588593817390e-01 | 2.422030573188107e-01 | **8.81%** |
+
+**The primal agrees to 1.1e-05 and `dCD/dXv` already disagrees by 2.98%.** The divergence is
+therefore present *before* IDWarp is called at all, which puts it in DAFoam's own parallel adjoint —
+the `dR/dW` transpose solve or the `dF/dXv` / `dR/dXv` assembly — and **not** in IDWarp's warp
+derivative or pyGeo's FFD reduction. Those two links then carry it and it grows (2.98% → 6.21% →
+8.81%) rather than washing out, but they are not where it starts. That narrows the follow-on from
+"the parallel stack" to "DAFoam's parallel adjoint", and it is consistent with the IDWarp patch
+being irrelevant to this defect.
+
 **So the effect is established and the mechanism is not.** What is measured: A4's adjoint depends on
 the decomposition at fixed rank count, reproducibly, while its primal and its finite difference do
 not; two conformal cases do not show it; and it is not the colouring cache, not the linear-solve
