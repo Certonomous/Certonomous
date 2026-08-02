@@ -80,11 +80,35 @@ record = {
     'settle': final, 'extended_to': extend and new_end or None,
 }
 out = case / ('record_extend.json' if extend else 'record.json')
-if extend and (case/'record.json').exists():
-    prev = json.loads((case/'record.json').read_text())
+# Chain the cumulative cost through the PREVIOUS EXTENSION when there is one,
+# not through the first run. Reading record.json here made every extension
+# report "first run + me" and silently drop every extension in between: the
+# medium bump rung ran four times for 1892.8 s of solver time (31.55 core-min)
+# and its record claimed 17.88, because extend12000 and extend15000 were never
+# in any total. A rung that is restarted twice is exactly the rung whose cost
+# nobody is watching, so this is the one place the arithmetic must not skip.
+prev_path = case/'record_extend.json'
+if not (extend and prev_path.exists()):
+    prev_path = case/'record.json'
+if extend and prev_path.exists():
+    prev = json.loads(prev_path.read_text())
     record['previous'] = prev
+    record['previous_record'] = prev_path.name
     record['core_minutes_cumulative'] = record['core_minutes'] + prev.get('core_minutes_cumulative', prev['core_minutes'])
 else:
     record['core_minutes_cumulative'] = record['core_minutes']
+# The driver's wall clock is not the solver's clock. Record both, so a rung
+# whose cumulative was dropped, or which shared the box, is visible without
+# re-reading the logs.
+try:
+    import re as _re
+    solver_s = 0.0
+    for _log in sorted(case.glob('log.simpleFoam*')):
+        _m = _re.findall(r'ExecutionTime = ([0-9.]+) s', _log.read_text(errors='replace'))
+        if _m:
+            solver_s += float(_m[-1])
+    record['solver_execution_core_minutes_all_logs'] = round(solver_s * ranks / 60.0, 2)
+except OSError:
+    record['solver_execution_core_minutes_all_logs'] = None
 out.write_text(json.dumps(record, indent=2))
 print(json.dumps(record, indent=2), flush=True)
