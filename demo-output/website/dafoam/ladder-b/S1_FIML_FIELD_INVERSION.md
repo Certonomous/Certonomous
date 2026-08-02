@@ -390,6 +390,107 @@ structurally unavailable to field inversion.** beta lives inside the turbulence 
 the very sensitivity being solved for. It remains a valid diagnostic for locating the NaN, but it
 can never be the configuration a real inversion runs in.
 
+### Addendum 2026-08-02 (well W4): the reordering axis run to completion, and rung 4's reading corrected
+
+Rung 4 above tested one alternative ordering (`natural`) on one case (the hump) and concluded
+*"`rcm` is implicated in producing the `DIVERGED_NANORINF` specifically, and any future attempt
+should treat the reordering as a variable rather than a constant."* Both halves were worth testing
+properly. Docket item `w4-rcm-reordering-across-blocked`. Full record: `PROOF.md` §25.2-25.3.
+
+**1. Rung 4 generalises to CBFS.** B3's own `runScript.py` used `rcm` and had never had it varied.
+One-token change, `compute_totals`, np=4, 21,000 cells / 4 ranks = **5,250 cells per rank**: `rcm`
+reproduces B3's published `Total iterations: 0. PetscConvergedReason: -9` exactly (87.96 s against
+its own 111.17 s on a busier box), `natural` gives `Total iterations: 1000. PetscConvergedReason:
+-3` (237.9 s). Same signature change, second case.
+
+**2. But it is not "`rcm` is the bad one". The whole ordering axis was run, and it splits two ways.**
+`DALinearEqn.C` exposes five orderings; this lab had ever used two.
+
+| `jacMatReOrdering` | reason | iterations | wall |
+|---|---|---|---|
+| `rcm` (DAFoam's default, `pyDAFoam.py:530`) | **-9** `DIVERGED_NANORINF` | 0 | 87.96 s |
+| `1wd` one-way dissection | **-9** `DIVERGED_NANORINF` | 0 | 90.53 s |
+| `natural` | -3 `DIVERGED_ITS` | 1000 | 237.9 s |
+| `nd` nested dissection (the source's own suggestion at `pyDAFoam.py:525`) | -3 `DIVERGED_ITS` | 1000 | 353.5 s |
+| `qmd` quotient minimum degree | -3 `DIVERGED_ITS` | 1000 | 245.43 s |
+
+**Two of five produce the NaN, three produce honest stagnation, and none converges.** The initial
+residual is identical (7.091590452305e-04) in all five, as it must be. A single buggy ordering
+would not do this; a factorization that is singular, hitting a destructive zero pivot under some
+elimination orders and not others, does exactly this.
+
+**3. The objective controls nothing.** Changing the objective changes `dF/dW` and leaves `dR/dW`
+untouched; B3 had varied it only under `rcm`. Run as a clean single-factor 2x2 (same mesh, DVs,
+`pcFillLevel: 1`, only the `function` block swapped for the standard `force`/CD objective):
+
+| | `rcm` | `natural` |
+|---|---|---|
+| `varianceU` (field) | `-9`, iteration 0, 92 s | `-3`, 1000 iterations, 238 s |
+| `CD` (force) | `-9`, iteration 0, 92 s | `-3`, 1000 iterations, 263 s |
+
+Under `force`+`natural` the residual is **bit-identical** at 5.324334345172e-02 from iteration 100
+to iteration 1000 -- this document's own hump signature, on a different case and a different
+objective.
+
+**4. The cause, reproduced with no DAFoam in the loop.** The preconditioner matrix and RHS were
+dumped with stock PETSc runtime flags (`-ksp_view_pmat binary:`, `-ksp_view_rhs binary:`; no source
+change) and analysed offline. `||b|| = 7.091590452305e-04`, matching the printed iteration-0
+residual to all 13 digits. The matrix (210,592 square, 13,710,468 nonzeros) has **no zero rows, no
+zero columns and no zero diagonal entries**, and a diagonal spread of **8.67 decades against the M6
+family's 14.17** -- so R5's conditioning mechanism does not transfer to this case. Then:
+
+* `scipy.sparse.linalg.spilu(drop_tol=1e-5, fill_factor=10)` -> **`RuntimeError: Factor is exactly
+  singular`**. The `-9`, in a second independent implementation.
+* `scipy.sparse.linalg.splu` -- full LU **with partial pivoting** -- solves it exactly,
+  `||Ax-b||/||b|| = 2.535461e-12`. The system is nonsingular and consistent; a solution exists.
+* Unpreconditioned `scipy` GMRES reproduces the stagnation (relative residual 1.0 -> 9.999687e-01
+  over 1000 matvecs) with no DAFoam, no PETSc solver and no MPI, which exonerates DAFoam's KSP/PC
+  configuration.
+
+One mechanism covers both signatures and explains why B3's own `pcFillLevel: 4` also returned `-9`:
+**fill adds fill, not pivoting.** `DALinearEqn.C` hard-codes `PCType localPCType = PCILU;` (and
+already switches on `PCFactorSetPivotInBlocks(PETSC_TRUE)` and `MAT_SHIFT_NONZERO` with
+`PETSC_DECIDE`, which are not sufficient here), so a pivoting-capable factorization is not reachable
+from `daOptions` without recompiling `libDASolver.so`. Stated as a located limitation; nothing filed.
+*Caveat, stated rather than buried:* the dumped matrix is the assembled preconditioner `dRdWTPC`,
+not the matrix-free transpose Jacobian GMRES applies. The singular-ILU result is direct -- that is
+the matrix DAFoam factors -- and the GMRES-stagnation results are corroborative.
+
+**5. This section's own claim about the success gate is CORRECTED, on measurement.** Rung 4's
+write-up above says: *"a `-5`/`-9` run prints 'Residual tolerance satisfied, solution finished!' and
+lets OpenMDAO continue, while a `-3` run prints 'not satisfied' and correctly aborts. The hump
+follows that exactly."* **The hump's own log does not support that.** Counting the two strings
+directly:
+
+| log | `...satisfied, solution finished` | `...not satisfied, solution failed` | reason |
+|---|---|---|---|
+| `S1_work/logs/hump_adjoint_run1.log` | **0** | 1 | `-9` |
+| `S1_work/logs/hump_nat_run1.log` | **0** | 1 | `-3` |
+| `W4-cbfs-reordering/cbfs_rcm_computetotals.log` | **0** | 1 | `-9` |
+| `A3-onera-m6-sweep-n15_21840/run_opt5_onera_n15_21840.log` | **2** | 0 | `-5` |
+
+R5's finding is correct and is specific to **`-5`**, where the residual collapses to denormal range
+and therefore reads as converged to the tolerance test. **`-9` never fools the gate** -- a NaN fails
+the comparison and DAFoam raises `AnalysisError("Adjoint solution failed!")`, which every `-9` run
+here does. Extending R5's `-5` result to `-9` was an over-generalisation. It matters in the safe
+direction: the hump and CBFS `-9` blockers were never at risk of silently returning a wrong
+gradient, whereas the M6 `-5` runs were.
+
+**6. And the premise that motivated the docket item is half wrong, at zero compute.** The item's
+rationale states *"A3, CBFS and the transonic case are all blocked with related signatures and none
+has had the reordering varied."* Read from DAFoam's own runtime echo rather than the scripts, the
+**entire A3/ONERA-M6 family -- transonic included -- was already running `natural` when it failed**,
+in its original 2026-07-28 logs, before R5 touched anything (`A3-onera-m6-transonic/check_totals_run1-6.log`,
+`A3-onera-m6-adjoint-coarse/check_totals_run1-3.log`, all echoing `jacMatReOrdering natural`). The
+reordering cannot be their shared setting. Across 354 `runScript*.py` on this box the split is 181
+`rcm` / 118 `natural` / 55 unset, and the cases that **work** span both -- A1, the naca0015 sail, A2
+and A4 all use `rcm`; the working `ramp_kw` SST field-inversion tutorial uses `natural`. **The
+ordering is neither necessary nor sufficient for success. What it controls, reproducibly, is
+whether a case that was going to fail anyway fails as a NaN or as honest stagnation.**
+
+Evidence: `/home/ubuntu/certonomous-runs/W4-cbfs-reordering/` -- `cbfs_{rcm,natural,nd,1wd,qmd,force_rcm,force_natural}_computetotals.log`,
+`cbfs_dump/{pmat,rhs}.dat`, `analyze_dump.py`, `analyze_dump2.py`, `run_cbfs.sh`, `stage.sh`.
+
 ## 5. Cost scoping, measured rather than estimated
 
 | quantity | tutorial case (works) | NASA hump (blocked) |
