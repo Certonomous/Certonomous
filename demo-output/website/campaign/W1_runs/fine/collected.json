@@ -1,0 +1,31 @@
+{
+  "case": "fine",
+  "iterations": 26996,
+  "cd": 0.0035594313381,
+  "settle": {
+    "settled": true,
+    "iterations": 26996,
+    "window": 2000,
+    "spread": 2.996892000000674e-07,
+    "tol": 3e-07,
+    "reason": "peak-to-peak 3e-07 over the last 2000 iterations is at or under the settle tolerance 3e-07"
+  },
+  "cd_split_last_log_block": {
+    "total": 0.003559431338,
+    "pressure": 0.0003825191425,
+    "viscous": 0.003176912196
+  },
+  "yplus_bump": {
+    "min": 0.074352004652,
+    "max": 0.25540555645,
+    "average": 0.11852342669
+  },
+  "cf_at_0p75": 0.005867032395,
+  "yplus_time": 26996.0,
+  "yplus_source": "postProcessing/yPlus1/17000/yPlus.dat",
+  "yplus_is_settled_state": true,
+  "logs": [
+    "log.simpleFoam",
+    "log.simpleFoam.extend29000"
+  ]
+}

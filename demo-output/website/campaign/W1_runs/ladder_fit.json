@@ -1,0 +1,304 @@
+{
+  "cells": [
+    3520,
+    14080,
+    56320
+  ],
+  "rungs": [
+    {
+      "case": "coarse",
+      "iterations": 5288,
+      "cd": 0.0042264330811,
+      "settle": {
+        "settled": true,
+        "iterations": 5288,
+        "window": 1322,
+        "spread": 1.4979230000041616e-07,
+        "tol": 3e-07,
+        "reason": "peak-to-peak 1.5e-07 over the last 1322 iterations is at or under the settle tolerance 3e-07"
+      },
+      "cd_split_last_log_block": {
+        "total": 0.004226433081,
+        "pressure": 0.00118634078,
+        "viscous": 0.003040092301
+      },
+      "yplus_bump": {
+        "min": 0.30022798842,
+        "max": 0.75769573346,
+        "average": 0.47187364731
+      },
+      "cf_at_0p75": 0.005354981408,
+      "yplus_time": 5288.0,
+      "yplus_source": "postProcessing/yPlus1/3000/yPlus.dat",
+      "yplus_is_settled_state": true,
+      "logs": [
+        "log.simpleFoam",
+        "log.simpleFoam.extend12000"
+      ]
+    },
+    {
+      "case": "medium",
+      "iterations": 16000,
+      "cd": 0.0035977232391,
+      "settle": {
+        "settled": true,
+        "iterations": 16000,
+        "window": 2000,
+        "spread": 6.810940000011312e-08,
+        "tol": 3e-07,
+        "reason": "peak-to-peak 6.81e-08 over the last 2000 iterations is at or under the settle tolerance 3e-07"
+      },
+      "cd_split_last_log_block": {
+        "total": 0.003597723239,
+        "pressure": 0.0004613827022,
+        "viscous": 0.003136340537
+      },
+      "yplus_bump": {
+        "min": 0.1492735854,
+        "max": 0.42878909954,
+        "average": 0.23649763025
+      },
+      "cf_at_0p75": 0.00571840694,
+      "yplus_time": 16000.0,
+      "yplus_source": "postProcessing/yPlus1/10000/yPlus_10000.dat",
+      "yplus_is_settled_state": true,
+      "logs": [
+        "log.simpleFoam",
+        "log.simpleFoam.extend12000",
+        "log.simpleFoam.extend15000",
+        "log.simpleFoam.extend16000"
+      ]
+    },
+    {
+      "case": "fine",
+      "iterations": 26996,
+      "cd": 0.0035594313381,
+      "settle": {
+        "settled": true,
+        "iterations": 26996,
+        "window": 2000,
+        "spread": 2.996892000000674e-07,
+        "tol": 3e-07,
+        "reason": "peak-to-peak 3e-07 over the last 2000 iterations is at or under the settle tolerance 3e-07"
+      },
+      "cd_split_last_log_block": {
+        "total": 0.003559431338,
+        "pressure": 0.0003825191425,
+        "viscous": 0.003176912196
+      },
+      "yplus_bump": {
+        "min": 0.074352004652,
+        "max": 0.25540555645,
+        "average": 0.11852342669
+      },
+      "cf_at_0p75": 0.005867032395,
+      "yplus_time": 26996.0,
+      "yplus_source": "postProcessing/yPlus1/17000/yPlus.dat",
+      "yplus_is_settled_state": true,
+      "logs": [
+        "log.simpleFoam",
+        "log.simpleFoam.extend29000"
+      ]
+    }
+  ],
+  "cd": {
+    "ladder": [
+      0.0042264330811,
+      0.0035977232391,
+      0.0035594313381
+    ],
+    "increments": [
+      -0.000628709842,
+      -3.829190100000006e-05
+    ],
+    "observed_order": 4.037,
+    "conclusive": false,
+    "reportable_band": null,
+    "not_conclusive_reason": "the observed order p = 4.037 falls outside the credible range 0.5 to 2.5",
+    "band": {
+      "cells": [
+        3520.0,
+        14080.0,
+        56320.0
+      ],
+      "values": [
+        0.0042264330811,
+        0.0035977232391,
+        0.0035594313381
+      ],
+      "dim": 2,
+      "order_window": [
+        0.5,
+        2.5
+      ],
+      "observed_order": 4.037,
+      "order_used": 2.5,
+      "clamped": true,
+      "band_abs": 1.0278371124717416e-05,
+      "monotone": true,
+      "conclusive": false,
+      "method": "3-mesh study (r = 2.00), observed order p = 4.04; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+      "asymptotic": true,
+      "richardson_extrapolated": 0.003556947894457162,
+      "guards": {
+        "distinct_rungs": true,
+        "monotone": true,
+        "order_window": false,
+        "increment_trend": true,
+        "extrapolation_sanity": true
+      },
+      "guards_failed": [
+        "order_window"
+      ],
+      "not_conclusive_guard": "order_window"
+    }
+  },
+  "cd_pressure": {
+    "ladder": [
+      0.00118634078,
+      0.0004613827022,
+      0.0003825191425
+    ],
+    "increments": [
+      -0.0007249580778000001,
+      -7.886355970000003e-05
+    ],
+    "observed_order": 3.2,
+    "conclusive": false,
+    "reportable_band": null,
+    "not_conclusive_reason": "the observed order p = 3.2 falls outside the credible range 0.5 to 2.5",
+    "band": {
+      "cells": [
+        3520.0,
+        14080.0,
+        56320.0
+      ],
+      "values": [
+        0.00118634078,
+        0.0004613827022,
+        0.0003825191425
+      ],
+      "dim": 2,
+      "order_window": [
+        0.5,
+        2.5
+      ],
+      "observed_order": 3.2,
+      "order_used": 2.5,
+      "clamped": true,
+      "band_abs": 2.1168678327380693e-05,
+      "monotone": true,
+      "conclusive": false,
+      "method": "3-mesh study (r = 2.00), observed order p = 3.20; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+      "asymptotic": true,
+      "richardson_extrapolated": 0.0003728929022606534,
+      "guards": {
+        "distinct_rungs": true,
+        "monotone": true,
+        "order_window": false,
+        "increment_trend": true,
+        "extrapolation_sanity": true
+      },
+      "guards_failed": [
+        "order_window"
+      ],
+      "not_conclusive_guard": "order_window"
+    }
+  },
+  "cd_viscous": {
+    "ladder": [
+      0.003040092301,
+      0.003136340537,
+      0.003176912196
+    ],
+    "increments": [
+      9.624823600000009e-05,
+      4.0571659000000065e-05
+    ],
+    "observed_order": 1.246,
+    "conclusive": false,
+    "reportable_band": null,
+    "not_conclusive_reason": "the value the ladder extrapolates to falls outside the range it measured",
+    "band": {
+      "cells": [
+        3520.0,
+        14080.0,
+        56320.0
+      ],
+      "values": [
+        0.003040092301,
+        0.003136340537,
+        0.003176912196
+      ],
+      "dim": 2,
+      "order_window": [
+        0.5,
+        2.5
+      ],
+      "observed_order": 1.246,
+      "order_used": null,
+      "clamped": false,
+      "band_abs": 0.0001710248687500002,
+      "monotone": true,
+      "conclusive": false,
+      "asymptotic": false,
+      "richardson_extrapolated": 0.0032064768639933697,
+      "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+      "guards": {
+        "distinct_rungs": true,
+        "monotone": true,
+        "order_window": true,
+        "increment_trend": true,
+        "extrapolation_sanity": false
+      },
+      "guards_failed": [
+        "extrapolation_sanity"
+      ],
+      "not_conclusive_guard": "extrapolation_sanity"
+    }
+  },
+  "cfl3d_same_grids": {
+    "cd": [
+      0.0045618542592,
+      0.0037071442412,
+      0.0036071373739
+    ],
+    "cdp": [
+      0.0014787721313,
+      0.0005543436056,
+      0.00043164677088
+    ],
+    "cdv": [
+      0.0030830821278,
+      0.0031528006356,
+      0.003175490603
+    ],
+    "cf075": [
+      0.00516392617,
+      0.00562215503,
+      0.00576886628
+    ]
+  },
+  "vs_cfl3d_same_grid_pct": {
+    "cd": [
+      -7.352737703611378,
+      -2.9516251589007614,
+      -1.3225455771433858
+    ],
+    "cd_pressure": [
+      -19.775281472401108,
+      -16.76954554195367,
+      -11.381442349225356
+    ],
+    "cd_viscous": [
+      -1.3943782558486828,
+      -0.5220786374545816,
+      0.04476766514933672
+    ],
+    "cf075": [
+      3.699805762327535,
+      1.712010954632115,
+      1.7016535006250777
+    ]
+  }
+}

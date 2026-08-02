@@ -89,7 +89,7 @@ only quoted at a settled state.
 |---|---|---|---|---|---|---|---|---|---|
 | 89x41 | impulsive | **5,288** | 1,322 | 1.50e-7 | 0.0042264331 | 1.18634e-3 | 3.04009e-3 | 0.758 | 5.35498e-3 |
 | 177x81 | impulsive | **16,000** | 2,000 | 6.81e-8 | 0.0035977232 | 4.61383e-4 | 3.13634e-3 | 0.429 | 5.71841e-3 |
-| 353x161 | seeded from settled 177x81 (mapFields) | *running* | | | | | | | |
+| 353x161 | seeded from settled 177x81 (mapFields) | **26,996** | 2,000 | 3.00e-7 | 0.0035594313 | 3.825191e-4 | 3.176912e-3 | 0.255 | 5.86703e-3 |
 
 Evidence: `W1_runs/{coarse,medium}/collected.json`, full Cd histories under
 `W1_runs/*/postProcessing/forceCoeffs1/`, solver logs gzipped beside them.
@@ -263,3 +263,86 @@ file, across `yPlus*.dat` including the restart-renamed ones, and the record
 carries `yplus_time`, `yplus_source` and `yplus_is_settled_state` so a reader
 can check the y+ belongs to the state the Cd beside it came from. Both rungs
 re-collected under the fix; both now report `yplus_is_settled_state: true`.
+
+## 7. Result: the pressure order comes back, and the grade does not
+
+The 353x161 rung settled at **iteration 26,996**, peak-to-peak 2.997e-07 over its
+trailing 2,000 against the 3e-07 tolerance, exit 0. The continuation was
+pre-registered before launch at "settles near 26,600"; it settled at 26,996,
+**1.5% out**.
+
+### The ladder, on grids that are exact point-drops of one another (r = 2, one rank throughout)
+
+| quantity | 89x41 | 177x81 | 353x161 | increments | observed order | conclusive | guard that fails |
+|---|---|---|---|---|---|---|---|
+| Cd total | 4.226433e-3 | 3.597723e-3 | 3.559431e-3 | −6.287e-4, −3.829e-5 | 4.037 | no | `order_window` |
+| **Cd pressure** | 1.186341e-3 | 4.613827e-4 | 3.825191e-4 | **−7.250e-4, −7.886e-5** | **3.200** | no | `order_window` |
+| Cd viscous | 3.040092e-3 | 3.136341e-3 | 3.176912e-3 | +9.625e-5, +4.057e-5 | 1.246 | no | `extrapolation_sanity` |
+
+### The item's question, answered: outcome 1, the mesh was the problem
+
+`W1_PREREGISTRATION.md` outcome 1 asks two things of the pressure component,
+and **both are met**:
+
+1. **The increments are monotone** — both negative, −7.250e-4 then −7.886e-5.
+   On our blockMesh family they *changed sign at every matched iteration count*.
+   Swapping only the mesh removed that.
+2. **The fit returns a finite observed order** — 3.200, where our blockMesh
+   family had none at all.
+
+The direction test is met too. Against CFL3D on the same grids our pressure
+component runs **−19.78%, −16.77%, −11.38%** — converging toward the reference
+monotonically under refinement rather than wandering. Cf(0.75) runs +3.70%,
++1.71%, +1.70%, and the viscous component +/−1.39%, −0.52%, **+0.04%** — the
+viscous drag agrees with CFL3D to four hundredths of a percent on the finest
+rung.
+
+### And the grade is still NOT CONCLUSIVE, for the reason recorded in §5 before this rung landed
+
+`order_window` is [0.5, 2.5] and 3.200 is above it. **This was predicted and
+committed while the rung was still running**: CFL3D's own pressure ladder on
+these same grids fits to 2.913 and is refused by the same guard. Ours is 3.200.
+Both are monotone, both are above the window, and neither is conclusive.
+
+So the honest one-line result is: **the mesh was the problem, and the grids are
+not in the asymptotic range** — two separate findings, the first ours and the
+second belonging to the grid family, which the reference code shares.
+
+The viscous component fails a different guard and it is worth naming precisely
+rather than lumping it in: `extrapolation_sanity` allows the Richardson value to
+sit up to `EXTRAPOLATION_TOL_FRAC = 0.15` of the fit triple's range outside it.
+Ours lands **0.216** of the range above its finest rung; CFL3D's lands 0.118 and
+passes. Not a bracket violation — an overshoot of the allowance by a factor 1.44.
+
+### Cost: measured against estimate, and a correction to something this session already committed
+
+| rung | recorded `core_minutes_cumulative` | solver `ExecutionTime`, all logs | ranks | cells/rank |
+|---|---|---|---|---|
+| 89x41 | 1.33 | 1.18 | 1 | 3,520 |
+| 177x81 | 17.88 | **31.55** | 1 | 14,080 |
+| 353x161 | 268.60 | 265.85 | 1 | 56,320 |
+| 89x41 seeded control | 1.17 | 1.16 | 1 | 3,520 |
+| **total** | **288.98** | **299.74** | | |
+
+**Estimate 180 core-minutes, measured ~300 — a 66% overrun**, and it is reported
+rather than netted out. One rank throughout: at 56,320 cells four ranks would be
+14,080 cells/rank, still above the 5,600 inversion, but the rung was continued
+serially on purpose so that a decomposition change could not perturb a
+trajectory already inside its settle tolerance.
+
+**A correction to this session's own commit `7d0f186b`.** That commit's message
+says the recorded figures "sum to about 183 core-minutes against a 180 estimate,
+a 2 percent overrun" while the logs "say 289". **That comparison was invalid.**
+The 183 was a mid-flight subtotal taken while the fine extension was still
+running, and it was set against a log total that already included that
+extension. Corrected: the recorded total is **288.98** and the log total
+**299.74**, and the accounting defect did *not* make the item look on budget —
+the fine rung has one extension, so its cumulative chained correctly.
+
+**The defect is still real and still worth the fix**, but its true size is this:
+it under-reports the **medium** rung by 13.67 core-minutes, **43.3% of that
+rung's true 31.55**, because that rung was restarted three times and only the
+last extension was counted. The item-level difference of 10.76 core-minutes is
+exactly that 13.67 less the driver-overhead excess on the other three rungs
+(2.75 + 0.15 + 0.01). A rung restarted once is fine; a rung restarted three
+times was losing two of them.
