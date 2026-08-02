@@ -45,9 +45,18 @@
       "near_body_shell_level": 2,
       "max_cell_level": 4,
       "note": "background blockMesh divisions scaled up again (51x45x75); same recipe as fine-uq/production. Added specifically to get a second successive triple within the valid same-recipe family, per uq-b52-ladder-monotonicity lesson update."
+    },
+    {
+      "tag": "rung7",
+      "cells": 441057,
+      "cd": 0.048220173,
+      "mission": "b52-rung7-uq",
+      "near_body_shell_level": 2,
+      "max_cell_level": 4,
+      "note": "background blockMesh divisions scaled up again (55x49x82); same recipe as finer2/fine-uq/production, system/ copied verbatim from study-b52-finer2-uq with only blockMeshDict changed. Solved at 2 MPI ranks hierarchical n (2 1 1), identical to fine-uq and finer2, 220529 cells/rank. Pre-registered at demo-output/website/campaign/B52_RUNG7_PREREGISTRATION.md (commit d92a87f0) before the solver was launched; the pre-registered prediction that Cd would rise again is scored FALSE."
     }
   ],
-  "updated_utc": "2026-08-01T06:23:19Z",
+  "updated_utc": "2026-08-02T05:34:33Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
     "dim": 3,
@@ -55,47 +64,43 @@
       0.5,
       2.5
     ],
-    "observed_order": 2.253,
+    "observed_order": null,
     "order_used": null,
     "clamped": false,
-    "band_abs": 0.006348739897916664,
-    "monotone": true,
+    "band_abs": 0.005068533750000005,
+    "monotone": false,
     "conclusive": false,
-    "asymptotic": false,
-    "richardson_extrapolated": 0.06484210401663687,
-    "method": "successive Cd increments GROW with refinement instead of shrinking; ladder not in the asymptotic range, conservative band, largest spread times 1.25",
+    "method": "rungs not monotone; conservative band, largest spread times 1.25",
     "guards": {
       "distinct_rungs": true,
-      "monotone": true,
-      "order_window": true,
-      "increment_trend": false,
-      "extrapolation_sanity": false
+      "monotone": false
     },
     "guards_failed": [
-      "increment_trend",
-      "extrapolation_sanity"
+      "monotone"
     ],
-    "not_conclusive_guard": "increment_trend",
+    "not_conclusive_guard": "monotone",
     "dropped_from_fit": [
       "cells",
       "values"
     ],
-    "band_rel": 0.13451,
+    "band_rel": 0.10739,
     "value_working": 0.04719920575166667
   },
   "recipe_audit": {
-    "finding": "coarse and medium rungs used nearBody refinement-shell level 1 (max overall cell level 3); intermediate, production, fine-uq, and finer2 used nearBody level 2 (max overall cell level 4). Confirmed both from log.snappyHexMesh ('Refinement level N for all cells inside nearBody' and the 'Cells per refinement level' histograms) and from sdk/scripts/run_uq_studies.py's own documented castellated-level floor/degenerate-ladder issue. Only {intermediate, production, fine-uq, finer2} share one refinement recipe (background-mesh density is the only thing that varies); coarse and medium are not extrapolation-comparable to the other four and should not be mixed into a single Richardson/GCI fit with them.",
+    "finding": "coarse and medium rungs used nearBody refinement-shell level 1 (max overall cell level 3); intermediate, production, fine-uq, and finer2 used nearBody level 2 (max overall cell level 4). Confirmed both from log.snappyHexMesh ('Refinement level N for all cells inside nearBody' and the 'Cells per refinement level' histograms) and from sdk/scripts/run_uq_studies.py's own documented castellated-level floor/degenerate-ladder issue. Only {intermediate, production, fine-uq, finer2, rung7} share one refinement recipe (background-mesh density is the only thing that varies); coarse and medium are not extrapolation-comparable to the other four and should not be mixed into a single Richardson/GCI fit with them.",
     "valid_family_cells": [
       135779,
       193880,
       255358,
-      330950
+      330950,
+      441057
     ],
     "valid_family_cd": [
       0.049053,
       0.047196,
       0.049573,
-      0.052275
+      0.052275,
+      0.04822
     ]
   },
   "provenance": [
@@ -104,7 +109,8 @@
     "b52-rung-intermediate",
     "b52-production",
     "b52-rung-fine-uq",
-    "b52-rung-finer2-uq"
+    "b52-rung-finer2-uq",
+    "b52-rung7-uq"
   ],
   "iterative_audit": {
     "question": "whether the valid family's GROWING Cd increments are a discretization property or an artifact of a fixed 300-iteration budget spent on progressively larger meshes",
@@ -166,6 +172,45 @@
       },
       "richardson_extrapolated": 0.06484210401663687
     },
-    "verdict_moved": false
+    "verdict_moved": false,
+    "superseded_by": "seventh_rung: the 2026-08-01 refit reproduced the stored four-rung block exactly and is left as written; the block it reproduced has since been replaced by the five-rung fit above, on one new measured rung."
+  },
+  "seventh_rung": {
+    "measured_utc": "2026-08-02T05:27:47Z",
+    "cells": 441057,
+    "cd": 0.048220173,
+    "cd_convention": "mean over the final 20 percent of the force history (60 of 300 rows)",
+    "log": "/home/ubuntu/certonomous-runs/study-b52-rung7-uq/postProcessing/forceCoeffs1/0/coefficient.dat",
+    "window_2sigma": 3.584e-05,
+    "window_2sigma_over_increment": 0.0088,
+    "halves_drift_150_225_vs_225_300": 3.95e-06,
+    "simple_converged_messages": 0,
+    "h_ratio_vs_finer2": 1.1005,
+    "h_ratio_mismatch_vs_family": 0.0094,
+    "ranks": 2,
+    "cells_per_rank": 220529,
+    "cost_core_min": 12.14,
+    "est_core_min": 20.0,
+    "increments_valid_family": {
+      "135779_to_193880": -0.001857,
+      "193880_to_255358": 0.002377,
+      "255358_to_330950": 0.002702,
+      "330950_to_441057": -0.004055
+    },
+    "finding": "The ladder does not diverge monotonically; it turns. The fourth increment is NEGATIVE and is the largest in magnitude of the four, at 113 times the rung's own window 2-sigma, so the turn is signal and not iterative noise. Mesh quality does not explain it: max non-orthogonality 64.641 against finer2's 64.647, max skewness 3.535 against 3.999. Decomposition does not explain it: the rung ran at the same 2 ranks, hierarchical n (2 1 1), as fine-uq and finer2.",
+    "verdict_moved": true,
+    "which_numbers_moved": {
+      "observed_order": "2.253 -> None (no order fitted; the ladder is no longer monotone)",
+      "monotone": "true -> false",
+      "richardson_extrapolated": "0.06484235376091424 -> None",
+      "band_abs": "0.00634875 -> 0.005068533750000005, a 20 percent fall",
+      "band_rel": "0.13451 -> 0.10739",
+      "not_conclusive_guard": "increment_trend -> monotone",
+      "guards_holding": "[increment_trend, extrapolation_sanity] -> [monotone]",
+      "conclusive": "false -> false (unchanged)",
+      "reportable_band": "None -> None (unchanged; conclusive is false both times, so no reportable number moved)"
+    },
+    "flattering_move_check": "The only number that fell is the conservative fallback band, and uq.reportable_band refuses it before and after. Every other field moved to a weaker verdict: the ladder loses its observed order and its Richardson extrapolate outright. Nothing here is a verdict raised.",
+    "record": "demo-output/website/campaign/B52_RUNG7_RESULTS.md"
   }
 }
