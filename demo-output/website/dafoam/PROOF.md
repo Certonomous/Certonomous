@@ -2622,6 +2622,23 @@ blockers" is therefore **half-confirmed** (it explains the NaN on exactly the tw
 **half-refuted** (it explains nothing on the three M6-family cases). Underneath it, all of them hit
 the same non-convergence wall, and that wall is not the reordering.
 
+**Postscript, measured after the section above was written: the M6 family was also run in the other
+direction, and it does not share the mechanism.** R5 exhausted the preconditioner-strength axis on
+its 21,840-cell reproducer but never varied the ordering, which sat at `natural` throughout. Run
+now, `compute_totals`, np=4, 21,840 cells / 4 ranks = **5,460 cells per rank**:
+
+| ordering | CD adjoint | CL adjoint |
+|---|---|---|
+| `natural` (R5's own setting, control) | `-5` `DIVERGED_BREAKDOWN`, 400 iterations, 100.87 s | `-5`, 600 iterations, 169.57 s |
+| `rcm` | `-5` `DIVERGED_BREAKDOWN`, 200 iterations, 75.61 s | `-5`, 200 iterations, 99.06 s |
+
+The control reproduces R5's published `-5` signature. **`rcm` does not produce a `-9` here** — it
+makes the same breakdown happen sooner (200 iterations instead of 400/600), which is the same
+direction of harm CBFS shows but not the same failure. So the M6 family's blocker is confirmed by
+direct measurement, in both directions, to be a *different* mechanism from the CBFS/hump
+`DIVERGED_NANORINF`, and the reordering is not a lever on it. Evidence:
+`/home/ubuntu/certonomous-runs/W4-m6-reordering/m6_{natural,rcm}.log`.
+
 ### 25.3 What the CBFS stagnation actually is: a singular incomplete factorization, not ill-conditioning
 
 R5 attributed the M6 family's wall to conditioning, measuring a **14.17**-decade diagonal spread on
