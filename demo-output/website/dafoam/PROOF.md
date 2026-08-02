@@ -2458,3 +2458,200 @@ the same four lines: one mechanism, two magnitudes. The updated upstream report
 before/after table, prepared to be sent in one action. **Nothing has been filed; that is Katie's
 call.** Patch diff and all logs: `rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`,
 `rotation_branch/patched/`, `rotation_branch/patch_unittest/`.
+
+## 25. Session 2026-08-02 (well W4): tool forensics -- B-7 was a wrong-script error, the reordering hypothesis is half-confirmed and half-refuted, and the CBFS blocker is named
+
+Section 24 closed the root cause of sections 15-23 by repair. This session was scoped to the four
+items left open behind it: the source line (already closed by W5, see below), the matrix reordering
+across the blocked cases, A2's unreproducible verification (blocker B-7), and A4's unexplained
+residual. Three of the four move; one moves in the opposite direction from the brief's premise.
+
+**On the first item, for the record: it is already closed.** The brief this session started from
+lists "no source line -- we know the output disagrees with a finite difference of the function it
+differentiates; we cannot name the line" as the highest-value open item. Sections 23 and 24 name it
+(`getRotationMatrix3d`'s `axisMag < sqrt(eps)` guard, `src/utils/vectorUtils.f90:58` in IDWarp
+2.6.2) and confirm it by repair. No work was spent re-opening it.
+
+### 25.1 B-7: A2's published verification is reproducible. The W5 regrade ran the wrong script.
+
+`BLOCKERS.md` B-7 recorded that A2's `run_model` baseline could not be reproduced from anything on
+this box -- four nominally identical runs spanning **14% in CD** -- and named the carrier as "the
+angle-of-attack state in `0/U` being re-written by each run rather than reset." Both halves are
+wrong, and the second was refutable without running anything.
+
+**The mechanism, refuted by inspection (zero compute).** In the preserved case
+`/home/ubuntu/certonomous-runs/A2-mach-wing`, `0/` and `0.orig/` are **byte-identical on all six
+fields** (`T`, `U`, `alphat`, `nuTilda`, `nut`, `p`; `diff` clean on every one). Nothing was
+re-written. Angle of attack is not in `0/U` at all: `0/U`'s `inout` patch is a plain `inletOutlet`
+at `uniform (100 0 0)`, and AoA enters as the OpenMDAO design variable
+`self.dvs.add_output("patchV", val=np.array([U0, aoa0]))`.
+
+**The actual cause.** All three W5 A2 launchers -- `W5-regrade/run_a2_checktotals.sh`,
+`run_a2_rebuild.sh`, `run_a2_twist.sh` -- call `python runScript.py`. A2's published numbers were
+measured with **`runScript_AeroOnly.py`**, the deviation `ladder-a/A2_mach_tutorial_wing.md:5`
+discloses in its own "Variant used" line. In this tutorial the two scripts are different physics:
+
+| | `runScript_AeroOnly.py` (published) | `runScript.py` (every W5 A2 run) |
+|---|---|---|
+| scenario | `ScenarioAerodynamic` -- rigid wing | `ScenarioAeroStructural` -- flexible wing |
+| imports | DAFoam + pyGeo only | `+ tacs.mphys.TacsBuilder`, `funtofem.mphys.MeldBuilder` |
+| `aoa0` | **4.0** | **4.65** |
+
+The aerostructural path is confirmed to have actually executed, from the W5 logs themselves:
+`a2_rebuilt_runmodel.log:688` reads `Transfer scheme [0]: Creating scheme of type MELD...` and
+`:700` names `TacsDVComp`. So B-7's four-row table compares one rigid wing at aoa 4.0 against three
+flexible-wing states at aoa 4.65. It is not four runs of one case, and there is no 14% spread.
+
+**The gate B-7 itself specified, run and passed.** Fresh copy of the pristine clone
+`/home/ubuntu/dafoam-tutorials/MACH_Tutorial_Wing` (both scripts md5-identical to the preserved
+case: `2906d52a...` aero-only, `6f5d190f...` aerostructural), `./preProcessing.sh` then
+`runScript_AeroOnly.py -task run_model`, np=4, **stock** toolchain, 2026-08-02T05:16:57Z-05:17:37Z:
+
+| | published (`A2_mach_tutorial_wing.md:23-24`) | this run |
+|---|---|---|
+| CD | 0.02772949388 | **0.02772949388** |
+| CL | 0.4775877833 | **0.4775877833** |
+| `U` finalRes | 9.56e-09, 1.20e-08, 1.19e-09 | 9.56052968e-09, 1.202580476e-08, 1.185193088e-09 |
+| `p` finalRes | 1.01e-07 | 1.006775059e-07 |
+| `nuTilda` finalRes | 4.32e-07 | 4.319179098e-07 |
+| yPlus min/max/mean | 68.79 / 1266.5 / 321.9 | 68.78740941 / 1266.546643 / 321.9509122 |
+
+All ten printed digits of CD and CL, from a mesh regenerated from scratch at 05:17. Zero `MELD` or
+`Tacs` strings in the log. **Cost 2.67 core-minutes** (40 s wall x 4 ranks); 38,304 cells / 4 ranks
+= **9,576 cells per rank**. Evidence:
+`/home/ubuntu/certonomous-runs/W4-a2-provenance/a2_aeroonly_fresh_runmodel.log`, `run_gate.sh`.
+
+**What this costs and what it buys.** It costs the W5 regrade's A2 section its premise: the 238
+core-minutes that died at perturbation 132 were spent on the aerostructural case carrying an
+IPOPT-deformed mesh, which is a sufficient explanation for the mesh-quality abort and says nothing
+about A2 as published. It buys back the ability to regrade the lab's most prominently published
+gradient claim, which `benchmarks.html:115` and `:141` rest on. B-7 is closed.
+
+### 25.2 The matrix reordering: it generalises to exactly one of the three cases named, and cannot apply to the other two
+
+The brief states: *"Failing scripts use `rcm`, the one working tutorial uses `natural`. A3, CBFS and
+the transonic case are all blocked with related signatures and none has had the reordering varied.
+One shared setting behind several independent blockers is the cheapest hypothesis left."*
+
+**Two-thirds of that premise is false, and the check was free.** DAFoam's own default is
+`"jacMatReOrdering": "rcm"` (`pyDAFoam.py:530`, with the source's own hint two lines above at
+`:525`: `## try "jacMatReOrdering": "nd"`). Across 354 `runScript*.py` files on this box the split
+is 181 `rcm`, 118 `natural`, 55 unset. The cases that **work** -- A1 naca0012, the naca0015 sail,
+A2 itself -- all use `rcm`.
+
+**The entire A3 / ONERA-M6 family, including the transonic case, was already running `natural` when
+it failed.** Read not from the scripts but from DAFoam's own runtime echo, per this project's
+L-14/L-16:
+
+| case | log | printed echo |
+|---|---|---|
+| A3 transonic | `A3-onera-m6-transonic/check_totals_run6.log` | `jacMatReOrdering natural;` |
+| A3 coarse (99,840 cells) | `A3-onera-m6-adjoint-coarse/check_totals_run3.log` | `Mat ReOrdering: natural` |
+| R5 reproducer (21,840 cells) | `A3-onera-m6-sweep-n15_21840/run_opt5_onera_n15_21840.log` | `Mat ReOrdering: natural` |
+
+All those scripts date to Jul 28, before R5's Jul 30 session, so this is not something R5 changed
+mid-investigation. **The reordering cannot be the shared setting behind the M6-family blockers, and
+"none has had the reordering varied" is the opposite of the truth for them: they were never run on
+anything else.** Cost of establishing this: zero compute.
+
+**CBFS is the one case in the list where it genuinely had never been varied, and there it
+generalises.** One-token change against B3's own `runScript.py`, 21,000 cells / 4 ranks = **5,250
+cells per rank**, `compute_totals`, np=4:
+
+| `jacMatReOrdering` | outcome | wall |
+|---|---|---|
+| `rcm` (control, B3's setting) | `Total iterations: 0. PetscConvergedReason: -9` (`DIVERGED_NANORINF`) | 87.96 s |
+| `natural` | `Total iterations: 1000. PetscConvergedReason: -3` (`DIVERGED_ITS`) | 237.9 s |
+
+The control reproduces B3's published `-9` at iteration 0 exactly (its own run was 111.17 s on a
+busier box). This is the identical signature change the NASA hump showed at rung 4 of
+`S1_FIML_FIELD_INVERSION.md`, now confirmed on the second `rcm` case.
+
+**And it buys nothing, which is also measured.** Under `natural` the GMRES residual runs
+7.091590452305e-04 -> 7.091569755304e-04 over 1000 iterations -- a relative reduction of
+**2.9185e-06** -- with a per-100-iteration decrement constant to six significant figures
+(1.299051e-10 falling only to 1.299045e-10 across nine blocks). That is an exactly affine residual
+history, which GMRES does not produce on a well-posed system.
+
+**A 2x2 that separates operator from right-hand side.** Changing the objective changes `dF/dW` (the
+RHS) and leaves `dR/dW` (the operator) untouched. B3 had varied the objective only under `rcm`. Run
+here as a clean single-factor pair against the variance runs above -- same mesh, same DVs, same
+`pcFillLevel: 1`, only the `function` block swapped for the standard `force`/CD objective:
+
+| | `rcm` | `natural` |
+|---|---|---|
+| `varianceU` (field) | `-9`, iteration 0, 92 s | `-3`, 1000 iterations, 238 s |
+| `CD` (force) | `-9`, iteration 0, 92 s | `-3`, 1000 iterations, 263 s |
+
+**The reordering controls the NaN under both objectives; the objective controls nothing.** Under
+`force`+`natural` the residual is **bit-identical** at 5.324334345172e-02 from iteration 100 through
+iteration 1000 -- the NASA hump's exact signature, now reproduced on a different case and a
+different objective. Evidence: `/home/ubuntu/certonomous-runs/W4-cbfs-reordering/`,
+`cbfs_{rcm,natural,force_rcm,force_natural}_computetotals.log`.
+
+**Answer to the question as asked.** The reordering is a real, reproducible lever on the `-9`
+`DIVERGED_NANORINF` failure, it generalises from the hump to CBFS, and it is irrelevant to the
+M6/transonic family, which never used `rcm`. "One shared setting behind several independent
+blockers" is therefore **half-confirmed** (it explains the NaN on exactly the two `rcm` cases) and
+**half-refuted** (it explains nothing on the three M6-family cases). Underneath it, all of them hit
+the same non-convergence wall, and that wall is not the reordering.
+
+### 25.3 What the CBFS stagnation actually is: a singular incomplete factorization, not ill-conditioning
+
+R5 attributed the M6 family's wall to conditioning, measuring a **14.17**-decade diagonal spread on
+the assembled preconditioner matrix. CBFS was tested the same way, using the same stock PETSc
+runtime flags and no source change -- `-ksp_view_pmat binary:` plus, new here, `-ksp_view_rhs
+binary:` -- then analysed offline with `petsc4py`/`scipy`.
+
+The dumped operator is `dRdWTPC`, 210,592 x 210,592, 13,710,468 nonzeros. `||b||_2 =
+7.091590452305e-04`, **equal to the printed GMRES iteration-0 residual to all 13 digits** -- which
+is the check that the dump is the real system and not an unrelated one (`DALinearEqn.C` sets
+`KSPSetNormType(ksp, KSP_NORM_UNPRECONDITIONED)`, so the printed residual is exactly `||b||`). The
+RHS is nonzero on 63,000 of 210,592 entries = 3 x 21,000, i.e. the `U` block only, in each rank's
+leading block -- as a `varianceU` objective should be.
+
+| measurement | CBFS | M6 (R5 section 1) |
+|---|---|---|
+| zero rows / cols / diagonal entries | **0 / 0 / 0** | all nonzero |
+| diagonal abs spread | 4.115e-05 to 1.930e+04, **log10 8.67** | **log10 14.17** |
+
+**CBFS is roughly five and a half decades better conditioned by the metric R5 used, and still
+fails. R5's diagonal-spread mechanism does not explain CBFS.**
+
+Three offline controls, all on the dumped system, with no DAFoam and no PETSc solver in the loop:
+
+1. **Is the RHS special?** `cos(b, A b) = +6.287343e-03`. Five random vectors on **b's own support**
+   give +1.459e-01 to +1.486e-01; three on the full space give +1.409e-01 to +1.433e-01. The real
+   `dF/dW` is ~23x more orthogonal to its own image than a random vector is. A single ideal GMRES
+   step against this operator could reduce the residual by only 1.98e-05 relative.
+2. **Is it DAFoam's solver configuration?** No. `scipy.sparse.linalg.gmres`, unpreconditioned, 1000
+   matvecs on the dumped system: relative residual **1.0 -> 9.999687e-01**. The stagnation is a
+   property of the linear system as assembled, reproduced with no DAFoam, no PETSc KSP and no MPI.
+   DAFoam's KSP/PC setup is exonerated.
+3. **Is the system solvable at all?** Yes, exactly. `scipy.sparse.linalg.splu` -- full sparse LU
+   with partial pivoting -- returns `||Ax-b||/||b|| = 2.535461e-12`, `||x|| = 3.609873e-02`. The
+   matrix is nonsingular and the RHS is consistent. **A solution exists; Krylov cannot reach it.**
+
+And the mechanism, reproduced outside DAFoam entirely: `scipy.sparse.linalg.spilu(drop_tol=1e-5,
+fill_factor=10)` on the same matrix fails with `RuntimeError: Factor is exactly singular`. **The
+incomplete factorization hits an exact zero pivot.** That is the `-9` `DIVERGED_NANORINF`, observed
+in a second, independent implementation.
+
+This gives one mechanism for both signatures and matches every observation on the record:
+`rcm` surfaces the zero pivot as a NaN (`-9` at iteration 0); `natural` surfaces it as a dead
+Krylov space (`-3`, residual bit-identical or affine); raising `pcFillLevel` adds fill but **not
+pivoting**, which is why B3's `pcFillLevel: 4` also returned `-9`; and swapping the objective
+cannot help because the defect is on the operator side.
+
+**Where the fix would have to live, read from source.** `DALinearEqn.C` hard-codes
+`PCType localPCType = PCILU;` (with the comment "The subpc type will almost always be ILU") before
+`PCSetType(MLRsubpc, localPCType)`, so no `daOptions` lever reaches a pivoting-capable factorization
+without recompiling `libDASolver.so`. It does already call `PCFactorSetPivotInBlocks(PETSC_TRUE)`
+and `PCFactorSetShiftType(MLRsubpc, MAT_SHIFT_NONZERO)` with `PETSC_DECIDE` shift -- i.e. PETSc's
+own zero-pivot remedy is switched on and is not sufficient here. This is stated as a located
+limitation, not a recommendation; nothing has been filed.
+
+**One caution, stated rather than buried.** `dRdWTPC` is the *assembled preconditioner*
+approximation, not the matrix-free transpose Jacobian GMRES actually applies. The singular-ILU
+finding is direct -- that is precisely the matrix DAFoam factors. Controls 1-3 are statements about
+that same assembled matrix and are corroborative of, not identical to, the real solve.
