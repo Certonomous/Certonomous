@@ -2957,8 +2957,19 @@ warning.**
   components differ by more than 1%** in any group. That is ordinary reconvergence noise, not a
   decomposition dependence.
 
-**A1 and A5 are decomposition-invariant; A4 is not.** The discriminator lines up exactly with the
-mesh type across all three: A1 and A5 are conformal, A4 is not.
+* **A2** — `compute_totals` only, fixed np=4, `scotch` against `simple` 4x1x1, 38,304 cells / 4 ranks
+  = 9,576 cells per rank. Converged primal **CD 0.02772949388 vs 0.0277301221** (2.3e-05) and **CL
+  0.4775877833 vs 0.477588036** (5.3e-07). Gradients: `‖diff‖/‖simple‖` = **2.6503e-04** (CD/shape,
+  96 components), **2.0065e-04** (CL/shape), 1.4160e-04 (CD/twist), 8.6162e-05 (CL/twist),
+  8.9034e-05 (CD/patchV), 6.8898e-06 (CL/patchV). Two of 96 CD/shape components exceed 1%
+  componentwise, and they are noise-floor entries — 5.9e-04 and 2.3e-03 of the largest component,
+  **7.1e-04 of the gradient norm between them**.
+
+**A1, A5 and A2 are decomposition-invariant; A4 is not.** The discriminator lines up exactly with
+the mesh type across all four: A1, A5 and A2 are conformal, A4 is not. It also means **tonight's A2
+reproduction and regrade are not themselves decomposition artifacts** — a real risk, since both the
+published run and tonight's were np=4 `scotch` and a common-mode error would have cancelled in that
+comparison.
 
 **What this changes.**
 
