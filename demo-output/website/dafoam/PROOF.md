@@ -2497,10 +2497,16 @@ discloses in its own "Variant used" line. In this tutorial the two scripts are d
 | imports | DAFoam + pyGeo only | `+ tacs.mphys.TacsBuilder`, `funtofem.mphys.MeldBuilder` |
 | `aoa0` | **4.0** | **4.65** |
 
-The aerostructural path is confirmed to have actually executed, from the W5 logs themselves:
-`a2_rebuilt_runmodel.log:688` reads `Transfer scheme [0]: Creating scheme of type MELD...` and
-`:700` names `TacsDVComp`. So B-7's four-row table compares one rigid wing at aoa 4.0 against three
-flexible-wing states at aoa 4.65. It is not four runs of one case, and there is no 14% spread.
+The two paths are separable in the logs, and the separation is clean in both directions:
+
+| | `MELD`/`TacsDVComp` mentions | `struct_pre` | DV groups present |
+|---|---|---|---|
+| published `A2-mach-wing/check_totals_run1.log` | **0** | **0** | `dvs.patchV`, `dvs.shape`, `dvs.twist` |
+| W5 `a2_rebuilt_runmodel.log` | **6** (`:688` `Transfer scheme [0]: Creating scheme of type MELD...`, `:700` `TacsDVComp`) | **4** | — |
+
+So the published run was aero-only and every W5 A2 run was aerostructural. B-7's four-row table
+compares one rigid wing at aoa 4.0 against three flexible-wing states at aoa 4.65. It is not four
+runs of one case, and there is no 14% spread.
 
 **The gate B-7 itself specified, run and passed.** Fresh copy of the pristine clone
 `/home/ubuntu/dafoam-tutorials/MACH_Tutorial_Wing` (both scripts md5-identical to the preserved
