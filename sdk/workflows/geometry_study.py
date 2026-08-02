@@ -403,8 +403,156 @@ MESH_RETRY_LIMIT = 2
 MESH_RETRY_NARRATION = "Mesh quality below standard; meshing again."
 
 
+# --- what the reported maximum is actually a measurement of -----------------
+#
+# `external_aero._MESH_QUALITY` writes the same `meshQualityDict` into every
+# snappyHexMesh case this lab builds: `maxNonOrtho 65`, `relaxed { maxNonOrtho
+# 75 }`, `maxBoundarySkewness 4`, `maxInternalSkewness 4`. Those are
+# CONSTRAINTS snappyHexMesh enforces, so a mesh hard enough to press against
+# one reports its ceiling back, not its own quality. Measured over the 98
+# `log.checkMesh` files on this box, 2026-08-02:
+#
+#   * 9 meshes sit at 64.64-64.99, under the strict 65;
+#   * 3 sit at 74.31-74.96, under the relaxed 75;
+#   * 5 sit at 3.896-3.99994, under the skewness 4 -- one of them
+#     (`study-b52-finer2-uq`) at 3.9999437, which clears a 4.0 gate by
+#     5.6e-5;
+#   * the 6 meshes ABOVE the relaxed ceiling (rae2822 O-grids 80.2-160.9,
+#     `tmr-naca-a0-coarse` 85.7) are externally supplied and have no
+#     `log.snappyHexMesh`, i.e. no dictionary applied -- which is the control
+#     that confirms the reading.
+#
+# Two of this lab's own gates therefore sit on top of a dictionary number:
+# MAX_NON_ORTHOGONALITY 70 lies BETWEEN the strict 65 and the relaxed 75, and
+# MAX_SKEWNESS 4.0 is EXACTLY the dictionary's skewness ceiling. For any mesh
+# that pressed its constraint, neither gate can return anything but the branch
+# snappyHexMesh ended on.
+#
+# The tolerances are read off that measured population, not chosen: the widest
+# gap between a pinned reading and its ceiling is 0.36 deg (64.641 vs 65) and
+# 0.104 (3.896 vs 4), and the nearest UNPINNED reading is 58.4 deg and 3.535,
+# so any cut in between separates the two populations.
+MESH_DICT_NON_ORTHO_CEILINGS = (65.0, 75.0)
+MESH_DICT_SKEWNESS_CEILINGS = (4.0,)
+PINNED_TOLERANCE_DEG = 1.0
+PINNED_TOLERANCE_SKEW = 0.15
+
+
+def ceiling_pinned(value: float | None, ceilings, tolerance: float):
+    """The ceiling ``value`` is pressed against, or None if it is free.
+
+    Returns the ceiling itself rather than a bool so the caller can say WHICH
+    constraint the reading is a restatement of.
+    """
+    if value is None:
+        return None
+    for ceiling in ceilings:
+        if 0.0 <= ceiling - float(value) <= tolerance:
+            return ceiling
+    return None
+
+
+def mesh_quality_reading(stats: dict) -> dict:
+    """The mesh-quality gate, returning TWO values instead of a pass/fail.
+
+    A gate that reads only ``max non-orthogonality`` against 70 deg cannot
+    distinguish a good mesh from one pressed against its own recipe ceiling
+    (see the block comment above). This returns both:
+
+    ``verdict``   -- pass / caveat, as before, so nothing downstream loses a
+                     judgement it already had; and
+    ``informative`` -- whether that verdict was decided by a measurement of
+                     the mesh or by a number the recipe put there.
+
+    plus the readings the recipe does NOT pin:
+
+    ``severe_faces``      -- how many faces checkMesh called severely
+                             non-orthogonal (its own >70 deg definition, which
+                             is where this lab's 70 came from), and
+    ``severe_fraction``   -- what fraction of the mesh's faces those are, which
+                             is the extent the binary gate throws away;
+    ``average_non_orthogonality`` -- reported, and deliberately NOT gated: see
+                             ``average_discriminates`` below.
+
+    What this does NOT claim: that the average non-orthogonality is a quality
+    gate. It is unpinned -- the four NACA 4412 layered replicates read
+    9.3878-9.4849 while their maxima are bimodal at 65 and 75 -- but on this
+    lab's own population it does not separate good meshes from bad ones: the
+    rae2822 O-grids, whose maxima are 80.2-160.9, average 9.05-11.13, which
+    is the same 9.39-9.90 the accepted snappyHexMesh meshes read. The
+    quantity that does separate them is the SEVERE-FACE FRACTION: 9.7e-05 to
+    2.8e-04 on the O-grids and 8.1e-03 to 9.7e-03 on the rae2822 C-grids,
+    against exactly 0 on every mesh whose dictionary held.
+    """
+    non_ortho = stats.get("max_non_orthogonality")
+    skew = stats.get("max_skewness")
+    faces = stats.get("faces")
+    severe = stats.get("severe_non_ortho_faces")
+    average = stats.get("average_non_orthogonality")
+
+    non_ortho_ceiling = ceiling_pinned(
+        non_ortho, MESH_DICT_NON_ORTHO_CEILINGS, PINNED_TOLERANCE_DEG)
+    skew_ceiling = ceiling_pinned(
+        skew, MESH_DICT_SKEWNESS_CEILINGS, PINNED_TOLERANCE_SKEW)
+
+    fraction = None
+    if severe is not None and faces:
+        fraction = float(severe) / float(faces)
+
+    passed = mesh_gates_pass(non_ortho, skew)
+    pinned = [c for c in (non_ortho_ceiling, skew_ceiling) if c is not None]
+    return {
+        "verdict": "pass" if passed else "caveat",
+        "passed": passed,
+        "informative": not pinned,
+        "max_non_orthogonality": non_ortho,
+        "non_orthogonality_pinned_to": non_ortho_ceiling,
+        "max_skewness": skew,
+        "skewness_pinned_to": skew_ceiling,
+        "average_non_orthogonality": average,
+        "average_discriminates": False,
+        "severe_faces": severe,
+        "faces": faces,
+        "severe_fraction": fraction,
+        "notes": mesh_pinning_notes(non_ortho_ceiling, skew_ceiling,
+                                    severe, faces, fraction),
+    }
+
+
+def mesh_pinning_notes(non_ortho_ceiling, skew_ceiling, severe, faces,
+                       fraction) -> list[str]:
+    """Sentences that say what a pinned reading is, and what replaces it."""
+    notes: list[str] = []
+    if non_ortho_ceiling is not None:
+        notes.append(
+            f"Max non-orthogonality is within {PINNED_TOLERANCE_DEG:g}° of the "
+            f"meshQualityDict ceiling maxNonOrtho {non_ortho_ceiling:.0f}, so it "
+            f"reports which constraint branch snappyHexMesh ended on, not how "
+            f"good the mesh is. The {MAX_NON_ORTHOGONALITY:.0f}° gate lies "
+            f"between the strict 65 and the relaxed 75 and has no resolution "
+            f"here.")
+    if skew_ceiling is not None:
+        notes.append(
+            f"Max skewness is within {PINNED_TOLERANCE_SKEW:g} of the "
+            f"meshQualityDict ceiling maxBoundarySkewness/maxInternalSkewness "
+            f"{skew_ceiling:g}, which is also exactly the "
+            f"{MAX_SKEWNESS:.1f} gate value, so the gate cannot fail this mesh.")
+    if severe is not None and faces:
+        notes.append(
+            f"Unpinned extent: {int(severe):,} of {int(faces):,} faces are "
+            f"severely non-orthogonal (>70°), a fraction of {fraction:.2e}.")
+    elif severe == 0:
+        notes.append("Unpinned extent: no severely non-orthogonal (>70°) faces.")
+    return notes
+
+
 def mesh_gates_pass(non_ortho: float | None, skew: float | None) -> bool:
-    """True when the mesh check cleared both published gates."""
+    """True when the mesh check cleared both published gates.
+
+    Kept as-is on purpose: every caller that already had a pass/fail keeps the
+    one it had. What a caller must NOT do is read this alone on a mesh whose
+    reading is pinned -- ``mesh_quality_reading`` returns that second value.
+    """
     return ((non_ortho or 0) <= MAX_NON_ORTHOGONALITY
             and (skew or 0) <= MAX_SKEWNESS)
 
@@ -415,10 +563,22 @@ def mesh_caveat_lines(non_ortho: float | None, skew: float | None) -> list[str]:
     verdict on mesh grounds, so a passing mesh can never carry one."""
     caveats: list[str] = []
     if (non_ortho or 0) > MAX_NON_ORTHOGONALITY:
+        # A failing reading that is pinned to the recipe's relaxed ceiling is a
+        # statement about the dictionary, not about refinement, and the caveat
+        # says so rather than letting the number be read as a mesh property.
+        pinned = ceiling_pinned(non_ortho, MESH_DICT_NON_ORTHO_CEILINGS,
+                                PINNED_TOLERANCE_DEG)
+        because = (f" (pinned to the meshQualityDict relaxed ceiling "
+                   f"maxNonOrtho {pinned:.0f}, so the value is the constraint, "
+                   f"not a measurement of this mesh)") if pinned else ""
+        # One decimal rounds 74.962 to 75.0, which is exactly the ceiling and
+        # so hides the very thing the clause is pointing at; a pinned reading
+        # is printed to the precision that shows it sitting BELOW its limit.
+        shown = f"{non_ortho:.2f}" if pinned else f"{non_ortho:.1f}"
         caveats.append(
-            f"Mesh quality: max non-orthogonality {non_ortho:.1f}°, above the "
-            f"{MAX_NON_ORTHOGONALITY:.0f}° gate; the numerical channel carries "
-            f"the residual")
+            f"Mesh quality: max non-orthogonality {shown}°, above the "
+            f"{MAX_NON_ORTHOGONALITY:.0f}° gate{because}; the numerical channel "
+            f"carries the residual")
     if (skew or 0) > MAX_SKEWNESS:
         caveats.append(
             f"Mesh quality: max skewness {skew:.2f} on isolated faces, above "

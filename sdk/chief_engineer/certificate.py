@@ -897,6 +897,22 @@ def _mesh_rows(mesh: dict) -> list[tuple[str, str, str, bool]]:
     cells = mesh.get("cells")
     if cells is not None:
         rows.append(("Cells", f"{int(cells):,}", "", True))
+    # A reading sitting on a meshQualityDict ceiling is the constraint reported
+    # back, not a property of the mesh, and the certificate says so beside the
+    # number rather than letting a reader take it for a measurement. Imported
+    # here rather than at module scope because workflows.geometry_study imports
+    # chief_engineer.
+    try:
+        from workflows.geometry_study import (
+            MESH_DICT_NON_ORTHO_CEILINGS, MESH_DICT_SKEWNESS_CEILINGS,
+            PINNED_TOLERANCE_DEG, PINNED_TOLERANCE_SKEW, ceiling_pinned)
+    except Exception:  # the certificate must render without the workflows pkg
+        MESH_DICT_NON_ORTHO_CEILINGS = MESH_DICT_SKEWNESS_CEILINGS = ()
+        PINNED_TOLERANCE_DEG = PINNED_TOLERANCE_SKEW = 0.0
+
+        def ceiling_pinned(*_a, **_k):
+            return None
+
     non_ortho = mesh.get("max_non_orthogonality")
     gate = float(mesh.get("non_orthogonality_gate", 70.0))
     if non_ortho is None:
@@ -904,8 +920,13 @@ def _mesh_rows(mesh: dict) -> list[tuple[str, str, str, bool]]:
                      "", True))
     else:
         ok = float(non_ortho) <= gate
+        pinned = ceiling_pinned(float(non_ortho), MESH_DICT_NON_ORTHO_CEILINGS,
+                                PINNED_TOLERANCE_DEG)
+        shown = f"{float(non_ortho):.2f}" if pinned else f"{float(non_ortho):.1f}"
+        note = (f", on the meshQualityDict ceiling maxNonOrtho {pinned:.0f}, so"
+                f" this reads the recipe, not the mesh") if pinned else ""
         rows.append(("Max non-orthogonality",
-                     f"{float(non_ortho):.1f}° vs {gate:.0f}° gate",
+                     f"{shown}° vs {gate:.0f}° gate{note}",
                      "pass" if ok else "caveat", ok))
     skew = mesh.get("max_skewness")
     guidance = float(mesh.get("skewness_gate", 4.0))
@@ -913,9 +934,20 @@ def _mesh_rows(mesh: dict) -> list[tuple[str, str, str, bool]]:
         rows.append(("Max skewness", "not reported by the mesh check", "", True))
     else:
         ok = float(skew) <= guidance
+        pinned = ceiling_pinned(float(skew), MESH_DICT_SKEWNESS_CEILINGS,
+                                PINNED_TOLERANCE_SKEW)
+        note = (f", on the meshQualityDict ceiling {pinned:g}, which is the"
+                f" guidance value itself") if pinned else ""
         rows.append(("Max skewness",
-                     f"{float(skew):.2f} vs {guidance:.1f} guidance",
+                     f"{float(skew):.2f} vs {guidance:.1f} guidance{note}",
                      "pass" if ok else "caveat", ok))
+    # The extent the binary gate throws away, when the mesh check reported it.
+    severe = mesh.get("severe_non_ortho_faces")
+    faces = mesh.get("faces")
+    if severe is not None and faces:
+        rows.append(("Severely non-orthogonal faces (>70°)",
+                     f"{int(severe):,} of {int(faces):,} "
+                     f"({float(severe) / float(faces):.2e})", "", True))
     return rows
 
 

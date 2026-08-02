@@ -56,7 +56,14 @@
     "max_non_orthogonality": 49.6,
     "max_skewness": 1.48,
     "gates_pass": true,
-    "standard": "70 degree non-orthogonality gate, 4.0 skewness guidance"
+    "standard": "70 degree non-orthogonality gate, 4.0 skewness guidance",
+    "mesh_quality_regrade_2026_08_02": {
+      "gate": "workflows.geometry_study.mesh_quality_reading -- returns the verdict AND whether the verdict was decided by a measurement of the mesh or by a meshQualityDict ceiling",
+      "max_non_orthogonality_pinned_to": null, "max_skewness_pinned_to": null,
+      "informative": true,
+      "reading": "49.6 is 15.4 deg clear of the strict maxNonOrtho 65 and 1.48 is 2.52 clear of the skewness ceiling 4, so neither reading is a restatement of the recipe and this pass is a measurement. Checked because the gate was found to be pinned elsewhere; recorded because a credential that survives the check should say so.",
+      "evidence": "demo-output/website/campaign/W3_MESH_QUALITY_GATE_TWO_VALUES.md"
+    }
   },
   "near_wall": {
     "treatment": "wall functions, k-omega SST",

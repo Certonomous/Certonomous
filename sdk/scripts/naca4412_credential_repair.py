@@ -161,13 +161,35 @@ def yplus(case: Path) -> str:
 # --------------------------------------------------------------------------
 
 def parse_checkmesh(text: str) -> dict:
+    """Mesh statistics out of a checkMesh log.
+
+    2026-08-02: this only ever matched ``Max non-orthogonality = X``, which
+    OpenFOAM 2606 does not print -- it prints ``Mesh non-orthogonality Max: X
+    average: Y``. Every stored ``result.json`` under
+    ``w3-naca4412-layered-replicates`` therefore carries a cell count and a
+    skewness but NO non-orthogonality, and the published replicate table's
+    angles were read out of the logs by hand. Both spellings are matched now,
+    and so are the two readings the meshQualityDict does not pin: the average,
+    and the count of faces checkMesh itself calls severely non-orthogonal
+    (printed only when non-zero, so absence is recorded as zero).
+    """
     out = {}
     m = re.search(r"cells:\s*([0-9]+)", text)
     if m:
         out["cells"] = int(m.group(1))
-    m = re.search(r"Max non-orthogonality = ([0-9.]+)", text)
+    m = re.search(r"faces:\s*([0-9]+)", text)
+    if m:
+        out["faces"] = int(m.group(1))
+    m = (re.search(r"Max non-orthogonality = ([0-9.]+)", text)
+         or re.search(r"Mesh non-orthogonality Max:\s*([0-9.]+)", text))
     if m:
         out["max_non_orthogonality"] = float(m.group(1))
+    m = re.search(r"non-orthogonality Max:\s*[0-9.]+\s+average:\s*([0-9.]+)", text)
+    if m:
+        out["average_non_orthogonality"] = float(m.group(1))
+    m = re.search(r"severely non-orthogonal \(> [0-9.]+ degrees\) faces:\s*([0-9]+)",
+                  text)
+    out["severe_non_ortho_faces"] = int(m.group(1)) if m else 0
     m = re.search(r"Max skewness = ([0-9.]+)", text)
     if m:
         out["max_skewness"] = float(m.group(1))

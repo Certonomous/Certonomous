@@ -584,10 +584,108 @@ class MeshCaveatRegressionTests(unittest.TestCase):
     def test_caveats_fire_only_above_the_gates(self):
         both = gs.mesh_caveat_lines(75.0, 8.94)
         self.assertEqual(len(both), 2)
-        self.assertIn("non-orthogonality 75.0°", both[0])
+        # 75.0 IS the meshQualityDict relaxed ceiling, so this clause now also
+        # says so and prints two decimals -- at one decimal a genuine 74.96
+        # renders as "75.0" and becomes indistinguishable from its own limit.
+        self.assertIn("non-orthogonality 75.00°", both[0])
+        self.assertIn("maxNonOrtho 75", both[0])
         self.assertIn("skewness 8.94", both[1])
         self.assertEqual(len(gs.mesh_caveat_lines(65.0, 8.94)), 1)
         self.assertEqual(gs.mesh_caveat_lines(None, None), [])
+
+
+# --------------------------------------------------------------------------
+# The gate has to say whether it read the mesh or the mesh dictionary.
+#
+# Every reading below is a measured one, from a `log.checkMesh` on this box:
+#   ~/certonomous-runs/credential-repair-naca4412-{fine,finer,medium}
+#   ~/certonomous-runs/w3-naca4412-layered-replicates/{A,B,C,E}
+#   ~/certonomous-runs/w3-naca4412-layered-replicates/r3/{A,B,C,E}
+#   ~/certonomous-runs/study-b52-finer2-uq, ~/certonomous-runs/rae2822-meshcheck/*
+# No number in this class is invented.
+# --------------------------------------------------------------------------
+
+class PinnedGateTests(unittest.TestCase):
+
+    # The SAME four background-division triples, at two refinements of the
+    # NACA 4412 finite wing. At refinement 4 the maxima collapse onto the two
+    # meshQualityDict ceilings; at refinement 3, where no mesh presses its
+    # constraint, the same four spread over 4.8 degrees.
+    R4_MAXIMA = [64.989619, 64.958100, 74.962443, 64.976520]
+    R3_MAXIMA = [58.374353, 62.390692, 57.556267, 60.801266]
+
+    def test_the_ceiling_readings_are_recognised_as_pinned(self):
+        for value in self.R4_MAXIMA:
+            self.assertIsNotNone(
+                gs.ceiling_pinned(value, gs.MESH_DICT_NON_ORTHO_CEILINGS,
+                                  gs.PINNED_TOLERANCE_DEG), value)
+        for value in self.R3_MAXIMA:
+            self.assertIsNone(
+                gs.ceiling_pinned(value, gs.MESH_DICT_NON_ORTHO_CEILINGS,
+                                  gs.PINNED_TOLERANCE_DEG), value)
+
+    def test_a_70_degree_gate_has_no_resolution_on_a_pinned_family(self):
+        """Three of the four r4 replicates pass and one fails, and the split
+        is the dictionary branch, not the mesh: 64.96-64.99 against 74.96."""
+        verdicts = {gs.mesh_gates_pass(v, 2.0) for v in self.R4_MAXIMA}
+        self.assertEqual(verdicts, {True, False})
+        for value in self.R4_MAXIMA:
+            reading = gs.mesh_quality_reading(
+                {"max_non_orthogonality": value, "max_skewness": 2.0})
+            self.assertFalse(reading["informative"], value)
+            self.assertIn(reading["non_orthogonality_pinned_to"], (65.0, 75.0))
+
+    def test_an_unpinned_family_is_read_as_informative(self):
+        for value in self.R3_MAXIMA:
+            reading = gs.mesh_quality_reading(
+                {"max_non_orthogonality": value, "max_skewness": 1.2})
+            self.assertTrue(reading["informative"], value)
+            self.assertTrue(reading["passed"], value)
+
+    def test_the_skewness_gate_is_the_dictionary_ceiling_itself(self):
+        """`study-b52-finer2-uq` reads 3.9999437 against a 4.0 gate it cannot
+        fail, because `maxBoundarySkewness 4` is what produced the 3.9999437."""
+        reading = gs.mesh_quality_reading(
+            {"max_non_orthogonality": 64.646803, "max_skewness": 3.9999437})
+        self.assertTrue(reading["passed"])
+        self.assertFalse(reading["informative"])
+        self.assertEqual(reading["skewness_pinned_to"], 4.0)
+        self.assertTrue(any("cannot fail" in n for n in reading["notes"]))
+
+    def test_the_unpinned_extent_is_reported_and_is_not_the_average(self):
+        """The extent separates the populations; the average does not.
+
+        The rae2822 O-grids -- max 80.2-160.9, no meshQualityDict applied --
+        average 9.05-11.13, which is the same 9.39-9.90 the accepted
+        snappyHexMesh meshes read. Their severe-face FRACTIONS differ by two
+        orders of magnitude from the rae2822 C-grids', and are exactly zero on
+        every mesh whose dictionary held.
+        """
+        finer = gs.mesh_quality_reading({
+            "max_non_orthogonality": 74.962218, "average_non_orthogonality": 9.4399,
+            "max_skewness": 2.030437, "severe_non_ortho_faces": 797,
+            "faces": 5734213})
+        self.assertFalse(finer["informative"])
+        self.assertFalse(finer["average_discriminates"])
+        self.assertAlmostEqual(finer["severe_fraction"], 797 / 5734213)
+        fine = gs.mesh_quality_reading({
+            "max_non_orthogonality": 64.989619, "average_non_orthogonality": 9.4677035,
+            "max_skewness": 3.3232022, "severe_non_ortho_faces": 0,
+            "faces": 1988905})
+        # Same body, same recipe, one refinement apart: the averages agree to
+        # 0.3% while the maxima differ by 10 degrees. The average cannot be the
+        # gate, and the maximum is not measuring the mesh.
+        self.assertLess(abs(fine["average_non_orthogonality"]
+                            - finer["average_non_orthogonality"]) / 9.45, 0.005)
+        self.assertEqual(fine["severe_fraction"], 0.0)
+
+    def test_a_failing_pinned_reading_says_it_is_a_ceiling(self):
+        line = gs.mesh_caveat_lines(74.962218, 2.030437)[0]
+        self.assertIn("74.96", line)
+        self.assertIn("maxNonOrtho 75", line)
+        # An externally supplied grid with no dictionary is NOT excused.
+        plain = gs.mesh_caveat_lines(160.876800, 15.6982622)[0]
+        self.assertNotIn("pinned", plain)
 
 
 # --------------------------------------------------------------------------
