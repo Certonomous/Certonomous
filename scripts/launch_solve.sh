@@ -112,6 +112,48 @@ if [ -z "$RANKS" ]; then
     echo "         record, however long the record says it took."
 fi
 
+# ---- 0b. the load this run is about to join ---------------------------------
+#
+# WHY. A wall clock taken while the box is oversubscribed measures the
+# contention, not the work, and the lab has already been bitten: the B-52 rung-7
+# record found that a cost basis taken from finer2's WALL clock of 285 s was 35
+# percent contention, because that run logs ExecutionTime 183.26 s against
+# ClockTime 284 s. Its sibling fine-uq is worse and was never flagged: 167.72 s
+# of CPU inside 344 s of wall, 51 percent contention. Both fed planning numbers.
+#
+# So the record has to carry the conditions. Load alone is a snapshot and does
+# not cover the run, so this captures it at BOTH ends, and the collector below
+# additionally reads the run's OWN ExecutionTime/ClockTime ratio, which is the
+# only figure that covers the whole run rather than an instant of it.
+#
+# WHAT THE RATIO DOES NOT MEASURE, stated because a bound with an undeclared
+# hole is worse than a wider honest one: ExecutionTime/ClockTime detects a
+# process that did not get its core. It cannot see memory-bandwidth contention,
+# which slows the CPU time itself, so a ratio of 1.0 bounds scheduling
+# contention only and is not a certificate that the box was quiet.
+CORES=$(nproc 2>/dev/null || echo 0)
+RESERVED_CORES=2                       # matches scripts/dispatch_queue.py
+USABLE_CORES=$(( CORES > RESERVED_CORES ? CORES - RESERVED_CORES : 0 ))
+LOAD_AT_LAUNCH=$(cut -d' ' -f1 /proc/loadavg 2>/dev/null || echo 0)
+LIVE_JOBS=0
+for j in "$REG"/*.job; do
+    [ -e "$j" ] || continue
+    ( . "$j"; kill -0 "$JOB_PID" 2>/dev/null ) && LIVE_JOBS=$(( LIVE_JOBS + 1 ))
+done
+if [ -n "$RANKS" ] && [ "$USABLE_CORES" -gt 0 ]; then
+    OVER=$(python3 -c "print(1 if $LOAD_AT_LAUNCH + $RANKS > $USABLE_CORES else 0)" 2>/dev/null || echo 0)
+else
+    OVER=$(python3 -c "print(1 if $LOAD_AT_LAUNCH > $USABLE_CORES else 0)" 2>/dev/null || echo 0)
+fi
+if [ "$OVER" = "1" ]; then
+    echo "WARNING: load is $LOAD_AT_LAUNCH on $CORES cores ($USABLE_CORES usable,"
+    echo "         $LIVE_JOBS registered job(s) live) and this run adds"
+    echo "         ${RANKS:-an unstated number of} rank(s). The box is over"
+    echo "         capacity, so this run's WALL clock will read the contention."
+    echo "         It is recorded, not refused: no concurrency limit has been"
+    echo "         ratified, and a launcher enforcing one would be legislating."
+fi
+
 # ---- 1. preflight gate ----------------------------------------------------
 PF=/home/ubuntu/Certonomous/scripts/case_preflight.sh
 if [ -x "$PF" ] && [ -d "$CASE" ]; then
@@ -141,6 +183,10 @@ JOB_ITEM="$ITEM"
 JOB_RANKS="$RANKS"
 JOB_EST="$EST"
 JOB_ATTRIB="$ATTRIB"
+JOB_CORES=$CORES
+JOB_USABLE_CORES=$USABLE_CORES
+JOB_LOAD_AT_LAUNCH=$LOAD_AT_LAUNCH
+JOB_LIVE_JOBS_AT_LAUNCH=$LIVE_JOBS
 EOF
 
 # ---- 3. arm the collector AT LAUNCH, not afterwards ------------------------
@@ -175,6 +221,43 @@ setsid nohup bash -c '
             echo "core_min: $(python3 -c "print(round($WALL_S * '"$RANKS"' / 60.0, 3))" 2>/dev/null || echo UNSTATED)"
         else
             echo "core_min: NOT DERIVABLE (no rank count was given at launch)"
+        fi
+        # ---- the conditions this cost was measured under ------------------
+        # Recorded because a core-minute figure with no load beside it cannot
+        # be told apart from a measurement of the queue. See section 0b.
+        LOAD_AT_FINISH=$(cut -d" " -f1 /proc/loadavg 2>/dev/null || echo UNSTATED)
+        echo "cores:    '"$CORES"' ('"$USABLE_CORES"' usable, 2 reserved)"
+        echo "load_at_launch: '"$LOAD_AT_LAUNCH"'  (with '"$LIVE_JOBS"' registered job(s) already live)"
+        echo "load_at_finish: $LOAD_AT_FINISH"
+        # The runs OWN contention measurement, which covers the whole run
+        # rather than an instant of it. OpenFOAM prints CPU and wall side by
+        # side on every iteration; the last pair is the total.
+        # cut -d" " -f3 rather than a second grep for a number: grep -o on the
+        # bare pattern also matches the e and E inside the word ExecutionTime,
+        # which this self-test caught before the field ever reached a record.
+        CPU_S=$(grep -oE "ExecutionTime = [0-9.]+" "'"$LOG"'" 2>/dev/null | tail -1 | cut -d" " -f3)
+        CLOCK_S=$(grep -oE "ClockTime = [0-9.]+" "'"$LOG"'" 2>/dev/null | tail -1 | cut -d" " -f3)
+        if [ -n "$CPU_S" ] && [ -n "$CLOCK_S" ]; then
+            RATIO=$(python3 -c "print(round($CPU_S / $CLOCK_S, 4)) if $CLOCK_S > 0 else print(0)" 2>/dev/null || echo "")
+            echo "solver_cpu_s: $CPU_S   solver_wall_s: $CLOCK_S"
+            echo "cpu_to_wall: $RATIO  (1.0 = the process got its core; below 1 the"
+            echo "             difference is scheduling contention, not work. It does"
+            echo "             NOT see memory-bandwidth contention, so it is a bound"
+            echo "             on one kind of contention and not a quiet-box proof.)"
+            if [ -n "'"$RANKS"'" ]; then
+                echo "core_min_cpu: $(python3 -c "print(round($CPU_S * '"$RANKS"' / 60.0, 3))" 2>/dev/null || echo UNSTATED)  (PRICE ON THIS, not core_min: the"
+                echo "             B-52 rung-7 record measured a basis taken from a wall"
+                echo "             clock that was 35 percent contention)"
+            fi
+            VERDICT=$(python3 -c "
+r = $RATIO
+print(\"USABLE FOR PRICING (cpu_to_wall %.3f)\" % r if r >= 0.95 else
+      \"NOT USABLE FOR PRICING: %.1f percent of this wall clock was contention. Quote core_min_cpu, or quote nothing.\" % (100 * (1 - r)))" 2>/dev/null)
+            echo "pricing_basis: ${VERDICT:-CANNOT TELL}"
+        else
+            echo "solver_cpu_s: UNSTATED (the log prints no ExecutionTime/ClockTime pair)"
+            echo "pricing_basis: CANNOT TELL -- no CPU time in the log, so this wall"
+            echo "               clock cannot be separated from the contention it ran in"
         fi
         CONV_CHECKER=/home/ubuntu/Certonomous/scripts/check_convergence.py
         CONV_ITERS=""
