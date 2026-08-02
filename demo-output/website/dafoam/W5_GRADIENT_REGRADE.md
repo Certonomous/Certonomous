@@ -184,7 +184,45 @@ real-seed `warpDeriv` protocol that overturned A5's clearance
 
 ---
 
-### 3a. A2 could not be regraded, because its published verification is no longer reproducible on this box
+### 3a. ~~A2 could not be regraded, because its published verification is no longer reproducible on this box~~ — **RETRACTED 2026-08-02 (well W4). Every A2 run in this section invoked the wrong script.**
+
+> **This section's conclusion is wrong, and the cause is in the harness, not the case.**
+> `run_a2_checktotals.sh`, `run_a2_rebuild.sh` and `run_a2_twist.sh` all call
+> `python runScript.py`. A2's published numbers were measured with
+> **`runScript_AeroOnly.py`**, the deviation `ladder-a/A2_mach_tutorial_wing.md:5`
+> discloses in its own "Variant used" line. In this tutorial the two are
+> different physics: `runScript.py` imports `tacs.mphys.TacsBuilder` and
+> `funtofem.mphys.MeldBuilder`, builds a `ScenarioAeroStructural` — a *flexible*
+> wing — and sets `aoa0 = 4.65`; `runScript_AeroOnly.py` builds a
+> `ScenarioAerodynamic` at `aoa0 = 4.0`. The aerostructural path is confirmed to
+> have executed, from this section's own logs: `a2_rebuilt_runmodel.log:688`
+> reads `Transfer scheme [0]: Creating scheme of type MELD...` and `:700` names
+> `TacsDVComp`.
+>
+> **So the four-row CD table below is four different physical configurations, not
+> four runs of one case, and the "14% spread" is not a spread.** The stated
+> mechanism — "the angle-of-attack state in `0/U` being carried forward and
+> re-written by each run" — is refuted by inspection: the preserved case's `0/`
+> and `0.orig/` are **byte-identical on all six fields**, and AoA is not in `0/U`
+> at all, it is the `patchV` design variable.
+>
+> **Run correctly, A2 reproduces completely, against the stock toolchain:** the
+> primal returns **CD 0.02772949388 / CL 0.4775877833** to all ten printed digits
+> from a pristine clone in 40 s (2.67 core-min), and the full `check_totals`
+> returns **18 of 18 rows identical to the published log to every printed digit**
+> — analytic magnitude, FD magnitude, and both of OpenMDAO's own error norms,
+> `CD/shape`'s `1.713791e-02` included. 296 core-min, 9,576 cells per rank, zero
+> mesh-quality errors.
+>
+> **Consequences for this document.** §3a's headline is withdrawn. The claim in
+> §3 that A2's rows "stand unrebutted rather than confirmed" is superseded: they
+> are re-measured and they stand against the shipped toolchain. Blocker **B-7 is
+> closed**. The 238 core-minutes lost at perturbation 132 were spent on the
+> aerostructural case carrying an IPOPT-deformed mesh, which fully explains the
+> mesh-quality abort. Full record: `PROOF.md` §25.1; evidence
+> `/home/ubuntu/certonomous-runs/W4-a2-provenance/`.
+
+**Original section, kept for the record:**
 
 This was attempted properly and it failed, and the failure is the most important
 thing this document has to say about A2.
