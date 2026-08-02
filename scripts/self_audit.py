@@ -1751,6 +1751,118 @@ def check_declined_ladders_name_their_guard() -> Result:
                   f"them; {scope}", skipped)
 
 
+def check_ladder_rungs_share_one_recipe() -> Result:
+    """VERIFICATION_CHARTER section 3.2 rule 3, which had no checker.
+
+    THE RULE. "A recipe audit precedes an order... read the refinement level
+    from each rung's own dictionary and refuse a triple that does not share
+    one." An order fitted across a change of mesh recipe is fitted across a
+    change of EXPERIMENT and is not a discretization order at all. The second
+    NACA 4412 ladder reported p = 10.467 that way. Section 3.1's rule about
+    dimensionality has a checker and section 3.2's does not, so an order
+    fitted across two recipes reaches a report with nothing objecting.
+
+    WHY THE ORDER WINDOW DOES NOT COVER IT. The 4412's 10.467 is refused by
+    `order_window`, so the verdict is right. The reason is wrong, and a right
+    verdict resting on the wrong reason moves the moment the arithmetic does:
+    an order of 2.3 fitted across the same recipe change would pass the window
+    and be just as meaningless.
+
+    THE CHECK, zero compute, from the rungs and the audit block already stored.
+    A study's `recipe_audit.valid_family_cells` names the rungs that DO share
+    one recipe. `eca_hoekstra_band` fits the finest three distinct cell counts
+    it is handed. So the fit triple must be a subset of the valid family, and
+    a study that carries no recipe audit at all cannot be known either way.
+
+    TWO SEVERITIES, and the difference is whether the lab knows. A study whose
+    own `recipe_audit` records the finding is a known, recorded matter that is
+    reported and not escalated -- several defer explicitly to the open ruling
+    on what a record should say when a body has no usable ladder. A study that
+    fits across recipes with nothing on its record saying so, or that publishes
+    an order with no recipe audit at all, is the case this check exists for.
+    """
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    problems, known, skipped, checked = [], [], [], 0
+    for path in studies:
+        study = _load_json(path)
+        if not isinstance(study, dict):
+            continue
+        numerical = study.get("numerical") or {}
+        if "observed_order" not in numerical:
+            skipped.append(
+                f"{path.stem}: SKIPPED, not in scope -- its numerical block "
+                f"records no `observed_order`, so no refinement fit produced "
+                f"it and there is no order here to be fitted across anything")
+            continue
+        checked += 1
+        audit = study.get("recipe_audit")
+        cells = []
+        for level in study.get("levels") or []:
+            try:
+                value = int(level["cells"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if value not in cells:
+                cells.append(value)
+        triple = sorted(cells)[-3:]
+        if not isinstance(audit, dict) or not audit.get("finding"):
+            order = numerical.get("observed_order")
+            what = (f"publishes an observed order of {order!r}" if order
+                    is not None else
+                    "compares its rungs through a refinement fit that "
+                    "declined to fit an order, and its fallback band is "
+                    "still a comparison of those rungs")
+            problems.append(
+                f"{path.stem}: {what} and carries NO recipe "
+                f"audit, so nothing on this record says whether its rungs "
+                f"share one refinement recipe; remedy: read the refinement "
+                f"level off each rung's own system/snappyHexMeshDict, as "
+                f"b52.json and four others already do; NO COMPUTE")
+            continue
+        family = audit.get("valid_family_cells")
+        if not isinstance(family, list) or not family:
+            problems.append(
+                f"{path.stem}: has a recipe audit with no "
+                f"`valid_family_cells`, so the finding cannot be checked "
+                f"against the rungs the fit used; NO COMPUTE to add it")
+            continue
+        outside = [c for c in triple if c not in set(int(f) for f in family)]
+        if not outside:
+            continue
+        line = (f"{path.stem}: the fit triple {triple} includes "
+                f"{outside}, which this study's OWN recipe audit excludes "
+                f"from the family that shares one recipe ({sorted(family)}); "
+                f"its observed order of {numerical.get('observed_order')!r} is "
+                f"fitted across a change of experiment")
+        # A record that states the finding itself is a known matter, not a
+        # silent one, and several defer explicitly to an open ruling.
+        acknowledged = any(
+            str(audit.get(key) or "").strip()
+            for key in ("numerical_block_untouched", "what_this_body_needs"))
+        (known if acknowledged else problems).append(
+            line + (". The record states this and names what the body needs, "
+                    "so it is reported, not escalated"
+                    if acknowledged else
+                    ". Nothing on the record says so; NO COMPUTE to say it"))
+    scope = (f"{checked} of {checked + len(skipped)} stored study(s) in "
+             f"scope, {len(skipped)} named as skipped")
+    if problems:
+        return Result("ladder rungs share one recipe", FAIL,
+                      f"{len(problems)} fitted ladder(s) publish an order "
+                      f"with no recipe audit, or across recipes their record "
+                      f"does not mention; {len(known)} more do so and say so; "
+                      f"{scope}", problems + known + skipped)
+    if known:
+        return Result("ladder rungs share one recipe", WARN,
+                      f"{len(known)} fitted ladder(s) fit across a recipe "
+                      f"change that their own record names; {scope}",
+                      known + skipped)
+    return Result("ladder rungs share one recipe", PASS,
+                  f"all {checked} fitted ladder(s) fit inside a family their "
+                  f"own recipe audit calls comparable; {scope}", skipped)
+
+
 def check_order_window_declines_state_their_dimensionality() -> Result:
     """VERIFICATION_CHARTER section 3.1 rule 3, which had no checker.
 
@@ -2301,6 +2413,16 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "whether the guard map is right. Both fields were written by the same "
         "writer from the same fit, so this asks only that the record agrees "
         "with itself; it never refits to confirm the map", None),
+    "check_ladder_rungs_share_one_recipe": (
+        EVIDENCE,
+        "an observed order fitted across a change of mesh recipe, by reading "
+        "the fit triple off the study's own rungs and the comparable family "
+        "off its own recipe audit. These are two independent records: the "
+        "rungs come from the solves, the family from each rung's meshing "
+        "dictionary, and neither is derived from the other",
+        "a study with no recipe audit, which it reports as a fault rather "
+        "than passing; and the correctness of a recipe audit itself, which is "
+        "read off snappyHexMeshDict by hand and not re-derived here", None),
     "check_order_window_declines_state_their_dimensionality": (
         EVIDENCE,
         "a decline that rests on the dimensionality assumption alone, by "
@@ -2542,6 +2664,15 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "rebuild the bundle from the tree and verify by rendering from inside "
         "it rather than by diffing",
         False, "a copy, and a render"),
+    "check_ladder_rungs_share_one_recipe": (
+        "read the refinement level off each rung's own "
+        "system/snappyHexMeshDict and record which rungs share one recipe, as "
+        "five studies already do; then either refit on a family that shares "
+        "one, or record that this body has no usable ladder and say what it "
+        "would need",
+        False, "reading a meshing dictionary per rung; the R4 precedent shows "
+               "BUILDING a valid family costs 6.2 core-minutes at 4 ranks, "
+               "and that is a separate item"),
     "check_stored_fits_reproduce_their_values": (
         "refit the study in place from the rungs it already stores under "
         "levels[], through uq.study_numerical, and write back what the fit "
@@ -2614,6 +2745,7 @@ CHECKS = (
     check_campaign_json_citations,
     check_studies_carry_what_the_fit_records,
     check_stored_fits_reproduce_their_values,
+    check_ladder_rungs_share_one_recipe,
     check_declined_ladders_name_their_guard,
     check_order_window_declines_state_their_dimensionality,
     check_bundle_drift,
