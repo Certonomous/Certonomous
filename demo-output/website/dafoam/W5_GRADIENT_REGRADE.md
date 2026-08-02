@@ -612,6 +612,30 @@ No cause is offered for idx16 here. What can be said is what it is not: it is
 not the degenerate branch (the patch supplies that term and 26 of 27 components
 collapse), and it is not the FD (unchanged to every digit between the runs).
 
+> **SUPERSEDED 2026-08-02 — it *is* the FD, and "unchanged between the runs" was
+> the wrong test.** The FD cannot change between the runs: the primal never sees
+> a `warpDeriv` patch. What was never done was re-measuring it. Three
+> independent finite differences at the same step, in the same container, on the
+> same case — cold from `0/`, warm from the converged baseline, and warm from
+> the state `check_totals`' own component sequence leaves — return **−4.98068,
+> −5.05964 and −5.04286**. None of them is −4.30296296. The same harness
+> reproduces `check_totals`' reported FD at the neighbouring idx15 to
+> **8.8 × 10⁻⁸ relative**, so it is the same instrument.
+>
+> **The patch fixes idx16 too, to 0.10%.** Against the sequence-faithful
+> −5.04286 the analytic error goes from **25.1% stock to 0.10% patched**, not
+> from 12.27% to 17.31%. A5's patched aggregate is **0.1826%**, not 2.2372%, and
+> the full table is in band **27 of 27**. The paragraphs above and §7.4's "one
+> exception" are kept as written and are wrong; §7.3's real finding — that
+> re-running only the flagged components would have missed idx16 — stands, and
+> it is what led here.
+>
+> Why `check_totals` reports −4.30296296 at this one component remains open. It
+> is deterministic across both runs and all four ranks, and it is not the
+> decomposition, the step, one-sidedness, a kink, or the component sequence.
+> Evidence: `W4_IDX16_IS_THE_REFERENCE.md`,
+> `/home/ubuntu/certonomous-runs/W4-idx16/`.
+
 ### 7.4 Verdicts, and what does not change
 
 * **A1's full table passes under the patched warp**: `CD`/shape 8/8 and
