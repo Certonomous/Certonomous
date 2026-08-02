@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T04:02:52+00:00",
+  "generated_at": "2026-08-02T05:51:40+00:00",
   "proposals": [
     {
       "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -19,6 +19,44 @@
       "status": "proposed",
       "created_at": "2026-08-01T08:18:22Z",
       "progress_note": "W5, 2026-08-02. CARRIED OUT IN FULL; status left at proposed because approval is not mine to give. The gate is met. Every blockquote and every inline quotation of 25+ characters was extracted mechanically from CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md and matched, punctuation- and emphasis-insensitively, against the benchmark clone README at deb91557, the eval package README and pyproject at 1c4e22c8, apply_closure_ph_gate.py, the round-3 JSON, closure.html and -- for the first time -- the full text of the preprint. 30 quotations after the corrections; 17 machine-matched (benchmark README 14, preprint 3, eval package README 1, apply_closure_ph_gate.py 1); the other 13 resolved by hand: 6 are our own editorial blockquotes, 3 quote defects we then fixed and correctly no longer match, 3 needed a source the matcher was not given, 1 is web-only and is now labelled web-only. TWO DEFECTS, both in citations of surfaces this lab controls rather than of the benchmark's rules: section 4.7 quoted closure.html saying 'It is not our model outperforming anyone', a sentence the page has not carried since 2026-08-01 when we improved it, and section 4.6 quoted the eval package commit message with a full stop the commit does not have. Both fixed; the replacement closure.html quotation was itself machine-checked against the page rather than pasted on trust. Written up as section 9 of the draft, including the fact that an audit run once is a snapshot and should be re-run at the moment Katie approves. Commit 36b7e178. Zero compute, zero scoring calls."
+    },
+    {
+      "id": "w5-hlpw6-ai-ml-focus-group-is-the-cheap-way-in",
+      "well": "W5",
+      "objective": "Establish whether HLPW-6's AI/ML technology focus group is a route into the workshop that needs no CFD, and what an entry to it would consist of",
+      "rationale": "The docket carries the high-lift entry only in its expensive form: 6390 core-minutes on the 2.66M-cell coarse grid plus an unpriced rendering deliverable. The 2026-08-02 scouting sweep found the same workshop runs an AI/ML focus group whose key question 6 asks whether data-driven turbulence models can improve lower-fidelity solvers, trained on the open HiLiftAeroML dataset (1800 samples, 180 geometry variants at 10 angles of attack, CC-BY-4.0). That is the lab's actual competence and it needs no mesh and no solve. The focus group page currently reads 'More coming soon', so there is nothing to enter and no deadline to miss, which is why it costs nothing to establish the shape of it now. The submission gate is unchanged and still forbidden (GitHub account, participant identifier, pull request), so this decides what could be prepared, not what could be sent.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 1.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The HiLiftAeroML dataset's licence, size and contents are read off its own source and recorded, and the record states either what an AI/ML focus group entry would consist of or that the focus group has published too little to say",
+      "expected_knowledge_gain": "Whether the workshop the lab priced at 6390 core-minutes has a door into it that costs no solve at all",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 4",
+        "demo-output/website/hlpw6/SUBMISSION_GATE.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:40:00Z"
+    },
+    {
+      "id": "w5-autocfd5-scouted-and-declined",
+      "well": "W5",
+      "objective": "Record AutoCFD5 as scouted and declined on physical grounds, so its deadline does not pull compute toward it",
+      "rationale": "AutoCFD5 is the only live challenge found on 2026-08-02 with a near deadline: 21 August 2026 for results data, re-verified from autocfd.org/dates/. It fails before the forbidden list is reached. The stated minimum entry is the baseline g2 grid at 37 million cells; against this lab's own measured memory law that extrapolates to roughly 58 GiB on a 30.6 GiB host, and the coarse g1 at 6.3M cells would fit but does not meet the stated minimum. The deliverable also requires force and base-pressure time histories and PIV RMS fluctuations, which is an eddy-resolving unsteady run rather than the steady RANS the lab has. Nineteen days would not be enough if the memory fitted. An item with a live deadline and no verdict beside it is the kind that gets picked up later at cost.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.1,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "The decline is on the record with the grid size, the memory extrapolation and the deliverable that decides it, and the three submission gates are named separately so the physical reason is not confused with the procedural one",
+      "expected_knowledge_gain": "A live deadline that is already ruled out costs nothing only if the ruling is written down",
+      "source_kind": "challenge",
+      "citations": [
+        "demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 1",
+        "https://autocfd.org/dates/"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:40:00Z"
     },
     {
       "id": "w5-rescope-the-high-lift-entry-on-physics",
@@ -700,6 +738,27 @@
       "created_at": "2026-07-31T23:20:00Z"
     },
     {
+      "id": "agp-527efc1cbb44",
+      "objective": "Harmonic-balance cycle solve",
+      "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Harmonic-balance cycle solve: resolve phase-interaction the multi-point screen drops, solving the coupled harmonics of one cycle instead of independent phase points.",
+      "citations": [
+        "Valve opening-angle screen: cycle-weighted pressure loss",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
+      ],
+      "est_core_min": 0.0,
+      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
+      "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+      "source_kind": "capability",
+      "status": "approved",
+      "created_at": "2026-07-25T02:07:58+00:00",
+      "decided_at": "2026-07-25T15:30:00Z",
+      "decision_note": "Owner GO, all proposals, morning 2026-07-25",
+      "well": "W1",
+      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3, unsteady statistics: the reported quantity is a phase-resolved cycle loss, a phase-aligned waveform by construction. BLOCKED, and re-priced. There is no meshed valve: the curriculum record's own method line reads 'quadrature convergence of a reduced-order orifice model, k = 3/5/9 segments of the ejection window; not a mesh refinement'. The parent study named both blockers before this follow-on was filed, requiring a transient pulsatile solve with a moving-boundary incompressible solver on a meshed valve geometry. The 60 core-minute estimate priced a solve of a case with no mesh and no solver path; it is the drafter's default, not an estimate, and is withdrawn. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
+      "hard_criterion": 3,
+      "blocked_on": "no meshed valve geometry, and no moving-boundary transient solver path on this box"
+    },
+    {
       "id": "r1-validation-tier-labels",
       "objective": "Label every case in the lab with its validation-hierarchy tier so the trust a result may carry is bounded by its tier on the record",
       "rationale": "Oberkampf and Trucano organize validation as a building-block hierarchy: unit problems, benchmark cases, subsystem cases, complete system, with experimental information degrading radically up the tiers. The lab's portfolio maps cleanly: the laminar cylinder is a unit problem, the TMR flat plate and the motorcycle are benchmark cases, the valve screen is a subsystem case, the airliner is the complete-system posture where data are scarcest. Making the tier a named field beside the fidelity chip states why the airliner stops below VALIDATED no matter how tight its envelope, as a structural fact rather than a hedge. This is a content addition and may land directly on the certificate and wall surfaces.",
@@ -1135,6 +1194,27 @@
       "created_at": "2026-08-01T06:16:56Z"
     },
     {
+      "id": "agp-a3cc843ce473",
+      "objective": "Resolve the shedding",
+      "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Resolve the shedding: an unsteady solve of the wake the steady picture averages away, the spectrum, not just the mean force.",
+      "citations": [
+        "Geometry study: NACA 4412 finite wing",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
+      ],
+      "est_core_min": 0.0,
+      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
+      "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+      "source_kind": "capability",
+      "status": "approved",
+      "created_at": "2026-07-25T02:07:58+00:00",
+      "decided_at": "2026-07-25T15:30:00Z",
+      "decision_note": "Owner GO, all proposals, morning 2026-07-25",
+      "well": "W1",
+      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3 only if re-scoped, and is below it at the regime it would inherit. The parent solve's freestream is uniform (15 -0 -0), purely streamwise with no cross-flow component, reporting Cl 0.2516 and Cd 0.02167 in steady attached flow. There is no shedding at that condition for an unsteady solve to resolve, and the charter's own worked failure is a wing at low incidence in attached flow. Re-scoped to a post-stall incidence where the wake is genuinely three-dimensional and separated it carries criteria 1 and 3 together and becomes a good item. The re-scope is a condition of this item, not an aspiration. The 60 core-minute estimate does not survive either way. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
+      "hard_criterion": 3,
+      "blocked_on": "re-scope to a post-stall incidence; at the inherited zero-cross-flow condition there is no shedding to resolve"
+    },
+    {
       "id": "w5-closure-strategy-prior-art",
       "well": "W5",
       "objective": "Search the literature for anyone who has already run our closure strategy",
@@ -1219,6 +1299,27 @@
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "progress_note": "W5, 2026-07-31. Line named. getRotationMatrix3d guards its acos/normalize parameterization with a sqrt(eps) threshold on |n0 x n| at src/utils/vectorUtils.f90:58; at an undeformed baseline the normals coincide bit-for-bit so the guard always fires, and Tapenade's reverse of that branch (src/adjoint/outputReverse/vectorUtils_b.f90:123-128) zeroes the entire adjoint path, giving dMi/dnormals = 0 where the true value is [n0 x dn]_x. Proof the term was never in the analytic answer: useRotations=False leaves warpDeriv's output bit-identical (||dXs||=1.495168856286067e+03 both ways) while the FD changes sign and the error falls from 207.0% to 0.0000.",
       "outcome": "ROOTCAUSE_getRotationMatrix3d.md; PROOF.md section 23; evidence in dafoam/rotation_branch/"
+    },
+    {
+      "id": "agp-37da30f972b3",
+      "objective": "Unsteady fluid-structure interaction",
+      "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Unsteady fluid-structure interaction: move the leaflets, coupling the flow to leaflet dynamics so opening is solved, not prescribed.",
+      "citations": [
+        "Valve opening-angle screen: cycle-weighted pressure loss",
+        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
+      ],
+      "est_core_min": 0.0,
+      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
+      "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
+      "source_kind": "capability",
+      "status": "approved",
+      "created_at": "2026-07-25T02:07:58+00:00",
+      "decided_at": "2026-07-25T15:30:00Z",
+      "decision_note": "Owner GO, all proposals, morning 2026-07-25",
+      "well": "W1",
+      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3, unsteady statistics: coupling leaflet dynamics to the flow makes opening solved rather than prescribed, and every reportable quantity is a cycle-to-cycle statistic. BLOCKED, and re-priced. The lab has no fluid-structure coupling and no meshed valve, the same two blockers as agp-527efc1cbb44. 60 core-minutes for an FSI campaign is the drafter's default, not an estimate, and is withdrawn. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
+      "hard_criterion": 3,
+      "blocked_on": "no meshed valve geometry, and no moving-boundary transient solver path on this box"
     },
     {
       "id": "w7-a-print-interval-is-a-measurement-instrument",
@@ -2220,6 +2321,26 @@
       "measured_core_min_unstated": "'11200 evaluations, 0.44 s measured against a 6 core-minute estimate' gives seconds with no rank or core count, so core-minutes are not derivable without assuming one"
     },
     {
+      "id": "w3-locationinmesh-lands-on-a-symmetry-plane",
+      "well": "W3",
+      "objective": "Move the generated case's mesh seed off the symmetry planes it currently sits exactly on",
+      "rationale": "external_aero._snappy() sets locationInMesh by stepping the geometry centre downstream along the streamwise axis and leaving the other two components at the centre. On a body whose generated domain is exactly symmetric that puts the seed exactly on both remaining symmetry planes, and whether refinementParameters::findCells finds a cell there turns on the floating-point parity of the background division counts. It is not hypothetical: meshing the NACA 0012 at (42 77 26) on 2026-08-02 died with 'Point (6.5 0 0) is not inside the mesh or on a face or edge' against a bounding box of (-3 -9 -3) to (7 9 3) that plainly contains it, while (33 60 20), (54 98 33) and (64 116 39) on the same case survived. The NACA 4412 is immune only by accident: its STL is slightly asymmetric so its domain runs z from -2.96598 to 3.03582 and its seed lands at z = 0.0349165, off-plane. So a symmetric body is one division count away from a hard mesh failure, and the failure looks like a geometry problem rather than a seed placement one. The fix is to offset the seed by a fraction of a background cell in the two non-streamwise directions. The offset is not free and its cost is measured: nudging the NACA 0012's seed to (6.5 0.1 0.1) and changing nothing else moved the r1 mesh from 140,580 cells to 140,545 and the r3 mesh from 358,486 to 358,430, 0.025 and 0.016 percent, so any body whose stored cell count came from the unnudged seed will not reproduce it to the cell after the fix.",
+      "est_core_min": 10.0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; the two re-meshes that quantified the offset cost about 2 core-minutes at 1 core, and the fix needs one re-mesh per affected body to record the new count",
+      "gate": "A generated case seeds its mesh off every symmetry plane, and each affected stored cell count is re-read rather than assumed unchanged",
+      "expected_knowledge_gain": "A mesh failure mode that reads as a geometry defect, removed, with the cost of removing it measured rather than assumed zero",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/chief_engineer/external_aero.py _snappy()",
+        "/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/r2 log.snappyHexMesh, 2026-08-02",
+        "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md section 3"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:50:00Z"
+    },
+    {
       "id": "w3-the-race-band-is-two-and-a-half-times-too-wide",
       "well": "W3",
       "objective": "Re-run and re-verify the race act with its bracket on a local fit",
@@ -2291,6 +2412,20 @@
       "decided_at": "2026-08-02T05:40:00Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "outcome": "Rung solved and the pre-registered prediction scored FALSE. Cd(441,057 cells) = 0.048220173, mean over the final 20 percent of a 300-iteration force history read from /home/ubuntu/certonomous-runs/study-b52-rung7-uq/postProcessing/forceCoeffs1/0/coefficient.dat. G4 predicted Cd rising to 0.0535-0.0575 with a third successive growing increment; Cd FELL, and the increment -0.004055 is the largest of the four in the valid family (-0.001857, +0.002377, +0.002702, -0.004055). So the B-52 ladder does not diverge, it oscillates with widening swings, and the 'monotone: true' on the stored four-rung fit was an accident of where the ladder stopped. The turn is signal, not iterative noise: it is 113 times the rung's own final-window 2-sigma of 3.584e-05, halves-drift 150-225 vs 225-300 is +3.95e-06 (0.097 percent of the increment), and no 'SIMPLE solution converged' message was printed so settledness was measured from the force history rather than assumed. Controls: system/ copied verbatim from study-b52-finer2-uq with only the blockMeshDict triple changed, (51 45 75) -> (55 49 82), STL md5 c27eec6c710f0a937ec8cfe84aec2cfe identical to finer2's; max non-orthogonality 64.641 against finer2's 64.647 and max skewness 3.535 against 3.999, so no quality cliff; 2 MPI ranks hierarchical n (2 1 1), identical to fine-uq and finer2, at 220,529 cells per rank. G1 held before the solve at an h-ratio of 1.1005 against the family's 1.0904, 0.94 percent apart, after a first mesh at (57 50 84) gave 467,287 cells and 2.91 percent and was re-meshed with no Cd on either. G2 held on both limbs, 2-sigma at 0.074 percent of |Cd| (ceiling 5) and 0.88 percent of the increment (ceiling 10). WHICH NUMBERS MOVED: observed_order 2.253 -> none; monotone true -> false; richardson_extrapolated 0.06484235 -> none; not_conclusive_guard increment_trend -> monotone; guards_holding two -> one; band_abs 0.00634875 -> 0.00506853 and band_rel 0.13451 -> 0.10739. The band is the only number that fell and uq.reportable_band returns None before and after because conclusive is false both times, so no reportable number moved; the ladder lost its observed order and its Richardson extrapolate outright, which is a weaker verdict, not a flattering one. The B-52 carries no credentials-wall row, so nothing published moved. COST: 12.14 core-minutes against est_core_min 20.0 -- mesh attempt 1 1.98 at 1 core, mesh attempt 2 1.28 at 1 core, serial potentialFoam+decomposePar 0.15, simpleFoam 8.73 at 2 ranks and 220,529 cells/rank (262 s wall, ExecutionTime 261.11 s). That is 26 percent under my own 16.5 core-minute prediction, and the cause is reusable: the basis was finer2's WALL clock of 285 s on a run whose own log reads ExecutionTime 183.26 s ClockTime 284 s -- 35 percent of that basis was contention. On ExecutionTime the scaling is clean at 1.425x the CPU for 1.333x the cells. Take ExecutionTime for a cost basis, not wall clock. Record: demo-output/website/campaign/B52_RUNG7_PREREGISTRATION.md (committed d92a87f0 before launch) and B52_RUNG7_RESULTS.md; study record updated at db89139c."
+    },
+    {
+      "id": "agp-1dec50b65c2f",
+      "objective": "Add a 8th refinement rung to the B-52 Stratofortress-class airframe grid ladder",
+      "rationale": "The refinement study ended inconclusive: Cd 0.0551, 0.0448, 0.0491, 0.0472, 0.0496, 0.0523, 0.0482 across the rungs, and the record states the verdict as: rungs not monotone; conservative band, largest spread times 1.25. A further rung can settle the observed order.",
+      "citations": [
+        "B-52 Stratofortress-class airframe grid-refinement study"
+      ],
+      "est_core_min": 20.0,
+      "cost_basis": "estimate; the finest rung holds 441,057 cells and the next roughly doubles it. the iteration count is NOT priced here: this ladder stores cells per rung and no iterations, and measured cost rises about linearly with iterations while cells barely move within a family, so this figure prices the grid alone and the settling is the term that can overrun",
+      "expected_knowledge_gain": "A conclusive observed order and a tighter numerical band for the B-52 Stratofortress-class airframe drag",
+      "source_kind": "gate",
+      "status": "proposed",
+      "created_at": "2026-08-02T05:51:37+00:00"
     },
     {
       "id": "credential-layer-coverage-gate",
@@ -2589,6 +2724,29 @@
       "measured_core_min_unstated": "the outcome states the 25 core-minute estimate and reports five measured runs, and states no cost for them"
     },
     {
+      "id": "w1-ahmed-family-asymptotic-ladder",
+      "well": "W1",
+      "objective": "Build one asymptotic refinement ladder for the Ahmed family on the 35 degree slant, the half of this item that is still open; the 25 degree half is answered in the negative by R4 and is out of scope",
+      "rationale": "Both configurations sit inside their experimental band, 7 percent at 25 degrees and 12 percent at 35, and neither can be graded VALIDATED because its ladder is not conclusive: observed order 3.17 at 35 degrees, outside the theoretical range. The blocker is the same on both bodies, so one ladder done properly lifts two credentials rather than one. HARD: 3D separated flow with a documented bistable wake.",
+      "est_core_min": 27.0,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 3.284,
+      "cost_basis": "measured, not estimated. R4 solved the identical four-rung experiment on the identical body at the identical rank count: meshing 1.21 plus about 2.6 core-minutes, then c1 0.84, c2 2.00, c3 3.39 and c4 16.74 core-minutes, all on 4 ranks at 19,860 to 113,673 cells per rank. About 27 core-minutes, not 240. The original 240 shares the defect R4 recorded in its own 400: it was priced on mesh generation for a different body, the B-52's 1,267-second and motorBike's 1,022-second rebuilds, and the Ahmed body meshes in about 15 seconds a rung",
+      "gate": "An observed order inside the theoretical range on a mesh family refined uniformly, for at least one slant",
+      "expected_knowledge_gain": "Converts the lab most complete experimental comparison from solver-backed into validated",
+      "source_kind": "gate",
+      "citations": [
+        "Ahmed, Ramm & Faltin 1984, SAE 840300",
+        "campaign/AHMED_BODY_RECONCILIATION.md"
+      ],
+      "status": "approved",
+      "created_at": "2026-07-31T14:18:26Z",
+      "decided_at": "2026-07-31T22:18:09Z",
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "rescoped_at": "2026-08-02T05:52:00Z",
+      "rescope_note": "Re-scoped to the 35 degree slant and re-priced from 240 core-minutes to 27, on evidence, in demo-output/website/campaign/W1_AHMED_LADDER_DISPOSITION.md. THE 25 DEGREE HALF IS ANSWERED AND OUT OF SCOPE: r4-asymptotic-range-ladders already ran this item's experiment there, five rungs on one recipe with the background blockMesh division triple the only knob, which is a uniform refinement, at 4 ranks throughout. It is non-monotone. Increments minus 5.442e-03, minus 5.367e-03, then plus 8.895e-04; the first two equal to 1.4 percent, which is the signature of p near zero; the fit on the first three rungs returns p = 0.175, outside [0.5, 2.5], with a Richardson extrapolation of minus 0.0845, a negative drag coefficient; and on the last three uq.eca_hoekstra_band refuses an order at all with not_conclusive_reason 'the three rungs do not move one way under refinement'. The sixth rung at 834,351 cells did not converge in 4,000 iterations, final-window 2 sigma 6.26 percent of its own value and six times the ladder increments, at a measured 267.4 core-minutes on 4 ranks. R4 section 6 rules that refining further is not the way and that the question is formulation, steady versus unsteady, not grid. Spending this item's budget at 25 degrees would re-run a pre-registered experiment already on the record. THE 35 DEGREE HALF IS GENUINELY OPEN, and for a reason recorded only today: the stored three-rung 35 degree ladder's observed_order of 3.169 is a fit over a family whose top step is NOT a refinement. W3's recipe audit, commit cb7025c6, read each rung's own snappyHexMeshDict and blockMeshDict and found medium to production refines the near-body levels while holding the background blockMesh identical, so no single r exists for that step. There is a physical reason to expect the 35 degree slant may behave where the 25 does not: 25 sits ON the drag crisis where the C-pillar vortices and the slant bubble trade places, while 35 is past it with the flow fully separated off the slant. That is written down before anything runs, as a reason to try and not a prediction. COLLISION NAMED, NOT RESOLVED: agp-11fa38e9a055 (W3, approved, 20 core-minutes) adds a fourth rung to the stored 35 degree ladder and would extend the family whose top step W3 itself just invalidated. W3 holds that item and nothing here touches it. Successor filed for the 25 degree half: w1-ahmed-25-unsteady-formulation."
+    },
+    {
       "id": "r1-multifidelity-propagation",
       "objective": "Adopt a multifidelity Monte Carlo propagation scheme that fuses the reduced-order ensemble with a few anchoring solver evaluations instead of racing them",
       "rationale": "The race act already produces the exact data multifidelity fusion needs: the same designs evaluated through the reduced-order lane and the solver lane. Multifidelity Monte Carlo is an unbiased control-variate estimator; the measured correlation between the paired lanes and the measured cost ratio decide the optimal sample allocation analytically, and also decide honestly whether fusion pays at all. Today the pairing is discarded once the race ends. The scheme keeps the solver in the loop for the accuracy guarantee, uses the reduced-order ensemble for volume, and reports one fused envelope with the correlation and allocation on the record.",
@@ -2626,6 +2784,26 @@
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W7"
+    },
+    {
+      "id": "w3-refinement-rungs-varies-two-knobs",
+      "well": "W3",
+      "objective": "Make a generated refinement ladder vary one knob, and make the guard check comparability rather than distinctness",
+      "rationale": "geometry_study.refinement_rungs() is asked for three rungs at refinement 3, which is every act on the generated-case path. base-1 and base-2 both floor to level 2, so only one level step actually happens, and the coarse rung is manufactured with a second knob instead: block_scale 0.7 on the background mesh. The resulting ladder refines the background on its first step and the near-body levels on its second, and no knob moves twice. A background change scales h everywhere with one ratio; a level change refines only at the surface, the feature edges and inside nearBody and leaves the farfield untouched, so it has no single r and a Richardson expansion has nothing to expand in. Confirmed from primary dictionaries on four bodies: ahmed_25, ahmed_35, naca0012_wing, naca4412_wing. It shows in the fits -- the NACA 4412's level step has the smaller cell ratio, 1.2658 against 1.3554, and moves Cd 5.5 times further, and the fitted p is 10.467. The docstring states the intent plainly: the second knob exists 'so the cell budgets stay distinct', and the guard that was added checks distinctness. Distinctness is not comparability. Two fixes are wanted: produce rungs that vary the background alone at a stated constant ratio, and add a comparability guard that refuses a ladder whose rungs do not share one refinement recipe, the way b52.json's recipe_audit does by hand.",
+      "est_core_min": 30.0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; a builder change plus one generated ladder re-meshed end to end to prove the rungs come out single-knob. Meshing four rungs of a wing measured 14 core-minutes tonight including four discarded attempts, so the proving run is priced from that and not from a solve",
+      "gate": "A ladder produced by the builder varies exactly one knob, and a mixed-recipe ladder is refused with its reason named",
+      "expected_knowledge_gain": "The upstream cause of four of the nine stored ladders' anomalous orders, fixed once rather than audited body by body, and a guard that stops the next one being built",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/workflows/geometry_study.py refinement_rungs()",
+        "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
+        "models/curriculum/uq-studies/b52.json recipe_audit"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:50:00Z"
     },
     {
       "id": "w3-race-shrink-the-dominant-term",
@@ -3182,27 +3360,6 @@
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
     },
     {
-      "id": "agp-527efc1cbb44",
-      "objective": "Harmonic-balance cycle solve",
-      "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Harmonic-balance cycle solve: resolve phase-interaction the multi-point screen drops, solving the coupled harmonics of one cycle instead of independent phase points.",
-      "citations": [
-        "Valve opening-angle screen: cycle-weighted pressure loss",
-        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
-      ],
-      "est_core_min": 0.0,
-      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
-      "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
-      "source_kind": "capability",
-      "status": "approved",
-      "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
-      "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1",
-      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3, unsteady statistics: the reported quantity is a phase-resolved cycle loss, a phase-aligned waveform by construction. BLOCKED, and re-priced. There is no meshed valve: the curriculum record's own method line reads 'quadrature convergence of a reduced-order orifice model, k = 3/5/9 segments of the ejection window; not a mesh refinement'. The parent study named both blockers before this follow-on was filed, requiring a transient pulsatile solve with a moving-boundary incompressible solver on a meshed valve geometry. The 60 core-minute estimate priced a solve of a case with no mesh and no solver path; it is the drafter's default, not an estimate, and is withdrawn. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
-      "hard_criterion": 3,
-      "blocked_on": "no meshed valve geometry, and no moving-boundary transient solver path on this box"
-    },
-    {
       "id": "w5-degenerate-point-derivative-check",
       "well": "W5",
       "objective": "Make a reusable check that evaluates every adjoint at its own degenerate point, and run it across the stack",
@@ -3316,27 +3473,6 @@
       "measured_basis": "'27.7 of 60 core-minutes'"
     },
     {
-      "id": "agp-a3cc843ce473",
-      "objective": "Resolve the shedding",
-      "rationale": "Filed under next investigations by the mission report \"Geometry study: NACA 4412 finite wing\": Resolve the shedding: an unsteady solve of the wake the steady picture averages away, the spectrum, not just the mean force.",
-      "citations": [
-        "Geometry study: NACA 4412 finite wing",
-        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
-      ],
-      "est_core_min": 0.0,
-      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
-      "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
-      "source_kind": "capability",
-      "status": "approved",
-      "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
-      "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1",
-      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3 only if re-scoped, and is below it at the regime it would inherit. The parent solve's freestream is uniform (15 -0 -0), purely streamwise with no cross-flow component, reporting Cl 0.2516 and Cd 0.02167 in steady attached flow. There is no shedding at that condition for an unsteady solve to resolve, and the charter's own worked failure is a wing at low incidence in attached flow. Re-scoped to a post-stall incidence where the wake is genuinely three-dimensional and separated it carries criteria 1 and 3 together and becomes a good item. The re-scope is a condition of this item, not an aspiration. The 60 core-minute estimate does not survive either way. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
-      "hard_criterion": 3,
-      "blocked_on": "re-scope to a post-stall incidence; at the inherited zero-cross-flow condition there is no shedding to resolve"
-    },
-    {
       "id": "w3-hump-fleet-honesty",
       "well": "W3",
       "objective": "Resolve what the hump act should show when its warm path runs no parallel work",
@@ -3377,27 +3513,6 @@
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W1"
-    },
-    {
-      "id": "agp-37da30f972b3",
-      "objective": "Unsteady fluid-structure interaction",
-      "rationale": "Filed under next investigations by the mission report \"Valve opening-angle screen: cycle-weighted pressure loss\": Unsteady fluid-structure interaction: move the leaflets, coupling the flow to leaflet dynamics so opening is solved, not prescribed.",
-      "citations": [
-        "Valve opening-angle screen: cycle-weighted pressure loss",
-        "demo-output/website/campaign/W1_HARDNESS_FLOOR_RULING.md"
-      ],
-      "est_core_min": 0.0,
-      "cost_basis": "unknown; the 60 core-minute figure was the drafter default and is withdrawn. Re-estimate required before this runs, per W1_HARDNESS_FLOOR_RULING.md section 3",
-      "expected_knowledge_gain": "A capability the report deferred becomes runnable in this lab",
-      "source_kind": "capability",
-      "status": "approved",
-      "created_at": "2026-07-25T02:07:58+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
-      "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1",
-      "hardness_floor_ruling": "CLEARS THE FLOOR on criterion 3, unsteady statistics: coupling leaflet dynamics to the flow makes opening solved rather than prescribed, and every reportable quantity is a cycle-to-cycle statistic. BLOCKED, and re-priced. The lab has no fluid-structure coupling and no meshed valve, the same two blockers as agp-527efc1cbb44. 60 core-minutes for an FSI campaign is the drafter's default, not an estimate, and is withdrawn. Ruled 2026-08-02 in W1_HARDNESS_FLOOR_RULING.md section 3.",
-      "hard_criterion": 3,
-      "blocked_on": "no meshed valve geometry, and no moving-boundary transient solver path on this box"
     },
     {
       "id": "r6-cylinder-wake-topology-onset",
@@ -3555,6 +3670,26 @@
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
       "well": "W5"
+    },
+    {
+      "id": "w3-valid-family-for-ahmed-35-cube-and-sail",
+      "well": "W3",
+      "objective": "Build a single-knob production-recipe ladder for the cube and the NACA 0015 sail (ahmed_35 is being built under W1)",
+      "rationale": "After tonight, five of the corpus's bodies have or are getting a valid single-knob family: the B-52 (five rungs, turns), the Ahmed 25 degree (four rungs from R4, turns), and the two wings (four rungs each, running). Three do not: ahmed_35, cube and naca0015_sail. ahmed_35's stored ladder is confirmed two-recipe from its own dictionaries and reports p = 3.169, outside the window. cube and naca0015_sail cannot be audited from primary evidence because only their production cases survive on this box, so the split there is predicted from the builder path and not asserted -- which is itself a reason to build them a family, since a family built now is primary evidence about the recipe as well as about the flow. The construction is proven and cheap: four rungs above the production mesh varying only the background blockMesh triple at a constant ratio. OVERLAP DECLARED, 2026-08-02 05:50: a W1 agent re-scoped w1-ahmed-family-asymptotic-ladder to the 35 degree slant in commit 5ec3a831, citing this audit, and priced it at about 27 core-minutes. So ahmed_35 is being built there and should NOT be built here. What is left for this item is cube and naca0015_sail, and its estimate should be read as covering those two: roughly 130 of the 160 core-minutes, since the cube's 299,493-cell and the sail's 243,929-cell production rungs dominate it. The item is left naming all three rather than silently re-scoped, so the overlap is visible to whoever picks it up.",
+      "est_core_min": 160.0,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; priced from the two wing families run 2026-08-02 at 4 ranks, scaled by each body's production cell count -- 79,778 for ahmed_35, 299,493 for cube, 243,929 for naca0015_sail against the wings' 137,569 and 140,580. The cube and sail rungs are the expensive ones and the estimate is dominated by their finest rungs",
+      "gate": "Each body carries a four-rung family at one recipe with a stated constant ratio, and its verdict is read through uq.reportable_band",
+      "expected_knowledge_gain": "Whether every body in this corpus turns under genuine refinement, which is what the three measured so far do, or whether the turn is a property of some flows and not others",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
+        "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md",
+        "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T05:50:00Z"
     },
     {
       "id": "w4-the-grid-not-the-box-was-the-limit",
@@ -3720,29 +3855,6 @@
       "well": "W3",
       "decided_at": "2026-07-31T22:18:09Z",
       "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
-    },
-    {
-      "id": "w1-ahmed-family-asymptotic-ladder",
-      "well": "W1",
-      "objective": "Build one asymptotic refinement ladder for the Ahmed family on the 35 degree slant, the half of this item that is still open; the 25 degree half is answered in the negative by R4 and is out of scope",
-      "rationale": "Both configurations sit inside their experimental band, 7 percent at 25 degrees and 12 percent at 35, and neither can be graded VALIDATED because its ladder is not conclusive: observed order 3.17 at 35 degrees, outside the theoretical range. The blocker is the same on both bodies, so one ladder done properly lifts two credentials rather than one. HARD: 3D separated flow with a documented bistable wake.",
-      "est_core_min": 27.0,
-      "predicted_memory_gb": 8.0,
-      "predicted_usd": 3.284,
-      "cost_basis": "measured, not estimated. R4 solved the identical four-rung experiment on the identical body at the identical rank count: meshing 1.21 plus about 2.6 core-minutes, then c1 0.84, c2 2.00, c3 3.39 and c4 16.74 core-minutes, all on 4 ranks at 19,860 to 113,673 cells per rank. About 27 core-minutes, not 240. The original 240 shares the defect R4 recorded in its own 400: it was priced on mesh generation for a different body, the B-52's 1,267-second and motorBike's 1,022-second rebuilds, and the Ahmed body meshes in about 15 seconds a rung",
-      "gate": "An observed order inside the theoretical range on a mesh family refined uniformly, for at least one slant",
-      "expected_knowledge_gain": "Converts the lab most complete experimental comparison from solver-backed into validated",
-      "source_kind": "gate",
-      "citations": [
-        "Ahmed, Ramm & Faltin 1984, SAE 840300",
-        "campaign/AHMED_BODY_RECONCILIATION.md"
-      ],
-      "status": "approved",
-      "created_at": "2026-07-31T14:18:26Z",
-      "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-      "rescoped_at": "2026-08-02T05:52:00Z",
-      "rescope_note": "Re-scoped to the 35 degree slant and re-priced from 240 core-minutes to 27, on evidence, in demo-output/website/campaign/W1_AHMED_LADDER_DISPOSITION.md. THE 25 DEGREE HALF IS ANSWERED AND OUT OF SCOPE: r4-asymptotic-range-ladders already ran this item's experiment there, five rungs on one recipe with the background blockMesh division triple the only knob, which is a uniform refinement, at 4 ranks throughout. It is non-monotone. Increments minus 5.442e-03, minus 5.367e-03, then plus 8.895e-04; the first two equal to 1.4 percent, which is the signature of p near zero; the fit on the first three rungs returns p = 0.175, outside [0.5, 2.5], with a Richardson extrapolation of minus 0.0845, a negative drag coefficient; and on the last three uq.eca_hoekstra_band refuses an order at all with not_conclusive_reason 'the three rungs do not move one way under refinement'. The sixth rung at 834,351 cells did not converge in 4,000 iterations, final-window 2 sigma 6.26 percent of its own value and six times the ladder increments, at a measured 267.4 core-minutes on 4 ranks. R4 section 6 rules that refining further is not the way and that the question is formulation, steady versus unsteady, not grid. Spending this item's budget at 25 degrees would re-run a pre-registered experiment already on the record. THE 35 DEGREE HALF IS GENUINELY OPEN, and for a reason recorded only today: the stored three-rung 35 degree ladder's observed_order of 3.169 is a fit over a family whose top step is NOT a refinement. W3's recipe audit, commit cb7025c6, read each rung's own snappyHexMeshDict and blockMeshDict and found medium to production refines the near-body levels while holding the background blockMesh identical, so no single r exists for that step. There is a physical reason to expect the 35 degree slant may behave where the 25 does not: 25 sits ON the drag crisis where the C-pillar vortices and the slant bubble trade places, while 35 is past it with the flow fully separated off the slant. That is written down before anything runs, as a reason to try and not a prediction. COLLISION NAMED, NOT RESOLVED: agp-11fa38e9a055 (W3, approved, 20 core-minutes) adds a fourth rung to the stored 35 degree ladder and would extend the family whose top step W3 itself just invalidated. W3 holds that item and nothing here touches it. Successor filed for the 25 degree half: w1-ahmed-25-unsteady-formulation."
     },
     {
       "id": "fiml-adjoint-conditioning-unblock",
@@ -3915,17 +4027,19 @@
       "rationale": "Flat plate and bump-in-channel are both measured on three-grid ladders against the reference codes; the resource's verification sequence names the NACA 0012 airfoil as the next case.",
       "citations": [
         "NASA Turbulence Modeling Resource verification cases",
-        "Bump-in-channel verification card, k-omega SST"
+        "Bump-in-channel verification card, k-omega SST",
+        "demo-output/website/campaign/W1_TMR_NACA0012_DISPOSITION.md"
       ],
       "est_core_min": 603.0,
       "cost_basis": "estimate; the measured bump three-grid ladder ran 134.0 core minutes on this machine, scaled for three alpha points with headroom",
       "expected_knowledge_gain": "A lifting-surface verification credential with published reference polars, completing the resource's core sequence",
       "source_kind": "capability",
-      "status": "approved",
+      "status": "dismissed",
       "created_at": "2026-07-25T17:39:39+00:00",
-      "decided_at": "2026-07-25T15:30:00Z",
+      "decided_at": "2026-08-02T06:00:00Z",
       "decision_note": "Owner GO, all proposals, morning 2026-07-25",
-      "well": "W1"
+      "well": "W1",
+      "dismiss_reason": "Dismissed, not deferred: the estimate is short by two to three orders of magnitude PER RUNG and the item asks for nine. Ruled at 0 core-minutes of solver time in demo-output/website/campaign/W1_TMR_NACA0012_DISPOSITION.md. Eight of the nine rungs do not reach a steady state under this solver configuration -- naca0012_status.json says so in its own first field -- and the root cause is isolated by scheme substitution rather than guessed: second-order momentum advection gives a sustained force oscillation that never decays, antisymmetric on a symmetric case with Cl swings of 0.3 at alpha 0; first-order momentum is perfectly steady and unusable at Cd 0.0229, overdiffused; TVD limitedLinear drops the cycle to about 3e-4 around Cd 0.0090 and never flattens over 15,000 iterations. The ninth rung, the one that IS measured at alpha 10 on 113x33 with Cl 1.1164 and Cd 0.004495, refuses this item's comparison in its own record, because the published CFL3D and FUN3D values are finest-grid 897x257 only and a single coarse rung supports no comparison claim. The time-accurate alternative is priced by the C4 closure at 11,700 to 30,300 core-minutes for ONE rung to 30 convective units, and about 117,000 to 303,000 for the hundreds of convective units the scoping proposal itself required, against measured cold- and seeded-start attempts of 359.5 and 59.9 core-minutes that reached 0.925 and 0.018 units; the seeded start is SLOWER, because the impulsive adjustment from the steady seed is itself the transient. The one cheap repair path was tested this session and REFUTED, which is why the dismissal is safe: w1-bump-on-nasa-own-grids exists because plot3dToFoam damages TMR grids, and the C4 closure blames mesh quality citing max aspect ratio 26,446,226.94 from that same converter, so a direct converter already written and validated would have unblocked this. It does not. Computing cell edge ratios directly from the published node array, with no OpenFOAM and no converter, gives 2.645e+07 -- the same number checkMesh reports -- with the worst cell at the downstream end of the wake cut at a 95.73 streamwise edge against a 3.62e-06 wall-normal one, which is how a C-grid reaching 500 chords while holding its wall spacing is built; 580 cells exceed edge ratio 1e5 and the median cell is 12.1. And the conversion is faithful to the point: checkMesh's 29,152 points are 225 x 65 x 2 nodes less exactly the 49 coincident wake-cut pairs per plane, 49 x 2 = 98. The bump's converter invented geometry; here the converter is right and the geometry is hostile by design. Successor filed, the half of the status record's own next step that is affordable and was never filed: w1-naca0012-dissipation-study, at 25 core-minutes measured, labelled below the hardness floor as an instrument check."
     },
     {
       "id": "hlpw6-testcase1-coarse-grid-entry",
@@ -3951,104 +4065,6 @@
       "cost_basis_previous": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
       "repriced_at": "2026-08-01T05:00:00Z",
       "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
-    },
-    {
-      "id": "w5-hlpw6-ai-ml-focus-group-is-the-cheap-way-in",
-      "well": "W5",
-      "objective": "Establish whether HLPW-6's AI/ML technology focus group is a route into the workshop that needs no CFD, and what an entry to it would consist of",
-      "rationale": "The docket carries the high-lift entry only in its expensive form: 6390 core-minutes on the 2.66M-cell coarse grid plus an unpriced rendering deliverable. The 2026-08-02 scouting sweep found the same workshop runs an AI/ML focus group whose key question 6 asks whether data-driven turbulence models can improve lower-fidelity solvers, trained on the open HiLiftAeroML dataset (1800 samples, 180 geometry variants at 10 angles of attack, CC-BY-4.0). That is the lab's actual competence and it needs no mesh and no solve. The focus group page currently reads 'More coming soon', so there is nothing to enter and no deadline to miss, which is why it costs nothing to establish the shape of it now. The submission gate is unchanged and still forbidden (GitHub account, participant identifier, pull request), so this decides what could be prepared, not what could be sent.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 1.0,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "The HiLiftAeroML dataset's licence, size and contents are read off its own source and recorded, and the record states either what an AI/ML focus group entry would consist of or that the focus group has published too little to say",
-      "expected_knowledge_gain": "Whether the workshop the lab priced at 6390 core-minutes has a door into it that costs no solve at all",
-      "source_kind": "challenge",
-      "citations": [
-        "demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 4",
-        "demo-output/website/hlpw6/SUBMISSION_GATE.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-02T05:40:00Z"
-    },
-    {
-      "id": "w5-autocfd5-scouted-and-declined",
-      "well": "W5",
-      "objective": "Record AutoCFD5 as scouted and declined on physical grounds, so its deadline does not pull compute toward it",
-      "rationale": "AutoCFD5 is the only live challenge found on 2026-08-02 with a near deadline: 21 August 2026 for results data, re-verified from autocfd.org/dates/. It fails before the forbidden list is reached. The stated minimum entry is the baseline g2 grid at 37 million cells; against this lab's own measured memory law that extrapolates to roughly 58 GiB on a 30.6 GiB host, and the coarse g1 at 6.3M cells would fit but does not meet the stated minimum. The deliverable also requires force and base-pressure time histories and PIV RMS fluctuations, which is an eddy-resolving unsteady run rather than the steady RANS the lab has. Nineteen days would not be enough if the memory fitted. An item with a live deadline and no verdict beside it is the kind that gets picked up later at cost.",
-      "est_core_min": 0,
-      "predicted_memory_gb": 0.1,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate",
-      "gate": "The decline is on the record with the grid size, the memory extrapolation and the deliverable that decides it, and the three submission gates are named separately so the physical reason is not confused with the procedural one",
-      "expected_knowledge_gain": "A live deadline that is already ruled out costs nothing only if the ruling is written down",
-      "source_kind": "challenge",
-      "citations": [
-        "demo-output/website/agenda/CHALLENGE_LANDSCAPE.md section 1",
-        "https://autocfd.org/dates/"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-02T05:40:00Z"
-    },
-    {
-      "id": "w3-refinement-rungs-varies-two-knobs",
-      "well": "W3",
-      "objective": "Make a generated refinement ladder vary one knob, and make the guard check comparability rather than distinctness",
-      "rationale": "geometry_study.refinement_rungs() is asked for three rungs at refinement 3, which is every act on the generated-case path. base-1 and base-2 both floor to level 2, so only one level step actually happens, and the coarse rung is manufactured with a second knob instead: block_scale 0.7 on the background mesh. The resulting ladder refines the background on its first step and the near-body levels on its second, and no knob moves twice. A background change scales h everywhere with one ratio; a level change refines only at the surface, the feature edges and inside nearBody and leaves the farfield untouched, so it has no single r and a Richardson expansion has nothing to expand in. Confirmed from primary dictionaries on four bodies: ahmed_25, ahmed_35, naca0012_wing, naca4412_wing. It shows in the fits -- the NACA 4412's level step has the smaller cell ratio, 1.2658 against 1.3554, and moves Cd 5.5 times further, and the fitted p is 10.467. The docstring states the intent plainly: the second knob exists 'so the cell budgets stay distinct', and the guard that was added checks distinctness. Distinctness is not comparability. Two fixes are wanted: produce rungs that vary the background alone at a stated constant ratio, and add a comparability guard that refuses a ladder whose rungs do not share one refinement recipe, the way b52.json's recipe_audit does by hand.",
-      "est_core_min": 30.0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "estimate; a builder change plus one generated ladder re-meshed end to end to prove the rungs come out single-knob. Meshing four rungs of a wing measured 14 core-minutes tonight including four discarded attempts, so the proving run is priced from that and not from a solve",
-      "gate": "A ladder produced by the builder varies exactly one knob, and a mixed-recipe ladder is refused with its reason named",
-      "expected_knowledge_gain": "The upstream cause of four of the nine stored ladders' anomalous orders, fixed once rather than audited body by body, and a guard that stops the next one being built",
-      "source_kind": "measurement",
-      "citations": [
-        "sdk/workflows/geometry_study.py refinement_rungs()",
-        "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
-        "models/curriculum/uq-studies/b52.json recipe_audit"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-02T05:50:00Z"
-    },
-    {
-      "id": "w3-locationinmesh-lands-on-a-symmetry-plane",
-      "well": "W3",
-      "objective": "Move the generated case's mesh seed off the symmetry planes it currently sits exactly on",
-      "rationale": "external_aero._snappy() sets locationInMesh by stepping the geometry centre downstream along the streamwise axis and leaving the other two components at the centre. On a body whose generated domain is exactly symmetric that puts the seed exactly on both remaining symmetry planes, and whether refinementParameters::findCells finds a cell there turns on the floating-point parity of the background division counts. It is not hypothetical: meshing the NACA 0012 at (42 77 26) on 2026-08-02 died with 'Point (6.5 0 0) is not inside the mesh or on a face or edge' against a bounding box of (-3 -9 -3) to (7 9 3) that plainly contains it, while (33 60 20), (54 98 33) and (64 116 39) on the same case survived. The NACA 4412 is immune only by accident: its STL is slightly asymmetric so its domain runs z from -2.96598 to 3.03582 and its seed lands at z = 0.0349165, off-plane. So a symmetric body is one division count away from a hard mesh failure, and the failure looks like a geometry problem rather than a seed placement one. The fix is to offset the seed by a fraction of a background cell in the two non-streamwise directions. The offset is not free and its cost is measured: nudging the NACA 0012's seed to (6.5 0.1 0.1) and changing nothing else moved the r1 mesh from 140,580 cells to 140,545 and the r3 mesh from 358,486 to 358,430, 0.025 and 0.016 percent, so any body whose stored cell count came from the unnudged seed will not reproduce it to the cell after the fix.",
-      "est_core_min": 10.0,
-      "predicted_memory_gb": 0.5,
-      "predicted_usd": 0.0,
-      "cost_basis": "measured; the two re-meshes that quantified the offset cost about 2 core-minutes at 1 core, and the fix needs one re-mesh per affected body to record the new count",
-      "gate": "A generated case seeds its mesh off every symmetry plane, and each affected stored cell count is re-read rather than assumed unchanged",
-      "expected_knowledge_gain": "A mesh failure mode that reads as a geometry defect, removed, with the cost of removing it measured rather than assumed zero",
-      "source_kind": "measurement",
-      "citations": [
-        "sdk/chief_engineer/external_aero.py _snappy()",
-        "/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/r2 log.snappyHexMesh, 2026-08-02",
-        "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md section 3"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-02T05:50:00Z"
-    },
-    {
-      "id": "w3-valid-family-for-ahmed-35-cube-and-sail",
-      "well": "W3",
-      "objective": "Build a single-knob production-recipe ladder for the cube and the NACA 0015 sail (ahmed_35 is being built under W1)",
-      "rationale": "After tonight, five of the corpus's bodies have or are getting a valid single-knob family: the B-52 (five rungs, turns), the Ahmed 25 degree (four rungs from R4, turns), and the two wings (four rungs each, running). Three do not: ahmed_35, cube and naca0015_sail. ahmed_35's stored ladder is confirmed two-recipe from its own dictionaries and reports p = 3.169, outside the window. cube and naca0015_sail cannot be audited from primary evidence because only their production cases survive on this box, so the split there is predicted from the builder path and not asserted -- which is itself a reason to build them a family, since a family built now is primary evidence about the recipe as well as about the flow. The construction is proven and cheap: four rungs above the production mesh varying only the background blockMesh triple at a constant ratio. OVERLAP DECLARED, 2026-08-02 05:50: a W1 agent re-scoped w1-ahmed-family-asymptotic-ladder to the 35 degree slant in commit 5ec3a831, citing this audit, and priced it at about 27 core-minutes. So ahmed_35 is being built there and should NOT be built here. What is left for this item is cube and naca0015_sail, and its estimate should be read as covering those two: roughly 130 of the 160 core-minutes, since the cube's 299,493-cell and the sail's 243,929-cell production rungs dominate it. The item is left naming all three rather than silently re-scoped, so the overlap is visible to whoever picks it up.",
-      "est_core_min": 160.0,
-      "predicted_memory_gb": 4.0,
-      "predicted_usd": 0.0,
-      "cost_basis": "measured; priced from the two wing families run 2026-08-02 at 4 ranks, scaled by each body's production cell count -- 79,778 for ahmed_35, 299,493 for cube, 243,929 for naca0015_sail against the wings' 137,569 and 140,580. The cube and sail rungs are the expensive ones and the estimate is dominated by their finest rungs",
-      "gate": "Each body carries a four-rung family at one recipe with a stated constant ratio, and its verdict is read through uq.reportable_band",
-      "expected_knowledge_gain": "Whether every body in this corpus turns under genuine refinement, which is what the three measured so far do, or whether the turn is a property of some flows and not others",
-      "source_kind": "measurement",
-      "citations": [
-        "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
-        "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md",
-        "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md"
-      ],
-      "status": "proposed",
-      "created_at": "2026-08-02T05:50:00Z"
     }
   ]
 }

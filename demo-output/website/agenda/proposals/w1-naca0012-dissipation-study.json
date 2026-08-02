@@ -1,0 +1,23 @@
+{
+ "id": "w1-naca0012-dissipation-study",
+ "well": "W1",
+ "objective": "Run the dissipation study the NACA 0012 status record names as its honest next step, on one rung, and decide whether the TMR airfoil ladder is reachable by any scheme this solver has",
+ "rationale": "The status record's own findings say a time-accurate solve with averaged coefficients, or a dissipation study, is the honest next step. The first half is priced out: the C4 closure measured 11,700 to 30,300 core-minutes for ONE rung to reach 30 convective units, and about 117,000 to 303,000 for the hundreds of convective units the scoping proposal itself asked for. The second half has never been filed, and nothing anywhere in the docket asks it. It is also nearly free, and most of it is already measured. Second-order momentum advection gives a sustained force oscillation that never decays, antisymmetric on a symmetric case with Cl swings of 0.3 at alpha 0. First-order momentum is perfectly steady and unusable, Cd 0.0229 and overdiffused. TVD limitedLinear sits between them: the cycle drops to about 3e-4 around Cd 0.0090 and never flattens over 15,000 iterations. The feedback is localised to the wake and trailing-edge convection. What has never been done is to walk that axis systematically on one rung and ask whether ANY admissible scheme reaches the settle criterion, because if none does, two approved items totalling 753 core-minutes are asking for something this solver configuration cannot produce, and that is worth knowing for about twenty. The mesh is not the escape route: measured 2026-08-02 directly from the published node array, the 2.645e7 maximum cell edge ratio is NASA's own grid geometry rather than converter damage, and the conversion is faithful to the point, its 29,152 points being 225 by 65 by 2 nodes less exactly the 49 coincident wake-cut pairs per plane.",
+ "gate": "On the 113x33 grid at alpha 0, every admissible momentum-advection scheme run to a common iteration budget with the settle criterion applied identically, and each reported as settled with its peak-to-peak spread or as not settled with the spread it stopped at. The item closes either with a scheme that settles, whose Cd is then quotable, or with the statement that none does and the reason the two dependent items are unreachable",
+ "hardness_floor": "BELOW THE FLOOR, and labelled so under docs/charters/CASE_SELECTION_CHARTER.md section 3 as an INSTRUMENT CHECK. A 3,584-cell airfoil at zero incidence in attached flow meets no HARD criterion. It qualifies because first-order momentum is already known to be perfectly steady and overdiffused, which is a control whose answer is known independently of the thing being tested. It is not a result, never appears as one, is not counted toward challenge deficit or wall credential value, and is not filmed. It is worth a night only because it decides a 603 core-minute item and a 150 core-minute one",
+ "est_core_min": 25.0,
+ "predicted_memory_gb": 1.0,
+ "predicted_usd": 0.0,
+ "cost_basis": "measured. The alpha 0 coarse rung is the TMR 113x33 grid at 3,584 cells and ran 5,000 iterations in 95.2 seconds at one rank, which is 3,584 cells per rank and 1.59 core-minutes. Four schemes at a 15,000-iteration budget is 4 x 4.8, about 19 core-minutes, plus meshing already on disk and margin. ONE rank is correct here and four would be wrong: at 3,584 cells, four ranks would put 896 cells per rank, far below the 5,600 cells per rank inversion point, so parallel would cost more core-minutes and buy nothing",
+ "expected_knowledge_gain": "Either the TMR airfoil ladder has a scheme that reaches a steady state, which unblocks two items, or it does not and two approved items totalling 753 core-minutes are asking this solver for something it cannot produce",
+ "source_kind": "gate",
+ "citations": [
+  "demo-output/website/tmr/naca0012_status.json, findings_2026_07_25",
+  "demo-output/website/tmr/C4_naca0012_closure.md",
+  "demo-output/website/campaign/W1_TMR_NACA0012_DISPOSITION.md",
+  "docs/charters/CASE_SELECTION_CHARTER.md section 3"
+ ],
+ "in_sample_verdict": "Not applicable. Nothing is fitted, inverted or calibrated, and the NACA 0012 airfoil is not a scored case of the closure challenge. It is a numerical-scheme comparison against a settle criterion, with no reference value claimed.",
+ "status": "proposed",
+ "created_at": "2026-08-02"
+}
