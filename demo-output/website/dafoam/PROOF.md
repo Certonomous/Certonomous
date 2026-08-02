@@ -2624,6 +2624,14 @@ Three offline controls, all on the dumped system, with no DAFoam and no PETSc so
    give +1.459e-01 to +1.486e-01; three on the full space give +1.409e-01 to +1.433e-01. The real
    `dF/dW` is ~23x more orthogonal to its own image than a random vector is. A single ideal GMRES
    step against this operator could reduce the residual by only 1.98e-05 relative.
+   **Open tension, flagged rather than smoothed over:** §25.2 shows the *force* objective — a
+   completely different `dF/dW` — stagnates just as hard, so "this particular RHS is special"
+   cannot be the whole story. Either the operator's low-gain subspace swallows any
+   physically-generated right-hand side while random vectors escape it, or the two objectives
+   stagnate for different reasons. The discriminating measurement is the same `cos` computed on the
+   force RHS; it is queued, not done. Until it lands, read control 1 as no more than "the real RHS
+   is not a generic vector", and note that controls 2 and 3 — which carry the actual diagnosis —
+   do not depend on it.
 2. **Is it DAFoam's solver configuration?** No. `scipy.sparse.linalg.gmres`, unpreconditioned, 1000
    matvecs on the dumped system: relative residual **1.0 -> 9.999687e-01**. The stagnation is a
    property of the linear system as assembled, reproduced with no DAFoam, no PETSc KSP and no MPI.
