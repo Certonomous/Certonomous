@@ -2952,26 +2952,34 @@ the highest count belongs to a clean one. Colour count does not separate them �
 reached on a different question. GMRES iteration counts (542, 561, 753, 719, 671, 598) do not
 separate them either.
 
-**Localized to a link, though, and it is not the geometry stack.** The reverse chain was
-instrumented at the one point where all three links meet — a hook on
-`DAFoamWarper.compute_jacvec_product` recording **partition-invariant global L2 norms** (sum of
-squares across ranks, then `allreduce`, then root) of the seed going in and the result coming out —
-and run at np=4 under both decompositions, patched IDWarp:
+**An attempted localization, RETRACTED the same session on a check of its own assumption.** The
+reverse chain was instrumented with a hook on `DAFoamWarper.compute_jacvec_product` recording L2
+norms of the seed going in (`dCD/dXv`) and the result coming out (`dCD/dx_aero`), at np=4 under both
+decompositions:
 
-| quantity | `scotch` | `simple` 4x1x1 | relative difference |
+| quantity | `scotch` | `simple` 4x1x1 | difference |
 |---|---|---|---|
-| CD (primal) | 1.529749170343834e-01 | 1.529732324097687e-01 | **1.1e-05** |
-| `‖dCD/dXv‖` — DAFoam's adjoint output, **before** IDWarp | 7.847729220970715e-01 | 7.620730911275929e-01 | **2.98%** |
-| `‖dCD/dx_aero‖` — after `mesh.warpDeriv` | 6.522793998409145e-01 | 6.954500388256902e-01 | **6.21%** |
-| `dCD/dshape` — after DVGeo | 2.208588593817390e-01 | 2.422030573188107e-01 | **8.81%** |
+| CD (primal) | 1.529749170343834e-01 | 1.529732324097687e-01 | 1.1e-05 |
+| `‖dCD/dXv‖` | 7.847729220970715e-01 | 7.620730911275929e-01 | 2.98% |
+| `‖dCD/dx_aero‖` | 6.522793998409145e-01 | 6.954500388256902e-01 | 6.21% |
+| **`dCD/dshape`** (scalar, 1 DV) | 2.208588593817390e-01 | 2.422030573188107e-01 | **8.81%** |
 
-**The primal agrees to 1.1e-05 and `dCD/dXv` already disagrees by 2.98%.** The divergence is
-therefore present *before* IDWarp is called at all, which puts it in DAFoam's own parallel adjoint —
-the `dR/dW` transpose solve or the `dF/dXv` / `dR/dXv` assembly — and **not** in IDWarp's warp
-derivative or pyGeo's FFD reduction. Those two links then carry it and it grows (2.98% → 6.21% →
-8.81%) rather than washing out, but they are not where it starts. That narrows the follow-on from
-"the parallel stack" to "DAFoam's parallel adjoint", and it is consistent with the IDWarp patch
-being irrelevant to this defect.
+That reads as "the divergence is already present before IDWarp is called, so it is in DAFoam's own
+parallel adjoint" — and **the claim does not hold, because the norms are not partition-invariant.**
+Those norms are `sqrt` of a sum of squares `allreduce`d across ranks, which is only invariant if
+every DOF is owned by exactly one rank. Volume-mesh *points* on processor boundaries are duplicated.
+Measured directly by summing the local `d_outputs` sizes: **12,276 DOFs under `scotch` and 12,462
+under `simple`, against the true 10,983 at np=1** — 11.8% and 13.5% of over-count, and *different*
+between the two decompositions. The intermediate norms therefore compare two differently
+double-counted quantities and cannot carry the conclusion.
+
+**What survives is only the last row.** `dCD/dshape` is a scalar against a single design variable,
+partition-independent by construction, and it differs by 8.81%. The effect is real; the localization
+is not established. Doing it properly needs deduplication through each processor's
+`pointProcAddressing`, plus a determination of whether DAFoam's convention at shared points is a
+partial contribution to be summed or a replicated value to be picked — neither of which was
+established here. Recorded as a withdrawn intermediate result rather than deleted, because the
+inference it invited is the natural one and the next person will make it too.
 
 **So the effect is established and the mechanism is not.** What is measured: A4's adjoint depends on
 the decomposition at fixed rank count, reproducibly, while its primal and its finite difference do
