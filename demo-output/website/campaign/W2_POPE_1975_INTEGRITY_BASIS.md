@@ -156,6 +156,75 @@ built, which is the whole point of reading the basis first.
   five of seven scalar inputs carry one independent number on any
   unidirectional baseline whatsoever.
 
+### 2.5 The duct, where this stops being an abstraction — and one correction to a lab record
+
+The tensor-basis rung's demonstration case is a square duct, and this lab's own
+record says of it: *"The duct is three-dimensional and its secondary flow is the
+whole point; all ten of Pope's tensors are live"*
+(`W2_TBNN_SPARTA_READING.md`). That sentence is about the **output** — the true
+anisotropy does need more than three tensors to be written down. It is not true
+of the **input**, and the input is what the basis is built from.
+
+A linear-eddy-viscosity RANS solve on a straight duct produces **exactly zero
+secondary flow** — measured here, not assumed, in
+`closure_challenge_duct_anisotropy_expressivity.json` — so its mean field is
+`U = (u(y,z), 0, 0)` and its velocity gradient has one non-zero row. Note this
+is *two* shear components, `du/dy` and `du/dz`, not the single-component simple
+shear of Pope's section 5; the results below are checked on the two-component
+field, over 500 random gradients.
+
+**Already known here, and credited rather than re-claimed.** That the third and
+fourth invariants vanish identically on such a field is proved in the duct
+expressivity audit, analytically over 50,000 random shear pairs and confirmed at
+3.3e-14 and 1.1e-14 on 41,971 real duct cells. Nothing below re-derives it.
+
+**Correction to that record.** The audit concludes *"Effective feature count for
+this flow family is 5, not 7."* It is **3**. The audit named the two invariants
+that vanish; it did not name the two that are *determined*. `lambda2 = -lambda1`
+exactly and `lambda5 = -lambda1^2/2` exactly, both to 0.0e+00 and 3.1e-16
+relative here — and both are visible in the audit's own published correlation
+table, where every single Pearson `r` against `I2_W2` is the exact negative of
+the one against `I1_S2` (0.1043 / -0.1043, 0.2125 / -0.2125, -0.2763 / 0.2763,
+-0.0283 / 0.0283, 0.3940 / -0.3940, 0.4330 / -0.4330). Of the five Pope
+invariants only `lambda1` is independent on a duct baseline, so the seven-feature
+set carries `lambda1`, `Re_y` and `tke_ratio`: **three independent numbers, not
+five**. The open proposal `closure-duct-tensor-basis-carrier` reached the same
+count from eight duct solves; this is its analytic form.
+
+**New here, and on the tensor side rather than the feature side.** All prior
+work on this asks whether the scalar features *correlate* with the anisotropy.
+This asks whether the tensor basis can *reach* it, which is a rank question and
+has a harder answer:
+
+- **The pointwise rank of `T1..T10` on a duct baseline is exactly 3**, over 500
+  random two-component gradients. The velocity gradient has one non-zero row, so
+  it is a rotation away from plane shear and the basis degenerates exactly as it
+  does in two dimensions. `T5` and `T10` are identically zero, so **`g5` and
+  `g10` have no effect on a duct baseline either** — the two coefficients that
+  2-D training cannot constrain are also the two the duct cannot exercise.
+- **A two-dimensional subspace of anisotropy is unreachable by any values of the
+  ten coefficients.** Singular values of the ten tensors at a representative
+  point: `[5.474, 3.448, 2.235, 5.8e-16, 3.1e-16]` — rank 3 with a clean gap.
+- **One of the two unreachable directions is a pure cross-plane tensor**, with
+  zero streamwise row and column to 4.7e-16. That is the component family
+  associated with secondary flow of the second kind. The other is pure
+  streamwise shear.
+
+Stated carefully, because the physics reading and the algebra are different
+claims: the algebra says a 2-D subspace including a purely `y-z` direction
+cannot be produced. The inference that this is *the* mechanism of Prandtl's
+second-kind motion is an interpretation, and the audit's own targets — `b_yz`
+and `b_yy - b_zz` — are the lab's existing name for that direction.
+
+**What it does not say.** It does not say a tensor-basis model cannot fix a
+duct. A predicted anisotropy fed back into a solver generates secondary flow,
+after which the baseline is no longer unidirectional and the basis is no longer
+rank-deficient — the degeneracy is a property of the *first* iterate, not of the
+method. It does say that a purely **a priori** evaluation on a converged LEVM
+duct baseline, which is what the approved
+`w2-tbnn-duct-reynolds-generalisation` gate specifies, is scored inside a
+representation that is rank 3 out of 5 at every cell.
+
 ---
 
 ## 3. Charter section 6 — which trigger fired

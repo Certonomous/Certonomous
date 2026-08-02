@@ -1751,6 +1751,121 @@ def check_declined_ladders_name_their_guard() -> Result:
                   f"them; {scope}", skipped)
 
 
+# The two remedies this lab has already accepted for a whitelisting writer,
+# both in-tree, so the check can name a precedent rather than a preference.
+#   copy wholesale:  uq.study_numerical  -- {k: v for k, v in band.items()
+#                    if k not in STUDY_NUMERICAL_DROPS}, plus dropped_from_fit
+#   name the drops:  lab.credential_card -- CREDENTIAL_NOT_ON_CARD, each key
+#                    with the reason it is not on the card
+_DROP_DECLARATIONS = ("DROPS", "NOT_ON", "dropped_from", "dropped_keys",
+                      "excluded_keys")
+
+
+def _whitelist_source(node) -> str | None:
+    """`src.get("k")` or `src["k"]` -> "src". Anything else -> None."""
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+            and node.func.attr == "get" \
+            and isinstance(node.func.value, ast.Name) and node.args \
+            and isinstance(node.args[0], ast.Constant) \
+            and isinstance(node.args[0].value, str):
+        return node.func.value.id
+    if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name) \
+            and isinstance(node.slice, ast.Constant) \
+            and isinstance(node.slice.value, str):
+        return node.value.id
+    return None
+
+
+def check_record_writers_name_their_drops() -> Result:
+    """A writer that whitelists keys drops what it was not told to keep.
+
+    THE DEFECT. `eca_hoekstra_band` began recording the dimensionality its
+    band was fitted with, and not one stored study picked the field up -- not
+    because the studies predate it, but because both study writers built the
+    `numerical` block from a hand-typed list of keys. A hand-typed list keeps
+    working when the producer learns to record something new, and drops the
+    new field on every record it writes, in silence. A record that omits what
+    it was not told to keep looks complete, which is worse than one that never
+    had the field: nothing on the file says a field is missing rather than
+    absent. Both study writers are fixed; the shape is not confined to them.
+
+    THE CHECK, and what it is honestly measuring. It finds the SHAPE: a dict
+    literal four or more of whose values are `src.get("k")` or `src["k"]` from
+    one source. That shape is the precondition for the defect, not the defect
+    -- a writer whose source has exactly the keys it copies is fine, and this
+    cannot tell the difference statically. So it separates the one case where
+    the author demonstrably cannot know the key set, which is a source that
+    arrives as a PARAMETER, from the case where the source was built a few
+    lines up, and it reports rather than failing.
+
+    THE BAR, from the charter clause this encodes: a record writer either
+    copies what it is given or names the keys it drops. Both remedies have a
+    precedent in this tree, and either clears the finding: iterate the
+    source's `.items()`, or declare the exclusions in a named constant. A
+    writer doing neither is one upstream field away from the study defect.
+    """
+    findings, local, cleared = [], [], []
+    for source in _py_sources() + [
+            p for p in sorted((REPO / "sdk" / "scripts").glob("*.py"))
+            if "__pycache__" not in p.parts]:
+        text = source.read_text(encoding="utf-8", errors="replace")
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for function in ast.walk(tree):
+            if not isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            body = ast.get_source_segment(text, function) or ""
+            parameters = {a.arg for a in function.args.posonlyargs
+                          + function.args.args + function.args.kwonlyargs}
+            for node in ast.walk(function):
+                if not isinstance(node, ast.Dict):
+                    continue
+                counts: dict[str, int] = {}
+                for value in node.values:
+                    name = _whitelist_source(value)
+                    if name:
+                        counts[name] = counts.get(name, 0) + 1
+                if not counts:
+                    continue
+                var, copied = max(counts.items(), key=lambda kv: kv[1])
+                if copied < 4:
+                    continue
+                where = (f"{source.relative_to(REPO)}:{node.lineno} "
+                         f"{function.name}() builds a record from {var!r} "
+                         f"with {copied} hand-typed keys")
+                if f"{var}.items()" in body:
+                    cleared.append(f"{where}; also copies {var}.items()")
+                elif any(word in body for word in _DROP_DECLARATIONS):
+                    cleared.append(f"{where}; names its drops")
+                elif var in parameters:
+                    findings.append(
+                        where + f", and {var!r} is a PARAMETER, so this "
+                        f"function cannot see what its caller put in it. "
+                        f"Remedy, either one: copy {var}.items() minus a named "
+                        f"drop set, as uq.study_numerical does, or declare the "
+                        f"exclusions in a constant, as lab.CREDENTIAL_NOT_ON_"
+                        f"CARD does; NO COMPUTE")
+                else:
+                    local.append(where + f", and {var!r} is built in the same "
+                                 f"function, so the author can see its keys")
+    detail = findings + [
+        f"{len(local)} more site(s) have the same shape on a locally built "
+        f"source, which is the weaker case and is listed for the census:"] + \
+        local[:10] + [
+        f"{len(cleared)} site(s) already copy wholesale or name their drops"]
+    if findings:
+        return Result("record writers name their drops", WARN,
+                      f"{len(findings)} writer(s) whitelist keys off a source "
+                      f"they receive as a parameter and declare no drops",
+                      detail)
+    return Result("record writers name their drops", PASS,
+                  f"no writer whitelists keys off a parameter without saying "
+                  f"what it leaves out; {len(cleared)} declare their handling",
+                  detail)
+
+
 def check_ladder_rungs_share_one_recipe() -> Result:
     """VERIFICATION_CHARTER section 3.2 rule 3, which had no checker.
 
@@ -2413,6 +2528,17 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "whether the guard map is right. Both fields were written by the same "
         "writer from the same fit, so this asks only that the record agrees "
         "with itself; it never refits to confirm the map", None),
+    "check_record_writers_name_their_drops": (
+        PROPERTY,
+        "the code shape that makes the defect possible: a dict built from one "
+        "source by four or more hand-typed keys, where the source arrives as "
+        "a parameter so the author cannot see its key set",
+        "whether any such writer is actually dropping a field today. The "
+        "shape is the precondition, not the defect: a whitelist whose source "
+        "has exactly the keys it copies is correct, and nothing static "
+        "distinguishes the two. It is also blind to a writer that reads its "
+        "source through anything other than .get(literal) or [literal]",
+        None),
     "check_ladder_rungs_share_one_recipe": (
         EVIDENCE,
         "an observed order fitted across a change of mesh recipe, by reading "
@@ -2664,6 +2790,11 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "rebuild the bundle from the tree and verify by rendering from inside "
         "it rather than by diffing",
         False, "a copy, and a render"),
+    "check_record_writers_name_their_drops": (
+        "at each site, either copy the source's .items() minus a named drop "
+        "set, as uq.study_numerical does, or declare the exclusions in a "
+        "constant with a reason per key, as lab.CREDENTIAL_NOT_ON_CARD does",
+        False, "a code edit per site; no number moves and no run is needed"),
     "check_ladder_rungs_share_one_recipe": (
         "read the refinement level off each rung's own "
         "system/snappyHexMeshDict and record which rungs share one recipe, as "
@@ -2746,6 +2877,7 @@ CHECKS = (
     check_studies_carry_what_the_fit_records,
     check_stored_fits_reproduce_their_values,
     check_ladder_rungs_share_one_recipe,
+    check_record_writers_name_their_drops,
     check_declined_ladders_name_their_guard,
     check_order_window_declines_state_their_dimensionality,
     check_bundle_drift,

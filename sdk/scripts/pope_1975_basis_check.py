@@ -262,6 +262,72 @@ def main() -> int:
            f"max |a - 2b| = {np.abs(a - 2.0 * b).max():.3e}; a G^lambda fitted "
            "against b is half the G^lambda of Pope (3.6) for the same flow")
 
+    # ---- 7. the duct baseline, where this stops being an abstraction --------
+    # A linear-eddy-viscosity RANS solve on a straight duct produces exactly
+    # zero secondary flow -- measured, not assumed, in
+    # demo-output/website/closure_challenge_duct_anisotropy_expressivity.json
+    # -- so its mean field is U = (u(y,z), 0, 0) and its velocity gradient has
+    # one non-zero row. Two shear components, not one: a duct is not the
+    # single-component simple shear of section 5.
+    def duct_grad(rng: np.random.Generator) -> np.ndarray:
+        g = np.zeros((3, 3))
+        g[0, 1], g[0, 2] = rng.normal(), rng.normal()
+        return g
+
+    worst = np.zeros(4)
+    ranks, dead = set(), set()
+    for _ in range(500):
+        s, w = s_omega(duct_grad(rng), tau=rng.uniform(0.1, 6.0))
+        l1, l2, l3, l4, l5 = invariants_3d(s, w)
+        sc = max(abs(l1), 1e-30)
+        worst = np.maximum(worst, [abs(l2 + l1) / sc, abs(l3) / sc, abs(l4) / sc,
+                                   abs(l5 + 0.5 * l1 ** 2) / max(l1 ** 2, 1e-30)])
+        t = basis_3d(s, w)
+        m = np.array([x.ravel() for x in t])
+        ranks.add(int(np.linalg.matrix_rank(m, tol=1e-10)))
+        big = max(np.abs(x).max() for x in t)
+        dead.add(tuple(i + 1 for i, x in enumerate(t) if np.abs(x).max() < 1e-12 * big))
+
+    record("duct baseline: only lambda1 is independent", worst.max() < 1e-14,
+           f"worst relative residuals {np.array2string(worst, precision=2)} over 500 "
+           "two-component unidirectional gradients. lambda3 and lambda4 vanish "
+           "identically (already proved in this lab's duct expressivity audit); "
+           "lambda2 = -lambda1 and lambda5 = -lambda1^2/2 are the same kind of "
+           "identity and reduce the five invariants to ONE independent number, "
+           "so the seven-feature duct set carries three, not five")
+
+    record("duct baseline: tensor basis has pointwise rank 3", ranks == {3},
+           f"ranks observed: {sorted(ranks)}; identically zero: T{sorted(dead)[0]}. "
+           "The velocity gradient has one non-zero row, so it is a rotation away "
+           "from plane shear and the basis degenerates exactly as it does in 2-D")
+
+    # Which anisotropy directions can no model built on this basis reach?
+    g = np.zeros((3, 3)); g[0, 1], g[0, 2] = 0.7, -1.3
+    s, w = s_omega(g, tau=1.4)
+    m = np.array([t.ravel() for t in basis_3d(s, w)])
+    sv = np.linalg.svd(m, compute_uv=False)
+    span = np.linalg.svd(m)[2][:3]
+    sym_traceless = [np.diag([1., -1., 0.]) / np.sqrt(2),
+                     np.diag([1., 1., -2.]) / np.sqrt(6)]
+    for i, j in [(0, 1), (0, 2), (1, 2)]:
+        e = np.zeros((3, 3)); e[i, j] = e[j, i] = 1 / np.sqrt(2)
+        sym_traceless.append(e)
+    b = np.array([e.ravel() for e in sym_traceless])
+    resid = b - b @ (span.T @ span)
+    null_dirs = np.linalg.svd(resid)[2][:2].reshape(2, 3, 3)
+    # is one of the two unreachable directions purely cross-plane (no x row/col)?
+    streamwise = [max(abs(d[0, 0]), abs(d[0, 1]), abs(d[0, 2])) / np.abs(d).max()
+                  for d in null_dirs]
+    record("duct baseline: a purely cross-plane anisotropy is unreachable",
+           min(streamwise) < 1e-12,
+           f"singular values {np.array2string(sv[:5], precision=3)} -- rank 3 with a "
+           "clean gap to zero, so a 2-dimensional subspace of the symmetric traceless "
+           "tensors cannot be produced by ANY values of the ten coefficients. One of "
+           f"the two unreachable directions has zero streamwise row and column "
+           f"(max |x-component| / max = {min(streamwise):.1e}): it is a pure y-z "
+           "tensor, the component family associated with secondary flow of the "
+           "second kind. The other is pure streamwise shear")
+
     width = max(len(n) for n, _, _ in CHECKS)
     failed = 0
     for name, ok, detail in CHECKS:
