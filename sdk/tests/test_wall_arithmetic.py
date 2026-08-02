@@ -107,6 +107,74 @@ class WallArithmetic(unittest.TestCase):
                 if not card.get("finest_rung"):
                     self.assertEqual(card["measured"], data["cd_compared"])
 
+    def test_envelope_sits_on_the_same_area_as_the_value_beside_it(self):
+        """The band travels with the coefficient, on every surface and every branch.
+
+        A card whose value is rebased from planform onto frontal area and whose
+        envelope is not prints two numbers measured on two different areas, and
+        a reader who divides them gets a convergence spread wrong by the area
+        ratio. It was fixed once, on 2026-08-01, for the one row a hand
+        measurement of the LIVE panel found; `ahmed_35` was rebased at 3.5857
+        on the PUBLISHED wall at the same commit and was missed, because the
+        earlier repair sat inside the ``if rung:`` branch and that row has no
+        anchored ladder.
+
+        THIS TEST DOES NOT RE-DERIVE THROUGH ``displayed_credential``. The
+        expected band is computed from the stored record alone -- the record's
+        own envelope string times the record's own cd_compared/cd_measured --
+        so a bug in the rebasing cannot appear on both sides of the assertion
+        and cancel. That is the failure this lab has already had once: an audit
+        that recomputed through the function under test and passed on both
+        sides while the defect sat inside it.
+        """
+        import os
+        os.environ.setdefault("CERTONOMOUS_CREDENTIALS", str(RESULTS))
+        import sys
+        scripts = str(Path(__file__).resolve().parents[1] / "scripts")
+        if scripts not in sys.path:
+            sys.path.insert(0, scripts)
+        import build_wall
+        from chief_engineer.server import _credentials
+
+        head = re.compile(r"±\s*([0-9][0-9.eE+-]*)")
+        records = {data.get("name"): data for _, data in _records()}
+        checked = 0
+        # Both surfaces: the live panel and the published website asset. The
+        # published one carries rows the live one curates off, which is exactly
+        # how the missed row stayed missed.
+        for surface, cards in (("live panel", _credentials()),
+                               ("published wall", build_wall._credentials_from_disk())):
+            for card in cards:
+                data = records.get(card.get("name"))
+                if not data or not str(data.get("basis_note") or "").startswith("rebased"):
+                    continue
+                stored, shown = data.get("envelope"), card.get("envelope")
+                if not isinstance(stored, str) or not isinstance(shown, str):
+                    continue
+                from_record, on_card = head.search(stored), head.search(shown)
+                # A rung-sourced band is re-derived from the study, not carried
+                # from the record's string; those rows are covered by the ratio
+                # assertion on `measured` above and are skipped here.
+                if not from_record or not on_card or card.get("finest_rung"):
+                    continue
+                try:
+                    ratio = float(data["cd_compared"]) / float(data["cd_measured"])
+                except (TypeError, ValueError, ZeroDivisionError):
+                    continue
+                expected = float(from_record.group(1)) * ratio
+                checked += 1
+                with self.subTest(surface=surface, body=card["name"]):
+                    self.assertAlmostEqual(
+                        float(on_card.group(1)), expected,
+                        delta=abs(expected) * 0.05,
+                        msg=(f"{card['name']} on the {surface}: the card shows "
+                             f"{shown!r} beside a value rebased by {ratio:.4f}. "
+                             f"On the value's own area basis the band is "
+                             f"±{expected:.2g}."))
+        self.assertGreater(checked, 0,
+                           "no rebased row with a carried band was checked -- "
+                           "this test would pass vacuously")
+
     def test_displayed_percentage_is_recomputed_from_the_displayed_value(self):
         """ONE consistently rebased number, on the card as much as in the file.
 

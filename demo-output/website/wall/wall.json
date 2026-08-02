@@ -241,7 +241,7 @@
     {
       "name": "ahmed_35",
       "measured": "0.2924",
-      "envelope": "\u00b12.1e-05 over the final 35 iterations",
+      "envelope": "\u00b17.5e-05 over the final 35 iterations",
       "cells": 79778,
       "tier": "SOLVER-BACKED",
       "reason": "within 12% of Ahmed, Ramm & Faltin 1984, SAE 840300, C_d 0.26 (band \u00b115%), but the grid-refinement study for this setup came back inconclusive; not enough to call it validated",

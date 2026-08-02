@@ -557,6 +557,34 @@ def finest_rung(record: dict, study: dict | None) -> dict | None:
             "mission": best.get("mission"), "recorded_cells": int(mine)}
 
 
+_ENVELOPE_HEAD = re.compile(r"^(\s*±\s*)([0-9][0-9.eE+-]*)")
+
+
+def rebase_envelope(text: Any, ratio: float) -> Any:
+    """Carry a stored envelope string onto the area basis of the value beside it.
+
+    A record's ``envelope`` is written on the basis the solver reported, e.g.
+    ``"±2.1e-05 over the final 35 iterations"``. When the card publishes the
+    coefficient on the reference's basis instead, the band has to travel with
+    it or the card prints a value and a band measured on two different areas.
+    Only the leading magnitude moves; the prose after it says what the band was
+    measured over and is true on either basis.
+
+    A string this cannot parse is returned unchanged, so a format change shows
+    up as an unrebased band rather than as a silently invented number.
+    """
+    if ratio == 1.0 or not isinstance(text, str):
+        return text
+    match = _ENVELOPE_HEAD.match(text)
+    if not match:
+        return text
+    try:
+        value = float(match.group(2))
+    except ValueError:
+        return text
+    return f"±{value * ratio:.2g}" + text[match.end():]
+
+
 def displayed_credential(record: dict, *, reference: dict | None = None,
                          study: dict | None = None) -> dict[str, Any]:
     """What a stored credential should show today, re-derived from measurement.
@@ -601,7 +629,12 @@ def displayed_credential(record: dict, *, reference: dict | None = None,
     display: dict[str, Any] = {
         "measured": record.get("cd_measured"),
         "on_reference_basis": record.get("cd_measured"),
-        "envelope": record.get("envelope"),
+        # REBASED HERE, not only in the rung branch below. `on_reference_basis`
+        # is multiplied by `ratio` unconditionally a few dozen lines down, so a
+        # band left on the record's own basis lands beside a value that is not.
+        # The rung branch below had this right and was the only place that did;
+        # a row with no anchored ladder fell through to the raw string.
+        "envelope": rebase_envelope(record.get("envelope"), ratio),
         "cells": recorded_cells(record),
         "superseded": False,
         "provenance": None,
@@ -630,12 +663,25 @@ def displayed_credential(record: dict, *, reference: dict | None = None,
         # When those differ the card prints a value and an envelope measured on
         # two different areas, which is the same defect as the value and its
         # percentage disagreeing -- fixed a dozen lines below -- one field
-        # along. Measured on the published wall, 2026-08-01: the Ahmed 25 deg
-        # row is the only rebased row on it, ratio 3.586 planform to frontal.
-        # It printed ±0.02 beside 0.3041, which a reader divides to 6.65%,
-        # where the study's own band_rel is 23.85%. Rebased the band reads
-        # ±0.073 and the two agree. The other two banded rows, the cube and the
-        # NACA 0012 wing, sit at ratio 1.0 and do not move.
+        # along. The Ahmed 25 deg row printed ±0.02 beside 0.3041, which a
+        # reader divides to 6.65%, where the study's own band_rel is 23.85%.
+        # Rebased the band reads ±0.073 and the two agree. The other two banded
+        # rows, the cube and the NACA 0012 wing, sit at ratio 1.0.
+        #
+        # CORRECTION 2026-08-02. This comment used to assert, as the finding
+        # that scoped the repair, that "the Ahmed 25 deg row is the only
+        # rebased row on the published wall". IT WAS NOT, on the day it was
+        # written. `ahmed_35` was already on `demo-output/website/wall/wall.json`
+        # at that very commit, rebased at ratio 3.5857 (0.081547 planform to
+        # 0.2924 frontal), printing ±2.1e-05 beside 0.2924 -- its band
+        # understated by the same 3.586 the value was multiplied by. The claim
+        # was true of the LIVE panel, whose `_WALL_BODIES` curates `ahmed_35`
+        # off, and false of the PUBLISHED wall, which `build_wall.py` builds
+        # from every record on disk with no curation at all. The repair was
+        # scoped by a measurement of the wrong surface, so it fixed the branch
+        # that happened to contain the row it looked at and left the other one.
+        # The rebase now happens where the envelope is first read, above, which
+        # is the only place that catches both branches.
         display["envelope"] = (
             f"±{float(band) * ratio:.2g} across the {rungs}-mesh "
             f"refinement study"
