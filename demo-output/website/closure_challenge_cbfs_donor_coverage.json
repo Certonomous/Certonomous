@@ -1,0 +1,257 @@
+{
+  "generated_at": "2026-08-02T05:42:47.578774+00:00",
+  "purpose": "Test the premise of Route B in closure_challenge_C6_hump_decision.md section 5 -- that CBFS13700 is a better training donor for NASA_2DWMH than the periodic hills -- against feature coverage, which is the mechanism this lab has proven binds its models, rather than against flow topology, which is what that document argued from.",
+  "leakage_statement": {
+    "target_ground_truth_read": false,
+    "forbidden_files_on_the_target": [
+      "U_LES",
+      "k_LES",
+      "p_LES",
+      "tauij_LES"
+    ],
+    "closure_challenge_score_call_made": false,
+    "eval_package_imported_for_scoring": false,
+    "model_fitted": false,
+    "note": "NASA_2DWMH is read for 2000/{C,U,k,omega,walldist} and its polyMesh only, with gradU reconstructed by Green-Gauss -- the identical read set that round 2 and closure_criterion_on_test_features.py already use. CBFS's own U_LES is legal to read (it is a training case) and is still not read, because a coverage measurement does not need it."
+  },
+  "features": [
+    "I1_S2",
+    "I2_W2",
+    "I3_S3",
+    "I4_W2S",
+    "I5_W2S2",
+    "Re_y",
+    "tke_ratio"
+  ],
+  "donors": {
+    "periodic_hills_21_train": {
+      "cases": [
+        "alpha_05_10071_3036",
+        "alpha_05_4071_3036",
+        "alpha_05_7071_2024",
+        "alpha_05_7071_3036",
+        "alpha_05_7071_4048",
+        "alpha_075",
+        "alpha_10_12000_2024",
+        "alpha_10_12000_3036",
+        "alpha_10_12000_4048",
+        "alpha_10_6000_2024",
+        "alpha_10_6000_3036",
+        "alpha_10_6000_4048",
+        "alpha_10_9000_2024",
+        "alpha_10_9000_3036",
+        "alpha_10_9000_4048",
+        "alpha_125",
+        "alpha_15_10929_2024",
+        "alpha_15_10929_3036",
+        "alpha_15_10929_4048",
+        "alpha_15_13929_3036",
+        "alpha_15_7929_3036"
+      ],
+      "n_cases": 21,
+      "n_cells": 327600,
+      "regime": {
+        "min": [
+          4.45684102617379e-09,
+          -113.67967429577497,
+          -3.457230484248356,
+          -0.25836319916106376,
+          -1392.2722513126455,
+          4.2185251386697835e-06,
+          0.00017230816980125962
+        ],
+        "max": [
+          46.76501319699922,
+          -1.069548798058309e-10,
+          3.961210762122022,
+          7.845198243484859,
+          -4.670547803636415e-19,
+          38.079230077990296,
+          0.9999893612661128
+        ],
+        "p1": [
+          0.0018642710177087074,
+          -9.961859995996756,
+          -0.04413568994657772,
+          -0.013429690931162279,
+          -48.38255607542963,
+          0.0005667933203455526,
+          0.0031822246489133354
+        ],
+        "p99": [
+          13.340029823015046,
+          -0.0007902382931134961,
+          0.042307571451485705,
+          0.013199220158835184,
+          -1.2572484311878637e-06,
+          30.89536937739828,
+          0.9912775700804988
+        ]
+      }
+    },
+    "CBFS13700": {
+      "cases": [
+        "CBFS"
+      ],
+      "n_cases": 1,
+      "n_cells": 21000,
+      "nu": 7.299270072992701e-05,
+      "reynolds_as_stated_by_the_benchmark": "Re_H=13700",
+      "gradU_and_walldist": "reconstructed from mesh geometry; ships neither",
+      "regime": {
+        "min": [
+          4.797877291974509e-05,
+          -58.07168227215653,
+          -31.62911181965548,
+          -5.655570007195298,
+          -1685.9300685366857,
+          0.00314830916516363,
+          1.6826998268141764e-08
+        ],
+        "max": [
+          58.06386021448963,
+          -1.2534654614930654e-10,
+          17.206972112598404,
+          10.552458954343935,
+          -5.674883034580859e-12,
+          30.24710635895561,
+          0.9991390423326627
+        ],
+        "p1": [
+          0.0028391038995671664,
+          -11.19465245428134,
+          -0.13009576624608676,
+          -0.03749944661351023,
+          -61.93055480104071,
+          0.04017797534137712,
+          5.4527466597022595e-08
+        ],
+        "p99": [
+          11.068049459520523,
+          -5.266766684062783e-05,
+          0.11937493473220474,
+          0.04349809769232094,
+          -1.203979366117379e-06,
+          22.18323405974013,
+          0.8352832337918901
+        ]
+      }
+    }
+  },
+  "target": {
+    "case": "NASA_2DWMH",
+    "n_cells": 51626,
+    "nu": 1.5537e-05,
+    "reynolds_as_stated_by_the_benchmark": null
+  },
+  "coverage": {
+    "periodic_hills_21_train": {
+      "frac_outside": [
+        0.2075117189013288,
+        0.09117498934645334,
+        0.1993956533529617,
+        0.15683957695734707,
+        0.18145895479022198,
+        0.18234997869290667,
+        0.2697090613256886
+      ],
+      "reach_beyond_edge_in_spans": [
+        99384.1971960099,
+        43.50082201583108,
+        3340334.2243878236,
+        463.11945876770176,
+        896422.2201750332,
+        5.545339620876617,
+        0.00017227843063361643
+      ]
+    },
+    "CBFS13700": {
+      "frac_outside": [
+        0.2057877813504823,
+        0.11240460233215821,
+        0.18821911439972108,
+        0.13987138263665594,
+        0.18033548986944561,
+        0.2615155154379576,
+        0.00038740169681943207
+      ],
+      "reach_beyond_edge_in_spans": [
+        80044.55469246111,
+        86.11369732585858,
+        507412.9198294265,
+        231.37975244227286,
+        740281.8849035806,
+        7.240929353535908,
+        -4.4468260870197077e-08
+      ]
+    }
+  },
+  "per_feature": [
+    {
+      "feature": "I1_S2",
+      "frac_outside_ph": 0.2075117189013288,
+      "frac_outside_cbfs": 0.2057877813504823,
+      "reach_ph": 99384.1971960099,
+      "reach_cbfs": 80044.55469246111,
+      "better_donor": "CBFS"
+    },
+    {
+      "feature": "I2_W2",
+      "frac_outside_ph": 0.09117498934645334,
+      "frac_outside_cbfs": 0.11240460233215821,
+      "reach_ph": 43.50082201583108,
+      "reach_cbfs": 86.11369732585858,
+      "better_donor": "PH"
+    },
+    {
+      "feature": "I3_S3",
+      "frac_outside_ph": 0.1993956533529617,
+      "frac_outside_cbfs": 0.18821911439972108,
+      "reach_ph": 3340334.2243878236,
+      "reach_cbfs": 507412.9198294265,
+      "better_donor": "CBFS"
+    },
+    {
+      "feature": "I4_W2S",
+      "frac_outside_ph": 0.15683957695734707,
+      "frac_outside_cbfs": 0.13987138263665594,
+      "reach_ph": 463.11945876770176,
+      "reach_cbfs": 231.37975244227286,
+      "better_donor": "CBFS"
+    },
+    {
+      "feature": "I5_W2S2",
+      "frac_outside_ph": 0.18145895479022198,
+      "frac_outside_cbfs": 0.18033548986944561,
+      "reach_ph": 896422.2201750332,
+      "reach_cbfs": 740281.8849035806,
+      "better_donor": "CBFS"
+    },
+    {
+      "feature": "Re_y",
+      "frac_outside_ph": 0.18234997869290667,
+      "frac_outside_cbfs": 0.2615155154379576,
+      "reach_ph": 5.545339620876617,
+      "reach_cbfs": 7.240929353535908,
+      "better_donor": "PH"
+    },
+    {
+      "feature": "tke_ratio",
+      "frac_outside_ph": 0.2697090613256886,
+      "frac_outside_cbfs": 0.00038740169681943207,
+      "reach_ph": 0.00017227843063361643,
+      "reach_cbfs": -4.4468260870197077e-08,
+      "better_donor": "CBFS"
+    }
+  ],
+  "summary": {
+    "n_features_outside_ph_range": 7,
+    "n_features_outside_cbfs_range": 7,
+    "features_where_cbfs_covers_better": 5,
+    "features_where_ph_covers_better": 2,
+    "cbfs_training_cells": 21000,
+    "ph_training_cells": 327600,
+    "training_cell_ratio_ph_over_cbfs": 15.6
+  },
+  "verdict": "On the hump, 7 of 7 features fall outside the periodic-hill donor's trained range and 7 of 7 fall outside CBFS's. CBFS is the better donor on 5 of 7 features and the periodic hills on 2."
+}

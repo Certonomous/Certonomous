@@ -147,6 +147,85 @@ a pre-registration written and frozen before anything is scored, stating the
 model, the features, the selection rule and the commitment to ship whatever
 comes out. Without that, it is selection by somebody who has seen the score.
 
+> **MEASURED 2026-08-02, and this section argued from the wrong quantity.**
+> Record: `closure_challenge_cbfs_donor_coverage.json`, produced by
+> `sdk/scripts/closure_cbfs_donor_coverage.py`. Zero scoring calls, no model
+> fitted, and **no ground-truth file of the hump opened** — `0/U_LES`,
+> `0/k_LES` and `0/tauij_LES` are named in the script so a reader can grep for
+> them and confirm. 51,626 hump cells from the RANS field and mesh alone.
+>
+> **The argument above is entirely about flow topology.** Both flows are
+> two-dimensional, smooth-walled, separating and reattaching, so CBFS is
+> "physically the closest flow in the benchmark to the hump". That is true and
+> it is not the quantity that decides anything. **The mechanism this lab has
+> actually proven binds its models is feature extrapolation** — round 4
+> established that `Re_y` reaches 1.85× and 2.07× its trained maximum on the
+> two ducts the entry trails and 0.90× on the one it leads, and a
+> gradient-boosted tree cannot extrapolate. Topological similarity was never
+> checked against that, and this section should have checked it.
+>
+> **What the measurement says. Both donors extrapolate on the hump, on all
+> seven features.** Not five, not most: 7 of 7 for the periodic hills and 7 of
+> 7 for CBFS. That independently reproduces the "outside the training range on
+> all 15 features simultaneously" finding of section 5 through a different
+> aggregation, and it means Route B does not escape the problem, it only
+> changes which corner of it the model sits in.
+>
+> | feature | share of hump cells outside PH range | outside CBFS range | better donor |
+> | --- | --- | --- | --- |
+> | `I1_S2` | 0.2075 | 0.2058 | CBFS |
+> | `I2_W2` | 0.0912 | 0.1124 | PH |
+> | `I3_S3` | 0.1994 | 0.1882 | CBFS |
+> | `I4_W2S` | 0.1568 | 0.1399 | CBFS |
+> | `I5_W2S2` | 0.1815 | 0.1803 | CBFS |
+> | **`Re_y`** | **0.1823** | **0.2615** | **PH** |
+> | `tke_ratio` | 0.2697 | 0.0004 | CBFS |
+>
+> **CBFS covers the hump better on 5 of 7 features, and worse on the one that
+> has already cost this lab score.** It is dramatically better on `tke_ratio`
+> — 0.04% of hump cells outside its range against 27% outside the periodic
+> hills' — which is a real point in its favour and is what the topological
+> argument was groping toward. But on `Re_y` it is the worse donor by every
+> measure taken: 26.2% of hump cells outside its range against 18.2%, a ceiling
+> of 30.25 against 38.08, and a p99 reaching 7.24 donor half-ranges past its
+> edge against 5.55. **The one dimension on which round 4 demonstrated, with
+> scores, that extrapolation costs this entry points is the dimension on which
+> the proposed better donor is worse.**
+>
+> **The comparison is biased toward the periodic hills and CBFS still wins most
+> of it, which makes the `Re_y` result harder rather than easier to dismiss.**
+> A donor's hard [min, max] hull can only widen with more data, and the
+> periodic-hill donor is **327,600 cells across 21 cases against CBFS's 21,000
+> across one — 15.6 times larger.** CBFS beating it on five features from a
+> fifteenth of the data is a genuine signal about flow similarity. Losing on
+> `Re_y` anyway is a genuine signal about Reynolds number.
+>
+> **And the Reynolds numbers are not close, on either side.** The benchmark
+> states CBFS's as `Re_H=13700` in its own `transportProperties`; it states
+> none for the hump, which is recorded as absent rather than filled in. The
+> nearest read source that gives one is Buchanan, Lăcătuş, West & Dwight 2025
+> (arXiv 2504.06758, §2.4 and Table 2, read 2026-08-02), which trains on this
+> same hump and puts it at **Re_h = 9.3×10⁵**, describing what distinguishes it
+> as *"high Reynolds number effects such as thin turbulent boundary layers and
+> smooth-surface separation under adverse pressure gradients"*, against its
+> periodic hill at 1.0×10⁴ and its CBFS at 1.3×10⁴. **CBFS and the periodic
+> hills sit within a factor of about 1.4 of each other and roughly seventy
+> times below the hump.** Swapping one for the other does not move the entry
+> toward the hump's regime; it moves sideways.
+>
+> **Revised verdict on Route B, and it is neither the yes this section implied
+> nor a no.** The route is legal, the withdrawal in section 7 stands, and CBFS
+> genuinely is the closer flow. But **it cannot be shown to beat 0.0621 on
+> validation evidence alone, because no legal held-out flow in this benchmark
+> is at the hump's Reynolds number** — every non-test separating flow it ships
+> is within a factor of about two of 10⁴. Route B would be a fit on 21,000
+> cells, trading better invariant coverage for worse coverage on the known
+> failure axis, evaluated on nothing that resembles the target regime, and then
+> scored once against a case whose result we already know. **That is not a
+> pre-registration that could be honoured; it is a coin flip with a paper
+> trail.** It is not taken, and the reason has changed from "it costs compute"
+> to "the evidence that would justify it does not exist inside this benchmark."
+
 ## 6. A citation in the entry that nobody on this box could check — now checked
 
 While settling the above, one sentence in the lab's own draft failed to
@@ -199,6 +278,16 @@ with the README lines quoted in section 2, which are on disk and can be read.
 3. **Neither is taken here.** Route A costs nothing and rests on a criterion
    firing for a mechanism it was not proven on. Route B costs compute and is
    worthless without a pre-registration written before it runs.
+   **Updated 2026-08-02, after measuring rather than arguing:** Route B is
+   worse than unproven, it is unprovable from inside this benchmark. Both
+   donors extrapolate on the hump on 7 of 7 features; CBFS covers better on 5
+   of them and **worse on `Re_y`, the one axis whose extrapolation has already
+   cost this entry score**; and no legal held-out flow here sits anywhere near
+   the hump's Reynolds number, which the nearest read source puts about seventy
+   times above both candidate donors. **The premise "CBFS is the better donor"
+   is not refuted, but it is not what the numbers say either, and the section
+   that argued it argued from topology instead of from the mechanism this lab
+   had already proven.** Section 5, Route B.
 4. ~~**The unverified quotation in the submission draft is the one item on this
    page that should not wait.**~~ **CLOSED 2026-08-02: verified verbatim, in
    Section 2.1 of the preprint.** It did not wait, and it came back upheld. See
