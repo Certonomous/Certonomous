@@ -1,0 +1,19 @@
+{
+  "case": "coarse-seeded",
+  "ranks": 1,
+  "wall_seconds": 70.1,
+  "core_minutes": 1.17,
+  "exit_code": 0,
+  "iterations": 4828,
+  "cd_last": 0.0042264581257,
+  "settle": {
+    "settled": true,
+    "iterations": 4828,
+    "window": 1207,
+    "spread": 2.3014400000066076e-07,
+    "tol": 3e-07,
+    "reason": "peak-to-peak 2.3e-07 over the last 1207 iterations is at or under the settle tolerance 3e-07"
+  },
+  "extended_to": null,
+  "core_minutes_cumulative": 1.17
+}

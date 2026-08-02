@@ -123,3 +123,47 @@ Incidents, recorded rather than smoothed:
   (~360 core-min), double the whole item budget. Seeding changes only the
   initial transient; the settle criterion certifies the endpoint state
   regardless of path.
+
+## 4. Seed-independence control (added 2026-08-02)
+
+The fine rung is seeded from the medium's settled fields by `mapFields
+-consistent` while the coarse and medium rungs start impulsively, so the ladder
+mixes initial conditions across its rungs. Section 3 asserted that this is
+harmless — *"the settle criterion certifies the endpoint state regardless of
+path"* — and asserting it was the weakest line in this document, particularly in
+a week when the lab has been finding ladders that change a knob between rungs.
+
+**It is now measured, on this case family, for 1.17 core-minutes.** The coarse
+rung was re-solved from the medium's settled field at iteration 16,000 mapped
+down onto its 3,520 cells (`coarse-seeded/log.mapFields`), against the same
+settle criterion. Prediction recorded before the run: if seeding does not change
+the settled answer, it returns the impulsive rung's Cd to within the 3e-07
+settle tolerance.
+
+| | iterations | Cd | Cd pressure | settle spread | core-min | cells/rank |
+|---|---|---|---|---|---|---|
+| coarse, impulsive | 5,288 | 0.0042264331 | 1.18634078e-3 | 1.50e-07 | 1.33 | 3,520 (1 rank) |
+| coarse, seeded from medium | 4,828 | 0.0042264581 | 1.186360357e-3 | 2.30e-07 | 1.17 | 3,520 (1 rank) |
+| **difference** | −460 | **2.50e-08** | **1.96e-08** | | | |
+
+**The prediction holds.** The two paths agree to 2.50e-08 in total Cd — **8.3%
+of the settle tolerance**, 0.0006% relative, and smaller than either rung's own
+peak-to-peak spread. On the pressure component, which is the quantity this whole
+item exists to measure, they agree to 1.96e-08. The seeded provenance of the
+fine rung does not compromise the ladder.
+
+**One rank, deliberately.** 3,520 cells over four ranks would be 880 cells/rank,
+far below the 5,600 cells/rank inversion point, so parallel would cost more
+core-minutes and buy nothing.
+
+**And an unplanned finding that contradicts this document's own budget
+argument.** Section 3 justified seeding the fine rung on cost: an impulsive fine
+rung was extrapolated at ~34,000 iterations and ~360 core-minutes, double the
+item budget. The control says seeding buys far less than that implies —
+**460 iterations of 5,288, or 8.7%.** The settle criterion here is dominated by
+the slow tail, not by the initial transient, and a seed skips the transient
+only. The fine rung's own numbers agree: seeded, it is settling near 26,700
+iterations against the ~34,000 predicted impulsively, a 21% saving rather than
+the factor implied. **Seeding was still the right call and it was justified for
+the wrong reason**, and the corrected reason is worth carrying: seed to skip a
+transient, and do not price a seed as if it halves a settle.
