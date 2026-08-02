@@ -167,3 +167,51 @@ iterations against the ~34,000 predicted impulsively, a 21% saving rather than
 the factor implied. **Seeding was still the right call and it was justified for
 the wrong reason**, and the corrected reason is worth carrying: seed to skip a
 transient, and do not price a seed as if it halves a settle.
+
+## 5. The reference's own ladder, put through our gate (recorded 2026-08-02 06:25 UTC, before the fine rung settled)
+
+Written and committed **while the 353x161 rung was still running**, so it cannot
+be read as a gate moved after seeing the answer. Nothing below uses our fine
+rung; it uses only CFL3D's published values on these same three grids, already
+stored in `tmr_verification.CFL3D_BUMP_SST`, put through
+`uq.eca_hoekstra_band(dim=2)` — the same call this ladder will be graded by.
+
+| CFL3D on 89x41 / 177x81 / 353x161 | observed order | monotone | conclusive | guard that fails |
+|---|---|---|---|---|
+| total Cd | 3.095 | yes | **no** | `order_window` |
+| **Cd pressure** | **2.913** | yes | **no** | `order_window` |
+| Cd viscous | 1.619 | yes | yes | — |
+| Cf at x = 0.75 | 1.643 | yes | yes | — |
+
+**The reference code fails our own gate on the two components it is famous for,
+and passes it on the other two.** `order_window` is [0.5, 2.5] at `dim = 2`;
+2.913 and 3.095 sit above it. A ladder whose observed order exceeds the formal
+order of the scheme is the classic signature of not being in the asymptotic
+range — superconvergence on the coarse rung, not extra accuracy.
+
+**Two consequences, and the first is a correction to this item's own paperwork.**
+
+1. **The docket gate as written is unreachable, and the pre-registration's is
+   not.** `w1-bump-on-nasa-own-grids` states its gate as *"An observed order
+   inside the theoretical range on the pressure component, on grids refined by
+   point-dropping."* If our solve reproduced CFL3D **exactly**, it would return
+   2.913 and be graded NOT CONCLUSIVE. The gate cannot be met by agreeing with
+   the reference. `W1_PREREGISTRATION.md`, committed before any solve, is the
+   careful one: its outcome 1 asks that the cdp increments be *monotone* and
+   that the fit return *a finite observed order* — and says nothing about that
+   order landing inside the window. **This ladder is graded against the
+   pre-registration**, which is the document that was fixed first, and the
+   docket gate is recorded here as over-tight rather than quietly satisfied.
+2. **The question the item actually answers is still live and still worth its
+   cost.** Our blockMesh ladder has *no* observed order on the pressure
+   component at all — its increments change sign at every matched iteration
+   count. CFL3D's has one, and it is outside the window. Those are **different
+   failures**, and moving from the first to the second would be a real result:
+   it would say the mesh was the problem, even while the answer stays
+   not-conclusive for a second, separate reason that belongs to the grid family
+   rather than to us.
+
+The viscous component and Cf are the control in all this: the reference clears
+our gate on both, so the gate is not simply too tight for everything on these
+grids. It is too tight for the pressure component specifically, which is the
+component whose ladder this item exists to recover.
