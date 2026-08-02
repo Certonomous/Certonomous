@@ -503,7 +503,57 @@ def check_cost_predictions() -> Result:
        third pair below is an 8-rank run sitting beside two serial ones, and a
        streak counted across the mixture counts two different quantities.
     """
+    lines = []
+    # THE DOCKET'S OWN PAIRS, read from disk. Until 2026-08-02 this check read
+    # nothing at all: its whole evidence was the three tuples below, typed into
+    # this file, so it could not fail on a wrong pair and it could not see that
+    # completed items were recording their own measured cost in prose nothing
+    # parsed. `scripts/cost_calibration.py` reads `measured_core_min` off every
+    # completed proposal, each carrying a `measured_basis` that quotes the
+    # sentence in that item's outcome the figure came from.
+    try:
+        sys.path.insert(0, str(REPO / "scripts"))
+        import cost_calibration  # noqa: PLC0415
+        state = cost_calibration.analyse()
+    except Exception as exc:  # noqa: BLE001 - a broken reader is a finding
+        state = {"n": 0, "error": f"{type(exc).__name__}: {exc}"}
+    if state.get("error"):
+        lines.append(f"could not read the docket pairs: {state['error']}")
+    elif state["n"]:
+        whole = state["all"]
+        lines.append(
+            f"DOCKET PAIRS: {state['n']} completed item(s) record both an "
+            f"estimate and a measured cost; {state['est_total']:g} core-min "
+            f"estimated against {state['measured_total']:g} measured, "
+            f"aggregate ratio {state['aggregate_ratio']}")
+        lines.append(
+            f"the 3x planning multiplier brackets {whole['inside_the_3x_band']}"
+            f" of {whole['n']}; {whole['within_20_percent']} land within 20 "
+            f"percent; {whole['needed_no_solver_at_all']} spent EXACTLY ZERO "
+            f"because the work needed no solver, which no multiplier fixes")
+        for label, key in (("basis begins 'measured'",
+                            "basis_names_a_measurement"),
+                           ("basis is a forecast", "basis_is_a_forecast")):
+            cut = state.get(key)
+            if cut:
+                lines.append(
+                    f"{label}: {cut['n']} pair(s), worst over-run "
+                    f"{cut['worst_overrun']}x, median {cut['median_ratio']}, "
+                    f"{cut['inside_the_3x_band']} inside the 3x band")
+        lines.append(
+            "over-runs on record: " + ", ".join(
+                f"{r['ratio']}x {r['id']} ({r['basis_kind']})"
+                for r in state["overruns"]) or "none")
+        lines.append(
+            f"{len(state['gaps'])} completed item(s) with an estimate record "
+            f"no readable measured cost, each naming why "
+            f"(scripts/cost_calibration.py)")
+
     # (family, rung, predicted seconds, measured seconds, evidence)
+    # STILL TRANSCRIBED, and labelled. These three are per-solver-family
+    # forecasts in seconds rather than per-item core-minutes, so they are not
+    # on the docket in the shape above; they stay here until the F5a ladder
+    # records them where something can read them.
     pairs = [
         ("pimpleFoam unsteady cylinder", "Re 2000", 3715.0, 3965.11,
          "F5a ladder, cost model D13"),
@@ -513,7 +563,7 @@ def check_cost_predictions() -> Result:
          64800.0, 44102.0, "F5a ladder, 8-rank optimistic row 18 h"),
     ]
     families: dict[str, list] = {}
-    lines = []
+    lines.append("TRANSCRIBED, per-solver-family, still typed into this file:")
     for family, rung, predicted, measured, source in pairs:
         error = 100.0 * (measured - predicted) / predicted
         within = abs(error) <= 20.0
@@ -541,9 +591,11 @@ def check_cost_predictions() -> Result:
         "worse than predicting its own median, and the 8-rank pair above sits "
         "in a family with two serial ones (demo-output/website/mega-batch/"
         "COST_SCALING.md)")
+    docket_pairs = state.get("n", 0)
     return Result("cost predictions vs measured", INFO,
-                  f"{len(pairs)} completed measured-versus-predicted pairs "
-                  f"across {len(families)} family", lines)
+                  f"{docket_pairs} measured-versus-estimated pair(s) read off "
+                  f"the docket, plus {len(pairs)} transcribed into this file "
+                  f"across {len(families)} solver family", lines)
 
 
 def check_ungated_completed_runs() -> Result:
@@ -2130,12 +2182,16 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "measured against",
         "whether that raw file is the run the record names", None),
     "check_cost_predictions": (
-        TRANSCRIBED,
-        "nothing. Every pair below is a constant in this file. The arithmetic "
-        "on those constants is right and the constants are unverified",
-        "a mistyped or superseded pair, a pair whose run was later withdrawn, "
-        "and every completed proposal on the docket that carries a measured "
-        "cost in its outcome and is not in this list", None),
+        EVIDENCE,
+        "the measured-versus-estimated pairs recorded on the docket, read "
+        "from `measured_core_min` on every completed item, each carrying a "
+        "`measured_basis` that quotes the sentence in that item's own outcome "
+        "the figure came from. Until 2026-08-02 this check read nothing at "
+        "all: its whole evidence was three tuples typed into this file",
+        "the three per-solver-family pairs that are STILL transcribed here, "
+        "and the correctness of a `measured_core_min` field itself, which is "
+        "read from an outcome by hand and quoted rather than re-derived from "
+        "a solver log", None),
     "check_ungated_completed_runs": (
         PROPERTY,
         "a completed run whose record still carries the not-yet-graded marker",
@@ -2412,8 +2468,9 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "price an unstarted item from the fitted laws in "
         "demo-output/website/mega-batch/COST_SCALING.md, then check it against "
         "the run",
-        True, "a measured-versus-predicted pair needs the run; the fit does "
-              "not, and is done"),
+        True, "recording a pair from an outcome already written is a record "
+              "edit and needs no solver; extending the record with a NEW pair "
+              "needs the run, and the fit it is checked against is done"),
     "check_ungated_completed_runs": (
         "grade the completed run against its pre-stated expectation from the "
         "statistics it already wrote",
