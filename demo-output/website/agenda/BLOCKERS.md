@@ -194,6 +194,11 @@ the challenge, which puts its published coefficients off limits to our entry.
 **Item 2, Pope 1975, was "not yet attempted from this box". Now attempted, and
 closed** — OpenAlex reports `oa_status: "closed"` on doi
 `10.1017/S0022112075003382`, with the JFM landing page as its only location.
+**And moot within the hour:** W2 found a scan already sitting untracked in
+`docs/papers/` and read it (commit `e7300baf`). The availability check and the
+reading reached the same row from opposite directions and agree with each other.
+The row is closed; it spawned two new ones, Spencer & Rivlin, both closed on
+Unpaywall and neither blocking anything approved.
 
 **Unblock:** open the list, work the four remaining entries top down, and paste
 back the section named beside each. The list is shorter and every entry left on

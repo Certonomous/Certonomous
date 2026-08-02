@@ -3,15 +3,19 @@
 `w2-mit-access-list`. Opened 2026-08-01. **A list Katie can act on, in one
 sitting, with what each item unblocks stated beside it.**
 
-> **Worked down 2026-08-02, and it got shorter.** Six entries became **four**.
-> Items 6 and 4 are **closed and read** — both were on arXiv, neither needed a
-> library, and one of them had been holding up a submission draft while the
-> other was cited from its abstract inside the lab's prior-art record. Item 2
-> was "not yet attempted"; it has now been attempted and is confirmed closed.
-> Item 1 was re-attempted through four new routes and is now established
-> paywalled rather than merely not-found. **The entries that survive are the
-> ones that genuinely need her, and each of them now carries a DOI and the
-> evidence that the free route was tried.**
+> **Worked down 2026-08-02 by two wells independently, and it got shorter.**
+> Six entries became **three**. Items 6 and 4 are **closed and read** (W5) —
+> both were on arXiv, neither needed a library, and one of them had been holding
+> up a submission draft while the other was cited from its abstract inside the
+> lab's prior-art record. Item 2 was "not yet attempted"; W5 attempted it and
+> confirmed the DOI closed, and W2 then found a scan already sitting untracked
+> in `docs/papers/` and read it — **the availability check and the reading
+> reached the same entry from opposite directions and agree**. Item 1 was
+> re-attempted through four new routes and is now established paywalled rather
+> than merely not-found. **The entries that survive are the ones that genuinely
+> need her, and each of them now carries a DOI and the evidence that the free
+> route was tried.** Two new rows arrived at the foot of the file from item 2's
+> reading; the list gets shorter by four and longer by two.
 
 The standing permission covers open access and routes paywalled work to her
 library, and until now there was no list, so a paywalled paper stalled a
