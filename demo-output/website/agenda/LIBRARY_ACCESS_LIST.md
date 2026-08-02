@@ -103,9 +103,42 @@ against each other before either paper had been read. Reproducing a method
 while treating its representation as a black box is how a subtle misuse of the
 basis goes unnoticed and is then defended.
 
-**Priority: second, and only if the open-access route fails.** JFM articles of
+~~**Priority: second, and only if the open-access route fails.** JFM articles of
 this age are sometimes reachable; that should be tried before her library is
-spent on it.
+spent on it.~~
+
+### CLOSED 2026-08-02. Read, without spending library access — and it asks for a different paper.
+
+The availability check above stands and is right: the DOI is closed. It is also
+**moot**, because a scan was already sitting in `docs/papers/` — placed there
+2026-08-01, untracked and with no provenance note — and neither this entry nor
+the reading docket knew. Read end to end 2026-08-02, with the tensor list, the
+coefficient closure and the section 5 limit case taken off the **page images**
+rather than the OCR, because the text extraction mangles every fraction in
+those equations. Full index at `campaign/W2_POPE_1975_INTEGRITY_BASIS.md`;
+transcription machine-checked at `sdk/scripts/pope_1975_basis_check.py`, 13 of
+13, including Pope's own section 5 worked example reproduced to 4.4e-16 with no
+free parameter to absorb an error.
+
+**The one section needed is not in this paper.** This entry asked for "the
+derivation of the ten-tensor integrity basis and the conditions under which it
+is complete". Pope's appendix A, p. 339: *"The procedure is reported by Spencer
+& Rivlin (1959, 1960) and the results for this situation are quoted in the
+text."* He derives the **two**-dimensional case himself, from Cayley–Hamilton,
+and quotes the three-dimensional one. The derivation this entry wanted is in
+Spencer & Rivlin — two new rows at the foot of this file, both closed on
+Unpaywall. **Nothing approved is blocked on them**, because Pope prints the
+basis in full and our transcription is checked against every property it must
+have; they would buy completeness proved rather than assumed.
+
+**And the misuse this entry was filed to prevent was found.** It is a factor of
+two: Pope's anisotropy is the Reynolds stress over k less two thirds of the
+identity, the methods papers' and our own taxonomy's is over twice k less one
+third, so a coefficient fitted against one is half the other for the same flow.
+Separately, the fifth and tenth basis tensors are **identically zero in two
+dimensions**, so two of a ten-coefficient model's outputs cannot be trained on
+any amount of 2-D data — on exactly the tensors that carry a duct's secondary
+flow.
 
 ---
 
