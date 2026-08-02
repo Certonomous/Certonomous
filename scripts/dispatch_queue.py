@@ -54,7 +54,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-DOCKET = REPO / "demo-output" / "website" / "agenda" / "docket.json"
+# Overridable so a past window can be replayed through this same code rather
+# than reasoned about in prose. `git show <sha>:...docket.json > /tmp/x.json`
+# then `--docket /tmp/x.json --load 0` answers what the arbiter would have done
+# then, using the arbiter that exists now and not a remembered version of it.
+DOCKET = Path(os.environ.get("DISPATCH_DOCKET") or
+              REPO / "demo-output" / "website" / "agenda" / "docket.json")
 REGISTRY = REPO / "demo-output" / "website" / "solve_registry"
 CHARTER = REPO / "docs" / "charters" / "COMPUTE_BUDGET_CHARTER.md"
 
@@ -211,7 +216,8 @@ def queue() -> dict:
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(
             timespec="seconds"),
-        "docket": str(DOCKET.relative_to(REPO)),
+        "docket": str(DOCKET.relative_to(REPO)
+                      if DOCKET.is_relative_to(REPO) else DOCKET),
         "proposals": len(proposals),
         "approved": len(approved),
         "approved_needing_a_solver": len(compute),
@@ -233,6 +239,118 @@ def queue() -> dict:
         "attribution": registry_attribution(),
         "machine": machine(),
     }
+
+
+# --------------------------------------------------------------------------
+# The arbiter. It decides ADMISSION, and it decides nothing else.
+# --------------------------------------------------------------------------
+#
+# WHY A SEPARATE INSTRUMENT FROM THE CEILINGS ABOVE. Within one day this box
+# has shown both failure modes of an unmanaged queue and both were measured.
+# On 2026-08-01 at 12:18Z it sat at zero load with ninety-one approved items
+# waiting. On 2026-08-02 at 06:18Z it carried twenty-three solvers at a load of
+# 28.4 on sixteen cores. A core-minute ceiling addresses neither: it bounds
+# total SPEND, and both of these are failures of instantaneous OCCUPANCY. The
+# lab spent the same core-minutes in the second window as it would have spent
+# sequenced, over a longer wall clock, and got wall clocks it cannot price on.
+#
+# THE BOUND, and why it is a different kind of number from 60, 240 and 480.
+# Those three are the charter's proposed core-minute ceilings and they are NOT
+# ratified; they encode a judgement about how much an item deserves. The
+# admission bound encodes a fact about the hardware:
+#
+#     headroom_ranks = usable_cores - load_1min,  usable = nproc - RESERVED
+#
+# and a run is admitted when its rank count fits in the headroom. The one
+# judgement inside it is RESERVED_CORES = 2, and that judgement is already made
+# and already used, here and in `chief_engineer.compute_audit`.
+#
+# WHAT IT STILL DOES NOT DO, and this is deliberate. It does not launch. The
+# ceilings are unratified, and a queue that starts its own work without a
+# ratified limit is the failure the owner most wants avoided. This reports the
+# decision and leaves the trigger to Katie.
+#
+# WHAT BLOCKS IT FROM DECIDING PER ITEM TODAY, counted rather than asserted:
+# the admission test needs the rank count of the thing being admitted, and the
+# docket schema has no field for one. `arbiter()` counts how many proposals
+# state one, and the answer at the time of writing is zero of 207.
+def arbiter(state: dict, load: float | None = None) -> dict:
+    """What a rank-admission policy would do against this box and this queue."""
+    box = state["machine"]
+    usable = box["usable"]
+    observed = box["load_1min"] if load is None else float(load)
+    headroom = round(usable - observed, 2)
+    launchable = state["launchable"]
+
+    # A proposal that states a rank count can be admission-tested. One that
+    # does not can only be tested against the headroom being positive.
+    priced_in_ranks = sum(1 for p in _load_docket() if p.get("est_ranks"))
+
+    if headroom < 1:
+        verdict = "HOLD EVERYTHING"
+        because = (
+            f"{observed:g} of {usable} usable core(s) are already committed, so "
+            f"headroom is {headroom:g} rank(s). Admitting anything here does "
+            f"not buy throughput, it lengthens every wall clock already "
+            f"running, including the ones the lab prices on.")
+    elif not launchable:
+        verdict = "ADMIT NOTHING, AND THAT IS A DRAFTING FAILURE"
+        because = (
+            f"{headroom:g} rank(s) of headroom and nothing in the queue is "
+            f"admissible. The box is not the constraint; the queue is.")
+    else:
+        head = launchable[0]
+        verdict = f"ADMIT {head['id']}"
+        because = (
+            f"{headroom:g} rank(s) of headroom, and {len(launchable)} item(s) "
+            f"are approved, priced on a measurement and not started. The head "
+            f"of the queue is the cheapest of them at "
+            f"{head['est_core_min']:g} core-min.")
+    return {
+        "load_used": observed,
+        "load_source": "measured now" if load is None else "supplied",
+        "usable_cores": usable,
+        "headroom_ranks": headroom,
+        "verdict": verdict,
+        "because": because,
+        "launchable": len(launchable),
+        "launchable_core_min": state["launchable_core_min"],
+        "admission_decidable_per_item": priced_in_ranks,
+        "proposals": state["proposals"],
+        # The consequence for part one of this problem: a run admitted with no
+        # headroom produces a wall clock that measures the queue.
+        "wall_clocks_from_this_window_are_a_cost": headroom >= 1,
+        "would_launch": False,
+    }
+
+
+def arbiter_report(cut: dict) -> None:
+    print("Arbiter (advisory: it decides admission and launches nothing)")
+    print("=" * 78)
+    print(f"box            {cut['usable_cores']} usable core(s); load "
+          f"{cut['load_used']:g} ({cut['load_source']}); headroom "
+          f"{cut['headroom_ranks']:g} rank(s)")
+    print(f"queue          {cut['proposals']} proposals, {cut['launchable']} "
+          f"admissible, {cut['launchable_core_min']:g} core-min")
+    print()
+    print(f"VERDICT        {cut['verdict']}")
+    print(f"               {cut['because']}")
+    print()
+    print(f"PRICING        a wall clock measured in this window "
+          f"{'IS' if cut['wall_clocks_from_this_window_are_a_cost'] else 'IS NOT'}"
+          f" usable as a cost basis")
+    print()
+    print("WHAT STOPS THIS BINDING PER ITEM")
+    print("-" * 78)
+    print(f"  {cut['admission_decidable_per_item']} of {cut['proposals']} "
+          f"proposals state a rank count, so for the rest the admission test "
+          f"can only ask whether headroom is positive, not whether THIS item "
+          f"fits in it. Core-minutes are wall seconds times ranks over sixty, "
+          f"so an item priced in core-minutes alone has not said how wide it "
+          f"is, only how much it costs.")
+    print(f"  the ceilings are still unratified, so nothing here refuses and "
+          f"nothing here launches; would_launch is "
+          f"{cut['would_launch']} by construction")
 
 
 def report(state: dict, quiet: bool = False) -> None:
@@ -316,8 +434,21 @@ def main() -> int:
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--quiet", action="store_true",
                         help="the head of the queue only")
+    parser.add_argument("--arbiter", action="store_true",
+                        help="what a rank-admission policy would do. It "
+                             "reports; it never launches")
+    parser.add_argument("--load", type=float, default=None,
+                        help="use this 1-minute load instead of the live one, "
+                             "so a past window can be replayed")
     args = parser.parse_args()
     state = queue()
+    if args.arbiter:
+        cut = arbiter(state, load=args.load)
+        if args.json:
+            print(json.dumps(cut, indent=1))
+        else:
+            arbiter_report(cut)
+        return 0 if cut["headroom_ranks"] >= 1 else 1
     if args.json:
         print(json.dumps(state, indent=1))
     else:
