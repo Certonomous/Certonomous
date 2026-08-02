@@ -982,9 +982,22 @@ def check_statistical_labels() -> Result:
                   f"unearned confidence interval")
 
 
+# Where the source-shape checks look. THE DEFECT THIS LIST GREW FOR: it held
+# only the two package directories, so every runner under `sdk/scripts/` and
+# every tool under `scripts/` -- including this file -- was outside the reach
+# of checks written to find defects that live in exactly that kind of code.
+# Measured when the list was widened, 2026-08-02:
+# `sdk/scripts/run_uq_studies.py:b52_fourth_rung()` fits a refinement ladder,
+# reads `band_abs` off it and never reads `conclusive`, on the one ladder in
+# this corpus whose band IS the non-monotone fallback. That is the precise
+# defect `check_nonconclusive_band_readers` exists for, in the file that
+# WRITES the studies, and the check had never opened it.
+_PY_ROOTS = ("sdk/workflows", "sdk/chief_engineer", "sdk/scripts", "scripts")
+
+
 def _py_sources() -> list[Path]:
-    out = []
-    for root in ("sdk/workflows", "sdk/chief_engineer"):
+    out: list[Path] = []
+    for root in _PY_ROOTS:
         base = REPO / root
         if base.exists():
             out += [p for p in sorted(base.rglob("*.py"))
@@ -1805,9 +1818,7 @@ def check_record_writers_name_their_drops() -> Result:
     writer doing neither is one upstream field away from the study defect.
     """
     findings, local, cleared = [], [], []
-    for source in _py_sources() + [
-            p for p in sorted((REPO / "sdk" / "scripts").glob("*.py"))
-            if "__pycache__" not in p.parts]:
+    for source in _py_sources():
         text = source.read_text(encoding="utf-8", errors="replace")
         try:
             tree = ast.parse(text)
@@ -2487,10 +2498,13 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         PROPERTY,
         "a governed threshold restated as a literal default, whether or not "
         "it currently agrees with its source",
-        "everything outside sdk/workflows and sdk/chief_engineer. `scripts/` "
-        "is not in _py_sources(), so this file's own restatements -- "
-        "_fd_grade and STALL_SECONDS -- are out of its reach. The audit does "
-        "not audit itself", None),
+        "a threshold this file does not know is governed. _PY_ROOTS now "
+        "covers scripts/ and sdk/scripts/ as well, so this file IS scanned, "
+        "but GOVERNED_THRESHOLDS names only two constants by parameter name. "
+        "_fd_grade restates verification charter section 7 as the literals "
+        "15.0 and 5.0 in positional code rather than as a defaulted parameter, "
+        "and STALL_SECONDS is declared here with no governed source at all; "
+        "neither is reachable by a check keyed on parameter defaults", None),
     "check_register_group_counts": (
         SURFACE,
         "a register group whose declared count disagrees with the headings "
