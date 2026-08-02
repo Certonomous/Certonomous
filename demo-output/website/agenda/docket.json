@@ -4179,6 +4179,46 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-02T06:18:05Z"
+    },
+    {
+      "id": "w4-a-pivoting-factorization-for-the-blocked-adjoints",
+      "well": "W4",
+      "objective": "Measure whether a pivoting-capable factorization converges the CBFS adjoint, on the case where a direct solve of its own dumped system already works",
+      "rationale": "W4 named the CBFS and NASA-hump blocker rather than merely characterising it. DAFoam's incomplete factorization of dRdWTPC hits an exact zero pivot: scipy's spilu on the dumped matrix fails with 'Factor is exactly singular', while scipy's splu with partial pivoting solves the same system to ||Ax-b||/||b|| = 2.535461e-12. Two of the five matrix orderings turn that into -9 DIVERGED_NANORINF at iteration 0 and three into -3 stagnation; none of the five converges, and the residual under natural falls only 2.9185e-06 relative over 1000 iterations. Fill is not the missing ingredient -- B3's own pcFillLevel 4 also returned -9, because fill adds fill and not pivoting. DALinearEqn.C hard-codes PCType localPCType = PCILU after KSPSetFromOptions, and already sets PCFactorSetPivotInBlocks TRUE and MAT_SHIFT_NONZERO with PETSC_DECIDE, so no daOptions lever and no PETSc runtime option reaches the remedy. The only test left is a scratch rebuild of libDASolver.so with PCLU (or PCFactorSetMatSolverType to superlu_dist) on the 21,000-cell CBFS case, which is small enough that a direct subdomain solve is affordable.",
+      "est_core_min": 240.0,
+      "predicted_memory_gb": 12.0,
+      "predicted_usd": 3.283,
+      "cost_basis": "estimate, and the uncertain part is the build not the solve: the CBFS adjoint attempts measured this session cost 6-32 core-min each, so the solve side is under 60; the rest is one container rebuild of DAFoam's adjoint library, never done on this box, and it may fail outright",
+      "gate": "The CBFS adjoint either converges under a pivoting factorization (PetscConvergedReason 2) or is shown not to, with its own log cited. If it converges, the gradient is FD-verified against check_totals before any claim is made about it -- nothing converged has ever been claimed here unverified.",
+      "expected_knowledge_gain": "Either the first converged adjoint on a case this lab has carried as blocked since B3, with a named one-line cause and a demonstrated fix to offer upstream, or a measured refutation that moves the cause off the factorization and onto the operator itself",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/PROOF.md section 25.3",
+        "dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md addendum 2026-08-02",
+        "dafoam/DAFOAM_CASE_STATUS.md B3 Stage 3"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T06:36:00Z"
+    },
+    {
+      "id": "w4-a4-the-last-unprobed-link",
+      "well": "W4",
+      "objective": "Test A4's dCD/dXv against a true re-solve finite difference of itself, the only named link left after two candidates were refuted",
+      "rationale": "W5 recorded that roughly 11% of A4's gradient disagreement is the rotation defect and the other 89% has no identified cause. W4 tested the two cheapest explanations and refuted both: the FD is resolved, not unstable (eight steps, two disjoint Richardson pairs agreeing to 0.187% at FD0 = 0.242491, against which the stock gap is 10.01%, the patched 8.92%, and the patch's share 10.9% -- so the split survives extrapolation), and A4's nom_addShapeFunctionDV path, the one construction unique to this case and the obvious suspect since it is the only case whose error survives the IDWarp patch, agrees with a finite difference of DVGeo.update() to 3.32e-14. That leaves dCD/dXv, which A1 section 20 and A5 both probed via DASolver.setVolCoords and which A4 never has, and behind it this case's own documented bistable separated wake on a 2,777-cell mesh. The probe script exists on two other cases and A4 is the cheapest case in either ladder.",
+      "est_core_min": 25.0,
+      "predicted_memory_gb": 8.0,
+      "predicted_usd": 0.342,
+      "cost_basis": "measured: A4 check_totals runs at 2.1 core-min each this session (2,777 cells / 4 ranks = 694 cells per rank, 31 s wall), and the probe needs a baseline plus roughly ten re-solves at two step sizes",
+      "gate": "dCD/dXv either agrees with a true re-solve-based FD of itself at the level A1 and A5 reached (0.2-2.5%) or it does not, with both probe-failure signatures -- step-size instability and implausibly constant ratios -- checked before the result is trusted",
+      "expected_knowledge_gain": "Either the last link is clean, which forces A4's residual onto the physics and makes the bistable wake the named cause rather than a hand-wave, or it is the defect and A4 stops being the one case in the ladder with no explanation",
+      "source_kind": "gate",
+      "citations": [
+        "dafoam/PROOF.md section 25.4",
+        "dafoam/W5_GRADIENT_REGRADE.md section 2",
+        "dafoam/PROOF.md section 20"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T06:36:00Z"
     }
   ]
 }
