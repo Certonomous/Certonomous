@@ -59,7 +59,7 @@
     "ahmed_25-rung-medium",
     "ahmed_25-production"
   ],
-  "updated_utc": "2026-08-02T05:35:49Z",
+  "updated_utc": "2026-08-02T06:21:19Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -193,5 +193,40 @@
       "reportable_band": null,
       "answers_docket_item": "agp-804d7038bf9e, 'Add a fourth refinement rung to the Ahmed reference body, 25 degree slant grid ladder'. The fourth rung exists and is measured: 144240 cells at Cd 0.079359699. It is NOT appended to levels[] above, because levels[] is two recipes and appending a production-recipe rung to it would extend a sequence whose top step is not a refinement. On the valid family the answer to the item is: no observed order, the ladder is non-monotone, and uq.reportable_band is None."
     }
+  },
+  "published_rung_replicate": {
+    "measured_utc": "2026-08-02T06:18:48Z",
+    "record": "demo-output/website/campaign/W3_PUBLISHED_RUNG_REPLICATES.md",
+    "why_here": "W3_MESH_NOISE_FLOOR_RESULTS.md measured the mesh-generation scatter falling as N^-2 on the NACA 0012, so the replicate worth running first is at the COARSEST rung -- and the coarsest rung that matters is the one a credential is printed from. This is that replicate, at this body's published production rung.",
+    "method": "Two cases from this body's own production case: A at the stored background divisions (the control, which must reproduce the stored cell count) and B perturbed. Every other file byte-identical. Both solved at 4 MPI ranks, scotch, so the pair shares one decomposition.",
+    "A": {
+      "divisions": "60 13 36",
+      "cells": 79439,
+      "cd": 0.084802548,
+      "window_2sigma": 1.336e-05,
+      "iterations": 155,
+      "converged_on_residualControl": true,
+      "case": "/home/ubuntu/certonomous-runs/w3-published-rung-ahmed_25/a"
+    },
+    "B": {
+      "divisions": "61 12 37",
+      "cells": 77389,
+      "cd": 0.088579984,
+      "window_2sigma": 5.403e-05,
+      "iterations": 154,
+      "converged_on_residualControl": true,
+      "case": "/home/ubuntu/certonomous-runs/w3-published-rung-ahmed_25/b"
+    },
+    "cells_delta_percent": -2.58,
+    "control_reproduces_stored_cd": {
+      "stored": 0.084812,
+      "A": 0.084802548,
+      "apart": 9.452e-06
+    },
+    "mesh_scatter": 0.003777436,
+    "scatter_over_A_iterative_2sigma": 282.7,
+    "published_band_abs": 0.020223634207885317,
+    "scatter_over_published_band": 0.187,
+    "finding": "The scatter is 282.7x this body's own iterative 2-sigma, so it is cleanly separable and real, and it is 18.7 percent of the envelope this row publishes. Whatever else is wrong with publishing an envelope off a declined ladder -- that is the open ruling w3-a-declined-ladder-still-publishes-an-envelope -- this envelope is NOT too small for the mesh scatter underneath it. That is a check the wall passed, and it is the first time it has been made."
   }
 }

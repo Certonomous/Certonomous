@@ -59,7 +59,7 @@
     "naca0015_sail-rung-medium",
     "naca0015_sail-production"
   ],
-  "updated_utc": "2026-07-31T22:28:09Z",
+  "updated_utc": "2026-08-02T06:21:19Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -90,5 +90,40 @@
       "method": "Richardson-extrapolated value falls outside the measured range; ladder not in the asymptotic range, conservative band, largest spread times 1.25"
     },
     "verdict_moved": false
+  },
+  "published_rung_replicate": {
+    "measured_utc": "2026-08-02T06:18:48Z",
+    "record": "demo-output/website/campaign/W3_PUBLISHED_RUNG_REPLICATES.md",
+    "why_here": "W3_MESH_NOISE_FLOOR_RESULTS.md measured the mesh-generation scatter falling as N^-2 on the NACA 0012, so the replicate worth running first is at the COARSEST rung -- and the coarsest rung that matters is the one a credential is printed from. This is that replicate, at this body's published production rung.",
+    "method": "Two cases from this body's own production case: A at the stored background divisions (the control, which must reproduce the stored cell count) and B perturbed. Every other file byte-identical. Both solved at 4 MPI ranks, scotch, so the pair shares one decomposition.",
+    "A": {
+      "divisions": "60 36 54",
+      "cells": 243929,
+      "cd": 0.01015591,
+      "window_2sigma": 3.828e-06,
+      "iterations": 139,
+      "converged_on_residualControl": true,
+      "case": "/home/ubuntu/certonomous-runs/w3-published-rung-naca0015_sail/a"
+    },
+    "B": {
+      "divisions": "61 35 55",
+      "cells": 245560,
+      "cd": 0.009624541,
+      "window_2sigma": 4.353e-06,
+      "iterations": 142,
+      "converged_on_residualControl": true,
+      "case": "/home/ubuntu/certonomous-runs/w3-published-rung-naca0015_sail/b"
+    },
+    "cells_delta_percent": 0.67,
+    "control_reproduces_stored_cd": {
+      "stored": 0.010153,
+      "A": 0.01015591,
+      "apart": 2.91e-06
+    },
+    "mesh_scatter": 0.000531369,
+    "scatter_over_A_iterative_2sigma": 138.8,
+    "published_band_abs": 0.007206904996527777,
+    "scatter_over_published_band": 0.074,
+    "finding": "The scatter is 138.8x this body's own iterative 2-sigma, so it is cleanly separable and real, and it is 7.4 percent of the envelope this row publishes. Whatever else is wrong with publishing an envelope off a declined ladder -- that is the open ruling w3-a-declined-ladder-still-publishes-an-envelope -- this envelope is NOT too small for the mesh scatter underneath it. That is a check the wall passed, and it is the first time it has been made. Read with this record's own band_rel of 0.70962 in view: the envelope is 71 percent of the value it decorates, and an envelope that large will contain almost anything."
   }
 }

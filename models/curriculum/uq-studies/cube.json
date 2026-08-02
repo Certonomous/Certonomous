@@ -54,7 +54,7 @@
     "cube-rung-medium",
     "cube-production"
   ],
-  "updated_utc": "2026-07-31T22:28:09Z",
+  "updated_utc": "2026-08-02T06:21:19Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -83,5 +83,65 @@
       "method": "rungs not monotone; conservative band, largest spread times 1.25"
     },
     "verdict_moved": false
+  },
+  "published_rung_replicate": {
+    "measured_utc": "2026-08-02T06:18:48Z",
+    "record": "demo-output/website/campaign/W3_PUBLISHED_RUNG_REPLICATES.md",
+    "why_here": "W3_MESH_NOISE_FLOOR_RESULTS.md measured the mesh-generation scatter falling as N^-2 on the NACA 0012, so the replicate worth running first is at the COARSEST rung -- and the coarsest rung that matters is the one a credential is printed from. This is that replicate, at this body's published production rung.",
+    "method": "Two cases from this body's own production case: A at the stored background divisions (the control, which must reproduce the stored cell count) and B perturbed. Every other file byte-identical. Both solved at 4 MPI ranks, scotch, so the pair shares one decomposition.",
+    "A": {
+      "divisions": "36 60 36",
+      "cells": 299493,
+      "cd": 1.108388909,
+      "window_2sigma": 0.014686,
+      "iterations": 300,
+      "converged_on_residualControl": false,
+      "case": "/home/ubuntu/certonomous-runs/w3-published-rung-cube/a"
+    },
+    "B": {
+      "divisions": "37 59 37",
+      "cells": 329606,
+      "cd": 1.093505136,
+      "window_2sigma": 0.0040621,
+      "iterations": 300,
+      "converged_on_residualControl": false,
+      "case": "/home/ubuntu/certonomous-runs/w3-published-rung-cube/b"
+    },
+    "cells_delta_percent": 10.05,
+    "control_reproduces_stored_cd": {
+      "stored": 1.104172,
+      "A": 1.108388909,
+      "apart": 0.004216909
+    },
+    "mesh_scatter": 0.014883773,
+    "scatter_over_A_iterative_2sigma": 1.0,
+    "published_band_abs": 0.007821502430555294,
+    "scatter_over_published_band": 1.903,
+    "measurement_failed": "The mesh scatter CANNOT be extracted from this experiment on this body, and that is reported as a failure to measure rather than massaged into a result: at 1.488e-02 it is the same size as run A's own iterative 2-sigma of 1.4686e-02.",
+    "what_was_found_instead": {
+      "no_run_converges": "Neither the original production run nor either run tonight prints 'SIMPLE solution converged'. All three ran to the fixed 300-iteration cap. Checked directly in /home/ubuntu/certonomous-runs/study-cube-2904cb/log.simpleFoam.",
+      "original_run": {
+        "ranks": 16,
+        "cells": 299493,
+        "cd": 1.102404922,
+        "window_2sigma": 0.0072553,
+        "two_sigma_over_published_band": 0.93,
+        "note": "The run behind the published credential has an unsettled final-window 2-sigma that is 93 percent of the plus or minus 0.0078 envelope printed beside it. That envelope is offered as a DISCRETIZATION uncertainty across a three-mesh study; almost all of it could be accounted for by this single solve not having stopped moving."
+      },
+      "decomposition_alone": {
+        "same_mesh_16_ranks": 1.102404922,
+        "same_mesh_4_ranks": 1.108388909,
+        "difference": 0.005984,
+        "over_published_band": 0.76,
+        "note": "byte-identical geometry and dictionaries; only the rank count differs"
+      },
+      "three_run_spread": {
+        "span": 0.014884,
+        "over_published_band": 1.9
+      },
+      "answers_agp_d0b3c7cb6a58": "The item asks for a fourth rung on this ladder. A fourth rung cannot help a body whose third rung has not converged. The three stored Cd values 1.102982 / 1.109239 / 1.104172 span 6.26e-03 across a 5.6x change in cells -- SMALLER than the finest rung's own iterative 2-sigma and smaller than what changing the rank count does. The ladder is reading its own noise.",
+      "same_defect_as": "w3-run-uq-studies-still-caps-every-rung-at-300. run_uq_studies.ITERATIONS is the constant 300 for this body's 53,861-cell coarse rung and its 299,493-cell production rung alike, and nothing checks whether either settled. tmr_verification fixed exactly this on 2026-07-31 with iteration_backstop(cells); the curriculum runner never got it.",
+      "recommendation": "Re-solve under a settle criterion and recompute the envelope from rungs that stopped because they were done -- about 6 core-minutes at 4 ranks per attempt on tonight's measurement. Do not quietly retighten or widen the row tonight; the decision belongs with the open ruling w3-a-declined-ladder-still-publishes-an-envelope."
+    }
   }
 }
