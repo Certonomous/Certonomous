@@ -2875,10 +2875,21 @@ number. Caught by reading the log's own `Decomposition method scotch [4]` line b
 worth recording on its own: a decomposition change made the obvious way has no effect and leaves no
 warning.**
 
-**The control that says this is not a property of the stack.** A1 — the lab's most-verified case,
-and one whose `polyMesh` carries no `cellLevel`/`pointLevel` — was run at np=1 and np=4 under the
-identical harness: analytic 6.490496e-02 vs 6.490495e-02, relative error **3.795529e-04 vs
-3.807681e-04**. Identical to six digits. **A1 is decomposition-invariant; A4 is not.**
+**The controls that say this is not a property of the stack.** Two other cases, both with conformal
+`polyMesh`es carrying no `cellLevel`/`pointLevel`, were put through the same variation:
+
+* **A1** — the lab's most-verified case — at np=1 and np=4 under the identical harness: analytic
+  6.490496e-02 vs 6.490495e-02, relative error **3.795529e-04 vs 3.807681e-04**. Identical to six
+  digits.
+* **A5** — `compute_totals` only (adjoint, no FD), fixed np=4, `scotch` against `simple` 4x1x1,
+  4,800 cells / 4 ranks = 1,200 cells per rank. Across all three upper-surface DV groups, 27
+  components each: `‖diff‖/‖simple‖` = **2.3576e-04** (`shapexUpper`), **2.9973e-04**
+  (`shapeyUpper`), **3.4623e-04** (`shapezUpper`), worst single component **0.75%**, and **zero
+  components differ by more than 1%** in any group. That is ordinary reconvergence noise, not a
+  decomposition dependence.
+
+**A1 and A5 are decomposition-invariant; A4 is not.** The discriminator lines up exactly with the
+mesh type across all three: A1 and A5 are conformal, A4 is not.
 
 **What this changes.**
 
