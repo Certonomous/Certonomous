@@ -244,6 +244,37 @@ build-tooling fix to the autoedit step. **Upgrading 2.6.2 → 2.6.4 will not fix
 
 Recorded as *suggestive, not proven* — this lab has not reproduced any of them:
 
+> **WITHDRAWN 2026-08-02 for #905 and #914. Neither is undiagnosed and neither is
+> open; both were resolved upstream, and the threads say so. Reading them was
+> the whole of the work. Full account: `W5_COMMUNITY_REPORTS_TESTED.md`.**
+>
+> * **#905 is reproduced, and its cause is the FD step, not this mechanism.** The
+>   thread's steps were **1e-5 to 1e-7**; maintainer `friedenhe` replied *"You
+>   should not use such a small step in finite-difference. Try to use 1e-3 or
+>   1e-4"*, and the reporter's re-run at 1e-3 came back at 5.559751e-03. This
+>   lab's own sweep on **the same tutorial** (`ladder-a/A_stepsize_study.json`,
+>   2026-07-28) reads **52.879% at 1e-7 and 94.951% at 1e-8** — inside the
+>   reported 40–126% — collapsing to **11.427% at 1e-3**. The "tracks which mesh
+>   generator" reading is withdrawn: the thread's finer grid needed the larger
+>   step and its coarser grid did not, which is a roundoff floor scaling with the
+>   perturbation against the cell size. And the reporter's clean post-fix number
+>   is on `patchV`, a chain that reads 0.2317% with and without the patch, so the
+>   thread contains **no shape derivative at a plateau step** and cannot say
+>   whether a residual defect remains.
+> * **#914's split is not diagnostic.** A1's own table carries the identical
+>   12-order gap in **both** settings — `volcon`/`thickcon` at 4.367e-12 % and
+>   1.265e-11 % whether the branch is live or corrected, against CD/shape at
+>   11.43% stock and 0.03745% patched. The split separates *adjoint-computed*
+>   from *not adjoint-computed*, not *crosses `warpDeriv`* from *does not*. Nor
+>   can its 1.27e-02 magnitude be read either way: §3 of the regrade already
+>   established that A1's 1.671% `CL wrt shape` was ~99% rotation defect, so an
+>   aggregate in that band is compatible with the mechanism present and absent
+>   alike. The case is private, no files are attached, and it runs v4.0.2 rather
+>   than 2.6.2. **Recorded as not reproducible from the information given.**
+>
+> Neither report was ever evidence in either direction. The scope claim is
+> unchanged, and it now rests on this lab's own cases alone.
+
 - **`mdolab/dafoam` discussion #905** (opened 2025-11-05, unresolved): NACA0012, analytic-vs-FD 40%–126%,
   and the error tracks *which mesh generator produced the grid* rather than the flow. Mesh-dependence
   with flow-independence points at the warp, but we did not run it.
@@ -538,7 +569,13 @@ item `w5-rotations-off-mesh-quality-price`.
   **not** the single line §6.4 named. It is `vectorUtils.f90:69-70`'s `acos` **and**
   `vectorUtils_b.f90:133`'s cancellation together -- each alone buys 1.0x-1.6x, the pair buys
   3.7e+07x. Unlike regime 1, a regime-2 fix cannot be primal-bit-identical.
-- Whether `mdolab/dafoam` #905 / #914 are this defect is **unverified**. They have not been run here.
+- ~~Whether `mdolab/dafoam` #905 / #914 are this defect is **unverified**. They have not been run here.~~
+  **CLOSED 2026-08-02, see §2.5 and `W5_COMMUNITY_REPORTS_TESTED.md`.** #905 is neither this defect nor
+  open: its own thread diagnoses the FD step, and this lab's NACA0012 sweep reproduces the reported
+  40–126% at steps of 1e-7 and 1e-8. #914's constraint-vs-objective split appears identically with the
+  branch live and corrected, so it discriminates nothing, and its case is not published. Zero compute
+  against a filed 20 core-minutes; the runs that budget would have bought could not have answered
+  either question.
 - PROOF.md §22's carried-forward `getdFScaling` anomaly is untouched by this session and remains open.
 
 ---
