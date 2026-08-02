@@ -488,6 +488,14 @@ and A4 all use `rcm`; the working `ramp_kw` SST field-inversion tutorial uses `n
 ordering is neither necessary nor sufficient for success. What it controls, reproducibly, is
 whether a case that was going to fail anyway fails as a NaN or as honest stagnation.**
 
+All four cells of that table have primary evidence, read from each case's own runtime echo and
+converged reason:
+
+| | converges | fails |
+|---|---|---|
+| `rcm` | **A1** (`Mat ReOrdering: rcm`, `PetscConvergedReason: 2`); **A4** (`rcm`, reason `2`, 719 iterations, 21.48 s) | **hump**, **CBFS** (`rcm`, reason `-9`, 0 iterations) |
+| `natural` | **`ramp_kw`** SST field inversion (91 iterations, reason `2`) | **A3/M6 family** (`natural`, reason `-5`); reconfirmed this session on R5's own 21,840-cell reproducer, 5,460 cells per rank: CD adjoint `-5` at 400 iterations / 100.87 s, CL adjoint `-5` at 600 iterations / 169.57 s |
+
 Evidence: `/home/ubuntu/certonomous-runs/W4-cbfs-reordering/` -- `cbfs_{rcm,natural,nd,1wd,qmd,force_rcm,force_natural}_computetotals.log`,
 `cbfs_dump/{pmat,rhs}.dat`, `analyze_dump.py`, `analyze_dump2.py`, `run_cbfs.sh`, `stage.sh`.
 
