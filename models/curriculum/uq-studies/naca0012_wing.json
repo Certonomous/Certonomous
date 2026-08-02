@@ -61,7 +61,7 @@
     "naca0012_wing-rung-medium",
     "naca0012_wing-production"
   ],
-  "updated_utc": "2026-07-31T22:28:09Z",
+  "updated_utc": "2026-08-02T05:35:24Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -91,5 +91,66 @@
       "method": "3-mesh study (r = 1.28), observed order p = 3.17; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)"
     },
     "verdict_moved": false
+  },
+  "recipe_audit": {
+    "audited_utc": "2026-08-02T05:30:00Z",
+    "finding": "The three stored rungs are TWO mesh recipes, and no knob moves twice. coarse -> medium refines the background blockMesh and holds the near-body levels fixed; medium -> production refines the near-body levels (refinementSurfaces body level, the eMesh feature level and the nearBody region level, all three at once) and holds the background blockMesh IDENTICAL. Read from each rung's own system/snappyHexMeshDict and system/blockMeshDict, with each cell count read from that rung's own constant/polyMesh/owner header and matched against the count stored in levels[]. A pure background change IS a uniform refinement -- snappyHexMesh subdivides background cells by 2^level, so scaling the background scales h everywhere with one ratio r -- which is the step b52.json's recipe_audit accepts. A pure level change is NOT: it subdivides only at the surface, along the feature edges and inside the nearBody box, leaving the farfield h untouched, so there is no single r for that step and a Richardson expansion in one h has nothing to expand in. Each of these ladders therefore contains ONE valid refinement pair (coarse -> medium) and one step that is not a grid refinement, and the invalid step is the TOP one: the finest rung, the mesh the act solves and the credentials wall counts cells for, is the rung not connected to the rest of its ladder by a valid step. Two rungs cannot yield an observed order, so the observed_order and richardson_extrapolated in the numerical block below are fitted across a step that is not a refinement.",
+    "cause": "sdk/workflows/geometry_study.py, refinement_rungs(). Every act on this path runs refinement=3, so base=3, medium_level=max(2,2)=2 and coarse_level=max(2,1)=2 -- the floor collapses the coarse level onto the medium level. That makes coarse_level == medium_level true, which is the condition that gives the coarse rung, and only the coarse rung, block_scale 0.7. The function's docstring says 'Each rung steps the whole level family down one'; at refinement 3 that is false, and the docstring itself records why the second knob exists: 'when the floor would make two rungs identical, the coarser one also scales the background-mesh divisions so the cell budgets stay distinct; the runtime cell-count guard still refuses to report a study if they do not.' The guard added checks DISTINCTNESS. Distinctness is not comparability, and nothing downstream was ever asked whether the rungs were comparable.",
+    "rungs": {
+      "coarse": {
+        "case": "/home/ubuntu/certonomous-runs/study-naca0012_wing-coarse-09bec1",
+        "cells_from_polyMesh_owner": 27265,
+        "background_blockMesh_divisions": "23 42 14",
+        "refinementSurfaces_body_level": "2 3",
+        "eMesh_feature_level": 2,
+        "nearBody_region_level": 1
+      },
+      "medium": {
+        "case": "/home/ubuntu/certonomous-runs/study-naca0012_wing-medium-520ccb",
+        "cells_from_polyMesh_owner": 67356,
+        "background_blockMesh_divisions": "33 60 20",
+        "refinementSurfaces_body_level": "2 3",
+        "eMesh_feature_level": 2,
+        "nearBody_region_level": 1
+      },
+      "production": {
+        "case": "/home/ubuntu/certonomous-runs/study-naca0012_wing-1021cb",
+        "cells_from_polyMesh_owner": 140580,
+        "background_blockMesh_divisions": "33 60 20",
+        "refinementSurfaces_body_level": "3 4",
+        "eMesh_feature_level": 3,
+        "nearBody_region_level": 2
+      }
+    },
+    "knob_moved": {
+      "coarse_to_medium": "background blockMesh only (a uniform h refinement)",
+      "medium_to_production": "near-body levels only, background identical (NOT a uniform h refinement)"
+    },
+    "valid_refinement_pairs": [
+      [
+        27265,
+        67356
+      ]
+    ],
+    "valid_family_cells": [
+      27265,
+      67356
+    ],
+    "valid_family_note": "Two rungs. Not enough for an observed order, and they are the two rungs the act does NOT solve on. The production rung stands alone at its own recipe.",
+    "step_evidence": {
+      "background_step": {
+        "h_ratio": 1.3518,
+        "delta_cd": -0.006398
+      },
+      "level_step": {
+        "h_ratio": 1.278,
+        "delta_cd": -0.010237
+      },
+      "abs_ratio_level_over_background": 1.6,
+      "reading": "The two steps move Cd by amounts that do not scale with their nominal cell ratios, and the direction of the mismatch follows the geometry: on the two thin wings the near-body step dominates, on the two blunt Ahmed bodies the farfield step does. That consistency is evidence the two steps measure different things rather than the same thing twice."
+    },
+    "numerical_block_untouched": "The numerical block in this record is NOT refitted by this audit. Refitting would mean fitting on the one valid pair, which is two rungs, which is no fit at all; what the record should say when a body has no usable ladder is a decision that belongs with the open ruling w3-a-declined-ladder-still-publishes-an-envelope, not with a rung item. This block records which rungs are comparable, exactly as b52.json's recipe_audit does, and moves nothing else. uq.reportable_band returned None for this body before this audit and returns None after it.",
+    "what_this_body_needs": "Two further rungs ABOVE the production mesh at the production recipe, varying only the background blockMesh divisions at a constant ratio. With the production rung that makes a genuine three-rung single-knob family. The construction is proven: R4 built it for the Ahmed 25 degree at 79439/144240/254911/454691 cells, h-ratios 1.2200/1.2090/1.2128, for 6.2 core-minutes on the first three rungs at 4 ranks. It came back non-monotone, so a valid ladder is not a promise of a conclusive one.",
+    "record": "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md"
   }
 }
