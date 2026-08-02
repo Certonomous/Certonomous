@@ -2655,3 +2655,73 @@ limitation, not a recommendation; nothing has been filed.
 approximation, not the matrix-free transpose Jacobian GMRES actually applies. The singular-ILU
 finding is direct -- that is precisely the matrix DAFoam factors. Controls 1-3 are statements about
 that same assembled matrix and are corroborative of, not identical to, the real solve.
+
+### 25.4 A4's unexplained residual: two candidates tested, both refuted, and the 11%/89% split holds up
+
+`W5_GRADIENT_REGRADE.md:106-131` records A4 at 10.04% stock / 8.953% patched and concludes
+"roughly 11% of A4's gradient disagreement is the rotation defect; the other 89% has no identified
+cause." Both numbers were taken at a single FD step, `h=1e-3`, the published one. Two things that
+should be checked before an 89% is called unexplained had never been checked on this case.
+
+**Candidate 1: step-size instability -- refuted.** This is one of the two probe-failure signatures
+this investigation is bound to rule out before trusting a comparison, and A4's FD had never been
+swept. Ten runs, patched IDWarp, np=4, 2,777 cells / 4 ranks = **694 cells per rank**, `stage_and_run.sh`
+touching only the `step=` token (the analytic column is step-independent by construction and comes
+back constant at 2.2086e-01 in every run, which is itself the control that nothing else moved):
+
+| `h` | FD magnitude | vs patched analytic | vs stock analytic |
+|---|---|---|---|
+| 1e-2 | 2.4677e-01 | 10.50% | 11.57% |
+| 3e-3 | 2.4329e-01 | 9.22% | 10.31% |
+| **1e-3 (published)** | **2.4258e-01** | **8.95%** | **10.05%** |
+| 3e-4 | 2.4407e-01 | 9.51% | 10.60% |
+| 1e-4 | 2.5055e-01 | 11.85% | 12.91% |
+| 3e-5 | 2.5071e-01 | 11.91% | 12.96% |
+| 1e-5 | 2.5534e-01 | 13.50% | 14.54% |
+| 3e-6 | 1.3498e-01 | 63.62% | 61.66% |
+
+The stock arm at `h=1e-3` reproduces the published `2.1821e-01 | 2.4258e-01 | 1.0044e-01` exactly,
+and the two `h=1e-3` runs (stock and patched, different toolchains, different containers) print
+**bit-identical** perturbed CD values to eight significant figures -- so the pipeline is
+deterministic and the FD's behaviour below is a real property of the curve, not scatter.
+
+The FD is well resolved down to `h=1e-3`, then drifts as the CD difference approaches the primal's
+own convergence floor, and collapses entirely at `h=3e-6` (where `2h` times the derivative is
+~1.5e-06, i.e. the difference is being taken at the noise level). **Richardson extrapolation on the
+resolved branch, from two disjoint pairs, agrees to 0.187%**: `(1e-2, 3e-3)` gives FD0 = 0.242946
+and `(3e-3, 1e-3)` gives FD0 = 0.242491. Against FD0 = 0.24249 the stock gap is **10.01%**, the
+patched gap **8.92%**, and the share of the disagreement the rotation patch closes is **10.9%**.
+
+**So the published single-step numbers were taken inside the resolved band, and the 11%/89% split
+survives a proper extrapolation.** The 89% is not a step artifact. Reported as the negative result
+it is: this was the cheapest available explanation and it is gone.
+
+**Candidate 2: A4's design-variable construction -- refuted, to machine precision.** A4 is the only
+case in either ladder built with **`nom_addShapeFunctionDV`** (`runScript.py:110`, two FFD control
+points moved together in +z), and it is the only case whose error *survives* the IDWarp
+degenerate-branch patch. Every other case had `dXs/dShape` verified at machine precision
+(2.8e-12-6.4e-12 on A5, machine precision on A1); A4's never had been. Tested directly -- DVGeo's own
+analytic Jacobian column against a central finite difference of `DVGeo.update()`, pure geometry, no
+CFD, no warp, no adjoint, four step sizes so instability is visible rather than assumed absent:
+
+| `h` | `\|\|fd\|\|` | `\|\|fd - eta\|\|` | relative |
+|---|---|---|---|
+| 1e-3 | 1.604510636229503e+00 | 5.333194e-14 | **3.32e-14** |
+| 1e-4 | 1.604510636229538e+00 | 4.194235e-13 | 2.61e-13 |
+| 1e-5 | 1.604510636231732e+00 | 8.117928e-12 | 5.06e-12 |
+| 1e-6 | 1.604510636178518e+00 | 7.469164e-11 | 4.66e-11 |
+
+47 surface points respond, all of them; the error grows exactly as roundoff should as `h` shrinks.
+**`nom_addShapeFunctionDV` is clean.** A4's link 1 is as sound as every other case's, and the
+"A4 is the odd one out because of its DV construction" reading is dead.
+
+**Where that leaves A4.** `dXs/dShape` clean (3.3e-14, this session); `dXv/dXs` accounts for 10.9%
+of the gap and no more (W5's patch, confirmed here against the extrapolated FD); the FD itself is
+resolved and trustworthy in the band the published number was taken in. The remaining ~89% is
+therefore confined to `dCD/dXv` or to the physics -- A4 is a coarse (2,777-cell) mesh of a
+separated wake this case's own record already documents as bistable, with `DASimpleFoam` landing on
+a different branch than the OpenFOAM baseline. That is a narrowing by elimination of two named
+candidates, not an identification, and it is recorded as such.
+
+Evidence: `/home/ubuntu/certonomous-runs/W4-a4-stepsweep/` (`sweep.out`, `sweep_ext.out`,
+`a4_h*_{stock,patched}.log`, `stage_and_run.sh`, and the probe in `a4_dxsprobe/runScript.py`).
