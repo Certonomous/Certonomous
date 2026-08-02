@@ -21,6 +21,9 @@
     "average": 0.47187364731
   },
   "cf_at_0p75": 0.005354981408,
+  "yplus_time": 5288.0,
+  "yplus_source": "postProcessing/yPlus1/3000/yPlus.dat",
+  "yplus_is_settled_state": true,
   "logs": [
     "log.simpleFoam",
     "log.simpleFoam.extend12000"

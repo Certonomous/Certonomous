@@ -215,3 +215,51 @@ The viscous component and Cf are the control in all this: the reference clears
 our gate on both, so the gate is not simply too tight for everything on these
 grids. It is too tight for the pressure component specifically, which is the
 component whose ladder this item exists to recover.
+
+## 6. A defect in the collector, found before it reached the finest rung
+
+Found 2026-08-02 while checking that `collect.py` would read the fine rung's
+settled state correctly. It would not have, and it had already misread the
+medium rung.
+
+**Three traps, stacked.**
+
+1. **`postProcessing` directories are named for the run's START time**, so
+   `yPlus1/0/yPlus.dat` holds the state at the *end* of the first run. Sorting
+   directory names does not sort states.
+2. **The y+ loop globbed unsorted** and kept the last successful parse, so the
+   filesystem's directory order decided which state got published — while the
+   `wallCf` loop three lines below it was sorted. One of the two was written
+   carefully.
+3. **OpenFOAM renames a function object's output to `<name>_<time>.dat` when the
+   file already exists on restart.** This is the same restart-collision the lab
+   already knows about for `coefficient.dat`, and which `stitch.py` handles for
+   the force histories — but nothing handled it for y+. `yPlus1/10000/` on the
+   medium rung holds a **header-only** `yPlus.dat` beside the real
+   `yPlus_10000.dat`, and the collector only ever opened the former.
+
+**What it cost.** The medium rung's published y+ was the state at iteration
+**5,000**, tabulated in §3 beside a Cd from iteration **16,000**. Corrected:
+
+| medium, y+ on the bump | published | corrected (t = 16,000) | delta |
+|---|---|---|---|
+| min | 0.14930690811 | 0.14927358540 | −3.33e−05 (0.022%) |
+| max | 0.42879737165 | 0.42878909954 | −8.27e−06 (0.0019%) |
+| average | 0.23653806350 | 0.23649763025 | −4.04e−05 (0.017%) |
+
+Nothing else moved: Cd, its pressure/viscous split, and Cf(0.75) are unchanged,
+and the coarse rung was correct all along — its published y+ was already the
+settled state, reached by luck of directory order rather than by design.
+
+**The magnitude is small and the kind is not.** A number that is right to
+0.002% but describes a different iteration than the one it sits beside is the
+same defect the lab has been correcting elsewhere this week, and the mechanism
+that produced it was order-dependent: on a filesystem that enumerated
+`yPlus1/*` differently, the same code would have published a different number
+with no warning.
+
+**Fixed in `collect.py`**: y+ is now chosen by the Time written *inside* the
+file, across `yPlus*.dat` including the restart-renamed ones, and the record
+carries `yplus_time`, `yplus_source` and `yplus_is_settled_state` so a reader
+can check the y+ belongs to the state the Cd beside it came from. Both rungs
+re-collected under the fix; both now report `yplus_is_settled_state: true`.

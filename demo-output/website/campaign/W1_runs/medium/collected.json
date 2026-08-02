@@ -16,11 +16,14 @@
     "viscous": 0.003136340537
   },
   "yplus_bump": {
-    "min": 0.14930690811,
-    "max": 0.42879737165,
-    "average": 0.2365380635
+    "min": 0.1492735854,
+    "max": 0.42878909954,
+    "average": 0.23649763025
   },
   "cf_at_0p75": 0.00571840694,
+  "yplus_time": 16000.0,
+  "yplus_source": "postProcessing/yPlus1/10000/yPlus_10000.dat",
+  "yplus_is_settled_state": true,
   "logs": [
     "log.simpleFoam",
     "log.simpleFoam.extend12000",
