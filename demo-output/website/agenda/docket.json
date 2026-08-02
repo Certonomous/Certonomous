@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-02T11:02:16+00:00",
+ "generated_at": "2026-08-02T11:24:36+00:00",
  "proposals": [
   {
    "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -2794,12 +2794,13 @@
    "cost_basis": "estimate; not priced from the graded solve of this body, which is the run this proposal exists to replace. The record's 4.6 minutes belongs to a superseded refinement-2 act, not to the ladder that produced the graded drag: one rung of that ladder alone measured 1574.2 s of meshing plus 278.6 s of solve at 4 ranks. The 4.6 is a floor on the repair and not a price for it",
    "expected_knowledge_gain": "Either a validated credential for the NACA 4412 finite wing or a measured account of why the setup misses the reference",
    "source_kind": "gate",
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-29T04:12:40+00:00",
    "launch_prompt": "Mesh and solve the NACA 4412 wing and report the drag with its envelope.",
    "well": "W3",
-   "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decided_at": "2026-08-02T11:24:36+00:00",
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "outcome": "DONE 2026-08-02. 164.1 core-min MEASURED at 4 ranks (154.26 at refinement 5, 9.84 at refinement 3), against a filed estimate of 20 that belonged to the premise this item already refuted on 2026-08-02 and was re-scoped away from. THE ANSWER IS REFINEMENT 5. The same four background blockMesh division triples were rebuilt at the two rungs either side of the graded one -- twelve meshes, three rungs, all converged -- and the mesh-construction scatter reads 5.82 percent of the mean at r3 (0.99x the band half-width), 12.74 at r4 (1.69x, as published) and 4.20 at r5 (0.51x). At refinement 5 the drag can be STATED rather than merely reproduced: Cd = 0.018302 +/- 0.000385 half-range over four independently constructed meshes at 1.79-1.88 M cells, +16.6 percent from the reference 0.015696, scatter smaller than the band. BOTH CONTROLS HOLD: r3 A reproduces the stored medium rung's 263,359 cells exactly and its Cd to 2.6e-04; r5 A reproduces the stored finer rung's 1,849,113 cells, its Cd to 5.7e-05, and its max non-orthogonality, average AND its 797 severely non-orthogonal faces to every printed digit. THREE THINGS A ONE-RUNG STUDY COULD NOT HAVE SHOWN. (1) The scatter is NOT monotone in refinement -- 5.82, 12.74, 4.20 -- so the graded rung is the worst of the three and refining once from the medium rung made reproducibility WORSE before it made it better. (2) NOT VALIDATED now holds on twelve of twelve meshes across a 7.9-fold change in cell count, all outside the band on the same side, +13.61 to +65.42 percent, tightening toward about +16. (3) The published triple stops being an extremum of its own family: second of four at r5, 0.13 percent from the family mean, against the MINIMUM at r4 and the MAXIMUM on the NACA 0012. TWO CORRECTIONS TO THIS CREDENTIAL'S OWN RECORD: the finer rung's 58.3 percent layer coverage is a property of the RUNG, not of that mesh -- every r5 replicate reads 57.2-60.2 percent, about 6 of 12 layers, against 94.2-94.5 at r3 and r4 -- and that, not non-orthogonality, is where the +16.6 percent gap should be looked for next. COST DISCIPLINE, SCORED AGAINST ITSELF: the item required pricing from one mesh first and that was done, B at 32.61 core-min predicting 130.4 for a family of four; the family cost 154.26, a 1.18x overrun ON A MEASURED BASIS, outside the 1.051x measured-basis pairs had never exceeded. The cause is meshing, 934.2 to 1683.84 s across the four on an identical recipe with the control needing 51 layer-addition iterations against B's 25. The rule needs a clause: a single mesh prices a rung only where meshing cost is not itself construction-sensitive. Evidence: demo-output/website/campaign/W3_NACA4412_RESOLUTION_SCATTER.{md,json}, cases /home/ubuntu/certonomous-runs/w3-naca4412-layered-replicates/{r3,r5}/{A,B,C,E}."
   },
   {
    "id": "w3-refit-the-2d-ladders",
