@@ -271,6 +271,61 @@ constant keeps its value and loses its stated justification, which is recorded
 rather than repaired: moving it to restore the old-looking margin would be
 tuning the gate to the answer, which section 8 forbids.
 
+### 3.3a A refit reads the solved values, not the printed ones
+
+Section 3.3 is about a guard reading a different sample from the fit. This one
+is about a fit reading a different *precision* from the solve, and it is the
+same class of error one layer down.
+
+> **A refit reads the artifact the solver wrote. A rendered table is not that
+> artifact: it has already thrown away the digits the refit needs, and how many
+> it needed is a property of the ladder, not of the reader.**
+
+**The worked case, and both readings are on the record.** The supersonic wedge
+ladder was extrapolated twice from the same three rungs. Fitted on the values
+as the act's ladder table *prints* them, at three decimals — 47.588 / 46.123 /
+44.693 — the extrapolated shock angle is **−13.733 degrees**. Fitted on what
+the act *solved* — 47.58767882153372 / 46.12330850878531 / 44.692792746510406 —
+it is **−15.753**. Two point zero two degrees apart, and the entire difference
+is rounding. `demo-output/website/campaign/W3_2D_LADDER_REFIT.md` §4a;
+`sdk/tests/test_uq.py::test_rounding_the_rungs_moves_the_digit_and_not_the_verdict`
+pins the pair.
+
+**Why the size of that difference is not a coincidence.** At an observed order
+near zero the Richardson extrapolation amplifies the finest increment by a
+large factor — **42.25** on that ladder, against an observed order of 0.034.
+Whatever error the stored rungs carry is multiplied by exactly the same factor.
+So the worse a ladder behaves, the more its refit depends on precision nobody
+is thinking about, and the ladders most likely to be refitted are the badly
+behaved ones. The same rounding moved the cone's order 0.801 → 0.800, the
+diamond's 6.233 → 6.296 and vortex shedding's 2.436 → 2.430, none of which
+changes a guard or a verdict, because none of those is near-zero order.
+
+**Nothing that decides anything moved on the wedge either**, and the clause
+says so rather than overclaiming: `guards_failed` is
+`['order_window', 'extrapolation_sanity']` on both readings, `conclusive` is
+False on both, `reportable_band` is `None` on both, and the angle is physically
+impossible on both. The rule is here because the next ladder in this regime may
+not be so forgiving, not because this one was harmed.
+
+**What follows, all checkable before any compute is spent.**
+
+1. **A refit names the artifact it read**, and that artifact is the one the
+   solver wrote — a forces file, a coefficient file, a stored `levels[]` block
+   — never a document. A refit that cannot name one is not a refit.
+2. **An extrapolation is reported with its amplification.** The factor is
+   `|phi0 − phi_fine| / |e21|`, arithmetic on rungs already stored, and it is
+   the single number that says whether the input precision matters.
+3. **`scripts/self_audit.py` checks the corpus weekly**
+   (`check_stored_rungs_carry_solved_precision`). It computes, per study, how
+   far half a unit in the last stored decimal reaches after amplification, and
+   reports any ladder where that reach exceeds a tenth of the study's own band.
+   At this clause's writing all six extrapolating curriculum ladders store 10
+   to 18 decimals against amplifications of 0.02 to 3.48, so the reach is under
+   1e-10 of bands of order 1e-3 to 1e-2. The check guards the corpus going
+   forward; it would not have caught the wedge, whose ladder lives in a
+   campaign document rather than in this corpus, and it says so.
+
 ### 3.4 A reportable band is not a demonstrated asymptotic order
 
 Sections 3.2 and 3.3 are about orders that are wrong or verdicts that are

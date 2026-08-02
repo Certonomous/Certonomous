@@ -1877,6 +1877,101 @@ def check_record_writers_name_their_drops() -> Result:
                   detail)
 
 
+# A rung's stored precision matters only through one number: how much the
+# extrapolation multiplies the finest increment. Below this the rounding is
+# irrelevant however coarse; above it, the digits the record kept decide the
+# answer. Not a tuned constant -- it is the point at which a half-unit in the
+# last stored decimal starts to reach the band, and the check computes that
+# reach per study rather than assuming it.
+_ROUNDING_SHARE_OF_BAND = 0.10
+
+
+def check_stored_rungs_carry_solved_precision() -> Result:
+    """A refit reads what was solved, not what a table printed.
+
+    THE DEFECT, measured. The supersonic wedge ladder was extrapolated twice
+    from the same three rungs. Fitted on the values as the act's ladder table
+    PRINTS them, at three decimals -- 47.588 / 46.123 / 44.693 -- the
+    extrapolated shock angle is -13.733 degrees. Fitted on what the act
+    solved -- 47.58767882153372 / 46.12330850878531 / 44.692792746510406 --
+    it is -15.753. Two point zero two degrees apart, and the whole difference
+    is rounding. Both readings are on the record and neither is withdrawn
+    (demo-output/website/campaign/W3_2D_LADDER_REFIT.md section 4a).
+
+    THE MECHANISM, which is why this is a rule and not a caution. At an
+    observed order near zero the Richardson extrapolation amplifies the finest
+    increment by a large factor -- 42.25 on that ladder. Whatever error the
+    stored rungs carry is multiplied by the same factor. So the worse a ladder
+    behaves, the more its refit depends on precision nobody thinks about, and
+    a document is the one source that has already thrown that precision away.
+    The cone, diamond and vortex-shedding orders moved in the third decimal
+    the same way and changed no verdict; the wedge moved two degrees.
+
+    THE CHECK, zero compute, from each study's own stored rungs. Compute the
+    amplification the study's own extrapolation applies, and the reach of half
+    a unit in the last decimal its rungs are stored to. Report where that
+    reach exceeds a tenth of the study's own band, because that is the point
+    at which the record's precision, rather than its measurements, is deciding
+    the number. A study whose rungs are stored at full solved precision passes
+    at any amplification, which is the behaviour to keep.
+    """
+    studies = sorted((REPO / "models" / "curriculum" / "uq-studies")
+                     .glob("*.json"))
+    problems, notes, checked = [], [], 0
+    for path in studies:
+        study = _load_json(path)
+        if not isinstance(study, dict):
+            continue
+        numerical = study.get("numerical") or {}
+        phi0 = numerical.get("richardson_extrapolated")
+        band = numerical.get("band_abs")
+        levels = study.get("levels")
+        if phi0 is None or not band or not isinstance(levels, list) \
+                or len(levels) < 3:
+            continue
+        try:
+            rows = sorted((l for l in levels if "cells" in l and "cd" in l),
+                          key=lambda l: float(l["cells"]))[-3:]
+            values = [float(r["cd"]) for r in rows]
+        except (TypeError, ValueError):
+            continue
+        if len(values) < 3:
+            continue
+        checked += 1
+        increment = abs(values[-1] - values[-2])
+        if not increment:
+            notes.append(f"{path.stem}: the finest two rungs are equal, so no "
+                         f"amplification is defined")
+            continue
+        amplification = abs(float(phi0) - values[-1]) / increment
+        # Decimals the record actually kept, per rung, from the stored text.
+        decimals = min(len(repr(v).split(".")[-1]) for v in values)
+        reach = amplification * 0.5 * (10.0 ** -decimals)
+        share = reach / abs(float(band))
+        line = (f"{path.stem}: extrapolation amplifies the finest increment "
+                f"by {amplification:.2f}x; rungs stored to {decimals} "
+                f"decimals, so half a unit in the last one reaches "
+                f"{reach:.3g}, which is {share * 100:.4f} percent of the "
+                f"study's own band of {float(band):.4g}")
+        if share > _ROUNDING_SHARE_OF_BAND:
+            problems.append(
+                line + ". The precision this record kept, not its "
+                "measurements, is deciding the extrapolated value; remedy: "
+                "restore the rungs from the solve that produced them -- the "
+                "forces file, not any table -- and refit; NO COMPUTE")
+        else:
+            notes.append(line)
+    if problems:
+        return Result("stored rungs carry solved precision", FAIL,
+                      f"{len(problems)} of {checked} extrapolating ladder(s) "
+                      f"are decided by their stored precision", problems + notes)
+    return Result("stored rungs carry solved precision", PASS,
+                  f"all {checked} extrapolating ladder(s) store rungs precise "
+                  f"enough that rounding reaches under "
+                  f"{_ROUNDING_SHARE_OF_BAND * 100:g} percent of their own "
+                  f"band", notes)
+
+
 def check_ladder_rungs_share_one_recipe() -> Result:
     """VERIFICATION_CHARTER section 3.2 rule 3, which had no checker.
 
@@ -2553,6 +2648,16 @@ BASIS: dict[str, tuple[str, str, str, tuple[str, str] | None]] = {
         "distinguishes the two. It is also blind to a writer that reads its "
         "source through anything other than .get(literal) or [literal]",
         None),
+    "check_stored_rungs_carry_solved_precision": (
+        EVIDENCE,
+        "a stored ladder whose extrapolated value is decided by the number of "
+        "decimals the record kept rather than by what was solved, computed "
+        "from the study's own rungs, its own extrapolation and its own band",
+        "a rung stored at full precision that is nonetheless the WRONG value, "
+        "and any refit that happens outside a stored study -- the wedge case "
+        "this encodes lives in a campaign document, not in this corpus, so "
+        "the check would not have caught the defect that motivated it. It "
+        "guards the corpus going forward and says so", None),
     "check_ladder_rungs_share_one_recipe": (
         EVIDENCE,
         "an observed order fitted across a change of mesh recipe, by reading "
@@ -2809,6 +2914,10 @@ REMEDIES: dict[str, tuple[str, bool, str]] = {
         "set, as uq.study_numerical does, or declare the exclusions in a "
         "constant with a reason per key, as lab.CREDENTIAL_NOT_ON_CARD does",
         False, "a code edit per site; no number moves and no run is needed"),
+    "check_stored_rungs_carry_solved_precision": (
+        "restore the rungs from the artifact the solve wrote, a forces file "
+        "or a coefficient file, never a rendered table, and refit in place",
+        False, "the solved values are on disk; the refit is arithmetic"),
     "check_ladder_rungs_share_one_recipe": (
         "read the refinement level off each rung's own "
         "system/snappyHexMeshDict and record which rungs share one recipe, as "
@@ -2890,6 +2999,7 @@ CHECKS = (
     check_campaign_json_citations,
     check_studies_carry_what_the_fit_records,
     check_stored_fits_reproduce_their_values,
+    check_stored_rungs_carry_solved_precision,
     check_ladder_rungs_share_one_recipe,
     check_record_writers_name_their_drops,
     check_declined_ladders_name_their_guard,

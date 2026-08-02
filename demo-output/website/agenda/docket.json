@@ -2021,8 +2021,12 @@
         "campaign/W3_GUARD_SWEEP.md",
         "campaign/W3_2D_LADDER_REFIT.md"
       ],
-      "status": "proposed",
-      "created_at": "2026-08-01T18:18:13Z"
+      "status": "done",
+      "created_at": "2026-08-01T18:18:13Z",
+      "completed_at": "2026-08-02T08:00:00Z",
+      "outcome": "Written down as VERIFICATION_CHARTER section 3.3a, with the mechanism rather than the caution, and given a checker. The rule: a refit reads the artifact the solver wrote -- a forces file, a coefficient file, a stored levels[] block -- never a document, because a rendered table has already thrown away the digits the refit needs, and how many it needed is a property of the ladder rather than of the reader. THE WORKED CASE, both readings on the record and neither withdrawn. The supersonic wedge ladder extrapolated from its rungs as the act's table PRINTS them, 47.588 / 46.123 / 44.693 at three decimals, gives a shock angle of -13.733 degrees; from what the act SOLVED, 47.58767882153372 / 46.12330850878531 / 44.692792746510406, it gives -15.753. Two point zero two degrees, entirely rounding. THE MECHANISM, which is why it is a rule: at an observed order of 0.034 the Richardson extrapolation amplifies the finest increment by 42.25, and any error in the stored rungs is multiplied by the same factor. The worse a ladder behaves the more its refit depends on precision nobody is thinking about, and badly behaved ladders are the ones that get refitted. The same rounding moved the cone 0.801 to 0.800, the diamond 6.233 to 6.296 and vortex shedding 2.436 to 2.430, none of which is near-zero order and none of which changed anything. The clause states plainly that nothing deciding anything moved on the wedge either: guards_failed, conclusive and reportable_band are identical on both readings and the angle is physically impossible on both. THE CHECKER, and its honest limit. self_audit.check_stored_rungs_carry_solved_precision computes, per stored study, the amplification its own extrapolation applies and how far half a unit in the last decimal its rungs are stored to reaches after that amplification, and reports any ladder where the reach exceeds a tenth of the study's own band. Measured on the corpus: all 6 extrapolating curriculum ladders store 10 to 18 decimals against amplifications of 0.02 (motorBike), 0.09 (naca4412), 0.85 (naca0012), 1.26 (ahmed_35), 2.32 (ahmed_25) and 3.48 (naca0015_sail), so the reach is under 1e-10 against bands of 5.3e-4 to 2.0e-2 -- nine orders of margin. IT WOULD NOT HAVE CAUGHT THE WEDGE, whose ladder lives in a campaign document and not in this corpus, and both the clause and the check's declared blind spot say so. It guards the corpus going forward. Zero compute against a zero estimate.",
+      "measured_core_min": 0.0,
+      "measured_basis": "no solver ran; the check is arithmetic on stored rungs"
     },
     {
       "id": "w8-diagnosis-confirmed-by-repair",
