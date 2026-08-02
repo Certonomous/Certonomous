@@ -57,6 +57,15 @@ RUN_ROOT = Path.home() / "certonomous-runs"
 OUT_ROOT = RUN_ROOT / "w3-naca4412-layered-replicates"
 
 # The graded rung: refinement 4 ("fine"), add_layers True, y+ target 30.
+# 2026-08-02: made a parameter so the SAME four triples can be rebuilt at a
+# second resolution. The item this serves (agp-d392641d60f4) asks for a
+# resolution at which mesh-construction scatter is smaller than the acceptance
+# band; that needs the scatter measured at more than one rung. Refinement 3
+# ("medium") and 5 ("finer") are the credential ladder's own neighbouring rungs
+# (naca4412_credential_repair.RUNGS), so nothing about the recipe is invented
+# here. Cases land under OUT_ROOT/r<N>/<tag> for N != 4; the original
+# refinement-4 cases keep their existing paths so published evidence still
+# resolves.
 REFINEMENT = 4
 Y_PLUS_TARGET = 30.0
 
@@ -92,7 +101,13 @@ def set_divisions(case: Path, triple: tuple[int, int, int]) -> None:
     path.write_text(new)
 
 
-def build_variant(tag: str, triple: tuple[int, int, int]) -> Path:
+def dest_for(tag: str, refinement: int) -> Path:
+    """Refinement 4 keeps the published flat layout; other rungs are namespaced."""
+    return OUT_ROOT / tag if refinement == 4 else OUT_ROOT / f"r{refinement}" / tag
+
+
+def build_variant(tag: str, triple: tuple[int, int, int],
+                  refinement: int = REFINEMENT) -> Path:
     """Build the graded rung's case, then perturb the background divisions."""
     # Chord is read from the STL exactly as the graded run read it -- not
     # assumed to be 1.0 -- so the first-layer height is bit-identical to the
@@ -103,17 +118,18 @@ def build_variant(tag: str, triple: tuple[int, int, int]) -> Path:
         y_plus_target=Y_PLUS_TARGET)
     # rep.build() writes to certonomous-runs/credential-repair-naca4412-<tag>;
     # give it a private tag then move it under our own root so the original
-    # graded case directories are never touched.
-    scratch_tag = f"layerrep-{tag}"
-    case = rep.build(scratch_tag, REFINEMENT, layer_sizing)
-    dest = OUT_ROOT / tag
+    # graded case directories are never touched. The refinement is part of the
+    # scratch tag so two rungs can be built concurrently without colliding.
+    scratch_tag = f"layerrep-r{refinement}-{tag}"
+    case = rep.build(scratch_tag, refinement, layer_sizing)
+    dest = dest_for(tag, refinement)
     if dest.exists():
         shutil.rmtree(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(case), str(dest))
     set_divisions(dest, triple)
     (dest / "replicate.json").write_text(json.dumps(
-        {"tag": tag, "divisions": list(triple), "refinement": REFINEMENT,
+        {"tag": tag, "divisions": list(triple), "refinement": refinement,
          "add_layers": True, "y_plus_target": Y_PLUS_TARGET,
          "layer_sizing": layer_sizing, "nprocs": rep.NPROCS}, indent=2))
     return dest
@@ -146,11 +162,11 @@ def cpu_time_from_log(case: Path) -> dict:
     return out
 
 
-def run_variant(tag: str) -> dict:
+def run_variant(tag: str, refinement: int = REFINEMENT) -> dict:
     triple = VARIANTS[tag]
     t0 = time.time()
-    _log(tag, f"building at divisions {triple}")
-    case = build_variant(tag, triple)
+    _log(tag, f"building at divisions {triple}, refinement {refinement}")
+    case = build_variant(tag, triple, refinement)
     _log(tag, "meshing")
     rep.mesh(case)
     check = rep.parse_checkmesh((case / "log.checkMesh").read_text(errors="replace"))
@@ -162,7 +178,8 @@ def run_variant(tag: str) -> dict:
     forces = rep.parse_forcecoeffs(case)
     ypl = rep.parse_yplus(rep.yplus(case))
     record = {
-        "tag": tag, "divisions": list(triple), "case": str(case),
+        "tag": tag, "divisions": list(triple), "refinement": refinement,
+        "case": str(case),
         "wall_s": time.time() - t0,
         "checkMesh": check, "layers": layers, "residuals": res,
         "forces": forces, "yplus": ypl, "cost": cpu_time_from_log(case),
@@ -176,14 +193,20 @@ def run_variant(tag: str) -> dict:
 
 
 def main(argv: list[str]) -> int:
+    refinement = REFINEMENT
+    for i, a in enumerate(argv):
+        if a == "--refinement":
+            refinement = int(argv[i + 1])
     tags = [a for a in argv if a in VARIANTS] or list(VARIANTS)
     OUT_ROOT.mkdir(parents=True, exist_ok=True)
     for tag in tags:
         try:
-            run_variant(tag)
+            run_variant(tag, refinement)
         except Exception as exc:  # keep the batch going; a failure is a result
             _log(tag, f"FAILED: {exc}")
-            (OUT_ROOT / f"{tag}.failed").write_text(repr(exc))
+            fail = dest_for(tag, refinement).parent / f"{tag}.failed"
+            fail.parent.mkdir(parents=True, exist_ok=True)
+            fail.write_text(repr(exc))
     return 0
 
 
