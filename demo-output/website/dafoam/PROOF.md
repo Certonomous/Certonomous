@@ -2693,6 +2693,17 @@ and the two `h=1e-3` runs (stock and patched, different toolchains, different co
 **bit-identical** perturbed CD values to eight significant figures -- so the pipeline is
 deterministic and the FD's behaviour below is a real property of the curve, not scatter.
 
+The stock arm was run at five of the same steps as a second, stronger control -- **the patch touches
+derivative code only, so every FD magnitude must come back unchanged**, and it does, at every one:
+
+| `h` | 1e-3 | 3e-4 | 1e-4 | 3e-5 | 1e-5 |
+|---|---|---|---|---|---|
+| FD, stock | 2.4258e-01 | 2.4407e-01 | 2.5055e-01 | 2.5071e-01 | 2.5534e-01 |
+| FD, patched | 2.4258e-01 | 2.4407e-01 | 2.5055e-01 | 2.5071e-01 | 2.5534e-01 |
+
+Five matched pairs, identical to every printed digit, while the analytic column moves 2.1821e-01 ->
+2.2086e-01. Whatever the FD curve is doing, both toolchains see exactly the same curve.
+
 The FD is well resolved down to `h=1e-3`, then drifts as the CD difference approaches the primal's
 own convergence floor, and collapses entirely at `h=3e-6` (where `2h` times the derivative is
 ~1.5e-06, i.e. the difference is being taken at the noise level). **Richardson extrapolation on the
