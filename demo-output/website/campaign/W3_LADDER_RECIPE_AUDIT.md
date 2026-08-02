@@ -133,9 +133,26 @@ the background — the B-52's valid family, and the constant-ratio Ahmed 25°
 ladder built under R4 — fail on the *behaviour of their increments*: growing
 increments, non-monotone. The four two-knob ladders fail on the *order*:
 3.169, 3.173, 10.467, and 1.95 with an extrapolation outside its own data.
-**One-knob ladders fail on physics; two-knob ladders fail on arithmetic.**
-Four of the nine stored ladders' anomalous verdicts now have a common cause,
-and it is upstream of the flow.
+
+> **CORRECTED 2026-08-02 06:00, by the experiment this section motivated.**
+> The sentence that stood here read *"One-knob ladders fail on physics;
+> two-knob ladders fail on arithmetic."* **That is wrong and the wing families
+> falsified it the same night.** The NACA 0012 built as a genuine four-rung
+> single-knob family returns an observed order of **24.048** — further outside
+> the window than the 3.173 this audit blamed on the mixed step, on a ladder
+> with no mixed step in it. See `W3_WING_VALID_FAMILY_RESULTS.md`; the
+> pre-registered prediction P1 was written to be falsifiable by exactly this
+> and it was falsified.
+>
+> What survives is everything in §1–§3: the four ladders *are* two recipes,
+> the medium → production step *is* not a uniform refinement, and the cause in
+> `refinement_rungs()` is what it is. What does not survive is the claim that
+> the mixed step is what makes the orders absurd. Removing it did not make
+> them sane. Something common to these flows does that, and the recipe defect
+> was **masking** it rather than causing it.
+
+Four of the nine stored ladders' anomalous verdicts have a common upstream
+defect. They do not have their explanation.
 
 ## 5. What is NOT claimed here
 

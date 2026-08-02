@@ -61,7 +61,7 @@
     "naca0012_wing-rung-medium",
     "naca0012_wing-production"
   ],
-  "updated_utc": "2026-08-02T05:35:24Z",
+  "updated_utc": "2026-08-02T06:00:07Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -151,6 +151,105 @@
     },
     "numerical_block_untouched": "The numerical block in this record is NOT refitted by this audit. Refitting would mean fitting on the one valid pair, which is two rungs, which is no fit at all; what the record should say when a body has no usable ladder is a decision that belongs with the open ruling w3-a-declined-ladder-still-publishes-an-envelope, not with a rung item. This block records which rungs are comparable, exactly as b52.json's recipe_audit does, and moves nothing else. uq.reportable_band returned None for this body before this audit and returns None after it.",
     "what_this_body_needs": "Two further rungs ABOVE the production mesh at the production recipe, varying only the background blockMesh divisions at a constant ratio. With the production rung that makes a genuine three-rung single-knob family. The construction is proven: R4 built it for the Ahmed 25 degree at 79439/144240/254911/454691 cells, h-ratios 1.2200/1.2090/1.2128, for 6.2 core-minutes on the first three rungs at 4 ranks. It came back non-monotone, so a valid ladder is not a promise of a conclusive one.",
-    "record": "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md"
+    "record": "demo-output/website/campaign/W3_LADDER_RECIPE_AUDIT.md",
+    "production_recipe_family_built": {
+      "built_utc": "2026-08-02T05:51:26Z",
+      "pre_registration": "demo-output/website/campaign/W3_WING_VALID_FAMILY_PREREGISTRATION.md (commit 83e28569, before any solver was launched)",
+      "record": "demo-output/website/campaign/W3_WING_VALID_FAMILY_RESULTS.md",
+      "method": "Four rungs at ONE recipe -- refinementSurfaces body level (3 4), eMesh feature level 3, nearBody region level 2, kOmegaSST, magUInf 15, residualControl 1e-4 -- copied verbatim from this body's own production case, with the background blockMesh division triple as the only knob. Every rung solved at 4 MPI ranks, scotch, including r1, which is re-solved rather than reused so the whole family shares one decomposition.",
+      "case_root": "/home/ubuntu/certonomous-runs/w3-naca0012_wing-family",
+      "cells": [
+        140545,
+        224431,
+        358430,
+        525692
+      ],
+      "cd": [
+        0.012052229,
+        0.010405872,
+        0.008479216,
+        0.008435098
+      ],
+      "background_divisions": [
+        "33 60 20",
+        "43 78 26",
+        "54 98 33",
+        "64 116 39"
+      ],
+      "h_ratios": [
+        1.16884,
+        1.16889,
+        1.13617
+      ],
+      "widest_ratio_mismatch": 0.0288,
+      "increments": [
+        -0.001646357,
+        -0.001926656,
+        -4.4118e-05
+      ],
+      "window_2sigma": [
+        5.453e-07,
+        1.841e-07,
+        8.901e-07,
+        2.635e-06
+      ],
+      "iterations_to_convergence": [
+        153,
+        148,
+        142,
+        156
+      ],
+      "all_rungs_converged_on_residualControl": true,
+      "r1_reproduces_production": {
+        "r1_cd": 0.012052229,
+        "stored_production_cd": 0.012053,
+        "apart": 7.71e-07,
+        "note": "The re-solve reproduces the stored production drag to seven decimal places across a change from 16 ranks to 4, and across the 35-cell locationInMesh nudge. The family is anchored on the act's own mesh and the act's own answer."
+      },
+      "fit": {
+        "observed_order": 24.048,
+        "monotone": true,
+        "conclusive": false,
+        "asymptotic": true,
+        "clamped": true,
+        "band_abs": 0.00014668444129029633,
+        "richardson_extrapolated": 0.00843295036854395,
+        "method": "3-mesh study (r = 1.14), observed order p = 24.05; least-squares fit with safety factor 1.25 (Eca and Hoekstra 2014); observed order limited to the theoretical range (band uses p = 2.5)",
+        "guards_failed": [
+          "order_window"
+        ],
+        "not_conclusive_guard": "order_window"
+      },
+      "reportable_band": null,
+      "guards_holding": [
+        "order_window"
+      ],
+      "replicate_mesh_control": {
+        "not_pre_registered": true,
+        "method": "An independent mesh at nominally the same resolution as r4: background divisions (64 116 39) -> (65 115 40), everything else identical, solved at the same 4 ranks. Same shape as R4's c4b control.",
+        "case": "/home/ubuntu/certonomous-runs/w3-naca0012_wing-family/r4b",
+        "cells": 534106,
+        "cd": 0.008255182,
+        "window_2sigma": 3.481e-06,
+        "iterations": 146,
+        "converged_on_residualControl": true,
+        "mesh_to_mesh_scatter": 0.000179916,
+        "scatter_over_finest_increment": 4.078,
+        "finding": "The scatter is 408 percent of the r3->r4 increment. The observed order of 24.048 is fitted on a finest pair whose difference is BELOW the mesh generator's own resolution, so it is an artefact and the band 1.4668e-04 is nonsense for the same reason. The ladder is resolvable up to 358,430 cells -- its r2->r3 increment is 10.7 times the scatter -- and stops being resolvable above it."
+      },
+      "noise_sources_ruled_out": {
+        "iterative": "every rung and the control stopped on residualControl at 1e-4, final-window 2-sigma between 1.84e-07 and 2.91e-05; the pre-registered G2 gate (2-sigma under 10 percent of the smallest increment) HELD, and it tested the wrong noise",
+        "decomposition": "all ten solves at 4 ranks, scotch, 34,392 to 140,382 cells per rank",
+        "mesh_quality": "checkMesh passes on all ten; max non-orthogonality 36.3-45.8 against a 70 degree gate and not degrading with refinement"
+      },
+      "predictions_scored": {
+        "P1 no observed order above 2.5 on a valid family": "FALSE",
+        "P2 at least one family non-monotone or non-asymptotic": "TRUE",
+        "P3 the 4412 moves further in relative terms": "FALSE -- the 0012 falls 30.01 percent across its family, the 4412's net change is -1.24 percent and its largest excursion 12.48 percent"
+      },
+      "numerical_block_untouched": "The numerical block in this record is NOT refitted from this family. The fit it would install is held by order_window on the 0012 and by monotone on the 4412, and the replicate-mesh control shows both verdicts rest on increments below the mesh generator's own scatter. The published envelope is also the subject of the open ruling w3-a-declined-ladder-still-publishes-an-envelope, and a number about to be ruled on should move once, by the ruling -- not be replaced first by a tighter number that is less trustworthy than the loose one. uq.reportable_band was None before and is None on the new fit too.",
+      "cost_core_min": 29.74,
+      "cost_basis": "measured, from each solve's own ExecutionTime times 4 ranks; wall clock is not used because the rungs ran three at a time"
+    }
   }
 }
