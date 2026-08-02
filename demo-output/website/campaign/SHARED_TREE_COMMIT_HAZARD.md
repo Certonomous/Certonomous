@@ -54,11 +54,24 @@ mismatched commit message. The correct fix is this note.
 Commit the paths, not the index:
 
 ```
+git add <paths>                     # only needed for files git does not know yet
 git commit -o <paths> -m "..."      # --only: commit exactly these paths
 ```
 
 `-o` / `--only` takes the commit contents from the named paths and **ignores
 whatever else is staged**. `git add` followed by a bare `git commit` does not.
+
+**One wrinkle, found by trying it rather than by assuming it.** `git commit -o`
+on a path git has never seen fails outright:
+
+```
+error: pathspec '<new file>' did not match any file(s) known to git
+```
+
+So a **new** file still needs `git add` first, and `-o` then restricts the
+commit to it. For a file already tracked, `-o` alone is enough and no `git add`
+is needed at all. This commit was made that way, and its file list — checked
+after the fact with the command below — contains exactly one file.
 
 Check before, and check after:
 
