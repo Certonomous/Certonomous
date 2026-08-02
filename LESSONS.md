@@ -1432,3 +1432,91 @@ Files: `demo-output/website/dafoam/ROOTCAUSE_getRotationMatrix3d.md` (§1, §2,
 `demo-output/website/dafoam/PROOF.md` §23–24,
 `demo-output/website/dafoam/UPSTREAM_BUG_REPORT_mesh_warpDeriv.md`,
 `demo-output/website/dafoam/rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch`.
+
+---
+
+## L-30. A gate whose threshold lies between two constraint values reports the constraint, not the quantity
+
+**What happened.** Every snappyHexMesh case this lab builds is written with the
+same `meshQualityDict` (`external_aero._MESH_QUALITY`): `maxNonOrtho 65`,
+`relaxed { maxNonOrtho 75 }`, `maxBoundarySkewness 4`, `maxInternalSkewness 4`.
+Those are constraints the mesher enforces, so a mesh hard enough to press
+against one reports its ceiling back. Across the **98** `log.checkMesh` files
+on this box on 2026-08-02: **9** meshes read 64.64–64.99, **3** read
+74.31–74.96, and **5** read max skewness 3.896–3.99994. The lab's own published
+gates are `MAX_NON_ORTHOGONALITY = 70`, which sits *between* the two
+non-orthogonality ceilings, and `MAX_SKEWNESS = 4.0`, which *is* the skewness
+ceiling. `study-b52-finer2-uq` clears the 4.0 gate by **5.6 × 10⁻⁵**.
+
+**The clean demonstration.** The same four background blockMesh division
+triples on the NACA 4412 wing read **57.556, 58.374, 60.801, 62.391** at
+refinement 3, where no mesh presses its constraint — a 4.83° spread — and
+**64.958, 64.977, 64.990, 74.962** at refinement 4, where three of them agree
+to **0.032°** because they are reporting the same number the recipe wrote. A
+70° gate splits that second column 3–1, and the split is which constraint
+branch the mesher ended on.
+
+**What it cost.** `models/curriculum/results/naca4412_wing.json` named the
+finer rung's 74.96 as *"degraded, not improved, at the largest cell count"* and
+*"the leading suspect for the non-monotonicity"* of a refinement ladder. It was
+a dictionary limit. A replicate at a third of the cell count reaches 74.962443
+against that rung's 74.962218 — agreeing to 3.0 × 10⁻⁶.
+
+**The tell, visible without reading any dictionary.** A continuous quality
+measure that clusters tightly just below one of a few round values, across
+unrelated bodies and studies, is pinned. Two rungs of one body landing six
+thousandths of a degree apart is not two meshes happening to be similarly bad.
+
+**The rule.** Before gating on a reported extremum, find out whether the tool
+was *told* that number. A gate must return two values: the verdict, and whether
+the verdict was decided by a measurement or by the recipe. When it was the
+recipe, fall back to a quantity the recipe does not pin — for mesh quality that
+is the **extent** (how many faces are severely non-orthogonal, as a fraction of
+all faces), not the average, which on this lab's own population does not
+separate good meshes from bad. And never set a gate value equal to a
+constraint value: a gate that cannot fail is not a gate.
+
+---
+
+## L-31. A verification instrument must itself be verified at the component it condemns
+
+**What happened.** The A5 U-bend's 27-component gradient table came back in
+band on 26 components under the patched warp, with idx16 the exception at
+**17.31%** — and, uniquely in the whole record, *worse* than the 12.27% it read
+before the patch. The record reasoned that the FD was "identical to every digit
+between the runs", so the analytic side had moved away from a fixed target.
+That test cannot fail: the primal never sees a `warpDeriv` patch, so the FD
+*could not* have changed. What was never done was **re-measuring it**.
+
+Three independent finite differences at the same step, same container, same
+case — cold from `0/`, warm from the converged baseline, and warm from the
+state `check_totals`' own component sequence leaves behind — returned
+**−4.98068, −5.05964 and −5.04286**. `check_totals` reports **−4.30296296**.
+The control settles it: the same harness reproduces `check_totals`' reported FD
+at the neighbouring idx15 — the largest component in the vector — to
+**8.8 × 10⁻⁸ relative**. So the patched analytic −5.04787848 is right to
+**0.10%**, the stock −3.77483865 was **25.1%** out rather than 12.27%, and the
+aggregate is 0.1826% rather than 2.2372%, with the table in band 27 of 27.
+
+**Why the reference is the last thing anyone checks.** It is the fixed point
+the whole exercise is organised around, and it is usually right — here it *is*
+right on 26 of 27 components, to eight significant figures on the one that was
+controlled. That is exactly what makes the twenty-seventh invisible: an
+instrument that agrees with you everywhere else buys the benefit of the doubt
+where it does not.
+
+**Why this is not L-22 again.** L-22 is about attributing a failure to a case
+without opening that case's logs. This is the same discipline applied to the
+*reference*: a derivative graded against a finite difference is two
+measurements, and a record that re-runs only one of them has verified nothing
+about the disagreement. The lab has already been burned from the other
+direction — a dismissal built on a finite difference of the one quantity the
+defect leaves unchanged — so the rule is symmetric.
+
+**The rule.** When an analytic derivative disagrees with a finite difference,
+re-measure the finite difference by an independent path before attributing the
+gap to the derivative, and run a **neighbouring component as a control** so the
+re-measurement is shown to reproduce the instrument where the instrument is
+trusted. "Unchanged between two runs" is not verification when the change under
+test could not have moved it. State what would have to be true for the
+reference to be the wrong one, and test that.
