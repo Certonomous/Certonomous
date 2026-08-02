@@ -2908,14 +2908,42 @@ mesh type across all three: A1 and A5 are conformal, A4 is not.
   upstream IDWarp bug. This one is not that: it survives the patch, it lives in DAFoam's parallel
   adjoint, and it is the only finding in this investigation that a rank count can turn on and off.
 
-**Leading hypothesis, explicitly not established.** A4 is the only case in either ladder whose
-`constant/polyMesh` carries `cellLevel`, `pointLevel`, `level0Edge` and `surfaceIndex` — the
-snappyHexMesh non-conformal hanging-node refinement metadata — and it is the only case showing the
-effect. `scotch` cuts irregularly and can place processor boundaries along those refinement
-interfaces; `simple` 4x1x1 cuts in flat slabs. That is a correlation on **n = 1 case** and a
-plausible mechanism, not a demonstration; the 1x4x1 arm reading 0.47% rather than 5.4e-06 shows even
-flat cuts are not all equivalent. Naming the mechanism needs a case with hanging nodes and a case
-without, both decomposed both ways, and that has not been run.
+**The leading hypothesis was tested in the same session and is REFUTED, backwards.** A4 is the only
+case in either ladder whose `constant/polyMesh` carries `cellLevel`, `pointLevel`, `level0Edge` and
+`surfaceIndex` — snappyHexMesh non-conformal hanging-node refinement — and the only one showing the
+effect, so the obvious mechanism was that `scotch` places processor boundaries along those
+refinement interfaces while `simple` 4x1x1's flat slab cuts avoid them. **That is testable with no
+solver at all**, via `decomposePar -cellDist`, which writes a cell-indexed processor map; combined
+with `owner`, `neighbour` and `cellLevel` every one of the 7,843 internal faces can be classified as
+(processor boundary?) x (refinement interface?):
+
+| | refinement-interface faces | processor-boundary faces | **both** | share of refinement interfaces cut |
+|---|---|---|---|---|
+| `scotch` (the **wrong** gradient, 8.95%) | 456 | 328 | **4** | **0.88%** |
+| `simple` 4x1x1 (the **right** gradient, 5.4e-06) | 456 | 406 | **68** | **14.91%** |
+
+**The decomposition that cuts seventeen times more refinement interfaces is the one that gets the
+gradient right.** The prediction was exactly inverted, so the mechanism is not "processor boundaries
+landing on hanging nodes". Refuted, not merely unconfirmed.
+
+**A second candidate, also non-discriminating.** Jacobian colour count, read from each run's own
+`dRdWTPC: k of N` line, against those runs' errors: 1087 colours / 0.34% (np=1), 1393 / 0.26%
+(np=2), 1387 / 6.05% (np=3), 1343 / 8.95% (np=4 `scotch`), 1294 / 0.00054% (np=4 `simple` 4x1x1),
+1327 / 0.47% (np=4 `simple` 1x4x1). The best and the worst configuration sit 49 colours apart, and
+the highest count belongs to a clean one. Colour count does not separate them — the same null R5
+reached on a different question. GMRES iteration counts (542, 561, 753, 719, 671, 598) do not
+separate them either.
+
+**So the effect is established and the mechanism is not.** What is measured: A4's adjoint depends on
+the decomposition at fixed rank count, reproducibly, while its primal and its finite difference do
+not; two conformal cases do not show it; and it is not the colouring cache, not the linear-solve
+tolerance, not the colour count, and not processor boundaries on refinement interfaces. Naming it is
+the follow-on (`w4-does-the-decomposition-defect-reach-other-cases`). The honest statement tonight is
+that A4 has a correct gradient under a decomposition that can be chosen, and an unexplained one
+under the default.
+
+Topology cross-tabulation evidence: `/home/ubuntu/certonomous-runs/W4-a4-decompcut/`
+(`run.sh`, `scotch4/constant/cellDecomposition`, `simple411/constant/cellDecomposition`).
 
 Evidence: `/home/ubuntu/certonomous-runs/W4-a4-stepsweep/` — `a4_np{1,2,3,4}_*.log`,
 `a4_np4_tol1.0e-10.log`, `a4_np4_simple4x1x1.log`, `a4_np4_simple1x4x1.log`, `a4_dcddxv.log`,
