@@ -2559,6 +2559,57 @@ against the shipped toolchain. Cost **296 core-minutes** (4441 s wall x 4 ranks,
 published run's 210; this one shared the box with the CBFS, A4 and M6 work). Evidence:
 `W4-a2-provenance/a2_ao_stock_checktotals.log`, `run_ct.sh`, `extract_table.py`.
 
+### 25.1b A2 regraded under the corrected derivative — all four VERIFIED rows hold, three improve 34–115x, and one gets worse
+
+With the baseline restored, the regrade W5 could not do was run: `runScript_AeroOnly.py -task
+check_totals`, np=4, **patched** IDWarp (log's own `IDWARP_IMPORTED_FROM: /patch/idwarp/...`),
+2026-08-02T06:33Z–07:32:11Z, **236.7 core-minutes**. Read against the stock run of §25.1, same case,
+same rank count, same FD step, back to back.
+
+**The built-in control passes first: every FD magnitude is identical between the stock and patched
+halves on all 18 rows.** The patch touches derivative code only, so a moved FD would have
+invalidated the comparison; none moved.
+
+| row (`of` / `wrt`) | analytic, stock | analytic, patched | FD (identical) | rel. err stock | rel. err patched |
+|---|---|---|---|---|---|
+| **CD / shape** | 4.801625e-02 | 4.856968e-02 | 4.858158e-02 | **1.71%** | **0.0506%** |
+| **CL / shape** | 8.480582e-01 | 8.573170e-01 | 8.572992e-01 | **1.17%** | **0.0219%** |
+| **CD / twist** | 1.922238e-03 | 1.927847e-03 | 1.922103e-03 | **0.389%** | **0.505%** |
+| **CL / twist** | 2.371825e-02 | 2.398291e-02 | 2.398459e-02 | **1.12%** | **0.0097%** |
+| CD / patchV | 5.615356e-03 | 5.615356e-03 | 5.616540e-03 | 0.0212% | 0.0212% |
+| CL / patchV | 7.040571e-02 | 7.040571e-02 | 7.040500e-02 | 0.00145% | 0.00145% |
+| geometry.thickcon / shape | 9.718825e+00 | 9.718825e+00 | 9.718825e+00 | 9.55e-11% | 9.55e-11% |
+| geometry.volcon / shape | 3.357042e-01 | 3.357042e-01 | 3.357042e-01 | 3.53e-10% | 3.53e-10% |
+| geometry.lecon, tecon / shape | 4.0 | 4.0 | 4.0 | 0 | 0 |
+
+**Three of the four shape/twist rows collapse by factors of 34, 53 and 115**, putting A2's published
+1.71%/1.17%/1.12% in the same category as A1's 1.67%: they were ~97–99% rotation defect. The two
+`patchV` rows are **bit-identical** stock and patched, as they must be — `patchV` is not a shape
+variable and never touches the rotation path — and every geometric constraint is unchanged at
+machine precision. Those are the internal controls that the patch did only what it claims.
+
+**And one row moves the wrong way, reported plainly: `CD/twist` degrades from 0.389% to 0.505%.**
+It is the only row in the table that gets worse. It remains far inside the PASS band and it is the
+same second-regime residual §23's capstone documented (the 1.5–8.2% band that survives the fix), but
+it is a real counter-instance to "the patch improves everything" and is recorded as one.
+
+**Verdicts on the six VERIFIED rows: all HOLD, now at 0.0097%–0.505% instead of 0.00145%–1.71%.**
+A2's `check_totals` shows no flagged or sign-flipped component at either toolchain, aggregate well
+under 5% throughout — **PASS against the shipped toolchain and PASS patched.** `benchmarks.html:115`
+and `:141` stand: the gradients behind the 28.3% drag reduction are verified, and they are now
+verified twice, at two toolchains, from a rebuilt baseline.
+
+**This also corrects `W5_GRADIENT_REGRADE.md` §3b, and the correction is a prediction coming true.**
+§3b measured a stock/patched twist pair on A2's geometry and found the analytic magnitudes
+**bit-identical**, concluding "on A2's own geometry, the correction is a **no-op** for twist." On the
+actual published aero-only case it is not a no-op: `CL/twist` improves 115x and `CD/twist` moves at
+all. The reason §3b saw a no-op is that its runs were the **aerostructural** script (§25.1) — a wing
+that deflects under aerodynamic load, so the gradient is not evaluated at an undeformed baseline,
+so `axisMag > sqrt(eps)`, so the degenerate branch **does not fire** and the patch cannot matter.
+That is exactly the behaviour §23's pre-deformation capstone predicted and measured on A5. §3b's
+observation was correct and its conclusion was drawn on the wrong case; the underlying mechanism
+explains both.
+
 ### 25.2 The matrix reordering: it generalises to exactly one of the three cases named, and cannot apply to the other two
 
 The brief states: *"Failing scripts use `rcm`, the one working tutorial uses `natural`. A3, CBFS and
