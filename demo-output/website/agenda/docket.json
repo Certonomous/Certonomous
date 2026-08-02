@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T06:18:05Z",
+  "generated_at": "2026-08-02T08:18:06Z",
   "proposals": [
     {
       "id": "w5-audit-every-citation-in-the-submission-draft",
@@ -4263,6 +4263,63 @@
       ],
       "status": "proposed",
       "created_at": "2026-08-02T07:04:00Z"
+    },
+    {
+      "id": "w4-decomposition-invariance-is-a-gate",
+      "well": "W4",
+      "objective": "Check every gradient in the ladder against a second mesh decomposition before it is graded",
+      "rationale": "The Ahmed gradient sat at 10.04 percent with 89 percent of the disagreement unexplained through six refuted mechanisms. The cause is the mesh partitioning: at fixed rank count, one scheme reads 8.95 percent and another reads 0.00054 percent, while the primal is invariant to five digits and the analytic gradient spans ten. Changing only that takes the case to 0.76 percent, a pass. Three other rungs were checked and are invariant, so this is specific rather than universal, which is exactly why nothing would find it except looking.",
+      "est_core_min": 60,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.821,
+      "cost_basis": "estimate",
+      "gate": "Every graded gradient reproduces under a second decomposition, or the disagreement is reported as the finding",
+      "expected_knowledge_gain": "A converged gradient that is wrong only under one partitioning is invisible to every check the lab runs",
+      "source_kind": "capability",
+      "citations": [
+        "dafoam/PROOF.md section 25",
+        "dafoam/DAFOAM_CASE_STATUS.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T08:18:06Z"
+    },
+    {
+      "id": "w7-a-run-that-invoked-the-wrong-script",
+      "well": "W7",
+      "objective": "Record which script produced a result, and check it against the one the case documents",
+      "rationale": "A published gradient verification was declared unreproducible and filed as a blocker on the lab most prominent claim. Every run behind that finding invoked the aerostructural launcher where the record names the aero-only one, so the fourteen percent spread measured a different aircraft configuration. Run correctly the case reproduces to all ten printed digits in forty seconds. Nothing on the record said which script had run, and the refutation was available without any compute at all.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A completion record names the script and its arguments, and a mismatch against the case record is flagged",
+      "expected_knowledge_gain": "The strongest negative claim made this week was an artifact of an unrecorded launcher choice",
+      "source_kind": "report",
+      "citations": [
+        "demo-output/website/agenda/BLOCKERS.md",
+        "dafoam/ladder-a/A2_mach_tutorial_wing.md"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T08:18:06Z"
+    },
+    {
+      "id": "w3-a-verdict-a-mesh-can-move",
+      "well": "W3",
+      "objective": "Decide what a credential may claim when an independently generated mesh moves it across its own band",
+      "rationale": "At the published resolution four meshes of the same recipe give plus 33.91, plus 5.04, plus 18.11 and plus 6.73 percent against the reference; one fails the band and it is the published one, at the sample maximum. At a finer resolution four meshes give minus 3.79 to minus 11.13, all inside. The ladder crosses the reference between them. The same pattern was recorded independently on a second body, so two of two now do it, and the verdict on both is a function of where the sweep stopped.",
+      "est_core_min": 0,
+      "predicted_memory_gb": 0.5,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate",
+      "gate": "A credential whose verdict an equivalent mesh can move states that, or carries no verdict",
+      "expected_knowledge_gain": "Two published verdicts are currently draws from a distribution nobody sampled",
+      "source_kind": "measurement",
+      "citations": [
+        "campaign/W3_LADDER_RECIPE_AUDIT.md",
+        "models/curriculum/results/naca0012_wing.json"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T08:18:06Z"
     }
   ]
 }
