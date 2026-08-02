@@ -617,5 +617,50 @@ class AgendaGui(unittest.TestCase):
             self.assertNotIn(needle, self.style.lower())
 
 
+class PremiseRailTests(unittest.TestCase):
+    """Charter 4 disqualifiers 11 and 12, replayed against the real docket.
+
+    This runs in the suite rather than only when somebody remembers, because
+    the whole point of the rule is that nobody remembered to open the record.
+    """
+
+    DOCKET = (Path(__file__).resolve().parents[2] / "demo-output" / "website"
+              / "agenda" / "docket.json")
+
+    def setUp(self):
+        if not self.DOCKET.exists():
+            self.skipTest("no docket in this tree")
+        data = json.loads(self.DOCKET.read_text(encoding="utf-8"))
+        self.rows = data.get("proposals") if isinstance(data, dict) else data
+
+    def test_it_catches_ten_of_the_twelve_dismissals(self):
+        dismissed = {p["id"] for p in self.rows
+                     if p.get("status") == "dismissed"}
+        caught = {p["id"] for p in self.rows if agenda.premise_violations(p)}
+        # Measured 2026-08-02: 12 dismissals, 10 of them carry one of the two
+        # shapes. The two it misses are a duplicate filing and an item whose
+        # estimate was short by orders of magnitude, neither of which is a
+        # premise-reading failure. If a future docket drops below this the
+        # rule has stopped covering what it was written for.
+        self.assertGreaterEqual(len(dismissed & caught), 10,
+                                "the premise rail no longer covers the "
+                                "dismissals it was measured against")
+
+    def test_it_does_not_fire_on_everything(self):
+        """Charter 4 disqualifier 10: a rule that fires on everything cannot
+        come out more than one way."""
+        fired = sum(1 for p in self.rows if agenda.premise_violations(p))
+        self.assertLess(fired, len(self.rows) // 4,
+                        "the premise rail fires on over a quarter of the "
+                        "docket and has stopped discriminating")
+
+    def test_a_cited_file_that_exists_clears_the_stored_premise_shape(self):
+        proposal = {"rationale": "Cd 0.0551, 0.0448, 0.0491 across the rungs",
+                    "citations": ["demo-output/website/agenda/docket.json"]}
+        self.assertEqual(agenda.premise_violations(proposal), [])
+        proposal["citations"] = ["a ladder somebody remembers"]
+        self.assertEqual(len(agenda.premise_violations(proposal)), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -220,7 +220,46 @@ tie-breakers and not deductions. They are refusals.
     refusal that makes it bite. A rule is an instrument and section 1 applies to
     it unchanged: a rule that fires on everything cannot come out more than one
     way.
-11. **A visible field that breaks the style rails.** The agenda enforces these
+11. **A premise quoted from a stored artifact that nobody opened.** A proposal
+    whose rationale quotes values, counts or a verdict taken from a stored
+    record cites the file that holds them. The refusal is cheap to clear, and
+    clearing it is the reading that was skipped.
+    Measured on the docket 2026-08-02, which is the archive replay
+    disqualifier 10 requires of any new rule. Thirteen proposals quote a
+    numeric sequence in their rationale, and **not one of the thirteen carries
+    a citation that resolves to a file in this tree**. Four of the thirteen are
+    among the twelve dismissals. Six more reached `done` only after the agent
+    who took the item corrected its premise in the outcome, in the words "the
+    item's premise is corrected on the way", "the item's premise is
+    unreachable", and "not what the item asked for". Ten of thirteen were
+    wrong on arrival.
+    **None of the ten was wrong about its cost.** Eight were priced at the
+    drafter's default of 20 core-minutes, and the price was never why any of
+    them failed. The failure was the same shape every time: the rationale
+    restated a CONCLUSION from a record, "the refinement study ended
+    inconclusive", and then supplied its own DIAGNOSIS, "a further rung can
+    settle the observed order", without opening the record. The real cause was
+    somewhere else every time. The rungs already existed. The three rungs were
+    two mesh recipes. The finest increment sat below its own iterative noise
+    floor. A stored VERDICT is not the record; the file that stores the rungs
+    is the record.
+12. **A rationale transcribed from another document's next steps.** A sentence
+    lifted from a report's next investigations is a topic, not a proposal. It
+    clears this by naming the instrument that will produce the answer and
+    showing that the criterion it is graded on is expressible by that
+    instrument, which is `CASE_SELECTION_CHARTER.md` section 4 step 4 applied
+    at drafting instead of at pickup.
+    Measured on the same docket: nine proposals open with the words filed
+    under next investigations by the mission report. **Six are dismissed, and
+    the remaining three are approved at zero core-minutes**, repriced to
+    unknown and blocked on a meshed valve and a moving-boundary solver this box
+    does not have. Nine of nine failed to become runnable work. The sharpest is
+    the cruise Mach trade: the criterion it would meet is transonic shocks, and
+    it would be flown on a vortex-lattice method, which has no discontinuity in
+    its solution space. The instrument cannot express the criterion the item
+    exists to score, and that is a zero-compute check that kills a family
+    before it starts.
+13. **A visible field that breaks the style rails.** The agenda enforces these
     mechanically: no en dashes or em dashes, no raw URLs, no internal file
     paths or extensions, and none of the banned vocabulary, in `objective`,
     `rationale`, `expected_knowledge_gain`, `cost_basis` or `dismiss_reason`.

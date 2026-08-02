@@ -210,6 +210,57 @@ def text_violations(text: str) -> list[str]:
     return found
 
 
+# --------------------------------------------------------------------------
+# Premise rail -- charter 4 disqualifiers 11 and 12
+# --------------------------------------------------------------------------
+#
+# WHY IT IS SEPARATE FROM proposal_violations AND ADVISORY. Replayed against
+# the docket on 2026-08-02 these two shapes fire on 22 proposals. Ten of the
+# thirteen that shape 1 catches were wrong on arrival (four dismissed, six
+# closed only after the agent corrected the premise), and nine of the nine that
+# shape 2 catches never became runnable work. That is good enough to write down
+# and NOT good enough to refuse on, for a reason that has nothing to do with
+# the hit rate: shape 1 asks a proposal to cite the file holding the numbers it
+# quotes, and _BANNED_PATTERNS forbids a file reference in a citation. 202
+# citations on the current docket already break that rail. The two rules are in
+# direct conflict, the conflict is older than this function, and picking a
+# winner is the owner's call rather than this file's. So this reports.
+#
+# A stored VERDICT is not the record. The file that stores the rungs is.
+_QUOTED_SEQUENCE = re.compile(
+    r"(?<![\d.])\d+\.\d+\s*,\s*\d+\.\d+\s*,\s*\d+\.\d+")
+_TRANSCRIBED = re.compile(r"^\s*filed under next investigations\b", re.I)
+_CITED_FILE = re.compile(
+    r"[\w./-]+\.(?:json|jsonl|md|py|dat|csv)\b", re.I)
+
+
+def premise_violations(proposal: dict, repo: Path | None = None) -> list[str]:
+    """Premises a proposal asserts that nobody checked before filing.
+
+    Advisory, not a refusal. See the note above for why, and charter 4
+    disqualifiers 11 and 12 for the measured archive replay behind both.
+    """
+    found: list[str] = []
+    rationale = str(proposal.get("rationale") or "")
+    if _QUOTED_SEQUENCE.search(rationale):
+        root = repo or Path(__file__).resolve().parents[2]
+        resolved = any(
+            (root / match.group(0)).exists()
+            for citation in (proposal.get("citations") or [])
+            for match in [_CITED_FILE.search(str(citation))] if match)
+        if not resolved:
+            found.append(
+                "rationale: quotes a stored numeric sequence and no citation "
+                "resolves to a file in the tree, so the premise was not read "
+                "at drafting (charter 4 disqualifier 11)")
+    if _TRANSCRIBED.search(rationale):
+        found.append(
+            "rationale: transcribed from another document's next steps, so it "
+            "is a topic rather than a proposal and names no instrument "
+            "(charter 4 disqualifier 12)")
+    return found
+
+
 def proposal_violations(proposal: dict) -> list[str]:
     """Style-rail violations across every visible field of a proposal."""
     found: list[str] = []
