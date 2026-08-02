@@ -150,6 +150,23 @@ ladder is inconclusive" but "this wing's drag cannot be refined past about
 350 000 cells on this mesh family, because two meshes built to the same recipe
 at the same resolution disagree by more than the next refinement step buys."**
 
+> **CORRECTED 2026-08-02 06:10, by `W3_MESH_NOISE_FLOOR_RESULTS.md`.** The
+> conclusions above stand; **the mechanism stated for them is half wrong, and
+> the wrong half is the direction.** Replicates at all four rungs show the
+> 0012's mesh scatter *falling* monotonically with cell count — 2.599 × 10⁻³,
+> 1.112 × 10⁻³, 4.064 × 10⁻⁴, 1.799 × 10⁻⁴, an inverse-square law with
+> scatter × N² constant to ±6% and a fitted exponent of 2.024. **The r4
+> scatter is the smallest this generator produced, not the largest.** So the
+> ladder did not run into rising noise; **its increment collapsed by a factor
+> of 44 in one step** while the noise kept falling, and 4.08× is what a
+> shrinking numerator does to a denominator that shrinks faster.
+>
+> The sentence "two meshes at the same resolution disagree by more than the
+> next refinement step buys" is true at r4 and it is **more** true at r1,
+> where the scatter is 158% of the increment. The dangerous rung is the
+> coarsest one, not the finest, and every three-rung ladder in this corpus
+> puts two of its three rungs at or below that resolution.
+
 ## 4. What this says about the corpus
 
 Five genuine single-knob families now exist in this lab, on four geometries.
