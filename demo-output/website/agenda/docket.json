@@ -4068,6 +4068,47 @@
       "cost_basis_previous": "Estimate, anchored on our own measured throughput and deliberately conservative. Rung A6 converged 579072 cells in 38.4 core-min for 1000 iterations, which is 6.6e-5 core-min per cell per 1000 iterations. The coarsest workshop grid is 2661338 cells, so one angle of attack at 3000 iterations scales to about 530 core-min, and the six specified angles to about 3200 core-min. Rounded to 3600 to allow for a high-lift case needing more iterations to settle than a cruise wing does. This is the largest single compute request on the docket and it is a real commitment, not a screen. Memory is the genuine risk and is not established: A6 held 30 GB free at 579072 cells but this grid is 4.6 times larger, so the first action must be a memory probe on a single angle before the remaining five are queued. Dollars: zero for the grids, which are anonymous public downloads. Any attendance fee is a separate decision and is not established for this edition",
       "repriced_at": "2026-08-01T05:00:00Z",
       "repriced_note": "Repriced 2026-08-01 from a direct measurement on the real committee grid: it runs on this machine at 4.55 GiB of 30.6, so memory was never the risk. Two agents probed this item independently and reached the same measured rate; the 14-rank figure of 6,390 core-min is kept. Evidence and method: the hlpw6 directory under the site root. Submission mechanics, which no compute number covers, are recorded there in the submission gate note."
+    },
+    {
+      "id": "w3-a-ladder-refined-below-its-own-mesh-noise",
+      "well": "W3",
+      "objective": "Measure the mesh-generation noise floor and refuse a ladder whose finest increment sits under it",
+      "rationale": "Two ladders built to one recipe at a constant ratio on 2026-08-02 were both defeated by a noise source no guard in this lab tests. On the NACA 0012 an independently generated mesh at the same nominal resolution -- background divisions (64 116 39) against (65 115 40), 525,692 cells against 534,106, everything else identical -- lands 1.799e-04 away in Cd, which is 408 percent of the r3->r4 increment. The fit reads that increment and returns an observed order of 24.048. On the NACA 4412 the same control lands 3.251e-03 away, 109 percent of its increment, and on the far side of it: the control reads below r3 and continues the descent the finest rung appeared to reverse, so that ladder's non-monotone verdict is not established either. Both are snappyHexMesh on a closed STL, both converged on residualControl, both at 4 ranks, so it is not iterative and not decomposition. What it is, is that the mesh generator does not produce the same mesh twice at the same nominal resolution, and above roughly 350,000 cells on these bodies the difference it makes exceeds what the next refinement step buys. This is the guard the lab does not have. uq.eca_hoekstra_band cannot know it: nothing in a cell-count and value series carries it. It has to be measured per body and stored, the way iterative_audit is stored, and then the fit has to refuse a finest increment below it -- the way it already refuses a non-monotone triple. The cheap version is one replicate mesh at the finest rung of every family, priced at one mesh and one solve each. The B-52's turn at 441,057 cells has never had one and is the first that should: it is the finding this lab published tonight and it costs about 12 core-minutes to test. R4 ran the only such control on the record, its c4b, and measured 9.7e-05 against an 8.895e-04 increment, 11 percent -- which cleared the Ahmed 25 degree and is why nobody looked again.",
+      "est_core_min": 90.0,
+      "predicted_memory_gb": 4.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "measured; one replicate mesh plus one solve at the finest rung of each of the corpus's single-knob families, priced from the two run on 2026-08-02 at 7.30 and 6.36 core-minutes at 4 ranks and the B-52's own 12.14 core-minute rung at 2 ranks",
+      "gate": "Every family carries a measured mesh-generation scatter at its finest rung, and a fit refuses an increment below it with the reason named",
+      "expected_knowledge_gain": "Whether the corpus's inability to close a single ladder is a property of these flows or of the mesh generator, and a guard that stops an observed order being fitted to noise. Four of the lab's five single-knob families turn or flatten at 330,000 to 525,000 cells and only one of the four has ever been checked against a replicate mesh",
+      "source_kind": "measurement",
+      "citations": [
+        "demo-output/website/campaign/W3_WING_VALID_FAMILY_RESULTS.md section 3",
+        "demo-output/website/campaign/R4_ASYMPTOTIC_RESULTS.md, the c4b control",
+        "demo-output/website/campaign/B52_RUNG7_RESULTS.md",
+        "sdk/chief_engineer/uq.py eca_hoekstra_band"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T06:05:00Z"
+    },
+    {
+      "id": "w3-run-uq-studies-still-caps-every-rung-at-300",
+      "well": "W3",
+      "objective": "Give the curriculum ladders the cell-count-derived iteration cap the TMR ladders already have",
+      "rationale": "tmr_verification fixed this on 2026-07-31 in ec7ca9d5: iteration_backstop(cells) sizes a run from a measured 0.147 iterations per cell, the flat plate, bump and airfoil all use it, and the guessed dicts are kept only as history with the comment 'Nothing sizes a run from them.' run_uq_studies did not get the same treatment. ITERATIONS = 300 is a module constant there and every rung of every body is asked for exactly 300, from the B-52's 40,656-cell coarse rung to its 441,057-cell seventh, a factor of eleven in cells at one budget. It is not academic. The B-52's rungs never print 'SIMPLE solution converged' at all, so settledness on that body is only ever measured after the fact from the force history, and the final-window 2-sigma at that fixed cap reads 1.07e-05 at 255,358 cells, 2.25e-06 at 330,950 and 3.584e-05 at 441,057 -- the finest rung is the least settled by 16 times against the middle one. Three points are not a trend and none is claimed; the point is that nothing in the runner is watching, and the one rung that decided the TMR ladder was exactly a rung whose fixed cap stopped it 1.05 percent above where it settled. Note the wings are the counter-example and belong in the fix's reasoning: they carry residualControl at 1e-4, they stop on it, and their iteration counts are FLAT across a 3.7x change in cells -- 153, 148, 142, 156. So the answer is not simply a bigger number; it is a settle criterion that drives the run, with the cap as a backstop, which is precisely what iteration_backstop already is.",
+      "est_core_min": 40.0,
+      "predicted_memory_gb": 2.0,
+      "predicted_usd": 0.0,
+      "cost_basis": "estimate; a runner change plus re-solving the B-52's two finest rungs under the new criterion to see whether their values move, priced from tonight's measured 8.73 core-minutes for the 441,057-cell rung at 2 ranks",
+      "gate": "No rung in run_uq_studies is sized by a constant, and any rung stopped by its backstop rather than by settling says so on the record",
+      "expected_knowledge_gain": "Whether any stored curriculum rung was stopped short, and how much of the corpus's non-asymptotic behaviour is a fixed budget rather than a flow",
+      "source_kind": "measurement",
+      "citations": [
+        "sdk/scripts/run_uq_studies.py ITERATIONS",
+        "sdk/workflows/tmr_verification.py iteration_backstop() and SETTLE_TOL",
+        "models/curriculum/uq-studies/b52.json iterative_audit and seventh_rung"
+      ],
+      "status": "proposed",
+      "created_at": "2026-08-02T06:05:00Z"
     }
   ]
 }
