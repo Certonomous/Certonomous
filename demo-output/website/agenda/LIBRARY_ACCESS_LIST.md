@@ -191,9 +191,27 @@ that half is not blocked on anybody. Its current state:
 
 | Paper | Access | Read? | Proposal filed? |
 | --- | --- | --- | --- |
-| Ling, Kurzawski & Templeton 2016, JFM 807 | open | not yet | `w2-tbnn-sparta-readings` is open and unstarted |
+| Ling, Kurzawski & Templeton 2016, JFM 807 | open | **yes**, the Sandia accepted manuscript SAND2016-7345J via OSTI 1333570 | `W2_TBNN_SPARTA_READING.md` section 1, committed 095f24f2. This row read "not yet" until 2026-08-02; it was stale, and is corrected here rather than left to send somebody to re-read a paper the lab had already read |
 | Schmelzer, Dwight & Cinnella 2020, FTaC 104 579 to 603 | open | **yes, and reproduced** | closed: form reproduced, PH coefficient to 0.66 percent, CBFS 0.54 against 0.93 shipped as the finding |
-| Pope 1975 | see item 2 | no | `w2-pope-1975-integrity-basis` is open |
+| Pope 1975, JFM 72 331 to 340 | **closed** on Unpaywall (`10.1017/S0022112075003382`, 0 OA locations, checked 2026-08-02 05:23 UTC); a scan is held on disk with no provenance note | **yes, READ IN FULL 2026-08-02** | `W2_POPE_1975_INTEGRITY_BASIS.md`; two proposals filed, and the transcription is machine-checked by `sdk/scripts/pope_1975_basis_check.py` at 13 of 13 |
 
 The rule the readings run under is that every reading yields a proposal or a
 documented reason none is reproducible. Nothing on this page changes that.
+
+### Added 2026-08-02 — the primary source under the ten-tensor basis
+
+Reading Pope 1975 turned up that its ten tensors and five invariants are not
+derived there. Appendix A, p. 339: *"The procedure is reported by Spencer &
+Rivlin (1959, 1960) and the results for this situation are quoted in the
+text."* Both are paywalled and go on this list. Nothing approved is blocked on
+them — Pope prints the basis in full, and our transcription is checked against
+every property it must have — so these are wanted for the *derivation*, which
+would let the lab verify completeness instead of assuming it.
+
+| Paper | DOI | Unpaywall, 2026-08-02 05:23 UTC | Year discrepancy |
+| --- | --- | --- | --- |
+| Spencer & Rivlin, "The theory of matrix polynomials and its application to the mechanics of isotropic continua", *Arch. Rational Mech. Anal.* **2**, 309 to 336 | `10.1007/BF00277933` | `is_oa: false`, `oa_status: closed`, 0 OA locations; `link.springer.com` 303s to the Springer identity provider, which is the paywall answering | Pope's reference list says 1959, the Crossref record says 1958. Volume and page range match Pope exactly |
+| Spencer & Rivlin, "Further results in the theory of matrix polynomials", *Arch. Rational Mech. Anal.* **4**, 214 to 230 | `10.1007/BF00281388` | `is_oa: false`, `oa_status: closed`, 0 OA locations | Pope's reference list says 1960, the Crossref record says 1959. Volume and page range match Pope exactly |
+
+Both year discrepancies are recorded and not resolved. Cite whichever artifact
+is actually read, and say which one it was.

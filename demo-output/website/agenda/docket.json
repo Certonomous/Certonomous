@@ -868,10 +868,12 @@
       "citations": [
         "Pope, Journal of Fluid Mechanics 72, 1975"
       ],
-      "status": "approved",
+      "status": "done",
       "created_at": "2026-07-31T16:57:31Z",
       "decided_at": "2026-07-31T22:18:09Z",
-      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+      "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+      "closed_at": "2026-08-02T05:30:00Z",
+      "outcome": "READ IN FULL 2026-08-02 and indexed as claim, source, where-it-applies in demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md, with the basis stated in the lab's own notation and machine-checked: sdk/scripts/pope_1975_basis_check.py transcribes the ten tensors and five invariants off p. 334 and passes 13 of 13 checks, exit 0. All ten tensors symmetric and traceless to 3.5e-15 relative; the check has teeth, since writing 1/3 for the 2/3 in T6 leaves tr T6 = -3.98. Pope's own section 5 limit case is reproduced from the transcription to 4.4e-16 over 200 random (G0, G1, G2, k/eps, U_1,2), with no free parameter to absorb an error. Four findings that neither methods paper states. (1) The ten tensors are not Pope's: appendix A p. 339 says the three-dimensional procedure 'is reported by Spencer & Rivlin (1959, 1960) and the results for this situation are quoted in the text', so our citation was one level removed; both Spencer & Rivlin papers are closed on Unpaywall with 0 OA locations and are now on the library list. (2) Pope declares the three-dimensional form 'so intractable as to be of no value' and never determines its coefficients: the ten-tensor model does not exist in this paper, only the ten-tensor basis, so the tensor-basis network supplies by learning exactly what Pope declined to derive. (3) Pope's stated domain is a high-Reynolds-number NEARLY HOMOGENEOUS flow, with homogeneity of the rates of strain a necessary condition, which every case both approved rungs target violates. (4) The pointwise rank of the ten tensors is exactly 5 over 200 random three-dimensional gradients and exactly 3 in two dimensions, so ten coefficients are not identifiable per cell, and the exact two-dimensional reduction table derived here to 5.4e-16 shows T5 and T10 are identically zero: two of a ten-coefficient model's outputs receive no gradient from any amount of two-dimensional training data, and the other eight enter only through three combinations. Also caught: Pope's a = <uu>/k - (2/3)I is exactly twice Ling's b = <uu>/(2k) - (1/3)I, so a coefficient fitted against b is half Pope's G for the same flow. Also confirmed at zero compute: the premise of closure-duct-tensor-basis-carrier is an exact identity of any unidirectional field, not a property of its eight duct solves, with lambda2 = -lambda1, lambda3 = lambda4 = 0 and lambda5 = -lambda1^2/2 to 0.0e+00 residual. Charter section 6 triggers 2 and 4 fired; two proposals filed, w2-identifiable-tensor-coefficients-gate and w2-tensor-basis-convention-declaration. Cost: 0 core-minutes against a 0 core-minute estimate, no solver launched."
     },
     {
       "id": "w4-dafoam-community-forums",
@@ -911,8 +913,10 @@
       "citations": [
         "Pope, JFM 1975, a more general effective-viscosity hypothesis"
       ],
-      "status": "proposed",
-      "created_at": "2026-08-01T14:18:27Z"
+      "status": "dismissed",
+      "created_at": "2026-08-01T14:18:27Z",
+      "decided_at": "2026-08-02T05:30:00Z",
+      "dismiss_reason": "Duplicate of w2-pope-1975-integrity-basis, which is the same reading of the same paper and closed done on 2026-08-02. Its distinct ask, that the invariance argument be stated in the lab's own terms, is answered in W2_POPE_1975_INTEGRITY_BASIS.md: the argument is that a is a function of s and omega alone (3.4), that Cayley-Hamilton makes the tensor polynomial finite, and that material indifference is explicitly REJECTED, Pope calling its assumption 'unfounded in the present context' and naming it as the likely cause of isotropic-viscosity failure under streamline curvature. Dismissed as duplicated work, not as unwanted work."
     },
     {
       "id": "w5-close-the-secco-2021-citation-gap",

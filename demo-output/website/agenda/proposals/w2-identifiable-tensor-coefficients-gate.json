@@ -1,0 +1,21 @@
+{
+ "id": "w2-identifiable-tensor-coefficients-gate",
+ "well": "W2",
+ "objective": "Make any tensor-basis closure report which of its ten coefficients its training data could constrain, before it is graded on a case of a different dimensionality",
+ "rationale": "Read off Pope 1975 and checked to machine precision this session in sdk/scripts/pope_1975_basis_check.py: on any two-dimensional flow the fifth and tenth basis tensors are identically zero, so a ten-coefficient model trained only on two-dimensional families receives no gradient at all for two of its ten outputs, and the other eight enter only through three identifiable combinations. Seven of ten output degrees of freedom are unidentified. The tensors that vanish are the ones that carry a square duct's secondary flow, which is exactly the case the tensor-basis rung is meant to demonstrate. Separately, the basis is pointwise over-complete even in three dimensions: a symmetric traceless tensor has five independent components, the measured rank of the ten tensors is exactly five over two hundred random gradients, so a per-cell inversion for ten coefficients is ill posed and returns whatever the regulariser prefers. None of this is stated in either methods paper. A gate that computes the rank of the basis over a declared training set and names the unconstrained coefficients turns a silent extrapolation into a printed one.",
+ "gate": "For every declared tensor-basis training set, the pointwise rank of the basis and the list of coefficients receiving no gradient are computed and printed beside any score the model reports on a case of higher rank",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "estimate; a check script over declared training sets and its test, no solver. The algebra it rests on already runs in under two seconds at sdk/scripts/pope_1975_basis_check.py",
+ "expected_knowledge_gain": "Both approved closure rungs would otherwise report a three-dimensional result from coefficients two-dimensional data never touched, and nothing in the pipeline would say so",
+ "source_kind": "reading",
+ "citations": [
+  "Pope, JFM 72 331 to 340, 1975, p. 334, READ IN FULL 2026-08-02",
+  "demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md section 2.2",
+  "sdk/scripts/pope_1975_basis_check.py"
+ ],
+ "in_sample_verdict": "Not applicable. The check reads declared training sets and fits nothing itself; it has no training data of its own. It is complementary to sdk/scripts/closure_in_sample_gate.py, which asks whether a declared set contains a scored case; this asks whether that set can constrain the model at all.",
+ "status": "proposed",
+ "created_at": "2026-08-02"
+}

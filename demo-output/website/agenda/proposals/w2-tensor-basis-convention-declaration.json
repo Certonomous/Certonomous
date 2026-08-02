@@ -1,0 +1,21 @@
+{
+ "id": "w2-tensor-basis-convention-declaration",
+ "well": "W2",
+ "objective": "Require every tensor-basis implementation to declare its anisotropy and strain-rate conventions and to reproduce Pope's own worked limit case before its coefficients are compared to anything",
+ "rationale": "Pope normalises the anisotropy as the Reynolds stress over the turbulence kinetic energy less two thirds of the identity; the tensor-basis network paper, and this lab's own closure taxonomy after it, normalise by twice the kinetic energy less one third. The two differ by exactly a factor of two, verified to zero residual this session. A coefficient fitted against one is half the coefficient of the other for the same flow, so assembling Pope's tensors and regressing them onto the network's anisotropy is not wrong but produces numbers that must never be compared to the coefficients Pope prints in his equation 4.3 without the factor. The strain and rotation rates carry a second convention, a one half and a turbulence time scale, and the invariants inherit its square. This is the subtle misuse of the basis the reading item was filed to prevent, and it is catchable at zero compute: Pope's section 5 prints five component expressions for a simple shear flow that any correct implementation reproduces with no free parameter to hide an error in, and this lab's transcription already does so to four parts in ten thousand million million.",
+ "gate": "Every tensor-basis implementation in the repository declares its anisotropy normalisation and its strain-rate convention in one named place, and a test asserts it reproduces the five component expressions Pope prints on page 336",
+ "est_core_min": 0,
+ "predicted_memory_gb": 0.5,
+ "predicted_usd": 0.0,
+ "cost_basis": "estimate; a declaration and a unit test, no solver",
+ "expected_knowledge_gain": "A factor of two between a published coefficient and ours is indistinguishable from a modelling result until somebody writes the convention down",
+ "source_kind": "reading",
+ "citations": [
+  "Pope, JFM 72 331 to 340, 1975, equations 3.1 to 3.3 and section 5 p. 336, READ IN FULL 2026-08-02",
+  "demo-output/website/campaign/W2_POPE_1975_INTEGRITY_BASIS.md sections 2.3 and 2.4",
+  "docs/research/CLOSURE_METHODS.md"
+ ],
+ "in_sample_verdict": "Not applicable. No training data of any kind; the test is algebra on a synthetic simple-shear gradient and compares against expressions printed in the paper.",
+ "status": "proposed",
+ "created_at": "2026-08-02"
+}
