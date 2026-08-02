@@ -2667,14 +2667,25 @@ Three offline controls, all on the dumped system, with no DAFoam and no PETSc so
    give +1.459e-01 to +1.486e-01; three on the full space give +1.409e-01 to +1.433e-01. The real
    `dF/dW` is ~23x more orthogonal to its own image than a random vector is. A single ideal GMRES
    step against this operator could reduce the residual by only 1.98e-05 relative.
-   **Open tension, flagged rather than smoothed over:** §25.2 shows the *force* objective — a
-   completely different `dF/dW` — stagnates just as hard, so "this particular RHS is special"
-   cannot be the whole story. Either the operator's low-gain subspace swallows any
-   physically-generated right-hand side while random vectors escape it, or the two objectives
-   stagnate for different reasons. The discriminating measurement is the same `cos` computed on the
-   force RHS; it is queued, not done. Until it lands, read control 1 as no more than "the real RHS
-   is not a generic vector", and note that controls 2 and 3 — which carry the actual diagnosis —
-   do not depend on it.
+   **Tension flagged here, then measured, and control 1 is WITHDRAWN as an explanation.** §25.2
+   shows the *force* objective — a completely different `dF/dW` — stagnates just as hard, which
+   control 1 could not account for. The force RHS was therefore dumped too and put through the same
+   test on the same operator:
+
+   | RHS | `\|\|b\|\|` | nonzeros | `cos(b, A b)` |
+   |---|---|---|---|
+   | `varianceU` | 7.091590452305e-04 | 63,000 (29.92%) | **+6.287343e-03** |
+   | `CD` force | 5.324334345186e-02 | 731 (0.35%) | **−6.759389e-01** |
+   | random, 5 draws | — | — | +1.392534e-01 to +1.428407e-01 |
+
+   The force RHS is **strongly** aligned with its own image — `|cos| = 0.676`, nearly five times
+   better than a random vector — and GMRES still makes literally zero progress on it (residual
+   bit-identical from iteration 100 to 1000). **So "the RHS lies in a low-gain subspace" is not the
+   mechanism.** Control 1 measured something real about the `varianceU` seed and it explains
+   nothing; it is recorded as a refuted reading rather than deleted. The diagnosis rests on controls
+   2 and 3, which never depended on it, and the force result actively strengthens them: a
+   well-aligned right-hand side that still cannot be solved points at the preconditioner, not the
+   operator's spectrum.
 2. **Is it DAFoam's solver configuration?** No. `scipy.sparse.linalg.gmres`, unpreconditioned, 1000
    matvecs on the dumped system: relative residual **1.0 -> 9.999687e-01**. The stagnation is a
    property of the linear system as assembled, reproduced with no DAFoam, no PETSc KSP and no MPI.
@@ -2683,10 +2694,26 @@ Three offline controls, all on the dumped system, with no DAFoam and no PETSc so
    with partial pivoting -- returns `||Ax-b||/||b|| = 2.535461e-12`, `||x|| = 3.609873e-02`. The
    matrix is nonsingular and the RHS is consistent. **A solution exists; Krylov cannot reach it.**
 
-And the mechanism, reproduced outside DAFoam entirely: `scipy.sparse.linalg.spilu(drop_tol=1e-5,
-fill_factor=10)` on the same matrix fails with `RuntimeError: Factor is exactly singular`. **The
-incomplete factorization hits an exact zero pivot.** That is the `-9` `DIVERGED_NANORINF`, observed
-in a second, independent implementation.
+And the mechanism, reproduced outside DAFoam entirely: `scipy.sparse.linalg.spilu` on the same
+matrix fails with `RuntimeError: Factor is exactly singular`. **The incomplete factorization hits an
+exact zero pivot.** That is the `-9` `DIVERGED_NANORINF`, observed in a second, independent
+implementation. It is not a knife-edge choice of drop tolerance — the whole strength axis was swept,
+and **incomplete factorization never succeeds on this matrix**, while complete factorization with
+pivoting always does, at every pivot threshold including the one that most prefers the diagonal:
+
+| factorization | result |
+|---|---|
+| `spilu` drop_tol 1e-2, fill 3 | **Factor is exactly singular** |
+| `spilu` drop_tol 1e-3, fill 5 | **Factor is exactly singular** |
+| `spilu` drop_tol 1e-4, fill 5 | **Factor is exactly singular** |
+| `spilu` drop_tol 1e-5, fill 10 | **Factor is exactly singular** |
+| `splu` `diag_pivot_thresh=0` | solves, `\|\|Ax−b\|\|/\|\|b\|\| = 2.3769e-10`, nnz(L+U) 3.22e+08 |
+| `splu` `diag_pivot_thresh=0.1` | solves, 6.4063e-12, nnz(L+U) 3.62e+08 |
+| `splu` `diag_pivot_thresh=1` | solves, 2.5355e-12, nnz(L+U) 3.90e+08 |
+
+The price is visible in the last column: the complete factors carry 24-28x the matrix's own
+13,710,468 nonzeros, roughly 3 GB, on a 21,000-cell case. That is the scaling wall a direct
+subdomain solve would run into, and it is worth stating alongside the fact that it works.
 
 This gives one mechanism for both signatures and matches every observation on the record:
 `rcm` surfaces the zero pivot as a NaN (`-9` at iteration 0); `natural` surfaces it as a dead
