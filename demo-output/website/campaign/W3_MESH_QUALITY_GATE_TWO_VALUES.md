@@ -42,21 +42,28 @@ nothing between. `MAX_SKEWNESS = 4.0` is *exactly* the dictionary ceiling:
 
 ### 1.1 The clean demonstration, measured today for free
 
-The same four background-division triples on the NACA 4412 wing, at two
+The same four background-division triples on the NACA 4412 wing, at three
 refinements (`W3_NACA4412_RESOLUTION_SCATTER.md`):
 
-| triple | refinement 3 max | refinement 4 max |
-| --- | --- | --- |
-| (33 60 20) | 58.374353 | 64.989619 |
-| (34 59 21) | 62.390692 | 64.958100 |
-| (32 61 21) | 57.556267 | **74.962443** |
-| (34 60 21) | 60.801266 | 64.976520 |
+| triple | refinement 3 max | refinement 4 max | refinement 5 max |
+| --- | --- | --- | --- |
+| (33 60 20) | 58.374353 | 64.989619 | 74.962218 |
+| (34 59 21) | 62.390692 | 64.958100 | **74.984444** |
+| (32 61 21) | 57.556267 | **74.962443** | **74.975650** |
+| (34 60 21) | 60.801266 | 64.976520 | **74.893881** |
+| **spread** | **4.834°** | 10.004° (bimodal) | **0.091°** |
 
-At refinement 3, where no mesh presses its constraint, four different meshes
-read four different numbers across **4.83°**. At refinement 4 three of them
-agree to **0.032°** — they are reporting the same ceiling — and the fourth
-reports the other ceiling. A gate at 70 splits that column 3–1, and the split is
-the branch `snappyHexMesh` ended on.
+Read the spreads, not the values. At refinement 3, where no mesh presses its
+constraint, four different meshes read four different numbers across **4.83°** —
+that is a measurement. At refinement 5 the same four agree to **0.091°** while
+their cell counts differ by 5% and their drag by 4.2%: that is not four meshes
+turning out equally non-orthogonal, it is four meshes reporting
+`relaxed { maxNonOrtho 75 }`. Refinement 4 is the mixed case, three at the
+strict 65 and one at the relaxed 75, and a 70° gate splits that column 3–1
+purely on which branch `snappyHexMesh` ended on.
+
+*(The refinement-5 (33 60 20) entry is the credential's own stored `finer`
+rung; the other three were rebuilt today.)*
 
 ## 2. What the gate returns now
 

@@ -59,6 +59,31 @@
       "evidence": "demo-output/website/campaign/W3_NACA4412_LAYERED_REPLICATES.md",
       "cases": "/home/ubuntu/certonomous-runs/w3-naca4412-layered-replicates/{A,B,C,D,E}"
     },
+    "mesh_construction_scatter_vs_resolution": {
+      "measured_utc": "2026-08-02T11:18:00Z",
+      "what": "The SAME four background blockMesh division triples rebuilt at the two rungs either side of the graded one, everything else byte-identical, 4 ranks scotch. Twelve meshes, three rungs, all converged. D (35 58 20) is excluded at every rung because locationInMesh lands on a block-face plane at even span division counts, which is a property of the divisions and so holds at every refinement.",
+      "controls": "refinement 3 A reproduces the stored medium rung's 263,359 cells exactly and its Cd to 2.6e-04 relative; refinement 5 A reproduces the stored finer rung's 1,849,113 cells, its Cd to 5.7e-05, and its max non-orthogonality, average and 797 severely non-orthogonal faces to every printed digit.",
+      "by_rung": {
+        "r3_medium": {"cells": "232615-263359", "cd_range_pct_of_mean": 5.82,
+                      "scatter_over_reference_band_halfwidth": 0.99,
+                      "cl_range_pct_of_mean": 4.60, "core_min": 9.84,
+                      "dev_pct": "+55.99 to +65.42"},
+        "r4_fine_graded": {"cells": "645251-666878", "cd_range_pct_of_mean": 12.74,
+                      "scatter_over_reference_band_halfwidth": 1.69,
+                      "cl_range_pct_of_mean": 15.57, "core_min": 29.61,
+                      "dev_pct": "+16.35 to +32.54"},
+        "r5_finer": {"cells": "1795256-1884231", "cd_range_pct_of_mean": 4.20,
+                      "scatter_over_reference_band_halfwidth": 0.51,
+                      "cl_range_pct_of_mean": 5.21, "core_min": 154.26,
+                      "dev_pct": "+13.61 to +18.51"}
+      },
+      "answer": "Refinement 5 is a resolution at which this body's drag can be STATED: Cd = 0.018302 +/- 0.000385 (half-range over four independently constructed meshes at 1.79-1.88 M cells), +16.6% from the reference 0.015696, mesh-construction scatter 0.51x the band half-width against 1.69x at the graded rung.",
+      "verdict_effect": "NOT VALIDATED holds on twelve of twelve meshes across three resolutions, all outside the band on the same side, +13.61% to +65.42%. The scatter is NOT monotone in refinement -- 5.82, 12.74, 4.20 percent -- so the graded rung is the worst of the three, and a one-rung measurement could not have shown that. At refinement 5 the published triple is no longer an extremum of its own family: it sits second of four, 0.13% from the family mean, against being the MINIMUM at refinement 4 and the MAXIMUM on the NACA 0012.",
+      "layer_coverage_is_a_property_of_the_rung": "This record blamed the finer rung's 58.3% of target layer thickness on that mesh. Every refinement-5 replicate reads 57.2-60.2%, achieving about 6 of 12 layers, against 94.2-94.5% at refinements 3 and 4. The rung under-resolves layers on every mesh built at it, and that -- not non-orthogonality -- is the next thing to look at for the +16.6% gap.",
+      "cost_note": "Priced from one mesh first as the item required: replicate B at refinement 5 measured 32.61 core-min, predicting 130.4 for a family of four. The family cost 154.26, a 1.18x overrun ON A MEASURED BASIS, outside the 1.051x the lab's measured-basis pairs had never exceeded. The cause is meshing, not the solve: snappyHexMesh reported 934.2, 1045.0, 1058.1 and 1683.84 s across the four, a 1.80x spread, with the control triple needing 51 layer-addition iterations against B's 25. A single mesh prices a rung only where meshing cost is not itself construction-sensitive.",
+      "evidence": "demo-output/website/campaign/W3_NACA4412_RESOLUTION_SCATTER.md",
+      "cases": "/home/ubuntu/certonomous-runs/w3-naca4412-layered-replicates/{A,B,C,E} and /r3/{A,B,C,E} and /r5/{A,B,C,E}"
+    },
     "rungs": [
       {
         "tag": "medium", "cells": 263359, "refinement": 3,
