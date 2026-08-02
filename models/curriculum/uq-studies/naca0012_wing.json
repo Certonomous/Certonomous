@@ -61,7 +61,7 @@
     "naca0012_wing-rung-medium",
     "naca0012_wing-production"
   ],
-  "updated_utc": "2026-08-02T06:36:58Z",
+  "updated_utc": "2026-08-02T06:41:47Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -344,6 +344,65 @@
     "not_grounds_for_an_upgrade": "This must not be read as the NACA 0012 agreeing with Abbott and von Doenhoff to 5 percent. A verdict moving toward agreement deserves MORE scrutiny than one moving away. The honest reading damages both verdicts equally: this mesh family cannot resolve the difference between '5 percent off' and '34 percent off', because mesh construction alone moves the answer by 21.6 percent of its own value while the whole question is whether it is 30 percent off. The consequence is that the row should not state a verdict its evidence cannot support -- not that it should state a better one.",
     "envelope_in_proportion": "Separately, this body's published envelope of +/- 0.015 is 5.8 times WIDER than the mesh scatter, so the scatter sits inside it, as it does on the Ahmed 25 degree (19 percent) and the NACA 0015 sail (7 percent). But that envelope is also 125.45 percent of the value it decorates, and an envelope larger than its own quantity will contain almost anything. Passing that check is weak evidence and is recorded as weak. The verdict is the part of the row a reader acts on, and the verdict is what fails.",
     "belongs_to": "the open ruling w3-a-declined-ladder-still-publishes-an-envelope, which already covers this row and now has a sharper second question: may a credential print a pass/fail verdict against a reference when an independently generated mesh at the same resolution moves the measured value across the boundary?",
-    "cheapest_next_experiment": "A third and fourth replicate at the same resolution, to say whether 0.01205 or 0.00945 is the outlier or whether the distribution is simply that wide. Two points give a range, not a distribution. About 3 core-minutes per replicate at 4 ranks on tonight's measurement."
+    "cheapest_next_experiment": "A third and fourth replicate at the same resolution, to say whether 0.01205 or 0.00945 is the outlier or whether the distribution is simply that wide. Two points give a range, not a distribution. About 3 core-minutes per replicate at 4 ranks on tonight's measurement.",
+    "four_mesh_sample": {
+      "measured_utc": "2026-08-02T06:40:27Z",
+      "why": "section 5 of the record named two more replicates as the cheapest decision-relevant experiment left; they were run",
+      "runs": [
+        {
+          "tag": "r1 (the published mesh)",
+          "divisions": "33 60 20",
+          "cells": 140545,
+          "cd": 0.012052229,
+          "iterations": 153,
+          "window_2sigma": 5.453e-07,
+          "rel_vs_reference": 0.3391,
+          "verdict": "OUTSIDE the +/-30% band"
+        },
+        {
+          "tag": "r1b",
+          "divisions": "34 59 21",
+          "cells": 139621,
+          "cd": 0.009453575,
+          "iterations": 149,
+          "window_2sigma": 2.015e-07,
+          "rel_vs_reference": 0.0504,
+          "verdict": "INSIDE"
+        },
+        {
+          "tag": "r1c",
+          "divisions": "32 61 21",
+          "cells": 127857,
+          "cd": 0.010630335,
+          "iterations": 157,
+          "window_2sigma": 3.087e-07,
+          "rel_vs_reference": 0.1811,
+          "verdict": "INSIDE"
+        },
+        {
+          "tag": "r1d",
+          "divisions": "35 58 20",
+          "cells": 135601,
+          "cd": 0.009605314,
+          "iterations": 149,
+          "window_2sigma": 1.47e-06,
+          "rel_vs_reference": 0.0673,
+          "verdict": "INSIDE"
+        }
+      ],
+      "all_four_converged_on_residualControl": true,
+      "n": 4,
+      "mean": 0.010435363,
+      "range": 0.002598654,
+      "sample_stdev": 0.001197937,
+      "range_as_percent_of_published_cd": 21.6,
+      "published_mesh_is_the_maximum": true,
+      "published_mesh_sigma_from_mean": 1.35,
+      "verdicts": "1 of 4 OUTSIDE the +/-30% band, and it is the one the wall publishes",
+      "not_a_refinement_effect": "Cell counts span 127,857 to 140,545, a 10 percent range, and this ladder's own trend is Cd FALLING with refinement -- 0.012052 / 0.010406 / 0.008479 as cells go 140k / 224k / 358k. The published mesh is the FINEST of the four and gives the HIGHEST drag, the opposite of the trend. A coarser mesh giving a lower Cd cannot be explained by resolution.",
+      "what_it_sharpens": "It is now not merely that the verdict is irreproducible: the mesh the credential was built on is the LEAST representative of the four, and it is the one whose reading produced the failing verdict on the wall.",
+      "still_not_an_upgrade": "n = 4 is four; the sample standard deviation of 1.1979e-03 is 11.5 percent of the mean; and a mean of four arbitrarily chosen meshes is not a converged answer either -- it is four readings of a quantity this family cannot pin down. This licenses REMOVING a verdict, not replacing it with a better one.",
+      "next_experiment_named_not_run": "The same four-mesh spread at the 358,430-cell resolution, where the measured scatter is 4.064e-04 rather than 2.599e-03, a sixth the size. If the spread there places the body cleanly inside or outside the band, the credential has a resolution at which it can honestly be stated. About 20 core-minutes at 4 ranks on tonight's measurement."
+    }
   }
 }

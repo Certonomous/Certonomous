@@ -20,12 +20,30 @@ credential.
 * area basis planform, "already on the reference's planform-area basis", so
   the comparison is direct and no rebasing is involved.
 
-## 2. The same credential on a second mesh built to the same recipe
+## 2. The same credential on four meshes built to the same recipe
+
+**Extended 06:40 UTC**: §5 called two more replicates the cheapest
+decision-relevant experiment left, at ~3 core-minutes each. They were run.
+**All four converged on `residualControl`.**
 
 | | background divisions | cells | Cd | converged | 2σ | vs reference 0.009 | verdict |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **r1** | (33 60 20) | 140 545 | 0.012052229 | 153 iters, `residualControl` | 5.45 × 10⁻⁷ | **+33.91%** | **OUTSIDE** ±30% |
-| **r1b** | (34 59 21) | 139 621 | 0.009453575 | 149 iters, `residualControl` | 2.02 × 10⁻⁷ | **+5.04%** | **INSIDE** ±30% |
+| **r1** — the published mesh | (33 60 20) | 140 545 | **0.012052229** | 153 iters | 5.45 × 10⁻⁷ | **+33.91%** | **OUTSIDE** ±30% |
+| **r1b** | (34 59 21) | 139 621 | 0.009453575 | 149 iters | 2.02 × 10⁻⁷ | +5.04% | INSIDE |
+| **r1c** | (32 61 21) | 127 857 | 0.010630335 | 157 iters | 3.09 × 10⁻⁷ | +18.11% | INSIDE |
+| **r1d** | (35 58 20) | 135 601 | 0.009605314 | 149 iters | 1.47 × 10⁻⁶ | +6.73% | INSIDE |
+
+**One of four is outside the band, and it is the one the wall publishes.**
+n = 4: mean 0.010435363, range 2.5987 × 10⁻³ (21.6% of the published value),
+sample standard deviation 1.1979 × 10⁻³. The published mesh is the **maximum**
+of the four, +1.35σ from the sample mean.
+
+**The spread is not a refinement effect, and the direction proves it.** The
+cell counts span 127 857 to 140 545, a 10% range — and this ladder's own trend
+is Cd *falling* with refinement (0.012052 → 0.010406 → 0.008479 as cells go
+140k → 224k → 358k). The published mesh is the **finest** of the four and
+gives the **highest** drag, which is the opposite of the trend. A coarser mesh
+giving a lower Cd cannot be explained by resolution.
 
 r1 reproduces the stored production rung's Cd of 0.012053 to **7.7 × 10⁻⁷**,
 so it *is* the published solve. The two cases were verified byte-identical by
@@ -91,12 +109,30 @@ one it was filed with:
 The second is the more consequential, because the envelope is decoration on a
 row whose headline is the verdict.
 
-**A cheap experiment that would settle it further, and was not run tonight:** a
-third and fourth replicate at the same resolution, to say whether 0.01205 or
-0.00945 is the outlier or whether the distribution is simply that wide. Two
-points give a range, not a distribution. On tonight's measurement that is about
-3 core-minutes per replicate at 4 ranks — the cheapest decision-relevant
-experiment left on this board.
+**The experiment this section originally proposed has been run** — see §2. It
+asked whether 0.01205 or 0.00945 was the outlier. **The answer is 0.01205, the
+published one.** Four meshes give 0.009454, 0.009605, 0.010630 and 0.012052;
+three cluster between 0.0095 and 0.0106 and the published mesh sits alone at
+the top, +1.35σ from the mean and the only one of four that fails the band.
+
+That sharpens §3 rather than softening it. It is now not merely that the
+verdict is irreproducible — it is that **the mesh the credential was built on
+is the least representative of the four**, and it is the one whose reading
+produced the failing verdict on the wall.
+
+**It still does not license an upgrade.** n = 4 is four, the sample standard
+deviation of 1.1979 × 10⁻³ is 11.5% of the mean, and a mean of four
+arbitrarily chosen meshes is not a converged answer either — it is four
+readings of a quantity this family cannot pin down. What it licenses is
+removing a verdict, not replacing it with a better one.
+
+**What would be worth running next, and was not:** the same four-mesh spread at
+the 358 430-cell resolution, where the measured mesh scatter is 4.064 × 10⁻⁴
+rather than 2.599 × 10⁻³ — a sixth of the size. If the spread there is small
+enough to place the body cleanly inside or outside the ±30% band, the
+credential has a resolution at which it can honestly be stated, and the
+question becomes which mesh to publish rather than whether to publish a verdict
+at all. About 20 core-minutes at 4 ranks on tonight's measurement.
 
 ## 6. Provenance
 
