@@ -133,6 +133,52 @@ k-equation — rather than a fitted one, so it needs no training truth at all. T
 stated goal, *maintaining baseline performance* where the baseline is fine, is the
 lab's "do no harm" in the authors' own words.
 
+> **FULL TEXT READ 2026-08-02.** This entry was written from the abstract, because the
+> Computers & Fluids full text is paywalled. The arXiv version is not, and nobody had
+> fetched it. `https://arxiv.org/html/2504.06758v1`, HTTP 200, read end to end; author
+> list and journal reference confirmed on `arxiv.org/abs/2504.06758` (*Computers and
+> Fluids* (2025)). **Everything this section inferred from the abstract holds, and the
+> full text makes the distinctions sharper rather than softer.**
+>
+> **RITA is per-cell and physics-keyed, and it classifies flow regions, not cases.**
+> Section 2.2, verbatim: *"RITA serves as a physics-based classification method designed
+> to isolate flow phenomena, in this case, shear layers, based on the relative importance
+> of terms in the k-equation of the k−ω SST model."* Its primary indicator is
+> ϕ_{P_k/D_k} = |D_k| / (|P_k| + |D_k|), with two companions built the same way from
+> convection and diffusion; the operative threshold is stated as *"in shear layers,
+> ϕ_{P_k/D_k} consistently falls below 0.55, compared to boundary layer regions where
+> destruction dominates (exceeding 0.55) and free-stream regions where this ratio
+> approaches 1.0 due to minimal production."*
+>
+> **All three of the distinctions the lab claims for its own gate survive contact with
+> the full text, and can now be stated against read wording rather than an abstract:**
+> RITA selects **regions within a case**, where the lab's gate selects **whole cases**;
+> RITA keys on **local term ratios of the baseline's own k-equation**, where the lab's
+> gate is **fitted to predict the baseline's error** from training truth; and RITA's
+> "off" state means **the unmodified SST model applies in that region of an otherwise
+> corrected solve**, where the lab's "off" state means **the uncorrected field is what
+> gets submitted for that case**. None of that makes the lab's gate novel — §2 of this
+> document already settles that it is not — but the entry may now describe how it
+> differs without guessing.
+>
+> **A fact with a direct consequence for us, and it is about our discipline, not their
+> conduct.** Section 2.4 and Table 2: the paper's training set is three 2D separated
+> flows — **the NASA wall-mounted hump (Re_h = 9.3×10⁵, 5.1×10⁴ cells, reference data
+> Uzun and Malik)**, the periodic hill, and the curved backward-facing step. The hump is
+> a **scored test case of the Closure Challenge**, and its cell count is the same
+> 51,626-cell case the challenge ships. There is nothing improper in that: the paper is
+> its own work, published in its own venue, and no challenge rule reaches it.
+>
+> **But it closes a route for us.** Appendix D of that paper publishes the model
+> coefficients. Borrowing them, warm-starting from them, or calibrating anything of ours
+> against that model's hump behaviour would make our entry **indirectly trained on a
+> test case** — the correction would carry information from the hump's high-fidelity
+> field through their fit. Under the challenge's one strict rule, and under the lab's own
+> stricter standard that nothing it fits, inverts or calibrates on may be a scored case,
+> **that model is off limits to this entry, and it is off limits precisely because it is
+> the best-matched prior art we have found.** Recorded here so that the temptation is
+> written down before anyone feels it.
+
 > **This matters for how the entry is written.** **Tyler Buchanan and Richard Dwight are
 > both co-authors of the Closure Challenge paper itself** (McConkey, Buchanan, Smidt,
 > Bodner, Dwight, Cinnella, arXiv [2603.28884](https://arxiv.org/abs/2603.28884)).
@@ -259,9 +305,15 @@ correction improves a case; safeguard / fallback to baseline; machine-learned tu
 model selection and recommendation; forward from SpaRTA and TBNN.
 
 **Limits, stated so a reader can judge coverage.** This was a targeted search of open
-web and arXiv, not a systematic review. Two paywalled items could not be opened
+web and arXiv, not a systematic review. ~~Two paywalled items could not be opened
 (Computers & Fluids and AIAA Journal full texts) and are cited from verified metadata
-plus abstracts only. One further candidate, *Error Quantification for the Assessment of
+plus abstracts only.~~ **Updated 2026-08-02: one of the two is now read in full.** The
+Computers & Fluids item, Buchanan, Lăcătuş, West & Dwight 2025, has an open arXiv
+version at `2504.06758` which nobody had fetched; it was read end to end and §2.4 above
+now quotes its methodology section rather than its abstract. **One paywalled item
+remains** — the AIAA Journal full text at DOI 10.2514/1.J064416, §2.5 — still cited by
+title and DOI only, with its author list still unverified and therefore still unnamed.
+One further candidate, *Error Quantification for the Assessment of
 Data-Driven Turbulence Models* (Flow, Turbulence and Combustion, DOI
 10.1007/s10494-022-00321-1), **is deliberately not cited**: the DOI resolves but the
 author list and abstract could not be retrieved, and the standing rule is that an

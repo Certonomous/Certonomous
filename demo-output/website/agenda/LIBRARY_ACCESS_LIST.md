@@ -3,6 +3,16 @@
 `w2-mit-access-list`. Opened 2026-08-01. **A list Katie can act on, in one
 sitting, with what each item unblocks stated beside it.**
 
+> **Worked down 2026-08-02, and it got shorter.** Six entries became **four**.
+> Items 6 and 4 are **closed and read** — both were on arXiv, neither needed a
+> library, and one of them had been holding up a submission draft while the
+> other was cited from its abstract inside the lab's prior-art record. Item 2
+> was "not yet attempted"; it has now been attempted and is confirmed closed.
+> Item 1 was re-attempted through four new routes and is now established
+> paywalled rather than merely not-found. **The entries that survive are the
+> ones that genuinely need her, and each of them now carries a DOI and the
+> evidence that the free route was tried.**
+
 The standing permission covers open access and routes paywalled work to her
 library, and until now there was no list, so a paywalled paper stalled a
 reading instead of being handed over. This is that list. It is ordered by what
@@ -72,8 +82,16 @@ the lab has already written down.
 **S. B. Pope**, *A more general effective-viscosity hypothesis*, **Journal of
 Fluid Mechanics 72(2), 1975**.
 
-**Status:** Cambridge University Press, not confirmed open. Not yet attempted
-from this box, and that is stated rather than implied.
+**Status:** ~~Cambridge University Press, not confirmed open. Not yet attempted
+from this box, and that is stated rather than implied.~~ **Attempted 2026-08-02
+and it is closed.** OpenAlex on the title returns exactly one work — *A more
+general effective-viscosity hypothesis*, 1975, doi `10.1017/S0022112075003382`
+— with `is_oa: false`, `oa_status: "closed"`, `oa_url: null`,
+`any_repository_has_fulltext: false`, and the JFM landing page as its only
+location. **This entry's own instruction was to try the open route before
+spending her library on it; the open route has now been tried and it does not
+exist.** The DOI is recorded here so the request can be made without a second
+search.
 
 **The one section needed:** the derivation of the ten-tensor integrity basis
 and the conditions under which it is complete.
@@ -112,18 +130,32 @@ deliberately impoverished form.
 
 ---
 
-## 4. Buchanan, Lăcătuş, West and Dwight 2025. Probably free; check arXiv first.
+## 4. ~~Buchanan, Lăcătuş, West and Dwight 2025.~~ **CLOSED 2026-08-02. Read.**
 
 *Data-Driven RANS Closures Using a Relative Importance Term Analysis Based
 Classifier for 2D and 3D Separated Flows*, **Computers and Fluids 305, 106899,
 2025**, doi `10.1016/j.compfluid.2025.106899`, **arXiv 2504.06758**.
 
-**Do not spend library access on this one before trying the arXiv identifier.**
-It is on the list because the published full text was among the two paywalled
-items the prior-art search could not open, and because of who wrote it: Tyler
-Buchanan and Richard Dwight are both co-authors of the closure challenge paper
-itself, and Dwight is additionally a co-author of SpaRTA. **The people who will
-read the lab's submission have published the nearest prior art twice.**
+~~**Do not spend library access on this one before trying the arXiv identifier.**~~
+**The arXiv identifier worked and no library access was needed.** Retrieved
+2026-08-02 from `https://arxiv.org/html/2504.06758v1`, HTTP 200, read end to
+end. Author list and journal reference confirmed on the arXiv abstract page:
+**Tyler Buchanan, Monica Lăcătuş, Alastair West, Richard P. Dwight**,
+*Computers and Fluids* (2025). **This entry's own advice was right, and the
+paper had been sitting one fetch away while the prior-art record cited it from
+its abstract.**
+
+**What it changed.** All three distinctions the lab claims between its decline
+gate and this classifier survive the full text and can now be stated against
+read wording — RITA selects *regions within a case* from local k-equation term
+ratios, the lab's gate selects *whole cases* from a fit to the baseline's
+error, and the two "off" states mean different things. And one thing nobody was
+looking for: **§2.4 and Table 2 show the paper trains on the NASA wall-mounted
+hump**, which is a scored test case of the challenge, at the same 5.1×10⁴ cells
+the challenge ships. Nothing improper on their side and no rule reaches them —
+but it puts that paper's published coefficients (Appendix D) **off limits to
+our entry**, because borrowing them would make us indirectly trained on a test
+case. Written up at `CLOSURE_CHALLENGE_PRIOR_ART.md` §2.4.
 
 ---
 

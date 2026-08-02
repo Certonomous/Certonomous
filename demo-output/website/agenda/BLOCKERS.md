@@ -147,7 +147,7 @@ reachability is asserting something nobody measured.
 
 ---
 
-## B-5. ~~Five papers this box cannot open, and one it can~~ Four papers this box cannot open. The one it could, it has read.
+## B-5. ~~Five papers this box cannot open, and one it can~~ Four papers this box cannot open. The two it could, it has read.
 
 **`w2-mit-access-list`, `w5-close-the-secco-2021-citation-gap`. Opened
 2026-08-01. Waiting on Katie's library, not on this box.**
@@ -182,9 +182,23 @@ quotation. Full audit of all 30 of its quotations:
 defects, both in citations of the lab's own surfaces rather than of the
 benchmark's rules.
 
+**Item 4 also needed no library and is also done.** Buchanan, Lăcătuş, West and
+Dwight 2025 is on arXiv at `2504.06758`; the entry itself said to try that
+before spending library access, and nobody had. Read end to end 2026-08-02. The
+prior-art record had been citing the nearest published relative of the lab's own
+decline gate **from its abstract**; it now quotes the methodology section, and
+all three distinctions the lab claims survive on read wording. It also turned up
+that the paper **trains on the NASA wall-mounted hump**, a scored test case of
+the challenge, which puts its published coefficients off limits to our entry.
+
+**Item 2, Pope 1975, was "not yet attempted from this box". Now attempted, and
+closed** — OpenAlex reports `oa_status: "closed"` on doi
+`10.1017/S0022112075003382`, with the JFM landing page as its only location.
+
 **Unblock:** open the list, work the four remaining entries top down, and paste
-back the section named beside each. Nothing else in the reading program waits on
-this.
+back the section named beside each. The list is shorter and every entry left on
+it now carries a DOI plus the evidence that the free route was tried and failed.
+Nothing else in the reading program waits on this.
 
 ---
 

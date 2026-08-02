@@ -696,6 +696,31 @@ shift, and that its "off" state means submitting the uncorrected field. **Any se
 presenting confidence-gated correction as novel must be struck.** None currently exists
 on `closure.html`, which was checked; the risk is that one gets written.
 
+> **UPDATE 2026-08-02 — the nearest prior art has now been read in full, and it moves
+> one thing from "should disclose" to "must not do".** Buchanan, Lăcătuş, West & Dwight
+> 2025 was cited here from its abstract because the Computers & Fluids full text is
+> paywalled. It is open on arXiv at `2504.06758` and nobody had fetched it. Read end to
+> end; full note at `CLOSURE_CHALLENGE_PRIOR_ART.md` §2.4.
+>
+> **The three distinctions above all survive, and can now be stated against read wording
+> rather than inferred.** Their RITA classifier selects *regions inside a case* from
+> local ratios of the baseline's own k-equation terms (§2.2: ϕ_{P_k/D_k} = |D_k| /
+> (|P_k| + |D_k|), shear layers below 0.55); ours selects *whole cases* from a fit to the
+> baseline's error; and their "off" means unmodified SST **in that region of a corrected
+> solve**, where ours means the uncorrected field **is the submission** for that case.
+>
+> **The new constraint.** Their §2.4 and Table 2 give the training set as three 2D
+> separated flows: **the NASA wall-mounted hump** (Re_h = 9.3×10⁵, 5.1×10⁴ cells), the
+> periodic hill, and the curved backward-facing step. The hump is one of our eight scored
+> test cases. Nothing about that is improper on their side — it is their own work in
+> their own venue and no challenge rule reaches it. **But their published model
+> coefficients (their Appendix D) are off limits to this entry.** Borrowing them,
+> warm-starting from them, or calibrating anything of ours against that model's hump
+> behaviour would make our submission *indirectly* trained on a test case. That is a
+> route we would otherwise have had every reason to take, since it is the best-matched
+> prior art we have found, and it is written down here **before** anyone feels the pull
+> of it rather than after.
+
 ### 7.5 Everything in §4.1–§4.6 still holds
 
 The in-sample gate passes (0 failures, 6 benign review lines, all read). All eight
