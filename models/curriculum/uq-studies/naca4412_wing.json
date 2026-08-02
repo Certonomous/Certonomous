@@ -20,7 +20,7 @@
       "mission": "naca4412_wing-production"
     }
   ],
-  "updated_utc": "2026-08-02T06:00:07Z",
+  "updated_utc": "2026-08-02T06:10:44Z",
   "numerical": {
     "dim": 3,
     "order_window": [
@@ -421,7 +421,57 @@
       },
       "numerical_block_untouched": "The numerical block in this record is NOT refitted from this family. The fit it would install is held by order_window on the 0012 and by monotone on the 4412, and the replicate-mesh control shows both verdicts rest on increments below the mesh generator's own scatter. The published envelope is also the subject of the open ruling w3-a-declined-ladder-still-publishes-an-envelope, and a number about to be ruled on should move once, by the ruling -- not be replaced first by a tighter number that is less trustworthy than the loose one. uq.reportable_band was None before and is None on the new fit too.",
       "cost_core_min": 23.35,
-      "cost_basis": "measured, from each solve's own ExecutionTime times 4 ranks; wall clock is not used because the rungs ran three at a time"
+      "cost_basis": "measured, from each solve's own ExecutionTime times 4 ranks; wall clock is not used because the rungs ran three at a time",
+      "mesh_generation_scatter": {
+        "measured_utc": "2026-08-02T06:07:50Z",
+        "pre_registration": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_PREREGISTRATION.md (commit 438de17c, before any replicate was built)",
+        "record": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_RESULTS.md",
+        "method": "One replicate mesh at each rung's nominal resolution, reached by a different background division triple; every other file byte-identical to its twin, verified by diff -r on system/ and 0.orig/ and md5 on the STL. Solved identically at 4 MPI ranks with residualControl 1e-4.",
+        "replicate_divisions": [
+          "34 59 21",
+          "43 76 27",
+          "55 97 34",
+          "65 115 40"
+        ],
+        "replicate_cells": [
+          132592,
+          209402,
+          344402,
+          561528
+        ],
+        "replicate_cd": [
+          0.022686094,
+          0.020478014,
+          0.019202179,
+          0.018689055
+        ],
+        "scatter": [
+          0.001014682,
+          2.0584e-05,
+          0.000235222,
+          0.003251339
+        ],
+        "scatter_over_increment": [
+          0.865,
+          0.018,
+          0.154,
+          1.093
+        ],
+        "scatter_times_N_squared_over_1e9": [
+          0.0192,
+          0.0009,
+          0.0274,
+          0.8749
+        ],
+        "power_law_exponent": -0.877,
+        "finding": "No monotone trend and no power law: 1.015e-03, 2.058e-05, 2.352e-04, 3.251e-03, spanning a factor of 158 with the worst at the finest rung -- the opposite of the NACA 0012's clean N^-2 fall on the same generator with the same recipe. So a single scatter correction applied corpus-wide would be wrong on this body. The one structural difference on the record is that r4's max skewness is 3.165 against 1.49 to 1.90 on the three coarser rungs. Two geometries, two behaviours; nothing here transfers to a third without measuring it. The coarsest rung is again badly placed: 87 percent of the increment at 137,569 cells.",
+        "predictions_scored": {
+          "P1 scatter grows with cell count, largest at r4": "half-supported: r4 IS the largest, but r1 is not the smallest, r2 is",
+          "P2 r1 and r2 scatters each under 20 percent of the increment spanning them": "FALSE at r1, 87 percent; TRUE at r2, 2 percent",
+          "P3 the r3 scatter is below the r2->r3 increment": "TRUE at 15 percent",
+          "P2's stated consequence is corrected, not asserted": "P2 said that failing it would mean these ladders were never measuring discretization at any rung. That is too strong: the 4412's r2 and r3 and the 0012's r3 are clean at 2, 15 and 21 percent. What is true is narrower and worse-placed -- the scatter rivals or exceeds the increment at the COARSEST rung on both bodies, and every three-rung ladder stored in this corpus puts two of its three rungs at or below that resolution."
+        }
+      }
     }
   }
 }

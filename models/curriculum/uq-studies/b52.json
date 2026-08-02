@@ -56,7 +56,7 @@
       "note": "background blockMesh divisions scaled up again (55x49x82); same recipe as finer2/fine-uq/production, system/ copied verbatim from study-b52-finer2-uq with only blockMeshDict changed. Solved at 2 MPI ranks hierarchical n (2 1 1), identical to fine-uq and finer2, 220529 cells/rank. Pre-registered at demo-output/website/campaign/B52_RUNG7_PREREGISTRATION.md (commit d92a87f0) before the solver was launched; the pre-registered prediction that Cd would rise again is scored FALSE."
     }
   ],
-  "updated_utc": "2026-08-02T05:34:33Z",
+  "updated_utc": "2026-08-02T06:10:43Z",
   "fingerprint": "ed675052cbc1ff14",
   "numerical": {
     "dim": 3,
@@ -211,6 +211,29 @@
       "reportable_band": "None -> None (unchanged; conclusive is false both times, so no reportable number moved)"
     },
     "flattering_move_check": "The only number that fell is the conservative fallback band, and uq.reportable_band refuses it before and after. Every other field moved to a weaker verdict: the ladder loses its observed order and its Richardson extrapolate outright. Nothing here is a verdict raised.",
-    "record": "demo-output/website/campaign/B52_RUNG7_RESULTS.md"
+    "record": "demo-output/website/campaign/B52_RUNG7_RESULTS.md",
+    "replicate_mesh_control": {
+      "measured_utc": "2026-08-02T06:07:00Z",
+      "case": "/home/ubuntu/certonomous-runs/study-b52-rung7b-uq",
+      "method": "An independently generated mesh at the same nominal resolution as rung7: background divisions (55 49 82) -> (56 48 83), every other file copied byte-for-byte from rung7 including the STL, all seven system dicts and 0.orig. Solved at the same 2 MPI ranks, hierarchical n (2 1 1).",
+      "cells": 441079,
+      "cells_apart_from_rung7": 22,
+      "cells_apart_percent": 0.005,
+      "cd": 0.050134753,
+      "window_2sigma": 1.227e-05,
+      "iterations": 300,
+      "mesh_scatter": 0.0019146,
+      "scatter_over_increment": 0.47,
+      "scatter_over_iterative_2sigma": 53.4,
+      "finding": "The verdict survives, the magnitude does not. Both replicates fall below finer2's 0.052275 -- rung7 by -4.055e-03 and rung7b by -2.140e-03 -- so the SIGN of the turn is reproduced. Refitting the five-rung family on rung7b instead of rung7 returns the same verdict field for field: monotone false, no observed order, held by monotone, reportable_band None; only band_abs moves, 0.00506853 -> 0.00337750. What is new is a number that was not attached before: the turn is -4.055e-03 with a 47 percent mesh-construction uncertainty, on a rung whose ITERATIVE noise is 3.584e-05. The mesh scatter is 53 times the iterative scatter. This record's iterative_audit has since 2026-07-31 measured the smaller of the two noise sources by two orders of magnitude, and nothing was measuring the larger one.",
+      "refit_on_replicate": {
+        "observed_order": null,
+        "monotone": false,
+        "conclusive": false,
+        "band_abs": 0.0033775000000000038,
+        "not_conclusive_guard": "monotone"
+      },
+      "record": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_RESULTS.md"
+    }
   }
 }

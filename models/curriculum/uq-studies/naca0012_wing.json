@@ -61,7 +61,7 @@
     "naca0012_wing-rung-medium",
     "naca0012_wing-production"
   ],
-  "updated_utc": "2026-08-02T06:00:07Z",
+  "updated_utc": "2026-08-02T06:10:43Z",
   "dimensionality": {
     "dim": 3,
     "established_from": "this body's own archived case files, not its name",
@@ -249,7 +249,57 @@
       },
       "numerical_block_untouched": "The numerical block in this record is NOT refitted from this family. The fit it would install is held by order_window on the 0012 and by monotone on the 4412, and the replicate-mesh control shows both verdicts rest on increments below the mesh generator's own scatter. The published envelope is also the subject of the open ruling w3-a-declined-ladder-still-publishes-an-envelope, and a number about to be ruled on should move once, by the ruling -- not be replaced first by a tighter number that is less trustworthy than the loose one. uq.reportable_band was None before and is None on the new fit too.",
       "cost_core_min": 29.74,
-      "cost_basis": "measured, from each solve's own ExecutionTime times 4 ranks; wall clock is not used because the rungs ran three at a time"
+      "cost_basis": "measured, from each solve's own ExecutionTime times 4 ranks; wall clock is not used because the rungs ran three at a time",
+      "mesh_generation_scatter": {
+        "measured_utc": "2026-08-02T06:07:50Z",
+        "pre_registration": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_PREREGISTRATION.md (commit 438de17c, before any replicate was built)",
+        "record": "demo-output/website/campaign/W3_MESH_NOISE_FLOOR_RESULTS.md",
+        "method": "One replicate mesh at each rung's nominal resolution, reached by a different background division triple; every other file byte-identical to its twin, verified by diff -r on system/ and 0.orig/ and md5 on the STL. Solved identically at 4 MPI ranks with residualControl 1e-4.",
+        "replicate_divisions": [
+          "34 59 21",
+          "44 77 27",
+          "55 97 34",
+          "65 115 40"
+        ],
+        "replicate_cells": [
+          139621,
+          223641,
+          362032,
+          534106
+        ],
+        "replicate_cd": [
+          0.009453575,
+          0.00929355,
+          0.008072766,
+          0.008255182
+        ],
+        "scatter": [
+          0.002598654,
+          0.001112322,
+          0.00040645,
+          0.000179916
+        ],
+        "scatter_over_increment": [
+          1.578,
+          0.676,
+          0.211,
+          4.078
+        ],
+        "scatter_times_N_squared_over_1e9": [
+          0.0513,
+          0.056,
+          0.0522,
+          0.0497
+        ],
+        "power_law_exponent": 2.024,
+        "finding": "Scatter falls monotonically with cell count and follows an inverse-square law: scatter x N^2 is 0.051, 0.056, 0.052, 0.050 (units 1e9) across a 3.74x range in N, constant to plus or minus 6 percent, fitted exponent 2.024. So mesh-construction scatter on this body is a COARSE-mesh problem that refinement cures, not a fine-mesh problem refinement causes. The r4 failure is therefore not the scatter growing -- the r4 scatter is the smallest measured, 1.799e-04 -- it is the INCREMENT collapsing by a factor of 44 in one step, from 1.927e-03 to 4.412e-05. The p = 24.048 remains an artefact; the mechanism stated in W3_WING_VALID_FAMILY_RESULTS.md section 3 was half wrong and the half that was wrong is the direction. The dangerous rung is the COARSEST: at 140,545 cells the scatter is 2.599e-03, 21.6 percent of the value and 158 percent of the next refinement step.",
+        "predictions_scored": {
+          "P1 scatter grows with cell count, largest at r4": "FALSE and exactly backwards on this body: scatter falls monotonically by a factor of 14.45",
+          "P2 r1 and r2 scatters each under 20 percent of the increment spanning them": "FALSE: r1 at 158 percent and r2 at 68 percent",
+          "P3 the r3 scatter is below the r2->r3 increment": "TRUE at 21 percent",
+          "P2's stated consequence is corrected, not asserted": "P2 said that failing it would mean these ladders were never measuring discretization at any rung. That is too strong: the 4412's r2 and r3 and the 0012's r3 are clean at 2, 15 and 21 percent. What is true is narrower and worse-placed -- the scatter rivals or exceeds the increment at the COARSEST rung on both bodies, and every three-rung ladder stored in this corpus puts two of its three rungs at or below that resolution."
+        }
+      }
     }
   }
 }
