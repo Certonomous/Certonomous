@@ -214,6 +214,23 @@ real-seed `warpDeriv` protocol that overturned A5's clearance
 > `CD/shape`'s `1.713791e-02` included. 296 core-min, 9,576 cells per rank, zero
 > mesh-quality errors.
 >
+> **The regrade itself is now DONE, and A2's rows hold.** `runScript_AeroOnly.py -task
+> check_totals`, stock then patched, np=4, 236.7 core-min for the patched half. Every FD magnitude
+> is identical between the halves on all 18 rows; `patchV` is bit-identical; every geometric
+> constraint is unchanged at machine precision. **CD/shape 1.71% → 0.0506%, CL/shape 1.17% →
+> 0.0219%, CL/twist 1.12% → 0.0097%** — factors of 34, 53 and 115, so A2's published rows were
+> ~97–99% rotation defect, exactly like A1's 1.67%. **CD/twist is the one row that degrades, 0.389%
+> → 0.505%**, reported as the counter-instance it is. All six VERIFIED rows HOLD, PASS at both
+> toolchains.
+>
+> **§3b is corrected too, and the correction is a prediction coming true.** §3b found the patch
+> **bit-identical** on twist and concluded it is "a **no-op** for twist" on A2's geometry. On the
+> actual published aero-only case it is not: `CL/twist` improves 115x. §3b saw a no-op because its
+> runs were the **aerostructural** script — a wing that deflects under load, so the gradient is not
+> evaluated at an undeformed baseline, `axisMag > sqrt(eps)`, and the degenerate branch never fires.
+> That is exactly what `PROOF.md` §23's pre-deformation capstone predicted. §3b's measurement was
+> right; its conclusion was drawn on the wrong case.
+>
 > **Consequences for this document.** §3a's headline is withdrawn. The claim in
 > §3 that A2's rows "stand unrebutted rather than confirmed" is superseded: they
 > are re-measured and they stand against the shipped toolchain. Blocker **B-7 is
