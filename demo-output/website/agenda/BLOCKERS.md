@@ -252,10 +252,60 @@ moment the adjoint runs.
 
 ---
 
-## B-7. The A2 wing's published gradient verification cannot be re-run from anything on this box
+## B-7. ~~The A2 wing's published gradient verification cannot be re-run from anything on this box~~ — **CLOSED 2026-08-02 (well W4). Not a blocker; it was a wrong-script error, and the baseline reproduces to all ten printed digits.**
 
-**Found 2026-08-01 while working `w5-regrade-every-published-gradient-claim`.
-This blocks the regrade of the lab's most prominently published gradient claim.**
+> **CLOSED, and the diagnosis below is retracted rather than merely superseded.**
+> The A2 case reproduces its published baseline exactly, in 40 seconds, from a
+> pristine clone. **Every A2 run in the W5 regrade invoked the wrong script.**
+>
+> `W5-regrade/run_a2_checktotals.sh`, `run_a2_rebuild.sh` and `run_a2_twist.sh`
+> all call `python runScript.py`. A2's published numbers were measured with
+> **`runScript_AeroOnly.py`** — the deviation `ladder-a/A2_mach_tutorial_wing.md:5`
+> discloses in its own "Variant used" line. The two are different physics:
+> `runScript.py` imports `tacs.mphys.TacsBuilder` and `funtofem.mphys.MeldBuilder`,
+> builds a `ScenarioAeroStructural` (a *flexible* wing), and sets `aoa0 = 4.65`;
+> `runScript_AeroOnly.py` builds a `ScenarioAerodynamic` (rigid) at `aoa0 = 4.0`.
+> The aerostructural path is confirmed to have actually run, from the W5 logs
+> themselves: `a2_rebuilt_runmodel.log:688` `Transfer scheme [0]: Creating scheme
+> of type MELD...` and `:700` `TacsDVComp`.
+>
+> **The stated mechanism is refuted by direct inspection.** The preserved case's
+> `0/` and `0.orig/` are byte-identical for all six fields (`T U alphat nuTilda
+> nut p`, `diff` clean on every one), so nothing was "re-written by each run".
+> Angle of attack is not in `0/U` at all — it is the OpenMDAO design variable
+> `patchV = np.array([U0, aoa0])` set in the script.
+>
+> **The unblock gate this section itself specified, run and passed
+> (2026-08-02T05:16:57Z–05:17:37Z):** fresh copy of
+> `/home/ubuntu/dafoam-tutorials/MACH_Tutorial_Wing` (pristine clone, both
+> scripts md5-identical to the preserved case), `./preProcessing.sh` then
+> `runScript_AeroOnly.py -task run_model`, np=4, **stock** toolchain:
+> **CD 0.02772949388 / CL 0.4775877833 — all ten printed digits.**
+> `polyMesh` regenerated fresh at 05:17; the run's own residuals reproduce the
+> published table (`U` 9.56052968e-09 / 1.202580476e-08 / 1.185193088e-09,
+> `p` 1.006775059e-07, `nuTilda` 4.319179098e-07 against the published 9.56e-09
+> / 1.20e-08 / 1.19e-09 / 1.01e-07 / 4.32e-07), yPlus min 68.79 max 1266.5
+> mean 321.95 against the published 68.79 / 1266.5 / 321.9, and the log contains
+> zero `MELD`/`Tacs` strings. Cost **2.67 core-minutes** (40 s wall × 4 ranks);
+> 38,304 cells / 4 ranks = **9,576 cells per rank**.
+> Evidence: `/home/ubuntu/certonomous-runs/W4-a2-provenance/a2_aeroonly_fresh_runmodel.log`,
+> `run_gate.sh`.
+>
+> **So there is no 14% spread and no provenance failure.** The four rows below
+> are four *different physical configurations* — one rigid wing at aoa 4.0 and
+> three flexible-wing aerostructural states at aoa 4.65 — not four runs of one
+> case. A2's primal is as reproducible as A1's.
+>
+> The 238 core-minutes the W5 `check_totals` spent before dying at perturbation
+> 132 were spent on the aerostructural case, which had also inherited the
+> IPOPT-deformed mesh; that is a sufficient explanation for the mesh-quality
+> abort and it says nothing about A2 as published.
+>
+> **What remains open is the regrade itself, not the ability to run it** — see
+> `dafoam/PROOF.md` §25 for the `check_totals` results this closure enabled.
+
+**Original entry, kept for the record (found 2026-08-01 while working
+`w5-regrade-every-published-gradient-claim`):**
 
 `benchmarks.html:115` states *"Every gradient below was verified against finite
 differences before any optimisation result was allowed to stand"* over six
