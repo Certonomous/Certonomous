@@ -527,7 +527,24 @@ this morning. ~~The checker is filed and approved as
 failed. Exit 0 accepted, 1 malformed, 2 the frame holds and a cited artifact is
 not on disk.
 
-What is left for her is the emitter.
+~~What is left for her is the emitter.~~ **Built 2026-08-04, option A:**
+`scripts/morning_report.py --emit`
+assembles all six sections from their named sources, the compute ledger
+(`demo-output/website/mega-batch/ledger.jsonl`), the research board
+(`ACTIVE_RESEARCH.md`), the nine-act gate table, the docket ranked by the
+agenda's own ranking function, and `BLOCKERS.md`, then runs the landed checker
+over its own output before anything is written, and retains one file per
+morning under `demo-output/website/campaign/reports/`. Its one hard rule is
+the charter's: every figure traces to a file it read; a source it cannot read
+prints `PENDING: <path>`; the dollar line stays as written until B-1 clears.
+One reading recorded out loud: it reads the primary sources directly rather
+than the audit's JSON, because the audit reports disagreements, not sections.
+Where a source is prose it reproduces the source's own words and columns and
+says which columns it could not source, never filling one by judgement. Tests:
+9 cases in `sdk/tests/test_morning_report_emitter.py` beside the checker's 17.
+First report of record: `campaign/reports/MORNING_REPORT_2026-08-04.md`, whose
+spend header reads 0.000 core-minutes because the ledger's newest row is
+2026-07-29, and says so rather than estimating what the ledger does not carry.
 
 - **A. Build the emitter too**, reading the audit's JSON output for the parts
   that already exist rather than reimplementing them.

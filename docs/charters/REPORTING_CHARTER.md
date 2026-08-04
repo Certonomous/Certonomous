@@ -459,7 +459,8 @@ section 4.5 carries the rule; this is the row that shows it.
 - The agenda's style rails reject a proposal whose visible fields carry a dash,
   a raw URL, an internal path or a banned word, so section 8 inherits clean
   text.
-- Sections 1, 2, 4 and 6 of the report are assembled by hand today. ~~**The
+- ~~Sections 1, 2, 4 and 6 of the report are assembled by hand today.~~
+  **Superseded 2026-08-04: the emitter below assembles all six.** ~~**The
   frame in section 2 is unchecked until the checker below exists.**~~
   **Superseded 2026-08-01: it exists.** `scripts/morning_report.py --check
   <report>` reads a report somebody wrote by hand and validates it against
@@ -485,6 +486,17 @@ section 4.5 carries the rule; this is the row that shows it.
 > smaller half is built, above. The emitter is the larger half and can follow,
 > reading the audit's JSON output for the parts that already exist rather than
 > reimplementing them. P-8.1 in `PROPOSALS_OPEN.md`.
+>
+> **Superseded 2026-08-04: both halves exist.** The emitter is
+> `scripts/morning_report.py --emit`, and it self-checks against the frame
+> above before anything is written; one file per morning is retained under
+> `demo-output/website/campaign/reports/`. It reads the six primary sources
+> directly rather than the audit's JSON, because the audit reports
+> disagreements, not sections, and that reading is recorded in P-8.1. Where a
+> source carries prose rather than a field this charter asks for, the emitter
+> reproduces the source's own words and says which columns it could not
+> source; it never fills one by judgement. Nine cases in
+> `sdk/tests/test_morning_report_emitter.py`.
 
 ## Related
 
