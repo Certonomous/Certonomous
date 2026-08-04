@@ -12,8 +12,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] Stage 0 do-no-harm gate on the corrector (never score below raw RANS).
 - [-] Stage 1 FIML field inversion (beta on SST omega-destruction) via DAFoam adjoint, FD-verified; first target NASA hump.
       Capability half DONE and FD-verified (2.67%, 5,000 DVs, step-independent — `dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md`).
-      Hump target BLOCKED: adjoint `DIVERGED_NANORINF` at GMRES iter 0, memory refuted (18.99 GB free). Unblocker is
-      docket `fiml-adjoint-conditioning-unblock` (approved, 240 core-min) — dispatched 2026-08-04.
+      CONDITIONING BLOCKER BROKEN ON CBFS (2026-08-04, commit 1cd44c04, pending supervisor sweep): rebuilt libDASolver
+      with ASM sub-block complete LU (env DAFOAM_SUBPC_TYPE=lu, image dafoam-subpclu:v1) converges the CBFS beta adjoint
+      (21,000 DVs, KSP reason 2) with FD 0.059–0.199% vs the 2.67% bar, zero sign flips — first converged, FD-verified
+      field-inversion gradient on a closure-relevant case. Regression control reproduces -9 with the switch off.
+      fixedPoint route refuted at zero compute (SA-only); "unreachable at runtime" belief corrected (L-34). 185.0/240
+      core-min. Hump now blocked on convergence RATE vs memory envelope, not singularity — Richardson-wrapped attempt
+      staged for a fresh budget.
       Note: DAFoam's native beta hook is on omega *production*; destruction-term hook needs a model patch
       (`w3-beta-on-omega-destruction-model-patch`).
 - [x] Stage 2 learn the closure from inverted fields (GP line optional pre-registered GP-vs-trees bake-off).
