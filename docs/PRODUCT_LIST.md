@@ -1,0 +1,143 @@
+# IV. PRODUCT — canonical list (supervisor-maintained)
+
+Protocol (Katie, 2026-08-04): an item is crossed `[x]` only when FULLY done, with evidence linked. Every
+cross-off adds a new item. `[-]` = attempted, blocked or failed with diagnosis. `[~]` = done in substance,
+pending supervisor adversarial verification (assume wrong until defended). Updated continuously; the
+day's changelog is at the bottom.
+
+Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. Remaining items ·
+4. New items · 5. Literature review.
+
+## 4A. Closure modeling line
+- [x] Stage 0 do-no-harm gate on the corrector (never score below raw RANS).
+- [-] Stage 1 FIML field inversion (beta on SST omega-destruction) via DAFoam adjoint, FD-verified; first target NASA hump.
+      Capability half DONE and FD-verified (2.67%, 5,000 DVs, step-independent — `dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md`).
+      Hump target BLOCKED: adjoint `DIVERGED_NANORINF` at GMRES iter 0, memory refuted (18.99 GB free). Unblocker is
+      docket `fiml-adjoint-conditioning-unblock` (approved, 240 core-min) — dispatched 2026-08-04.
+      Note: DAFoam's native beta hook is on omega *production*; destruction-term hook needs a model patch
+      (`w3-beta-on-omega-destruction-model-patch`).
+- [x] Stage 2 learn the closure from inverted fields (GP line optional pre-registered GP-vs-trees bake-off).
+- [x] Stage 3 pre-registered zero-shot transfer test.
+- [-] C2 error decomposition vs the top-4 gap. Decomposition DONE and thrice-corrected (`closure_challenge_C2_error_decomposition.md`):
+      real deficit is the ducts (62.9% of gap to rank 2), not alpha_05. Full closure blocked on the same adjoint conditioning failure.
+      Cheap next action dispatched 2026-08-04: check training split for alpha_05-regime cases; second regime model if any exist.
+- [x] M1 methods taxonomy [764 lines, 0 fabricated citations].
+- [ ] M2 reproduction ladder: FIML -> TBNN -> SpaRTA. (SpaRTA frozen-RANS route is the cheapest real result — 60 core-min,
+      needs no adjoint, data on disk; dispatched 2026-08-04. TBNN duct Re-generalisation approved: `w2-tbnn-duct-reynolds-generalisation`.)
+- [ ] M3 hybridization experiments (each with a named hypothesis).
+
+## 4B. Closure benchmark challenge
+- [x] ~~Current 0.0741 vs rank-4 target 0.0779~~ SUPERSEDED: entry of record is **round 4, 0.0654, rank 3 of 5**
+      (Reissmann 0.0595 · Wu&Zhang 0.0624 · **us 0.0654** · Liu 0.0737 · Montoya 0.0779). Gap to rank 2: 0.0030.
+      Best-on-board 5 of 8 cases; last only on NASA_2DWMH. 5 scoring calls used (self-imposed discipline; no benchmark limit).
+- [x] alpha=15,AR14 status: still best-on-board, but AR_14 lead collapsed to 0.00003 after round 4's un-reverted duct regression —
+      must not be reported as a comfortable win.
+- [x] Find out challenge policies / whether Certonomous can submit. DONE (`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §1–§4):
+      steward Ryley McConkey (MIT); no eligibility clause, no fee, no deadline, no scoring limit; leakage rule audited in code, not violated.
+      Two flagged ambiguities: company name in Authors column; no license on benchmark/training-data repos.
+      → NEW ITEM (from this cross-off): **Submission send package** — Katie fills author names + reference URL, approves,
+      sends the email (with the alpha_05-rows-are-baseline disclosure); ask steward about the two ambiguities in the same email.
+- [ ] Update the Active Research board with movement. REOPENED: board still headlines round 3 / 0.0676; round 4 never
+      written to it. Update dispatched 2026-08-04.
+
+## 4C. 2D case families
+- [x] F2 transonic RAE2822.
+- [x] F3 supersonic exact-theory suite [all three gates PASS].
+- [x] F5a unsteady cylinder Strouhal [shipped, 0.7% at Re=100].
+- [ ] F5b pitching NACA 0012 dynamic stall vs AGARD CT (docket `w1-f5b-pitching-naca0012`, approved, 120 core-min).
+- [ ] F5c backward-facing step reattachment vs Driver-Seegmiller. OOM + gradient blowups.
+- [x] F4 hypersonic blunt body vs Billig standoff (+ SWBLI stretch).
+- [-] F6a NASA hump [gate reached]. Pass with *; overpredicted bubble length (k-SST diffusion suspect).
+      1. Try different models. 2. If confirmed → epistemic-uncertainty showcase. Also `w1-hump-challenge-conditions` (approved, 60).
+- [ ] F6b periodic hills vs ERCOFTAC.
+- [-] F6c duct vs DNS. Captures 0% of anisotropy — structural model deficiency, not us. Research-result candidate;
+      `closure-duct-tensor-basis-carrier` proposal (120) is the constructive follow-up.
+- [ ] NACA 0012 wall credential re-grade: W3 found the published Cd (0.01205, outside ±30% band) is not reproducible —
+      3 of 4 same-recipe meshes land inside the band (`campaign/W3_NACA0012_VERDICT_NOT_REPRODUCIBLE.md`). Needs a verdict protocol
+      for mesh-draw-sensitive credentials. [added 2026-08-02 by W3, adopted onto list 2026-08-04]
+
+## 4D. 3D case families
+- [x] F1 ONERA M6 transonic wing vs AGARD Cp stations.
+- [ ] F10 real 3D viscous RANS batch family (replace the panel-method stand-in).
+- [ ] F8 NREL Phase VI wind turbine (MRF, then transient).
+- [ ] AIAA DPW: study public data/methodology, then attempt CRM/DPW-class case (converged primal first).
+      A6 wing-alone primal now matches DAFoam's published tutorial baseline to 0.0067% (provisional — see 4E A6).
+      `w1-dpw5-hex-three-level-ladder` proposed (400).
+- [ ] B52: figure out why mesh doesn't converge smoothly (docket `agp-1dec50b65c2f` 8th rung, 20 core-min).
+
+## 4E. DAFoam ladder — investigation root-caused; regrades in progress
+- [-] A1 NACA 0012 drag min, FD-verified adjoint. FAIL against SHIPPED toolchain stands, but fully root-caused:
+      IDWarp 2.6.2 `getRotationMatrix3d` degenerate-rotation guard differentiates to a hard zero at the undeformed baseline
+      (upstream `mdolab/idwarp#57`, open five years). 4-line patch collapses idx6 634% sign-flip → 5.5e-4%
+      (`ROOTCAUSE_getRotationMatrix3d.md`, `PATCH_getRotationMatrix3d.md`, LESSONS L-29).
+      SUPERVISOR SWEEP 2026-08-04: CONFIRMED on all four axes — math re-derived independently, scripts clean,
+      idx8 flip+collapse reproduced with an independent driver, upstream anchor traced
+      (`VERIFICATION_rotation_patch_supervisor_sweep.md`, commit 6782d33a). Upstream filing prepared, unfiled — **Katie's call**,
+      now with a defended basis.
+- [x] A2 3D wing tutorial optimization vs documented result. HUGE; demo anchor. Re-verified 18/18 `check_totals` rows
+      from a pristine clone; B-7 reproducibility blocker closed (wrong-script error, 2026-08-02).
+- [-] A3 ONERA M6: primal DONE and validated (CD=0.02299556, Cp vs AGARD AR-138). Adjoint hard-blocked:
+      `DIVERGED_BREAKDOWN` at every mesh size incl. 21,840 cells with >20 GB free — conditioning, not memory
+      (14.17-decade diagonal spread, `R5_ADJOINT_CONDITIONING.md`).
+- [~] A4 Ahmed-body adjoint: verdict moved UP to **PASS (1.10% at np=1, shipped toolchain)**. The 10% error was DAFoam's
+      default `scotch` decomposition (np=1 0.34% / np=4 scotch 8.95% / np=4 simple 0.00054%; converged wrong answer;
+      A1/A2/A5 decomposition-invariant). Mechanism NOT identified — hanging-node hypothesis refuted backwards.
+      SUPERVISOR SWEEP 2026-08-04: CONFIRMED — every cell re-extracted, np=2 independently re-run to every printed digit,
+      face re-classification exact (`VERIFICATION_A4_decomposition_supervisor_sweep.md`, commit 27d25762; 2.9 core-min).
+      Documentation defects D-1/D-2/W-1/W-3 filed as L-32; case-record reconciliation in progress.
+      Graded configuration: np=1 stock, 1.10%. Primal SIMPLEC mismatch is separate and disclosed.
+- [-] A5 internal-flow adjoint (U-bend). FAIL against shipped toolchain, cause fully identified = same rotation-guard bug
+      (solve-free pure-geometry test reproduces idx8 207% flip component-by-component; standalone stock reproducer:
+      13/27 components >30%). "No clue why" is obsolete.
+- [-] A6 CRM wing-alone primal: CONVERGED below 1e-8, CD=0.0209014, matches published tutorial to 0.0067%. Provisional:
+      temperature-residual ~8.5e8 signature (same precursor as A4's field collapse) filed open. Adjoint not attempted (memory wall).
+- [ ] Carry the warp patch to the blocked rungs (`w4-carry-the-warp-patch-to-the-blocked-rungs`, 180) and decide the
+      patched-vs-shipped grading policy. [added 2026-08-04]
+- [ ] A4 decomposition-defect mechanism + reach (`w4-does-the-decomposition-defect-reach-other-cases`, 120;
+      `w4-decomposition-invariance-is-a-gate`, 60). [added 2026-08-04]
+
+## 4F. interFoam / marine line
+- [-] F7a dam break vs Martin-Moyce. Sign flip when mesh refined. Must diagnose.
+- [ ] F7a-fix: diagnose and re-gate (free-surface stack must pass its cheapest case before hulls).
+- [ ] F7b Wigley hull wave resistance.
+- [ ] F7c DTMB 5415 or KCS vs open workshop data.
+- [x] NavyFOAM availability/license evaluated; vanilla interFoam for now (stated in docket).
+
+## 4G. Research directions & lab self-proposals
+- [x] One-click agenda operational (costed proposals, click approvals, ranked morning digest).
+- [ ] TMR ladder: flat plate DONE (+0.29% vs CFL3D); bump-in-channel next; NACA 0012 attempt-2 time-boxed —
+      insane aspect ratio, must understand before proceeding (`tmr-naca0012-complete-ladders`, 150).
+- [ ] Valve F9 real pulsatile solve.
+- [x] Standards docs: MESH_STANDARD, MONITOR_STANDARD (v1.3 incl. S12 unsettled-stop, landing 2026-08-04), INNOVATION_STANDARD.
+
+## 4H. AI charters — iterated daily
+- [x] Goals & research-proposal charter.
+- [x] Literature-review charter (0 fabricated citations stays the standard).
+- [x] Case-selection charter (hardness floor).
+- [x] Verification charter.
+- [x] Result-priority charter (draft v0.2; decision sheet D0–D7 awaiting Katie's rulings).
+- [x] Compute-budget charter (P-6.1 spot-vs-on-demand blocked on AWS read-only role).
+- [x] Escalation charter (P-7.1 free-spend thresholds: no number set — needs Katie).
+- [x] Reporting charter: morning-report format FROZEN (v2.0, 2026-07-31, 12 sections + enforcement via `scripts/self_audit.py`).
+      → NEW ITEM (from this cross-off): **P-8.1 emitter half** — build the morning-report generator (checker half landed).
+- [ ] Problem-research protocol (NEW 2026-08-04, Katie's directive): liaison researches every breakage online
+      (literature, upstream issues, forums) and maintains a living systematic-method doc. First draft dispatched.
+
+---
+
+## Changelog
+
+### 2026-08-04
+- CROSSED: 4B policy question (submission draft complete, no eligibility bar) → added "Submission send package (Katie)".
+- CROSSED: 4H reporting-charter format (v2.0 frozen) → added "P-8.1 emitter half".
+- UPDATED: 4B scores to round 4 (0.0654, rank 3/5); 4E rewritten rung-by-rung from `DAFOAM_CASE_STATUS.md`/`PROOF.md`
+  (A4 → PASS pending verification; A1/A5 root-caused; A3 conditioning-blocked; A6 primal provisional-pass).
+- ADDED: 4C NACA 0012 wall-credential re-grade; 4E warp-patch carry + grading policy; 4E A4 mechanism; 4H problem-research protocol.
+- REOPENED: 4B Active Research board update (round 4 never posted).
+- DISPATCHED: adjoint-conditioning unblock (approved docket item), SpaRTA frozen-RANS, alpha_05 regime-model check,
+  rotation-patch + A4 verification sweeps, liaison research on DIVERGED_NANORINF/PCILU, S12 landing + docket close.
+
+### Decision requests for Katie (standing)
+1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
+2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
+3. Result-priority decision sheet D0–D7; escalation free-spend threshold (P-7.1); AWS read-only role for P-6.1.

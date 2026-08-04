@@ -1549,7 +1549,11 @@ withdrawn number. When superseding, quote and strike the old wording in place;
 an unmarked stale verdict is worse than a marked wrong one, because only the
 unmarked one gets believed.
 
-## L-32. A correction trained inside a gated regime rebuilds the gate's own failure at the regime's floor
+## L-33. A correction trained inside a gated regime rebuilds the gate's own failure at the regime's floor
+
+*(Renumbered from L-32 on 2026-08-04: two agents filed L-32 concurrently; the A4-record lesson at the
+earlier line keeps the number because external documents already cite it. This is itself a small instance
+of the w7 claim-before-work convention applying to lesson numbers.)*
 
 **What happened.** C2 established that the periodic-hills correction hurts
 exactly where raw RANS is already good (clean separation at floor ≈ 0.07–0.13),
