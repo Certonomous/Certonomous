@@ -219,7 +219,24 @@ declaration earlier to make the timing look right is not an option**, because
 it invents a fleet the run never used. *Lab recommends B*, and notes the
 decision is hers because it is a camera surface.
 
-### C-4. Six monitor rules were never held to the replay requirement
+### C-4. Six monitor rules were never held to the replay requirement. RESOLVED BY EVIDENCE
+
+**Resolved 2026-08-04, by evidence rather than a ruling: the measurement option
+A said to wait for has arrived, so there is nothing left to decide.**
+`w7-replay-the-grandfathered-monitor-rules` ran on 2026-08-01 at zero compute,
+and `docs/standards/MONITOR_STANDARD.md` section 3.1 (v1.3) now carries a
+replay line for every rule: six of the seven unreplayed rules have been
+replayed — S1 validated (10 fires, all 10 runs that actually died, on 449
+archived logs), S2 fires on nothing, S3 validated with a recorded weakness, S4
+measured with its documented rule shown absent from the code, S5 measured down
+to two distinct keys that are both normaliser artefacts, and S7 measured and
+withdrawn — and the seventh, S6, is recorded as unmeasurable with the specific
+reason (its one readable family declares a vacuous `p 1e-15` target). Section
+3.5 holds the details. The rules were replayed before any severity demotion was
+needed, which is option A carried out to completion rather than chosen: no rule
+in the standard is now trusted on reasoning alone.
+
+The item as it was put:
 
 `docs/standards/MONITOR_STANDARD.md` section 3, new. A decision rather than a
 proposal, because the rules are already in force and demoting them changes a

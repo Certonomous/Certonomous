@@ -797,10 +797,14 @@
     "monitor standard section 3.4",
     "verification charter section 4"
    ],
-   "status": "approved",
+   "status": "done",
    "decided_at": "2026-07-31T23:20:00Z",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-   "created_at": "2026-07-31T23:20:00Z"
+   "created_at": "2026-07-31T23:20:00Z",
+   "completed_at": "2026-08-04T15:05:00Z",
+   "outcome": "Landed as Monitor Standard v1.3 rule S12 unsettled stop, and it is broader than this item asked for. detect_unsettled_stop in sdk/chief_engineer/log_signatures.py grades a stopped run's coefficient history over a trailing window: fires at relative drift >= 1e-3 with a monotone fraction >= 0.90, histories under 40 iterations not graded, both thresholds bracketed by the motivating case against itself -- the flat-plate rung capped at 15000 fires at -4.131e-03 drift and monotone 1.000, the same case settled at 21000 is silent at +3.716e-07 and 0.552. Replayed against the archive before adoption as the gate required: 760 quantity-histories from 380 coefficient.dat files, 718 gradeable, 36 fires (4.74 percent), 0 fatal, severity FLAG. The stop reason is carried rather than tested, and the archive vindicated that choice: 17 of the 36 fires stopped on their own residual criterion, not a cap, so a rule keyed to the cap would have missed the larger half. Collection-time half is wired too: final_coefficient in tmr_verification.py now returns the S12 verdict under 'unsettled' with every coefficient it records. Artifact demo-output/website/monitor/replay_s12.json; reproduce with sdk/scripts/replay_s12_unsettled_stop.py.",
+   "measured_core_min": 0.0,
+   "measured_basis": "no solver ran; the replay reads archived coefficient histories only"
   },
   {
    "id": "agp-527efc1cbb44",
