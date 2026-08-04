@@ -185,8 +185,9 @@ smaller of the two available terms.
 
 Wu, Zhang & Zhang (AIAA Journal 63(2), 2025, arXiv:2402.16355) — B1's top pick —
 field-invert a β(x) field on the SST ω-destruction term using **DAFoam's own
-discrete adjoint**, train only on the public CBFS case, and **zero-shot
-generalize to DUCT**, scoring 0.0455 / 0.0399 on exactly the two cases that are
+discrete adjoint**, ~~train only on the public CBFS case, and **zero-shot
+generalize to DUCT**,~~ *(struck 2026-08-04 — see the second correction block
+below)* scoring 0.0455 / 0.0399 on exactly the two cases that are
 62.9% of our deficit.
 
 **B2/B3 should reproduce that duct result specifically.** It is simultaneously
@@ -210,6 +211,43 @@ the literature reproduction (Ladder B) and the highest-value closure work
 > `w3-beta-on-omega-destruction-model-patch`. Until that item lands, this
 > section names the highest-value target correctly and overstates how close the
 > lab is to reaching it, and saying so is cheaper than finding out after a run.
+
+> **CORRECTION, 2026-08-04, from the W2 deep-read of both artifacts
+> (`campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md` §1, commit `393ad74f`).
+> The paragraph above cites one paper where there are two artifacts, and three
+> of its claims do not survive reading them.** The paper
+> (arXiv:2402.16355, held at `docs/papers/wu_zhang_zhang_2402.16355.pdf`) and
+> the rank-2 entry's own description document
+> (`docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf`, fetched from the
+> benchmark repo's `submissions/wu/description_document.pdf`) are not the same
+> model, and the struck clause attributed the entry's protocol to the paper.
+>
+> 1. **"Train only on public CBFS" is TRUE of the entry and FALSE of the
+>    paper it was cited to.** The paper's models train on **mixed NASA hump +
+>    CBFS** inversion data (its abstract, §3 opening, §3.2); only the entry
+>    reused the CBFS conditioned-inversion data alone (entry §2). And the hump
+>    is scored case `NASA_2DWMH` (row above), so the *paper's* protocol,
+>    scored on this benchmark, would be **in-sample by construction** — any
+>    scored reproduction must copy the entry's CBFS-only choice, not the
+>    paper's.
+> 2. **"Zero-shot generalize to DUCT" is stated by neither artifact.** The
+>    paper contains no duct case; the entry document shows only CBFS and the
+>    ZPG flat plate. The 0.0455 / 0.0399 duct scores come from the leaderboard
+>    table, and "zero-shot" is **this lab's inference** from the entry's
+>    CBFS-only training plus that leaderboard — sound, but ours to carry, not
+>    their claim.
+> 3. **The rank-2 model is SST-QCRC, not SST-plus-β.** Besides the
+>    conditioned β on the ω-destruction term (paper Eqs. (5)–(6), entry
+>    Eq. (2)), the entry **adds an untrained QCR2000 quadratic constitutive
+>    term** on the Reynolds stress, `c_r = 0.3` (entry Eq. (1)), which no lab
+>    document had noticed. A β-on-destruction patch alone reproduces the
+>    paper's inversion capability, **not the deployed rank-2 model**;
+>    like-for-like parity with the duct scores also needs the QCR term, filed
+>    as `w3-qcr-constitutive-term-for-rank2-parity`.
+>
+> The R6 correction block above stands as written. What this block changes is
+> the target's description: the β-on-destruction inversion (both blocks' term)
+> remains correctly named, but it was only ever half of what rank 2 deployed.
 
 ## Recommended next action
 

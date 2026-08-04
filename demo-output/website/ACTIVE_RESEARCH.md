@@ -383,11 +383,34 @@ behaves better than the official tutorial's.**~~
 
 **Top pick:** Wu, Zhang and Zhang, AIAA Journal 63(2), 2025, 687-706. They invert
 a correction field on the SST destruction term through DAFoam's own discrete
-adjoint, train only on a public separated-flow case, and generalise to the ducts
-without seeing them. Rejected candidates were reported with reasons rather than
+adjoint, ~~train only on a public separated-flow case, and generalise to the ducts
+without seeing them~~ *(superseded 2026-08-04, see below)*. Rejected candidates
+were reported with reasons rather than
 padded: one leaderboard entry is gradient-free rather than field-inversion, two
 foundational papers have zero case-geometry overlap, and one paper's citation
 could not be pinned down and was reported as a gap instead of guessed.
+
+> **Superseded, 2026-08-04.** The struck clause described the rank-2 *entry's*
+> protocol and attributed it to the *paper*; the W2 deep-read of both artifacts
+> (`campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md` §1, commit `393ad74f`)
+> separates them. Three corrections. **First**, CBFS-only training is true of
+> the rank-2 entry (its own description document,
+> `docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf`, §2) and false of
+> the paper (arXiv:2402.16355), whose models train on **mixed NASA hump +
+> CBFS** — and the hump is scored case `NASA_2DWMH`, so the paper's protocol
+> scored on this benchmark would be in-sample by construction; a clean scored
+> reproduction must copy the entry's CBFS-only choice. **Second**, "generalise
+> to the ducts without seeing them" is stated by neither artifact — the paper
+> has no duct case and the entry document shows only CBFS and the ZPG plate;
+> duct zero-shot is this lab's own inference from the entry's training set
+> plus the leaderboard, and is carried as ours. **Third**, the rank-2 model is
+> **SST-QCRC**: the conditioned β on the destruction term (paper Eqs. (5)–(6),
+> entry Eq. (2)) *plus* an untrained QCR2000 quadratic constitutive term,
+> `c_r = 0.3` (entry Eq. (1)), previously unnoticed in the lab's record. The
+> `w3-beta-on-omega-destruction-model-patch` item below therefore reproduces
+> the paper's inversion capability, not the deployed rank-2 model; parity with
+> the duct scores also needs the QCR term, filed as
+> `w3-qcr-constitutive-term-for-rank2-parity`.
 
 **What this lab can invert on is not that term, restated 2026-08-01 under
 ruling R6.** DAFoam's field hook multiplies the omega equation's PRODUCTION
