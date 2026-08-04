@@ -112,12 +112,17 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       → NEW ITEM: **Adopt the patched-vs-shipped grading policy** — drafted as PROPOSED in DAFOAM_CASE_STATUS.md
       (shipped-toolchain verdicts, labeled patched grades under strict provenance, fork adoption reserved to Katie);
       supervisor review pending the discriminator agent's commit.
-- [ ] A4 decomposition-defect mechanism + reach — ELEVATED to priority-1 on Katie's instruction (2026-08-04):
-      the DAFoam-defect claim is part of the DAFoam investigation proper. Three-discriminator run dispatched
-      (`w4-three-discriminators-for-the-decomposition-dependent-adjoint`, approved on her ruling, 45 core-min;
-      M1 cross-residual / M2 Jacobian dump-diff + coloring-off / M3 primal-bitwise + dObj/dXv localization).
-      If mechanism identified → upstream DAFoam bug report PREPARED, not filed (Katie's call). Reach item stays open
-      (`w4-does-the-decomposition-defect-reach-other-cases`, 120; `w4-decomposition-invariance-is-a-gate`, 60).
+- [x] A4 decomposition-defect MECHANISM — CROSSED 2026-08-04 (elevated to priority-1 on Katie's instruction, same day):
+      NAMED at subsystem level and sweep-CONFIRMED on all five axes. DAFoam v5's parallel matrix-free transposed-Jacobian
+      product (`calcJacTVecProduct` global tape) is not the transpose Jacobian of the discrete residual under scotch
+      decomposition — GMRES converges exactly on the wrong system (cross-residual 329x ||b|| under the serial operator,
+      independently reproduced at 328.8x; localized to x-momentum rows on partition-interface cells; simple-slab 5,000x
+      smaller). Prediction pre-registered and HELD. Records: `DISCRIMINATORS_A4_decomposition_mechanism.md` (49ab2816),
+      `VERIFICATION_A4_mechanism_supervisor_sweep.md` (8e0a08bc). UPSTREAM REPORT PREPARED, not filed — **Katie's call**,
+      does not overclaim per the sweep. 57.1 core-min total incl. honestly-ledgered coloring-arm overrun.
+      → NEW ITEM (from this cross-off): **Line-level attribution** — instrumented libDASolver rebuild to trace the
+      reverse tape over processor-boundary halo exchange (proposal territory per the gate's bounding clause).
+      Reach items stay open (`w4-does-the-decomposition-defect-reach-other-cases`, 120; `w4-decomposition-invariance-is-a-gate`, 60).
 
 ## 4F. interFoam / marine line
 - [-] F7a dam break vs Martin-Moyce. Sign flip when mesh refined. Must diagnose.
