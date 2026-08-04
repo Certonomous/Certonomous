@@ -1617,3 +1617,37 @@ a solver's linear stack misbehaves, rebuild the exact stack offline on the
 dumped operator first — mechanism and reachability both become ~10-second
 experiments instead of solver launches, and the offline control must reproduce
 the in-solver failure bit-for-bit before any variant is believed.
+
+---
+
+## L-35. A converged Krylov solve certifies the operator it was given, not the operator you meant — cross-check the solution against an independently evaluated operator
+
+**What happened.** A4's adjoint gradient read 8.95% off its own finite difference at
+np=4 under `scotch`, and every solver-side instrument said the solve was healthy:
+`PetscConvergedReason: 2`, true-residual (unpreconditioned-norm, right-PC) rtol
+1e-6 satisfied, and tightening to 1e-10 changed nothing — the classic signature that
+was recorded as "a converged wrong answer" with mechanism unknown. The mechanism
+took one cheap measurement: take the converged psi, permute it to the serial
+ordering with the integer decomposePar addressing maps, and evaluate
+||A^T psi + b|| under the np=1 operator. Result: 329x ||b||, against a 1.1e-04
+serial floor — while the same psi satisfies its own decomposed operator to 1e-6.
+The linear solver had solved the wrong system exactly: the parallel reverse-AD
+matrix-free operator was not the transpose Jacobian of the residual it claimed to
+differentiate, and no amount of tolerance, restart, or preconditioner work could
+ever have surfaced that, because every one of those knobs measures self-consistency
+with the same wrong operator.
+
+**The rule.** When an iterative solve converges cleanly and the downstream answer is
+still wrong, stop tuning the solve and test the operator: apply the converged
+solution under an INDEPENDENTLY evaluated instance of the operator (serial where the
+suspect is parallel, assembled where the suspect is matrix-free, a different library
+where the suspect is the library) and compare the residual to the independent
+instance's own floor. It is a mat-vec, not a solve — seconds, not core-minutes. Two
+practical footnotes from this instance: (1) map vectors across decompositions with
+the integer `cellProcAddressing`/`faceProcAddressing` files (sign on flipped faces),
+never coordinate matching, and validate the map on the primal state first — the
+duplicated processor-face states must agree at machine precision or the map is
+wrong; (2) an assembled-matrix diff across decompositions does NOT discriminate —
+it is polluted by the reconverged linearization state and the assembly's own FD
+error (the clean arm's matrix diff here was LARGER than the broken arm's), so diff
+operator ACTIONS on mapped vectors, not operator entries.
