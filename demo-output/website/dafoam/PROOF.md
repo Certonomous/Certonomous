@@ -2926,7 +2926,12 @@ A4 from 10.04% to 0.76%.**
 
 **Three controls say the primal and the finite difference are not what is moving.** The converged
 baseline CD is 0.15296979–0.15297237 across all six configurations — invariant to five significant
-figures, a spread of 1.7e-06 relative. The FD column spans 2.4178e-01–2.4265e-01, **0.36%**. The
+figures, a spread of ~~1.7e-06~~ **1.7e-05 relative** (2.6e-06 absolute) *(corrected 2026-08-04: the
+original printed "1.7e-06 relative", a factor-of-10 misprint — the spread is 2.6e-06 absolute, which
+is 1.7e-05 relative; the five-significant-figure invariance claim it decorates is unaffected.
+Supervisor verification sweep,
+`demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md` D-2, commit
+27d25762)*. The FD column spans 2.4178e-01–2.4265e-01, **0.36%**. The
 analytic column spans 2.2086e-01–2.4379e-01, **10%**. Only the adjoint moves.
 
 **And it is a converged wrong answer, not a loose solve.** Tightening `gmresRelTol` by four orders
@@ -2954,8 +2959,13 @@ warning.**
   4,800 cells / 4 ranks = 1,200 cells per rank. Across all three upper-surface DV groups, 27
   components each: `‖diff‖/‖simple‖` = **2.3576e-04** (`shapexUpper`), **2.9973e-04**
   (`shapeyUpper`), **3.4623e-04** (`shapezUpper`), worst single component **0.75%**, and **zero
-  components differ by more than 1%** in any group. That is ordinary reconvergence noise, not a
-  decomposition dependence.
+  components differ by more than 1%** ~~in any group~~ in any of these three Upper groups *(scoped
+  2026-08-04: the "any group" phrasing over-read the evidence — recomputed across all six DV groups,
+  `shapeyLower` idx6 differs by **11.64%** between `scotch` and `simple`. It is a noise-floor entry,
+  6.7e-04 of its group's largest component, and all six group-norm differences are ≤3.8e-04, so A5
+  remains decomposition-invariant in substance. Supervisor verification sweep,
+  `demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md` W-1, commit
+  27d25762)*. That is ordinary reconvergence noise, not a decomposition dependence.
 
 * **A2** — `compute_totals` only, fixed np=4, `scotch` against `simple` 4x1x1, 38,304 cells / 4 ranks
   = 9,576 cells per rank. Converged primal **CD 0.02772949388 vs 0.0277301221** (2.3e-05) and **CL
@@ -2980,7 +2990,12 @@ comparison.
   DAFoam's default `scotch` decomposition on this mesh, not of A4's gradient.
 * **The verdict moves, and it moves up.** A4 was graded CONDITIONAL on a single component at 10.04%.
   That number is an artifact. Against the shipped toolchain at np=1 the same case reads **1.10%**;
-  patched, **0.34%**; patched at np=4 under `simple`, **0.00054%**. Under this lab's own standard
+  patched, **0.34%**; patched at np=4 under `simple`, **0.00054%**. *(2026-08-04: **np=1, stock,
+  1.10%** — rel. err 1.1032e-02, `a4_np1_stock.log` — is the single graded configuration of record:
+  the lab grades against what ships, and np=1 involves no decomposition at all. The np=4 `simple`
+  4x1x1 stock **0.76%** quoted elsewhere is corroboration, not the grade. Supervisor verification
+  sweep, `demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md` W-3, commit
+  27d25762.)* Under this lab's own standard
   (PASS at ≤5% with no flagged component) **A4 is a PASS**, and it is a PASS against the shipped
   toolchain too. This is the first verdict in this investigation to move in the favourable
   direction, and it does so because the defect was in the harness, not the solver.

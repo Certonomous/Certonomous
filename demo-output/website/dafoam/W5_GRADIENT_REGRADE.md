@@ -138,7 +138,14 @@ FD-truncation level, and it was not predictable from them.
 > digits at 811 iterations, `PetscConvergedReason: 2`). A1 and A5 are
 > decomposition-invariant, so this is not a property of the stack. **A4's
 > CONDITIONAL is withdrawn: it is a PASS, at 0.76% against the shipped toolchain
-> once the decomposition is chosen.** The verdict below is superseded. The
+> once the decomposition is chosen.** *(2026-08-04: the 0.76% here is np=4
+> `simple` 4×1×1 on stock IDWarp — rel. err 7.5935e-03,
+> `a4_np4_simple411_stock.log` — corroboration, not the grade; the single graded
+> configuration of record is **np=1 stock, 1.10%** (1.1032e-02,
+> `a4_np1_stock.log`), which involves no decomposition at all. Supervisor
+> verification sweep,
+> `demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md`
+> W-3, commit 27d25762.)* The verdict below is superseded. The
 > mechanism is *not* identified — the obvious hanging-node hypothesis was tested
 > with `decomposePar -cellDist` and refuted backwards (`scotch` cuts 4 refinement
 > interfaces, `simple` cuts 68).

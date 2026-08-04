@@ -155,11 +155,21 @@ Rebased CD to frontal area (0.112 m^2) using the same ratio method the baseline 
 >   mesh the lab has run is **79,439 cells (refinement 3)**, which gives
 >   **Cd 0.3041** — the filmed act's result. Full reconciliation of 0.3041 vs
 >   0.3219 vs 0.2510: `demo-output/website/campaign/AHMED_BODY_RECONCILIATION.md`.
-> - **The 10.04% gradient figure below is graded CONDITIONAL**, not PASS, under
+> - ~~**The 10.04% gradient figure below is graded CONDITIONAL**, not PASS, under
 >   the current standard (`demo-output/website/dafoam/DAFOAM_CASE_STATUS.md`,
 >   `campaign/NOT_PASSING_REGISTER.md`). The "PASS" wording later in this file
 >   and in `A4_ahmed_body.json` predates that regrade (both 2026-07-28) and has
->   not been reconciled by its owner. It is an adjoint-vs-finite-difference
+>   not been reconciled by its owner.~~ *(Superseded 2026-08-04: the verdict of
+>   record is **PASS** — the 10.04% is an artifact of DAFoam's default `scotch`
+>   decomposition on this mesh, not a gradient defect. The graded configuration
+>   is **np=1 against the shipped toolchain: 1.10%** (rel. err 1.1032e-02,
+>   `a4_np1_stock.log`), with 0.00054% patched at np=4 under `simple` 4×1×1 as
+>   diagnostic corroboration. Live verdict: `DAFOAM_CASE_STATUS.md` §A4 and
+>   `PROOF.md` §25.5. The old §3 "PASS, under this host's own calibration" below
+>   was PASS for a retired reason and carries its own supersession note.
+>   Reconciled per the supervisor verification sweep,
+>   `demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md`
+>   defect D-1, commit 27d25762.)* It is an adjoint-vs-finite-difference
 >   agreement check on the 2,777-cell mesh — **not a drag accuracy figure**, and
 >   it must not be narrated over the Ahmed act's footage.
 
@@ -204,14 +214,24 @@ Cross-checked by hand from the raw perturbed-CD prints in the log: base 0.152975
 converges to ≈0.153219, −1e-3 perturbation converges to ≈0.152734; central FD =
 (0.153219−0.152734)/0.002 = 0.2425 — matches OpenMDAO's reported 0.24258 to within rounding.
 
-**Verdict: PASS, under this host's own calibration.** OpenMDAO's default strict tolerances flag this
+~~**Verdict: PASS, under this host's own calibration.** OpenMDAO's default strict tolerances flag this
 (`>ABS_TOL >REL_TOL`), but per the calibration measured tonight on the official unmodified NACA0012 tutorial,
 CD-wrt-shape derivatives normally disagree by 1–12% between adjoint and FD on this host (the NACA0012
 calibration case itself showed 11.43% on the difference-vector norm despite the two gradient *magnitudes*
 agreeing to 0.451%). This Ahmed-body shape derivative's 10.04% relative error sits squarely inside that
 documented-normal band. It is not evidence of an adjoint bug, and per the A5 finding, is not something more
 SIMPLE iterations would fix — it is the ordinary size of the adjoint/FD gap for a shape derivative on this
-host.
+host.~~
+
+*(Superseded 2026-08-04. The calibration band this verdict leaned on is retired, and the 10.04% measured
+above is now identified as an artifact of DAFoam's default `scotch` decomposition at np=4 on this mesh —
+not the ordinary adjoint/FD gap. The verdict of record is still **PASS**, but for the decomposition
+reason: at np=1 against the shipped toolchain — the graded configuration, involving no decomposition at
+all — the same derivative reads **1.10%** (analytic 2.3965e-01, FD 2.4232e-01, rel. err 1.1032e-02,
+`a4_np1_stock.log`), and 0.00054% patched at np=4 under `simple` 4×1×1. Live verdict:
+`DAFOAM_CASE_STATUS.md` §A4 and `PROOF.md` §25.5. Reconciled per the supervisor verification sweep,
+`demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md` defect D-1, commit
+27d25762.)*
 
 **Explicit disclosure:** this gradient was verified on the coarse (2,777-cell) mesh, not the fine
 (45,760-cell) primal-comparison mesh. The fine mesh's adjoint was not attempted — given A3's OOM at

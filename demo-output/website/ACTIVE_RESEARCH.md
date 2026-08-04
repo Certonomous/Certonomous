@@ -31,7 +31,9 @@ section below is superseded and the new paragraph there carries the numbers.
 Ladder A — two results committed after the 2026-08-01 note: **A4's verdict
 moves CONDITIONAL → PASS (2026-08-02)** — the published 10.04% was DAFoam's
 default `scotch` decomposition on this mesh, not a gradient defect (1.10%
-against the shipped toolchain at np=1, 0.00054% patched under `simple` at
+against the shipped toolchain at np=1 — the single graded configuration of
+record per `dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md` W-3,
+commit 27d25762 — 0.00054% patched under `simple` at
 np=4; the decomposition alone closes 92% of the published error, the rotation
 patch 11%, and the two defects factor — `dafoam/DAFOAM_CASE_STATUS.md`,
 `PROOF.md` §25.5), **pending supervisor verification sweep (2026-08-04)**; and
@@ -109,7 +111,7 @@ gate.
 | A1 | CL wrt shape | **1.67%** |
 | A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%**. **FAIL against the shipped toolchain** (sign-flipped idx6; 634% under the real seed). *Patched local IDWarp (2026-08-01), rotations ON, real seed: idx6 → 5.54e-04% sign agreeing; idx0/idx1 11.92%/11.58% → 1.23e-05%/1.26e-05%; idx7 1.31e-06%; idx4 1.47e-04%. Stock still fails* |
 
-| A4 | CD wrt rear-slant shape | **10.04%**, adjoint 0.21821, FD 0.24258. ~~**CONDITIONAL** under the current standard.~~ *(Superseded 2026-08-02: the 10.04% is a `scotch`-decomposition artifact — 1.10% shipped at np=1, 0.00054% patched under `simple` at np=4. **PASS**, pending supervisor verification sweep (2026-08-04).)* It was graded PASS against the calibrated band, which is retired; two other records graded it CONDITIONAL before the decomposition finding |
+| A4 | CD wrt rear-slant shape | **10.04%**, adjoint 0.21821, FD 0.24258. ~~**CONDITIONAL** under the current standard.~~ *(Superseded 2026-08-02: the 10.04% is a `scotch`-decomposition artifact — 1.10% shipped at np=1 (the single graded configuration of record, per `dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md` W-3, commit 27d25762), 0.00054% patched under `simple` at np=4. **PASS**, pending supervisor verification sweep (2026-08-04).)* It was graded PASS against the calibrated band, which is retired; two other records graded it CONDITIONAL before the decomposition finding |
 | A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** — **FAIL against the shipped toolchain**. *Patched local IDWarp (2026-08-01), rotations ON, real seed: idx8 207.0% flip → 3.0e-06, idx17 121.6% flip → 7.0e-06, signs agree; all 27 stock-objective components rel_err 0.0000 (before-worst 80.79%). Stock still fails* |
 
 ### 2026-08-01 note on the A1/A5 patched numbers: what changed and what did not

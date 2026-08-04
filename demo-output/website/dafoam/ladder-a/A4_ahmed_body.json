@@ -213,7 +213,8 @@
     "abs_diff": 0.024365,
     "rel_diff_pct": 10.04,
     "calibration_band": "1-12% is the documented-normal range for shape derivatives on this host (NACA0012 official tutorial calibration: CD wrt shape 11.43% on the difference-vector norm despite the two gradient magnitudes agreeing to 0.451%)",
-    "verdict": "PASS under the calibration band -- 10.04% relative error is within the documented-normal 1-12% range for shape derivatives, even though OpenMDAO's own default strict tolerances flag it (>ABS_TOL >REL_TOL); those defaults are not the applicable bar per this host's own measured calibration.",
+    "verdict": "[SUPERSEDED 2026-08-04 -- see verdict_of_record below; original 2026-07-28 text kept as history, not silently rewritten:] PASS under the calibration band -- 10.04% relative error is within the documented-normal 1-12% range for shape derivatives, even though OpenMDAO's own default strict tolerances flag it (>ABS_TOL >REL_TOL); those defaults are not the applicable bar per this host's own measured calibration.",
+    "verdict_of_record": "PASS via the decomposition finding (2026-08-02, verified 2026-08-04). The calibration band above is retired, and the 10.04% itself is an artifact of DAFoam's default scotch decomposition at np=4 on this mesh, not a gradient defect. Graded configuration: np=1 against the shipped toolchain -- analytic 2.3965e-01, FD 2.4232e-01, rel. err 1.1032e-02 (1.10%), a4_np1_stock.log -- with 0.00054% patched at np=4 under simple 4x1x1 as corroboration. Live verdict: DAFOAM_CASE_STATUS.md section A4 and PROOF.md section 25.5. Reconciled per the supervisor verification sweep, demo-output/website/dafoam/VERIFICATION_A4_decomposition_supervisor_sweep.md defect D-1, commit 27d25762.",
     "mesh_for_fd": "coarse (2,777 cells), explicitly NOT the fine primal-comparison mesh (45,760 cells), per the brief's sanctioned coarsening-for-adjoint allowance"
   },
   "blockers_summary": [
