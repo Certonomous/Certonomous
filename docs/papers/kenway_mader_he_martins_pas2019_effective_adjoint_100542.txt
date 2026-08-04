@@ -1,0 +1,3121 @@
+ This is a preprint of the following article, which is available from http://mdolab.engin.umich.edu
+ Gaetan K. W. Kenway, Charles A. Mader, Ping He, and Joaquim R. R. A. Martins. Effective
+ Adjoint Approaches for Computational Fluid Dynamics Progress in Aerospace Sciences, 2019
+ (In press). 10.1016/j.paerosci.2019.05.002
+ The published article may differ from this preprint.
+
+
+
+              Effective Adjoint Approaches for
+               Computational Fluid Dynamics
+ Gaetan K. W. Kenway, Charles A. Mader, Ping He, and Joaquim R. R. A. Martins
+Department of Aerospace Engineering, University of Michigan, Ann Arbor, MI, 48109
+
+
+
+                                         Abstract
+The adjoint method is used for high-fidelity aerodynamic shape optimization and is an
+efficient approach for computing the derivatives of a function of interest with respect to
+a large number of design variables. Over the past few decades, various approaches have
+been used to implement the adjoint method in computational fluid dynamics solvers.
+However, further advances in the field are hindered by the lack of performance assess-
+ments that compare the various adjoint implementations. Therefore, we propose open
+benchmarks and report a comprehensive evaluation of the various approaches to adjoint
+implementation. We also make recommendations on effective approaches, that is, ap-
+proaches that are efficient, accurate, and have a low implementation cost. We focus on
+the discrete adjoint method and describe adjoint implementations for two computational
+fluid dynamics solvers by using various methods for computing the partial derivatives
+in the adjoint equations and for solving those equations. Both source code transforma-
+tion and operator-overloading algorithmic differentiation tools are used to compute the
+partial derivatives, along with finite differencing. We also examine the use of explicit
+Jacobian and Jacobian-free solution methods. We quantitatively evaluate the speed,
+scalability, memory usage, and accuracy of the various implementations by running
+cases that cover a wide range of Mach numbers, Reynolds numbers, mesh topologies,
+mesh sizes, and CPU cores. We conclude that the Jacobian-free method using source
+code transformation algorithmic differentiation to compute the partial derivatives is the
+best option because it computes exact derivatives with the lowest CPU time and the
+lowest memory requirements, and it also scales well up to 10 million cells and over one
+thousand CPU cores. The superior performance of this approach is primarily due to
+its Jacobian-free adjoint strategy. The cases presented herein are publicly available and
+represent platform-independent benchmarks for comparing other current and future ad-
+joint implementations. Our results and discussion provide a guide for discrete adjoint
+implementations, not only for computational fluid dynamics but also for a wide range
+of other partial differential equation solvers.
+
+
+
+                                                1
+Contents
+1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     3
+2 Historical perspective . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       5
+3 Flow modeling and solution . . . . . . . . . . . . . . . . . . . . . . . . . .         7
+  3.1 Governing equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      8
+  3.2 ADflow: A structured overset compressible solver . . . . . . . . . . . . .         8
+  3.3 DAFoam: An unstructured incompressible solver . . . . . . . . . . . . . .          9
+4 Adjoint implementation approaches . . . . . . . . . . . . . . . . . . . . . .         10
+  4.1 Adjoint equations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   10
+  4.2 Partial derivative computations . . . . . . . . . . . . . . . . . . . . . . .     12
+       4.2.1 Analytic method . . . . . . . . . . . . . . . . . . . . . . . . . . .      13
+       4.2.2 Finite-difference approximations . . . . . . . . . . . . . . . . . . .     13
+       4.2.3 Complex-step method . . . . . . . . . . . . . . . . . . . . . . . .        13
+       4.2.4 Algorithmic differentiation . . . . . . . . . . . . . . . . . . . . . .    14
+       4.2.5 Symbolic differentiation . . . . . . . . . . . . . . . . . . . . . . .     16
+  4.3 Accelerating Jacobian computation . . . . . . . . . . . . . . . . . . . . .       16
+       4.3.1 Single-cell residual . . . . . . . . . . . . . . . . . . . . . . . . . .   17
+       4.3.2 Graph coloring . . . . . . . . . . . . . . . . . . . . . . . . . . . .     17
+  4.4 Methods for solving the adjoint equations . . . . . . . . . . . . . . . . . .     19
+  4.5 Overview of approaches used in existing discrete adjoint solvers . . . . .        22
+  4.6 Solver-agnostic implementation of proposed adjoint approach . . . . . . .         25
+5 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   29
+  5.1 Low-speed rectangular wing . . . . . . . . . . . . . . . . . . . . . . . . .      29
+  5.2 Transonic wing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    34
+  5.3 Wing-body-tail configuration . . . . . . . . . . . . . . . . . . . . . . . . .    38
+6 Conclusions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     40
+A Solver-specific implementation details of proposed adjoint approach . . .             60
+  A.1 Choice of residuals, states, and design variables . . . . . . . . . . . . . .     60
+  A.2 Graph coloring implementation . . . . . . . . . . . . . . . . . . . . . . .       61
+  A.3 Preconditioner matrix construction . . . . . . . . . . . . . . . . . . . . .      63
+  A.4 Differentiation of residuals and functions . . . . . . . . . . . . . . . . . .    63
+
+
+Nomenclature
+CD   =   Drag coefficient
+CL   =   Lift coefficient
+f    =   Function of interest (objective or constraints)
+M    =   Mach number
+R    =   Vector of flow residuals
+Re   =   Reynolds number
+w    =   Vector of state variables
+x    =   Vector of design variables
+
+
+
+
+                                            2
+c    = Chord length of a wing section
+b    = Wing span
+γ    = Wing twist angle
+
+
+1    Introduction
+The formulation and solving of partial differential equations (PDEs) has led to tremen-
+dous progress in the numerical simulation of engineering systems. In most cases, these
+simulations are eventually used to aid the design of the corresponding engineering sys-
+tems, which often requires decisions involving large numbers of design variables. Chang-
+ing these variables manually by trial and error is costly and is not likely to achieve the
+best possible design. Numerical optimization can facilitate design exploration by auto-
+matically finding the set of design variables that minimizes a given objective function
+subject to the design constraints. Currently, gradient-based optimization algorithms
+are the only viable way to handle optimization problems with large numbers of vari-
+ables [1, 2]. In addition to being efficient, they allow designers to rigorously search for
+the optimal design.
+    To take full advantage of gradient-based optimization algorithms, it is desirable to
+compute the derivatives of the objective and constraint functions with respect to the
+design variables in an accurate and efficient way. Various options are available for
+computing derivatives, which we review in more detail in Sec. 4.2. Most gradient-based
+optimization software automatically estimates the required gradients by using finite
+differences. However, finite-difference approximations are subject to numerical errors
+and are inefficient because their cost is proportional to the number of design variables.
+Instead, users are recommended to provide their own derivative estimates so that they
+can use more efficient methods or at least verify the derivatives and control the errors.
+    Adjoint methods compute accurate derivatives at a cost that is independent of the
+number of variables. Instead, the computational cost of adjoint methods scales with the
+number of functions of interest that need to be differentiated. Since many design opti-
+mization problems involve large numbers of design variables with only a few objectives
+and constraints, the adjoint method and gradient-based optimization form a powerful
+combination.
+    One of the prime applications for the adjoint method has been aerodynamic shape
+optimization based on computational fluid dynamics (CFD). The large number of vari-
+ables in these problems stems from the detailed parametrization of three-dimensional
+(3D) shapes that are required to optimize the design [3]. A typical problem is to minimize
+the drag of a wing or aircraft configuration subject to lift and moment constraints [3–6].
+    Two fundamental approaches exist to formulate the adjoint for a set of PDEs: the
+continuous approach and the discrete approach [7, 8]. The continuous approach consists
+in differentiating the PDEs analytically to get the continuous adjoint equations, which
+are then discretized so that they can be solved numerically. In contrast, the discrete
+approach starts with the discretized form of the PDEs, which is then linearized to obtain
+the discrete adjoint equations. For reasons that we explain in the next section, we adopt
+
+
+
+                                            3
+exclusively the discrete approach.
+    Given the power of the adjoint method, its lack of widespread use in the design
+optimization of engineering systems governed by PDEs is curious. One of the main
+reasons is that the development of adjoint methods requires a large effort and specialized
+knowledge [7, 8]. Initially, discrete adjoint implementations required hand differentiation
+of discretized PDEs [9–16], which is time-consuming and error-prone [7].
+    One way to address this large development effort is to use algorithmic differentiation
+(AD) [17] (also known as automatic differentiation), which consists in using software that
+automatically differentiates source code to produce code that computes derivatives. One
+way to perform this differentiation, called the reverse mode, is analogous to the adjoint
+method in that the cost of computing derivatives is independent of the number of design
+variables [18]. However, the use of AD to differentiate the entire CFD code (full-code
+AD) [19–22] usually results in inefficiencies and, in the worst case, the computational
+and memory cost is prohibitive [8].
+    To improve efficiency, researchers have used AD to selectively differentiate the rele-
+vant parts of a CFD code. For example, Christianson [23] reported a reverse accumula-
+tion adjoint method where the total derivatives are iteratively incremented. Griewank
+and Faure [24] proposed a piggyback iterative method and Giles et al. [25] developed
+an iterative primal-dual accurate approach to solve the adjoint equations. Xu et al.
+[26] reported a Jacobian-trained Krylov-implicit Runge–Kutta method to stabilize the
+flow and adjoint solutions and implemented it in an open source solver STAMPS [27].
+Albring et al. [28] developed a duality-preserving adjoint method that perfectly inherits
+the convergence rate of the primal solver and implemented it in an open source solver
+SU2 [29]. Mader et al. [30] used AD to selectively differentiate the code that computes
+residuals and objective functions and solved the adjoint equations by using the gener-
+alized minimal residual (GMRES) method. In that work, we achieved fully consistent
+total derivatives verified against the complex-step method to be accurate to machine
+precision [31]. We have since improved and generalized the implementation in the open-
+source adjoint solver ADflow,1 which we detail in Sec. 4 and Appendix A. The idea of
+using AD to selectively differentiate parts of the code has been used in other discrete
+adjoint implementations [32–34].
+    Although numerous other efforts have reported adjoint methods for CFD [10, 11, 13,
+14, 16, 35–38], they focus on a single adjoint implementation for a single flow solver.
+A shortage exists of detailed quantitative comparisons of the accuracy and efficiency
+of various derivative computation and adjoint equation solution options that use well-
+defined benchmark problems. Quantifying the efficiency and other performance metrics
+is important because it affects the capability to optimize aerodynamic design in prac-
+tice. Although existing adjoint studies evaluate their performance, they use different
+geometries, meshes, flow conditions, and computing platforms. A need also exists for a
+universal, platform-independent adjoint benchmark that allows us to compare various
+adjoint implementations.
+    Our main goal herein is thus to seek effective approaches for adjoint development;
+  1
+      https://github.com/mdolab/adflow
+
+
+
+
+                                            4
+that is, approaches that are not only efficient and accurate but also incur low implemen-
+tation and maintenance effort. We achieve this goal by first discussing the pros and cons
+of the partial derivative computation and adjoint equation solution options. We then im-
+plement three combinations of these adjoint options in ADflow and in an incompressible
+solver (DAFoam) and quantitatively evaluate their performance in terms of six factors:
+speed, accuracy, memory usage, scalability, development effort, and extensibility. We
+also use an adjoint solver that implements a full-code AD approach for comparison.
+    To facilitate future performance comparisons, we propose a suite of platform in-
+dependent adjoint benchmarks based on three cases from the AIAA Aircraft Design
+Optimization Discussion Group (ADODG):2 the low-speed rectangular wing (Case 3),
+the transonic Common Research Model (CRM) wing (Case 4), and the wing-body-tail
+aircraft configuration (Case 5). The meshes and configurations for the benchmarks are
+publicly available [39], which allows for direct comparisons with other solvers and adjoint
+implementations.
+    In this work, we restrict our focus to discrete adjoint implementations for the steady-
+state Navier–Stokes (NS) equations. However, much of the discussion and ideas can be
+extended to other governing equations and discretization methods, such as the finite-
+element structural analysis.
+    This paper can be read in different ways, depending on the level and goals of the
+reader. For readers wishing to get a quick overview of the general recipe for adjoint
+implementation and the pros and cons of the different adjoint implementation options,
+reading Sec. 4 (especially Secs. 4.5 and 4.6), and the conclusions (Sec. 6) will suffice.
+Readers interested in the solver-specific adjoint implementation details can refer to Ap-
+pendix A. The remainder of this paper provides a historical perspective on adjoint meth-
+ods (Sec. 2), a detailed description of the two flow solvers (Sec. 3), and a quantitative
+comparison of the adjoint performance for various implementation options (Sec. 5).
+
+
+2        Historical perspective
+Adjoint methods originated in the optimal control community in the 1960s [40, 41].
+The structural design community later adopted adjoint methods to help solve structural
+optimization problems [42, 43]. Pironneau [44] first introduced adjoint methods in fluid
+mechanics, where he handled drag minimization problems for Stokes flow. This approach
+was then extended by Jameson [45] to the aerodynamic optimization of Euler flow in
+the late 1980s.
+    Since then, the adjoint method has been implemented in more complex PDE models,
+such as the NS equations [10, 46–48], the lattice Boltzmann equation [49–52], NS with
+various turbulence models [53–57], and NS with transitional turbulence models [57–59].
+The adjoint method has also been implemented for time-spectral unsteady solvers [60–
+64] and RANS-based stability derivative computation [65–67]. The other aspect that
+evolved was the number of flow conditions—initially, optimization considering a single
+flow condition was the norm [10, 45, 68], but the need to consider multiple flow conditions
+    2
+        http://mdolab.engin.umich.edu/content/aerodynamic-design-optimization-workshop
+
+
+
+
+                                              5
+to obtain robust designs quickly became evident [69–75].
+    In applications, the adjoint method has enabled the aerodynamic shape optimization
+of wings [3–5, 16, 74], aircraft configurations [6, 68, 76, 77], wind turbines [78, 79], gas
+turbines [26, 62, 80, 81], hydrofoils [82], ships [83, 84], cars [85–87], and duct flows [88–90].
+The adjoint method has also been used in topology optimization for flows [33, 91–93] and
+structures [94, 95], as well as for error estimation [96–98], uncertainty quantification [96,
+99, 100], and inverse designs [48, 101, 102].
+    In addition to single-discipline PDEs, the adjoint method has been generalized to
+multidisciplinary systems, which started with the development of a coupled-adjoint ap-
+proach for an aerostructural model that coupled CFD to finite-element structural anal-
+ysis [103] and its application to the design of a supersonic business jet [104], where aero-
+dynamic and structural sizing were optimized simultaneously. In the last several years,
+further developments greatly improved the efficiency of this approach [105] and enabled
+the aerostructural optimization of aircraft wings [106–108]. In addition to aerostruc-
+tural optimization, the coupled-adjoint approach has been used in aerothermal prob-
+lems [90, 109–111], aeroacoustic designs [112, 113], and flutter-constrained optimiza-
+tion [64, 114–117].
+    The coupled adjoint has since been further generalized. In an effort to unify the
+theory for the various methods for computing derivatives, Martins and Hwang [18]
+derived the unified derivatives equation, which also applies to coupled systems. This
+theoretical development resulted in the development of an algorithmic framework for
+the solution and derivative computation of coupled systems called modular analysis and
+unified derivatives [118], which has since been implemented in the OpenMDAO frame-
+work [119]. This greatly facilitates the implementation of adjoint methods for coupled
+systems and enabled the optimization in multidisciplinary design optimization applica-
+tions [120–125]. These included an propulsion-airframe integration effort that coupled
+CFD with an engine cycle model to study boundary-layer ingestion effects [126] and
+the simultaneous design of aerodynamic shape and propulsor sizing for boundary-layer
+ingestion configurations [127].
+    As mentioned in the introduction, two fundamentally different approaches are avail-
+able for formulating the adjoint of a PDE solver: the continuous and the discrete ap-
+proaches. The early work on adjoint methods used the continuous approach. This
+includes the work of Jameson et al. [46], Anderson and Venkatakrishnan [128], and the
+initial adjoint implementations in SU2 [29] and OpenFOAM [91]. The advantage of
+the continuous adjoint approach is that it generates a linearized PDE that is typically
+solved by using the same numerical iteration technique as the primal flow solution. This
+eliminates the need to explicitly form the Jacobian and leads to fast and low-memory
+adjoint implementations [7, 8].
+    The main disadvantages of the continuous approach are a low accuracy for coarser
+meshes and a challenging implementation. The fact that the PDEs are first linearized
+and then discretized means that the discretized form of these equations is guaranteed
+to result in a fully consistent gradient only at the limit of an infinitely fine mesh [129].
+Therefore, the continuous adjoint produces inaccurate gradients for cases where the mesh
+or the numerical methods have an effect on the solution accuracy [130].
+
+
+
+                                               6
+    Additionally, the continuous adjoint system requires hand differentiation of the PDEs,
+which is challenging for some terms. For instance, for the turbulent RANS equations,
+adjoint developers typically simplify some of the terms in the turbulence model, which
+creates an additional source of error [8]. From an implementation perspective, the fact
+that the differentiation of the primal PDE is done by hand also restricts the imple-
+mentation of this method to a few research groups with specialized knowledge of both
+optimization and CFD. In addition, the boundary conditions of the linearized PDEs are
+not always obvious and require careful consideration. For example, the adjoint boundary
+condition for the shear stress term in viscous flow is ill-posed, which eventually impedes
+us from evaluating the impact of viscous drag [8, 128].
+    Much of the recent work on adjoints has focused on the discrete adjoint method.
+The advantage of this approach is that, because it is formulated from the discretized
+flow equations, it provides numerically consistent derivatives regardless of the coarseness
+of the grid or the assumptions made in the analysis of the primal flow [7, 8]. Another
+advantage is that the partial derivatives that appear in the discretized adjoint equations
+do not necessarily need to be differentiated by hand and can be computed by using
+several numerical methods (finite differences, complex step, and AD) [131]. These tech-
+niques make it possible to generate numerically exact derivatives, even through complex
+routines such as the various turbulence models used in RANS analysis [7, 55]. The
+main disadvantage of the discrete approach is the very high cost, in both computational
+and memory terms, of computing and storing the exact Jacobian, which is necessary in
+at least some form. Therefore, efficiently implementing these computations is vital to
+ensure a good overall adjoint performance. The discrete approach is the natural choice
+because our final goal is to provide a recipe for adjoint implementation and to partially
+automate the implementation of adjoint methods.
+    The aforementioned adjoint studies focus on steady- or periodic-flow problems. De-
+veloping an efficient adjoint method to handle general nonperiodic unsteady flow is
+challenging because an unsteady adjoint implementation requires storing and recomput-
+ing linearizations at each time step instead of using information from the final converged
+states. As a result, the computational cost for the unsteady adjoint is at least one order
+of magnitude greater than that for the corresponding steady adjoint. Moreover, the
+chaotic nature of turbulent flow poses the fundamental challenge that a small pertur-
+bation in the initial conditions may be amplified exponentially at some finite steps and
+eventually degrade the adjoint derivatives [132]. This problem is especially severe when
+using high-fidelity, eddy-resolving turbulence-modeling techniques, such as large-eddy
+simulation and direct numerical simulation. Thus, despite recent efforts [133, 134], the
+development of efficient adjoint methods to handle chaotic turbulent flows for practical
+engineering design problems remains largely unsolved.
+
+
+3    Flow modeling and solution
+This section introduces the 3D NS equations and describes the two CFD solvers, ADflow
+and DAFoam, used in this work.
+
+
+
+
+                                            7
+3.1      Governing equations
+In the derivations below, we focus on the 3D, steady-state turbulent flow equations,
+commonly known as the Navier-Stokes (NS) equations:
+
+                                                         ∇ · (ρU ) = 0,                     (1)
+                                        ∇ · (ρU U ) + ∇p − ∇ · τ = 0,                       (2)
+                     ∇ · (ρEU ) + ∇ · (pU ) − ∇ · (τ · U ) + ∇ · q = 0,                     (3)
+
+where ρ is the density, p is the pressure, E is the total energy, and U = [u, v, w] is
+the velocity vector, with u, v, and w being the velocities in the x, y, and z directions,
+respectively. The quantity q is the heat flux and τ is the viscous stress tensor, which is
+a function of U , molecular viscosity µ, and turbulent viscosity µt . We ignore all body
+forces and internal heat sources.
+    To connect the turbulent viscosity to the mean flow variables, we use the Spalart–
+Allmaras (SA) turbulence model:
+                                                                                 2
+                      1                                                          ν̃
+          ∇ · (U ν̃) − {∇ · [(ν + ν̃)∇ν̃] + Cb2 |∇ν̃|2 } − Cb1 S̃ ν̃ + Cw1 fw        = 0,   (4)
+                      σ                                                          d
+
+where ν̃ is related to the turbulent viscosity νt = µt /ρ via
+
+                                                χ3             ν̃
+                                   νt = ν̃         3
+                                                      ,   χ=      .                         (5)
+                                             χ3 + Cv1          ν
+
+The four terms in Eq. (4) represent the convective, diffusion, production, and near-wall
+destruction for the turbulent flow, respectively. Spalart and Allmaras [135] defines these
+terms and their parameters in more detail.
+    To discretize the above governing equations, we divide a bounded domain into a
+mesh of finite-volume cells (finite-volume method). The specific numerical formulation
+depends on the discretization schemes, flow solution techniques, and mesh topology. In
+this work, we focus on two flow solvers, ADflow and DAFoam. A brief summary of their
+implementations is included below.
+
+3.2      ADflow: A structured overset compressible solver
+ADflow is a finite-volume structured multiblock and overset mesh solver that is available
+under an open-source license. 3 The core code is based on SUmb [136], but the code
+has been completely refactored with a discrete adjoint, overset mesh capability, and
+Newton-type solvers. It also features a Python API that operates as a Python module
+for multidisciplinary analysis and design optimization. The code is written in Fortran 90
+to maximize computational efficiency. In keeping with the desire for computational
+efficiency, the initial implementation of the code was based on structured multiblock
+meshes. Although this type of implementation allows for very efficient computations,
+  3
+      https://github.com/mdolab/adflow
+
+
+
+
+                                                   8
+there are well-known challenges to making multiblock meshes for complex geometric
+configurations. As a result, the code was recently extended to handle overset meshes by
+using an implicit hole cutting technique developed by Kenway et al. [137].
+    In ADflow, the inviscid fluxes are discretized by using three different numerical
+schemes: the scalar Jameson–Schmidt–Turkel [138] (JST) artificial dissipation scheme,
+a matrix dissipation scheme based on the work of Turkel and Vatsa [139], and a mono-
+tone upstream-centered scheme for conservation laws (MUSCL) based on the work of
+van Leer [140] and Roe [141]. The viscous flux gradients are calculated by using the
+Green–Gauss approach. ADflow solves the compressible flow equations, so the mean
+flow equations—defined by the continuity of mass, momentum and energy—are solved
+simultaneously. For turbulent RANS solutions, a turbulence model is used to close
+the equations. ADflow has several turbulence models implemented, including the one-
+equation SA model [135] and the two-equation Menter’s shear stress transport (SST)
+model [142]. These turbulence models can be solved either as a segregated system of
+equations or as a fully coupled system of equations with the mean flow.
+    Four numerical algorithms are implemented to converge the residual equations in-
+cluding a Runge–Kutta (RK) algorithm, a diagonalized-diagonally-dominant alternating
+direction implicit (D3ADI) algorithm [143], an approximate Newton–Krylov (ANK) al-
+gorithm [144], and a full Newton–Krylov (NK) algorithm [35]. The RK and D3ADI
+schemes are multigrid compatible, so they can be used with any of the meshes compat-
+ible with ADflow. However, although they both act as useful globalization methods for
+the NK scheme, without a significant number of multigrid levels, these methods converge
+relatively slowly and so are mostly useful for non-overset meshes. The ANK solver is
+suitable for both multiblock and overset meshes, although it is not compatible with the
+multigrid scheme in ADflow. It is sufficiently robust to act as a globalization scheme
+for the full NK solver and converges well even without multigrid. Therefore, this has
+become the default solver for overset cases in ADflow. The robustness of the ANK solver
+has enabled the solution of challenging problems, such as the optimization of an airfoil
+starting from a circle [145]. The NK solver provides efficient terminal convergence for
+all types of meshes once the solution is within the Newton basin of attraction.
+
+3.3    DAFoam: An unstructured incompressible solver
+DAFoam uses the built-in simpleFoam solver in OpenFOAM to solve the incompressible
+flow equations. This form of the equations assumes that the density is constant, allowing
+the energy equation to be ignored for isothermal problems. simpleFoam is a finite-
+volume solver for both structured and unstructured meshes. It uses the semi-implicit
+method for pressure-linked equations (SIMPLE) [146] algorithm along with the Rhie–
+Chow interpolation [147] to solve the flow equations. simpleFoam solves the NS equations
+in a segregated manner; it first solves the momentum equations based on an old pressure
+field, then updates the pressure field by solving a Poisson equation. The inviscid terms
+are discretized by using a second-order upwind scheme, whereas the viscous terms are
+discretized by using central differencing. simpleFoam solves the pressure equation by
+using the Gauss–Seidel iteration with the algebraic multigrid technique, whereas the
+
+
+
+                                           9
+velocity and turbulence equations are solved by using the regular Gauss–Seidel method.
+DAFoam is written in C++.
+
+
+4     Adjoint implementation approaches
+The final goal of an adjoint solver is to compute the total derivative (df / dx), where f
+is a function of interest and x is the vector of design variables. As previously mentioned,
+the main advantage of the adjoint method is that it efficiently computes the derivative
+vector df / dx for any length of the vector x. In aerodynamic design optimization, the
+functions of interest are the objective (e.g., drag coefficient) and constraint functions
+(e.g., lift coefficient, pitching moment coefficient). The design variables can be divided
+into aerodynamic design variables (e.g., angle of attack) and geometric variables (e.g.,
+surface shape).
+    In this section, we describe the various possible approaches to implementing the
+steady-state discrete adjoint method. We start by deriving the discrete adjoint equa-
+tions (Sec. 4.1) and then describe the options for computing the derivatives in the adjoint
+equations (Sec. 4.2), along with techniques that accelerate the derivative computation
+(Sec. 4.3). Section 4.4 discusses the method we selected to efficiently solve the adjoint
+equations, and Sec. 4.5 reviews existing implementations of discrete adjoint solvers in
+CFD solvers. Finally, we outline our proposed adjoint implementations by using three
+adjoint approaches that use combinations of the options given above for computing
+derivatives and solving adjoint equations (Sec. 4.6). The material in this section is
+meant to be general and thus applicable to any CFD solver. The solver-specific ad-
+joint implementations for our two CFD solvers (ADflow and DAFoam) are detailed in
+Appendix A.
+
+4.1    Adjoint equations
+The discrete adjoint method assumes that a discretized form of the NS (1) and (2),
+energy (3), and turbulence (4) equations is available through the flow solver and that,
+for a given design variable vector x ∈ Rnx , the discretized equations are solved for the
+state variable vector w ∈ Rnw such that
+                                       R(x, w) = 0,                                      (6)
+where R ∈ Rnw is the residual vector. The R and w vectors contain the residuals
+and state variables for all mesh cells, respectively. Therefore, Eq. (6) contains nonlinear
+equations that involve millions of state variables and require specialized iterative solvers.
+To ensure fully consistent adjoint derivatives, R and w contain all the residuals and state
+variables (including the turbulent variables); we do not assume frozen turbulence, as is
+commonly done in continuous adjoint implementations. We elaborate on the choice of
+R, w, and x in Appendix A.1.
+   The functions of interest are then functions of both the design variables and the state
+variables, i.e.,
+                                        f = f (x, w).                                     (7)
+
+
+
+                                             10
+This computation does not require iteration and is much cheaper than the nonlinear
+(primal) solution.
+    In general, there are multiple functions of interest (the objective and multiple design
+constraints), but in the following derivations, we consider f to be a scalar without loss
+of generality. As shown later, each additional function requires the solution of another
+adjoint system.
+    To obtain the total derivative df / dx, we apply the chain rule:
+
+                                 df     ∂f    ∂f dw
+                                     =      +         ,                                (8)
+                                 dx
+                                |{z}    ∂x |{z}
+                                       |{z}   ∂w |{z}
+                                                  dx
+                                1×nx       1×nx     1×nw nw ×nx
+
+
+where the partial derivatives ∂f /∂x and ∂f /∂w are relatively cheap to evaluate because
+they only involve explicit computations. The total derivative dw/ dx matrix, on the
+other hand, is expensive because w is implicitly determined by the residual equations
+R(w, x) = 0.
+   To solve for dw/ dx, we apply the chain rule for R and use the fact that the total
+derivative dR/ dx must be zero for the governing equations to remain feasible with
+respect to variations in the design variables. The result is
+                                dR   ∂R ∂R dw
+                                   =    +       = 0,                                   (9)
+                                dx   ∂x   ∂w dx
+which can be rearranged to get the linear system
+                                    ∂R dw        ∂R
+                                              =−      .                               (10)
+                                    ∂w    dx
+                                    |{z} |{z}     ∂x
+                                                 |{z}
+                                    nw ×nw nw ×nx        nw ×nx
+
+
+We can solve a column of dw/ dx by using the same column of dR/ dx as the right-hand
+side. We then repeatedly solve the linear equation nx times until all the columns in the
+dw/ dx matrix are computed. Finally, we substitute dw/ dx into Eq. (8) to compute
+the total derivative df / dx for any objective function f . This approach is known as
+the direct method, and its computational cost is proportional to the number of design
+variables.
+    Alternatively, we substitute the solution for dw/ dx from Eq. (10) into Eq. (8) to
+get
+                                                    ψT
+                                        z }| {
+                              df   ∂f    ∂f ∂R −1 ∂R
+                                 =    −                 .                             (11)
+                              dx   ∂x   ∂w  ∂w      ∂x
+                             |{z} |{z} |{z} | {z } |{z}
+                             1×nx      1×nx    1×nw nw ×nw nw ×nx
+
+Typically, we do not actually find the inverse of the Jacobian ∂R/∂w explicitly. Instead,
+we solve the corresponding linear system with the appropriate right-hand-side vector.
+The direct method consists in solving with −∂R/∂x as the right-hand side. Alterna-
+tively, we transpose the Jacobian and solve with [∂f /∂w]T as the right-hand side, which
+
+
+
+                                               11
+yields the adjoint equations
+                                    ∂R T        ∂f T
+                                           ψ =        ,                              (12)
+                                   |∂w
+                                     {z } |{z} |∂w
+                                                 {z }
+                                   nw ×nw nw ×1   nw ×1
+
+where ψ is the adjoint vector. Next, we substitute the adjoint vector into Eq. (11) to
+compute the total derivative:
+                                  df   ∂f      ∂R
+                                     =    − ψT    .                                  (13)
+                                  dx   ∂x      ∂x
+Since the design variable x does not explicitly appear in Eq. (12), we need to solve this
+equation only once for each function of interest, so the computational cost is independent
+of the number of design variables. This approach is also known as the adjoint method,
+and its computational cost is proportional to the number of objective functions.
+    In the context of large-scale engineering optimization problems such as aircraft de-
+sign, the adjoint method is advantageous because the functions of interest typically
+number fewer than 10, but the design variables can number several hundred.
+    To summarize, a discrete adjoint consists of the following four major steps: First,
+we compute the partial derivatives [∂R/∂w]T and [∂f /∂w]T . Next, we solve the linear
+equation (12) to obtain the adjoint vector ψ. Finally, we compute the partial derivatives
+∂R/∂x and ∂f /∂x and use Eq. (13) to compute the total derivative df / dx. Specifically,
+the steps are as follows:
+
+  1. Compute [∂R/∂w]T and [∂f /∂w]T .
+
+  2. Solve the adjoint equation [∂R/∂w]T ψ = [∂f /∂w]T to obtain ψ.
+
+  3. Compute ∂R/∂x and ∂f /∂x.
+
+  4. Compute the total derivative df / dx = ∂f /∂x − ψ T [∂R/∂x].
+
+   These four steps indicate that an effective adjoint implementation requires efficient
+partial derivative computation, as well as adjoint equation solutions. Multiple options
+are available for these two tasks. The following sections outline the methods available
+and highlight their advantages and disadvantages.
+
+4.2    Partial derivative computations
+Five primary options are available for computing the derivatives in a discrete adjoint
+implementation [8, 148]: analytical methods, finite-difference methods, the complex-
+step method [31], AD [17], and symbolic differentiation. More details on these methods,
+including their unification, can be found elsewhere [18]; here we just discuss what is
+needed for the computation of the partial derivatives in the adjoint equations.
+
+
+
+
+                                            12
+4.2.1   Analytic method
+The analytic method, which consists in hand differentiation, was used in early discrete
+adjoint implementations [9–16]. However, analytically differentiating the adjoint partial
+derivative terms requires significant expertise in the particular flow-solver implementa-
+tion and is prone to human error [7]. Furthermore, the complex nature of the turbulent
+NS equations is often handled by ignoring some terms (e.g., frozen turbulence [8]). This
+simplifies the analytic differentiation of the residuals but introduces inaccuracies in the
+gradients. Although this approach can produce computationally efficient derivatives, it
+also typically requires a significant amount of development and implementation time.
+As a result, this approach has largely fallen out of favor for recently developed adjoint
+solvers.
+
+4.2.2   Finite-difference approximations
+Finite-difference methods compute partial derivatives by perturbing the corresponding
+variables and recomputing the outputs. Consider a general vector function with the
+input vector x and output vector y = y(x). The corresponding Jacobian matrix ∂y/∂x
+can be computed by using first-order forward differencing as follows:
+                        
+                        ∂y         yn (x + εem ) − yn (x)
+                                 =                        + O(ε),                (14)
+                        ∂x n,m               ε
+
+where the subscripts n and m are the row and column indices of the matrix, respectively,
+ε is the finite-difference step, and em is a unit vector with a single unity in row m and
+zeros in all other rows. By looping over the input index m and applying perturbations
+for each input in sequence, the entire Jacobian may be populated with M + 1 function
+evaluations, with M being the number of columns. The finite-difference method is much
+easier to implement than analytic methods, and it allows the Jacobian to be computed
+even when the underlying implementation of the function computation is not accessible
+(such as in black-box computations). However, the finite-difference method is subject
+to truncation and subtractive cancellation errors, making the derivative value sensitive
+to step size, especially for functions with strong nonlinearities. This requires a careful
+step-size study to keep the error at an acceptable level.
+
+4.2.3   Complex-step method
+The complex-step method computes the derivative of a real function by perturbing it
+with a complex step instead of a real one and taking the imaginary part of the result,
+yielding the approximation [31, 149]
+                        
+                         ∂y          Im[yn (x + εem i)]
+                                  =                     + O(ε2 ),                (15)
+                         ∂x n,m              ε
+
+where εi is a pure imaginary step. Since there is no subtraction in the above equation,
+there is no subtractive cancellation error. Therefore, we can choose an arbitrarily small
+step size (e.g., 10−40 ) to reduce the truncation error to machine precision. Given this
+
+
+
+                                            13
+advantage, the complex-step method is useful for computing the total derivative df / dx
+for verification purposes. However, only a handful of adjoint implementations use the
+complex-step method for partial derivative computation [37]. This is primarily because,
+to implement the complex-step method, all the floating point data types in the CFD
+code need to be replaced with complex number data types. This modification usually
+makes the code between two and four times slower than the equivalent real code, which
+is partially because we need more arithmetic operations for complex numbers than real
+ones. Moreover, the operations for the overloaded complex data type may not be fully
+optimized by compilers. In addition to the slower speed, we need twice as much memory
+when replacing all real numbers with complex numbers in the code. In addition, we
+need to carefully complexify certain real-value operations such as the relational logic
+operators and absolute value function [31].
+
+4.2.4   Algorithmic differentiation
+AD is another option for accurately computing derivatives [17]. This approach focuses
+directly on the computer code and uses the fact that any code, no matter how complex,
+consists of a sequence of elementary arithmetic operations. These operations can then
+be differentiated to create differentiated versions of the code that compute derivatives
+by using the chain rule.
+    There are two derivative computation modes for AD: forward and reverse. Both use
+the same chain rule but accumulate the derivatives in different directions. In forward-
+mode AD, the input variables of interest are specified and the derivatives with respect
+to those variables are accumulated in the forward direction, together with the execution
+of the original code. In reverse-mode AD, on the other hand, the outputs of interest are
+specified and the derivatives of those outputs are accumulated backward. Before this
+reverse accumulation is performed, however, the original code must be run (forward)
+and all intermediate variables must be stored for use in the reverse accumulation.
+    Consider the vector function y = y(x). In the forward mode, the input and output
+for its differentiated function ẏ(x, ẋ) can be expressed as
+                                                                  
+                                              ∂y1 ∂y1          ∂y1
+                                                       ...         
+                                     ẏ1     ∂x1 ∂x2          ∂xM 
+                                                                    ẋ1
+                                   ẏ2     ∂y2 ∂y2          ∂y2   
+                     ∂y                  
+                                                          ...        ẋ2 
+                                                               ∂xM 
+                ẏ =    ẋ ⇒  ..  =  ∂x1 ∂x2                       ..  ,       (16)
+                     ∂x            .   ..          ..   ...  .. 
+                                                                     . 
+                                    ẏN      .        .         . 
+                                             ∂yN ∂yN          ∂yN  ẋN
+                                                          ...
+                                              ∂x1 ∂x2          ∂xM
+
+where ẋ is the input seed and ẏ contains the output of a forward-mode AD computation.
+Note that Eq. (16) illustrates only the input and output structures of the differentiated
+y function in the forward mode. The details of how the differentiated function is con-
+structed by using the chain rule can be found in AD textbooks [17, 150]. We use the
+differentiated y function to compute individual partial derivatives by providing an input
+
+
+
+
+                                           14
+seed vector such that the nth entry is unity and all other entries are zero:
+                                                           T                          T
+                  ẋ = ẋ1 , ẋ2 , . . . , ẋn , . . . , ẋN = 0, 0, . . . , 1, . . . , 0 .   (17)
+
+Equation (16) then yields the partial derivative of all components of y with respect to
+xn :                                                   T
+                                    ∂y1 ∂y2        ∂yN
+                             ẏ =      ,     ,...,         .                       (18)
+                                    ∂xn ∂xn        ∂xn
+   The differentiated function in the reverse-mode y(x, y) has the following input and
+output structure:
+                                                                  
+                                             ∂y1   ∂y2        ∂yN
+                                                      ...          
+                                   x1      ∂x1 ∂x1           ∂x1  y1
+                T               x2      ∂y1   ∂y2        ∂yN   
+                  ∂y                   
+                                                         ...
+                                                              ∂x2 
+                                                                     y2 
+           x=          y ⇒  ..  =  ∂x2 ∂x2                         ..  .      (19)
+                  ∂x              .   ..         ..   ...    .. 
+                                                                     . 
+                                   xN      .        .           . 
+                                           ∂y1    ∂y2        ∂yN  y N
+                                                         ...
+                                            ∂xM ∂xM          ∂xM
+Now y is the input seed and x contains the output of a reverse-mode AD computation.
+To find the desired derivatives, we set the input seed vector
+                                                          T                          T
+                  y = y 1 , y 2 , . . . , y n , . . . , y N = 0, 0, . . . , 1, . . . , 0 . (20)
+
+The output of reverse-mode AD then contains the derivatives of yn with respect to all
+x:                                                T
+                                 ∂yn ∂yn       ∂yn
+                           x=       ,    ,...,        .                         (21)
+                                 ∂x1 ∂x2       ∂xM
+    In addition to explicitly computing partial derivatives, we can use AD to efficiently
+compute matrix-vector products with the Jacobian ∂y/∂x. This can be done by multi-
+plying the Jacobian by a full vector ψ that we set to be the seed vector (ẋ = ψ or y = ψ).
+Specifically, the forward mode allows the computation of regular matrix-vector products
+[∂y/∂x]ψ, whereas the reverse mode allows the computation of transpose matrix-vector
+products [∂y/∂x]T ψ. We use this unique feature of reverse-mode AD to implement
+an efficient Jacobian-free adjoint solver using Krylov subspace methods, as detailed in
+Sec. 4.4.
+    There are two main ways of implementing AD: source code transformation and op-
+erator overloading [150]. Tools using source code transformation add new statements to
+the original source code that compute the derivatives of the original statements. The
+operator-overloading approach consists in using a new user-defined type instead of real
+numbers. This new type includes not only the value of the original variable but also its
+derivative. All intrinsic operations and functions have to be redefined (i.e., overloaded )
+to compute the derivatives together with the original computations. Both source code
+transformation and operator overloading differentiate the original functions in a semi-
+automatic manner. The operator-overloading approach results in fewer changes to the
+
+
+
+                                                    15
+original code but is less efficient because overloading user-defined data types results in
+code that is two to four times slower, similar to the complex-step approach mentioned in
+Sec. 4.2.3. Moreover, this approach uses at least twice as much memory as the original
+code because the overloaded date type stores both the value and derivative, and because
+the reverse-mode AD requires storing all intermediate variables on tapes [151, 152].
+Conversely, the source code transformation creates new codes to compute derivatives
+on the fly while keeping the same data type. With careful implementation, the source
+code transformation AD can be as efficient as analytical methods in terms of speed and
+memory usage [153]. Section 5 compares the performance of source code transformation
+and operator-overloading AD.
+
+4.2.5   Symbolic differentiation
+Symbolic differentiation [154] is another option to compute derivatives. In contrast
+to AD, symbolic differentiation directly manipulates the mathematical expression of a
+function. The advantage of symbolic differentiation is that we obtain the mathematical
+form of derivatives, and the process can be automated by using software such as Maple,
+Mathematica, or Matlab. However, symbolic differentiation requires a function to be
+expressed in closed form, which is not always feasible for modern CFD codes that use
+iterative solution procedures. Moreover, as the function becomes complex, the mathe-
+matical expression generated by symbolic differentiation can be prohibitively long and
+thus computationally inefficient. Given these limitations, symbolic-differentiation-based
+derivative computation has not been widely used in adjoint development. However, in
+the finite-element-method (FEM) community, a semi-symbolic-differentiation method
+was proposed to compute derivatives, which is elaborated on in Sec. 4.5.
+
+4.3     Accelerating Jacobian computation
+Being able to compute partial derivatives in both forward and reverse mode allows
+flexibility when computing partial derivatives. However, the Jacobian required for the
+adjoint system is square, which limits the benefits of using a particular computational
+approach for the derivatives. Furthermore, computing the state Jacobian matrix ∂R/∂w
+by naively computing all the elements in the matrix requires O(N 2 ) operations, where
+N is the number of rows in the Jacobian. This is prohibitive for a 3D problem because
+N can exceed 100 million. Therefore, it is critical to accelerate the computation of the
+Jacobian matrix by exploiting its sparsity.
+     Even if we use the Jacobian-free Krylov methods enabled by reverse-mode AD, we
+still need a preconditioner matrix, which must also be computed efficiently. We thus
+want to reduce the number of residual evaluations required to compute these matrices
+to a small fixed number. We now discuss two approaches to exploit the sparsity pattern
+and accelerate Jacobian matrix computations.
+
+
+
+
+                                           16
+Figure 1: Examples of stencils for a single-cell residual. The residual cell is black, and the
+level-one and -two connected cells are red and blue, respectively. The structured hexahedral
+mesh has a regular stencil pattern, whereas the unstructured hexahedral mesh splits its cell
+faces and has an irregular stencil.
+
+
+4.3.1   Single-cell residual
+In this approach, we first identify the computational stencil to compute a single-cell
+residual. Figure 1 shows examples of stencils for a single-cell residual. Here, the residual
+cell is black, and the level-one and -two connected cells are red and blue, respectively. We
+then re-code a reduced residual routine that computes the residual for only a single cell.
+Next, we compute the derivatives of its residual with respect to the states and design
+variables associated with this cell. This process is repeated for every cell in the mesh
+until all the nonzero Jacobian elements are computed. The single-cell residual compu-
+tation is relatively intuitive to implement and is effective in minimizing the number of
+computations required to form the Jacobian. This approach was used in our original
+adjoint implementation [30] and also in other recent work [33].
+    However, one big disadvantage of the single-cell residual approach is that we need to
+re-code a reduced residual routine because the original residual computation typically has
+an input vector of all the design variables and state variables [x, w] and an output vector
+of all residuals [R], instead of an output for a single-cell residual. This code duplication
+goes against best programming practices and makes it more difficult to maintain and
+extend the code. In particular, this approach is susceptible to discrepancies between the
+original residual computation and the single-cell residual computation. Furthermore,
+for an object-oriented, industrial-scale code such as OpenFOAM, even isolating the
+functions needed to create a single-cell residual computation is challenging. Therefore,
+this approach is not widely used in the finite-volume CFD community.
+
+4.3.2   Graph coloring
+Similar to the single-cell residual approach, graph coloring [155] exploits the sparsity of
+Jacobian matrices and requires the identification of the stencil of each residual computa-
+tion. In this case, the residual stencil is used to define an adjacency matrix that serves to
+compute a unique set of groupings that covers the entire domain with non-overlapping
+
+
+
+                                             17
+residual computations. This is done by partitioning all columns of a matrix into different
+structurally orthogonal subgroups—the colors—such that, in one structurally orthogo-
+nal subgroup, no two columns have a nonzero entry in a common row. Coloring allows
+simultaneous perturbation of multiple columns of the Jacobian by using any of the
+forward-mode methods (i.e., finite difference, complex step, and forward-mode AD) be-
+cause we know that no residuals in a given color overlap, thereby reducing the quantity
+of residual evaluations required to a small fixed number ncolor . The coloring approach
+also allows us to directly use the original residual computation functions because we are
+able to account for the sparsity by using the coloring. This avoids code duplication,
+thereby ensuring consistency between the original and derivative computations.
+
+
+
+
+Figure 2: Example of graph coloring for a five-point-stencil Jacobian matrix obtained from
+a 5 × 5 two-dimensional mesh. Naively computing the Jacobian by using finite differencing
+(column by column) requires 26 residual function evaluations. With graph coloring, we si-
+multaneously perturb columns that have the same color, which reduces to six the number of
+function evaluations.
+
+    As an example, we consider a five-point-stencil Jacobian matrix obtained from a
+5 × 5 two-dimensional mesh (see Fig. 2). If we perturb each column of the matrix
+and use the first-order finite-difference method to compute the Jacobian, we need 26
+residual function evaluations. With graph coloring, we simultaneously perturb columns
+that have the same color, which reduces to six the number of function evaluations. The
+actual Jacobian matrices for the 3D NS equations are much more complex than the
+five-point-stencil matrix. The cost and complexity of computing a coloring can be high,
+depending on the mesh topology and the residual stencil of the primal solver. This
+requires us to selectively adopt effective coloring algorithms for ADflow and DAFoam;
+we discuss the details of these algorithms in Sec. A.2.
+
+
+
+
+                                           18
+4.4    Methods for solving the adjoint equations
+As mentioned in Sec. 4, in addition to computing the partial derivatives, we need to
+solve the adjoint equations (12). A system of linear equations may be solved by either
+direct or iterative methods [156]. The benefit of using direct methods, such as lower
+and upper factorization, is that we obtain exact solutions with a fixed number of op-
+erations. However, the application of direct methods is relatively limited. To be more
+specific, large-size linear systems incur prohibitive computational cost for exact lower
+and upper factorization, especially for linear systems that are not tightly banded [156].
+Although direct methods have been used to solve the adjoint equations for problems
+in computational structural dynamics [95], they have not been widely adopted in CFD.
+Iterative methods, on the other hand, have no restriction on the size or banded structure
+of linear systems and is the natural choice to solve the adjoint equations for large-scale
+CFD problems.
+    One option to solve the adjoint equations is the linear fixed-point iteration method,
+also known as the stationary iteration method [156, 157]. In this approach, we first
+reformulate Eq. (12) as a residual function,
+                                             T           T
+                                     ∂f              ∂R
+                          Radj (ψ) =               −             ψ = 0,                (22)
+                                     ∂w              ∂w
+
+and then solve for ψ by using
+
+                                ψ n+1 = ψ n + M Radj (ψ n ),                           (23)
+
+where n is the iteration number, and M is an operator that depends on the particular
+iterative method (e.g., Euler, Gauss–Seidel, Runge–Kutta). One advantage of reformu-
+lating the adjoint equation in residual form is that we do not need to factorize and solve
+the exact Jacobian matrix [∂R/∂w]T . Another advantage is that we can use the same it-
+erative solver as the flow solver, achieving same rate of convergence for the linear adjoint
+and the nonlinear flow equations—a feature that is known as duality preserving [8, 158–
+160]. Given these two advantages, the fixed-point iteration methods have been used in
+a number of adjoint implementations [9, 12–14, 25, 27, 28, 32, 34, 88, 161, 162]. How-
+ever, one drawback of linear fixed-point iteration methods is that the current solution
+depends on information only from the previous iteration, so information accumulated
+throughout the iterations is not fully used. Therefore, the convergence of fixed-point
+iteration methods is always linear [156].
+    Given the pros and cons cited above, we opt to use the GMRES iterative method to
+solve the linear equations. The GMRES method conducts iterations by using the Krylov
+subspace,
+                          Kn = span{r 0 , Ar 0 , A2 r 0 , . . . , An−1 r 0 },           (24)
+where A is the transpose of the Jacobian [∂R/∂w]T , and the initial residual r 0 is
+                                            T           T
+                                     ∂f             ∂R
+                                r0 =              −             ψ0.                    (25)
+                                     ∂w             ∂w
+
+
+
+                                              19
+Compared with the fixed-point iteration method, the GMRES method uses informa-
+tion gathered throughout the iterations and therefore converges faster [156, 157]. Fur-
+thermore, by using the NK method to solve the primal flow equations, the GMRES
+method provides a similar duality preserving behavior as the fixed-point iteration ap-
+proach because the eigenvalues for Jacobians (primal) and transposed-Jacobians (ad-
+joint) are the same, which ensures consistent convergence between the flow and adjoint
+solutions [8, 15].
+    In addition to the above advantages, we can directly compute the matrix-vector
+products to construct the Krylov subspace without forming [∂R/∂w]T ; a method known
+as Jacobian-free GMRES. The benefit of Jacobian-free GMRES is that it saves the
+computational time and memory involved in computing and storing [∂R/∂w]T .
+    To perform Jacobian-free GMRES iterations, we use the reverse-mode AD to effi-
+ciently compute the matrix-vector products by using Eq. (19), which yields
+                                             T
+                                           ∂R
+                                    w=           R.                                (26)
+                                           ∂w
+We set the input vector R = r 0 , and the output w is the matrix-vector product w =
+[∂R/∂w]T r 0 = Ar 0 . Note that, although we call it the Jacobian-free GMRES method,
+we still need to explicitly form and store the preconditioner matrix [∂R/∂w]TP C [see
+Eq. (27)]. We find that this approach is more efficient because a fully-Jacobian-free
+method requires extra computation for [∂R/∂w]TP C , which makes the overall adjoint
+solution slower. We compare the performance of the Jacobian-free adjoint solution
+method with other approaches in Sec. 5.
+    In addition to reducing memory usage, another advantage of using the Jacobian-free
+GMRES method is that the sparsity information for [∂R/∂w]T need not be computed.
+This important feature allows us to easily extend our adjoint implementation to any
+computational mesh. We demonstrate this flexibility by applying our adjoint implemen-
+tation to a wing-body-tail aircraft configuration with overset meshes (Sec. 5).
+    One disadvantage of GMRES methods is that they solve the exact Jacobian system
+[∂R/∂w]T , which is typically more difficult to converge because the state Jacobian ma-
+trix that results from a 3D viscous turbulent flow solution is typically ill-conditioned, es-
+pecially for realistic geometries with complex flow [6, 8, 28, 163–165]. Therefore, we need
+a strong preconditioner to improve the eigenvalues clustering. The right-preconditioned
+adjoint equations reads
+                                        −1 !           
+                           ∂R T ∂R T             ∂R T           ∂f T
+                                                        ψ =          ,                  (27)
+                           ∂w ∂w P C             ∂w P C         ∂w
+
+where [∂R/∂w]TP C is the preconditioner matrix and ([∂R/∂w]TP C )−1 is the approximated
+inverse of [∂R/∂w]T . We require that the preconditioner matrix is an approximation
+of [∂R/∂w]T but easily invertible. Unfortunately, no general-purpose preconditioner
+matrix is guaranteed to be effective, so we must carefully construct [∂R/∂w]TP C for each
+specific problem [156]. Appendix A.3 elaborates on the solver-specific computation of
+the preconditioner matrix.
+
+
+
+                                             20
+    In this paper, we solve the adjoint equations by using the Portable, Extensible Toolkit
+for Scientific Computation (PETSc) software library [166–168]. PETSc provides a wide
+range of parallel linear and nonlinear equation solvers with various preconditioning op-
+tions. We select the GMRES as the top-level iterative solver and adopt a nested pre-
+conditioning strategy (see Fig. 3). We use the additive Schwartz method (ASM)—with
+one or two levels of overlap—as the global preconditioner. The ASM divides the linear
+system into sub-blocks and then solves them in parallel. For the local preconditioner in
+each sub-block, we use the incomplete lower and upper (ILU) factorization approach.
+The effectiveness of the ILU approach is largely impacted by the level of fill-in: the use
+of a higher fill-in level converges faster but increases memory usage. To reduce memory
+usage, we apply the ILU preconditioning multiple times in each sub-block by using the
+Richardson method (inner Richardson iteration), where the Richardson damping factor
+is set to 1.0. Similarly, we perform outer Richardson iterations when applying the ASM
+global preconditioner. Performing the inner and outer Richardson iterations has the
+same effect as increasing the ILU fill-in level. Therefore, this strategy allows us to use
+a relatively low fill-in level (one or two) to save memory. In terms of speed, we find
+that the improvement in convergence rate outweighs the extra computational cost of
+Richardson iterations, which is attributed to [∂R/∂w]TP C being much sparser than the
+exact state Jacobian [∂R/∂w]T , so the cost of extra matrix-vector products in the inner
+and outer Richardson iterations is much cheaper than that in the GMRES iterations. In
+addition, we observe that the outer Richardson iteration is more effective than the inner
+one, which we attribute to the fact that the overlapped ASM preconditioner gathers
+information across the blocks, whereas the ILU approach only affects local blocks. In
+this paper, we perform three and two iterations for outer and inner Richardson itera-
+tions, respectively. The above nested preconditioning strategy is effective for solving the
+adjoint equation, as perviously reported [55, 105].
+
+                GMRES
+                 Solver                 Nested Preconditioning
+
+                             Outer
+                           Richardson
+
+                                         Additive
+                                         Schwarz
+
+                                                           Inner
+                                                        Richardson
+
+
+                                                                     ILU
+
+
+
+Figure 3: The GMRES method along with a nested preconditioning strategy for solving the
+adjoint equations.
+
+
+
+
+                                            21
+4.5    Overview of approaches used in existing discrete adjoint solvers
+Existing discrete adjoint implementations for CFD codes use different combinations of
+the options described above to compute the partial derivatives and solve the adjoint
+equations (see Table 1).
+    Several codes have used hand differentiation to compute the partial derivatives
+(Cart3D, elsA, FUN3D, Jetstream, NSU3D, and TAU). As mentioned in Sec. 4.2, this
+approach is potentially the most efficient from the computational point of view. How-
+ever, it requires expertise in the primal code, and deriving derivative routines by hand
+requires significant effort [7, 37]. Moreover, the hand-derived routines are not straight-
+forward to extend (e.g., adding new turbulence models and discretization schemes).
+    More recent adjoint implementations (ADflow, DAFoam, HYDRA, piggySimple-
+Foam, reverseAccSimpleFoam, STAMPS, and SU2) use AD to efficiently compute par-
+tial derivatives and matrix-vector products. For solvers written in Fortran (ADflow,
+HYDRA, and STAMPS), the source code transformation AD is the best choice be-
+cause it results in faster code and incurs a lower memory overhead compared with
+operator-overloading AD. The source code transformation tool Tapenade [174] was used
+to compute the partial derivatives for these three codes. For C++ solvers that use
+object-oriented code structures (DAFoam, piggySimpleFoam, reverseAccSimpleFoam,
+and SU2), the operator-overloading AD becomes the only option. The benefit of us-
+ing the operator-overloading AD is that it is relatively easy to implement and extend.
+SU2 uses the CoDiPack [152] as the operator-overloading AD tool, whereas DAFoam,
+piggySimpleFoam, and reverseAccSimpleFoam use dco/c++ [151].
+    The best strategy for choosing between the Krylov and fixed-point iteration ap-
+proaches is to use the same iterative approach for solving the flow and adjoint equa-
+tions, which is because the codes from the flow solvers can be reused to reduce the effort
+required to implement the adjoint method. More importantly, by carefully formulating
+the iterative scheme, we achieve the same convergence behavior for the flow solution
+and adjoint computation, which helps to ensure robust optimization (see Sec. 4.4). The
+benefit of using the Krylov approach is that it converges faster than the fixed-point
+iteration, as mentioned in Sec. 4.4.
+    As mentioned in the introduction, an adjoint implementation is available that uses
+reverse-mode AD to differentiate the entire CFD code (full-code AD). The cost of full-
+code AD is independent of the number of design variables and shares this advantage
+with the discrete adjoint method derived in Sec. 4.1; however, it tends to have a high
+overall cost both in terms of memory and computation time. A naive implementation of
+this approach requires all of the intermediate flow variables to be stored in memory in
+the forward computational pass, which is not feasible for large 3D PDE solvers. Modern
+algorithmic differentiation techniques, such as checkpointing and local pre-accumulation,
+can reduce the computational cost and memory usage [17, 150]. Yet despite these im-
+provements, the size of problems that can be solved remains limited. An example of
+current state-of-the-art full-code AD is the adjointSimpleShapeCheckpointingFoam ad-
+joint solver developed by Towara and Naumann [22], which we compare with our adjoint
+implementations in Sec. 5.
+
+
+
+
+                                           22
+                        Table 1: Overview of implementation options used in existing discrete adjoint solvers.
+
+      Solver          Organization         Programming    Partial derivative   Adjoint        References
+                                           language       computation          solution
+      ADflow          Univ. of Michigan    Fortran        Transformation AD    Krylov         This work
+      Cart3D†         NASA                 Fortran        Hand derived         Fixed point    [12]
+      DAFoam          Univ. of Michigan    C++            Overloading AD       Krylov         This work
+      elsA            ONERA                C++            Hand derived         Fixed point    [169]
+      FUN3D           NASA                 Fortran        Hand derived         Fixed point    [10, 161]
+      HYDRA           Rolls–Royce‡         Fortran        Transformation AD    Fixed point    [25, 170]
+      Jetstream       Univ. of Toronto     Fortran        Hand derived         Krylov         [16, 171, 172]
+
+
+
+
+23
+      NSU3D           Univ. of Wyoming     Fortran        Hand derived         Krylov         [13, 38, 173]
+      SimpleFoam?     Aachen Univ.         C++            Overloading AD       Fixed point    [34]
+      SimpleFoam??    Aachen Univ.         C++            Overloading AD       Full-code AD   [22, 34]
+      STAMPS          Queen Mary Univ.     Fortran        Transformation AD    Fixed point    [27]
+      SU2             Stanford Univ.§      C++            Overloading AD       Fixed point    [28, 29]
+      TAU-Code        DLR                  C              Hand derived         Krylov         [15]
+     † Inviscid solver.
+     ‡ Initially developed at University of Oxford.
+     ? piggySimpleFoam and reverseAccSimpleFoam.
+     ?? adjointSimpleShapeCheckpointingFoam.
+     § Discrete adjoint developed by TU Kaiserslautern.
+    As mentioned in Sec. 4.2.5, there is an adjoint implementation in the FEM com-
+munity (dolfin-adjoint [175]) that uses a semi-symbolic-differentiation approach. dolfin-
+adjoint exploits the special code structure of FEniCS [176], which is a finite-element
+method framework that supports the automated solution of PDEs starting from high-
+level mathematical expressions. Semi-symbolic-differentiation is similar to full-code AD,
+except that it stores a symbolic tape in the forward execution, as opposed to floating-
+point operations in AD. Once finished, dolfin-adjoint analyzes the symbolic tape and
+derives mathematical expressions for the adjoint, which are then automatically con-
+verted to low-level computer codes to compute derivatives. The main advantage of
+dolfin-adjoint is its high flexibility and automation when creating a new adjoint solver.
+In addition, the dolfin-adjoint code is well optimized and achieves a better adjoint-to-flow
+runtime ratio than the full-code AD approach [175]. However, no detailed comparisons
+are available of the performance of the finite-element dolfin-adjoint solver versus that of
+the finite-volume adjoint solvers. Moreover, the semi-symbolic-differentiation approach
+is applicable only within the FEniCS framework; it is not designed for general adjoint
+solvers.
+    In addition to the research community, commercial software companies have imple-
+mented the discrete adjoint method for their CFD solvers (e.g., CFD-ACE+ [177] from
+ESI Group, Fluent [178] from ANSYS, and STAR-CCM+ [179] from Siemens). We do
+not elaborate on these because only limited information is currently available, but we
+hope that they will be benchmarked by using the cases presented herein.
+    To summarize, we have reviewed various options used in existing adjoint solvers.
+We implement the best combination of these options in ADflow (see the Jacobian-free
+method in Sec. 4.6 and the appendix). To be more specific, we use a structured mesh
+solver written in Fortran, which is faster than unstructured solvers and solvers written
+in C++. In addition, we compute the partial derivatives by using source code transfor-
+mation AD, which is faster and requires less memory than the operator-overloading AD.
+Furthermore, we use the Jacobian-free GMRES method to solve the adjoint equations,
+which converges faster than the fixed-point iteration approach while requiring moder-
+ate memory overhead. Finally, we achieve consistent convergence between the flow and
+adjoint solutions because we use the NK method to solve the primal nonlinear equations.
+    One limitation of the Jacobian-free adjoint method in ADflow is that it requires
+greater effort for the initial development using source code transformation AD than
+does operator-overloading AD. However, once implemented, extending adjoint codes
+to include new terms and objectives is straightforward, (see Appendix A.4). Another
+drawback is that mesh generation is generally less flexible than for unstructured solvers,
+although this limitation has been alleviated by the overset mesh capability in ADflow.
+Overall, the advantage in performance outweighs the above limitations.
+    Next, we elaborate on the Jacobian-free adjoint implementation along with two vari-
+ations. Section 5 compares their performance and demonstrates the efficiency of the
+proposed Jacobian-free method.
+
+
+
+
+                                            24
+4.6    Solver-agnostic implementation of proposed adjoint approach
+This section elaborates on our proposed adjoint implementation (Jacobian free) along
+with two variations (FD Jacobian and AD Jacobian), which are summarized as follows:
+
+FD Jacobian: Uses a coloring-accelerated finite-difference method to compute all par-
+    tial derivatives [∂R/∂w]T , [∂R/∂w]TP C , ∂R/∂x, [∂f /∂w]T , ∂f /∂x, which are all
+    stored. [∂R/∂w]T is explicitly provided in the GMRES iteration to compute the
+    matrix-vector product.
+
+AD Jacobian: This is similar to the FD Jacobian except that all partial derivatives
+    are computed by coloring-accelerated forward-mode AD.
+
+Jacobian free: Uses coloring-accelerated forward-mode AD to compute [∂R/∂w]TP C .
+    Also uses reverse-mode AD to compute [∂f /∂w]T and ∂f /∂x, the matrix-vector
+    product [∂R/∂w]T r 0 for the GMRES iteration, and [∂R/∂x]T ψ to compute the
+    total derivative.
+
+    The above adjoint implementation variations are in the most general form; for each
+implementation, the actual combination of options used for a specific solver to compute
+the partial derivatives and solve the adjoint equations may differ. We summarize these
+modifications in Sec. A.4. The present section keeps the explanation general by omitting
+solver-specific implementation details (described in the appendix).
+    The FD Jacobian is the most straightforward adjoint option because it does not re-
+quire the construction of differentiated versions of the R(x, w) and f (x, w) functions
+by using AD or the complex-step method. Moreover, it is much easier to implement
+compared with the hand-coded analytical derivative method, as discussed in Sec. 4.2.
+We illustrate the operations and data flow for a generic FD Jacobian approach in Fig. 4.
+We use the extended design structure matrix standard developed by Lambe and Mar-
+tins [180]. The diagonal entries are the modules in the optimization process, whereas
+the off-diagonal entries are the data. Each module takes data input from the vertical
+direction and outputs data in the horizontal direction. The thick gray lines and the thin
+black lines denote the data and process flow, respectively. The numeric label for each
+process denotes their execution order. Taking [∂R/∂w]T as an example, the coloring-
+accelerated FD Jacobian is computed as follows: We first compute the reference residual
+Rref by using the unperturbed reference variables xref and wref . Next, for each color
+i, we add perturbation ε to wref at the rows associated with this color and compute
+the perturbed residual Rperturb . Based on the reference and perturbed R, we compute
+∂R/∂w at the columns associated with color i by using the finite-difference method
+(loop 0 → 2 → 0). Once done, we store the computed columns in ∂R/∂w to its trans-
+posed matrix [∂R/∂w]T in memory. As mentioned in Sec. 4.3, the coloring ensures that
+the residual stencils do not overlap for these computed columns, which allows us to com-
+pute multiple columns for ∂R/∂w by calling the R function only once. We then loop
+over all colors until all columns in ∂R/∂w are computed. A similar strategy is used for
+∂R/∂x. We need special treatment for [∂f /∂w]T and ∂f /∂x because they are typically
+dense vectors (e.g., drag depends on state variables integrated over all discrete cell faces
+
+
+
+                                            25
+        0: xref , wref , Rref                       3: xref , wref , fref                              6: ψ 0
+
+            0, 2→1:                                                                                  ∂R T ∂R T                                                    ∂R
+                                1: [w, x]iperturb                                               6:       ,                                                   9:
+           FD Partials                                                                               ∂w    ∂w P C                                                 ∂x
+
+
+           2: Riperturb           1: R(x, w)
+
+
+                                                       3, 5→4:                                            ∂f T                                                    ∂f
+                                                                            5: [w, x]iperturb        6:                                                      9:
+                                                      FD Partials                                         ∂w                                                      ∂x
+
+                                                           i
+                                                       4: fperturb            5: f (x, w)
+
+
+
+
+26
+                                                                                                  6, 8→7:              ∂R T         ∂R T
+                                                                                                                    7:      ,                   r0            9: ψ
+                                                                                                GMRES Solver           ∂w           ∂w
+                                                                                                                                "          #n
+
+
+
+
+                                                                                                                      7: Matrix-vector
+                                                                                                      8: Kn
+                                                                                                                         Products
+
+                                                                                                                                                          df   ∂f      ∂R
+                                                                                                                                                     9:      =
+                                                                                                                                                          dx   ∂x      ∂x
+                                                                                                                                                                  − ψT
+
+
+
+     Figure 4: Steps for the FD Jacobian adjoint option: (1) We compute [∂R/∂w]T , [∂R/∂w]TP C , and ∂R/∂x by looping 0 → 2 → 0. The
+     notation “ref” and “perturb” represents the reference and perturbed values, respectively. wiperturb denotes the state variable vector whose
+     rows associated with the ith color are perturbed. (2) We compute [∂f /∂w]T and ∂f /∂x by looping 3 → 5 → 3. (3) We solve the adjoint
+     equations to obtain ψ by looping 6 → 8 → 6. n is the iteration number. (4) We compute the total derivative df / dx in process 9.
+on the design surface). Taking
+                             P   [∂f /∂w]T as an example, we divide f into ND discrete
+                               N
+cell faces, i.e., [∂f /∂w]T = i=1
+                                D
+                                   [∂fi /∂w]T . We then compute each [fi /∂w]T by using
+coloring and sum their values to [∂f /∂w]T . Note that we always use the graph coloring
+method instead of the single-cell residual method to accelerate Jacobian computation,
+which avoids code duplication and ensures consistency in residual computation between
+the primal and adjoint solvers, as discussed in Sec. 4.3. When solving the adjoint equa-
+tion, we pass a fully assembled [∂R/∂w]T into PETSc (processes 6) to compute the
+matrix-vector product [∂R/∂w]T r 0 for the GMRES iteration (loop 6 → 8 → 6) and
+solve for ψ. Finally, we compute the total derivative df / dx in process 9.
+
+        x, w                             x, w, ẋ, ẇ                                    x, w, R, f
+
+
+  R(x, w), f (x, w)            Ṙ(x, w, ẋ, ẇ), f˙(x, w, ẋ, ẇ)                  R(x, w, R), f (x, w, f )
+
+                                                                         "            #    "                #
+                           ∂R     ∂R             ∂f     ∂f                  ∂R T    ∂f T         ∂R T    ∂f T
+        R, f          Ṙ =    ẇ,    ẋ , f˙ =      ẇ,    ẋ            w=      R,      f ,x=        R,      f
+                           ∂w     ∂x             ∂w     ∂x                  ∂w      ∂w           ∂x      ∂x
+
+
+
+Figure 5: General inputs and outputs for the original R and f functions and their differentiated
+versions using forward- and reverse-mode AD.
+
+    The implementation of the AD Jacobian approach is similar to that of the FD Ja-
+cobian approach with two exceptions. First, instead of using the original R(x, w) and
+f (x, w) functions, we construct their differentiated versions by using forward-mode AD.
+Although the complex-step method also offers accurate derivative computation, it has
+a memory and computational cost that is similar to the operator-overloading AD but
+is much higher than the source code transformation AD. Moreover, it does not support
+the transpose matrix-vector product needed for the Jacobian-free GMRES method (see
+details in Sec. 4.4). Therefore, in the present work, we do not consider the complex-
+step partial derivative computation. An example of original and differentiated R and f
+functions is shown in Fig. 5. Note that we show only the inputs and outputs for these
+functions (we elaborate in Appendix A.4 on how to use different AD to construct them).
+The second difference is that, instead of using the finite-difference method, we use the
+forward-mode AD to compute the partial derivatives. Taking [∂R/∂w]T as an example,
+we first assign the coloring vector ci to the input vector ẇ for the forward-differentiated
+residual function Ṙ, where ci has ones for the rows associated with color i and zeros
+for the other rows. We then call Ṙ to compute ∂R/∂w at the columns associated with
+color i (refer to loop 0 → 2 → 0 in Fig. 6). Finally, we assign the computed columns in
+∂R/∂w to its transposed matrix [∂R/∂w]T . As in the FD Jacobian approach, we need
+to loop over all the colors and we store all the partial derivative matrices in the memory.
+    The Jacobian-free approach is a hybrid-AD option, as shown in Fig. 6. We differ-
+entiate the R(x, w) and f (x, w) functions in both forward and reverse mode to enable
+further performance improvement. Similar to the AD Jacobian approach, we use the
+coloring-accelerated forward-mode AD (loop 0 → 2 → 0) to compute [∂R/∂w]TP C and
+store it in memory. One major difference compared with the AD Jacobian approach
+
+
+
+                                                                    27
+                            1: xref , wref      3: xref , wref , f = 1          4: ψ 0       5: xref , wref         7: xref , wref
+
+          0, 2→1:                                                                ∂R T
+                             1: ẇ = ci                                    4:
+         AD Partials                                                             ∂w P C
+
+              ∂R
+         2:          ci   1: Ṙ(x, w, ẋ, ẇ)
+              ∂w P C
+
+                                                                                  ∂f T                                                                ∂f
+                                                   3: f (x, w, f )         4:                                                                    8:
+                                                                                  ∂w                                                                  ∂x
+
+                                                                           4, 6→5:               ∂R T
+                                                                                          5: R =              r0        7: ψ
+                                                                         GMRES Solver            ∂w
+                                                                                                 "       #n
+
+
+
+
+28
+                                                                                6: Kn       5: R(x, w, R)            7: R = ψ
+
+
+                                                                                                                                                  ∂R T
+                                                                                                                   7: R(x, w, R)            8:         ψ
+                                                                                                                                                  ∂x
+
+                                                                                                                                          df   ∂f      ∂R
+                                                                                                                                     8:      =
+                                                                                                                                          dx   ∂x      ∂x
+                                                                                                                                                  − ψT
+
+
+
+     Figure 6: Steps for the Jacobian-free adjoint option: (1) We compute [∂R/∂w]TP C by looping 0 → 2 → 0. “ref” represents the unperturbed
+     reference values, c ∈ Rnw is the coloring vector. ci has ones at the rows associated with the ith color and zeros at other rows. (2) We compute
+     [∂f /∂w]T using reverse-mode AD in process 3. (3) We solve the adjoint equations to obtain ψ by looping 4 → 6 → 4, while the required
+     matrix-vector products are computed using reverse-mode AD in process 5. n denotes the iteration number. (4) We compute [∂R/∂x]T ψ
+     using reverse-mode AD in process 7. (5) We compute the total derivative df / dx in process 8.
+is that we do not compute or store [∂R/∂w]T . Instead, the matrix-vector product
+[∂R/∂w]T r 0 that is needed for the GMRES iteration is directly computed by using
+the reverse-mode AD (process 5). This is done by assigning r 0 to the input vector R
+and calling the reverse-mode AD to compute [∂R/∂w]T r 0 . Similar to what we did for
+[∂R/∂w]T , we do not compute or store ∂R/∂x; instead, we use the reverse-mode AD
+(process 7) to directly compute [∂R/∂x]T ψ . Moreover, we use reverse-mode AD (pro-
+cess 3) to compute [∂f /∂w]T and ∂f /∂x instead of coloring-accelerated forward-mode
+AD. As mentioned in Sec. 4.4, the use of the Jacobian-free GMRES strategy saves the
+computation time and memory involved in computing and storing [∂R/∂w]T . Section 5
+quantitatively evaluates the performance of the above adjoint implementation variations.
+
+
+5     Results
+In this section, we use three cases from the ADODG to evaluate the speed, scalabil-
+ity, memory usage, and accuracy of the various adjoint implementation variations (AD
+Jacobian, FD Jacobian, and Jacobian free; see Sec. 4.6) in the two CFD solvers.
+    The first case consists of a low-speed rectangular wing (ADODG Case 3) [181] that
+we use to compare the two CFD solvers and their adjoint implementations. More specifi-
+cally, we compare the performance of adjoint implementations for ADflow, DAFoam, and
+adjointSimpleShapeCheckpointingFoam [22]. The second case consists of the transonic
+CRM wing (ADODG Case 4) [3], which we use to benchmark several variations of the
+adjoint implementation in ADflow and test the parallel efficiency. The third and final
+case is based on the wing-body-tail configuration (ADODG Case 5) [6] with an overset
+mesh, which we use to demonstrate the ability of our ADflow adjoint implementation to
+handle complex geometry configurations. To facilitate future performance comparisons,
+the files required to setup benchmarks are publicly available [39].
+
+5.1    Low-speed rectangular wing
+ADODG Case 3 involves an unswept low-speed rectangular wing with an aspect ratio of
+6.12 and a NACA 0012 airfoil. This case allows us to evaluate the adjoint calculations by
+using ADflow, DAFoam, and full-code AD using the same geometry and flow conditions.
+We use a coarse structured mesh with 102 912 cells, providing an average y + = 1.2 with
+a domain that extends 20 chords from the surface.
+    The simulation is run at Re = 106 and M = 0.15 by using the SA turbulence model.
+The objective function is the drag coefficient, and the target lift coefficient is 0.375. The
+design variables are the sectional twists γ at eight spanwise locations.
+    To evaluate the computational speed, we set the relative residual tolerance to 10−10
+and 10−8 for the flow and adjoint solutions, respectively. For ADflow, the flow and
+adjoint converge in 1011 and 310 iterations, respectively, whereas for DAFoam, the
+flow and adjoint converge in 720 and 143 iterations, respectively. When verifying the
+accuracy of the adjoint derivative, we run the flow until the residuals no longer change
+significantly. The flow residuals for ADflow and DAFoam decrease by 14 and 12 orders
+of magnitude, respectively. We use the same convergence criteria for all other flow and
+
+
+
+                                             29
+adjoint computations in this paper.
+    In this case, we also run the adjoint solver adjointSimpleShapeCheckpointingFoam
+of Towara and Naumann [22] to obtain values for the reference derivatives for DAFoam.
+We use the same problem setup and convergence criteria as described above, except
+that we use the algebraic multigrid solver with diagonal incomplete Cholesky for the
+solution to the pressure equation and the symmetric Gauss–Seidel iteration solver for
+the other linear equations. In addition, to save memory, we switch on the checkpointing
+and use symbolic differentiation for the embedded linear solvers [182, 183]. We apply
+the equidistant checkpointing option with an interval of two time steps, which ensures
+that the memory usage is similar to that of DAFoam (Jacobian free) for a consistent
+comparison of speed.
+    For this case, we run all the simulations on Stampede 2 by using one CPU core on
+one Skylake node. The Skylake nodes are equipped with an Intel Xeon Platinum 8160
+CPU running at 2.1 GHz, and each node has 48 CPU cores and 196 GB of memory.
+The Skylake nodes are interconnected through a 100 GB/s Intel Omni-Path network.
+The reason for using a coarse mesh is that both ADflow and DAFoam can converge the
+flow tightly. This prerequisite is critical when evaluating the accuracy of the adjoint
+derivative. Moreover, running the cases using one CPU core allows us to isolate the
+impact of parallel communication on the performance.
+    To create a platform-independent benchmark, the runtime is reported as TauBench
+work units (TWU ), which is computed as 4
+
+                                                 nT
+                                       TWU =          ,                              (28)
+                                                 Tref
+where T is the wall-clock runtime of a solver in seconds (s), n is the number of CPU
+cores that are used to run the solver, and Tref is the reference wall-clock runtime of the
+Tau solver on the same computing platform. We follow the instructions described in the
+third international workshop on high-order CFD methods guidelines 5 and run the Tau
+code on a Skylake node by using the command: mpirun -np 1 ./TauBench -n 250000
+-s 10. We obtain Tref = 2.972 s for Skylake nodes. In this paper, the memory usage of
+a solver is reported as the peak resident set size in gigabytes (GB).
+    We first compare the flow solutions obtained by ADflow and DAFoam. The pressure
+contours on the wing surface and the pressure distributions at the root, midspan, and
+tip sections are almost identical between the two solvers, as shown in Fig. 7. However,
+we observe that the drag coefficient predicted by DAFoam is 6.8% lower than ADflow.
+We suspect that the difference is primarily due to the coarse mesh, for which the dis-
+cretization error in both solvers is significant.
+    We now compare the speed and memory usage of the flow and adjoint solutions for
+ADflow and DAFoam (Table 2). To help assess the detailed performance, we break
+the adjoint total runtime into a Jacobian assembly and an adjoint equation solution.
+The Jacobian assembly consists of the runtime required to compute all the required
+  4
+      http://www.ipacs-benchmark.org/index.php?s=download&unterseite=taubench
+  5
+      https://www.grc.nasa.gov/hiocfd/guidelines
+
+
+
+
+                                            30
+     Table 2: Performance of flow and adjoint computation for the ADODG3 case. The runtime is reported as TauBench work units
+     (TWU ) whereas, for reference, the wall-clock runtime for the flow simulation (ADflow) is 148.6 s. All the cases are run on a single
+     CPU core. The mesh contains 102 912 cells. For ADflow, Jacobian free is the most efficient approach in terms of both runtime and
+     memory usage. For DAFoam, Jacobian free is the fastest method; however, it requires more memory than FD Jacobian because it
+     uses operator-overloading AD.
+
+      Solvers                                         ADflow                                   DAFoam               adjointSimpleShape-
+                                                                                                                     CheckpointingFoam
+      Adjoint options               Jacobian free       AD Jacobian    FD Jacobian    Jacobian free   FD Jacobian           Full-code AD
+                                (transformation)    (transformation)                  (overloading)                         (overloading)
+
+
+
+
+31
+      Runtime (TWU )
+      Flow                                  50.0                50.0           50.0           39.7           39.7                   165.2
+      Adjoint                               41.1                56.4           45.3          187.4          245.6                   791.4
+           Jacobian assembly                 2.4                19.8            9.3          100.3          193.5                       –
+           Adjoint solution                 38.7                36.6           36.0           87.1           52.1                       –
+      Adjoint-flow ratio                     0.8                 1.2            0.9            4.7            6.2                     4.8
+
+      Peak memory (GB)
+      Flow                                    1.7                1.7            1.7            0.3            0.3                     7.6
+      Adjoint                                 2.1                3.0            3.0           17.2            7.1                    22.1
+      Adjoint-flow ratio                      1.2                1.8            1.8           57.3           23.7                     2.9
+Figure 7: ADflow and DAFoam predict identical pressure distributions; however, the CD
+predicted by DAFoam is 6.8% lower than ADflow.
+
+
+partial derivatives for solving the adjoint equations (12)—[∂R/∂w]T , [∂R/∂w]TP C , and
+[∂f /∂w]T —and for computing the total derivative (13)—∂R/∂x and ∂f /∂x. Note that
+the adjoint solver from Towara and Naumann [22] uses the full-code AD approach, so
+the breakdown is not available.
+    For ADflow, the runtime for the adjoint equation solution using the Jacobian-free
+approach is 6% greater than for the AD Jacobian and FD Jacobian approaches (Ta-
+ble 2). This is expected because Jacobian free performs a reverse-mode AD residual
+computation for each GMRES iteration, which is slightly more expensive than a matrix-
+vector product that uses a stored Jacobian. For the Jacobian-free case, the Jacobian
+assembly time is only the time required for computing the preconditioner and adjoint
+right-hand side and is thus much lower than for AD Jacobian and FD Jacobian. Overall,
+when considering both the assembly time and solution time, the total runtime for the
+Jacobian free is 27% and 9% faster than AD Jacobian and FD Jacobian, respectively.
+Moreover, the memory usage of Jacobian free is 30% lower than that of AD Jacobian
+and FD Jacobian. Therefore, for this simple case, Jacobian free is the best option, with
+an adjoint-flow runtime ratio of 0.8 and an adjoint-flow memory usage ratio of 1.2. Note
+that the runtime benefit shown here skews in favor of the explicitly stored Jacobian as
+the number of functions of interest increases, since the cost of computing and storing the
+exact Jacobian is increasingly amortized as the number of adjoint solutions increases.
+    The DAFoam adjoint total runtime for Jacobian free is 25% faster than FD Jaco-
+bian. Again, this is primarily because Jacobian free does not compute [∂R/∂w]T . In
+
+
+
+                                           32
+terms of memory usage, however, Jacobian free needs 140% more memory than FD
+Jacobian, which is not consistent with what we observed in ADflow where Jacobian
+free used less memory. This result is primarily attributed to the fact that the complex
+object-oriented code structure in OpenFOAM introduces numerous intermediate vari-
+ables into the residual computation routine, which contains tens of levels of subroutines.
+When performing reverse-mode operator-overloading AD computation in Jacobian free,
+all these intermediate variables need to be stored in tapes and thus requires more mem-
+ory than FD Jacobian. One way to reduce the memory usage is to carefully examine all
+relevant subroutines and set the unused variables to “passive” in reverse-mode AD. By
+doing this, we store only variables that are actually used in the residual computation.
+However, we have not done this code optimization in DAFoam.
+    The ADflow adjoint derivative computation is 4.6 times faster than that of DAFoam
+(using Jacobian free). The largest difference is in the cost of the Jacobian assembly:
+2.4 for ADflow versus 100.3 for DAFoam), as shown in the runtime breakdown in Ta-
+ble 2. This is primarily due to the different coloring techniques. As elaborated on in
+Appendix A.2, ADflow uses a local block coloring on a structured mesh, allowing for a
+compact analytic coloring scheme with only 162 colors to compute the preconditioner
+[∂R/∂w]TPC [55]. In contrast, for the unstructured mesh solver DAFoam, we require
+945 colors. Since the runtime of computing [∂R/∂w]TPC is proportional to the number
+of colors, the Jacobian assembling for DAFoam is much slower. We have more colors
+in DAFoam because the SIMPLE algorithm with Rhie–Chow interpolation results in a
+state Jacobian matrix that is much denser than that in ADflow (Fig. 10). Moreover,
+we use a heuristic global coloring scheme, so the number of colors is about three times
+the maximum number of nonzero entries in a row of the Jacobian matrix. However, we
+showed in our previous work [86] that the number of colors in DAFoam does not depend
+on the mesh size and CPU cores when running in parallel, which alleviates the problem.
+    In addition to runtime, DAFoam requires 8.2 times more memory than ADflow. This
+high memory cost is case specific for the DAFoam implementation and has two causes:
+First, OpenFOAM has complex object-oriented code structure and requires large tape
+memory when performing reverse-mode AD, as mentioned above. Second, the residual
+stencil in DAFoam is much larger than that in ADflow (Fig. 10), which eventually in-
+creases the memory cost for reverse AD computation and for storing the preconditioner
+matrix. Despite these disadvantages, the Jacobian free (operator-overloading AD) op-
+tion in DAFoam is 4.2 times faster than the adjointSimpleShapeCheckpointingFoam
+solver, while requiring 22.1% less memory, which confirms the efficiency of the Jacobian-
+free adjoint approach. Note that we test only the full-code AD solver adjointSimple-
+ShapeCheckpointingFoam from Towara and Naumann [22] because it provides machine-
+precision values for derivatives. We have not tested their other adjoint implementations
+(e.g., reverseAccSimpleFoam and piggySimpleFoam), which were shown to perform bet-
+ter [34].
+    In addition to computational time, we also evaluate the accuracy of the derivative
+computations in DAFoam and ADflow in Tables 3 and 4, respectively. The accuracy
+of derivative computations is critical to ensure a robust optimization process because
+inaccurate gradients can cause an optimization to terminate early, which results in sub-
+
+
+
+                                           33
+Table 3: ADflow derivatives (dCD / dγ, ×10−4 ) at eight spanwise locations. The Jacobian-free
+and AD Jacobian approaches match the complex-step reference to 12 significant digits.
+
+  2y/b    Reference            ADflow               ADflow               ADflow
+          (complex step)       (Jacobian free)      (AD Jacobian)        (FD Jacobian)
+  0.00    −4.564 591 147 572   −4.564 591 147 573   −4.564 591 147 573   −4.564 801 684 647
+  0.20    −6.509 297 734 175   −6.509 297 734 172   −6.509 297 734 172   −6.509 597 548 593
+  0.40    −7.056 747 972 049   −7.056 747 972 043   −7.056 747 972 043   −7.057 061 656 265
+  0.60    −7.519 182 294 474   −7.519 182 294 469   −7.519 182 294 469   −7.519 470 654 527
+  0.80    −5.249 850 721 884   −5.249 850 721 882   −5.249 850 721 882   −5.249 998 051 928
+  0.90    −2.774 098 324 145   −2.774 098 324 146   −2.774 098 324 146   −2.774 132 680 066
+  0.95    −1.414 324 615 362   −1.414 324 615 362   −1.414 324 615 362   −1.414 316 189 209
+  1.00    −0.857 741 790 567   −0.857 741 790 567   −0.857 741 790 567   −0.857 698 448 112
+
+
+optimal (optimality not tightly converged) or infeasible (design constraints not strictly
+satisfied) designs. Accurate derivatives are even more crucial when using advanced
+optimization algorithms such as the Broyden–Fletcher–Goldfarb–Shanno algorithm, as
+discussed by Peter and Dwight [8].
+    It is common practice to compare the adjoint derivatives with reference derivatives
+computed from finite differences. However, as mentioned in Sec. 4.2, the finite-difference
+method is subject to subtractive and cancellation errors, which degrades the accuracy
+of reference derivatives. Therefore, for ADflow, we use as reference the derivatives
+computed by the complex-step method. For DAFoam, the reference values are computed
+by using the full-code AD solver adjointSimpleShapeCheckpointingFoam [22].
+    Both the complex-step and the full-code AD methods provide machine-precision-
+level reference derivatives, as shown in Tables 3 and 4. The dCD / dγ values computed
+by using the Jacobian-free and AD Jacobian options match the reference values to 12
+digits for ADflow and to 10 digits for DAFoam. Given that the flow converges by 14 and
+12 orders of magnitude, respectively, the adjoint derivatives have an accuracy that is
+fully consistent with the flow solutions. We achieve machine-precision accurate adjoint
+derivatives because we do not make any approximations (e.g., ignore and simplify terms
+or use the frozen turbulence assumption) in our adjoint formulations. Moreover, we
+use AD to accurately compute all the partial derivatives. Finally, our adjoint code is
+bug-free. In contrast, the FD Jacobian option matches the references to only three to
+four digits and the average error is around 0.1% because of the errors introduced by
+using the finite-difference method to compute the partial derivatives. Although this
+derivative error is still acceptable, our experience is that the exact derivative obtained
+from Jacobian free and AD Jacobian is crucial to ensure robust and tightly converged
+optimizations, as mentioned above.
+
+5.2      Transonic wing
+We now evaluate the performance of the ADflow adjoint for a transonic wing configuration—
+the CRM wing geometry from ADODG Case 4. In previous work, this benchmark was
+
+
+
+                                             34
+Table 4: DAFoam derivatives (dCD / dγ, ×10−4 ) at eight spanwise locations. The Jacobian-
+free approach matches the reference to 10 significant digits.
+
+                 2y/b   Reference          DAFoam               DAFoam
+                        (Full-code AD)     (Jacobian free)      (FD Jacobian)
+                 0.00   −4.882 503 197 6   −4.882 503 197 5     −4.883 286 244 8
+                 0.20   −6.955 486 570 2   −6.955 486 570 1     −6.955 367 327 4
+                 0.40   −7.518 312 658 1   −7.518 312 657 9     −7.519 901 569 7
+                 0.60   −7.984 926 631 0   −7.984 926 630 6     −7.986 436 953 9
+                 0.80   −5.597 739 570 2   −5.597 739 569 7     −5.603 676 158 6
+                 0.90   −2.888 106 152 0   −2.888 106 151 4     −2.887 749 885 4
+                 0.95   −1.365 193 880 0   −1.365 193 879 5     −1.355 452 150 5
+                 1.00   −0.827 241 516 3   −0.827 241 515 5     −0.836 433 805 4
+
+
+the subject of single- and multi-point aerodynamic shape optimization [3, 74]. Here, we
+focus on benchmarking the parallel efficiency of the adjoint derivative computation.
+    The CRM is representative of a modern transonic commercial transport aircraft,
+with a size similar to that of a Boeing 777. The fuselage and tail are removed from
+the original CRM, and the root of the remaining wing is moved to the symmetry plane.
+The nominal flight condition is CL = 0.5. at M = 0.85 and Re = 5 × 106 . The design
+variables are twists at eight spanwise locations. We use the L1 mesh described by Lyu
+et al. [3], which consists of 3 604 480 cells. We run the computation on 48 CPU cores
+with two Skylake nodes on Stampede 2.
+    Figure 8 shows the surface sensitivity and Cp distributions at three spanwise sections.
+As shown in the sectional Cp distributions, a shock is present on the upper surface of
+the wing. Similarly to what Lyu et al. [3] observed, this shock causes a large negative-
+sensitivity region near the middle chord of the upper surface. In addition, we observe a
+region with large sensitivity near the leading edge, especially at the root.
+    Similarly to the subsonic wing case, Jacobian free is the fastest method and requires
+the least memory, as shown in Table 5. To be more specific, Jacobian free is 19.5% and
+4.9% faster than AD Jacobian and FD Jacobian, respectively, and its memory usage
+is 37% lower. In addition, the derivatives computed by using Jacobian free and AD
+Jacobian match the complex-step reference values to 11 significant figures, as shown in
+Table 6. Given that the flow converges 13 orders of magnitude, we conclude that the
+Jacobian-free adjoint accuracy is fully consistent with the flow solutions.
+    Table 7 shows the flow and adjoint runtime in TauBench work units for an increasing
+number of CPU cores. The values in parentheses are the parallel efficiency, defined as
+       24    n
+η = TWU    /TWU , where the superscript is the number of CPU cores. Note that Skylake
+processors have many more cores compared with traditional CPU processors: as a trade-
+off, the Skylake processors run at a relatively low frequency (2.1 GHz). Therefore, when
+evaluating the performance for the Skylake nodes, it is more appropriate to compare
+node-to-node as opposed to core-to-core performance. Both the flow and adjoint scale
+up to 768 CPU cores. The parallel efficiency for the adjoint is larger than 90% if each
+
+
+
+
+                                              35
+Figure 8: Surface sensitivity (dCD / dz) and pressure profiles for CRM under transonic flow
+conditions.
+
+
+
+
+                                            36
+Table 5: ADflow performance for the CRM wing case. The runtime is reported as TauBench
+work units TWU whereas, for reference, the wall-clock runtime for the flow simulation is 375.47 s.
+All the cases are run on 48 CPU cores on two nodes. The mesh contains 3 604 480 cells. The
+Jacobian-free option is the best.
+
+          ADflow                             Jacobian free      AD Jacobian    FD Jacobian
+          Runtime (TWU )
+          Flow                                         6064.1         6064.1          6064.1
+          Adjoint                                      4781.3         5719.1          5014.9
+               Jacobian assembly                        110.4         1176.0           446.4
+               Adjoint equation solution               4670.9         4543.1          4568.5
+          Adjoint-flow ratio                              0.8            0.9             0.8
+
+          Peak memory (GB)
+          Flow                                           44.6           44.6            44.6
+          Adjoint                                        87.2          119.5           119.5
+          Adjoint-flow ratio                              2.0            2.7             2.7
+
+
+Table 6: ADflow derivatives (dCD / dγ, ×10−3 ) for the CRM wing case. The Jacobian-free
+and AD Jacobian match the complex-step reference to 11 significant digits.
+
+          2y/b     Reference          ADflow              ADflow             ADflow
+                   (complex step)     (Jacobian free)     (AD Jacobian)      (FD Jacobian)
+          0.000    1.467 830 420 22   1.467 830 420 24    1.467 830 420 24   1.467 913 755 59
+          0.149    1.827 776 113 24   1.827 776 113 27    1.827 776 113 27   1.828 063 048 53
+          0.296    1.539 421 192 63   1.539 421 192 65    1.539 421 192 65   1.539 699 968 60
+          0.437    1.199 899 961 45   1.199 899 961 48    1.199 899 961 48   1.200 078 068 00
+          0.579    0.719 895 630 07   0.719 895 630 08    0.719 895 630 08   0.719 919 787 75
+          0.721    0.404 497 687 88   0.404 497 687 89    0.404 497 687 89   0.404 401 010 12
+          0.861    0.240 308 245 18   0.240 308 245 20    0.240 308 245 20   0.240 184 238 91
+          1.000    0.093 333 672 78   0.093 333 672 79    0.093 333 672 79   0.093 296 748 82
+
+
+Table 7: Flow and adjoint runtime using 24 CPU cores per node in TauBench work units.
+                                                                                24 /T n , where
+The values in parentheses are the parallel efficiency, which is defined as η = TWU   WU
+the superscript is the number of CPU cores.
+
+ Nodes     Cores                  Flow        Jacobian free          AD Jacobian          FD Jacobian
+      1       24      5628.3 (100.0%)      4525.0 (100.0%)       5455.6 (100.0%)      4765.9 (100.0%)
+      2       48      6064.1 (92.8%)       4781.3 (94.6%)        5719.1 (95.4%)       5014.9 (95.0%)
+      4       96      7166.4 (78.5%)       6828.0 (66.3%)        7885.9 (69.2%)       6998.3 (68.1%)
+      8      192     10 237.7 (55.0%)     10 147.6 (44.6%)      10 712.9 (50.9%)     10 012.9 (47.6%)
+     16      384     11 581.0 (48.6%)      9208.2 (49.1%)       10 006.1 (54.5%)      9407.2 (50.7%)
+     32      768     14 180.6 (39.7%)     12 334.0 (36.7%)      13 168.2 (41.4%)     12 574.1 (37.9%)
+
+
+
+
+                                                  37
+processor owns no less than 75 000 cells. Note that we use only 24 CPU cores per node
+in Table 7. Alternatively, we can use the maximum 48 CPU cores per node. We observe
+that the use of more CPU cores per node generally decreases the wall-clock runtime;
+however, it also decreases the parallel efficiency. For example, when using 1536 CPU
+cores with 32 nodes, the adjoint parallel efficiency for Jacobian free is 30.1%, which is
+less than the efficiency (36.7%; see Table 7) when using the same number of nodes. This
+behavior is due to limitations in the memory bandwidth on the nodes, which causes the
+computations to be limited by memory rather than by CPU speed.
+
+5.3    Wing-body-tail configuration
+The final case we solve is the wing-body-tail configuration from ADODG Case 5, which
+we have used extensively in previous work for both aerodynamic shape optimization [6,
+165] and aerostructural optimization [108, 184–186]. Here, we use this case to demon-
+strate the ability of the ADflow adjoint to handle complex geometric configurations.
+    The ADODG Case 5 uses the same CRM wing geometry from Case 4 but includes
+the fuselage and horizontal tail of the original CRM, which is also known as the Drag
+Prediction Workshop 4 geometry [187]. The flow conditions are the same as for Case 4
+except that the Reynolds number is Re = 4.3 × 107 to match a realistic flight condi-
+tion and scale, as opposed to the wind tunnel testing model of Case 4. We generate
+multiblock structured overset meshes for each component, resulting in a mesh with a
+total of 10 358 373 cells. The other problem settings are similar to those of the CRM
+wing-only case with the exception that we now compute sensitivities with respect to the
+wing twists at nine spanwise locations. We run the computation using 96 CPU cores
+and four Skylake nodes on Stampede 2.
+
+Table 8: ADflow performance for the CRM wing-body-tail configuration. The runtime is
+reported as TauBench work units TWU whereas, for reference, the wall-clock runtime for the
+flow simulation is 1046.14 s. The case is run on 96 CPU cores on four nodes. The mesh
+contains 10 358 373 cells. Adjoint computation is faster than flow.
+
+                          ADflow                   Jacobian free
+                          Runtime (TWU )
+                          Flow                          33 792.0
+                          Adjoint                       23 577.6
+                               Jacobian assembly           460.8
+                               Adjoint solution         23 116.8
+                          Adjoint-flow ratio                 0.7
+
+                          Peak memory (GB)
+                          Flow                            123.7
+                          Adjoint                         252.9
+                          Adjoint-flow ratio                2.0
+
+   Figure 9 shows the surface sensitivity and pressure distribution. Similarly to what
+
+
+
+                                           38
+Figure 9: Surface sensitivity (dCD / dz) and pressure profiles for the CRM wing-body-tail
+configuration with overset mesh.
+
+
+
+
+                                           39
+we observed in the CRM wing-only case, a shock wave appears on the upper surface
+of the wing, resulting in high local sensitivity of the drag coefficient with respect to
+shape change. However, this high sensitivity becomes weaker near the root, owing to
+the interaction between wing and fuselage. Table 8 lists the computational cost and
+memory usage for this case, where we run only Jacobian free. Again, the adjoint solution
+is faster than the flow solution, with an adjoint-flow runtime ratio of 0.7. In terms of the
+accuracy, the adjoint matches the complex-step reference values to six digits, as shown
+in Table 9. This good agreement highlights the effectiveness of Jacobian free in handling
+complex geometries and mesh topologies.
+
+Table 9: ADflow derivatives (dCD / dγ, ×10−3 ) for the CRM wing-body-tail configuration.
+The adjoint derivative matches the complex-step reference to six significant digits.
+
+                            2y/b      Reference         ADflow
+                                   (complex step)   (Jacobian free)
+                           0.000    1.285 351 33      1.285 350 96
+                           0.125    1.447 412 06      1.447 411 92
+                           0.250    1.263 087 08      1.263 086 79
+                           0.375    1.031 381 90      1.031 381 70
+                           0.500    0.677 939 91      0.677 939 77
+                           0.625    0.486 188 41      0.486 188 36
+                           0.750    0.305 559 03      0.305 559 06
+                           0.875    0.195 216 84      0.195 216 85
+                           1.000    0.079 003 40      0.079 003 39
+
+
+
+
+6     Conclusions
+In this paper, we discuss and compare various approaches for implementing a discrete
+adjoint solver. Specifically, we compare three options for implementing a discrete adjoint
+based on an exact solution of the linear system; namely, Jacobian free (Jacobian-free
+adjoint solved by using GMRES with transpose matrix-vector products computed by
+using reverse-mode AD), AD Jacobian (explicit Jacobian computation using the forward-
+mode AD), and FD Jacobian (explicit Jacobian computation using finite differences).
+We implement these three options for two different flow solvers—a compressible flow
+Newton–Krylov solver for overset structured meshes (ADflow) and an incompressible
+solver that uses the SIMPLE algorithm for unstructured meshes (DAFoam). We then
+compare the adjoint implementations by using three ADODG benchmark cases covering
+a wide range of flight conditions and configurations. These include Reynolds number
+ranging from 1 to 43 million, incompressible and transonic flow conditions, as well as
+multiblock and overset structured meshes with up to 10 million cells. The simulations
+comprise both serial and parallel runs with up to 1536 CPU cores.
+    We evaluate the performance of Jacobian free, AD Jacobian, and FD Jacobian by
+comparing their speed, scalability, memory usage, accuracy, development effort, and
+
+
+
+                                              40
+extensibility. The conclusions of this study are summarized in Table 10. We do not
+have scalability data for the Jacobian-free (operator overloading) and the full-code AD
+(operator overloading) options because we run the adjoint computation only in serial in
+the ADODG Case 3 (Sec. 5.1).
+    Overall, the Jacobian-free approach with source code transformation AD is the best
+option. More specifically, the Jacobian-free approach is up to 27% and 9% faster than the
+AD Jacobian and FD Jacobian approaches, respectively. Moreover, Jacobian free uses
+up to 30% less memory than AD Jacobian and FD Jacobian. This is primarily because
+Jacobian free computes matrix-vector products for the GMRES solver by using reverse-
+mode AD in a Jacobian-free manner. This strategy effectively avoids computing and
+storing the state Jacobian matrix and therefore results in superior speed and memory
+performance. Another advantage of the Jacobian-free approach is that we do not need
+to compute the connectivity information and sparsity structure of the Jacobian matrix.
+As a result, Jacobian free is easier to extend to complex mesh topologies, such as those
+that show up in overset meshes. These advantages enable parallel computation with
+up to 10 million cells and 1536 CPU cores. Partial derivative computation using AD
+allows the Jacobian-free approach to compute accurate derivatives with up to machine
+precision. In contrast, the FD Jacobian has an average error of O(0.1)%.
+    In terms of AD tools, source code transformation AD is preferred because it is faster
+and requires less memory compared with operator-overloading AD. The Jacobian-free
+implementation using source code transformation is 4.6 times faster and requires 8.2
+times less memory than the operator-overloading version. Furthermore, Jacobian free
+using source code transformation is 19.3 times faster and 10.5 times less memory intensive
+than the adjoint solver that uses operator overloading to differentiate the entire code.
+    In addition to the fact that source code transformation is naturally faster than opera-
+tor overloading, two solver-specific factors impact the performance comparison between
+ADflow and DAFoam with the Jacobian-free option: First, ADflow uses structured
+meshes, which enables an analytical coloring scheme with only 162 colors for the precon-
+ditioner matrix. In contrast, DAFoam uses unstructured meshes and a heuristic coloring
+scheme with 945 colors, which results in an almost fivefold increase in computational cost
+for computing the preconditioner. Moreover, DAFoam uses a complex object-oriented
+code structure such that a single residual call could involve tens of subroutine levels
+and numerous intermediate variables. The residual stencil for the SIMPLE solver with
+Rhie–Chow interpolation is also much denser than that in ADflow. These two factors
+result in a large tape size and higher memory cost when performing reverse-mode AD.
+    The drawback of the source code transformation implementation is that it requires
+a higher development effort than operator overloading. Instead of directly applying
+operator overloading to every function, source code transformation requires manual con-
+struction of the routines to differentiate the residual and objective computation. To
+ensure optimal performance, these differentiated routines require careful implementa-
+tion. However, once these routines are constructed by using source code transformation,
+extending the implementation to include new terms and objectives is straightforward.
+    The cases solved in this work are available as platform-independent benchmarks
+for comparing existing and future adjoint CFD solvers, and the ADflow solver is also
+
+
+
+                                            41
+     Table 10: Performance summary for discrete adjoint options implemented in ADflow, DAFoam, and adjointSimpleShapeCheckpoint-
+     ingFoam. Jacobian free with source code transformation is the best. Key:   poor,   acceptable,     good,   excellent.
+
+                                      Speed         Scalability   Memory        Accuracy       Effort           Extensibility
+                  Jacobian free
+                  (transformation)
+                  Jacobian free                     N/A
+
+
+
+
+42
+                                        ↓ 460%                      ↑ 820%
+                  (overloading)
+                  AD Jacobian           ↓ 27%                       ↑ 30%
+                  (transformation)
+                  FD Jacobian           ↓ 9%                        ↑ 30%         ↓ O(0.1)%
+                  Full-code AD          ↓ 1930%     N/A             ↑ 1050%
+                  (overloading)
+available under an open-source license. The techniques presented herein provide a guide
+for future discrete adjoint development, not only for CFD but also for a wide range of
+other PDE solvers.
+
+
+Acknowledgments
+The computations were done in the Extreme Science and Engineering Discovery Envi-
+ronment (XSEDE), which is supported by National Science Foundation Grant number
+ACI-1548562. The authors would also like to thank Markus Towara for sharing their
+adjoint code and Richard Dwight, Nicolas Gauger, Mike Giles, Jason Hicken, Dimitri
+Mavriplis, Jens-Dominik Müller, Jacques Peter, and Markus Towara for their sugges-
+tions.
+
+
+References
+  [1] Yu, Y., Lyu, Z., Xu, Z., and Martins, J. R. R. A., “On the Influence of Op-
+      timization Algorithm and Starting Design on Wing Aerodynamic Shape Op-
+      timization,” Aerospace Science and Technology, Vol. 75, 2018, pp. 183–199.
+      doi:10.1016/j.ast.2018.01.016.
+  [2] Lyu, Z., Xu, Z., and Martins, J. R. R. A., “Benchmarking Optimization Algorithms
+      for Wing Aerodynamic Design Optimization,” Proceedings of the 8th International
+      Conference on Computational Fluid Dynamics, Chengdu, Sichuan, China, 2014.
+      ICCFD8-2014-0203.
+  [3] Lyu, Z., Kenway, G. K. W., and Martins, J. R. R. A., “Aerodynamic Shape
+      Optimization Investigations of the Common Research Model Wing Benchmark,”
+      AIAA Journal, Vol. 53, No. 4, 2015, pp. 968–985. doi:10.2514/1.J053318.
+  [4] Carrier, G., Destarac, D., Dumont, A., Méheut, M., Din, I. S. E., Peter, J.,
+      Khelil, S. B., Brezillon, J., and Pestana, M., “Gradient-Based Aerodynamic
+      Optimization with the elsA Software,” 52nd Aerospace Sciences Meeting, 2014.
+      doi:10.2514/6.2014-0568, aIAA 2014-0568.
+  [5] LeDoux, S. T., Vassberg, J. C., Young, D. P., Fugal, S., Kamenetskiy, D., Huffman,
+      W. P., Melvin, R. G., and Smith, M. F., “Study Based on the AIAA Aerodynamic
+      Design Optimization Discussion Group Test Cases,” AIAA Journal, Vol. 53, 2015,
+      pp. 1910–1935. doi:10.2514/1.j053535.
+  [6] Chen, S., Lyu, Z., Kenway, G. K. W., and Martins, J. R. R. A., “Aero-
+      dynamic Shape Optimization of the Common Research Model Wing-Body-
+      Tail Configuration,” Journal of Aircraft, Vol. 53, No. 1, 2016, pp. 276–293.
+      doi:10.2514/1.C033328.
+  [7] Giles, M. B., and Pierce, N. A., “An Introduction to the Adjoint Approach to
+      Design,” Flow, Turbulence and Combustion, Vol. 65, 2000, pp. 393–415.
+
+
+
+                                          43
+ [8] Peter, J. E. V., and Dwight, R. P., “Numerical Sensitivity Analysis for Aerody-
+     namic Optimization: A Survey of Approaches,” Computers and Fluids, Vol. 39,
+     No. 3, 2010, pp. 373–391. doi:10.1016/j.compfluid.2009.09.013.
+
+ [9] Elliott, J., and Peraire, J., “Practical three-dimensional aerodynamic design and
+     optimization using unstructured meshes,” AIAA Journal, Vol. 35, No. 9, 1997, pp.
+     1479–1485.
+
+[10] Nielsen, E. J., and Anderson, W. K., “Aerodynamic Design Optimization on Un-
+     structured Meshes Using the Navier–Stokes Equations,” AIAA Journal, Vol. 37,
+     No. 11, 1999, pp. 1411–1419.
+
+[11] Kim, H.-J., Sasaki, D., Obayashi, S., and Nakahashi, K., “Aerodynamic opti-
+     mization of supersonic transport wing using unstructured adjoint method,” AIAA
+     Journal, Vol. 39, No. 6, 2001, pp. 1011–1020.
+
+[12] Nemec, M., Aftosmis, M., Murman, S., and Pulliam, T., “Adjoint formulation
+     for an embedded-boundary Cartesian method,” 43rd AIAA Aerospace Sciences
+     Meeting and Exhibit, 2005, p. 877.
+
+[13] Mavriplis, D. J., “Multigrid solution of the discrete adjoint for optimization prob-
+     lems on unstructured meshes,” AIAA Journal, Vol. 44, No. 1, 2006, pp. 42–50.
+
+[14] Peter, J., “Discrete adjoint method in elsA (part I): method/theory,” 7th ONERA-
+     DLR Aerospace Symposium, 2006.
+
+[15] Dwight, R. P., and Brezillon, J., “Effect of Approximations of the Discrete Adjoint
+     on Gradient-Based Optimization,” AIAA Journal, Vol. 44, No. 12, 2006, pp. 3022–
+     3031.
+
+[16] Hicken, J. E., and Zingg, D. W., “Aerodynamic Optimization Algorithm with Inte-
+     grated Geometry Parameterization and Mesh Movement,” AIAA Journal, Vol. 48,
+     No. 2, 2010, pp. 400–413. doi:10.2514/1.44033.
+
+[17] Griewank, A., Evaluating Derivatives, SIAM, Philadelphia, 2000.
+
+[18] Martins, J. R. R. A., and Hwang, J. T., “Review and Unification of Methods
+     for Computing Derivatives of Multidisciplinary Computational Models,” AIAA
+     Journal, Vol. 51, No. 11, 2013, pp. 2582–2599. doi:10.2514/1.J052184.
+
+[19] Mohammadi, B., “A new optimal shape design procedure for inviscid and viscous
+     turbulent flows,” International Journal for Numerical Methods in Fluids, Vol. 25,
+     No. 2, 1997, pp. 183–203.
+
+[20] Fagan, M., and Carle, A., “Reducing reverse-mode memory requirements by us-
+     ing profile-driven checkpointing,” Future Generation Computer Systems, Vol. 21,
+     No. 8, 2005, pp. 1380–1390.
+
+
+
+
+                                          44
+[21] Schlenkrich, S., Walther, A., Gauger, N. R., and Heinrich, R., “Differentiating
+     fixed point iterations with ADOL-C: Gradient calculation for fluid dynamics,”
+     Modeling, Simulation and Optimization of Complex Processes, Springer, 2008, pp.
+     499–508.
+
+[22] Towara, M., and Naumann, U., “A discrete adjoint model for OpenFOAM,” Pro-
+     cedia Computer Science, Vol. 18, 2013, pp. 429–438.
+
+[23] Christianson, B., “Reverse accumulation and attractive fixed points,” Optimiza-
+     tion Methods and Software, Vol. 3, No. 4, 1994, pp. 311–326.
+
+[24] Griewank, A., and Faure, C., “Piggyback differentiation and optimization,” Large-
+     scale PDE-constrained optimization, Springer, 2003, pp. 148–164.
+
+[25] Giles, M. B., Duta, M. C., Müller, J.-D., and Pierce, N. A., “Algorithm Devel-
+     opments for Discrete Adjoint Methods,” AIAA Journal, Vol. 41, No. 2, 2003, pp.
+     198–205.
+
+[26] Xu, S., Radford, D., Meyer, M., and Müller, J.-D., “Stabilisation of discrete steady
+     adjoint solvers,” Journal of Computational Physics, Vol. 299, 2015, pp. 175–195.
+     doi:10.1016/j.jcp.2015.06.036.
+
+[27] Müller, J.-D., Mykhaskiv, O., and Hückelheim, J., “STAMPS: a Finite-
+     Volume Solver Framework for Adjoint Codes Derived with Source-Transformation
+     AD,” 2018 Multidisciplinary Analysis and Optimization Conference, 2018.
+     doi:10.2514/6.2018-2928.
+
+[28] Albring, T. A., Sagebaum, M., and Gauger, N. R., “Efficient aerodynamic design
+     using the discrete adjoint method in SU2,” 17th AIAA/ISSMO multidisciplinary
+     analysis and optimization conference, 2016, p. 3518.
+
+[29] Economon, T. D., Palacios, F., Copeland, S. R., Lukaczyk, T. W., and Alonso,
+     J. J., “SU2: An Open-Source Suite for Multiphysics Simulation and Design,”
+     AIAA Journal, Vol. 54, No. 3, 2016, pp. 828–846. doi:10.2514/1.j053813.
+
+[30] Mader, C. A., Martins, J. R. R. A., Alonso, J. J., and van der Weide, E., “AD-
+     joint: An Approach for the Rapid Development of Discrete Adjoint Solvers,” AIAA
+     Journal, Vol. 46, No. 4, 2008, pp. 863–873. doi:10.2514/1.29123.
+
+[31] Martins, J. R. R. A., Sturdza, P., and Alonso, J. J., “The Complex-Step Derivative
+     Approximation,” ACM Transactions on Mathematical Software, Vol. 29, No. 3,
+     2003, pp. 245–262. doi:10.1145/838250.838251.
+
+[32] Gao, Y., Wu, Y., and Xia, J., “Automatic differentiation based discrete adjoint
+     method for aerodynamic design optimization on unstructured meshes,” Chinese
+     Journal of Aeronautics, Vol. 30, No. 2, 2017, pp. 611–627.
+
+
+
+
+                                           45
+[33] Dilgen, C. B., Dilgen, S. B., Fuhrman, D. R., Sigmund, O., and Lazarov, B. S.,
+     “Topology optimization of turbulent flows,” Computer Methods in Applied Me-
+     chanics and Engineering, Vol. 331, 2018, pp. 363–393.
+
+[34] Towara, M., “Discrete Adjoint Optimization with OpenFOAM,” Ph.D. thesis,
+     RWTH Aachen University, 2018.
+
+[35] Nemec, M., and Zingg, D. W., “Newton–Krylov Algorithm for Aerodynamic De-
+     sign Using the Navier–Stokes Equations,” AIAA Journal, Vol. 40, No. 6, 2002, pp.
+     1146–1154.
+
+[36] Dwight, R. P., and Brezillon, J., “Efficient and robust algorithms for solution
+     of the adjoint compressible Navier–Stokes equations with applications,” Inter-
+     national Journal for Numerical Methods in Fluids, Vol. 60, 2009, pp. 365–389.
+     doi:10.1002/fld.1894.
+
+[37] Nielsen, E. J., and Kleb, W. L., “Efficient Construction of Discrete Adjoint Oper-
+     ators on Unstructured Grids Using Complex Variables,” AIAA Journal, Vol. 44,
+     No. 4, 2006, pp. 827–836. doi:10.2514/1.15830.
+
+[38] Mavriplis, D. J., “Discrete Adjoint-Based Approach for Optimization Problems on
+     Three-Dimensional Unstructured Meshes,” AIAA Journal, Vol. 45, No. 4, 2007,
+     pp. 741–750. doi:10.2514/1.22743.
+
+[39] Kenway, G. K. W., Mader, C. A., He, P., and Martins, J. R. R. A., CFD discrete
+     adjoint benchmarks, Mendeley Data, 2019. doi:10.17632/w4hsj8wzm8.
+
+[40] Bryson, A. E., and Ho, Y. C., Applied Optimal Control; Optimization, Estimation,
+     and Control, Blaisdell Publishing, 1969.
+
+[41] Lions, J. L., Optimal Control of Systems Governed by Partial Differential Equa-
+     tions, Springer–Verlag, New York, 1971.
+
+[42] Haug, E. J., and Arora, J. S., “Optimal Mechanical Design Techniques Based
+     on Optimal Control Methods,” Proceedings of the 1st ASME Design Technology
+     Transfer Conference, New York, NY, 1974, pp. 65–74.
+
+[43] Arora, J. S., and Haug, E. J., “Efficient Optimal Design of Structures by General-
+     ized Steepest Descent Programming,” International Journal for Numerical Meth-
+     ods in Engineering, Vol. 10, 1976, pp. 747–766.
+
+[44] Pironneau, O., “On Optimum Profiles in Stokes Flow,” Journal of Fluid Mechan-
+     ics, Vol. 59, No. 01, 1973, pp. 117–128. doi:10.1017/S002211207300145X.
+
+[45] Jameson, A., “Aerodynamic Design via Control Theory,” Journal of Scientific
+     Computing, Vol. 3, No. 3, 1988, pp. 233–260.
+
+
+
+
+                                         46
+[46] Jameson, A., Martinelli, L., and Pierce, N. A., “Optimum Aerodynamic Design
+     Using the Navier–Stokes Equations,” Theoretical and Computational Fluid Dy-
+     namics, Vol. 10, No. 1–4, 1998, pp. 213–237. doi:10.1007/s001620050060.
+
+[47] Jameson, A., “A perspective on computational algorithms for aerodynamic analy-
+     sis and design,” Progress in Aerospace Sciences, Vol. 37, No. 2, 2001, pp. 197–243.
+     doi:10.1016/S0376-0421(01)00004-5.
+
+[48] Jameson, A., “Aerodynamic shape optimization using the adjoint method,” Lec-
+     ture series, Von Karman Institute for Fluid Dynamics, Rode Saint Genèse, Bel-
+     gium, 2003.
+
+[49] Tekitek, M. M., Bouzidi, M., Dubois, F., and Lallemand, P., “Adjoint lattice
+     Boltzmann equation for parameter identification,” Computers & fluids, Vol. 35,
+     No. 8-9, 2006, pp. 805–813.
+
+[50] Yaji, K., Yamada, T., Yoshino, M., Matsumoto, T., Izui, K., and Nishiwaki, S.,
+     “Topology optimization in thermal-fluid flow using the lattice Boltzmann method,”
+     Journal of Computational Physics, Vol. 307, 2016, pp. 355–377.
+
+[51] Li, J., Cai, J., and Qu, K., “Adjoint-Based Two-Step Optimization Method Using
+     Proper Orthogonal Decomposition and Domain Decomposition,” AIAA Journal,
+     Vol. 56, No. 3, 2018, pp. 1133–1145. doi:10.2514/1.j055773, URL https://doi.
+     org/10.2514/1.j055773.
+
+[52] Cheylan, I., Fritz, G., Rico, D., and Sagaut, P., “Shape Optimization Using the
+     Adjoint Lattice Boltzmann Method for Aerodynamic Applications,” AIAA Jour-
+     nal, 2019. In press.
+
+[53] Anderson, W. K., and Bonhaus, D. L., “Aerodynamic Design on Unstructured
+     Grids for Turbulent,” NASA TM-112867, NASA Langley Research Center, Hamp-
+     ton, Virginia 23681-0001, Jun. 1997.
+
+[54] Nielsen, E. J., and Diskin, B., “Discrete Adjoint-Based Design for Unsteady Tur-
+     bulent Flows on Dynamic Overset Unstructured Grids,” AIAA Journal, Vol. 51,
+     No. 6, 2013, pp. 1355–1373. doi:10.2514/1.J051859.
+
+[55] Lyu, Z., Kenway, G. K., Paige, C., and Martins, J. R. R. A., “Automatic Dif-
+     ferentiation Adjoint of the Reynolds-Averaged Navier–Stokes Equations with a
+     Turbulence Model,” 21st AIAA Computational Fluid Dynamics Conference, San
+     Diego, CA, 2013. doi:10.2514/6.2013-2581.
+
+[56] Kavvadias, I., Papoutsis-Kiachagias, E., Dimitrakopoulos, G., and Giannakoglou,
+     K., “The continuous adjoint approach to the k − ω SST turbulence model with
+     applications in shape optimization,” Engineering Optimization, Vol. 47, No. 11,
+     2015, pp. 1523–1542.
+
+
+
+
+                                          47
+[57] He, P., Mader, C. A., Martins, J. R. R. A., and Maki, K. J., “An object-oriented
+     framework for rapid discrete adjoint development using OpenFOAM,” AIAA Sci-
+     ence and Technology Forum and Exposition, 2019. doi:10.2514/6.2019-1210.
+
+[58] Driver, J., and Zingg, D. W., “Numerical Aerodynamic Optimization Incorpo-
+     rating Laminar-Turbulent Transition Prediction,” AIAA Journal, Vol. 45, No. 8,
+     2007, pp. 1810–1818. doi:10.2514/1.23569.
+
+[59] Yang, Z., and Mavriplis, D. J., “Discrete Adjoint Formulation for Turbulent Flow
+     Problems with Transition Modelling on Unstructured Meshes,” AIAA SciTech
+     Forum, San Diego, CA, 2019. doi:10.2514/6.2019-0294.
+
+[60] Thomas, J. P., Hall, K. C., and Dowell, E. H., “Discrete adjoint approach for mod-
+     eling unsteady aerodynamic design sensitivities,” AIAA Journal, Vol. 43, No. 9,
+     2005, p. 1931. doi:10.2514/1.731.
+
+[61] Mader, C. A., and Martins, J. R. R. A., “Derivatives for Time-Spectral Com-
+     putational Fluid Dynamics Using an Automatic Differentiation Adjoint,” AIAA
+     Journal, Vol. 50, No. 12, 2012, pp. 2809–2819. doi:10.2514/1.J051658.
+
+[62] Ma, C., Su, X., and Yuan, X., “An efficient unsteady adjoint optimization system
+     for multistage turbomachinery,” Journal of Turbomachinery, Vol. 139, No. 1, 2017,
+     p. 011003.
+
+[63] Rubino, A., Pini, M., Colonna, P., Albring, T., Nimmagadda, S., Economon,
+     T., and Alonso, J., “Adjoint-based fluid dynamic design optimization in quasi-
+     periodic unsteady flow problems using a harmonic balance method,” Journal of
+     Computational Physics, 2018.
+
+[64] He, S., Jonsson, E., Mader, C. A., and Martins, J. R. R. A., “Aerodynamic Shape
+     Optimization with Time Spectral Flutter Adjoint,” 2019 AIAA/ASCE/AHS/ASC
+     Structures, Structural Dynamics, and Materials Conference, American Institute of
+     Aeronautics and Astronautics, San Diego, CA, 2019. doi:10.2514/6.2019-0697.
+
+[65] Mader, C. A., and Martins, J. R. R. A., “Computation of Aircraft Stability
+     Derivatives Using an Automatic Differentiation Adjoint Approach,” AIAA Jour-
+     nal, Vol. 49, No. 12, 2011, pp. 2737–2750. doi:10.2514/1.J051147.
+
+[66] Mader, C. A., and Martins, J. R. R. A., “Stability-Constrained Aerodynamic
+     Shape Optimization of Flying Wings,” Journal of Aircraft, Vol. 50, No. 5, 2013,
+     pp. 1431–1449. doi:10.2514/1.C031956.
+
+[67] Luchini, P., and Bottaro, A., “Adjoint equations in stability analysis,” Annual
+     Review of fluid mechanics, Vol. 46, 2014.
+
+[68] Reuther, J., Jameson, A., Farmer, J., Martinelli, L., and Saunders, D., “Aero-
+     dynamic Shape Optimization of Complex Aircraft Configurations via an Adjoint
+
+
+
+                                         48
+    Formulation,” Proceedings of the 34th AIAA Aerospace Sciences Meeting and Ex-
+    hibit, Reno, Nevada, 1996. AIAA 1996-0094.
+
+[69] Drela, M., Frontiers of Computational Fluid Dynamics, World Scien-
+     tific, 1998, Chap. Pros and Cons of Airfoil Optimization, pp. 363–381.
+     doi:10.1142/9789812815774 0019.
+
+[70] Reuther, J. J., Jameson, A., Alonso, J. J., Rimlinger, M. J., and Saunders, D.,
+     “Constrained Multipoint Aerodynamic Shape Optimization Using an Adjoint For-
+     mulation and Parallel Computers, Part 1,” Journal of Aircraft, Vol. 36, No. 1,
+     1999, pp. 51–60.
+
+[71] Reuther, J. J., Jameson, A., Alonso, J. J., Rimlinger, M. J., and Saunders, D.,
+     “Constrained Multipoint Aerodynamic Shape Optimization Using an Adjoint For-
+     mulation and Parallel Computers, Part 2,” Journal of Aircraft, Vol. 36, No. 1,
+     1999, pp. 61–74.
+
+[72] Cliff, S. E., Reuther, J. J., Saunders, D. A., and Hicks, R. M., “Single-Point
+     and Multipoint Aerodynamic Shape Optimization of High-Speed Civil Transport,”
+     Journal of Aircraft, Vol. 38, No. 6, 2001, pp. 997–1005.
+
+[73] Nemec, M., Zingg, D. W., and Pulliam, T. H., “Multipoint and Multi-Objective
+     Aerodynamic Shape Optimization,” AIAA Journal, Vol. 42, No. 6, 2004, pp. 1057–
+     1065.
+
+[74] Kenway, G. K. W., and Martins, J. R. R. A., “Multipoint Aerodynamic Shape Op-
+     timization Investigations of the Common Research Model Wing,” AIAA Journal,
+     Vol. 54, No. 1, 2016, pp. 113–128. doi:10.2514/1.J054154.
+
+[75] Liem, R. P., Martins, J. R. R. A., and Kenway, G. K., “Expected Drag
+     Minimization for Aerodynamic Design Optimization Based on Aircraft Opera-
+     tional Data,” Aerospace Science and Technology, Vol. 63, 2017, pp. 344–362.
+     doi:10.1016/j.ast.2017.01.006.
+
+[76] Lyu, Z., and Martins, J. R. R. A., “Aerodynamic Design Optimization Studies
+     of a Blended-Wing-Body Aircraft,” Journal of Aircraft, Vol. 51, No. 5, 2014, pp.
+     1604–1617. doi:10.2514/1.C032491.
+
+[77] Secco, N. R., and Martins, J. R. R. A., “RANS-based Aerodynamic Shape Op-
+     timization of a Strut-braced Wing with Overset Meshes,” Journal of Aircraft,
+     Vol. 56, No. 1, 2019, pp. 217–227. doi:10.2514/1.C034934.
+
+[78] Dhert, T., Ashuri, T., and Martins, J. R. R. A., “Aerodynamic Shape Optimiza-
+     tion of Wind Turbine Blades Using a Reynolds-Averaged Navier–Stokes Model
+     and an Adjoint Method,” Wind Energy, Vol. 20, No. 5, 2017, pp. 909–926.
+     doi:10.1002/we.2070.
+
+
+
+
+                                        49
+[79] Madsen, M. H. A., Zahle, F., Sørensen, N. N., and Martins, J. R. R. A., “Multi-
+     point high-fidelity CFD-based aerodynamic shape optimization of a 10 MW wind
+     turbine,” Wind Energy Science, Vol. 4, 2019, pp. 163–192. doi:10.5194/wes-4-163-
+     2019.
+
+[80] Wang, D., and He, L., “Adjoint aerodynamic design optimization for blades in
+     multistage turbomachines—Part I: Methodology and verification,” Journal of Tur-
+     bomachinery, Vol. 132, No. 2, 2010, p. 021011.
+
+[81] Wang, D., He, L., Li, Y., and Wells, R., “Adjoint Aerodynamic Design Optimiza-
+     tion for Blades in Multistage Turbomachines—Part II: Validation and Applica-
+     tion,” Journal of Turbomachinery, Vol. 132, No. 2, 2010, p. 021012.
+
+[82] Garg, N., Kenway, G. K. W., Lyu, Z., Martins, J. R. R. A., and Young, Y. L.,
+     “High-fidelity Hydrodynamic Shape Optimization of a 3-D Hydrofoil,” Journal of
+     Ship Research, Vol. 59, No. 4, 2015, pp. 209–226. doi:10.5957/JOSR.59.4.150046.
+
+[83] Kröger, J., Kühl, N., and Rung, T., “Adjoint volume-of-fluid approaches for the
+     hydrodynamic optimisation of ships,” Ship Technology Research, Vol. 65, No. 1,
+     2018, pp. 47–68.
+
+[84] He, P., Filip, G., Martins, J. R. R. A., and Maki, K. J., “Design Optimization
+     for Self-Propulsion of a Bulk Carrier Hull Using a Discrete Adjoint Method,”
+     Computers & Fluids, 2019. Submitted.
+
+[85] Othmer, C., “Adjoint methods for car aerodynamics,” Journal of Mathematics in
+     Industry, Vol. 4, No. 1, 2014, p. 6. doi:10.1186/2190-5983-4-6.
+
+[86] He, P., Mader, C. A., Martins, J. R. R. A., and Maki, K. J., “An
+     Aerodynamic Design Optimization Framework Using a Discrete Adjoint Ap-
+     proach with OpenFOAM,” Computers & Fluids, Vol. 168, 2018, pp. 285–303.
+     doi:10.1016/j.compfluid.2018.04.012.
+
+[87] Papoutsis-Kiachagias, E., Asouti, V., Giannakoglou, K., Gkagkas, K., Shimokawa,
+     S., and Itakura, E., “Multi-point aerodynamic shape optimization of cars based
+     on continuous adjoint,” Structural and Multidisciplinary Optimization, 2018, pp.
+     1–20.
+
+[88] Xu, S., Jahn, W., and Müller, J.-D., “CAD-based shape optimisation with CFD
+     using a discrete adjoint,” International Journal for Numerical Methods in Fluids,
+     Vol. 74, No. 3, 2014, pp. 153–168.
+
+[89] Verstraete, T., Müller, L., and Müller, J.-D., “Adjoint-Based Design Optimisation
+     of an Internal Cooling Channel U-Bend for Minimised Pressure Losses,” Inter-
+     national Journal of Turbomachinery, Propulsion and Power, Vol. 2, No. 2, 2017,
+     p. 10.
+
+
+
+
+                                          50
+ [90] He, P., Mader, C. A., Martins, J. R. R. A., and Maki, K. J., “Aerother-
+      mal optimization of internal cooling passages using a discrete adjoint method,”
+      AIAA/ASME Joint Thermophysics and Heat Transfer Conference, Atlanta, GA,
+      2018.
+
+ [91] Othmer, C., “A continuous adjoint formulation for the computation of topological
+      and surface sensitivities of ducted flows,” International Journal for Numerical
+      Methods in Fluids, Vol. 58, No. 8, 2008, pp. 861–877. doi:10.1002/fld.1770.
+
+ [92] Papoutsis-Kiachagias, E., and Giannakoglou, K., “Continuous adjoint methods for
+      turbulent flows, applied to shape and topology optimization: industrial applica-
+      tions,” Archives of Computational Methods in Engineering, Vol. 23, No. 2, 2016,
+      pp. 255–299.
+
+ [93] Kedward, L., Payot, A., Rendall, T., and Allen, C., “Efficient Multi-Resolution
+      Approaches for Exploration of External Aerodynamic Shape and Topology,” AIAA
+      AVIATION Forum, 2018.
+
+ [94] Lee, E., James, K. A., and Martins, J. R. R. A., “Stress-Constrained Topology
+      Optimization with Design-Dependent Loading,” Structural and Multidisciplinary
+      Optimization, Vol. 46, 2012, pp. 647–661. doi:10.1007/s00158-012-0780-x.
+
+ [95] Kennedy, G. J., and Martins, J. R. R. A., “A Parallel Finite-Element Frame-
+      work for Large-Scale Gradient-Based Design Optimization of High-Performance
+      Structures,” Finite Elements in Analysis and Design, Vol. 87, 2014, pp. 56–73.
+      doi:10.1016/j.finel.2014.04.011.
+
+ [96] Giles, M. B., and Süli, E., “Adjoint methods for PDEs: a posteriori error analysis
+      and postprocessing by duality,” Acta Numerica, Vol. 11, 2002, pp. 145–236.
+
+ [97] Fidkowski, K. J., and Darmofal, D. L., “Review of output-based error estimation
+      and mesh adaptation in computational fluid dynamics,” AIAA Journal, Vol. 49,
+      No. 4, 2011, pp. 673–694.
+
+ [98] Mavriplis, D. J., “Functional Error Estimation and Control for Time-Dependent
+      Problems,” Lecture series, chapter 2, Von Karman Institute for Fluid Dynamics,
+      2015.
+
+ [99] Lockwood, B., and Mavriplis, D. J., “Gradient-based methods for uncertainty
+      quantification in hypersonic flows,” Computers & Fluids, Vol. 85, 2013, pp. 27–38.
+
+[100] Mavriplis, D. J., “Adjoint Methods for Uncertainty Quantification,” Lecture series,
+      chapter 3, Von Karman Institute for Fluid Dynamics, 2015.
+
+[101] Iollo, A., Ferlauto, M., and Zannetti, L., “An aerodynamic optimization method
+      based on the inverse problem adjoint equations,” Journal of Computational
+      Physics, Vol. 173, No. 1, 2001, pp. 87–115.
+
+
+
+                                           51
+[102] Biegler, L., Biros, G., Ghattas, O., Heinkenschloss, M., Keyes, D., Mallick, B.,
+      Tenorio, L., Waanders, B. V. B., Willcox, K., and Marzouk, Y., Large-scale inverse
+      problems and quantification of uncertainty, Vol. 712, Wiley Online Library, 2011.
+
+[103] Martins, J. R. R. A., Alonso, J. J., and Reuther, J. J., “A Coupled-
+      Adjoint Sensitivity Analysis Method for High-Fidelity Aero-Structural De-
+      sign,” Optimization and Engineering, Vol. 6, No. 1, 2005, pp. 33–62.
+      doi:10.1023/B:OPTE.0000048536.47956.62.
+
+[104] Martins, J. R. R. A., Alonso, J. J., and Reuther, J. J., “High-Fidelity Aerostruc-
+      tural Design Optimization of a Supersonic Business Jet,” Journal of Aircraft,
+      Vol. 41, No. 3, 2004, pp. 523–530. doi:10.2514/1.11478.
+
+[105] Kenway, G. K. W., Kennedy, G. J., and Martins, J. R. R. A., “Scalable Parallel Ap-
+      proach for High-Fidelity Steady-State Aeroelastic Analysis and Derivative Compu-
+      tations,” AIAA Journal, Vol. 52, No. 5, 2014, pp. 935–951. doi:10.2514/1.J052255.
+
+[106] Kenway, G. K. W., and Martins, J. R. R. A., “Multipoint High-Fidelity Aerostruc-
+      tural Optimization of a Transport Aircraft Configuration,” Journal of Aircraft,
+      Vol. 51, No. 1, 2014, pp. 144–160. doi:10.2514/1.C032150.
+
+[107] Liem, R. P., Kenway, G. K. W., and Martins, J. R. R. A., “Multimission Air-
+      craft Fuel Burn Minimization via Multipoint Aerostructural Optimization,” AIAA
+      Journal, Vol. 53, No. 1, 2015, pp. 104–122. doi:10.2514/1.J052940.
+
+[108] Brooks, T. R., Kenway, G. K. W., and Martins, J. R. R. A., “Benchmark
+      Aerostructural Models for the Study of Transonic Aircraft Wings,” AIAA Journal,
+      Vol. 56, No. 7, 2018, pp. 2840–2855. doi:10.2514/1.J056603.
+
+[109] Zhang, P., Lu, J., Song, L., and Feng, Z., “Study on continuous adjoint optimiza-
+      tion with turbulence models for aerodynamic performance and heat transfer in
+      turbomachinery cascades,” International Journal of Heat and Mass Transfer, Vol.
+      104, 2017, pp. 1069–1082.
+
+[110] Gkaragkounis, K., Papoutsis-Kiachagias, E., and Giannakoglou, K., “The con-
+      tinuous adjoint method for shape optimization in Conjugate Heat Transfer prob-
+      lems with turbulent incompressible flows,” Applied Thermal Engineering, Vol. 140,
+      2018, pp. 351–362.
+
+[111] He, P., Mader, C. A., Martins, J. R. R. A., and Maki, K. J., “Aerothermal Op-
+      timization of a Ribbed U-Bend Cooling Channel Using the Adjoint Method,” In-
+      ternational Journal of Heat and Mass Transfer, 2019. Submitted.
+
+[112] Economon, T. D., Palacios, F., and Alonso, J., “A coupled-adjoint method for
+      aerodynamic and aeroacoustic optimization,” 12th AIAA Aviation Technology,
+      Integration, and Operations (ATIO) Conference and 14th AIAA/ISSMO Multidis-
+      ciplinary Analysis and Optimization Conference, 2012, p. 5598.
+
+
+
+                                          52
+[113] Fabiano, E., and Mavriplis, D., “Adjoint-based aeroacoustic design-optimization
+      of flexible rotors in forward flight,” Journal of the American Helicopter Society,
+      Vol. 62, No. 4, 2017, pp. 1–17.
+
+[114] Thomas, J., Dowell, E., and Hall, K. C., “Discrete adjoint method for
+      nonlinear aeroelastic sensitivities for compressible and viscous flows,” 54th
+      AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics, and Materials
+      Conference, 2013, p. 1860.
+
+[115] Thomas, J., and Dowell, E., “Discrete Adjoint Method for Aeroelastic Design
+      Optimization,” 15th AIAA/ISSMO Multidisciplinary Analysis and Optimization
+      Conference, 2014, p. 2298.
+
+[116] Kiviaho, J. F., Jacobson, K., Smith, M. J., and Kennedy, G., “Application of
+      a Time-Accurate Aeroelastic Coupling Framework to Flutter-Constrained De-
+      sign Optimization,” 2018 Multidisciplinary Analysis and Optimization Conference,
+      2018, p. 2932.
+
+[117] Jonsson, E., Mader, C. A., Kennedy, G. J., and Martins, J. R. R. A., “Com-
+      putational Modeling of Flutter Constraint for High-Fidelity Aerostructural Op-
+      timization,” 2019 AIAA/ASCE/AHS/ASC Structures, Structural Dynamics, and
+      Materials Conference, American Institute of Aeronautics and Astronautics, San
+      Diego, CA, 2019. doi:10.2514/6.2019-2354.
+
+[118] Hwang, J. T., and Martins, J. R. R. A., “A computational architecture for
+      coupling heterogeneous numerical models and computing coupled derivatives,”
+      ACM Transactions on Mathematical Software, Vol. 44, No. 4, 2018, p. Article
+      37. doi:10.1145/3182393.
+
+[119] Gray, J. S., Hwang, J. T., Martins, J. R. R. A., Moore, K. T., and Naylor, B. A.,
+      “OpenMDAO: An open-source framework for multidisciplinary design, analysis,
+      and optimization,” Structural and Multidisciplinary Optimization, Vol. 59, No. 4,
+      2019, pp. 1075–1104. doi:10.1007/s00158-019-02211-z.
+
+[120] Ning, A., and Petch, D., “Integrated Design of Downwind Land-based
+      Wind Turbines using Analytic Gradients,” Wind Energy, 2016, pp. 1–17.
+      doi:10.1002/we.1972.
+
+[121] Jasa, J. P., Hwang, J. T., and Martins, J. R. R. A., “Open-source coupled
+      aerostructural optimization using Python,” Structural and Multidisciplinary Opti-
+      mization, Vol. 57, No. 4, 2018, pp. 1815–1827. doi:10.1007/s00158-018-1912-8.
+
+[122] Hwang, J. T., and Ning, A., “Large-scale multidisciplinary optimization of an
+      electric aircraft for on-demand mobility,” 2018 AIAA/ASCE/AHS/ASC Struc-
+      tures, Structural Dynamics, and Materials Conference, Kissimmee, FL, 2018.
+      doi:10.2514/6.2018-1384.
+
+
+
+
+                                          53
+[123] Jasa, J. P., Mader, C. A., and Martins, J. R. R. A., “Trajectory Optimization of a
+      Supersonic Air Vehicle with Thermal Fuel Management System,” AIAA/ISSMO
+      Multidisciplinary Analysis and Optimization Conference, Atlanta, GA, 2018.
+      doi:10.2514/6.2018-3884.
+
+[124] Zahle, F., Sørensen, N. N., McWilliam, M. K., and Barlas, A., “Computational
+      fluid dynamics-based surrogate optimization of a wind turbine blade tip exten-
+      sion for maximising energy production,” Journal of Physics: Conference Se-
+      ries, Vol. 1037, The Science of Making Torque from Wind, Milano, Italy, 2018.
+      doi:10.1088/1742-6596/1037/4/042013.
+
+[125] Hwang, J. T., Jasa, J., and Martins, J. R. R. A., “High-fidelity design-allocation
+      optimization of a commercial aircraft maximizing airline profit,” Journal of Air-
+      craft, Vol. 56, No. 3, 2019, pp. 1165–1178. doi:10.2514/1.C035082.
+
+[126] Gray, J. S., Mader, C. A., Kenway, G. K. W., and Martins, J. R. R. A., “Modeling
+      Boundary Layer Ingestion Using a Coupled Aeropropulsive Analysis,” Journal of
+      Aircraft, Vol. 55, No. 3, 2018, pp. 1191–1199. doi:10.2514/1.C034601.
+
+[127] Gray, J. S., and Martins, J. R. R. A., “Coupled Aeropropulsive Design Optimiza-
+      tion of a Boundary Layer Ingestion Propulsor,” The Aeronautical Journal, Vol.
+      123, No. 1259, 2019, pp. 121–137. doi:10.1017/aer.2018.120.
+
+[128] Anderson, W. K., and Venkatakrishnan, V., “Aerodynamic Design Optimization
+      on Unstructured Grids with a Continuous Adjoint Formulation,” Computers and
+      Fluids, Vol. 28, No. 4, 1999, pp. 443–480.
+
+[129] Nadarajah, S., and Jameson, A., “A Comparison of the Continuous and Dis-
+      crete Adjoint Approach to Automatic Aerodynamic Optimization,” Proceedings
+      of the 38th AIAA Aerospace Sciences Meeting and Exhibit, Reno, NV, 2000.
+      doi:10.2514/6.2000-667.
+
+[130] Economon, T. D., Alonso, J. J., Albring, T., and Gauger, N. R., “Adjoint Formula-
+      tion Investigations of Benchmark Aerodynamic Design Cases in SU2,” Proceedings
+      of the 35th AIAA Applied Aerodynamics Conference, Denver, CO, 2017.
+
+[131] Martins, J. R. R. A., and Hwang, J. T., “Multidisciplinary Design Optimization of
+      Aircraft Configurations—Part 1: A modular coupled adjoint approach,” Lecture
+      series, Von Karman Institute for Fluid Dynamics, Rode Saint Genèse, Belgium,
+      May 2016. ISSN0377-8312.
+
+[132] Lea, D. J., Allen, M. R., and Haine, T. W., “Sensitivity analysis of the climate
+      of a chaotic system,” Tellus A: Dynamic Meteorology and Oceanography, Vol. 52,
+      No. 5, 2000, pp. 523–532.
+
+[133] Wang, Q., “Forward and adjoint sensitivity computation of chaotic dynamical
+      systems,” Journal of Computational Physics, Vol. 235, 2013, pp. 1–13.
+
+
+
+                                          54
+[134] Blonigan, P. J., Wang, Q., Nielsen, E. J., and Diskin, B., “Least-Squares Shad-
+      owing Sensitivity Analysis of Chaotic Flow Around a Two-Dimensional Airfoil,”
+      AIAA Journal, 2017, pp. 658–672.
+[135] Spalart, P., and Allmaras, S., “A One-Equation Turbulence Model for
+      Aerodynamic Flows,” 30th Aerospace Sciences Meeting and Exhibit, 1992.
+      doi:10.2514/6.1992-439.
+[136] van der Weide, E., Kalitzin, G., Schluter, J., and Alonso, J. J., “Unsteady Tur-
+      bomachinery Computations Using Massively Parallel Platforms,” Proceedings of
+      the 44th AIAA Aerospace Sciences Meeting and Exhibit, Reno, NV, 2006. AIAA
+      2006-0421.
+[137] Kenway, G. K. W., Secco, N., Martins, J. R. R. A., Mishra, A., and Duraisamy,
+      K., “An Efficient Parallel Overset Method for Aerodynamic Shape Optimiza-
+      tion,” Proceedings of the 58th AIAA/ASCE/AHS/ASC Structures, Structural Dy-
+      namics, and Materials Conference, AIAA SciTech Forum, Grapevine, TX, 2017.
+      doi:10.2514/6.2017-0357.
+[138] Jameson, A., Schmidt, W., and Turkel, E., “Numerical Solution of the Euler Equa-
+      tions by Finite Volume Methods Using Runge–Kutta Time Stepping Schemes,”
+      Tech. Rep. AIAA 1981-1259, 1981.
+[139] Turkel, E., and Vatsa, V. N., “Effects of Artificial Viscosity on Three-Dimensional
+      Flow Solutions,” AIAA Journal, Vol. 32, 1994, pp. 39–45.
+[140] van Leer, B., “Towards the ultimate conservative difference scheme. V. A second-
+      order sequel to Godunov’s method,” Journal of Computational Physics, Vol. 32,
+      1979, pp. 101–136.
+[141] Roe, P. L., “Approximate Riemann Solvers, Parameter Vectors, and Difference
+      Schemes,” Journal of Computational Physics, Vol. 43, 1981, pp. 357–372.
+[142] Menter, F. R., “Two-equation eddy-viscosity turbulence models for engineering
+      applications,” AIAA Journal, Vol. 32, No. 8, 1994, pp. 1598–1605.
+[143] Klopfer, G., Hung, C., Van der Wijngaart, R., and Onufer, J., “A diagonalized
+      diagonal dominant alternating direction implicit (D3ADI) scheme and subitera-
+      tion correction,” 29th AIAA, Fluid Dynamics Conference, Albuquerque, NM, 1998.
+      doi:10.2514/6.1998-2824.
+[144] Yildirim, A., Kenway, G. K. W., Mader, C. A., and Martins, J. R. R. A., “A
+      Jacobian-free approximate Newton–Krylov startup strategy for RANS simula-
+      tions,” Journal of Computational Physics, 2018. (Submitted).
+[145] He, X., Li, J., Mader, C. A., Yildirim, A., and Martins, J. R. R. A., “Robust
+      aerodynamic shape optimization—from a circle to an airfoil,” Aerospace Science
+      and Technology, Vol. 87, 2019, pp. 48–61. doi:10.1016/j.ast.2019.01.051.
+
+
+
+                                           55
+[146] Patankar, S. V., and Spalding, D. B., “A calculation procedure for heat, mass and
+      momentum transfer in three-dimensional parabolic flows,” International Journal of
+      Heat and Mass Transfer, Vol. 15, No. 10, 1972, pp. 1787–1806. doi:10.1016/0017-
+      9310(72)90054-3.
+
+[147] Rhie, C., and Chow, W. L., “Numerical study of the turbulent flow past an airfoil
+      with trailing edge separation,” AIAA Journal, Vol. 21, No. 11, 1983, pp. 1525–
+      1532. doi:10.2514/3.8284.
+
+[148] Martins, J. R. R. A., Kenway, G. K. W., and Brooks, T. R., “Multidisciplinary
+      Design Optimization of Aircraft Configurations—Part 2: High-fidelity aerostruc-
+      tural optimization,” Lecture series, Von Karman Institute for Fluid Dynamics,
+      Rode Saint Genèse, Belgium, May 2016. ISSN0377-8312.
+
+[149] Lyness, J. N., and Moler, C. B., “Numerical Differentiation of Analytic Functions,”
+      SIAM Journal on Numerical Analysis, Vol. 4, No. 2, 1967, pp. 202–210.
+
+[150] Naumann, U., The Art of Differentiating Computer Programs—An Introduction
+      to Algorithmic Differentiation, SIAM, 2011.
+
+[151] Naumann, U., Leppkes, K., and Lotz, J., “dco/c++ : Derivative Code by Over-
+      loading in C++ Introduction and Summary of Features,” Tech. rep., RWTH
+      Aachen University, 2011.
+
+[152] Sagebaum, M., Albring, T., and Gauger, N. R., “High-performance derivative
+      computations using CoDiPack,” arXiv preprint arXiv:1709.07229, 2017.
+
+[153] Müller, J.-D., and Cusdin, P., “On the performance of discrete adjoint CFD codes
+      using automatic differentiation,” International journal for numerical methods in
+      fluids, Vol. 47, No. 8-9, 2005, pp. 939–945.
+
+[154] Grabmeier, J., and Kaltofen, E., Computer Algebra Handbook: Foundations, Ap-
+      plications, Systems, Springer Science & Business Media, 2003.
+
+[155] Gebremedhin, A. H., Manne, F., and Pothen, A., “What Color Is Your Jacobian?
+      Graph Coloring for Computing Derivatives,” SIAM Review, Vol. 47, No. 4, 2005,
+      pp. 629–705. doi:10.1137/S0036144504444711.
+
+[156] Ascher, U. M., and Greif, C., A first course in numerical methods, SIAM, 2011.
+
+[157] Saad, Y., Iterative Methods for Sparse Linear Systems, 2nd ed., SIAM, 2003.
+
+[158] Newman, P., Hou, G., Jones, J., Taylor, A., III, and Korivi, V., “Observations
+      on computational methodologies for use in large-scale, gradient-based, multidisci-
+      plinary design,” 4th Symposium on Multidisciplinary Analysis and Optimization,
+      1992.
+
+
+
+
+                                           56
+[159] Korivi, V. M., Taylor III, A. C., Newman, P. A., Hou, G. W., and Jones, H. E.,
+      “An incremental strategy for calculating consistent discrete CFD sensitivity deriva-
+      tives,” Tech. rep., National Aeronautics And Space Admin Langley Research Cen-
+      ter Hampton VA, 1992.
+
+[160] Giles, M. B., “On the iterative solution of adjoint equations,” Automatic differen-
+      tiation of algorithms, Springer, 2002, pp. 145–151.
+
+[161] Nielsen, E. J., Lu, J., Park, M. A., and Darmofal, D. L., “An implicit, exact dual
+      adjoint solution method for turbulent flows on unstructured grids,” Computers &
+      Fluids, Vol. 33, No. 9, 2004, pp. 1131–1155.
+
+[162] Akbarzadeh, S., Wang, Y., and Mueller, J. D., “Fixed point discrete adjoint of
+      SIMPLE-like solvers,” 22nd AIAA Computational Fluid Dynamics Conference,
+      2015, p. 2750.
+
+[163] Xu, S., Timme, S., and Badcock, K. J., “Enabling off-design linearised aerody-
+      namics analysis using Krylov subspace recycling technique,” Computers & Fluids,
+      Vol. 140, 2016, pp. 385–396. doi:10.1016/j.compfluid.2016.10.018.
+
+[164] Xu, S., and Timme, S., “Robust and efficient adjoint solver for com-
+      plex flow conditions,” Computers & Fluids, Vol. 148, 2017, pp. 26–38.
+      doi:10.1016/j.compfluid.2017.02.012.
+
+[165] Kenway, G. K. W., and Martins, J. R. R. A., “Buffet Onset Constraint Formulation
+      for Aerodynamic Shape Optimization,” AIAA Journal, Vol. 55, No. 6, 2017, pp.
+      1930–1947. doi:10.2514/1.J055172.
+
+[166] Balay, S., Gropp, W. D., McInnes, L. C., and Smith, B. F., “Efficient Manage-
+      ment of Parallelism in Object Oriented Numerical Software Libraries,” Modern
+      Software Tools in Scientific Computing, edited by E. Arge, A. M. Bruaset, and
+      H. P. Langtangen, Birkhäuser Press, 1997, pp. 163–202.
+
+[167] Balay, S., Buschelman, K., Gropp, W. D., Kaushik, D., Knepley, M. G.,
+      McInnes, L. C., Smith, B. F., and Zhang, H., “PETSc Web page,” , 2009.
+      Http://www.mcs.anl.gov/petsc.
+
+[168] Balay, S., Abhyankar, S., Adams, M. F., Brown, J., Brune, P., Buschelman, K.,
+      Dalcin, L., Dener, A., Eijkhout, V., Gropp, W. D., Kaushik, D., Knepley, M. G.,
+      May, D. A., McInnes, L. C., Mills, R. T., Munson, T., Rupp, K., Sanan, P.,
+      Smith, B. F., Zampini, S., Zhang, H., and Zhang, H., “PETSc Users Manual,”
+      Tech. Rep. ANL-95/11 - Revision 3.10, Argonne National Laboratory, 2018. URL
+      http://www.mcs.anl.gov/petsc.
+
+[169] Peter, J., Renac, F., Dumont, A., and Méheut, M., “Discrete adjoint method for
+      shape optimization and mesh adaptation in the elsA code, status and challenges,”
+      50h 3AF International Conference on Applied Aerodynamics, 2015.
+
+
+
+                                           57
+[170] Giles, M. B., Ghate, D., and Duta, M. C., “Using automatic differentiation for
+      adjoint CFD code development,” Post SAROD Workshop-2005, 2005.
+
+[171] Hicken, J. E., and Zingg, D. W., “A simplified and flexible variant of GCROT for
+      solving nonsymmetric linear systems,” SIAM Journal on Scientific Computing,
+      Vol. 32, No. 3, 2010, pp. 1672–1694.
+
+[172] Osusky, L., Buckley, H., Reist, T., and Zingg, D. W., “Drag Minimization Based on
+      the Navier—Stokes Equations Using a Newton—Krylov Approach,” AIAA Jour-
+      nal, Vol. 53, No. 6, 2015, pp. 1555–1577. doi:10.2514/1.J053457.
+
+[173] Mavriplis, D. J., “Time Dependent Adjoint Methods for Single and Multi-
+      disciplinary Problems,” Lecture series, chapter 1, Von Karman Institute for Fluid
+      Dynamics, 2015.
+
+[174] Hascoet, L., and Pascual, V., “The Tapenade automatic differentiation tool: Prin-
+      ciples, model, and specification,” ACM Transactions on Mathematical Software,
+      Vol. 39, No. 3, 2013, pp. 20:1–20:43. doi:10.1145/2450153.2450158.
+
+[175] Farrell, P. E., Ham, D. A., Funke, S. W., and Rognes, M. E., “Automated deriva-
+      tion of the adjoint of high-level transient finite element programs,” SIAM Journal
+      on Scientific Computing, Vol. 35, No. 4, 2013, pp. C369–C393.
+
+[176] Logg, A., Mardal, K.-A., and Wells, G., Automated solution of differential equa-
+      tions by the finite element method: The FEniCS book, Vol. 84, Springer Science &
+      Business Media, 2012.
+
+[177] Pierrot, G., “Continuous and Discrete adjoint methodologies within ESI CFD
+      solvers,” Conference on Industrial Design Optimisation for Fluid Flow, 2012.
+
+[178] Eggenspieler, G., ANSYS Fluent Adjoint Solver, ANSYS, 2012.
+
+[179] Star-CCM+, “Adjoint Solver Workshop,” STAR South East Asian Conference,
+      2013.
+
+[180] Lambe, A. B., and Martins, J. R. R. A., “Extensions to the Design Structure
+      Matrix for the Description of Multidisciplinary Design, Analysis, and Optimization
+      Processes,” Structural and Multidisciplinary Optimization, Vol. 46, 2012, pp. 273–
+      284. doi:10.1007/s00158-012-0763-y.
+
+[181] Bons, N. P., He, X., Mader, C. A., and Martins, J. R. R. A., “Multimodality in
+      Aerodynamic Wing Design Optimization,” AIAA Journal, Vol. 57, No. 3, 2019,
+      pp. 1004–1018. doi:10.2514/1.J057294.
+
+[182] Giles, M. B., “Collected matrix derivative results for forward and reverse mode al-
+      gorithmic differentiation,” Advances in Automatic Differentiation, Springer, 2008,
+      pp. 35–44.
+
+
+
+
+                                           58
+[183] Sen, A., “Effective sensitivity computation for aerodynamic optimization using
+      discrete adjoint OpenFOAM,” 19th European Workshop on Automatic Differenti-
+      ation, 2016.
+
+[184] Burdette, D. A., and Martins, J. R. R. A., “Design of a Transonic Wing with an
+      Adaptive Morphing Trailing Edge via Aerostructural Optimization,” Aerospace
+      Science and Technology, Vol. 81, 2018, pp. 192–203. doi:10.1016/j.ast.2018.08.004.
+
+[185] Burdette, D. A., and Martins, J. R. R. A., “Impact of Morphing Trailing Edge
+      on Mission Performance for the Common Research Model,” Journal of Aircraft,
+      Vol. 56, No. 1, 2019, pp. 369–384. doi:10.2514/1.C034967.
+
+[186] Brooks, T. R., Kennedy, G. J., and Martins, J. R. R. A., “High-fidelity Mul-
+      tipoint Aerostructural Optimization of a High Aspect Ratio Tow-steered Com-
+      posite Wing,” Proceedings of the 58th AIAA/ASCE/AHS/ASC Structures, Struc-
+      tural Dynamics, and Materials Conference, AIAA SciTech Forum, Grapevine, TX,
+      2017. doi:10.2514/6.2017-1350.
+
+[187] Vassberg, J. C., DeHaan, M. A., Rivers, S. M., and Wahls, R. A., “Develop-
+      ment of a Common Research Model for Applied CFD Validation Studies,” 2008.
+      doi:10.2514/6.2008-6919, aIAA 2008-6919.
+
+[188] Kenway, G. K., Kennedy, G. J., and Martins, J. R. R. A., “A CAD-Free Ap-
+      proach to High-Fidelity Aerostructural Optimization,” Proceedings of the 13th
+      AIAA/ISSMO Multidisciplinary Analysis Optimization Conference, Fort Worth,
+      TX, 2010. doi:10.2514/6.2010-9231.
+
+[189] Luke, E., Collins, E., and Blades, E., “A Fast Mesh Deformation Method Using
+      Explicit Interpolation,” Journal of Computational Physics, Vol. 231, No. 2, 2012,
+      pp. 586–601. doi:10.1016/j.jcp.2011.09.021.
+
+[190] Nielsen, E. J., and Park, M. A., “Using an adjoint approach to eliminate mesh
+      sensitivities in computational design,” AIAA journal, Vol. 44, No. 5, 2006, pp.
+      948–953.
+
+[191] Widhalm, M., Brezillon, J., Ilic, C., and Leicht, T., “Investigation on Ad-
+      joint Based Gradient Computations for Realistic 3D Aero-Optimization,” 13th
+      AIAA/ISSMO Multidisciplinary Analysis and Optimization Conference, Fort
+      Worth, TX, 2010, pp. 1–17.
+
+[192] Hicken, J. E., and Zingg, D., “A Parallel Newton–Krylov Solver for the Euler
+      Equations Discretized Using Simultaneous Approximation Terms,” AIAA Journal,
+      Vol. 46, No. 11, 2008, pp. 2773–2786.
+
+
+
+
+                                          59
+A        Solver-specific implementation details of proposed ad-
+         joint approach
+In Sec. 4.6, we define three adjoint approaches (FD Jacobian, AD Jacobian, and Jaco-
+bian free) in solver-agnostic terms for the sake generality. However, there are various
+solver-specific implementation details that have important repercussions in the overall
+numerical performance. This section elaborates on the implementation details for AD-
+flow and DAFoam. These details concern the choice of elements and ordering for the x,
+w, and R vectors, the coloring implementations, the GMRES preconditioning strategy,
+and, most importantly, how to construct the differentiated R and f functions.
+
+A.1        Choice of residuals, states, and design variables
+When implementing an adjoint in a specific primal solver, we need to define exactly the
+residuals (R), states (w), and design variables (x). The choice of states depends on the
+flow discretization and solution techniques. For ADflow, the states [ρ, u, v, w, ρE, ν̃] are
+the primitive variables in the governing equations (1)–(4). It is critical to include the
+turbulence variable ν̃ in the w vector and compute the corresponding differentiation in
+the ∂R/∂w matrix because it directly impacts the accuracy of adjoint total derivatives.
+For DAFoam, we assume incompressible flow with a constant density and ignore the
+energy equation, as mentioned in Sec. 3.3. Therefore the states are [u, v, w, p, φ, ν̃],
+where φ is the cell face flux. Note that we treat φ as a state variable as a result of the
+segregated SIMPLE algorithm with Rhie–Chow interpolation, as elaborated on in our
+previous work [86].
+    In the discrete adjoint, R and w contain variables for all discrete cells. For example,
+in ADflow,
+
+w = [ρ1 , u1 , v1 , w1 , (ρE)1 , ν̃1 , ρ2 , u2 , v2 , w2 , (ρE)2 , ν̃2 , . . . , ρnC , unC , vnC , wnC , (ρE)nC , ν̃nC ]T ,
+
+and
+
+R = [R1ρ , R1u , R1v , R1w , R1ρE , R1ν̃ , R2ρ , R2u , R2v , R2w , R2ρE , R2ν̃ , . . . , Rnρ C , RnuC , Rnv C , RnwC , RnρEC , Rnν̃ C ]T ,
+
+where the subscripts are the cell indices and nC is the total number of cells. The
+superscripts for R denote the residual type. The length for the R and w vectors is 6nC .
+   Similarly, in DAFoam,
+
+    w = [u1 , v1 , w1 , p1 , φ1 , ν̃1 , u2 , v2 , w2 , p2 , φ2 , ν̃2 , . . . , unC , vnC , wnC , pnC , φnC , ν̃nC ]T ,
+
+and
+
+R = [R1u , R1v , R1w , R1p , R1φ , R1ν̃ , R2u , R2v , R2w , R2p , R2φ , R2ν̃ , . . . , RnuC , Rnv C , RnwC , Rnp C , RnφC , Rnν̃ C ]T .
+
+Note that the φ vector contains φ variables on all the faces of a cell. Since we have
+mixed cell-centered and face-centered state variables, the length for R and w depends
+on the mesh topology and is approximately 8nC .
+
+
+
+                                                               60
+    In the above examples we use the cell-by-cell ordering for R and w; that is, we
+start from the state variables associated with the first cell and then repeat for all the
+other cells. An alternative option is to use the state-by-state ordering; that is, start
+from the first state variable for all the cells and repeat for all the other state variables.
+Although the total derivatives do not depend on the ordering, we use the cell-by-cell
+ordering because the incomplete lower and upper preconditioning technique is more
+effective when using block matrices.
+    As mentioned in Sec. 4, the x vector can contain both aerodynamic and geometric
+design variables. For aerodynamic variables, the total derivative df / dx is computed
+directly. However, for geometric design variables, we first compute the total derivative
+df / dxv , which is done by replacing x with xv in Eq. (13), and then relate it to the
+design variables by using the chain rule,
+                                    df   df dxv dxs
+                                       =            ,                                   (29)
+                                    dx   dxv dxs dx
+where xv and xs are the vectors for volume and design surface coordinates, respectively.
+The derivatives dxs / dx and dxv / dxs are computed by two external open-source ge-
+ometry modules: pyGeo 6 and IDWarp. 7 pyGeo parameterizes and manipulates the
+design surface by using a free-form deformation approach [188]. IDWarp implements
+an efficient analytic inverse-distance method [189] for volume mesh deformation. pyGeo
+was described in detail in our previous work [188].
+    The benefit of computing df / dxv instead of df / dx is that the adjoint implementa-
+tion is independent of external geometric parametrization and mesh deformation mod-
+ules [190, 191]. ADflow (all three approaches) and DAFoam (Jacobian-free approach)
+use the above strategy. However, for DAFoam with the FD Jacobian approach, we
+compute df / dx for geometric design variables directly in practice. In other words, in-
+stead of using the chain rule in Eq. (29), we directly compute ∂R/∂x and ∂f /∂x for
+df / dx [86]. This is because ∂R/∂xv is very dense, so computing ∂R/∂xv by using a
+coloring scheme is too expensive.
+
+A.2      Graph coloring implementation
+As shown in Figs. 4 and 6, we need to use coloring to accelerate the partial derivative
+computation. The graph coloring for single block structured meshes is straightforward:
+Since the mesh topology is fixed, we use analytic colorings for a given residual stencil.
+This is extended to multiblock structured meshes by treating each of the blocks indepen-
+dently and using the halo cells to handle the cross block boundary derivatives. ADflow
+uses the above strategy when computing the preconditioner matrix and explicitly stor-
+ing the full state Jacobian [∂R/∂w]T . Figure 10(a) shows the sparsity pattern for the
+state Jacobian in ADflow. We achieve a compact coloring scheme, requiring only 210
+colors to compute the state Jacobian [∂R/∂w]T and only 162 colors for the first-order
+preconditioner matrix [∂R/∂w]TPC . Note that the number of colors is computed based
+  6
+      https://github.com/mdolab/pygeo
+  7
+      https://github.com/mdolab/idwarp
+
+
+
+
+                                             61
+on all state variables that are associated with a residual. The details of the analytical
+coloring are elaborated on in our previous work [55].
+
+
+
+
+Figure 10: Examples of ∂R/∂w sparsity patterns for (a) ADflow with structured hex-
+ahedral mesh and (b) DAFoam with unstructured hexahedral mesh. For DAFoam, the
+Jacobian matrix is denser because of the larger stencil. Moreover, the sparsity pattern
+for DAFoam is much more irregular because the use of unstructured meshes.
+
+    For unstructured and structured overset meshes, it is no longer possible to use local
+colorings. The connectivity of unstructured meshes is global, so the entire mesh needs
+to be colored at one time, creating a much more complex problem without an optimal
+analytic solution (an NP-hard problem). Figure 10(b) shows the sparsity pattern for the
+state Jacobian in DAFoam. The Jacobian matrix is much denser, owing to the larger
+stencil for unstructured meshes (see examples in Fig. 1). Moreover, the sparsity pattern is
+much more irregular, which prevents us from using an analytic graph coloring algorithm.
+Therefore, we adopt a parallel, heuristic graph coloring algorithm that is applicable for
+any mesh topology and size. The central idea is to tentatively assign colors for local
+meshes owned by local processors and then resolve the conflicts by globally exchanging
+data between meshes [86]. The flexibility of the heuristic coloring algorithm comes at a
+price: the number of colors for ∂R/∂w is on the order of 1000, which is about three times
+the maximum number of nonzero entries in a row of ∂R/∂w. The speed of state Jacobian
+computation is proportional to the number of colors: a larger number of colors leads to a
+larger computational cost. However, we have shown that the number of colors depends
+only weakly on mesh size and number of CPU cores [86]. This behavior alleviates the
+drawback of the relatively large number of colors required by the heuristic graph coloring
+method. Section 5 evaluates the impact of coloring schemes on the performance of the
+adjoint derivative.
+
+
+
+
+                                            62
+A.3     Preconditioner matrix construction
+As mentioned in Sec. 4.4, having an effective preconditioner is critical to ensure fast
+convergence of the adjoint equations. We thus need to construct a preconditioner ma-
+trix [∂R/∂w]TP C that approximates [∂R/∂w]T but is easily invertible. To this end,
+we approximate the residuals and their linearizations with the following solver-specific
+details:
+    To construct [∂R/∂w]TP C in ADflow, we exactly linearize an alternative simple flux
+formulation that results in only level-one stencils (refer to Fig. 1 for an example of a level-
+one stencil). The level-one stencil yields a maximum of seven nonzero blocks per row for
+multiblock meshes and greatly reduces the memory required to store the preconditioner.
+For the JST scheme, we use only second-order dissipation. This dissipation, which is
+normally only active at flow discontinuities, is augmented with σκ4 [192]. The shock
+sensor is also frozen for the linearization. If an upwind scheme is used, only first-order
+reconstruction is employed. For the viscous fluxes, velocity and temperature gradients
+at the cell face center are approximated by a spatial difference between adjacent cell
+centers, as described by Yildirim et al. [144]. For the SA turbulence model, we use a
+first-order upwind method, which also uses only level-one stencils. For overset mesh,
+due to the complex mesh topology, we compute the preconditioner only on local blocks
+by using the analytical coloring method mentioned in Sec. A.2; we ignore preconditioner
+matrix values on any overset stencils.
+    In DAFoam, we use the first-order upwind scheme to compute the inviscid fluxes
+(convective terms) to reduce the stiffness of the matrix. We then shrink the residual
+stencils by reducing the maximal level of connected states for p and φ residuals from
+three to two. We also ignore the turbulence production term to further decrease the
+linear system stiffness, especially for the viscous layer near the wall when a y + = 1
+mesh is used. Finally, to ensure a better diagonal dominance for both [∂R/∂w]TP C
+and [∂R/∂w]T , we scale the partial derivatives such that their magnitudes are as close
+as possible, which is done by normalizing the cell and face residuals by their volume
+and face area, respectively. We also normalize each column of state Jacobians by their
+corresponding reference values at the far field. See details in He et al. [86].
+
+A.4     Differentiation of residuals and functions
+We first elaborate on the differentiation of residuals and functions for ADflow. As shown
+in Fig. 5, before computing the partial derivatives by using AD, we first need to construct
+a routine to compute R and f , which we call the master routine. This is a collection of
+functions that reproduces the residual and function computations from the flow solver.
+The master routine is not used during the actual flow solution; its sole purpose is to
+serve as a source for AD to produce differentiated code that computes all the required
+partial derivatives.
+    The major steps of the master routine are listed in Algorithm 1. The routine com-
+putes all intermediate variables that depend on w (e.g., p given T and ρ, and µ using the
+Sutherland law), updates the boundary conditions (e.g., halo cells through MPI commu-
+nication, far-field Mach number, and angle of attack), computes the geometric metrics
+
+
+
+                                              63
+(e.g., cell volume, surface area, surface normal, and wall distance), and then computes
+R and f . We need to compute and update all the intermediate variables and parameters
+before computing R and f in the master routine, even though some of them may have
+been set in other routines. This is to make sure the derivatives are properly accumulated
+through all these intermediate variables and parameters when differentiated with AD.
+
+Algorithm 1 master routine
+ 1: function master(x, w)                                                . input: x, w; output: R, f
+ 2:    wint ← Fint (x, w)          . compute intermediate variables (wint ) that depend on w and x
+ 3:    wbc ← Fbc (x, w)                    . update variables for boundary faces and halo cells (wbc )
+ 4:    xgeo ← Fgeo (x)        . compute geometric metrics such as cell volume and face area (xgeo )
+ 5:    R ← Fres (x, w, wint , wbc , xgeo )                                   . compute flow residuals
+ 6:    f ← Fobj (x, w, wint , wbc , xgeo )                           . compute functions of interests
+ 7:    return R, f
+ 8: end function
+
+    We use the source code transformation AD tool Tapenade [174] to differentiate the
+Fortran master routine. As discussed in Sec. 4.6, we need to differentiate the master
+routine by using both forward- and reverse-mode AD to implement the Jacobian-free
+adjoint.
+    There are two options to differentiate the master routine. We can use Tapenade to
+directly differentiate the entire master routine. Alternatively, we can use Tapenade to
+first differentiate all the subroutines in the master routine and then manually assemble
+these differentiated subroutines. The first option is straightforward to implement but
+has two significant drawbacks: The first is that this approach leads to sub-optimal dif-
+ferentiated code. Because the AD tool is designed to differentiate any Fortran code, it
+must be designed to be general. This makes correctness the absolutely highest priority,
+often at the expense of maximum computational efficiency. It also means that the AD
+cannot take advantage of any specific code structure related to the CFD code. Further-
+more, even with the most advanced AD tools currently available, some code structures
+remain a challenge to differentiate, including pointers and MPI calls. Therefore, to
+get a more efficient code, we use the second option. We differentiate the individual
+subroutines in the master routine and manually assemble routines for the forward and
+reverse derivatives by using specific properties of the code structure that the AD code
+cannot, in general, safely assume. This is especially advantageous for the routine used
+for transpose matrix-vector products in the Jacobian-free version of the adjoint solver,
+which is because we call this routine multiple times in the GMRES solver, so the speed
+improvement in the second option outweighs the low implementation effort in the first
+option.
+    We call the forward- and reverse-mode master routines master d and master b,
+respectively. A high-efficiency masterfast b routine is also available to compute just
+the derivative of the residuals with respect to the states, which allows a reduced set of
+routines to be used for that computation. The internal structures for these routines are
+shown in Algorithms 2, 3, and 4. To construct the differentiated master routines, we first
+
+
+
+                                               64
+use Tapenade to differentiate all the subroutines in the master routine either in forward
+or reverse mode. We then call these differentiated functions in sequence to compute the
+necessary derivatives. Note that, in forward mode, the differentiated routines are called
+in the same order as the master routine whereas, for the reverse-mode computation,
+the differentiated routines are called in reverse order, as expected. Figure 11 shows the
+inputs and outputs for the original and differentiated master function.
+
+Algorithm 2 master d routine
+ 1: function master d(x, ẋ, w, ẇ)                             . input: x, ẋ, w, ẇ; output: Ṙ, f˙
+ 2:    wint , ẇint ← F Dint (x, ẋ, w, ẇ)
+ 3:    wbc , ẇbc ← F Dbc (x, ẋ, w, ẇ)
+ 4:    xgeo , ẋgeo ← F Dgeo (x, ẋ)
+ 5:    Ṙ ← F Dres (x, ẋ, w, ẇ, wint , ẇint , wbc , ẇbc , xgeo , ẋgeo )
+ 6:    f˙ ← F Dobj (x, ẋ, w, ẇ, wint , ẇint , wbc , ẇbc , xgeo , ẋgeo )
+ 7:    return Ṙ, f˙
+ 8: end function
+
+
+
+Algorithm 3 master b routine
+ 1: function master b(x, w, R, f )                          . input: x, w, R, f ; output: x, w
+ 2:    x, w, wint , wbc , xgeo ← F Bobj (x, w, wint , wbc , xgeo , f )
+ 3:    x, w, wint , wbc , xgeo ← F Bres (x, w, wint , wbc , xgeo , R)
+ 4:    x ← F Bgeo (x, xgeo )
+ 5:    x, w ← F Bbc (x, w, wbc )
+ 6:    x, w ← F Bint (x, w, wint )
+ 7:    return x, w
+ 8: end function
+
+
+
+Algorithm 4 masterfast b routine
+ 1: function masterfast b(w, R)                                        . input: w, R; output: w
+ 2:    w, wint , wbc ← F Bres (w, wint , wbc , R)
+ 3:    w ← F Bbc (w, wbc )
+ 4:    w ← F Bint (w, wint )
+ 5:    return w
+ 6: end function
+
+
+    The manual implementation described above requires a greater development effort
+than simply applying AD to the entire master routine. However, we obtain much more
+efficient code by using this approach than by using the straightforward approach, espe-
+cially in the reverse-mode case. This efficiency is derived from two main factors: The
+first factor is that, by manually assembling the derivative routine, we take advantage
+of the fact that many of the forward pass variables from the residual computation are
+
+
+
+                                                65
+computed and are up to date from the flow solution and do not need to be recomputed
+for each derivative computation. This is particularly important when we compute sev-
+eral transpose matrix-vector products in succession at the same solution point, as when
+doing a Krylov-type solution. In this case, a single forward pass computation can be
+reused for all of the matrix-vector products. The second factor is that we can be more
+selective about the variables that we push onto the AD stack during the reverse pass.
+    There are several variables that, based on careful inspection of the code, we know
+are not updated between subsequent subroutine calls and can therefore be left off the
+stack. A general purpose AD routine cannot make this assumption. This allows for
+a reduction in the number of variables stored during the reverse computation, thereby
+reducing memory requirements and computational cost. These efficiencies are especially
+important when solving the adjoint equation by using the Jacobian-free GMRES method
+because the reverse-mode computation is called repeatedly to compute the transpose
+matrix-vector products required for each GMRES iteration, as mentioned above.
+    Fortunately, most of the work involved in implementing this approach occurs in
+the initial creation of the various master routines. Once the master d and master b
+routines are constructed, they are easy to maintain and extend. All the differentiated
+subroutines called in the master d and master b routines are automatically generated
+by Tapenade before compiling the adjoint code. Therefore, when we add new terms
+to the flow residuals, we need only tell Tapenade to differentiate the subroutines that
+compute this new term and call these newly differentiated subroutines in the master d
+and master b routines to get the correct derivatives.
+
+     x, w                       x, w, ẋ, ẇ                               x, w, R, f
+
+
+  master(x, w)             master d(x, w, ẋ, ẇ)                     master b(x, w, R, f )
+
+
+                        ∂R      ∂R          ∂f      ∂f           ∂R T    ∂f T        ∂R T    ∂f T
+     R, f        Ṙ =      ẇ +    ẋ, f˙ =    ẇ +    ẋ   w=        R+      f, x =      R+      f
+                        ∂w      ∂x          ∂w      ∂x           ∂w      ∂w          ∂x      ∂x
+
+
+Figure 11: Inputs and outputs for the original and differentiated R and f functions in
+ADflow.
+
+    Once the master routine is differentiated with AD, we use the resulting code to
+compute all the partial derivatives and solve the linear equation. The Jacobian-free
+option in ADflow is the same as shown in Fig. 6 except that Ṙ(x, w, ẋ, ẇ) in process 1
+is replaced by master d, f (x, w, f ) in process 3 and R(x, w, R) in process 7 are replaced
+by master b, and R(x, w, R) in process 5 is replaced by masterfast b. The procedure
+then consists of the following major steps:
+
+  1. Set multiple rows associated with the first color to ones for the input vector ẇ and
+     use master d to compute the partial derivatives for these columns. Move to the
+     next color until the partial derivatives for all the columns are computed. Assemble
+     all the columns to construct the full preconditioner matrix [∂R/∂w]TP C .
+
+
+
+                                                    66
+  2. Set the input vector f = 1 and use master b to compute the partial derivative
+     [∂f /∂w]T .
+
+  3. Set [∂R/∂w]TP C as preconditioner matrix and [∂f /∂w]T as right-hand-side vector
+     for the GMRES solver. Set r 0 as input vector and use masterfast b to com-
+     pute the matrix-vector products [∂R/∂w]T r 0 for the GMRES iteration. Solve the
+     adjoint linear equation until converged and output ψ.
+
+  4. Set R = ψ and f = 1 as the input seeds for master b to compute the total
+                df   ∂f      ∂R
+     derivative    =    − ψT    .
+                dx   ∂x      ∂x
+    The FD Jacobian and AD Jacobian in ADflow are modified versions of Fig. 6 with
+two exceptions: First, in FD Jacobian we compute [∂R/∂w]T and [∂R/∂w]TPC by using
+the finite-difference method, whereas in AD Jacobian we use the forward-mode AD. Both
+approaches use a coloring scheme. Second, instead of using the Jacobian-free GMRES
+approach, we store the [∂R/∂w]T matrix and explicitly pass it to the GMRES solver to
+compute the matrix-vector products.
+    We now elaborate on the differentiation of residuals and functions for DAFoam. The
+construction of the differentiated R and f has two major differences compared with
+ADflow. First, no single master routine is constructed to compute all flow residuals and
+objective functions, primarily because DAFoam solves the flow in a segregated man-
+ner, as mentioned in Sec. 3.3. Therefore, we reuse the original OpenFOAM codes and
+construct multiple residual and objective computation functions. In other words, we
+construct RU (x, w), Rp (x, w), Rφ (x, w), Rν̃ (x, w), and f (x, w) separately. These
+functions are similar to the master routine, where we need to update all intermediate
+variables, boundary conditions, and geometric metrics before computing the flow resid-
+uals and objective functions. Figure 12 shows as an example the inputs and outputs
+for the differentiated RU and f functions. Second, we use an operator-overloading AD
+tool to differentiate the above functions because OpenFOAM is written in C++ with
+complex objective-oriented code structures. Moreover, to generalize solver development,
+OpenFOAM uses templates extensively. Given the above two features, it is impractical
+for a source code transformation tool to differentiate an OpenFOAM function.
+
+           x, w                x, w, RU              x, w              x, w, f
+
+
+         RU (x, w)           RU (x, w, RU )         f (x, w)         f (x, w, f )
+
+
+           RU             ∂RU T          ∂RU T         f            ∂f T        ∂f T
+                     w=         RU , x =       RU              w=        f, x =      f
+                           ∂w             ∂x                        ∂w          ∂x
+
+
+Figure 12: Inputs and outputs for the original and differentiated R and f functions in
+DAFoam.
+
+   We build our discrete adjoint solver based on an OpenFOAM version developed
+
+
+
+                                              67
+by Towara and Naumann [22], who differentiated OpenFOAM by using the operator-
+overloading tool dco/c++. As mentioned in Sec. 4.5, one of their adjoint solvers (ad-
+jointSimpleShapeCheckpointingFoam) computes the total derivative df / dx by using
+AD to differentiate the entire primal solver. In Sec. 5, we use adjointSimpleShapeCheck-
+pointingFoam to compare the AD Jacobian, FD Jacobian, Jacobian free, and full-code
+AD options. Note that we do not use the full-code AD option for our adjoint solvers. In-
+stead, we selectively differentiate parts of the code (e.g., the residual and objective com-
+putation functions). Since OpenFOAM was differentiated by using operator-overloading
+AD, it may be straightforwardly applied to any function without generating new differen-
+tiated code. Given this feature, differentiating the flow residual and objective computa-
+tion functions requires much less development effort compared with manually construct-
+ing the master routine and their differentiated versions in ADflow. Moreover, it may
+be straightforwardly extended to include new terms or governing equations. However,
+the convenience of operator overloading comes at a price: Its computational cost and
+memory usage exceed that of the adjoint codes generated by source code transformation.
+Section 5 compares results for these options.
+    Overall, the implementation of Jacobian free is similar to that shown in Fig. 6 with
+one exception: we compute [∂R/∂w]TPC by using finite-difference instead of forward-
+mode AD. The FD Jacobian in DAFoam is similar to that shown in Fig. 4, except that
+we directly compute ∂R/∂x and ∂f /∂x by using brute-force finite differencing and then
+compute df / dx, as discussed in Sec. A.1.
+
+
+
+
+                                            68
+

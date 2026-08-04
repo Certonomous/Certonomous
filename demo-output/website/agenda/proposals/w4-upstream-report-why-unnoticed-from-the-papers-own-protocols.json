@@ -1,0 +1,24 @@
+{
+    "id": "w4-upstream-report-why-unnoticed-from-the-papers-own-protocols",
+    "well": "W4",
+    "objective": "Rewrite the upstream report's framing and its why-unnoticed section from the DAFoam method papers now read in full, and run the papers' own published gradient check once per decomposition so the report can say the toolchain's own protocol fails when its never-varied axis is varied",
+    "rationale": "The three DAFoam method papers were fetched and read in full on 2026-08-04 (reading notes W2_DAFOAM_AIAAJ2020_VERIFICATION_READING, W2_DAFOAM_CAF2018_VERIFICATION_READING, W2_KENWAY_PAS2019_EFFECTIVE_ADJOINT_READING; synthesis DAFOAM_PAPERS_VERIFICATION_PROTOCOLS). The reading dissolves the contradiction our upstream report currently claims: the AIAA Journal abstract's under-0.1 percent and 1536 cores were two disjoint experiments, both on the v1 explicit FD-Jacobian architecture, while the matrix-free reverse-AD operator family that v5's calcJacTVecProduct descends from has exactly one published accuracy measurement and it is serial by design, with the survey's own conclusions stating the absence of parallel data in so many words. No paper varies a decomposition anywhere, no paper verifies any adjoint on a refinement-interface mesh with a stated graph partitioning, and no paper states a halo-exchange tape caveat, so the report stays a bug report but no longer needs to argue against a peer-reviewed number, which strengthens it. Three of our own documents carry the conflated abstract-tier citation and owe corrections named in the synthesis. The 2018 paper also verifies dCD/du0 against finite differences on a snappy Ahmed mesh, which is our defect geometry family; running that exact published check on the existing 2,777-cell A4 case at np 1 and np 4 scotch closes the loop the report wants: their protocol passes at a fixed decomposition and fails the moment the axis is varied.",
+    "gate": "Every citation in the upstream report and the liaison memo that touches the papers carries a READ IN FULL tier with section or table location, the contradicts-a-published-claim sentence is replaced by the fills-a-declared-hole framing quoting the survey's conclusions sentence verbatim, and the dCD/du0 arm is reported only with its own finite-difference column beside each decomposition's analytic value, per run, same protocol as check_totals",
+    "est_core_min": 8,
+    "predicted_memory_gb": 4.0,
+    "predicted_usd": 0.11,
+    "cost_basis": "measured: A4 adjoint checks on this box cost 2.1 to 2.9 core-min per arm at one to four ranks (A4 record, supervisor sweep re-run 2.9). Two arms of a single-component far-field-velocity derivative check plus its FD reference are at most three such units; the documentation amendments are zero solver cost",
+    "expected_knowledge_gain": "The upstream report's evidence standard rises: its why-unnoticed section becomes citable line by line against the papers' own protocol tables instead of against an abstract excerpt, and its tone question (bug versus known limitation) closes with quotes searched for and found absent. The dCD/du0 arm adds the one sentence a maintainer cannot argue with: the toolchain's own published verification check, run unmodified on the same case, passes at np 1 and fails under scotch at np 4. If the arm instead passes under scotch, that bounds the defect to the geometric-variable chain and the report must say so, which is equally worth knowing before filing",
+    "source_kind": "reading",
+    "citations": [
+        "demo-output/website/dafoam/DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md",
+        "demo-output/website/campaign/W2_DAFOAM_AIAAJ2020_VERIFICATION_READING.md",
+        "demo-output/website/campaign/W2_DAFOAM_CAF2018_VERIFICATION_READING.md",
+        "demo-output/website/campaign/W2_KENWAY_PAS2019_EFFECTIVE_ADJOINT_READING.md",
+        "Kenway, Mader, He, Martins, PAS 2019, Conclusions: only-in-serial sentence, tier READ IN FULL, docs/papers/kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf",
+        "He, Mader, Martins, Maki, C&F 2018, Tables 4-5 and section 2.9, tier READ IN FULL, docs/papers/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf",
+        "demo-output/website/dafoam/UPSTREAM_BUG_REPORT_decomposition_adjoint.md"
+    ],
+    "status": "proposed",
+    "created_at": "2026-08-04T18:47:00Z"
+}
