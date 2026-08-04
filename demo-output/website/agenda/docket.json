@@ -3246,7 +3246,28 @@
     "roadmap 4A Stage 1"
    ],
    "status": "proposed",
-   "created_at": "2026-08-01T07:20:00Z"
+   "created_at": "2026-08-01T07:20:00Z",
+   "progress_note": "2026-08-04, W2 reading: full patch spec now exists at demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md section 5, read from the installed v5.0.0 source in dafoam/opt-packages:latest. The change is two lines plus a mirror field: the destruction term '- fvm::Sp(phase_() * rho() * beta * omega_(), omega_)' at DAkOmegaSST.C:745 (calcResiduals) AND :870 (getFvMatrixFields, the preconditioner -- both or the PC is inconsistent) gains a multiplier [(betaFIOmegaDestr-1)*fd+1] with fd = 1-tanh((8*rd)^3) computed in-model (paper Eq. 5-6; the 8 is Spalart 2006's SA value, NOT OpenFOAM's SST-DDES Cd1=20). Registration is name-only: a whole-repo sweep shows betaFIOmega has no registration outside the model class; DAInputField.C:107 resolves fieldName by mesh-DB lookup, so cloning the READ_IF_PRESENT/default-1.0 constructor at DAkOmegaSST.C:137-146 under the new name is the whole wiring. AD needs nothing per-term: the ADF/ADR build variants differentiate the source by operator overloading. The 'may not be buildable' risk is half-retired: the image ships the full source tree with Make dirs, and dafoam-subpclu:v1 on this box is precedent for a patched rebuild; build wall-time still unmeasured. SCOPE CORRECTION from the same reading: the rank-2 entry model is SST-QCRC -- it also carries an untrained QCR2000 constitutive term (c_r=0.3) in the momentum equation, so this patch alone reproduces the paper's inversion capability, not the entry's deployed model; duct-score parity additionally needs w3-qcr-constitutive-term-for-rank2-parity, filed by the reading. Gate unchanged."
+  },
+  {
+   "id": "w3-qcr-constitutive-term-for-rank2-parity",
+   "well": "W3",
+   "objective": "Add the untrained QCR2000 quadratic constitutive term (c_r = 0.3) the rank-2 closure entry carries, so a duct-score comparison against 0.0455/0.0399 can ever be like-for-like",
+   "rationale": "The rank-2 entry's own description document (docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf, READ IN FULL 2026-08-04) names its model SST-QCRC: conditioned beta on the omega destruction term PLUS tau_ij = tau^l_ij - c_r(O_ik tau^l_kj - tau^l_ik O_kj) with c_r = 0.3 adopted untrained from Spalart 2000. No lab document mentioned the QCR half before the W2 reading; C2 and ACTIVE_RESEARCH characterize the entry as beta-on-destruction only. The beta patch (w3-beta-on-omega-destruction-model-patch) touches the omega equation; QCR touches the Reynolds stress the momentum equation sees, a structurally different change. Without it, any score from a patched-beta model set beside the entry's duct scores repeats at one level up exactly the not-like-for-like comparison ruling R6 forbade for the production hook.",
+   "est_core_min": 30,
+   "predicted_memory_gb": 12.0,
+   "predicted_usd": 0.0,
+   "cost_basis": "Estimate, same shape as the beta patch item: solver verification cost is bounded by the S1 protocol on the 5,000-cell tutorial case at ~1.7 core-min per gradient. The unpriced half is again the build, shared with the beta patch (one rebuild can carry both changes), plus one open scoping question priced at zero compute: where DAFoam's momentum equation takes its stress divergence from, and hence whether QCR is a turbulence-model-class change or a solver-class change. That question is answered by reading, not running.",
+   "gate": "The QCR term active in the primal on the tutorial case with the adjoint still converging and FD agreement of the order S1 achieved (2.67 percent), or a documented statement of where the stress divergence lives and why the term cannot be added there.",
+   "expected_knowledge_gain": "Closes the gap between what the lab can build after the beta patch and what the rank-2 entry actually is, making a like-for-like duct reproduction claimable at all",
+   "source_kind": "capability",
+   "citations": [
+    "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
+    "docs/papers/wu_zhang_sst_qcrc_challenge_description.pdf",
+    "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
+   ],
+   "status": "proposed",
+   "created_at": "2026-08-04T15:45:00Z"
   },
   {
    "id": "w5-near-threshold-ill-conditioned-regime",
