@@ -4260,7 +4260,12 @@
     "dafoam/PROOF.md"
    ],
    "status": "proposed",
-   "created_at": "2026-08-01T07:44:03Z"
+   "created_at": "2026-08-01T07:44:03Z",
+   "claim": {
+    "claimed_by": "solver-agent w4-carry-the-warp-patch-to-the-blocked-rungs (W4 session)",
+    "claimed_at": "2026-08-04T16:45:00Z",
+    "note": "Under work this session. First step is a survey of which previously failing rungs still lack a patched-warp regrade beside their stock verdict -- the ladder record suggests several carries this item names have already landed under other items (w5-regrade, W4-a2-provenance, w5-a1-a5-full-fd-tables), so the survey decides what actually runs before any solve is launched. Do not start this item elsewhere."
+   }
   },
   {
    "id": "w4-a-pivoting-factorization-for-the-blocked-adjoints",
