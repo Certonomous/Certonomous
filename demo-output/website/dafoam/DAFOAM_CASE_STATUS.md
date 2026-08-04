@@ -11,6 +11,32 @@ the old band):** PASS at ≤5% aggregate **and** no flagged component; CONDITION
 FAIL above 15% **or** any sign-flipped/unstable component regardless of aggregate. The
 earlier "1–12% is normal" band (inferred from A1 alone) is retired.
 
+## Grading policy — shipped vs patched toolchain (PROPOSED 2026-08-04, awaiting supervisor review; not yet lab law)
+
+Proposed under docket item `w4-carry-the-warp-patch-to-the-blocked-rungs`
+(`W4_CARRY_TO_BLOCKED_RUNGS.md`), to state explicitly the convention every regrade
+since 2026-08-01 has followed implicitly. Flagged for review rather than declared,
+because a change to grade law is not a solver session's to make.
+
+1. **Verdicts are graded against the SHIPPED toolchain** — DAFoam 5.0.0 + IDWarp 2.6.2
+   as installed in the container — because that is the only stack a reader can install
+   and the only one a published claim can rest on. A1's CD/shape FAIL at 11.43% and
+   A5's FAIL at 46.64% stand for as long as the shipped package carries the bug,
+   however completely the local patch repairs them.
+2. **Patched-toolchain numbers are recorded BESIDE the stock verdict, as
+   diagnosis-confirmed-by-repair.** They attribute cause; they do not move a grade.
+   The patch is `rotation_branch/idwarp_v2.6.2_degenerate_branch_fix.patch` applied to
+   a scratch clone, never to an installed package, and nothing has been filed upstream.
+3. **A rung MAY additionally carry a "patched grade", clearly labeled as such** —
+   e.g. "FAIL (shipped, 46.64%); patched clone reads 0.18%, would be PASS" — provided
+   the paired-run controls that make the comparison readable are on the record: the FD
+   column bit-identical between the stock and patched halves, the primal invariant,
+   and `IDWARP_IMPORTED_FROM:` stamped in both logs.
+4. **A patched grade becomes eligible to REPLACE a shipped grade only if the fix ships
+   upstream, or the lab formally adopts a forked toolchain — and that adoption is
+   Katie's call, not a session's.** Until then a patched grade is a prediction about a
+   future toolchain, and it is presented as one.
+
 ---
 
 ## Ladder A — DAFoam verification/reproduction ladder
