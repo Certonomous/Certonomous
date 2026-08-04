@@ -127,7 +127,11 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] Compute-budget charter (P-6.1 spot-vs-on-demand blocked on AWS read-only role).
 - [x] Escalation charter (P-7.1 free-spend thresholds: no number set — needs Katie).
 - [x] Reporting charter: morning-report format FROZEN (v2.0, 2026-07-31, 12 sections + enforcement via `scripts/self_audit.py`).
-      → NEW ITEM (from this cross-off): **P-8.1 emitter half** — build the morning-report generator (checker half landed).
+      → ~~P-8.1 emitter half~~ CROSSED 2026-08-04: emitter built at `scripts/morning_report.py`, 26 tests green,
+      first real report `campaign/reports/MORNING_REPORT_2026-08-04.md`, commit e9ef5a78.
+      → NEW ITEM (from this cross-off): **Morning report runs itself** — schedule the emitter to run each morning,
+      and make the spend ledger catch the day's runs (ledger's newest row was 5 days stale on first emit;
+      connects to open docket item `w7-every-run-writes-to-the-registry`).
 - [ ] Problem-research protocol (NEW 2026-08-04, Katie's directive): liaison researches every breakage online
       (literature, upstream issues, forums) and maintains a living systematic-method doc. First draft dispatched.
 
@@ -140,6 +144,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - CROSSED: 4H reporting-charter format (v2.0 frozen) → added "P-8.1 emitter half".
 - CROSSED: 4E A4 (PASS confirmed by supervisor sweep, records reconciled) → successors: A4 decomposition mechanism
   item + A4-novelty proposal.
+- CROSSED: 4H P-8.1 emitter (built, 26 tests green, first report emitted) → added "Morning report runs itself
+  + spend ledger catches the day's runs".
+- FILED: three research proposals (2eb00350): A4 three-discriminators (W4, 45), duct structural-limit with falsifier
+  (W2, 10), mesh-draw verdict protocol (W3, 20).
 - UPDATED: 4B scores to round 4 (0.0654, rank 3/5); 4E rewritten rung-by-rung from `DAFOAM_CASE_STATUS.md`/`PROOF.md`
   (A4 → PASS pending verification; A1/A5 root-caused; A3 conditioning-blocked; A6 primal provisional-pass).
 - ADDED: 4C NACA 0012 wall-credential re-grade; 4E warp-patch carry + grading policy; 4E A4 mechanism; 4H problem-research protocol.
