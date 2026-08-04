@@ -186,3 +186,21 @@ core-minutes that actually ran.
 
 R10 covers warm paths and deliberately leaves this alone. It is the more
 serious direction of the two and it is now filed rather than fixed in passing.
+
+## R11. The grading policy the regrades already follow becomes law, minus the clause that is not mine
+
+Ruled 2026-08-04. The four-point shipped-vs-patched grading policy proposed in
+`demo-output/website/dafoam/DAFOAM_CASE_STATUS.md` under
+`w4-carry-the-warp-patch-to-the-blocked-rungs` is **adopted** as stated: verdicts
+grade against the shipped toolchain; patched numbers sit beside them as
+diagnosis-confirmed-by-repair; a clearly-labeled patched grade is permitted only
+with the paired-run controls on the record (bit-identical FD column, invariant
+primal, `IDWARP_IMPORTED_FROM:` stamps); and point 4's replacement clause is
+adopted exactly as written — a patched grade replaces a shipped grade only on an
+upstream fix or on Katie's adoption of a fork, which is her decision and stays
+on the decision-requests list.
+
+The reason to adopt rather than wait: every regrade since 2026-08-01 already
+follows this convention implicitly, and two supervisor sweeps (rotation patch,
+A4 decomposition) verified regrades produced under it. A convention that is
+already load-bearing and already audited is worse unstated than stated.

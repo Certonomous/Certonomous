@@ -11,7 +11,7 @@ the old band):** PASS at ≤5% aggregate **and** no flagged component; CONDITION
 FAIL above 15% **or** any sign-flipped/unstable component regardless of aggregate. The
 earlier "1–12% is normal" band (inferred from A1 alone) is retired.
 
-## Grading policy — shipped vs patched toolchain (PROPOSED 2026-08-04, awaiting supervisor review; not yet lab law)
+## Grading policy — shipped vs patched toolchain (ADOPTED 2026-08-04 by supervisor ruling R11, `docs/charters/SUPERVISOR_RULINGS.md`; point 4's fork-adoption clause remains Katie's)
 
 Proposed under docket item `w4-carry-the-warp-patch-to-the-blocked-rungs`
 (`W4_CARRY_TO_BLOCKED_RUNGS.md`), to state explicitly the convention every regrade
