@@ -1,0 +1,22 @@
+{
+ "id": "s1-cbfs-field-inversion-run",
+ "well": "S1",
+ "objective": "Run the Stage 1 FIML field inversion on CBFS: per-cell beta on the SST omega PRODUCTION term, driven by the verified sub-LU adjoint, toward the benchmark's own Bentaleb LES velocity field",
+ "rationale": "The successor item minted when fiml-adjoint-conditioning-unblock closed (PRODUCT_LIST changelog 2026-08-04). The capability is verified end to end: image dafoam-subpclu:v1 with DAFOAM_SUBPC_TYPE=lu converges the CBFS beta adjoint (reason 2, 667 iters) and the 21,000-component gradient is FD-verified to 0.02-0.2 percent on four cells, one of them chosen independently by the supervisor sweep. This run is the first actual inversion on a closure-relevant case: L-BFGS-B (SLSQP's dense workspace is 30.0 GB at n=21,000, the whole host), bounds [0.2, 4.0], J = lambda_QoI*varianceU + lambda_L2*sum((beta-1)^2) normalized to 1 at beta=1, ~36 evaluations inside the cap. Production-term-labeled, never like-for-like with Wu/Zhang's destruction-term numbers (C2 correction 2026-08-04, R6).",
+ "est_core_min": 600.0,
+ "predicted_memory_gb": 8.0,
+ "cost_basis": "measured: one cold compute_totals on this exact case and DV set is 16.2-16.4 core-min at 4 ranks (W4, twice); budget = ~36 evaluations plus a final cold primal for the field write-out; marginal per-eval cost is calibrated on the first 3 evaluations and the pre-registration amended if off by more than 2x",
+ "gate": "Pre-registered in S1_CBFS_INVERSION_PREREGISTRATION.md before any iteration ran: G1 normalized QoI term falls to 0.70 or below within budget; G2 top-decile |beta-1| cells majority inside the pre-declared separated-flow window (0<=x/h<=6, 0<=y/h<=2); hard 600 core-min cap with checkpoint-and-stop and the partial trajectory recorded honestly if hit",
+ "expected_knowledge_gain": "The lab's first field inversion on a closure-relevant case; where a production-term beta wants to move on CBFS; the measured per-iteration price Stage 2 planning needs",
+ "source_kind": "measurement",
+ "citations": [
+  "demo-output/website/dafoam/ladder-b/W4_ADJOINT_PC_UNBLOCK.md",
+  "demo-output/website/dafoam/VERIFICATION_cbfs_unblock_supervisor_sweep.md",
+  "demo-output/website/campaign/W2_WU_ZHANG_DESTRUCTION_FIML_READING.md",
+  "demo-output/website/dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md"
+ ],
+ "status": "approved",
+ "created_at": "2026-08-04T18:50:00Z",
+ "decided_at": "2026-08-04T18:50:00Z",
+ "decision_note": "Approved under Katie's standing authorization (full approval granted for the filed proposals; Stage 1 CBFS inversion dispatched with pre-registration-first and the 600 core-min cap in the PRODUCT_LIST dispatch note). Pre-registration committed before any inversion run."
+}
