@@ -8,17 +8,41 @@ Created 2026-07-28 because no board of this name existed in the repository. If
 an external board was intended instead, this file should be pointed at it — the
 question is logged in the blockers list, and work did not wait on the answer.
 
-Last updated: 2026-07-30 UTC (Ladder C — closure challenge submission policy
+Last updated: 2026-08-04 UTC (Ladder C — **round 4 is the entry of record:
+overall 0.0654**, a duct-only change; Ladder A — A4 CONDITIONAL → PASS pending
+supervisor verification sweep, blocker B-7 closed. Dated update paragraphs
+below).
+
+Update 2026-07-30 UTC: Ladder C — closure challenge submission policy
 established, eligibility verdict recorded, compliance audit run; **both blocking
 defects since cleared — the eight submission CSVs now exist and the false
 docstring is corrected**. Ladder W5 — external challenge scouting sweep filed to
-the docket).
+the docket.
 
 Update 2026-08-01 UTC: Ladder A — the A1/A5 gradient defect is root-caused to a
 source line and repaired in a **local** IDWarp patch, confirmed by repair; the
 A1/A5 rows and the consolidated FD table below now carry the patched numbers
 beside the stock ones. **The shipped toolchain still carries the bug; no stock
 verdict changes.**
+
+Update 2026-08-04 UTC: Ladder C — **round 4 (2026-07-31) is the entry of
+record: overall 0.0654, rank 3 of 5**; the round-3 headline in the Ladder C
+section below is superseded and the new paragraph there carries the numbers.
+Ladder A — two results committed after the 2026-08-01 note: **A4's verdict
+moves CONDITIONAL → PASS (2026-08-02)** — the published 10.04% was DAFoam's
+default `scotch` decomposition on this mesh, not a gradient defect (1.10%
+against the shipped toolchain at np=1, 0.00054% patched under `simple` at
+np=4; the decomposition alone closes 92% of the published error, the rotation
+patch 11%, and the two defects factor — `dafoam/DAFOAM_CASE_STATUS.md`,
+`PROOF.md` §25.5), **pending supervisor verification sweep (2026-08-04)**; and
+**blocker B-7 is closed (2026-08-02)** — A2's 14% CD spread was a wrong-script
+error (every W5 run invoked the aerostructural `runScript.py` where the
+published numbers come from `runScript_AeroOnly.py`); from a pristine clone
+the primal reproduces CD 0.02772949 / CL 0.4775877833 to all ten printed
+digits, `check_totals` returns 18 of 18 rows identical to the published log,
+and the regrade W5 could not run is done (CD/shape 1.71% → 0.0506%), so
+**A2's PASS is now re-measured rather than asserted** (`PROOF.md` §25.1,
+§25.1b).
 
 ---
 
@@ -69,9 +93,9 @@ gate.
 | Rung | Case | Status | Headline measured result |
 | --- | --- | --- | --- |
 | A1 | NACA0012 incompressible, official tutorial | **COMPLETE; ~~FD-verified~~ CD/shape FAIL against the shipped toolchain under the current standard (sign-flipped idx6); cause found and fixed in a local patch, 2026-08-01 — see note below the FD table** | CD 0.0209105, CL 0.4987653, 4,032 cells, 3.51 core-min. CD/CL wrt patchV, CL/shape and constraints pass; CD/shape carries a real sign-flipped component (idx6, 634% under the real seed) traced to IDWarp `vectorUtils.f90:58`. Patched-warp results, recorded beside the stock FAIL: idx6 → 5.54e-04% sign agreeing, idx0/idx1 11.92%/11.58% → 1.2e-05%, primal md5-identical. **Full-chain `check_totals` measured 2026-08-01, np=2, stock and patched back to back: CD/shape 11.43% → 0.03745%, CL/shape 1.671% → 0.01494%, every FD magnitude bit-identical between the two runs and the baseline primal converging to the same 9.646409714038222e-09** (`dafoam/W5_GRADIENT_REGRADE.md` §1). **Stock DAFoam/IDWarp 2.6.2 as shipped still carries the bug** |
-| A2 | MACH tutorial wing (3D) | **COMPLETE, optimization run; the FD verification is NOT currently re-runnable (2026-08-01) — twist rows measured clear, shape rows and the 28.28% unregraded** | CD 0.02772949, CL 0.47759, 38,304 cells; **28.28% drag reduction** at matched CL, time-boxed; 692.5 core-min. **The preserved case is post-optimisation**: its primal starts at CD 0.03142 against the published 0.02772949, a patched `check_totals` died at perturbation 132/211 with a DAFoam mesh-quality error after 238 core-min, and rebuilding the mesh from `preProcessing.sh` lands at 0.02964133 — a 14% spread across four solves of the same case, CL climbing 0.4776/0.4967/0.4999/0.5216. **Measured on A2's own geometry: the corrected derivative is a bit-identical no-op for the 7 twist DVs** (analytic 2.020405e-03 and 2.266683e-02 unchanged), so CD/twist and CL/twist hold; the 96 local FFD shape DVs are the mode A1 shows the defect *does* reach, and they are unregraded. `dafoam/W5_GRADIENT_REGRADE.md` §3, §3a, §3b |
+| A2 | MACH tutorial wing (3D) | **COMPLETE, optimization run; ~~the FD verification is NOT currently re-runnable (2026-08-01)~~ *(superseded 2026-08-02: B-7 closed — the 14% spread was a wrong-script error, the published verification re-runs digit-for-digit and the regrade is done; PASS re-measured, see the 2026-08-04 update above)*** | CD 0.02772949, CL 0.47759, 38,304 cells; **28.28% drag reduction** at matched CL, time-boxed; 692.5 core-min. **The preserved case is post-optimisation**: its primal starts at CD 0.03142 against the published 0.02772949, a patched `check_totals` died at perturbation 132/211 with a DAFoam mesh-quality error after 238 core-min, and rebuilding the mesh from `preProcessing.sh` lands at 0.02964133 — a 14% spread across four solves of the same case, CL climbing 0.4776/0.4967/0.4999/0.5216. **Measured on A2's own geometry: the corrected derivative is a bit-identical no-op for the 7 twist DVs** (analytic 2.020405e-03 and 2.266683e-02 unchanged), so CD/twist and CL/twist hold; the 96 local FFD shape DVs are the mode A1 shows the defect *does* reach, and they are unregraded. `dafoam/W5_GRADIENT_REGRADE.md` §3, §3a, §3b |
 | A3 | ONERA M6 transonic | **primal UNCONVERGED; adjoint blocked at every mesh size** | The primal plateaus at 1.02e-06 against its own 1e-08 tolerance and raises an explicit error, so CD 0.02299556 and CL 0.31311589 are uncertified. The Cp comparison was never evaluable -- the solver raises before writing a field. Adjoint returns a linear-solver breakdown at 21,840, 42,120, 79,560 and 99,840 cells, so mesh size is not the constraint; 127.5 core-min |
-| A4 | Ahmed body 25 deg | **gradient CONDITIONAL, and the upstream fix does NOT clear it (2026-08-01); primal drag WITHDRAWN** | Gradient checked at 10.04% on a 2,777-cell mesh; re-run today on the shipped toolchain it reproduces exactly (analytic 0.21821, FD 0.24258, 10.04%), and re-run with the corrected `getRotationMatrix3d` derivative it moves only to **8.953%** — the FD unchanged at 0.24258, the baseline primal CD identical at 0.03125419. **About 11% of A4's gradient disagreement is the rotation defect; the other 89% has no identified cause**, unlike A1 and A5 where the same four lines collapse the error to FD-truncation level. Grade stays CONDITIONAL (5–15% band) and the file's own unreconciled "PASS" wording is superseded. Evidence: `dafoam/W5_GRADIENT_REGRADE.md` §2, `dafoam/w5_regrade/a4_{stock,patched}_checktotals.tail.log`. The 45,760-cell primal that produced CD 0.06998 is withdrawn: its turbulence field diverged while its normalised residual read as converged, and the drag was computed from that state. Needs a re-run before any drag number is quoted; 10.9 core-min + 7.0 core-min regrade |
+| A4 | Ahmed body 25 deg | **gradient ~~CONDITIONAL~~ → PASS *(superseded 2026-08-02: the 10.04% was the `scotch` decomposition, not the gradient — see the 2026-08-04 update above)*, pending supervisor verification sweep (2026-08-04); primal drag WITHDRAWN** | Gradient checked at 10.04% on a 2,777-cell mesh; re-run today on the shipped toolchain it reproduces exactly (analytic 0.21821, FD 0.24258, 10.04%), and re-run with the corrected `getRotationMatrix3d` derivative it moves only to **8.953%** — the FD unchanged at 0.24258, the baseline primal CD identical at 0.03125419. **About 11% of A4's gradient disagreement is the rotation defect; the other 89% has no identified cause**, unlike A1 and A5 where the same four lines collapse the error to FD-truncation level. ~~Grade stays CONDITIONAL (5–15% band) and the file's own unreconciled "PASS" wording is superseded.~~ *(Superseded 2026-08-02: the residual is identified — DAFoam's default `scotch` decomposition, an artifact independent of the gradient itself — and the verdict moves up to PASS, pending supervisor verification sweep (2026-08-04); `PROOF.md` §25.4–25.5.)* Evidence: `dafoam/W5_GRADIENT_REGRADE.md` §2, `dafoam/w5_regrade/a4_{stock,patched}_checktotals.tail.log`. The 45,760-cell primal that produced CD 0.06998 is withdrawn: its turbulence field diverged while its normalised residual read as converged, and the drag was computed from that state. Needs a re-run before any drag number is quoted; 10.9 core-min + 7.0 core-min regrade |
 | A5 | U-bend internal flow | ~~running~~ *(stale cell, superseded)* **COMPLETE; FD verdict FAIL against the shipped toolchain; cause found and fixed in a local patch, 2026-08-01 — see note below the FD table** | 4,800 cells, ~26.0 core-min. FD aggregate 46.6%, 2 of 27 components sign-flipped (idx8 207.0%, idx17 121.6%) — root cause shared with A1: IDWarp `vectorUtils.f90:58` degenerate-rotation branch, real-seed solve-free reproduction component by component. Patched-warp results, recorded beside the stock FAIL: idx8/idx17 → 3.0e-06/7.0e-06 signs agreeing; all 27 stock-objective components rel_err 0.0000 (before-worst 80.79%); primal md5-identical. **Full-chain `check_totals` measured 2026-08-01 on the published pressure-loss configuration, np=4, stock and patched back to back: 46.6377% → 2.2372%** (analytic 1.938364e+01 → 3.350432e+01 against an FD of 3.340851e+01 identical in both, baseline TP1 2869.524210823638 identical in both and in the published log). A patched A5 would carry no flagged component and a 2.24% aggregate, inside the ≤5% PASS band — **but 2.24% is 60× A1's patched residual and is not explained**, and no shipped stack produces it (`dafoam/W5_GRADIENT_REGRADE.md` §4). **Stock DAFoam/IDWarp 2.6.2 as shipped still carries the bug** |
 | A6 | CRM wing (wing-alone; DPW4 wing-body rejected on time-box grounds), transonic | **COMPLETE, converged primal, matches published tutorial baseline** | CD 0.0209014, CL 0.5000146, 579,072 cells, matches DAFoam's own published tutorial CD=0.02090 to 0.0067%; a raw temperature-residual figure at the same checkpoint is anomalously large and has not been cleared, so this row is provisional pending that check; adjoint not attempted (known-infeasible per A3, mesh 1.45x A3's OOM point); 38.4 core-min |
 
@@ -85,7 +109,7 @@ gate.
 | A1 | CL wrt shape | **1.67%** |
 | A1 | CD wrt shape | **11.43%** on the difference-vector norm, but the two gradient magnitudes agree to **0.451%**. **FAIL against the shipped toolchain** (sign-flipped idx6; 634% under the real seed). *Patched local IDWarp (2026-08-01), rotations ON, real seed: idx6 → 5.54e-04% sign agreeing; idx0/idx1 11.92%/11.58% → 1.23e-05%/1.26e-05%; idx7 1.31e-06%; idx4 1.47e-04%. Stock still fails* |
 
-| A4 | CD wrt rear-slant shape | **10.04%**, adjoint 0.21821, FD 0.24258. **CONDITIONAL** under the current standard. It was graded PASS against the calibrated band, which is retired; two other records already grade it CONDITIONAL and this row was the stale one |
+| A4 | CD wrt rear-slant shape | **10.04%**, adjoint 0.21821, FD 0.24258. ~~**CONDITIONAL** under the current standard.~~ *(Superseded 2026-08-02: the 10.04% is a `scotch`-decomposition artifact — 1.10% shipped at np=1, 0.00054% patched under `simple` at np=4. **PASS**, pending supervisor verification sweep (2026-08-04).)* It was graded PASS against the calibrated band, which is retired; two other records graded it CONDITIONAL before the decomposition finding |
 | A5 | objective wrt shape, 27 components | **46.6%** aggregate; only 5 of 27 within the 12% band; **2 sign flips** — **FAIL against the shipped toolchain**. *Patched local IDWarp (2026-08-01), rotations ON, real seed: idx8 207.0% flip → 3.0e-06, idx17 121.6% flip → 7.0e-06, signs agree; all 27 stock-objective components rel_err 0.0000 (before-worst 80.79%). Stock still fails* |
 
 ### 2026-08-01 note on the A1/A5 patched numbers: what changed and what did not
@@ -475,7 +499,36 @@ estimates, not an exact error budget.*
 
 ## Ladder C — closure challenge
 
-**Round 3 (new): closure metric moved 0.0741 → 0.0676 (−0.0065).** The C1
+**Round 4 (2026-07-31), the entry of record: closure metric moved
+0.0676 → 0.0654 (−0.0022), rank 3 of 5, gap to rank 2 cut 0.0052 → 0.0030.**
+A duct-only change: Variant D replaces the round-2/3 duct model — a
+Reynolds-invariant `d/d_max` feature and a velocity-scale-normalised target,
+trained on the 4 DUCT training cases (`AR_1/3/5/10_Ret_180`) and
+pre-registered on the benchmark's own suggested duct validation case
+`AR_7_Ret_180` (`closure_challenge_duct_reynolds_transfer.json`, committed
+before any test score for it existed). The five non-duct predictions are
+byte-identical to round 3, SHA-256-verified against the entry manifest.
+Per-case: AR_1_Ret_360 0.0919 → 0.0811, AR_3_Ret_360 0.0862 → 0.0775,
+AR_14_Ret_180 0.0303 → **0.0325 — a regression, deliberately NOT reverted**:
+choosing per-case between two models after seeing their per-case test scores
+is selection on test outcomes, exactly what the benchmark's one strict rule
+exists to prevent; Variant D was frozen on validation evidence and applied to
+all three ducts or none. AR_14's lead over Reissmann collapses from 0.0022 to
+0.00003 (0.0324698 against the published 0.0325) — a nominal lead that must
+not be reported as a comfortable win. We are no longer last on any duct; last
+on the board only on NASA_2DWMH. Best-on-board 5 of 8, unchanged. This was
+the 5th cumulative scoring call (distinct prediction sets scored — a
+self-imposed ledger; the benchmark imposes no limit). The sign pattern
+matched the pre-registered diagnosis on all three ducts: improvement
+concentrated where `Re_y` leaves the trained range (−0.0108, −0.0087), a
+small loss where it does not (+0.0022). Records:
+`demo-output/website/closure_challenge_trained_entry_round4_duct.json`,
+`demo-output/website/closure_challenge_submission_round4/test/` (8 CSVs),
+`sdk/scripts/closure_round4_duct_rescale.py`,
+`CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §7.1.
+
+**Round 3 *(superseded as entry of record by round 4 above)*: closure metric
+moved 0.0741 → 0.0676 (−0.0065).** The C1
 gate (fit and validated on train/validation only, deliberately not applied
 to the test set in the prior session) was evaluated on the 4 official PH
 test cases for the first time, using only their RANS-derived features. It
@@ -494,7 +547,7 @@ benchmark. Full account: `demo-output/website/CLOSURE_CHALLENGE_STATUS.md`
 | --- | --- | --- |
 | 1 | Reissmann, Fang, and Sandberg | 0.0595 |
 | 2 | Wu and Zhang | 0.0624 |
-| — | **ours, unsubmitted (round 3)** | **0.0676** |
+| — | **ours, unsubmitted (round 4)** | **0.0654** |
 | 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
 | 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
@@ -503,7 +556,8 @@ alpha_15_13929_4048 at 0.0501 against a best-other 0.0592,
 alpha_15_13929_2024 at 0.1011 against 0.1195, alpha_05_4071_4048 at 0.0461
 against 0.0569, alpha_05_4071_2024 at 0.0719 against 0.0760 (both now the
 gated raw-RANS value, which itself beats every published entry on those two
-cases), and AR_14_Ret_180 at 0.0303 against 0.0325.
+cases), and AR_14_Ret_180 at 0.0325 (round 4) against Reissmann's published
+0.0325 — ours 0.0324698, a 0.00003 lead, nominal rather than comfortable.
 
 **What is still blocked, unchanged**: the duct streamwise-profile deficit
 (Term 2, the larger of the two identified recoverable terms) remains gated
@@ -621,6 +675,10 @@ submission. BOTH ARE NOW CLEARED (2026-07-30, later the same day):**
 2. ~~**No submittable artifact exists.**~~ **FIXED — the eight CSVs now exist**, at
    `demo-output/website/closure_challenge_submission/test/{case}.csv`, written by
    `sdk/scripts/export_closure_submission_csvs.py` in 69.7s on the 2-core cap.
+   *(Round-3 set; the round-4 entry of record carries its own eight CSVs at
+   `closure_challenge_submission_round4/test/`, with the five non-duct files
+   byte-identical, SHA-256-verified, and the submission draft now quotes
+   0.0654.)*
 
    | Check | Result |
    | --- | --- |
@@ -667,7 +725,7 @@ the eight CSVs exist, and the version label is superseded by the commit hash
 Outstanding: **Katie fills the author names and the reference URL, and Katie
 proofreads and approves.** Nothing moves before that.
 
-Ambition ahead: get the sign-off, and put the entry on the board where its 0.0676
+Ambition ahead: get the sign-off, and put the entry on the board where its 0.0654
 can be independently rescored by someone outside this lab — the first external
 check this result would ever have had.
 
