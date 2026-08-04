@@ -12,7 +12,9 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] Stage 0 do-no-harm gate on the corrector (never score below raw RANS).
 - [-] Stage 1 FIML field inversion (beta on SST omega-destruction) via DAFoam adjoint, FD-verified; first target NASA hump.
       Capability half DONE and FD-verified (2.67%, 5,000 DVs, step-independent — `dafoam/ladder-b/S1_FIML_FIELD_INVERSION.md`).
-      CONDITIONING BLOCKER BROKEN ON CBFS (2026-08-04, commit 1cd44c04, pending supervisor sweep): rebuilt libDASolver
+      CONDITIONING BLOCKER BROKEN ON CBFS (2026-08-04, commit 1cd44c04; supervisor sweep CONFIRMED on all five axes,
+      incl. independent FD at a never-published cell to 0.021% — `VERIFICATION_cbfs_unblock_supervisor_sweep.md`,
+      9c19ccc8; docket item done at 185.0 core-min): rebuilt libDASolver
       with ASM sub-block complete LU (env DAFOAM_SUBPC_TYPE=lu, image dafoam-subpclu:v1) converges the CBFS beta adjoint
       (21,000 DVs, KSP reason 2) with FD 0.059–0.199% vs the 2.67% bar, zero sign flips — first converged, FD-verified
       field-inversion gradient on a closure-relevant case. Regression control reproduces -9 with the switch off.
@@ -157,6 +159,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   + spend ledger catches the day's runs".
 - FILED: three research proposals (2eb00350): A4 three-discriminators (W4, 45), duct structural-limit with falsifier
   (W2, 10), mesh-draw verdict protocol (W3, 20).
+- MILESTONE: fiml-adjoint-conditioning-unblock CLOSED, sweep-confirmed — first converged, FD-verified field-inversion
+  gradient on a closure-relevant case (CBFS). → NEW ITEM: **Run the Stage 1 inversion on CBFS** — beta inversion toward
+  Bentaleb LES with the verified sub-LU adjoint; needs a costed proposal + pre-registration first (SLSQP-style loops are
+  100+ gradient evaluations; estimate from the measured 16.2 core-min/adjoint before approving).
 - LITERATURE: Wu/Zhang deep-read landed (393ad74f) — beta-on-destruction CONFIRMED (eq. 2/5/6, f_d shield coeff 8 not 20);
   full patch spec written (both destruction lines, DAkOmegaSST.C:745 AND :870, else PC inconsistent with residual).
   THREE C2 corrections found: paper trains hump+CBFS (hump is a scored test case — paper protocol would be in-sample);
