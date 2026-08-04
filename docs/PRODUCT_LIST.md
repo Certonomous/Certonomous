@@ -85,7 +85,9 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [-] A3 ONERA M6: primal DONE and validated (CD=0.02299556, Cp vs AGARD AR-138). Adjoint hard-blocked:
       `DIVERGED_BREAKDOWN` at every mesh size incl. 21,840 cells with >20 GB free — conditioning, not memory
       (14.17-decade diagonal spread, `R5_ADJOINT_CONDITIONING.md`).
-- [~] A4 Ahmed-body adjoint: verdict moved UP to **PASS (1.10% at np=1, shipped toolchain)**. The 10% error was DAFoam's
+- [x] A4 Ahmed-body adjoint: verdict moved UP to **PASS (1.10% at np=1 stock — the graded configuration of record)**.
+      CROSSED 2026-08-04: sweep confirmed (27d25762), records reconciled (56a5a911), board gates cleared (01e18303).
+      Successor items per protocol: the decomposition-mechanism item below, plus the A4-novelty research proposal (in drafting). The 10% error was DAFoam's
       default `scotch` decomposition (np=1 0.34% / np=4 scotch 8.95% / np=4 simple 0.00054%; converged wrong answer;
       A1/A2/A5 decomposition-invariant). Mechanism NOT identified — hanging-node hypothesis refuted backwards.
       SUPERVISOR SWEEP 2026-08-04: CONFIRMED — every cell re-extracted, np=2 independently re-run to every printed digit,
@@ -136,6 +138,8 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 ### 2026-08-04
 - CROSSED: 4B policy question (submission draft complete, no eligibility bar) → added "Submission send package (Katie)".
 - CROSSED: 4H reporting-charter format (v2.0 frozen) → added "P-8.1 emitter half".
+- CROSSED: 4E A4 (PASS confirmed by supervisor sweep, records reconciled) → successors: A4 decomposition mechanism
+  item + A4-novelty proposal.
 - UPDATED: 4B scores to round 4 (0.0654, rank 3/5); 4E rewritten rung-by-rung from `DAFOAM_CASE_STATUS.md`/`PROOF.md`
   (A4 → PASS pending verification; A1/A5 root-caused; A3 conditioning-blocked; A6 primal provisional-pass).
 - ADDED: 4C NACA 0012 wall-credential re-grade; 4E warp-patch carry + grading policy; 4E A4 mechanism; 4H problem-research protocol.
