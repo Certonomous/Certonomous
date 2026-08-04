@@ -3505,8 +3505,15 @@
     "dafoam/PROOF.md section 25",
     "dafoam/DAFOAM_CASE_STATUS.md"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-02T08:18:06Z"
+   "status": "approved",
+   "created_at": "2026-08-02T08:18:06Z",
+   "decided_at": "2026-08-04T18:34:38Z",
+   "decision_note": "approved under Katie's blanket approval 2026-08-04",
+   "claim": {
+    "claimed_by": "investigation-agent w4-defect-reach (W4 session)",
+    "claimed_at": "2026-08-04T18:34:38Z",
+    "note": "Under work this session. Breadth campaign: case matrix (CBFS, second snappy-refined case, A4 np=2/np=3 from record, deliberate refinement-cutting simple decomposition) with pre-registered predictions, FD-3-component protocol, cross-residual instrument where a defect appears. Do not start this item elsewhere."
+   }
   },
   {
    "id": "r5-convergence-wall-not-memory",
@@ -4039,8 +4046,15 @@
     "dafoam/DAFOAM_CASE_STATUS.md A4",
     "dafoam/R5_ADJOINT_CONDITIONING.md section 4"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-02T07:04:00Z"
+   "status": "approved",
+   "created_at": "2026-08-02T07:04:00Z",
+   "decided_at": "2026-08-04T18:34:38Z",
+   "decision_note": "approved under Katie's blanket approval 2026-08-04",
+   "claim": {
+    "claimed_by": "investigation-agent w4-defect-reach (W4 session)",
+    "claimed_at": "2026-08-04T18:34:38Z",
+    "note": "Under work this session. Breadth campaign: case matrix (CBFS, second snappy-refined case, A4 np=2/np=3 from record, deliberate refinement-cutting simple decomposition) with pre-registered predictions, FD-3-component protocol, cross-residual instrument where a defect appears. Do not start this item elsewhere."
+   }
   },
   {
    "id": "w1-bump-on-nasa-own-grids",
