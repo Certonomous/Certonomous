@@ -1,15 +1,24 @@
-# Closure Challenge — status as of 2026-07-29 (round 3 + anisotropy audit)
+# Closure Challenge — status as of 2026-08-04 (round 4 is the entry of record)
 
 Read-only status report except for the new §0 and §0b below. All figures are
 quoted from already-recorded, re-derivable artifacts; sources are cited per
-section.
+section. **Updated 2026-08-04**: §0e added (round 4, 2026-07-31, overall
+**0.0654**, the entry of record); §2, §3 and §5 carry dated superseded notes
+rather than rewritten round-3 numbers, per this file's own convention.
 
 Sources: `/home/ubuntu/closure-challenge-benchmark/README.md` (benchmark
 rules + public leaderboard); `demo-output/website/closure_challenge_rans_floor.json`;
 `demo-output/website/closure_challenge_trained_entry.json` (round 1);
 `demo-output/website/closure_challenge_trained_entry_round2.json` (round 2);
 `demo-output/website/closure_challenge_trained_entry_round3_gated.json`
-(round 3, **entry of record**);
+(round 3, *superseded as entry of record by round 4, §0e*);
+`demo-output/website/closure_challenge_trained_entry_round4_duct.json`
+(round 4, **entry of record**);
+`demo-output/website/closure_challenge_submission_round4/test/` (the 8
+round-4 submission CSVs);
+`demo-output/website/closure_challenge_duct_reynolds_transfer.json`
+(the round-4 pre-registration);
+`demo-output/website/CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` (§7.1);
 `demo-output/website/closure_challenge_C2_error_decomposition.md`;
 `demo-output/website/closure_challenge_C1_error_estimator.md`;
 `demo-output/website/dafoam/ladder-b/{B1_reproduction_plans,B2_duct_baseline,B3_duct_field_inversion}.md`;
@@ -331,6 +340,89 @@ fitting at all, feature extraction on 8 cases only.
 
 ---
 
+## 0e. Round 4 (2026-07-31) — a duct-only change; the entry of record is now 0.0654
+
+**Result: overall 0.0676 → 0.0654** (Δ −0.0022; full-precision
+0.06543140783850523). Round 3 (§0) is superseded as the entry of record; its
+numbers above stand unchanged as the record of what round 3 was.
+
+**What changed — one family, nothing else.** Variant D replaces the
+round-2/3 duct model: a Reynolds-invariant `d/d_max` feature and a
+velocity-scale-normalised target (`(U_LES − U_RANS) / mean|U_RANS|` per
+case, 8 features, 41,971 training cells), trained on the 4 DUCT training
+cases (`AR_1_Ret_180`, `AR_3_Ret_180`, `AR_5_Ret_180`, `AR_10_Ret_180`) and
+**pre-registered** on the benchmark's own suggested duct validation case
+`AR_7_Ret_180` (`closure_challenge_duct_reynolds_transfer.json`, committed
+before any test score for it existed — no test outcome influenced the
+selection). This is the fix aimed at the mechanism §7.1 of the submission
+draft identified when it corrected the published duct diagnosis: `I3_S3`/
+`I4_W2S` are algebraically zero on *every* duct including the one we win, so
+they discriminate nothing; what discriminates is that `Re_y` reaches 1.85×
+and 2.07× its trained maximum on the two ducts we were losing (0.90× on the
+one we win), and a gradient-boosted tree cannot extrapolate.
+
+**The five non-duct predictions are byte-identical to round 3**, copied, not
+regenerated, and SHA-256-verified against the entry manifest (all five
+hashes recorded in `closure_challenge_trained_entry_round4_duct.json`,
+`unchanged_cases_sha256`, and re-verified against the CSVs on disk while
+writing this section). The entire delta is attributable to the duct family;
+the round-3 gate's behaviour is untouched.
+
+**Per-case movement** (round 3 → round 4):
+
+| Case | Round 3 | Round 4 | Δ | Board rank |
+|---|---|---|---|---|
+| `AR_1_Ret_360` | 0.0919 | **0.0811** | −0.0108 | 5 of 5 → 3 of 5 |
+| `AR_3_Ret_360` | 0.0862 | **0.0775** | −0.0087 | 4 of 5 → 3 of 5 |
+| `AR_14_Ret_180` | 0.0303 | **0.0325** | **+0.0022** | 1 of 5 → 1 of 5, margin collapsed |
+
+**The `AR_14_Ret_180` regression is deliberately NOT reverted**, for the
+same reason the NASA hump's +0.0011 was not reverted in round 2/3: choosing
+per-case between two models *after* seeing their per-case test scores is
+selection on test outcomes — exactly what the benchmark's one strict rule
+exists to prevent. Variant D was frozen on validation evidence and applied
+to all three ducts or none. It was applied to all three.
+
+**Margin warning, stated so it cannot be misquoted**: `AR_14_Ret_180`'s
+best-on-board lead over Reissmann collapsed from 0.0022 to **0.00003** (ours
+0.0324698 against the published four-decimal 0.0325). That is a nominal
+lead, not a meaningful one, and it must not be reported as a comfortable
+win.
+
+**Sign-pattern check**: the pre-registered diagnosis predicted improvement
+concentrated on the two cases where `Re_y` leaves the trained range and
+little or none where it does not. Measured: −0.0108 and −0.0087 on
+`AR_1_Ret_360` and `AR_3_Ret_360`, +0.0022 on `AR_14_Ret_180` — the sign
+pattern matches on all three.
+
+**Standings** (public board re-scored locally at benchmark commit
+`deb91557`; all four entrants reproduce their published values exactly):
+**rank 3 of 5**, gap to rank 2 (Wu & Zhang, 0.0624) cut **0.0052 → 0.0030**.
+Best-on-board count **5 of 8, unchanged** (AR_14 now nominally, per the
+warning above). We are no longer last on any duct; last on the board only on
+`NASA_2DWMH` (0.0632 vs best 0.0364).
+
+**Scoring-call ledger**: this was **1** new official scoring call — the
+**5th** cumulative distinct prediction set scored (after the floor, rounds
+1, 2 and 3; see §5's superseded note). The ledger is a self-imposed
+discipline: the benchmark imposes **no** scoring-call limit and instructs
+submitters to preview their score. §0d's verdict — that zero cases warranted
+a 5th call *on the criterion's evidence* — is not contradicted: the 5th call
+was made on new, different evidence (the §7.1 `Re_y`-extrapolation diagnosis
+and the pre-registered Variant D), not on §0d's table.
+
+**Provenance**: entry of record
+`demo-output/website/closure_challenge_trained_entry_round4_duct.json`
+(committed `4c2f3562`); submission CSVs
+`demo-output/website/closure_challenge_submission_round4/test/` (8 files);
+script `sdk/scripts/closure_round4_duct_rescale.py`; pre-registration
+`demo-output/website/closure_challenge_duct_reynolds_transfer.json`; full
+disclosure discussion `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §7.1; board
+entry `demo-output/website/ACTIVE_RESEARCH.md`, Ladder C (commit
+`ede04f5f`).
+
+---
+
 ## 1. The metric, precisely
 
 - **Per-case score**: scaled MAE = `mean(||U_pred − U_true||)` over the
@@ -344,21 +436,26 @@ fitting at all, feature extraction on 8 cases only.
 
 ## 2. All 8 test cases — floor, our score, rank-2, and best on the board
 
-| Case | RANS-identity floor | **Our score (round 3, gated)** | Rank-2 (Wu & Zhang, 0.0624) | Best anywhere on leaderboard | We lead the board? |
-|---|---|---|---|---|---|
-| alpha_15_13929_4048 | 0.1320 | **0.0501** | 0.0813 | 0.0592 (Reissmann) | **YES** |
-| alpha_15_13929_2024 | 0.2049 | **0.1011** | 0.1195 | 0.1195 (Wu & Zhang) | **YES** |
-| alpha_05_4071_4048 | 0.0461 | **0.0461** (gate: raw RANS) | 0.0569 | 0.0569 (Wu & Zhang) | **YES** |
-| alpha_05_4071_2024 | 0.0719 | **0.0719** (gate: raw RANS) | 0.0848 | 0.0760 (Reissmann) | **YES** |
-| AR_1_Ret_360 | 0.1288 | **0.0919** | 0.0455 | 0.0387 (Reissmann) | no |
-| AR_3_Ret_360 | 0.1243 | **0.0862** | 0.0399 | 0.0341 (Reissmann) | no |
-| AR_14_Ret_180 | 0.0590 | **0.0303** | 0.0350 | 0.0325 (Reissmann) | **YES** |
-| NASA_2DWMH | 0.0621 | **0.0632** | 0.0364 | 0.0364 (Wu & Zhang) | no |
+*(Round-4 column added 2026-08-04; the round-3 column stands unchanged as
+the superseded record. The five non-duct rows are byte-identical between the
+two rounds — §0e.)*
+
+| Case | RANS-identity floor | Our score (round 3, gated) | **Our score (round 4, entry of record)** | Rank-2 (Wu & Zhang, 0.0624) | Best anywhere on leaderboard | We lead the board? |
+|---|---|---|---|---|---|---|
+| alpha_15_13929_4048 | 0.1320 | 0.0501 | **0.0501** (unchanged) | 0.0813 | 0.0592 (Reissmann) | **YES** |
+| alpha_15_13929_2024 | 0.2049 | 0.1011 | **0.1011** (unchanged) | 0.1195 | 0.1195 (Wu & Zhang) | **YES** |
+| alpha_05_4071_4048 | 0.0461 | 0.0461 (gate: raw RANS) | **0.0461** (unchanged) | 0.0569 | 0.0569 (Wu & Zhang) | **YES** |
+| alpha_05_4071_2024 | 0.0719 | 0.0719 (gate: raw RANS) | **0.0719** (unchanged) | 0.0848 | 0.0760 (Reissmann) | **YES** |
+| AR_1_Ret_360 | 0.1288 | 0.0919 | **0.0811** | 0.0455 | 0.0387 (Reissmann) | no (3 of 5, was 5 of 5) |
+| AR_3_Ret_360 | 0.1243 | 0.0862 | **0.0775** | 0.0399 | 0.0341 (Reissmann) | no (3 of 5, was 4 of 5) |
+| AR_14_Ret_180 | 0.0590 | 0.0303 | **0.0325** (regressed; not reverted, §0e) | 0.0350 | 0.0325 (Reissmann) | **YES — by 0.00003, nominal only (§0e)** |
+| NASA_2DWMH | 0.0621 | 0.0632 | **0.0632** (unchanged) | 0.0364 | 0.0364 (Wu & Zhang) | no |
 
 **We hold the best score on the entire public leaderboard on 5 of 8 cases**:
 both `alpha_15_13929` cases, both `alpha_05_4071` cases (now that the gate
 withholds the correction and reports raw RANS, which itself beats every
-published entry there), and `AR_14_Ret_180`.
+published entry there), and `AR_14_Ret_180` — the last of these now by a
+0.00003 margin that must not be reported as a comfortable win (§0e).
 
 Full public leaderboard (`closure-challenge-benchmark/README.md`):
 
@@ -366,11 +463,21 @@ Full public leaderboard (`closure-challenge-benchmark/README.md`):
 |---|---|---|
 | 1 | Reissmann, Fang, and Sandberg | 0.0595 |
 | 2 | Wu and Zhang | 0.0624 |
-| — | **ours (unsubmitted, round 3)** | **0.0676** |
+| — | **ours (unsubmitted, round 4, entry of record)** | **0.0654** |
+| — | ours (unsubmitted, round 3, superseded) | 0.0676 |
 | 3 | Liu, Wang, Zhao, and Xiao | 0.0737 |
 | 4 | Montoya, Oulghelou, and Cinnella | 0.0779 |
 
 ## 3. Our overall number and position
+
+> **Superseded 2026-07-31 (recorded 2026-08-04), see §0e.** The entry of
+> record is now **round 4: overall 0.0654**
+> (`closure_challenge_trained_entry_round4_duct.json`,
+> `official_test_harness_result.round4_overall`). Against the floor:
+> −0.0382 (36.9% below 0.1036). Against the board: still between rank 2
+> (0.0624, gap 0.0030) and rank 3 (0.0737, better by −0.0083); rank 3 of 5;
+> still unsubmitted. The bullets below are the round-3 record, kept
+> unchanged.
 
 - **Overall: 0.0676** (`closure_challenge_trained_entry_round3_gated.json`,
   `official_test_harness_result.round3_gated_overall`).
@@ -455,6 +562,12 @@ overall **0.0741**, delta vs round 1 **−0.0128**):
   test cases' ground truth: (1) the RANS-identity floor, (2) the round-1
   trained entry, (3) the round-2 trained entry, (4) round-3, the gate applied
   to the PH test cases for the first time. No fifth call has been made.
+  **Superseded 2026-07-31 (recorded 2026-08-04):** a 5th call was made to
+  score the round-4 entry (§0e) — cumulative distinct prediction sets
+  scored: **5**. The ledger remains a self-imposed discipline: the benchmark
+  imposes no scoring-call limit and instructs submitters to preview their
+  score (`closure_challenge_trained_entry_round4_duct.json`,
+  `scoring_calls`).
 - **C1 (the test-blind error/trust gate) made zero scoring calls of its own**
   and opened no test-case file of any kind when it was built — it was fit
   and validated entirely on the 21 training / 4 validation PH cases. Round 3
@@ -536,7 +649,17 @@ overall **0.0741**, delta vs round 1 **−0.0128**):
   4 ranks, GATE REACHED, reattachment over-predicted by +63% to +66%). Record:
   `demo-output/website/dafoam/f6b_periodic_hills/F6b_periodic_hills.md`.
 
-## The closure metric moved: 0.0741 → 0.0676
+## The closure metric moved: 0.0741 → 0.0676 → 0.0654
+
+**Round 4 (§0e, the entry of record) took the duct family**: Variant D
+(Reynolds-invariant `d/d_max` feature, velocity-scale-normalised target,
+pre-registered on `AR_7_Ret_180`) moved the metric **−0.0022, from 0.0676 to
+0.0654**, cutting the gap to rank 2 from 0.0052 to 0.0030. The improvement
+landed exactly where the pre-registered diagnosis said it would — the two
+ducts where `Re_y` leaves the trained range — at the cost of a +0.0022
+regression on `AR_14_Ret_180` that was deliberately not reverted (reverting
+after seeing per-case test scores is selection on test outcomes), leaving
+that case's board lead nominal at 0.00003.
 
 **Round 3 recovered Term 1** (§0, §6): a test-blind gate, fit and validated
 only on non-test PH data in a prior session, was evaluated on the 4 official
