@@ -106,8 +106,12 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       13/27 components >30%). "No clue why" is obsolete.
 - [-] A6 CRM wing-alone primal: CONVERGED below 1e-8, CD=0.0209014, matches published tutorial to 0.0067%. Provisional:
       temperature-residual ~8.5e8 signature (same precursor as A4's field collapse) filed open. Adjoint not attempted (memory wall).
-- [ ] Carry the warp patch to the blocked rungs (`w4-carry-the-warp-patch-to-the-blocked-rungs`, 180) and decide the
-      patched-vs-shipped grading policy. [added 2026-08-04]
+- [x] Carry the warp patch to the blocked rungs. CROSSED 2026-08-04 at 0.0 of 180 core-min (247ac4a7): survey showed
+      every warp-blocked rung already carries stock-beside-patched; still-blocked rungs die structurally upstream of
+      warpDeriv or bypass IDWarp (`W4_CARRY_TO_BLOCKED_RUNGS.md`). Stale A2 board cell struck (L-32 pattern caught live).
+      → NEW ITEM: **Adopt the patched-vs-shipped grading policy** — drafted as PROPOSED in DAFOAM_CASE_STATUS.md
+      (shipped-toolchain verdicts, labeled patched grades under strict provenance, fork adoption reserved to Katie);
+      supervisor review pending the discriminator agent's commit.
 - [ ] A4 decomposition-defect mechanism + reach — ELEVATED to priority-1 on Katie's instruction (2026-08-04):
       the DAFoam-defect claim is part of the DAFoam investigation proper. Three-discriminator run dispatched
       (`w4-three-discriminators-for-the-decomposition-dependent-adjoint`, approved on her ruling, 45 core-min;
