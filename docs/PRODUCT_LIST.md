@@ -185,6 +185,16 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - DISPATCHED: adjoint-conditioning unblock (approved docket item), SpaRTA frozen-RANS, alpha_05 regime-model check,
   rotation-patch + A4 verification sweeps, liaison research on DIVERGED_NANORINF/PCILU, S12 landing + docket close.
 
+### 2026-08-05
+- KATIE: full approval granted for all filed proposals ("do whatever you want"); proposals move to approved as agents claim them.
+- DISPATCHED (case-building wave): defect-reach case matrix (more examples with/without refinement interfaces, 180 core-min);
+  community novelty sweep (DAFoam issues+discussions, docs, CFD-Online — has anyone hit either defect); DAFoam method-papers
+  fetch+read (how was the parallel adjoint ever verified, and on what meshes); closure-challenge proof audit (metric definition
+  from the eval code, convergence/stability/a-posteriori inventory, entrant-by-entrant methods comparison);
+  **Stage 1 CBFS inversion** (pre-registration first, 600 core-min cap, production-term-labeled).
+- INFRA: auto-stop blind spot closed — `scripts/session_keepalive.sh` (f02a3a90) holds the box only while the supervision
+  session is actively writing; self-expires at 45 idle min / 24 h. Armed now; armed first thing every session.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
