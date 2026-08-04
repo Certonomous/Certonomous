@@ -3196,11 +3196,15 @@
     "Schmelzer, Dwight & Cinnella, Flow Turbulence and Combustion 2020",
     "campaign/W2_TBNN_SPARTA_READING.md"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T18:18:00Z",
    "decided_at": "2026-07-31T22:18:09Z",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-   "progress_note": "CLAIMED 2026-08-04 by the closure-modeling agent (W5 line), per w7-claim-an-item-before-working-it: work in progress this session. Scope: establish gate status against the existing W2 frozen-RANS record before any new core-minutes are committed."
+   "progress_note": "W5, 2026-08-04. CLOSED ON THE RECORD, 0 new core-minutes. The gate ('reproduce the published correction-field result on the backward-facing step before any cross-validation budget is committed') was met on 2026-08-01 by w2-sparta-frozen-rans-cbfs: CBFS eps(U)/eps(U0)=0.39753 inside the binding factor-two band against the published 0.22703, no adjoint formed, extraction 18 s CPU for both training cases, 27.7 of 60 core-min. No cross-validation budget has been committed; that rung stays behind the prerequisites declared in W2_SPARTA_REGRESSION.md section 10. This item was filed two hours after the W2 item on the same rung, while the docket had no claim mechanism -- the collision class w7 names. Full record: demo-output/website/campaign/W5_SPARTA_GATE_STATUS.md.",
+   "completed_at": "2026-08-04T15:17:00Z",
+   "outcome": "Gate met by the existing record, not by a new run: w2-sparta-frozen-rans-cbfs reproduced the CBFS correction-field result on 2026-08-01 inside the approved factor-two band (0.398 vs published 0.22703) with no adjoint formed, and no cross-validation budget has been committed. Item closed by pointing at that record rather than duplicating it; 0 new core-minutes of 60",
+   "measured_core_min": 0.0,
+   "measured_basis": "0 new core-minutes; gate met by w2-sparta-frozen-rans-cbfs (27.7 of 60)"
   },
   {
    "id": "r7-strouhal-mesh-sensitivity-across-the-ladder",
@@ -3303,11 +3307,15 @@
     "Schmelzer, Dwight & Cinnella, Flow Turbulence and Combustion 2020",
     "campaign/W2_TBNN_SPARTA_READING.md"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-07-31T16:57:31Z",
    "decided_at": "2026-07-31T22:18:09Z",
    "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
-   "progress_note": "CLAIMED 2026-08-04 by the closure-modeling agent (W5 line), per w7-claim-an-item-before-working-it: work in progress this session. Scope: establish gate status against the existing W2 frozen-RANS record before any new core-minutes are committed."
+   "progress_note": "W5, 2026-08-04. CLOSED ON THE RECORD, 0 new core-minutes. The gate ('reproduce the published correction-field result on the backward-facing step before any cross-validation budget is committed') was met on 2026-08-01 by w2-sparta-frozen-rans-cbfs: CBFS eps(U)/eps(U0)=0.39753 inside the binding factor-two band against the published 0.22703, no adjoint formed, extraction 18 s CPU for both training cases, 27.7 of 60 core-min. No cross-validation budget has been committed; that rung stays behind the prerequisites declared in W2_SPARTA_REGRESSION.md section 10. This item was filed two hours after the W2 item on the same rung, while the docket had no claim mechanism -- the collision class w7 names. Full record: demo-output/website/campaign/W5_SPARTA_GATE_STATUS.md.",
+   "completed_at": "2026-08-04T15:17:00Z",
+   "outcome": "Gate met by the existing record, not by a new run: w2-sparta-frozen-rans-cbfs reproduced the CBFS correction-field result on 2026-08-01 inside the approved factor-two band (0.398 vs published 0.22703) with no adjoint formed, and no cross-validation budget has been committed. Item closed by pointing at that record rather than duplicating it; 0 new core-minutes of 60",
+   "measured_core_min": 0.0,
+   "measured_basis": "0 new core-minutes; gate met by w2-sparta-frozen-rans-cbfs (27.7 of 60)"
   },
   {
    "id": "agp-12fdfe05e05f",
