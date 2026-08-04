@@ -54,6 +54,15 @@ operator, gives residuals five orders of magnitude apart: **the two operators ar
 different linear maps.** The linear solver is doing its job on the wrong system,
 which is why no tolerance, restart, or preconditioner setting changes the answer.
 
+**Added 2026-08-04** (per the mechanism supervisor sweep,
+`demo-output/website/dafoam/VERIFICATION_A4_mechanism_supervisor_sweep.md`, commit
+8e0a08bc): nor is the scotch operator the exact adjoint of an
+equivalent-but-different parallel discretization — such an adjoint would match the
+finite difference of its own decomposed discretization, and it does not: the FD
+column in the table above is computed per run inside each arm's own
+`check_totals`, so the scotch analytic 2.2086e-01 disagrees by 8.95% with its own
+decomposition's FD of 2.4258e-01.
+
 Controls closed before this claim:
 
 - **Linearization state.** Re-evaluating the cross-residual with the serial operator

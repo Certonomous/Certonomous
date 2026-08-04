@@ -85,7 +85,14 @@ ordering by an **exact integer map** built from `cellProcAddressing` /
 matching. Map validated on the primal states (duplicated-phi copies 2.7e-15). Then
 the **true residual ||A^T psi + b|| was evaluated under the np=1 (serial) AD
 operator** via `calcJacTVecProduct`, the sign convention (OpenMDAO seeds -dF/dW)
-fixed by the np=1 control. `d_crossres.log`:
+fixed by the np=1 control. ~~`d_crossres.log`:~~ *(provenance corrected
+2026-08-04, per the supervisor sweep
+`demo-output/website/dafoam/VERIFICATION_A4_mechanism_supervisor_sweep.md`, commit
+8e0a08bc)*: these numbers appear in no log — the instrument computed `Atpsi - b`
+where the system is `A^T psi = -b`, so every arm's log prints the sign-degenerate
+`ratio=2.000000e+00` for its own-operator check. The tabulated values are exact
+offline sign corrections (`res + 2b`) recomputed from the dumped vectors
+(`w4x_res_*.npy`, `w4_Atpsi`/`w4_b`), and the sweep reproduces every digit:
 
 | psi from | ||A^T psi + b|| under np=1 operator | ratio to ||b||=0.1826 | ||psi|| |
 |---|---|---|---|
@@ -152,8 +159,17 @@ recorded because upstream users will hit it: **`adjUseColoring: False` crashes t
 Krylov path by construction** — `mphys_dafoam.solve_linear` skips `runColoring()`
 when the option is False, but `calcdRdWT` unconditionally calls
 `readJacConColoring()`, which reads a file that was never written and dies in
-`DAColoring::validateColoring` (`DAColoring.C:1021`; log
-`d_np4scotch_nocolor.log`, first attempt). The identity-coloring branch (one color
+`DAColoring::validateColoring` (`DAColoring.C:1021`; ~~log
+`d_np4scotch_nocolor.log`, first attempt~~ *(citation corrected 2026-08-04:
+`run_arm.sh` truncates `${TAG}.log` per attempt and all three nocolor attempts
+share a TAG, so the disk file is attempt three, not the cited crash. The claim
+stands instead on the supervisor sweep's static confirmation chain in the shipped
+container — `mphys_dafoam.py:458` skips `runColoring()` unless `adjUseColoring`
+is true, `DASolver.C:1043` calls `readJacConColoring()` unconditionally, and
+`DAColoring::validateColoring` reaches its `FatalErrorIn ... abort` at
+~`DAColoring.C:1021` — per
+`demo-output/website/dafoam/VERIFICATION_A4_mechanism_supervisor_sweep.md`,
+commit 8e0a08bc)*). The identity-coloring branch (one color
 per global column) is reachable only through `runColoring()`, so the arm was rerun
 with an explicit `runColoring()` call before `compute_totals`
 (`w4_totals_forcecolor` task): identity coloring accepted, `nJacConColors: 26149`,
@@ -239,7 +255,15 @@ than a number (and the wall-times-cap ledger convention overstates their true CP
 which sat at 10-60% while thrashing). In hindsight the second forced attempt
 should not have been launched after the first showed unbounded memory growth
 rather than a slow finish; it is ledgered, not hidden. The five arms that decided
-the item cost 12.63 core-min.
+the item cost ~~12.63~~ **12.80** core-min *(corrected 2026-08-04, per the
+supervisor sweep
+`demo-output/website/dafoam/VERIFICATION_A4_mechanism_supervisor_sweep.md`, commit
+8e0a08bc: the 12.63 omitted d_crossres2 — 3.17 + 4.70 + 4.43 + 0.33 + 0.17 =
+12.80, equally 56.77 − 43.97 — and the commit message carries the uncorrected
+figure)*. *(Noted 2026-08-04, per the same sweep, commit 8e0a08bc: d_crossres2 is
+ledgered at `cpus_cap=1` though the standard launcher hardcodes `--cpus=2`, and
+its ledger line lacks the launcher's decomp fields — it was launched by hand and
+its actual cap is unverifiable from the artifacts; at stake, 0.16 core-min.)*
 
 M3(a), the maps, the cross-residual analysis, the matrix diffs and the localization
 were arithmetic on logs and dumped operators at zero solver cost, as the cost basis
