@@ -1,12 +1,43 @@
 # Problem Research Protocol
 
-Version 0.1, dated 2026-08-04. Written from the first pass it governs
+Version 0.2, dated 2026-08-04. Written from the first pass it governs
 (`demo-output/website/dafoam/LIAISON_RESEARCH_adjoint_conditioning.md`), under
 Katie's standing directive of the same date: when something breaks, the liaison
 researches the problem online — and records how, so the next pass starts here
 instead of from scratch. This document is expected to be edited every time it
 is used. Citation rules are LITERATURE_CHARTER.md's and are not restated, only
-applied.
+applied. Pass 2 (same day, the novelty sweep in
+`demo-output/website/dafoam/LIAISON_NOVELTY_SWEEP_decomposition_defect.md`)
+added §1a and §5's pass-2 block.
+
+## 1a. Sweeping GitHub Discussions, mechanically (learned pass 2)
+
+- `github.com/OWNER/REPO/discussions?discussions_q=<terms>` is fetchable
+  unauthenticated and is the only workable discussions search (REST does not
+  index them; `gh` is absent). Plain `curl` to `github.com` HTML *hangs from
+  this host* — use the web-fetch tool for HTML; keep `curl` for
+  `api.github.com` and `raw.githubusercontent.com`, which both work.
+- A discussions search page that comes back with a "There was an error while
+  loading" banner is NOT a clean negative — retry it. Pass 2's
+  "processor boundary" query returned the error banner first and nine hits on
+  retry, including an on-point thread.
+- **Converted-issue signature:** an issue closed by a maintainer with zero
+  comments and locked by the org bot within seconds was converted to a
+  discussion. Find the same title in discussions (its number is usually
+  issue+1) — the actual answer lives there. Pass 2: dafoam issue #101 →
+  discussion #102, where the maintainer's serial-vs-parallel check is recorded.
+- **Sweep answers, not titles.** For DAFoam the de-facto known-issues list
+  exists only inside maintainer replies ("run the PH case in serial", "use the
+  kahip decomposition") and appears in no doc page. Title-level triage misses
+  all of it.
+- For a small neighbor repo, listing ALL issues
+  (`/repos/OWNER/REPO/issues?state=all&per_page=100`) is cheaper and a stronger
+  negative than term-guessing (pass 2: pyofm, 16 issues, one call).
+- `api.github.com/search/commits?q=repo:OWNER/REPO+<term>` works
+  unauthenticated with `Accept: application/vnd.github.cloak-preview+json` —
+  use it to date when a feature/fix landed.
+- Unauthenticated REST search is ~10 requests/min — space batched queries
+  (sleep 7 works) or the later queries silently return errors.
 
 ## 1. Source tiers, in the order they pay off
 
@@ -95,3 +126,28 @@ close on a memo alone:
   batch queries).
 - Web-search summaries are leads, not sources: click through and fetch the
   page before citing anything from it.
+
+## 5a. What pass 2 (the novelty sweep) adds
+
+- **A novelty claim needs a countable negative.** "No prior report found under
+  N recorded searches across M venues, date" is the citable form; it requires
+  logging every zero-hit query at the moment it runs, not reconstructing
+  afterwards. The venue list that made N meaningful for an MDO-lab tool:
+  target repo issues, target repo discussions, sibling mdolab repos
+  (idwarp/pyofm/pygeo/adflow/MACH-Aero), OpenMDAO, GitHub global search
+  (function names and quoted phrases), docs site, web/scholar, and the
+  underlying library's mailing list.
+- **Quote fidelity tiers.** A summarizing fetch is enough for triage, but any
+  quote a report will lean on gets a second, dedicated verbatim fetch of the
+  same page ("quote character for character, with date"). Mark which tier each
+  quote carries in the memo — pass 2 used [verbatim] vs [via page summary].
+- **Search the defect's *absence of vocabulary* too.** The strongest single
+  negative of pass 2 was that "scotch" appears in zero issues and zero
+  discussions in the project's history — a one-word query that no
+  symptom-derived term list would have prioritized. When a defect has a
+  configuration trigger, search the trigger's literal name.
+- **Near-misses are the deliverable, not noise.** The sweep's value to the
+  upstream report was two maintainer near-miss quotes that pre-answer the
+  likeliest triage replies ("known coupled-patch issue", "decomposition only
+  affects convergence"). Rank near-misses by which maintainer response they
+  defuse.
