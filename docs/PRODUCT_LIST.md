@@ -20,10 +20,16 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] Stage 3 pre-registered zero-shot transfer test.
 - [-] C2 error decomposition vs the top-4 gap. Decomposition DONE and thrice-corrected (`closure_challenge_C2_error_decomposition.md`):
       real deficit is the ducts (62.9% of gap to rank 2), not alpha_05. Full closure blocked on the same adjoint conditioning failure.
-      Cheap next action dispatched 2026-08-04: check training split for alpha_05-regime cases; second regime model if any exist.
+      Regime-model route CLOSED 2026-08-04: 11 of 21 training cases qualify (gate-declined framing), model trained
+      test-blind, but pre-declared hurt cap failed on the declined test cases' parametric sibling — NO-GO, nothing scored,
+      round 4 stands. Mechanism finding (L-33): regime retraining moves the baseline-quality boundary (~0.07 → ~0.055)
+      instead of removing it. Successor candidate (second-stage ~0.055 threshold) filed, needs its own pre-registration
+      (`closure_challenge_R5_ALPHA05_REGIME_PREREGISTRATION.md`).
 - [x] M1 methods taxonomy [764 lines, 0 fabricated citations].
-- [ ] M2 reproduction ladder: FIML -> TBNN -> SpaRTA. (SpaRTA frozen-RANS route is the cheapest real result — 60 core-min,
-      needs no adjoint, data on disk; dispatched 2026-08-04. TBNN duct Re-generalisation approved: `w2-tbnn-duct-reynolds-generalisation`.)
+- [ ] M2 reproduction ladder: FIML -> TBNN -> SpaRTA. SpaRTA rung has its first real result: CBFS correction-field
+      reproduction inside the binding factor-two band (0.39753 vs published 0.22703, no adjoint, 27.7 core-min, 2026-08-01);
+      both SpaRTA docket items closed 2026-08-04 at 0 new core-min (`W5_SPARTA_GATE_STATUS.md`). FIML rung blocked on
+      conditioning; TBNN duct Re-generalisation approved: `w2-tbnn-duct-reynolds-generalisation`.
 - [ ] M3 hybridization experiments (each with a named hypothesis).
 
 ## 4B. Closure benchmark challenge
