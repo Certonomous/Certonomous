@@ -101,8 +101,12 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
       temperature-residual ~8.5e8 signature (same precursor as A4's field collapse) filed open. Adjoint not attempted (memory wall).
 - [ ] Carry the warp patch to the blocked rungs (`w4-carry-the-warp-patch-to-the-blocked-rungs`, 180) and decide the
       patched-vs-shipped grading policy. [added 2026-08-04]
-- [ ] A4 decomposition-defect mechanism + reach (`w4-does-the-decomposition-defect-reach-other-cases`, 120;
-      `w4-decomposition-invariance-is-a-gate`, 60). [added 2026-08-04]
+- [ ] A4 decomposition-defect mechanism + reach — ELEVATED to priority-1 on Katie's instruction (2026-08-04):
+      the DAFoam-defect claim is part of the DAFoam investigation proper. Three-discriminator run dispatched
+      (`w4-three-discriminators-for-the-decomposition-dependent-adjoint`, approved on her ruling, 45 core-min;
+      M1 cross-residual / M2 Jacobian dump-diff + coloring-off / M3 primal-bitwise + dObj/dXv localization).
+      If mechanism identified → upstream DAFoam bug report PREPARED, not filed (Katie's call). Reach item stays open
+      (`w4-does-the-decomposition-defect-reach-other-cases`, 120; `w4-decomposition-invariance-is-a-gate`, 60).
 
 ## 4F. interFoam / marine line
 - [-] F7a dam break vs Martin-Moyce. Sign flip when mesh refined. Must diagnose.
