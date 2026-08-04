@@ -3199,7 +3199,8 @@
    "status": "approved",
    "created_at": "2026-07-31T18:18:00Z",
    "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "progress_note": "CLAIMED 2026-08-04 by the closure-modeling agent (W5 line), per w7-claim-an-item-before-working-it: work in progress this session. Scope: establish gate status against the existing W2 frozen-RANS record before any new core-minutes are committed."
   },
   {
    "id": "r7-strouhal-mesh-sensitivity-across-the-ladder",
@@ -3305,7 +3306,8 @@
    "status": "approved",
    "created_at": "2026-07-31T16:57:31Z",
    "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "progress_note": "CLAIMED 2026-08-04 by the closure-modeling agent (W5 line), per w7-claim-an-item-before-working-it: work in progress this session. Scope: establish gate status against the existing W2 frozen-RANS record before any new core-minutes are committed."
   },
   {
    "id": "agp-12fdfe05e05f",
@@ -4179,7 +4181,12 @@
    "launch_prompt": "The field inversion capability is proven and FD verified, and the target case is blocked by one thing: the adjoint linear solve. Read the Stage 1 field inversion record and the R5 conditioning study first. On the NASA hump case, four mechanisms are already tested: wall treatment REFUTED, velocity limiter REFUTED, residual normalization off and natural Jacobian reordering each REMOVE the NaN but leave the GMRES residual flat to eleven digits. Do not retest those. The two named untried threads are a per region or per cell state normalization targeting the high aspect ratio near wall band, and a preconditioner family swap which needs a library rebuild because the type is set after the options are read. Every claim cites a log path and a timestamp. A measured negative is a complete answer.",
    "well": "W4",
    "decided_at": "2026-07-31T22:18:09Z",
-   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs."
+   "decision_note": "Approved under Katie's standing authorization, 2026-07-31: 'You also have my OK for all ur proposals dont wait for me to confirm.' Blanket, not per-item, so the hardness floor and the cost basis still gate what actually runs.",
+   "claim": {
+    "claimed_by": "solver-agent fiml-adjoint-conditioning-unblock (W4 session)",
+    "claimed_at": "2026-08-04T15:05:38Z",
+    "note": "Under work this session. Routes in order: (1) PETSc runtime options reaching the sub-factorization without a rebuild, (2) scaling/Jacobian-state improvement, (3) in-container rebuild of libDASolver.so with a pivoting-capable factorization. Do not start this item elsewhere."
+   }
   },
   {
    "id": "tmr-flatplate-finest-grids",
