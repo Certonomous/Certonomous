@@ -1548,3 +1548,36 @@ its own case file contradicts is the same defect as a credential wall citing a
 withdrawn number. When superseding, quote and strike the old wording in place;
 an unmarked stale verdict is worse than a marked wrong one, because only the
 unmarked one gets believed.
+
+## L-32. A correction trained inside a gated regime rebuilds the gate's own failure at the regime's floor
+
+**What happened.** C2 established that the periodic-hills correction hurts
+exactly where raw RANS is already good (clean separation at floor ≈ 0.07–0.13),
+and the C1 gate was built to decline it there. The recommended cure was a
+second model trained only on the low-baseline regime, so the decline branch
+could submit a correction instead of raw RANS. The regime model was trained
+(both membership variants), and it worked on average: mean LOO delta −0.0195,
+and the one gate-declined validation case improved from 0.0759 to 0.0447 where
+the global model had made it worse. It still failed its pre-declared hurt cap
+— on **alpha_05_4071_3036, the lowest-baseline case in the training split
+(0.0492) and the parametric sibling of both declined test cases.** The LOO
+table splits on baseline again: everything ≥ 0.058 improves, both cases below
+~0.055 degrade, in both variants.
+
+**The mechanism is recursive.** "Hurts where there is little to fix" is not a
+property of a fixed region of feature space that a gate can wall off once; it
+is relative to the training population. Restrict training to the low-error
+regime and the model's noise floor shrinks, but a new best-baseline stratum
+now sits below it, and the same damage reappears there — the boundary moved
+from ~0.07 down to ~0.055 instead of disappearing. Each retreat into a cleaner
+regime manufactures a smaller regime with the same disease at its bottom edge.
+
+**The rule.** When a correction's damage correlates with how good the baseline
+already is, do not expect regime-restricted retraining to eliminate the
+boundary — expect it to rescale. Before trusting any regime model, check its
+held-out performance specifically on the best-baseline members of its own
+training population (they are the in-regime proxies for the cases the gate
+declined), and put a pre-declared per-case hurt cap in the GO/NO-GO rule so
+the average — which will look good, because the average is dominated by the
+cases with something to fix — cannot carry a candidate past the exact failure
+it was built to cure.

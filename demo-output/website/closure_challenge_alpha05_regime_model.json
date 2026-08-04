@@ -1,0 +1,373 @@
+{
+  "generated_at": "2026-08-04T15:12:42.673129+00:00",
+  "measured_date": "2026-08-04",
+  "purpose": "Round-5 CANDIDATE only: regime-specific PH correction for the gate-declined (low-predicted-baseline) regime, per C2's recommended next action. Trained and validated on training-family data only; NO scoring call, NO test-case file opened (open() guard armed).",
+  "regime_definition": {
+    "framing": "baseline quality, not alpha naming (C2's corrected framing): in-regime iff the frozen C1 top-3 gate predicts baseline scaled-MAE <= the train-LOO-median threshold",
+    "gate_features": [
+      "p90_I4_W2S",
+      "frac_backflow",
+      "p90_I3_S3"
+    ],
+    "gate_alpha": 0.7499,
+    "threshold": 0.1263,
+    "gate_refit_matches_c1_and_round3": true,
+    "train_membership_uses": "LOO predictions (final-gate in-sample predictions would be optimistic)"
+  },
+  "train_case_table": {
+    "alpha_05_10071_3036": {
+      "actual_baseline": 0.0907,
+      "gate_loo_pred": 0.1071,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_05_4071_3036": {
+      "actual_baseline": 0.0492,
+      "gate_loo_pred": 0.0256,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_05_7071_2024": {
+      "actual_baseline": 0.1033,
+      "gate_loo_pred": 0.1183,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_05_7071_3036": {
+      "actual_baseline": 0.0552,
+      "gate_loo_pred": 0.0667,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_05_7071_4048": {
+      "actual_baseline": 0.0583,
+      "gate_loo_pred": 0.0502,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_075": {
+      "actual_baseline": 0.0765,
+      "gate_loo_pred": 0.1189,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_10_12000_2024": {
+      "actual_baseline": 0.1853,
+      "gate_loo_pred": 0.1336,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_10_12000_3036": {
+      "actual_baseline": 0.1543,
+      "gate_loo_pred": 0.145,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_10_12000_4048": {
+      "actual_baseline": 0.1257,
+      "gate_loo_pred": 0.133,
+      "in_A": false,
+      "in_B": true
+    },
+    "alpha_10_6000_2024": {
+      "actual_baseline": 0.1174,
+      "gate_loo_pred": 0.0832,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_10_6000_3036": {
+      "actual_baseline": 0.0641,
+      "gate_loo_pred": 0.1093,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_10_6000_4048": {
+      "actual_baseline": 0.0548,
+      "gate_loo_pred": 0.1032,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_10_9000_2024": {
+      "actual_baseline": 0.1799,
+      "gate_loo_pred": 0.1263,
+      "in_A": true,
+      "in_B": false
+    },
+    "alpha_10_9000_3036": {
+      "actual_baseline": 0.1304,
+      "gate_loo_pred": 0.1272,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_10_9000_4048": {
+      "actual_baseline": 0.1016,
+      "gate_loo_pred": 0.1079,
+      "in_A": true,
+      "in_B": true
+    },
+    "alpha_125": {
+      "actual_baseline": 0.1534,
+      "gate_loo_pred": 0.1423,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_15_10929_2024": {
+      "actual_baseline": 0.2085,
+      "gate_loo_pred": 0.1623,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_15_10929_3036": {
+      "actual_baseline": 0.1676,
+      "gate_loo_pred": 0.1654,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_15_10929_4048": {
+      "actual_baseline": 0.1411,
+      "gate_loo_pred": 0.1577,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_15_13929_3036": {
+      "actual_baseline": 0.1687,
+      "gate_loo_pred": 0.1653,
+      "in_A": false,
+      "in_B": false
+    },
+    "alpha_15_7929_3036": {
+      "actual_baseline": 0.1293,
+      "gate_loo_pred": 0.1624,
+      "in_A": false,
+      "in_B": false
+    }
+  },
+  "validation_case_gate_decisions": {
+    "alpha_05_10071_4048": {
+      "actual_baseline": 0.0759,
+      "gate_pred": 0.0723,
+      "declined": true
+    },
+    "alpha_05_10071_2024": {
+      "actual_baseline": 0.1368,
+      "gate_pred": 0.1333,
+      "declined": false
+    },
+    "alpha_15_7929_4048": {
+      "actual_baseline": 0.0916,
+      "gate_pred": 0.1488,
+      "declined": false
+    },
+    "alpha_15_7929_2024": {
+      "actual_baseline": 0.1957,
+      "gate_pred": 0.1478,
+      "declined": false
+    }
+  },
+  "model": "HistGradientBoostingRegressor x3, identical hyperparameters to round 1 (max_iter=300, max_depth=6, lr=0.05, l2=1.0, random_state=0); nothing tuned",
+  "selection_rules_declared_before_any_delta_existed": {
+    "comparison_set": [
+      "alpha_05_10071_3036",
+      "alpha_05_4071_3036",
+      "alpha_05_7071_2024",
+      "alpha_05_7071_3036",
+      "alpha_05_7071_4048",
+      "alpha_075",
+      "alpha_10_6000_2024",
+      "alpha_10_6000_3036",
+      "alpha_10_6000_4048",
+      "alpha_10_9000_4048"
+    ],
+    "select": "lower mean LOO delta over the comparison set",
+    "go_iff": [
+      "(i) validation case delta < 0 vs raw RANS",
+      "(ii) mean LOO delta < 0 over comparison set",
+      "(iii) no comparison-set LOO delta > +0.01"
+    ]
+  },
+  "variants": {
+    "A_gate_symmetric": {
+      "members": [
+        "alpha_05_10071_3036",
+        "alpha_05_4071_3036",
+        "alpha_05_7071_2024",
+        "alpha_05_7071_3036",
+        "alpha_05_7071_4048",
+        "alpha_075",
+        "alpha_10_6000_2024",
+        "alpha_10_6000_3036",
+        "alpha_10_6000_4048",
+        "alpha_10_9000_2024",
+        "alpha_10_9000_4048"
+      ],
+      "n_train_cells": 171600,
+      "loo": {
+        "alpha_05_10071_3036": {
+          "baseline": 0.0907,
+          "loo_corrected": 0.061,
+          "delta": -0.0297
+        },
+        "alpha_05_4071_3036": {
+          "baseline": 0.0492,
+          "loo_corrected": 0.0651,
+          "delta": 0.0159
+        },
+        "alpha_05_7071_2024": {
+          "baseline": 0.1033,
+          "loo_corrected": 0.0661,
+          "delta": -0.0372
+        },
+        "alpha_05_7071_3036": {
+          "baseline": 0.0552,
+          "loo_corrected": 0.0416,
+          "delta": -0.0136
+        },
+        "alpha_05_7071_4048": {
+          "baseline": 0.0583,
+          "loo_corrected": 0.0551,
+          "delta": -0.0032
+        },
+        "alpha_075": {
+          "baseline": 0.0765,
+          "loo_corrected": 0.034,
+          "delta": -0.0424
+        },
+        "alpha_10_6000_2024": {
+          "baseline": 0.1174,
+          "loo_corrected": 0.1042,
+          "delta": -0.0131
+        },
+        "alpha_10_6000_3036": {
+          "baseline": 0.0641,
+          "loo_corrected": 0.0486,
+          "delta": -0.0155
+        },
+        "alpha_10_6000_4048": {
+          "baseline": 0.0548,
+          "loo_corrected": 0.0603,
+          "delta": 0.0055
+        },
+        "alpha_10_9000_2024": {
+          "baseline": 0.1799,
+          "loo_corrected": 0.1133,
+          "delta": -0.0666
+        },
+        "alpha_10_9000_4048": {
+          "baseline": 0.1016,
+          "loo_corrected": 0.063,
+          "delta": -0.0386
+        }
+      },
+      "comparison_set_mean_delta": -0.0172,
+      "comparison_set_max_delta": 0.0159,
+      "validation_case": {
+        "case": "alpha_05_10071_4048",
+        "raw_rans_baseline": 0.0759,
+        "global_round1_model_recorded": 0.0772,
+        "regime_corrected": 0.0556,
+        "delta_vs_baseline": -0.0203
+      }
+    },
+    "B_actual_baseline": {
+      "members": [
+        "alpha_05_10071_3036",
+        "alpha_05_4071_3036",
+        "alpha_05_7071_2024",
+        "alpha_05_7071_3036",
+        "alpha_05_7071_4048",
+        "alpha_075",
+        "alpha_10_12000_4048",
+        "alpha_10_6000_2024",
+        "alpha_10_6000_3036",
+        "alpha_10_6000_4048",
+        "alpha_10_9000_4048"
+      ],
+      "n_train_cells": 171600,
+      "loo": {
+        "alpha_05_10071_3036": {
+          "baseline": 0.0907,
+          "loo_corrected": 0.0545,
+          "delta": -0.0362
+        },
+        "alpha_05_4071_3036": {
+          "baseline": 0.0492,
+          "loo_corrected": 0.0659,
+          "delta": 0.0167
+        },
+        "alpha_05_7071_2024": {
+          "baseline": 0.1033,
+          "loo_corrected": 0.0748,
+          "delta": -0.0285
+        },
+        "alpha_05_7071_3036": {
+          "baseline": 0.0552,
+          "loo_corrected": 0.0371,
+          "delta": -0.0181
+        },
+        "alpha_05_7071_4048": {
+          "baseline": 0.0583,
+          "loo_corrected": 0.0496,
+          "delta": -0.0087
+        },
+        "alpha_075": {
+          "baseline": 0.0765,
+          "loo_corrected": 0.0323,
+          "delta": -0.0442
+        },
+        "alpha_10_12000_4048": {
+          "baseline": 0.1257,
+          "loo_corrected": 0.0793,
+          "delta": -0.0464
+        },
+        "alpha_10_6000_2024": {
+          "baseline": 0.1174,
+          "loo_corrected": 0.1073,
+          "delta": -0.0101
+        },
+        "alpha_10_6000_3036": {
+          "baseline": 0.0641,
+          "loo_corrected": 0.0493,
+          "delta": -0.0148
+        },
+        "alpha_10_6000_4048": {
+          "baseline": 0.0548,
+          "loo_corrected": 0.0621,
+          "delta": 0.0073
+        },
+        "alpha_10_9000_4048": {
+          "baseline": 0.1016,
+          "loo_corrected": 0.0431,
+          "delta": -0.0585
+        }
+      },
+      "comparison_set_mean_delta": -0.0195,
+      "comparison_set_max_delta": 0.0167,
+      "validation_case": {
+        "case": "alpha_05_10071_4048",
+        "raw_rans_baseline": 0.0759,
+        "global_round1_model_recorded": 0.0772,
+        "regime_corrected": 0.0447,
+        "delta_vs_baseline": -0.0312
+      }
+    }
+  },
+  "selected_variant": "B_actual_baseline",
+  "go_no_go": {
+    "rule_i_validation_improves": true,
+    "rule_ii_mean_loo_negative": true,
+    "rule_iii_hurt_cap": false,
+    "decision": "NO-GO"
+  },
+  "leakage_statement": {
+    "closure_challenge_imported": false,
+    "scoring_calls_made": 0,
+    "test_case_files_opened": 0,
+    "open_guard": "builtins.open wrapped to raise on any test-case path; armed before any data was read",
+    "ground_truth_read_for": "21 train + 4 validation PH cases only (round-1/C1 precedent)"
+  },
+  "compute": {
+    "elapsed_seconds": 62.3,
+    "cores_cap": 2,
+    "core_minutes_upper_bound": 2.1
+  }
+}
