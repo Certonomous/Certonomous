@@ -37,7 +37,9 @@ from chief_engineer.log_signatures import (
     detect_residual_norm_contradiction,
     detect_residual_stall,
     detect_system_operations,
+    detect_unsettled_stop,
     percentile,
+    unsettled_window,
     wall_time_percentiles,
     wall_time_record_field,
 )
@@ -593,6 +595,103 @@ class SystemOperationsDetectorTests(unittest.TestCase):
         because the host was configured permissively."""
         self.assertNotIn(SEVERITY_CONFIGURATION_RISK,
                          {SEVERITY_FLAG, SEVERITY_FATAL})
+
+
+# The case that motivated S12, in the archive twice: the 208896-cell TMR flat
+# plate stopped at its 15000-iteration cap, and the same case continued to
+# 36000 once it had actually settled. The Verification Charter section 4
+# records that accepting the first as settled published the ladder as a
+# divergence at p = -0.745.
+FLATPLATE_CAPPED = (Path(__file__).resolve().parents[2] / "demo-output"
+                    / "website" / "tmr" / "runs" / "finest"
+                    / "postProcessing" / "forceCoeffs1" / "0"
+                    / "coefficient.dat")
+FLATPLATE_SETTLED = (Path(__file__).resolve().parents[2] / "demo-output"
+                     / "website" / "tmr" / "runs" / "finest"
+                     / "postProcessing" / "forceCoeffs1" / "15000"
+                     / "coefficient.dat")
+
+
+def archived_coefficient(path: Path, column: int = 1) -> list[float]:
+    """One column of an archived coefficient history, oldest first."""
+    out = []
+    for line in path.read_text(errors="replace").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split()
+        try:
+            out.append(float(parts[column]))
+        except (IndexError, ValueError):
+            continue
+    return out
+
+
+class UnsettledStopTests(unittest.TestCase):
+    """Monitor Standard S12: a run that stopped while its quantity moved."""
+
+    def test_flat_history_is_silent(self):
+        """A settled wobble has spread but no direction."""
+        series = [1.0 + (0.001 if i % 2 else -0.001) for i in range(400)]
+        self.assertIsNone(detect_unsettled_stop(series))
+
+    def test_steady_drift_fires(self):
+        """A history still travelling one way when the run ended."""
+        series = [1.0 - 0.0001 * i for i in range(400)]
+        finding = detect_unsettled_stop(series, quantity="Cd",
+                                        stop_reason="ran-to-end")
+        self.assertIsNotNone(finding)
+        self.assertEqual(finding["kind"], "unsettled-stop")
+        self.assertEqual(finding["severity"], SEVERITY_FLAG)
+        self.assertEqual(finding["quantity"], "Cd")
+        self.assertEqual(finding["monotone"], 1.0)
+        self.assertLess(finding["rel_drift"], 0.0)
+
+    def test_stop_reason_is_carried_not_tested(self):
+        """The charter names the cap; the archive shows the same signature
+        behind a solver that stopped on its own residual criterion. A rule
+        keyed to the cap would miss the more dangerous of the two."""
+        series = [1.0 - 0.0001 * i for i in range(400)]
+        for reason in ("residual-converged", "ran-to-end", None):
+            with self.subTest(reason=reason):
+                finding = detect_unsettled_stop(series, stop_reason=reason)
+                self.assertIsNotNone(finding)
+                self.assertEqual(finding["stop_reason"], reason)
+
+    def test_too_short_to_judge_is_silent(self):
+        self.assertIsNone(detect_unsettled_stop([1.0 - 0.001 * i
+                                                 for i in range(20)]))
+
+    def test_zero_scale_series_is_silent(self):
+        """A quantity centred on zero has no relative scale to drift against,
+        and must not divide by it."""
+        self.assertIsNone(detect_unsettled_stop([0.0] * 400))
+
+    def test_window_grows_with_the_run_then_caps(self):
+        self.assertEqual(unsettled_window(40), 20)
+        self.assertEqual(unsettled_window(4000), 1000)
+        self.assertEqual(unsettled_window(100000), 2000)
+
+    @unittest.skipUnless(FLATPLATE_CAPPED.exists(),
+                         "archived flat-plate ladder not present")
+    def test_fires_on_the_rung_that_decided_a_ladder(self):
+        """The 15000-iteration rung the charter records as wrongly accepted."""
+        series = archived_coefficient(FLATPLATE_CAPPED)
+        self.assertEqual(len(series), 15000)
+        finding = detect_unsettled_stop(series, quantity="Cd")
+        self.assertIsNotNone(finding)
+        self.assertLess(finding["rel_drift"], -1e-3)
+        self.assertEqual(finding["monotone"], 1.0)
+
+    @unittest.skipUnless(FLATPLATE_SETTLED.exists(),
+                         "archived flat-plate ladder not present")
+    def test_silent_on_the_same_case_once_settled(self):
+        """The discriminator: same geometry, same solver, same quantity, and
+        the only difference is that this one was allowed to settle. A rule
+        that fires here would be measuring the case, not the stop."""
+        series = archived_coefficient(FLATPLATE_SETTLED)
+        self.assertEqual(len(series), 21000)
+        self.assertIsNone(detect_unsettled_stop(series, quantity="Cd"))
 
 
 if __name__ == "__main__":

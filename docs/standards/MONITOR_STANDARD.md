@@ -1,5 +1,14 @@
 # Certonomous Monitor Standard
 
+Version 1.3, dated 2026-08-02. **Adds exactly one rule, S12 unsettled stop, and
+withdraws nothing.** S12 closes both of the failure modes section 3.4 recorded
+as having no rule at all — item 2, a rung stopped and recorded as settled, and
+item 3, a monitored quantity that is not a residual — and it is the first rule
+in this standard that reads a coefficient history instead of the residual block.
+Its thresholds are bracketed by one archived case against itself rather than
+chosen off a distribution, which is the shape section 3.3 asks for. Nothing else
+in 1.2 is changed.
+
 Version 1.2, dated 2026-08-01. **Version 1.2 withdraws exactly one rule, S7
 oscillatory divergence, and adds nothing.** It is the first version of this
 standard to remove a rule rather than add one. The entry stays in place, marked
@@ -416,6 +425,63 @@ it and refers to it:
   by line and assert that the withdrawn run is fatal on all three branches
   while the healthy coarse solve of the same case raises nothing at all.
 
+### S12. Unsettled stop (proposal `w7-cap-stopped-is-a-monitor-signature`)
+
+**Adopted 2026-08-02.** Closes section 3.4 item 2, and is the first rule in this
+standard that does not read the residual block — which is section 3.4 item 3,
+answered rather than merely recorded.
+
+- **What it names.** A run that ended while the coefficient it is quoted for was
+  still travelling in one direction. The residual is fine, the field is fine,
+  the run completes, and S1 through S11 all stay silent, because none of them
+  looks at the monitored quantity's history. L-24 one level up: a run is not
+  converged, a *quantity* is.
+- **Detection.** Over a trailing window (a quarter of the iterations, floored at
+  20 and capped at 2000), the mean of the window's second half minus the mean of
+  its first, divided by the window's mean magnitude, is the **relative drift**;
+  the fraction of steps inside the window that move in the drift's own direction
+  is the **monotone fraction**. Fires when relative drift is at least **1e-3**
+  *and* the monotone fraction is at least **0.90**. Both are required: a settled
+  history wobbles without displacement, a truncated one travels.
+- **Why drift and not spread.** The Verification Charter's settle criterion
+  (section 4, in force inside `sdk/workflows/tmr_verification.py`) measures
+  peak-to-peak spread against `SETTLE_TOL = 3e-7` **absolute in Cd**. That is
+  correct for the flat plate it was measured on and wrong as a monitor rule,
+  which must grade a duct, a wing and an Ahmed body against their own scales.
+  Direction is scale-free.
+- **Where the thresholds come from — one case against itself, not a
+  percentile.** The 208896-cell TMR flat plate is in the archive twice:
+
+  | rung | iterations | relative drift on Cd | monotone | S12 |
+  | --- | --- | --- | --- | --- |
+  | capped, the rung the charter records | 15000 | **−4.131e−03** | 1.000 | **fires** |
+  | the same case, after it settled | 21000 | +3.716e−07 | 0.552 | silent |
+
+  The tolerance sits 4.13x below the firing rung and 2690x above its settled
+  twin; the monotone floor sits below 1.000 and above 0.552. Accepting the first
+  as settled is what published that ladder as a divergence at `p = -0.745`.
+- **Replay line (standing rule 6).** Corpus **760 quantity-histories** from 380
+  `coefficient.dat` files under `demo-output` and `/home/ubuntu/certonomous-runs`,
+  718 of them long enough to grade; **36 fire** — 4.74% of the corpus, 5.01% of
+  what it can grade — and **0 fatal**, the severity being FLAG. For scale, S1
+  fires on 10 of 449 logs and the withdrawn S7 fired on 68 of 106. Reproduce
+  with `sdk/scripts/replay_s12_unsettled_stop.py`; artifact
+  `demo-output/website/monitor/replay_s12.json`.
+- **The stop reason is carried, not tested.** The charter names the iteration
+  cap. The archive shows the same signature behind a solver that stopped on its
+  own residual criterion — **17 of the 36 fires** — and that stop is the more
+  dangerous of the two, because it announces convergence. A rule keyed to the
+  cap would have missed the larger half of what this one caught.
+- **What it caught on adoption.** All four graded-rung (refinement 4) NACA 4412
+  replicates, on lift, at monotone 1.000 — the family whose 12.74% mesh-
+  construction scatter was published earlier the same day.
+- Severity: **FLAG**. Action: the arithmetic is not in question and the value
+  is; the run is recorded unsettled, never settled, and is either continued to
+  flatness or published with its drift stated beside it.
+- Status: implemented (`detect_unsettled_stop`, `unsettled_window` in
+  `sdk/chief_engineer/log_signatures.py`). Tests assert the motivating pair:
+  fires on the capped rung, silent on the same case once settled.
+
 ## 3. The set as a set, reviewed 2026-07-31
 
 Sections 1 and 2 grade each rule on its own. This section grades the standard,
@@ -441,6 +507,7 @@ work that was fine.
 | S9 wall time | **208193 ledger rows** | 19 FLAG, 11 FATAL | **validated**, with a recorded weakness. The six ~16300 s runs land at 1070x and 2214x their own p99 and were all recorded ok at the time. |
 | S10 divergence behind a converged residual | **383 archived solver logs**, and 157 for the norm branch | **exactly 1**, the withdrawn run | **validated, and the strongest rule here.** A test sweeps the whole archive and fails if a second log is ever named. |
 | S11 system operations | every run, by design | **every run** | **outside the ladder, and correctly so.** See 3.3. |
+| S12 unsettled stop | **760 quantity-histories** from 380 archived `coefficient.dat` files, 718 gradeable | **36 (4.74%), 0 fatal** | **validated 2026-08-02, on one case against itself.** Fires on the flat-plate rung stopped at 15000 (relative drift −4.131e−03, monotone 1.000) and is silent on the same case at 21000 once settled (+3.716e−07, 0.552). The first rule here that reads a coefficient history rather than the residual block. |
 
 ~~**Seven of eleven rules have never been replayed against the archive.**~~
 **Superseded 2026-08-01: six of the seven have now been replayed, and the
@@ -527,7 +594,11 @@ Four, and they are listed with what each would take.
    solver output in it at all. This is the cheapest rule in this list to write
    and the failure mode least likely to be noticed. Docket
    `w7-solver-stub-detector`.
-2. **A rung stopped by its iteration cap and recorded as settled.** The
+2. **A rung stopped by its iteration cap and recorded as settled.** *Closed
+   2026-08-02 by S12, which is broader than this entry asked for: the archive
+   showed that 17 of its 36 fires are runs that stopped on their own residual
+   criterion rather than on a cap, so the rule is keyed to the moving quantity
+   and records the stop reason as evidence.* The
    208896-cell flat plate rung was asked for 15000 iterations, read 1.05 percent
    above its settled value with the coefficient still falling by 1.04e-5 per
    thousand, and took 36000 to settle. Nothing in S1 through S11 fires: the
@@ -536,7 +607,10 @@ Four, and they are listed with what each would take.
    iteration counter reaching the configured cap while the monitored coefficient
    is still moving by more than the settle tolerance. Verification charter
    section 4 now carries the criterion.
-3. **A monitored quantity that is not a residual.** S1 through S10 all read the
+3. **A monitored quantity that is not a residual.** *Answered 2026-08-02 by
+   S12, which reads a coefficient history and nothing else. The boundary this
+   item drew was real: the rule that closes item 2 could not have been built
+   out of anything S1 through S11 look at.* S1 through S10 all read the
    residual block or the solver's own status lines. The failure in item 2 lives
    in the coefficient history, which the monitor does not currently watch, and
    L-24's rule is that a run is not converged, a quantity is. A monitor that

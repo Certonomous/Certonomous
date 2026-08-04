@@ -28,6 +28,11 @@ agenda (``docs/standards/MONITOR_STANDARD.md``):
 - S11 system operations allowed: the solver's own report that the host is
   configured to let a case compile and execute its own code. The only rule
   here whose severity is about the machine rather than the numbers.
+- S12 unsettled stop: a run that ended -- at its iteration cap, or on its own
+  residual criterion -- while the coefficient it is quoted for was still
+  travelling in one direction. The only rule here that reads a monitored
+  quantity's history rather than the residual block, which is the boundary
+  Monitor Standard 3.4 item 3 records.
 
 Every detector is a pure function over plain numbers and sequences, so each
 is unit-testable without a solver. Detectors only name findings, each with a
@@ -705,6 +710,171 @@ def detect_system_operations(line: str) -> dict[str, Any] | None:
         "severity": SEVERITY_CONFIGURATION_RISK,
         "action": SYSTEM_OPERATIONS_ACTION,
         "line": line.strip(),
+    }
+
+
+# --------------------------------------------------------------------------
+# S12. A run that stopped while its monitored quantity was still moving
+# --------------------------------------------------------------------------
+#
+# WHAT IT NAMES. Monitor Standard 3.4 item 2: "a rung stopped by its iteration
+# cap and recorded as settled". S1-S11 all read the residual block or the
+# solver's status lines, and this failure does not live there (3.4 item 3): the
+# residual is fine, the field is fine, the run completes, and the coefficient
+# was still travelling when the run ended. L-24 one level up -- a run is not
+# converged, a QUANTITY is.
+#
+# WHAT IT READS. The coefficient history, not the log. The Verification
+# Charter's section 4 rule 1 already stops a rung on flatness inside
+# `sdk/workflows/tmr_verification.py`; nothing carried that criterion to the
+# monitor, so it protected one workflow and no other.
+#
+# WHY DRIFT AND NOT SPREAD. `tmr_verification.settle_verdict` measures
+# peak-to-peak spread against SETTLE_TOL = 3e-7 ABSOLUTE in Cd. That tolerance
+# is right for the flat plate it was measured on and wrong as a monitor rule:
+# applied to the archive it grades every case against the flat plate's scale.
+# This rule measures DIRECTION instead, which is scale-free and is what
+# separates a settled-but-noisy history from a truncated one. A converged run
+# wobbles with no net displacement; a truncated one is still travelling.
+#
+# THE TWO NUMBERS, AND WHERE THEY COME FROM. Measured on 2026-08-02 over every
+# coefficient history in the archive: 380 `coefficient.dat` files under
+# `demo-output` and `/home/ubuntu/certonomous-runs` yielding 760
+# quantity-histories, of which 718 (359 Cd and 359 Cl) are long enough to grade
+# against UNSETTLED_MIN_ITERATIONS.
+#
+#   rel_drift: the mean of the last half of the trailing window minus the mean
+#   of the first half, over the mean magnitude across the window. Archive
+#   distribution for Cd: p50 1.14e-4, p75 2.44e-4, p90 4.29e-3.
+#
+#   monotone: the fraction of consecutive steps inside the window that move in
+#   the drift's own direction. Archive median 0.57 -- i.e. the typical archived
+#   history is directionless, which is what a settled run should look like.
+#
+# CALIBRATED ON THE CASE THAT MOTIVATED IT, AND ON ITS OWN SETTLED TWIN. The
+# 208896-cell TMR flat plate is in the archive twice, stopped at two different
+# iteration counts, and the pair sets both thresholds:
+#
+#   at 15000 iterations (the rung the charter records as wrongly accepted as
+#   settled, which turned the ladder into a divergence at p = -0.745):
+#   rel_drift = -4.131e-03 on Cd, monotone = 1.000  -> FIRES
+#
+#   the same case at 21000 iterations, after it had actually settled:
+#   rel_drift = +3.716e-07 on Cd, monotone = 0.552  -> SILENT
+#
+# So the thresholds are not picked off the distribution, they are bracketed by
+# one case against itself. UNSETTLED_REL_DRIFT = 1e-3 sits 4.13x below the
+# firing rung and 2690x above its settled twin, and UNSETTLED_MONOTONE_MIN =
+# 0.90 sits below the firing rung's 1.000 and above the settled twin's 0.552.
+#
+# REPLAY LINE (standing rule 6). Corpus 760 quantity-histories, 718 of them
+# gradeable; 36 fire -- 4.74 percent of the corpus, 5.01 percent of what it can
+# grade; 0 fatal, since the severity is FLAG. Behaviour on the motivating case:
+# fires at 15000, silent at 21000, as above. For scale, S1 fires on 10 of 449
+# logs and the withdrawn S7 fired on 68 of 106.
+#
+# WHAT IT CAUGHT ON ADOPTION. All four graded-rung (refinement 4) NACA 4412
+# replicates, on lift, at monotone = 1.000 -- the family whose 12.74 percent
+# mesh-construction scatter was published on 2026-08-02. See
+# `demo-output/website/monitor/replay_s12.json`.
+#
+# SEVERITY IS FLAG, NOT FATAL. Nothing is wrong with the arithmetic. The
+# reported value is simply not the settled one, and the record must say so
+# rather than inherit a stopping criterion as if it were a measurement.
+
+UNSETTLED_REL_DRIFT = 1.0e-3
+UNSETTLED_MONOTONE_MIN = 0.90
+
+# A drift test needs fewer samples than a plateau test, so this floor is well
+# below `tmr_verification.SETTLE_MIN_ITERATIONS` (200). It is set at 40 so the
+# window is never judged on fewer than 20 points. Stated rather than chosen
+# silently: the archive's short runs (the 4412 family stops at 112-135
+# iterations) are exactly the ones this rule has to be able to speak about.
+UNSETTLED_MIN_ITERATIONS = 40
+UNSETTLED_WINDOW_MIN = 20
+UNSETTLED_WINDOW_MAX = 2000
+UNSETTLED_WINDOW_DIVISOR = 4
+
+UNSETTLED_ACTION = (
+    "the arithmetic is not in question and the value is: the run stopped "
+    "while this quantity was still travelling in one direction, so it is "
+    "recorded unsettled, never settled. Continue the solve to flatness, or "
+    "publish the number with the drift stated beside it"
+)
+
+
+def unsettled_window(iterations: int) -> int:
+    """Trailing window the drift test measures over, for a run this long."""
+    return min(max(UNSETTLED_WINDOW_MIN,
+                   int(iterations) // UNSETTLED_WINDOW_DIVISOR),
+               UNSETTLED_WINDOW_MAX)
+
+
+def detect_unsettled_stop(
+    series: Sequence[float],
+    *,
+    quantity: str = "Cd",
+    stop_reason: str | None = None,
+    rel_drift_tol: float = UNSETTLED_REL_DRIFT,
+    monotone_min: float = UNSETTLED_MONOTONE_MIN,
+) -> dict[str, Any] | None:
+    """A run that ended with ``quantity`` still moving (Monitor Standard S12).
+
+    ``series`` is the monitored coefficient at every iteration, oldest first,
+    from a run that has STOPPED. Fires when the trailing window shows a net
+    relative displacement of at least ``rel_drift_tol`` AND at least
+    ``monotone_min`` of the steps in that window travel in the displacement's
+    own direction -- motion with a direction, rather than a settled wobble.
+
+    ``stop_reason`` is recorded, not tested. The charter names the iteration
+    cap, but the archive shows the same signature behind a solver that stopped
+    on its own residual criterion, and that stop is the more dangerous of the
+    two because it announces convergence. A rule keyed to the cap would miss
+    it, so the rule is keyed to the quantity and the stop reason is carried as
+    evidence.
+
+    Returns a finding dict or ``None``. Pure function: no I/O, no state.
+    """
+    values = [float(v) for v in series]
+    n = len(values)
+    if n < UNSETTLED_MIN_ITERATIONS:
+        return None
+    window = unsettled_window(n)
+    tail = values[-window:]
+    half = window // 2
+    if half < 2:
+        return None
+    early = tail[:half]
+    late = tail[half:]
+    drift = (sum(late) / len(late)) - (sum(early) / len(early))
+    scale = abs(sum(tail) / len(tail))
+    if scale <= 0.0 or not math.isfinite(scale) or not math.isfinite(drift):
+        return None
+    rel_drift = drift / scale
+    steps = [b - a for a, b in zip(tail, tail[1:])]
+    moving = [s for s in steps if s != 0.0]
+    if not moving:
+        return None
+    forward = sum(1 for s in moving if (s > 0.0) == (drift > 0.0))
+    monotone = forward / len(moving)
+    if abs(rel_drift) < rel_drift_tol or monotone < monotone_min:
+        return None
+    # Drift per 100 iterations, so the finding states a rate a reader can use
+    # rather than a window-dependent displacement.
+    per_100 = rel_drift / (half if half else 1) * 100.0
+    return {
+        "kind": "unsettled-stop",
+        "severity": SEVERITY_FLAG,
+        "action": UNSETTLED_ACTION,
+        "quantity": quantity,
+        "iterations": n,
+        "window": window,
+        "rel_drift": rel_drift,
+        "rel_drift_per_100_iterations": per_100,
+        "monotone": monotone,
+        "rel_drift_tol": rel_drift_tol,
+        "monotone_min": monotone_min,
+        "stop_reason": stop_reason,
     }
 
 

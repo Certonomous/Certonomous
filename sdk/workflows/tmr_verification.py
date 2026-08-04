@@ -55,6 +55,7 @@ from pathlib import Path
 from typing import Any, Callable, Sequence
 
 from chief_engineer.head_engineer import parse_coefficient_history
+from chief_engineer.log_signatures import detect_unsettled_stop
 
 _HERE = Path(__file__).resolve()
 _REPO_ROOT = _HERE.parents[2]
@@ -248,11 +249,22 @@ def cf_at(profile: Sequence[tuple[float, float]], x: float) -> float | None:
 
 
 def final_coefficient(dat_text: str, column: str = "Cd",
-                      tail: int = 200) -> dict[str, float] | None:
+                      tail: int = 200, *,
+                      stop_reason: str | None = None) -> dict[str, Any] | None:
     """Converged value of a force-coefficient column: the last iterate, plus
     the peak-to-peak spread over the final ``tail`` iterations as evidence the
     solve was genuinely flat (a steady solve is quoted at its endpoint, not
-    averaged into a prettier number)."""
+    averaged into a prettier number).
+
+    Also carries Monitor Standard S12's verdict under ``"unsettled"``: the
+    finding dict when this history ended while still travelling in one
+    direction, otherwise ``None``. This is the collection-time half of the rule
+    — every caller that records a coefficient now records whether the run had
+    stopped moving when it was read, rather than that question being asked
+    later, by a replay, if at all. The spread this function already returned
+    cannot answer it: spread has no direction, so a truncated ramp and a settled
+    wobble of the same amplitude are indistinguishable in it.
+    """
     history = parse_coefficient_history(dat_text)
     series = history.get(column)
     if not series:
@@ -260,7 +272,9 @@ def final_coefficient(dat_text: str, column: str = "Cd",
     window = series[-min(tail, len(series)):]
     return {"value": series[-1],
             "spread": max(window) - min(window),
-            "iterations": len(series)}
+            "iterations": len(series),
+            "unsettled": detect_unsettled_stop(series, quantity=column,
+                                               stop_reason=stop_reason)}
 
 
 # ---------------------------------------------------------------------------
