@@ -1,0 +1,28 @@
+--- /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/src/DALinearEqn.C	2026-07-12 12:48:48.000000000 +0000
++++ /tmp/claude-1000/-home-ubuntu-Certonomous/64b13819-ff95-4d4d-a50f-3720bab19084/scratchpad/src/DALinearEqn.patched.C	2026-08-04 15:16:00.000000000 +0000
+@@ -264,6 +264,25 @@
+ 
+         // The subpc type will almost always be ILU
+         PCType localPCType = PCILU;
++        // fiml-adjoint-conditioning-unblock (2026-08-04): the ASM sub-block
++        // incomplete factorization hits an exact zero pivot on wall-resolved
++        // separated cases (CBFS 21k, NASA hump 51.6k): ILU returns
++        // KSPConvergedReason -9 DIVERGED_NANORINF at iteration 0 for some
++        // orderings and a flat -3 for others, while a complete LU with
++        // pivoting solves the same dumped system. PETSc factor shift
++        // MAT_SHIFT_NONZERO (below) does not catch it because the failure is
++        // factor growth, not a small pivot. Setting the env var
++        // DAFOAM_SUBPC_TYPE=lu switches the sub-block PC to complete LU.
++        // Off by default; no behavior change unless the env var is set.
++        const char* subPCTypeEnv = getenv("DAFOAM_SUBPC_TYPE");
++        if (subPCTypeEnv && strcmp(subPCTypeEnv, "lu") == 0)
++        {
++            localPCType = PCLU;
++            if (i == 0)
++            {
++                Info << "DAFOAM_SUBPC_TYPE=lu: ASM sub-block PC set to complete LU" << endl;
++            }
++        }
+         PCSetType(MLRsubpc, localPCType);
+ 
+         // Set PC factor

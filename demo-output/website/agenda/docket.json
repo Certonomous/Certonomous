@@ -4215,7 +4215,9 @@
     "claimed_by": "solver-agent fiml-adjoint-conditioning-unblock (W4 session)",
     "claimed_at": "2026-08-04T15:05:38Z",
     "note": "Under work this session. Routes in order: (1) PETSc runtime options reaching the sub-factorization without a rebuild, (2) scaling/Jacobian-state improvement, (3) in-container rebuild of libDASolver.so with a pivoting-capable factorization. Do not start this item elsewhere."
-   }
+   },
+   "progress_note": "W4, 2026-08-04. THE GATE AS WRITTEN IS MET on the CBFS branch, with evidence on disk; status left at approved because the supervisor's standing instruction this session was not to close it, and closing is theirs. Mechanism confirmed in-solver: the ASM sub-block incomplete factorization is the failing layer. An offline petsc4py harness replicating DALinearEqn's exact call order on the dumped CBFS system reproduces the -9 bit-for-bit, and every runtime-reachable factor option (nonzeros-along-diagonal, zeropivot 1e-8, diagonal-fill) still returns -9 -- measured reachable via PCView, refuting the 'options never read' belief three documents shared -- while complete LU in the sub-blocks converges it in 347 iterations. libDASolver rebuilt with an off-by-default env switch DAFOAM_SUBPC_TYPE=lu (image dafoam-subpclu:v1, patch committed); regression control with the switch off reproduces -9 exactly. RESULTS: CBFS adjoint CONVERGES, reason 2, 667 iterations, on B3's exact -9 config; the beta-field (21,000 DV) field-inversion gradient computed on the same converged solve and FD-VERIFIED on 3 components at 0.085/0.059/0.199 percent (h=0.05, central, fresh-process, baseline control bit-identical), against the gate's 2.67-percent-order bar. Hump: same switch moves -9-at-iteration-0 to a completing factorization with a monotonically descending residual (1.094 to 0.954 over 900 iterations); stopped deliberately at MemAvailable 1.62 GB -- the hump's remaining blocker is Krylov convergence rate against the memory envelope, not singularity. fixedPoint bypass REFUTED at zero compute (SA-only: DAkOmegaSST inherits calcLduResidualTurb FatalError; no omega adjoint state to seed dR/dbeta). 185.0 of 240 core-min, every run billed at full occupancy. Record: ladder-b/W4_ADJOINT_PC_UNBLOCK.md; LESSONS L-34.",
+   "measured_core_min": 185.0
   },
   {
    "id": "tmr-flatplate-finest-grids",
@@ -4448,8 +4450,15 @@
     "demo-output/website/dafoam/DAFOAM_CASE_STATUS.md A4",
     "DAFoam journal paper, adjoint derivative error under 0.1 percent at 1536 cores, tier SEARCH-EXCERPT via the liaison memo, abstract only"
    ],
-   "status": "proposed",
-   "created_at": "2026-08-04T15:25:00Z"
+   "status": "approved",
+   "created_at": "2026-08-04T15:25:00Z",
+   "decided_at": "2026-08-04T16:05:00Z",
+   "decision_note": "supervisor ruling on Katie's 2026-08-04 instruction: the DAFoam-defect claim is part of the priority-1 investigation",
+   "claim": {
+    "claimed_by": "investigation-agent w4-three-discriminators (W4 session)",
+    "claimed_at": "2026-08-04T16:05:00Z",
+    "note": "Under work this session. Running the liaison memo's M1/M2/M3 discriminators cheapest-first on A4: bitwise primal compare from existing logs, dObj/dXv across decompositions, cross-residual of the scotch adjoint under the np=1 operator, permuted dRdWTPC diff, coloring-off run last. Run dir /home/ubuntu/certonomous-runs/W4-a4-discriminators/. Do not start this item elsewhere."
+   }
   },
   {
    "id": "w2-the-duct-zero-stated-as-a-structural-limit-with-a-falsifier",

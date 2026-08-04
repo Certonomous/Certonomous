@@ -1585,3 +1585,35 @@ declined), and put a pre-declared per-case hurt cap in the GO/NO-GO rule so
 the average — which will look good, because the average is dominated by the
 cases with something to fix — cannot carry a candidate past the exact failure
 it was built to cure.
+
+---
+
+## L-34. "Unreachable at runtime" is a claim about the deployed object, not about one call site
+
+**What happened.** Three independent readings — R5, PROOF §25.3, and the 2026-08-04
+liaison memo — all concluded that no PETSc runtime option can reach DAFoam's ASM
+sub-block factorization, because `DALinearEqn.C` calls `KSPSetFromOptions` once,
+early, and then configures the sub-PCs by hard-coded API calls. The conclusion was
+half wrong, and the half matters: PETSc's `PCSetUp_ASM` calls `KSPSetFromOptions`
+on each sub-KSP it creates *inside* `KSPSetUp` — after the one visible call site,
+before DAFoam's overrides. Measured on the dumped CBFS system with a harness
+replicating the exact call order: `-sub_pc_factor_zeropivot 1e-8` lands in the
+deployed factor (`PCView` prints "tolerance for zero pivot 1e-08"). The truly
+unreachable set is exactly what DAFoam overrides *afterward* — type, ordering,
+fill, shift — not "everything".
+
+**Why the error is easy and expensive.** Call-order reasoning reads one file;
+the framework's own lazy-construction hooks live in another. All three readings
+were careful, and all three drew the reachability boundary in the wrong place —
+which here fed a docket item's premise ("a preconditioner family swap ... needs
+a rebuild", true) and nearly hid that the *factor-option* axis could be swept
+without one (also true, and it was swept in an afternoon: all reachable options
+fail, which is what justified the rebuild as measurement rather than taste).
+
+**The rule.** Before declaring a configuration layer unreachable, deploy a probe
+that prints the final object state (for PETSc: `PCView` on the sub-PC after
+setup) and test one option that should be visible if the route exists. And when
+a solver's linear stack misbehaves, rebuild the exact stack offline on the
+dumped operator first — mechanism and reachability both become ~10-second
+experiments instead of solver launches, and the offline control must reproduce
+the in-solver failure bit-for-bit before any variant is believed.

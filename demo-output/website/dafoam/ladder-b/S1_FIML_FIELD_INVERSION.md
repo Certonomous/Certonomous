@@ -499,6 +499,19 @@ converged reason:
 Evidence: `/home/ubuntu/certonomous-runs/W4-cbfs-reordering/` -- `cbfs_{rcm,natural,nd,1wd,qmd,force_rcm,force_natural}_computetotals.log`,
 `cbfs_dump/{pmat,rhs}.dat`, `analyze_dump.py`, `analyze_dump2.py`, `run_cbfs.sh`, `stage.sh`.
 
+### Addendum 2026-08-04 (well W4): the blocker is broken
+
+The `-9` mechanism this section measures is now located and fixed:
+`W4_ADJOINT_PC_UNBLOCK.md`. The ASM sub-block incomplete factorization is the
+failing layer; switching it to complete LU (env-var switch `DAFOAM_SUBPC_TYPE=lu`
+in a locally rebuilt `libDASolver`, image `dafoam-subpclu:v1`) converges the CBFS
+adjoint (`PetscConvergedReason: 2`, 667 iterations) on B3's exact `-9`
+configuration, and the first closure-relevant field-inversion gradient now exists:
+21,000 beta components on CBFS, FD-verified to 0.085/0.059/0.199 percent on three
+components. On the hump the same switch replaces the `-9` NaN with a completing
+factorization and a monotonically descending (but slow) residual, stopped at the
+memory envelope — details and the remaining hump question in that document.
+
 ## 5. Cost scoping, measured rather than estimated
 
 | quantity | tutorial case (works) | NASA hump (blocked) |
