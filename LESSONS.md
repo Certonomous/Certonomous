@@ -1520,3 +1520,31 @@ re-measurement is shown to reproduce the instrument where the instrument is
 trusted. "Unchanged between two runs" is not verification when the change under
 test could not have moved it. State what would have to be true for the
 reference to be the wrong one, and test that.
+
+## L-32. When a verdict moves, the case's own record must move first — satellites are not the record
+
+**What happened.** On 2026-08-02 A4's gradient verdict moved CONDITIONAL→PASS on
+the decomposition finding (`PROOF.md` §25.5). The move was written into four
+satellite documents — `PROOF.md`, `DAFOAM_CASE_STATUS.md`,
+`NOT_PASSING_REGISTER.md`, `ACTIVE_RESEARCH.md` — and into **zero** of the
+case's own ladder files. The 2026-08-04 supervisor verification sweep found
+`ladder-a/A4_ahmed_body.md:158` still asserting "graded CONDITIONAL, not PASS"
+with no supersession note, while `:207` and `A4_ahmed_body.json` still carry the
+*original, wrong-reason* "PASS under the calibration band" that predates even
+the CONDITIONAL. The primary record now contradicts the live verdict in both
+directions at once.
+
+**Why it keeps happening.** The session that moves a verdict is working in the
+document where the *new* evidence lives, and that is never the case file — the
+case file holds the old evidence. Updating it feels like bookkeeping, so it
+loses to the next measurement. This is the second time on this exact file: the
+2026-07-28 CONDITIONAL regrade also left `:207`'s PASS wording standing,
+recorded at the time as "not been reconciled by its owner", and it still is not.
+
+**The rule.** A verdict change is not complete until the case's own `ladder-*`
+record (both `.md` and `.json`) carries it — first, not last, because that file
+is where a reader goes to check the claim. A satellite summary citing a verdict
+its own case file contradicts is the same defect as a credential wall citing a
+withdrawn number. When superseding, quote and strike the old wording in place;
+an unmarked stale verdict is worse than a marked wrong one, because only the
+unmarked one gets believed.
