@@ -214,6 +214,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   disclosed in submission draft §5.3; measured motivation for the in-PDE Stage 1 line). Round-4 MANIFEST + per-case
   convergence provenance landed. Zero scoring calls.
 
+- PAPERS-PROTOCOL ARM CLOSED (c3061eaa): pre-registered prediction REFUTED the honest way — dCD/du0 is decomposition-
+  invariant (3.55% vs 3.68%, a loose-tolerance floor). Unpredicted bigger finding: the defect is CONFIGURATION-SENSITIVE —
+  under the papers' verification configuration (inletOutlet + patchVelocity input) the shape-row defect does NOT fire
+  under scotch (0.019% vs established 8.95%, same mesh+partition). Why-unnoticed now maximal: the historical protocol
+  misses twice (never varies decomposition; instantiates a configuration the defect spares). Confound-separating control
+  (~3–5 core-min) routed to the reach agent's matrix. Upstream report amended, still NOT FILED.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
