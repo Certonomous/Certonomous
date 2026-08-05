@@ -356,3 +356,77 @@ page has now been burned in both directions.
 access on it: the Physica D row above. The thesis is the same material by the
 author's own statement, it is open, and it has been read. Requesting the
 journal version would buy the typesetting.
+
+---
+
+### Added 2026-08-05 — two cylinder-wake papers whose numbers are on our record without anyone having read them
+
+Both arrived from the citation-tier audit (`sdk/scripts/citation_tier_audit.py`,
+checker at commit `c3033a36`), which flagged
+`campaign/LITERATURE_REPRODUCTION_REVIEW.md` for asserting quantities beside a
+tier that licenses none. Both entries in that review are now labelled
+**RELAYED, NOT VERIFIED** with their relay chains named, and the numbers are
+kept rather than deleted. **These two rows are what would turn them from
+relayed to read.** Neither blocks anything approved; both would close a
+propagation route the charter names as its worst.
+
+**8. Mittal & Balachandar 1995. Two percentages nobody in this lab has seen printed.**
+
+**R. Mittal, S. Balachandar**, *Effect of three-dimensionality on the lift and
+drag of nominally two-dimensional cylinders*, **Physics of Fluids 7(8),
+1841 to 1865, 1995**, doi `10.1063/1.868500`.
+
+**Tried and failed:** Unpaywall on the DOI returns `is_oa: false` with no
+repository copy; a direct fetch of AIP's own PDF link returned a Cloudflare
+challenge page rather than a document. **Re-checked 2026-08-05 17:37 UTC**:
+Unpaywall on `10.1063/1.868500` returns `is_oa: false`, `oa_status: closed`,
+**zero** open-access locations, with the title, journal and year matching the
+citation exactly — so the identifier is confirmed as well as the closure.
+Recorded at
+`campaign/LITERATURE_REPRODUCTION_REVIEW.md`, the Q2 section, as a disclosed
+relay rather than a silent one.
+
+**The one section needed:** the Re=525 force comparison — whatever table or
+figure prints the 2D-versus-3D `Cd` and lift excursion, and the Reynolds number
+each is quoted at.
+
+**What changes.** Our record carries "16% higher `Cd`, 88% higher lift
+peak-to-valley in 2D vs 3D at Re=525" from a secondary summary of the abstract
+and citing literature, which is the last-ranked source class in
+`docs/charters/LITERATURE_CHARTER.md` §4. Reading the paper either upgrades
+those two numbers to citable at their printed precision, or corrects them — and
+either outcome is worth having before any write-up sets our own 2D-versus-3D
+over-prediction beside them. **Priority: after item 7.** It cannot overturn
+anything of ours; it can stop a relayed number being reproduced as a measured
+one.
+
+**9. Barkley & Henderson 1996. The number our whole mode-A bracket rests on.**
+
+**D. Barkley, R. D. Henderson**, *Three-dimensional Floquet stability analysis
+of the wake of a circular cylinder*, **Journal of Fluid Mechanics 322, 215 to
+241, 1996**, doi `10.1017/S0022112096002777`.
+
+**Tried and failed:** not independently fetched in the reading session that
+cites it; the JFM full text is paywalled and no repository copy was located.
+**Availability and identifier checked 2026-08-05 17:37 UTC**, because this row
+had no DOI on our record and a guessed identifier is exactly how a fabricated
+citation is born: Crossref returns the DOI above for this exact title, at
+**volume 322, pages 215 to 241, 1996**, matching the citation on all three;
+Unpaywall on that DOI returns `is_oa: false`, `oa_status: closed`, **zero**
+open-access locations.
+**The relay chain is the charter's named worst case** — Barkley & Henderson to
+Rao et al. (2017) §1, which this lab did read in full, to our record. What we
+have verified is that Rao et al. state the figure.
+
+**The one section needed:** the critical Reynolds numbers themselves — the
+mode-A `Re_c` with its stated uncertainty, and the mode-B onset — read off the
+paper's own text or table rather than off anyone's citation of it.
+
+**What changes.** `Re_c≈188.5±1.0` and mode B at `Re≈259` appear twice in
+`campaign/LITERATURE_REPRODUCTION_REVIEW.md` and underpin Fact 1 of its Q4
+synthesis: that the real 3D wake goes spanwise-unstable far below our Re=3900
+rung. **The conclusion does not turn on the third digit** — the bracket holds
+by more than an order of magnitude either way — so this is not urgent, and
+saying so is the honest priority. What it buys is the right to print the
+±1.0 at all, and the closure of a citation-of-a-citation that the charter
+singles out. **Priority: last of the open items.**

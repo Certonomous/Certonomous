@@ -444,7 +444,10 @@ text (introduction) read, fetched from Monash University's own repository
   quantified critical Reynolds number, `Re_c≈188.5±1.0`. Barkley & Henderson (1996) itself
   (*Journal of Fluid Mechanics* 322:215–241) was **not independently fetched in full this
   session — PAYWALLED**; this specific number is relayed via Rao et al.'s own reading of it,
-  which was read in full.
+  which was read in full. **RELAYED, NOT VERIFIED** *(tier label added 2026-08-05 per the
+  citation-tier audit; the relay chain and what may be done with the number are stated in the
+  source list at the foot of this file, Barkley & Henderson entry)*: what this record verifies is
+  that Rao et al. state the figure, not that Barkley & Henderson print it.
 
 **Internal, already read this lab, reused here with attribution**: Jiang, H. & Cheng, L. (2017),
 "Strouhal-Reynolds number relationship for flow past a circular cylinder," *Journal of Fluid
@@ -626,10 +629,28 @@ abstract and citing literature), not the full text, and is bounded to what those
 Decomposes a 3D DNS velocity field into a spanwise-mean component and a 3D remnant, solves the
 pressure-Poisson equation for each separately, and attributes the 2D-vs-3D force discrepancy to
 differences in the near-wake pressure/Reynolds-stress field; reported numbers are for **Re=525**
-(16% higher `Cd`, 88% higher lift peak-to-valley in 2D vs 3D) — a useful confirmation that the same
+(16% higher `Cd`, 88% higher lift peak-to-valley in 2D vs 3D — **RELAYED, NOT VERIFIED**; tier
+label and relay chain corrected 2026-08-05 in the note directly below, and the two percentages
+may not be used as measured values) — a useful confirmation that the same
 over-prediction mechanism operates at low Re, but not a same-Re comparison at 3900 and not a
 reported `Lr` value at all (the mechanism is stated in terms of Reynolds-stress concentration and
 formation length, `Lf`-type language, not `Lr`).
+
+> **Correction 2026-08-05 — the two numbers above are RELAYED, NOT VERIFIED, and the tier is
+> printed here rather than left to the paragraph.** Flagged by
+> `sdk/scripts/citation_tier_audit.py` (checker landed at commit `c3033a36`) under its adopted
+> rule "a quantity asserted beside a tier below READ IN FULL", which reads
+> `docs/charters/LITERATURE_CHARTER.md` §2's tier table and §7's first NEVER. **Tier:
+> PAYWALLED, abstract-and-secondary-summary only.** **Relay chain, named:** the 16% higher `Cd`
+> and 88% higher lift peak-to-valley at Re=525 were not read off Mittal & Balachandar's own text,
+> tables or figures by anyone in this lab; they reached this record through search-result
+> synthesis of the paper's abstract and of citing literature, which is a secondary
+> characterisation of a source — the thing §4 of the charter's allowed-sources list ranks last
+> and warns is the most common way a wrong number propagates. **The numbers are kept, not
+> deleted**, because deleting them would lose the lead; they may not be used as measured values,
+> compared against any number of ours, or reproduced to these significant figures until someone
+> reads the paper. Queued for library access:
+> `demo-output/website/agenda/LIBRARY_ACCESS_LIST.md` item 8.
 
 **Balachandar, S., Mittal, R. & Najjar, F.M., "Properties of the mean recirculation region in the
 wakes of two-dimensional bluff bodies," *Journal of Fluid Mechanics* 351:167-199 (1997).**
@@ -940,9 +961,19 @@ configuration) and this should be recorded plainly rather than left as an open f
   cylinder wakes at low angles of incidence." *Journal of Fluid Mechanics* 825:245–283 (2017).
   Full text (introduction) read.
 - Barkley, D. & Henderson, R.D. "Three-dimensional Floquet stability analysis of the wake of a
-  circular cylinder." *Journal of Fluid Mechanics* 322:215–241 (1996). PAYWALLED — not
-  independently read; the `Re_c≈188.5` result is relayed via Rao et al. (2017)'s own citation of
-  it.
+  circular cylinder." *Journal of Fluid Mechanics* 322:215–241 (1996). **Tier: PAYWALLED, not
+  independently read** — the `Re_c≈188.5±1.0` and the mode-B `Re≈259` figures are **RELAYED, NOT
+  VERIFIED**. *Correction 2026-08-05, flagged by `sdk/scripts/citation_tier_audit.py` (commit
+  `c3033a36`) under its "quantity asserted at a below-full tier" rule:* **the relay chain is
+  Barkley & Henderson (1996) → Rao, Leontini, Thompson & Hourigan (2017) §1 → this record**, i.e.
+  another paper's characterisation of a third paper, which `docs/charters/LITERATURE_CHARTER.md`
+  §4 names as the most tempting and most common way a wrong number propagates. Rao et al. was
+  read in full here, so what is verified is *that Rao et al. state it*, not that Barkley &
+  Henderson print it, and not the ±1.0. **The numbers stay** — they bracket our Re=3900 rung by
+  more than an order of magnitude, so no conclusion of ours turns on their third digit — and they
+  may not be quoted as read, refined, or set beside a measurement of ours until the paper is
+  opened. Queued for library access:
+  `demo-output/website/agenda/LIBRARY_ACCESS_LIST.md` item 9.
 - Jiang, H. & Cheng, L. "Strouhal-Reynolds number relationship for flow past a circular
   cylinder." *Journal of Fluid Mechanics* 832:170–188 (2017). Full text read by a prior session
   in this lab; reused here with attribution, not re-fetched.
