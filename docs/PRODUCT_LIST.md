@@ -138,6 +138,16 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [ ] Valve F9 real pulsatile solve.
 - [x] Standards docs: MESH_STANDARD, MONITOR_STANDARD (v1.3 incl. S12 unsettled-stop, landing 2026-08-04), INNOVATION_STANDARD.
 
+## 4I. Uncertainty quantification line (NEW 2026-08-05, Katie's directive: every result ships with a band — fast)
+- [ ] Dow (MIT) structural-uncertainty thesis + companion papers: fetch, deep-read, implementation notes. [dispatched 2026-08-05]
+- [ ] UQ propagation ladder on a validated cheap case: Monte Carlo coefficient sampling → non-intrusive polynomial chaos
+      (feeds `r2-closure-coefficient-uncertainty`, approved 60) → surrogate/GP over coefficient space → dynamically-orthogonal /
+      ROM-type propagation (scoped honestly; intrusive DO documented before attempted). [dispatched 2026-08-05]
+- [ ] Band machinery: a module that attaches an uncertainty band (numerical + coefficient + model-form channels, per
+      UNCERTAINTY-DOCTRINE) to every published case result; wire into the certificate/report path.
+- [ ] Standing model-form batch (the never-idle engine): same case x RANS-model matrix x regime sweep on validated families;
+      spread recorded as the model-form channel. [dispatched 2026-08-05]
+
 ## 4H. AI charters — iterated daily
 - [x] Goals & research-proposal charter.
 - [x] Literature-review charter (0 fabricated citations stays the standard).
