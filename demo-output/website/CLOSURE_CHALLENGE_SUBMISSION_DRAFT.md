@@ -538,6 +538,22 @@ steward's own scoring differs from ours, the steward's number is the number.
 7. **Scoring-call count, correctly framed**: four distinct prediction sets scored, as a
    self-imposed discipline, **explicitly not** compliance with any benchmark limit,
    since none exists (§2.5).
+8. **The submitted corrected fields do not satisfy continuity, and the departure is
+   measured** *(added 2026-08-05, pre-registered consequence of audit finding G2)*:
+   volume-weighted RMS `∇·U` rises from the operator floor (0.1–0.5% of the
+   velocity-gradient scale on the hills; machine zero on the ducts) to **~10% on the
+   two corrected hill cases, 2.3–3.4% on the three ducts, 0.66% on the hump** —
+   every other entrant re-solves the governing equations and gets `∇·U ≈ 0` by
+   construction. The two declined cases inherit the baseline's physicality untouched.
+   Numbers and operator validation: `closure_challenge_stability_physicality_audit.md`
+   §2, `closure_challenge_divergence_audit.json`.
+9. **One-seed training uncertainty, measured** *(added 2026-08-05, audit finding
+   G1)*: the PH model behind three predictions is seed-dependent (327,600 cells >
+   sklearn's 200k binning subsample). Across 8 seeds the validation-proxied
+   overall-equivalent spread is ~0.0003; a truth-free bound at the test points cannot
+   exclude 0.0024 — comparable to the 0.0030 gap to rank 2. The description document
+   must not quote the gap without this qualifier
+   (`closure_challenge_seed_sensitivity.json`).
 
 ### 5.4 Draft cover email — DRAFT, NOT SENT
 

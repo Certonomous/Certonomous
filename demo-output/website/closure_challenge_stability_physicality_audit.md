@@ -179,5 +179,73 @@ exceed the 0.0030 whole-gap line.
 
 ## 2. G2 — results
 
-*(To be filled by the divergence run; nothing below this line existed when
-§0 was committed.)*
+Run 2026-08-05 (`sdk/scripts/closure_divergence_audit.py`, 310 s on the
+2-core cap, zero scoring calls, guard verified armed; all 37 rows in
+`closure_challenge_divergence_audit.json`). Every regenerated test field
+matched its shipped round-4 CSV before its divergence number was believed
+(max abs diff 4.8e-10 to 4.9e-8, all at CSV write precision) — the numbers
+below are about **the submitted fields**, not a lookalike.
+
+**Reading the table**: `‖∇·U‖` is the volume-weighted RMS divergence
+through the identical validated Green-Gauss operator for both fields; the
+RANS row is therefore the **operator-consistency floor** (the solver
+enforces continuity on face fluxes, not on our reconstructed cell
+gradients), and the honest scale-free column is `‖∇·U‖ / ‖∇U‖_F` — the
+continuity error relative to the field's own velocity-gradient magnitude.
+
+The 8 submitted predictions (full 37-case table, including all 21 PH + 4
+DUCT training and 5 validation cases with the same pattern, in the JSON):
+
+| Case | Submitted field | ‖∇·U_RANS‖ | ‖∇·U_corr‖ | ratio | rel. RANS | rel. corr |
+|---|---|---|---|---|---|---|
+| `alpha_15_13929_4048` | PH-corrected | 0.0029 | 0.171 | **58.0** | 0.18% | **10.5%** |
+| `alpha_15_13929_2024` | PH-corrected | 0.0032 | 0.390 | **123.6** | 0.08% | **9.7%** |
+| `alpha_05_4071_4048` | declined (raw RANS) | 0.0084 | 0.0084 | 1.000 | 0.47% | 0.47% |
+| `alpha_05_4071_2024` | declined (raw RANS) | 0.0144 | 0.0144 | 1.000 | 0.27% | 0.27% |
+| `AR_1_Ret_360` | duct-D-corrected | 9.4e-12 | 9160 | ~1e15 (÷ machine zero) | 2.4e-17 | **2.3%** |
+| `AR_3_Ret_360` | duct-D-corrected | 2.2e-11 | 9749 | ~4e14 (÷ machine zero) | 6.9e-17 | **3.1%** |
+| `AR_14_Ret_180` | duct-D-corrected | 4.8e-12 | 3584 | ~7e14 (÷ machine zero) | 4.6e-17 | **3.4%** |
+| `NASA_2DWMH` | PH-corrected | 7.84 | 11.97 | **1.526** | 0.43% | 0.66% |
+
+**Verdict against the pre-registered line (§0.2): MATERIAL.** 35 of 36
+model-corrected cases (train + validation + test) sit at or above ratio 2;
+among the six corrected submissions, five exceed it — only `NASA_2DWMH`
+(1.53) stays under.
+
+**The honest interpretation, quantified, not editorialized**:
+
+- **The cost is real and now has a number.** The post-hoc correction takes
+  fields whose measured continuity error is at the operator floor
+  (0.1–0.5% of the gradient scale on PH; machine zero on the ducts, whose
+  fully-developed unidirectional RANS field is *exactly* divergence-free
+  cell-wise) and returns fields violating continuity at **~10% of the
+  gradient scale on the two corrected hills, 2.3–3.4% on the three
+  ducts**. This is far above the operator floor, so it is the field, not
+  the operator. It is the structural price of the method class the
+  comparison table already named: every other entrant re-solves the
+  governing equations and gets `∇·U ≈ 0` by construction; our submitted
+  corrected fields do not satisfy continuity, and now the departure is
+  measured instead of unmentioned.
+- **The scoring metric never sees this** — nothing here changes 0.0654 —
+  but a referee of the description document would ask exactly this
+  question, and the answer is on the record with the sign against us.
+  Per the pre-registered consequence, this is carried into the submission
+  draft's disclosure alongside its §7.1 discussion.
+- **The two declined cases are, again, the strongest rows** — the gate's
+  "off" state ships the organisers' own solve and inherits its
+  physicality untouched. The decline mechanism keeps being the most
+  defensible part of the entry.
+- **Why NASA is mild**: the PH-trained correction is small relative to
+  NASA's own gradient scale (‖∇U‖_F ≈ 1803 s⁻¹ against the hills' ~2–5),
+  so the same model that barely moved NASA's score (+0.0011) also barely
+  moves its continuity error (0.43% → 0.66%). Magnitude of harm tracks
+  magnitude of correction — consistent with the C6 covariate-shift
+  finding, and measured here from a different direction.
+- **Train/validation cases show the same 8–19% (PH) and 2–3% (duct)
+  corrected-field levels**, so this is a property of the method on its
+  own turf, not a test-set extrapolation artifact.
+
+**Boundary caveat, recorded**: boundary faces carry the RANS boundary
+metadata for both fields (§0.2). Since the correction is cell-centred and
+boundary conditions are untouched, this is the natural completion; the
+measured differences are interior-driven.
