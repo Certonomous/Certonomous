@@ -53,6 +53,27 @@ same y⁺ to 0.2%. Its lower aspect ratio (15.29 against 20.47) is the one real
 difference and comes from our polyLine edge distributing cells by arc length
 along the hill flank where the shipped mesh distributes them by x.
 
+## 1b. A correction to this record's own pre-registration, and to the 2026-07-29 one
+
+**`Re_H = Ubar·h/nu` is not how this case's Reynolds number is built, and both
+records said it was.** The pre-registration for this run states "`Ubar = 0.72`
+(giving `Re_H = Ubar·h/nu = 10595`)", and the 2026-07-29 record states the same
+identity. It does not hold: 0.72 / 9.438414346389807e-05 = **7628**, not 10595.
+
+The case is nonetheless at the canonical Reynolds number, and the fix is a
+definition rather than a setup error. `meanVelocityForce` holds the
+**domain-mean** velocity at 0.72; the literature's `Re_H` is built on the
+**bulk velocity through the crest section**, which is higher because that
+section is constricted to 2.035 h of the 3.035 h channel. Measured from our own
+converged medium field by integrating Ux across the crest plane, that bulk
+velocity is **0.9982**, giving **Re_H = 10,576 — within 0.2% of the declared
+10,595**.
+
+So the physics is right and the stated identity was wrong. `gate_result.json`
+now carries all three numbers side by side rather than the misleading one, and
+the pre-registration is left unedited with this correction pointing at it,
+because a pre-registration that gets quietly repaired afterwards is not one.
+
 ## 2. Geometry verification, done before the pre-registration closed
 
 Our ERCOFTAC polynomial, evaluated at the 121 lower-wall face points of the
@@ -123,7 +144,13 @@ exactly two skin-friction sign changes on the lower wall — one separation, one
 reattachment. This rung produces **twenty-two**, scattered from x/h = 0.047 to
 8.96, and its station-profile MAE against the LES field doubles to 25.8% from
 the 12.5–12.8% the other three agree on. No separation or reattachment number
-is quoted from this rung anywhere in this record, because it does not have one.
+is quoted from this rung anywhere in this record, because it does not have one:
+`gate_result.json` records `separation_x_over_h: null`,
+`reattachment_x_over_h: null`, `n_crossings: 22`, `steady_bubble: false`. The
+first draft of the analysis script reported that rung's first two crossings,
+0.0465 and 0.2022, as a separation and a reattachment. They are neither. The
+script now refuses to name either unless there are exactly two crossings, which
+is the only condition under which those names mean anything.
 
 **This was not predicted and no gate covers it.** Recording it as a result
 rather than as a failed run, with the honest statement of what is and is not

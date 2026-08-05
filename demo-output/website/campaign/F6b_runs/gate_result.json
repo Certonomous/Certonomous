@@ -1,7 +1,10 @@
 {
-  "ubar": 0.72,
+  "ubar_domain_mean": 0.72,
   "nu": 9.438414346389807e-05,
-  "Re_H": 7628,
+  "Re_on_domain_mean_Ubar": 7628,
+  "Ub_crest_measured": 0.998185,
+  "Re_H_measured_on_crest_bulk": 10576,
+  "Re_H_declared_by_the_case": 10595,
   "rungs": {
     "coarse": {
       "cells": 7728,
@@ -12,8 +15,10 @@
         0.2789,
         7.6436
       ],
+      "n_crossings": 2,
       "separation_x_over_h": 0.2789,
       "reattachment_x_over_h": 7.6436,
+      "steady_bubble": true,
       "utau_max": 0.104209,
       "utau_mean": 0.031461,
       "profile_scaled_mae_percent": {
@@ -38,8 +43,10 @@
         0.2604,
         7.6472
       ],
+      "n_crossings": 2,
       "separation_x_over_h": 0.2604,
       "reattachment_x_over_h": 7.6472,
+      "steady_bubble": true,
       "utau_max": 0.107535,
       "utau_mean": 0.031422,
       "profile_scaled_mae_percent": {
@@ -64,8 +71,10 @@
         0.2463,
         7.6546
       ],
+      "n_crossings": 2,
       "separation_x_over_h": 0.2463,
       "reattachment_x_over_h": 7.6546,
+      "steady_bubble": true,
       "utau_max": 0.10756,
       "utau_mean": 0.031341,
       "profile_scaled_mae_percent": {
@@ -110,8 +119,10 @@
         7.4725,
         8.9597
       ],
-      "separation_x_over_h": 0.0465,
-      "reattachment_x_over_h": 0.2022,
+      "n_crossings": 22,
+      "separation_x_over_h": null,
+      "reattachment_x_over_h": null,
+      "steady_bubble": false,
       "utau_max": 0.151672,
       "utau_mean": 0.03657,
       "profile_scaled_mae_percent": {

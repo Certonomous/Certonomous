@@ -111,7 +111,19 @@ def profiles(name, time, interp):
 
 def main():
     interp = les_interp()
-    res = {"ubar": UBAR, "nu": NU, "Re_H": round(UBAR / NU), "rungs": {}}
+    # Re_H is NOT Ubar/nu.  `meanVelocityForce` holds the DOMAIN-MEAN velocity at
+    # 0.72, and 0.72/nu is 7628, not the canonical 10595 the case's own
+    # transportProperties comment declares.  The literature's Re_H is built on the
+    # BULK velocity through the crest section, which is higher because the section
+    # is constricted; measured from our own converged medium field it is 0.9982,
+    # giving 10576, within 0.2% of 10595.  Both numbers are recorded because
+    # writing only the first one is what put a false identity into two records.
+    res = {"ubar_domain_mean": UBAR, "nu": NU,
+           "Re_on_domain_mean_Ubar": round(UBAR / NU),
+           "Ub_crest_measured": 0.998185,
+           "Re_H_measured_on_crest_bulk": 10576,
+           "Re_H_declared_by_the_case": 10595,
+           "rungs": {}}
     for name, nx, ny, time in [("coarse", 84, 92, None), ("medium", 120, 130, None),
                                ("fine", 170, 184, None), ("veryfine", 240, 260, None)]:
         case = BASE / name
@@ -128,8 +140,16 @@ def main():
         res["rungs"][name] = {
             "cells": nx * ny, "nx": nx, "ny": ny, "time_written": t,
             "crossings_x_over_h": [round(c, 4) for c in cr],
-            "separation_x_over_h": round(cr[0], 4) if cr else None,
-            "reattachment_x_over_h": round(cr[1], 4) if len(cr) > 1 else None,
+            "n_crossings": len(cr),
+            # A steady separation bubble has EXACTLY two skin-friction sign
+            # changes.  Anything else is not a bubble and has no separation or
+            # reattachment point to report, so none is reported: the veryfine
+            # rung produces 22 and its first two are not a separation and a
+            # reattachment, they are the first two wiggles of a field that
+            # never converged.
+            "separation_x_over_h": round(cr[0], 4) if len(cr) == 2 else None,
+            "reattachment_x_over_h": round(cr[1], 4) if len(cr) == 2 else None,
+            "steady_bubble": len(cr) == 2,
             "utau_max": round(float(utau.max()), 6),
             "utau_mean": round(float(utau.mean()), 6),
             "profile_scaled_mae_percent": prof,
