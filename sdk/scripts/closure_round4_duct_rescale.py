@@ -150,6 +150,11 @@ def main() -> None:
         pts = cc.evaluation_points(c)                        # coordinates only
         duct_pred[c] = NearestNDInterpolator(f["C"], u_mesh)(pts)
         assert duct_pred[c].shape == (1000, 3), f"{c}: {duct_pred[c].shape}"
+        # isfinite assert added 2026-08-05 (audit finding G4: this script
+        # originally asserted shape only; the audit ran the finiteness check
+        # externally). The submission-dir manifest is written separately by
+        # sdk/scripts/closure_round4_manifest.py, which makes no scoring call.
+        assert np.isfinite(duct_pred[c]).all(), f"{c}: non-finite prediction values"
         np.savetxt(_OUT_DIR / f"{c}.csv", duct_pred[c], delimiter=",", fmt=_FMT)
         print(f"  {c:18s} Uref={uref:8.4f}  mean|dU|={np.linalg.norm(d,axis=1).mean():.5f}"
               f"  ratio to Uref={np.linalg.norm(d,axis=1).mean()/uref:.5f}")
