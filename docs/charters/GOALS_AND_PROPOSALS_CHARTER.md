@@ -24,7 +24,11 @@ unless it carries an `archive_replay` record naming the corpus, the fire
 count, the fatal count and the behaviour on the motivating case.
 `archive_replay_violations` in `sdk/chief_engineer/agenda.py` is the check,
 S12's replay line is the pattern, and P-1.4 in `PROPOSALS_OPEN.md` records it
-for her to overturn with a word.
+for her to overturn with a word. It also answers P-1.2 with a measurement
+rather than an opinion: axis B's drafted 0 to 3 scale is replayed against the
+wall and the docket in section 2, and the finding is that its top two anchors
+do not separate anything the lab has. Nothing about axis B is enacted; the
+question of whether the axis exists stays hers.
 
 ## 1. The line
 
@@ -145,6 +149,73 @@ that will produce a 40 percent deviation against experiment is honest, is
 publishable in the record, belongs in `NOT_PASSING_REGISTER.md`, and buys no
 credential. Say so in the proposal rather than scoring it optimistically and
 discovering it at curation.
+
+#### Axis B measured against the record, 2026-08-05. PROPOSED, and the
+#### question it answers is P-1.2
+
+**The axis was drafted so there would be something to argue with, and the
+record can now argue with it.** The measurement below is P-1.2's whole
+content: it does not decide whether producing a wall row is a research
+objective, which is hers and is not the lab's to answer. It decides whether
+the drafted 0 to 3 scale, if adopted, would rank anything.
+
+**Anchor 3 has never been earned and the wall says so on its own face.**
+`demo-output/website/wall/wall.json` carries eight credentials and every one
+of them is SOLVER-BACKED. The page's own summary line reads "8 canonical
+bodies benchmarked against published experiment, 0 validated within band".
+There was one VALIDATED row, `ahmed_25`, and the weekly audit re-derived it
+through the builder's own function and found it moves to SOLVER-BACKED, its
+figure from 0.3219 to 0.3041 and its envelope onto a three-mesh study that
+came back inconclusive. So the scale's top value is presently unreachable and
+was reached exactly once in the lab's history, by a row that did not survive
+re-derivation. The reason is structural rather than bad luck:
+`lab.validate_against_reference` grants VALIDATED only against a published
+experiment, in regime, in band, and section 2's own anchor adds all three
+uncertainty channels on top. Nothing in the lab has cleared that set at once.
+
+**Anchor 2 does not separate the eight rows either**, because all eight are
+what anchor 2 describes. A scale on which every existing row scores the same
+value is not measuring the rows, it is naming them.
+
+**Anchors 1 and 0 carry the whole docket.** Of the 221 proposals on the
+docket, 28 name a credential or the wall anywhere in their objective or their
+stated gain, and reading those 28: they overwhelmingly decide something about
+an existing row, close a gap on an existing body, or rule on what a credential
+may claim. Almost none proposes a body the wall has never carried. So the
+drafted scale, applied to the docket the lab actually has, assigns 0 to about
+seven proposals in eight and 1 to most of the rest. **It is a four-value scale
+that takes two values, one of which is the default.** That is the shape C-2
+withdrew a monitor rule for, and disqualifier 10's own sentence applies to it
+unchanged: an instrument that cannot come out more than one way is not an
+instrument.
+
+**One thing the measurement does NOT say.** It does not say wall value is
+unimportant. The 28 proposals are evidence in the other direction: the lab
+does prioritise wall work, without any axis telling it to. What the
+measurement says is that the drafted numbers are not how that priority is
+being expressed, and adopting them would put a number on the record that no
+decision turns on.
+
+**The lab's recommendation, and it is deliberately not a ruling on whether the
+axis exists.** Option D in `PROPOSALS_OPEN.md`: keep the axis and drop the
+scale. A proposal states its wall effect as a declaration in one of three
+words, `new-row`, `improves <row>`, or `none`, and no number is assigned.
+That is enough for section 3's dominance rule, which needs an ordering rather
+than a magnitude and already refuses weighted sums for exactly the reason a
+0 to 3 anchor set invents precision. It is also checkable, which none of the
+drafted anchors is: a claimed `new-row` is falsifiable against `wall.json`
+the morning after.
+
+**What stays hers under every option**: whether the wall is a research
+objective at all, and the curation rule itself, which is hers and which this
+subsection does not touch. One measured observation to go with it, stated
+because it bears on any anchor built on the rule and not as a curation
+proposal: the curation rule says no cases more than 10 percent off their
+reference, and five of the eight published rows are 12.5, 16.4, 26.2, 33.9
+and 79.8 percent off. The page presents them as a calibration suite with each
+deviation printed rather than as clean wins, which is a different claim from
+the one the rule governs, and which of the two the wall is making is a
+curation call rather than a measurement.
 
 ### Axis C. Challenge deficit reduction
 

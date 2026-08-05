@@ -1,6 +1,6 @@
 # Certonomous Result Priority Charter
 
-Version 0.3, dated 2026-07-31. **This is a draft for the owner to react to, not
+Version 0.4, dated 2026-08-05. **This is a draft for the owner to react to, not
 a settled charter.** Her own note on it is "still need to think abt how to go
 abt this", and this document takes that literally. The orderings below are
 proposals. The open questions in section 6 are named rather than papered over,
@@ -21,6 +21,15 @@ an essay.
 **What changed in 0.3.** One clause, at the head of 4.5: a budget names its
 largest term. It is measured rather than drafted, so it is not marked PROPOSAL,
 and it is the only thing in this document that is not waiting on her.
+
+**What changed in 0.4, and it is still 0.x for the same reason.** Nothing was
+settled and no ordering moved. Section 8.1 is new: the six orderings of
+section 4 restated as six answerable items, D8 to D13, each with its ranks on
+one line, one sentence of why that order, where it came from, and the decision
+that breaches it. It exists so the decision session is accept or edit rather
+than compose, and so the two orderings that are hers are visibly not presented
+at the same standing as the four the lab drafted. This is P-5.2 made
+answerable; P-5.2 itself is unchanged and still open.
 
 ## 1. The problem, in her words
 
@@ -467,6 +476,118 @@ Trade: A is what is written and it means a trade made under a memory ceiling
 survives the ceiling. B costs a recurring report row per trade and is the only
 version that fires without anybody remembering. *Lab recommends B*, and it is
 cheap: the trigger is already written, the date is one more line.
+
+## 8.1 The six orderings, as one accept-or-edit sheet
+
+> **PROPOSED, 2026-08-05, under the standing charter-iteration directive.
+> Nothing here is enacted and nothing here is new policy.** Section 4 already
+> states these six orderings in full. This sheet restates each one so it can be
+> answered in a line rather than composed from scratch: the ranks, one sentence
+> of why that rank order and not another, where the ordering comes from, and
+> the decision that would breach it. **"D9: accept" is a complete answer**, and
+> so is "D9: accept, swap ranks 2 and 3". D8 to D13 extend section 8's sheet
+> and are answered in the same session; P-5.2 in `PROPOSALS_OPEN.md` is the
+> same question and this is where the text for it lives.
+>
+> The lab's recommendation is stated per class rather than once, because two of
+> the six are hers already and it would be dishonest to present the lab's
+> drafts at the same standing as her examples.
+
+**D8. External aerodynamics** (section 4.1). Hers, expanded.
+
+1. Integrated forces and moments → 2. dominant flow feature location →
+3. surface distributions → 4. field detail.
+
+*Why this order:* the forces are what the mission is for and what the wall
+grades, and the feature location sits second because it is what decides
+whether the forces are right for the right reason rather than by cancellation.
+*Provenance:* her stated example; ranks 2 to 4 are the expansion.
+*Violated when* a model or mesh is adopted on a better wake, pressure
+distribution or picture while its integrated forces move away from the
+reference, with no trade block. *Lab recommends accept as written*, because
+the expansion adds nothing her example did not imply.
+
+**D9. The challenge** (section 4.2). Hers, and the least ambiguous of the six.
+
+1. The eight scored columns → 2. nothing else.
+
+*Why this order:* the benchmark publishes its own metric and the overall score
+is the plain mean of eight, so a change of d on one case moves the total by
+exactly d/8 and everything else is diagnosis. *Provenance:* hers, and the
+arithmetic is the benchmark's. *Violated when* a round is adopted or a claim
+published on a physics argument the eight columns do not support, or when a
+surface publishes a score that is not the entry of record's, which is a defect
+the wall has actually shipped. *Lab recommends accept as written.*
+
+**D10. Gradients and adjoints** (section 4.3). Drafted, and already in force.
+
+1. Per-component sign agreement → 2. direction agreement of the whole vector
+→ 3. per-component magnitude → 4. the objective value.
+
+*Why this order:* a gradient that points the right way with the wrong
+magnitude still descends and a gradient with a flipped component climbs, so
+sign is not a tighter version of magnitude, it is a different question.
+*Provenance:* not really a draft. The FD grading standard already fails any
+sign-flipped component regardless of the aggregate, so ranks 1 and 3 are a
+written-down description of a rule in force. *Violated when* an adjoint is
+adopted, or drives an optimisation, on aggregate agreement while a component's
+sign is flipped; A5 is the standing example at 46.6 percent aggregate with two
+flips. *Lab recommends accept*, and notes this is the one drafted class where
+rejecting the ordering means changing a standard that is already enforced.
+
+**D11. Free surface and interface** (section 4.4). Drafted.
+
+1. The gated front or interface position, measured with a metric whose free
+parameter has been swept and whose spread is printed beside the number →
+2. integrated forces → 3. field detail.
+
+*Why this order:* the quantity the mission exists to produce is the front, and
+F7a retracted two published root causes that were artefacts of an unswept
+metric parameter, so rank 1 is not "the front position" but "a front position
+shown to be metric-independent". *Provenance:* the lab's, with F7a as the
+measured reason. *Violated when* a front-position result is ranked at all
+before its metric's free parameter has been swept; an unswept number does not
+enter the ordering. *No recommendation on the class, and a recommendation on
+its rank 1*: whatever ordering she prefers, the admissibility condition on
+rank 1 is the part the record paid for.
+
+**D12. Uncertainty quantification** (section 4.5). Drafted, with rank zero
+measured.
+
+0. Admissibility → 1. coverage → 2. width at equal coverage → 3. the central
+value.
+
+*Why this order:* a narrow band that misses is worse than a wide band that
+contains, so reporting width first inverts the question; and a band whose own
+producing procedure marks itself non-conclusive is not a band, which is rank
+zero and is not a preference. Five acts ranked a non-conclusive fallback as
+though it were measured, under a caption that made it a 95 percent confidence
+interval. *Provenance:* the lab's, grounded in F6d, which reported both
+frameworks containing the reference and then compared widths of 4.041 against
+0.797. The largest-term rule at the head of 4.5 is measured and is not part of
+this question. *Violated when* a framework is preferred for a narrower band
+with no coverage statement, or a non-conclusive band is compared on width at
+all. *Lab recommends accept*, and flags that rank 0 is the only clause in the
+six that refuses to rank something rather than ordering it.
+
+**D13. Unsteady statistics** (section 4.6). Drafted.
+
+1. Stationarity of the reported statistic, per quantity → 2. the frequency or
+period → 3. the mean → 4. the band.
+
+*Why this order:* a run is not converged, a quantity is, and stationarity is
+the precondition for the other three meaning anything rather than a competitor
+to them. *Provenance:* the lab's, from L-24 and F9: six reference runs judged
+stationary on the throat differential published a downstream differential with
+peak-to-trough bands of 39, 113 and 128 percent of its own mean. *Violated
+when* a mean or a band is reported for a quantity whose own stationarity was
+never tested, on the strength of the run having converged. *Lab recommends
+accept.*
+
+**What the sheet does not ask.** Whether the orderings are lexicographic is
+D2 and is asked once for all six, not per class. Whether an ordering binds
+selection or only reporting is D4. Whether an unlisted class may draft its own
+is D6, and answering D8 to D13 does not answer it.
 
 ## Related
 

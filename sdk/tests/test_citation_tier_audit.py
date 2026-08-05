@@ -94,6 +94,25 @@ class ATierTheCharterDoesNotDefine(unittest.TestCase):
                                       "f.md", 1)
         self.assertIn("a tier the charter does not define", _rules(found))
 
+    def test_reporting_the_tier_is_not_using_it(self):
+        """A block that says the tier is undefined has already said what the
+        rule would say. The exemption is the sentence, never the filename:
+        the same text in any file clears, and a bare citation at the tier
+        fires in every file."""
+        for block in (
+                "SEARCH-EXCERPT is not in the charter's section 2 table",
+                "A tier the charter does not define: SEARCH-EXCERPT",
+                "SEARCH-EXCERPT is a fourth tier and there is no fourth tier",
+                "A. The charter gains SEARCH-EXCERPT as a fourth tier"):
+            self.assertNotIn("a tier the charter does not define",
+                             _rules(audit_mod.check_block(block, "f.md", 1)),
+                             block)
+        self.assertIn(
+            "a tier the charter does not define",
+            _rules(audit_mod.check_block(
+                "the paper, tier SEARCH-EXCERPT, says the wake reattaches",
+                "docs/charters/LITERATURE_CHARTER.md", 1)))
+
     def test_the_three_charter_tiers_are_not_reported(self):
         for tier in ("READ IN FULL", "PAYWALLED, abstract-only",
                      "INTERNAL, already read"):

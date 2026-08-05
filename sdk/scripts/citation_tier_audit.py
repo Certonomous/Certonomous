@@ -128,6 +128,23 @@ _REPAIRED = re.compile(
     r"\bCORRECTION\b|\bcorrected\b|\bsupersed|\bwithdraw|"
     r"\bsince READ IN FULL\b|\bupgradeable to READ IN FULL\b", re.I)
 
+# A block that names the undefined tier IN ORDER TO REPORT IT is discussing the
+# vocabulary rather than citing at it, and rule 2 firing there would grow its
+# own hit count every time somebody writes about the problem -- which happened
+# the day this file landed: the charter clause and the proposals entry
+# describing the finding each tripped the rule they were describing.
+#
+# THE TEST IS THE SENTENCE, NEVER THE FILENAME. Exempting a document by path
+# would let a real citation defect hide inside a charter, which is the one
+# place a defect would be believed. So the exemption is earned by saying the
+# thing: a block that states the tier is undefined, or is asking whether the
+# charter should define it, has already told the reader everything this rule
+# would have told them.
+_DISCUSSES_THE_TIER = re.compile(
+    r"\bdoes not define\b|\bnot in the\b[^.]{0,60}\btable\b|"
+    r"\bfourth tier\b|\bundefined tier\b|"
+    r"\bthe charter gains\b|\bthe records lose it\b", re.I)
+
 # Locators are not claims. A section, table, figure, equation or page number
 # beside a citation is how the charter asks for citations to be written, so
 # they come out before any quantity is looked for. So does the citation's own
@@ -290,7 +307,7 @@ def check_block(block: str, where: str, line) -> list[Finding]:
                 f"and an under-0.1-percent accuracy figure, joined by one "
                 f"abstract sentence, from two disjoint experiments"))
     for name, pattern in UNDEFINED_TIERS.items():
-        if pattern.search(block):
+        if pattern.search(block) and not _DISCUSSES_THE_TIER.search(block):
             found.append(Finding(
                 "a tier the charter does not define", where, line,
                 _excerpt(block),

@@ -1,6 +1,6 @@
 # Open proposals across the charters
 
-Version 2.2, dated 2026-08-05. Every point in the eight charters where the lab
+Version 2.3, dated 2026-08-05. Every point in the eight charters where the lab
 is **proposing** rather than **recording**, collected so the owner can react to
 the whole set without reading the whole set.
 
@@ -8,6 +8,27 @@ Everything listed here needs her decision. Everything not listed here traces to
 a recorded instruction, an existing standards document, or a lesson. That
 distinction is the reason this file exists: the lab must never present its own
 invention as her policy.
+
+**What changed in 2.3, and the distinction 2.2 introduced still holds:
+carried out is not ruled on.** Two more proposals became landed, tested code
+with a 2026-08-05 grandfather line, each reversible by a word: **P-1.4**, the
+archive replay a detection rule owes, is now an intake refusal, and
+**P-2.1**'s tier half is now a review aid that runs over the records. Two
+others became decision-ready without being enacted, because neither is the
+lab's to enact: **P-1.2** carries a measurement of the drafted axis B scale
+against the wall and the docket, and a new option D that follows from it, and
+**P-5.2**'s six orderings are restated as six answerable items, D8 to D13, in
+the result-priority charter's new section 8.1. And one thing here is neither a
+proposal nor a ruling: the escalation charter gained an OPS section after the
+fleet was killed twice in two days, because those five rules describe what
+already worked rather than asking for anything.
+
+**One finding is worth reading even if nothing else here is.** P-2.1's checker
+was built and then pointed at its own proposal, and the rule she was asked to
+rule on is the one rule that did not survive: an untiered-citation warning
+fires on 24 blocks, 15 of them rows of published reference tables. It ships
+off. The two rules that did survive found seven live findings on the records,
+listed under P-2.1 and deliberately not fixed.
 
 **What changed in 2.0.** Two proposals closed because the thing they asked for
 now exists. Every remaining one was rewritten so the answer is a word rather
@@ -348,18 +369,49 @@ Proposed values, stated so the answer is a word:
 on the lab's most important cases is the failure, and any stated value is
 better than an unstated one.
 
-**P-1.2. Does axis B, wall credential value, exist at all?** Section 2. No such
-term, field or formula exists in the repository today. The wall exists and its
-tiers are ranked, but nothing assigns a credential a value. The 0 to 3 anchors
-in the charter are the lab's draft, built on her existing wall curation rule.
+**P-1.2. Does axis B, wall credential value, exist at all? MEASURED
+2026-08-05, and the measurement adds an option D.** Section 2. No such term,
+field or formula exists in the repository today. The wall exists and its tiers
+are ranked, but nothing assigns a credential a value. The 0 to 3 anchors in
+the charter are the lab's draft, built on her existing wall curation rule.
+
+**What the record now says about the drafted anchors**, replayed against the
+wall and the docket and written up in the goals charter's section 2 under
+axis B. Three findings, and none of them touches whether the axis should
+exist:
+
+- **Anchor 3 has never been earned.** All eight rows of `wall.json` are
+  SOLVER-BACKED and the page's own summary line reads "0 validated within
+  band". There was one VALIDATED row and the weekly audit found it moves to
+  SOLVER-BACKED on rebuild. The cause is structural: VALIDATED needs a
+  published experiment, in regime, in band, and the anchor adds all three
+  uncertainty channels on top, and nothing here has cleared that set at once.
+- **Anchor 2 does not separate anything**, because all eight existing rows
+  are what it describes.
+- **Anchors 1 and 0 carry the docket.** 28 of 221 proposals name a credential
+  or the wall at all, and almost every one of those decides something about an
+  existing row rather than proposing a body the wall has never carried. The
+  four-value scale takes two values in practice, one of them the default,
+  which is the shape C-2 withdrew a monitor rule for.
 
 - **A. The axis exists, with the drafted anchors.**
 - **B. The axis exists, with anchors she sets.**
 - **C. There is no such axis.** Wall value is a curation decision at display
   time and never a ranking input.
+- **D. The axis exists and the scale does not.** A proposal declares its wall
+  effect in one word, `new-row`, `improves <row>`, or `none`, and no number is
+  assigned. That is what section 3's dominance rule needs, it invents no
+  exchange rate, and unlike every drafted anchor it is checkable against
+  `wall.json` the morning after.
 
-*No recommendation.* The wall is her product surface and the lab has no
-standing to decide whether producing a row on it is a research objective.
+*Lab recommends D, and still takes no position on A versus C.* The wall is her
+product surface and whether producing a row on it is a research objective is
+hers. What the lab does have standing to say, because it measured it, is that
+the drafted numbers would not rank anything. One observation that goes with
+any option and is a curation question rather than a measurement: the curation
+rule says no case more than 10 percent off its reference, and five of the
+eight published rows are 12.5, 16.4, 26.2, 33.9 and 79.8 percent off, printed
+as a calibration suite with every deviation shown.
 
 **P-1.3. Dominance ordering instead of a weighted sum.** Section 3. The three
 axes are in different units and combining them requires exchange rates nobody
@@ -374,11 +426,42 @@ has set.
 *Lab recommends A*, on the grounds that a rule which always produces a winner
 is a rule that hides the decision. Cost of A: more escalations.
 
-**P-1.4. Disqualifier 10, the archive replay a detection rule owes.** Section
-4, new in charter version 1.1. A proposal that adds a rule, signature, gate or
-check which will fire on the lab's own work states what it does to the archive
-before adoption: the corpus, the fire count, the fatal count, and its behaviour
-on the case that motivated it. S7 is the measured reason, C-2 above.
+**P-1.4. Disqualifier 10, the archive replay a detection rule owes. CARRIED
+OUT, option A, with one judgement recorded for her.**
+
+**Carried out 2026-08-05 under the standing charter-iteration directive; this
+is a record of what was built, not a ruling.** `archive_replay_violations` in
+`sdk/chief_engineer/agenda.py` refuses, at intake and inside the same
+`proposal_violations` path as every other refusal, any proposal created from
+2026-08-05 whose own text adds a detection or monitor rule, a signature or a
+detector and which carries no `archive_replay` record. The record's four
+fields are the disqualifier's own words: `corpus`, `fires`, `fatal`,
+`motivating_case`. **S12 is the exemplar the refusal quotes**, because it is
+the one rule that arrived the right way: replayed over 760 quantity-histories
+from 380 archived coefficient files, 718 gradeable, 36 fires, 0 fatal, firing
+on the flat-plate rung stopped at 15000 and silent on the same case settled at
+21000. A zero fire count passes, because zero is a measurement and S2's replay
+line says exactly that; what is refused is arriving without one, which is how
+S7 got in. The 221 docket entries of 2026-08-04 are grandfathered on their own
+`created_at`, the same line P-1.1 and P-3.1 use, and no live inbox proposal
+trips the rail today. Goals charter at version 1.3; tests in
+`sdk/tests/test_agenda.py` (`ArchiveReplayRail`) pin the refusal, the
+zero-fires case, the incomplete record, the grandfather line and the inbox
+path.
+
+**The one judgement in it, stated so she can strike it**: the trigger is
+textual. The source kinds are a closed set and none of them is "detection
+rule", so the check reads the objective and the rationale for a tight set of
+shapes. The patterns are tuned to prefer a miss over a false refusal, on the
+grounds that a missed rule is caught at review while a wrongly refused
+proposal is honest work turned away. Widening or narrowing them is one line.
+
+The item as it was put:
+
+Section 4, new in charter version 1.1. A proposal that adds a rule, signature,
+gate or check which will fire on the lab's own work states what it does to the
+archive before adoption: the corpus, the fire count, the fatal count, and its
+behaviour on the case that motivated it. S7 is the measured reason, C-2 above.
 
 - **A. Adopt as a disqualifier**, refused at intake.
 - **B. Adopt as a required field**, reported but not refusing.
@@ -398,6 +481,64 @@ backticked paths in every website record are resolved against disk, 273 of them
 across 73 records on the first run, all resolving; and the machine-readable
 `report` and `report_json` fields in the campaign JSON companions are resolved
 too. That covers the half of the original proposal that was about paths.
+
+**The tier half is now CARRIED OUT as well, 2026-08-05, and the rule she was
+asked to rule on is the one rule that did NOT survive its own measurement.**
+`sdk/scripts/citation_tier_audit.py` runs over the charters, the standards,
+the docket and the website records, reports at WARN, exits 0 unless `--strict`
+is given, and never repairs. Literature charter at version 1.2, section 8.
+Tests in `sdk/tests/test_citation_tier_audit.py`.
+
+**Two rules adopted, each reading a charter clause**: a quantity asserted in
+the same block as a tier below READ IN FULL (section 2's table and section 7's
+first NEVER), and a tier the charter does not define (section 2 says there is
+no fourth tier, and SEARCH-EXCERPT is one, coined in a liaison memo).
+
+**The motivating incident, and it is the reason the rule is about tiers rather
+than about paths.** The DAFoam journal paper was cited at abstract tier for
+"average adjoint derivative error under 0.1 percent at up to 1536 cores". The
+full read on 2026-08-05 found one abstract sentence joining two disjoint
+experiments: the 1536 cores is a runtime-only scaling measurement on a
+10.1M-cell mesh, the under-0.1 percent an accuracy study on 102,912 cells at
+an unstated core count, and both belong to an architecture the lab's own
+measurement never touched. An upstream bug report's framing had been built on
+the join. Every correction was found by a person reading the paper. Nothing
+mechanical had ever looked at the tier, which sat in the citation string the
+whole time.
+
+**The proposal's own rule was replayed and not adopted**, which is charter 1
+disqualifier 10 turned on the checker itself. "A citation-shaped string with
+no tier in the same block" fires on 24 blocks of 392 records; 19 are in one
+file and 15 of those are rows of published reference-comparison tables, a
+Strouhal number beside "Norberg (1994)" in a column of literature values. That
+is the false-positive family this entry predicted and the shape of the
+withdrawn S7. It ships behind `--untiered`, off by default, with the replay
+recorded in the script's own docstring.
+
+**Seven findings on the real records, reported and not touched**, per the
+audit's own no-repair rule: three blocks carrying the undefined tier, and four
+quantities asserted below a full read. One of the four is the relayed 188.5
+critical Reynolds number in a bibliography entry that says out loud it comes
+via another paper's citation of a third paper, which section 4 names as the
+most common way a wrong number propagates. One is the corrected DAFoam
+sentence itself, whose repair sits in the next block rather than in the same
+one, and one is the reading note that reports the defect rather than
+committing it.
+
+**What is left for her is not the checker.** Two questions the audit
+deliberately did not decide:
+
+- **A. The charter gains SEARCH-EXCERPT as a fourth tier**, defined, with what
+  may be asserted from it.
+- **B. The records lose it**, and those citations move to PAYWALLED,
+  abstract-only.
+
+*Lab recommends B*, because the charter's sentence "there is no fourth tier"
+is hers and the memo that coined the fourth one is not, and because
+SEARCH-EXCERPT and PAYWALLED license exactly the same thing: nothing beyond
+what the excerpt literally says.
+
+The item as it was put:
 
 What remains open is the half that was about tiers: **should a citation-shaped
 string carrying no provenance tier in the same block be a finding?**
@@ -498,6 +639,26 @@ shape is visible without opening the file:
 | D6 | Who declares an ordering for an unlisted class? | A, the proposal drafts it |
 | D7 | Does a trade expire? | B, a date as well as a trigger |
 
+**The six orderings are now six answerable items, D8 to D13**, in that
+charter's new section 8.1, written 2026-08-05 so the decision session is
+accept or edit rather than compose. Each carries its ranks on one line, one
+sentence of why that order and not another, where the ordering came from, and
+the decision that would breach it. "D9: accept" is a complete answer and so is
+"D9: accept, swap ranks 2 and 3". Nothing moved: section 4 is unchanged and
+the sheet restates it. The two orderings that are hers are marked as hers, and
+the lab's recommendation is stated per class rather than once, because
+presenting four drafts at the same standing as her two examples would be the
+invention this file exists to prevent.
+
+| Item | Class | Ranks, first to last | Lab's recommendation |
+| --- | --- | --- | --- |
+| D8 | External aerodynamics (hers) | forces, feature location, surface distributions, field detail | accept as written |
+| D9 | The challenge (hers) | the eight scored columns, nothing else | accept as written |
+| D10 | Gradients and adjoints | component sign, vector direction, magnitude, objective | accept; ranks 1 and 3 are already enforced by the FD standard |
+| D11 | Free surface | swept-metric front position, forces, field detail | none on the class; the sweep condition on rank 1 is what F7a paid for |
+| D12 | Uncertainty quantification | admissibility, coverage, width, central value | accept; rank 0 refuses to rank rather than ordering |
+| D13 | Unsteady statistics | stationarity per quantity, frequency, mean, band | accept |
+
 **P-5.2. The six draft orderings themselves.** Section 4. External aerodynamics
 and the challenge are expansions of her own two examples. Gradients and
 adjoints has a real anchor, because the FD grading standard already fails on
@@ -577,6 +738,24 @@ the figure is exactly what it says it is, but it means the lab's headline
 compute number is 11 percent host stall and only the audit says so.
 
 ### Charter 7, escalation
+
+**Nothing proposed in the new section 9, and that is the point.** The OPS
+section added 2026-08-05 codifies five fleet-resilience rules, each one a
+description of what already worked across **three fleet deaths in about 46
+hours, from three unrelated causes**: the account session limit at 18:53Z on
+2026-08-04, the process exiting at 15:08Z on 2026-08-05, and the weekly limit
+at about 17:20Z the same afternoon. The rules are: pre-register before
+compute, run solvers detached and self-ledgering, hold the box with both
+keepalives during a campaign, check `pgrep` and the container list before
+resuming an agent that may not be dead, and keep the watchers with the
+supervisor rather than the agent. **Scientific loss across all three was
+zero**, and the reason every time was rule 1: the pre-registrations were
+committed before the compute launched. One survival is an anecdote, three
+from unrelated causes is a measurement of the discipline. The only thing
+in the section that is not already habit is arming both holds, which costs one
+command. Recorded here because the account of both incidents lives in
+`docs/PRODUCT_LIST.md`'s changelog and **not** in `LESSONS.md`, which is a gap
+in the record rather than an argument against the rules.
 
 **P-7.1. The free-spend thresholds. DECISION-READY, awaiting her number, not
 enacted.** Section 4. Nobody has set a number, and nobody but her can. What

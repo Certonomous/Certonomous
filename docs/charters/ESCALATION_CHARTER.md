@@ -1,6 +1,6 @@
 # Certonomous Escalation Charter
 
-Version 1.2, dated 2026-08-05. Governs what the lab decides alone and what goes
+Version 1.3, dated 2026-08-05. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
 
@@ -14,6 +14,13 @@ single recommendation with numbers calibrated against the multi-agent record
 the 1.0 draft predates, answerable as "P-7.1: A". **Nothing in section 4 is
 enacted. It awaits her number**, and until she gives one the standing defaults
 and the docket are the whole of the rule, exactly as before.
+
+Version 1.3 adds section 9, OPS, after the fleet was killed three times in two
+days, by three unrelated causes, and lost no science on any of them. Five
+operational rules, each traced to the incident that proved it. Nothing in
+section 9 needs a ruling: these are descriptions of what already worked, and
+the one thing they ask for that is not yet habit, arming both keepalive holds,
+costs one command.
 
 ## 1. The line
 
@@ -352,7 +359,84 @@ The rule and its limit, and the limit is the point:
    answer and not the mission, so it is recorded. A body that is not the body
    she asked about changes the mission, and that is a docket item.
 
-## 9. Enforcement
+## 9. OPS. How a fleet survives its own death
+
+Added 2026-08-05, from the two days on which the lab first ran several agents
+at once and lost all of them three times. It is here rather than in a standard
+because every rule below is about what an agent must do BEFORE it can be
+stopped without warning, and stopping is this charter's territory.
+
+**What happened, so the rules are read as measured rather than prudent. Three
+fleet deaths, three different causes, in about 46 hours:**
+
+| When | What killed it | What it took |
+| --- | --- | --- |
+| 2026-08-04, ~18:53Z | the account session limit | the supervisor and all four working agents at once, mid-solve; the box then auto-stopped overnight and the orphaned containers went with it |
+| 2026-08-05, 15:08Z | the process itself exited | the fleet again; the detached solves survived and kept running unowned |
+| 2026-08-05, ~17:20Z | the weekly limit | the fleet again, seven minutes before the credits came back |
+
+**Scientific loss across all three: zero.** Not once, three times, which is
+what makes it a rule rather than a piece of luck. The reason is rule 1 in
+every case: every agent had committed its pre-registration, its predictions,
+its thresholds and its caps before launching any compute (`e6321e95`,
+`99f5d41d`, `73fa6a33`, all 2026-08-04). What each death cost was compute
+time and collection, both of which are re-runnable, and nothing else.
+
+**Three is also the number that settles the argument this section could
+otherwise have had with itself.** One survival is an anecdote and two is a
+coincidence; three deaths from three unrelated causes, all survived by the
+same discipline, is a measurement of the discipline rather than of the
+causes — and none of the three causes was predictable from inside the box.
+That is the whole case for making rule 1 mandatory instead of advisable.
+
+The account of all three lives in `docs/PRODUCT_LIST.md`'s changelog under
+2026-08-05 and in the supervisor's own memory, and **it is not in
+`LESSONS.md`**, which is a gap in the record rather than a reason to soften the
+rules: the entries this section leans on are L-18 (a constraint that is not
+restated is removed) and L-27 (a run that decides a gate retains its
+artifacts).
+
+1. **Pre-register before compute. Mandatory, no exceptions for short runs.**
+   Predictions, thresholds, caps and labels are committed BEFORE the solver
+   starts, not written up afterwards. This is what made three fleet deaths cost
+   nothing but core-minutes, and it is P2 with a second job: a prediction
+   committed early is also a crash-proof record of what the run was for. The
+   exception a short run seems to earn is exactly the one the record refuses:
+   the 15:08Z death landed mid-afternoon on a working day with no warning of
+   any kind, and a run's length has nothing to do with when a limit expires.
+2. **A solver runs detached and ledgers itself as it goes.** Launch through
+   `setsid` (or a container), never as a foreground call, because a foreground
+   solve has been killed by an external SIGTERM with no error and no OOM while
+   a detached one has never been. And the run writes its own cost and progress
+   rows while it runs rather than at collection, so a dead collector loses the
+   summary and not the measurement.
+3. **Hold the box twice during a campaign.** `scripts/session_keepalive.sh on`
+   follows the session and self-expires; `scripts/filming_keepalive.sh on 24`
+   survives the session dying. Arm both, because the failure they cover is
+   exactly the case where the session is gone and the compute is not. Arm the
+   session hold as the first command of every working day. Neither script
+   disables the auto-stop, which is the owner's cost control and stays.
+4. **Check before you resume.** A completion notice with no result does not
+   prove an agent is dead. Run `pgrep -af 'claude --resume'` and look for
+   fresh writes in the agent's own files first: resuming a live agent spawns a
+   second incarnation working the same task in the same tree, which is section
+   3's shared-tree problem arriving from a direction nobody guards. And
+   inventory the containers (`sudo docker ps`) before relaunching anything: a
+   detached solve usually survived the death that killed its owner, so the
+   agent reattaches rather than restarts.
+5. **Watchers belong to the chief, not to the agent.** An agent that ends its
+   turn "waiting on a monitor" has no monitor, and the completion notice is the
+   proof, because it only fires once the agent has no live background children.
+   Five occurrences in four days, including three after the agent was
+   explicitly told to poll inline. So the supervisor arms the background watch
+   on the container or the PID, lets the agent park, and resumes it with the
+   outcome already in the resume message. One resume per solve.
+
+**The one-line test for all five**: if this process died right now, what would
+have to be re-run, and what would be unrecoverable? Anything in the second
+category is a violation of rule 1.
+
+## 10. Enforcement
 
 - The agenda machinery enforces the veto structurally. Nothing in it launches
   compute, and status changes on the owner's action.
