@@ -1,0 +1,892 @@
+#!/usr/bin/env python3
+"""Standing model-form batch: the same validated case under four RANS closures.
+
+Design and pre-registration:
+``demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md``. Read it first --
+this file implements that document and does not decide anything on its own.
+
+What it is. The uncertainty doctrine's model channel is measured here the way
+the NASA hump headline measured it: solve the same validated case under
+kOmegaSST, SpalartAllmaras, kEpsilon and realizableKE, gate every cell on its
+own convergence standard, and take the band as the min/max over the CONVERGED
+cells only. The hump is why the gate is mechanical: the band that failed to
+contain the experiment was the band that still had an unconverged member in it.
+
+What it extends. The case families are the lab's own TMR ladders in
+``sdk/workflows/tmr_verification.py`` -- the flat plate, the bump in channel
+and the NACA 0012 C-grid -- reused through their own writers and run
+functions. Nothing about the meshes, schemes, relaxation or residual targets is
+re-invented here; the only thing this module changes inside a case is the
+turbulence model and the fields that model needs.
+
+How it survives a fleet death. Every cell writes its own ``record.json`` the
+moment it finishes, under
+``demo-output/website/campaign/MODEL_FORM_runs/<cell_id>/``. That record is the
+unit of truth. A cell that already has one is skipped, so the runner is
+idempotent and any future session can continue cold with
+``--list`` then ``--family X --max-core-min N``. Launch it detached
+(``setsid nohup``) and a session limit costs at most the one cell in flight.
+
+Queueing. This batch is the lowest-priority slot filler on the machine: before
+every cell it counts live dafoam/openfoam containers and refuses to launch
+while three or more are running, and it never runs more than one solve of its
+own at a time (one core, stricter than the ``--cpus=2`` ceiling the docket set
+for containers).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+from contextlib import contextmanager
+from dataclasses import dataclass, field as dc_field
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable, Iterator, Sequence
+
+_SDK_ROOT = Path(__file__).resolve().parents[1]
+if str(_SDK_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SDK_ROOT))
+
+from workflows import tmr_verification as tv  # noqa: E402
+from chief_engineer.log_signatures import detect_unsettled_stop  # noqa: E402
+
+REPO_ROOT = _SDK_ROOT.parent
+OUT_ROOT = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_runs"
+BAND_JSON = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_BAND.json"
+BAND_MD = REPO_ROOT / "demo-output" / "website" / "campaign" / "MODEL_FORM_BAND.md"
+LEDGER = OUT_ROOT / "ledger.jsonl"
+RUNNER_LOG = OUT_ROOT / "runner.log"
+
+MODELS = ("kOmegaSST", "SpalartAllmaras", "kEpsilon", "realizableKE")
+
+# Models needing a field the SST baseline does not carry. kOmegaSST and the
+# two k-epsilon variants all solve k; only the epsilon-family needs epsilon and
+# only SA needs nuTilda.
+EXTRA_FIELD = {"kOmegaSST": None, "SpalartAllmaras": "nuTilda",
+               "kEpsilon": "epsilon", "realizableKE": "epsilon"}
+
+C_MU = 0.09
+# TMR's Spalart-Allmaras farfield: nuTilda = 3 nu (turbmodels.larc.nasa.gov
+# flat-plate and NACA 0012 validation pages). SA carries no k or omega, so it
+# cannot be matched to the SST freestream and is given its own standard one --
+# recorded as deviation 1 in the design document.
+SA_NUTILDA_OVER_NU = 3.0
+
+# Monitor Standard S12 thresholds, used here exactly as adopted.
+S12_DRIFT_TOL = 1e-3
+S12_MONOTONE_TOL = 0.90
+# Mesh Standard 3.1/3.2 hard gates.
+MAX_NON_ORTHO = 70.0
+MAX_SKEWNESS = 4.0
+# Queue gate: this batch yields while the DAFoam/OpenFOAM fleet is busy.
+CONTAINER_CEILING = 3
+CONTAINER_POLL_SECONDS = 60.0
+
+
+# ---------------------------------------------------------------------------
+# The matrix
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class Cell:
+    family: str            # P | B | N
+    regime: str            # regime tag, part of the cell id
+    model: str
+    params: dict[str, Any] = dc_field(default_factory=dict)
+
+    @property
+    def cell_id(self) -> str:
+        return f"{self.family}_{self.regime}_{self.model}"
+
+    @property
+    def group_id(self) -> str:
+        return f"{self.family}_{self.regime}"
+
+    @property
+    def out_dir(self) -> Path:
+        return OUT_ROOT / self.cell_id
+
+
+# Family P: TMR zero-pressure-gradient flat plate, medium rung (3264 cells),
+# Reynolds number per unit length as the regime axis (U = 1, so nu = 1/Re).
+P_REGIMES = {"re1e6": 1.0e6, "re5e6": 5.0e6, "re2e7": 2.0e7}
+# Family B: TMR bump in channel, coarse rung (3520 cells), same axis. 3e6 is
+# the TMR reference condition for this case.
+B_REGIMES = {"re3e6": 3.0e6, "re1p2e7": 1.2e7}
+# Family N: TMR NACA 0012 coarse C-grid, angle of attack as the regime axis at
+# the case's own Re = 6e6.
+N_REGIMES = {"a0": 0.0, "a10": 10.0, "a15": 15.0}
+
+FAMILY_CAP_CORE_MIN = {"P": 20.0, "B": 30.0, "N": 60.0}
+
+
+def all_cells() -> list[Cell]:
+    cells: list[Cell] = []
+    for tag, re_l in P_REGIMES.items():
+        for model in MODELS:
+            cells.append(Cell("P", tag, model, {"re_per_length": re_l}))
+    for tag, re_l in B_REGIMES.items():
+        for model in MODELS:
+            cells.append(Cell("B", tag, model, {"re_per_length": re_l}))
+    for tag, alpha in N_REGIMES.items():
+        for model in MODELS:
+            cells.append(Cell("N", tag, model, {"alpha_deg": alpha}))
+    return cells
+
+
+# ---------------------------------------------------------------------------
+# Field derivation: one closure's fields from the baseline's omega field
+# ---------------------------------------------------------------------------
+#
+# The transformation is textual and deliberately so: it inherits the case's own
+# patch names, patch order and boundary types, which differ between the plate,
+# the bump and the converted C-grid. The same idea (and the two regex forms
+# below) is already in sdk/scripts/run_uq_studies.py; what is added here is the
+# wall entry, which that version got wrong for a wall-resolved grid -- nuTilda
+# is zero at a no-slip wall, and epsilon needs the low-Re wall function rather
+# than a fixed freestream value.
+
+_VALUE_RE = re.compile(r"uniform\s+[0-9eE.+-]+")
+
+
+def _retype_field(omega_text: str, *, obj: str, dimensions: str,
+                  value: float, wall_type: str,
+                  wall_value: float | None) -> str:
+    """Rewrite the omega field text as another scalar field.
+
+    ``wall_type`` replaces ``omegaWallFunction`` and ``wall_value`` is the
+    value written inside that boundary entry (``None`` keeps the freestream
+    value, which is what a wall function wants as its seed).
+    """
+    text = re.sub(r"object\s+omega\s*;", f"object      {obj};", omega_text)
+    text = re.sub(r"dimensions\s+\[[^\]]*\]\s*;",
+                  f"dimensions      {dimensions};", text)
+    out_lines: list[str] = []
+    in_wall_entry = False
+    for line in text.splitlines():
+        if "omegaWallFunction" in line:
+            out_lines.append(line.replace("omegaWallFunction", wall_type))
+            in_wall_entry = True
+            continue
+        if in_wall_entry:
+            if "blended" in line:
+                # omegaWallFunction's blending switch; the replacement carries
+                # its own options, appended below.
+                continue
+            if _VALUE_RE.search(line):
+                if wall_value is not None:
+                    out_lines.append(_VALUE_RE.sub(
+                        f"uniform {wall_value:.8g}", line))
+                else:
+                    out_lines.append(_VALUE_RE.sub(
+                        f"uniform {value:.8g}", line))
+                in_wall_entry = False
+                continue
+        out_lines.append(_VALUE_RE.sub(f"uniform {value:.8g}", line)
+                         if _VALUE_RE.search(line) else line)
+    return "\n".join(out_lines) + "\n"
+
+
+def epsilon_field(omega_text: str, k_inf: float, nut_inf: float) -> str:
+    """epsilon from omega, at the same freestream eddy viscosity.
+
+    eps = C_mu k^2 / nut is the k-epsilon definition of nut inverted, so the
+    k-epsilon cells begin from the same physical freestream state as the
+    k-omega cells rather than from a number somebody picked.
+    """
+    eps = C_MU * k_inf ** 2 / nut_inf
+    text = _retype_field(omega_text, obj="epsilon",
+                         dimensions="[0 2 -3 0 0 0 0]", value=eps,
+                         wall_type="epsilonWallFunction", wall_value=None)
+    # epsilonWallFunction on a wall-resolved grid needs its low-Re branch.
+    return text.replace("type            epsilonWallFunction;",
+                        "type            epsilonWallFunction;\n"
+                        "        lowReCorrection true;")
+
+
+def nutilda_field(omega_text: str, nu: float) -> str:
+    """nuTilda from omega: TMR farfield 3 nu, and exactly zero at the wall."""
+    return _retype_field(omega_text, obj="nuTilda",
+                         dimensions="[0 2 -1 0 0 0 0]",
+                         value=SA_NUTILDA_OVER_NU * nu,
+                         wall_type="fixedValue", wall_value=0.0)
+
+
+# ---------------------------------------------------------------------------
+# Case patching: turbulence model, solver/scheme entries, freestream scaling
+# ---------------------------------------------------------------------------
+
+def turbulence_properties_for(model: str) -> str:
+    return tv._foam_header("dictionary", "turbulenceProperties",
+                           "constant") + f"""
+simulationType  RAS;
+RAS
+{{
+    RASModel        {model};
+    turbulence      on;
+    printCoeffs     on;
+}}
+"""
+
+
+def _extend_fv_solution(text: str, extra: str | None) -> str:
+    """Give the extra turbulence field the same solver, target and relaxation
+    the baseline gives k and omega. Nothing else in the dictionary moves."""
+    if not extra:
+        return text
+    text = text.replace('"(U|k|omega)"', f'"(U|k|omega|{extra})"')
+    text = text.replace('"(k|omega)"     1e-08;',
+                        f'"(k|omega|{extra})"     1e-08;')
+    text = re.sub(r"equations \{ U ([0-9.]+); k ([0-9.]+); omega ([0-9.]+); \}",
+                  lambda m: (f"equations {{ U {m.group(1)}; k {m.group(2)}; "
+                             f"omega {m.group(3)}; {extra} {m.group(3)}; }}"),
+                  text)
+    return text
+
+
+def _extend_fv_schemes(text: str, extra: str | None) -> str:
+    if not extra:
+        return text
+    marker = "    div(phi,omega)"
+    for line in text.splitlines():
+        if line.startswith(marker):
+            addition = line.replace("div(phi,omega)", f"div(phi,{extra})")
+            # keep the column alignment the file already uses
+            return text.replace(line, line + "\n" + addition)
+    raise RuntimeError("fvSchemes has no div(phi,omega) entry to copy")
+
+
+def _scale_freestream(text: str, pairs: Sequence[tuple[float, float]]) -> str:
+    """Replace the baseline's formatted freestream literals with the regime's.
+
+    ``pairs`` are (old, new) values; the literals are matched exactly as the
+    writers formatted them (``:.8g``), so a value that is not a freestream
+    constant cannot be hit by accident.
+    """
+    for old, new in pairs:
+        text = text.replace(f"{old:.8g}", f"{new:.8g}")
+    return text
+
+
+def patch_case(case_dir: Path, model: str, *, nu: float,
+               k_inf: float, nut_inf: float,
+               omega_inf_old: float | None = None,
+               omega_inf_new: float | None = None,
+               nut_inf_old: float | None = None) -> None:
+    """Patch a written case in place for one (model, regime) cell."""
+    case_dir = Path(case_dir)
+    (case_dir / "constant" / "turbulenceProperties").write_text(
+        turbulence_properties_for(model), newline="\n")
+
+    # Regime: nu, and the freestream turbulence that scales with it.
+    if omega_inf_new is not None and omega_inf_old is not None:
+        (case_dir / "constant" / "transportProperties").write_text(
+            tv.transport_properties(nu), newline="\n")
+        for name in ("omega", "nut"):
+            path = case_dir / "0" / name
+            pairs = [(omega_inf_old, omega_inf_new)]
+            if nut_inf_old is not None:
+                pairs.append((nut_inf_old, nut_inf))
+            path.write_text(_scale_freestream(path.read_text(), pairs),
+                            newline="\n")
+
+    extra = EXTRA_FIELD[model]
+    if extra:
+        omega_text = (case_dir / "0" / "omega").read_text()
+        if extra == "epsilon":
+            body = epsilon_field(omega_text, k_inf, nut_inf)
+        else:
+            body = nutilda_field(omega_text, nu)
+        (case_dir / "0" / extra).write_text(body, newline="\n")
+    for name, transform in (("fvSolution", _extend_fv_solution),
+                            ("fvSchemes", _extend_fv_schemes)):
+        path = case_dir / "system" / name
+        path.write_text(transform(path.read_text(), extra), newline="\n")
+
+
+@contextmanager
+def naca_model_context(model: str) -> Iterator[None]:
+    """Run ``tv.run_naca_level`` under one closure.
+
+    The NACA path writes its own dictionaries and fields inside the run
+    function (the patch names are only known after the PLOT3D conversion), so
+    the model is injected by swapping the three module functions that path
+    calls rather than by patching a directory. Restored on exit, always.
+    """
+    extra = EXTRA_FIELD[model]
+    orig_turb = tv.turbulence_properties
+    orig_sol = tv.fv_solution
+    orig_sch = tv.fv_schemes
+    orig_fields = tv.naca_fields_tmr
+
+    def turb() -> str:
+        return turbulence_properties_for(model)
+
+    def sol(*args: Any, **kwargs: Any) -> str:
+        return _extend_fv_solution(orig_sol(*args, **kwargs), extra)
+
+    def sch(*args: Any, **kwargs: Any) -> str:
+        return _extend_fv_schemes(orig_sch(*args, **kwargs), extra)
+
+    def fields(*args: Any, **kwargs: Any) -> dict[str, str]:
+        out = dict(orig_fields(*args, **kwargs))
+        if extra == "epsilon":
+            out[extra] = epsilon_field(out["omega"], tv.NACA_K_INF,
+                                       tv.NACA_NUT_INF)
+        elif extra == "nuTilda":
+            out[extra] = nutilda_field(out["omega"], tv.NACA_NU)
+        return out
+
+    tv.turbulence_properties = turb
+    tv.fv_solution = sol
+    tv.fv_schemes = sch
+    tv.naca_fields_tmr = fields
+    try:
+        yield
+    finally:
+        tv.turbulence_properties = orig_turb
+        tv.fv_solution = orig_sol
+        tv.fv_schemes = orig_sch
+        tv.naca_fields_tmr = orig_fields
+
+
+# ---------------------------------------------------------------------------
+# The gate
+# ---------------------------------------------------------------------------
+
+_CONVERGED_RE = re.compile(r"SIMPLE solution converged in (\d+) iterations")
+
+
+def log_verdict(log_text: str) -> dict[str, Any]:
+    """Monitor Standard S1/S2 fatals and the residualControl stop."""
+    fatal: list[str] = []
+    if "Foam::sigFpe::sigHandler" in log_text:
+        fatal.append("S1 floating point exception")
+    for line in log_text.splitlines():
+        if "nan" in line.lower() and ("Solving for" in line
+                                      or "Initial residual" in line):
+            fatal.append("S2 NaN in solver output")
+            break
+    match = _CONVERGED_RE.search(log_text)
+    iterations = None
+    for line in reversed(log_text.splitlines()):
+        hit = re.match(r"^Time = (\d+)", line)
+        if hit:
+            iterations = int(hit.group(1))
+            break
+    return {"fatal": fatal,
+            "residual_control_met": bool(match),
+            "converged_at": int(match.group(1)) if match else None,
+            "last_iteration": iterations}
+
+
+def mesh_verdict(check_text: str) -> dict[str, Any]:
+    """Mesh Standard 3.1/3.2 hard gates from the case's own checkMesh."""
+    non_ortho = skew = aspect = None
+    hit = re.search(r"Max non-orthogonality = ([0-9.eE+-]+)", check_text)
+    if hit:
+        non_ortho = float(hit.group(1))
+    hit = re.search(r"Max skewness = ([0-9.eE+-]+)", check_text)
+    if hit:
+        skew = float(hit.group(1))
+    hit = re.search(r"Max aspect ratio = ([0-9.eE+-]+)", check_text)
+    if hit:
+        aspect = float(hit.group(1))
+    breaches = []
+    if non_ortho is not None and non_ortho > MAX_NON_ORTHO:
+        breaches.append(f"non-orthogonality {non_ortho:g} > {MAX_NON_ORTHO:g}")
+    if skew is not None and skew > MAX_SKEWNESS:
+        breaches.append(f"skewness {skew:g} > {MAX_SKEWNESS:g}")
+    return {"max_non_ortho": non_ortho, "max_skewness": skew,
+            "max_aspect_ratio": aspect, "breaches": breaches}
+
+
+def settle_verdict_s12(series: Sequence[float]) -> dict[str, Any]:
+    """Monitor Standard S12 on the QoI history. Scale-free by construction."""
+    finding = detect_unsettled_stop(list(series))
+    if finding is None:
+        return {"unsettled": False, "detail": None}
+    detail = finding if isinstance(finding, dict) else {"finding": str(finding)}
+    return {"unsettled": True, "detail": detail}
+
+
+def read_history(post_dir: Path) -> dict[str, list[float]]:
+    """Every coefficient column the case wrote, as plain lists."""
+    files = sorted(Path(post_dir).rglob("coefficient*.dat"))
+    if not files:
+        return {}
+    text = files[-1].read_text(errors="replace")
+    header: list[str] = []
+    rows: list[list[float]] = []
+    for line in text.splitlines():
+        if line.startswith("#"):
+            fields = line.lstrip("#").split()
+            if fields and fields[0] == "Time":
+                header = fields
+            continue
+        parts = line.split()
+        if not parts:
+            continue
+        try:
+            rows.append([float(p) for p in parts])
+        except ValueError:
+            continue
+    if not header or not rows:
+        return {}
+    out: dict[str, list[float]] = {}
+    for idx, name in enumerate(header):
+        out[name] = [r[idx] for r in rows if len(r) > idx]
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Queue gate
+# ---------------------------------------------------------------------------
+
+def live_solver_containers() -> list[str]:
+    try:
+        proc = subprocess.run(
+            ["sudo", "docker", "ps", "--format", "{{.Names}}\t{{.Image}}"],
+            capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    names = []
+    for line in proc.stdout.splitlines():
+        low = line.lower()
+        if "dafoam" in low or "openfoam" in low or "foam" in low:
+            names.append(line.split("\t")[0])
+    return names
+
+
+def wait_for_slot(log: Callable[[str], None], *, max_wait: float) -> bool:
+    """True when the machine has room for this batch's one core."""
+    waited = 0.0
+    while True:
+        live = live_solver_containers()
+        if len(live) < CONTAINER_CEILING:
+            if live:
+                log(f"queue gate: {len(live)} solver container(s) live "
+                    f"({', '.join(live)}), under the ceiling of "
+                    f"{CONTAINER_CEILING}; proceeding")
+            return True
+        if waited >= max_wait:
+            log(f"queue gate: still {len(live)} solver containers live after "
+                f"{waited:.0f}s; yielding and stopping")
+            return False
+        log(f"queue gate: {len(live)} solver containers live "
+            f"(>= {CONTAINER_CEILING}); waiting")
+        time.sleep(CONTAINER_POLL_SECONDS)
+        waited += CONTAINER_POLL_SECONDS
+
+
+# ---------------------------------------------------------------------------
+# Running one cell
+# ---------------------------------------------------------------------------
+
+def _now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _write_record(cell: Cell, record: dict[str, Any]) -> None:
+    cell.out_dir.mkdir(parents=True, exist_ok=True)
+    (cell.out_dir / "record.json").write_text(
+        json.dumps(record, indent=2, sort_keys=True) + "\n", newline="\n")
+    LEDGER.parent.mkdir(parents=True, exist_ok=True)
+    with LEDGER.open("a") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")
+
+
+def _grade(cell: Cell, remote: Path, out_dir: Path, wall_seconds: float,
+           returncode: int, qoi_names: Sequence[str],
+           settle_on: str) -> dict[str, Any]:
+    """Apply the pre-registered gate and build the cell record."""
+    log_text = (remote / "log.simpleFoam").read_text(errors="replace") \
+        if (remote / "log.simpleFoam").exists() else ""
+    check_text = (remote / "log.checkMesh").read_text(errors="replace") \
+        if (remote / "log.checkMesh").exists() else ""
+    for name in ("log.simpleFoam", "log.checkMesh", "log.blockMesh"):
+        src = remote / name
+        if src.exists():
+            shutil.copy2(src, out_dir / name)
+    post = remote / "postProcessing"
+    if post.exists():
+        shutil.rmtree(out_dir / "postProcessing", ignore_errors=True)
+        shutil.copytree(post, out_dir / "postProcessing")
+
+    logv = log_verdict(log_text)
+    meshv = mesh_verdict(check_text)
+    history = read_history(out_dir / "postProcessing")
+    qoi: dict[str, float | None] = {}
+    for name in qoi_names:
+        series = history.get(name)
+        qoi[name] = series[-1] if series else None
+    settle = settle_verdict_s12(history.get(settle_on, []))
+
+    reasons: list[str] = []
+    if returncode != 0:
+        reasons.append(f"solver exit code {returncode}")
+    reasons.extend(logv["fatal"])
+    if not logv["residual_control_met"]:
+        reasons.append("residualControl not met (stopped on the backstop)")
+    if settle["unsettled"]:
+        reasons.append("S12 unsettled stop on " + settle_on)
+    reasons.extend(meshv["breaches"])
+    if any(v is None for v in qoi.values()):
+        reasons.append("QoI missing from the coefficient history")
+
+    return {
+        "cell_id": cell.cell_id, "group": cell.group_id,
+        "family": cell.family, "regime": cell.regime, "model": cell.model,
+        "params": cell.params,
+        "converged": not reasons,
+        "excluded_reasons": reasons,
+        "qoi": qoi,
+        "iterations": logv["converged_at"] or logv["last_iteration"],
+        "residual_control_met": logv["residual_control_met"],
+        "settle_s12": settle,
+        "mesh": meshv,
+        "wall_seconds": round(wall_seconds, 1),
+        "core_min": round(wall_seconds / 60.0, 3),
+        "ranks": 1,
+        "toolchain": "native OpenFOAM v2606 (openfoam2606 launcher)",
+        "timestamp": _now(),
+    }
+
+
+def run_cell_P_or_B(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
+    """Flat plate (P) or bump in channel (B): blockMesh families."""
+    if cell.family == "P":
+        level = [lv for lv in tv.LEVELS if lv.name == "medium"][0]
+        writer, patch_name = tv.write_case, "plate"
+        k_inf, nu_base = tv.K_INF, tv.NU
+        omega_base, nut_base = tv.OMEGA_INF, tv.NUT_INF
+        qoi_names, settle_on = ("Cd",), "Cd"
+    else:
+        level = [lv for lv in tv.BUMP_LEVELS if lv.name == "coarse"][0]
+        writer, patch_name = tv.write_bump_case, "bump"
+        k_inf, nu_base = tv.K_INF, tv.BUMP_NU
+        omega_base, nut_base = tv.BUMP_OMEGA_INF, tv.BUMP_NUT_INF
+        qoi_names, settle_on = ("Cd",), "Cd"
+
+    nu = tv.U_INF / float(cell.params["re_per_length"])
+    omega_inf = 1.0e-6 * (tv.U_INF / tv.MACH) ** 2 / nu
+    nut_inf = k_inf / omega_inf
+
+    case_root = Path(tv._RUN_ROOT) / "modelform-cases" / cell.cell_id
+    shutil.rmtree(case_root, ignore_errors=True)
+    case_root.mkdir(parents=True, exist_ok=True)
+    case_dir = writer(case_root, level)
+    patch_case(case_dir, cell.model, nu=nu, k_inf=k_inf, nut_inf=nut_inf,
+               omega_inf_old=omega_base, omega_inf_new=omega_inf,
+               nut_inf_old=nut_base)
+
+    remote = Path(tv._RUN_ROOT) / f"modelform-{cell.cell_id}"
+    out_dir = cell.out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    tv._stage_and_mesh(level, case_root, out_dir, str(remote),
+                       lambda root, lv: case_dir, log)
+    start = time.monotonic()
+    result = tv._foam(["simpleFoam"], remote, "log.simpleFoam", timeout=5400)
+    wall = time.monotonic() - start
+    record = _grade(cell, remote, out_dir, wall, result.returncode,
+                    qoi_names, settle_on)
+    record["cells"] = level.cells
+    record["patch"] = patch_name
+    record["nu"] = nu
+    record["re_per_length"] = float(cell.params["re_per_length"])
+    shutil.rmtree(remote, ignore_errors=True)
+    shutil.rmtree(case_root, ignore_errors=True)
+    return record
+
+
+def run_cell_N(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
+    """NACA 0012 on the TMR-distributed C-grid, one alpha, one closure."""
+    level = [lv for lv in tv.NACA_LEVELS if lv.name == "coarse"][0]
+    alpha = float(cell.params["alpha_deg"])
+    out_dir = cell.out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    start = time.monotonic()
+    with naca_model_context(cell.model):
+        tv.run_naca_level(level, alpha, out_dir, log)
+    wall = time.monotonic() - start
+    remote = Path(tv._RUN_ROOT) / f"tmr-naca-a{alpha:g}-{level.name}"
+    record = _grade(cell, remote, out_dir, wall, 0, ("Cd", "Cl"), "Cl")
+    record["cells"] = level.cells
+    record["alpha_deg"] = alpha
+    shutil.rmtree(remote, ignore_errors=True)
+    return record
+
+
+def run_cell(cell: Cell, log: Callable[[str], None]) -> dict[str, Any]:
+    if cell.family in ("P", "B"):
+        return run_cell_P_or_B(cell, log)
+    return run_cell_N(cell, log)
+
+
+# ---------------------------------------------------------------------------
+# The band
+# ---------------------------------------------------------------------------
+
+def load_records() -> list[dict[str, Any]]:
+    records = []
+    for path in sorted(OUT_ROOT.glob("*/record.json")):
+        try:
+            records.append(json.loads(path.read_text()))
+        except json.JSONDecodeError:
+            continue
+    return records
+
+
+REFERENCES = {
+    # (family, regime) -> {qoi: {source: value}}; only where the lab's own
+    # record already carries a published reference at this exact condition.
+    ("P", "re5e6"): {"Cd": {"CFL3D SST-V (3264 cells)": 0.278506994e-2,
+                           "FUN3D SST-V (3264 cells)": 0.2678684e-2}},
+    ("B", "re3e6"): {},
+    ("N", "a0"): {"Cl": {"CFL3D SST (897x257)": -0.76275807991e-5},
+                  "Cd": {"CFL3D SST (897x257)": 0.80937292380e-2}},
+    ("N", "a10"): {"Cl": {"CFL3D SST (897x257)": 1.0778080613},
+                   "Cd": {"CFL3D SST (897x257)": 1.2362110998e-2}},
+    ("N", "a15"): {"Cl": {"CFL3D SST (897x257)": 1.5067867358},
+                   "Cd": {"CFL3D SST (897x257)": 2.2186245406e-2}},
+}
+
+
+def build_band(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    groups: dict[str, dict[str, Any]] = {}
+    for rec in records:
+        grp = groups.setdefault(rec["group"], {
+            "group": rec["group"], "family": rec["family"],
+            "regime": rec["regime"], "converged": [], "excluded": [],
+            "core_min": 0.0})
+        grp["core_min"] = round(grp["core_min"] + rec.get("core_min", 0.0), 3)
+        if rec["converged"]:
+            grp["converged"].append(rec)
+        else:
+            grp["excluded"].append(
+                {"cell_id": rec["cell_id"], "model": rec["model"],
+                 "reasons": rec["excluded_reasons"],
+                 "qoi_if_it_had_counted": rec["qoi"]})
+    out_groups = []
+    for name in sorted(groups):
+        grp = groups[name]
+        members = grp.pop("converged")
+        bands: dict[str, Any] = {}
+        qoi_names = sorted({k for m in members for k in m["qoi"]})
+        for qoi in qoi_names:
+            values = {m["model"]: m["qoi"][qoi] for m in members
+                      if m["qoi"].get(qoi) is not None}
+            if len(values) < 2:
+                bands[qoi] = {"band": None,
+                              "why": f"{len(values)} converged member(s); a "
+                                     "band needs at least 2",
+                              "members": values}
+                continue
+            lo, hi = min(values.values()), max(values.values())
+            mean = sum(values.values()) / len(values)
+            entry = {
+                "band": [lo, hi], "members": values,
+                "n_converged": len(values),
+                "spread_abs": hi - lo,
+                "spread_rel": (hi - lo) / abs(mean) if mean else None,
+                "argmin": min(values, key=values.get),
+                "argmax": max(values, key=values.get),
+            }
+            refs = REFERENCES.get((grp["family"], grp["regime"]), {}).get(qoi)
+            if refs:
+                entry["reference"] = {
+                    src: {"value": val, "contained": lo <= val <= hi}
+                    for src, val in refs.items()}
+            bands[qoi] = entry
+        grp["models_converged"] = sorted(m["model"] for m in members)
+        grp["n_converged"] = len(members)
+        grp["n_excluded"] = len(grp["excluded"])
+        grp["bands"] = bands
+        out_groups.append(grp)
+    total = sum(r.get("core_min", 0.0) for r in records)
+    return {
+        "title": "Model-form band, inter-model spread on validated cases",
+        "design": "demo-output/website/campaign/MODEL_FORM_BATCH_DESIGN.md",
+        "rule": ("min/max over CONVERGED cells only; a group with fewer than "
+                 "two converged members has no band. Excluded cells are named "
+                 "with their reasons. The band is an interval and is never "
+                 "converted to a sigma or folded into an RSS total."),
+        "models": list(MODELS),
+        "cells_total_designed": len(all_cells()),
+        "cells_recorded": len(records),
+        "core_min_total": round(total, 2),
+        "generated_utc": _now(),
+        "groups": out_groups,
+    }
+
+
+def band_markdown(band: dict[str, Any]) -> str:
+    lines = ["# Model-form band — converged cells only", "",
+             f"Generated {band['generated_utc']} by "
+             "`sdk/scripts/model_form_batch.py --band`. Design and "
+             "pre-registration: `MODEL_FORM_BATCH_DESIGN.md`.", "",
+             f"{band['cells_recorded']} of {band['cells_total_designed']} "
+             f"designed cells have run, {band['core_min_total']:.2f} core-min "
+             "spent.", "",
+             "The band is the min/max across CONVERGED members of a group. An "
+             "unconverged cell is excluded and named -- the NASA hump lesson: "
+             "the band that failed to contain the experiment was the band "
+             "that still had an unconverged member in it.", ""]
+    for grp in band["groups"]:
+        lines.append(f"## {grp['group']} "
+                     f"({grp['n_converged']} converged, "
+                     f"{grp['n_excluded']} excluded, "
+                     f"{grp['core_min']:.2f} core-min)")
+        lines.append("")
+        for qoi, entry in sorted(grp["bands"].items()):
+            if entry.get("band") is None:
+                lines.append(f"- **{qoi}: no band** — {entry['why']}. "
+                             f"Members: {entry['members']}")
+                continue
+            lo, hi = entry["band"]
+            rel = entry["spread_rel"]
+            lines.append(f"- **{qoi}: {lo:.6g} to {hi:.6g}** "
+                         f"(spread {entry['spread_abs']:.4g}"
+                         + (f", {100 * rel:.2f}% of the mean" if rel else "")
+                         + f"; low {entry['argmin']}, high {entry['argmax']})")
+            for model, value in sorted(entry["members"].items()):
+                lines.append(f"  - {model}: {value:.6g}")
+            for src, ref in (entry.get("reference") or {}).items():
+                verdict = "CONTAINED" if ref["contained"] else "NOT contained"
+                lines.append(f"  - reference {src}: {ref['value']:.6g} — "
+                             f"**{verdict}** by this band")
+        if grp["excluded"]:
+            lines.append("")
+            lines.append("Excluded from the band:")
+            for item in grp["excluded"]:
+                lines.append(f"  - {item['model']}: "
+                             + "; ".join(item["reasons"]))
+        lines.append("")
+    return "\n".join(lines) + "\n"
+
+
+def write_band() -> dict[str, Any]:
+    band = build_band(load_records())
+    BAND_JSON.write_text(json.dumps(band, indent=2, sort_keys=True) + "\n",
+                         newline="\n")
+    BAND_MD.write_text(band_markdown(band), newline="\n")
+    return band
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+def _logger() -> Callable[[str], None]:
+    RUNNER_LOG.parent.mkdir(parents=True, exist_ok=True)
+
+    def log(message: str) -> None:
+        line = f"[{_now()}] {message}"
+        print(line, flush=True)
+        with RUNNER_LOG.open("a") as handle:
+            handle.write(line + "\n")
+
+    return log
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--family", action="append", choices=["P", "B", "N"],
+                        help="restrict to one or more families (repeatable)")
+    parser.add_argument("--model", action="append", choices=list(MODELS))
+    parser.add_argument("--regime", action="append")
+    parser.add_argument("--max-core-min", type=float, default=60.0,
+                        help="session budget; the runner stops before "
+                             "starting a cell that would exceed it")
+    parser.add_argument("--max-queue-wait", type=float, default=900.0,
+                        help="seconds to wait for the solver fleet to free a "
+                             "slot before giving up (this batch always yields)")
+    parser.add_argument("--list", action="store_true",
+                        help="print every cell and its state, run nothing")
+    parser.add_argument("--band", action="store_true",
+                        help="rebuild the band artifact from the records "
+                             "already on disk, run nothing")
+    args = parser.parse_args(argv)
+
+    cells = all_cells()
+    if args.family:
+        cells = [c for c in cells if c.family in args.family]
+    if args.model:
+        cells = [c for c in cells if c.model in args.model]
+    if args.regime:
+        cells = [c for c in cells if c.regime in args.regime]
+
+    if args.list:
+        for cell in cells:
+            record_path = cell.out_dir / "record.json"
+            if record_path.exists():
+                rec = json.loads(record_path.read_text())
+                state = ("converged" if rec["converged"]
+                         else "EXCLUDED: " + "; ".join(rec["excluded_reasons"]))
+                state += f" ({rec.get('core_min', 0):.2f} core-min)"
+            else:
+                state = "pending"
+            print(f"{cell.cell_id:36s} {state}")
+        return 0
+
+    if args.band:
+        band = write_band()
+        print(json.dumps({"groups": len(band["groups"]),
+                          "cells_recorded": band["cells_recorded"],
+                          "core_min_total": band["core_min_total"]}, indent=2))
+        return 0
+
+    log = _logger()
+    spent = 0.0
+    log(f"model-form batch starting: {len(cells)} cell(s) in scope, budget "
+        f"{args.max_core_min:.1f} core-min")
+    for cell in cells:
+        if (cell.out_dir / "record.json").exists():
+            log(f"{cell.cell_id}: already recorded, skipping")
+            continue
+        if spent >= args.max_core_min:
+            log(f"budget reached ({spent:.2f} core-min); stopping before "
+                f"{cell.cell_id}")
+            break
+        if not wait_for_slot(log, max_wait=args.max_queue_wait):
+            break
+        log(f"{cell.cell_id}: starting")
+        began = time.monotonic()
+        try:
+            record = run_cell(cell, log)
+        except Exception as exc:  # a failed cell is data, not a crash
+            wall = time.monotonic() - began
+            record = {
+                "cell_id": cell.cell_id, "group": cell.group_id,
+                "family": cell.family, "regime": cell.regime,
+                "model": cell.model, "params": cell.params,
+                "converged": False,
+                "excluded_reasons": [f"runner error: {exc}"],
+                "qoi": {}, "wall_seconds": round(wall, 1),
+                "core_min": round(wall / 60.0, 3), "ranks": 1,
+                "timestamp": _now(),
+            }
+        _write_record(cell, record)
+        spent += record.get("core_min", 0.0)
+        verdict = ("CONVERGED" if record["converged"]
+                   else "EXCLUDED (" + "; ".join(record["excluded_reasons"])
+                        + ")")
+        log(f"{cell.cell_id}: {verdict}; qoi {record.get('qoi')}; "
+            f"{record.get('core_min', 0):.2f} core-min "
+            f"(session {spent:.2f}/{args.max_core_min:.1f})")
+        write_band()
+    write_band()
+    log(f"model-form batch stopping: {spent:.2f} core-min spent this run")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
