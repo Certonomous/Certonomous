@@ -1174,5 +1174,10 @@
     "store a numerical channel for this body from the existing TMR grid ladder so the model channel can be completed by the direct mechanism",
     "re-read the motorbike stage's sigma_w1 ranking with gamma recomputed, since the two studies' sigma_w1 are not currently the same quantity"
   ],
-  "budget_core_min_remaining": 55.33
+  "budget_core_min_remaining": 55.33,
+  "commit_provenance": {
+    "preregistration": "6c3f850a",
+    "results": "fa4191f5",
+    "note": "The results landed inside fa4191f5, whose message is about a different agent's literature review. That is not a mis-description by this study's author: two agents were committing on the same branch and the other one's `git add -A` swept this study's staged files into its commit before this study's own commit ran. Recorded here because a later audit reading `git log` for this work would otherwise find the wrong message attached to it, and every file it touched is listed in that commit's stat."
+  }
 }
