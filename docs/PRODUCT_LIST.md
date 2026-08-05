@@ -308,6 +308,19 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   despite an FD-verified gradient and monotone descent. Diagnosis in progress; the production-vs-destruction term
   mismatch is the leading suspect, which would make the destruction-term patch the real unblocker.
 
+- QCR LANDS AS THE RANK-1 ROUTE (303247bb, 0afd7e61): QCR2000 built as a turbulence-model class (~180 lines, no rebuild);
+  falsifier CONFIRMS F6c's structural-limit claim (stock in-plane RMS 3.16e-16 vs QCR 0.6239% vs LES 0.7570%; Ccr1=0
+  reproduces stock exactly, r=+0.953); training-duct MAE down 33–57%. Campaign finding: we already beat rank 1 on 4/8 —
+  matching rank-2's duct scores alone gives 0.0563 vs Reissmann 0.0595 = RANK 1. Route dispatched (95 core-min,
+  validation-first all-or-none gate; NO scoring call without supervisor sign-off). Learned-beta route C dead on its own
+  pre-registration; a discriminating duct inversion now precedes any A2 spend.
+- CHARTER TRANCHE 2 (84cc2f78, c3033a36; suite 1124 green): P-1.4 replay-before-docket rail live; citation-tier checker
+  built (7 hits reported — 2 real paywalled-relay defects routed to repairs); P-1.2 axis-B analysis PROPOSED (option D);
+  P-5.2 six orderings drafted as D8–D13 for Katie's rulings; OPS fleet-resilience section landed citing all three deaths.
+- CROSS-CASE PATTERN (F6a + F6b): k-omega SST overpredicts separated-region length on BOTH the hump (bubble) and the
+  hills (+72% reattachment, mesh-verified, pre-registered FAIL) — the epistemic-uncertainty showcase now has two legs;
+  the model-form batch quantifies whether the model family brackets truth on both.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
