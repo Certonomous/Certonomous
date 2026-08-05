@@ -352,6 +352,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   the two paywalled-relay defects fixed with relay chains named and DOIs Crossref-checked, both papers on Katie's
   MIT access list. PDF recompiled: 27pp, 0 errors. Tier-audit hits 7 → 5 (remainder benign/handled).
 
+- F6B VERDICT (9e6d33a5/242de6fd, 50.2/80 core-min): pipeline VERIFIED on our own ERCOFTAC-polynomial mesh (0.043% vs
+  shipped grid, 0.097% grid sensitivity), physics FAIL as pre-registered (+72% reattachment vs the Rapp/Breuer/Fröhlich
+  band) — the two-legs SST separated-flow pattern (hump + hills) is now mesh-defended on the hills side. Re_H label error
+  in our own records found and corrected (case IS canonical, built on crest bulk velocity). Finest rung honestly undecided
+  (f6b-why-the-finest-hill-will-not-converge, 55). Slate ranked 8 families; two premise corrections (F5c OOM refuted;
+  F8 MRF already run, unconverged); slate-toppers dispatched (F8 forces gate vs Hand 2001; B52 8th rung).
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
