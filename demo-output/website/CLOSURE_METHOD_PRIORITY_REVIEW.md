@@ -477,6 +477,26 @@ distinguishing component **of this entry among the five**" removes the ambiguity
 | C7 | Ji, Luo, Zhou & Zhao, arXiv:2601.09305 (2026) | **READ IN FULL** (this session) | **`CLOSURE_CHALLENGE_PRIOR_ART.md` §2.7** — upgrade its tier from the 2026-07-31 reading to READ IN FULL with the two verbatim quotes in §2.2 above; **`latex/closure_challenge_report.tex` §2.2**, where element 2's distinction is claimed. | The nearest miss on element 2. Quoting its expand-don't-decline branch verbatim is the strongest available support for our narrow claim. |
 | C8 | Duraisamy, Iaccarino & Xiao, *Annu. Rev. Fluid Mech.* **51** (2019) 357–377 | METADATA ONLY — **not yet read by this lab** | **`latex/closure_challenge_report.tex` §2.1**, where the taxonomy is already invoked by name without a reference. | Closes an uncited named-taxonomy reference. **Fetch and read before quoting the family name**; otherwise attribute the phrase to our own `docs/research/CLOSURE_METHODS.md`. |
 
+**PAID 2026-08-05, and one tier upgraded in the paying.** All eight citations above and
+both §4 phrasing corrections are now in the records they were owed to, each in its file's
+dated-correction idiom and each citing this review by path and commit. **C1 was upgraded
+before it was made**: the charter's tier table licenses nothing beyond an abstract's
+literal sentences, and C1 is load-bearing, so the arXiv full text was fetched to
+`docs/papers/hanna_dinh_youngblood_bolotnov_1710.09105.{pdf,txt}` and read end to end.
+The characterisation in §2.1 above survives the full read unchanged — coarse-grid
+surrogate, lid-driven cubic cavity, grid-coarsening error and not closure error — with two
+deltas the abstract-tier read could not have had: their 37 features are the cell Reynolds
+number plus scaled first and second velocity derivatives (grid-resolution quantities, not
+physics invariants), and their §4.3 open-issues list states that the velocity components
+are "corrected separately, without enforcing conservation and Galilean invariance" — the
+founding CFD paper of our method class names the physicality gap our own G2 audit
+measured on us. Landed in: `latex/closure_challenge_report.tex` §§2.1–2.3, the ledger
+section and the R5 no-go section; `CLOSURE_CHALLENGE_STATUS.md` §4 and §5;
+`CLOSURE_METHODS_COMPARISON.md` §3.1; `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md` §5.3 and
+§7.4; `closure_challenge_R5_ALPHA05_REGIME_PREREGISTRATION.md` §3;
+`CLOSURE_CHALLENGE_PRIOR_ART.md` §2.1 and §2.7 (C7 tier raised to READ IN FULL). The
++0.010 hurt cap is still underived and the proposal, not an edit, owns fixing it.
+
 **Already owed and already paid** — no action, listed so the ledger is complete:
 Ling & Templeton 2015, Wu/Wang/Xiao/Ling 2017, Steiner/Dwight/Viré 2022,
 Buchanan/Lăcătuş/West/Dwight 2025, the reject-option survey, Scillitoe et al.

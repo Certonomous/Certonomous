@@ -58,6 +58,16 @@ classification at prediction time uses RANS-available quantities. That is exactl
 lab's arrangement. The difference is that Ling & Templeton flag *where RANS is
 uncertain*; they do not use the flag to withhold a correction.
 
+**Confirmed and now load-bearing downstream (2026-08-05).** The method-priority review
+(`CLOSURE_METHOD_PRIORITY_REVIEW.md` §4.2, commit `d84b649f`) re-fetched this abstract
+from the same OSTI record and quotes it verbatim: the algorithms "were used to classify
+RANS results on a point-by-point basis as having either high or low uncertainty".
+**[ABSTRACT READ.]** This section had the identify-versus-control distinction right;
+two downstream documents had lost it by compressing four papers into one
+"classifier-controlled corrections" list. Both are now corrected in place —
+`CLOSURE_METHODS_COMPARISON.md` §3.1 and `latex/closure_challenge_report.tex` §2.2 —
+and both point back here.
+
 ### 2.2 Wu, Wang, Xiao & Ling 2017 — a priori confidence from feature-space distance
 
 Jin-Long Wu, Jian-Xun Wang, Heng Xiao, Julia Ling, *A Priori Assessment of Prediction
@@ -240,6 +250,18 @@ expands rather than abstains. There is **no fallback to the uncorrected baseline
 **This is the single most important citation for the entry**, because it is the one
 paper found that computes a whole-flow confidence from the cheap solve alone, and it
 still does not do the thing the lab's gate does with it.
+
+**Tier upgraded 2026-08-05: [READ IN FULL].** The 2026-07-31 reading of this section
+was re-checked against the fetched HTML text rather than carried forward, per
+`docs/charters/LITERATURE_CHARTER.md` §7, by the method-priority review
+(`CLOSURE_METHOD_PRIORITY_REVIEW.md` §2.2, commit `d84b649f`). **Our record was right**,
+and the paper's own words are now on our record rather than our paraphrase of them:
+"The global confidence level p_k of expert k regarding the current flow is defined as
+the relative frequency of recognised points"; and "When the maximum confidence p_𝒦
+exceeds a threshold of T_accept = 90%, the expert E_𝒦 will be activated. Conversely, if
+p_𝒦 falls below T_accept, the flow is deemed unknown, which triggers the continual
+learning process." The low-confidence branch initialises and trains a new expert. **There
+is no branch that submits the uncorrected baseline.**
 
 ### 2.8 The general ML framing the entry should borrow
 

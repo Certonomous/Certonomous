@@ -229,11 +229,61 @@ Our correction is a \textbf{post-hoc velocity-field correction}. The learning ta
 $\delta \mathbf{U} = \mathbf{U}_{\text{LES}} - \mathbf{U}_{\text{RANS}}$ per mesh cell, and
 the learned map is applied once to an already-converged RANS field as a final
 post-processing step. \textbf{Nothing re-enters the governing equations and nothing is
-re-solved with the correction folded in.} In the Duraisamy--Iaccarino--Xiao taxonomy this
-is the ``correct the answer'' family, structurally distinct from FIML, TBNN, SpaRTA and
+re-solved with the correction folded in.} In the Duraisamy--Iaccarino--Xiao taxonomy ---
+\emph{Turbulence Modeling in the Age of Data}, \emph{Annu.\ Rev.\ Fluid Mech.} 51 (2019)
+357--377, cited at its honest tier, metadata only: the review has not been read in full by
+this laboratory, so ``correct the answer'' is our own paraphrase of the family via
+\artifact{docs/research/CLOSURE\_METHODS.md}, not the review's wording --- this is
+structurally distinct from FIML, TBNN, SpaRTA and
 eigenvalue perturbation, all of which correct something inside the equations before
-re-solving (\artifact{docs/research/CLOSURE\_METHODS.md};
-\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S4, commit \code{b9cb56a2}).
+re-solving (\artifact{CLOSURE\_CHALLENGE\_STATUS.md} \S4, commit \code{b9cb56a2}).
+
+\paragraph{Correction, 2026-08-05 --- the family we are in now carries its citation.} The
+passage above previously placed the method in a taxonomy, named four families we are not,
+and cited no prior work for the family we are in --- origination by omission, named as such
+by the method-priority review (\artifact{CLOSURE\_METHOD\_PRIORITY\_REVIEW.md} \S4.1,
+commit \code{d84b649f}). The owed citation is paid here, at read-in-full tier: learned
+local-error correction of a cheap CFD solve, applied once without re-solving, is
+established --- Hanna, Dinh, Youngblood \& Bolotnov, \emph{Coarse-Grid Computational Fluid
+Dynamic (CG-CFD) Error Prediction using Machine Learning}, arXiv:1710.09105 (2017);
+journal version \emph{Prog.\ Nucl.\ Energy} 118 (2019) 103140, DOI
+10.1016/j.pnucene.2019.103140 (journal record: metadata only). The arXiv full text was
+fetched and read on 2026-08-05 and is held at
+\artifact{docs/papers/hanna\_dinh\_youngblood\_bolotnov\_1710.09105.pdf}. Their surrogate
+predicts the cheap solve's local error from the cheap solve's own local features and adds
+it back to the variables of interest, nothing re-solved --- our architecture with the
+error source swapped: their cheap solve is a coarse-grid \emph{no-model} Navier--Stokes
+solve of a lid-driven cubic cavity and the corrected error is grid-coarsening
+(discretisation) error, tested across unseen Reynolds numbers and grid sizes; ours is a
+converged $k$--$\omega$ SST solve and the error is turbulence-closure error on separated
+and secondary flows. Two deltas from the full read are worth carrying beyond the review's
+abstract-tier characterisation: their 37 features are the cell Reynolds number plus scaled
+first and second velocity derivatives --- grid-resolution features, not physics
+invariants --- and their own open-issues section names the exact cost our G2 audit later
+measured on ourselves, that the velocity components ``are corrected separately, without
+enforcing conservation and Galilean invariance''. The founding CFD paper of the class
+states the class's physicality gap; it does not soften our measured instance of it
+(\S\ref{sec:stability}). The statistical ancestor is model-discrepancy calibration ---
+Kennedy \& O'Hagan, \emph{J.\ R.\ Statist.\ Soc.\ B} 63(3) (2001) 425--464, cited as
+lineage at metadata-only tier: not read in full by this laboratory, and no sentence of it
+is quoted. What survives, stated in the same breath: within the data-driven RANS-closure
+literature swept by the review (27 recorded searches, 13 counted negatives), every located
+correction that produces a velocity field re-enters the equations and re-solves; no other
+post-hoc \emph{velocity-field} correction was found, so the application to turbulence
+closure is ours even though the class is not.
+
+\paragraph{The published argument for the target choice.} One prior argues \emph{for}
+this method class rather than merely tolerating it: Wu, Xiao, Sun \& Wang,
+\emph{Reynolds-averaged Navier--Stokes equations with explicit data-driven Reynolds
+stress closure can be ill-conditioned}, \emph{J.\ Fluid Mech.} 869 (2019) 553--586,
+arXiv:1803.05581 (abstract read 2026-08-05). Propagating a learned Reynolds-stress
+correction through the RANS equations is a published conditioning hazard --- per the
+arXiv record's own summary, stress errors below 0.5\% can amplify to velocity errors up
+to 35\%; those figures are quoted at the record's tier and were not read off the paper's
+tables --- and every re-solving entrant on this board must survive it, where correcting
+the velocity field directly sidesteps it. This citation defends the choice of target as
+principled rather than merely cheap; it says nothing about the continuity cost measured
+in \S\ref{sec:stability} and must not be used to soften it.
 
 Two model objects stand behind the six corrected predictions of the entry of record
 (\artifact{CLOSURE\_METHODS\_COMPARISON.md} \S1.1):
@@ -291,9 +341,18 @@ Two honest qualifications belong beside it:
   validation base to a 25-case leave-one-out is a filed proposal (G5,
   \S\ref{sec:audit}).
 \item \textbf{It is not novel, and the nearest prior art is by the challenge's own
-  authors.} Classifier-controlled data-driven corrections are established: Ling \&
-  Templeton, \emph{Phys.\ Fluids} 27, 085103 (2015); Wu, Wang, Xiao \& Ling,
-  \emph{Flow Turbul.\ Combust.} 99, 25 (2017), DOI 10.1007/s10494-017-9807-0; Steiner,
+  authors.} Two established things, and they are not the same thing --- the list below
+  was one undifferentiated group until 2026-08-05, when the method-priority review
+  (\artifact{CLOSURE\_METHOD\_PRIORITY\_REVIEW.md} \S4.2, commit \code{d84b649f}) found
+  that grouping credited two of the four papers with a mechanism they did not report.
+  \textbf{Identifying} where the baseline is unreliable, from RANS-only inputs, is
+  established: Ling \&
+  Templeton, \emph{Phys.\ Fluids} 27, 085103 (2015) --- whose abstract, read at the OSTI
+  record, classifies RANS results point by point as high or low uncertainty and controls
+  no correction --- and Wu, Wang, Xiao \& Ling,
+  \emph{Flow Turbul.\ Combust.} 99, 25 (2017), DOI 10.1007/s10494-017-9807-0, an
+  \emph{a priori} confidence measure. \textbf{Using such a classifier to control where a
+  data-driven correction is fitted and applied} is established separately: Steiner,
   Dwight \& Vir\'e, \emph{Flow Turbul.\ Combust.} (2022), DOI 10.1007/s10494-022-00346-6;
   and Buchanan, L\u{a}c\u{a}tu\c{s}, West \& Dwight, \emph{Computers and Fluids} 305,
   106899 (2025), DOI 10.1016/j.compfluid.2025.106899, arXiv:2504.06758 --- whose first
@@ -304,6 +363,17 @@ Two honest qualifications belong beside it:
   rather than distribution shift; and its ``off'' state means the uncorrected field
   \emph{is} the submission
   (\artifact{CLOSURE\_CHALLENGE\_PRIOR\_ART.md} \S2.4, \S7.4).
+\item \textbf{The nearest miss, quoted rather than characterised} \emph{(added
+  2026-08-05, method-priority review \S2.2)}. Ji, Luo, Zhou \& Zhao, \emph{Progressive
+  Mixture-of-Experts with autoencoder routing for continual RANS turbulence modelling},
+  arXiv:2601.09305 (2026), \textbf{read in full} 2026-08-05, computes exactly our
+  quantity --- a whole-flow confidence from the baseline field alone, ``the relative
+  frequency of recognised points'' --- and then does something else with it: ``if
+  $p_\mathcal{K}$ falls below $T_{\text{accept}}$, the flow is deemed unknown, which
+  triggers the continual learning process.'' Its low-confidence branch \emph{expands},
+  spawning an expert. There is no branch that submits the uncorrected baseline. That is
+  the single closest published approach to our gate and it stops one step short --- which
+  is the strongest available support for our narrow claim, and it is narrow.
 \end{itemize}
 
 That last reading carried a constraint we wrote down before anyone felt the pull of it:
@@ -325,6 +395,27 @@ score for it existed
 
 Pre-registration that only ever ratifies is decoration. The R5 no-go is the evidence that
 this one binds.
+
+\paragraph{Whose discipline this is, added 2026-08-05.} Neither half of this practice is
+ours, and the method-priority review found this the element our records named the fewest
+priors for (\artifact{CLOSURE\_METHOD\_PRIORITY\_REVIEW.md} \S2.3, commit
+\code{d84b649f}). Freezing an analysis plan before results is an established practice in
+machine learning with its own venue: the \textbf{NeurIPS 2020 Workshop on
+Pre-registration in Machine Learning}, PMLR volume 148, held 11 December 2020 (editors
+Bertinetto, Henriques, Albanie, Paganini, Varol), with a second edition as PMLR volume
+181 (NeurIPS 2021) --- cited at metadata-only tier from the publisher's volume pages; no
+paper from either volume has been read here. And the problem our scoring-call ledger
+(\S\ref{sec:ledger}) addresses has a canonical paper: Blum \& Hardt, \emph{The Ladder: A
+Reliable Leaderboard for Machine Learning Competitions}, arXiv:1502.04585, ICML 2015,
+PMLR 37 (abstract read 2026-08-05). Their abstract prices our answer for us: repeated
+evaluation against a holdout lets participants overfit it, and existing approaches
+``resort to poorly understood heuristics such as limiting the bit precision of answers
+and the rate of re-submission.'' \textbf{Our five-call ledger is rate limiting --- one of
+those heuristics, self-imposed --- and it should be read as harm reduction rather than a
+guarantee.} Blum \& Hardt build a principled alternative and we do not implement it. What
+we did not find in that literature is an entrant imposing either discipline on itself,
+unasked, on a benchmark that imposes none, and publishing the ledger; that is a
+disclosure practice, not a method, and it is claimed as one.
 
 \subsection{The costs of this method class, stated before the results}
 
@@ -1032,7 +1123,10 @@ credibility rests on precise self-accounting cannot ship with a sentence a revie
 falsify by reading forty lines further down the same file.}
 
 The ledger is a self-imposed discipline. The benchmark imposes no limit and instructs
-submitters to preview their score. No public statement of ours may imply otherwise.
+submitters to preview their score. No public statement of ours may imply otherwise. Nor
+may any statement of ours imply the ledger is principled: in Blum \& Hardt's own words
+(arXiv:1502.04585, \S2.3 above) rate limiting is a ``poorly understood heuristic'', and
+naming ours as one is the honest price of it.
 
 \subsection{The adversarial methods audit}
 \label{sec:audit}
@@ -1256,6 +1350,26 @@ $-$0.0195 over 10 cases, 8 of 10 improved, two by more than 0.035 & PASS \\
 \textbf{Verdict: NO-GO. The rules were not revisited after the numbers, the scoring call was
 not authorised, and nothing was scored.} Round 4 stands as the entry of record.
 
+\paragraph{The rule has a name, and ours is the weaker version of it (added 2026-08-05).}
+``Adopt the retrained model only if it is certified not to be worse than the incumbent''
+is a named research problem: Thomas, Theocharous \& Ghavamzadeh, \emph{High Confidence
+Policy Improvement}, \emph{Proc.\ 32nd ICML}, PMLR 37 (2015) 2380--2388 (abstract read
+2026-08-05 from the PMLR record). Their algorithm gives ``probabilistic guarantees about
+the quality of each policy that it proposes'', with the user free to ``select any
+performance lower-bound and confidence level.'' Two differences cut against us and one
+for us. Against: their bound is probabilistic and user-parameterised, where
+\textbf{our $+$0.010 per-case hurt cap is a single hand-chosen number whose
+pre-registration never states a derivation} --- it was declared before the deltas
+existed, which is the part that matters for leakage, but ``why 0.010'' is unanswered in
+our own record, and the method-priority review
+(\artifact{CLOSURE\_METHOD\_PRIORITY\_REVIEW.md} \S2.4, \S7, commit \code{d84b649f})
+files that as a charter trigger with a proposal,
+\code{agenda/proposals/w8-a-hurt-cap-that-states-where-it-came-from.json}. Also against:
+clinical trials pre-specify a \textbf{non-inferiority margin} in the protocol for exactly
+the reason we froze ours, and our cap is that idea under another name rather than bespoke
+machinery. For us: their guarantee is about the aggregate, ours is per-case, which is
+stricter --- and it is why R5 failed on one case while improving on eight of ten.
+
 The finding underneath is worth more than the candidate would have been (recorded as lesson
 L-33). The case that fails is \code{alpha\_05\_4071\_3036} --- the training sibling of both
 declined test cases, sharing their $\alpha$ and their 4071 parameter and differing only in
@@ -1363,9 +1477,11 @@ adaptive-leakage history in our own words; the executable train/validation/test 
 that the hump regression was not reverted and why; the duct feature degeneracy as a negative
 result we would rather publish than have inferred from our scores; the scoring-call count
 correctly framed as self-imposed; the measured continuity cost of \S\ref{sec:stability} and
-the measured seed-uncertainty qualifier on the rank-2 gap; and the prior art on
-classifier-controlled corrections, with no sentence presenting confidence-gated correction
-as novel.
+the measured seed-uncertainty qualifier on the rank-2 gap; the prior art, split as \S2.2
+splits it into classifiers that \emph{identify} and classifiers that \emph{control}, with
+no sentence presenting confidence-gated correction as novel; and --- added 2026-08-05 and
+mandatory --- the Hanna et al.\ citation for the method class itself, with its delta
+stated (\S\ref{sec:method}).
 
 \medskip
 \noindent What remains is not technical. Two items are outstanding and both are Katie's: the
@@ -1403,7 +1519,12 @@ comparison; gap findings G1--G6 \\
 \artifact{CLOSURE\_CHALLENGE\_SUBMISSION\_DRAFT.md} & \code{15530f97} &
 Policy, eligibility, compliance audit, draft package, addenda \\
 \artifact{CLOSURE\_CHALLENGE\_PRIOR\_ART.md} & \code{15530f97} &
-Prior art on classifier-controlled corrections \\
+Prior art on classifier-gated corrections: \S2.1 identify, \S2.3--\S2.4 control, \S2.7
+the PMoE near miss read in full \\
+\artifact{CLOSURE\_METHOD\_PRIORITY\_REVIEW.md} & \code{d84b649f} &
+Priority and novelty review: 27 searches, 13 counted negatives, the eight owed citations
+and the two phrasing corrections applied in \S2.1--\S2.3, \S\ref{sec:ledger} and
+\S\ref{sec:nogo} \\
 \artifact{closure\_challenge\_C1\_error\_estimator.md} &
 \code{5719374e} & The decline gate: fit, validation, and its stated statistical limits \\
 \artifact{closure\_challenge\_C6\_hump\_decision.md} & \code{1f5e2403} &
@@ -1455,6 +1576,32 @@ run; results \S1--\S2 \\
 \item Oulghelou, Cherroud, Merle \& Cinnella. \emph{Machine-Learning-Assisted Blending of
   Data-Driven Turbulence Models}. \emph{Flow, Turbulence and Combustion} (2025),
   DOI 10.1007/s10494-025-00661-8, arXiv:2410.14431.
+\item Hanna, B.\,N., Dinh, N.\,T., Youngblood, R.\,W. \& Bolotnov, I.\,A.
+  \emph{Coarse-Grid Computational Fluid Dynamic (CG-CFD) Error Prediction using Machine
+  Learning}. arXiv:1710.09105 (2017); journal version \emph{Progress in Nuclear Energy}
+  118 (2019) 103140, DOI 10.1016/j.pnucene.2019.103140. \textbf{Read in full}
+  (arXiv text, held at
+  \artifact{docs/papers/hanna\_dinh\_youngblood\_bolotnov\_1710.09105.pdf}); the journal
+  version is cited at metadata-only tier.
+\item Kennedy, M.\,C. \& O'Hagan, A. \emph{Bayesian Calibration of Computer Models}.
+  \emph{J.\ R.\ Statist.\ Soc.\ B} 63(3) (2001) 425--464. \emph{Metadata only --- not
+  read in this laboratory; cited as lineage, nothing quoted.}
+\item Wu, J.-L., Xiao, H., Sun, R. \& Wang, Q. \emph{Reynolds-averaged Navier--Stokes
+  equations with explicit data-driven Reynolds stress closure can be ill-conditioned}.
+  \emph{J.\ Fluid Mech.} 869 (2019) 553--586, arXiv:1803.05581. \emph{Abstract read.}
+\item Ji, H., Luo, Y., Zhou, H. \& Zhao, Y. \emph{Progressive Mixture-of-Experts with
+  autoencoder routing for continual RANS turbulence modelling}. arXiv:2601.09305 (2026).
+  \textbf{Read in full.}
+\item Blum, A. \& Hardt, M. \emph{The Ladder: A Reliable Leaderboard for Machine Learning
+  Competitions}. arXiv:1502.04585 (2015); ICML 2015, PMLR 37. \emph{Abstract read.}
+\item NeurIPS Workshop on Pre-registration in Machine Learning, PMLR 148 (2020) and
+  PMLR 181 (2021). \emph{Metadata only.}
+\item Thomas, P., Theocharous, G. \& Ghavamzadeh, M. \emph{High Confidence Policy
+  Improvement}. \emph{Proc.\ 32nd ICML}, PMLR 37 (2015) 2380--2388. \emph{Abstract read.}
+\item Duraisamy, K., Iaccarino, G. \& Xiao, H. \emph{Turbulence Modeling in the Age of
+  Data}. \emph{Annu.\ Rev.\ Fluid Mech.} 51 (2019) 357--377. \emph{Metadata only --- not
+  read in this laboratory; the ``correct the answer'' phrasing is our own paraphrase via
+  \artifact{docs/research/CLOSURE\_METHODS.md}, not a quotation of the review.}
 \item Ling, J. \& Templeton, J. \emph{Phys.\ Fluids} 27, 085103 (2015).
 \item Wu, Wang, Xiao \& Ling. \emph{Flow, Turbulence and Combustion} 99, 25 (2017),
   DOI 10.1007/s10494-017-9807-0, arXiv:1607.04563.

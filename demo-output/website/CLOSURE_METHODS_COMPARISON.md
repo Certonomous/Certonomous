@@ -333,12 +333,38 @@ are Wu's f_d shield and Montoya's baseline-expert fallback, both
 region-level within a corrected solve; neither ever declines a whole case
 and submits the baseline. And the uniqueness claim stays scoped exactly as
 `CLOSURE_CHALLENGE_PRIOR_ART.md` §7.4 requires: unique **among the five
-entries on this board**, not in the literature — Ling & Templeton 2015,
+entries on this board**, not in the literature — ~~Ling & Templeton 2015,
 Steiner et al. 2022, Buchanan et al. 2025 (RITA; co-authored by the
 challenge's own authors) are established prior art for
-classifier-controlled corrections, and our surviving distinctions are
+classifier-controlled corrections~~, and our surviving distinctions are
 case-level granularity, predicting the *baseline's* error, and "off"
 meaning the uncorrected field *is the submission*.
+
+**Correction 2026-08-05 — the struck clause credited two papers with a
+mechanism they did not report.** The method-priority review
+(`CLOSURE_METHOD_PRIORITY_REVIEW.md` §4.2, commit `d84b649f`) re-fetched Ling
+& Templeton's abstract at the OSTI record and found it describes classifying
+"RANS results on a point-by-point basis as having either high or low
+uncertainty" — it flags; it gates, withholds and controls nothing. Wu, Wang,
+Xiao & Ling 2017 likewise supplies an *a priori* confidence measure, not a
+control. Grouping all four under "classifier-controlled corrections" is the
+exact failure `docs/charters/LITERATURE_CHARTER.md` §7 names (attributing a
+mechanism to a source that reported a correlation).
+`CLOSURE_CHALLENGE_PRIOR_ART.md` §2.1 had it right; this document lost it when
+it compressed the list. **The list, split:**
+
+> Classifiers on RANS-only inputs that ***identify*** where the baseline is
+> unreliable are established — **Ling & Templeton 2015** (*Phys. Fluids* 27,
+> 085103) and **Wu, Wang, Xiao & Ling 2017** (*Flow Turbul. Combust.* 99, 25,
+> DOI 10.1007/s10494-017-9807-0). ***Using such a classifier to control where
+> a data-driven correction is fitted and applied*** is established
+> separately — **Steiner, Dwight & Viré 2022** (DOI
+> 10.1007/s10494-022-00346-6) and **Buchanan, Lăcătuş, West & Dwight 2025**
+> (RITA, *Computers and Fluids* 305, 106899, arXiv:2504.06758; co-authored by
+> the challenge's own authors).
+
+This makes our position **more** defensible, not less: it shows we know which
+paper did which thing. Nothing about our surviving distinctions changes.
 
 ### 3.2 What each method could and could not have learned
 

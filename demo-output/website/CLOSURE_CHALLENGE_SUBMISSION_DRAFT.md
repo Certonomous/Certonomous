@@ -518,6 +518,41 @@ steward's own scoring differs from ours, the steward's number is the number.
    post-processing. **It does not modify the turbulence model and nothing is
    re-solved.** This is a materially weaker claim than the FIML/TBNN/SpaRTA family it
    is being ranked against, and saying so is the point.
+   **The method class is not ours, and the description document must cite its prior**
+   *(added 2026-08-05, mandatory per the method-priority review
+   `CLOSURE_METHOD_PRIORITY_REVIEW.md` §5 row C1, commit `d84b649f`)*: learned
+   local-error correction of a cheap CFD solve, applied without re-solving, is
+   published — **Hanna, Dinh, Youngblood & Bolotnov**, *Coarse-Grid Computational
+   Fluid Dynamic (CG-CFD) Error Prediction using Machine Learning*, **arXiv:1710.09105
+   (2017)**; journal version *Progress in Nuclear Energy* **118** (2019) 103140, DOI
+   10.1016/j.pnucene.2019.103140. **[READ IN FULL 2026-08-05**, arXiv text at
+   `docs/papers/hanna_dinh_youngblood_bolotnov_1710.09105.pdf`; the journal version is
+   **METADATA ONLY**.**]** State the delta in the same sentence as the citation: their
+   surrogate corrects **grid-coarsening error** in a coarse-grid no-model
+   Navier–Stokes solve of a lid-driven cubic cavity, from cell-Reynolds-number and
+   velocity-derivative features; ours corrects **closure error** in a converged k-ω SST
+   solve of separated and secondary flows, from Pope invariants. Their abstract's
+   sentence — a surrogate trained to predict the cheap solve's local errors as a
+   function of its own local features — is our method statement with two words swapped,
+   and a referee who knows the nuclear-thermal-hydraulics ML literature will recognise
+   it on sight. The statistical ancestor, cited as lineage only: **Kennedy & O'Hagan**,
+   *Bayesian Calibration of Computer Models*, **J. R. Statist. Soc. B 63(3) (2001)
+   425–464** — **[METADATA ONLY**, not read here; do not quote it.**]** What survives
+   and should be said in the same breath: within the data-driven RANS-closure
+   literature swept (27 searches, 13 counted negatives), no other post-hoc
+   *velocity-field* correction was located — every located correction re-enters the
+   equations. **The class is established; the application to turbulence closure is
+   ours.**
+   **And the choice of target has a published argument for it**: **Wu, Xiao, Sun &
+   Wang**, *RANS equations with explicit data-driven Reynolds stress closure can be
+   ill-conditioned*, **J. Fluid Mech. 869 (2019) 553–586**, arXiv:1803.05581
+   **[ABSTRACT READ]** — propagating a learned stress correction through the RANS
+   equations is a published conditioning hazard (the arXiv record's own summary: stress
+   errors below 0.5% amplifying to velocity errors up to 35%, quoted at that tier and
+   not read off the paper's tables), which correcting velocity directly sidesteps.
+   Every re-solving entrant above us has to survive it. **This argument defends the
+   method class; it does not touch disclosure 8 below and must never be used to soften
+   it.**
 2. **Two cases are uncorrected baseline.** State outright that on
    `alpha_05_4071_4048` and `alpha_05_4071_2024` the submitted field is the unmodified
    RANS solve, that the gate declined there, and that any leaderboard-best status on
@@ -537,7 +572,21 @@ steward's own scoring differs from ours, the steward's number is the number.
    inferred from our duct scores.
 7. **Scoring-call count, correctly framed**: four distinct prediction sets scored, as a
    self-imposed discipline, **explicitly not** compliance with any benchmark limit,
-   since none exists (§2.5).
+   since none exists (§2.5). *(Five distinct prediction sets as of the round-4 entry of
+   record; the ledger is kept at `CLOSURE_CHALLENGE_STATUS.md` §5.)*
+   **Priced in the literature's own words** *(added 2026-08-05, method-priority review
+   §2.3)*: the hazard the ledger addresses is adaptive overfitting of a holdout under
+   repeated queries, named in **Blum & Hardt**, *The Ladder: A Reliable Leaderboard for
+   Machine Learning Competitions*, **arXiv:1502.04585 (2015); ICML 2015, PMLR 37**
+   **[ABSTRACT READ]**, whose abstract calls rate-limited re-submission one of the
+   "poorly understood heuristics" the field resorts to. **Our ledger is that
+   heuristic, applied by the submitter to itself** — harm reduction, not a guarantee,
+   and it belongs beside disclosure 3 above rather than as a claim of rigour. The
+   freeze-before-results half has an established venue too: the **NeurIPS Workshop on
+   Pre-registration in Machine Learning**, PMLR **148** (2020) and **181** (2021)
+   **[METADATA ONLY]**. What we did not find is another entrant imposing either on
+   itself, unasked, on a benchmark that imposes none, and publishing the ledger — a
+   disclosure practice, claimed as one and not as a method.
 8. **The submitted corrected fields do not satisfy continuity, and the departure is
    measured** *(added 2026-08-05, pre-registered consequence of audit finding G2)*:
    volume-weighted RMS `∇·U` rises from the operator floor (0.1–0.5% of the
@@ -698,10 +747,28 @@ After round 4 the lab is last on **NASA_2DWMH alone**.
 
 ### 7.4 The decline gate is not novel, and the nearest prior art is by the challenge's own authors
 
-Full review: `CLOSURE_CHALLENGE_PRIOR_ART.md`. A classifier reading only the uncorrected
+Full review: `CLOSURE_CHALLENGE_PRIOR_ART.md`. ~~A classifier reading only the uncorrected
 solve and controlling where a data-driven correction may act is established prior art —
 Ling & Templeton (2015), Wu, Wang, Xiao & Ling (2017), Steiner, Dwight & Viré (2022),
-Buchanan, Lăcătuş, West & Dwight (2025). **Tyler Buchanan and Richard Dwight are
+Buchanan, Lăcătuş, West & Dwight (2025).~~
+
+**Correction 2026-08-05 — the struck sentence rolls two established things into one and
+credits two of the four with a mechanism they did not report** (method-priority review
+`CLOSURE_METHOD_PRIORITY_REVIEW.md` §4.2, commit `d84b649f`; `CLOSURE_CHALLENGE_PRIOR_ART.md`
+§2.1 had it right all along). Read it as two claims, and the description document must
+carry it split:
+
+> Classifiers on RANS-only inputs that ***identify*** where the baseline is unreliable
+> are established — **Ling & Templeton (2015)**, whose abstract classifies RANS results
+> point by point as high or low uncertainty and controls nothing, and **Wu, Wang, Xiao &
+> Ling (2017)**, an *a priori* confidence measure. ***Using such a classifier to control
+> where a data-driven correction is fitted and applied*** is established separately —
+> **Steiner, Dwight & Viré (2022)** and **Buchanan, Lăcătuş, West & Dwight (2025)**.
+
+Everything §7.4 goes on to say is unaffected, and the split makes our position more
+defensible rather than less: it shows we know which paper did which thing.
+
+**Tyler Buchanan and Richard Dwight are
 co-authors of the Closure Challenge paper itself**; Dwight also co-wrote Steiner et al.
 and SpaRTA.
 

@@ -517,6 +517,63 @@ structurally distinct from FIML/TBNN/SpaRTA/eigenvalue-perturbation, all of
 which correct something inside the equations before re-solving
 (`docs/research/CLOSURE_METHODS.md`).
 
+**Correction, 2026-08-05 — the taxonomy and the family both get their
+citations.** The paragraph above named a taxonomy with no reference and placed
+our method in a family with no prior work cited for it, which the
+method-priority review (`CLOSURE_METHOD_PRIORITY_REVIEW.md` §4.1, commit
+`d84b649f`) names as origination by omission. Both are paid here at their
+honest tiers, and neither retracts anything above:
+
+- **The taxonomy**: Duraisamy, Iaccarino & Xiao, *Turbulence Modeling in the
+  Age of Data*, **Annu. Rev. Fluid Mech. 51 (2019) 357–377**. **[METADATA
+  ONLY — not read in this lab.]** The phrase "correct the answer" is
+  therefore *our* paraphrase of the family, carried from
+  `docs/research/CLOSURE_METHODS.md`, and is not quoted from the review.
+- **The family**: Hanna, Dinh, Youngblood & Bolotnov, *Coarse-Grid
+  Computational Fluid Dynamic (CG-CFD) Error Prediction using Machine
+  Learning*, **arXiv:1710.09105 (2017)**; journal version *Progress in
+  Nuclear Energy* **118** (2019) 103140, DOI 10.1016/j.pnucene.2019.103140
+  (journal record **[METADATA ONLY]**). **[READ IN FULL, 2026-08-05** — arXiv
+  text fetched and held at
+  `docs/papers/hanna_dinh_youngblood_bolotnov_1710.09105.pdf`.**]** A surrogate
+  trained on high-fidelity data predicts a cheap solve's *local error* from
+  that same solve's own *local features* and adds it back to the variable of
+  interest; nothing is re-solved. That is our architecture with the error
+  source swapped. **The delta, stated so it cannot be over-read**: their cheap
+  solve is a coarse-grid *no-model* Navier–Stokes solve of a lid-driven cubic
+  cavity, their features are the cell Reynolds number plus scaled first and
+  second velocity derivatives (37 in all — grid-resolution quantities, not
+  physics invariants), and the error they correct is **grid-coarsening
+  (discretisation) error**, tested across unseen Reynolds numbers and grid
+  sizes. Ours is a converged k-ω SST solve corrected for **closure error** on
+  separated and secondary flows, on Pope-invariant features. Their §4.3 open
+  issues state, in their own words, that velocity components are "corrected
+  separately, without enforcing conservation and Galilean invariance" — the
+  founding CFD paper of this class names the physicality gap our own G2 audit
+  later measured on us (`closure_challenge_stability_physicality_audit.md`
+  §2). It explains the cost; it does not excuse it.
+- **The statistical lineage**: Kennedy & O'Hagan, *Bayesian Calibration of
+  Computer Models*, **J. R. Statist. Soc. B 63(3) (2001) 425–464**.
+  **[METADATA ONLY — not read in this lab; nothing is quoted from it.]** Cited
+  only for the shape of the idea: add a learned discrepancy term to a
+  simulator's output rather than change the simulator.
+
+**What survives, and it is the stronger statement**: the review's sweep of the
+data-driven RANS-closure literature (27 searches, 13 counted negatives) found
+*every* located correction that produces a velocity field re-enters the
+equations and re-solves. No other post-hoc **velocity-field** correction was
+located in turbulence closure. The class is not ours; the application here is.
+
+**And one prior argues *for* the target we chose**: Wu, Xiao, Sun & Wang,
+*RANS equations with explicit data-driven Reynolds stress closure can be
+ill-conditioned*, **J. Fluid Mech. 869 (2019) 553–586**, arXiv:1803.05581.
+**[ABSTRACT READ.]** Propagating a learned stress correction through the RANS
+equations is a published conditioning hazard — the arXiv record's own summary
+gives stress errors below 0.5% amplifying to velocity errors up to 35%, quoted
+at that tier and not read off the paper's tables — which correcting velocity
+directly sidesteps. It defends the choice of target; it says nothing about our
+continuity gap (G2) and must not be used to soften it.
+
 - **Features (7, per cell)**: Pope's 5 scalar invariants of the normalized
   strain/rotation tensors (`I1_S2`, `I2_W2`, `I3_S3`, `I4_W2S`, `I5_W2S2`), a
   wall-distance turbulent Reynolds number `Re_y`, and a turbulent/mean-KE
@@ -632,6 +689,23 @@ Part 1 column (b) and finding G3. Companion stability/physicality evidence:
   imposes no scoring-call limit and instructs submitters to preview their
   score (`closure_challenge_trained_entry_round4_duct.json`,
   `scoring_calls`).
+  **Priced in its own literature's terms (added 2026-08-05, method-priority
+  review `CLOSURE_METHOD_PRIORITY_REVIEW.md` §2.3, commit `d84b649f`):** the
+  problem this ledger addresses is adaptive overfitting of a holdout under
+  repeated queries, named and analysed in Blum & Hardt, *The Ladder: A
+  Reliable Leaderboard for Machine Learning Competitions*, **arXiv:1502.04585
+  (2015); ICML 2015, PMLR 37** — **[ABSTRACT READ, 2026-08-05]**, verbatim:
+  existing approaches "resort to poorly understood heuristics such as limiting
+  the bit precision of answers and **the rate of re-submission**." **Our
+  ledger is that heuristic, self-imposed.** It is harm reduction, not a
+  guarantee; Blum & Hardt build a principled alternative and we do not
+  implement it. Saying so before a reviewer does costs nothing we were
+  entitled to keep, and it sits beside the cross-round adaptive-leakage
+  qualification already carried at `CLOSURE_CHALLENGE_SUBMISSION_DRAFT.md`
+  §5.3. Freezing a plan before results likewise has an established venue in
+  this field: the **NeurIPS Workshop on Pre-registration in Machine
+  Learning**, PMLR **148** (2020) and **181** (2021) — **[METADATA ONLY]**, no
+  paper from either volume read here.
 - **C1 (the test-blind error/trust gate) made zero scoring calls of its own**
   and opened no test-case file of any kind when it was built — it was fit
   and validated entirely on the 21 training / 4 validation PH cases. Round 3

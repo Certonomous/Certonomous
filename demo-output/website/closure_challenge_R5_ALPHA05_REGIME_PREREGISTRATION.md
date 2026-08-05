@@ -92,6 +92,36 @@ deltas):
   mean LOO delta < 0, and (iii) **hurts no comparison-set case by more than
   +0.010**.
 
+**Added 2026-08-05 — the rule has a name, and our version of it is the weaker
+one.** Per the method-priority review (`CLOSURE_METHOD_PRIORITY_REVIEW.md`
+§2.4 and §7, commit `d84b649f`): "adopt the retrained model only if it is
+certified not to be worse than the incumbent" is a named research problem —
+**Thomas, Theocharous & Ghavamzadeh**, *High Confidence Policy Improvement*,
+**Proc. 32nd ICML, PMLR 37 (2015) 2380–2388**. **[ABSTRACT READ 2026-08-05**
+from the PMLR record.**]** Verbatim: their algorithm "provides probabilistic
+guarantees about the quality of each policy that it proposes, and ... has no
+hyper-parameter that requires expert tuning. Specifically, the user may select
+any performance lower-bound and confidence level". Three comparisons, and two
+of them cut against us:
+
+1. **Against us, and it is the point of citing them: our +0.010 is
+   hand-chosen and this document never says why.** Rule (iii) was declared
+   before any correction delta existed — that is the part that matters for
+   leakage and it is unchanged — but *0.010* has no derivation anywhere in
+   our record, where Thomas et al. parameterise the bound by a stated
+   performance floor and confidence level. This fires
+   `docs/charters/LITERATURE_CHARTER.md` §6 trigger 2 (a method whose
+   admissibility could be written as thresholds), and the fix is owned by a
+   filed proposal, not by an edit here:
+   `agenda/proposals/w8-a-hurt-cap-that-states-where-it-came-from.json`.
+2. **Against us, in the framing**: clinical trials pre-specify a
+   **non-inferiority margin** in the protocol precisely so it cannot be chosen
+   after the data. Our per-case hurt cap is that idea under another name.
+   Saying so is more honest and more legible than presenting it as bespoke.
+3. **For us**: their guarantee is about the *aggregate*; ours binds *per case*,
+   which is stricter — and it is the reason §4 records a NO-GO on one case
+   while eight of ten improved.
+
 ## 4. The measurements
 
 Selected: **variant B** (mean LOO delta −0.0195 vs A's −0.0172).

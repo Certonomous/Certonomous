@@ -330,6 +330,22 @@ named here so it cannot be re-read favourably afterwards.
 
 Cost: ~7 core-min each.
 
+**R6b-control, registered 2026-08-05 BEFORE it ran.** R6b measured 0.849% —
+inside the registered <= 1% clean band, but ~20x above the clean floor R3a1
+(0.041%) and A1 (0.043%) sit at. Two readings are possible and they matter for
+the mechanism: either 0.849% is this DISCRETIZATION's own FD floor (in which
+case the limiter removal is a complete fix at gradient level), or it is a
+surviving decomposition effect (in which case the limiter carries the
+catastrophic part and something else carries a small remainder). The control:
+`a4knob_divlinupw_unlim_np1` — the identical case at **np=1**, where no
+partition exists and any residual error is the protocol floor alone.
+**Registered prediction: the np=1 control reads within a factor 2 of 0.849%,
+i.e. the 0.849% is the discretization's own floor and no decomposition effect
+survives the limiter removal.** Named alternative: if np=1 reads <= 0.2%, a
+real decomposition effect survives at ~0.8% (still 10x under the established
+8.95%), and the record says the limiter is the catastrophic carrier but not the
+whole story. Cost ~3 core-min.
+
 ---
 
 # RESULTS

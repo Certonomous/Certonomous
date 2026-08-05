@@ -1,0 +1,2264 @@
+Journal of Fluids Engineering
+
+Coarse-Grid Computational Fluid Dynamic (CG-CFD)
+Error Prediction using Machine Learning
+Botros N Hanna
+Department of Nuclear Engineering,
+North Carolina State University,
+Raleigh, NC, USA 27695-7909
+e-mail: bnhannab@ncsu.edu
+Nam T. Dinh
+Professor
+Department of Nuclear Engineering,
+North Carolina State University,
+Raleigh, NC, USA 27695-7909
+e-mail: ntdinh@ncsu.edu
+ASME Member
+Robert W. Youngblood
+Adjunct Professor
+Idaho National Laboratory
+INL, P.O. Box 1625,
+Idaho Falls, ID 83415-3870, USA
+e-mail: robert.youngblood@inl.gov
+Igor A. Bolotnov
+Associate Professor
+Department of Nuclear Engineering,
+North Carolina State University,
+Raleigh, NC, USA 27695-7909
+e-mail: iabolotn@ncsu.edu
+
+ABSTRACT
+Despite the progress in high performance computing, Computational Fluid Dynamics (CFD) simulations are
+still computationally expensive for many practical engineering applications such as simulating large
+computational domains and highly turbulent flows. One of the major reasons of the high expense of CFD is
+
+1
+
+Journal of Fluids Engineering
+
+the need for a fine grid to resolve phenomena at the relevant scale, and obtain a grid-independent
+solution. The fine grid requirements often drive the computational time step size down, which makes long
+transient problems prohibitively expensive. In the research presented, the feasibility of a Coarse Grid CFD
+(CG-CFD) approach is investigated by utilizing Machine Learning (ML) algorithms. Relying on coarse grids
+increases the discretization error. Hence, a method is suggested to produce a surrogate model that
+predicts the CG-CFD local errors to correct the variables of interest. Given high-fidelity data, a surrogate
+model is trained to predict the CG-CFD local errors as a function of the coarse grid local features. ML
+regression algorithms are utilized to construct a surrogate model that relates the local error and the
+coarse grid features. This method is applied to a three-dimensional flow in a lid driven cubic cavity domain.
+The performance of the method was assessed by training the surrogate model on the flow full field spatial
+data and tested on new data (from flows of different Reynolds number and/or computed by different grid
+sizes). The proposed method maximizes the benefit of the available data and shows potential for a good
+predictive capability.
+
+Keywords: coarse grid (mesh), CFD, machine learning, discretization error, big data, artificial neural
+network, random forest regression, data-driven.
+
+1.
+
+INTRODUCTION
+
+1.1.
+
+Motivation: The Need for CG-CFD
+
+In performing high-fidelity simulations of complex fluid flows, Computational Fluid
+Dynamics (CFD) approach has an advantage over traditional physical modeling, because
+of its capability to provide detailed information about flow field. However, CFD is too
+computationally expensive for many real-world applications such as oceanic flows,
+nuclear energy applications, and indoor environment research (discussed below).
+
+2
+
+Journal of Fluids Engineering
+
+a)
+
+Oceanic Flows
+
+An example of this computational challenge is simulating the turbulent ocean currents
+in the North Atlantic that contain circulations with length scales ranging from few
+meters to thousands of kilometers [1]. Capturing the full range of the circulations’
+length scales using Direct Numerical Simulation (DNS) [2] requires very high-resolution
+grids and thus large computational power. On the other side, when modeling the
+average effect of turbulence on ocean currents, turbulence models for ocean
+simulations remove fluctuations of scales smaller than about 30 kilometers [1]. Hence,
+the energy in these "small"–scale fluctuations are lost, so the turbulence models are
+inaccurate.
+
+b)
+
+Nuclear Energy Applications
+
+CFD’s computational expense problem also arises in nuclear engineering applications.
+For instance, CFD simulation of a full reactor core, with its fuel rods, spacer grids, and
+other components, is not yet practical [3]. Utilizing CFD in nuclear reactor accident
+analyses is also computationally overwhelming, mainly due to long-time transient
+problems. For example, CFD was used to analyze only one localized phenomenon that
+may occur during nuclear accidents: high-pressure blowdown flow from the reactor
+cooling system needed over a week of computing time on a 128-processor cluster to
+simulate ten seconds of steam blowdown on a relatively coarse computational grid [4].
+It would be computationally prohibitive to simulate complex, long transient and
+accident scenarios in this way.
+3
+
+Journal of Fluids Engineering
+
+c)
+
+Indoor Environments
+
+In turbulence modeling of indoor environments, research has been done aiming to
+perform real-time simulation for cases like emergency evacuation of buildings [5]. Real
+time simulation is not possible with the grid independent CFD. Hence, research was
+performed to speed up CFD simulations by using coarse grids [5-7].
+
+1.2.
+
+The Need for Data-Driven Models
+
+In CFD, high-fidelity results can be obtained by simulating all the turbulence length and
+time scales using DNS [2], which is accurate but computationally challenging for many
+applications (turbulent flows with high Reynolds number). A computationally cheaper
+alternative approach is Large Eddy Simulation (LES) [8], that requires a computational
+grid that is coarser than the grid needed in DNS. In LES, the large-scale motions (energycontaining eddies) are captured, while the small-scale flow motions are either modelled
+using an explicit sub-grid scale model, or implicitly modeled using the numerical
+dissipation associated with the computational scheme knows as Implicit LES (ILES) (see
+[9, 10]).
+
+Despite the progress in LES methods, the Reynolds Averaged Navier Stokes (RANS)
+equations [11] approach is still more popular and computationally economical in
+industrial applications. RANS approach requires a coarse grid (compared to LES and
+DNS) as it resolves the mean flow variables only, not the detailed instantaneous flow.
+However, RANS models (such as 𝑘 − 𝜀 [12] and Spalart-Allmaras [13] model) lack
+adaptability, i.e. RANS models perform well only for specific flow conditions and
+4
+
+Journal of Fluids Engineering
+
+geometries. This gives an advantage to data-driven surrogate statistical models as they
+could adapt via data assimilation as more data becomes available. The availability of
+high-fidelity simulations provides an opportunity to inform data-driven coarse grid
+models. Currently, as discussed below, several groups of researchers are pursuing the
+development of data-driven methods to perform coarse grid simulations (see Section
+1.3).
+
+1.3.
+
+Progress in Data-Driven Models in Fluid Dynamics
+
+Traditionally, fluid flow models (for turbulence or multiphase flow, etc.) were developed
+based on physical understanding of the phenomena often with certain empirical
+assumptions. Recently, data-driven models have been developed based on data
+processing and analysis (data-driven), in order to make more use of the available data.
+An overview of recent data-driven models is presented below. These data-driven
+models are either utilized in the context of CFD (to correct LES or RANS simulations or
+compute closure terms for averaged variables’ equations) or in the context of Smoother
+Particle Hydrodynamics (SPH) [14].
+
+a)
+
+Autonomic sub-grid Large Eddy Simulation (ALES)
+
+Autonomic Sub-grid Large Eddy Simulation (ALES) [15] can be regarded as a data-driven
+method that utilizes a grid that is deemed to be coarse compared to DNS grid
+requirements, but must be relatively fine to resolve Turbulence Kinetic Energy (TKE) in
+the inertial range of the turbulence energy spectrum. The ALES method expresses the
+local sub-grid scale stress tensor as a non-linear function of the resolved variables at all
+5
+
+Journal of Fluids Engineering
+
+locations and all times with a Volterra series (which is similar to a Taylor series). The
+series coefficients are computed by minimizing the error in sub-grid scale stresses at a
+test filter scale. Then, coefficients are mapped to the LES scale assuming scale similarity
+(noting that both LES scale and test scale lie in the self-similar inertial range of the
+turbulence energy spectrum). The ALES method is a general model-free self-optimizing
+approach for closure of turbulence simulations. The ALES method needs neither
+previous training based on DNS results nor user specified parameters. Preliminary
+results with simple problems (homogenous turbulence and sheared turbulence) showed
+high accuracy in computing turbulent stresses compared to current turbulence models
+[16]. However, the scale similarity assumption, upon which ALES is based, is valid only in
+the inertial range (in turbulent kinetic energy spectrum). Therefore, applying ALES
+approach is still impractical in simulating large domains / long transients.
+
+b)
+
+Closure Term in a Bubbly Flow Equation
+
+Another example [17] from the multiphase flow field is finding the closure term in an
+averaged simple equation for bubbly flow using an Artificial Neural Network (ANN) [18],
+given accurate results obtained by DNS. In that problem, the initial vertical velocity and
+the average bubble density are uniform except in one of the horizontal directions. As
+the transient develops, the bubble density and velocity become uniform. It was
+assumed that the unknown closure term depends on the void fraction, the void fraction
+gradient, and the liquid velocity gradient. The ANN ”learns” the correlation between the
+closure term and these three variables from one simulation dataset. A transient of
+6
+
+Journal of Fluids Engineering
+
+different initial conditions can then be predicted using that correlation. That case study
+was quite simple (the averaged equation is one-dimensional and the boundary
+conditions are periodic).
+
+c)
+
+RANS Model Discrepancy
+
+To reduce the RANS model discrepancy by learning from data, research groups from
+University of Michigan and Virginia Tech University utilized ML techniques to predict or
+reduce the error in RANS simulation results [19, 20]. Both groups made use of highfidelity simulation results from DNS to correct the low-fidelity model results from RANS.
+In [19], RANS results are corrected by spatially distributed multiplicative discrepancy
+term, 𝛽, into one of the terms of the transport equation of turbulent quantities; in [20],
+the Reynolds stress discrepancy is directly based on mean flow features computed by
+RANS. The statistical model in both cases is trained based on the available high-fidelity
+data and then tested on other cases, which have a different Reynolds number or a
+different flow geometry. Recently, the Virginia Tech University research group
+suggested [21] that the group of input features could be reduced to 4 flow features. It
+was also shown that not only could Reynolds stress discrepancy computed by RANS be
+improved by predicting Reynolds stress discrepancy, but also the improved Reynolds
+stress results in a more accurate velocity field.
+
+Statistical data-driven models are usually trained on a set of data and then tested with
+another group of data that are “close” to the training data in some sense. The
+7
+
+Journal of Fluids Engineering
+
+“closeness” between training data and testing data can be used to assess the prediction
+confidence a priori [22, 23]. This closeness could be quantified by metrics like the
+Mahalanobis Distance [24] or the Kernel Density Estimation technique [25]. This
+approach was successful in most cases except when the training and testing cases are
+too close or too far apart [23].
+
+ML model predictions, for RANS Reynolds stress anisotropy, for flows of similar physics,
+should be similar. ML model predictions should not change with changing the
+orientation of coordinate frame. In other words, ML predictions should be Galilean
+invariant. Based on this principle, a multi-layer ANN (also called “deep learning”), with
+invariant tensor basis, was proposed [26]. This way, Reynolds stress anisotropy tensor
+can be predicted with embedded Galilean invariance. The proposed tensor-basis ANN
+proved to have more accurate prediction compared to both RANS models and
+conventional ANN.
+
+d)
+
+Smoothed Particle Hydrodynamics
+
+Data-driven models, for fluid simulations, are used not only in CFD, but also in
+Smoothed Particle Hydrodynamics (SPH) (where Navier Stokes (NS) equations are
+approximated on fluid particles instead of a computational grid) [14].Random Forest
+Regression (RFR) [27] was trained to predict the velocity and position of the fluid
+particle in the next time step based on the velocity and the position in the previous time
+
+8
+
+Journal of Fluids Engineering
+
+step [28]. This approach aims to “learn” the behavior of fluid from the training examples
+and provides an alternative for real time fluid simulations.
+1.4.
+
+Scope of The Present Work
+
+Since the traditional high-resolution (mesh-independent) CFD solution is
+computationally expensive and using of coarse grid would result in high grid-induced
+errors, the present work focuses on predicting the errors of the coarse grid solution.
+While the previous research aimed largely to reduce the model form error, in this work,
+the sub-grid effect is compensated for by a surrogate statistical model that is trained by
+using high- fidelity simulation results (fine-grid CFD).
+
+The objective of this work is to investigate the feasibility of obtaining a correction for
+CG-CFD simulation results using ML algorithms. Numerical experiments are designed
+and performed to study the feasibility of utilizing ML tools to get a correlation between
+the ‘correct’ solution informed by fine grid simulation results and the coarse grid
+variables.
+
+Among the different sources of error in CFD simulation, the turbulence modeling error
+and the discretization error are the most challenging ones. Below, in Subsections (a) and
+(b), the present work is compared to other CFD approaches in terms of mitigating
+turbulence modeling error and discretization error.
+
+a)
+
+Present Approach vs. Traditional CFD
+9
+
+Journal of Fluids Engineering
+
+RANS turbulence models are popular because of the reduced computational expense
+while representing three-dimensional flow behavior. RANS turbulence models typically
+rely on incorporating more physics and using empirical models for some parameters
+based on the available validation data. It is always required to get grid-independent
+solution (with a grid convergence study), but this grid convergence study should be
+applied within the range of grids that satisfy the turbulence model grid requirements.
+Typically, for each new case, a new simulation is needed, even if the new case is only
+slightly different from old cases
+
+In the present work, the “No model” approach (where NS equations are solved
+numerically without any turbulence model) is utilized with coarse grids (discretization
+grids that are expected to produce non-accurate results). However, instead of
+investigating the turbulence modeling error, we use the same “No model” approach
+with different grids (fine and coarse grids) to train a surrogate model to compute this
+grid-induced error. CG-CFD error is predicted by comparing high-fidelity results (with
+fine grids) against CG-CFD results. With this surrogate model, the grid-induced error can
+be predicted for other cases that have different grid sizes, Reynolds numbers, etc. The
+surrogate model is adaptive with the available data so each new set of experimental
+data or high-fidelity computations will be reflected in the automatically-improved
+model, without the need for developing other models that capture the new data.
+
+b)
+
+Present Approach vs. Physics Informed Machine Learning
+10
+
+Journal of Fluids Engineering
+
+Recently, research has been pursued in the direction of taking advantage of the ML
+algorithms to develop surrogate models that can compute the turbulence modeling
+error (for instance, [19, 20, 26]). This approach is known as Physics Informed Machine
+Learning (PIML) approach. Both the present work and PIML method benefit from ML
+algorithms to produce data-driven statistical models. However, PIML assumes that one
+of the RANS models is used and the grid size criterion for this model is satisfied. Through
+PIML, the difference between RANS flow variables profile and DNS profile is computed.
+On the other side, the present work depends on the same Navier-Stokes equations used
+with both fine and coarse grids. After that, the error resulting from the grid coarseness
+is computed with the ML surrogate model.
+
+1.5.
+
+The Structure of This Paper
+
+In this paper, a method is proposed to predict the CG-CFD induced error given coarse
+grid features using ML surrogate models. This method is presented in Section 2. For
+purposes of comparison, two ML algorithms (ANN [18] and Random Forest Regression
+(RFR) [27] in MATLAB [29]) are each used to construct a surrogate model; these
+surrogate models are presented in Section 3. This method was applied to a threedimensional quasi steady state turbulent flow inside a lid-driven cavity. The capability of
+the statistical model to predict the coarse grid-induced error in different cases (different
+Reynolds number and grid sizes) is illustrated and assessed in Section 4. The conclusions
+of this paper are provided in Section 5.
+
+2.
+
+METHOD
+11
+
+Journal of Fluids Engineering
+
+The problem statement is presented in Section 2.1 and depicted in Fig. 1. CG-CFD error
+can be predicted under some hypothesis (see Section 2.2). The proposed method for
+computing CG-CFD grid-induced error is explained in Section 2.3 and depicted in Fig. 2.
+CG-CFD approach is applied and tested with a three-dimensional flow in a lid-driven
+cubic cavity (see Section 2.4 and Fig. 3).
+
+2.1.
+
+Problem Statement
+
+The general problem to be addressed in this work can be formulated as illustrated in Fig.
+1. In Fig. 1, the vertical axis 𝜓 is a number or a set of numbers that characterize the flow
+pattern (such as Reynolds number, Rayleigh number, domain aspect ratio, etc.), while
+the horizontal axis is the computational grid spacing, 𝛥. For a specific problem of
+interest (in this work it is the flow inside a lid-driven cubic cavity), the green-colored
+area on the figure represents the high-fidelity data computed by sufficiently fine grids (∆
+approaching zero). The subscript 𝑓 refers to a fine grid and 𝜑𝑓 is the flow variable of
+interest (e.g. velocity component or pressure) computed by sufficiently fine grid. The
+red-colored area refers to low-fidelity computations, of 𝜑, performed by coarse grids,
+that may or may not have corresponding available high-fidelity computations, 𝜑𝑓 . The
+problem here is how to use the low-fidelity and corresponding high-fidelity data to
+construct a function that can predict the correct value of a new (not available) 𝜑, given
+only the corresponding low-fidelity computation only.
+Traditionally, a new high-fidelity computationally expensive simulation is performed for
+each new 𝜓. In this work, the benefit of the data is maximized using the available high12
+
+Journal of Fluids Engineering
+
+fidelity data to capture the relation between coarse and fine grid data to predict 𝜑 for a
+new case.
+
+2.2.
+
+Research Hypothesis
+
+The present hypothesis is that the CG-CFD error is predictable, using data-driven
+surrogate model, under the following assumptions:
+▪
+
+The training flows (to train the surrogate model) and the testing flows (to test
+
+the trained surrogate model) have similar physics with similar complexity. In order to
+correct the grid-induced error over the whole domain (for the training flows), highfidelity data over the whole domain are needed.
+▪
+
+When comparing the fine and coarse grid data, the number of the cells in both
+
+grids is not the same. Thus, to compute local grid error, it is necessary to perform
+mapping of the fine grid data onto the coarse grid. In other words, 𝜑𝑓 , is replaced by
+𝜑𝑓→𝛥 (the fine grid field of 𝜑 mapped on a grid whose cell length is 𝛥). This mapping
+(averaging) constitutes a source of error because of losing some details of the flow field
+profile. However, this mapped field is much more accurate than the field computed by a
+coarse grid (for instance, see Fig. 4).
+▪
+
+Using a coarse grid in the CG-CFD framework is limited by the scale of the
+
+phenomena of interest. If the phenomena of interest have a length scale, 𝑙, the coarse
+grids used should have a grid spacing, ∆ < 𝑙. It is assumed that the phenomena of
+interest have a scale that is large enough that a data-driven surrogate model can be
+used to predict the grid-induced error occurred due to the inability of the coarse grid to
+resolve sub-grid length-scales.
+13
+
+Journal of Fluids Engineering
+
+▪
+
+Sub-grid flow features, computed by a coarse grid, are expected to be
+
+inaccurate. However, it is hypothesized that the grid-induced error is a function of the
+inaccurate coarse grid features.
+▪
+
+For most of the similar efforts in the literature (e.g. [19, 20, 23]) the aim was to
+
+get a data-driven surrogate model that compensates for sub-grid effects; the ultimate
+goal was predicting a quantity of interest (such as the lift force or Nusselt number) or
+specific linear profile (such as the axial velocity profiles). On the other hand, in the
+present work, it was assumed that we are interested in all the data through the whole
+domain (flow variable value at each grid cell). Thus, the proposed approach makes more
+use of the full field data.
+
+2.3.
+
+Proposed Approach
+
+This section presents the proposed method for CG-CFD error prediction using ML
+algorithms. In the following paragraphs, we will discuss the error prediction method,
+feature selection, and ML error evaluation.
+
+a)
+
+CG-CFD Error Prediction Method
+
+The proposed method illustrated in Fig. 2 consists of 2 sets of flows: training flows and
+testing flows. Training flows are utilized to construct a surrogate model of the gridinduced error as a function of the coarse grid flow features. High-fidelity simulations of
+the training flows are performed with sufficiently fine grids and represented by 𝜑𝑓𝑡𝑟 (𝑡𝑟
+refers to training flows). Next, the same simulation is performed again with a coarse grid
+𝑡𝑟
+producing 𝜑𝛥𝑡𝑟 . 𝜑𝑓𝑡𝑟 is mapped onto the coarse grid, 𝛥, to obtain 𝜑𝑓→𝛥
+. Based on the
+
+14
+
+Journal of Fluids Engineering
+
+coarse grid simulations of the training flows, flow “features”, 𝑿(𝜑𝛥𝑡𝑟 ), are computed.
+These features are the inputs to a surrogate model whose output is the local grid
+induced error, 𝜀𝛥 (𝜑 𝑡𝑟 ):
+𝑡𝑟
+𝜀𝛥 (𝜑𝑡𝑟 ) = 𝜑𝑓→𝛥
+− 𝜑𝛥𝑡𝑟 = 𝐹(𝑿(𝜑𝛥 ))
+
+(1)
+
+Selection of the features is discussed in the next section. The function 𝐹 is obtained
+from ML algorithms (ANN and RFR). The capability of the surrogate model, obtained
+from equation (1), is assessed by applying the model on testing flows as illustrated in
+Fig. 2.
+
+b)
+
+Features Selection
+
+Assuming a smooth profile for the flow variable, 𝜑, consider a Taylor series expansion
+for a flow field variable 𝜑 along the 𝑥-direction in a grid with cell length of 𝛥𝑥:
+𝜑 = 𝜑0 + 𝛥𝑥
+
+𝑑𝜑
+(𝛥𝑥)2 𝑑 2 𝜑
+| +
+| +⋯
+𝑑𝑥 𝛥𝑥
+2 𝑑𝑥 2 𝛥𝑥
+
+(2)
+𝑑2 𝜑
+
+For a linear state variable profile, the grid-induced error will be of order (𝛥𝑥)2 𝑑𝑥 2 |
+
+𝛥𝑥
+
+𝑑2 𝜑
+
+and the effect of 𝛥𝑥 𝑑𝑥 2 | may be considered for non-linear profiles. The flow state
+𝛥𝑥
+
+variables’ derivatives were utilized before as indicators of the need for high local
+refinement in the adaptive-grid-refinement literature [30-32]. This was inspired by the
+general observation that a finer grid is needed near a discontinuity or steep curve of the
+solution. Another idea to be considered is the fact that the value of the variable 𝜑 and
+its corresponding error at any grid cell is dependent on the value of 𝜑 and the
+
+15
+
+Journal of Fluids Engineering
+
+𝑑𝜑
+
+𝑑2 𝜑
+
+corresponding error at the neighboring cells. Hence, the derivatives 𝑑𝑥 and 𝑑𝑥 2 are
+carrying the effect of the neighboring cells.
+
+Additionally, the fluid flow is typically characterized by global numbers like Reynolds
+number, Rayleigh number, etc. Thus, we propose to utilize a local number (as flow
+feature) which substitutes for the global number. In this work, the quantity of interest is
+the velocity. Therefore, we selected the cell Reynolds number as the local quantity of
+interest. The cell Reynolds number substitutes for the global velocity and length scales
+with local velocity and cell length, 𝛥. The cell Reynolds number, 𝑅𝑒𝛥 , defined in terms of
+the local velocity magnitude, |𝑈| and the kinematic viscosity, 𝜈, is given by:
+𝑅𝑒𝛥 = |𝑈|𝛥⁄𝜈
+
+(3)
+
+Based on the previous discussions, the proposed features vector, 𝑋(𝜑𝛥 ), becomes:
+
+𝑿(𝜑𝛥 ) = (𝑅𝑒𝛥 , 𝛥𝑥𝑗
+
+𝑑𝑢𝑖
+𝑑 2 𝑢𝑖
+| , (𝛥𝑥𝑗 )2
+| )
+𝑑𝑥𝑗 𝛥𝑥
+𝑑𝑥𝑗 2 𝛥𝑥
+𝑗
+
+(4)
+
+𝑗
+
+𝑑𝑢
+
+Note that the term 𝛥𝑥𝑗 𝑑𝑥 𝑖 represents 9 features because the velocity has 3 components
+𝑗
+
+(𝑈𝑥, 𝑈𝑦, 𝑈𝑧 ) and the derivative is performed with respect to 3 directions (𝑥, 𝑦, 𝑧) (for
+instance:
+
+𝑑𝑈𝑥, 𝑑𝑈𝑥,
+𝑑𝑥
+
+,
+
+𝑑𝑦
+
+, 𝑒𝑡𝑐. Similarly, the term (𝛥𝑥𝑗 )2
+
+𝑑2 𝑢𝑖
+𝑑𝑥𝑗 2
+
+represents 27 features
+
+(accounting for all the second derivatives for the 3 velocity components).
+
+When comparing different sets of CFD data, it is desired to use dimensionless data for
+performing comparisons between different geometries; hence, the features are
+16
+
+Journal of Fluids Engineering
+
+normalized using the length scale and the velocity scale (see Table 1). The normalized
+features, 𝑋̃, and the normalized grid induced-error, 𝜀̃𝛥𝑡𝑟 , are incorporated into equation
+(1) as:
+̃ (𝜑𝛥 ))
+𝜀̃𝛥 (𝜑 𝑡𝑟 ) = 𝐹(𝑿
+
+(5)
+
+In this work (a lid-driven cavity flow), the length scale, 𝐻, is the cavity height, and the
+velocity scale is the cavity lid velocity, 𝑈𝑙𝑖𝑑 .
+
+c)
+
+Machine Learning Error Assessment
+
+To assess the accuracy of the surrogate model produced by ML algorithm, a metric, 𝐸𝑀𝐿
+is proposed. This metric (ML error) is calculated as:
+𝐸𝑀𝐿 =
+
+|𝜀̃𝛥𝑎𝑐𝑡 (𝜑) − 𝜀̃𝛥𝑀𝐿 (𝜑)|
+𝜎𝜀̃𝛥𝑎𝑐𝑡 (𝜑)
+
+(6)
+
+where 𝜀̃𝛥𝑎𝑐𝑡 (𝜑) is the actual grid-induced error when computing the variable 𝜑 and
+𝜀̃𝛥𝑀𝐿 (𝜑) is the estimated error. The difference between the actual and ML prediction of
+the grid-induced error is normalized by the standard deviation of the actual grid-induced
+error, 𝜎𝜀̃𝑎𝑐𝑡 (𝜑) . Typically, when computing the surrogate model error, the difference
+𝛥
+
+between the actual and estimated value is divided by the actual value to get a relative
+error. However, here, we divide by the standard deviation of the actual value to avoid
+having zeros in the denominator. Additionally, computing ML error in Eq. (6) gives the
+ML error in terms of the standard deviation of the grid-induced error.
+
+17
+
+Journal of Fluids Engineering
+
+2.4.
+
+Case Study
+
+The lid-driven cavity flow is one of the most studied problems in CFD [33, 34]. Although
+the problem can be stated relatively simply, the flow in a cavity features interesting flow
+physics with counter-rotating vortices appearing at the corners of the cavity [34], and it
+serves as a benchmark problem for numerical methods [35-37].
+
+The case studied here is a fluid contained in a cube whose height is one meter, with five
+fixed walls and one lid, moving with velocity, 𝑈𝑙𝑖𝑑 = 1 m/s (see Fig. 3). The physics of
+this problem is related to the global Reynolds number, 𝑅𝑒, which is defined in terms of
+the velocity magnitude,|𝑈|, the fluid kinematic viscosity, 𝜈 , and the cavity characteristic
+length (height), 𝐻.
+𝑅𝑒 =
+
+|𝑈|𝐻
+𝜈
+
+(7)
+
+At a Reynolds number between 2000 and 3000, an instability appears in the vicinity of
+the downstream corner [38]. As expected, the turbulence level near the wall increases
+with the increasing Reynolds number. The flow becomes fully turbulent near the
+downstream corner eddy at Reynolds number higher than 10,000 [38].
+
+a)
+
+Governing Equations
+
+In this work, CFD simulations were performed with one of the available open source CFD
+software packages, OpenFOAM [39]. All the simulations were performed with threedimensional NS incompressible flow of a viscous Newtonian fluid [2]:
+
+18
+
+Journal of Fluids Engineering
+
+𝜕𝑢𝑖
+=0
+𝜕𝑥𝑖
+
+(8)
+
+𝜕𝑢𝑖 𝜕𝑢𝑖 𝑢𝑗
+𝜕 2 𝑢𝑖
+𝜕𝑝
++
+=𝜈
+−
+𝜕𝑡
+𝜕𝑥𝑗
+𝜕𝑥𝑗 𝜕𝑥𝑗 𝜕𝑥𝑖
+
+(9)
+
+where 𝑢𝑖 is the velocity component 𝑖, 𝑝 is the kinematic pressure and 𝜈 is the kinematic
+viscosity. NS equations are discretized in space using finite volume method on meshes
+composed of hexahedral cells. NS equations are integrated over the volume of the
+computational cells [40]. The time dependent term is assumed constant over the
+computational cell volume. The divergence theorem is applied to convection, pressure
+gradient and diffusion terms:
+(10)
+
+∬ 𝑑𝐴(𝑢𝑖 𝑛𝑖 ) = 0
+𝐴
+
+𝑉
+
+𝜕𝑢𝑖
+𝜕𝑢𝑖
++ ∬ 𝑑𝐴𝑢𝑖 𝑢𝑗 𝑛𝑗 = ∬ 𝑑𝐴𝜈
+𝑛 − ∬ 𝑑𝐴𝑝𝑛𝑖
+𝜕𝑡
+𝜕𝑥𝑗 𝑗
+
+(11)
+
+Where 𝑉 is the computational cell volume, 𝑛 is the normal of the surface of the control
+volume and 𝐴 is the surface area. The area integrals can be written as summations over
+each face:
+(12)
+
+∑(𝑢𝑖 𝑛𝑖 𝐴)𝑛𝑏𝑟 = 0
+𝑛𝑏𝑟
+
+𝑉
+
+𝜕𝑢𝑖
+𝜕𝑢𝑖
++ ∑(𝑢𝑖 𝑢𝑗 𝑛𝑗 𝐴)𝑛𝑏𝑟 = ∑ (𝜈
+𝑛 𝐴)
+− ∑(𝑝𝑛𝑖 𝐴)𝑛𝑏𝑟
+𝜕𝑡
+𝜕𝑥𝑗 𝑗 𝑛𝑏𝑟
+𝑛𝑏𝑟
+
+𝑛𝑏𝑟
+
+(13)
+
+𝑛𝑏𝑟
+
+The subscript 𝑛𝑏𝑟 refers to the value at any given face. The time derivative term is
+approximated using a second order scheme (backward difference). For the spatial
+derivatives, the central difference scheme (second order accurate) has been used [41].
+
+19
+
+Journal of Fluids Engineering
+
+b)
+
+Numerical procedures
+
+High-fidelity Simulations were performed on a 120 × 120 × 120 grid, with special
+refinement towards the wall. The length of the cells touching the wall is 0.0014 meters
+so the total number of cells in the fine grid is 2 × 106 cells.
+In OpenFOAM, a transient solver (named pisoFoam) for incompressible, turbulent flow,
+using the PISO algorithm [42], was used. Using pisoFoam, unsteady simulation can be
+performed, but the focus of the present work is the quasi steady-state threedimensional flow inside the cavity.
+
+c)
+
+Training and Testing Cases
+
+When training a surrogate data-driven model, the predictive capability of the model is
+impacted by the similarity or the difference between the training flows and the testing
+flow. Thus, to assess the surrogate model, different scenarios of the available training
+data and the targeted testing case are studied (see the list of scenarios in Table 2).
+
+3.
+
+MACHINE LEARNING
+
+It is a new challenge to explore/ analyze/ model/ exploit the “big data” generated by
+high-resolution numerical simulation and physical experiments. ML algorithms can be
+used to find patterns in data and build new models that predict new outcomes based on
+historical data. In general, ML algorithms are classified depending on the available
+information and the user purpose in two types: supervised learning and unsupervised
+
+20
+
+Journal of Fluids Engineering
+
+learning. Supervised learning demands having a set of input variables (also called
+features) and their corresponding outputs. These inputs and outputs help to train a
+model that could predict the output for a new input. Supervised learning includes
+applications like regression and classification. On the other side, unsupervised learning
+is more challenging because the observations (raw data) are just given without
+identifying inputs or outputs. Its function is to extract the internal relationships in the
+dataset. Examples of unsupervised learning are: grouping the data (clustering), or
+recognizing anomalies in the dataset, or discovering the association between some
+variables. In the present work, the ML algorithms selected are ANN and RFR. These
+techniques are used in this work for regression, and their effectiveness is compared.
+ANN and RFR are presented in Sections 3.1 and 3.2.
+
+3.1
+
+Artificial Neural Network (ANN)
+
+Artificial Neural Network (ANN) is a well-known non-linear adaptive regression tool that
+identifies a function that relates the given inputs and outputs. ANN structure was
+originally intended to mimic that of human brain. ANN consists of computational units
+that are named artificial neurons. The biological neuron receives signals and activates if
+the signal is strong (exceeds a threshold), and then sends the signal to another neuron,
+and so on. The artificial neuron executes a similar process: it receives input variables
+which are multiplied by weights (which modify the signal strength), and are then
+processed by a mathematical activation function (like neuron activation) to produce the
+output.
+a)
+
+ANN Structure
+21
+
+Journal of Fluids Engineering
+
+ANN structure can be represented mathematically as follows:
+⏟ = 𝑓( 𝒘
+𝒂
+⏟ 𝑿
+⏟ + 𝒃
+⏟)
+𝑆×1
+
+𝑆×𝑅 𝑅×1
+
+⏟ = 𝜶
+𝑌
+⏟ 𝒂
+⏟ + ⏟
+𝜆
+1×1
+
+1×𝑆 𝑆×1
+
+(14)
+
+𝑆×1
+
+(15)
+
+1×1
+
+where 𝑋 is the vector of features (inputs) and 𝑌 is the output. The number of inputs is 𝑅
+and the number of neurons is 𝑆. 𝑓 is the activation function, which is most often chosen
+to be a hyperbolic tangent function. For instance, in our case, 𝑋 is a vector of flow
+features at any point on the coarse grid of the simulation domain and the output
+variable 𝑌 is the local coarse grid-induced error. Given some number of samples, the
+weights, 𝑤 and 𝛼, and the biases, 𝑏 and λ, are adjusted to optimize the performance of
+the ANN by minimizing the Mean Squared Error (MSE). The MSE at each sample (data
+point) is defined as follows:
+𝑁
+
+1
+𝑀𝑆𝐸 = ∑(𝑇𝑘 − 𝑌𝑘 )2
+𝑁
+
+(16)
+
+𝑘=1
+
+where 𝑁 is the number of samples, and 𝑇𝑘 and 𝑌𝑘 are the target and its corresponding
+output (prediction by ANN) respectively at each point 𝑘.
+
+b)
+
+ANN Training and Testing
+
+To adjust the weight and biases - that is, to train the ANN - there are many different
+algorithms. The algorithm that was used in this work is the Levenberg-Marquardt
+algorithm [43, 44]. For a vector of weights and biases, 𝒁𝑘 (at iteration 𝑘), the algorithm
+iteration to update 𝑿𝑘 is:
+
+22
+
+Journal of Fluids Engineering
+
+𝒁𝑘+1 = 𝒁𝑘 − [𝑱𝑇𝑘 𝑱𝑘 + 𝜇𝑰]−1 𝑱𝑘 𝒆𝑘
+
+(17)
+
+where the vector of network error (difference between target and output) is 𝒆 whose
+first derivatives with respect to weights and biases are contained in the Jacobian matrix,
+𝐽. 𝐼 is the identity matrix, and 𝜇 is a positive number called the combination effect. 𝜇𝐼 is
+added to avoid having a non-invertible matrix 𝐽𝑘𝑇 𝐽𝑘 . 𝜇 is called the combination effect
+because if 𝜇𝐼 is large, this method is called gradient descent method, and if 𝜇𝐼 is small
+(near zero), it becomes Newton’s method. To minimize the error, 𝜇 is initiated with a
+large value and it gets decreased after each successful iteration. Successful iteration
+means an iteration that is accompanied by a reduction in MSE.
+To test ANN efficiency, the samples are divided into three separate groups: (1)- The
+training data (most of the data, typically 70% of the whole dataset): these samples are
+utilized by the network to adjust the weights and biases. (2)- The validation data
+(typically 15% of the whole data): these samples are used to measure the network
+generalization (if MSE gets reduced with iterations for training data but it increases for
+the validation data group, that means the generalization deteriorates). Therefore, the
+training process stops when generalization stops improving. 3- The testing data
+(typically 15% of the data): these samples do not influence the training process and they
+give an independent measure of the ANN predictive capability with a new dataset (one
+that was not used in the training process).
+
+3.2
+
+Random Forest Regression
+
+Random forest regression is composed of a group of regression trees. A regression tree
+[45] predicts responses to input variables following the decisions in the tree from the
+23
+
+Journal of Fluids Engineering
+
+root node down to a leaf node (see Fig. 5). Each leaf node contains a possible response,
+𝑌. Each step in the prediction involves checking the value of one predictor (input). On
+each predictor, all the possible binary splits are examined. The split that leads to the
+best result is selected; the optimization criterion is typically minimizing MSE. The split
+may result in a child node that has very few observations (data); this is why a minimum
+leaf size (minimum observations per node) is specified a priori. For the new child nodes
+(new leaves), the same procedure is taken to split the new nodes. This process
+continues again and again. Therefore, the regression tree always has a stopping rule.
+The stopping rule means that the splitting stops when the number of observations per
+leaf is equal to the minimum one.
+The process of splitting is illustrated in Fig. 5, which represents a simple tree with 𝑥1 , 𝑥2
+and 𝑥3 as inputs (predictors) with 4 leaves (4 responses). Regression trees are
+computationally cheap, but they over-fit the data; this is why many trees are used
+together (tree bagging).
+In tree bagging, a random sample of the training data is given to each regression tree so
+each tree is trained based on a different dataset. Hence, for a new sample (unseen
+data), each tree will make a different prediction. The prediction of the whole tree bag is
+the average of all the individual trees’ predictions [27].
+This method is called the random forest because a random subset of input variables
+(features) are utilized at each split in each tree (in the tree bag). If the number of the
+features is 𝑅, the number of features at each split is typically 𝑅/3 [46].
+
+24
+
+Journal of Fluids Engineering
+
+The sampling technique used in random forest algorithm is the bootstrap sampling [47].
+In this technique, the sample size (for each individual tree) is equal to the original
+dataset size but the data are chosen with replacement which means that some data
+points (rows) may be selected more than once and other rows are not chosen at all. In
+this way, the data given to each tree is different so the trees’ predictions will be
+different and the over-fitting is eliminated when combining trees’ results together. On
+the other side, bootstrapping leads to a sample per tree which looks like the original
+sample of the original dataset.
+The optimum number of trees is determined based on the “Out Of Bag error” (OOB
+error). OOB error is the average prediction error on a training data point if we used the
+trees that did not have this data point when bootstrap sampling. It is always desired to
+achieve minimum OOB error; therefore, the number of trees is chosen based on this
+criterion. The typical number of trees in random forest algorithms is 100.
+
+4.
+
+RESULTS AND DISCUSSIONS
+
+This section presents the results of applying the proposed grid-induced error prediction
+method on the flow inside a lid-driven cubic cavity. We start by validating the high-fidelity
+fine grid simulations that are utilized to compute the grid-induced error (see Section 4.1).
+Next, the capability of the proposed CG-CFD approach, to predict the grid-induced error,
+is assessed given a variation of training and testing data (see Section 4.2). A set of
+numerical experiments are performed to predict the grid-induced error corresponding to
+the different velocity components given the scenarios listed in Table 2. Finally, some
+25
+
+Journal of Fluids Engineering
+
+issues, that need to be addressed to actualize the proposed CG-CFD approach, are
+discussed in Section 4.3.
+
+4.1.
+
+Validation
+
+In this work, simulations are performed for a lid-driven cavity flow with Reynolds
+numbers ranging from 6,000 to 12,000. Because the grid size requirements increase
+with increasing Reynolds number, we started by validating OpenFOAM simulation
+results for a flow whose Reynolds number equals 12,000. Next, the grid, that was used
+with 𝑅𝑒 = 12,000, is used for the lower Reynolds-number simulations. Fig. 6 compares
+the velocity profile captured with experiment [48, 49] with OpenFOAM simulations. Fig.
+6 depicts the velocity profiles computed with different grids: ∆= 0.0083m
+(corresponding to 120×120×120 grid), ∆= 0.0167𝑚 (corresponding to 60×60×60 grid)
+and ∆= 0.033𝑚 (corresponding to 30×30×30 grid). It is shown that the computed
+profile agrees well with the experimental one when adding wall refinement cells. The
+finest grid (∆= 0.0083m with wall refinement near the wall) is utilized to gain highfidelity data for different Reynolds numbers. Using coarse grids, without wall region
+refinement, results in inaccurate results. In the next section, coarse uniform grids (∆=
+0.05m, ∆= 0.033m, ∆= 0.025m) inaccurate results are corrected with the help of a ML
+data-driven model.
+
+4.2.
+
+Training and Testing Cases
+
+This section goes through the scenarios listed in Table 2 to capture the grid-induced
+error for the testing flow if the surrogate model is trained with training flows’ data. The
+
+26
+
+Journal of Fluids Engineering
+
+variable of interest, in the first 9 scenarios, was taken to be the spatial distribution of
+𝑈𝑥 . For the first scenario, both ANN (with 20 neurons) and RFR (with 100 regression
+tree) were used to predict 𝜀𝛥 (𝑈𝑥 ):
+a)
+
+Scenario I: Reynolds Number Interpolation
+
+Starting with an ANN, Fig. 7 depicts the reduction in MSE with increasing the number of
+training iterations (epochs). In each iteration, ANN network weights and biases are readjusted to reduce the MSE given the target (actual 𝜀𝛥 (𝑈𝑥 )) and the output (ANN
+predicted 𝜀𝛥 (𝑈𝑥 )). It is shown that the MSE gets saturated at around 0.0001 after 78
+epochs. Ideally, MSE = 0. In Fig. 7, a scatter plot, of the ANN-predicted 𝜀𝛥 (𝑈𝑥 ) vs. the
+actual 𝜀𝛥 (𝑈𝑥 ), is presented. The training flows, given to ANN, are divided into three
+groups (training, testing and validating data), as explained in Section 3.1. The dotted
+diagonal line plot represents a perfect agreement between the targeted and the
+predicted 𝜀𝛥 (𝑈𝑥 ) while the solid line is the best fit for the available data. The correlation
+coefficient, 𝑅 is close to unity which indicates a very good agreement between ANN
+prediction and target value for all the data groups (training, testing and validating data
+groups).
+While ANN predicts 𝜀𝛥 (𝑈𝑥 ), the variable of interest is 𝑈𝑥 (in particular: 𝑈𝑥 𝒇→𝜟 = 𝑈𝑥 𝜟 +
+𝜀𝛥 (𝑈𝑥 )). A comparison between the actual 𝑈𝑥 𝒇→𝜟 and the ANN prediction of 𝑈𝑥 𝒇→𝜟 is
+illustrated in Fig. 8. The vertical axis refers to the actual 𝑈𝑥 𝒇→𝜟 (𝑢𝑓 in Fig. 8). The
+horizontal axis refers to one of three variables: (1) 𝑈𝑥 𝒇→𝜟 (𝑢𝑓 ), which corresponds to the
+solid black line, referring to the perfect case when the ANN-predicted 𝑈𝑥 𝒇→𝜟 = 𝑈𝑥 𝜟 +
+𝜀𝛥 (𝑈𝑥 ) is exactly equal to the actual one: (2) 𝑈𝑥 𝜟 (𝑢𝑐 in Fig. 8) which corresponds to the
+27
+
+Journal of Fluids Engineering
+
+crossed points referring to the coarse grid results compared to fine grid results; (3) ML
+prediction (circled points), which computes 𝑈𝑥 𝒇→𝜟 given coarse grid results, 𝑈𝑥 𝜟 ,and
+ANN prediction of 𝜀𝛥 (𝑈𝑥 ). It is shown in Fig. 8 that ML predictions for both training and
+testing cases are close to the ideal case. Some circled points deviated from the “ideal”
+solid line but most ML predictions (circled points) give visible improvements over the
+coarse grid results (crossed points). Note that Fig. 8 shows a regression of “big data”.
+For instance, training flows include data from 3 grids for training: each grid has 27,000
+cells with 37 features computed at each cell.
+For scenario I, RFR is also utilized for predicting 𝜀𝛥 (𝑈𝑥 ). To optimize the number of trees
+in RFR, OOB error (explained in Section 3.2) is minimized. As illustrated in Fig. 9, the
+OOB error gets saturated at a minimum value when using 100 regression trees.
+As was shown for the ANN, Fig. 10 illustrates the comparison between RFR predictions
+and coarse grid predictions. RFR training is better than ANN without a single point
+deviating from the ideal solid line.
+
+b)
+
+Scenarios II and III: Reynolds Number Extrapolation.
+
+In the second scenario, the testing flow case gets more challenging because the testing
+case is outside the training flows’ range. Prediction of the grid-induced error using ANN
+and RFR are presented in Fig. 11 and Fig. 12. ML capability of prediction in scenario II is
+not as good as the scenario I. However, ML predictions are still better than coarse grid
+results. RFR predictions do not deviate much away from the ideal line.
+
+28
+
+Journal of Fluids Engineering
+
+In Table 3, a comparison between ANN and RFR efficiency, in different scenarios, is
+presented. The comparison is presented in terms of ML error, 𝐸𝑀𝐿 , defined by Eq. (6),
+and the computational cost. In both scenarios (I and II), RFR leads to smaller mean and
+maximum 𝐸𝑀𝐿 compared to ANN. RFR is also computationally cheaper than ANN. Thus,
+for the next scenarios, only RFR is utilized. In scenario III (extrapolation to a lower
+Reynolds number, plotted in Fig. 13), RFR still results in good predictions.
+
+c)
+
+Scenarios IV, V and VI: Grid Size Interpolation and Extrapolation.
+
+The focus of scenarios IV, V and VI is the grid size. RFR predictions for these scenarios
+are illustrated in Fig. 14, Fig. 15, and Fig. 16. RFR performs very good data training for
+the three scenarios. RFR regression for the testing case is not as good as the training
+flows’ data. RFR predictions for the testing cases (interpolation or extrapolation to a
+finer or a coarser grid) are still close to the ideal solid line. In Table 3, the mean 𝐸𝑀𝐿 is
+around 0.4 for the three scenarios while the maximum 𝐸𝑀𝐿 increases when
+extrapolation to a finer grid (𝐸𝑀𝐿 = 4) and decreases in extrapolation to a coarser grid
+(𝐸𝑀𝐿 = 2).
+
+d)
+Scenarios VII, VIII and IX: Reynolds Number and Grid Size Interpolation and
+Extrapolation.
+Scenarios VII, VIII and IX are the most challenging ones because the testing flows differ
+from the training flows in both Reynolds number and grid size. As illustrated in Fig. 17,
+Fig. 18 and Fig. 19, most RFR predictions are very close the ideal solid line. According to
+Table 3, for the scenarios VII, VIII and IX, the mean 𝐸𝑀𝐿 is 0.4 or lower, and the
+29
+
+Journal of Fluids Engineering
+
+maximum 𝐸𝑀𝐿 is not high compared to the range of 𝐸𝑀𝐿 for previous scenarios which
+are less demanding.
+
+e)
+
+Other Variables 𝑈𝑦 and 𝑈𝑧
+
+All the previous numerical experiments were performed assuming that the variable of
+interest is 𝑈𝑥 (which corresponds to the velocity direction of the cavity lid motion). In
+this section, the variables 𝑈𝑦 and 𝑈𝑧 are considered with scenarios VII and VIII (in Table
+2). Both scenarios VII and VIII were selected as they represent the more general
+scenarios (with testing flows’ grid size and Reynolds number different from the training
+flows). Note that the feature vector defined in Eq. (4) remains unchanged when the
+output of interest (𝜀𝛥 (𝑈𝑥 )) is replaced by 𝜀𝛥 (𝑈𝑦 ) and 𝜀𝛥 (𝑈𝑧 ).
+
+In Fig. 20 and Fig. 21, RFR predictions, for the velocity 𝑈𝑦 , are compared to the true
+values. In both cases, RFR prediction gives an improvement over the coarse grid
+predictions for most points. On the other hand, RFR performance is poor when
+predicting 𝑈𝑧 in Fig. 22 and Fig. 23 . RFR predictions for 𝑈𝑧 give no improvement over
+the coarse grid results.
+
+The performance of RFR in predicting 𝑈𝑦 and 𝑈𝑧 is assessed in Table 3 in terms of 𝐸𝑀𝐿 .
+For the velocity 𝑈𝑦 , 𝐸𝑀𝐿 is comparable to (a little bit higher than) 𝐸𝑀𝐿 when computing
+𝑈𝑥 . On the other hand, for the velocity 𝑈𝑧 , ML errors for the testing data are very high
+compared to 𝑈𝑥 and 𝑈𝑦 . For 𝑈𝑧 , the correlation between the fine grid velocity and the
+30
+
+Journal of Fluids Engineering
+
+coarse grid velocity is very poor. 𝑈𝑧 is very small (and less significant) compared to the
+other velocity components, so it is sensitive to any ML error.
+
+f)
+
+Data Convergence
+
+In the proposed approach, the flow of interest (testing flow) simulation grid-induced
+error is predicted given a surrogate model based on data from the available training
+flows. It is necessary to explore how this surrogate model accuracy will be impacted by
+adding or removing some data. The surrogate model should give better performance
+with more training flows. This is called “data convergence”.
+
+Four studies of data convergence are presented in Table 4 (assuming that 𝑈𝑥 is the
+variable of interest): In the first study, all the training and testing flows have the same
+grid size (∆= 1/30 ) while the Reynolds number changes. Adding more training data
+with Reynolds number closer to the testing data leads to a lower 𝐸𝑀𝐿 . In the second
+study, adding more training data with Reynolds number far from testing data, led to
+lower mean 𝐸𝑀𝐿 and little change in the maximum 𝐸𝑀𝐿 . The studies III and IV focus on
+adding data with different grid size while the Reynolds number is fixed. The studies III
+and IV led to results similar to the first and the second studies.
+
+4.3.
+
+Open Issues
+
+The case study results, presented in this paper, indicate potential of using machine
+learning algorithms for prediction of the CG- CFD error. The study also points to a range
+
+31
+
+Journal of Fluids Engineering
+
+of challenges and open issues that need to be addressed before the proposed method
+could become practical:
+▪
+
+Surrogate model validation range: The validation range of the surrogate model,
+
+developed by ML, is yet to be established. It is expected that the capability of the
+surrogate model is related to the “closeness” between the training flows and the testing
+flows. A metric for this closeness may serve as a priori assessment for the surrogate
+model prediction confidence.
+▪
+
+Flow complexity: Compared to flows in real world applications, the studied case
+
+(lid-driven cavity flow) is three-dimensional and turbulent while isothermal. Nonisothermal flow needs to be studied to assess the capability of the proposed method.
+This would require additional features (e.g. temperature gradients) plus potentially
+more sophisticated ML algorithms (e.g., deep learning [50]). Additionally, the flow
+studied here is quasi steady state while the flows in many engineering applications may
+be transient. However, in the proposed approach, a quasi-steady-state approach is
+adopted (the flow variables are corrected locally, based on local flow features), for the
+local time scale can be assumed to be much shorter than characteristic time scale of
+transient in engineering systems of interest. More generally, time derivatives terms may
+be involved as flow features to account for the transient behavior.
+▪
+
+Conservation and Galilean invariance requirements: In the case study, velocity
+
+components computed by CG-CFD are corrected separately, without enforcing
+conservation and Galilean invariance. Consequently, ML predictions are dependent on
+
+32
+
+Journal of Fluids Engineering
+
+the orientation of coordinate frame. This limits the predictive capability especially if the
+training flows and testing flows have different geometries.
+
+5.
+
+CONCLUSIONS
+
+High-resolution results from simulations or experiments produce an enormous
+amount of data (spatio-temporal distribution of field variables of interest; typical grid
+sizes may exceed billions of data points over millions of time steps). These “big data” are
+not optimally usable because, for each new scenario of interest, a sufficiently fine grid
+CFD simulation needs to be performed. This traditional approach is computationally
+overwhelming for simulation of thermal-fluid processes in many practical large-scale and
+engineering applications.
+In the present work, CG-CFD simulations are performed and the CG-CFD induced
+error is learned by a surrogate model constructed by ML algorithms. The surrogate model
+is trained given the available fine grid and coarse grid data. Both fine and coarse grid data
+were performed with the same set of conservation equations (no turbulence modeling).
+Hence, it was assumed that coarsening the grid leads to higher discretization error while
+the model discrepancy is negligible. The coarse grid-induced local error distribution was
+predicted, given features computed from the coarse grid simulations. The function that
+relates the error to the features is constructed using ML techniques: ANN and RFR. The
+proposed method was applied to analyze three-dimensional flow inside a lid driven cavity.
+The proposed approach was found to be capable of correcting the coarse grid
+results, obtaining reasonable predictions for new cases (having different Reynolds
+33
+
+Journal of Fluids Engineering
+
+number and/or being computed using different grid sizes). The velocity components of
+interest in the new cases, were corrected over the whole solution domain. The surrogate
+model performance improved when adding data that are more relevant and it is generally
+insensitive when less-relevant data are incorporated into the training.
+While sufficiently accurate predictions were obtained in both algorithms using
+ANN and RFR, the one using the RFR technique results in predictions that are more
+accurate and with higher computational efficiency. The CG-CFD method performance is
+promising, and has the potential to enable more computationally affordable simulations,
+which benefit from the available and growing high-fidelity simulation and experimental
+data. The method still needs further assessment in scenarios when the testing and the
+training flow have different geometries or different physics.
+
+ACKNOWLEDGMENT
+This work is supported through the INL Laboratory Directed Research & Development
+(LDRD) program under DOE Idaho Operations Office Contract DE-AC07-05ID14517.
+
+ABBREVIATIONS
+ALES
+
+Autonomic Sub-grid Large Eddy Simulation
+
+ANN
+
+Artificial Neural Network
+
+CFD
+
+Computational Fluid Dynamics
+
+CG
+
+Coarse Grid
+
+CG-CFD
+
+Coarse-Grid Computational Fluid Dynamics
+
+34
+
+Journal of Fluids Engineering
+
+DNS
+
+Direct Numerical Simulation
+
+HPC
+
+High Performance Computing
+
+LES
+
+Large Eddy Simulation
+
+MATLAB
+
+Matrix Laboratory
+
+ML
+
+Machine Learning
+
+MSE
+
+Mean Squared Error
+
+NS
+
+Navier Stokes
+
+OOB
+
+Out Of Bag
+
+PIML
+
+Physics Informed Machine Learning
+
+PISO
+
+Pressure Implicit Splitting of Operators
+
+RANS
+
+Reynolds Averaged Navier Stokes
+
+RFR
+
+Random Forest Regression
+
+SGS
+
+Sub-Grid Scale
+
+TKE
+
+Turbulence Kinetic Energy
+
+NOMENCLATURE
+𝐸𝑀𝐿
+
+Machine learning error metric
+
+𝐹
+
+Surrogate function
+
+𝐻
+
+cavity characteristic length (height)
+
+𝑅
+
+Correlation coefficient
+
+𝑅𝑒
+
+Reynolds number.
+
+35
+
+Journal of Fluids Engineering
+
+𝑅𝑒𝛥
+
+Computational grid cell based Reynolds number
+
+𝑈
+
+Velocity vector.
+
+𝑈𝑥 , 𝑈𝑦 , 𝑈𝑧
+
+Velocity components in the Cartesian coordinates.
+
+𝑉
+
+Volume of computational cell.
+
+X
+
+Features (inputs) in machine learning algorithm
+
+𝑋̃
+
+The normalized features
+
+𝑝
+
+Kinematic pressure.
+
+𝑡
+
+Time
+
+x, y, z
+
+Cartesian coordinates.
+
+Greek letters
+∆
+
+Grid spacing or cell length.
+
+𝜓
+
+A number or a set of numbers which characterize the flow pattern
+
+𝛽
+
+A spatially distributed multiplicative discrepancy term.
+
+𝜀𝛥 (𝜑)
+
+Grid-induced error when computing a variable 𝜑
+
+𝜀̃𝛥
+
+The normalized grid induced error
+
+𝜈
+
+Kinematic viscosity.
+
+𝜎
+
+Standard deviation
+
+𝜑
+
+Flow variable.
+
+𝜑𝒇
+
+Variable computed by fine grid.
+
+𝜑𝑓𝑡𝑟
+
+Variable computed by fine grid for the training flows
+
+36
+
+Journal of Fluids Engineering
+
+𝜑𝛥
+
+Variable computed by a grid, 𝛥.
+
+𝜑𝛥𝑡𝑟
+
+Variable computed by a grid, 𝛥 for the training flows
+
+𝜑𝛥𝑡𝑒
+
+Variable computed by a grid, 𝛥 for the testing flows
+
+𝜑𝑓→𝛥
+
+High-fidelity result mapped on a coarse-grid ∆
+
+37
+
+Journal of Fluids Engineering
+
+REFERENCES
+[1] Thorpe, S.A., 2007, An Introduction to Ocean Turbulence, Cambridge University
+Press, Cambridge, UK, Chap. 1. ISBN: 978-0-511-36626-0
+[2] Pope, S.B., 2000, Turbulent Flows, Cambridge University Press, Cambridge, UK, Chap.
+9. ISBN: 978-0-521-59886-6
+[3] Viellieber, M. and A. Class, (2015). "Coarse‐Grid‐CFD for the Thermal Hydraulic
+Investigation of Rod‐Bundles," PAMM, 15(1), 497-498.
+[4] Hanna, B. N., 2014, "Evaluation of CFD Capability for Simulation of Energetic Flow in
+Light Water Reactor Containment," MSc. Thesis,
+https://repository.lib.ncsu.edu/handle/1840.16/10153
+[5] Wang, H. and Z. Zhai, 2012. "Application of coarse-grid computational fluid dynamics
+on indoor environment modeling: Optimizing the trade-off between grid resolution and
+simulation accuracy," HVAC&R Research, 18(5), pp. 915-933.
+[6] Wang, H., Z.J. Zhai and X. Liu, 2014. "Feasibility of utilizing numerical viscosity from
+coarse grid CFD for fast turbulence modeling of indoor environments," Building
+Simulation, 7(2), pp. 155-164.
+[7] Andrews IV, A.T., P.N. Loezos and S. Sundaresan, 2005. "Coarse-grid simulation of
+gas-particle flows in vertical risers," Ind Eng Chem Res, 44(16), pp. 6022-6037.
+[8] Smagorinsky, J., 1963. "General circulation experiments with the primitive equations:
+I. The basic experiment," Mon. Weather Rev., 91(3), pp. 99-164.
+[9] Grinstein, F.F., L.G. Margolin, W.J. Rider, 2007, Implicit Large Eddy Simulation:
+Computing Turbulent Fluid Dynamics, Cambridge University Press, Cambridge, UK, Chap.
+1. ISBN: 978-1-900-36496-6
+[10] Zhou, Y. and B. Thornber, 2016, "A Comparison of Three Approaches to Compute
+the Effective Reynolds Number of the Implicit Large-Eddy Simulations," ASME J.Fluids
+Eng, 138(7), p. 070905.
+[11] Reynolds, O., 1894, "On the dynamical theory of incompressible viscous fluids and
+the determination of the criterion," Proceedings of the Royal Society of London, London,
+56, pp. 40-45.
+[12] Launder, B.E. and D.B. Spalding., 1974, "The numerical computation of turbulent
+flows," Comput. Methods Appl. Mech. Eng., 3(2), pp. 269-289.
+
+38
+
+Journal of Fluids Engineering
+
+[13] Spalart, P. and S. Allmaras, 1992, "A one-equation turbulence model for
+aerodynamic flows," 30th aerospace sciences meeting and exhibit, Seattle, WA, 439, pp.
+5-21
+[14] Lucy, L.B., 1977, "A numerical approach to the testing of the fission hypothesis,"
+The astronomical journal, 82(12), pp. 1013-1024.
+[15] King, R., P.E. Hamlington and W. Dahm, 2015, "Autonomic subgrid-scale closure for
+large eddy simulations," 53rd AIAA Aerospace Sciences Meeting, p. 1285
+[16] King, R.N., P.E. Hamlington and W.J. Dahm, 2016, "Autonomic closure for
+turbulence simulations," Physical Review E, 93(3), 031301.
+[17] Ma, M., J. Lu and G. Tryggvason, 2015, "Using statistical learning to close two-fluid
+multiphase flow equations for a simple bubbly system," Physics of Fluids (1994-present),
+27(9), 092101.
+[18] Demuth, H. and M. Beale, 1993, “Neural Network Toolbox User’s Guide,”
+https://www.mathworks.com/help/pdf_doc/nnet/nnet_ug.pdf
+[19] Parish, E.J. and K. Duraisamy, 2016, "A paradigm for data-driven predictive
+modeling using field inversion and machine learning," Journal of Computational Physics,
+305, pp. 758-774.
+[20] Wang, J., J. Wu and H. Xiao, 2017, " Wang, Jian-Xun, Jin-Long Wu, and Heng Xiao.
+"Physics-informed machine learning approach for reconstructing Reynolds stress
+modeling discrepancies based on DNS data," Physical Review Fluids, 2(3), p.034603.
+[21] Wang, J., J. Wu, J. Ling, G. Iaccarino and H. Xiao, 2017, "A Comprehensive PhysicsInformed Machine Learning Framework for Predictive Turbulence Modeling" arXiv
+preprint arXiv:1701.07102.
+[22] Ling, J. and J. Templeton, 2015, "Evaluation of machine learning algorithms for
+prediction of regions of high Reynolds averaged Navier Stokes uncertainty," Physics of
+Fluids (1994-present), 27(8), p.085103.
+[23] Wu, J., J. Wang, H. Xiao and J. Ling, 2016, "Physics-informed machine learning for
+predictive turbulence modeling: A priori assessment of prediction confidence," arXiv
+preprint arXiv:1607.04563.
+[24] De Maesschalck, R., D. Jouan-Rimbaud and D.L. Massart, 2000, "The mahalanobis
+distance" Chemometrics Intellig. Lab. Syst., 50(1), pp.1-18.
+
+39
+
+Journal of Fluids Engineering
+
+[25] Silverman, B.W., 1986, Density Estimation for Statistics and Data Analysis, CRC
+press, FL, USA, Chap. 1. ISBN: 978-0-412-24620-3
+[26] Ling, J., A. Kurzawski and J. Templeton, 2016, "Reynolds averaged turbulence
+modelling using deep neural networks with embedded invariance," J. Fluid Mech., 807,
+pp. 155-166.
+[27] Breiman, L., 2001, "Random forests," Mach. Learning, 45(1), pp. 5-32.
+[28] Jeong, S., B. Solenthaler, M. Pollefeys and M. Gross, 2015, "Data-driven fluid
+simulations using regression forests," ACM Transactions on Graphics (TOG), 34(6), p.199.
+[29] Guide, M.U., (1998). "The mathworks" Inc., Natick, MA, 5, 333.
+[30] Baker, T.J., 1997, "Mesh adaptation strategies for problems in fluid dynamics,"
+Finite Elements Anal. Des., 25(3-4), pp. 243-273.
+[31] Venditti, D.A. and D.L. Darmofal, 2000, "Adjoint error estimation and grid
+adaptation for functional outputs: Application to quasi-one-dimensional flow," Journal
+of Computational Physics, 164(1), pp. 204-227.
+[32] Nadal, E., A. Leygue, F. Chinesta, M. Beringhier, J. Ródenas and F. Fuenmayor, 2015,
+"A separated representation of an error indicator for the mesh refinement process
+under the proper generalized decomposition framework," Comput. Mech., 55(2), pp.
+251-266.
+[33] Ghia, U., K.N. Ghia and C. Shin, 1982, "High-Re solutions for incompressible flow
+using the Navier-Stokes equations and a multigrid method," Journal of computational
+physics, 48(3), pp. 387-411.
+[34] Erturk, E., 2009, "Discussions on driven cavity flow," Int. J. Numer. Methods Fluids,
+60(3), pp. 275-294.
+[35] Botella, O. and R. Peyret, 1998, "Benchmark spectral results on the lid-driven cavity
+flow," Comput. Fluids, 27(4), pp. 421-433.
+[36] Tveit, J., (2014). "A Numerical Approach to Solving Nonlinear Differential Equations
+on a Grid with Potential Applicability to Computational Fluid Dynamics" arXiv preprint
+arXiv:1409.1072.
+[37] Horton, B., Y. Song, J. Feaster and J. Bayandor, 2017, "Benchmarking of
+Computational Fluid Methodologies in Resolving Shear-Driven Flow Fields," ASME J.
+Fluids Eng., 139(11), p. 111402.
+
+40
+
+Journal of Fluids Engineering
+
+[38] Iwatsu, R., K. Ishii, T. Kawamura, K. Kuwahara and J.M. Hyun, 1989, "Numerical
+simulation of three-dimensional flow structure in a driven cavity," Fluid Dyn. Res., 5(3),
+pp. 173-189.
+[39] OpenFOAM, R., 2011, The open source CFD toolbox, The OpenFOAM Foundation
+homepage: http://openfoam.com
+[40] Moukalled, F., L. Mangani and M. Darwish, 2016, The finite volume method in
+computational fluid dynamics, Springer, Switzerland, Chap. 1. ISBN: 978-3-319-16873-9
+[41] OpenFOAM, R., (2011). "OpenFOAM programmer's guide",
+http://foam.sourceforge.net/docs/Guides-a4/ProgrammersGuide.pdf
+[42] Issa, R.I., 1986, "Solution of the implicitly discretised fluid flow equations by
+operator-splitting," Journal of computational physics, 62(1), pp. 40-65.
+[43] Hagan, M.T. and M.B. Menhaj, 1994, "Training feedforward networks with the
+Marquardt algorithm," IEEE Trans. Neural Networks, 5(6), pp. 989-993.
+[44] Marquardt, D.W., 1963, "An algorithm for least-squares estimation of nonlinear
+parameters," Journal of the society for Industrial and Applied Mathematics, 11(2), pp.
+431-441.
+[45] Breiman, L., J. Friedman, C.J. Stone, R.A. Olshen, 1984, Classification and Regression
+Trees, CRC press, FL, USA, Chap. 8. ISBN: 978-0-412-04841-8
+[46] Hastie, T., R. Tibshirani and J. Friedman, 2009, The elements of statistical learning
+2nd edition, Springer-Verlag New York, Chap. 15. ISBN: 978-0-387-84858-7
+[47] Efron, B. and R. Tibshirani, 1993, An introduction to the bootstrap, CRC press, FL,
+USA, Chap. 1. ISBN: 978-0412042317
+[48] Koseff, J. and R. Street, 1984, "The lid-driven cavity flow: a synthesis of qualitative
+and quantitative observations," ASME J.Fluids Eng, 106(12), pp. 390-398.
+[49] Bouffanais, R., M.O. Deville and E. Leriche, 2007, "Large-eddy simulation of the flow
+in a lid-driven cubical cavity," Phys. Fluids, 19(5), p. 055108.
+[50] Le Cun, Y., Y. Bengio and G. Hinton, 2015, “Deep learning,” Nature, 521(7553), pp.
+436-444.
+
+41
+
+Journal of Fluids Engineering
+
+Fig. 1. Work-flow for data generation in the CG-CFD problem.
+
+42
+
+Journal of Fluids Engineering
+
+Fig. 2. A method to predict CG-CFD error using ML algorithms.
+
+43
+
+Journal of Fluids Engineering
+
+Fig. 3. Lid driven cubic cavity. The lid velocity is parallel to 𝑥 axis.
+
+44
+
+Journal of Fluids Engineering
+
+Fig. 4. A snapshot of the velocity (𝑈𝑦 ) profile in a three-dimensional quasi steady state
+turbulent flow in a lid driven cavity. The lid is moving in 𝑥 direction. The profile is
+computed with a fine grid (left) and a coarse-grid (right). The fine grid result is mapped to
+a coarse-grid (in the middle).
+
+45
+
+Journal of Fluids Engineering
+
+Table 1. Normalization factors for different variables.
+Feature
+
+Normalization factor
+
+𝛥
+
+𝐻
+
+𝑑𝑢𝑖
+( )
+𝑑𝑥𝑗
+
+𝐻 ⁄𝑈𝑙𝑖𝑑
+
+𝑑2 𝑢𝑖
+)
+𝑑𝑥𝑗 2
+
+𝐻 2 ⁄𝑈𝑙𝑖𝑑
+
+𝜀𝛥 (𝑈𝑥 ), 𝜀𝛥 (𝑈𝑦 ), 𝜀𝛥 (𝑈𝑧 )
+
+𝑈𝑙𝑖𝑑
+
+(
+
+46
+
+Journal of Fluids Engineering
+
+Table 2. Training and testing flows. 𝑅𝑒 and 𝛥 are the Reynolds number and the grid
+spacing, respectively.
+Scenario
+
+Training flows
+
+Testing flow
+
+𝑅𝑒
+
+𝛥 (𝑚)
+
+𝑅𝑒
+
+𝛥 (𝑚)
+
+I: 𝑅𝑒 interpolation.
+
+{6000, 8000, 12000}
+
+1
+30
+
+10000
+
+1
+30
+
+II:
+𝑅𝑒
+extrapolation
+(higher 𝑅𝑒).
+
+{6000, 8000, 10000}
+
+1
+30
+
+12000
+
+1
+30
+
+III:
+𝑅𝑒
+extrapolation
+(lower 𝑅𝑒).
+
+{ 8000, 10000, 12000}
+
+1
+30
+
+6000
+
+1
+30
+
+{
+
+1 1
+, }
+40 20
+
+12000
+
+1
+30
+
+{
+
+1 1
+, }
+30 20
+
+12000
+
+1
+40
+
+{
+
+1 1
+, }
+40 30
+
+12000
+
+1
+20
+
+{
+
+1 1
+, }
+40 20
+
+10000
+
+1
+30
+
+{
+
+1 1
+, }
+30 20
+
+12000
+
+1
+40
+
+{
+
+1 1
+, }
+40 30
+
+8000
+
+1
+20
+
+IV: ∆ interpolation.
+
+12000
+
+V: ∆ extrapolation (finer
+grid).
+
+12000
+
+VI:
+∆
+extrapolation
+(coarser grid).
+
+12000
+
+∆
+
+{ 8000, 12000}
+
+VIII:
+𝑅𝑒
+and
+∆
+extrapolation (higher 𝑅𝑒
+and finer grid)
+
+{ 8000, 10000}
+
+IX: 𝑅𝑒 and ∆ extrapolation
+(lower and coarser grid).
+
+{ 10000, 12000}
+
+VII:
+𝑅𝑒
+interpolation.
+
+and
+
+47
+
+Journal of Fluids Engineering
+
+Fig. 5. Regression tree.
+
+48
+
+Journal of Fluids Engineering
+
+0
+
+Y (m)
+0.5
+
+1
+
+1
+Experiment
+0.8
+
+0.0083m + wall refinement
+0.0167m + wall refinement
+0.0167m
+
+Ux (m)
+
+0.6
+
+0.0333m
+0.4
+0.2
+0
+-0.2
+0
+
+X (m)
+0.5
+
+1
+
+0.2
+
+0.1
+
+Uy (m/s)
+
+0
+-0.1
+-0.2
+
+-0.3
+-0.4
+Fig. 6. The axial profile (𝑦 direction) for velocity, 𝑈𝑥 (top) and the axial profile (𝑥
+direction for the velocity, 𝑈𝑦 (bottom) at 𝑅𝑒 = 12000.
+
+49
+
+Journal of Fluids Engineering
+
+Fig. 7. ANN performance in scenario I (training flows). MSE vs. the number of iterations
+(epochs) (above). 𝜀𝛥 (𝑈𝑥 ) expected by ANN vs. the actual 𝜀𝛥 (𝑈𝑥 ) (below).
+50
+
+Journal of Fluids Engineering
+
+Fig. 8. Scenario I for 𝑈𝑥 (by ANN). ∆= 0.033𝑚. Training data (above) and testing data
+(below). CG: Coarse grid predictions. ML: Machine learning predictions.
+
+51
+
+Journal of Fluids Engineering
+
+Fig. 9. RFR OOB error decreases with increasing number of trees.
+
+52
+
+Journal of Fluids Engineering
+
+Fig. 10. Scenario I for 𝑈𝑥 (by RFR). ∆= 0.033𝑚. Training data (above) and testing data
+(below).
+
+53
+
+Journal of Fluids Engineering
+
+Fig. 11. Scenario II for 𝑈𝑥 (by ANN). ∆= 0.033𝑚. Training data (above) and testing data
+(below).
+
+54
+
+Journal of Fluids Engineering
+
+Fig. 12. Scenario II for 𝑈𝑥 (by RFR). ∆= 0.033𝑚. Training data (above) and testing data
+(below).
+
+55
+
+Journal of Fluids Engineering
+
+Fig. 13. Scenario III for 𝑈𝑥 (by RFR). ∆= 0.033𝑚. Training data (above) and testing data
+(below).
+
+56
+
+Journal of Fluids Engineering
+
+Fig. 14. Scenario IV for 𝑈𝑥 (by RFR). 𝑅𝑒 = 12000. Training data (above) and
+testing data (below).
+
+57
+
+Journal of Fluids Engineering
+
+Fig. 15. Scenario V for 𝑈𝑥 (by RFR). 𝑅𝑒 = 12000. Training data (above) and testing data
+(below).
+
+58
+
+Journal of Fluids Engineering
+
+Fig. 16. Scenario VI for 𝑈𝑥 (by RFR). 𝑅𝑒 = 12000. Training data (above) and testing data
+(below).
+
+59
+
+Journal of Fluids Engineering
+
+Fig. 17. Scenario VII for 𝑈𝑥 (by RFR). Training data (above) and testing data (below).
+
+60
+
+Journal of Fluids Engineering
+
+Fig. 18. Scenario VIII for 𝑈𝑥 (by RFR). Training data (above) and testing data (below).
+
+61
+
+Journal of Fluids Engineering
+
+Fig. 19. Scenario IX for 𝑈𝑥 (by RFR). Training data (above) and testing data (below).
+
+62
+
+Journal of Fluids Engineering
+
+Fig. 20. Scenario VII for Uy (by RFR). Training data (above) and testing data (below).
+
+63
+
+Journal of Fluids Engineering
+
+Fig. 21. Scenario VIII for 𝑈𝑦 (by RFR). Training data (above) and testing data (below).
+
+64
+
+Journal of Fluids Engineering
+
+Fig. 22. Scenario VII for 𝑈𝑧 (by RFR). Training data (above) and testing data (below).
+
+65
+
+Journal of Fluids Engineering
+
+Fig. 23. Scenario VIII for 𝑈𝑧 (by RFR). Training data (above) and testing data (below).
+
+66
+
+Journal of Fluids Engineering
+
+Table 3. A comparison between different scenarios in terms of ML error and
+computational expense.
+Scenario
+
+ML
+
+Training data
+
+Testing data
+
+Mean
+(𝐸𝑀𝐿 )
+
+Max
+(𝐸𝑀𝐿 )
+
+Computational
+time (minutes)
+
+Mean
+(𝐸𝑀𝐿 )
+
+Max
+(𝐸𝑀𝐿 )
+
+I
+
+ANN
+
+0.3
+
+3.5
+
+12.9
+
+0.4
+
+3.4
+
+I
+
+RFR
+
+0.06
+
+1.5
+
+11.1
+
+0.3
+
+2.8
+
+II
+
+ANN
+
+0.3
+
+7.6
+
+13
+
+0.4
+
+7
+
+II
+
+RFR
+
+0.06
+
+1
+
+11.2
+
+0.4
+
+2.7
+
+III
+
+0.07
+
+1.3
+
+11.3
+
+0.4
+
+2.9
+
+IV
+
+0.05
+
+2
+
+6.4
+
+0.3
+
+3
+
+V
+
+0.05
+
+1.1
+
+3
+
+0.4
+
+4
+
+VI
+
+0.05
+
+1.9
+
+8.2
+
+0.4
+
+2
+
+VII
+
+0.06
+
+1.5
+
+22
+
+0.3
+
+4.6
+
+VIII
+
+0.06
+
+1.2
+
+13.3
+
+0.3
+
+3.3
+
+IX
+
+0.07
+
+1.8
+
+32.3
+
+0.4
+
+2.3
+
+VII
+
+0.06
+
+2.2
+
+14.9
+
+0.3
+
+4.9
+
+VIII
+
+0.07
+
+1.9
+
+6.3
+
+0.3
+
+4.6
+
+VII
+
+0.1
+
+5.3
+
+17.2
+
+0.6
+
+10
+
+VIII
+
+0.1
+
+4.6
+
+6
+
+0.7
+
+13.1
+
+Variable of
+interest
+
+𝑈𝑥
+
+𝑈𝑦
+
+𝑈𝑧
+
+67
+
+Journal of Fluids Engineering
+
+Table 4. Data convergence study.
+#
+
+Testing flows
+
+Training flows
+
+Testing
+
+data
+
+mean 𝐸𝑀𝐿
+I
+
+𝑅𝑒 = 12000,
+𝛥 = 1/30𝑚
+
+Testing data
+maximum 𝐸𝑀𝐿
+
+𝑅𝑒 = 6000, 𝛥 = 1/30𝑚
+
+0.4
+
+3.21
+
+𝑅𝑒 = 6000, 𝛥 = 1/30𝑚
+
+0.36
+
+2.78
+
+0.35
+
+2.71
+
+𝑅𝑒 = 10000, 𝛥 = 1/30𝑚
+
+0.4
+
+2.67
+
+𝑅𝑒 = 10000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 8000, 𝛥 = 1/30𝑚
+
+0.36
+
+2.63
+
+𝑅𝑒 = 10000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 8000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 6000, 𝛥 = 1/30𝑚
+
+0.35
+
+2.71
+
+𝑅𝑒 = 12000, 𝛥 = 1/20𝑚
+
+0.5
+
+4.63
+
+𝑅𝑒 = 12000, 𝛥 = 1/20𝑚
+𝑅𝑒 = 12000, 𝛥 = 1/30𝑚
+
+0.38
+
+4
+
+𝑅𝑒 = 12000, 𝛥 = 1/30𝑚
+
+0.39
+
+3.89
+
+𝑅𝑒 = 12000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 12000, 𝛥 = 1/20𝑚
+
+0.38
+
+4
+
+𝑅𝑒 = 8000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 6000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 8000, 𝛥 = 1/30𝑚
+𝑅𝑒 = 10000, 𝛥 = 1/30𝑚
+II
+
+III
+
+IV
+
+𝑅𝑒 = 12000,
+𝛥 = 1/30𝑚
+
+𝑅𝑒 = 12000,
+𝛥 = 1/40𝑚
+
+𝑅𝑒 = 12000,
+𝛥 = 1/40𝑚
+
+68
+
+
