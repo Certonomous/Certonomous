@@ -80,6 +80,52 @@
         "x8": 12.738
       },
       "profile_scaled_mae_overall_percent": 12.609
+    },
+    "veryfine": {
+      "cells": 62400,
+      "nx": 240,
+      "ny": 260,
+      "time_written": 6000,
+      "crossings_x_over_h": [
+        0.0465,
+        0.2022,
+        0.4831,
+        0.5887,
+        0.7089,
+        0.8065,
+        0.9022,
+        0.9079,
+        1.0101,
+        1.1189,
+        2.6139,
+        2.8577,
+        2.9382,
+        3.0844,
+        3.2613,
+        3.6103,
+        3.7386,
+        4.4034,
+        5.4354,
+        6.6695,
+        7.4725,
+        8.9597
+      ],
+      "separation_x_over_h": 0.0465,
+      "reattachment_x_over_h": 0.2022,
+      "utau_max": 0.151672,
+      "utau_mean": 0.03657,
+      "profile_scaled_mae_percent": {
+        "x0": 15.984,
+        "x1": 22.933,
+        "x2": 15.835,
+        "x3": 38.515,
+        "x4": 13.913,
+        "x5": 16.458,
+        "x6": 40.096,
+        "x7": 33.406,
+        "x8": 34.87
+      },
+      "profile_scaled_mae_overall_percent": 25.779
     }
   },
   "shipped_mesh_anchor": {

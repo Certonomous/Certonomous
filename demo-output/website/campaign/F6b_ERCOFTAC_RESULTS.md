@@ -39,7 +39,7 @@ polynomial and all four pass the lab's mesh standard.
 | coarse | 84 × 92 | 7,728 | 39.61 | 0.300 | 15.40 | 6.09 / 1.84 | 3,418 | **yes** | 1.71 |
 | medium | 120 × 130 | 15,600 | 39.66 | 0.226 | 15.29 | 4.45 / 1.30 | 5,997 | **yes** | 6.79 |
 | fine | 170 × 184 | 31,280 | 39.78 | 0.159 | 15.27 | 3.15 / 0.92 | 6,000 (cap) | **no — see §3** | 16.06 |
-| veryfine | 240 × 260 | 62,400 | 39.80 | 0.118 | 15.31 | — | 6,000 (cap) | **no — and not falling, see §4** | see §4 |
+| veryfine | 240 × 260 | 62,400 | 39.80 | 0.118 | 15.31 | n/a (no steady field) | 6,000 (cap) | **no — and not falling, see §4** | 25.57 |
 | *shipped `PH_Breuer`, for comparison* | *120 × 130* | *15,600* | *39.08* | *0.227* | *20.47* | *4.44 / 1.30* | *10,000* | *n/a* | *(2026-07-29 record)* |
 
 Every gate in `docs/standards/MESH_STANDARD.md` is cleared with room: max
@@ -108,14 +108,22 @@ sentence. That defect is now closed by construction rather than by argument.
 
 ## 4. The finest rung does not converge, and this is the finding
 
-The veryfine rung (62,400 cells, y⁺ max ≈ 2.2) **does not converge and its
-residuals are not falling**. Sampled every 500 iterations, the initial
-residuals sit on a plateau: Ux 1.17e-2, 1.27e-2, 1.73e-2, 1.07e-2, 7.3e-3,
-6.5e-3, 8.1e-3, 1.06e-2 and p 0.214, 0.259, 0.287, 0.218, 0.211, 0.220, 0.297,
-0.227 at iterations 500 through 4,000. That is not slow convergence. It is a
-limit cycle, four thousand iterations wide, at a residual level three to four
-orders of magnitude above where the three coarser rungs were at the same
-iteration count.
+The veryfine rung (62,400 cells) ran the full 6,000-iteration cap and **does
+not converge; its residuals never fall at all**. Sampled every thousand
+iterations, the initial residual on Ux reads 1.27e-2, 1.07e-2, 6.5e-3, 1.06e-2,
+7.8e-3, 8.8e-3 and on pressure 0.259, 0.218, 0.220, 0.227, 0.265, 0.234, at
+iterations 1,000 through 6,000. That is not slow convergence. It is a limit
+cycle six thousand iterations wide, at a residual level three to four decades
+above where the three coarser rungs stood at the same iteration count, and
+`SIMPLE solution converged` appears zero times.
+
+**Its wall field is visibly not a steady separation bubble, and that is the
+cleanest statement of the failure.** The three converged rungs each produce
+exactly two skin-friction sign changes on the lower wall — one separation, one
+reattachment. This rung produces **twenty-two**, scattered from x/h = 0.047 to
+8.96, and its station-profile MAE against the LES field doubles to 25.8% from
+the 12.5–12.8% the other three agree on. No separation or reattachment number
+is quoted from this rung anywhere in this record, because it does not have one.
 
 **This was not predicted and no gate covers it.** Recording it as a result
 rather than as a failed run, with the honest statement of what is and is not
@@ -188,10 +196,14 @@ prediction file is left unedited**, as it says it will be.
 | coarse gate rung | 1.71 |
 | medium gate rung | 6.79 |
 | fine gate rung | 16.06 |
-| veryfine rung (non-converging, §4) | see `gate_result.json` |
+| veryfine rung (non-converging, §4) | 25.57 |
 | meshing, checkMesh, analysis | under 1 |
+| **total** | **≈ 50.2** |
 
-Against an 80 core-min budget. Every solve ran serially on one core rather than
+Against an 80 core-min budget. Roughly half of that total bought the rung that
+did not converge, which is the honest accounting: the anomaly in §4 is the most
+expensive single line here and it is also the one this record would be weakest
+without. Every solve ran serially on one core rather than
 on the 2-core cap: at this case size the parallel overhead is real and, more
 importantly, serial sampling removes the processor-boundary line-sampling
 artifact the 2026-07-29 record had to document (12.51% serial against 12.95% on

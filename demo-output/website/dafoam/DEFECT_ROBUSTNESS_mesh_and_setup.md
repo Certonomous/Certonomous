@@ -346,6 +346,38 @@ real decomposition effect survives at ~0.8% (still 10x under the established
 8.95%), and the record says the limiter is the catastrophic carrier but not the
 whole story. Cost ~3 core-min.
 
+## AMENDMENT 4 — R2b, registered 2026-08-05 BEFORE it ran (commit history is the witness)
+
+R2 as registered could not be scored: on the refined mesh (19,619 cells) in the
+established configuration, the np=4-scotch **adjoint does not converge at all**
+— GMRES exhausts `gmresMaxIters` 1000 at KSP residual 1.7188e-02 with
+`PetscConvergedReason: -3`, `solve_linear` raises, and the arm produces no
+analytic to compare against its FD (`a4med_np4scotch.log`, rc=1, 33.60
+core-min charged). Buying convergence by raising the iteration cap would cost
+more than the remaining budget allows, and the registered FD-resolvability
+guard was written for a gray-band error, not for a missing gradient.
+
+R2b substitutes the refinement question the remaining budget CAN answer, and it
+is the more informative one given R6: **`a4med_divlinupw_unlim`** — the same
+19,619-cell refined mesh, np=4 scotch, with the single R6b edit (`div(phi,U)`
+`bounded Gauss linearUpwind default`, limiter branch removed, gradient
+correction retained).
+
+**Registered prediction R2b: with the limiter branch removed the refined-mesh
+adjoint CONVERGES (`PetscConvergedReason` 2, well inside 1000 iterations) and
+its analytic agrees with its own FD to <= 2%.** Reasoning: on the coarse mesh
+the same edit took the KSP from 590 iterations to 41 and the error from 8.95%
+to 0.849%; if the limiter branch is the carrier of both the operator error and
+the conditioning collapse, refinement should not resurrect either. Named
+alternative, registered: if the refined arm ALSO fails to converge, the
+conditioning collapse is a property of the refined mesh rather than of the
+limiter, and the refinement axis stays unmeasured — reported as such, not
+papered over. If it converges but reads >= 2%, the defect grows under
+refinement even without the limiter, which would say the limiter is not the
+whole carrier at finer resolution.
+
+Cost ~20 core-min; with R4 this closes the session inside the 150 cap.
+
 ---
 
 # RESULTS
