@@ -278,7 +278,40 @@ orderings differ) — giving FD 1.914932450456e-06 vs analytic 1.915989822176e-0
 a 21,000-component volume-field DV (a different DV type from every prior arm) is
 decomposition-invariant 2-4 orders below the registered thresholds.
 
-## Sail (N8): RESULT_PLACEHOLDER
+## Sail (N8): the third snappy case is decomposition-INVARIANT — prediction HELD, and it un-confounds "snappy" from the defect
+
+Arm `sail_simple3x1x1` (`run_sail_arm.sh`, rc=0, wall 2336 s, np=3 confirmed
+in-log: `Decomposition method simple [3]`, patched IDWarp stamped), against the
+np=3 scotch record `W5-regrade/sail_patched_checktotals.log`:
+
+| row | analytic (simple 3x1x1, new) | FD (own run) | rel. err | scotch record analytic | shift |
+|---|---|---|---|---|---|
+| CD/shape | 2.042422e-01 | 2.042325e-01 | **0.0047%** | 2.042422e-01 | **identical at all 7 printed digits** |
+| CL/shape | 1.936962e+00 | 1.936973e+00 | 0.00057% | (record: agrees at print precision) | — |
+| CD/patchV | 4.531390e-03 | 4.530862e-03 | 0.012% | — | — |
+| CL/patchV | 3.627940e-02 | 3.627178e-02 | 0.021% | — | — |
+
+Per-component: this arm's own FD [0.3113638, 0.4159579, ...] agrees with the
+record's analytic components to ~1e-04 relative — every clause of the registered
+prediction (<= 0.5% vs own FD; <= 1% component shift) is met with 2-4 orders of
+margin. **N8 HELD.** The adjoint converged in 63 GMRES iterations (record: 60-62),
+and the sail's tight primal (1e-8 residual, vs A4's 1e-4) is why the analytic can
+be print-identical across decompositions.
+
+Two things this row buys the campaign: (1) the published sail PASS is not
+decomposition-lucky — the gate item's last unchecked graded gradient is now
+checked; (2) combined with N9, it un-confounds the mesh-family axis: **a
+snappyHexMesh case 23x A4's size, under the same scotch-vs-simple contrast, is
+clean at the 1e-05 level — and it is exactly the snappy case that carries
+`inletOutlet` instead of `freestreamVelocity`.** The mesh family was never the
+trigger; the BC (necessary) times the cut geometry (modulating) is what the
+matrix's seven cases jointly support.
+
+Cost note, stated: this arm cost 77.87 core-min against a ~40 plan — the
+overshoot is the Jacobian-coloring stage (~950 s of the 2336), which the record
+run never showed because its coloring was cached on disk and a NEW decomposition
+can never reuse a coloring cache. Future decomposition checks on >50k-cell cases
+should price coloring explicitly.
 
 ## N9 — which of the two confounded edits gates the defect off? (registered 2026-08-05 ~15:40Z, BEFORE the arm ran)
 
@@ -351,7 +384,13 @@ sufficiency remains bracketed only within A4/a35 (np=2 clean, np=3/np=4 scotch
 dirty on A4; scotch operator dirty but gradient-mild on a35).
 
 
-## Scored predictions, all eight
+## Scored predictions, all nine
+
+Final tally: four HELD (N1, N6, N8, N9), four NOT HELD (N2, and the a35 cluster
+N3/N4/N5 whose common cause is the case breaking the FD instrument), one split
+(N7: magnitude clause missed at 5.45x vs the named 10x; localization and control
+clauses held). Every score is against the registered wording; none was reworded
+after measurement.
 
 | arm | registered prediction | outcome |
 |---|---|---|
@@ -362,7 +401,7 @@ dirty on A4; scotch operator dirty but gradient-mild on a35).
 | N5 | Ahmed-35 simple411 <= 1% | **NOT HELD** (same unresolved-FD cause; analytic shift -3.13%) |
 | N6 | CBFS decomposition-invariant (<= 1% cells, <= 2% norm) | **HELD** (1.5e-05-1.6e-04; norm 1.1e-04) |
 | N7 | cross-residual >= 10x \|\|b\|\|; interface-momentum localization; np=1 floor control | threshold clause **NOT HELD** (5.45x — same order, under the named 10x); localization and control clauses **HELD** |
-| N8 | sail decomposition-invariant (<= 0.5% vs own FD; <= 1% analytic shift) | N8_SCORE_PLACEHOLDER |
+| N8 | sail decomposition-invariant (<= 0.5% vs own FD; <= 1% analytic shift) | **HELD** (0.0047% vs own FD; analytic identical to scotch record at all 7 printed digits) |
 | N9 | separating control: the freestreamVelocity BC (not the patchV input registration) gates the defect — analytic lands in the 2.40-2.43e-01 class | **HELD** (2.4062e-01; patchV registration measured inert at printed precision) |
 
 ## What the pattern now supports about the trigger condition
@@ -398,7 +437,12 @@ dirty on A4; scotch operator dirty but gradient-mild on a35).
    entry added by this session).
 5. **The clean side is broad**: conformal meshes are decomposition-invariant at the
    1e-04 level across four cases (A1, A2, A5, and now CBFS — the latter with a
-   21,000-component field DV, a different DV type), SAIL_CLAUSE_PLACEHOLDER
+   21,000-component field DV, a different DV type), and the sail (N8) — which is NOT
+   conformal but snappy-refined at 63,920 cells — is also invariant, with the
+   CD/shape analytic identical to every printed digit across scotch vs simple at
+   np=3 and FD columns at both decompositions (0.0246% record / 0.0047% new).
+   With N9, that isolates the defect's necessary ingredient as the
+   `freestreamVelocity` BC rather than the snappy mesh family.
 6. **The gating ingredient is the `freestreamVelocity` farfield BC (N9,
    supervisor-directed fold-in).** With `inletOutlet` in its place and nothing
    else changed, A4's scotch-np=4 analytic lands in the clean class (2.4062e-01
@@ -447,8 +491,8 @@ mesh or a tighter primal before FD means anything.
 | cbfs_fd_s471_p (N6) | run_model FD | 136 s | 4.53 |
 | cbfs_fd_s471_m (N6) | run_model FD | 137 s | 4.57 |
 | a4_inletOutlet_scotch (N9) | w4_totals (analytic only) | 137 s | 4.57 |
-| sail_simple311 (N8) | check_totals | SAIL_WALL | SAIL_CM |
-| **total** | | | **TOTAL_CM of 180 budgeted (120 + 60)** |
+| sail_simple3x1x1 (N8) | check_totals | 2336 s | 77.87 |
+| **total** | | | ****159.91** of 180 budgeted (120 + 60)** |
 
 Accounting notes, stated rather than hidden: (1) the 2026-08-04 session was killed
 by a session limit at ~18:53Z mid-campaign — **no solver core-minutes were lost**:
@@ -476,7 +520,9 @@ by a conformal-versus-refined pair on the same geometry or reported as untested.
   wrong-operator conviction supplied by the cross-residual instrument instead).
 - CBFS: invariant (analytic at both decompositions; FD at both decompositions:
   0.085% record / 0.055% this session).
-- Sail: SAIL_GATE_PLACEHOLDER
+- Sail: invariant (analytic print-identical across
+  decompositions; own analytic and FD columns at BOTH decompositions: 0.0246%
+  scotch record, 0.0047% simple 3x1x1 this session).
 - Hanging-node hypothesis: the same-geometry conformal-vs-refined pair was NOT run
   — reported as untested in that form, and the hypothesis is refuted on stronger,
   direct evidence (localization at `cellLevel` 0 on both defective cases;
@@ -487,7 +533,8 @@ reproduces under a second decomposition, or the disagreement is reported as the
 finding."* Survey of every graded/published DAFoam gradient in the lab: A1 —
 invariant (record); A2 — invariant (record); A4 — NOT, reported, it IS the finding
 (record); A5 — invariant (record); CBFS beta — invariant (this session); NACA0015
-sail coarse — SAIL_GATE2_PLACEHOLDER; naca4412 and sail_medium/sail_full — **no
+sail coarse — **invariant, measured this session (N8)**
+— the last unchecked graded gradient, now checked; naca4412 and sail_medium/sail_full — **no
 graded gradient exists to check** (adjoints blocked/incomplete per
 `DAFOAM_CASE_STATUS.md`), so there is nothing this gate applies to. One boundary
 case noted honestly: the NASA-hump beta-field gradient from the pc-unblock session

@@ -3505,14 +3505,15 @@
     "dafoam/PROOF.md section 25",
     "dafoam/DAFOAM_CASE_STATUS.md"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-08-02T08:18:06Z",
    "decided_at": "2026-08-04T18:34:38Z",
    "decision_note": "approved under Katie's blanket approval 2026-08-04",
    "claim": {
     "claimed_by": "investigation-agent w4-defect-reach (W4 session)",
     "claimed_at": "2026-08-04T18:34:38Z",
-    "note": "Under work this session. Breadth campaign: case matrix (CBFS, second snappy-refined case, A4 np=2/np=3 from record, deliberate refinement-cutting simple decomposition) with pre-registered predictions, FD-3-component protocol, cross-residual instrument where a defect appears. Do not start this item elsewhere."
+    "note": "Released on completion, 2026-08-05. Survey complete: every graded/published DAFoam gradient is now either measured decomposition-invariant (A1, A2, A5 record; CBFS beta and NACA0015 sail coarse this session, the sail print-identical across np=3 scotch vs simple) or its disagreement is the reported finding (A4; new ungraded Ahmed-35 at 3.1% span with unresolvable FD); naca4412/sail_medium/sail_full have no graded gradient to check; the NASA-hump beta gradient is recorded as the one unchecked entry (expectation from CBFS, not measurement). Costs ledgered jointly with the reach item, 159.91 of 180 combined. Record: demo-output/website/dafoam/DEFECT_REACH_decomposition_cases.md.",
+    "released_at": "2026-08-05T15:56:54Z"
    }
   },
   {
@@ -4046,14 +4047,15 @@
     "dafoam/DAFOAM_CASE_STATUS.md A4",
     "dafoam/R5_ADJOINT_CONDITIONING.md section 4"
    ],
-   "status": "approved",
+   "status": "done",
    "created_at": "2026-08-02T07:04:00Z",
    "decided_at": "2026-08-04T18:34:38Z",
    "decision_note": "approved under Katie's blanket approval 2026-08-04",
    "claim": {
     "claimed_by": "investigation-agent w4-defect-reach (W4 session)",
     "claimed_at": "2026-08-04T18:34:38Z",
-    "note": "Under work this session. Breadth campaign: case matrix (CBFS, second snappy-refined case, A4 np=2/np=3 from record, deliberate refinement-cutting simple decomposition) with pre-registered predictions, FD-3-component protocol, cross-residual instrument where a defect appears. Do not start this item elsewhere."
+    "note": "Released on completion, 2026-08-05. Nine-arm pre-registered breadth matrix: the wrong-parallel-operator defect reproduces on a second snappy case (Ahmed-35 cross-residual 5.45x ||b||, state-controlled, interface-localized) while CBFS (field DVs) and the sail (third snappy case, 63,920 cells) are decomposition-invariant with FD at both decompositions; the N9 separating control shows the freestreamVelocity farfield BC gates the defect (patchV input registration inert), a perfect 7-case correlate. Gate met clause by clause (conformal-vs-refined same-geometry pair reported as untested in that form; hypothesis refuted on direct localization evidence). 159.91 of 180 core-min combined. Full record: demo-output/website/dafoam/DEFECT_REACH_decomposition_cases.md.",
+    "released_at": "2026-08-05T15:56:54Z"
    }
   },
   {
