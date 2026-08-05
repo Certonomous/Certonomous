@@ -338,6 +338,14 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   hills (+72% reattachment, mesh-verified, pre-registered FAIL) — the epistemic-uncertainty showcase now has two legs;
   the model-form batch quantifies whether the model family brackets truth on both.
 
+- METRIC CENSUS + EVAL BATTERY LANDED (03814b0a/fa4191f5/3a05ca70): 10 papers read in full, 24 metrics with verbatim
+  citations, 20 figures in the literature's own conventions. Sharpest reveal: our duct correction gets the AMOUNT right
+  (69–112% intensity) and the STRUCTURE wrong (one vortex vs the true counter-rotating pair) — invisible to every scalar.
+  Honestly against us: loses to raw RANS on one of its own training cases; relocates error where the metric weighs least.
+  Census also caught the benchmark's preprint stating no metric limitation and rank-1's reference DOI resolving to an
+  unrelated paper. Topology check routed into the QCR validation gate. Hump-class battery gap documented (needs a
+  validated wall-gradient operator), queued.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
