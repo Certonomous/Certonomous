@@ -88,6 +88,21 @@ decomposition-lucky and the defect reaches a fourth case at gradient level.
 Scoring discipline: each prediction is scored HELD / NOT HELD / NOT SCORED exactly
 as written above; no post-hoc bands.
 
+**N8, added 2026-08-05 BEFORE its arm ran** (all N1-N7 arms were complete by then;
+this arm was identified while surveying the graded-gradient inventory for the gate
+item): **naca0015_sail_coarse** — the lab's THIRD snappyHexMesh case (63,920 cells,
+`constant/polyMesh` carries `cellLevel`), whose published PASS gradient was measured
+at np=3 `scotch` and carries its own FD column there (stock 4.52%; patched-IDWarp
+corroboration 0.0246%, CD/shape analytic 2.042422e-01 vs FD 2.042324e-01,
+`W5-regrade/sail_patched_checktotals.log`). New arm: np=3 `simple` 3x1x1, patched
+IDWarp, `check_totals`. Pre-registered prediction: **decomposition-invariant at the
+graded configuration's own scale — CD/shape rel. err vs its own FD <= 0.5%, and the
+analytic within 1% of the scotch-arm analytic 2.042422e-01.** Reasoning: scotch at
+np=3 on this snappy mesh already matches its own FD to 2.5e-04, so whatever operator
+error exists there contracts to nothing against this objective; slabs are the benign
+cut family on every case measured so far. A large simple-arm error would REFUTE
+"planar slabs are benign" on a bigger snappy case.
+
 ## Budget
 
 180 core-min combined across the two items. Planned: N1+N2 ~12, Ahmed-35 mesh ~1,
