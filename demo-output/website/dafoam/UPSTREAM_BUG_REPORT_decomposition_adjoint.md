@@ -386,50 +386,31 @@ papers'-protocol arm `/home/ubuntu/certonomous-runs/W4-a4-du0check/`
   the cleanest; the 4-cut scotch arms are the worst), on measurement at every
   new arm.
 
-## Addendum 2026-08-05 — the defect reproduces on a second case, and its gradient-level cost is contraction-dependent (still NOT FILED)
+### Added 2026-08-05, N9 separating control (still NOT FILED): the gating ingredient is the `freestreamVelocity` farfield BC
 
-Per the breadth matrix `DEFECT_REACH_decomposition_cases.md` (docket
-`w4-does-the-decomposition-defect-reach-other-cases` /
-`w4-decomposition-invariance-is-a-gate`, pre-registered predictions committed
-before the runs):
+The papers-protocol session found the defect ABSENT (shape row 0.019%) in a
+configuration carrying two confounded edits (farfield U `freestreamVelocity` ->
+`inletOutlet`, plus a registered `patchVelocity` input). The separating control
+(`W4-defect-reach/a4_inletOutlet_scotch.log`, pre-registered prediction in
+`DEFECT_REACH_decomposition_cases.md` N9, commit aa51ca08): same mesh, same
+np=4 scotch partition, `inletOutlet` farfield, **no patchVelocity input
+anywhere** — analytic dCD/dshape **2.4062e-01**, the no-defect class, identical
+at printed precision to the patchV-registered arm's 2.4062e-01. So:
 
-- **Second reproducer, operator level.** On a second snappyHexMesh-refined
-  geometry (Ahmed 35-degree slant, 2,777 cells, meshed by the same recipe), the
-  same cross-residual instrument convicts the scotch-np=4 parallel operator
-  again: the converged scotch psi mapped to serial ordering leaves
-  **||A^T psi + b|| = 5.45x ||b||** under the np=1 operator (np=1 control floor
-  3.98e-04), unchanged to six digits when the serial operator is linearized at
-  the scotch arm's own mapped state. Localization reproduces the signature on
-  different rows: **z-momentum rows of partition-interface cells** (13 of top 15
-  on the interface, all cellLevel 0; the three dominant cells each touch one
-  foreign rank through one x-normal processor face). On the original case it was
-  x-momentum rows on y-normal faces: the affected momentum component tracks the
-  cut, consistent with the reverse-AD halo-exchange candidate surface.
-- **The gradient-level cost of the same operator defect spans 0.00054% to 8.95%
-  and is NOT monotone in the operator residual.** On the new case, scotch's
-  operator residual (5.45x ||b||) is 16x larger than simple-4x1x1's (0.33x), yet
-  its total-gradient shift vs np=1 is 2.3x smaller (1.36% vs 3.14%). What the
-  wrong operator costs the gradient depends on how its error contracts with the
-  objective's adjoint direction — so **a passing dot-product or FD check at one
-  decomposition certifies that contraction only, not the operator**. This
-  strengthens the "why existing verification did not catch this" section.
-- **Negative-control breadth.** A third conformal case (CBFS, 21,000 cells,
-  21,000-component volume-field DV — a different DV type) is
-  decomposition-invariant at **1.1e-04** in gradient norm (scotch vs simple at
-  np=4), with an FD anchor at BOTH decompositions (0.085% / 0.055% at the same
-  serial cell). Conformal meshes: A1, A2, A5, CBFS all clean.
-- **Cut-geometry facts sharpened on the original case:** planar slabs of all
-  three orientations are benign-to-moderate (x 0.00054%, y 0.47%, z 0.52%); two
-  orthogonal planar cuts with a 4-rank corner line read 1.40%; scotch's jagged
-  cuts read 6.05% (np=3) and 8.95% (np=4) while scotch at np=2 is clean (0.26%).
-  Partition cuts through refinement interfaces remain anticorrelated with the
-  defect (the cleanest arms cut 48-68 refinement-interface faces, the dirtiest
-  cut 0-4).
-- **One caveat for a maintainer reproducing on separated cases:** on the
-  35-degree Ahmed the FD protocol itself does not resolve (step sweep h=1e-3 ->
-  1e-2 monotone from 1.78e-01 to 2.47e-01, no plateau, primal CD tail drift
-  ~6e-4 relative), so on such cases the discriminating instruments are the
-  cross-residual and decomposition-invariance, not check_totals.
+- the `patchVelocity` input registration is **inert** for the `dRdW^T` operator;
+- the **`freestreamVelocity` BC in the recorded `updateStateBoundaryConditions`
+  is necessary for the defect**: swap it for `inletOutlet` and the same scotch
+  cut produces a clean gradient;
+- across all seven cases measured in this lab, the correlate is perfect: the
+  two cases with the operator defect (both Ahmed variants) carry
+  `freestreamVelocity`; the five decomposition-clean cases (A1, A2, A5, CBFS,
+  sail) carry `inletOutlet`/`fixedValue` U BCs — verified from each case's
+  0.orig/U;
+- the deposit site is unchanged (interior partition-interface momentum rows —
+  on the 35-degree case the three dominant cross-residual cells are NOT
+  farfield-adjacent), so the BC is an ingredient of the recorded computation
+  whose reverse goes wrong at processor cuts, not the location of the error.
 
-Evidence: `/home/ubuntu/certonomous-runs/W4-defect-reach/` (per-arm dirs, logs,
-`ledger.txt`, drivers, dumps), `DEFECT_REACH_decomposition_cases.md`.
+For the instrumented-rebuild proposal this narrows the first place to look to
+the reverse-mode treatment of the freestream-family (flux-switching mixed) BC
+update inside the global tape, in combination with processor-patch updates.

@@ -1651,3 +1651,31 @@ wrong; (2) an assembled-matrix diff across decompositions does NOT discriminate 
 it is polluted by the reconverged linearization state and the assembly's own FD
 error (the clean arm's matrix diff here was LARGER than the broken arm's), so diff
 operator ACTIONS on mapped vectors, not operator entries.
+
+## L-36. A gradient check certifies a contraction, not an operator — operator corruption and gradient damage do not scale together
+
+**What happened.** The decomposition-defect breadth matrix (2026-08-04/05, docket
+`w4-does-the-decomposition-defect-reach-other-cases`) put the cross-residual
+instrument beside the gradient error on two snappy-refined cases and found them
+decoupled in both directions. On the Ahmed-35 case, the scotch-np=4 operator's
+cross-residual against the serial operator is 5.45x ||b|| — 16x larger than
+simple-4x1x1's 0.33x — yet scotch's analytic-gradient shift vs np=1 is 2.3x
+SMALLER (1.36% vs 3.14%). On A4, simple-4x1x1 carries a measurable 0.094x ||b||
+operator residual and a gradient error of 0.00054%; scotch carries 329x and pays
+8.95%. Same subsystem defect everywhere; what the gradient pays is decided by how
+the operator's error contracts against the objective's own adjoint direction —
+which no instrument in the standard verification chain measures.
+
+**The rule.** Passing `check_totals` (or any dot-product/FD test) at one
+configuration certifies the CONTRACTION of the operator error with that one
+objective's adjoint direction — approximately zero information about the operator
+itself, and none about other objectives, other DVs, or other decompositions of
+the same case. The converse also holds: a large measured operator defect does not
+imply the published gradients are badly wrong. So (1) never extrapolate a passing
+gradient check across configurations — the check is one inner product; (2) when
+an operator-level defect is suspected, measure the operator (L-35's mat-vec
+cross-check), not more gradients; (3) when a case's FD will not resolve (the
+35-degree Ahmed's step sweep never plateaus because the separated-flow primal's
+objective drift sits at the FD's numerator scale), decomposition-invariance of
+the analytic is the remaining usable instrument — and its passing still certifies
+only that case's contraction.
