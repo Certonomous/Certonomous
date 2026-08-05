@@ -58,7 +58,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] F3 supersonic exact-theory suite [all three gates PASS].
 - [x] F5a unsteady cylinder Strouhal [shipped, 0.7% at Re=100].
 - [ ] F5b pitching NACA 0012 dynamic stall vs AGARD CT (docket `w1-f5b-pitching-naca0012`, approved, 120 core-min).
-- [ ] F5c backward-facing step reattachment vs Driver-Seegmiller. OOM + gradient blowups.
+- [ ] F5c backward-facing step reattachment vs Driver-Seegmiller. ~~OOM + gradient blowups~~ — **that premise is refuted in our own
+      record** and should not be carried forward: the 2026-07-30 addendum in `campaign/F5bc_unsteady_statistics.md` found no OOM-kill,
+      no solver abort and no commit anywhere connecting F5c to memory, traced the description to a probable conflation with B3 CBFS
+      (which genuinely does hit the adjoint memory wall), and a 20,000-iteration control held RSS flat at ~79 MB on a 30 GB box.
+      What is actually open: a steady RANS solve that converges numerically at every rung and lands 4–12× wrong on reattachment,
+      wandering non-monotonically with iteration count and algorithm. Diagnosis plan: `campaign/NEXT_CASES_SLATE.md` item 3.
+      [premise corrected 2026-08-05]
 - [x] F4 hypersonic blunt body vs Billig standoff (+ SWBLI stretch).
 - [-] F6a NASA hump [gate reached]. Pass with *; overpredicted bubble length (k-SST diffusion suspect).
       1. Try different models. 2. If confirmed → epistemic-uncertainty showcase. Also `w1-hump-challenge-conditions` (approved, 60).
@@ -270,6 +276,29 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   the DAFoam side now reduces to Katie's two filing decisions.
 - S1 INVERSION LIVE (snapshot 16:15Z): 7 accepted iterations, J 1.0→0.99908 monotone, |g| down 30x, beta in [0.74, 1.15],
   eval-1 control bit-exact vs W4; 165/600 core-min. Agent owns completion.
+
+### 2026-08-05 (evening) — third fleet death survived, and the defect gets a scheme
+- INCIDENT 3: weekly usage limit killed all ten agents ~17:20Z; credits restored 17:27Z; all ten resumed from transcript.
+  Detached solves ran straight through it again (model-form cells, MC samples). Three deaths, zero scientific state lost —
+  the pre-register-before-compute rule is what makes that true, and it is now being codified as an OPS charter section.
+- DEFECT ROBUSTNESS, the day's sharpest result (671f40bb): the numerics-formality arm was NOT a formality. Switching
+  convection `linearUpwind limited` → `bounded Gauss upwind` (same mesh, same scotch cut) drops the error 8.95% → **0.228%**,
+  with the adjoint converging in 68 Krylov iterations against the record's 590. The registered rule fired: the defect is
+  scheme-specific and the mechanism question REOPENS. Two one-knob arms registered to separate convection from gradient.
+- SUPERVISOR HYPOTHESIS (relayed, under test): all three of this lab's DAFoam-family defects may be ONE class —
+  **a branch recorded in a differentiated path**. The limiter in `linearUpwind limited` is a branch; `freestreamVelocity`
+  (necessary per the reach matrix) is a flux-direction branch; L-29's IDWarp degenerate-rotation guard was a branch.
+  Sharpest test registered: is UNLIMITED second-order (`Gauss linear`, no limiter) clean or dirty under scotch?
+  If only the limited scheme is dirty, the mechanism is named at the level upstream can act on — and the report is
+  reframed from "the parallel transposed-Jacobian is wrong" to the exact construct whose taping breaks.
+  **The upstream report does NOT get filed until this resolves.**
+- METHOD PRIORITY REVIEW (d84b649f): our closure method was NOT copied — but Hanna et al. 2017/2019 (coarse-grid error
+  surrogate) is a mandatory citation we never carried, and two of our own compressions overclaim (Ling & Templeton
+  *identify* uncertain regions; they control no correction). Eight owed citations tabulated; repairs in flight;
+  13 countable negatives support the gate-to-physics-baseline combination as genuinely novel.
+- S1 CBFS INVERSION: pre-registered NEGATIVE result — optimizer plateaued at J≈0.99908 (0.09%), under its own bar,
+  despite an FD-verified gradient and monotone descent. Diagnosis in progress; the production-vs-destruction term
+  mismatch is the leading suspect, which would make the destruction-term patch the real unblocker.
 
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
