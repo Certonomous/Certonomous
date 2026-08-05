@@ -73,7 +73,9 @@ this year extracts, from LES data on the CBFS mesh, both the eddy-viscosity-form
 part of the model error and `bijDelta`, the residual anisotropy that no eddy
 viscosity of any magnitude can represent. Propagating the correction with and
 without `bijDelta` measures **Dow's absorption fraction on our own case, with
-our own machinery, at about 34 core-min**, and it does so independently of
+our own machinery, at about 34 core-min** — two propagations at the 15 to 16
+core-min the regression rung measured for this case at 15,000 iterations under
+load — and it does so independently of
 whether any inversion ever converges. If the eddy-viscosity-form part alone
 absorbs most of the CBFS velocity error, Dow's premise holds here and the beta
 parameterization is the thing standing between us and it. If it does not, then
