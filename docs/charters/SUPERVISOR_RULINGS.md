@@ -204,3 +204,15 @@ The reason to adopt rather than wait: every regrade since 2026-08-01 already
 follows this convention implicitly, and two supervisor sweeps (rotation patch,
 A4 decomposition) verified regrades produced under it. A convention that is
 already load-bearing and already audited is worse unstated than stated.
+
+### R7 correction, 2026-08-05: the fold never considered the pending case
+
+R7 folded settled-window scatter into the numerical channel. For a pending
+study with no measured discretization band, that fold promoted the settle
+scatter alone to the channel value, and `quantified: True` was stamped on a
+channel whose dominant contribution was unmeasured — exactly the invention of
+certainty the verification charter forbids. Found by a failing test the ruling
+never ran; fixed in `4925fafb` by keeping the measured figure on the page as a
+note while the channel stays unquantified. The ruling's principle stands for
+completed studies; its blind spot is recorded here because a ruling that
+creates a truthfulness defect owes the record the correction in its own file.
