@@ -153,7 +153,16 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
 - [x] Standards docs: MESH_STANDARD, MONITOR_STANDARD (v1.3 incl. S12 unsettled-stop, landing 2026-08-04), INNOVATION_STANDARD.
 
 ## 4I. Uncertainty quantification line (NEW 2026-08-05, Katie's directive: every result ships with a band — fast)
-- [ ] Dow (MIT) structural-uncertainty thesis + companion papers: fetch, deep-read, implementation notes. [dispatched 2026-08-05]
+- [x] Dow (MIT) structural-uncertainty reading: SM thesis + AIAA 2011-1762 READ IN FULL (no Dow PhD on this line exists —
+      bounds the program); 2011-3865 unobtainable (4 routes logged, filed to access list); DO scoped and DECLINED with a
+      falsifier (our propagation has no time in it). Headline: Dow's nu_t-discrepancy parameterization is strictly richer
+      than our beta-on-production — where the SST limiter binds, nu_t has NO omega-dependence, the leading suspect for the
+      S1 plateau (zero-compute mask test routed to the S1 close-out). Bonus: verification script found the thesis's own
+      headline column mislabels its formula (norm vs energy, up to 20.8 points). 3 proposals filed (absorption fraction
+      34cm; statistical step 0cm; band validation ~160cm). (`W2_DOW_STRUCTURAL_UQ_PROGRAM.md`, 7a4aae9c)
+      → NEW ITEM (from this cross-off): **Run the Dow program's first two rungs** — absorption fraction on CBFS
+      (does eddy-viscosity form absorb 70–92% of model error on our case, as Dow found on his?) + the statistical step
+      with the limiter/null-space diagnosis.
 - [ ] UQ propagation ladder on a validated cheap case: Monte Carlo coefficient sampling → non-intrusive polynomial chaos
       (feeds `r2-closure-coefficient-uncertainty`, approved 60) → surrogate/GP over coefficient space → dynamically-orthogonal /
       ROM-type propagation (scoped honestly; intrusive DO documented before attempted). [dispatched 2026-08-05]
