@@ -254,6 +254,13 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   displayed coefficient (16%→17% at next rebuild, same measurement). Certificate truthfulness fix 4925fafb; R7 correction
   filed in SUPERVISOR_RULINGS (3640debd).
 
+- DAFOAM CASE FILE FILING-READY (4a49ab43): reach-matrix sweep CONFIRMED 6/6 with the two confounds named and stated in
+  the report's own voice (defect side = n=1 mesh family; freestreamVelocity anti-correlated with patchV — N9's within-case
+  swap breaks both and carries the causal weight); 27pp companion PDF recompiled with the trigger addendum. Everything on
+  the DAFoam side now reduces to Katie's two filing decisions.
+- S1 INVERSION LIVE (snapshot 16:15Z): 7 accepted iterations, J 1.0→0.99908 monotone, |g| down 30x, beta in [0.74, 1.15],
+  eval-1 control bit-exact vs W4; 165/600 core-min. Agent owns completion.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
