@@ -1605,7 +1605,23 @@ def certificate_channels(*, settle_2sigma: float, window: int, velocity: float,
         settle_note = (f"• Iterative convergence: ±{settle_2sigma:.2g} on the "
                        f"drag coefficient, the spread of the coefficient over "
                        f"its settled window of {window} iterations.")
-        if numerical_val is None:
+        if numerical_val is None and lookup.get("pending"):
+            # A PENDING STUDY STATES ITS STATUS AND INVENTS NOTHING. The
+            # grid-refinement study for this setup is still being measured,
+            # so the discretization component — the other and usually larger
+            # numerical error source — has no number yet. Promoting the
+            # settle scatter alone to the channel value would stamp
+            # "quantified" on a channel whose dominant contribution is
+            # unmeasured, which counts a pending component as zero: exactly
+            # what the charter forbids. The measured figure stays on the
+            # page (removing a number for the look of it is forbidden too),
+            # but it rides the note as one named contribution, not as the
+            # channel's band, until the study lands.
+            numerical_note = (
+                numerical_note + " " + settle_note
+                + " • The discretization component is still being measured, "
+                  "so no channel band is quoted from this figure alone.")
+        elif numerical_val is None:
             numerical_val = float(settle_2sigma)
             numerical_note = numerical_note + " " + settle_note
         else:

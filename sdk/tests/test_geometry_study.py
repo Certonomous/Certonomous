@@ -437,12 +437,18 @@ class ChannelNoteTests(unittest.TestCase):
                          "No input uncertainty was assumed for this problem.")
         self.assertEqual(gs.INPUT_ASSUMED_NOTE, inp["note"])
 
-    def test_numerical_channel_is_three_clean_bullets(self):
+    def test_numerical_channel_is_five_clean_bullets(self):
+        # Three ladder bullets, then ruling R7 (2026-08-01): the settled-
+        # window scatter is iterative convergence noise, a numerical
+        # quantity, so it rides this channel as a fourth bullet and the
+        # fifth names the quadrature combination.
         num = self._channels(self.SETTLED)["channels"][1]
-        self.assertEqual(num["note"].count("•"), 3)
+        self.assertEqual(num["note"].count("•"), 5)
         self.assertIn("14,714, 66,316, 353,578 cells", num["note"])
         self.assertIn("Observed order 1.94", num["note"])
         self.assertIn("±0.0019", num["note"])
+        self.assertIn("Iterative convergence: ±0.001", num["note"])
+        self.assertIn("in quadrature", num["note"])
         # Generic register (owner rule, 2026-07-24): the certificate never
         # states a method by name; transcript citations stay in the
         # transcript, never in a channel note.

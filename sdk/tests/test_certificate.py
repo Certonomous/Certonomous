@@ -156,7 +156,11 @@ class GeometryStudyCertificateTests(unittest.TestCase):
 
     def test_three_channels_on_a_geometry_study_certificate(self):
         from workflows.geometry_study import certificate_channels
-        lookup = {"numerical": {"band_abs": 0.00303,
+        # The record shape a conclusive ladder carries since the safe-read
+        # rule (W3, 2026-08-01): `conclusive` is stated, not implied by the
+        # method string, or `reportable_band` treats the band as a fallback.
+        lookup = {"numerical": {"band_abs": 0.00303, "observed_order": 2.10,
+                                "conclusive": True,
                                 "method": "3-mesh ladder (r = 1.22), observed "
                                           "order p = 2.10; GCI band, Fs = 1.25"},
                   "model": None, "pending": False,
@@ -173,14 +177,20 @@ class GeometryStudyCertificateTests(unittest.TestCase):
         self.assertFalse(inp["quantified"])
         self.assertIsNone(inp["value"])
         self.assertTrue(num["quantified"])
-        self.assertEqual(num["value"], 0.00303)
+        # Ruling R7 (2026-08-01): the settled-window scatter is iterative
+        # convergence noise, a numerical quantity, and it rides this channel
+        # beside the discretization band, combined in quadrature:
+        # sqrt(0.00303^2 + 0.0026^2) = 0.00399.
+        self.assertEqual(num["value"], 0.00399)
         self.assertIn("Grid-refinement study", num["note"])
+        self.assertIn("Iterative convergence", num["note"])
+        self.assertIn("in quadrature", num["note"])
         self.assertFalse(mod["quantified"])
         self.assertIn("k-omega SST", mod["note"])
         _, text = self._render(channels=channels)
         self.assertTrue(text.startswith("%PDF"))
         for token in ("input", "numerical", "model", "not quantified",
-                      "0.00303"):
+                      "0.00399"):
             self.assertIn(token, text)
         # Render rails: internal study slugs and tool names never reach the page.
         self.assertNotIn("uq-b52", text)
