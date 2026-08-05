@@ -225,4 +225,199 @@ third named ingredient and the upstream report must be rewritten around it.
 Cost: ~6 core-min each; both inside the 150 cap with the R2/R3b/R4 spine
 planned above.
 
+## AMENDMENT 2 — R5, the operator-vs-contraction test, registered 2026-08-05 BEFORE its arms ran (supervisor-directed after the R3a result; commit history is the witness)
+
+Both levers that clean this defect — the `freestreamVelocity` -> `inletOutlet`
+BC swap (N9) and the `linearUpwind` -> `upwind` convection swap (R3a1) — have
+so far been measured **only at gradient level**. L-36 is the standing warning
+that a clean `check_totals` certifies a contraction, not an operator. The
+decisive question is therefore: under each lever, does the **operator** error
+collapse, or does the operator stay wrong while the objective's adjoint
+direction stops seeing it?
+
+Instrument: the discriminators session's own scripts, unmodified
+(`W4-a4-discriminators/runScript_w4.py` tasks `w4_dump` / `w4_crossres`;
+`build_maps.py` re-pathed only). Sign convention as amended there: the
+instrument computes `Atpsi - b` for the system `A^T psi = -b`, so own-operator
+lines print the degenerate `ratio=2.000000e+00` and the reported cross ratios
+are the offline correction `res + 2b` from the dumped vectors. Map validated
+before use by the script's own checks (duplicated processor-face phi copies at
+machine zero; mapped primal states at reconvergence noise).
+
+- **R5a (scheme lever)**: `upw_d_np1`, `upw_d_np4scotch` (`w4_dump`), then
+  `upw_d_crossres` (`w4_crossres`, np=1) — A4 coarse with **only**
+  `div(phi,U)` `bounded Gauss upwind` (the R3a1 edit), established
+  `freestreamVelocity` BC, patched IDWarp.
+- **R5b (BC lever)**: `io_d_np1`, `io_d_np4scotch`, `io_d_crossres` — A4 coarse
+  with **only** the N9 `inletOutlet` farfield block (copied byte-wise from the
+  N9 arm's `0.orig`), established `linearUpwind` schemes.
+
+Reference values on record for the established configuration (same instrument,
+same case, same np=4 scotch cut): cross-residual **329x ||b||**, np=1 control
+floor **1.1e-04**.
+
+**Registered prediction R5: BOTH levers collapse the operator error, not just
+the contraction — R5a and R5b each read a cross-residual ratio <= 5x ||b||
+(against the established 329x), with their np=1 controls at the ~1e-03-or-below
+floor.** Reasoning: for the scheme lever, `linearUpwind limited` is the only
+term in this residual that evaluates a cell gradient of U and applies it as a
+face correction, so its forward evaluation needs a halo exchange of neighbour
+values and its reverse needs the transpose of that exchange — remove the term
+and the suspect coupling leaves the tape entirely; for the BC lever, N9's
+mechanism reasoning put the defect in the recorded
+`updateStateBoundaryConditions`, which is likewise removed from the tape by the
+swap. **Named alternative, registered as the loud one:** if either lever leaves
+the cross-residual >= 50x ||b|| while its gradient is clean, then that lever
+does NOT fix the operator — it only rotates the objective's adjoint direction
+away from the corrupted subspace, exactly L-36's failure mode, the operator is
+still wrong for every other objective and DV on that case, and **the upstream
+report's framing must change from "these configurations are safe" to "these
+configurations hide it."** Intermediate 5-50x: reported as measured, scored NOT
+HELD, with the partial-collapse reading stated.
+
+Cost: ~13 core-min per lever (two dumps + one serial crossres each).
+
+## AMENDMENT 3 — R6, the BRANCH hypothesis, registered 2026-08-05 BEFORE its arms ran (supervisor-directed; commit history is the witness)
+
+Supervisor's cross-finding hypothesis, stated as given: **every defect this lab
+has found in this toolchain is one class — a BRANCH recorded in a
+differentiated path, whose selection is not correctly captured or not
+consistent across processor boundaries.** The three instances: a slope limiter
+(min/max selection over a stencil that reaches halo cells); `freestreamVelocity`
+(inletOutlet-family logic switching on the sign of the face flux); and L-29's
+IDWarp degenerate-rotation GUARD, differentiated to a hard zero.
+
+**What the arms already on record answer, before spending anything** (checked,
+per the instruction not to buy what is already bought):
+
+- **Neither branch source alone suffices; each is necessary.** R3a1 keeps the
+  `freestreamVelocity` branch and removes the limiter branch -> CLEAN
+  (0.041%). N9 keeps the limiter branch (`linearUpwind limited` untouched) and
+  removes the freestream branch -> CLEAN (2.4062e-01, the no-defect class).
+  Same mesh, same np=4 scotch cut in both. So the defect requires BOTH recorded
+  branches present; removing either one is sufficient to clean the gradient.
+  That is a conjunction, and it is exactly what the branch hypothesis predicts
+  if the damage needs a branch-carrying BC update AND a branch-carrying stencil
+  operation to interact across the same processor faces.
+
+**What is NOT yet separated, and what R6 buys.** R3a1 removed the limiter by
+dropping to `bounded Gauss upwind` — which removes the limiter branch AND the
+second-order gradient-correction term AND drops the scheme to first order.
+Three edits in one word. Two arms separate them:
+
+- **R6a** (`a4knob_divlinear`, the supervisor's proposed test):
+  `div(phi,U)` -> `bounded Gauss linear` — second order, no gradient
+  correction, **no limiter branch**.
+- **R6b** (`a4knob_divlinupw_unlim`, the sharper test): `div(phi,U)`
+  `bounded Gauss linearUpwind limited` -> `bounded Gauss linearUpwind
+  default`. One word. Same scheme family, same order, the same
+  gradient-correction term still evaluated and still needing a halo
+  exchange — **the ONLY thing removed is the limiter branch**, because
+  `default` names A4's unlimited `Gauss linear` gradScheme where `limited`
+  names `cellLimited Gauss linear 1`.
+
+**Registered prediction R6: the branch hypothesis holds — R6b is CLEAN (rel.
+err vs its own FD <= 1%) and R6a is CLEAN (<= 1%).** R6b is the load-bearing
+clause: it keeps the gradient-correction halo exchange and removes only the
+min/max selection. **Named alternative, registered as the loud one: if R6b is
+DIRTY (>= 4%) while R3a1 was clean, the limiter branch is NOT the carrier — the
+second-order gradient-correction TERM is, branch or no branch, and the
+supervisor's unifying hypothesis is REFUTED for this defect and must be
+reported as refuted.** Intermediate 1-4%: scored NOT HELD, reported as partial.
+A DIRTY R6a with a CLEAN R6b would say the scheme's order matters
+independently, which would also weaken the hypothesis; that combination is
+named here so it cannot be re-read favourably afterwards.
+
+Cost: ~7 core-min each.
+
+---
+
+# RESULTS
+
+## R1 — the mirror of N9: the defect does NOT follow the BC to a different mesh family. Prediction NOT HELD; the named alternative obtains
+
+Both arms staged by `run_a1fs_arm.sh` (the edits asserted in-script; the driver
+aborts if any pattern is missing, and `grep -c patchVelocity` on the edited
+runScript prints 0 in both driver logs). Patched IDWarp stamped in-log; the
+np=4 arm's log reads `Decomposition method scotch [4]`.
+
+| A1 + `freestreamVelocity` arm | CD/shape analytic | FD (own run) | rel. err | baseline CD |
+|---|---|---|---|---|
+| np=1 (`a1fs_np1.log`) | 6.433596e-02 | 6.432657e-02 | **4.2823e-04 (0.043%)** | 0.02198243 |
+| np=4 scotch (`a1fs_np4scotch.log`) | 6.433595e-02 | 6.432654e-02 | **4.2792e-04 (0.043%)** | 0.02197816 |
+
+- Clause (i) of the prediction **HELD** (np=1 control 0.043% <= 0.5%).
+- Clause (ii) — the headline — **NOT HELD, and not marginally**: the np=4
+  scotch analytic differs from the np=1 analytic by **1.55e-07 relative**
+  (per-component over the 8 shape DVs: max 1.16e-05, median 6.4e-07), the two
+  FD columns by 4.7e-07, and the CL/shape rows are identical to every printed
+  digit (4.983140e+00 both, rel. err 1.83e-04 both). Baseline CD is invariant
+  to 1.9e-04. Nothing moved.
+- The registered named alternative therefore obtains, verbatim: **"the trigger
+  needs a third ingredient beyond BC x scotch-cut (mesh family / cut
+  topology), the n=1-family confound SURVIVES on the defect side, and the
+  upstream report must say so."**
+- The obvious escape — "A1's scotch cut is too benign to excite anything" — was
+  closed at zero solver cost with the reach campaign's own `analyze_cuts.py`
+  (unmodified) on this arm's `cellProcAddressing`: A1's np=4 scotch cut is
+  **131 internal faces, of which 120 are oblique** (no axis-aligned normal to
+  0.999) — a maximally jagged, mixed-orientation cut, the cut family the
+  reach matrix identified as the catastrophic one. A4's own np=4 scotch cut,
+  measured by the same script, is 328 faces (x 143 / y 7 / z 159 / oblique 19).
+  A1's cut is jagged and the defect still does not appear.
+- The BC transplant did land: baseline CD moved 0.52% from the record
+  `inletOutlet`+patchV configuration (0.02198243 vs 0.02209812) — the same
+  order as the 0.44% CD0 shift N9 measured going the other way on A4, so the
+  case really is running the freestream-family BC, and running it cleanly.
+
+**What R1 costs the trigger claim.** `freestreamVelocity` is now measured
+**necessary but NOT sufficient**: installed on a clean case, with a jagged
+scotch cut at the same rank count, it produces no defect at all. Every
+defective measurement in this lab still lives on one 2,777-cell Ahmed
+background mesh family. The reach sweep's n=1-family caveat is not repaired by
+this session — it is **confirmed**, by the sharpest available test.
+
+## R3a — the setup-robustness arm that was supposed to be a formality: the defect is SCHEME-GATED. Prediction NOT HELD, decision rule fired
+
+`a4knob_schemes.log`, A4 coarse, np=4 scotch (`Decomposition method scotch
+[4]`), `div(phi,U)` `bounded Gauss upwind` + `gradSchemes default cellLimited
+Gauss linear 1`, everything else byte-identical to the established arm:
+
+| arm | CD/shape analytic | FD (own run) | rel. err | CD0 | adjoint KSP |
+|---|---|---|---|---|---|
+| established (record) | 2.2086e-01 | 2.4258e-01 | **8.95%** | 0.1529749 | 590 iters, reason 2 |
+| R3a schemes | 3.0977e-01 | 3.0906e-01 | **0.228%** | 0.1854378 | **68 iters**, reason 2 |
+
+**Registered prediction (>= 4%) NOT HELD; the registered decision rule
+("<= 1% ... REOPENS the mechanism question, reported loudly") FIRED.** The
+discretization change is not small — CD0 rises 21% and the true gradient moves
+from the 2.4e-01 class to the 3.1e-01 class — but the invariant under test is
+each arm's analytic against its OWN FD in its OWN run, and by that invariant
+the same mesh and the same scotch partition go from catastrophically wrong to
+clean. The adjoint's conditioning collapses too: 68 Krylov iterations against
+590.
+
+Two knobs moved together here, so R3a alone convicts neither; the separating
+arms R3a1/R3a2 were registered (commit above) before either ran.
+
+## R3c — Krylov restart: the arm does not produce a wrong answer, it produces NO answer. Prediction NOT HELD (by stall, not by shift)
+
+`a4knob_restart60.log`, `"gmresRestart": 60` added to `adjEqnOption`
+(everything else identical), np=4 scotch: GMRES stagnates at KSP residual
+**2.5079e-02** and is still there at `gmresMaxIters` 1000 (2.507994e-02 at
+iteration 900, 2.507895e-02 at 1000 — five digits of no progress over the last
+100), so `solve_linear` raises `AnalysisError: Adjoint solution failed!` and
+the arm exits rc=1 with no analytic to score.
+
+**Registered prediction NOT HELD** (no analytic produced). The honest reading,
+stated rather than spun: this is **not** a case of the converged answer moving
+under a linear-algebra setting — the record's 1e-10 `gmresRelTol` arm already
+showed the converged answer is tolerance-independent, and nothing here
+contradicts it. What restart-60 shows is that the defective configuration's
+adjoint operator is hard enough that a restarted GMRES stagnates completely
+where the restart-free solve took 590 iterations — beside R3a's 68-iteration
+solve on the clean-scheme configuration, the conditioning tracks the defect.
+Recorded as a measured outcome of the registered arm, not reinterpreted into a
+pass.
+
 ---
