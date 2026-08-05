@@ -241,6 +241,10 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   240/agent-day, 480/fleet-day, approved caps override). LaTeX closure report SHIPPED: 24pp compiled PDF, 0249c6e9.
   Follow-up dispatched: pre-existing certificate truthfulness bug (pending study claims quantified: True).
 
+- BOTH LATEX REPORTS SHIPPED (Katie's ask): closure campaign 24pp (0249c6e9) + DAFoam defect case 27pp (d7d87a05),
+  both compiled clean, every number sourced, hedges preserved. They are the durable companions to the two unfiled
+  upstream reports and the submission draft.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
