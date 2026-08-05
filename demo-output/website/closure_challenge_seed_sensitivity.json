@@ -1,0 +1,161 @@
+{
+  "generated_at": "2026-08-04T18:55:18.245409+00:00",
+  "purpose": "G1 of the methods audit: seed sensitivity of the round-1 PH model, measured test-blind on the 4 PH validation cases and as a no-truth prediction-spread bound at the 3 served test cases' evaluation points.",
+  "pre_registration": {
+    "file": "demo-output/website/closure_challenge_stability_physicality_audit.md",
+    "committed_before_first_run": "73fa6a33",
+    "material_if_overall_equivalent_spread_geq": 0.0003,
+    "material_if_any_single_case_geq": 0.003
+  },
+  "mechanism": {
+    "sklearn_version": "1.9.0",
+    "n_train_cells": 327600,
+    "binning_subsample_threshold": 200000,
+    "seed_is_live_because": "n_train_cells > subsample threshold, so bin edges are drawn from a random 200k-row subsample per seed"
+  },
+  "protocol": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "frozen": "21 PH training cases, 7 features, HGB hyperparameters (max_iter=300, max_depth=6, lr=0.05, l2=1.0), venv",
+    "scoring_calls_made": 0,
+    "guard": "raising stubs re-armed and verified before any pipeline work (same mechanism as export_closure_submission_csvs.py)",
+    "ground_truth_reads": "21 PH train + 4 PH validation cases only"
+  },
+  "seed0_reproduction": {
+    "validation_pooled_matches_round1_record": true,
+    "recorded": 0.0876,
+    "measured": 0.0876,
+    "max_abs_diff_vs_shipped_round4_csvs": {
+      "alpha_15_13929_4048": 4.828870636686133e-10,
+      "alpha_15_13929_2024": 4.996352220842937e-10,
+      "NASA_2DWMH": 4.993815139187063e-09
+    }
+  },
+  "per_seed": {
+    "0": {
+      "validation_pooled_scaled_mae": 0.0876016814163632,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.07723089989532798,
+        "alpha_05_10071_2024": 0.08581810977914801,
+        "alpha_15_7929_4048": 0.04625552013209707,
+        "alpha_15_7929_2024": 0.13095692556634886
+      },
+      "train_mae_pooled_delta_vs_target": 0.042254211007311554,
+      "fit_seconds": 8.2
+    },
+    "1": {
+      "validation_pooled_scaled_mae": 0.08751996023254201,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.0767051393598668,
+        "alpha_05_10071_2024": 0.08577347181232711,
+        "alpha_15_7929_4048": 0.04643015127664372,
+        "alpha_15_7929_2024": 0.13097421041109916
+      },
+      "train_mae_pooled_delta_vs_target": 0.0423255226079592,
+      "fit_seconds": 8.3
+    },
+    "2": {
+      "validation_pooled_scaled_mae": 0.08741081214374088,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.0771233265222324,
+        "alpha_05_10071_2024": 0.08578974953952288,
+        "alpha_15_7929_4048": 0.04606829916665683,
+        "alpha_15_7929_2024": 0.13054124624147084
+      },
+      "train_mae_pooled_delta_vs_target": 0.042264071499105785,
+      "fit_seconds": 8.4
+    },
+    "3": {
+      "validation_pooled_scaled_mae": 0.08732755311869869,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.07732046975262985,
+        "alpha_05_10071_2024": 0.08501168347612016,
+        "alpha_15_7929_4048": 0.04634966860869088,
+        "alpha_15_7929_2024": 0.13061794468920201
+      },
+      "train_mae_pooled_delta_vs_target": 0.042136990423816426,
+      "fit_seconds": 8.4
+    },
+    "4": {
+      "validation_pooled_scaled_mae": 0.08750498436413481,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.07702217294922709,
+        "alpha_05_10071_2024": 0.08624997230884879,
+        "alpha_15_7929_4048": 0.04610101524932697,
+        "alpha_15_7929_2024": 0.13048175249305577
+      },
+      "train_mae_pooled_delta_vs_target": 0.04229022833462871,
+      "fit_seconds": 8.2
+    },
+    "5": {
+      "validation_pooled_scaled_mae": 0.08760393871115889,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.07696582502031604,
+        "alpha_05_10071_2024": 0.08582501738576823,
+        "alpha_15_7929_4048": 0.046453902512587734,
+        "alpha_15_7929_2024": 0.1310019444872191
+      },
+      "train_mae_pooled_delta_vs_target": 0.042235005923363864,
+      "fit_seconds": 8.6
+    },
+    "6": {
+      "validation_pooled_scaled_mae": 0.08734314182692088,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.077444688404741,
+        "alpha_05_10071_2024": 0.08504043630758491,
+        "alpha_15_7929_4048": 0.045885522701458216,
+        "alpha_15_7929_2024": 0.13092675224421113
+      },
+      "train_mae_pooled_delta_vs_target": 0.04217077259661098,
+      "fit_seconds": 49.5
+    },
+    "7": {
+      "validation_pooled_scaled_mae": 0.08754772270554916,
+      "validation_per_case": {
+        "alpha_05_10071_4048": 0.07755177503366681,
+        "alpha_05_10071_2024": 0.08536574536312508,
+        "alpha_15_7929_4048": 0.04634369455873836,
+        "alpha_15_7929_2024": 0.13088361097498216
+      },
+      "train_mae_pooled_delta_vs_target": 0.04215209130352001,
+      "fit_seconds": 58.0
+    }
+  },
+  "spreads": {
+    "validation_per_case_range": {
+      "alpha_05_10071_4048": 0.0008466356738000141,
+      "alpha_05_10071_2024": 0.0012382888327286262,
+      "alpha_15_7929_4048": 0.0005683798111295185,
+      "alpha_15_7929_2024": 0.0005201919941633382
+    },
+    "validation_pooled_range": 0.000276385592460196,
+    "proxy_range_for_served_predictions": {
+      "alpha_15_13929_4048": 0.0005683798111295185,
+      "alpha_15_13929_2024": 0.0005201919941633382,
+      "NASA_2DWMH": null
+    },
+    "test_side_prediction_spread_bound": {
+      "alpha_15_13929_4048": 0.0084637748873718,
+      "alpha_15_13929_2024": 0.009887724729563792,
+      "NASA_2DWMH": 0.0010014752141926156
+    },
+    "overall_equivalent_S_proxy": 0.00026125587743568407,
+    "overall_equivalent_S_bound": 0.002419121853891026
+  },
+  "verdict": {
+    "material": true,
+    "gap_to_rank2": 0.003
+  },
+  "compute": {
+    "elapsed_seconds": 181.2,
+    "cores_cap": 2
+  }
+}

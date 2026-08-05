@@ -114,8 +114,68 @@ reported per case, quantified, with no editorializing either way.**
 
 ## 1. G1 — results
 
-*(To be filled by the seed-sensitivity run; nothing below this line existed
-when §0 was committed.)*
+Run 2026-08-04 (`sdk/scripts/closure_ph_seed_sensitivity.py`, 181 s on the
+2-core cap, zero scoring calls, guard verified armed; raw numbers in
+`closure_challenge_seed_sensitivity.json`). A session-limit kill and power
+cycle interrupted the *write-up*, not the run — the JSON on disk is the
+completed 2026-08-04 run; results were transcribed 2026-08-05.
+
+**Validity anchors, checked before anything else was believed**:
+
+- Seed 0 reproduces the entry of record: validation pooled scaled MAE
+  0.0876 = the round-1 recorded 0.0876, and its regenerated eval-point
+  predictions match the shipped round-4 CSVs to write precision
+  (max abs diff 4.8e-10 / 5.0e-10 / 5.0e-9 on the three served cases —
+  identical to the round-3 manifest's own roundtrip errors). The seed-0
+  member of this ensemble IS the model behind the entry, so the spread
+  below is about the entry, not a lookalike.
+
+**Measured spread across 8 seeds** (all else frozen):
+
+| Quantity | Value |
+|---|---|
+| Validation per-case range (max−min): `alpha_05_10071_4048` | 0.00085 |
+| `alpha_05_10071_2024` | 0.00124 |
+| `alpha_15_7929_4048` (proxy for served `alpha_15_13929_4048`) | **0.00057** |
+| `alpha_15_7929_2024` (proxy for served `alpha_15_13929_2024`) | **0.00052** |
+| Validation pooled range | 0.00028 |
+| Test-side bound `B`: `alpha_15_13929_4048` | **0.00846** |
+| `alpha_15_13929_2024` | **0.00989** |
+| `NASA_2DWMH` | 0.00100 |
+| Overall-equivalent `S_proxy` | **0.000261** |
+| Overall-equivalent `S_bound` | **0.002419** |
+
+**Verdict against the pre-registered lines (§0.1): MATERIAL.** Two of the
+three trigger conditions fire: `S_bound` = 0.0024 ≥ 0.0003, and the
+single-case bounds `B` on both served `alpha_15` cases (0.0085, 0.0099)
+exceed the 0.0030 whole-gap line.
+
+**The honest reading, both halves**:
+
+- Where truth is legitimately available (the 4 held-out validation cases),
+  the *metric* is stable under seed: per-case spread 0.0005–0.0012,
+  overall-equivalent ~0.00026 — a tenth of the 0.0030 gap to rank 2. That
+  is the best available *estimate* of the seed effect on the score, and it
+  is small. The entry gains a measured (no longer assumed) stability
+  property: **estimated one-seed uncertainty on the overall ≈ 0.0003**.
+- But the only *truth-free* statement about the test predictions
+  themselves is the spread bound, and it is not small: across seeds the
+  trees move the pointwise test predictions by 0.85–0.99% of the velocity
+  scale on the two served `alpha_15` cases — per-case movement up to ~3×
+  the entire gap *if it failed to cancel against the truth*. On validation
+  cases that pointwise wobble demonstrably cancels to the ~0.0006 level in
+  the metric; expecting the same on test is reasonable but is an
+  extrapolation, not a measurement, and the pre-registered rule counts the
+  bound. Tightening the bound would cost a scoring call and is not taken.
+- **Consequence, executed as pre-registered**: the leaderboard-gap language
+  now carries the seed qualifier in `CLOSURE_CHALLENGE_STATUS.md` §0e and
+  `closure.html`. Any future retraining of the PH model should either fix
+  the seed and cite this record, or average seeds and re-pre-register.
+- Scope check: the duct model behind predictions 5–7 is bin-deterministic
+  (41,971 < 200,000 cells; `random_state` inert by construction — audit
+  §1.2 column (c)), and the two declined cases are the organisers' own
+  solve; the five non-PH-model predictions therefore contribute zero seed
+  variance, which is why the /8 overall-equivalent conversion is exact.
 
 ## 2. G2 — results
 

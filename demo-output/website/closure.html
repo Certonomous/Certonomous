@@ -192,6 +192,14 @@ nowhere at all.</p>
 <tr><td>Standard uncorrected simulation</td><td class="n">0.1036</td><td><span class="tag t-flat">beaten overall by all five — but not on every case</span></td></tr>
 </tbody></table></div>
 
+<p class="lede"><b>Stability note (2026-08-05):</b> the 0.0654 was trained at a single random seed, and the
+model behind three of its eight predictions is genuinely seed-dependent (327,600 training cells exceed the
+histogram binning subsample of the library used). Retrained at eight seeds without touching test truth:
+the estimated seed uncertainty on the overall is about <span class="num">0.0003</span>, but a truth-free
+bound cannot rule out movement up to <span class="num">0.0024</span> — comparable to the
+<span class="num">0.0030</span> gap to second place. The gap above should be read with that uncertainty
+attached. Evidence: <code>closure_challenge_stability_physicality_audit.md</code>.</p>
+
 <p class="lede" style="margin-top:34px">Case by case, against the best score any published entry has
 achieved on that case — and, in the fourth column, against the untouched standard simulation the
 organisers hand to every entrant. <b>Two clear leads, one lead of 0.00003, two rows where the leader is
