@@ -187,6 +187,25 @@ level only; nothing further asserted from it). A pinned mechanism here
 contradicts a published upstream claim → LITERATURE_CHARTER §6 trigger 3, a
 proposal is mandatory once A4 closes.
 
+> **Correction, 2026-08-05** (per `DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md`,
+> commit bf6ac53b — the paper has since been fetched and READ IN FULL,
+> `docs/papers/he_mader_martins_maki_aiaaj2020_dafoam_J058853`): the
+> SEARCH-EXCERPT sentence above conflates two disjoint experiments that the
+> abstract joins with an "and". The 1536 cores is Table 2, a **runtime-only**
+> scaling measurement on a 10.1M-cell structured mesh; the <0.1% is Table 3,
+> an accuracy study on a 102,912-cell mesh at an **unstated** core count
+> ("decompose", "processor" and "scotch" appear nowhere in the paper). Both
+> accuracy figures attach to the **v1 explicit-FD-Jacobian architecture**, not
+> the matrix-free reverse-AD operator A4 measured — whose only published
+> accuracy measurement is serial by design (Kenway et al., PAS 2019,
+> Conclusions: *"we run the adjoint computation only in serial in the ADODG
+> Case 3"*). So "upstream's published position is the opposite" was wrong: no
+> published claim covers the measured operator in parallel, and A4's pinned
+> mechanism **fills a hole the survey's own conclusions declare** rather than
+> contradicting a published measurement. The §6-trigger conclusion stands (the
+> proposal was and is mandatory); its trigger is better read as the
+> declared-gap/novel-report analog than as trigger-3 contradiction.
+
 ### Mechanism M1 — ASM+ILU is decomposition-dependent by construction, and ill-conditioning converts "same tolerance" into "different answer"
 
 PETSc FAQ, verbatim territory (https://petsc.org/release/faq/, READ IN FULL):

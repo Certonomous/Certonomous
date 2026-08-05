@@ -4,11 +4,43 @@
 contacted, nothing has been posted.** This document is prepared to be filed against
 `mdolab/dafoam` (v5, matrix-free/JacobianFree adjoint). **Whether it is sent is
 Katie's call, not the lab's.** No upstream report of a decomposition-dependent DAFoam
-gradient exists (issue and discussion searches recorded in
-`LIAISON_RESEARCH_adjoint_conditioning.md`, 2026-08-04, all negative), and the
-toolchain's journal paper reports average adjoint derivative error under 0.1% at up
-to 1536 cores — this report, if filed, contradicts that published claim on a
-measured case and therefore needs the evidence standard below.
+gradient exists — 63 recorded searches across 10 venues, all negative on point
+(`LIAISON_RESEARCH_adjoint_conditioning.md`, 2026-08-04, and the full novelty sweep
+`LIAISON_NOVELTY_SWEEP_decomposition_defect.md`, commit 3c74dc03: the word "scotch"
+appears in zero issues and zero discussions in the project's history). The report
+still needs the evidence standard below, because of what it claims about a shipped
+default, not because it argues with a published number:
+
+**Corrected 2026-08-05** (per `DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md`, commit
+bf6ac53b — all three method papers now READ IN FULL). An earlier revision of this
+header said the toolchain's journal paper "reports average adjoint derivative error
+under 0.1% at up to 1536 cores" and that this report, if filed, contradicts that
+published claim. That characterization was wrong twice, and is withdrawn:
+
+- **The <0.1% and the 1536 cores were never one measurement.** AIAA J 2020
+  (He, Mader, Martins, Maki, DOI 10.2514/1.J058853, READ IN FULL) joins two
+  disjoint experiments in its abstract: the 1536 cores is Table 2, a
+  runtime-only scaling measurement on a 10.1M-cell structured mesh; the <0.1%
+  is Table 3, an accuracy study on a 102,912-cell mesh at an **unstated** core
+  count. "decompose", "processor" and "scotch" appear nowhere in the paper. No
+  accuracy number at any stated core count exists in it.
+- **Both published <0.1% figures attach to the v1 explicit FD-coloring Jacobian
+  architecture** (C&F 2018 Tables 4–5; AIAA J 2020 Table 3, which explicitly
+  defers the Jacobian-free approach to "future work") — not to the matrix-free
+  reverse-AD operator this report measures. The operator family v5's
+  `calcJacTVecProduct` descends from has exactly **one** published accuracy
+  measurement, and it is serial by design (Kenway, Mader, He, Martins,
+  PAS 2019, §5.1 + Conclusions, READ IN FULL): *"We do not have scalability
+  data for the Jacobian-free (operator overloading) and the full-code AD
+  (operator overloading) options because we run the adjoint computation only
+  in serial in the ADODG Case 3 (Sec. 5.1)."*
+
+This report therefore does not contradict a published measurement; **it fills a
+hole the survey's own conclusions declare**, in a region the 2018 paper's §2.9
+flags as accuracy-critical (*"essential for accurately computing the adjoint
+derivative"* — full quote in "Why existing verification did not catch this"
+below). That strengthens the report: it no longer argues against a peer-reviewed
+number.
 
 ## Summary
 
@@ -115,9 +147,153 @@ instrumented rebuild of `libDASolver.so`.
   did, planar cuts on the same mesh did not. A test matrix that never varies the
   decomposition at fixed np cannot see it, and a wrong gradient that is *consistent
   under the tested decomposition* passes any single-decomposition dot-product test.
-- The published <0.1% multi-core verification would not catch an operator defect
-  whose magnitude depends on partition geometry if its cases/partitions sit in the
-  benign regime the lab's own conformal-mesh cases occupy.
+
+**Rewritten 2026-08-05 from the method papers read in full**
+(`DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md`, commit bf6ac53b; reading notes
+`W2_DAFOAM_CAF2018_VERIFICATION_READING.md`,
+`W2_DAFOAM_AIAAJ2020_VERIFICATION_READING.md`,
+`W2_KENWAY_PAS2019_EFFECTIVE_ADJOINT_READING.md`, all READ IN FULL). The earlier
+bullet here about "the published <0.1% multi-core verification" is superseded —
+that verification never existed as one measurement (see the header correction).
+What the papers' own protocols actually cover, line by line:
+
+- **No paper ever varies the decomposition of anything.** Decomposition is not
+  an experimental axis anywhere in the method-paper corpus — not at fixed np,
+  not across np. The two papers that verify the v1 operator in (implied)
+  parallel never state what the decomposition was (C&F 2018 §3.1; AIAA J 2020,
+  "decompose"/"processor"/"scotch" absent). A single-decomposition test cannot
+  see this defect even in principle.
+- **The operator this defect lives in was verified once, serially, on purpose.**
+  PAS 2019 §5.1: *"running the cases using one CPU core allows us to isolate
+  the impact of parallel communication on the performance"*; Conclusions: the
+  serial-only sentence quoted in the header. The matrix-free reverse-AD family
+  entered the literature with its parallel behavior explicitly outside the data.
+- **No verification anywhere in the corpus combines a refinement-interface mesh
+  with a stated graph partitioning.** The one snappy-mesh gradient check
+  (C&F 2018 Tables 4–5 — an Ahmed body, this report's geometry family:
+  dCD/du0 to −0.00049% and four FFD components averaging <0.1%) is of the v1
+  FD-assembled Jacobian at an unstated decomposition — an architecture built
+  from evaluations of the true parallel residual with halo exchanges executed
+  natively, in which a tape-recording defect cannot exist. If those runs were
+  scotch-partitioned, the result is *consistent* with our measurements: our FD
+  and primal columns are decomposition-robust too; only the v5 tape operator
+  moves.
+- **The delicate region was named by the authors themselves, for the
+  architecture that handled it.** C&F 2018 §2.9, verbatim: *"when we perturb
+  the velocity of a cell immediately next to an interprocessor boundary patch,
+  we need to interpolate the perturbed velocity onto this boundary patch. This
+  is done by calling U.correctBoundaryConditions() in OpenFOAM. ... Note that
+  updating the boundary condition is essential for accurately computing the
+  adjoint derivative."* In v1 that coupling is handled by *executing* the
+  update per perturbation; in v5 the same coupling must be *recorded on the
+  reverse tape*, and the cross-residual above localizes the defect to
+  interface-cell rows of exactly that recorded coupling. It is not a tape
+  caveat — the tape did not exist in 2018 — so this stays a bug report, not a
+  known-limitation report; but the defect sits in a subsystem whose
+  verification the papers explicitly scoped out, in a region their own earlier
+  work flagged as accuracy-critical.
+- **Tape-tool lineage:** even the one serial accuracy measurement of the
+  operator family is of a different AD tool than what ships — PAS 2019
+  benchmarked an operator-overloading implementation built on dco/c++, while
+  the shipped v5 records its global tape with CoDiPack
+  (`initializeGlobalADTape4dRdWT`). No published measurement of the shipped
+  tape, serial or parallel, exists (`DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md`,
+  commit bf6ac53b: the v4/v5 rewrite has no archival method paper at all).
+
+**Community record, added 2026-08-05** (novelty sweep
+`LIAISON_NOVELTY_SWEEP_decomposition_defect.md`, commit 3c74dc03 — 63 recorded
+searches across 10 venues, no prior report of a converged-wrong
+decomposition-dependent gradient anywhere):
+
+- The strongest near-miss is discussion mdolab/dafoam#946 (2026-02, with its
+  2022 antecedent #379): a maintainer states, of the periodic-hill case, *"The
+  PH case' derivatives are not accurate when running in parallel. You have to
+  run it in serial."* — the only place in the community record where a DAFoam
+  parallel derivative is said to be *wrong* rather than *slow*. It is scoped
+  to periodic/coupled patches, names no mechanism, and #379 explicitly exempts
+  ordinary cases ("other cases can run in parallel without an issue"). The
+  case measured here has **no coupled patches**: plain processor boundaries —
+  the configuration upstream lore says is safe.
+- Where upstream does acknowledge decomposition affecting the adjoint
+  (#885, #952; kahip support added 2025-12), it is strictly the *convergence
+  rate* of the linear solve. Nobody reports, or checks, the converged gradient
+  value against decomposition — while this report's KSP converges (reason 2,
+  true-residual 1.7e-07) to a wrong solution, which is what the
+  cross-residual measurement discriminates.
+- The one time serial-vs-parallel gradient equality was checked upstream
+  (#101/#102, 2021, v1-era), it passed; the reported discrepancy was an
+  output-ordering artifact.
+- Exposure: the defect's triggering configuration is the shipped default —
+  `pyDAFoam.py` lines 590–591 (main @ `e77f0c0c`, fetched 2026-08-04):
+  `self.decomposeParDict = {"method": "scotch", ...}` — and the docs give no
+  decomposition guidance and make no parallel-consistency claim.
+
+## The papers' own acceptance check, run on this case per decomposition (added 2026-08-05)
+
+C&F 2018's historical acceptance check for this very geometry family is Table 4:
+dCD/du0, the far-field velocity derivative, adjoint vs central FD with step-size
+studies (READ IN FULL; `DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md`, commit
+bf6ac53b). That check was run here, unmodified in substance, per decomposition,
+via the lab's established `check_totals` protocol (central, abs steps) on the
+same 2,777-cell A4 case. Staging required two disclosed edits, identical in both
+arms: the runScript gains a v5 `patchVelocity` input on the farfield patch
+([UMag, aoa], index 0 = u0 as the DV), and the farfield U BC is swapped
+`freestreamVelocity` → `inletOutlet` (equivalent switching BC) because
+`DAInputPatchVelocity::run` FatalErrors on any other patch type (read
+in-container 2026-08-05). Prediction pre-registered before any run
+(`/home/ubuntu/certonomous-runs/W4-a4-du0check/PREDICTION.md`): scotch dCD/du0
+was predicted to FAIL its own FD at order 1–10%. Runs, logs and ledger:
+`/home/ubuntu/certonomous-runs/W4-a4-du0check/` (12.20 core-min, --cpus=2).
+Every row below is the adjoint total beside the same run's own central FD:
+
+| run | decomposition | row | FD step (abs) | analytic | FD (same run) | rel. error |
+|---|---|---|---|---|---|---|
+| du0_np1 | np=1 | dCD/du0 | 1e-3 | 7.8376e-03 | 7.0414e-03 | 11.3% (step-study row: signal ΔCD ≈ 7.8e-6 sits at the primal's CD-repeatability floor at `primalMinResTol` 1e-4) |
+| du0_np1 | np=1 | dCD/dshape | 1e-3 | 2.4033e-01 | 2.4055e-01 | 0.090% |
+| du0_np1b | np=1 | dCD/du0 | 0.4 (1% of U0) | 7.8376e-03 | 7.5690e-03 | 3.55% |
+| du0_np4scotch | np=4 `scotch` | dCD/du0 | 0.4 (1% of U0) | 7.8496e-03 | 7.5711e-03 | 3.68% |
+| du0_np4scotch | np=4 `scotch` | dCD/dshape | 1e-3 | 2.4062e-01 | 2.4066e-01 | **0.019%** |
+
+Baseline CD is decomposition-invariant here too (0.15228805 np=1 vs 0.15228863
+scotch, 4e-6 relative). Two findings:
+
+1. **dCD/du0 is decomposition-invariant on this case.** The analytic value moves
+   0.15% between np=1 and np=4-scotch, the FD column 0.03%, and both
+   decompositions sit at the same distance from their own FD (3.55% vs 3.68% —
+   a decomposition-independent protocol floor of this loose-tolerance case, per
+   the step-study row, not a partition effect; the paper's own <0.1% was
+   obtained with tighter convergence and partials-step studies to 1e-8). The
+   pre-registered prediction is **REFUTED**, and the pre-named alternative
+   obtained: **the papers' Table-4-class check measures a derivative class the
+   defect spares** — a maintainer re-running the historical acceptance check on
+   the defect's own geometry and decomposition sees nothing.
+2. **Unpredicted, and larger than the arm's question: in this staged
+   configuration the shape-row defect does not fire under scotch.** Same mesh,
+   same default scotch [4] partition, same step, same patched toolchain as the
+   verified table above — and dCD/dshape reads 0.019% against its own FD where
+   the established configuration reads **8.95%**. The scotch *analytic* moved
+   2.2086e-01 → 2.4062e-01 (the FD barely moved, 2.4258e-01 → 2.4066e-01):
+   under one of the two staging edits, the scotch adjoint became consistent.
+   The two edits are confounded in this arm (farfield BC type; presence of a
+   `patchVelocity` input in the recorded tape) and separating them is one
+   ~3–5 core-min control (np=4-scotch, `inletOutlet` farfield, **no** patchV
+   input) that this item's hard budget did not cover — named for the docket,
+   not run. Either way the defect is now measured to be
+   **configuration-sensitive at fixed mesh and partition**, and both candidate
+   levers alter exactly what the global tape records at a boundary-condition
+   update — consistent with the interface-coupling localization above and with
+   §2.9's named-delicate region. For "why unnoticed" this is the strongest form
+   yet: **on the defect's own case, at the defect's own decomposition, the
+   papers' protocol configuration — far-field-velocity DV present,
+   inletOutlet-family far field, exactly the C&F 2018 setup class — measures
+   nothing worse than a benign FD floor.** The historical check misses the
+   defect twice over: it never varies the decomposition, and the configuration
+   it instantiates is one the defect spares.
+
+Nothing here re-grades the established 8.95% scotch failure, which stands
+supervisor-verified on its own configuration
+(`VERIFICATION_A4_mechanism_supervisor_sweep.md`, commit 8e0a08bc); this section
+adds the papers'-protocol row beside it and bounds where the defect shows.
 
 ## Usability finding, separate but adjacent
 
@@ -161,5 +337,99 @@ v5 Krylov path.
 | Independent verification of the phenomenon | **Done** — adversarial supervisor sweep with an independent re-run reproducing a table cell to every printed digit (`VERIFICATION_A4_decomposition_supervisor_sweep.md`). |
 
 Evidence record behind this report:
-`DISCRIMINATORS_A4_decomposition_mechanism.md` (this session),
-`PROOF.md` §25.5, `VERIFICATION_A4_decomposition_supervisor_sweep.md`.
+`DISCRIMINATORS_A4_decomposition_mechanism.md`,
+`PROOF.md` §25.5, `VERIFICATION_A4_decomposition_supervisor_sweep.md`,
+`VERIFICATION_A4_mechanism_supervisor_sweep.md`,
+`DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md` (commit bf6ac53b),
+`LIAISON_NOVELTY_SWEEP_decomposition_defect.md` (commit 3c74dc03), and the
+papers'-protocol arm `/home/ubuntu/certonomous-runs/W4-a4-du0check/`
+(`PREDICTION.md`, `ledger.txt`, logs; 2026-08-05).
+
+## Addendum 2026-08-05: the defect reproduces on a second, independently meshed case (breadth campaign, docket `w4-does-the-decomposition-defect-reach-other-cases`)
+
+**Status unchanged: NOT FILED ANYWHERE.** Evidence:
+`DEFECT_REACH_decomposition_cases.md`, run artifacts
+`/home/ubuntu/certonomous-runs/W4-defect-reach/`.
+
+- **Second reproducer.** An Ahmed 35-degree-slant body meshed by the same
+  blockMesh+snappyHexMesh recipe (2,777 cells, refinement interfaces present,
+  mesh points distinct from the first case): the converged np=4 `scotch` adjoint
+  psi, mapped to serial ordering by the same integer-addressing protocol
+  (duplicated-phi map validation 2.7e-15), leaves a true residual of **5.45x
+  ||b|| under the np=1 operator** (np=1 control floor 3.98e-04), unchanged to six
+  digits with the serial operator linearized at the scotch arm's own mapped
+  state. Same localization signature: 13 of the top 15 entries on partition-
+  interface cells, all `cellLevel` 0, the three dominant entries (82% of the
+  norm) each touching exactly one foreign rank through exactly one processor
+  face. One structural observation across the two cases (n=2, offered as a hint,
+  not a claim): the large rows are a momentum component **tangential** to the
+  offending processor face — x-momentum on y-normal faces (case 1), z-momentum
+  on x-normal faces (case 2).
+- **Severity at gradient level is case-dependent, which is why the defect
+  hides.** On case 2 the same wrong-operator defect moves the analytic gradient
+  only 1.4% (scotch) / 3.1% (simple 4x1x1) — the operator-residual magnitude
+  (5.45 vs 0.33 of ||b||) does not even rank-order the gradient damage, because
+  the damage is the contraction of the operator error with the objective's
+  adjoint direction. A gradient that passes `check_totals` under one
+  decomposition therefore certifies nothing about the parallel operator; on the
+  first case that same contraction costs 8.95%.
+- **Breadth of the clean side.** A conformal-blockMesh case (CBFS, 21,000 cells)
+  with a 21,000-component volume-field DV is decomposition-invariant: gradient
+  norms agree to 1.1e-04 across `scotch` vs `simple` at np=4, per-component
+  1.5e-05-1.6e-04 at FD-verified cells, with the FD column measured under BOTH
+  decompositions (0.085% / 0.055%). A 63,920-cell snappyHexMesh case
+  (NACA0015 sail, np=3) was also checked under a second decomposition; see
+  `DEFECT_REACH_decomposition_cases.md` for its row. On the first case, planar
+  slabs of all three orientations at np=4 stay at 0.00054-0.52% and a 2x2x1
+  corner decomposition reads 1.40%, against `scotch`'s 8.95% — and refinement-
+  interface cut counts anticorrelate with the error (the 68-cut planar arm is
+  the cleanest; the 4-cut scotch arms are the worst), on measurement at every
+  new arm.
+
+## Addendum 2026-08-05 — the defect reproduces on a second case, and its gradient-level cost is contraction-dependent (still NOT FILED)
+
+Per the breadth matrix `DEFECT_REACH_decomposition_cases.md` (docket
+`w4-does-the-decomposition-defect-reach-other-cases` /
+`w4-decomposition-invariance-is-a-gate`, pre-registered predictions committed
+before the runs):
+
+- **Second reproducer, operator level.** On a second snappyHexMesh-refined
+  geometry (Ahmed 35-degree slant, 2,777 cells, meshed by the same recipe), the
+  same cross-residual instrument convicts the scotch-np=4 parallel operator
+  again: the converged scotch psi mapped to serial ordering leaves
+  **||A^T psi + b|| = 5.45x ||b||** under the np=1 operator (np=1 control floor
+  3.98e-04), unchanged to six digits when the serial operator is linearized at
+  the scotch arm's own mapped state. Localization reproduces the signature on
+  different rows: **z-momentum rows of partition-interface cells** (13 of top 15
+  on the interface, all cellLevel 0; the three dominant cells each touch one
+  foreign rank through one x-normal processor face). On the original case it was
+  x-momentum rows on y-normal faces: the affected momentum component tracks the
+  cut, consistent with the reverse-AD halo-exchange candidate surface.
+- **The gradient-level cost of the same operator defect spans 0.00054% to 8.95%
+  and is NOT monotone in the operator residual.** On the new case, scotch's
+  operator residual (5.45x ||b||) is 16x larger than simple-4x1x1's (0.33x), yet
+  its total-gradient shift vs np=1 is 2.3x smaller (1.36% vs 3.14%). What the
+  wrong operator costs the gradient depends on how its error contracts with the
+  objective's adjoint direction — so **a passing dot-product or FD check at one
+  decomposition certifies that contraction only, not the operator**. This
+  strengthens the "why existing verification did not catch this" section.
+- **Negative-control breadth.** A third conformal case (CBFS, 21,000 cells,
+  21,000-component volume-field DV — a different DV type) is
+  decomposition-invariant at **1.1e-04** in gradient norm (scotch vs simple at
+  np=4), with an FD anchor at BOTH decompositions (0.085% / 0.055% at the same
+  serial cell). Conformal meshes: A1, A2, A5, CBFS all clean.
+- **Cut-geometry facts sharpened on the original case:** planar slabs of all
+  three orientations are benign-to-moderate (x 0.00054%, y 0.47%, z 0.52%); two
+  orthogonal planar cuts with a 4-rank corner line read 1.40%; scotch's jagged
+  cuts read 6.05% (np=3) and 8.95% (np=4) while scotch at np=2 is clean (0.26%).
+  Partition cuts through refinement interfaces remain anticorrelated with the
+  defect (the cleanest arms cut 48-68 refinement-interface faces, the dirtiest
+  cut 0-4).
+- **One caveat for a maintainer reproducing on separated cases:** on the
+  35-degree Ahmed the FD protocol itself does not resolve (step sweep h=1e-3 ->
+  1e-2 monotone from 1.78e-01 to 2.47e-01, no plateau, primal CD tail drift
+  ~6e-4 relative), so on such cases the discriminating instruments are the
+  cross-residual and decomposition-invariance, not check_totals.
+
+Evidence: `/home/ubuntu/certonomous-runs/W4-defect-reach/` (per-arm dirs, logs,
+`ledger.txt`, drivers, dumps), `DEFECT_REACH_decomposition_cases.md`.

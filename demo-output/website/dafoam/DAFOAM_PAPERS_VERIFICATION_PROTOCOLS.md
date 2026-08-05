@@ -145,6 +145,18 @@ their own earlier work flagged as accuracy-critical.*
 
 ## 5. Corrections our own record now owes (named, not silently fixed)
 
+**Applied 2026-08-05** under docket item
+`w4-upstream-report-why-unnoticed-from-the-papers-own-protocols` (Katie's
+blanket approval 2026-08-05): all three corrections below are now in their
+files as dated annotations citing this note and commit bf6ac53b — the upstream
+report's header and why-unnoticed section rewritten (plus the novelty sweep's
+community evidence folded in), the three-discriminators proposal's
+SEARCH-EXCERPT citation annotated in both the proposal file and its docket
+mirror, and the liaison memo's Target 2 given a dated correction block. A
+matching dated correction was also added to
+`LIAISON_NOVELTY_SWEEP_decomposition_defect.md` §3, which post-dates this note
+but carried the same conflated sentence.
+
 - `demo-output/website/dafoam/UPSTREAM_BUG_REPORT_decomposition_adjoint.md`
   header: "the toolchain's journal paper reports average adjoint derivative
   error under 0.1% at up to 1536 cores — this report, if filed, contradicts

@@ -206,6 +206,14 @@ not weaker:
    published statement is the AIAA-J paper's <0.1% average adjoint derivative error
    at up to 1536 cores (arc.aiaa.org/doi/10.2514/1.J058853, abstract level), which
    the lab's measurement contradicts on a measured case.
+   *(Correction 2026-08-05, per `DAFOAM_PAPERS_VERIFICATION_PROTOCOLS.md`, commit
+   bf6ac53b — paper since READ IN FULL: that abstract sentence is two disjoint
+   experiments, a runtime-only Table 2 at 1536 cores and a 102,912-cell Table 3
+   accuracy study at an unstated core count, both of the v1 explicit-FD-Jacobian
+   architecture. No published accuracy claim covers the measured matrix-free
+   operator in parallel; the lab's report fills a declared hole rather than
+   contradicting a published measurement. The exposure point — scotch as the
+   unwarned shipped default — stands.)*
 
 ### Target R — the rotation-guard defect beyond idwarp#57
 
