@@ -235,6 +235,12 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   spares). Upstream report reframed fills-a-declared-hole. New trigger clue (staging edits suppressed the shape defect;
   separating control ~3–5 core-min) handed to the reach agent.
 
+- CHARTERS ITERATED (1ea0a493..80a53c37, 67 tests green): P-1.1 gain table + source_kind refusal ENFORCED;
+  P-3.1 hard_criterion field REQUIRED for new proposals (221 old entries grandfathered); P-6.2 gross/cleaned labels
+  live on the reporting path; P-7.1 free-spend thresholds DECISION-READY (answer "P-7.1: A" to enact: 60/proposal,
+  240/agent-day, 480/fleet-day, approved caps override). LaTeX closure report SHIPPED: 24pp compiled PDF, 0249c6e9.
+  Follow-up dispatched: pre-existing certificate truthfulness bug (pending study claims quantified: True).
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
