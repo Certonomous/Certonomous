@@ -227,5 +227,9 @@ it, and says so in its own docstring.
 - Case dictionaries: `campaign/F6b_runs/write_case_dicts.py`
 - Gate analysis: `campaign/F6b_runs/gate.py`
 - Cases with meshes, `checkMesh` reports and written fields: `campaign/F6b_runs/{coarse,medium,fine,veryfine}/`
-- Solver logs: `solve_registry/f6b2_{coarse,medium,fine,veryfine}_20260805T171046Z.log`
+- Solver logs: `solve_registry/f6b2_{coarse,medium,fine,veryfine}_20260805T171046Z.log`, on disk and
+  **not committed** — `solve_registry` is gitignored and always has been, which is why the
+  2026-07-29 record's own log citation is also a disk path. The committed extract of what those
+  logs are cited for is `campaign/F6b_runs/residual_history.txt`: per rung, the convergence-sentence
+  count, the solver's own `ExecutionTime`, and the Ux and p initial residuals every 500 iterations.
 - Prior record this supersedes nothing of, and extends: `dafoam/f6b_periodic_hills/F6b_periodic_hills.md` (2026-07-29, shipped mesh)
