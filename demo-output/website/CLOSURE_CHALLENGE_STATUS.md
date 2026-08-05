@@ -402,6 +402,20 @@ Best-on-board count **5 of 8, unchanged** (AR_14 now nominally, per the
 warning above). We are no longer last on any duct; last on the board only on
 `NASA_2DWMH` (0.0632 vs best 0.0364).
 
+**Seed-stability qualifier (added 2026-08-05, audit finding G1 — the
+pre-registered consequence of a material finding)**: the PH model behind 3
+of the 8 predictions was trained at a single seed, and at 327,600 training
+cells its histogram bins are seed-dependent (sklearn 1.9.0 subsamples
+200,000 rows for binning). Retraining at 8 seeds, test-blind: the
+validation-proxied overall-equivalent seed spread is **~0.0003**, and a
+truth-free prediction-spread bound at the test points cannot rule out
+per-case movement up to ~0.0099 (overall-equivalent **0.0024**) without a
+scoring call — i.e. the one-seed uncertainty on 0.0654 is an estimated
+tenth of, and cannot be *bounded* tighter than about, the 0.0030 gap to
+rank 2. The gap language above therefore carries this qualifier. Full
+record: `closure_challenge_stability_physicality_audit.md`,
+`closure_challenge_seed_sensitivity.json`.
+
 **Scoring-call ledger**: this was **1** new official scoring call — the
 **5th** cumulative distinct prediction set scored (after the floor, rounds
 1, 2 and 3; see §5's superseded note). The ledger is a self-imposed
@@ -540,6 +554,56 @@ overall **0.0741**, delta vs round 1 **−0.0128**):
   +0.0011 worse) — reported honestly, not reverted, because reverting after
   seeing the per-case result would itself be a second, test-truth-informed
   scoring decision, which the leakage rule forbids.
+
+## 4b. Provenance of the shipped baseline solves (added 2026-08-05, audit finding G3)
+
+Every number in this file is measured relative to the benchmark's shipped
+k-ω SST solves, and until this section the provenance chain (hashes, pinned
+commits, scoring ledger) never once cited the evidence that those solves
+converged. The evidence exists on disk in the benchmark clone (`deb91557`)
+and was sampled directly for this section; it matters **twice over for the
+two declined `alpha_05` cases, whose submitted field IS the shipped solve** —
+their baseline's convergence record is the entire convergence story of those
+two predictions.
+
+- **Periodic hills (all 29 `Parm_PH_29` cases, incl. the 4 official test
+  cases)**: `<case>/postProcessing/residuals/0/residuals.dat`, 20,000
+  iterations each. Final residuals for the 4 test cases (iteration 20000,
+  read 2026-08-04):
+  `alpha_15_13929_4048` Ux 2.6e-10, Uy 8.4e-10, p 1.0e-6, k 8.3e-10, ω 7.4e-10;
+  `alpha_15_13929_2024` Ux 1.1e-10, Uy 9.7e-10, p 2.3e-7, k 9.7e-10, ω 7.4e-10;
+  `alpha_05_4071_4048` Ux 1.0e-9, Uy 6.2e-9, p 2.9e-6, k 1.2e-9, ω 8.1e-10;
+  `alpha_05_4071_2024` Ux 3.5e-10, Uy 1.7e-9, p 8.5e-7, k 9.3e-10, ω 4.5e-10.
+  A sweep of all 29 cases' final lines (2026-08-05) shows the same pattern
+  on **28 of 29**: iteration 20000, U/k/ω finals ~1e-9 to 1e-10 throughout,
+  worst p final 2.9e-6 (which is `alpha_05_4071_4048` itself). **The one
+  exception is honestly recorded**: `alpha_075` (a training case) ships a
+  `residuals.dat` truncated at iteration 76 (O(0.2–0.8) residuals at the
+  truncation point) alongside a solved `20000/` directory and no solver
+  log — its convergence is plausible but *not evidenced* by the shipped
+  residual file. It is 1 of 21 training cases and serves no prediction
+  directly.
+- **Ducts (3 test cases)**: `data/DUCT/<case>/log.run` terminates with
+  `SIMPLE solution converged in 405 / 1540 / 7009 iterations`
+  (`AR_1_Ret_360` / `AR_3_Ret_360` / `AR_14_Ret_180`) under an explicit
+  `residualControl` (k 5e-6, ω 1e-10; `system/fvSolution`). Last-iteration
+  Ux initial residuals: 1.8e-6, 5.3e-6, 7.8e-6. **The O(0.4)–O(0.7)
+  last-iteration Uy/Uz initial residuals are a normalization artifact, not
+  divergence**: the duct RANS transverse velocity is machine zero
+  (max |Uy| = 2.1e-15, max |Uz| = 2.7e-15 m/s on `AR_1_Ret_360` against
+  Ux up to 108 m/s, verified 2026-08-04 from the solved `405/U` field —
+  the linear Boussinesq closure produces exactly zero secondary flow, §6
+  Term 2), and OpenFOAM's per-field residual normalization is meaningless
+  on a ~1e-15 field. Recorded here, per the methods audit, so nobody later
+  mistakes those lines for a divergent solve. The 4 duct training cases and
+  the `AR_7_Ret_180` validation case carry the same
+  `SIMPLE solution converged` line in their own `log.run`.
+- **NASA_2DWMH**: `data/NASA_2DWMH/log.run`, final iteration (Time = 2000)
+  initial residuals Ux 1.7e-8, Uz 3.3e-8, p 3.0e-8, ω 2.4e-10, k 4.4e-8.
+
+Source of the finding: `CLOSURE_METHODS_COMPARISON.md` (commit `ac2f37ee`),
+Part 1 column (b) and finding G3. Companion stability/physicality evidence:
+`closure_challenge_stability_physicality_audit.md`.
 
 ## 5. Validation and leakage guards actually in place
 
