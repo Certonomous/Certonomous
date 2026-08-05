@@ -208,6 +208,12 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   P-7.1 threshold recommendation drafted for Katie). Resumed: defect reach, CBFS inversion, closure gaps G1-G4,
   papers-protocol arm.
 
+- GAPS G1–G4 CLOSED (fee5eaf9..30fd6d7a), both audits MATERIAL under pre-registered lines: seed-stability bound at
+  test points 0.00242 ≈ the whole rank-2 gap (stable where truth exists; qualifiers in record + closure.html);
+  post-hoc correction injects continuity error (hills 58x/124x, 35/36 corrected fields over the ratio-2 line —
+  disclosed in submission draft §5.3; measured motivation for the in-PDE Stage 1 line). Round-4 MANIFEST + per-case
+  convergence provenance landed. Zero scoring calls.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
