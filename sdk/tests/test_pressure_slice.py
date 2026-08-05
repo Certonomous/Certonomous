@@ -398,21 +398,22 @@ class ReportPayloadTests(unittest.TestCase):
         self.assertIn(entry, report_doc["plots"])
         self.assertEqual(report_doc["plots"][-1]["title"], SLICE_TITLE)
 
-    def test_act_wiring_announces_and_records_the_slice(self):
+    def test_act_no_longer_draws_the_slice_and_keeps_the_restore_path(self):
+        # The mid-span slice was cut from the act on purpose (commit
+        # 74ae8976): the flat cut competed with the painted body directly
+        # above it for the same attention and read as the weaker picture. The
+        # act must state that the omission is deliberate, must not carry the
+        # old wiring, and must keep the one-call restore path:
+        # `extract_pressure_slice` stays in the field-render module and the
+        # volume output is still written.
         source = (SDK / "workflows" / "geometry_study.py").read_text(
             encoding="utf-8")
+        self.assertIn("deliberately not drawn", source)
         self.assertIn("extract_pressure_slice", source)
-        self.assertIn('announce_plot(emit, "geometry-study", slice_png, '
-                      'entry["title"])', source)
-        self.assertIn("report_plots.append(entry)", source)
-        # The exact-silhouette cut gets the body's own surface file and the
-        # case build's scale.
-        self.assertIn("surface_path=local_surface", source)
-        self.assertIn('surface_scale=float(report.get("geometry_scale", 1.0))',
-                      source)
-        # Warm replays render from the held case; an absent volume output
-        # (older caches) must skip silently, so the act never narrates a
-        # missing plot: no slice-specific apology string exists.
+        self.assertNotIn("slice_png", source)
+        # Warm replays render from the held case; an absent plot must skip
+        # silently, so the act never narrates a missing one: no
+        # slice-specific apology string exists.
         self.assertNotIn("no pressure slice", source.lower())
 
     def test_unfamiliar_and_familiar_paths_carry_the_body_axes(self):

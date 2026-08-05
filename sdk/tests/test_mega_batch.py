@@ -15,32 +15,53 @@ from chief_engineer import lab_stats
 
 
 class DesignStreamTests(unittest.TestCase):
-    def test_three_way_interleave(self):
-        solvers = [mega_batch.design_for_index(i)["solver"] for i in range(9)]
-        self.assertEqual(solvers, [
-            mega_batch.CYLINDER, mega_batch.WING, mega_batch.VALVE,
-            mega_batch.CYLINDER, mega_batch.WING, mega_batch.VALVE,
-            mega_batch.CYLINDER, mega_batch.WING, mega_batch.VALVE,
-        ])
+    def test_twelve_way_interleave(self):
+        # The stream started as a 3-way interleave; 6cc7f629 widened it to
+        # 6-way (unsteady vortex-shedding + transonic families) and 5cede837
+        # to the current 12-way (F10, the Ahmed 3D viscous family). One
+        # period is: kinds 0-2 cylinder, 3-4 wing, 5 valve, 6-8 unsteady
+        # cylinder, 9-10 transonic airfoil, 11 Ahmed.
+        period = (
+            [mega_batch.CYLINDER] * 3
+            + [mega_batch.WING] * 2
+            + [mega_batch.VALVE]
+            + [mega_batch.CYLINDER_UNSTEADY] * 3
+            + [mega_batch.TRANSONIC_AIRFOIL] * 2
+            + [mega_batch.AHMED_VISCOUS_3D]
+        )
+        solvers = [mega_batch.design_for_index(i)["solver"] for i in range(24)]
+        self.assertEqual(solvers, period * 2)
 
     def test_deterministic(self):
         self.assertEqual(mega_batch.design_for_index(42),
                          mega_batch.design_for_index(42))
 
     def test_ranges_sane(self):
+        # One representative index per family of the 12-way interleave.
         cyl = mega_batch.design_for_index(0)["design"]
         self.assertTrue(0.5 <= cyl["cylinder_diameter"] <= 2.0)
         self.assertTrue(0.01 <= cyl["kinematic_viscosity"] <= 0.2)
-        wing = mega_batch.design_for_index(1)["design"]
+        wing = mega_batch.design_for_index(3)["design"]
         self.assertTrue(20.0 <= wing["span"] <= 70.0)
-        valve = mega_batch.design_for_index(2)["design"]
+        valve = mega_batch.design_for_index(5)["design"]
         self.assertTrue(35.0 <= valve["opening_angle_deg"] <= 85.0)
+        unsteady = mega_batch.design_for_index(6)["design"]
+        self.assertTrue(100.0 <= unsteady["reynolds"] <= 1000.0)
+        transonic = mega_batch.design_for_index(9)["design"]
+        self.assertTrue(0.70 <= transonic["mach"] <= 0.85)
+        self.assertTrue(0.0 <= transonic["alpha_deg"] <= 3.0)
+        self.assertTrue(3.0e6 <= transonic["reynolds"] <= 7.0e6)
+        ahmed = mega_batch.design_for_index(11)["design"]
+        self.assertIn(ahmed["slant_deg"], (25.0, 35.0))
+        self.assertTrue(1.5e6 <= ahmed["reynolds"] <= 4.0e6)
 
 
 class ValveTaskTests(unittest.TestCase):
     def test_valve_run_task_is_labelled_reduced_order(self):
+        # Index 5 is the valve slot of the 12-way interleave (it was index 2
+        # of the original 3-way stream, before 6cc7f629/5cede837 widened it).
         with tempfile.TemporaryDirectory() as d:
-            record = mega_batch.run_task(2, Path(d))
+            record = mega_batch.run_task(5, Path(d))
         self.assertTrue(record["ok"])
         self.assertEqual(record["solver"], mega_batch.VALVE)
         self.assertEqual(record["label"], "reduced-order-eval")
