@@ -423,24 +423,35 @@ def _build_spend(repo: Path, date: str,
     if wasted_on:
         of_which += " on " + ", ".join(wasted_on)
 
+    # P-6.2, carried out 2026-08-05: every core-minute figure printed below
+    # carries its basis inline, gross or cleaned, per COMPUTE_BUDGET_CHARTER
+    # section 2, which defines the two terms once. A figure without a basis
+    # label is a bug in this builder, and the emitter tests check for one.
     lines = [
         f"SPEND, {night_lo} to {night_hi}",
-        f"Last night:     {_minutes(gross)} core-minutes across "
-        f"{len(night)} runs recorded in the ledger",
-        f"Of which:       {of_which}",
+        f"Last night:     {_minutes(gross)} core-minutes (basis: gross) "
+        f"across {len(night)} runs recorded in the ledger",
+        f"Of which:       {of_which} (basis: gross)",
+        f"Cleaned:        {_minutes(gross - stall_seconds)} core-minutes "
+        f"(basis: cleaned; {len(stall_rows)} stall row(s) removed by the "
+        f"{STALL_SECONDS:.0f} second rule)",
         f"Left running:   {left}",
         f"Week to date:   {_minutes(week_seconds)} core-minutes "
-        f"(from {week_lo}, the Monday of this ISO week)",
+        f"(basis: gross; from {week_lo}, the Monday of this ISO week)",
         "Dollar spend:   not readable from this instance, see waiting list",
         "",
-        "The figures are gross, summed from ledger rows with a timestamp in "
-        f"the stated windows; last night is {night_lo} 00:00 UTC to "
-        f"{night_hi} 00:00 UTC. The cleaning rule (a row over 3600 wall "
-        "seconds is host stall, scripts/self_audit.py) matched "
-        f"{len(stall_rows)} row(s) in the night window"
-        + (f" carrying {_minutes(stall_seconds)} core-minutes; the cleaned "
-           f"figure is {_minutes(gross - stall_seconds)} core-minutes."
-           if stall_rows else ", so gross and cleaned are the same figure."),
+        "Basis, per the compute budget charter section 2: gross sums every "
+        "ledger row with a timestamp in the stated window; cleaned is gross "
+        "minus the rows the stall rule matches (a row over 3600 wall "
+        "seconds is host stall, scripts/self_audit.py). Last night is "
+        f"{night_lo} 00:00 UTC to {night_hi} 00:00 UTC. The stall rule "
+        f"matched {len(stall_rows)} row(s) in the night window"
+        + (f" carrying {_minutes(stall_seconds)} core-minutes."
+           if stall_rows else ", so gross and cleaned are the same figure "
+                              "there.")
+        + " The week figure is gross; its cleaned counterpart is not "
+          "printed because the audit reports the week's stall contamination "
+          "itself.",
         "The ledger records wall seconds per row and no rank count, so rows "
         "are counted at one rank and these core-minutes are wall-minutes, a "
         "lower bound. Runs not recorded in the ledger are not counted here; "

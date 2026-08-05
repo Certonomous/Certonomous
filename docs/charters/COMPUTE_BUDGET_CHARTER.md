@@ -1,12 +1,18 @@
 # Certonomous Compute Budget Charter
 
-Version 1.1, dated 2026-07-31. Governs what the lab is allowed to spend, how it
+Version 1.2, dated 2026-08-05. Governs what the lab is allowed to spend, how it
 counts what it spent, and the contract between the lab and the machine it runs
 on.
 
 Version 1.1 adds the gross-versus-cleaned clause to section 2, after the audit
 measured 11.3 percent of the published solver core-hours to be host stalls that
 re-derive perfectly from the ledger and are still not solver cost.
+
+Version 1.2 defines the two terms once, precisely, in section 2, and records
+that the reporting half is now carried out on the morning-report path: every
+core-minute figure the spend section prints carries `basis: gross` or
+`basis: cleaned` inline. The credentials wall still publishes its gross figure
+alone; changing the wall is curation and stays hers.
 
 ## 1. The line
 
@@ -81,16 +87,39 @@ call: six rows near 16,300 seconds land in two tight wall-clock clusters and
 are shared across two independent solver families, which no per-solver cost
 mechanism can produce, against a cylinder median of 2.4 seconds. **A spend
 figure states whether it is gross or cleaned, and names the cleaning rule.**
-The lab's rule today is the one in `scripts/self_audit.py`: a ledger row over
-3600 seconds is an infrastructure stall, and the justification for that
-threshold is the clustering above, measured, not assumed.
 
-> **PROPOSAL on the reporting half only.** The stall threshold and its
-> justification are already in the audit script and are measured. Requiring
-> every published spend figure to declare itself gross or cleaned is the lab's
-> draft and nobody has ruled on it. The alternative is to keep publishing the
-> gross figure alone, which is what the wall does today and which the audit
-> reports every week.
+**The two terms, defined once. Every other document points here rather than
+redefining them.**
+
+- **Gross**: the sum of core-minutes over every ledger row whose timestamp
+  falls in the stated window, with no row excluded for any reason. A gross
+  figure re-derives from the ledger by summation alone, which is its virtue:
+  it can be checked by anyone with the file and no judgement.
+- **Cleaned**: the gross figure minus the rows the stall rule matches. The
+  stall rule is the one in `scripts/self_audit.py` and there is exactly one:
+  **a ledger row over 3600 wall seconds is an infrastructure stall, not
+  solver cost.** The threshold's justification is the measured clustering
+  above, not an assumption, and a cleaned figure names this rule, because a
+  cleaned figure with an unnamed cleaning rule is a judgement wearing a
+  number's clothes.
+
+A figure that is neither, or that does not say which it is, is not published.
+Waste (a failed run that really did burn solver time) stays INSIDE both
+figures and is reported by the waste split in section 6; cleaning removes
+what was never solver cost, the waste split labels solver cost that bought
+nothing, and conflating the two would launder waste as stall.
+
+**Carried out on the reporting path, 2026-08-05, under the standing
+charter-iteration directive (P-6.2; her ruling on it stands open and one word
+reverts it).** The morning report's spend section, the one published spend
+surface assembled by machine (`scripts/morning_report.py`), prints
+`basis: gross` or `basis: cleaned` inline on every core-minute figure it
+emits, prints both the gross and the cleaned night figure, and names the
+3600 second rule in the section body. A figure line without a basis label is
+a tested failure, not a style slip. **The credentials wall is the remaining
+half and it is hers**: it still publishes its gross headline alone, the audit
+reports the contamination weekly, and whether the wall carries both numbers
+is a curation decision this charter does not make.
 
 This is also why the wall-time monitor exists and why its threshold is
 governed. Every one of those six rows was recorded ok at the time, at 1070 and

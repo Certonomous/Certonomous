@@ -85,6 +85,29 @@ class TheEmitterKeepsItsOwnRules(unittest.TestCase):
         self.assertNotIn("–", report)
         self.assertNotIn("—", report)
 
+    def test_every_spend_figure_declares_its_basis(self):
+        """P-6.2, carried out 2026-08-05: every core-minute figure in the
+        spend section carries an inline basis, gross or cleaned, per the
+        compute budget charter section 2. The dollar line is not a
+        core-minute figure and the waiting list explains it."""
+        report = build()
+        spend = report[report.index("## 1. SPEND"):
+                       report.index("## 2. LADDER POSITIONS")]
+        figure_labels = ("Last night:", "Of which:", "Cleaned:",
+                         "Week to date:")
+        seen = []
+        for line in spend.splitlines():
+            if line.startswith(figure_labels):
+                seen.append(line.split(":", 1)[0])
+                self.assertIn("(basis: ", line, line)
+                self.assertRegex(line, r"\(basis: (gross|cleaned)[;)]", line)
+        self.assertEqual(sorted(seen),
+                         sorted(label.rstrip(":") for label in figure_labels),
+                         "a spend figure line went missing; the basis rule "
+                         "covers all four")
+        # And the section defines where the terms are defined.
+        self.assertIn("compute budget charter section 2", spend)
+
     def test_a_live_process_scan_lands_on_the_left_running_line(self):
         report = build(scan=lambda: ["mpirun -np 4 simpleFoam -parallel"])
         left = next(line for line in report.splitlines()
