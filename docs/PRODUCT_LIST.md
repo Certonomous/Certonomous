@@ -346,6 +346,12 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   unrelated paper. Topology check routed into the QCR validation gate. Hump-class battery gap documented (needs a
   validated wall-gradient operator), queued.
 
+- CITATIONS PAID (b0aa6102/f3d231b3): all eight owed citations landed at honest tiers across six documents; the
+  identify-vs-control split applied in the two named places plus one the review missed (§7.4); Hanna read IN FULL —
+  its own §4.3 names the conservation gap our G2 audit measured (lineage explains the cost, never excuses it);
+  the two paywalled-relay defects fixed with relay chains named and DOIs Crossref-checked, both papers on Katie's
+  MIT access list. PDF recompiled: 27pp, 0 errors. Tier-audit hits 7 → 5 (remainder benign/handled).
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
