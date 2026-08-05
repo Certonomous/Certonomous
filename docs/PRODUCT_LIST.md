@@ -245,6 +245,15 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   both compiled clean, every number sourced, hedges preserved. They are the durable companions to the two unfiled
   upstream reports and the submission draft.
 
+- REACH MATRIX COMPLETE (0b022b36, 159.9/180 core-min, zero lost to kills): trigger refined to freestreamVelocity-BC-
+  in-tape (necessary; patchV inert per N9) x cut geometry (scotch np>=3 worst, slabs benign); second defect case Ahmed-35
+  (cross-residual 5.45x, same localization); CBFS + sail + 3 more clean — 7-case perfect BC correlate; damage priced by
+  objective contraction (L-36: a gradient check certifies a contraction, not an operator). Misses scored honestly
+  (N2, N3/4/5, N7-magnitude NOT HELD). Supervisor sweep DISPATCHED before the case file closes. Both docket items done.
+- SUITE GREEN: 1104/0 after hygiene agent (44be9dd5, 289611fb); one real fix — wall percentage now recomputed from the
+  displayed coefficient (16%→17% at next rebuild, same measurement). Certificate truthfulness fix 4925fafb; R7 correction
+  filed in SUPERVISOR_RULINGS (3640debd).
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
