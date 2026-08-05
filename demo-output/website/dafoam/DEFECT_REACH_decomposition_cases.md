@@ -222,7 +222,9 @@ True residual ||A^T psi + b|| under the **np=1 operator**, ||b|| = 1.787288e-01
   localization and control clauses **HELD**.
 - **Localization, same signature, different components:** 13 of the top 15 |r|
   entries sit on scotch partition-interface cells, ALL at `cellLevel` 0, and the
-  three dominant entries (|r| = 0.794, 0.397, 0.397 — 82% of the norm) each touch
+  three dominant entries (|r| = 0.794, 0.397, 0.397 — the top entry alone 82% of
+  the norm, the three together 99.9%; phrasing corrected 2026-08-05 per the
+  reach-matrix sweep, commit 192c970c) each touch
   exactly ONE foreign rank through exactly ONE processor face. On A4 the error
   lived in x-momentum rows on y-normal processor faces; here it lives in
   **z-momentum (U2) rows on x-normal processor faces** — in both cases the affected
@@ -298,6 +300,17 @@ margin. **N8 HELD.** The adjoint converged in 63 GMRES iterations (record: 60-62
 and the sail's tight primal (1e-8 residual, vs A4's 1e-4) is why the analytic can
 be print-identical across decompositions.
 
+**Corrected 2026-08-05** (per the reach-matrix supervisor sweep,
+`demo-output/website/dafoam/VERIFICATION_reach_matrix_supervisor_sweep.md`,
+commit 192c970c): the table above mixed FD-error conventions. The new arm's
+0.0047% is a magnitude difference, |analytic mag - FD mag| / FD; the "0.0246%
+record" cited beside it is OpenMDAO's vector relative error
+||J_an - J_fd|| / ||J_fd||. By the record's own vector convention the new arm's
+log prints 2.461237e-04 = **0.0246%** — essentially identical to the record's
+2.459048e-04. The same-convention comparison is therefore **0.0246% vs
+0.0246%**; both conventions sit 1-2 orders under the registered 0.5% threshold,
+so no score changes.
+
 Two things this row buys the campaign: (1) the published sail PASS is not
 decomposition-lucky — the gate item's last unchecked graded gradient is now
 checked; (2) combined with N9, it un-confounds the mesh-family axis: **a
@@ -313,7 +326,15 @@ run never showed because its coloring was cached on disk and a NEW decomposition
 can never reuse a coloring cache. Future decomposition checks on >50k-cell cases
 should price coloring explicitly.
 
-## N9 — which of the two confounded edits gates the defect off? (registered 2026-08-05 ~15:40Z, BEFORE the arm ran)
+## N9 — which of the two confounded edits gates the defect off? (registered 2026-08-05 15:23:54Z, BEFORE the arm ran; timestamp corrected 2026-08-05)
+
+**Corrected 2026-08-05** (per the reach-matrix supervisor sweep,
+`demo-output/website/dafoam/VERIFICATION_reach_matrix_supervisor_sweep.md`,
+commit 192c970c): this header originally read "registered ~15:40Z". The commit
+witness is aa51ca08 at **15:23:54Z**, and the arm started ~15:24:14Z (ledger
+end 15:26:31Z minus 137 s wall) — the registration is still pre-run, with 20 s
+of margin. The original estimate erred against the record's own interest: the
+true registration time is EARLIER than the one recorded.
 
 Supervisor-directed fold-in from the papers-protocol session
 (`W4-a4-du0check/RESULTS.md`, commit c3061eaa): in the papers-protocol
@@ -440,7 +461,9 @@ after measurement.
    21,000-component field DV, a different DV type), and the sail (N8) — which is NOT
    conformal but snappy-refined at 63,920 cells — is also invariant, with the
    CD/shape analytic identical to every printed digit across scotch vs simple at
-   np=3 and FD columns at both decompositions (0.0246% record / 0.0047% new).
+   np=3 and FD columns at both decompositions (0.0246% record / 0.0246% new in
+   the record's vector convention — see the N8 convention correction of
+   2026-08-05; 0.0047% by magnitude difference).
    With N9, that isolates the defect's necessary ingredient as the
    `freestreamVelocity` BC rather than the snappy mesh family.
 6. **The gating ingredient is the `freestreamVelocity` farfield BC (N9,
@@ -522,7 +545,8 @@ by a conformal-versus-refined pair on the same geometry or reported as untested.
   0.085% record / 0.055% this session).
 - Sail: invariant (analytic print-identical across
   decompositions; own analytic and FD columns at BOTH decompositions: 0.0246%
-  scotch record, 0.0047% simple 3x1x1 this session).
+  scotch record, 0.0246% simple 3x1x1 this session in the same vector
+  convention — see the N8 convention correction of 2026-08-05).
 - Hanging-node hypothesis: the same-geometry conformal-vs-refined pair was NOT run
   — reported as untested in that form, and the hypothesis is refuted on stronger,
   direct evidence (localization at `cellLevel` 0 on both defective cases;

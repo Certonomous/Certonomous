@@ -345,22 +345,60 @@ Evidence record behind this report:
 papers'-protocol arm `/home/ubuntu/certonomous-runs/W4-a4-du0check/`
 (`PREDICTION.md`, `ledger.txt`, logs; 2026-08-05).
 
-## Addendum 2026-08-05: the defect reproduces on a second, independently meshed case (breadth campaign, docket `w4-does-the-decomposition-defect-reach-other-cases`)
+## Addendum 2026-08-05: the defect reproduces on a second case — a deliberately controlled sibling of the first (breadth campaign, docket `w4-does-the-decomposition-defect-reach-other-cases`)
 
 **Status unchanged: NOT FILED ANYWHERE.** Evidence:
 `DEFECT_REACH_decomposition_cases.md`, run artifacts
 `/home/ubuntu/certonomous-runs/W4-defect-reach/`.
 
-- **Second reproducer.** An Ahmed 35-degree-slant body meshed by the same
-  blockMesh+snappyHexMesh recipe (2,777 cells, refinement interfaces present,
-  mesh points distinct from the first case): the converged np=4 `scotch` adjoint
+**Corrected 2026-08-05** (per the reach-matrix supervisor sweep,
+`demo-output/website/dafoam/VERIFICATION_reach_matrix_supervisor_sweep.md`,
+commit 192c970c — the trigger claim CONFIRMED on all six audit axes, with one
+evidential caveat this correction carries into the record). An earlier revision
+of this addendum titled Ahmed-35 a "second, independently meshed case" and
+called the 7-case BC survey a "perfect correlate" without stating its
+confounds. Three amendments:
+
+1. **Sibling, not stranger.** Ahmed-35 is A4's own recipe with only the STL
+   swapped, and the kinship at the operator level is closer than "independently
+   meshed" suggested: same 2,777-cell background mesh family, same 25,821-state
+   serial system, and — measured by the sweep from the addressing files — the
+   **same 328-face scotch cut hitting the same dominant serial cells**
+   (338/407/275). That control is exactly what makes the "defect follows the
+   cut" fingerprint meaningful, but as cross-case breadth the defect side of
+   the 7-case survey is **one case family (n=1), not two independent
+   geometries**. The reproduction evidence is real; the breadth evidence is
+   narrower than the earlier wording implied.
+2. **The second confound, stated plainly.** Across the survey's external-flow
+   cases, `freestreamVelocity` is **perfectly anti-correlated with
+   `patchVelocity` registration**: all three clean external-flow cases (A1, A2,
+   sail) register a `patchVelocity` input, and neither defect case does — the
+   pairing DAFoam's `DAInputPatchVelocity` FatalError branch forces. On the
+   survey alone, "patchV registration suppresses the defect" fits the seven
+   cases exactly as well as "the BC gates it." **Arm N9 breaks both
+   confounds**: the within-case swap (inletOutlet farfield + no patchVelocity
+   input, analytic print-identical to the patchV-registered arm on the same
+   mesh and the same scotch partition) separates the BC from the registration
+   with every other property held fixed. The causal weight of the trigger
+   claim sits there; the cross-case survey is corroboration, not proof.
+3. **"82% of the norm" misstated its own evidence.** The top cross-residual
+   entry alone is 82% of ||r||; the top three together are 99.9%. Fixed in the
+   bullet below.
+
+- **Second reproducer** (a controlled sibling — see the 2026-08-05 correction
+  above). An Ahmed 35-degree-slant body meshed by the same
+  blockMesh+snappyHexMesh recipe (2,777 cells — the same background mesh family
+  as the first case; refinement interfaces present, mesh points distinct): the
+  converged np=4 `scotch` adjoint
   psi, mapped to serial ordering by the same integer-addressing protocol
   (duplicated-phi map validation 2.7e-15), leaves a true residual of **5.45x
   ||b|| under the np=1 operator** (np=1 control floor 3.98e-04), unchanged to six
   digits with the serial operator linearized at the scotch arm's own mapped
   state. Same localization signature: 13 of the top 15 entries on partition-
-  interface cells, all `cellLevel` 0, the three dominant entries (82% of the
-  norm) each touching exactly one foreign rank through exactly one processor
+  interface cells, all `cellLevel` 0, the dominant entry alone carrying 82% of
+  the norm (the three dominant entries together: 99.9%; phrasing corrected
+  2026-08-05 per the reach-matrix sweep, commit 192c970c), each of the three
+  touching exactly one foreign rank through exactly one processor
   face. One structural observation across the two cases (n=2, offered as a hint,
   not a claim): the large rows are a momentum component **tangential** to the
   offending processor face — x-momentum on y-normal faces (case 1), z-momentum
@@ -401,11 +439,17 @@ at printed precision to the patchV-registered arm's 2.4062e-01. So:
 - the **`freestreamVelocity` BC in the recorded `updateStateBoundaryConditions`
   is necessary for the defect**: swap it for `inletOutlet` and the same scotch
   cut produces a clean gradient;
-- across all seven cases measured in this lab, the correlate is perfect: the
-  two cases with the operator defect (both Ahmed variants) carry
+- across all seven cases measured in this lab, the correlate is factually
+  perfect — the two cases with the operator defect (both Ahmed variants) carry
   `freestreamVelocity`; the five decomposition-clean cases (A1, A2, A5, CBFS,
-  sail) carry `inletOutlet`/`fixedValue` U BCs — verified from each case's
-  0.orig/U;
+  sail) carry `inletOutlet`/`fixedValue` U BCs, verified from each case's
+  0.orig/U. **Qualified 2026-08-05** (reach-matrix supervisor sweep,
+  `demo-output/website/dafoam/VERIFICATION_reach_matrix_supervisor_sweep.md`,
+  commit 192c970c): the survey is confounded twice — the defect side is one
+  case family, and the BC is perfectly anti-correlated with patchVelocity
+  registration across the external-flow cases — so it corroborates but cannot
+  alone carry the causal claim; the within-case N9 swap in this section is
+  what carries it;
 - the deposit site is unchanged (interior partition-interface momentum rows —
   on the 35-degree case the three dominant cross-residual cells are NOT
   farfield-adjacent), so the BC is an ingredient of the recorded computation

@@ -545,6 +545,32 @@ prediction and with the conformal-mesh pattern. \emph{The remaining arms are mar
 progress here deliberately; this document will not pre-empt a pre-registered scoring with
 numbers read out of raw logs.}
 
+\paragraph{Addendum, 2026-08-05: the reach matrix, scored and audited.} The campaign has
+since been scored against its registered wording and adversarially audited
+(\artifact{DEFECT\_REACH\_decomposition\_cases.md}, results appended; supervisor sweep
+\artifact{demo-output/website/dafoam/VERIFICATION\_reach\_matrix\_supervisor\_sweep.md},
+\commit{192c970c} --- five audit axes CONFIRMED, one CONFIRMED with a named evidential
+caveat). The trigger claim it confirms reads: a \texttt{freestreamVelocity} farfield U BC in
+the recorded tape is \emph{necessary} for the defect, and the cut geometry modulates it
+(\texttt{scotch} np\(\ge\)3 worst, planar slabs benign). The wrong-operator defect reproduces
+on Ahmed-35 --- cross-residual \(5.45\times\lVert b\rVert\) under the serial operator against
+a \(3.98\times10^{-4}\) np=1 floor, recomputed by the sweep to every printed digit under a
+byte-identically rebuilt map validated at max \(\lvert\Delta xyz\rvert = 0.0\) --- and a
+within-case separating control (N9: \texttt{inletOutlet} farfield, \emph{no}
+\texttt{patchVelocity} input, same mesh, same np=4 \texttt{scotch} cut, registered pre-run at
+15:23:54Z with 20~s of margin) lands the analytic in the clean class, print-identical to the
+\texttt{patchVelocity}-registered arm. Two confounds travel with the confirmation and bound
+the breadth claim: (i) Ahmed-35 is a deliberately controlled \emph{sibling} of A4, not an
+independent geometry --- same 2{,}777-cell background mesh family, same 25{,}821-state serial
+system, same 328-face \texttt{scotch} cut hitting the same dominant serial cells --- so the
+defect side of the seven-case BC survey is one case family, not two independent draws;
+(ii) across the survey's external-flow cases \texttt{freestreamVelocity} is perfectly
+anti-correlated with \texttt{patchVelocity} registration, so the cross-case survey alone
+cannot separate the BC from the registration. The N9 within-case swap breaks both confounds,
+and the causal weight of the trigger claim sits there; the survey is corroboration, not
+proof. This addendum supersedes the in-progress markers for the reach matrix elsewhere in
+this document (the artifact index and the open-items list).
+
 Two record facts the matrix already leans on need no new run. First, the np=2-clean /
 np=3-dirty contrast (0.26\% vs 6.05\%) rules out rank count as the trigger by itself.
 Second, the ``cut through the refinement region'' discriminator is already on record
