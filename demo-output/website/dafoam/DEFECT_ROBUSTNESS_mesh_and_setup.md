@@ -187,4 +187,42 @@ Planned spine ~70-95; hard cap 150; every run ledgered wall x cpus-cap in
 *(Results and verdicts follow after the runs; nothing below this line existed
 at pre-registration commit time.)*
 
+## AMENDMENT — R3a1 / R3a2, registered 2026-08-05 BEFORE their arms ran (commit history is the witness)
+
+R3a came back **NOT HELD in the loud direction**: with `div(phi,U)` `bounded
+Gauss upwind` and `gradSchemes default cellLimited Gauss linear 1`, on the same
+A4 mesh and the same np=4 scotch partition where the established configuration
+reads 8.95%, the analytic reads 3.0977e-01 against its own FD 3.0906e-01 —
+**0.228%, the clean class** (and the adjoint KSP converges in 68 iterations
+against the record's 590). The registered decision rule ("error <= 1% means the
+defect is scheme-specific — REOPENS the mechanism question, reported loudly")
+has fired. R3a turned TWO knobs in one arm, so it cannot say which; these two
+arms separate them, exactly as N9 separated the BC from the patchV
+registration.
+
+- **R3a1** (`a4knob_divupwind`): `div(phi,U)` `bounded Gauss linearUpwind
+  limited` -> `bounded Gauss upwind`, **gradSchemes untouched**. Everything
+  else byte-identical to the established arm.
+- **R3a2** (`a4knob_gradlim`): `gradSchemes default Gauss linear` ->
+  `cellLimited Gauss linear 1`, **divSchemes untouched**.
+
+**Registered prediction: R3a1 is CLEAN (rel. err <= 1%) and R3a2 is DIRTY
+(rel. err >= 4%) — i.e. the convection scheme is the carrier, not the default
+gradient scheme.** Reasoning: `linearUpwind limited` evaluates a limited cell
+gradient of U and applies it as a face correction, so the residual's recorded
+tape contains a gradient whose forward evaluation needs a halo exchange of
+neighbour values AND whose reverse needs the transpose of that exchange —
+precisely the inter-processor coupling the cross-residual localizes on. Plain
+`upwind` needs no gradient in the convection term at all, so that coupling
+leaves the tape. The `default` gradScheme, by contrast, feeds grad(p) and the
+viscous/turbulence terms, which are present in both configurations either way.
+Named alternatives, both decisive: if R3a2 is ALSO clean, the trigger is the
+gradient-limiter family generally (any limited gradient in the tape), not the
+convection scheme; if R3a1 is DIRTY, the convection scheme is innocent and
+R3a2's gradient default carries it. Either way the trigger condition acquires a
+third named ingredient and the upstream report must be rewritten around it.
+
+Cost: ~6 core-min each; both inside the 150 cap with the R2/R3b/R4 spine
+planned above.
+
 ---
