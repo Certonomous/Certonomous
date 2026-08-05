@@ -1,6 +1,6 @@
 # Open proposals across the charters
 
-Version 2.1, dated 2026-07-31. Every point in the eight charters where the lab
+Version 2.2, dated 2026-08-05. Every point in the eight charters where the lab
 is **proposing** rather than **recording**, collected so the owner can react to
 the whole set without reading the whole set.
 
@@ -15,6 +15,17 @@ than a paragraph: named options, the cost of each, and the lab's
 recommendation where it has one. Three new decisions arrived from a single
 day's findings. And the conflict at the top is unchanged and still unresolved,
 because only she can resolve it.
+
+**What changed in 2.2.** Three items moved from proposal to harness under the
+standing charter-iteration directive, and the distinction each entry now
+carries is the honest one: **carried out is not ruled on.** P-1.1's refusal
+half, P-3.1 and P-6.2's reporting half are landed, tested code with a
+grandfather line at 2026-08-05, every one reversible by a word from her, and
+each entry records what was built, where the landed choice differs from the
+drafted one, and what remains hers. P-7.1 is NOT one of them: nobody but her
+can set a spend number, so it is sharpened into a decision-ready
+recommendation in the escalation charter, section 4.1, marked PROPOSED and
+not enacted.
 
 **What changed in 2.1.** The charters were reviewed against a week of findings
 and six proposals were filed to the docket under her standing authorization, so
@@ -280,7 +291,40 @@ point of the finding is that "almost certainly sound" is what was said about S7.
 
 ### Charter 1, goals and research proposals
 
-**P-1.1. Extend the gain table, and refuse an unrecognised `source_kind`.**
+**P-1.1. Extend the gain table, and refuse an unrecognised `source_kind`.
+CARRIED OUT, in two dated steps, and her veto stands.**
+
+**Carried out 2026-08-05 under the standing charter-iteration directive; this
+is a record of what was built, not a ruling.** Both halves of recommendation A
+now exist, and the entry stays here because the values in force are the lab's
+numbers until she blesses or replaces them:
+
+- **The table half landed 2026-07-30** (commit `f2689232`), before this file's
+  2.1 revision, which failed to notice it: the entry above the fold still
+  described the defect as live while the tree already carried the fix. The
+  landed values differ from the drafted trio on stated grounds: `challenge`
+  4.0 rather than 3.0 and `reading` 2.0 rather than 1.5, because the standing
+  priority order puts the challenge and the uncertainty layer first and the
+  drafted values would have let ladder work outrank challenge work on every
+  tie, the exact inversion the fix removed. `measurement` is 3.0 as drafted.
+  `inbox` at 2.0 entered the table 2026-08-05: it was always the documented
+  default for a file naming no kind and was never a table row, so it scored
+  2.0 by falling through, which is the failure shape this whole item is about.
+- **The refusal half landed 2026-08-05**: `source_kind_violations` in
+  `sdk/chief_engineer/agenda.py`, inside `proposal_violations`, refuses an
+  unrecognised kind at intake for any proposal created from 2026-08-05. Docket
+  rows from before the date are grandfathered: they load, rank on the default,
+  and are recorded in `unscored_kinds()` rather than silently. Tests in
+  `sdk/tests/test_agenda.py` (`SchemaRails`) pin all of it, including that the
+  real docket, two of whose rows carry no kind at all, still ranks.
+
+**What remains hers**: the values themselves. "P-1.1: keep" or any replacement
+number is a one-line change to `_GAIN_POINTS`, and the charter's section 2
+table now shows exactly what is in force so there is one place to disagree
+with.
+
+The item as it was put:
+
 Section 2, axis A. The ranking function's `_GAIN_POINTS` covers `gate`,
 `capability`, `ledger` and `report`. The docket in use also carries
 `measurement`, `reading` and `challenge`, and all three silently take the
@@ -367,11 +411,40 @@ check in that file is tuned on.
 
 ### Charter 3, case selection
 
-**P-3.1. A required `hard_criterion` field on the proposal schema.** Section 9.
-Refused at intake when absent or outside the closed list of six HARD criteria.
-This moves the hardness floor out of discipline and into the harness, which is
-the move D12 already made for orphaned collectors after writing the rule down
-demonstrably failed to reduce the rate.
+**P-3.1. A required `hard_criterion` field on the proposal schema. CARRIED
+OUT, option A, with one rendering decision recorded for her.**
+
+**Carried out 2026-08-05 under the standing charter-iteration directive.**
+`hard_criterion_violations` in `sdk/chief_engineer/agenda.py` refuses, at
+intake and inside the same `proposal_violations` path as every other refusal,
+any proposal created from 2026-08-05 whose `hard_criterion` is absent or
+outside the closed list. Every drafter now writes the field. Charter 3 is at
+version 1.2 with the full record in its section 9; tests in
+`sdk/tests/test_agenda.py` pin the refusal, the closed list and the
+grandfather line.
+
+**The one judgement in it, stated so she can strike it**: the closed list is
+the six criteria by number plus five word values, `existing-family`,
+`regression-test`, `instrument-check`, `no-case` and `below-floor`. Each word
+traces to charter 3's own text (section 3's two allowed purposes, section 4's
+new-family scope, section 1's written-approval escape), but extending the
+value list beyond her six numbers is the lab's rendering, added because a
+field restricted to the numbers would have refused regression tests and
+readings the charter permits. Striking any of the five is one line.
+
+**Migration, measured rather than assumed**: the 221 docket entries of
+2026-08-04 are grandfathered on their own `created_at` and not rewritten. The
+three proposals filed 2026-08-04 (commit `2eb00350`) state their criterion in
+prose only ("HARD criterion 1 ... an existing family") and carry no
+machine-readable field, which is precisely the form the field replaces; three
+entries from 2026-07-25 already carry `hard_criterion: 3` and pass unchanged.
+
+The item as it was put:
+
+Section 9. Refused at intake when absent or outside the closed list of six
+HARD criteria. This moves the hardness floor out of discipline and into the
+harness, which is the move D12 already made for orphaned collectors after
+writing the rule down demonstrably failed to reduce the rate.
 
 - **A. Required and refusing.**
 - **B. Required and reported**, so the gap is visible without blocking.
@@ -461,14 +534,37 @@ gate-deciding and unresumable work on demand, filming always on demand.
 *Lab recommends A*, because it is the only option under which the number is
 measured rather than transcribed.
 
-**P-6.2. Gross or cleaned, on every published spend figure.** Section 2, new.
-The published `solver_core_hours` counter re-derives exactly from the ledger,
-which is the check that matters and it passes, and it still carries 26.98
-core-hours of host stall inside a 239.259 core-hour headline, 11.3 percent of
-it. The evidence that these are stalls and not solver cost is measured: six
-rows near 16,300 seconds land in two tight wall-clock clusters and are shared
-across two independent solver families, against a cylinder median of 2.4
-seconds.
+**P-6.2. Gross or cleaned, on every published spend figure. CARRIED OUT on
+the reporting path; the wall half stays hers.**
+
+**Carried out 2026-08-05 under the standing charter-iteration directive, on
+the surface the lab assembles by machine.** The morning report's spend
+builder (`scripts/morning_report.py`) now prints `basis: gross` or
+`basis: cleaned` inline on every core-minute figure, prints both the gross
+and the cleaned night figure, and names the 3600 second stall rule in the
+section body; a figure line without a basis label fails a test
+(`sdk/tests/test_morning_report_emitter.py`). The compute budget charter is
+at version 1.2 and its section 2 now defines the two terms exactly once:
+gross is the whole window summed with no row excluded, cleaned is gross minus
+the rows the one named stall rule matches, and cleaning is distinct from the
+waste split, which stays inside both figures.
+
+**What remains hers, and why this entry is not closed**: the credentials wall
+still publishes its gross `solver_core_hours` headline alone. The wall is a
+curation surface, so whether it carries both numbers is her call, answerable
+as before: A puts both numbers on the wall, C leaves the wall gross with the
+audit reporting the contamination weekly. The emitter half of A is done
+either way.
+
+The item as it was put:
+
+Section 2, new. The published `solver_core_hours` counter re-derives exactly
+from the ledger, which is the check that matters and it passes, and it still
+carries 26.98 core-hours of host stall inside a 239.259 core-hour headline,
+11.3 percent of it. The evidence that these are stalls and not solver cost is
+measured: six rows near 16,300 seconds land in two tight wall-clock clusters
+and are shared across two independent solver families, against a cylinder
+median of 2.4 seconds.
 
 - **A. Every published spend figure declares itself gross or cleaned and names
   the cleaning rule.** The wall would carry both numbers.
@@ -482,7 +578,25 @@ compute number is 11 percent host stall and only the audit says so.
 
 ### Charter 7, escalation
 
-**P-7.1. The free-spend thresholds.** Section 4. Nobody has set a number. The
+**P-7.1. The free-spend thresholds. DECISION-READY, awaiting her number, not
+enacted.** Section 4. Nobody has set a number, and nobody but her can. What
+changed 2026-08-05: the recommendation is now written out as escalation
+charter section 4.1, recalibrated against the multi-agent record the original
+draft predates. The new calibration points, each on the record: the
+2026-08-04 working day, the first measured day of supervised fleet operation,
+dispatched about ten arms whose closed items measure roughly 245 core-minutes
+(185.0 + 57.1 + 2.9 and two zero-cost closures) with zero budget incidents
+and every overrun ledgered; and the largest single cap she has waved through
+under standing authorization is the Stage 1 inversion's hard 600. The
+recommended numbers: free to 60 per proposal, 240 per agent per day, 480 per
+fleet per day aggregated, docket above any of the three; an item-specific cap
+she approves, like the 600, overrides by exactly its own amount. Both riding
+rules ride unchanged and still matter more than the numbers. "P-7.1: A"
+adopts section 4.1 as written.
+
+The item as it was put:
+
+Section 4. Nobody has set a number. The
 proposed bands are calibrated against decisions already on the record rather
 than invented: free up to 60 core-minutes per proposal, notify from 60 to 240,
 docket above 240, and docket above 480 aggregated across one night. The
