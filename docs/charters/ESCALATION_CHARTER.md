@@ -1,6 +1,6 @@
 # Certonomous Escalation Charter
 
-Version 1.1, dated 2026-07-31. Governs what the lab decides alone and what goes
+Version 1.2, dated 2026-08-05. Governs what the lab decides alone and what goes
 to the owner. It binds unattended work, which is where the question actually
 arises.
 
@@ -8,6 +8,12 @@ Version 1.1 adds section 8, on instructions, after three acts honoured a stated
 instruction without acknowledging it and a fourth found the artifact and the
 stated intent disagreeing. Section 3 gains the shared working tree. Nothing in
 1.0 was weakened.
+
+Version 1.2 makes section 4 decision-ready: the free-spend thresholds are now a
+single recommendation with numbers calibrated against the multi-agent record
+the 1.0 draft predates, answerable as "P-7.1: A". **Nothing in section 4 is
+enacted. It awaits her number**, and until she gives one the standing defaults
+and the docket are the whole of the rule, exactly as before.
 
 ## 1. The line
 
@@ -162,6 +168,65 @@ Two rules that ride with the table.
 **The threshold is not the only gate.** A cheap job that is irreversible or
 public still escalates. Compute is one axis of three and it is the least
 important of them.
+
+### 4.1 The recommendation, made decision-ready 2026-08-05
+
+> **PROPOSED, awaiting her number. Not enacted.** This subsection exists so
+> the answer can be one word. "P-7.1: A" adopts the table below with both
+> riding rules; "P-7.1: B" keeps the structure and replaces any number she
+> names. Until she answers, nothing here binds anything.
+
+**What the record measured since the 1.0 draft, which was written before the
+lab ran as a fleet.** The calibration points, each one a decision or a
+measurement already on the record rather than an invention:
+
+- The standing defaults remain 60 core-minutes for an unmeasured capability
+  and 20 for a rung (compute budget charter, section 3).
+- The 480 core-minute TMR closure run is still held for her explicit go
+  rather than launched (`BLOCKERS.md` B-3), which is the strongest existing
+  precedent for where "ask first" begins.
+- The 2026-08-04 working day is the first measured day of supervised
+  multi-agent operation: about ten dispatches across two waves
+  (`docs/PRODUCT_LIST.md`, the 2026-08-04 and 2026-08-05 entries), whose
+  closed items measure roughly 245 core-minutes (185.0 on the
+  adjoint-conditioning rebuild, 57.1 on the three discriminators including
+  an honestly-ledgered overrun, 2.9 on the supervisor sweep, two closures at
+  zero), with **zero budget incidents**: every overrun was ledgered and
+  reported, nothing was finished quietly past its estimate.
+- The largest single cap dispatched under her standing authorization is the
+  Stage 1 CBFS inversion at a hard 600 core-minutes with checkpoint-and-stop
+  (`demo-output/website/agenda/proposals/s1-cbfs-field-inversion-run.json`),
+  so 600 is the measured ceiling of what she has been willing to wave
+  through in one item when the gate and the cap are pre-registered.
+
+**The proposed numbers.** Three ceilings, because the fleet made "per
+proposal" insufficient on its own:
+
+| Ceiling | Core-minutes | Derivation from the record |
+| --- | --- | --- |
+| Free, per proposal | 60 | The standing capability default; a dispatch at or under it has never needed a conversation. |
+| Free, per agent per day | 240 | Four free-band items; also the boundary below which every routine measured item of 2026-08-04 fell (185.0 was the day's largest single closure). |
+| Fleet, per day, aggregated | 480 | The B-3 precedent read as a fleet number: the spend that was held for an explicit go once is the spend a whole day must not cross silently. The measured fleet day ran at roughly half of it. |
+
+Above any ceiling: the docket, before launch. Between 60 and 240 on a single
+proposal: run it and name it in that day's report, not the weekly roll-up,
+which keeps the existing notify band. A pre-registered cap she has approved in
+an item, like the 600, overrides these by exactly its own amount and nothing
+more: approval of an item is approval of its cap, not a new ceiling.
+
+**Both riding rules above are part of the recommendation and matter more than
+the numbers**: an estimate that turns out wrong crosses the threshold too (a
+job estimated at 50 that reaches 240 is stopped and escalated, not finished
+quietly, otherwise the threshold prices optimism), and the aggregate band is
+per day per fleet, never per agent, because several agents each under their
+own limit is how a day's spend escapes attention. The 2026-08-04 record shows
+the discipline the first rule asks for is livable: the 57.1 measured against
+45 filed was ledgered and reported as an overrun, item by item, rather than
+absorbed into a total.
+
+**What this does not change.** A cheap job that is irreversible or public
+still escalates; the compute audit still gates launch on capacity; and the
+free bands say nothing about the shared-tree rules in section 3.
 
 ## 5. The waiting list
 
