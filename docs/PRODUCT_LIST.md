@@ -221,6 +221,20 @@ Priority order: 1. DAFoam investigation · 2. Closure benchmark challenge · 3. 
   misses twice (never varies decomposition; instantiates a configuration the defect spares). Confound-separating control
   (~3–5 core-min) routed to the reach agent's matrix. Upstream report amended, still NOT FILED.
 
+- CHARTERS ITERATED (1ea0a493..80a53c37, 67 tests green): P-1.1 gain table reconciled + unknown-source_kind refusal live;
+  P-3.1 hard_criterion field enforced for new proposals (grandfathered old); P-6.2 gross/cleaned basis labels on every
+  emitted spend figure; P-7.1 free-spend thresholds DRAFTED decision-ready (60/proposal, 240/agent/day, 480/fleet/day,
+  docket above — answerable as "P-7.1: A"). Charter-agent incident disclosed: forbidden git stash, reversed, zero loss —
+  lesson queued behind the in-flight LESSONS.md edit.
+- DEFECT FOUND by charter sweep: pending study's certificate reports quantified=True (test_certificate.py fails at HEAD,
+  pre-existing) — honesty-machinery bug, fix agent dispatched.
+- LATEX: closure-challenge campaign report SHIPPED — 24 pp compiled PDF, every number artifact-traced
+  (`demo-output/website/latex/closure_challenge_report.{tex,pdf}`, 0249c6e9). DAFoam defect report in progress.
+- PAPERS-PROTOCOL ARM (c3061eaa): prediction refuted in the strong direction — dCD/du0 decomposition-invariant, so the
+  2018 paper's own check misses the defect twice (never varies decomposition; checks the derivative class the defect
+  spares). Upstream report reframed fills-a-declared-hole. New trigger clue (staging edits suppressed the shape defect;
+  separating control ~3–5 core-min) handed to the reach agent.
+
 ### Decision requests for Katie (standing)
 1. File the prepared upstream `mdolab/idwarp#57` comment / bug report? (`UPSTREAM_BUG_REPORT_mesh_warpDeriv.md` ready.)
 2. Closure-challenge submission: author names, reference URL, approval to email the steward (incl. the two ambiguity questions).
